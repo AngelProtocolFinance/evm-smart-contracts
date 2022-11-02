@@ -1,0 +1,5 @@
+## Local dev env
+node_modules
+cache
+artifacts
+.env
