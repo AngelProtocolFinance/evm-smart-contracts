@@ -19,9 +19,24 @@ if (!mainnetRPC) {
   throw new Error("Please set your MAINNET_URL in a .env file");
 }
 
-const testnetRPC: string | undefined = process.env.TESTNET_URL
-if (!testnetRPC) {
+const goerliRPC: string | undefined = process.env.GOERLI_URL
+if (!goerliRPC) {
   throw new Error("Please set the alchemy GoArby RPC url the .env file")
+}
+
+const polygonRPC: string | undefined = process.env.POLYGON_URL;
+if (!polygonRPC) {
+  throw new Error("Please set your MAINNET_URL in a .env file");
+}
+
+const mumbaiRPC: string | undefined = process.env.MUMBAI_URL
+if (!mumbaiRPC) {
+  throw new Error("Please set the alchemy GoArby RPC url the .env file")
+}
+
+const etherscanAPIKey: string | undefined = process.env.ETHERSCAN_API_KEY
+if (!etherscanAPIKey) {
+  throw new Error("Please add the Etherscan API key to your .env file")
 }
 
 const polyscanAPIKey: string | undefined = process.env.POLYSCAN_API_KEY
@@ -34,6 +49,9 @@ export var envConfig = {
   'deployer': deployer,
   'user': user, 
   'mainnetRPC': mainnetRPC,
-  'testnetRPC': testnetRPC,
-  'etherscanAPIKey': polyscanAPIKey
+  'goerliRPC': goerliRPC,
+  'polygonRPC': polygonRPC,
+  'mumbaiRPC': mumbaiRPC,
+  'etherscanAPIKey': etherscanAPIKey,
+  'polyscanAPIKey': polyscanAPIKey
 }

@@ -1,9 +1,14 @@
 import { ethers } from "hardhat";
 import * as crypto from "crypto"
+import { pad } from "./logger"
 
-var id = crypto.randomBytes(32).toString('hex');
-var privateKey = "0x"+id;
-console.log("SAVE BUT DO NOT SHARE THIS:", privateKey);
-
-var wallet = new ethers.Wallet(privateKey);
-console.log("Address: " + wallet.address)
+export function genWallet(printToConsole: Boolean = false) {
+    var id = crypto.randomBytes(32).toString('hex')
+    var privateKey = "0x"+id
+    var wallet = new ethers.Wallet(privateKey)
+    if(printToConsole) {
+        pad(10, "PKEY:", privateKey)
+        pad(10, "Address: " + wallet.address)
+    }
+    return wallet
+}
