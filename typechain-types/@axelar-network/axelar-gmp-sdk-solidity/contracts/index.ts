@@ -3,6 +3,3 @@
 /* eslint-disable */
 import type * as interfaces from "./interfaces";
 export type { interfaces };
-export type { Lock } from "./Lock";
-export type { Registrar } from "./Registrar";
-export type { RegistrarV2 } from "./RegistrarV2";

@@ -13,15 +13,114 @@ import * as Contracts from ".";
 declare module "hardhat/types/runtime" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
     getContractFactory(
+      name: "IAxelarExecutable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IAxelarExecutable__factory>;
+    getContractFactory(
+      name: "IAxelarGateway",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IAxelarGateway__factory>;
+    getContractFactory(
+      name: "OwnableUpgradeable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.OwnableUpgradeable__factory>;
+    getContractFactory(
+      name: "Initializable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Initializable__factory>;
+    getContractFactory(
+      name: "ContextUpgradeable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ContextUpgradeable__factory>;
+    getContractFactory(
+      name: "IRegistrar",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IRegistrar__factory>;
+    getContractFactory(
+      name: "IRouter",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IRouter__factory>;
+    getContractFactory(
+      name: "IVault",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IVault__factory>;
+    getContractFactory(
+      name: "IVaultLiquid",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IVaultLiquid__factory>;
+    getContractFactory(
       name: "Lock",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Lock__factory>;
+    getContractFactory(
+      name: "Registrar",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Registrar__factory>;
+    getContractFactory(
+      name: "RegistrarV2",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.RegistrarV2__factory>;
 
+    getContractAt(
+      name: "IAxelarExecutable",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IAxelarExecutable>;
+    getContractAt(
+      name: "IAxelarGateway",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IAxelarGateway>;
+    getContractAt(
+      name: "OwnableUpgradeable",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.OwnableUpgradeable>;
+    getContractAt(
+      name: "Initializable",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Initializable>;
+    getContractAt(
+      name: "ContextUpgradeable",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ContextUpgradeable>;
+    getContractAt(
+      name: "IRegistrar",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IRegistrar>;
+    getContractAt(
+      name: "IRouter",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IRouter>;
+    getContractAt(
+      name: "IVault",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IVault>;
+    getContractAt(
+      name: "IVaultLiquid",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IVaultLiquid>;
     getContractAt(
       name: "Lock",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Lock>;
+    getContractAt(
+      name: "Registrar",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Registrar>;
+    getContractAt(
+      name: "RegistrarV2",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.RegistrarV2>;
 
     // default types
     getContractFactory(

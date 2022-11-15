@@ -5,7 +5,6 @@ import "./IVault.sol";
 
 interface IVaultLiquid is IVault {
 
-
     /// @notice allows an account to stake specified Liquid value into its sister Locked Vault 
     /// @dev An Account can choose to allocate some of its liquid balance into the locked vault.
     /// The value is specifiable and unrestricted up to the maximum value of the liquid account.

@@ -11,6 +11,11 @@ interface IVault {
         LIQUID
     }
 
+    struct VaultParams {
+        VaultType vaultType;
+        bytes4 strategySelector;   
+    }
+
     /// @notice Event emited on each Deposit call
     /// @dev Upon deposit, emit this event. Index the account and staking contract for analytics 
     event DepositMade(
