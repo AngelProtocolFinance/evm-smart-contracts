@@ -1,0 +1,33 @@
+# AngelProtocol EVM 
+
+## INSTALLATION 
+
+After cloning the repo, use yarn to install the packages: 
+
+`yarn install`
+
+Then copy the .env.template file and generate/add your relevant API and PKeys.
+
+## INTERACTING WITH HARDHAT
+
+Contract compilation creates local files (artifacts, typings and ABI JSONs) necessary for interfacing. Compile with: 
+
+`npx hardhat compile`
+
+_Note: Most calls to hardhat check for requisite artifacts and will auto-compile if need be or if changes between source and artifacts are detected._
+
+
+The default behavior is for Hardhat to use a chain in memory at runtime. For persistent state, run a local node `npx hardhat node` or use a testnet. 
+The network can be pointed to using the `--network` CLI flag. 
+
+To deploy a contract call its relevant deployment script with: 
+
+`npx hardhat run scripts/deployRegistrar.ts --network localhost`
+
+To run the Chai test suite, invoke: 
+
+`npx hardhat test`
+
+Specific tests can be called by adding the path to the relevant test: 
+
+`npx hardhat test tests/Registrar.ts`
