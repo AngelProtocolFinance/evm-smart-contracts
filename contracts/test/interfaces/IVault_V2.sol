@@ -11,6 +11,11 @@ interface IVault {
         LIQUID
     }
 
+    struct VaultParams {
+        VaultType vaultType;
+        bytes4 strategySelector;   
+    }
+
     /// @notice Event emited on each Deposit call
     /// @dev Upon deposit, emit this event. Index the account and staking contract for analytics 
     event DepositMade(
@@ -35,10 +40,6 @@ interface IVault {
     /// with specific yield/value details
     /// @param accountIds a list of the Accounts harvested for
     event Harvest(uint32[] indexed accountIds);
-
-    /// @notice returns the vault type
-    /// @dev a vault must declare its Type upon initialization/construction 
-    function getVaultType() external pure returns (VaultType);
 
     /// @notice deposit tokens into vault position of specified Account 
     /// @dev the deposit method allows the Vault contract to create or add to an existing 

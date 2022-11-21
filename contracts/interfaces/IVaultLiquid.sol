@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0;
 
-import "./IVault.sol";
+import { IVault } from "./IVault.sol";
 
 interface IVaultLiquid is IVault {
 

@@ -18,4 +18,6 @@ library RegistrarConfig {
     // DEFAULT ANGEL PROTOCOL PARAMS
     uint32 constant PROTOCOL_TAX_RATE = 2;
     uint32 constant PROTOCOL_TAX_BASIS = 100;
+    string constant PRIMARY_CHAIN = "Polygon";
+    string constant PRIMARY_CHAIN_ROUTER_ADDRESS = "";
 }

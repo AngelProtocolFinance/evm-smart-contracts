@@ -1,8 +1,8 @@
-
-import { ethers } from "hardhat";
+import { ethers, upgrades } from "hardhat";
 import * as logger from "../utils/logger"
 import * as fs from "fs";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { Registrar__factory } from "../typechain-types"
 
 async function deploy() {
 
@@ -15,21 +15,57 @@ async function deploy() {
   logger.out("Deploying to: " + network.name, logger.Level.Info)
   logger.out("With chain id: " + network.chainId, logger.Level.Info)
 
-  const Lock = await ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(3654568416);
+  const DefaultRebalanceParams = {
+    rebalanceLiquidProfits: false,
+    lockedRebalanceToLiquid: false,
+    interestDistribution: 20,
+    lockedPrincipleToLiquid: false, 
+    principleDistribution: 0
+  }
 
-  await lock.deployed();
+  const DefaultSplitDetails = {
+    min: 0,
+    max: 100,
+    nominal: 50
+  }
 
-  logger.pad(30, "Deployed to:", lock.address);
+  const DefaultAngelProtocolParams = {
+    protocolTaxRate: 200,
+    protocolTaxBasis: 100
+  }
 
-  logger.divider()
-  logger.out("Writing to address.json", logger.Level.Info)
+  const Registrar = await ethers.getContractFactory("Registrar") as Registrar__factory;
+  const registrar = await upgrades.deployProxy(Registrar,
+    [
+      deployer.address,
+      DefaultAngelProtocolParams,
+      DefaultSplitDetails,
+      DefaultAngelProtocolParams
+    ]
+  );
 
-  let rawdata = fs.readFileSync('address.json', "utf8")
-  let address: any = JSON.parse(rawdata)
-  address[network.chainId] = lock.address
-  const json = JSON.stringify(address, null, 2)
-  fs.writeFileSync('address.json', json, "utf8")
+  await registrar.deployed();
+  logger.pad(30, "Deployed to:", registrar.address);
+  logger.out(await registrar.getAngelProtocolParams())
+
+
+  const UpdatedAngelProtocolParams = {
+    protocolTaxRate: 0,
+    protocolTaxBasis: 0
+  }
+
+  const upgraded = await upgrades.upgradeProxy(registrar.address, Registrar)
+  
+
+
+  // logger.divider()
+  // logger.out("Writing to address.json", logger.Level.Info)
+
+  // let rawdata = fs.readFileSync('address.json', "utf8")
+  // let address: any = JSON.parse(rawdata)
+  // address[network.chainId] = lock.address
+  // const json = JSON.stringify(address, null, 2)
+  // fs.writeFileSync('address.json', json, "utf8")
 }
 
 deploy().catch((error) => {

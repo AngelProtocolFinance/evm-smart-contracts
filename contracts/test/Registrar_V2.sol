@@ -1,17 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0;
 
-import { IRegistrar } from "./interfaces/IRegistrar.sol";
-import { IVault } from "./interfaces/IVault.sol";
-import { RegistrarConfig } from "./lib/RegistrarConfig.sol";
-import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "./interfaces/IRegistrar_V2.sol";
+import "./interfaces/IVault_V2.sol";
+import "../lib/RegistrarConfig.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 contract Registrar is IRegistrar, OwnableUpgradeable {
+    address public keeperAddress;
     RebalanceParams public rebalanceParams;
     SplitDetails public splitDetails;
     AngelProtocolParams public angelProtocolParams;
 
-    mapping(bytes4 => StrategyParams) VaultsByStrategyId;
+    mapping(bytes4 => StrategyParams) VaultsByStrategySelector;
     mapping(address => bool) AcceptedTokens;
 
     /// @notice ProxyUpgradable comptaible initialization
@@ -19,6 +20,7 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
     /// Will only be called once upon deployment.
     function initialize() public initializer {
         __Ownable_init_unchained();
+        keeperAddress = msg.sender;
 
         rebalanceParams = RebalanceParams(
             RegistrarConfig.REBALANCE_LIQUID_PROFITS,
@@ -36,9 +38,7 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
 
         angelProtocolParams = AngelProtocolParams(
             RegistrarConfig.PROTOCOL_TAX_RATE,
-            RegistrarConfig.PROTOCOL_TAX_BASIS,
-            RegistrarConfig.PRIMARY_CHAIN,
-            RegistrarConfig.PRIMARY_CHAIN_ROUTER_ADDRESS
+            RegistrarConfig.PROTOCOL_TAX_BASIS
         );
     }
 
@@ -70,29 +70,18 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
         return angelProtocolParams;
     }
 
-    function getStrategyParamsById(bytes4 _strategyId)
-        external
-        view
-        override
-        returns (StrategyParams memory)
-    {
-        return VaultsByStrategyId[_strategyId];
-    }
-
-    function isTokenAccepted(address _tokenAddr) external view override returns (bool) {
+    function isTokenAccepted(address _tokenAddr) external view returns (bool) {
         return AcceptedTokens[_tokenAddr];
     }
 
-    function isStrategyApproved(bytes4 _strategyId)
-        external
-        view
-        override
-        returns (bool)
-    {
-        return VaultsByStrategyId[_strategyId].isApproved;
+    function isStrategyApproved(bytes4 _selector) external view returns (bool) {
+        return VaultsByStrategySelector[_selector].isApproved;
     }
 
     // Config Setters
+    function setKeeper(address _keeper) external override onlyOwner {
+        keeperAddress = _keeper;
+    }
 
     function setRebalanceParams(RebalanceParams calldata _rebalanceParams)
         external
@@ -127,18 +116,17 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
         emit TokenAcceptanceChanged(_tokenAddr, _isAccepted);
     }
 
-    function setStrategyApproved(bytes4 _strategyId, bool _isApproved)
-        external
-        override
-        onlyOwner
-    {
-        VaultsByStrategyId[_strategyId].isApproved = _isApproved;
+    function setStrategyApproved(bytes4 _selector, bool _isApproved) external override onlyOwner {
+        VaultsByStrategySelector[_selector].isApproved = _isApproved;
 
-        emit StrategyApprovalChanged(_strategyId, _isApproved);
+        emit StrategyApprovalChanged(
+            _selector,
+            _isApproved
+        );
     }
 
     function setStrategyParams(
-        bytes4 _strategyId,
+        bytes4 _selector,
         address _liqAddr,
         address _lockAddr,
         bool _isApproved
@@ -151,13 +139,13 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
             IVault.VaultType.LOCKED,
             _lockAddr
         );
-        VaultsByStrategyId[_strategyId] = StrategyParams(
+        VaultsByStrategySelector[_selector] = StrategyParams(
             _isApproved,
             liquidParams,
             lockedParams
         );
         emit StrategyParamsChanged(
-            _strategyId,
+            _selector,
             _liqAddr,
             _lockAddr,
             _isApproved
