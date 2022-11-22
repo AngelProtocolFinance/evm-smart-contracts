@@ -14,6 +14,8 @@ abstract contract IRouter is IAxelarExecutable {
     /// @param accountId The endowment uid
     /// @param token The token (if any) that was forwarded along with the calldata packet by GMP
     /// @param amt The amount of said token that is intended to be used along with the calldata
+
+    // @TODO is this enough data for ALL calls to AP vaults? Do we need a concept of liq/lock splits? 
     struct VaultActionData {
         bytes4 strategyId;
         bytes4 selector;
@@ -27,7 +29,7 @@ abstract contract IRouter is IAxelarExecutable {
         _;
     }
 
-    // Internal methods
+    // Internal data packing methods
     function _unpackCalldata(bytes calldata _calldata)
         internal
         virtual
@@ -62,6 +64,8 @@ abstract contract IRouter is IAxelarExecutable {
         internal
         virtual;
     
+
+    // @TODO determine how this will be passed in as part of the action params or whether we always accept default params
     function _determineSplit(IRegistrar.StrategyParams memory _params, VaultActionData memory _action) internal virtual returns (uint256, uint256) {
 
 

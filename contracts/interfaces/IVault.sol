@@ -60,5 +60,7 @@ interface IVault {
     /// @notice restricted method for harvesting accrued rewards 
     /// @dev Claim reward tokens accumulated to the staked value. The underlying behavior will vary depending 
     /// on the target yield strategy and VaultType. Only callable by an Angel Protocol Keeper
-    function harvest() external;
+    /// @param accountId Used to specify whether the harvest should be called against a specific account or, if left as 0,
+    /// against all accounts. A vault must implement the 0 = default functionality.  
+    function harvest(uint32 accountId) external;
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Modifications by @stevieraykatz to make compatible with OZ Upgradable Proxy 
 
-pragma solidity ^0.8.0;
+pragma solidity >=0.8.0;
 
 import { IAxelarGateway } from '@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol';
 import { IAxelarExecutable } from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarExecutable.sol";
@@ -11,12 +11,6 @@ contract AxelarExecutable is IAxelarExecutable, Initializable {
     IAxelarGateway public gateway;
 
     // We want this to be intializeable by an OZ upgradable pattern so move the constructor logic to _init_ methods 
-    // constructor(address gateway_) {
-    //     if (gateway_ == address(0)) revert InvalidAddress();
-
-    //     gateway = IAxelarGateway(gateway_);
-    // }
-
     function __AxelarExecutable_init(address gateway_) internal onlyInitializing {
         __AxelarExecutable_init_unchained(gateway_);
     }

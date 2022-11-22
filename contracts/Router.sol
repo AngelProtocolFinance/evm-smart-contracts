@@ -22,6 +22,10 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         __AxelarExecutable_init_unchained(_gateway);
     }
 
+
+    // @TODO the gas fwd is going to get hairy -- the originating TX will happen on the primary chain and this is
+    // intended to operate as the atomic call back when tokens are redeemed withdrawn. Some complexity can be
+    // avoided by regularly funding the contract with ether to pay for gas but its an open question still. 
     function sendTokens(
         string memory destinationChain,
         string memory destinationAddress,
@@ -76,8 +80,8 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
 
         // HARVEST 
         else if(_action.selector == IVault.harvest.selector) {
-            liquidVault.harvest();
-            lockedVault.harvest();
+            liquidVault.harvest(_action.accountId);
+            lockedVault.harvest(_action.accountId);
         }
 
         // REINVESTTOLOCKED
@@ -109,6 +113,5 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         IRegistrar.StrategyParams memory params = registar.getStrategyParamsById(action.strategyId);
         // Switch for calling appropriate vault/method
         _callSwitch(params, action, tokenSymbol);
-
     }
 }
