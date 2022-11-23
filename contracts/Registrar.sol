@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
+// author: @stevieraykatz
 pragma solidity >=0.8.0;
 
 import { IRegistrar } from "./interfaces/IRegistrar.sol";

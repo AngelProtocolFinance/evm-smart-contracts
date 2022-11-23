@@ -7,6 +7,7 @@ import {IVault} from "./interfaces/IVault.sol";
 import {IVaultLiquid} from "./interfaces/IVaultLiquid.sol";
 import {IVaultLocked} from "./interfaces/IVaultLocked.sol";
 import {IRegistrar} from "./interfaces/IRegistrar.sol";
+import {StringToAddress} from "./lib/StringAddressUtils.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {AxelarExecutable} from "./axelar/AxelarExecutable.sol";
@@ -16,6 +17,11 @@ import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contrac
 contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     IRegistrar public registar;
     IAxelarGasService public gasReceiver;
+
+    
+    /*//////////////////////////////////////////////////
+                        PROXY INIT
+    *///////////////////////////////////////////////////
 
     function initialize(
         address _gateway,
@@ -27,42 +33,9 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         __AxelarExecutable_init_unchained(_gateway);
     }
 
-    // @TODO the gas fwd is going to get hairy -- the originating TX will happen on the primary chain and this is
-    // intended to operate as the atomic call back when tokens are redeemed withdrawn. Some complexity can be
-    // avoided by regularly funding the contract with ether to pay for gas but its an open question still.
-    function sendTokens(
-        string memory destinationChain,
-        string memory destinationAddress,
-        bytes memory payload,
-        string memory symbol,
-        uint256 amount
-    ) public payable onlySelf {
-        address tokenAddress = gateway.tokenAddresses(symbol);
-        IERC20Upgradeable(tokenAddress).transferFrom(
-            msg.sender,
-            address(this),
-            amount
-        );
-        IERC20Upgradeable(tokenAddress).approve(address(gateway), amount);
-        if (msg.value > 0) {
-            gasReceiver.payNativeGasForContractCallWithToken{value: msg.value}(
-                address(this),
-                destinationChain,
-                destinationAddress,
-                payload,
-                symbol,
-                amount,
-                msg.sender
-            );
-        }
-        gateway.callContractWithToken(
-            destinationChain,
-            destinationAddress,
-            payload,
-            symbol,
-            amount
-        );
-    }
+    /*//////////////////////////////////////////////////
+                    ANGEL PROTOCOL ROUTER
+    *///////////////////////////////////////////////////
 
     function _callSwitch(
         IRegistrar.StrategyParams memory _params,
@@ -157,13 +130,73 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         );
     }
 
+    /*//////////////////////////////////////////////////
+                        AXELAR IMPL.
+    *///////////////////////////////////////////////////
+    
+    modifier onlySelf() {
+        require(msg.sender == address(this));
+        _;
+    }
+
+    modifier onlyPrimaryChain(string calldata _sourceChain) {
+        IRegistrar.AngelProtocolParams memory APParams = registar.getAngelProtocolParams();
+        require(keccak256(bytes(_sourceChain)) == keccak256(bytes(APParams.primaryChain)));
+        _;
+    }
+
+    modifier onlyPrimaryRouter(string calldata _sourceAddress) {
+        IRegistrar.AngelProtocolParams memory APParams = registar.getAngelProtocolParams();
+        require(StringToAddress.toAddress(_sourceAddress) == StringToAddress.toAddress(APParams.primaryChainRouter), "Unauthorized Call");
+        _;
+    }
+
+    // @TODO the gas fwd is going to get hairy -- the originating TX will happen on the primary chain and this is
+    // intended to operate as the atomic call back when tokens are redeemed withdrawn. Some complexity can be
+    // avoided by regularly funding the contract with ether to pay for gas but its an open question still.
+    function sendTokens(
+        string memory destinationChain,
+        string memory destinationAddress,
+        bytes memory payload,
+        string memory symbol,
+        uint256 amount
+    ) public payable onlySelf {
+        address tokenAddress = gateway.tokenAddresses(symbol);
+        IERC20Upgradeable(tokenAddress).transferFrom(
+            msg.sender,
+            address(this),
+            amount
+        );
+        IERC20Upgradeable(tokenAddress).approve(address(gateway), amount);
+        if (msg.value > 0) {
+            gasReceiver.payNativeGasForContractCallWithToken{value: msg.value}(
+                address(this),
+                destinationChain,
+                destinationAddress,
+                payload,
+                symbol,
+                amount,
+                msg.sender
+            );
+        }
+        gateway.callContractWithToken(
+            destinationChain,
+            destinationAddress,
+            payload,
+            symbol,
+            amount
+        );
+    }
+
+    // @Todo depending on how we pack splits in the VaultAction data, we might want to validate that amount == action.amt
     function _executeWithToken(
         string calldata sourceChain,
         string calldata sourceAddress,
         bytes calldata payload,
         string calldata tokenSymbol,
         uint256 amount
-    ) internal override {
+    ) internal override onlyPrimaryChain(sourceChain) onlyPrimaryRouter(sourceAddress) {
+
         // decode payload
         VaultActionData memory action = _unpackCalldata(payload);
 

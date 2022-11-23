@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
+// author: @stevieraykatz
 pragma solidity >=0.8.0;
 
 import {IAxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarExecutable.sol";
@@ -22,11 +23,6 @@ abstract contract IRouter is IAxelarExecutable {
         uint32 accountId;
         address token;
         uint256 amt;
-    }
-
-    modifier onlySelf() {
-        require(msg.sender == address(this));
-        _;
     }
 
     // Internal data packing methods
