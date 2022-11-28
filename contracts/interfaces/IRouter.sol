@@ -14,15 +14,15 @@ abstract contract IRouter is IAxelarExecutable {
     /// @param selector The Vault method that should be called
     /// @param accountId The endowment uid
     /// @param token The token (if any) that was forwarded along with the calldata packet by GMP
-    /// @param amt The amount of said token that is intended to be used along with the calldata
-
-    // @TODO is this enough data for ALL calls to AP vaults? Do we need a concept of liq/lock splits? 
+    /// @param lockAmt The amount of said token that is intended to interact with the locked vault
+    /// @param liqAmt The amount of said token that is intended to interact with the liquid vault
     struct VaultActionData {
         bytes4 strategyId;
         bytes4 selector;
         uint32 accountId;
         address token;
-        uint256 amt;
+        uint256 lockAmt;
+        uint256 liqAmt;
     }
 
     // Internal data packing methods
@@ -36,9 +36,21 @@ abstract contract IRouter is IAxelarExecutable {
             bytes4 selector,
             uint32 accountId,
             address token,
-            uint256 amt
-        ) = abi.decode(_calldata, (bytes4, bytes4, uint32, address, uint256));
-        return VaultActionData(strategyId, selector, accountId, token, amt);
+            uint256 lockAmt,
+            uint256 liqAmt
+        ) = abi.decode(
+                _calldata,
+                (bytes4, bytes4, uint32, address, uint256, uint256)
+            );
+        return
+            VaultActionData(
+                strategyId,
+                selector,
+                accountId,
+                token,
+                lockAmt,
+                liqAmt
+            );
     }
 
     function _packCallData(VaultActionData memory _calldata)
@@ -52,19 +64,14 @@ abstract contract IRouter is IAxelarExecutable {
                 _calldata.selector,
                 _calldata.accountId,
                 _calldata.token,
-                _calldata.amt
+                _calldata.lockAmt,
+                _calldata.liqAmt
             );
     }
 
-    function _callSwitch(IRegistrar.StrategyParams memory _params, VaultActionData memory _action, string calldata _tokenSymbol)
-        internal
-        virtual;
-    
-
-    // @TODO determine how this will be passed in as part of the action params or whether we always accept default params
-    function _determineSplit(IRegistrar.StrategyParams memory _params, VaultActionData memory _action) internal virtual returns (uint256, uint256) {
-
-
-    }
-
+    function _callSwitch(
+        IRegistrar.StrategyParams memory _params,
+        VaultActionData memory _action,
+        string calldata _tokenSymbol
+    ) internal virtual;
 }

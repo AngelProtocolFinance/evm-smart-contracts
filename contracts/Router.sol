@@ -18,10 +18,9 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     IRegistrar public registar;
     IAxelarGasService public gasReceiver;
 
-    
-    /*//////////////////////////////////////////////////
+    /*////////////////////////////////////////////////
                         PROXY INIT
-    *///////////////////////////////////////////////////
+    */////////////////////////////////////////////////
 
     function initialize(
         address _gateway,
@@ -33,9 +32,9 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         __AxelarExecutable_init_unchained(_gateway);
     }
 
-    /*//////////////////////////////////////////////////
+    /*////////////////////////////////////////////////
                     ANGEL PROTOCOL ROUTER
-    *///////////////////////////////////////////////////
+    */////////////////////////////////////////////////
 
     function _callSwitch(
         IRegistrar.StrategyParams memory _params,
@@ -70,12 +69,8 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     ) internal {
         IVaultLiquid liquidVault = IVaultLiquid(_params.Liquid.vaultAddr);
         IVaultLocked lockedVault = IVaultLocked(_params.Locked.vaultAddr);
-        (uint256 liquidAmt, uint256 lockedAmt) = _determineSplit(
-            _params,
-            _action
-        );
-        liquidVault.deposit(_action.accountId, _action.token, liquidAmt);
-        lockedVault.deposit(_action.accountId, _action.token, lockedAmt);
+        liquidVault.deposit(_action.accountId, _action.token, _action.lockAmt);
+        lockedVault.deposit(_action.accountId, _action.token, _action.liqAmt);
     }
 
     function _redeem(
@@ -87,18 +82,14 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         IVaultLocked lockedVault = IVaultLocked(_params.Locked.vaultAddr);
 
         // Redeem tokens from vaults wwhich sends them from the vault to this contract
-        (uint256 liquidAmt, uint256 lockedAmt) = _determineSplit(
-            _params,
-            _action
-        );
-        liquidVault.redeem(_action.accountId, _action.token, liquidAmt);
-        lockedVault.redeem(_action.accountId, _action.token, lockedAmt);
+        uint256 _redeemedLockAmt = lockedVault.redeem(_action.accountId, _action.token, _action.lockAmt);
+        uint256 _redeemedLiqAmt = liquidVault.redeem(_action.accountId, _action.token, _action.liqAmt);
 
         // Pack the tokens and calldata for bridging back out over GMP
         IRegistrar.AngelProtocolParams memory apParams = registar
             .getAngelProtocolParams();
         bytes memory payload = _packCallData(_action);
-        uint256 amt = liquidAmt + lockedAmt;
+        uint256 amt = _redeemedLockAmt + _redeemedLiqAmt;
         sendTokens(
             apParams.primaryChain,
             apParams.primaryChainRouter,
@@ -126,34 +117,43 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         liquidVault.reinvestToLocked(
             _action.accountId,
             _action.token,
-            _action.amt
+            _action.liqAmt
         );
     }
 
-    /*//////////////////////////////////////////////////
+    /*////////////////////////////////////////////////
                         AXELAR IMPL.
-    *///////////////////////////////////////////////////
-    
+    */////////////////////////////////////////////////
+
     modifier onlySelf() {
         require(msg.sender == address(this));
         _;
     }
 
     modifier onlyPrimaryChain(string calldata _sourceChain) {
-        IRegistrar.AngelProtocolParams memory APParams = registar.getAngelProtocolParams();
-        require(keccak256(bytes(_sourceChain)) == keccak256(bytes(APParams.primaryChain)));
+        IRegistrar.AngelProtocolParams memory APParams = registar
+            .getAngelProtocolParams();
+        require(
+            keccak256(bytes(_sourceChain)) ==
+                keccak256(bytes(APParams.primaryChain))
+        );
         _;
     }
 
     modifier onlyPrimaryRouter(string calldata _sourceAddress) {
-        IRegistrar.AngelProtocolParams memory APParams = registar.getAngelProtocolParams();
-        require(StringToAddress.toAddress(_sourceAddress) == StringToAddress.toAddress(APParams.primaryChainRouter), "Unauthorized Call");
+        IRegistrar.AngelProtocolParams memory APParams = registar
+            .getAngelProtocolParams();
+        require(
+            StringToAddress.toAddress(_sourceAddress) ==
+                StringToAddress.toAddress(APParams.primaryChainRouter),
+            "Unauthorized Call"
+        );
         _;
     }
 
     // @TODO the gas fwd is going to get hairy -- the originating TX will happen on the primary chain and this is
-    // intended to operate as the atomic call back when tokens are redeemed withdrawn. Some complexity can be
-    // avoided by regularly funding the contract with ether to pay for gas but its an open question still.
+    // intended to operate as the atomic call back when tokens are redeemed or withdrawn. Some complexity can be
+    // avoided by regularly funding the contract with native token to pay for gas but that's an open operations q.
     function sendTokens(
         string memory destinationChain,
         string memory destinationAddress,
@@ -195,8 +195,12 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         bytes calldata payload,
         string calldata tokenSymbol,
         uint256 amount
-    ) internal override onlyPrimaryChain(sourceChain) onlyPrimaryRouter(sourceAddress) {
-
+    )
+        internal
+        override
+        onlyPrimaryChain(sourceChain)
+        onlyPrimaryRouter(sourceAddress)
+    {
         // decode payload
         VaultActionData memory action = _unpackCalldata(payload);
 
@@ -206,6 +210,11 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
             tokenAddress == action.token,
             "Token designation does not match"
         );
+
+        // check that fwd'd token amts match expected action amts
+        if (action.selector == IVault.deposit.selector) {
+            require(amount == (action.liqAmt + action.lockAmt), "Action amts mismatch fwd amt");
+        }
 
         // Get parameters from registrar
         IRegistrar.StrategyParams memory params = registar

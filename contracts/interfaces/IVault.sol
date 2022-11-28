@@ -56,7 +56,9 @@ interface IVault {
     /// @param accountId a unique Id for each Angel Protocol account
     /// @param token the deposited token
     /// @param amt the amount of the deposited token 
-    function redeem(uint32 accountId, address token, uint256 amt) payable external;
+    /// @return redemptionAmt returns the number of tokens redeemed by the call; this may differ from 
+    /// the called `amt` due to slippage/trading/fees
+    function redeem(uint32 accountId, address token, uint256 amt) payable external returns (uint256);
 
     /// @notice restricted method for harvesting accrued rewards 
     /// @dev Claim reward tokens accumulated to the staked value. The underlying behavior will vary depending 
