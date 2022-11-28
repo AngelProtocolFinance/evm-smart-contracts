@@ -69,8 +69,8 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     ) internal {
         IVaultLiquid liquidVault = IVaultLiquid(_params.Liquid.vaultAddr);
         IVaultLocked lockedVault = IVaultLocked(_params.Locked.vaultAddr);
-        liquidVault.deposit(_action.accountId, _action.token, _action.lockAmt);
-        lockedVault.deposit(_action.accountId, _action.token, _action.liqAmt);
+        lockedVault.deposit(_action.accountId, _action.token, _action.lockAmt);
+        liquidVault.deposit(_action.accountId, _action.token, _action.liqAmt);
     }
 
     function _redeem(
@@ -78,8 +78,8 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         VaultActionData memory _action,
         string calldata _tokenSymbol
     ) internal {
-        IVaultLiquid liquidVault = IVaultLiquid(_params.Liquid.vaultAddr);
         IVaultLocked lockedVault = IVaultLocked(_params.Locked.vaultAddr);
+        IVaultLiquid liquidVault = IVaultLiquid(_params.Liquid.vaultAddr);
 
         // Redeem tokens from vaults wwhich sends them from the vault to this contract
         uint256 _redeemedLockAmt = lockedVault.redeem(_action.accountId, _action.token, _action.lockAmt);
