@@ -9,7 +9,6 @@ import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/O
 
 contract Registrar is IRegistrar, OwnableUpgradeable {
     RebalanceParams public rebalanceParams;
-    SplitDetails public splitDetails;
     AngelProtocolParams public angelProtocolParams;
 
     mapping(bytes4 => StrategyParams) VaultsByStrategyId;
@@ -29,12 +28,6 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
             RegistrarConfig.PRINCIPLE_DISTRIBUTION
         );
 
-        splitDetails = SplitDetails(
-            RegistrarConfig.SPLIT_MIN,
-            RegistrarConfig.SPLIT_MAX,
-            RegistrarConfig.SPLIT_NOMINAL
-        );
-
         angelProtocolParams = AngelProtocolParams(
             RegistrarConfig.PROTOCOL_TAX_RATE,
             RegistrarConfig.PROTOCOL_TAX_BASIS,
@@ -51,15 +44,6 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
         returns (RebalanceParams memory)
     {
         return rebalanceParams;
-    }
-
-    function getSplitDetails()
-        external
-        view
-        override
-        returns (SplitDetails memory)
-    {
-        return splitDetails;
     }
 
     function getAngelProtocolParams()
@@ -102,15 +86,6 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
     {
         rebalanceParams = _rebalanceParams;
         emit RebalanceParamsChanged(_rebalanceParams);
-    }
-
-    function setSplitDetails(SplitDetails calldata _splitDetails)
-        external
-        override
-        onlyOwner
-    {
-        splitDetails = _splitDetails;
-        emit SplitDetailsChanged(_splitDetails);
     }
 
     function setAngelProtocolParams(

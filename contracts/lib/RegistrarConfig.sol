@@ -10,12 +10,7 @@ library RegistrarConfig {
     uint32 constant INTEREST_DISTRIBUTION = 20;
     bool constant LOCKED_PRINCIPLE_TO_LIQUID = false;
     uint32 constant PRINCIPLE_DISTRIBUTION = 0;
-
-    // DEFAULT SPLIT DETAILS
-    uint32 constant SPLIT_MIN = 0;
-    uint32 constant SPLIT_MAX = 100;
-    uint32 constant SPLIT_NOMINAL = 50;
-
+    
     // DEFAULT ANGEL PROTOCOL PARAMS
     uint32 constant PROTOCOL_TAX_RATE = 2;
     uint32 constant PROTOCOL_TAX_BASIS = 100;

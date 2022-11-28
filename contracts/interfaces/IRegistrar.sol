@@ -6,7 +6,6 @@ import { IVault } from "./IVault.sol";
 
 abstract contract IRegistrar {
     event RebalanceParamsChanged(RebalanceParams newRebalanceParams);
-    event SplitDetailsChanged(SplitDetails newSplitDetails);
     event AngelProtocolParamsChanged(
         AngelProtocolParams newAngelProtocolParams
     );
@@ -25,12 +24,6 @@ abstract contract IRegistrar {
         uint32 interestDistribution;
         bool lockedPrincipleToLiquid;
         uint32 principleDistribution;
-    }
-
-    struct SplitDetails {
-        uint32 min;
-        uint32 max;
-        uint32 nominal;
     }
 
     struct AngelProtocolParams {
@@ -58,12 +51,6 @@ abstract contract IRegistrar {
         virtual
         returns (RebalanceParams memory);
 
-    function getSplitDetails()
-        external
-        view
-        virtual
-        returns (SplitDetails memory);
-
     function getAngelProtocolParams()
         external
         view
@@ -86,10 +73,6 @@ abstract contract IRegistrar {
     
     // Setter meothods for granular changes to specific params
     function setRebalanceParams(RebalanceParams calldata _rebalanceParams)
-        external
-        virtual;
-
-    function setSplitDetails(SplitDetails calldata _splitDetails)
         external
         virtual;
 
