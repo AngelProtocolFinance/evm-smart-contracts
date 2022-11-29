@@ -7,6 +7,12 @@ import {IVault} from "./IVault.sol";
 import {IRegistrar} from "./IRegistrar.sol";
 
 abstract contract IRouter is IAxelarExecutable {
+
+
+    /*////////////////////////////////////////////////
+                    CUSTOM TYPES
+    */////////////////////////////////////////////////
+
     /// @notice Gerneric AP Vault action data that can be packed and sent through the GMP
     /// @dev Data will arrive from the GMP encoded as a string of bytes. For internal methods/processing,
     /// we can restructure it to look like VaultActionData to improve readability.
@@ -24,6 +30,11 @@ abstract contract IRouter is IAxelarExecutable {
         uint256 lockAmt;
         uint256 liqAmt;
     }
+
+
+    /*////////////////////////////////////////////////
+                        METHODS
+    */////////////////////////////////////////////////
 
     // Internal data packing methods
     function _unpackCalldata(bytes calldata _calldata)

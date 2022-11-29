@@ -5,6 +5,10 @@ pragma solidity >=0.8.0;
 import { IVault } from "./IVault.sol";
 
 abstract contract IRegistrar {
+
+    /*////////////////////////////////////////////////
+                        AXELAR IMPL.
+    */////////////////////////////////////////////////
     event RebalanceParamsChanged(RebalanceParams newRebalanceParams);
     event AngelProtocolParamsChanged(
         AngelProtocolParams newAngelProtocolParams
@@ -18,6 +22,10 @@ abstract contract IRegistrar {
         bool _isApproved
     );
 
+
+    /*////////////////////////////////////////////////
+                        CUSTOM TYPES
+    */////////////////////////////////////////////////
     struct RebalanceParams {
         bool rebalanceLiquidProfits;
         bool lockedRebalanceToLiquid;
@@ -43,6 +51,12 @@ abstract contract IRegistrar {
         IVault.VaultType Type;
         address vaultAddr;
     }
+
+
+
+    /*////////////////////////////////////////////////
+                    EXTERNAL METHODS
+    */////////////////////////////////////////////////
 
     // View methods for returning stored params
     function getRebalanceParams()

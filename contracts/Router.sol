@@ -30,6 +30,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         registar = IRegistrar(_registrar);
         gasReceiver = IAxelarGasService(_gasReceiver);
         __AxelarExecutable_init_unchained(_gateway);
+        __Ownable_init_unchained();
     }
 
     /*////////////////////////////////////////////////
@@ -63,6 +64,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         }
     }
 
+    // Vault action::Deposit
     function _deposit(
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
@@ -73,6 +75,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         liquidVault.deposit(_action.accountId, _action.token, _action.liqAmt);
     }
 
+    // Vault action::Redeem
     function _redeem(
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action,
@@ -99,6 +102,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         );
     }
 
+    // Vault action::Harvest
     function _harvest(
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
@@ -109,6 +113,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         lockedVault.harvest(_action.accountId);
     }
 
+    // Liquid Vault action::Reinvest To Locked 
     function _reinvestToLocked(
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
