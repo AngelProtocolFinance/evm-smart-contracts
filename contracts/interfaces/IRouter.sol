@@ -25,7 +25,7 @@ abstract contract IRouter is IAxelarExecutable {
     struct VaultActionData {
         bytes4 strategyId;
         bytes4 selector;
-        uint32 accountId;
+        uint32[] accountIds;
         address token;
         uint256 lockAmt;
         uint256 liqAmt;
@@ -45,19 +45,19 @@ abstract contract IRouter is IAxelarExecutable {
         (
             bytes4 strategyId,
             bytes4 selector,
-            uint32 accountId,
+            uint32[] memory accountIds,
             address token,
             uint256 lockAmt,
             uint256 liqAmt
         ) = abi.decode(
                 _calldata,
-                (bytes4, bytes4, uint32, address, uint256, uint256)
+                (bytes4, bytes4, uint32[], address, uint256, uint256)
             );
         return
             VaultActionData(
                 strategyId,
                 selector,
-                accountId,
+                accountIds,
                 token,
                 lockAmt,
                 liqAmt
@@ -73,7 +73,7 @@ abstract contract IRouter is IAxelarExecutable {
             abi.encode(
                 _calldata.strategyId,
                 _calldata.selector,
-                _calldata.accountId,
+                _calldata.accountIds,
                 _calldata.token,
                 _calldata.lockAmt,
                 _calldata.liqAmt

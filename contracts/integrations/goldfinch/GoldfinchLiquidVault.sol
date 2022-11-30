@@ -13,9 +13,8 @@ import {GFITrader} from "./GFITrader.sol";
 
 // Util
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
-import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
 
-contract GoldfinchLiquidVault is IVaultLiquid, IERC721Receiver, GFITrader, Pausable {
+contract GoldfinchLiquidVault is IVaultLiquid, IERC721Receiver, GFITrader {
     bytes4 constant STRATEGY_ID = bytes4(keccak256(abi.encode("Goldfinch")));
     
                             // Mainnet address
@@ -39,9 +38,19 @@ contract GoldfinchLiquidVault is IVaultLiquid, IERC721Receiver, GFITrader, Pausa
         crvPool = ICurveLP(_crvPool);
     }
 
+    modifier approvedRouterOnly() {
+        require(_isApprovedRouter(), "Not approved Router");
+        _;
+    }
+
+    function _isApprovedRouter() internal view override returns (bool){
+        IRegistrar.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
+        return(apParams.routerAddr == msg.sender);
+    }
+
     /// @notice returns the vault type
     /// @dev a vault must declare its Type upon initialization/construction
-    function getVaultType() external pure returns (VaultType) {
+    function getVaultType() external pure override returns (VaultType) {
         return VaultType.LIQUID;
     }
 
@@ -57,7 +66,7 @@ contract GoldfinchLiquidVault is IVaultLiquid, IERC721Receiver, GFITrader, Pausa
         uint32 accountId,
         address token,
         uint256 amt
-    ) external payable {
+    ) external payable override approvedRouterOnly {
 
         // convert USDC to FIDU
         // if new position: 
@@ -77,13 +86,14 @@ contract GoldfinchLiquidVault is IVaultLiquid, IERC721Receiver, GFITrader, Pausa
         uint32 accountId,
         address token,
         uint256 amt
-    ) external payable {
+    ) external payable override approvedRouterOnly returns (uint256)  {
 
         // determine yield denominated in USDC
-        // harvest GFI and market dump
+        // harvest GFI -> Tax Collector
         // unstake necessary FIDU 
         // convert FIDU to USDC
         // send USDC to router
+        // return the USDC amt
     }
 
     /// @notice restricted method for harvesting accrued rewards
@@ -91,14 +101,16 @@ contract GoldfinchLiquidVault is IVaultLiquid, IERC721Receiver, GFITrader, Pausa
     /// on the target yield strategy and VaultType. Only callable by an Angel Protocol Keeper
     /// @param accountId Used to specify whether the harvest should be called against a specific account or, if left as 0,
     /// against all accounts. A vault must implement the 0 = default functionality.
-    function harvest(uint32 accountId) external {
+    function harvest(uint32[] calldata accountId) external override approvedRouterOnly {
 
         // if accountId == 0, for each tokenId:
             // determine rewards per tokenId
             // call getReward against each
-            // convert GFI -> USDC
-            // convert USDC to FIDU (according to split?)
+            // calculate tax 
+            // convert remaining USDC to FIDU (locked:lockedRebalanceToLiquid -> to liq, reinvest all for liq)
             // addToStake for each
+        // send GFI -> Tax Collector
+        // send taxed USDC -> Tax Collector 
         // else do above for just the one 
     }
 
@@ -112,7 +124,7 @@ contract GoldfinchLiquidVault is IVaultLiquid, IERC721Receiver, GFITrader, Pausa
         uint32 accountId,
         address token,
         uint256 amt
-    ) external {
+    ) external override approvedRouterOnly {
 
         // determine yield for account
         // harvest yield and send result to locked pair

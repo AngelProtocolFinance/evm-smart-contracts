@@ -8,15 +8,20 @@ import { RegistrarConfig } from "./lib/RegistrarConfig.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 contract Registrar is IRegistrar, OwnableUpgradeable {
+
+    /*////////////////////////////////////////////////
+                    STORAGE INIT
+    */////////////////////////////////////////////////
     RebalanceParams public rebalanceParams;
     AngelProtocolParams public angelProtocolParams;
 
     mapping(bytes4 => StrategyParams) VaultsByStrategyId;
     mapping(address => bool) AcceptedTokens;
 
-    /// @notice ProxyUpgradable comptaible initialization
-    /// @dev Pattern is required in lieu of constructor when using Proxy upgradeable
-    /// Will only be called once upon deployment.
+    /*////////////////////////////////////////////////
+                    PROXY INIT
+    */////////////////////////////////////////////////
+
     function initialize() public initializer {
         __Ownable_init_unchained();
 
@@ -31,12 +36,17 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
         angelProtocolParams = AngelProtocolParams(
             RegistrarConfig.PROTOCOL_TAX_RATE,
             RegistrarConfig.PROTOCOL_TAX_BASIS,
+            RegistrarConfig.PROTOCOL_TAX_COLLECTOR,
             RegistrarConfig.PRIMARY_CHAIN,
-            RegistrarConfig.PRIMARY_CHAIN_ROUTER_ADDRESS
+            RegistrarConfig.PRIMARY_CHAIN_ROUTER_ADDRESS,
+            RegistrarConfig.GAS_FEE,
+            RegistrarConfig.ROUTER_ADDRESS
         );
     }
 
-    // Getters
+    /*////////////////////////////////////////////////
+                    GETTER VIEW METHODS
+    */////////////////////////////////////////////////
     function getRebalanceParams()
         external
         view
@@ -77,8 +87,9 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
         return VaultsByStrategyId[_strategyId].isApproved;
     }
 
-    // Config Setters
-
+    /*////////////////////////////////////////////////
+                    RESTRICTED SETTERS
+    */////////////////////////////////////////////////
     function setRebalanceParams(RebalanceParams calldata _rebalanceParams)
         external
         override

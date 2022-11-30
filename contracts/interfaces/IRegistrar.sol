@@ -7,7 +7,7 @@ import { IVault } from "./IVault.sol";
 abstract contract IRegistrar {
 
     /*////////////////////////////////////////////////
-                        AXELAR IMPL.
+                        EVENTS
     */////////////////////////////////////////////////
     event RebalanceParamsChanged(RebalanceParams newRebalanceParams);
     event AngelProtocolParamsChanged(
@@ -28,7 +28,7 @@ abstract contract IRegistrar {
     */////////////////////////////////////////////////
     struct RebalanceParams {
         bool rebalanceLiquidProfits;
-        bool lockedRebalanceToLiquid;
+        uint32 lockedRebalanceToLiquid;
         uint32 interestDistribution;
         bool lockedPrincipleToLiquid;
         uint32 principleDistribution;
@@ -37,8 +37,11 @@ abstract contract IRegistrar {
     struct AngelProtocolParams {
         uint32 protocolTaxRate;
         uint32 protocolTaxBasis;
+        address protocolTaxCollector;
         string primaryChain;
         string primaryChainRouter;
+        uint256 gasFee;
+        address routerAddr;
     }
 
     struct StrategyParams {
@@ -51,7 +54,6 @@ abstract contract IRegistrar {
         IVault.VaultType Type;
         address vaultAddr;
     }
-
 
 
     /*////////////////////////////////////////////////
