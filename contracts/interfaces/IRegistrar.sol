@@ -3,8 +3,8 @@
 pragma solidity >=0.8.0;
 
 import { IVault } from "./IVault.sol";
-
-abstract contract IRegistrar {
+ 
+interface IRegistrar {
 
     /*////////////////////////////////////////////////
                         EVENTS
@@ -21,6 +21,7 @@ abstract contract IRegistrar {
         address indexed _lockAddr,
         bool _isApproved
     );
+    event GasFeeUpdated(address indexed _tokenAddr, uint256 _gasFee); 
 
 
     /*////////////////////////////////////////////////
@@ -40,7 +41,6 @@ abstract contract IRegistrar {
         address protocolTaxCollector;
         string primaryChain;
         string primaryChainRouter;
-        uint256 gasFee;
         address routerAddr;
     }
 
@@ -55,7 +55,6 @@ abstract contract IRegistrar {
         address vaultAddr;
     }
 
-
     /*////////////////////////////////////////////////
                     EXTERNAL METHODS
     */////////////////////////////////////////////////
@@ -64,45 +63,41 @@ abstract contract IRegistrar {
     function getRebalanceParams()
         external
         view
-        virtual
         returns (RebalanceParams memory);
 
     function getAngelProtocolParams()
         external
         view
-        virtual
         returns (AngelProtocolParams memory);
 
     function getStrategyParamsById(bytes4 _strategyId)
         external
         view
-        virtual
         returns (StrategyParams memory);
 
-    function isTokenAccepted(address _tokenAddr) external view virtual returns (bool);
+    function isTokenAccepted(address _tokenAddr) external view returns (bool);
+
+    function getGasByToken(address _tokenAddr) external view returns (uint256);
 
     function isStrategyApproved(bytes4 _strategyId)
         external
         view
-        virtual
         returns (bool);
     
     // Setter meothods for granular changes to specific params
     function setRebalanceParams(RebalanceParams calldata _rebalanceParams)
-        external
-        virtual;
+        external;
 
     function setAngelProtocolParams(
         AngelProtocolParams calldata _angelProtocolParams
-    ) external virtual;
+    ) external;
 
     /// @notice Change whether a strategy is approved
     /// @dev Set the approval bool for a specified strategyId.
     /// @param _strategyId a uid for each strategy set by:
     /// bytes4(keccak256("StrategyName"))
     function setStrategyApproved(bytes4 _strategyId, bool _isApproved)
-        external
-        virtual;
+        external;
 
     /// @notice Change which pair of vault addresses a strategy points to
     /// @dev Set the approval bool and both locked/liq vault addrs for a specified strategyId.
@@ -115,5 +110,9 @@ abstract contract IRegistrar {
         address _liqAddr,
         address _lockAddr,
         bool _isApproved
-    ) external virtual;
+    ) external;
+
+    function setTokenAccepted(address _tokenAddr, bool _isAccepted) external;
+
+    function setGasByToken(address _tokenAddr, uint256 _gasFee) external;
 }

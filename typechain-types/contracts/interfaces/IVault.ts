@@ -31,12 +31,13 @@ import type {
 export interface IVaultInterface extends utils.Interface {
   functions: {
     "deposit(uint32,address,uint256)": FunctionFragment;
-    "harvest()": FunctionFragment;
+    "getVaultType()": FunctionFragment;
+    "harvest(uint32)": FunctionFragment;
     "redeem(uint32,address,uint256)": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "deposit" | "harvest" | "redeem"
+    nameOrSignatureOrTopic: "deposit" | "getVaultType" | "harvest" | "redeem"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -47,7 +48,14 @@ export interface IVaultInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>
     ]
   ): string;
-  encodeFunctionData(functionFragment: "harvest", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getVaultType",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "harvest",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(
     functionFragment: "redeem",
     values: [
@@ -58,6 +66,10 @@ export interface IVaultInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getVaultType",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "harvest", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
 
@@ -141,7 +153,10 @@ export interface IVault extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    getVaultType(overrides?: CallOverrides): Promise<[number]>;
+
     harvest(
+      accountId: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -160,7 +175,10 @@ export interface IVault extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  getVaultType(overrides?: CallOverrides): Promise<number>;
+
   harvest(
+    accountId: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -179,7 +197,12 @@ export interface IVault extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    harvest(overrides?: CallOverrides): Promise<void>;
+    getVaultType(overrides?: CallOverrides): Promise<number>;
+
+    harvest(
+      accountId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     redeem(
       accountId: PromiseOrValue<BigNumberish>,
@@ -236,7 +259,10 @@ export interface IVault extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    getVaultType(overrides?: CallOverrides): Promise<BigNumber>;
+
     harvest(
+      accountId: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -256,7 +282,10 @@ export interface IVault extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    getVaultType(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     harvest(
+      accountId: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

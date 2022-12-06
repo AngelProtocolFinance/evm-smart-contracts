@@ -5,3 +5,4 @@ export { IRegistrar__factory } from "./IRegistrar__factory";
 export { IRouter__factory } from "./IRouter__factory";
 export { IVault__factory } from "./IVault__factory";
 export { IVaultLiquid__factory } from "./IVaultLiquid__factory";
+export { IVaultLocked__factory } from "./IVaultLocked__factory";

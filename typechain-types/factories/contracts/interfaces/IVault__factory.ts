@@ -122,6 +122,25 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "getVaultType",
+    outputs: [
+      {
+        internalType: "enum IVault.VaultType",
+        name: "",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint32",
+        name: "accountId",
+        type: "uint32",
+      },
+    ],
     name: "harvest",
     outputs: [],
     stateMutability: "nonpayable",

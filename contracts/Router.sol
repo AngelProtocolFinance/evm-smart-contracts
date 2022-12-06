@@ -63,10 +63,6 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         else if (_action.selector == IVault.harvest.selector) {
             _harvest(_params, _action);
         }
-        // REINVESTTOLOCKED
-        else if (_action.selector == IVaultLiquid.reinvestToLocked.selector) {
-            _reinvestToLocked(_params, _action);
-        }
         // INVALID SELCTOR
         else {
             revert("Invalid function selector provided");
@@ -117,7 +113,8 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
             .getAngelProtocolParams();
         bytes memory payload = _packCallData(_action);
         uint256 amt = _redeemedLockAmt + _redeemedLiqAmt;
-        uint256 amtLessGasFee = amt - apParams.gasFee;
+        uint256 gasFee = registar.getGasByToken(_action.token);
+        uint256 amtLessGasFee = amt - gasFee;
         _sendTokens(
             apParams.primaryChain,
             apParams.primaryChainRouter,
@@ -125,7 +122,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
             symbolFromAddress[_action.token],
             amtLessGasFee,
             _action.token,
-            apParams.gasFee
+            gasFee
         );
     }
 
@@ -138,19 +135,6 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         IVaultLocked lockedVault = IVaultLocked(_params.Locked.vaultAddr);
         liquidVault.harvest(_action.accountIds);
         lockedVault.harvest(_action.accountIds);
-    }
-
-    // Liquid Vault action::Reinvest To Locked
-    function _reinvestToLocked(
-        IRegistrar.StrategyParams memory _params,
-        VaultActionData memory _action
-    ) internal onlyOneAccount(_action) {
-        IVaultLiquid liquidVault = IVaultLiquid(_params.Liquid.vaultAddr);
-        liquidVault.reinvestToLocked(
-            _action.accountIds[0],
-            _action.token,
-            _action.liqAmt
-        );
     }
 
     /*////////////////////////////////////////////////

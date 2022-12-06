@@ -25,6 +25,16 @@ const _abi = [
             name: "protocolTaxBasis",
             type: "uint32",
           },
+          {
+            internalType: "string",
+            name: "primaryChain",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "primaryChainRouter",
+            type: "string",
+          },
         ],
         indexed: false,
         internalType: "struct IRegistrar.AngelProtocolParams",
@@ -109,22 +119,10 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
+        indexed: true,
         internalType: "bytes4",
-        name: "_selector",
+        name: "_strategyId",
         type: "bytes4",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "_liqAddr",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "_lockAddr",
-        type: "address",
       },
       {
         indexed: false,
@@ -140,7 +138,38 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: "bytes4",
+        name: "_strategyId",
+        type: "bytes4",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "_liqAddr",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "_lockAddr",
+        type: "address",
+      },
+      {
         indexed: false,
+        internalType: "bool",
+        name: "_isApproved",
+        type: "bool",
+      },
+    ],
+    name: "StrategyParamsChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
         internalType: "address",
         name: "tokenAddr",
         type: "address",
@@ -170,6 +199,16 @@ const _abi = [
             internalType: "uint32",
             name: "protocolTaxBasis",
             type: "uint32",
+          },
+          {
+            internalType: "string",
+            name: "primaryChain",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "primaryChainRouter",
+            type: "string",
           },
         ],
         internalType: "struct IRegistrar.AngelProtocolParams",
@@ -253,6 +292,104 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes4",
+        name: "_strategyId",
+        type: "bytes4",
+      },
+    ],
+    name: "getStrategyParamsById",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "bool",
+            name: "isApproved",
+            type: "bool",
+          },
+          {
+            components: [
+              {
+                internalType: "enum IVault.VaultType",
+                name: "Type",
+                type: "uint8",
+              },
+              {
+                internalType: "address",
+                name: "vaultAddr",
+                type: "address",
+              },
+            ],
+            internalType: "struct IRegistrar.VaultParams",
+            name: "Locked",
+            type: "tuple",
+          },
+          {
+            components: [
+              {
+                internalType: "enum IVault.VaultType",
+                name: "Type",
+                type: "uint8",
+              },
+              {
+                internalType: "address",
+                name: "vaultAddr",
+                type: "address",
+              },
+            ],
+            internalType: "struct IRegistrar.VaultParams",
+            name: "Liquid",
+            type: "tuple",
+          },
+        ],
+        internalType: "struct IRegistrar.StrategyParams",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes4",
+        name: "_strategyId",
+        type: "bytes4",
+      },
+    ],
+    name: "isStrategyApproved",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_tokenAddr",
+        type: "address",
+      },
+    ],
+    name: "isTokenAccepted",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         components: [
           {
             internalType: "uint32",
@@ -264,6 +401,16 @@ const _abi = [
             name: "protocolTaxBasis",
             type: "uint32",
           },
+          {
+            internalType: "string",
+            name: "primaryChain",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "primaryChainRouter",
+            type: "string",
+          },
         ],
         internalType: "struct IRegistrar.AngelProtocolParams",
         name: "_angelProtocolParams",
@@ -271,19 +418,6 @@ const _abi = [
       },
     ],
     name: "setAngelProtocolParams",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_keeper",
-        type: "address",
-      },
-    ],
-    name: "setKeeper",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -354,6 +488,52 @@ const _abi = [
       },
     ],
     name: "setSplitDetails",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes4",
+        name: "_strategyId",
+        type: "bytes4",
+      },
+      {
+        internalType: "bool",
+        name: "_isApproved",
+        type: "bool",
+      },
+    ],
+    name: "setStrategyApproved",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes4",
+        name: "_strategyId",
+        type: "bytes4",
+      },
+      {
+        internalType: "address",
+        name: "_liqAddr",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_lockAddr",
+        type: "address",
+      },
+      {
+        internalType: "bool",
+        name: "_isApproved",
+        type: "bool",
+      },
+    ],
+    name: "setStrategyParams",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

@@ -2,4 +2,5 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { IAxelarExecutable } from "./IAxelarExecutable";
+export type { IAxelarGasService } from "./IAxelarGasService";
 export type { IAxelarGateway } from "./IAxelarGateway";

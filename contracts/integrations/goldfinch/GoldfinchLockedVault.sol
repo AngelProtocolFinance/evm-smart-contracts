@@ -18,7 +18,7 @@ contract GoldfinchLockedVault is IVaultLocked {
     }
     /// @notice returns the vault type
     /// @dev a vault must declare its Type upon initialization/construction 
-    function getVaultType() external pure returns (VaultType) {
+    function getVaultType() external pure override returns (VaultType) {
         return VaultType.LIQUID;
     }
 
@@ -30,7 +30,7 @@ contract GoldfinchLockedVault is IVaultLocked {
     /// @param accountId a unique Id for each Angel Protocol account
     /// @param token the deposited token
     /// @param amt the amount of the deposited token 
-    function deposit(uint32 accountId, address token, uint256 amt) payable external {
+    function deposit(uint32 accountId, address token, uint256 amt) payable external override {
 
     }
 
@@ -39,16 +39,20 @@ contract GoldfinchLockedVault is IVaultLocked {
     /// @param accountId a unique Id for each Angel Protocol account
     /// @param token the deposited token
     /// @param amt the amount of the deposited token 
-    function redeem(uint32 accountId, address token, uint256 amt) payable external{
+    function redeem(uint32 accountId, address token, uint256 amt) payable external override returns (uint256) {
 
     }
 
     /// @notice restricted method for harvesting accrued rewards 
     /// @dev Claim reward tokens accumulated to the staked value. The underlying behavior will vary depending 
     /// on the target yield strategy and VaultType. Only callable by an Angel Protocol Keeper
-    /// @param accountId Used to specify whether the harvest should be called against a specific account or, if left as 0,
+    /// @param accountIds Used to specify whether the harvest should be called against a specific account or, if left as 0,
     /// against all accounts. A vault must implement the 0 = default functionality.  
-    function harvest(uint32 accountId) external{
+    function harvest(uint32[] calldata accountIds) external override {
 
+    }
+
+    function _isApprovedRouter() internal override returns (bool){
+        
     }
 }

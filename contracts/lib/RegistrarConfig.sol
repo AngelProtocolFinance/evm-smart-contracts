@@ -17,6 +17,5 @@ library RegistrarConfig {
     address constant PROTOCOL_TAX_COLLECTOR = address(0);
     string constant PRIMARY_CHAIN = "Polygon";
     string constant PRIMARY_CHAIN_ROUTER_ADDRESS = "";
-    uint256 constant GAS_FEE = 5 * 10**6; // 5 USDC (6 decimals)
     address constant ROUTER_ADDRESS = address(0);
 }

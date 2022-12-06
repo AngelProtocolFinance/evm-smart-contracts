@@ -7,6 +7,9 @@ import { IVault } from "./interfaces/IVault.sol";
 import { RegistrarConfig } from "./lib/RegistrarConfig.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
+// Import integrations here
+import {APGoldfinchConfigLib} from "./integrations/goldfinch/APGoldfinchConfig.sol";
+
 contract Registrar is IRegistrar, OwnableUpgradeable {
 
     /*////////////////////////////////////////////////
@@ -17,6 +20,11 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
 
     mapping(bytes4 => StrategyParams) VaultsByStrategyId;
     mapping(address => bool) AcceptedTokens;
+    mapping(address=> uint256) GasFeeByToken;
+
+    // Integrations storage declarations must be added here to the bottom
+    // If not, they will overshadow the storage slots that are already in use
+    APGoldfinchConfigLib.APGoldfinchConfig public apGoldfinch;  
 
     /*////////////////////////////////////////////////
                     PROXY INIT
@@ -39,7 +47,6 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
             RegistrarConfig.PROTOCOL_TAX_COLLECTOR,
             RegistrarConfig.PRIMARY_CHAIN,
             RegistrarConfig.PRIMARY_CHAIN_ROUTER_ADDRESS,
-            RegistrarConfig.GAS_FEE,
             RegistrarConfig.ROUTER_ADDRESS
         );
     }
@@ -87,6 +94,10 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
         return VaultsByStrategyId[_strategyId].isApproved;
     }
 
+    function getGasByToken(address _tokenAddr) external view override returns (uint256) {
+        return GasFeeByToken[_tokenAddr];
+    }
+
     /*////////////////////////////////////////////////
                     RESTRICTED SETTERS
     */////////////////////////////////////////////////
@@ -112,6 +123,11 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
     {
         AcceptedTokens[_tokenAddr] = _isAccepted;
         emit TokenAcceptanceChanged(_tokenAddr, _isAccepted);
+    }
+
+    function setGasByToken(address _tokenAddr, uint256 _gasFee) external onlyOwner {
+        GasFeeByToken[_tokenAddr] = _gasFee;
+        emit GasFeeUpdated(_tokenAddr, _gasFee);
     }
 
     function setStrategyApproved(bytes4 _strategyId, bool _isApproved)
@@ -149,5 +165,18 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
             _lockAddr,
             _isApproved
         );
+    }
+
+    // Add integration helper methods here
+
+    /*////////////////////////////////////////////////
+                        GOLDFINCH
+    */////////////////////////////////////////////////
+    function getAPGoldfinchParams() external view returns (APGoldfinchConfigLib.APGoldfinchConfig memory) {
+        return apGoldfinch;
+    }
+
+    function setAPGoldfinchParams(APGoldfinchConfigLib.APGoldfinchConfig calldata _apGoldfinch) public {
+        apGoldfinch = _apGoldfinch;
     }
 }

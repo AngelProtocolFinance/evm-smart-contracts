@@ -31,11 +31,20 @@ export declare namespace IRegistrar {
   export type AngelProtocolParamsStruct = {
     protocolTaxRate: PromiseOrValue<BigNumberish>;
     protocolTaxBasis: PromiseOrValue<BigNumberish>;
+    primaryChain: PromiseOrValue<string>;
+    primaryChainRouter: PromiseOrValue<string>;
   };
 
-  export type AngelProtocolParamsStructOutput = [number, number] & {
+  export type AngelProtocolParamsStructOutput = [
+    number,
+    number,
+    string,
+    string
+  ] & {
     protocolTaxRate: number;
     protocolTaxBasis: number;
+    primaryChain: string;
+    primaryChainRouter: string;
   };
 
   export type RebalanceParamsStruct = {
@@ -71,6 +80,32 @@ export declare namespace IRegistrar {
     max: number;
     nominal: number;
   };
+
+  export type VaultParamsStruct = {
+    Type: PromiseOrValue<BigNumberish>;
+    vaultAddr: PromiseOrValue<string>;
+  };
+
+  export type VaultParamsStructOutput = [number, string] & {
+    Type: number;
+    vaultAddr: string;
+  };
+
+  export type StrategyParamsStruct = {
+    isApproved: PromiseOrValue<boolean>;
+    Locked: IRegistrar.VaultParamsStruct;
+    Liquid: IRegistrar.VaultParamsStruct;
+  };
+
+  export type StrategyParamsStructOutput = [
+    boolean,
+    IRegistrar.VaultParamsStructOutput,
+    IRegistrar.VaultParamsStructOutput
+  ] & {
+    isApproved: boolean;
+    Locked: IRegistrar.VaultParamsStructOutput;
+    Liquid: IRegistrar.VaultParamsStructOutput;
+  };
 }
 
 export interface IRegistrarInterface extends utils.Interface {
@@ -78,10 +113,14 @@ export interface IRegistrarInterface extends utils.Interface {
     "getAngelProtocolParams()": FunctionFragment;
     "getRebalanceParams()": FunctionFragment;
     "getSplitDetails()": FunctionFragment;
-    "setAngelProtocolParams((uint32,uint32))": FunctionFragment;
-    "setKeeper(address)": FunctionFragment;
+    "getStrategyParamsById(bytes4)": FunctionFragment;
+    "isStrategyApproved(bytes4)": FunctionFragment;
+    "isTokenAccepted(address)": FunctionFragment;
+    "setAngelProtocolParams((uint32,uint32,string,string))": FunctionFragment;
     "setRebalanceParams((bool,bool,uint32,bool,uint32))": FunctionFragment;
     "setSplitDetails((uint32,uint32,uint32))": FunctionFragment;
+    "setStrategyApproved(bytes4,bool)": FunctionFragment;
+    "setStrategyParams(bytes4,address,address,bool)": FunctionFragment;
   };
 
   getFunction(
@@ -89,10 +128,14 @@ export interface IRegistrarInterface extends utils.Interface {
       | "getAngelProtocolParams"
       | "getRebalanceParams"
       | "getSplitDetails"
+      | "getStrategyParamsById"
+      | "isStrategyApproved"
+      | "isTokenAccepted"
       | "setAngelProtocolParams"
-      | "setKeeper"
       | "setRebalanceParams"
       | "setSplitDetails"
+      | "setStrategyApproved"
+      | "setStrategyParams"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -108,12 +151,20 @@ export interface IRegistrarInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "setAngelProtocolParams",
-    values: [IRegistrar.AngelProtocolParamsStruct]
+    functionFragment: "getStrategyParamsById",
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setKeeper",
+    functionFragment: "isStrategyApproved",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isTokenAccepted",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setAngelProtocolParams",
+    values: [IRegistrar.AngelProtocolParamsStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "setRebalanceParams",
@@ -122,6 +173,19 @@ export interface IRegistrarInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setSplitDetails",
     values: [IRegistrar.SplitDetailsStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setStrategyApproved",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setStrategyParams",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<boolean>
+    ]
   ): string;
 
   decodeFunctionResult(
@@ -137,10 +201,21 @@ export interface IRegistrarInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getStrategyParamsById",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isStrategyApproved",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isTokenAccepted",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setAngelProtocolParams",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setKeeper", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setRebalanceParams",
     data: BytesLike
@@ -149,12 +224,21 @@ export interface IRegistrarInterface extends utils.Interface {
     functionFragment: "setSplitDetails",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "setStrategyApproved",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setStrategyParams",
+    data: BytesLike
+  ): Result;
 
   events: {
     "AngelProtocolParamsChanged(tuple)": EventFragment;
     "RebalanceParamsChanged(tuple)": EventFragment;
     "SplitDetailsChanged(tuple)": EventFragment;
-    "StrategyApprovalChanged(bytes4,address,address,bool)": EventFragment;
+    "StrategyApprovalChanged(bytes4,bool)": EventFragment;
+    "StrategyParamsChanged(bytes4,address,address,bool)": EventFragment;
     "TokenAcceptanceChanged(address,bool)": EventFragment;
   };
 
@@ -162,6 +246,7 @@ export interface IRegistrarInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "RebalanceParamsChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SplitDetailsChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StrategyApprovalChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "StrategyParamsChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenAcceptanceChanged"): EventFragment;
 }
 
@@ -199,18 +284,30 @@ export type SplitDetailsChangedEventFilter =
   TypedEventFilter<SplitDetailsChangedEvent>;
 
 export interface StrategyApprovalChangedEventObject {
-  _selector: string;
-  _liqAddr: string;
-  _lockAddr: string;
+  _strategyId: string;
   _isApproved: boolean;
 }
 export type StrategyApprovalChangedEvent = TypedEvent<
-  [string, string, string, boolean],
+  [string, boolean],
   StrategyApprovalChangedEventObject
 >;
 
 export type StrategyApprovalChangedEventFilter =
   TypedEventFilter<StrategyApprovalChangedEvent>;
+
+export interface StrategyParamsChangedEventObject {
+  _strategyId: string;
+  _liqAddr: string;
+  _lockAddr: string;
+  _isApproved: boolean;
+}
+export type StrategyParamsChangedEvent = TypedEvent<
+  [string, string, string, boolean],
+  StrategyParamsChangedEventObject
+>;
+
+export type StrategyParamsChangedEventFilter =
+  TypedEventFilter<StrategyParamsChangedEvent>;
 
 export interface TokenAcceptanceChangedEventObject {
   tokenAddr: string;
@@ -263,13 +360,23 @@ export interface IRegistrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[IRegistrar.SplitDetailsStructOutput]>;
 
+    getStrategyParamsById(
+      _strategyId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[IRegistrar.StrategyParamsStructOutput]>;
+
+    isStrategyApproved(
+      _strategyId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isTokenAccepted(
+      _tokenAddr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     setAngelProtocolParams(
       _angelProtocolParams: IRegistrar.AngelProtocolParamsStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setKeeper(
-      _keeper: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -280,6 +387,20 @@ export interface IRegistrar extends BaseContract {
 
     setSplitDetails(
       _splitDetails: IRegistrar.SplitDetailsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setStrategyApproved(
+      _strategyId: PromiseOrValue<BytesLike>,
+      _isApproved: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setStrategyParams(
+      _strategyId: PromiseOrValue<BytesLike>,
+      _liqAddr: PromiseOrValue<string>,
+      _lockAddr: PromiseOrValue<string>,
+      _isApproved: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -296,13 +417,23 @@ export interface IRegistrar extends BaseContract {
     overrides?: CallOverrides
   ): Promise<IRegistrar.SplitDetailsStructOutput>;
 
+  getStrategyParamsById(
+    _strategyId: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<IRegistrar.StrategyParamsStructOutput>;
+
+  isStrategyApproved(
+    _strategyId: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isTokenAccepted(
+    _tokenAddr: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   setAngelProtocolParams(
     _angelProtocolParams: IRegistrar.AngelProtocolParamsStruct,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setKeeper(
-    _keeper: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -313,6 +444,20 @@ export interface IRegistrar extends BaseContract {
 
   setSplitDetails(
     _splitDetails: IRegistrar.SplitDetailsStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setStrategyApproved(
+    _strategyId: PromiseOrValue<BytesLike>,
+    _isApproved: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setStrategyParams(
+    _strategyId: PromiseOrValue<BytesLike>,
+    _liqAddr: PromiseOrValue<string>,
+    _lockAddr: PromiseOrValue<string>,
+    _isApproved: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -329,13 +474,23 @@ export interface IRegistrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<IRegistrar.SplitDetailsStructOutput>;
 
+    getStrategyParamsById(
+      _strategyId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<IRegistrar.StrategyParamsStructOutput>;
+
+    isStrategyApproved(
+      _strategyId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isTokenAccepted(
+      _tokenAddr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     setAngelProtocolParams(
       _angelProtocolParams: IRegistrar.AngelProtocolParamsStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setKeeper(
-      _keeper: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -346,6 +501,20 @@ export interface IRegistrar extends BaseContract {
 
     setSplitDetails(
       _splitDetails: IRegistrar.SplitDetailsStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setStrategyApproved(
+      _strategyId: PromiseOrValue<BytesLike>,
+      _isApproved: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setStrategyParams(
+      _strategyId: PromiseOrValue<BytesLike>,
+      _liqAddr: PromiseOrValue<string>,
+      _lockAddr: PromiseOrValue<string>,
+      _isApproved: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -370,25 +539,34 @@ export interface IRegistrar extends BaseContract {
     ): SplitDetailsChangedEventFilter;
     SplitDetailsChanged(newSplitDetails?: null): SplitDetailsChangedEventFilter;
 
-    "StrategyApprovalChanged(bytes4,address,address,bool)"(
-      _selector?: null,
-      _liqAddr?: null,
-      _lockAddr?: null,
+    "StrategyApprovalChanged(bytes4,bool)"(
+      _strategyId?: PromiseOrValue<BytesLike> | null,
       _isApproved?: null
     ): StrategyApprovalChangedEventFilter;
     StrategyApprovalChanged(
-      _selector?: null,
-      _liqAddr?: null,
-      _lockAddr?: null,
+      _strategyId?: PromiseOrValue<BytesLike> | null,
       _isApproved?: null
     ): StrategyApprovalChangedEventFilter;
 
+    "StrategyParamsChanged(bytes4,address,address,bool)"(
+      _strategyId?: PromiseOrValue<BytesLike> | null,
+      _liqAddr?: PromiseOrValue<string> | null,
+      _lockAddr?: PromiseOrValue<string> | null,
+      _isApproved?: null
+    ): StrategyParamsChangedEventFilter;
+    StrategyParamsChanged(
+      _strategyId?: PromiseOrValue<BytesLike> | null,
+      _liqAddr?: PromiseOrValue<string> | null,
+      _lockAddr?: PromiseOrValue<string> | null,
+      _isApproved?: null
+    ): StrategyParamsChangedEventFilter;
+
     "TokenAcceptanceChanged(address,bool)"(
-      tokenAddr?: null,
+      tokenAddr?: PromiseOrValue<string> | null,
       isAccepted?: null
     ): TokenAcceptanceChangedEventFilter;
     TokenAcceptanceChanged(
-      tokenAddr?: null,
+      tokenAddr?: PromiseOrValue<string> | null,
       isAccepted?: null
     ): TokenAcceptanceChangedEventFilter;
   };
@@ -400,13 +578,23 @@ export interface IRegistrar extends BaseContract {
 
     getSplitDetails(overrides?: CallOverrides): Promise<BigNumber>;
 
-    setAngelProtocolParams(
-      _angelProtocolParams: IRegistrar.AngelProtocolParamsStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    getStrategyParamsById(
+      _strategyId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    setKeeper(
-      _keeper: PromiseOrValue<string>,
+    isStrategyApproved(
+      _strategyId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isTokenAccepted(
+      _tokenAddr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    setAngelProtocolParams(
+      _angelProtocolParams: IRegistrar.AngelProtocolParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -417,6 +605,20 @@ export interface IRegistrar extends BaseContract {
 
     setSplitDetails(
       _splitDetails: IRegistrar.SplitDetailsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setStrategyApproved(
+      _strategyId: PromiseOrValue<BytesLike>,
+      _isApproved: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setStrategyParams(
+      _strategyId: PromiseOrValue<BytesLike>,
+      _liqAddr: PromiseOrValue<string>,
+      _lockAddr: PromiseOrValue<string>,
+      _isApproved: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -432,13 +634,23 @@ export interface IRegistrar extends BaseContract {
 
     getSplitDetails(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    setAngelProtocolParams(
-      _angelProtocolParams: IRegistrar.AngelProtocolParamsStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    getStrategyParamsById(
+      _strategyId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    setKeeper(
-      _keeper: PromiseOrValue<string>,
+    isStrategyApproved(
+      _strategyId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isTokenAccepted(
+      _tokenAddr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    setAngelProtocolParams(
+      _angelProtocolParams: IRegistrar.AngelProtocolParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -449,6 +661,20 @@ export interface IRegistrar extends BaseContract {
 
     setSplitDetails(
       _splitDetails: IRegistrar.SplitDetailsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setStrategyApproved(
+      _strategyId: PromiseOrValue<BytesLike>,
+      _isApproved: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setStrategyParams(
+      _strategyId: PromiseOrValue<BytesLike>,
+      _liqAddr: PromiseOrValue<string>,
+      _lockAddr: PromiseOrValue<string>,
+      _isApproved: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
