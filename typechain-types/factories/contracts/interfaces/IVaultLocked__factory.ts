@@ -130,15 +130,15 @@ const _abi = [
         type: "uint8",
       },
     ],
-    stateMutability: "pure",
+    stateMutability: "view",
     type: "function",
   },
   {
     inputs: [
       {
-        internalType: "uint32",
-        name: "accountId",
-        type: "uint32",
+        internalType: "uint32[]",
+        name: "accountIds",
+        type: "uint32[]",
       },
     ],
     name: "harvest",
@@ -165,7 +165,13 @@ const _abi = [
       },
     ],
     name: "redeem",
-    outputs: [],
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
     stateMutability: "payable",
     type: "function",
   },

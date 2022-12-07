@@ -41,6 +41,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ContextUpgradeable__factory>;
     getContractFactory(
+      name: "IERC20",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC20__factory>;
+    getContractFactory(
       name: "IERC721Receiver",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC721Receiver__factory>;
@@ -69,9 +73,17 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.GoldfinchLockedVault__factory>;
     getContractFactory(
+      name: "GoldfinchVault",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.GoldfinchVault__factory>;
+    getContractFactory(
       name: "ICurveLP",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ICurveLP__factory>;
+    getContractFactory(
+      name: "IRegistrarGoldfinch",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IRegistrarGoldfinch__factory>;
     getContractFactory(
       name: "IStakingRewards",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -161,6 +173,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.ContextUpgradeable>;
     getContractAt(
+      name: "IERC20",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC20>;
+    getContractAt(
       name: "IERC721Receiver",
       address: string,
       signer?: ethers.Signer
@@ -196,10 +213,20 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.GoldfinchLockedVault>;
     getContractAt(
+      name: "GoldfinchVault",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.GoldfinchVault>;
+    getContractAt(
       name: "ICurveLP",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ICurveLP>;
+    getContractAt(
+      name: "IRegistrarGoldfinch",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IRegistrarGoldfinch>;
     getContractAt(
       name: "IStakingRewards",
       address: string,

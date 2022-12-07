@@ -32,18 +32,12 @@ export interface IVaultLiquidInterface extends utils.Interface {
   functions: {
     "deposit(uint32,address,uint256)": FunctionFragment;
     "getVaultType()": FunctionFragment;
-    "harvest(uint32)": FunctionFragment;
+    "harvest(uint32[])": FunctionFragment;
     "redeem(uint32,address,uint256)": FunctionFragment;
-    "reinvestToLocked(uint32,address,uint256)": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic:
-      | "deposit"
-      | "getVaultType"
-      | "harvest"
-      | "redeem"
-      | "reinvestToLocked"
+    nameOrSignatureOrTopic: "deposit" | "getVaultType" | "harvest" | "redeem"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -60,18 +54,10 @@ export interface IVaultLiquidInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "harvest",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [PromiseOrValue<BigNumberish>[]]
   ): string;
   encodeFunctionData(
     functionFragment: "redeem",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "reinvestToLocked",
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
@@ -86,10 +72,6 @@ export interface IVaultLiquidInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "harvest", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "reinvestToLocked",
-    data: BytesLike
-  ): Result;
 
   events: {
     "DepositMade(uint32,uint8,address,uint256,address)": EventFragment;
@@ -174,7 +156,7 @@ export interface IVaultLiquid extends BaseContract {
     getVaultType(overrides?: CallOverrides): Promise<[number]>;
 
     harvest(
-      accountId: PromiseOrValue<BigNumberish>,
+      accountIds: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -183,13 +165,6 @@ export interface IVaultLiquid extends BaseContract {
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    reinvestToLocked(
-      accountId: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
-      amt: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
@@ -203,7 +178,7 @@ export interface IVaultLiquid extends BaseContract {
   getVaultType(overrides?: CallOverrides): Promise<number>;
 
   harvest(
-    accountId: PromiseOrValue<BigNumberish>,
+    accountIds: PromiseOrValue<BigNumberish>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -212,13 +187,6 @@ export interface IVaultLiquid extends BaseContract {
     token: PromiseOrValue<string>,
     amt: PromiseOrValue<BigNumberish>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  reinvestToLocked(
-    accountId: PromiseOrValue<BigNumberish>,
-    token: PromiseOrValue<string>,
-    amt: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -232,7 +200,7 @@ export interface IVaultLiquid extends BaseContract {
     getVaultType(overrides?: CallOverrides): Promise<number>;
 
     harvest(
-      accountId: PromiseOrValue<BigNumberish>,
+      accountIds: PromiseOrValue<BigNumberish>[],
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -241,14 +209,7 @@ export interface IVaultLiquid extends BaseContract {
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<void>;
-
-    reinvestToLocked(
-      accountId: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
-      amt: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<BigNumber>;
   };
 
   filters: {
@@ -301,7 +262,7 @@ export interface IVaultLiquid extends BaseContract {
     getVaultType(overrides?: CallOverrides): Promise<BigNumber>;
 
     harvest(
-      accountId: PromiseOrValue<BigNumberish>,
+      accountIds: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -310,13 +271,6 @@ export interface IVaultLiquid extends BaseContract {
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    reinvestToLocked(
-      accountId: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
-      amt: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
@@ -331,7 +285,7 @@ export interface IVaultLiquid extends BaseContract {
     getVaultType(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     harvest(
-      accountId: PromiseOrValue<BigNumberish>,
+      accountIds: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -340,13 +294,6 @@ export interface IVaultLiquid extends BaseContract {
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    reinvestToLocked(
-      accountId: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
-      amt: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

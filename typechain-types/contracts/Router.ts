@@ -9,7 +9,6 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
-  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -38,7 +37,6 @@ export interface RouterInterface extends utils.Interface {
     "owner()": FunctionFragment;
     "registar()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
-    "sendTokens(string,string,bytes,string,uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
   };
 
@@ -52,7 +50,6 @@ export interface RouterInterface extends utils.Interface {
       | "owner"
       | "registar"
       | "renounceOwnership"
-      | "sendTokens"
       | "transferOwnership"
   ): FunctionFragment;
 
@@ -96,16 +93,6 @@ export interface RouterInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "sendTokens",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
-  ): string;
-  encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [PromiseOrValue<string>]
   ): string;
@@ -127,7 +114,6 @@ export interface RouterInterface extends utils.Interface {
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "sendTokens", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
@@ -225,15 +211,6 @@ export interface Router extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    sendTokens(
-      destinationChain: PromiseOrValue<string>,
-      destinationAddress: PromiseOrValue<string>,
-      payload: PromiseOrValue<BytesLike>,
-      symbol: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     transferOwnership(
       newOwner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -277,15 +254,6 @@ export interface Router extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  sendTokens(
-    destinationChain: PromiseOrValue<string>,
-    destinationAddress: PromiseOrValue<string>,
-    payload: PromiseOrValue<BytesLike>,
-    symbol: PromiseOrValue<string>,
-    amount: PromiseOrValue<BigNumberish>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   transferOwnership(
     newOwner: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -326,15 +294,6 @@ export interface Router extends BaseContract {
     registar(overrides?: CallOverrides): Promise<string>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
-    sendTokens(
-      destinationChain: PromiseOrValue<string>,
-      destinationAddress: PromiseOrValue<string>,
-      payload: PromiseOrValue<BytesLike>,
-      symbol: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
@@ -394,15 +353,6 @@ export interface Router extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    sendTokens(
-      destinationChain: PromiseOrValue<string>,
-      destinationAddress: PromiseOrValue<string>,
-      payload: PromiseOrValue<BytesLike>,
-      symbol: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     transferOwnership(
       newOwner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -445,15 +395,6 @@ export interface Router extends BaseContract {
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    sendTokens(
-      destinationChain: PromiseOrValue<string>,
-      destinationAddress: PromiseOrValue<string>,
-      payload: PromiseOrValue<BytesLike>,
-      symbol: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     transferOwnership(

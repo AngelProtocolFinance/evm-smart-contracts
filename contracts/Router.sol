@@ -112,9 +112,8 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         IRegistrar.AngelProtocolParams memory apParams = registar
             .getAngelProtocolParams();
         bytes memory payload = _packCallData(_action);
-        uint256 amt = _redeemedLockAmt + _redeemedLiqAmt;
         uint256 gasFee = registar.getGasByToken(_action.token);
-        uint256 amtLessGasFee = amt - gasFee;
+        uint256 amtLessGasFee = (_redeemedLockAmt + _redeemedLiqAmt) - gasFee;
         _sendTokens(
             apParams.primaryChain,
             apParams.primaryChainRouter,

@@ -5,9 +5,9 @@
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
 import type {
-  IRegistrar,
-  IRegistrarInterface,
-} from "../../../contracts/interfaces/IRegistrar";
+  IRegistrarGoldfinch,
+  IRegistrarGoldfinchInterface,
+} from "../../../../contracts/integrations/goldfinch/IRegistrarGoldfinch";
 
 const _abi = [
   {
@@ -182,6 +182,33 @@ const _abi = [
     ],
     name: "TokenAcceptanceChanged",
     type: "event",
+  },
+  {
+    inputs: [],
+    name: "getAPGoldfinchParams",
+    outputs: [
+      {
+        components: [
+          {
+            components: [
+              {
+                internalType: "uint256",
+                name: "allowedSlippage",
+                type: "uint256",
+              },
+            ],
+            internalType: "struct APGoldfinchConfigLib.CRVParams",
+            name: "crvParams",
+            type: "tuple",
+          },
+        ],
+        internalType: "struct APGoldfinchConfigLib.APGoldfinchConfig",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [],
@@ -554,15 +581,15 @@ const _abi = [
   },
 ];
 
-export class IRegistrar__factory {
+export class IRegistrarGoldfinch__factory {
   static readonly abi = _abi;
-  static createInterface(): IRegistrarInterface {
-    return new utils.Interface(_abi) as IRegistrarInterface;
+  static createInterface(): IRegistrarGoldfinchInterface {
+    return new utils.Interface(_abi) as IRegistrarGoldfinchInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): IRegistrar {
-    return new Contract(address, _abi, signerOrProvider) as IRegistrar;
+  ): IRegistrarGoldfinch {
+    return new Contract(address, _abi, signerOrProvider) as IRegistrarGoldfinch;
   }
 }

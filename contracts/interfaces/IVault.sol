@@ -43,7 +43,7 @@ abstract contract IVault {
 
     /// @notice returns the vault type
     /// @dev a vault must declare its Type upon initialization/construction 
-    function getVaultType() external pure virtual returns (VaultType);
+    function getVaultType() external view virtual returns (VaultType);
 
     /// @notice deposit tokens into vault position of specified Account 
     /// @dev the deposit method allows the Vault contract to create or add to an existing 

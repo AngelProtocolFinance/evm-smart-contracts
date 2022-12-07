@@ -129,7 +129,7 @@ const _abi = [
             type: "uint256",
           },
           {
-            internalType: "enum StakedPositionType",
+            internalType: "enum IStakingRewards.StakedPositionType",
             name: "positionType",
             type: "uint8",
           },
@@ -144,12 +144,25 @@ const _abi = [
             type: "uint256",
           },
         ],
-        internalType: "struct StakedPosition",
+        internalType: "struct IStakingRewards.StakedPosition",
         name: "position",
         type: "tuple",
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "getReward",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -176,6 +189,30 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        internalType: "enum IStakingRewards.StakedPositionType",
+        name: "positionType",
+        type: "uint8",
+      },
+    ],
+    name: "stake",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

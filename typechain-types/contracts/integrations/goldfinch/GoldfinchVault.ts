@@ -28,18 +28,37 @@ import type {
   PromiseOrValue,
 } from "../../../common";
 
-export interface GoldfinchLockedVaultInterface extends utils.Interface {
+export interface GoldfinchVaultInterface extends utils.Interface {
   functions: {
+    "FIDU()": FunctionFragment;
+    "GFI()": FunctionFragment;
+    "USDC()": FunctionFragment;
     "deposit(uint32,address,uint256)": FunctionFragment;
     "getVaultType()": FunctionFragment;
     "harvest(uint32[])": FunctionFragment;
+    "onERC721Received(address,address,uint256,bytes)": FunctionFragment;
+    "principleByAccountId(uint32)": FunctionFragment;
     "redeem(uint32,address,uint256)": FunctionFragment;
+    "tokenIdByAccountId(uint32)": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "deposit" | "getVaultType" | "harvest" | "redeem"
+    nameOrSignatureOrTopic:
+      | "FIDU"
+      | "GFI"
+      | "USDC"
+      | "deposit"
+      | "getVaultType"
+      | "harvest"
+      | "onERC721Received"
+      | "principleByAccountId"
+      | "redeem"
+      | "tokenIdByAccountId"
   ): FunctionFragment;
 
+  encodeFunctionData(functionFragment: "FIDU", values?: undefined): string;
+  encodeFunctionData(functionFragment: "GFI", values?: undefined): string;
+  encodeFunctionData(functionFragment: "USDC", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "deposit",
     values: [
@@ -57,6 +76,19 @@ export interface GoldfinchLockedVaultInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>[]]
   ): string;
   encodeFunctionData(
+    functionFragment: "onERC721Received",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "principleByAccountId",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "redeem",
     values: [
       PromiseOrValue<BigNumberish>,
@@ -64,14 +96,33 @@ export interface GoldfinchLockedVaultInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "tokenIdByAccountId",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
 
+  decodeFunctionResult(functionFragment: "FIDU", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "GFI", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "USDC", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getVaultType",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "harvest", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "onERC721Received",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "principleByAccountId",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "tokenIdByAccountId",
+    data: BytesLike
+  ): Result;
 
   events: {
     "DepositMade(uint32,uint8,address,uint256,address)": EventFragment;
@@ -119,12 +170,12 @@ export type RedemptionEvent = TypedEvent<
 
 export type RedemptionEventFilter = TypedEventFilter<RedemptionEvent>;
 
-export interface GoldfinchLockedVault extends BaseContract {
+export interface GoldfinchVault extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: GoldfinchLockedVaultInterface;
+  interface: GoldfinchVaultInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -146,6 +197,12 @@ export interface GoldfinchLockedVault extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    FIDU(overrides?: CallOverrides): Promise<[string]>;
+
+    GFI(overrides?: CallOverrides): Promise<[string]>;
+
+    USDC(overrides?: CallOverrides): Promise<[string]>;
+
     deposit(
       accountId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
@@ -160,13 +217,37 @@ export interface GoldfinchLockedVault extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    onERC721Received(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    principleByAccountId(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     redeem(
       accountId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    tokenIdByAccountId(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
   };
+
+  FIDU(overrides?: CallOverrides): Promise<string>;
+
+  GFI(overrides?: CallOverrides): Promise<string>;
+
+  USDC(overrides?: CallOverrides): Promise<string>;
 
   deposit(
     accountId: PromiseOrValue<BigNumberish>,
@@ -182,6 +263,19 @@ export interface GoldfinchLockedVault extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  onERC721Received(
+    arg0: PromiseOrValue<string>,
+    arg1: PromiseOrValue<string>,
+    arg2: PromiseOrValue<BigNumberish>,
+    arg3: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  principleByAccountId(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   redeem(
     accountId: PromiseOrValue<BigNumberish>,
     token: PromiseOrValue<string>,
@@ -189,7 +283,18 @@ export interface GoldfinchLockedVault extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  tokenIdByAccountId(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   callStatic: {
+    FIDU(overrides?: CallOverrides): Promise<string>;
+
+    GFI(overrides?: CallOverrides): Promise<string>;
+
+    USDC(overrides?: CallOverrides): Promise<string>;
+
     deposit(
       accountId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
@@ -204,10 +309,28 @@ export interface GoldfinchLockedVault extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    onERC721Received(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    principleByAccountId(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     redeem(
       accountId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    tokenIdByAccountId(
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -252,6 +375,12 @@ export interface GoldfinchLockedVault extends BaseContract {
   };
 
   estimateGas: {
+    FIDU(overrides?: CallOverrides): Promise<BigNumber>;
+
+    GFI(overrides?: CallOverrides): Promise<BigNumber>;
+
+    USDC(overrides?: CallOverrides): Promise<BigNumber>;
+
     deposit(
       accountId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
@@ -266,15 +395,39 @@ export interface GoldfinchLockedVault extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    onERC721Received(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    principleByAccountId(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     redeem(
       accountId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    tokenIdByAccountId(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    FIDU(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    GFI(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    USDC(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     deposit(
       accountId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
@@ -289,11 +442,29 @@ export interface GoldfinchLockedVault extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    onERC721Received(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    principleByAccountId(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     redeem(
       accountId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    tokenIdByAccountId(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

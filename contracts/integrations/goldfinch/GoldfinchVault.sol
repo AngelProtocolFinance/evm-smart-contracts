@@ -10,20 +10,21 @@ import {APGoldfinchConfigLib} from "./APGoldfinchConfig.sol";
 // Integrations
 import {IStakingRewards} from "./IStakingRewards.sol";
 import {ICurveLP} from "./ICurveLP.sol";
-import {GFITrader} from "./GFITrader.sol";
 
 // Util
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract GoldfinchLiquidVault is IVault, IERC721Receiver {
+contract GoldfinchVault is IVault, IERC721Receiver {
     bytes4 constant STRATEGY_ID = bytes4(keccak256(abi.encode("Goldfinch")));
     uint256 constant PRECISION = 10**6;
     
+    IVault.VaultType vaultType;
+
                             // Mainnet address
     address public FIDU;    // 0x6a445E9F40e0b97c92d0b8a3366cEF1d67F700BF
     address public USDC;    // 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
-    address public GFI;
+    address public GFI;     // 0xdab396cCF3d84Cf2D07C4454e10C8A6F5b008D2b
 
     IRegistrarGoldfinch registrar;
     ICurveLP crvPool;
@@ -33,6 +34,7 @@ contract GoldfinchLiquidVault is IVault, IERC721Receiver {
     mapping(uint32 => uint256) public principleByAccountId;
 
     constructor(
+        IVault.VaultType _vaultType,
         address _registrar,
         address _stakingPool,
         address _crvPool,
@@ -40,6 +42,7 @@ contract GoldfinchLiquidVault is IVault, IERC721Receiver {
         address _fidu,
         address _gfi
     ) {
+        vaultType = _vaultType;
         registrar = IRegistrarGoldfinch(_registrar);
         stakingPool = IStakingRewards(_stakingPool);
         crvPool = ICurveLP(_crvPool);
@@ -47,6 +50,10 @@ contract GoldfinchLiquidVault is IVault, IERC721Receiver {
         FIDU = _fidu;
         GFI = _gfi;
     }
+
+    /*////////////////////////////////////////////////
+                        MODIFIERS
+    */////////////////////////////////////////////////
 
     modifier onlyUSDC(address token) {
         require(token == USDC, "Only USDC accepted");
@@ -63,10 +70,15 @@ contract GoldfinchLiquidVault is IVault, IERC721Receiver {
         return(apParams.routerAddr == msg.sender);
     }
 
+
+    /*////////////////////////////////////////////////
+                        IVAULT IMPL
+    */////////////////////////////////////////////////
+
     /// @notice returns the vault type
     /// @dev a vault must declare its Type upon initialization/construction
-    function getVaultType() external pure override returns (VaultType) {
-        return VaultType.LIQUID;
+    function getVaultType() external view override returns (VaultType) {
+        return vaultType;
     }
 
     /// @notice deposit tokens into vault position of specified Account
@@ -77,6 +89,7 @@ contract GoldfinchLiquidVault is IVault, IERC721Receiver {
     /// @param accountId a unique Id for each Angel Protocol account
     /// @param token the deposited token
     /// @param amt the amount of the deposited token
+    
     function deposit(
         uint32 accountId,
         address token,

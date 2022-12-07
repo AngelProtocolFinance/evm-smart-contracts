@@ -24,6 +24,8 @@ export type { IERC20Upgradeable } from "./@openzeppelin/contracts-upgradeable/to
 export { IERC20Upgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable__factory";
 export type { ContextUpgradeable } from "./@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable";
 export { ContextUpgradeable__factory } from "./factories/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable__factory";
+export type { IERC20 } from "./@openzeppelin/contracts/token/ERC20/IERC20";
+export { IERC20__factory } from "./factories/@openzeppelin/contracts/token/ERC20/IERC20__factory";
 export type { IERC721Receiver } from "./@openzeppelin/contracts/token/ERC721/IERC721Receiver";
 export { IERC721Receiver__factory } from "./factories/@openzeppelin/contracts/token/ERC721/IERC721Receiver__factory";
 export type { IUniswapV3SwapCallback } from "./@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback";
@@ -38,8 +40,12 @@ export type { GoldfinchLiquidVault } from "./contracts/integrations/goldfinch/Go
 export { GoldfinchLiquidVault__factory } from "./factories/contracts/integrations/goldfinch/GoldfinchLiquidVault__factory";
 export type { GoldfinchLockedVault } from "./contracts/integrations/goldfinch/GoldfinchLockedVault";
 export { GoldfinchLockedVault__factory } from "./factories/contracts/integrations/goldfinch/GoldfinchLockedVault__factory";
+export type { GoldfinchVault } from "./contracts/integrations/goldfinch/GoldfinchVault";
+export { GoldfinchVault__factory } from "./factories/contracts/integrations/goldfinch/GoldfinchVault__factory";
 export type { ICurveLP } from "./contracts/integrations/goldfinch/ICurveLP";
 export { ICurveLP__factory } from "./factories/contracts/integrations/goldfinch/ICurveLP__factory";
+export type { IRegistrarGoldfinch } from "./contracts/integrations/goldfinch/IRegistrarGoldfinch";
+export { IRegistrarGoldfinch__factory } from "./factories/contracts/integrations/goldfinch/IRegistrarGoldfinch__factory";
 export type { IStakingRewards } from "./contracts/integrations/goldfinch/IStakingRewards";
 export { IStakingRewards__factory } from "./factories/contracts/integrations/goldfinch/IStakingRewards__factory";
 export type { IRegistrar } from "./contracts/interfaces/IRegistrar";

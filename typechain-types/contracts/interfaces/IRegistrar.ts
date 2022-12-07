@@ -31,25 +31,31 @@ export declare namespace IRegistrar {
   export type AngelProtocolParamsStruct = {
     protocolTaxRate: PromiseOrValue<BigNumberish>;
     protocolTaxBasis: PromiseOrValue<BigNumberish>;
+    protocolTaxCollector: PromiseOrValue<string>;
     primaryChain: PromiseOrValue<string>;
     primaryChainRouter: PromiseOrValue<string>;
+    routerAddr: PromiseOrValue<string>;
   };
 
   export type AngelProtocolParamsStructOutput = [
     number,
     number,
     string,
+    string,
+    string,
     string
   ] & {
     protocolTaxRate: number;
     protocolTaxBasis: number;
+    protocolTaxCollector: string;
     primaryChain: string;
     primaryChainRouter: string;
+    routerAddr: string;
   };
 
   export type RebalanceParamsStruct = {
     rebalanceLiquidProfits: PromiseOrValue<boolean>;
-    lockedRebalanceToLiquid: PromiseOrValue<boolean>;
+    lockedRebalanceToLiquid: PromiseOrValue<BigNumberish>;
     interestDistribution: PromiseOrValue<BigNumberish>;
     lockedPrincipleToLiquid: PromiseOrValue<boolean>;
     principleDistribution: PromiseOrValue<BigNumberish>;
@@ -57,28 +63,16 @@ export declare namespace IRegistrar {
 
   export type RebalanceParamsStructOutput = [
     boolean,
-    boolean,
+    number,
     number,
     boolean,
     number
   ] & {
     rebalanceLiquidProfits: boolean;
-    lockedRebalanceToLiquid: boolean;
+    lockedRebalanceToLiquid: number;
     interestDistribution: number;
     lockedPrincipleToLiquid: boolean;
     principleDistribution: number;
-  };
-
-  export type SplitDetailsStruct = {
-    min: PromiseOrValue<BigNumberish>;
-    max: PromiseOrValue<BigNumberish>;
-    nominal: PromiseOrValue<BigNumberish>;
-  };
-
-  export type SplitDetailsStructOutput = [number, number, number] & {
-    min: number;
-    max: number;
-    nominal: number;
   };
 
   export type VaultParamsStruct = {
@@ -111,31 +105,33 @@ export declare namespace IRegistrar {
 export interface IRegistrarInterface extends utils.Interface {
   functions: {
     "getAngelProtocolParams()": FunctionFragment;
+    "getGasByToken(address)": FunctionFragment;
     "getRebalanceParams()": FunctionFragment;
-    "getSplitDetails()": FunctionFragment;
     "getStrategyParamsById(bytes4)": FunctionFragment;
     "isStrategyApproved(bytes4)": FunctionFragment;
     "isTokenAccepted(address)": FunctionFragment;
-    "setAngelProtocolParams((uint32,uint32,string,string))": FunctionFragment;
-    "setRebalanceParams((bool,bool,uint32,bool,uint32))": FunctionFragment;
-    "setSplitDetails((uint32,uint32,uint32))": FunctionFragment;
+    "setAngelProtocolParams((uint32,uint32,address,string,string,address))": FunctionFragment;
+    "setGasByToken(address,uint256)": FunctionFragment;
+    "setRebalanceParams((bool,uint32,uint32,bool,uint32))": FunctionFragment;
     "setStrategyApproved(bytes4,bool)": FunctionFragment;
     "setStrategyParams(bytes4,address,address,bool)": FunctionFragment;
+    "setTokenAccepted(address,bool)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "getAngelProtocolParams"
+      | "getGasByToken"
       | "getRebalanceParams"
-      | "getSplitDetails"
       | "getStrategyParamsById"
       | "isStrategyApproved"
       | "isTokenAccepted"
       | "setAngelProtocolParams"
+      | "setGasByToken"
       | "setRebalanceParams"
-      | "setSplitDetails"
       | "setStrategyApproved"
       | "setStrategyParams"
+      | "setTokenAccepted"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -143,11 +139,11 @@ export interface IRegistrarInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getRebalanceParams",
-    values?: undefined
+    functionFragment: "getGasByToken",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getSplitDetails",
+    functionFragment: "getRebalanceParams",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -167,12 +163,12 @@ export interface IRegistrarInterface extends utils.Interface {
     values: [IRegistrar.AngelProtocolParamsStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "setRebalanceParams",
-    values: [IRegistrar.RebalanceParamsStruct]
+    functionFragment: "setGasByToken",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setSplitDetails",
-    values: [IRegistrar.SplitDetailsStruct]
+    functionFragment: "setRebalanceParams",
+    values: [IRegistrar.RebalanceParamsStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "setStrategyApproved",
@@ -187,17 +183,21 @@ export interface IRegistrarInterface extends utils.Interface {
       PromiseOrValue<boolean>
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "setTokenAccepted",
+    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "getAngelProtocolParams",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getRebalanceParams",
+    functionFragment: "getGasByToken",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getSplitDetails",
+    functionFragment: "getRebalanceParams",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -217,11 +217,11 @@ export interface IRegistrarInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setRebalanceParams",
+    functionFragment: "setGasByToken",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setSplitDetails",
+    functionFragment: "setRebalanceParams",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -232,19 +232,23 @@ export interface IRegistrarInterface extends utils.Interface {
     functionFragment: "setStrategyParams",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "setTokenAccepted",
+    data: BytesLike
+  ): Result;
 
   events: {
     "AngelProtocolParamsChanged(tuple)": EventFragment;
+    "GasFeeUpdated(address,uint256)": EventFragment;
     "RebalanceParamsChanged(tuple)": EventFragment;
-    "SplitDetailsChanged(tuple)": EventFragment;
     "StrategyApprovalChanged(bytes4,bool)": EventFragment;
     "StrategyParamsChanged(bytes4,address,address,bool)": EventFragment;
     "TokenAcceptanceChanged(address,bool)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AngelProtocolParamsChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "GasFeeUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RebalanceParamsChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SplitDetailsChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StrategyApprovalChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StrategyParamsChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenAcceptanceChanged"): EventFragment;
@@ -261,6 +265,17 @@ export type AngelProtocolParamsChangedEvent = TypedEvent<
 export type AngelProtocolParamsChangedEventFilter =
   TypedEventFilter<AngelProtocolParamsChangedEvent>;
 
+export interface GasFeeUpdatedEventObject {
+  _tokenAddr: string;
+  _gasFee: BigNumber;
+}
+export type GasFeeUpdatedEvent = TypedEvent<
+  [string, BigNumber],
+  GasFeeUpdatedEventObject
+>;
+
+export type GasFeeUpdatedEventFilter = TypedEventFilter<GasFeeUpdatedEvent>;
+
 export interface RebalanceParamsChangedEventObject {
   newRebalanceParams: IRegistrar.RebalanceParamsStructOutput;
 }
@@ -271,17 +286,6 @@ export type RebalanceParamsChangedEvent = TypedEvent<
 
 export type RebalanceParamsChangedEventFilter =
   TypedEventFilter<RebalanceParamsChangedEvent>;
-
-export interface SplitDetailsChangedEventObject {
-  newSplitDetails: IRegistrar.SplitDetailsStructOutput;
-}
-export type SplitDetailsChangedEvent = TypedEvent<
-  [IRegistrar.SplitDetailsStructOutput],
-  SplitDetailsChangedEventObject
->;
-
-export type SplitDetailsChangedEventFilter =
-  TypedEventFilter<SplitDetailsChangedEvent>;
 
 export interface StrategyApprovalChangedEventObject {
   _strategyId: string;
@@ -352,13 +356,14 @@ export interface IRegistrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[IRegistrar.AngelProtocolParamsStructOutput]>;
 
+    getGasByToken(
+      _tokenAddr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     getRebalanceParams(
       overrides?: CallOverrides
     ): Promise<[IRegistrar.RebalanceParamsStructOutput]>;
-
-    getSplitDetails(
-      overrides?: CallOverrides
-    ): Promise<[IRegistrar.SplitDetailsStructOutput]>;
 
     getStrategyParamsById(
       _strategyId: PromiseOrValue<BytesLike>,
@@ -380,13 +385,14 @@ export interface IRegistrar extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setRebalanceParams(
-      _rebalanceParams: IRegistrar.RebalanceParamsStruct,
+    setGasByToken(
+      _tokenAddr: PromiseOrValue<string>,
+      _gasFee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setSplitDetails(
-      _splitDetails: IRegistrar.SplitDetailsStruct,
+    setRebalanceParams(
+      _rebalanceParams: IRegistrar.RebalanceParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -403,19 +409,26 @@ export interface IRegistrar extends BaseContract {
       _isApproved: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    setTokenAccepted(
+      _tokenAddr: PromiseOrValue<string>,
+      _isAccepted: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   getAngelProtocolParams(
     overrides?: CallOverrides
   ): Promise<IRegistrar.AngelProtocolParamsStructOutput>;
 
+  getGasByToken(
+    _tokenAddr: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   getRebalanceParams(
     overrides?: CallOverrides
   ): Promise<IRegistrar.RebalanceParamsStructOutput>;
-
-  getSplitDetails(
-    overrides?: CallOverrides
-  ): Promise<IRegistrar.SplitDetailsStructOutput>;
 
   getStrategyParamsById(
     _strategyId: PromiseOrValue<BytesLike>,
@@ -437,13 +450,14 @@ export interface IRegistrar extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setRebalanceParams(
-    _rebalanceParams: IRegistrar.RebalanceParamsStruct,
+  setGasByToken(
+    _tokenAddr: PromiseOrValue<string>,
+    _gasFee: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setSplitDetails(
-    _splitDetails: IRegistrar.SplitDetailsStruct,
+  setRebalanceParams(
+    _rebalanceParams: IRegistrar.RebalanceParamsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -461,18 +475,25 @@ export interface IRegistrar extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setTokenAccepted(
+    _tokenAddr: PromiseOrValue<string>,
+    _isAccepted: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     getAngelProtocolParams(
       overrides?: CallOverrides
     ): Promise<IRegistrar.AngelProtocolParamsStructOutput>;
 
+    getGasByToken(
+      _tokenAddr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getRebalanceParams(
       overrides?: CallOverrides
     ): Promise<IRegistrar.RebalanceParamsStructOutput>;
-
-    getSplitDetails(
-      overrides?: CallOverrides
-    ): Promise<IRegistrar.SplitDetailsStructOutput>;
 
     getStrategyParamsById(
       _strategyId: PromiseOrValue<BytesLike>,
@@ -494,13 +515,14 @@ export interface IRegistrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setRebalanceParams(
-      _rebalanceParams: IRegistrar.RebalanceParamsStruct,
+    setGasByToken(
+      _tokenAddr: PromiseOrValue<string>,
+      _gasFee: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setSplitDetails(
-      _splitDetails: IRegistrar.SplitDetailsStruct,
+    setRebalanceParams(
+      _rebalanceParams: IRegistrar.RebalanceParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -517,6 +539,12 @@ export interface IRegistrar extends BaseContract {
       _isApproved: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    setTokenAccepted(
+      _tokenAddr: PromiseOrValue<string>,
+      _isAccepted: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -527,17 +555,21 @@ export interface IRegistrar extends BaseContract {
       newAngelProtocolParams?: null
     ): AngelProtocolParamsChangedEventFilter;
 
+    "GasFeeUpdated(address,uint256)"(
+      _tokenAddr?: PromiseOrValue<string> | null,
+      _gasFee?: null
+    ): GasFeeUpdatedEventFilter;
+    GasFeeUpdated(
+      _tokenAddr?: PromiseOrValue<string> | null,
+      _gasFee?: null
+    ): GasFeeUpdatedEventFilter;
+
     "RebalanceParamsChanged(tuple)"(
       newRebalanceParams?: null
     ): RebalanceParamsChangedEventFilter;
     RebalanceParamsChanged(
       newRebalanceParams?: null
     ): RebalanceParamsChangedEventFilter;
-
-    "SplitDetailsChanged(tuple)"(
-      newSplitDetails?: null
-    ): SplitDetailsChangedEventFilter;
-    SplitDetailsChanged(newSplitDetails?: null): SplitDetailsChangedEventFilter;
 
     "StrategyApprovalChanged(bytes4,bool)"(
       _strategyId?: PromiseOrValue<BytesLike> | null,
@@ -574,9 +606,12 @@ export interface IRegistrar extends BaseContract {
   estimateGas: {
     getAngelProtocolParams(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getRebalanceParams(overrides?: CallOverrides): Promise<BigNumber>;
+    getGasByToken(
+      _tokenAddr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    getSplitDetails(overrides?: CallOverrides): Promise<BigNumber>;
+    getRebalanceParams(overrides?: CallOverrides): Promise<BigNumber>;
 
     getStrategyParamsById(
       _strategyId: PromiseOrValue<BytesLike>,
@@ -598,13 +633,14 @@ export interface IRegistrar extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setRebalanceParams(
-      _rebalanceParams: IRegistrar.RebalanceParamsStruct,
+    setGasByToken(
+      _tokenAddr: PromiseOrValue<string>,
+      _gasFee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setSplitDetails(
-      _splitDetails: IRegistrar.SplitDetailsStruct,
+    setRebalanceParams(
+      _rebalanceParams: IRegistrar.RebalanceParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -619,6 +655,12 @@ export interface IRegistrar extends BaseContract {
       _liqAddr: PromiseOrValue<string>,
       _lockAddr: PromiseOrValue<string>,
       _isApproved: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setTokenAccepted(
+      _tokenAddr: PromiseOrValue<string>,
+      _isAccepted: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -628,11 +670,14 @@ export interface IRegistrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getRebalanceParams(
+    getGasByToken(
+      _tokenAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getSplitDetails(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getRebalanceParams(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     getStrategyParamsById(
       _strategyId: PromiseOrValue<BytesLike>,
@@ -654,13 +699,14 @@ export interface IRegistrar extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setRebalanceParams(
-      _rebalanceParams: IRegistrar.RebalanceParamsStruct,
+    setGasByToken(
+      _tokenAddr: PromiseOrValue<string>,
+      _gasFee: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setSplitDetails(
-      _splitDetails: IRegistrar.SplitDetailsStruct,
+    setRebalanceParams(
+      _rebalanceParams: IRegistrar.RebalanceParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -675,6 +721,12 @@ export interface IRegistrar extends BaseContract {
       _liqAddr: PromiseOrValue<string>,
       _lockAddr: PromiseOrValue<string>,
       _isApproved: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setTokenAccepted(
+      _tokenAddr: PromiseOrValue<string>,
+      _isAccepted: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

@@ -32,7 +32,7 @@ export interface IVaultLockedInterface extends utils.Interface {
   functions: {
     "deposit(uint32,address,uint256)": FunctionFragment;
     "getVaultType()": FunctionFragment;
-    "harvest(uint32)": FunctionFragment;
+    "harvest(uint32[])": FunctionFragment;
     "redeem(uint32,address,uint256)": FunctionFragment;
   };
 
@@ -54,7 +54,7 @@ export interface IVaultLockedInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "harvest",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [PromiseOrValue<BigNumberish>[]]
   ): string;
   encodeFunctionData(
     functionFragment: "redeem",
@@ -156,7 +156,7 @@ export interface IVaultLocked extends BaseContract {
     getVaultType(overrides?: CallOverrides): Promise<[number]>;
 
     harvest(
-      accountId: PromiseOrValue<BigNumberish>,
+      accountIds: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -178,7 +178,7 @@ export interface IVaultLocked extends BaseContract {
   getVaultType(overrides?: CallOverrides): Promise<number>;
 
   harvest(
-    accountId: PromiseOrValue<BigNumberish>,
+    accountIds: PromiseOrValue<BigNumberish>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -200,7 +200,7 @@ export interface IVaultLocked extends BaseContract {
     getVaultType(overrides?: CallOverrides): Promise<number>;
 
     harvest(
-      accountId: PromiseOrValue<BigNumberish>,
+      accountIds: PromiseOrValue<BigNumberish>[],
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -209,7 +209,7 @@ export interface IVaultLocked extends BaseContract {
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<BigNumber>;
   };
 
   filters: {
@@ -262,7 +262,7 @@ export interface IVaultLocked extends BaseContract {
     getVaultType(overrides?: CallOverrides): Promise<BigNumber>;
 
     harvest(
-      accountId: PromiseOrValue<BigNumberish>,
+      accountIds: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -285,7 +285,7 @@ export interface IVaultLocked extends BaseContract {
     getVaultType(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     harvest(
-      accountId: PromiseOrValue<BigNumberish>,
+      accountIds: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
