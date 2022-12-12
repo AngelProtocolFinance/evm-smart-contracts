@@ -39,6 +39,7 @@ export interface GoldfinchVaultInterface extends utils.Interface {
     "onERC721Received(address,address,uint256,bytes)": FunctionFragment;
     "principleByAccountId(uint32)": FunctionFragment;
     "redeem(uint32,address,uint256)": FunctionFragment;
+    "redeemAll(uint32)": FunctionFragment;
     "tokenIdByAccountId(uint32)": FunctionFragment;
   };
 
@@ -53,6 +54,7 @@ export interface GoldfinchVaultInterface extends utils.Interface {
       | "onERC721Received"
       | "principleByAccountId"
       | "redeem"
+      | "redeemAll"
       | "tokenIdByAccountId"
   ): FunctionFragment;
 
@@ -97,6 +99,10 @@ export interface GoldfinchVaultInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "redeemAll",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "tokenIdByAccountId",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -119,6 +125,7 @@ export interface GoldfinchVaultInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "redeemAll", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "tokenIdByAccountId",
     data: BytesLike
@@ -228,12 +235,17 @@ export interface GoldfinchVault extends BaseContract {
     principleByAccountId(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    ): Promise<[BigNumber, BigNumber] & { usdcP: BigNumber; fiduP: BigNumber }>;
 
     redeem(
       accountId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    redeemAll(
+      accountId: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -274,12 +286,17 @@ export interface GoldfinchVault extends BaseContract {
   principleByAccountId(
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  ): Promise<[BigNumber, BigNumber] & { usdcP: BigNumber; fiduP: BigNumber }>;
 
   redeem(
     accountId: PromiseOrValue<BigNumberish>,
     token: PromiseOrValue<string>,
     amt: PromiseOrValue<BigNumberish>,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  redeemAll(
+    accountId: PromiseOrValue<BigNumberish>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -320,12 +337,17 @@ export interface GoldfinchVault extends BaseContract {
     principleByAccountId(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<[BigNumber, BigNumber] & { usdcP: BigNumber; fiduP: BigNumber }>;
 
     redeem(
       accountId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    redeemAll(
+      accountId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -415,6 +437,11 @@ export interface GoldfinchVault extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    redeemAll(
+      accountId: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     tokenIdByAccountId(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -459,6 +486,11 @@ export interface GoldfinchVault extends BaseContract {
       accountId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    redeemAll(
+      accountId: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -2,7 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { GFITrader } from "./GFITrader";
-export type { GoldfinchLiquidVault } from "./GoldfinchLiquidVault";
 export type { GoldfinchLockedVault } from "./GoldfinchLockedVault";
 export type { GoldfinchVault } from "./GoldfinchVault";
 export type { ICurveLP } from "./ICurveLP";

@@ -5,7 +5,6 @@ export * as axelar from "./axelar";
 export * as integrations from "./integrations";
 export * as interfaces from "./interfaces";
 export * as lib from "./lib";
-export * as test from "./test";
 export { Lock__factory } from "./Lock__factory";
 export { Registrar__factory } from "./Registrar__factory";
 export { Router__factory } from "./Router__factory";

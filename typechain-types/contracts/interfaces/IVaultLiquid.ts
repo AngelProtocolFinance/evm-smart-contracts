@@ -34,10 +34,16 @@ export interface IVaultLiquidInterface extends utils.Interface {
     "getVaultType()": FunctionFragment;
     "harvest(uint32[])": FunctionFragment;
     "redeem(uint32,address,uint256)": FunctionFragment;
+    "redeemAll(uint32)": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "deposit" | "getVaultType" | "harvest" | "redeem"
+    nameOrSignatureOrTopic:
+      | "deposit"
+      | "getVaultType"
+      | "harvest"
+      | "redeem"
+      | "redeemAll"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -64,6 +70,10 @@ export interface IVaultLiquidInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "redeemAll",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
 
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(
@@ -72,6 +82,7 @@ export interface IVaultLiquidInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "harvest", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "redeemAll", data: BytesLike): Result;
 
   events: {
     "DepositMade(uint32,uint8,address,uint256,address)": EventFragment;
@@ -166,6 +177,11 @@ export interface IVaultLiquid extends BaseContract {
       amt: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    redeemAll(
+      accountId: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   deposit(
@@ -189,6 +205,11 @@ export interface IVaultLiquid extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  redeemAll(
+    accountId: PromiseOrValue<BigNumberish>,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     deposit(
       accountId: PromiseOrValue<BigNumberish>,
@@ -208,6 +229,11 @@ export interface IVaultLiquid extends BaseContract {
       accountId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    redeemAll(
+      accountId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -272,6 +298,11 @@ export interface IVaultLiquid extends BaseContract {
       amt: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    redeemAll(
+      accountId: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -293,6 +324,11 @@ export interface IVaultLiquid extends BaseContract {
       accountId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    redeemAll(
+      accountId: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

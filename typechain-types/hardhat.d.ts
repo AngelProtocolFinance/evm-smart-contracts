@@ -65,10 +65,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.GFITrader__factory>;
     getContractFactory(
-      name: "GoldfinchLiquidVault",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.GoldfinchLiquidVault__factory>;
-    getContractFactory(
       name: "GoldfinchLockedVault",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.GoldfinchLockedVault__factory>;
@@ -124,18 +120,6 @@ declare module "hardhat/types/runtime" {
       name: "Router",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Router__factory>;
-    getContractFactory(
-      name: "IRegistrar",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IRegistrar__factory>;
-    getContractFactory(
-      name: "IVault",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IVault__factory>;
-    getContractFactory(
-      name: "Registrar",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Registrar__factory>;
 
     getContractAt(
       name: "IAxelarExecutable",
@@ -202,11 +186,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.GFITrader>;
-    getContractAt(
-      name: "GoldfinchLiquidVault",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.GoldfinchLiquidVault>;
     getContractAt(
       name: "GoldfinchLockedVault",
       address: string,
@@ -277,21 +256,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Router>;
-    getContractAt(
-      name: "IRegistrar",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IRegistrar>;
-    getContractAt(
-      name: "IVault",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IVault>;
-    getContractAt(
-      name: "Registrar",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Registrar>;
 
     // default types
     getContractFactory(

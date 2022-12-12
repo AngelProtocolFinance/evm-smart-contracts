@@ -175,6 +175,25 @@ const _abi = [
     stateMutability: "payable",
     type: "function",
   },
+  {
+    inputs: [
+      {
+        internalType: "uint32",
+        name: "accountId",
+        type: "uint32",
+      },
+    ],
+    name: "redeemAll",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
 ];
 
 export class IVaultLocked__factory {

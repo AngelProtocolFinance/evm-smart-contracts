@@ -36,8 +36,6 @@ export type { AxelarExecutable } from "./contracts/axelar/AxelarExecutable";
 export { AxelarExecutable__factory } from "./factories/contracts/axelar/AxelarExecutable__factory";
 export type { GFITrader } from "./contracts/integrations/goldfinch/GFITrader";
 export { GFITrader__factory } from "./factories/contracts/integrations/goldfinch/GFITrader__factory";
-export type { GoldfinchLiquidVault } from "./contracts/integrations/goldfinch/GoldfinchLiquidVault";
-export { GoldfinchLiquidVault__factory } from "./factories/contracts/integrations/goldfinch/GoldfinchLiquidVault__factory";
 export type { GoldfinchLockedVault } from "./contracts/integrations/goldfinch/GoldfinchLockedVault";
 export { GoldfinchLockedVault__factory } from "./factories/contracts/integrations/goldfinch/GoldfinchLockedVault__factory";
 export type { GoldfinchVault } from "./contracts/integrations/goldfinch/GoldfinchVault";
