@@ -57,12 +57,20 @@ abstract contract IVault {
 
     /// @notice redeem value from the vault contract
     /// @dev allows an Account to redeem from its staked value. The behavior is different dependent on VaultType.
+    /// Before returning the redemption amt, the vault must approve the Router to spend the tokens. 
     /// @param accountId a unique Id for each Angel Protocol account
     /// @param token the deposited token
     /// @param amt the amount of the deposited token 
     /// @return redemptionAmt returns the number of tokens redeemed by the call; this may differ from 
     /// the called `amt` due to slippage/trading/fees
     function redeem(uint32 accountId, address token, uint256 amt) payable external virtual returns (uint256);
+
+    /// @notice redeem all of the value from the vault contract
+    /// @dev allows an Account to redeem all of its staked value. Good for rebasing tokens wherein the value isn't
+    /// known explicitly. Before returning the redemption amt, the vault must approve the Router to spend the tokens. 
+    /// @param accountId a unique Id for each Angel Protocol account
+    /// @return redemptionAmt returns the number of tokens redeemed by the call
+    function redeemAll(uint32 accountId) payable external virtual returns (uint256); 
 
     /// @notice restricted method for harvesting accrued rewards 
     /// @dev Claim reward tokens accumulated to the staked value. The underlying behavior will vary depending 

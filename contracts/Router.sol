@@ -59,6 +59,10 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         else if (_action.selector == IVault.redeem.selector) {
             _redeem(_params, _action);
         }
+        // REDEEM ALL
+        else if (_action.selector == IVault.redeemAll.selector) {
+            _redeemAll(_params, _action);
+        }
         // HARVEST
         else if (_action.selector == IVault.harvest.selector) {
             _harvest(_params, _action);
@@ -102,28 +106,50 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
             _action.token,
             _action.lockAmt
         );
+        IERC20Upgradeable(_action.token).transferFrom(_params.Locked.vaultAddr, address(this), _redeemedLockAmt);
+
         uint256 _redeemedLiqAmt = liquidVault.redeem(
             _action.accountIds[0],
             _action.token,
             _action.liqAmt
         );
+        IERC20Upgradeable(_action.token).transferFrom(_params.Liquid.vaultAddr, address(this), _redeemedLiqAmt);
 
-        // Pack the tokens and calldata for bridging back out over GMP
-        IRegistrar.AngelProtocolParams memory apParams = registar
-            .getAngelProtocolParams();
-        bytes memory payload = _packCallData(_action);
-        uint256 gasFee = registar.getGasByToken(_action.token);
-        uint256 amtLessGasFee = (_redeemedLockAmt + _redeemedLiqAmt) - gasFee;
-        _sendTokens(
-            apParams.primaryChain,
-            apParams.primaryChainRouter,
-            payload,
-            symbolFromAddress[_action.token],
-            amtLessGasFee,
-            _action.token,
-            gasFee
-        );
+        // Pack and send the tokens back through GMP 
+        uint256 _redeemedAmt = _redeemedLockAmt + _redeemedLiqAmt; 
+        _prepareAndSendTokens(_action, _redeemedAmt);
     }
+
+    // Vault action::RedeemAll
+        function _redeemAll(
+        IRegistrar.StrategyParams memory _params,
+        VaultActionData memory _action
+    ) internal onlyOneAccount(_action) {
+        IVaultLocked lockedVault = IVaultLocked(_params.Locked.vaultAddr);
+        IVaultLiquid liquidVault = IVaultLiquid(_params.Liquid.vaultAddr);
+
+        // Redeem tokens from vaults and txfer them to the Router
+        uint256 _redeemedLockAmt;
+        if(_action.lockAmt > 0) {       // only do a redeemAll if the lock amt is nonzero
+            _redeemedLockAmt = lockedVault.redeemAll(
+                _action.accountIds[0]);
+            IERC20Upgradeable(_action.token)
+                .transferFrom(_params.Locked.vaultAddr, address(this), _redeemedLockAmt);
+        }
+
+        uint256 _redeemedLiqAmt;
+        if(_action.liqAmt > 0) {        // only do a redeemAll if the liquid amt is nonzero
+            _redeemedLiqAmt = liquidVault.redeemAll(
+                _action.accountIds[0]);
+            IERC20Upgradeable(_action.token)
+                .transferFrom(_params.Liquid.vaultAddr, address(this), _redeemedLiqAmt);
+        }
+
+        // Pack and send the tokens back through GMP 
+        uint256 _redeemedAmt = _redeemedLockAmt + _redeemedLiqAmt; 
+        _prepareAndSendTokens(_action, _redeemedAmt);
+    }
+
 
     // Vault action::Harvest
     function _harvest(
@@ -159,6 +185,31 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
             "Unauthorized Call"
         );
         _;
+    }
+
+    function _prepareAndSendTokens(
+        VaultActionData memory _action, 
+        uint256 _redeemedAmt
+        ) internal {
+
+        // Pack the tokens and calldata for bridging back out over GMP
+        IRegistrar.AngelProtocolParams memory apParams = registar
+            .getAngelProtocolParams();
+        bytes memory payload = _packCallData(_action);
+
+        // Prepare gas 
+        uint256 gasFee = registar.getGasByToken(_action.token);
+        uint256 amtLessGasFee = _redeemedAmt - gasFee;
+
+        _sendTokens(
+            apParams.primaryChain,
+            apParams.primaryChainRouter,
+            payload,
+            symbolFromAddress[_action.token],
+            amtLessGasFee,
+            _action.token,
+            gasFee
+        );
     }
 
     function _sendTokens(

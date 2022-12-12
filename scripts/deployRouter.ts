@@ -2,35 +2,41 @@ import { ethers, upgrades } from "hardhat";
 import * as logger from "../utils/logger"
 import * as fs from "fs";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { Registrar, Registrar__factory } from "../typechain-types"
+import { Router, Router__factory } from "../typechain-types"
 import { BigNumber } from "ethers";
 
 async function deploy() {
 
   let deployer: SignerWithAddress
   [deployer] = await ethers.getSigners()
-  
+
   const network = await ethers.provider.getNetwork()
+
+  let rawdata = fs.readFileSync('address.json', "utf8")
+  let address: any = JSON.parse(rawdata)
 
   logger.divider()
   logger.out("Deploying to: " + network.name, logger.Level.Info)
   logger.out("With chain id: " + network.chainId, logger.Level.Info)
 
-  const Registrar = await ethers.getContractFactory("Registrar") as Registrar__factory;
-  const registrar = await upgrades.deployProxy(Registrar) as Registrar
+  const gatewayAddress = ""
+  const gasReceiverAddress = ""
+  const registrarAddress = address[network.chainId]["registrar"]
 
-  await registrar.deployed();
-  logger.pad(30, "Deployed to:", registrar.address);
-  logger.out(await registrar.getRebalanceParams())
-  logger.out(await registrar.getAngelProtocolParams())
+  const Router = await ethers.getContractFactory("Router__factory") as Router__factory;
+  const router = await upgrades.deployProxy(
+    Router,
+    [gatewayAddress,
+      gasReceiverAddress,
+      registrarAddress]) as Router
 
+  await router.deployed();
+  logger.pad(30, "Deployed to:", router.address);
 
   logger.divider()
   logger.out("Writing to address.json", logger.Level.Info)
 
-  let rawdata = fs.readFileSync('address.json', "utf8")
-  let address: any = JSON.parse(rawdata)
-  address[network.chainId] = {"registrar": registrar.address}
+  address[network.chainId] = router.address
   const json = JSON.stringify(address, null, 2)
   fs.writeFileSync('address.json', json, "utf8")
 }

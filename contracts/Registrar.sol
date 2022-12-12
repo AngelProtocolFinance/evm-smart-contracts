@@ -22,9 +22,10 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
     mapping(address => bool) AcceptedTokens;
     mapping(address=> uint256) GasFeeByToken;
 
+    // @dev !!! IMPORTANT !!!
     // Integrations storage declarations must be added here to the bottom
     // If not, they will overshadow the storage slots that are already in use
-    APGoldfinchConfigLib.APGoldfinchConfig public apGoldfinch;  
+    APGoldfinchConfigLib.APGoldfinchConfig public apGoldfinch;
 
     /*////////////////////////////////////////////////
                     PROXY INIT
