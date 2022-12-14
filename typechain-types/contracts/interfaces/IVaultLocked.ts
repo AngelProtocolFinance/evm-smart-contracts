@@ -85,9 +85,9 @@ export interface IVaultLockedInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "redeemAll", data: BytesLike): Result;
 
   events: {
-    "DepositMade(uint32,uint8,address,uint256,address)": EventFragment;
+    "DepositMade(uint32,uint8,address,uint256)": EventFragment;
     "Harvest(uint32[])": EventFragment;
-    "Redemption(uint32,uint8,address,uint256,address)": EventFragment;
+    "Redemption(uint32,uint8,address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "DepositMade"): EventFragment;
@@ -100,10 +100,9 @@ export interface DepositMadeEventObject {
   vaultType: number;
   tokenDeposited: string;
   amtDeposited: BigNumber;
-  stakingContract: string;
 }
 export type DepositMadeEvent = TypedEvent<
-  [number, number, string, BigNumber, string],
+  [number, number, string, BigNumber],
   DepositMadeEventObject
 >;
 
@@ -121,10 +120,9 @@ export interface RedemptionEventObject {
   vaultType: number;
   tokenRedeemed: string;
   amtRedeemed: BigNumber;
-  stakingContract: string;
 }
 export type RedemptionEvent = TypedEvent<
-  [number, number, string, BigNumber, string],
+  [number, number, string, BigNumber],
   RedemptionEventObject
 >;
 
@@ -239,19 +237,17 @@ export interface IVaultLocked extends BaseContract {
   };
 
   filters: {
-    "DepositMade(uint32,uint8,address,uint256,address)"(
+    "DepositMade(uint32,uint8,address,uint256)"(
       accountId?: PromiseOrValue<BigNumberish> | null,
       vaultType?: null,
       tokenDeposited?: null,
-      amtDeposited?: null,
-      stakingContract?: PromiseOrValue<string> | null
+      amtDeposited?: null
     ): DepositMadeEventFilter;
     DepositMade(
       accountId?: PromiseOrValue<BigNumberish> | null,
       vaultType?: null,
       tokenDeposited?: null,
-      amtDeposited?: null,
-      stakingContract?: PromiseOrValue<string> | null
+      amtDeposited?: null
     ): DepositMadeEventFilter;
 
     "Harvest(uint32[])"(
@@ -261,19 +257,17 @@ export interface IVaultLocked extends BaseContract {
       accountIds?: PromiseOrValue<BigNumberish>[] | null
     ): HarvestEventFilter;
 
-    "Redemption(uint32,uint8,address,uint256,address)"(
+    "Redemption(uint32,uint8,address,uint256)"(
       accountId?: PromiseOrValue<BigNumberish> | null,
       vaultType?: null,
       tokenRedeemed?: null,
-      amtRedeemed?: null,
-      stakingContract?: PromiseOrValue<string> | null
+      amtRedeemed?: null
     ): RedemptionEventFilter;
     Redemption(
       accountId?: PromiseOrValue<BigNumberish> | null,
       vaultType?: null,
       tokenRedeemed?: null,
-      amtRedeemed?: null,
-      stakingContract?: PromiseOrValue<string> | null
+      amtRedeemed?: null
     ): RedemptionEventFilter;
   };
 

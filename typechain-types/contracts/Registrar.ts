@@ -423,8 +423,8 @@ export type StrategyApprovalChangedEventFilter =
 
 export interface StrategyParamsChangedEventObject {
   _strategyId: string;
-  _liqAddr: string;
   _lockAddr: string;
+  _liqAddr: string;
   _isApproved: boolean;
 }
 export type StrategyParamsChangedEvent = TypedEvent<
@@ -578,8 +578,8 @@ export interface Registrar extends BaseContract {
 
     setStrategyParams(
       _strategyId: PromiseOrValue<BytesLike>,
-      _liqAddr: PromiseOrValue<string>,
       _lockAddr: PromiseOrValue<string>,
+      _liqAddr: PromiseOrValue<string>,
       _isApproved: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -696,8 +696,8 @@ export interface Registrar extends BaseContract {
 
   setStrategyParams(
     _strategyId: PromiseOrValue<BytesLike>,
-    _liqAddr: PromiseOrValue<string>,
     _lockAddr: PromiseOrValue<string>,
+    _liqAddr: PromiseOrValue<string>,
     _isApproved: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -810,8 +810,8 @@ export interface Registrar extends BaseContract {
 
     setStrategyParams(
       _strategyId: PromiseOrValue<BytesLike>,
-      _liqAddr: PromiseOrValue<string>,
       _lockAddr: PromiseOrValue<string>,
+      _liqAddr: PromiseOrValue<string>,
       _isApproved: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -875,14 +875,14 @@ export interface Registrar extends BaseContract {
 
     "StrategyParamsChanged(bytes4,address,address,bool)"(
       _strategyId?: PromiseOrValue<BytesLike> | null,
-      _liqAddr?: PromiseOrValue<string> | null,
       _lockAddr?: PromiseOrValue<string> | null,
+      _liqAddr?: PromiseOrValue<string> | null,
       _isApproved?: null
     ): StrategyParamsChangedEventFilter;
     StrategyParamsChanged(
       _strategyId?: PromiseOrValue<BytesLike> | null,
-      _liqAddr?: PromiseOrValue<string> | null,
       _lockAddr?: PromiseOrValue<string> | null,
+      _liqAddr?: PromiseOrValue<string> | null,
       _isApproved?: null
     ): StrategyParamsChangedEventFilter;
 
@@ -968,8 +968,8 @@ export interface Registrar extends BaseContract {
 
     setStrategyParams(
       _strategyId: PromiseOrValue<BytesLike>,
-      _liqAddr: PromiseOrValue<string>,
       _lockAddr: PromiseOrValue<string>,
+      _liqAddr: PromiseOrValue<string>,
       _isApproved: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1066,8 +1066,8 @@ export interface Registrar extends BaseContract {
 
     setStrategyParams(
       _strategyId: PromiseOrValue<BytesLike>,
-      _liqAddr: PromiseOrValue<string>,
       _lockAddr: PromiseOrValue<string>,
+      _liqAddr: PromiseOrValue<string>,
       _isApproved: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

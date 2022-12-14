@@ -2,9 +2,6 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.0;
 
-// @Todo eliminate upgradability and ownability. this can be deployed as an immutable contract
-// and if it ever needs to be updated/upgraded, a new one can simply be deployed
-
 import {IRouter} from "./interfaces/IRouter.sol";
 import {IVault} from "./interfaces/IVault.sol";
 import {IVaultLiquid} from "./interfaces/IVaultLiquid.sol";
@@ -18,7 +15,7 @@ import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/
 import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService.sol";
 
 contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
-    IRegistrar public registar;
+    IRegistrar public registrar;
     IAxelarGasService public gasReceiver;
 
     mapping(address => string) symbolFromAddress; // reverse lookup for Axelar token symbol
@@ -32,7 +29,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         address _gasReceiver,
         address _registrar
     ) public initializer {
-        registar = IRegistrar(_registrar);
+        registrar = IRegistrar(_registrar);
         gasReceiver = IAxelarGasService(_gasReceiver);
         __AxelarExecutable_init_unchained(_gateway);
         __Ownable_init_unchained();
@@ -167,7 +164,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     */////////////////////////////////////////////////
 
     modifier onlyPrimaryChain(string calldata _sourceChain) {
-        IRegistrar.AngelProtocolParams memory APParams = registar
+        IRegistrar.AngelProtocolParams memory APParams = registrar
             .getAngelProtocolParams();
         require(
             keccak256(bytes(_sourceChain)) ==
@@ -177,7 +174,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     }
 
     modifier onlyPrimaryRouter(string calldata _sourceAddress) {
-        IRegistrar.AngelProtocolParams memory APParams = registar
+        IRegistrar.AngelProtocolParams memory APParams = registrar
             .getAngelProtocolParams();
         require(
             StringToAddress.toAddress(_sourceAddress) ==
@@ -193,12 +190,12 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         ) internal {
 
         // Pack the tokens and calldata for bridging back out over GMP
-        IRegistrar.AngelProtocolParams memory apParams = registar
+        IRegistrar.AngelProtocolParams memory apParams = registrar
             .getAngelProtocolParams();
         bytes memory payload = _packCallData(_action);
 
         // Prepare gas 
-        uint256 gasFee = registar.getGasByToken(_action.token);
+        uint256 gasFee = registrar.getGasByToken(_action.token);
         uint256 amtLessGasFee = _redeemedAmt - gasFee;
 
         _sendTokens(
@@ -224,7 +221,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         address tokenAddress = gateway.tokenAddresses(symbol);
         IERC20Upgradeable(tokenAddress).approve(address(gateway), amount);
 
-        IRegistrar.AngelProtocolParams memory apParams = registar
+        IRegistrar.AngelProtocolParams memory apParams = registrar
             .getAngelProtocolParams();
         if (msg.value > 0) {
             gasReceiver.payGasForContractCallWithToken(
@@ -279,7 +276,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         address tokenAddress = gateway.tokenAddresses(tokenSymbol);
 
         // check that token is accepted by angel protocol
-        require(registar.isTokenAccepted(tokenAddress), "Token not accepted");
+        require(registrar.isTokenAccepted(tokenAddress), "Token not accepted");
 
         // check that the token fwd by GMP is the same as the actionable token
         require(
@@ -299,8 +296,8 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         }
 
         // Get parameters from registrar if approved
-        require(registar.isStrategyApproved(action.strategyId));
-        IRegistrar.StrategyParams memory params = registar
+        require(registrar.isStrategyApproved(action.strategyId));
+        IRegistrar.StrategyParams memory params = registrar
             .getStrategyParamsById(action.strategyId);
 
         // Update the address -> symbol mapping
@@ -324,8 +321,8 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         VaultActionData memory action = _unpackCalldata(payload);
 
         // Get parameters from registrar if approved
-        require(registar.isStrategyApproved(action.strategyId));
-        IRegistrar.StrategyParams memory params = registar
+        require(registrar.isStrategyApproved(action.strategyId));
+        IRegistrar.StrategyParams memory params = registrar
             .getStrategyParamsById(action.strategyId);
 
         // Switch for calling appropriate vault/method

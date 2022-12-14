@@ -18,8 +18,7 @@ abstract contract IVault {
         uint32 indexed accountId, 
         VaultType vaultType, 
         address tokenDeposited, 
-        uint256 amtDeposited, 
-        address indexed stakingContract); 
+        uint256 amtDeposited); 
 
     /// @notice Event emited on each Redemption call 
     /// @dev Upon redemption, emit this event. Index the account and staking contract for analytics 
@@ -27,8 +26,7 @@ abstract contract IVault {
         uint32 indexed accountId, 
         VaultType vaultType, 
         address tokenRedeemed, 
-        uint256 amtRedeemed, 
-        address indexed stakingContract);
+        uint256 amtRedeemed);
 
     /// @notice Event emited on each Harvest call
     /// @dev Upon harvest, emit this event. Index the accounts harvested for. 
@@ -67,7 +65,7 @@ abstract contract IVault {
 
     /// @notice redeem all of the value from the vault contract
     /// @dev allows an Account to redeem all of its staked value. Good for rebasing tokens wherein the value isn't
-    /// known explicitly. Before returning the redemption amt, the vault must approve the Router to spend the tokens. 
+    /// known explicitly. Before returning the redemption amt, the vault must approve the Router to spend the tokens.
     /// @param accountId a unique Id for each Angel Protocol account
     /// @return redemptionAmt returns the number of tokens redeemed by the call
     function redeemAll(uint32 accountId) payable external virtual returns (uint256); 

@@ -143,27 +143,27 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
 
     function setStrategyParams(
         bytes4 _strategyId,
-        address _liqAddr,
         address _lockAddr,
+        address _liqAddr,
         bool _isApproved
     ) external override onlyOwner {
-        VaultParams memory liquidParams = VaultParams(
-            IVault.VaultType.LIQUID,
-            _liqAddr
-        );
         VaultParams memory lockedParams = VaultParams(
             IVault.VaultType.LOCKED,
             _lockAddr
         );
+        VaultParams memory liquidParams = VaultParams(
+            IVault.VaultType.LIQUID,
+            _liqAddr
+        );
         VaultsByStrategyId[_strategyId] = StrategyParams(
             _isApproved,
-            liquidParams,
-            lockedParams
+            lockedParams,
+            liquidParams
         );
         emit StrategyParamsChanged(
             _strategyId,
-            _liqAddr,
             _lockAddr,
+            _liqAddr,
             _isApproved
         );
     }

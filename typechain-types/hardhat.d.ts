@@ -65,10 +65,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.GFITrader__factory>;
     getContractFactory(
-      name: "GoldfinchLockedVault",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.GoldfinchLockedVault__factory>;
-    getContractFactory(
       name: "GoldfinchVault",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.GoldfinchVault__factory>;
@@ -120,6 +116,14 @@ declare module "hardhat/types/runtime" {
       name: "Router",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Router__factory>;
+    getContractFactory(
+      name: "DummyGateway",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.DummyGateway__factory>;
+    getContractFactory(
+      name: "DummyVault",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.DummyVault__factory>;
 
     getContractAt(
       name: "IAxelarExecutable",
@@ -187,11 +191,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.GFITrader>;
     getContractAt(
-      name: "GoldfinchLockedVault",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.GoldfinchLockedVault>;
-    getContractAt(
       name: "GoldfinchVault",
       address: string,
       signer?: ethers.Signer
@@ -256,6 +255,16 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Router>;
+    getContractAt(
+      name: "DummyGateway",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DummyGateway>;
+    getContractAt(
+      name: "DummyVault",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DummyVault>;
 
     // default types
     getContractFactory(

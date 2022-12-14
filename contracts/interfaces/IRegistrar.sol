@@ -17,8 +17,8 @@ interface IRegistrar {
     event StrategyApprovalChanged(bytes4 indexed _strategyId, bool _isApproved);
     event StrategyParamsChanged(
         bytes4 indexed _strategyId,
-        address indexed _liqAddr,
         address indexed _lockAddr,
+        address indexed _liqAddr,
         bool _isApproved
     );
     event GasFeeUpdated(address indexed _tokenAddr, uint256 _gasFee); 

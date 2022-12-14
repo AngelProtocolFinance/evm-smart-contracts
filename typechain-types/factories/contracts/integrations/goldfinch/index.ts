@@ -2,7 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export { GFITrader__factory } from "./GFITrader__factory";
-export { GoldfinchLockedVault__factory } from "./GoldfinchLockedVault__factory";
 export { GoldfinchVault__factory } from "./GoldfinchVault__factory";
 export { ICurveLP__factory } from "./ICurveLP__factory";
 export { IRegistrarGoldfinch__factory } from "./IRegistrarGoldfinch__factory";

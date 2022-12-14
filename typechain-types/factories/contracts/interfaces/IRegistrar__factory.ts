@@ -145,13 +145,13 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "_liqAddr",
+        name: "_lockAddr",
         type: "address",
       },
       {
         indexed: true,
         internalType: "address",
-        name: "_lockAddr",
+        name: "_liqAddr",
         type: "address",
       },
       {

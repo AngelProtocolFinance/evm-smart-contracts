@@ -28,7 +28,7 @@ import type {
   PromiseOrValue,
 } from "../../common";
 
-export interface IVaultInterface extends utils.Interface {
+export interface DummyVaultInterface extends utils.Interface {
   functions: {
     "deposit(uint32,address,uint256)": FunctionFragment;
     "getVaultType()": FunctionFragment;
@@ -128,12 +128,12 @@ export type RedemptionEvent = TypedEvent<
 
 export type RedemptionEventFilter = TypedEventFilter<RedemptionEvent>;
 
-export interface IVault extends BaseContract {
+export interface DummyVault extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: IVaultInterface;
+  interface: DummyVaultInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,

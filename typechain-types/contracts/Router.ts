@@ -35,7 +35,7 @@ export interface RouterInterface extends utils.Interface {
     "gateway()": FunctionFragment;
     "initialize(address,address,address)": FunctionFragment;
     "owner()": FunctionFragment;
-    "registar()": FunctionFragment;
+    "registrar()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
   };
@@ -48,7 +48,7 @@ export interface RouterInterface extends utils.Interface {
       | "gateway"
       | "initialize"
       | "owner"
-      | "registar"
+      | "registrar"
       | "renounceOwnership"
       | "transferOwnership"
   ): FunctionFragment;
@@ -87,7 +87,7 @@ export interface RouterInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(functionFragment: "registar", values?: undefined): string;
+  encodeFunctionData(functionFragment: "registrar", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
@@ -109,7 +109,7 @@ export interface RouterInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "gateway", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "registar", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "registrar", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
@@ -205,7 +205,7 @@ export interface Router extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
-    registar(overrides?: CallOverrides): Promise<[string]>;
+    registrar(overrides?: CallOverrides): Promise<[string]>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -248,7 +248,7 @@ export interface Router extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
-  registar(overrides?: CallOverrides): Promise<string>;
+  registrar(overrides?: CallOverrides): Promise<string>;
 
   renounceOwnership(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -291,7 +291,7 @@ export interface Router extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
-    registar(overrides?: CallOverrides): Promise<string>;
+    registrar(overrides?: CallOverrides): Promise<string>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
@@ -347,7 +347,7 @@ export interface Router extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
-    registar(overrides?: CallOverrides): Promise<BigNumber>;
+    registrar(overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -391,7 +391,7 @@ export interface Router extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    registar(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    registrar(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }

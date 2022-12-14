@@ -3,7 +3,7 @@ import { ethers, upgrades } from "hardhat";
 import { Registrar, Registrar__factory, IRegistrar } from "../typechain-types"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 
-describe("Registrar", async function () {
+describe("Registrar", function () {
   let owner: SignerWithAddress
   let user: SignerWithAddress
   let Registrar: Registrar__factory
@@ -32,7 +32,7 @@ describe("Registrar", async function () {
     return registrar;
   }
 
-  describe("Deployment", async function () {
+  describe("Deployment", function () {
     let registrar: Registrar
     beforeEach(async function () {
       registrar = await deployRegistrarAsProxy();
@@ -71,7 +71,7 @@ describe("Registrar", async function () {
     })
   })
 
-  describe("Setters and Getters", async function () {
+  describe("Setters and Getters", function () {
     let registrar: Registrar
     beforeEach(async function () {
       registrar = await deployRegistrarAsProxy();
@@ -129,17 +129,17 @@ describe("Registrar", async function () {
       })
     })
 
-    describe("setStrategyParams, setStrategyApproved, getStrategyParams, and isStrategyApproved", async function () {
-      let strategyId = "0x23b872dd" // random 4-byte hash
+    describe("set and get Strategy params", async function () {
+      let strategyId = "0xffffffff" // random 4-byte hash
       let strategyParams = {
         isApproved: false, 
         Locked : {
           Type: 0,
-          vaultAddr: ethers.constants.AddressZero
+          vaultAddr: "0x690B9A9E9aa1C9dB991C7721a92d351Db4FaC990"
         },
         Liquid: {
           Type: 1,
-          vaultAddr: user.address
+          vaultAddr: "0x000000000000000000000000000000000000dEaD"
         }
       }
 
@@ -175,6 +175,60 @@ describe("Registrar", async function () {
         expect(returnedValue).to.be.false
       })
     })
+  })
 
+  describe("Events", function () {
+    let registrar: Registrar
+    beforeEach(async function () {
+      registrar = await deployRegistrarAsProxy();
+    })
+    let strategyId = "0xffffffff" // random 4-byte hash
+    let strategyParams = {
+      isApproved: false, 
+      Locked : {
+        Type: 0,
+        vaultAddr: "0x690B9A9E9aa1C9dB991C7721a92d351Db4FaC990"
+      },
+      Liquid: {
+        Type: 1,
+        vaultAddr: "0x000000000000000000000000000000000000dEaD"
+      }
+    }
+
+
+    it("should emit RebalanceParamsChanged", async function () {
+      await expect(registrar.setRebalanceParams(defaultRebalParams))
+      .to.emit(registrar, "RebalanceParamsChanged")
+    })
+
+    it("should emit AngelProtocolParamsChanged", async function () {
+      await expect(registrar.setAngelProtocolParams(defaultApParams))
+      .to.emit(registrar, "AngelProtocolParamsChanged")
+    })
+
+    it("should emit TokenAcceptanceChanged", async function () {
+      await expect(registrar.setTokenAccepted(user.address, true))
+      .to.emit(registrar, "TokenAcceptanceChanged")
+    })
+
+    it("should emit StrategyApprovalChanged", async function () {
+      await expect(registrar.setStrategyApproved(strategyId, true))
+      .to.emit(registrar, "StrategyApprovalChanged")
+    })
+
+    it("should emit StrategyParams Changed", async function () {
+      await expect(registrar.setStrategyParams(
+        strategyId,
+        strategyParams.Liquid.vaultAddr,
+        strategyParams.Locked.vaultAddr,
+        strategyParams.isApproved
+      ))
+      .to.emit(registrar, "StrategyParamsChanged")
+    })
+
+    it("should emit GasFeeUpdated", async function () {
+      await expect(registrar.setGasByToken(user.address, 1))
+      .to.emit(registrar, "GasFeeUpdated")
+    })
   })
 })
