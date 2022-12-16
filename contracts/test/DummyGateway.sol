@@ -10,6 +10,12 @@ contract DummyGateway is IAxelarGateway {
     |* Public Functions *|
     \********************/
 
+    address tokenAddress;
+
+    function setTestTokenAddress(address _addr) external {
+        tokenAddress = _addr;
+    }
+
     function sendToken(
         string calldata destinationChain,
         string calldata destinationAddress,
@@ -95,7 +101,11 @@ contract DummyGateway is IAxelarGateway {
 
     function implementation() external view returns (address) {}
 
-    function tokenAddresses(string memory symbol) external view returns (address) {}
+    function tokenAddresses(string memory symbol) external view returns (address) {
+        if(keccak256(abi.encodePacked(symbol)) == keccak256(abi.encodePacked("TKN"))){
+            return tokenAddress;
+        }
+    }
 
     function tokenFrozen(string memory symbol) external view returns (bool) {}
 

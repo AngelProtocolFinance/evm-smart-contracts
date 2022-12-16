@@ -1,12 +1,23 @@
 // SPDX-License-Identifier: UNLICENSED
 // author: @stevieraykatz
-// pragma
 pragma solidity >=0.8.0;
+
 import {IVault} from "../interfaces/IVault.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract DummyVault is IVault {
 
     IVault.VaultType vaultType;
+    address defaultToken;
+    address router;
+
+    function setDefaultToken(address _addr) external {
+        defaultToken = _addr;
+    }
+
+    function setRouterAddress(address _addr) external {
+        router = _addr;
+    }
 
     constructor(IVault.VaultType _type) {
         vaultType = _type;
@@ -21,12 +32,14 @@ contract DummyVault is IVault {
     }
 
     function redeem(uint32 accountId, address token, uint256 amt) payable external override returns (uint256) {
+        IERC20(token).approve(msg.sender, amt);
         emit Redemption(accountId, vaultType, token, amt);
-        return amt + 1;
+        return amt;
     }
 
     function redeemAll(uint32 accountId) payable external override returns (uint256) {
         uint256 dummyAmt = 1;
+        IERC20(defaultToken).approve(msg.sender, dummyAmt);
         emit Redemption(accountId, vaultType, address(this), dummyAmt);
         return dummyAmt;
     } 
@@ -36,6 +49,5 @@ contract DummyVault is IVault {
     }
 
     function _isApprovedRouter() internal override returns (bool) {
-        
     }
 }

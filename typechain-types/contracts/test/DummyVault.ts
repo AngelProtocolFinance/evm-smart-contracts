@@ -35,6 +35,8 @@ export interface DummyVaultInterface extends utils.Interface {
     "harvest(uint32[])": FunctionFragment;
     "redeem(uint32,address,uint256)": FunctionFragment;
     "redeemAll(uint32)": FunctionFragment;
+    "setDefaultToken(address)": FunctionFragment;
+    "setRouterAddress(address)": FunctionFragment;
   };
 
   getFunction(
@@ -44,6 +46,8 @@ export interface DummyVaultInterface extends utils.Interface {
       | "harvest"
       | "redeem"
       | "redeemAll"
+      | "setDefaultToken"
+      | "setRouterAddress"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -74,6 +78,14 @@ export interface DummyVaultInterface extends utils.Interface {
     functionFragment: "redeemAll",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "setDefaultToken",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRouterAddress",
+    values: [PromiseOrValue<string>]
+  ): string;
 
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(
@@ -83,6 +95,14 @@ export interface DummyVaultInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "harvest", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "redeemAll", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setDefaultToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRouterAddress",
+    data: BytesLike
+  ): Result;
 
   events: {
     "DepositMade(uint32,uint8,address,uint256)": EventFragment;
@@ -180,6 +200,16 @@ export interface DummyVault extends BaseContract {
       accountId: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    setDefaultToken(
+      _addr: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setRouterAddress(
+      _addr: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   deposit(
@@ -208,6 +238,16 @@ export interface DummyVault extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setDefaultToken(
+    _addr: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setRouterAddress(
+    _addr: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     deposit(
       accountId: PromiseOrValue<BigNumberish>,
@@ -234,6 +274,16 @@ export interface DummyVault extends BaseContract {
       accountId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    setDefaultToken(
+      _addr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setRouterAddress(
+      _addr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -297,6 +347,16 @@ export interface DummyVault extends BaseContract {
       accountId: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    setDefaultToken(
+      _addr: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setRouterAddress(
+      _addr: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -324,6 +384,16 @@ export interface DummyVault extends BaseContract {
     redeemAll(
       accountId: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setDefaultToken(
+      _addr: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setRouterAddress(
+      _addr: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

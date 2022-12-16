@@ -42,6 +42,7 @@ export interface DummyGatewayInterface extends utils.Interface {
     "isContractCallAndMintApproved(bytes32,string,string,address,bytes32,string,uint256)": FunctionFragment;
     "isContractCallApproved(bytes32,string,string,address,bytes32)": FunctionFragment;
     "sendToken(string,string,string,uint256)": FunctionFragment;
+    "setTestTokenAddress(address)": FunctionFragment;
     "setTokenMintLimits(string[],uint256[])": FunctionFragment;
     "setup(bytes)": FunctionFragment;
     "tokenAddresses(string)": FunctionFragment;
@@ -69,6 +70,7 @@ export interface DummyGatewayInterface extends utils.Interface {
       | "isContractCallAndMintApproved"
       | "isContractCallApproved"
       | "sendToken"
+      | "setTestTokenAddress"
       | "setTokenMintLimits"
       | "setup"
       | "tokenAddresses"
@@ -161,6 +163,10 @@ export interface DummyGatewayInterface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setTestTokenAddress",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "setTokenMintLimits",
@@ -256,6 +262,10 @@ export interface DummyGatewayInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "sendToken", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "setTestTokenAddress",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "setTokenMintLimits",
     data: BytesLike
@@ -556,6 +566,11 @@ export interface DummyGateway extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setTestTokenAddress(
+      _addr: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setTokenMintLimits(
       symbols: PromiseOrValue<string>[],
       limits: PromiseOrValue<BigNumberish>[],
@@ -687,6 +702,11 @@ export interface DummyGateway extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setTestTokenAddress(
+    _addr: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setTokenMintLimits(
     symbols: PromiseOrValue<string>[],
     limits: PromiseOrValue<BigNumberish>[],
@@ -815,6 +835,11 @@ export interface DummyGateway extends BaseContract {
       destinationAddress: PromiseOrValue<string>,
       symbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setTestTokenAddress(
+      _addr: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1080,6 +1105,11 @@ export interface DummyGateway extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setTestTokenAddress(
+      _addr: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setTokenMintLimits(
       symbols: PromiseOrValue<string>[],
       limits: PromiseOrValue<BigNumberish>[],
@@ -1209,6 +1239,11 @@ export interface DummyGateway extends BaseContract {
       destinationAddress: PromiseOrValue<string>,
       symbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setTestTokenAddress(
+      _addr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

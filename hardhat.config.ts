@@ -15,7 +15,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 });
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.10",
+  solidity: "0.8.15",
   networks: {
     "mainnet": {
       url: envConfig.mainnetRPC,

@@ -37,7 +37,7 @@ abstract contract IRouter is IAxelarExecutable {
     */////////////////////////////////////////////////
 
     // Internal data packing methods
-    function _unpackCalldata(bytes calldata _calldata)
+    function _unpackCalldata(bytes memory _calldata)
         internal
         virtual
         returns (VaultActionData memory)
@@ -53,6 +53,7 @@ abstract contract IRouter is IAxelarExecutable {
                 _calldata,
                 (bytes4, bytes4, uint32[], address, uint256, uint256)
             );
+
         return
             VaultActionData(
                 strategyId,

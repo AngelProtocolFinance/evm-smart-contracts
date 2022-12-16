@@ -168,7 +168,8 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
             .getAngelProtocolParams();
         require(
             keccak256(bytes(_sourceChain)) ==
-                keccak256(bytes(APParams.primaryChain))
+                keccak256(bytes(APParams.primaryChain)),
+            "Unauthorized Call"
         );
         _;
     }
@@ -269,6 +270,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         onlyPrimaryChain(sourceChain)
         onlyPrimaryRouter(sourceAddress)
     {
+        
         // decode payload
         VaultActionData memory action = _unpackCalldata(payload);
 
@@ -287,16 +289,8 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         // check that the action amts equal the amt fwd'd by GMP
         require(amount == (action.liqAmt + action.lockAmt), "Amount mismatch");
 
-        // check that fwd'd token amts match expected action amts
-        if (action.selector == IVault.deposit.selector) {
-            require(
-                amount == (action.liqAmt + action.lockAmt),
-                "Action amts mismatch fwd amt"
-            );
-        }
-
         // Get parameters from registrar if approved
-        require(registrar.isStrategyApproved(action.strategyId));
+        require(registrar.isStrategyApproved(action.strategyId), "Strategy not approved");
         IRegistrar.StrategyParams memory params = registrar
             .getStrategyParamsById(action.strategyId);
 
