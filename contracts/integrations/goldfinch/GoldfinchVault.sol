@@ -156,7 +156,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
         // tax the redemption based on yield 
         if(yield > 0) {
             uint256 taxedAmt = _calcTax(yield, redeemedUSDC);
-            IERC20(USDC).transfer(apParams.protocolTaxCollector, taxedAmt);
+            require(IERC20(USDC).transfer(apParams.protocolTaxCollector, taxedAmt));
             redeemedUSDC -= taxedAmt;
         }
 
@@ -208,16 +208,16 @@ contract GoldfinchVault is IVault, IERC721Receiver {
                     
                     // Unstake necessary FIDU to cover tax + rebalance to liquid 
                     (uint256 redeemedUSDC,) = _redeemFiduForUsdc(accountIds[i], (tax + rebalAmt));  // Redeem FIDU from underlying to USDC
-                    IERC20(USDC).transfer(apParams.protocolTaxCollector, tax);                      // Scrape tax USDC to tax collector
+                    require(IERC20(USDC).transfer(apParams.protocolTaxCollector, tax));                      // Scrape tax USDC to tax collector
 
                     // Rebalance to sibling vault  
                     IRegistrarGoldfinch.StrategyParams memory stratParams = registrar.getStrategyParamsById(STRATEGY_ID);
-                    IERC20(USDC).transfer(stratParams.Locked.vaultAddr, (redeemedUSDC - tax)); 
+                    require(IERC20(USDC).transfer(stratParams.Locked.vaultAddr, (redeemedUSDC - tax))); 
                     IVault(stratParams.Liquid.vaultAddr).deposit(accountIds[i], USDC, (redeemedUSDC - tax));
                 }
                 else {
                     (uint256 redeemedUSDC,) = _redeemFiduForUsdc(accountIds[i], tax);       
-                    IERC20(USDC).transfer(apParams.protocolTaxCollector, redeemedUSDC);     
+                    require(IERC20(USDC).transfer(apParams.protocolTaxCollector, redeemedUSDC));     
                 }
             }
         }
@@ -271,7 +271,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
         stakingPool.getReward(tokenIdByAccountId[accountId]);
         uint256 bal = IERC20(GFI).balanceOf(address(this));
         IRegistrarGoldfinch.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
-        IERC20(GFI).transfer(apParams.protocolTaxCollector, bal);
+        require(IERC20(GFI).transfer(apParams.protocolTaxCollector, bal));
     } 
 
     function _calcTax(uint256 yield, uint256 taxableAmt) internal view returns (uint256) {

@@ -10,15 +10,22 @@ contract DummyVault is IVault {
     IVault.VaultType vaultType;
     address defaultToken;
     address router;
+    uint256 dummyAmt;
 
+/// Test helpers
     function setDefaultToken(address _addr) external {
         defaultToken = _addr;
+    }
+
+    function setDummyAmt(uint256 _newDummyAmt) external {
+        dummyAmt = _newDummyAmt;
     }
 
     function setRouterAddress(address _addr) external {
         router = _addr;
     }
 
+/// Vault impl
     constructor(IVault.VaultType _type) {
         vaultType = _type;
     }
@@ -38,7 +45,6 @@ contract DummyVault is IVault {
     }
 
     function redeemAll(uint32 accountId) payable external override returns (uint256) {
-        uint256 dummyAmt = 1;
         IERC20(defaultToken).approve(msg.sender, dummyAmt);
         emit Redemption(accountId, vaultType, address(this), dummyAmt);
         return dummyAmt;

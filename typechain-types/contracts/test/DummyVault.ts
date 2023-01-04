@@ -36,6 +36,7 @@ export interface DummyVaultInterface extends utils.Interface {
     "redeem(uint32,address,uint256)": FunctionFragment;
     "redeemAll(uint32)": FunctionFragment;
     "setDefaultToken(address)": FunctionFragment;
+    "setDummyAmt(uint256)": FunctionFragment;
     "setRouterAddress(address)": FunctionFragment;
   };
 
@@ -47,6 +48,7 @@ export interface DummyVaultInterface extends utils.Interface {
       | "redeem"
       | "redeemAll"
       | "setDefaultToken"
+      | "setDummyAmt"
       | "setRouterAddress"
   ): FunctionFragment;
 
@@ -83,6 +85,10 @@ export interface DummyVaultInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setDummyAmt",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setRouterAddress",
     values: [PromiseOrValue<string>]
   ): string;
@@ -97,6 +103,10 @@ export interface DummyVaultInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "redeemAll", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setDefaultToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setDummyAmt",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -206,6 +216,11 @@ export interface DummyVault extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setDummyAmt(
+      _newDummyAmt: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setRouterAddress(
       _addr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -243,6 +258,11 @@ export interface DummyVault extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setDummyAmt(
+    _newDummyAmt: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setRouterAddress(
     _addr: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -277,6 +297,11 @@ export interface DummyVault extends BaseContract {
 
     setDefaultToken(
       _addr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setDummyAmt(
+      _newDummyAmt: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -353,6 +378,11 @@ export interface DummyVault extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setDummyAmt(
+      _newDummyAmt: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setRouterAddress(
       _addr: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -388,6 +418,11 @@ export interface DummyVault extends BaseContract {
 
     setDefaultToken(
       _addr: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setDummyAmt(
+      _newDummyAmt: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

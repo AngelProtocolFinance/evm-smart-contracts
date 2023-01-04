@@ -113,10 +113,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.StringToAddress__factory>;
     getContractFactory(
-      name: "Lock",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Lock__factory>;
-    getContractFactory(
       name: "Registrar",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Registrar__factory>;
@@ -128,6 +124,10 @@ declare module "hardhat/types/runtime" {
       name: "DummyERC20",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DummyERC20__factory>;
+    getContractFactory(
+      name: "DummyGasService",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.DummyGasService__factory>;
     getContractFactory(
       name: "DummyGateway",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -263,11 +263,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.StringToAddress>;
     getContractAt(
-      name: "Lock",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Lock>;
-    getContractAt(
       name: "Registrar",
       address: string,
       signer?: ethers.Signer
@@ -282,6 +277,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.DummyERC20>;
+    getContractAt(
+      name: "DummyGasService",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DummyGasService>;
     getContractAt(
       name: "DummyGateway",
       address: string,

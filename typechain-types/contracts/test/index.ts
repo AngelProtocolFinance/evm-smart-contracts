@@ -2,5 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { DummyERC20 } from "./DummyERC20";
+export type { DummyGasService } from "./DummyGasService";
 export type { DummyGateway } from "./DummyGateway";
 export type { DummyVault } from "./DummyVault";

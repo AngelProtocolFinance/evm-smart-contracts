@@ -40,7 +40,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     *////////////////////////////////////////////////
 
     modifier onlyOneAccount(VaultActionData memory _action) {
-        require(_action.accountIds.length == 1);
+        require(_action.accountIds.length == 1, "Only one account allowed");
         _;
     }
 
@@ -75,18 +75,32 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
     ) internal onlyOneAccount(_action) {
-        IVaultLiquid liquidVault = IVaultLiquid(_params.Liquid.vaultAddr);
-        IVaultLocked lockedVault = IVaultLocked(_params.Locked.vaultAddr);
-        lockedVault.deposit(
-            _action.accountIds[0],
-            _action.token,
-            _action.lockAmt
-        );
-        liquidVault.deposit(
-            _action.accountIds[0],
-            _action.token,
-            _action.liqAmt
-        );
+
+        if (_action.lockAmt == 0 && _action.liqAmt == 0) {
+            revert("No token amounts specified");
+        }
+        
+        if(_action.lockAmt > 0) {
+            // Send tokens to locked vault and call deposit
+            require(IERC20Upgradeable(_action.token).transfer(_params.Locked.vaultAddr, _action.lockAmt));
+            IVaultLocked lockedVault = IVaultLocked(_params.Locked.vaultAddr);
+            lockedVault.deposit(
+                _action.accountIds[0],
+                _action.token,
+                _action.lockAmt
+            );
+        }
+   
+        if(_action.liqAmt >  0) {
+            // Send tokens to liquid vault and call deposit 
+            require(IERC20Upgradeable(_action.token).transfer(_params.Liquid.vaultAddr, _action.liqAmt));
+            IVaultLiquid liquidVault = IVaultLiquid(_params.Liquid.vaultAddr);
+            liquidVault.deposit(
+                _action.accountIds[0],
+                _action.token,
+                _action.liqAmt
+            );
+        }
     }
 
     // Vault action::Redeem
@@ -103,14 +117,14 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
             _action.token,
             _action.lockAmt
         );
-        IERC20Upgradeable(_action.token).transferFrom(_params.Locked.vaultAddr, address(this), _redeemedLockAmt);
+        require(IERC20Upgradeable(_action.token).transferFrom(_params.Locked.vaultAddr, address(this), _redeemedLockAmt));
 
         uint256 _redeemedLiqAmt = liquidVault.redeem(
             _action.accountIds[0],
             _action.token,
             _action.liqAmt
         );
-        IERC20Upgradeable(_action.token).transferFrom(_params.Liquid.vaultAddr, address(this), _redeemedLiqAmt);
+        require(IERC20Upgradeable(_action.token).transferFrom(_params.Liquid.vaultAddr, address(this), _redeemedLiqAmt));
 
         // Pack and send the tokens back through GMP 
         uint256 _redeemedAmt = _redeemedLockAmt + _redeemedLiqAmt; 
@@ -130,16 +144,16 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         if(_action.lockAmt > 0) {       // only do a redeemAll if the lock amt is nonzero
             _redeemedLockAmt = lockedVault.redeemAll(
                 _action.accountIds[0]);
-            IERC20Upgradeable(_action.token)
-                .transferFrom(_params.Locked.vaultAddr, address(this), _redeemedLockAmt);
+            require(IERC20Upgradeable(_action.token)
+                .transferFrom(_params.Locked.vaultAddr, address(this), _redeemedLockAmt));
         }
 
         uint256 _redeemedLiqAmt;
         if(_action.liqAmt > 0) {        // only do a redeemAll if the liquid amt is nonzero
             _redeemedLiqAmt = liquidVault.redeemAll(
                 _action.accountIds[0]);
-            IERC20Upgradeable(_action.token)
-                .transferFrom(_params.Liquid.vaultAddr, address(this), _redeemedLiqAmt);
+            require(IERC20Upgradeable(_action.token)
+                .transferFrom(_params.Liquid.vaultAddr, address(this), _redeemedLiqAmt));
         }
 
         // Pack and send the tokens back through GMP 
@@ -197,6 +211,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
 
         // Prepare gas 
         uint256 gasFee = registrar.getGasByToken(_action.token);
+        require(_redeemedAmt > gasFee, "Redemption does not cover gas");
         uint256 amtLessGasFee = _redeemedAmt - gasFee;
 
         _sendTokens(
@@ -220,23 +235,24 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         uint256 gasFeeAmt
     ) internal {
         address tokenAddress = gateway.tokenAddresses(symbol);
-        IERC20Upgradeable(tokenAddress).approve(address(gateway), amount);
+        require(IERC20Upgradeable(tokenAddress).approve(address(gateway), amount));
+        require(IERC20Upgradeable(gasToken).approve(address(gasReceiver), gasFeeAmt));
 
         IRegistrar.AngelProtocolParams memory apParams = registrar
             .getAngelProtocolParams();
-        if (msg.value > 0) {
-            gasReceiver.payGasForContractCallWithToken(
-                address(this),
-                destinationChain,
-                destinationAddress,
-                payload,
-                symbol,
-                amount,
-                gasToken, // always pay with the token (USDC)
-                gasFeeAmt, // get from Angel Protocol params
-                apParams.protocolTaxCollector // tax collector
-            );
-        }
+
+        gasReceiver.payGasForContractCallWithToken(
+            address(this),
+            destinationChain,
+            destinationAddress,
+            payload,
+            symbol,
+            amount,
+            gasToken,
+            gasFeeAmt,
+            apParams.protocolTaxCollector
+        );
+
         gateway.callContractWithToken(
             destinationChain,
             destinationAddress,
@@ -246,18 +262,6 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         );
     }
 
-    // This is called on the source chain before calling the gateway to execute a remote contract.
-    // function payGasForContractCallWithToken(
-    //     address sender,
-    //     string calldata destinationChain,
-    //     string calldata destinationAddress,
-    //     bytes calldata payload,
-    //     string calldata symbol,
-    //     uint256 amount,
-    //     address gasToken,
-    //     uint256 gasFeeAmount,
-    //     address refundAddress
-    // ) external;
     function _executeWithToken(
         string calldata sourceChain,
         string calldata sourceAddress,
@@ -315,7 +319,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         VaultActionData memory action = _unpackCalldata(payload);
 
         // Get parameters from registrar if approved
-        require(registrar.isStrategyApproved(action.strategyId));
+        require(registrar.isStrategyApproved(action.strategyId), "Strategy not approved");
         IRegistrar.StrategyParams memory params = registrar
             .getStrategyParamsById(action.strategyId);
 
