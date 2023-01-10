@@ -11,7 +11,7 @@ import {APGoldfinchConfigLib} from "./APGoldfinchConfig.sol";
 import {IStakingRewards} from "./IStakingRewards.sol";
 import {ICurveLP} from "./ICurveLP.sol";
 
-// Util
+// Token
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -276,7 +276,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
 
     function _calcTax(uint256 yield, uint256 taxableAmt) internal view returns (uint256) {
         IRegistrarGoldfinch.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
-        return (yield * taxableAmt * apParams.protocolTaxRate)/apParams.protocolTaxBasis/10**6;
+        return (yield * taxableAmt * apParams.protocolTaxRate)/apParams.protocolTaxBasis/PRECISION;
     }   
 
     function _redeemFiduForUsdc(uint32 accountId, uint256 desiredUsdc) internal returns (uint256, uint256) {
