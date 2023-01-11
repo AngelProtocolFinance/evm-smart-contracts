@@ -45,6 +45,7 @@ contract DummyStakingRewards is ERC721, IStakingRewards {
 
   function unstake(uint256 tokenId, uint256 amount) external{
     balanceByTokenId[tokenId] -= amount;
+    stakeToken.transfer(msg.sender, amount);
   }
 
   function addToStake(uint256 tokenId, uint256 amount) external{
@@ -69,9 +70,11 @@ contract DummyStakingRewards is ERC721, IStakingRewards {
 
   function lastUpdateTime() external view returns (uint256){}
 
-  function stake(uint256 amount, StakedPositionType positionType) external returns (uint256) {
+  function stake(uint256 amount, StakedPositionType) external returns (uint256) {
     stakeToken.transferFrom(msg.sender, address(this), amount);
+    counter++;
     balanceByTokenId[counter] = amount;
+    _mint(msg.sender, counter);
     return counter;
   }
 }

@@ -22,8 +22,8 @@ contract GoldfinchVault is IVault, IERC721Receiver {
     IVault.VaultType vaultType;
 
                             // Mainnet address
-    address public FIDU;    // 0x6a445E9F40e0b97c92d0b8a3366cEF1d67F700BF
     address public USDC;    // 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
+    address public FIDU;    // 0x6a445E9F40e0b97c92d0b8a3366cEF1d67F700BF
     address public GFI;     // 0xdab396cCF3d84Cf2D07C4454e10C8A6F5b008D2b
 
     IRegistrarGoldfinch registrar;
@@ -117,7 +117,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
             // stake
             // store position NFT id 
         if(tokenIdByAccountId[accountId] == 0) {
-            IERC20(FIDU).approve(address(stakingPool), amt);
+            IERC20(FIDU).approve(address(stakingPool), fiduReturned);
             uint256 id = stakingPool.stake(fiduReturned, IStakingRewards.StakedPositionType.Fidu);
             principleByAccountId[accountId].usdcP += amt;
             principleByAccountId[accountId].fiduP += fiduReturned;
@@ -252,7 +252,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
 
     function _calcSlippageTolernace(uint256 i, uint256 j, uint256 dx, uint256 allowedSlippage) internal view returns (uint256) {
         uint256 expectedDy = crvPool.get_dy(i, j, dx);
-        return (expectedDy - (expectedDy * allowedSlippage)/100);
+        return (expectedDy - (expectedDy * allowedSlippage)/100); // allowedSlippage has basis of 100
     }
 
     function _calcYield(uint32 accountId) internal view returns (uint256) {
