@@ -89,6 +89,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AxelarExecutable__factory>;
     getContractFactory(
+      name: "Halo",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Halo__factory>;
+    getContractFactory(
       name: "GFITrader",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.GFITrader__factory>;
@@ -260,6 +264,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.AxelarExecutable>;
+    getContractAt(
+      name: "Halo",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Halo>;
     getContractAt(
       name: "GFITrader",
       address: string,

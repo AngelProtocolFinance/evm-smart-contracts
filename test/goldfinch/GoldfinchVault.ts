@@ -190,8 +190,8 @@ describe("Goldfinch Vault", function () {
     let rewardToken: DummyERC20
     let liquidVault: GoldfinchVault
     let lockedVault: GoldfinchVault
-    let STABLETOKENAMOUNT = BigNumber.from(10).pow(8) // $100 given USDC 6 digit precision
-    let STAKINGTOKENAMOUNT = BigNumber.from(10).pow(20) // $100 given Fidu 18 digit precision 
+    let STABLETOKENAMOUNT: BigNumber
+    let STAKINGTOKENAMOUNT: BigNumber
     let ACCOUNTID1 = 1
     let ACCOUNTID2 = 2
     
@@ -233,6 +233,12 @@ describe("Goldfinch Vault", function () {
         updatedStrategyParams.Locked.vaultAddr, 
         updatedStrategyParams.Liquid.vaultAddr, 
         updatedStrategyParams.isApproved)
+      
+      // Reset token amts to "default" for each test
+      STABLETOKENAMOUNT = BigNumber.from(10).pow(8) // $100 given USDC 6 digit precision
+      STAKINGTOKENAMOUNT = BigNumber.from(10).pow(20) // $100 given Fidu 18 digit precision 
+      // And reset the CRV pool to "default" trade
+      await crvLP.setDys(STAKINGTOKENAMOUNT, STAKINGTOKENAMOUNT)
     })
 
     it("Only allows the approved Router to call", async function () {
@@ -256,9 +262,6 @@ describe("Goldfinch Vault", function () {
       await stakingToken.mint(crvLP.address, STAKINGTOKENAMOUNT)
       await stableToken.mint(liquidVault.address, STABLETOKENAMOUNT)
 
-      // Tell the crv pool to expect the trade
-      await crvLP.setDys(STAKINGTOKENAMOUNT, STAKINGTOKENAMOUNT)
-
       await liquidVault.deposit(
         ACCOUNTID1, 
         stableToken.address,
@@ -278,8 +281,6 @@ describe("Goldfinch Vault", function () {
       // Give vault the stablecoins and give the crvPool the staking tokens
       await stakingToken.mint(crvLP.address, STAKINGTOKENAMOUNT)
       await stableToken.mint(liquidVault.address, STABLETOKENAMOUNT)
-      // Tell the crv pool to expect the trade
-      await crvLP.setDys(STAKINGTOKENAMOUNT, STAKINGTOKENAMOUNT)
 
       await liquidVault.deposit(
         ACCOUNTID1, 
@@ -315,9 +316,7 @@ describe("Goldfinch Vault", function () {
     it("Can add to an existing position within the staking pool", async function () {
       // Give vault the stablecoins and give the crvPool the staking tokens
       await stakingToken.mint(crvLP.address, STAKINGTOKENAMOUNT)
-      await stableToken.mint(liquidVault.address, STABLETOKENAMOUNT)
-      // Tell the crv pool to expect the trade
-      await crvLP.setDys(STAKINGTOKENAMOUNT, STAKINGTOKENAMOUNT)
+      await stableToken.mint(liquidVault.address, STABLETOKENAMOUNT)    
 
       await liquidVault.deposit(
         ACCOUNTID1, 
@@ -341,6 +340,15 @@ describe("Goldfinch Vault", function () {
       expect(principles.usdcP).to.equal(STABLETOKENAMOUNT.mul(2))
       expect(principles.fiduP).to.equal(STAKINGTOKENAMOUNT.mul(2))
       expect(await stakingPool.balanceOf(liquidVault.address)).to.equal(1)
+    })
+
+    it("Reverts if the trade into FIDUs slippage exceeds the threshold", async function () {
+      STAKINGTOKENAMOUNT = BigNumber.from(10).pow(19) // 1 order of magnitude less than anticipated
+      // Give vault the stablecoins and give the crvPool the staking tokens
+      await stakingToken.mint(crvLP.address, STAKINGTOKENAMOUNT)
+      await stableToken.mint(liquidVault.address, STABLETOKENAMOUNT)    
+      await crvLP.setDys(STABLETOKENAMOUNT, STAKINGTOKENAMOUNT)
+      await expect()
     })
   })
 })
