@@ -48,6 +48,8 @@ export type { ISwapRouter } from "./@uniswap/v3-periphery/contracts/interfaces/I
 export { ISwapRouter__factory } from "./factories/@uniswap/v3-periphery/contracts/interfaces/ISwapRouter__factory";
 export type { AxelarExecutable } from "./contracts/axelar/AxelarExecutable";
 export { AxelarExecutable__factory } from "./factories/contracts/axelar/AxelarExecutable__factory";
+export type { Halo } from "./contracts/Halo";
+export { Halo__factory } from "./factories/contracts/Halo__factory";
 export type { GFITrader } from "./contracts/integrations/goldfinch/GFITrader";
 export { GFITrader__factory } from "./factories/contracts/integrations/goldfinch/GFITrader__factory";
 export type { GoldfinchVault } from "./contracts/integrations/goldfinch/GoldfinchVault";
