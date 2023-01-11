@@ -1,12 +1,11 @@
 import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
-import { IVaultLiquid__factory, Registrar, Registrar__factory } from "../../typechain-types"
+import { Registrar, Registrar__factory } from "../../typechain-types"
 import { DummyCRVLP, DummyCRVLP__factory } from "../../typechain-types";
 import { DummyStakingRewards, DummyStakingRewards__factory } from "../../typechain-types";
 import { DummyERC20, DummyERC20__factory } from "../../typechain-types";
 import { GoldfinchVault, GoldfinchVault__factory } from "../../typechain-types"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
-import { config } from "dotenv";
 import { BigNumber } from "ethers";
 
 
