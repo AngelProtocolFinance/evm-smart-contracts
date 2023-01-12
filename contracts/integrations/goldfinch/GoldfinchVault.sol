@@ -17,7 +17,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract GoldfinchVault is IVault, IERC721Receiver {
     bytes4 constant STRATEGY_ID = bytes4(keccak256(abi.encode("Goldfinch")));
-    uint256 constant PRECISION = 10**6;
+    uint256 constant PRECISION = 10**24; // 6 orders more than an 18 decimal token 
     
     IVault.VaultType vaultType;
 
@@ -276,7 +276,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
 
     function _calcTax(uint256 yield, uint256 taxableAmt) internal view returns (uint256) {
         IRegistrarGoldfinch.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
-        return (yield * taxableAmt * apParams.protocolTaxRate)/apParams.protocolTaxBasis/PRECISION;
+        return ((yield * taxableAmt * apParams.protocolTaxRate)/apParams.protocolTaxBasis)/PRECISION;
     }   
 
     function _redeemFiduForUsdc(uint32 accountId, uint256 desiredUsdc) internal returns (uint256, uint256) {

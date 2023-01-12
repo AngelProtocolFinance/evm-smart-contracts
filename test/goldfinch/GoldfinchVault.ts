@@ -27,7 +27,7 @@ describe("Goldfinch Vault", function () {
     "principleDistribution" : 0}
 
   let defaultApParams = {
-    "protocolTaxRate" :2,
+    "protocolTaxRate" : 2,
     "protocolTaxBasis" : 100,
     "protocolTaxCollector" : ethers.constants.AddressZero,
     "primaryChain" : "Polygon",
@@ -203,6 +203,7 @@ describe("Goldfinch Vault", function () {
       crvLP = await deployDummyCRVLP(stableToken.address, stakingToken.address)
       stakingPool = await deployDummyStakingPool(rewardToken.address, stakingToken.address)
     })
+
     beforeEach(async function () {
       // Deploy vaults
       liquidVault = await deployGoldfinchVault(
@@ -236,7 +237,7 @@ describe("Goldfinch Vault", function () {
       
       // Reset token amts to "default" for each test
       STABLETOKENAMOUNT = BigNumber.from(10).pow(8) // $100 given USDC 6 digit precision
-      STAKINGTOKENAMOUNT = BigNumber.from(10).pow(20) // $100 given Fidu 18 digit precision 
+      STAKINGTOKENAMOUNT = BigNumber.from(10).pow(20) // $100 given Fidu 18 digit precision and 1:1 ex. rate
       // And reset the CRV pool to "default" trade
       await crvLP.setDys(STAKINGTOKENAMOUNT, STAKINGTOKENAMOUNT)
     })
@@ -342,13 +343,114 @@ describe("Goldfinch Vault", function () {
       expect(await stakingPool.balanceOf(liquidVault.address)).to.equal(1)
     })
 
-    it("Reverts if the trade into FIDUs slippage exceeds the threshold", async function () {
-      STAKINGTOKENAMOUNT = BigNumber.from(10).pow(19) // 1 order of magnitude less than anticipated
-      // Give vault the stablecoins and give the crvPool the staking tokens
-      await stakingToken.mint(crvLP.address, STAKINGTOKENAMOUNT)
-      await stableToken.mint(liquidVault.address, STABLETOKENAMOUNT)    
-      await crvLP.setDys(STABLETOKENAMOUNT, STAKINGTOKENAMOUNT)
-      await expect()
+    // it("Reverts if the trade into FIDUs slippage exceeds the threshold", async function () {
+    //   STAKINGTOKENAMOUNT = BigNumber.from(10).pow(19) // 1 order of magnitude less than anticipated
+    //   // Give vault the stablecoins and give the crvPool the staking tokens
+    //   await stakingToken.mint(crvLP.address, STAKINGTOKENAMOUNT)
+    //   await stableToken.mint(liquidVault.address, STABLETOKENAMOUNT)    
+    //   await crvLP.setDys(STABLETOKENAMOUNT, STAKINGTOKENAMOUNT)
+    //   await expect()
+    // })
+  })
+
+  describe("upon Redemption", function () {
+    let registrar: Registrar
+    let crvLP: DummyCRVLP
+    let stakingPool: DummyStakingRewards
+    let stableToken: DummyERC20
+    let stakingToken: DummyERC20
+    let rewardToken: DummyERC20
+    let liquidVault: GoldfinchVault
+    let lockedVault: GoldfinchVault
+    let STABLETOKENAMOUNT: BigNumber
+    let STAKINGTOKENAMOUNT: BigNumber
+    let ACCOUNTID1 = 1
+    let ACCOUNTID2 = 2
+    
+    before(async function () {
+      registrar = await deployAndConfigureRegistrarAsProxy()
+      stableToken = await deployStableToken()
+      stakingToken = await deployStakingToken()
+      rewardToken = await deployRewardToken()
+      crvLP = await deployDummyCRVLP(stableToken.address, stakingToken.address)
+      stakingPool = await deployDummyStakingPool(rewardToken.address, stakingToken.address)
     })
+
+    beforeEach(async function () {
+      // Deploy vaults
+      liquidVault = await deployGoldfinchVault(
+        VaultType.LIQUID,
+        registrar.address, 
+        stakingPool.address,
+        crvLP.address, 
+        stableToken.address,
+        stakingToken.address,
+        rewardToken.address
+      )      
+      lockedVault = await deployGoldfinchVault(
+        VaultType.LOCKED,
+        registrar.address, 
+        stakingPool.address,
+        crvLP.address, 
+        stableToken.address,
+        stakingToken.address,
+        rewardToken.address
+      )
+
+      // Update registrar 
+      let updatedStrategyParams = strategyParams
+      updatedStrategyParams.Liquid.vaultAddr = liquidVault.address
+      updatedStrategyParams.Locked.vaultAddr = lockedVault.address
+      await registrar.setStrategyParams(
+        strategyId, 
+        updatedStrategyParams.Locked.vaultAddr, 
+        updatedStrategyParams.Liquid.vaultAddr, 
+        updatedStrategyParams.isApproved)
+      
+      // Reset token amts to "default" for each test
+      STABLETOKENAMOUNT = BigNumber.from(10).pow(8) // $100 given USDC 6 digit precision
+      STAKINGTOKENAMOUNT = BigNumber.from(10).pow(20) // $100 given Fidu 18 digit precision and 1:1 ex. rate
+      await crvLP.setDys(STAKINGTOKENAMOUNT, STAKINGTOKENAMOUNT) // for deposit 
+
+      await stakingToken.mint(crvLP.address, STAKINGTOKENAMOUNT)
+      await stableToken.mint(liquidVault.address, STABLETOKENAMOUNT)
+      await liquidVault.deposit(
+        ACCOUNTID1, 
+        stableToken.address,
+        STABLETOKENAMOUNT
+      )
+    })
+
+    it("Only allows the approved Router to call", async function () {
+      await expect(liquidVault.connect(user).redeem(
+        ACCOUNTID1,
+        stableToken.address,
+        STABLETOKENAMOUNT))
+        .to.be.revertedWith("Not approved")
+    })
+
+    it("Accepts only the stablecoin", async function () {
+      await expect(liquidVault.redeem(
+        ACCOUNTID1,
+        rewardToken.address,
+        STABLETOKENAMOUNT)
+      ).to.be.revertedWith("Only USDC accepted")
+    })
+
+    it("Redeems tokens when the yield is negative, no tax should be applied", async function () {
+      STABLETOKENAMOUNT = BigNumber.from(10).pow(7) // drop an order of mag for negative yield
+      console.log(await liquidVault.principleByAccountId(ACCOUNTID1))
+      await crvLP.setDys(STABLETOKENAMOUNT, STABLETOKENAMOUNT) 
+      await liquidVault.redeem(
+        ACCOUNTID1, 
+        stableToken.address, 
+        STABLETOKENAMOUNT
+      )
+      expect(await stableToken.balanceOf(liquidVault.address)).to.equal(STABLETOKENAMOUNT)
+      expect(await stableToken.balanceOf(taxCollector.address)).to.equal(0)
+      expect(await stableToken.allowance(liquidVault.address, owner.address)).to.equal(STABLETOKENAMOUNT)
+    })
+
+
   })
 })
