@@ -7,6 +7,7 @@ import { DummyERC20, DummyERC20__factory } from "../../typechain-types";
 import { GoldfinchVault, GoldfinchVault__factory } from "../../typechain-types"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { BigNumber } from "ethers";
+import exp from "constants";
 
 
 describe("Goldfinch Vault", function () {
@@ -419,6 +420,11 @@ describe("Goldfinch Vault", function () {
         stableToken.address,
         STABLETOKENAMOUNT
       )
+      // Reset tax collector balance
+      let taxBal = await stableToken.balanceOf(taxCollector.address)
+      if (taxBal.gt(0)) {
+        stableToken.connect(taxCollector).transfer(ethers.constants.AddressZero, taxBal)
+      }
     })
 
     it("Only allows the approved Router to call", async function () {
@@ -439,7 +445,6 @@ describe("Goldfinch Vault", function () {
 
     it("Redeems tokens when the yield is negative, no tax should be applied", async function () {
       STABLETOKENAMOUNT = BigNumber.from(10).pow(7) // drop an order of mag for negative yield
-      console.log(await liquidVault.principleByAccountId(ACCOUNTID1))
       await crvLP.setDys(STABLETOKENAMOUNT, STABLETOKENAMOUNT) 
       await liquidVault.redeem(
         ACCOUNTID1, 
@@ -451,6 +456,211 @@ describe("Goldfinch Vault", function () {
       expect(await stableToken.allowance(liquidVault.address, owner.address)).to.equal(STABLETOKENAMOUNT)
     })
 
+    it("Allows redemptions for one account without affecting another", async function () {
+      // Establish a position for Account 2
+      await stakingToken.mint(crvLP.address, STAKINGTOKENAMOUNT)
+      await stableToken.mint(liquidVault.address, STABLETOKENAMOUNT)
+      await crvLP.setDys(STAKINGTOKENAMOUNT, STAKINGTOKENAMOUNT)
+      await liquidVault.deposit(
+        ACCOUNTID2,
+        stableToken.address,
+        STABLETOKENAMOUNT
+      )
+      
+      // Make a redemption for Account 1 
+      let REDUCEDSTABLETOKENAMOUNT = BigNumber.from(10).pow(7) // drop an order of mag for negative yield
+      await crvLP.setDys(REDUCEDSTABLETOKENAMOUNT, REDUCEDSTABLETOKENAMOUNT) // ex rate 
+      await liquidVault.redeem(
+        ACCOUNTID1, 
+        stableToken.address, 
+        REDUCEDSTABLETOKENAMOUNT
+      )
 
+      let acct2Token = await liquidVault.tokenIdByAccountId(ACCOUNTID2)
+      expect(await stakingPool.balanceByTokenId(acct2Token)).to.equal(STAKINGTOKENAMOUNT)
+      let principles = await liquidVault.principleByAccountId(ACCOUNTID2)
+      expect(principles.usdcP).to.equal(STABLETOKENAMOUNT)
+      expect(principles.fiduP).to.equal(STAKINGTOKENAMOUNT)
+
+      expect(await stableToken.balanceOf(liquidVault.address)).to.equal(REDUCEDSTABLETOKENAMOUNT)
+      expect(await stableToken.balanceOf(taxCollector.address)).to.equal(0)
+      expect(await stableToken.allowance(liquidVault.address, owner.address)).to.equal(REDUCEDSTABLETOKENAMOUNT)
+    })
+
+    it("Reverts if the account attempts to redeem more stablecoin than possible", async function () {
+      let EXCESSSTABLETOKEN = BigNumber.from(10).pow(9)        // add an order of mag for impossible yield
+      await crvLP.setDys(STABLETOKENAMOUNT, EXCESSSTABLETOKEN) // exchange rate doesn't change but trading for more 
+
+      await expect(liquidVault.redeem(
+        ACCOUNTID1, 
+        stableToken.address, 
+        EXCESSSTABLETOKEN
+      )).to.be.revertedWith("Cannot redeem more than available")
+    })
+
+    it("Taxes the yield and sends the tax to the tax collector", async function () {
+      let STABLETOKENWITHYIELD = STABLETOKENAMOUNT.mul(2)         // 100% yield
+      await crvLP.setDys(STABLETOKENWITHYIELD, STABLETOKENAMOUNT) // Ex rate reflects yield
+      await liquidVault.redeem(
+        ACCOUNTID1, 
+        stableToken.address, 
+        STABLETOKENAMOUNT
+      )
+      let expectedTax = STABLETOKENAMOUNT
+                        .mul(defaultApParams.protocolTaxRate)
+                        .div(defaultApParams.protocolTaxBasis)
+      expect(await stableToken.balanceOf(taxCollector.address)).to.equal(expectedTax)
+      expect(await stableToken.balanceOf(liquidVault.address)).to.equal(STABLETOKENAMOUNT.sub(expectedTax))
+      expect(await stableToken.allowance(liquidVault.address, owner.address)).to.equal(STABLETOKENAMOUNT)
+    })
+
+    it("Adjusts principles according to redemption", async function () {
+      let STABLETOKENWITHYIELD = STABLETOKENAMOUNT.mul(2)         // 100% yield
+      await crvLP.setDys(STABLETOKENWITHYIELD, STABLETOKENAMOUNT) // Ex rate reflects yield
+      await liquidVault.redeem(
+        ACCOUNTID1, 
+        stableToken.address, 
+        STABLETOKENAMOUNT
+      )
+      let tokenId = await liquidVault.tokenIdByAccountId(ACCOUNTID1)
+      let positionAfterRedemption = await stakingPool.balanceByTokenId(tokenId)
+      let expectedFiduP = STAKINGTOKENAMOUNT.sub(positionAfterRedemption)
+      expect(positionAfterRedemption).to.equal(STAKINGTOKENAMOUNT.div(2))
+      let expectedUsdcP = STABLETOKENAMOUNT.mul(expectedFiduP).div(STAKINGTOKENAMOUNT)
+      let principles = await liquidVault.principleByAccountId(ACCOUNTID1)
+      expect(principles.usdcP).to.equal(expectedUsdcP)
+      expect(principles.fiduP).to.equal(expectedFiduP)
+    })
   })
+
+  // describe("upon RedeemAll", function () {
+  //   let registrar: Registrar
+  //   let crvLP: DummyCRVLP
+  //   let stakingPool: DummyStakingRewards
+  //   let stableToken: DummyERC20
+  //   let stakingToken: DummyERC20
+  //   let rewardToken: DummyERC20
+  //   let liquidVault: GoldfinchVault
+  //   let lockedVault: GoldfinchVault
+  //   let STABLETOKENAMOUNT: BigNumber
+  //   let STAKINGTOKENAMOUNT: BigNumber
+  //   let ACCOUNTID1 = 1
+  //   let ACCOUNTID2 = 2
+    
+  //   before(async function () {
+  //     registrar = await deployAndConfigureRegistrarAsProxy()
+  //     stableToken = await deployStableToken()
+  //     stakingToken = await deployStakingToken()
+  //     rewardToken = await deployRewardToken()
+  //     crvLP = await deployDummyCRVLP(stableToken.address, stakingToken.address)
+  //     stakingPool = await deployDummyStakingPool(rewardToken.address, stakingToken.address)
+  //   })
+
+  //   beforeEach(async function () {
+  //     // Deploy vaults
+  //     liquidVault = await deployGoldfinchVault(
+  //       VaultType.LIQUID,
+  //       registrar.address, 
+  //       stakingPool.address,
+  //       crvLP.address, 
+  //       stableToken.address,
+  //       stakingToken.address,
+  //       rewardToken.address
+  //     )      
+  //     lockedVault = await deployGoldfinchVault(
+  //       VaultType.LOCKED,
+  //       registrar.address, 
+  //       stakingPool.address,
+  //       crvLP.address, 
+  //       stableToken.address,
+  //       stakingToken.address,
+  //       rewardToken.address
+  //     )
+
+  //     // Update registrar 
+  //     let updatedStrategyParams = strategyParams
+  //     updatedStrategyParams.Liquid.vaultAddr = liquidVault.address
+  //     updatedStrategyParams.Locked.vaultAddr = lockedVault.address
+  //     await registrar.setStrategyParams(
+  //       strategyId, 
+  //       updatedStrategyParams.Locked.vaultAddr, 
+  //       updatedStrategyParams.Liquid.vaultAddr, 
+  //       updatedStrategyParams.isApproved)
+      
+  //     // Reset token amts to "default" for each test
+  //     STABLETOKENAMOUNT = BigNumber.from(10).pow(8) // $100 given USDC 6 digit precision
+  //     STAKINGTOKENAMOUNT = BigNumber.from(10).pow(20) // $100 given Fidu 18 digit precision and 1:1 ex. rate
+  //     await crvLP.setDys(STAKINGTOKENAMOUNT, STAKINGTOKENAMOUNT) // for deposit 
+
+  //     await stakingToken.mint(crvLP.address, STAKINGTOKENAMOUNT)
+  //     await stableToken.mint(liquidVault.address, STABLETOKENAMOUNT)
+  //     await liquidVault.deposit(
+  //       ACCOUNTID1, 
+  //       stableToken.address,
+  //       STABLETOKENAMOUNT
+  //     )
+  //     // Reset tax collector balance
+  //     let taxBal = await stableToken.balanceOf(taxCollector.address)
+  //     if (taxBal.gt(0)) {
+  //       stableToken.connect(taxCollector).transfer(ethers.constants.AddressZero, taxBal)
+  //     }
+  //   })
+
+  //   it("Only allows the approved Router to call", async function () {
+  //     await expect(liquidVault.connect(user).redeem(
+  //       ACCOUNTID1,
+  //       stableToken.address,
+  //       STABLETOKENAMOUNT))
+  //       .to.be.revertedWith("Not approved")
+  //   })
+
+  //   it("Accepts only the stablecoin", async function () {
+  //     await expect(liquidVault.redeem(
+  //       ACCOUNTID1,
+  //       rewardToken.address,
+  //       STABLETOKENAMOUNT)
+  //     ).to.be.revertedWith("Only USDC accepted")
+  //   })
+
+  //   it("Redeems tokens when the yield is negative, no tax should be applied", async function () {
+  //     STABLETOKENAMOUNT = BigNumber.from(10).pow(7) // drop an order of mag for negative yield
+  //     await crvLP.setDys(STABLETOKENAMOUNT, STABLETOKENAMOUNT) 
+  //     await liquidVault.redeem(
+  //       ACCOUNTID1, 
+  //       stableToken.address, 
+  //       STABLETOKENAMOUNT
+  //     )
+  //     expect(await stableToken.balanceOf(liquidVault.address)).to.equal(STABLETOKENAMOUNT)
+  //     expect(await stableToken.balanceOf(taxCollector.address)).to.equal(0)
+  //     expect(await stableToken.allowance(liquidVault.address, owner.address)).to.equal(STABLETOKENAMOUNT)
+  //   })
+
+  //   it("Reverts if the account attempts to redeem more stablecoin than possible", async function () {
+  //     let EXCESSSTABLETOKEN = BigNumber.from(10).pow(9)        // add an order of mag for impossible yield
+  //     await crvLP.setDys(STABLETOKENAMOUNT, EXCESSSTABLETOKEN) // exchange rate doesn't change but trading for more 
+
+  //     await expect(liquidVault.redeem(
+  //       ACCOUNTID1, 
+  //       stableToken.address, 
+  //       EXCESSSTABLETOKEN
+  //     )).to.be.revertedWith("Cannot redeem more than available")
+  //   })
+
+  //   it("Taxes the yield and sends the tax to the tax collector", async function () {
+  //     let STABLETOKENWITHYIELD = STABLETOKENAMOUNT.mul(2)         // 100% yield
+  //     await crvLP.setDys(STABLETOKENWITHYIELD, STABLETOKENAMOUNT) // Ex rate reflects yield
+  //     await liquidVault.redeem(
+  //       ACCOUNTID1, 
+  //       stableToken.address, 
+  //       STABLETOKENAMOUNT
+  //     )
+  //     let expectedTax = STABLETOKENAMOUNT
+  //                       .mul(defaultApParams.protocolTaxRate)
+  //                       .div(defaultApParams.protocolTaxBasis)
+  //     expect(await stableToken.balanceOf(taxCollector.address)).to.equal(expectedTax)
+  //     expect(await stableToken.balanceOf(liquidVault.address)).to.equal(STABLETOKENAMOUNT.sub(expectedTax))
+  //     expect(await stableToken.allowance(liquidVault.address, owner.address)).to.equal(STABLETOKENAMOUNT)
+  //   })
+  // })
+
 })
