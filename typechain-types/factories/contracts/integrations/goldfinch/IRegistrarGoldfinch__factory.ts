@@ -104,6 +104,11 @@ const _abi = [
             name: "principleDistribution",
             type: "uint32",
           },
+          {
+            internalType: "uint32",
+            name: "basis",
+            type: "uint32",
+          },
         ],
         indexed: false,
         internalType: "struct IRegistrar.RebalanceParams",
@@ -305,6 +310,11 @@ const _abi = [
             name: "principleDistribution",
             type: "uint32",
           },
+          {
+            internalType: "uint32",
+            name: "basis",
+            type: "uint32",
+          },
         ],
         internalType: "struct IRegistrar.RebalanceParams",
         name: "",
@@ -502,6 +512,11 @@ const _abi = [
           {
             internalType: "uint32",
             name: "principleDistribution",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "basis",
             type: "uint32",
           },
         ],

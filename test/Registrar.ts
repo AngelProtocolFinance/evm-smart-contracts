@@ -13,7 +13,8 @@ describe("Registrar", function () {
     "lockedRebalanceToLiquid":  75, 
     "interestDistribution" : 20,
     "lockedPrincipleToLiquid":  false,
-    "principleDistribution" : 0}
+    "principleDistribution" : 0,
+    "basis": 100}
 
   let defaultApParams = {
     "protocolTaxRate" :2,

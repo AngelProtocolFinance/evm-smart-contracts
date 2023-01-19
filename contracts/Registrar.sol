@@ -39,7 +39,8 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
             RegistrarConfig.LOCKED_REBALANCE_TO_LIQUID,
             RegistrarConfig.INTEREST_DISTRIBUTION,
             RegistrarConfig.LOCKED_PRINCIPLE_TO_LIQUID,
-            RegistrarConfig.PRINCIPLE_DISTRIBUTION
+            RegistrarConfig.PRINCIPLE_DISTRIBUTION,
+            RegistrarConfig.BASIS
         );
 
         angelProtocolParams = AngelProtocolParams(

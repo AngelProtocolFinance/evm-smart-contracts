@@ -74,6 +74,12 @@ contract GoldfinchVault is IVault, IERC721Receiver {
         _;
     }
 
+    modifier nonzeroPositionOnly(uint32 accountId) {
+        IStakingRewards.StakedPosition memory position = stakingPool.getPosition(tokenIdByAccountId[accountId]);
+        require(position.amount > 0, "No position");
+        _;
+    }
+
     function _isApprovedRouter() internal view override returns (bool){
         IRegistrarGoldfinch.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
         return(apParams.routerAddr == msg.sender);
@@ -148,27 +154,19 @@ contract GoldfinchVault is IVault, IERC721Receiver {
         uint32 accountId,
         address token,
         uint256 amt
-    ) external payable override approvedRouterOnly onlyUSDC(token) returns (uint256)  {
+    ) external payable override approvedRouterOnly onlyUSDC(token) nonzeroPositionOnly(accountId) returns (uint256)  {
         IRegistrarGoldfinch.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
+        IStakingRewards.StakedPosition memory position = stakingPool.getPosition(tokenIdByAccountId[accountId]);
 
-        uint256 yield_withPrecision = _calcYield_withPrecision(accountId);                                              // determine yield as a rate demoninated in USDC
-        _claimGFI(accountId);                                                               // harvest GFI -> Tax Collector
-        (uint256 redeemedUSDC, uint256 redeemedFIDU) = _redeemFiduForUsdc(accountId, amt);  // unstake necessary FIDU 
-        // tax the redemption based on yield 
+        _claimGFI(accountId);                                                                               // harvest GFI -> Tax Collector
+        (uint256 redeemedUSDC, uint256 redeemedFIDU) = _redeemFiduForUsdc(accountId, position.amount, amt); // unstake necessary FIDU 
+
+        uint256 yield_withPrecision = _calcYield_withPrecision(accountId, position.amount);                 // determine yield as a rate demoninated in USDC
         if(yield_withPrecision > 0) {
-            uint256 taxedAmt = _calcTax(yield_withPrecision, redeemedUSDC);
-            require(IERC20(USDC).transfer(apParams.protocolTaxCollector, taxedAmt));
-            redeemedUSDC -= taxedAmt;
+            redeemedUSDC = _taxRedemption(apParams, yield_withPrecision, redeemedUSDC);
         }
 
-        uint256 initialFiduP = principleByAccountId[accountId].fiduP;
-        uint256 percentOfPRedeemed = (redeemedFIDU * PRECISION) / initialFiduP;
-        uint256 redemptionLessYield = (percentOfPRedeemed*principleByAccountId[accountId].usdcP)/PRECISION;
-
-        principleByAccountId[accountId].fiduP -= redeemedFIDU;
-        principleByAccountId[accountId].usdcP -= redemptionLessYield;
-
-        // convert FIDU to USDC
+        _updatePrinciples(accountId, redeemedFIDU);
         IERC20(USDC).approve(apParams.routerAddr, redeemedUSDC);
         return redeemedUSDC;
     }
@@ -178,8 +176,23 @@ contract GoldfinchVault is IVault, IERC721Receiver {
     /// known explicitly 
     /// @param accountId a unique Id for each Angel Protocol account
     /// @return redemptionAmt returns the number of tokens redeemed by the call
-    function redeemAll(uint32 accountId) payable external override returns (uint256) {
-        return _redeemAllFiduForUsdc(accountId);
+    function redeemAll(uint32 accountId) payable external override approvedRouterOnly nonzeroPositionOnly(accountId) returns (uint256) {
+        IStakingRewards.StakedPosition memory position = stakingPool.getPosition(tokenIdByAccountId[accountId]);
+        IRegistrarGoldfinch.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
+
+        uint256 minUsdcOut =  _calcSlippageTolernace(1, 0, position.amount, _getSlippageTolerance());  // determine usdc less slippage tolerance 
+        uint256 redeemedUSDC = _unstakeAndSwap(accountId, position.amount, minUsdcOut);
+        uint256 yield_withPrecision = _calcYield_withPrecision(accountId, position.amount); // determine yield as a rate demoninated in USDC
+        
+        if(yield_withPrecision > 0) {
+            redeemedUSDC = _taxRedemption(apParams, yield_withPrecision, redeemedUSDC);
+        }
+
+        // Zero out principles
+        principleByAccountId[accountId].fiduP = 0;
+        principleByAccountId[accountId].usdcP = 0;
+        IERC20(USDC).approve(apParams.routerAddr, redeemedUSDC);
+        return redeemedUSDC;
     }
 
     /// @notice restricted method for harvesting accrued rewards
@@ -188,40 +201,8 @@ contract GoldfinchVault is IVault, IERC721Receiver {
     /// @param accountIds Used to specify whether the harvest should be called against a specific account or accounts
     function harvest(uint32[] calldata accountIds) external override approvedRouterOnly {
         IRegistrarGoldfinch.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
-
         for (uint256 i; i < accountIds.length; i++) {
-            // Scrape GFI to tax collector 
-            _claimGFI(accountIds[i]);
-
-            uint256 yield_withPrecision = _calcYield_withPrecision(accountIds[i]);
-            // Only tax and rebalance if the yield is positive 
-            if(yield_withPrecision > 0) {
-                // Get position
-                IStakingRewards.StakedPosition memory position = stakingPool.getPosition(tokenIdByAccountId[accountIds[i]]);
-                uint256 exRate_withPrecision = _getExchageRate_withPrecision(1,0,position.amount); // Determine going ex rate
-                uint256 taxableAmt = (position.amount * PRECISION / exRate_withPrecision) 
-                                    * yield_withPrecision / PRECISION;      // Determine taxable amt (only applies to yield)
-                uint256 tax = _calcTax(yield_withPrecision, taxableAmt);    // Calculate the tax on taxable amt
-                
-                if (vaultType == VaultType.LOCKED) {
-                    // Yield less tax
-                    IRegistrarGoldfinch.RebalanceParams memory rbParams = registrar.getRebalanceParams();
-                    uint256 rebalAmt = (taxableAmt - tax) * rbParams.lockedRebalanceToLiquid;
-                    
-                    // Unstake necessary FIDU to cover tax + rebalance to liquid 
-                    (uint256 redeemedUSDC,) = _redeemFiduForUsdc(accountIds[i], (tax + rebalAmt));  // Redeem FIDU from underlying to USDC
-                    require(IERC20(USDC).transfer(apParams.protocolTaxCollector, tax));             // Scrape tax USDC to tax collector
-
-                    // Rebalance to sibling vault  
-                    IRegistrarGoldfinch.StrategyParams memory stratParams = registrar.getStrategyParamsById(STRATEGY_ID);
-                    require(IERC20(USDC).transfer(stratParams.Locked.vaultAddr, (redeemedUSDC - tax))); 
-                    IVault(stratParams.Liquid.vaultAddr).deposit(accountIds[i], USDC, (redeemedUSDC - tax));
-                }
-                else {
-                    (uint256 redeemedUSDC,) = _redeemFiduForUsdc(accountIds[i], tax);       
-                    require(IERC20(USDC).transfer(apParams.protocolTaxCollector, redeemedUSDC));     
-                }
-            }
+            _harvestSingle(accountIds[i], apParams);
         }
     }
 
@@ -248,6 +229,67 @@ contract GoldfinchVault is IVault, IERC721Receiver {
                         INTERNAL
     */////////////////////////////////////////////////
 
+    function _harvestSingle(
+        uint32 accountId, 
+        IRegistrarGoldfinch.AngelProtocolParams memory apParams
+        ) internal nonzeroPositionOnly(accountId) {
+        IStakingRewards.StakedPosition memory position = stakingPool.getPosition(tokenIdByAccountId[accountId]);
+        
+        // Scrape GFI to tax collector 
+        _claimGFI(accountId);
+        
+        uint256 yield_withPrecision = _calcYield_withPrecision(accountId, position.amount);
+        // Only tax and rebal if the yield is positive 
+        if(yield_withPrecision == 0) {   
+            return;
+        }
+
+        // If yield nonzero then redeem tax and maybe rebalance                 
+        uint256 exRate_withPrecision = _getExchageRate_withPrecision(1, 0, position.amount); // Determine going ex rate
+        uint256 taxableAmt = (position.amount * exRate_withPrecision * yield_withPrecision )
+                            / PRECISION**2;      // Determine taxable amt (only applies to yield)
+        uint256 tax = _calcTax(yield_withPrecision, taxableAmt);    // Calculate the tax on taxable amt
+        
+        uint256 redeemedUSDC;
+        if (vaultType == VaultType.LIQUID) {
+            (redeemedUSDC,) = _redeemFiduForUsdc(accountId, position.amount, tax);       
+            require(IERC20(USDC).transfer(apParams.protocolTaxCollector, redeemedUSDC));  
+            return;
+        }
+
+        // For locked vaults, we rebal and deposit to liquid
+        IRegistrarGoldfinch.RebalanceParams memory rbParams = registrar.getRebalanceParams();
+        uint256 rebalAmt = ((taxableAmt - tax) * rbParams.lockedRebalanceToLiquid) / rbParams.basis;
+        
+        // Unstake necessary FIDU to cover tax + rebalance to liquid 
+        console.log(tax);
+        console.log(rebalAmt);
+        (redeemedUSDC,) = _redeemFiduForUsdc(accountId, position.amount, (tax + rebalAmt));  // Redeem FIDU from underlying to USDC
+        require(IERC20(USDC).transfer(apParams.protocolTaxCollector, tax));             // Scrape tax USDC to tax collector
+
+        // Rebalance to sibling vault
+        IRegistrarGoldfinch.StrategyParams memory stratParams = registrar.getStrategyParamsById(STRATEGY_ID);
+        require(IERC20(USDC).transfer(stratParams.Liquid.vaultAddr, (redeemedUSDC - tax))); 
+        IVault(stratParams.Liquid.vaultAddr).deposit(accountId, USDC, (redeemedUSDC - tax));
+    }
+
+    function _taxRedemption(
+        IRegistrarGoldfinch.AngelProtocolParams memory apParams, 
+        uint256 yield_withPrecision, 
+        uint256 redeemedAmt) internal returns (uint256) {
+        uint256 taxedAmt = _calcTax(yield_withPrecision, redeemedAmt);
+        require(IERC20(USDC).transfer(apParams.protocolTaxCollector, taxedAmt));
+        return redeemedAmt - taxedAmt;
+    }
+
+    function _updatePrinciples(uint32 accountId, uint256 redeemedFIDU) internal {
+        uint256 percentOfPRedeemed = (redeemedFIDU * PRECISION) / (principleByAccountId[accountId].fiduP);
+        uint256 redemptionLessYield = (percentOfPRedeemed*principleByAccountId[accountId].usdcP)/PRECISION;
+        // update principles
+        principleByAccountId[accountId].fiduP -= redeemedFIDU;
+        principleByAccountId[accountId].usdcP -= redemptionLessYield;
+    }
+
     function _getSlippageTolerance() internal view returns (uint256) {
         return registrar.getAPGoldfinchParams().crvParams.allowedSlippage;
     }
@@ -257,10 +299,9 @@ contract GoldfinchVault is IVault, IERC721Receiver {
         return (expectedDy - (expectedDy * allowedSlippage)/100); // allowedSlippage has basis of 100
     }
 
-    function _calcYield_withPrecision(uint32 accountId) internal view returns (uint256) {
+    function _calcYield_withPrecision(uint32 accountId, uint256 positionAmount) internal view returns (uint256) {
         uint256 p = principleByAccountId[accountId].usdcP;
-        IStakingRewards.StakedPosition memory position = stakingPool.getPosition(tokenIdByAccountId[accountId]);
-        uint256 usdcValue = crvPool.get_dy(1, 0, position.amount);
+        uint256 usdcValue = crvPool.get_dy(1, 0, positionAmount);
         if(usdcValue >= p) { // check for underflow 
             return ((usdcValue - p)*PRECISION/p);
         }
@@ -281,17 +322,15 @@ contract GoldfinchVault is IVault, IERC721Receiver {
         return ((yield_withPrecision * taxableAmt * apParams.protocolTaxRate)/apParams.protocolTaxBasis)/PRECISION;
     }   
 
-    function _redeemFiduForUsdc(uint32 accountId, uint256 desiredUsdc) internal returns (uint256, uint256) {
-        // Get parameters from registrar 
-        IStakingRewards.StakedPosition memory position = stakingPool.getPosition(tokenIdByAccountId[accountId]);
-
-        // Determine how much FIDU is needed to achieve desired USDC output 
-        uint256 exRate_withPrecision =_getExchageRate_withPrecision(1, 0, position.amount);   // get exchange rate for worst case swap
+    function _redeemFiduForUsdc(uint32 accountId, uint256 positionAmount, uint256 desiredUsdc) internal returns (uint256, uint256) {
+        // Determine how much FIDU is needed to achieve desired USDC output
+        uint256 exRate_withPrecision =_getExchageRate_withPrecision(1, 0, positionAmount);   // get exchange rate for worst case swap
         uint256 dFidu =  (desiredUsdc * PRECISION) / exRate_withPrecision;                    // determine fidu necessary given worst case ex rate
         console.log(exRate_withPrecision);
-        console.log(position.amount);
+        console.log(positionAmount);
+        console.log(desiredUsdc);
         console.log(dFidu);
-        require(dFidu <= position.amount, "Cannot redeem more than available"); // check to see if redemption is possible 
+        require(dFidu <= positionAmount, "Cannot redeem more than available"); // check to see if redemption is possible 
         uint256 minUsdcOut =  _calcSlippageTolernace(1, 0, dFidu, _getSlippageTolerance());  // determine usdc less slippage tolerance 
         uint256 redeemedUsdc = _unstakeAndSwap(accountId, dFidu, minUsdcOut);
         console.log(minUsdcOut);
@@ -299,12 +338,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
         return (redeemedUsdc, dFidu);
     }
 
-    function _redeemAllFiduForUsdc(uint32 accountId) internal returns (uint256) {
-        // Get parameters from registrar 
-        IStakingRewards.StakedPosition memory position = stakingPool.getPosition(tokenIdByAccountId[accountId]);
-        uint256 minUsdcOut =  _calcSlippageTolernace(1, 0, position.amount, _getSlippageTolerance());  // determine usdc less slippage tolerance 
-        return _unstakeAndSwap(accountId, position.amount, minUsdcOut);
-    }
+    
 
     function _unstakeAndSwap(uint32 accountId, uint256 dFidu, uint256 minUsdcOut) internal returns (uint256) {
         // Move tokens from staking pool -> crv for swap -> return usdc redeemed 
@@ -315,6 +349,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
 
     function _getExchageRate_withPrecision(uint256 i, uint256 j, uint256 amt) internal view returns (uint256) {
         uint256 dy = crvPool.get_dy(i, j, amt); // get current expected dy
+        require(dy > 0, "Invalid exchange rate");
         return (dy  * PRECISION / amt); 
     }
 }

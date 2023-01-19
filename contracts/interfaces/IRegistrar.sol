@@ -33,6 +33,7 @@ interface IRegistrar {
         uint32 interestDistribution;
         bool lockedPrincipleToLiquid;
         uint32 principleDistribution;
+        uint32 basis;
     }
 
     struct AngelProtocolParams {

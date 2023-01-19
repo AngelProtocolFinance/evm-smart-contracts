@@ -59,6 +59,7 @@ export declare namespace IRegistrar {
     interestDistribution: PromiseOrValue<BigNumberish>;
     lockedPrincipleToLiquid: PromiseOrValue<boolean>;
     principleDistribution: PromiseOrValue<BigNumberish>;
+    basis: PromiseOrValue<BigNumberish>;
   };
 
   export type RebalanceParamsStructOutput = [
@@ -66,6 +67,7 @@ export declare namespace IRegistrar {
     number,
     number,
     boolean,
+    number,
     number
   ] & {
     rebalanceLiquidProfits: boolean;
@@ -73,6 +75,7 @@ export declare namespace IRegistrar {
     interestDistribution: number;
     lockedPrincipleToLiquid: boolean;
     principleDistribution: number;
+    basis: number;
   };
 
   export type VaultParamsStruct = {
@@ -131,7 +134,7 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
     "isTokenAccepted(address)": FunctionFragment;
     "setAngelProtocolParams((uint32,uint32,address,string,string,address))": FunctionFragment;
     "setGasByToken(address,uint256)": FunctionFragment;
-    "setRebalanceParams((bool,uint32,uint32,bool,uint32))": FunctionFragment;
+    "setRebalanceParams((bool,uint32,uint32,bool,uint32,uint32))": FunctionFragment;
     "setStrategyApproved(bytes4,bool)": FunctionFragment;
     "setStrategyParams(bytes4,address,address,bool)": FunctionFragment;
     "setTokenAccepted(address,bool)": FunctionFragment;
