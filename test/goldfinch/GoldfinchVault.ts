@@ -520,7 +520,6 @@ describe("Goldfinch Vault", function () {
                         .mul(defaultApParams.protocolTaxRate)
                         .div(defaultApParams.protocolTaxBasis)
       let redemptionAmt = STABLETOKENAMOUNT.sub(expectedTax)
-      console.log(await stableToken.balanceOf(taxCollector.address))
       expect(await stableToken.balanceOf(taxCollector.address)).to.equal(expectedTax)
       expect(await stableToken.balanceOf(liquidVault.address)).to.equal(redemptionAmt)
       expect(await stableToken.allowance(liquidVault.address, owner.address)).to.equal(redemptionAmt)
@@ -754,10 +753,10 @@ describe("Goldfinch Vault", function () {
 
     it("Handles the case where only one account is called, with yield, liquid", async function () {
       let STABLETOKENWITHYIELD = STABLETOKENAMOUNT.mul(2)
-      let expectedTax = STABLETOKENWITHYIELD
+      let expectedYield = STABLETOKENWITHYIELD.sub(STABLETOKENAMOUNT)
+      let expectedTax = expectedYield
                         .mul(defaultApParams.protocolTaxRate)
                         .div(defaultApParams.protocolTaxBasis)
-                        console.log(expectedTax)
       let exchangeRate = STAKINGTOKENAMOUNT.div(STABLETOKENWITHYIELD)  
       let updatedPosition = STAKINGTOKENAMOUNT.sub(expectedTax.mul(exchangeRate))
       await crvLP.setDys(STABLETOKENWITHYIELD, expectedTax)     // we only exchange whats necessary to cover the tax
@@ -780,11 +779,12 @@ describe("Goldfinch Vault", function () {
 
     it("Handles the case where only one account is called, with yield, locked", async function () {
       let STABLETOKENWITHYIELD = STABLETOKENAMOUNT.mul(2)
-      let expectedTax = STABLETOKENWITHYIELD
-                        .mul(defaultApParams.protocolTaxRate)
-                        .div(defaultApParams.protocolTaxBasis)
+
       let exchangeRate = STAKINGTOKENAMOUNT.div(STABLETOKENWITHYIELD)
       let expectedYield = STABLETOKENWITHYIELD.sub(STABLETOKENAMOUNT)
+      let expectedTax = expectedYield
+                      .mul(defaultApParams.protocolTaxRate)
+                      .div(defaultApParams.protocolTaxBasis)
       let rebalanceAmt = (expectedYield
                           .sub(expectedTax))
                           .mul(defaultRebalParams.lockedRebalanceToLiquid)
@@ -792,7 +792,8 @@ describe("Goldfinch Vault", function () {
       let updatedPosition = STAKINGTOKENAMOUNT
                             .sub(expectedTax.mul(exchangeRate))
                             .sub(rebalanceAmt.mul(exchangeRate))
-      await crvLP.setDys(STABLETOKENWITHYIELD, expectedTax)     // we only exchange whats necessary to cover the tax
+      let redemptionAmt = expectedTax.add(rebalanceAmt)
+      await crvLP.setDys(STABLETOKENWITHYIELD, redemptionAmt)     // we only exchange whats necessary to cover the tax
       await lockedVault.harvest([ACCOUNTID1])
       let id = await lockedVault.tokenIdByAccountId(ACCOUNTID1)
       let position = await stakingPool.getPosition(id)
