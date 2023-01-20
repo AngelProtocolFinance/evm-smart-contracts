@@ -34,6 +34,7 @@ contract DummyStakingRewards is ERC721, IStakingRewards {
   
   // Interface implementation
   function getPosition(uint256 tokenId) external view returns (StakedPosition memory) {
+    require(tokenId > 0,  "Invalid token ID");
     StakedPosition memory position;
     position.amount = balanceByTokenId[tokenId];
     return position;

@@ -72,6 +72,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
     }
 
     modifier nonzeroPositionOnly(uint32 accountId) {
+        require(tokenIdByAccountId[accountId] != 0, "No position");
         IStakingRewards.StakedPosition memory position = stakingPool.getPosition(tokenIdByAccountId[accountId]);
         require(position.amount > 0, "No position");
         _;
@@ -177,6 +178,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
         IStakingRewards.StakedPosition memory position = stakingPool.getPosition(tokenIdByAccountId[accountId]);
         IRegistrarGoldfinch.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
 
+        _claimGFI(accountId);      
         uint256 yield_withPrecision = _calcYield_withPrecision(accountId, position.amount);             // determine yield as a rate demoninated in USDC
         uint256 minUsdcOut =  _calcSlippageTolernace(1, 0, position.amount, _getSlippageTolerance());   // determine usdc less slippage tolerance 
         uint256 redeemedUSDC = _unstakeAndSwap(accountId, position.amount, minUsdcOut);
@@ -245,10 +247,12 @@ contract GoldfinchVault is IVault, IERC721Receiver {
         uint256 taxableAmt = (principleByAccountId[accountId].usdcP * yield_withPrecision)  / PRECISION; 
         uint256 tax = _calcTax(yield_withPrecision, taxableAmt);    // Calculate the tax on taxable amt
         uint256 redeemedUSDC;
-        
+        uint256 dFidu;
+
         if (vaultType == VaultType.LIQUID) {
-            (redeemedUSDC,) = _redeemFiduForUsdc(accountId, position.amount, tax);       
-            require(IERC20(USDC).transfer(apParams.protocolTaxCollector, redeemedUSDC));  
+            (redeemedUSDC, dFidu) = _redeemFiduForUsdc(accountId, position.amount, tax);       
+            require(IERC20(USDC).transfer(apParams.protocolTaxCollector, redeemedUSDC));
+            principleByAccountId[accountId].fiduP -= dFidu;             // Deduct fidu redemption from principle
             return;
         }
 
@@ -257,8 +261,12 @@ contract GoldfinchVault is IVault, IERC721Receiver {
         uint256 rebalAmt = ((taxableAmt - tax) * rbParams.lockedRebalanceToLiquid) / rbParams.basis;
         
         // Unstake necessary FIDU to cover tax + rebalance to liquid 
-        (redeemedUSDC,) = _redeemFiduForUsdc(accountId, position.amount, (tax + rebalAmt));  // Redeem FIDU from underlying to USDC
-        require(IERC20(USDC).transfer(apParams.protocolTaxCollector, tax));             // Scrape tax USDC to tax collector
+        (redeemedUSDC, dFidu) = _redeemFiduForUsdc(                             // Redeem FIDU from underlying to USDC
+            accountId, 
+            position.amount, 
+            (tax + rebalAmt));              
+        principleByAccountId[accountId].fiduP -= dFidu;                         // Deduct fidu redemption from principle
+        require(IERC20(USDC).transfer(apParams.protocolTaxCollector, tax));     // Scrape tax USDC to tax collector
 
         // Rebalance to sibling vault
         IRegistrarGoldfinch.StrategyParams memory stratParams = registrar.getStrategyParamsById(STRATEGY_ID);
