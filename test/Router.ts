@@ -143,7 +143,7 @@ describe("Router", function () {
       router = await deployRouterAsProxy(gateway.address)
     })
 
-    it("Does not allow a non-router address to call executeWithToken", async function () {
+    it("Does not allow a non-accounts contract address to call executeWithToken", async function () {
       await expect(router.executeWithToken(
         ethers.utils.formatBytes32String("true"),
         "Polygon", 
@@ -154,7 +154,7 @@ describe("Router", function () {
         .to.be.revertedWith("Unauthorized Call")
     })
 
-    it("Does not allow a non-router address to call execute", async function () {
+    it("Does not allow a non-accounts contract address to call execute", async function () {
       await expect(router.execute(
         ethers.utils.formatBytes32String("true"),
         "Polygon", 
@@ -795,4 +795,5 @@ describe("Router", function () {
       )).to.be.revertedWith("Redemption does not cover gas")
     })
   })
+  // @TODO add Harvest tests
 })

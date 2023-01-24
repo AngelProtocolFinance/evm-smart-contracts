@@ -13,7 +13,7 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {AxelarExecutable} from "./axelar/AxelarExecutable.sol";
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
 import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService.sol";
-
+            
 contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     IRegistrar public registrar;
     IAxelarGasService public gasReceiver;
@@ -44,6 +44,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         _;
     }
 
+    // @todo handle reversion case for deposit
     function _callSwitch(
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
@@ -261,7 +262,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
             amount
         );
     }
-
+    // @TODO restrict to only `deposit` calls
     function _executeWithToken(
         string calldata sourceChain,
         string calldata sourceAddress,
@@ -304,7 +305,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         // Switch for calling appropriate vault/method
         _callSwitch(params, action);
     }
-
+    
     function _execute(
         string calldata sourceChain,
         string calldata sourceAddress,

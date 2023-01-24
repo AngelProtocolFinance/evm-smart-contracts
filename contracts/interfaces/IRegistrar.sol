@@ -45,6 +45,7 @@ interface IRegistrar {
         address routerAddr;
     }
 
+    // @TODO change to ENUM for approval
     struct StrategyParams {
         bool isApproved;
         VaultParams Locked;
