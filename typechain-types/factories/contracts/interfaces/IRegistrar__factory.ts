@@ -552,7 +552,7 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;
 
 export class IRegistrar__factory {
   static readonly abi = _abi;

@@ -1,18 +1,14 @@
-import { HardhatUserConfig, task } from "hardhat/config";
-import { envConfig } from "./utils/env.config" 
-import "@nomiclabs/hardhat-etherscan";
-import "@nomiclabs/hardhat-waffle";
-import '@openzeppelin/hardhat-upgrades';
-import "@typechain/hardhat";
-import "solidity-coverage";
-import { env } from "process";
+import { HardhatUserConfig } from "hardhat/config"
+import { envConfig } from "./utils/env.config"
+import "@nomiclabs/hardhat-etherscan"
+import "@nomiclabs/hardhat-waffle"
+import '@openzeppelin/hardhat-upgrades'
+import "@typechain/hardhat"
+import "solidity-coverage"
 
-task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
-  const accounts = await hre.ethers.getSigners();
-  for (const account of accounts) {
-    console.log(account.address);
-  }
-});
+// Tasks
+import "./tasks/accounts"
+import "./tasks/deploy"
 
 const config: HardhatUserConfig = {
   solidity:{
