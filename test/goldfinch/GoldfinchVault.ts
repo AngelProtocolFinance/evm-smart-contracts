@@ -7,8 +7,7 @@ import { DummyERC20, DummyERC20__factory } from "../../typechain-types";
 import { GoldfinchVault, GoldfinchVault__factory } from "../../typechain-types"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { BigNumber } from "ethers";
-import exp from "constants";
-import { token } from "../../typechain-types/@openzeppelin/contracts";
+import { StrategyApprovalState } from "../../utils/IRegistrarHelpers"
 
 
 describe("Goldfinch Vault", function () {
@@ -35,7 +34,8 @@ describe("Goldfinch Vault", function () {
     "protocolTaxCollector" : ethers.constants.AddressZero,
     "primaryChain" : "Polygon",
     "primaryChainRouter" : "",
-    "routerAddr" : ethers.constants.AddressZero
+    "routerAddr" : ethers.constants.AddressZero,
+    "refundAddr" : ethers.constants.AddressZero
   }
   enum VaultType {
     LOCKED, 
@@ -43,7 +43,7 @@ describe("Goldfinch Vault", function () {
   }
   let strategyId = "0x1fd10064" // bytes4(keccak256(abi.encode("Goldfinch")));
   let strategyParams = {
-    isApproved: true, 
+    approvalState: StrategyApprovalState.APPROVED, 
     Locked : {
       Type: VaultType.LOCKED,
       vaultAddr: "0x000000000000000000000000000000000000dEaD"
@@ -74,7 +74,7 @@ describe("Goldfinch Vault", function () {
       strategyId, 
       strategyParams.Locked.vaultAddr, 
       strategyParams.Liquid.vaultAddr, 
-      strategyParams.isApproved)
+      strategyParams.approvalState)
 
     // Set AP Goldfinch params
     await registrar.setAPGoldfinchParams({
@@ -236,7 +236,7 @@ describe("Goldfinch Vault", function () {
         strategyId, 
         updatedStrategyParams.Locked.vaultAddr, 
         updatedStrategyParams.Liquid.vaultAddr, 
-        updatedStrategyParams.isApproved)
+        updatedStrategyParams.approvalState)
       
       // Reset token amts to "default" for each test
       STABLETOKENAMOUNT = BigNumber.from(10).pow(8) // $100 given USDC 6 digit precision
@@ -408,7 +408,7 @@ describe("Goldfinch Vault", function () {
         strategyId, 
         updatedStrategyParams.Locked.vaultAddr, 
         updatedStrategyParams.Liquid.vaultAddr, 
-        updatedStrategyParams.isApproved)
+        updatedStrategyParams.approvalState)
       
       // Reset token amts to "default" for each test
       STABLETOKENAMOUNT = BigNumber.from(10).pow(8) // $100 given USDC 6 digit precision
@@ -611,7 +611,7 @@ describe("Goldfinch Vault", function () {
         strategyId, 
         updatedStrategyParams.Locked.vaultAddr, 
         updatedStrategyParams.Liquid.vaultAddr, 
-        updatedStrategyParams.isApproved)
+        updatedStrategyParams.approvalState)
       
       // Reset token amts to "default" for each test
       STABLETOKENAMOUNT = BigNumber.from(10).pow(8) // $100 given USDC 6 digit precision
@@ -733,7 +733,7 @@ describe("Goldfinch Vault", function () {
         strategyId, 
         updatedStrategyParams.Locked.vaultAddr, 
         updatedStrategyParams.Liquid.vaultAddr, 
-        updatedStrategyParams.isApproved)
+        updatedStrategyParams.approvalState)
       
       // Reset token amts to "default" for each test
       STABLETOKENAMOUNT = BigNumber.from(10).pow(8) // $100 given USDC 6 digit precision

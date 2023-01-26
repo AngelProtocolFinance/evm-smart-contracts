@@ -1,7 +1,8 @@
 import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
-import { Registrar, Registrar__factory, IRegistrar } from "../typechain-types"
+import { Registrar, Registrar__factory, IRegistrar, IRegistrarGoldfinch__factory } from "../typechain-types"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
+import { StrategyApprovalState } from "../utils/IRegistrarHelpers"
 
 describe("Registrar", function () {
   let owner: SignerWithAddress
@@ -22,7 +23,8 @@ describe("Registrar", function () {
     "protocolTaxCollector" : ethers.constants.AddressZero,
     "primaryChain" : "Polygon",
     "primaryChainRouter" : "",
-    "routerAddr" : ethers.constants.AddressZero
+    "routerAddr" : ethers.constants.AddressZero,
+    "refundAddr" : ethers.constants.AddressZero
   } 
 
   async function deployRegistrarAsProxy(): Promise<Registrar> {
@@ -133,7 +135,7 @@ describe("Registrar", function () {
     describe("set and get Strategy params", async function () {
       let strategyId = "0xffffffff" // random 4-byte hash
       let strategyParams = {
-        isApproved: false, 
+        approvalState: StrategyApprovalState.NOT_APPROVED, 
         Locked : {
           Type: 0,
           vaultAddr: "0x690B9A9E9aa1C9dB991C7721a92d351Db4FaC990"
@@ -149,7 +151,7 @@ describe("Registrar", function () {
           strategyId, 
           strategyParams.Locked.vaultAddr, 
           strategyParams.Liquid.vaultAddr, 
-          strategyParams.isApproved))
+          strategyParams.approvalState))
           .to.be.reverted
       })
 
@@ -158,9 +160,9 @@ describe("Registrar", function () {
           strategyId, 
           strategyParams.Locked.vaultAddr, 
           strategyParams.Liquid.vaultAddr, 
-          strategyParams.isApproved)
+          strategyParams.approvalState)
         let returnedValue = await registrar.getStrategyParamsById(strategyId)
-        expect(returnedValue.isApproved).to.equal(strategyParams.isApproved)
+        expect(returnedValue.approvalState).to.equal(strategyParams.approvalState)
         expect(returnedValue.Locked.Type).to.equal(strategyParams.Locked.Type)
         expect(returnedValue.Locked.vaultAddr).to.equal(strategyParams.Locked.vaultAddr)
         expect(returnedValue.Liquid.Type).to.equal(strategyParams.Liquid.Type)
@@ -168,12 +170,18 @@ describe("Registrar", function () {
       })
 
       it("Should let the owner change the approval state", async function () {
-        await registrar.setStrategyApproved(strategyId, true)
-        let returnedValue = await registrar.isStrategyApproved(strategyId)
-        expect(returnedValue).to.be.true
-        await registrar.setStrategyApproved(strategyId, false)
-        returnedValue = await registrar.isStrategyApproved(strategyId)
-        expect(returnedValue).to.be.false
+        await registrar.setStrategyApprovalState(strategyId, StrategyApprovalState.APPROVED)
+        let returnedValue = await registrar.getStrategyApprovalState(strategyId)
+        expect(returnedValue).to.equal(StrategyApprovalState.APPROVED)
+        await registrar.setStrategyApprovalState(strategyId, StrategyApprovalState.WITHDRAW_ONLY)
+        returnedValue = await registrar.getStrategyApprovalState(strategyId)
+        expect(returnedValue).to.equal(StrategyApprovalState.WITHDRAW_ONLY)
+        await registrar.setStrategyApprovalState(strategyId, StrategyApprovalState.DEPRECATED)
+        returnedValue = await registrar.getStrategyApprovalState(strategyId)
+        expect(returnedValue).to.equal(StrategyApprovalState.DEPRECATED)
+        await registrar.setStrategyApprovalState(strategyId, StrategyApprovalState.NOT_APPROVED)
+        returnedValue = await registrar.getStrategyApprovalState(strategyId)
+        expect(returnedValue).to.equal(StrategyApprovalState.NOT_APPROVED)
       })
     })
   })
@@ -185,7 +193,7 @@ describe("Registrar", function () {
     })
     let strategyId = "0xffffffff" // random 4-byte hash
     let strategyParams = {
-      isApproved: false, 
+      approvalState: StrategyApprovalState.APPROVED, 
       Locked : {
         Type: 0,
         vaultAddr: "0x690B9A9E9aa1C9dB991C7721a92d351Db4FaC990"
@@ -213,7 +221,7 @@ describe("Registrar", function () {
     })
 
     it("should emit StrategyApprovalChanged", async function () {
-      await expect(registrar.setStrategyApproved(strategyId, true))
+      await expect(registrar.setStrategyApprovalState(strategyId, StrategyApprovalState.APPROVED))
       .to.emit(registrar, "StrategyApprovalChanged")
     })
 
@@ -222,7 +230,7 @@ describe("Registrar", function () {
         strategyId,
         strategyParams.Liquid.vaultAddr,
         strategyParams.Locked.vaultAddr,
-        strategyParams.isApproved
+        strategyParams.approvalState
       ))
       .to.emit(registrar, "StrategyParamsChanged")
     })

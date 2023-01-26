@@ -27,8 +27,64 @@ import type {
   PromiseOrValue,
 } from "../common";
 
+export declare namespace IRouter {
+  export type VaultActionDataStruct = {
+    strategyId: PromiseOrValue<BytesLike>;
+    selector: PromiseOrValue<BytesLike>;
+    accountIds: PromiseOrValue<BigNumberish>[];
+    token: PromiseOrValue<string>;
+    lockAmt: PromiseOrValue<BigNumberish>;
+    liqAmt: PromiseOrValue<BigNumberish>;
+  };
+
+  export type VaultActionDataStructOutput = [
+    string,
+    string,
+    number[],
+    string,
+    BigNumber,
+    BigNumber
+  ] & {
+    strategyId: string;
+    selector: string;
+    accountIds: number[];
+    token: string;
+    lockAmt: BigNumber;
+    liqAmt: BigNumber;
+  };
+}
+
+export declare namespace IRegistrar {
+  export type VaultParamsStruct = {
+    Type: PromiseOrValue<BigNumberish>;
+    vaultAddr: PromiseOrValue<string>;
+  };
+
+  export type VaultParamsStructOutput = [number, string] & {
+    Type: number;
+    vaultAddr: string;
+  };
+
+  export type StrategyParamsStruct = {
+    approvalState: PromiseOrValue<BigNumberish>;
+    Locked: IRegistrar.VaultParamsStruct;
+    Liquid: IRegistrar.VaultParamsStruct;
+  };
+
+  export type StrategyParamsStructOutput = [
+    number,
+    IRegistrar.VaultParamsStructOutput,
+    IRegistrar.VaultParamsStructOutput
+  ] & {
+    approvalState: number;
+    Locked: IRegistrar.VaultParamsStructOutput;
+    Liquid: IRegistrar.VaultParamsStructOutput;
+  };
+}
+
 export interface RouterInterface extends utils.Interface {
   functions: {
+    "deposit((uint8,(uint8,address),(uint8,address)),(bytes4,bytes4,uint32[],address,uint256,uint256),string,uint256)": FunctionFragment;
     "execute(bytes32,string,string,bytes)": FunctionFragment;
     "executeWithToken(bytes32,string,string,bytes,string,uint256)": FunctionFragment;
     "gasReceiver()": FunctionFragment;
@@ -37,11 +93,13 @@ export interface RouterInterface extends utils.Interface {
     "owner()": FunctionFragment;
     "registrar()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
+    "sendTokens(string,string,bytes,string,uint256,address,uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "deposit"
       | "execute"
       | "executeWithToken"
       | "gasReceiver"
@@ -50,9 +108,19 @@ export interface RouterInterface extends utils.Interface {
       | "owner"
       | "registrar"
       | "renounceOwnership"
+      | "sendTokens"
       | "transferOwnership"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "deposit",
+    values: [
+      IRegistrar.StrategyParamsStruct,
+      IRouter.VaultActionDataStruct,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
   encodeFunctionData(
     functionFragment: "execute",
     values: [
@@ -93,10 +161,23 @@ export interface RouterInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "sendTokens",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [PromiseOrValue<string>]
   ): string;
 
+  decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "executeWithToken",
@@ -114,19 +195,65 @@ export interface RouterInterface extends utils.Interface {
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "sendTokens", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
 
   events: {
+    "Deposit(tuple)": EventFragment;
+    "FallbackRefund(tuple,uint256)": EventFragment;
+    "Harvest(tuple)": EventFragment;
     "Initialized(uint8)": EventFragment;
+    "LogError(string)": EventFragment;
+    "LogErrorBytes(bytes)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "Redemption(tuple,uint256)": EventFragment;
+    "TokensSent(tuple,uint256)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "Deposit"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FallbackRefund"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Harvest"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "LogError"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "LogErrorBytes"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Redemption"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TokensSent"): EventFragment;
 }
+
+export interface DepositEventObject {
+  action: IRouter.VaultActionDataStructOutput;
+}
+export type DepositEvent = TypedEvent<
+  [IRouter.VaultActionDataStructOutput],
+  DepositEventObject
+>;
+
+export type DepositEventFilter = TypedEventFilter<DepositEvent>;
+
+export interface FallbackRefundEventObject {
+  action: IRouter.VaultActionDataStructOutput;
+  amount: BigNumber;
+}
+export type FallbackRefundEvent = TypedEvent<
+  [IRouter.VaultActionDataStructOutput, BigNumber],
+  FallbackRefundEventObject
+>;
+
+export type FallbackRefundEventFilter = TypedEventFilter<FallbackRefundEvent>;
+
+export interface HarvestEventObject {
+  action: IRouter.VaultActionDataStructOutput;
+}
+export type HarvestEvent = TypedEvent<
+  [IRouter.VaultActionDataStructOutput],
+  HarvestEventObject
+>;
+
+export type HarvestEventFilter = TypedEventFilter<HarvestEvent>;
 
 export interface InitializedEventObject {
   version: number;
@@ -134,6 +261,20 @@ export interface InitializedEventObject {
 export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
+
+export interface LogErrorEventObject {
+  message: string;
+}
+export type LogErrorEvent = TypedEvent<[string], LogErrorEventObject>;
+
+export type LogErrorEventFilter = TypedEventFilter<LogErrorEvent>;
+
+export interface LogErrorBytesEventObject {
+  data: string;
+}
+export type LogErrorBytesEvent = TypedEvent<[string], LogErrorBytesEventObject>;
+
+export type LogErrorBytesEventFilter = TypedEventFilter<LogErrorBytesEvent>;
 
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
@@ -146,6 +287,28 @@ export type OwnershipTransferredEvent = TypedEvent<
 
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
+
+export interface RedemptionEventObject {
+  action: IRouter.VaultActionDataStructOutput;
+  amount: BigNumber;
+}
+export type RedemptionEvent = TypedEvent<
+  [IRouter.VaultActionDataStructOutput, BigNumber],
+  RedemptionEventObject
+>;
+
+export type RedemptionEventFilter = TypedEventFilter<RedemptionEvent>;
+
+export interface TokensSentEventObject {
+  action: IRouter.VaultActionDataStructOutput;
+  amount: BigNumber;
+}
+export type TokensSentEvent = TypedEvent<
+  [IRouter.VaultActionDataStructOutput, BigNumber],
+  TokensSentEventObject
+>;
+
+export type TokensSentEventFilter = TypedEventFilter<TokensSentEvent>;
 
 export interface Router extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -174,6 +337,14 @@ export interface Router extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    deposit(
+      params: IRegistrar.StrategyParamsStruct,
+      action: IRouter.VaultActionDataStruct,
+      tokenSymbol: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     execute(
       commandId: PromiseOrValue<BytesLike>,
       sourceChain: PromiseOrValue<string>,
@@ -211,11 +382,30 @@ export interface Router extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    sendTokens(
+      destinationChain: PromiseOrValue<string>,
+      destinationAddress: PromiseOrValue<string>,
+      payload: PromiseOrValue<BytesLike>,
+      symbol: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      gasToken: PromiseOrValue<string>,
+      gasFeeAmt: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     transferOwnership(
       newOwner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
+
+  deposit(
+    params: IRegistrar.StrategyParamsStruct,
+    action: IRouter.VaultActionDataStruct,
+    tokenSymbol: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   execute(
     commandId: PromiseOrValue<BytesLike>,
@@ -254,12 +444,31 @@ export interface Router extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  sendTokens(
+    destinationChain: PromiseOrValue<string>,
+    destinationAddress: PromiseOrValue<string>,
+    payload: PromiseOrValue<BytesLike>,
+    symbol: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
+    gasToken: PromiseOrValue<string>,
+    gasFeeAmt: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   transferOwnership(
     newOwner: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    deposit(
+      params: IRegistrar.StrategyParamsStruct,
+      action: IRouter.VaultActionDataStruct,
+      tokenSymbol: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     execute(
       commandId: PromiseOrValue<BytesLike>,
       sourceChain: PromiseOrValue<string>,
@@ -295,6 +504,17 @@ export interface Router extends BaseContract {
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
+    sendTokens(
+      destinationChain: PromiseOrValue<string>,
+      destinationAddress: PromiseOrValue<string>,
+      payload: PromiseOrValue<BytesLike>,
+      symbol: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      gasToken: PromiseOrValue<string>,
+      gasFeeAmt: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     transferOwnership(
       newOwner: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -302,8 +522,26 @@ export interface Router extends BaseContract {
   };
 
   filters: {
+    "Deposit(tuple)"(action?: null): DepositEventFilter;
+    Deposit(action?: null): DepositEventFilter;
+
+    "FallbackRefund(tuple,uint256)"(
+      action?: null,
+      amount?: null
+    ): FallbackRefundEventFilter;
+    FallbackRefund(action?: null, amount?: null): FallbackRefundEventFilter;
+
+    "Harvest(tuple)"(action?: null): HarvestEventFilter;
+    Harvest(action?: null): HarvestEventFilter;
+
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
+
+    "LogError(string)"(message?: null): LogErrorEventFilter;
+    LogError(message?: null): LogErrorEventFilter;
+
+    "LogErrorBytes(bytes)"(data?: null): LogErrorBytesEventFilter;
+    LogErrorBytes(data?: null): LogErrorBytesEventFilter;
 
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
@@ -313,9 +551,29 @@ export interface Router extends BaseContract {
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
+
+    "Redemption(tuple,uint256)"(
+      action?: null,
+      amount?: null
+    ): RedemptionEventFilter;
+    Redemption(action?: null, amount?: null): RedemptionEventFilter;
+
+    "TokensSent(tuple,uint256)"(
+      action?: null,
+      amount?: null
+    ): TokensSentEventFilter;
+    TokensSent(action?: null, amount?: null): TokensSentEventFilter;
   };
 
   estimateGas: {
+    deposit(
+      params: IRegistrar.StrategyParamsStruct,
+      action: IRouter.VaultActionDataStruct,
+      tokenSymbol: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     execute(
       commandId: PromiseOrValue<BytesLike>,
       sourceChain: PromiseOrValue<string>,
@@ -353,6 +611,17 @@ export interface Router extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    sendTokens(
+      destinationChain: PromiseOrValue<string>,
+      destinationAddress: PromiseOrValue<string>,
+      payload: PromiseOrValue<BytesLike>,
+      symbol: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      gasToken: PromiseOrValue<string>,
+      gasFeeAmt: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     transferOwnership(
       newOwner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -360,6 +629,14 @@ export interface Router extends BaseContract {
   };
 
   populateTransaction: {
+    deposit(
+      params: IRegistrar.StrategyParamsStruct,
+      action: IRouter.VaultActionDataStruct,
+      tokenSymbol: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     execute(
       commandId: PromiseOrValue<BytesLike>,
       sourceChain: PromiseOrValue<string>,
@@ -394,6 +671,17 @@ export interface Router extends BaseContract {
     registrar(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    sendTokens(
+      destinationChain: PromiseOrValue<string>,
+      destinationAddress: PromiseOrValue<string>,
+      payload: PromiseOrValue<BytesLike>,
+      symbol: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      gasToken: PromiseOrValue<string>,
+      gasFeeAmt: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

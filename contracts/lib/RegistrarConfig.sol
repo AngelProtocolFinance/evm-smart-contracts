@@ -19,4 +19,5 @@ library RegistrarConfig {
     string constant PRIMARY_CHAIN = "Polygon";
     string constant PRIMARY_CHAIN_ROUTER_ADDRESS = "";
     address constant ROUTER_ADDRESS = address(0);
+    address constant REFUND_ADDRESS = address(0);
 }

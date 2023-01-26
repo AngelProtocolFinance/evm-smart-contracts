@@ -9,7 +9,7 @@ import { DummyGateway, DummyGateway__factory } from "../typechain-types"
 import { DummyGasService, DummyGasService__factory } from "../typechain-types"
 import { DummyERC20, DummyERC20__factory } from "../typechain-types"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
-import { token } from "../typechain-types/@openzeppelin/contracts"
+import { StrategyApprovalState } from "../utils/IRegistrarHelpers"
 
 describe("Router", function () {
   let owner: SignerWithAddress
@@ -22,7 +22,8 @@ describe("Router", function () {
     "protocolTaxCollector" : ethers.constants.AddressZero,
     "primaryChain" : "Polygon",
     "primaryChainRouter" : "",
-    "routerAddr" : ethers.constants.AddressZero
+    "routerAddr" : ethers.constants.AddressZero,
+    "refundAddr" : ethers.constants.AddressZero
   } as IRegistrar.AngelProtocolParamsStruct
 
   async function deployRouterAsProxy(
@@ -325,7 +326,7 @@ describe("Router", function () {
         actionData.strategyId,
         lockedVault.address,
         liquidVault.address,
-        true
+        StrategyApprovalState.APPROVED
       )
       actionData.token = token.address
     })
@@ -507,7 +508,7 @@ describe("Router", function () {
         actionData.strategyId,
         lockedVault.address,
         liquidVault.address,
-        true
+        StrategyApprovalState.APPROVED
       )
       actionData.selector = liquidVault.interface.getSighash("deposit")
       actionData.token = token.address
@@ -600,7 +601,7 @@ describe("Router", function () {
         actionData.strategyId,
         lockedVault.address,
         liquidVault.address,
-        true
+        StrategyApprovalState.APPROVED
       )
       actionData.token = token.address
     })
@@ -704,7 +705,7 @@ describe("Router", function () {
         actionData.strategyId,
         lockedVault.address,
         liquidVault.address,
-        true
+        StrategyApprovalState.APPROVED
       )
       actionData.selector = liquidVault.interface.getSighash("redeemAll")
       actionData.token = token.address

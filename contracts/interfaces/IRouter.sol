@@ -7,7 +7,17 @@ import {IVault} from "./IVault.sol";
 import {IRegistrar} from "./IRegistrar.sol";
 
 abstract contract IRouter is IAxelarExecutable {
+    /*////////////////////////////////////////////////
+                        EVENTS
+    */////////////////////////////////////////////////
 
+    event TokensSent(VaultActionData action, uint256 amount);
+    event FallbackRefund(VaultActionData action, uint256 amount);
+    event Deposit(VaultActionData action);
+    event Redemption(VaultActionData action, uint256 amount);
+    event Harvest(VaultActionData action);
+    event LogError(string message);
+    event LogErrorBytes(bytes data);
 
     /*////////////////////////////////////////////////
                     CUSTOM TYPES
