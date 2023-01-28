@@ -1,8 +1,9 @@
 import { HardhatUserConfig, task } from "hardhat/config";
 import { envConfig } from "./utils/env.config" 
 import "@nomiclabs/hardhat-etherscan";
-import "@nomiclabs/hardhat-waffle";
+import "@nomicfoundation/hardhat-chai-matchers"
 import '@openzeppelin/hardhat-upgrades';
+import "@nomiclabs/hardhat-ethers";
 import "@typechain/hardhat";
 import "solidity-coverage";
 import { env } from "process";

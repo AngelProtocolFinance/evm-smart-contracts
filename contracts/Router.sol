@@ -13,7 +13,7 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {AxelarExecutable} from "./axelar/AxelarExecutable.sol";
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
 import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService.sol";
-            
+
 contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     IRegistrar public registrar;
     IAxelarGasService public gasReceiver;
