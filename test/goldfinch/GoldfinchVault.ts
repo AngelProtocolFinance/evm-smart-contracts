@@ -250,7 +250,7 @@ describe("Goldfinch Vault", function () {
         ACCOUNTID1,
         stableToken.address,
         STABLETOKENAMOUNT))
-        .to.be.revertedWith("Not approved")
+        .to.be.revertedWith("Not approved Router")
     })
 
     it("Accepts only the stablecoin", async function () {
@@ -434,7 +434,7 @@ describe("Goldfinch Vault", function () {
         ACCOUNTID1,
         stableToken.address,
         STABLETOKENAMOUNT))
-        .to.be.revertedWith("Not approved")
+        .to.be.revertedWith("Not approved Router")
     })
 
     it("Accepts only the stablecoin", async function () {
@@ -635,7 +635,7 @@ describe("Goldfinch Vault", function () {
     it("Only allows the approved Router to call", async function () {
       await expect(liquidVault.connect(user).redeemAll(
         ACCOUNTID1))
-        .to.be.revertedWith("Not approved")
+        .to.be.revertedWith("Not approved Router")
     })
 
     it("Scrapes reward tokens to the tax collector", async function () {

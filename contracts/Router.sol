@@ -196,19 +196,21 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
 
         // Redeem tokens from vaults and txfer them to the Router
         uint256 _redeemedLockAmt;
-        if(_action.lockAmt > 0) {       // only do a redeemAll if the lock amt is nonzero
+        if(_action.lockAmt > 0) {
             _redeemedLockAmt = lockedVault.redeemAll(
                 _action.accountIds[0]);
             require(IERC20Metadata(_action.token)
                 .transferFrom(_params.Locked.vaultAddr, address(this), _redeemedLockAmt));
+            _action.lockAmt = _redeemedLockAmt;
         }
 
         uint256 _redeemedLiqAmt;
-        if(_action.liqAmt > 0) {        // only do a redeemAll if the liquid amt is nonzero
+        if(_action.liqAmt > 0) {
             _redeemedLiqAmt = liquidVault.redeemAll(
                 _action.accountIds[0]);
             require(IERC20Metadata(_action.token)
                 .transferFrom(_params.Liquid.vaultAddr, address(this), _redeemedLiqAmt));
+            _action.liqAmt = _redeemedLiqAmt;
         }
 
         // Pack and send the tokens back through GMP 
@@ -263,17 +265,24 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         ) internal {
 
         // Pack the tokens and calldata for bridging back out over GMP
-        // @TODO make a weighted avg for splitting gas and affect _action.*amts
+
         IRegistrar.AngelProtocolParams memory apParams = registrar
             .getAngelProtocolParams();
-        bytes memory payload = _packCallData(_action);
+        
 
         // Prepare gas
-        
         uint256 gasFee = registrar.getGasByToken(_action.token);
         require(_sendAmt > gasFee, "Send amount does not cover gas");
         uint256 amtLessGasFee = _sendAmt - gasFee;
 
+        // Split gas proportionally between liquid and lock amts 
+        uint256 PRECISION = 10**6;
+        uint256 liqGas = gasFee * (_action.liqAmt * PRECISION / _sendAmt) / PRECISION; 
+        uint256 lockGas =  gasFee - liqGas;
+        _action.liqAmt -= liqGas;
+        _action.lockAmt -= lockGas;
+
+        bytes memory payload = _packCallData(_action);
         try this.sendTokens(
                 apParams.primaryChain,
                 apParams.primaryChainRouter,

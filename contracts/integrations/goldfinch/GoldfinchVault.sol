@@ -17,7 +17,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract GoldfinchVault is IVault, IERC721Receiver {
     bytes4 constant STRATEGY_ID = bytes4(keccak256(abi.encode("Goldfinch")));
-    uint256 constant PRECISION = 10**24; // 6 orders more than an 18 decimal token 
+    uint256 constant PRECISION = 10**24;
     
     IVault.VaultType vaultType;
 
