@@ -98,8 +98,8 @@ export interface IRouterInterface extends utils.Interface {
     "Deposit(tuple)": EventFragment;
     "FallbackRefund(tuple,uint256)": EventFragment;
     "Harvest(tuple)": EventFragment;
-    "LogError(string)": EventFragment;
-    "LogErrorBytes(bytes)": EventFragment;
+    "LogError(tuple,string)": EventFragment;
+    "LogErrorBytes(tuple,bytes)": EventFragment;
     "Redemption(tuple,uint256)": EventFragment;
     "TokensSent(tuple,uint256)": EventFragment;
   };
@@ -145,16 +145,24 @@ export type HarvestEvent = TypedEvent<
 export type HarvestEventFilter = TypedEventFilter<HarvestEvent>;
 
 export interface LogErrorEventObject {
+  action: IRouter.VaultActionDataStructOutput;
   message: string;
 }
-export type LogErrorEvent = TypedEvent<[string], LogErrorEventObject>;
+export type LogErrorEvent = TypedEvent<
+  [IRouter.VaultActionDataStructOutput, string],
+  LogErrorEventObject
+>;
 
 export type LogErrorEventFilter = TypedEventFilter<LogErrorEvent>;
 
 export interface LogErrorBytesEventObject {
+  action: IRouter.VaultActionDataStructOutput;
   data: string;
 }
-export type LogErrorBytesEvent = TypedEvent<[string], LogErrorBytesEventObject>;
+export type LogErrorBytesEvent = TypedEvent<
+  [IRouter.VaultActionDataStructOutput, string],
+  LogErrorBytesEventObject
+>;
 
 export type LogErrorBytesEventFilter = TypedEventFilter<LogErrorBytesEvent>;
 
@@ -283,11 +291,17 @@ export interface IRouter extends BaseContract {
     "Harvest(tuple)"(action?: null): HarvestEventFilter;
     Harvest(action?: null): HarvestEventFilter;
 
-    "LogError(string)"(message?: null): LogErrorEventFilter;
-    LogError(message?: null): LogErrorEventFilter;
+    "LogError(tuple,string)"(
+      action?: null,
+      message?: null
+    ): LogErrorEventFilter;
+    LogError(action?: null, message?: null): LogErrorEventFilter;
 
-    "LogErrorBytes(bytes)"(data?: null): LogErrorBytesEventFilter;
-    LogErrorBytes(data?: null): LogErrorBytesEventFilter;
+    "LogErrorBytes(tuple,bytes)"(
+      action?: null,
+      data?: null
+    ): LogErrorBytesEventFilter;
+    LogErrorBytes(action?: null, data?: null): LogErrorBytesEventFilter;
 
     "Redemption(tuple,uint256)"(
       action?: null,

@@ -178,12 +178,15 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         require(IERC20Metadata(_action.token).transferFrom(_params.Liquid.vaultAddr, address(this), _redeemedLiqAmt));
 
         // Pack and send the tokens back through GMP 
-        uint256 _redeemedAmt = _redeemedLockAmt + _redeemedLiqAmt; 
+        uint256 _redeemedAmt = _redeemedLockAmt + _redeemedLiqAmt;
+        _action.lockAmt = _redeemedLockAmt;
+        _action.liqAmt = _redeemedLiqAmt;
         _prepareAndSendTokens(_action, _redeemedAmt);
         emit Redemption(_action, _redeemedAmt);
     }
 
     // Vault action::RedeemAll
+    // @todo redemption amts need to affect _action data 
         function _redeemAll(
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
@@ -216,6 +219,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
 
 
     // Vault action::Harvest
+    // @todo redemption amts need to affect _action data 
     function _harvest(
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
@@ -259,11 +263,13 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         ) internal {
 
         // Pack the tokens and calldata for bridging back out over GMP
+        // @TODO make a weighted avg for splitting gas and affect _action.*amts
         IRegistrar.AngelProtocolParams memory apParams = registrar
             .getAngelProtocolParams();
         bytes memory payload = _packCallData(_action);
 
-        // Prepare gas 
+        // Prepare gas
+        
         uint256 gasFee = registrar.getGasByToken(_action.token);
         require(_sendAmt > gasFee, "Send amount does not cover gas");
         uint256 amtLessGasFee = _sendAmt - gasFee;
@@ -280,12 +286,12 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
                 emit TokensSent(_action, amtLessGasFee);
         }
         catch Error(string memory reason) {
-            emit LogError(reason);
+            emit LogError(_action, reason);
             IERC20Metadata(_action.token).transfer(apParams.refundAddr, _sendAmt);
             emit FallbackRefund(_action, _sendAmt);
         }
         catch (bytes memory data) {
-            emit LogErrorBytes(data);
+            emit LogErrorBytes(_action, data);
             IERC20Metadata(_action.token).transfer(apParams.refundAddr, _sendAmt);
             emit FallbackRefund(_action, _sendAmt);
         }
@@ -354,11 +360,11 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
             emit Deposit(action);
         }
         catch Error(string memory reason) {
-            emit LogError(reason);
+            emit LogError(action, reason);
             _prepareAndSendTokens(action, amount);
         }
         catch (bytes memory data) {
-            emit LogErrorBytes(data);
+            emit LogErrorBytes(action, data);
             _prepareAndSendTokens(action, amount);
         }
     }

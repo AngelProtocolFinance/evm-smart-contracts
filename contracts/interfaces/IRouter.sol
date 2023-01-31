@@ -16,8 +16,8 @@ abstract contract IRouter is IAxelarExecutable {
     event Deposit(VaultActionData action);
     event Redemption(VaultActionData action, uint256 amount);
     event Harvest(VaultActionData action);
-    event LogError(string message);
-    event LogErrorBytes(bytes data);
+    event LogError(VaultActionData action, string message);
+    event LogErrorBytes(VaultActionData action, bytes data);
 
     /*////////////////////////////////////////////////
                     CUSTOM TYPES

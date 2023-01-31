@@ -165,6 +165,44 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        components: [
+          {
+            internalType: "bytes4",
+            name: "strategyId",
+            type: "bytes4",
+          },
+          {
+            internalType: "bytes4",
+            name: "selector",
+            type: "bytes4",
+          },
+          {
+            internalType: "uint32[]",
+            name: "accountIds",
+            type: "uint32[]",
+          },
+          {
+            internalType: "address",
+            name: "token",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "lockAmt",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "liqAmt",
+            type: "uint256",
+          },
+        ],
+        indexed: false,
+        internalType: "struct IRouter.VaultActionData",
+        name: "action",
+        type: "tuple",
+      },
+      {
         indexed: false,
         internalType: "string",
         name: "message",
@@ -177,6 +215,44 @@ const _abi = [
   {
     anonymous: false,
     inputs: [
+      {
+        components: [
+          {
+            internalType: "bytes4",
+            name: "strategyId",
+            type: "bytes4",
+          },
+          {
+            internalType: "bytes4",
+            name: "selector",
+            type: "bytes4",
+          },
+          {
+            internalType: "uint32[]",
+            name: "accountIds",
+            type: "uint32[]",
+          },
+          {
+            internalType: "address",
+            name: "token",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "lockAmt",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "liqAmt",
+            type: "uint256",
+          },
+        ],
+        indexed: false,
+        internalType: "struct IRouter.VaultActionData",
+        name: "action",
+        type: "tuple",
+      },
       {
         indexed: false,
         internalType: "bytes",
