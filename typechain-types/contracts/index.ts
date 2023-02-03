@@ -11,5 +11,6 @@ import type * as lib from "./lib";
 export type { lib };
 import type * as test from "./test";
 export type { test };
+export type { Halo } from "./Halo";
 export type { Registrar } from "./Registrar";
 export type { Router } from "./Router";
