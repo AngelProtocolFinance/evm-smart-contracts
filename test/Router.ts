@@ -10,6 +10,8 @@ import { DummyGasService, DummyGasService__factory } from "../typechain-types"
 import { DummyERC20, DummyERC20__factory } from "../typechain-types"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { StrategyApprovalState } from "../utils/IRegistrarHelpers"
+import { BigNumber } from "ethers";
+import { deepEqual } from "assert";
 
 describe("Router", function () {
   let owner: SignerWithAddress
@@ -861,6 +863,32 @@ describe("Router", function () {
         packedData
       )).to.be.revertedWith("Send amount does not cover gas")
     })
+
+    // This test runs into an open bug with the chai hardhat listeners. We will have to check this 
+    // manually until the issue is resolved
+    // the issue can be found here: https://github.com/NomicFoundation/hardhat/issues/3080
+    // it("Correctly splits the gas fees between locked and liquid amounts", async function () {
+    //   let packedData = packActionData(actionData)
+    //   await registrar.setGasByToken(token.address, 9) 
+    //   let expectedLiquidRedemption = BigNumber.from(111).sub(3)
+    //   let expectedLockedRedemption = BigNumber.from(222).sub(6)
+    //   await expect(router.execute(
+    //     ethers.utils.formatBytes32String("true"),
+    //     defaultApParams.primaryChain,
+    //     defaultApParams.primaryChainRouter,
+    //     packedData
+    //   ))
+    //   .to.emit(router, "TokensSent")
+    //   .withArgs(
+    //     [
+    //       actionData.strategyId,
+    //       actionData.selector,
+    //       undefined,
+    //       actionData.token,
+    //       expectedLockedRedemption,
+    //       expectedLiquidRedemption
+    //     ], 324)
+    // })
   })
 
   describe("RedeemAll", function () {
@@ -978,5 +1006,4 @@ describe("Router", function () {
       )).to.be.revertedWith("Send amount does not cover gas")
     })
   })
-  // @TODO add Harvest tests
 })
