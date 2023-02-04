@@ -45,42 +45,42 @@ contract DummyGateway is IAxelarGateway {
 
     function isContractCallApproved(
         bytes32 commandId,
-        string calldata sourceChain,
-        string calldata sourceAddress,
-        address contractAddress,
-        bytes32 payloadHash
+        string calldata,
+        string calldata,
+        address,
+        bytes32
     ) external view returns (bool){
         return _testParser(commandId);
     }
 
     function isContractCallAndMintApproved(
         bytes32 commandId,
-        string calldata sourceChain,
-        string calldata sourceAddress,
-        address contractAddress,
-        bytes32 payloadHash,
-        string calldata symbol,
-        uint256 amount
+        string calldata,
+        string calldata,
+        address,
+        bytes32,
+        string calldata,
+        uint256
     ) external view returns (bool){
         return _testParser(commandId);
     }
 
     function validateContractCall(
         bytes32 commandId,
-        string calldata sourceChain,
-        string calldata sourceAddress,
-        bytes32 payloadHash
+        string calldata,
+        string calldata,
+        bytes32
     ) external returns (bool){
         return _testParser(commandId);
     }
 
     function validateContractCallAndMint(
         bytes32 commandId,
-        string calldata sourceChain,
-        string calldata sourceAddress,
-        bytes32 payloadHash,
-        string calldata symbol,
-        uint256 amount
+        string calldata,
+        string calldata,
+        bytes32,
+        string calldata,
+        uint256
     ) external returns (bool){
         return _testParser(commandId);
     }
@@ -104,6 +104,9 @@ contract DummyGateway is IAxelarGateway {
     function tokenAddresses(string memory symbol) external view returns (address) {
         if(keccak256(abi.encodePacked(symbol)) == keccak256(abi.encodePacked("TKN"))){
             return tokenAddress;
+        }
+        else {
+            return address(0);
         }
     }
 

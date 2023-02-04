@@ -8,12 +8,12 @@ import type {
 
 export declare namespace IRouter {
     export type VaultActionDataStruct = {
-      strategyId: PromiseOrValue<BytesLike>;
-      selector: PromiseOrValue<BytesLike>;
-      accountIds: PromiseOrValue<Array<BigNumberish>>;
-      token: PromiseOrValue<string>;
-      lockAmt: PromiseOrValue<BigNumberish>;
-      liqAmt: PromiseOrValue<BigNumberish>;
+      strategyId: BytesLike;
+      selector: BytesLike;
+      accountIds: Array<BigNumberish>;
+      token: string;
+      lockAmt: BigNumberish;
+      liqAmt: BigNumberish;
     };
   
     export type AngelProtocolParamsStructOutput = [

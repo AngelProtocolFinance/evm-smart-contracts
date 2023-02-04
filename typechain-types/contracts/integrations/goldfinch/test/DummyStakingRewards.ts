@@ -534,7 +534,7 @@ export interface DummyStakingRewards extends BaseContract {
 
     stake(
       amount: PromiseOrValue<BigNumberish>,
-      positionType: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -680,7 +680,7 @@ export interface DummyStakingRewards extends BaseContract {
 
   stake(
     amount: PromiseOrValue<BigNumberish>,
-    positionType: PromiseOrValue<BigNumberish>,
+    arg1: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -826,7 +826,7 @@ export interface DummyStakingRewards extends BaseContract {
 
     stake(
       amount: PromiseOrValue<BigNumberish>,
-      positionType: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1008,7 +1008,7 @@ export interface DummyStakingRewards extends BaseContract {
 
     stake(
       amount: PromiseOrValue<BigNumberish>,
-      positionType: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1157,7 +1157,7 @@ export interface DummyStakingRewards extends BaseContract {
 
     stake(
       amount: PromiseOrValue<BigNumberish>,
-      positionType: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

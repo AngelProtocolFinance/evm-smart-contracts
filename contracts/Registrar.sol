@@ -39,7 +39,8 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
             RegistrarConfig.LOCKED_REBALANCE_TO_LIQUID,
             RegistrarConfig.INTEREST_DISTRIBUTION,
             RegistrarConfig.LOCKED_PRINCIPLE_TO_LIQUID,
-            RegistrarConfig.PRINCIPLE_DISTRIBUTION
+            RegistrarConfig.PRINCIPLE_DISTRIBUTION,
+            RegistrarConfig.BASIS
         );
 
         angelProtocolParams = AngelProtocolParams(
@@ -48,7 +49,8 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
             RegistrarConfig.PROTOCOL_TAX_COLLECTOR,
             RegistrarConfig.PRIMARY_CHAIN,
             RegistrarConfig.PRIMARY_CHAIN_ROUTER_ADDRESS,
-            RegistrarConfig.ROUTER_ADDRESS
+            RegistrarConfig.ROUTER_ADDRESS,
+            RegistrarConfig.REFUND_ADDRESS
         );
     }
 
@@ -86,13 +88,13 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
         return AcceptedTokens[_tokenAddr];
     }
 
-    function isStrategyApproved(bytes4 _strategyId)
+    function getStrategyApprovalState(bytes4 _strategyId)
         external
         view
         override
-        returns (bool)
+        returns (StrategyApprovalState)
     {
-        return VaultsByStrategyId[_strategyId].isApproved;
+        return VaultsByStrategyId[_strategyId].approvalState;
     }
 
     function getGasByToken(address _tokenAddr) external view override returns (uint256) {
@@ -131,21 +133,21 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
         emit GasFeeUpdated(_tokenAddr, _gasFee);
     }
 
-    function setStrategyApproved(bytes4 _strategyId, bool _isApproved)
+    function setStrategyApprovalState(bytes4 _strategyId, StrategyApprovalState _approvalState)
         external
         override
         onlyOwner
     {
-        VaultsByStrategyId[_strategyId].isApproved = _isApproved;
+        VaultsByStrategyId[_strategyId].approvalState = _approvalState;
 
-        emit StrategyApprovalChanged(_strategyId, _isApproved);
+        emit StrategyApprovalChanged(_strategyId, _approvalState);
     }
 
     function setStrategyParams(
         bytes4 _strategyId,
         address _lockAddr,
         address _liqAddr,
-        bool _isApproved
+        StrategyApprovalState _approvalState
     ) external override onlyOwner {
         VaultParams memory lockedParams = VaultParams(
             IVault.VaultType.LOCKED,
@@ -156,7 +158,7 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
             _liqAddr
         );
         VaultsByStrategyId[_strategyId] = StrategyParams(
-            _isApproved,
+            _approvalState,
             lockedParams,
             liquidParams
         );
@@ -164,7 +166,7 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
             _strategyId,
             _lockAddr,
             _liqAddr,
-            _isApproved
+            _approvalState
         );
     }
 

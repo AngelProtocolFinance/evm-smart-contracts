@@ -45,6 +45,11 @@ const _abi = [
             name: "routerAddr",
             type: "address",
           },
+          {
+            internalType: "address",
+            name: "refundAddr",
+            type: "address",
+          },
         ],
         indexed: false,
         internalType: "struct IRegistrar.AngelProtocolParams",
@@ -104,6 +109,11 @@ const _abi = [
             name: "principleDistribution",
             type: "uint32",
           },
+          {
+            internalType: "uint32",
+            name: "basis",
+            type: "uint32",
+          },
         ],
         indexed: false,
         internalType: "struct IRegistrar.RebalanceParams",
@@ -125,9 +135,9 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "bool",
-        name: "_isApproved",
-        type: "bool",
+        internalType: "enum IRegistrar.StrategyApprovalState",
+        name: "_approvalState",
+        type: "uint8",
       },
     ],
     name: "StrategyApprovalChanged",
@@ -156,9 +166,9 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "bool",
-        name: "_isApproved",
-        type: "bool",
+        internalType: "enum IRegistrar.StrategyApprovalState",
+        name: "_approvalState",
+        type: "uint8",
       },
     ],
     name: "StrategyParamsChanged",
@@ -217,6 +227,11 @@ const _abi = [
           {
             internalType: "address",
             name: "routerAddr",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "refundAddr",
             type: "address",
           },
         ],
@@ -278,10 +293,34 @@ const _abi = [
             name: "principleDistribution",
             type: "uint32",
           },
+          {
+            internalType: "uint32",
+            name: "basis",
+            type: "uint32",
+          },
         ],
         internalType: "struct IRegistrar.RebalanceParams",
         name: "",
         type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes4",
+        name: "_strategyId",
+        type: "bytes4",
+      },
+    ],
+    name: "getStrategyApprovalState",
+    outputs: [
+      {
+        internalType: "enum IRegistrar.StrategyApprovalState",
+        name: "",
+        type: "uint8",
       },
     ],
     stateMutability: "view",
@@ -300,9 +339,9 @@ const _abi = [
       {
         components: [
           {
-            internalType: "bool",
-            name: "isApproved",
-            type: "bool",
+            internalType: "enum IRegistrar.StrategyApprovalState",
+            name: "approvalState",
+            type: "uint8",
           },
           {
             components: [
@@ -342,25 +381,6 @@ const _abi = [
         internalType: "struct IRegistrar.StrategyParams",
         name: "",
         type: "tuple",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes4",
-        name: "_strategyId",
-        type: "bytes4",
-      },
-    ],
-    name: "isStrategyApproved",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -417,6 +437,11 @@ const _abi = [
           {
             internalType: "address",
             name: "routerAddr",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "refundAddr",
             type: "address",
           },
         ],
@@ -477,6 +502,11 @@ const _abi = [
             name: "principleDistribution",
             type: "uint32",
           },
+          {
+            internalType: "uint32",
+            name: "basis",
+            type: "uint32",
+          },
         ],
         internalType: "struct IRegistrar.RebalanceParams",
         name: "_rebalanceParams",
@@ -496,12 +526,12 @@ const _abi = [
         type: "bytes4",
       },
       {
-        internalType: "bool",
-        name: "_isApproved",
-        type: "bool",
+        internalType: "enum IRegistrar.StrategyApprovalState",
+        name: "_approvalState",
+        type: "uint8",
       },
     ],
-    name: "setStrategyApproved",
+    name: "setStrategyApprovalState",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -524,9 +554,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "bool",
-        name: "_isApproved",
-        type: "bool",
+        internalType: "enum IRegistrar.StrategyApprovalState",
+        name: "_approvalState",
+        type: "uint8",
       },
     ],
     name: "setStrategyParams",
