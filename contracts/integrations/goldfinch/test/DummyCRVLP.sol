@@ -3,12 +3,21 @@
 pragma solidity >=0.8.0;
 
 import {ICurveLP} from "../ICurveLP.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract DummyCRVLP is ICurveLP {
   uint256 dy_for_get_dy;
   uint256 dy_for_exchange;
 
+  IERC20 token0;
+  IERC20 token1;
+
 // Helpers
+  constructor(address _token0, address _token1) {
+    token0 = IERC20(_token0);
+    token1 = IERC20(_token1);
+  }
+
   function setDys(uint256 _dy_for_get_dy, uint256 _dy_for_exchange) external {
     dy_for_get_dy = _dy_for_get_dy;
     dy_for_exchange = _dy_for_exchange;
@@ -24,11 +33,19 @@ contract DummyCRVLP is ICurveLP {
   }
 
   function exchange(
+    uint256 i,
     uint256,
-    uint256,
-    uint256,
+    uint256 dx,
     uint256
   ) external returns (uint256) {
+    if(i == 0) {
+      token0.transferFrom(msg.sender, address(this), dx);
+      token1.transfer(msg.sender, dy_for_exchange);
+    }
+    else {
+      token1.transferFrom(msg.sender, address(this), dx);
+      token0.transfer(msg.sender, dy_for_exchange);
+    }
     return dy_for_exchange;
   }
 

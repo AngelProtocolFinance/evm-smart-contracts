@@ -6,5 +6,6 @@ export * as integrations from "./integrations";
 export * as interfaces from "./interfaces";
 export * as lib from "./lib";
 export * as test from "./test";
+export { Halo__factory } from "./Halo__factory";
 export { Registrar__factory } from "./Registrar__factory";
 export { Router__factory } from "./Router__factory";

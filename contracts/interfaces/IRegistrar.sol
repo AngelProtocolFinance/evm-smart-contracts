@@ -14,12 +14,12 @@ interface IRegistrar {
         AngelProtocolParams newAngelProtocolParams
     );
     event TokenAcceptanceChanged(address indexed tokenAddr, bool isAccepted);
-    event StrategyApprovalChanged(bytes4 indexed _strategyId, bool _isApproved);
+    event StrategyApprovalChanged(bytes4 indexed _strategyId, StrategyApprovalState _approvalState);
     event StrategyParamsChanged(
         bytes4 indexed _strategyId,
         address indexed _lockAddr,
         address indexed _liqAddr,
-        bool _isApproved
+        StrategyApprovalState _approvalState
     );
     event GasFeeUpdated(address indexed _tokenAddr, uint256 _gasFee); 
 
@@ -33,6 +33,7 @@ interface IRegistrar {
         uint32 interestDistribution;
         bool lockedPrincipleToLiquid;
         uint32 principleDistribution;
+        uint32 basis;
     }
 
     struct AngelProtocolParams {
@@ -42,10 +43,19 @@ interface IRegistrar {
         string primaryChain;
         string primaryChainRouter;
         address routerAddr;
+        address refundAddr;
     }
 
+    enum StrategyApprovalState {
+        NOT_APPROVED,
+        APPROVED,
+        WITHDRAW_ONLY,
+        DEPRECATED
+    }
+
+    // @TODO change to ENUM for approval
     struct StrategyParams {
-        bool isApproved;
+        StrategyApprovalState approvalState;
         VaultParams Locked;
         VaultParams Liquid;
     }
@@ -79,10 +89,10 @@ interface IRegistrar {
 
     function getGasByToken(address _tokenAddr) external view returns (uint256);
 
-    function isStrategyApproved(bytes4 _strategyId)
+    function getStrategyApprovalState(bytes4 _strategyId)
         external
         view
-        returns (bool);
+        returns (StrategyApprovalState);
     
     // Setter meothods for granular changes to specific params
     function setRebalanceParams(RebalanceParams calldata _rebalanceParams)
@@ -96,7 +106,7 @@ interface IRegistrar {
     /// @dev Set the approval bool for a specified strategyId.
     /// @param _strategyId a uid for each strategy set by:
     /// bytes4(keccak256("StrategyName"))
-    function setStrategyApproved(bytes4 _strategyId, bool _isApproved)
+    function setStrategyApprovalState(bytes4 _strategyId, StrategyApprovalState _approvalState)
         external;
 
     /// @notice Change which pair of vault addresses a strategy points to
@@ -109,7 +119,7 @@ interface IRegistrar {
         bytes4 _strategyId,
         address _liqAddr,
         address _lockAddr,
-        bool _isApproved
+        StrategyApprovalState _approvalState
     ) external;
 
     function setTokenAccepted(address _tokenAddr, bool _isAccepted) external;

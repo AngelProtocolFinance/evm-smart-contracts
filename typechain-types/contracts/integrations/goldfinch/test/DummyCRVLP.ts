@@ -191,9 +191,9 @@ export interface DummyCRVLP extends BaseContract {
     ): Promise<[string]>;
 
     exchange(
-      arg0: PromiseOrValue<BigNumberish>,
+      i: PromiseOrValue<BigNumberish>,
       arg1: PromiseOrValue<BigNumberish>,
-      arg2: PromiseOrValue<BigNumberish>,
+      dx: PromiseOrValue<BigNumberish>,
       arg3: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -253,9 +253,9 @@ export interface DummyCRVLP extends BaseContract {
   ): Promise<string>;
 
   exchange(
-    arg0: PromiseOrValue<BigNumberish>,
+    i: PromiseOrValue<BigNumberish>,
     arg1: PromiseOrValue<BigNumberish>,
-    arg2: PromiseOrValue<BigNumberish>,
+    dx: PromiseOrValue<BigNumberish>,
     arg3: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -315,9 +315,9 @@ export interface DummyCRVLP extends BaseContract {
     ): Promise<string>;
 
     exchange(
-      arg0: PromiseOrValue<BigNumberish>,
+      i: PromiseOrValue<BigNumberish>,
       arg1: PromiseOrValue<BigNumberish>,
-      arg2: PromiseOrValue<BigNumberish>,
+      dx: PromiseOrValue<BigNumberish>,
       arg3: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -380,9 +380,9 @@ export interface DummyCRVLP extends BaseContract {
     ): Promise<BigNumber>;
 
     exchange(
-      arg0: PromiseOrValue<BigNumberish>,
+      i: PromiseOrValue<BigNumberish>,
       arg1: PromiseOrValue<BigNumberish>,
-      arg2: PromiseOrValue<BigNumberish>,
+      dx: PromiseOrValue<BigNumberish>,
       arg3: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -443,9 +443,9 @@ export interface DummyCRVLP extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     exchange(
-      arg0: PromiseOrValue<BigNumberish>,
+      i: PromiseOrValue<BigNumberish>,
       arg1: PromiseOrValue<BigNumberish>,
-      arg2: PromiseOrValue<BigNumberish>,
+      dx: PromiseOrValue<BigNumberish>,
       arg3: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

@@ -540,21 +540,21 @@ export interface DummyGateway extends BaseContract {
 
     isContractCallAndMintApproved(
       commandId: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<string>,
-      sourceAddress: PromiseOrValue<string>,
-      contractAddress: PromiseOrValue<string>,
-      payloadHash: PromiseOrValue<BytesLike>,
-      symbol: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<string>,
+      arg3: PromiseOrValue<string>,
+      arg4: PromiseOrValue<BytesLike>,
+      arg5: PromiseOrValue<string>,
+      arg6: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
     isContractCallApproved(
       commandId: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<string>,
-      sourceAddress: PromiseOrValue<string>,
-      contractAddress: PromiseOrValue<string>,
-      payloadHash: PromiseOrValue<BytesLike>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<string>,
+      arg3: PromiseOrValue<string>,
+      arg4: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
@@ -613,19 +613,19 @@ export interface DummyGateway extends BaseContract {
 
     validateContractCall(
       commandId: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<string>,
-      sourceAddress: PromiseOrValue<string>,
-      payloadHash: PromiseOrValue<BytesLike>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<string>,
+      arg3: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     validateContractCallAndMint(
       commandId: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<string>,
-      sourceAddress: PromiseOrValue<string>,
-      payloadHash: PromiseOrValue<BytesLike>,
-      symbol: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<string>,
+      arg3: PromiseOrValue<BytesLike>,
+      arg4: PromiseOrValue<string>,
+      arg5: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -676,21 +676,21 @@ export interface DummyGateway extends BaseContract {
 
   isContractCallAndMintApproved(
     commandId: PromiseOrValue<BytesLike>,
-    sourceChain: PromiseOrValue<string>,
-    sourceAddress: PromiseOrValue<string>,
-    contractAddress: PromiseOrValue<string>,
-    payloadHash: PromiseOrValue<BytesLike>,
-    symbol: PromiseOrValue<string>,
-    amount: PromiseOrValue<BigNumberish>,
+    arg1: PromiseOrValue<string>,
+    arg2: PromiseOrValue<string>,
+    arg3: PromiseOrValue<string>,
+    arg4: PromiseOrValue<BytesLike>,
+    arg5: PromiseOrValue<string>,
+    arg6: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
   isContractCallApproved(
     commandId: PromiseOrValue<BytesLike>,
-    sourceChain: PromiseOrValue<string>,
-    sourceAddress: PromiseOrValue<string>,
-    contractAddress: PromiseOrValue<string>,
-    payloadHash: PromiseOrValue<BytesLike>,
+    arg1: PromiseOrValue<string>,
+    arg2: PromiseOrValue<string>,
+    arg3: PromiseOrValue<string>,
+    arg4: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
@@ -749,19 +749,19 @@ export interface DummyGateway extends BaseContract {
 
   validateContractCall(
     commandId: PromiseOrValue<BytesLike>,
-    sourceChain: PromiseOrValue<string>,
-    sourceAddress: PromiseOrValue<string>,
-    payloadHash: PromiseOrValue<BytesLike>,
+    arg1: PromiseOrValue<string>,
+    arg2: PromiseOrValue<string>,
+    arg3: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   validateContractCallAndMint(
     commandId: PromiseOrValue<BytesLike>,
-    sourceChain: PromiseOrValue<string>,
-    sourceAddress: PromiseOrValue<string>,
-    payloadHash: PromiseOrValue<BytesLike>,
-    symbol: PromiseOrValue<string>,
-    amount: PromiseOrValue<BigNumberish>,
+    arg1: PromiseOrValue<string>,
+    arg2: PromiseOrValue<string>,
+    arg3: PromiseOrValue<BytesLike>,
+    arg4: PromiseOrValue<string>,
+    arg5: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -812,21 +812,21 @@ export interface DummyGateway extends BaseContract {
 
     isContractCallAndMintApproved(
       commandId: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<string>,
-      sourceAddress: PromiseOrValue<string>,
-      contractAddress: PromiseOrValue<string>,
-      payloadHash: PromiseOrValue<BytesLike>,
-      symbol: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<string>,
+      arg3: PromiseOrValue<string>,
+      arg4: PromiseOrValue<BytesLike>,
+      arg5: PromiseOrValue<string>,
+      arg6: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     isContractCallApproved(
       commandId: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<string>,
-      sourceAddress: PromiseOrValue<string>,
-      contractAddress: PromiseOrValue<string>,
-      payloadHash: PromiseOrValue<BytesLike>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<string>,
+      arg3: PromiseOrValue<string>,
+      arg4: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -885,19 +885,19 @@ export interface DummyGateway extends BaseContract {
 
     validateContractCall(
       commandId: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<string>,
-      sourceAddress: PromiseOrValue<string>,
-      payloadHash: PromiseOrValue<BytesLike>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<string>,
+      arg3: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     validateContractCallAndMint(
       commandId: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<string>,
-      sourceAddress: PromiseOrValue<string>,
-      payloadHash: PromiseOrValue<BytesLike>,
-      symbol: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<string>,
+      arg3: PromiseOrValue<BytesLike>,
+      arg4: PromiseOrValue<string>,
+      arg5: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<boolean>;
   };
@@ -1079,21 +1079,21 @@ export interface DummyGateway extends BaseContract {
 
     isContractCallAndMintApproved(
       commandId: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<string>,
-      sourceAddress: PromiseOrValue<string>,
-      contractAddress: PromiseOrValue<string>,
-      payloadHash: PromiseOrValue<BytesLike>,
-      symbol: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<string>,
+      arg3: PromiseOrValue<string>,
+      arg4: PromiseOrValue<BytesLike>,
+      arg5: PromiseOrValue<string>,
+      arg6: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     isContractCallApproved(
       commandId: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<string>,
-      sourceAddress: PromiseOrValue<string>,
-      contractAddress: PromiseOrValue<string>,
-      payloadHash: PromiseOrValue<BytesLike>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<string>,
+      arg3: PromiseOrValue<string>,
+      arg4: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1152,19 +1152,19 @@ export interface DummyGateway extends BaseContract {
 
     validateContractCall(
       commandId: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<string>,
-      sourceAddress: PromiseOrValue<string>,
-      payloadHash: PromiseOrValue<BytesLike>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<string>,
+      arg3: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     validateContractCallAndMint(
       commandId: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<string>,
-      sourceAddress: PromiseOrValue<string>,
-      payloadHash: PromiseOrValue<BytesLike>,
-      symbol: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<string>,
+      arg3: PromiseOrValue<BytesLike>,
+      arg4: PromiseOrValue<string>,
+      arg5: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -1216,21 +1216,21 @@ export interface DummyGateway extends BaseContract {
 
     isContractCallAndMintApproved(
       commandId: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<string>,
-      sourceAddress: PromiseOrValue<string>,
-      contractAddress: PromiseOrValue<string>,
-      payloadHash: PromiseOrValue<BytesLike>,
-      symbol: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<string>,
+      arg3: PromiseOrValue<string>,
+      arg4: PromiseOrValue<BytesLike>,
+      arg5: PromiseOrValue<string>,
+      arg6: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     isContractCallApproved(
       commandId: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<string>,
-      sourceAddress: PromiseOrValue<string>,
-      contractAddress: PromiseOrValue<string>,
-      payloadHash: PromiseOrValue<BytesLike>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<string>,
+      arg3: PromiseOrValue<string>,
+      arg4: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1289,19 +1289,19 @@ export interface DummyGateway extends BaseContract {
 
     validateContractCall(
       commandId: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<string>,
-      sourceAddress: PromiseOrValue<string>,
-      payloadHash: PromiseOrValue<BytesLike>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<string>,
+      arg3: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     validateContractCallAndMint(
       commandId: PromiseOrValue<BytesLike>,
-      sourceChain: PromiseOrValue<string>,
-      sourceAddress: PromiseOrValue<string>,
-      payloadHash: PromiseOrValue<BytesLike>,
-      symbol: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<string>,
+      arg3: PromiseOrValue<BytesLike>,
+      arg4: PromiseOrValue<string>,
+      arg5: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
