@@ -11,6 +11,7 @@ import { env } from "process";
 // Tasks
 import "./tasks/accounts"
 import "./tasks/deploy"
+import "./tasks/manage"
 
 const config: HardhatUserConfig = {
   solidity:{

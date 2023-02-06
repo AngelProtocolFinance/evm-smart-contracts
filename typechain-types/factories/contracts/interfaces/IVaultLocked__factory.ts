@@ -182,7 +182,7 @@ const _abi = [
     stateMutability: "payable",
     type: "function",
   },
-];
+] as const;
 
 export class IVaultLocked__factory {
   static readonly abi = _abi;
