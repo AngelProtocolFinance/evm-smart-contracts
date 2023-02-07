@@ -5,8 +5,8 @@ import * as logger from "../../../utils/logger"
 import * as fs from "fs"
 
 task("manage:registrar:setTokenAccepted")
-.addParam("tokenAddress", "Address of the token", types.string)
-.addParam("acceptanceState", "Boolean for acceptance state", types.boolean)
+.addParam("tokenAddress", "Address of the token", "", types.string)
+.addParam("acceptanceState", "Boolean for acceptance state", false, types.boolean)
   .setAction(async function (taskArguments: TaskArguments, hre) {
     
     logger.divider()

@@ -5,8 +5,8 @@ import * as logger from "../../../utils/logger"
 import * as fs from "fs"
 
 task("manage:registrar:setStratApproval")
-  .addParam("strategySelector", "The 4-byte unique ID of the strategy, set by bytes4(keccack256('StrategyName'))")
-  .addParam("approvalState", "Whether the strategy is currently approved or not, enum of {NOT_APPROVED,APPROVED,WITHDRAW_ONLY,DEPRECATED}", types.int)
+  .addParam("strategySelector", "The 4-byte unique ID of the strategy, set by bytes4(keccack256('StrategyName'))", "", types.string)
+  .addParam("approvalState", "Whether the strategy is currently approved or not, enum of {NOT_APPROVED,APPROVED,WITHDRAW_ONLY,DEPRECATED}", 0, types.int)
   .setAction(async function (taskArguments: TaskArguments, hre) {
 
     logger.divider()

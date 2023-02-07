@@ -5,10 +5,10 @@ import * as logger from "../../../utils/logger"
 import * as fs from "fs"
 
 task("manage:registrar:setStratParams")
-  .addParam("strategySelector", "The 4-byte unique ID of the strategy, set by bytes4(keccack256('StrategyName'))")
-  .addParam("approvalState", "Whether the strategy is currently approved or not, enum of {NOT_APPROVED,APPROVED,WITHDRAW_ONLY,DEPRECATED}", types.int)
-  .addParam("lockedVaultAddress", "The address of the strategys locked vault", types.string)
-  .addParam("liquidVaultAddress", "The address of the strategys liquid vault", types.string)
+  .addParam("strategySelector", "The 4-byte unique ID of the strategy, set by bytes4(keccack256('StrategyName'))", "", types.string)
+  .addParam("approvalState", "Whether the strategy is currently approved or not, enum of NOT_APPROVED, APPROVED, WITHDRAW_ONLY, or DEPRECATED", 0, types.int)
+  .addParam("lockedVaultAddress", "The address of the strategys locked vault", "", types.string)
+  .addParam("liquidVaultAddress", "The address of the strategys liquid vault", "", types.string)
   .addOptionalParam("modifyExisting", "Whether to modify an existing strategy", false, types.boolean)
   .setAction(async function (taskArguments: TaskArguments, hre) {
 

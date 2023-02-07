@@ -6,8 +6,8 @@ import * as fs from "fs"
 import { BigNumber } from "ethers";
 
 task("manage:registrar:setGasByToken")
-.addParam("tokenAddress", "Address of the token", types.string)
-.addParam("gas", "Qty of tokens fwd'd to pay for gas. Make sure to use the correct number of decimals!", types.int)
+.addParam("tokenAddress", "Address of the token", "", types.string)
+.addParam("gas", "Qty of tokens fwd'd to pay for gas. Make sure to use the correct number of decimals!", 0, types.int)
   .setAction(async function (taskArguments: TaskArguments, hre) {
     
     logger.divider()
