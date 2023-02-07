@@ -3,10 +3,11 @@ import type { TaskArguments } from "hardhat/types";
 import { Registrar, Registrar__factory } from "../../../typechain-types"
 import * as logger from "../../../utils/logger"
 import * as fs from "fs"
+import { BigNumber } from "ethers";
 
-task("manage:registrar:setTokenAccepted")
+task("manage:registrar:setGasByToken")
 .addParam("tokenAddress", "Address of the token", types.string)
-.addParam("acceptanceState", "Boolean for acceptance state", types.boolean)
+.addParam("gas", "Qty of tokens fwd'd to pay for gas. Make sure to use the correct number of decimals!", types.int)
   .setAction(async function (taskArguments: TaskArguments, hre) {
     
     logger.divider()
@@ -19,15 +20,15 @@ task("manage:registrar:setTokenAccepted")
     logger.pad(50, "Connected to Registrar at: ", registrar.address)
 
     logger.divider()
-    logger.out("Checking token acceptance state")
-    let tokenAccepted = await registrar.isTokenAccepted(taskArguments.tokenAddress)
-    if(tokenAccepted == taskArguments.acceptanceState) {
-      logger.out("Token acceptance is already set")
+    logger.out("Checking current gas value")
+    let currentGasValue = await registrar.getGasByToken(taskArguments.tokenAddress)
+    let desiredGasAsBigNumber = BigNumber.from(taskArguments.gas)
+    if(currentGasValue.eq(desiredGasAsBigNumber)) {
+      logger.pad(10, "Token gas value is already set to", taskArguments.gas)
       return
     }
-    logger.pad(30, "Token acceptance is currently set to", tokenAccepted)
-    
+
     logger.divider()
-    logger.out("Setting token acceptance")
-    await registrar.setTokenAccepted(taskArguments.tokenAddress, taskArguments.acceptanceState)
+    logger.out("Setting gas for specified token")
+    await registrar.setGasByToken(taskArguments.tokenAddress, taskArguments.gas)
   })

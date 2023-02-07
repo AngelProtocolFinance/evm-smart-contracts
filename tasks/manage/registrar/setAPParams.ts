@@ -1,4 +1,5 @@
 import { task, types } from "hardhat/config"
+import type { TaskArguments } from "hardhat/types";
 import { Registrar, Registrar__factory } from "../../../typechain-types"
 import * as logger from "../../../utils/logger"
 import * as fs from "fs"
@@ -14,15 +15,7 @@ task("manage:registrar:setAPParams", "Set any or all of the AP params. This task
   .addOptionalParam("primaryChainRouter", "The address of the primary chains router", NULL_STRING, types.string)
   .addOptionalParam("routerAddress", "The address of this chains router", NULL_STRING, types.string)
   .addOptionalParam("refundAddress", "The address of this chains fallback refund collector", NULL_STRING, types.string)
-  .setAction(async function ({
-    protocolTaxRate, 
-    protocolTaxBasis,
-    protocolTaxCollector,
-    primaryChain,
-    primaryChainRouter,
-    routerAddress,
-    refundAddress
-  }, hre) {
+  .setAction(async function (taskArguments: TaskArguments, hre) {
 
     logger.divider()
     logger.out("Connecting to registrar on specified network...")
@@ -45,13 +38,13 @@ task("manage:registrar:setAPParams", "Set any or all of the AP params. This task
     logger.pad(50,"Current refund address: ", currentAPParams.refundAddr)
 
     logger.divider()
-    let newTaxRate = checkIfDefaultAndSet(protocolTaxRate, currentAPParams.protocolTaxRate)
-    let newTaxBasis = checkIfDefaultAndSet(protocolTaxBasis, currentAPParams.protocolTaxBasis)
-    let newTaxCollector = checkIfDefaultAndSet(protocolTaxCollector, currentAPParams.protocolTaxCollector)
-    let newPrimaryChain = checkIfDefaultAndSet(primaryChain, currentAPParams.primaryChain)
-    let newPrimaryChainRouter = checkIfDefaultAndSet(primaryChainRouter, currentAPParams.primaryChainRouter)
-    let newRouterAddress = checkIfDefaultAndSet(routerAddress, currentAPParams.routerAddr)
-    let newRefundAddress = checkIfDefaultAndSet(refundAddress, currentAPParams.refundAddr)
+    let newTaxRate = checkIfDefaultAndSet(taskArguments.protocolTaxRate, currentAPParams.protocolTaxRate)
+    let newTaxBasis = checkIfDefaultAndSet(taskArguments.protocolTaxBasis, currentAPParams.protocolTaxBasis)
+    let newTaxCollector = checkIfDefaultAndSet(taskArguments.protocolTaxCollector, currentAPParams.protocolTaxCollector)
+    let newPrimaryChain = checkIfDefaultAndSet(taskArguments.primaryChain, currentAPParams.primaryChain)
+    let newPrimaryChainRouter = checkIfDefaultAndSet(taskArguments.primaryChainRouter, currentAPParams.primaryChainRouter)
+    let newRouterAddress = checkIfDefaultAndSet(taskArguments.routerAddress, currentAPParams.routerAddr)
+    let newRefundAddress = checkIfDefaultAndSet(taskArguments.refundAddress, currentAPParams.refundAddr)
 
     logger.out("Setting AP params to:")
     logger.pad(50,"New tax rate: ", newTaxRate)

@@ -1,4 +1,5 @@
 import { task, types } from "hardhat/config"
+import type { TaskArguments } from "hardhat/types";
 import { Registrar, Registrar__factory } from "../../../typechain-types"
 import * as logger from "../../../utils/logger"
 import * as fs from "fs"
@@ -14,14 +15,7 @@ task("manage:registrar:setRebalParams")
 .addOptionalParam("lockedPrincipleToLiquid", "Whether locked principle can be rebalanced to liquid vaults", NULL_BOOL, types.boolean)
 .addOptionalParam("principleDistribution", "The rate of principle distribution", NULL_NUMBER, types.int)
 .addOptionalParam("basis", "The precision of rebalance rates", NULL_NUMBER, types.int)
-.setAction(async function ({
-  rebalanceLiquidProfits,
-  lockedRebalanceToLiquid,
-  interestDistribution,
-  lockedPrincipleToLiquid,
-  principleDistribution,
-  basis
-}, hre) {
+.setAction(async function (taskArguments: TaskArguments, hre) {
   
   logger.divider()
   logger.out("Connecting to registrar on specified network...")
@@ -43,12 +37,12 @@ task("manage:registrar:setRebalParams")
   logger.pad(50,"Current percent basis: ", currentRebalParams.basis)
 
   logger.divider()
-  let newRebalanceLiquidProfits = checkIfDefaultAndSet(rebalanceLiquidProfits, currentRebalParams.rebalanceLiquidProfits)
-  let newLockedRebalanceToLiquid = checkIfDefaultAndSet(lockedRebalanceToLiquid, currentRebalParams.lockedRebalanceToLiquid)
-  let newInterestDistribution = checkIfDefaultAndSet(interestDistribution, currentRebalParams.interestDistribution)
-  let newLockedPrincipleToLiquid = checkIfDefaultAndSet(lockedPrincipleToLiquid, currentRebalParams.lockedPrincipleToLiquid)
-  let newPrincipleDistribution = checkIfDefaultAndSet(principleDistribution, currentRebalParams.principleDistribution)
-  let newBasis = checkIfDefaultAndSet(basis, currentRebalParams.basis)
+  let newRebalanceLiquidProfits = checkIfDefaultAndSet(taskArguments.rebalanceLiquidProfits, currentRebalParams.rebalanceLiquidProfits)
+  let newLockedRebalanceToLiquid = checkIfDefaultAndSet(taskArguments.lockedRebalanceToLiquid, currentRebalParams.lockedRebalanceToLiquid)
+  let newInterestDistribution = checkIfDefaultAndSet(taskArguments.interestDistribution, currentRebalParams.interestDistribution)
+  let newLockedPrincipleToLiquid = checkIfDefaultAndSet(taskArguments.lockedPrincipleToLiquid, currentRebalParams.lockedPrincipleToLiquid)
+  let newPrincipleDistribution = checkIfDefaultAndSet(taskArguments.principleDistribution, currentRebalParams.principleDistribution)
+  let newBasis = checkIfDefaultAndSet(taskArguments.basis, currentRebalParams.basis)
 
   logger.out("Setting Rebalance params to:")
   logger.pad(50,"New rebalance liquid profits: ", newRebalanceLiquidProfits)
