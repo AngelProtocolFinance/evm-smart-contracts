@@ -1,1 +1,2 @@
 import "./routerAndRegistrar"
+import "./integrations"
