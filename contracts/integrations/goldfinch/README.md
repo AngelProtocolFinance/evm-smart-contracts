@@ -12,3 +12,4 @@ The Angel Protocol integration has 3 major components:
 
 Each AP Account ID that stakes using this Goldfinch integration has their position tracked independently by leveraging the Staking Pool's internal accounting via ERC721.   
 
+![goldfinch](https://user-images.githubusercontent.com/84420280/217677641-2deaa6a3-7571-424d-9291-d3a7c8389cdc.png)
