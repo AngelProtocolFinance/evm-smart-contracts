@@ -41,3 +41,10 @@ To run the Chai test suite, invoke:
 Specific tests can be called by adding the path to the relevant test: 
 
 `npx hardhat test tests/Registrar.ts`
+
+## Running tasks
+
+We've made use of the hardhat task functionality to allow easy manipulation of contracts
+in the `tasks/` directory, you can find the available tasks. Each should have a thoughtful help text if invoked like: 
+
+`npx hardhat deploy:registrarAndRouter --help`
