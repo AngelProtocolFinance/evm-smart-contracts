@@ -28,6 +28,11 @@ const config: HardhatUserConfig = {
     }
   },
   networks: {
+    localhost: {
+      forking: {
+        url: envConfig.mainnetRPC,
+      }
+    },
     "mainnet": {
       url: envConfig.mainnetRPC,
       accounts: [envConfig.deployer, envConfig.user]
