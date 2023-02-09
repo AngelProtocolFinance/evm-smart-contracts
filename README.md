@@ -4,11 +4,10 @@
 This contract architecture allows an Angel Protocol deployed Router to act as an intermediary between the Axelar GMP protocol and Angel Protocol yield integrations. Supporting data, parameters, and configs are stored in the Registrar contract. Both the Router and Registrar are deployed as upgradable proxies and are manageable by a single, specified Owner/Admin account. This same admin account can modify the data stored in the Registrar. 
 
 ### Registrar
-![Angel Protocol - Registrar](https://user-images.githubusercontent.com/84420280/210666813-1af5a3ed-0a46-4740-8c74-59f311a7a91d.png)
+![registrar](https://user-images.githubusercontent.com/84420280/217927431-bff49264-1722-4132-ae36-65f05241198d.png)
 
 ### Router
-![Angel Protocol - Router](https://user-images.githubusercontent.com/84420280/210666881-c7400192-a526-49ab-a15b-bc7341621763.png)
-
+![router](https://user-images.githubusercontent.com/84420280/217927446-36e6ebe0-13ed-4e7a-aff5-00250bb4ac25.png)
 
 ## INSTALLATION 
 
