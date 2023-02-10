@@ -8,14 +8,10 @@ import "@typechain/hardhat";
 import "solidity-coverage";
 import { env } from "process";
 
-// require('hardhat-contract-sizer')
-
-task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
-  const accounts = await hre.ethers.getSigners();
-  for (const account of accounts) {
-    console.log(account.address);
-  }
-});
+// Tasks
+import "./tasks/accounts"
+import "./tasks/deploy"
+import "./tasks/manage"
 
 const config: HardhatUserConfig = {
   solidity:{
