@@ -9,7 +9,7 @@ import {APGoldfinchConfigLib} from "./APGoldfinchConfig.sol";
 
 // Integrations
 import {IStakingRewards} from "./IStakingRewards.sol";
-import {ICurveLP} from "./ICurveLP.sol";
+import {ICurveLP2Pool} from "../../interfaces/crv/ICurveLP.sol";
 
 // Token
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
@@ -27,7 +27,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
     address public GFI;     // 0xdab396cCF3d84Cf2D07C4454e10C8A6F5b008D2b
 
     IRegistrarGoldfinch registrar;
-    ICurveLP crvPool;
+    ICurveLP2Pool crvPool;
     IStakingRewards stakingPool;
 
     mapping(uint32 => uint256) public tokenIdByAccountId;
@@ -45,7 +45,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
         vaultType = _vaultType;
         registrar = IRegistrarGoldfinch(_registrar);
         stakingPool = IStakingRewards(_stakingPool);
-        crvPool = ICurveLP(_crvPool);
+        crvPool = ICurveLP2Pool(_crvPool);
         USDC = _usdc;
         FIDU = _fidu;
         GFI = _gfi;
