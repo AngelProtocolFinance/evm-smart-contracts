@@ -89,24 +89,25 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     *////////////////////////////////////////////////
 
     function _callSwitch(
+        string calldata sourceChain,
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
     ) 
         internal 
-        override 
+        override
         validateCall(_action)
     {
         // REDEEM
         if (_action.selector == IVault.redeem.selector) {
-            _redeem(_params, _action);
+            _redeem(sourceChain, _params, _action);
         }
         // REDEEM ALL
         else if (_action.selector == IVault.redeemAll.selector) {
-            _redeemAll(_params, _action);
+            _redeemAll(sourceChain, _params, _action);
         }
         // HARVEST
         else if (_action.selector == IVault.harvest.selector) {
-            _harvest(_params, _action);
+            _harvest(sourceChain, _params, _action);
         }
         // INVALID SELCTOR
         else {
@@ -153,6 +154,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
 
     // Vault action::Redeem
     function _redeem(
+        string calldata destinationChain,
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
     ) 
@@ -181,13 +183,14 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         uint256 _redeemedAmt = _redeemedLockAmt + _redeemedLiqAmt;
         _action.lockAmt = _redeemedLockAmt;
         _action.liqAmt = _redeemedLiqAmt;
-        _prepareAndSendTokens(_action, _redeemedAmt);
+        _prepareAndSendTokens(destinationChain, _action, _redeemedAmt);
         emit Redemption(_action, _redeemedAmt);
     }
 
     // Vault action::RedeemAll
     // @todo redemption amts need to affect _action data 
-        function _redeemAll(
+    function _redeemAll(
+        string calldata destinationChain,
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
     ) internal onlyOneAccount(_action) {
@@ -215,7 +218,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
 
         // Pack and send the tokens back through GMP 
         uint256 _redeemedAmt = _redeemedLockAmt + _redeemedLiqAmt; 
-        _prepareAndSendTokens(_action, _redeemedAmt);
+        _prepareAndSendTokens(destinationChain, _action, _redeemedAmt);
         emit Redemption(_action, _redeemedAmt);
     }
 
@@ -223,6 +226,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     // Vault action::Harvest
     // @todo redemption amts need to affect _action data 
     function _harvest(
+        string calldata destinationChain, 
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
     ) internal {
@@ -237,29 +241,32 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
                         AXELAR IMPL.
     */////////////////////////////////////////////////
 
-    modifier onlyPrimaryChain(string calldata _sourceChain) {
-        IRegistrar.AngelProtocolParams memory APParams = registrar
-            .getAngelProtocolParams();
+    modifier onlyAccountsContract(
+        string calldata _sourceChain, 
+        string calldata _sourceAddress) 
+    {
+        string memory accountsContractAddress = 
+            registrar.getAccountsContractAddressByChain(_sourceChain);
         require(
-            keccak256(bytes(_sourceChain)) ==
-                keccak256(bytes(APParams.primaryChain)),
+            keccak256(bytes(_sourceAddress)) ==
+                keccak256(bytes(accountsContractAddress)),
             "Unauthorized Call"
         );
         _;
     }
 
-    modifier onlyPrimaryRouter(string calldata _sourceAddress) {
-        IRegistrar.AngelProtocolParams memory APParams = registrar
-            .getAngelProtocolParams();
+    modifier notZeroAddress(
+        string calldata _sourceAddress
+    )
+    {
         require(
-            StringToAddress.toAddress(_sourceAddress) ==
-                StringToAddress.toAddress(APParams.primaryChainRouter),
-            "Unauthorized Call"
+            StringToAddress.toAddress(_sourceAddress) != address(0)
         );
         _;
     }
 
     function _prepareAndSendTokens(
+        string memory destinationChain,
         VaultActionData memory _action, 
         uint256 _sendAmt
         ) internal {
@@ -268,7 +275,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
 
         IRegistrar.AngelProtocolParams memory apParams = registrar
             .getAngelProtocolParams();
-        
+        string memory destinationAccountsContract = registrar.getAccountsContractAddressByChain(destinationChain);
 
         // Prepare gas
         uint256 gasFee = registrar.getGasByToken(_action.token);
@@ -284,8 +291,8 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
 
         bytes memory payload = _packCallData(_action);
         try this.sendTokens(
-                apParams.primaryChain,
-                apParams.primaryChainRouter,
+                destinationChain,
+                destinationAccountsContract,
                 payload,
                 IERC20Metadata(_action.token).symbol(),
                 amtLessGasFee,
@@ -355,8 +362,8 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     )
         internal
         override
-        onlyPrimaryChain(sourceChain)
-        onlyPrimaryRouter(sourceAddress)
+        onlyAccountsContract(sourceChain, sourceAddress)
+        notZeroAddress(sourceAddress)
     {
         
         // decode payload
@@ -370,11 +377,11 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         }
         catch Error(string memory reason) {
             emit LogError(action, reason);
-            _prepareAndSendTokens(action, amount);
+            _prepareAndSendTokens(sourceChain, action, amount);
         }
         catch (bytes memory data) {
             emit LogErrorBytes(action, data);
-            _prepareAndSendTokens(action, amount);
+            _prepareAndSendTokens(sourceChain, action, amount);
         }
     }
     
@@ -385,8 +392,8 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     )
         internal
         override
-        onlyPrimaryChain(sourceChain)
-        onlyPrimaryRouter(sourceAddress)
+        onlyAccountsContract(sourceChain, sourceAddress)
+        notZeroAddress(sourceAddress)
     {
         // decode payload
         VaultActionData memory action = _unpackCalldata(payload);
@@ -394,6 +401,6 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
             .getStrategyParamsById(action.strategyId);
 
         // Switch for calling appropriate vault/method
-        _callSwitch(params, action);
+        _callSwitch(sourceChain, params, action);
     }
 }
