@@ -8,6 +8,7 @@ import type {
 
 export declare namespace IRouter {
     export type VaultActionDataStruct = {
+      destinationChain: string;
       strategyId: BytesLike;
       selector: BytesLike;
       accountIds: Array<BigNumberish>;
@@ -19,11 +20,13 @@ export declare namespace IRouter {
     export type AngelProtocolParamsStructOutput = [
       string,
       string,
+      string,
       Array<number>,
       string,
       number,
       number
     ] & {
+      destinationChain: string;
       strategyId: string;
       selector: string;
       accountIds: Array<number>;
@@ -37,6 +40,7 @@ export declare namespace IRouter {
   
 export function VaultActionStructToArray(actionData: IRouter.VaultActionDataStruct) {
     return [
+      actionData.destinationChain,
       actionData.strategyId,
       actionData.selector,
       actionData.accountIds,
@@ -48,11 +52,12 @@ export function VaultActionStructToArray(actionData: IRouter.VaultActionDataStru
 
 export function ArrayToVaultActionStruct(decodedData: any) {
     return {
-      strategyId: decodedData[0],
-      selector: decodedData[1],
-      accountIds: decodedData[2],
-      token: decodedData[3],
-      lockAmt: decodedData[4],
-      liqAmt: decodedData[5]
+      destinationChain: decodedData[0],
+      strategyId: decodedData[1],
+      selector: decodedData[2],
+      accountIds: decodedData[3],
+      token: decodedData[4],
+      lockAmt: decodedData[5],
+      liqAmt: decodedData[6]
     } as IRouter.VaultActionDataStruct
   }
