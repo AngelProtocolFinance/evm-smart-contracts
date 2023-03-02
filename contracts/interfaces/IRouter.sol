@@ -26,6 +26,7 @@ abstract contract IRouter is IAxelarExecutable {
     /// @notice Gerneric AP Vault action data that can be packed and sent through the GMP
     /// @dev Data will arrive from the GMP encoded as a string of bytes. For internal methods/processing,
     /// we can restructure it to look like VaultActionData to improve readability.
+    /// @param destinationChain The Axelar string name of the blockchain that will receive redemptions/refunds
     /// @param strategyId The 4 byte truncated keccak256 hash of the strategy name, i.e. bytes4(keccak256("Goldfinch"))
     /// @param selector The Vault method that should be called
     /// @param accountId The endowment uid
@@ -33,6 +34,7 @@ abstract contract IRouter is IAxelarExecutable {
     /// @param lockAmt The amount of said token that is intended to interact with the locked vault
     /// @param liqAmt The amount of said token that is intended to interact with the liquid vault
     struct VaultActionData {
+        string destinationChain;
         bytes4 strategyId;
         bytes4 selector;
         uint32[] accountIds;
@@ -53,6 +55,7 @@ abstract contract IRouter is IAxelarExecutable {
         returns (VaultActionData memory)
     {
         (
+            string memory destinationChain,
             bytes4 strategyId,
             bytes4 selector,
             uint32[] memory accountIds,
@@ -61,11 +64,12 @@ abstract contract IRouter is IAxelarExecutable {
             uint256 liqAmt
         ) = abi.decode(
                 _calldata,
-                (bytes4, bytes4, uint32[], address, uint256, uint256)
+                (string, bytes4, bytes4, uint32[], address, uint256, uint256)
             );
 
         return
             VaultActionData(
+                destinationChain,
                 strategyId,
                 selector,
                 accountIds,
@@ -82,6 +86,7 @@ abstract contract IRouter is IAxelarExecutable {
     {
         return
             abi.encode(
+                _calldata.destinationChain,
                 _calldata.strategyId,
                 _calldata.selector,
                 _calldata.accountIds,
@@ -92,7 +97,6 @@ abstract contract IRouter is IAxelarExecutable {
     }
 
     function _callSwitch(
-        string calldata sourceChain,
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
     ) internal virtual;

@@ -32,8 +32,6 @@ export declare namespace IRegistrar {
     protocolTaxRate: PromiseOrValue<BigNumberish>;
     protocolTaxBasis: PromiseOrValue<BigNumberish>;
     protocolTaxCollector: PromiseOrValue<string>;
-    primaryChain: PromiseOrValue<string>;
-    primaryChainRouter: PromiseOrValue<string>;
     routerAddr: PromiseOrValue<string>;
     refundAddr: PromiseOrValue<string>;
   };
@@ -43,15 +41,11 @@ export declare namespace IRegistrar {
     number,
     string,
     string,
-    string,
-    string,
     string
   ] & {
     protocolTaxRate: number;
     protocolTaxBasis: number;
     protocolTaxCollector: string;
-    primaryChain: string;
-    primaryChainRouter: string;
     routerAddr: string;
     refundAddr: string;
   };
@@ -131,6 +125,7 @@ export interface RegistrarInterface extends utils.Interface {
     "angelProtocolParams()": FunctionFragment;
     "apGoldfinch()": FunctionFragment;
     "getAPGoldfinchParams()": FunctionFragment;
+    "getAccountsContractAddressByChain(string)": FunctionFragment;
     "getAngelProtocolParams()": FunctionFragment;
     "getGasByToken(address)": FunctionFragment;
     "getRebalanceParams()": FunctionFragment;
@@ -142,7 +137,8 @@ export interface RegistrarInterface extends utils.Interface {
     "rebalanceParams()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "setAPGoldfinchParams(((uint256)))": FunctionFragment;
-    "setAngelProtocolParams((uint32,uint32,address,string,string,address,address))": FunctionFragment;
+    "setAccountsContractAddressByChain(string,string)": FunctionFragment;
+    "setAngelProtocolParams((uint32,uint32,address,address,address))": FunctionFragment;
     "setGasByToken(address,uint256)": FunctionFragment;
     "setRebalanceParams((bool,uint32,uint32,bool,uint32,uint32))": FunctionFragment;
     "setStrategyApprovalState(bytes4,uint8)": FunctionFragment;
@@ -156,6 +152,7 @@ export interface RegistrarInterface extends utils.Interface {
       | "angelProtocolParams"
       | "apGoldfinch"
       | "getAPGoldfinchParams"
+      | "getAccountsContractAddressByChain"
       | "getAngelProtocolParams"
       | "getGasByToken"
       | "getRebalanceParams"
@@ -167,6 +164,7 @@ export interface RegistrarInterface extends utils.Interface {
       | "rebalanceParams"
       | "renounceOwnership"
       | "setAPGoldfinchParams"
+      | "setAccountsContractAddressByChain"
       | "setAngelProtocolParams"
       | "setGasByToken"
       | "setRebalanceParams"
@@ -187,6 +185,10 @@ export interface RegistrarInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getAPGoldfinchParams",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAccountsContractAddressByChain",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "getAngelProtocolParams",
@@ -228,6 +230,10 @@ export interface RegistrarInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setAPGoldfinchParams",
     values: [APGoldfinchConfigLib.APGoldfinchConfigStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setAccountsContractAddressByChain",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "setAngelProtocolParams",
@@ -276,6 +282,10 @@ export interface RegistrarInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getAccountsContractAddressByChain",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getAngelProtocolParams",
     data: BytesLike
   ): Result;
@@ -314,6 +324,10 @@ export interface RegistrarInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setAccountsContractAddressByChain",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setAngelProtocolParams",
     data: BytesLike
   ): Result;
@@ -343,6 +357,7 @@ export interface RegistrarInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "AccountsContractStorageChanged(string,string)": EventFragment;
     "AngelProtocolParamsChanged(tuple)": EventFragment;
     "GasFeeUpdated(address,uint256)": EventFragment;
     "Initialized(uint8)": EventFragment;
@@ -353,6 +368,9 @@ export interface RegistrarInterface extends utils.Interface {
     "TokenAcceptanceChanged(address,bool)": EventFragment;
   };
 
+  getEvent(
+    nameOrSignatureOrTopic: "AccountsContractStorageChanged"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AngelProtocolParamsChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GasFeeUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
@@ -362,6 +380,18 @@ export interface RegistrarInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "StrategyParamsChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenAcceptanceChanged"): EventFragment;
 }
+
+export interface AccountsContractStorageChangedEventObject {
+  chainName: string;
+  accountsContractAddress: string;
+}
+export type AccountsContractStorageChangedEvent = TypedEvent<
+  [string, string],
+  AccountsContractStorageChangedEventObject
+>;
+
+export type AccountsContractStorageChangedEventFilter =
+  TypedEventFilter<AccountsContractStorageChangedEvent>;
 
 export interface AngelProtocolParamsChangedEventObject {
   newAngelProtocolParams: IRegistrar.AngelProtocolParamsStructOutput;
@@ -483,12 +513,10 @@ export interface Registrar extends BaseContract {
     angelProtocolParams(
       overrides?: CallOverrides
     ): Promise<
-      [number, number, string, string, string, string, string] & {
+      [number, number, string, string, string] & {
         protocolTaxRate: number;
         protocolTaxBasis: number;
         protocolTaxCollector: string;
-        primaryChain: string;
-        primaryChainRouter: string;
         routerAddr: string;
         refundAddr: string;
       }
@@ -505,6 +533,11 @@ export interface Registrar extends BaseContract {
     getAPGoldfinchParams(
       overrides?: CallOverrides
     ): Promise<[APGoldfinchConfigLib.APGoldfinchConfigStructOutput]>;
+
+    getAccountsContractAddressByChain(
+      _targetChain: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     getAngelProtocolParams(
       overrides?: CallOverrides
@@ -562,6 +595,12 @@ export interface Registrar extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setAccountsContractAddressByChain(
+      _chainName: PromiseOrValue<string>,
+      _accountsContractAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setAngelProtocolParams(
       _angelProtocolParams: IRegistrar.AngelProtocolParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -607,12 +646,10 @@ export interface Registrar extends BaseContract {
   angelProtocolParams(
     overrides?: CallOverrides
   ): Promise<
-    [number, number, string, string, string, string, string] & {
+    [number, number, string, string, string] & {
       protocolTaxRate: number;
       protocolTaxBasis: number;
       protocolTaxCollector: string;
-      primaryChain: string;
-      primaryChainRouter: string;
       routerAddr: string;
       refundAddr: string;
     }
@@ -625,6 +662,11 @@ export interface Registrar extends BaseContract {
   getAPGoldfinchParams(
     overrides?: CallOverrides
   ): Promise<APGoldfinchConfigLib.APGoldfinchConfigStructOutput>;
+
+  getAccountsContractAddressByChain(
+    _targetChain: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   getAngelProtocolParams(
     overrides?: CallOverrides
@@ -682,6 +724,12 @@ export interface Registrar extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setAccountsContractAddressByChain(
+    _chainName: PromiseOrValue<string>,
+    _accountsContractAddress: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setAngelProtocolParams(
     _angelProtocolParams: IRegistrar.AngelProtocolParamsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -727,12 +775,10 @@ export interface Registrar extends BaseContract {
     angelProtocolParams(
       overrides?: CallOverrides
     ): Promise<
-      [number, number, string, string, string, string, string] & {
+      [number, number, string, string, string] & {
         protocolTaxRate: number;
         protocolTaxBasis: number;
         protocolTaxCollector: string;
-        primaryChain: string;
-        primaryChainRouter: string;
         routerAddr: string;
         refundAddr: string;
       }
@@ -745,6 +791,11 @@ export interface Registrar extends BaseContract {
     getAPGoldfinchParams(
       overrides?: CallOverrides
     ): Promise<APGoldfinchConfigLib.APGoldfinchConfigStructOutput>;
+
+    getAccountsContractAddressByChain(
+      _targetChain: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     getAngelProtocolParams(
       overrides?: CallOverrides
@@ -798,6 +849,12 @@ export interface Registrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setAccountsContractAddressByChain(
+      _chainName: PromiseOrValue<string>,
+      _accountsContractAddress: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setAngelProtocolParams(
       _angelProtocolParams: IRegistrar.AngelProtocolParamsStruct,
       overrides?: CallOverrides
@@ -841,6 +898,15 @@ export interface Registrar extends BaseContract {
   };
 
   filters: {
+    "AccountsContractStorageChanged(string,string)"(
+      chainName?: PromiseOrValue<string> | null,
+      accountsContractAddress?: PromiseOrValue<string> | null
+    ): AccountsContractStorageChangedEventFilter;
+    AccountsContractStorageChanged(
+      chainName?: PromiseOrValue<string> | null,
+      accountsContractAddress?: PromiseOrValue<string> | null
+    ): AccountsContractStorageChangedEventFilter;
+
     "AngelProtocolParamsChanged(tuple)"(
       newAngelProtocolParams?: null
     ): AngelProtocolParamsChangedEventFilter;
@@ -915,6 +981,11 @@ export interface Registrar extends BaseContract {
 
     getAPGoldfinchParams(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getAccountsContractAddressByChain(
+      _targetChain: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getAngelProtocolParams(overrides?: CallOverrides): Promise<BigNumber>;
 
     getGasByToken(
@@ -953,6 +1024,12 @@ export interface Registrar extends BaseContract {
 
     setAPGoldfinchParams(
       _apGoldfinch: APGoldfinchConfigLib.APGoldfinchConfigStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setAccountsContractAddressByChain(
+      _chainName: PromiseOrValue<string>,
+      _accountsContractAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1009,6 +1086,11 @@ export interface Registrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    getAccountsContractAddressByChain(
+      _targetChain: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getAngelProtocolParams(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1051,6 +1133,12 @@ export interface Registrar extends BaseContract {
 
     setAPGoldfinchParams(
       _apGoldfinch: APGoldfinchConfigLib.APGoldfinchConfigStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setAccountsContractAddressByChain(
+      _chainName: PromiseOrValue<string>,
+      _accountsContractAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

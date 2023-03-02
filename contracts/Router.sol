@@ -18,6 +18,8 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     IRegistrar public registrar;
     IAxelarGasService public gasReceiver;
 
+    uint256 constant PRECISION = 10**6;
+
     /*///////////////////////////////////////////////
                         PROXY INIT
     *////////////////////////////////////////////////
@@ -89,7 +91,6 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     *////////////////////////////////////////////////
 
     function _callSwitch(
-        string calldata sourceChain,
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
     ) 
@@ -99,15 +100,15 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     {
         // REDEEM
         if (_action.selector == IVault.redeem.selector) {
-            _redeem(sourceChain, _params, _action);
+            _redeem(_params, _action);
         }
         // REDEEM ALL
         else if (_action.selector == IVault.redeemAll.selector) {
-            _redeemAll(sourceChain, _params, _action);
+            _redeemAll(_params, _action);
         }
         // HARVEST
         else if (_action.selector == IVault.harvest.selector) {
-            _harvest(sourceChain, _params, _action);
+            _harvest(_params, _action);
         }
         // INVALID SELCTOR
         else {
@@ -154,7 +155,6 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
 
     // Vault action::Redeem
     function _redeem(
-        string calldata destinationChain,
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
     ) 
@@ -183,14 +183,13 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         uint256 _redeemedAmt = _redeemedLockAmt + _redeemedLiqAmt;
         _action.lockAmt = _redeemedLockAmt;
         _action.liqAmt = _redeemedLiqAmt;
-        _prepareAndSendTokens(destinationChain, _action, _redeemedAmt);
+        _prepareAndSendTokens(_action, _redeemedAmt);
         emit Redemption(_action, _redeemedAmt);
     }
 
     // Vault action::RedeemAll
     // @todo redemption amts need to affect _action data 
     function _redeemAll(
-        string calldata destinationChain,
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
     ) internal onlyOneAccount(_action) {
@@ -218,15 +217,14 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
 
         // Pack and send the tokens back through GMP 
         uint256 _redeemedAmt = _redeemedLockAmt + _redeemedLiqAmt; 
-        _prepareAndSendTokens(destinationChain, _action, _redeemedAmt);
+        _prepareAndSendTokens(_action, _redeemedAmt);
         emit Redemption(_action, _redeemedAmt);
     }
 
 
     // Vault action::Harvest
     // @todo redemption amts need to affect _action data 
-    function _harvest(
-        string calldata destinationChain, 
+    function _harvest( 
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
     ) internal {
@@ -266,24 +264,20 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     }
 
     function _prepareAndSendTokens(
-        string memory destinationChain,
         VaultActionData memory _action, 
         uint256 _sendAmt
         ) internal {
 
         // Pack the tokens and calldata for bridging back out over GMP
-
         IRegistrar.AngelProtocolParams memory apParams = registrar
             .getAngelProtocolParams();
-        string memory destinationAccountsContract = registrar.getAccountsContractAddressByChain(destinationChain);
 
         // Prepare gas
         uint256 gasFee = registrar.getGasByToken(_action.token);
         require(_sendAmt > gasFee, "Send amount does not cover gas");
         uint256 amtLessGasFee = _sendAmt - gasFee;
 
-        // Split gas proportionally between liquid and lock amts 
-        uint256 PRECISION = 10**6;
+        // Split gas proportionally between liquid and lock amts
         uint256 liqGas = gasFee * (_action.liqAmt * PRECISION / _sendAmt) / PRECISION; 
         uint256 lockGas =  gasFee - liqGas;
         _action.liqAmt -= liqGas;
@@ -291,8 +285,8 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
 
         bytes memory payload = _packCallData(_action);
         try this.sendTokens(
-                destinationChain,
-                destinationAccountsContract,
+                _action.destinationChain,
+                registrar.getAccountsContractAddressByChain(_action.destinationChain),
                 payload,
                 IERC20Metadata(_action.token).symbol(),
                 amtLessGasFee,
@@ -377,11 +371,11 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         }
         catch Error(string memory reason) {
             emit LogError(action, reason);
-            _prepareAndSendTokens(sourceChain, action, amount);
+            _prepareAndSendTokens(action, amount);
         }
         catch (bytes memory data) {
             emit LogErrorBytes(action, data);
-            _prepareAndSendTokens(sourceChain, action, amount);
+            _prepareAndSendTokens(action, amount);
         }
     }
     
@@ -401,6 +395,6 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
             .getStrategyParamsById(action.strategyId);
 
         // Switch for calling appropriate vault/method
-        _callSwitch(sourceChain, params, action);
+        _callSwitch(params, action);
     }
 }

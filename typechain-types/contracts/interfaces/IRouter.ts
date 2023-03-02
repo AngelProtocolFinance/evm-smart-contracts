@@ -29,6 +29,7 @@ import type {
 
 export declare namespace IRouter {
   export type VaultActionDataStruct = {
+    destinationChain: PromiseOrValue<string>;
     strategyId: PromiseOrValue<BytesLike>;
     selector: PromiseOrValue<BytesLike>;
     accountIds: PromiseOrValue<BigNumberish>[];
@@ -40,11 +41,13 @@ export declare namespace IRouter {
   export type VaultActionDataStructOutput = [
     string,
     string,
+    string,
     number[],
     string,
     BigNumber,
     BigNumber
   ] & {
+    destinationChain: string;
     strategyId: string;
     selector: string;
     accountIds: number[];
