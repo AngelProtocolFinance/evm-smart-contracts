@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 // author: @stevieraykatz
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.8;
 
 import {IRouter} from "./interfaces/IRouter.sol";
 import {IVault} from "./interfaces/IVault.sol";
@@ -13,8 +13,10 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {AxelarExecutable} from "./axelar/AxelarExecutable.sol";
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
 import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService.sol";
+import { IAxelarExecutable } from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarExecutable.sol";
 
-contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
+contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
+    string public chain;
     IRegistrar public registrar;
     IAxelarGasService public gasReceiver;
 
@@ -25,10 +27,12 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     *////////////////////////////////////////////////
 
     function initialize(
+        string calldata _chain,
         address _gateway,
         address _gasReceiver,
         address _registrar
     ) public initializer {
+        chain = _chain;
         registrar = IRegistrar(_registrar);
         gasReceiver = IAxelarGasService(_gasReceiver);
         __AxelarExecutable_init_unchained(_gateway);
@@ -183,7 +187,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         uint256 _redeemedAmt = _redeemedLockAmt + _redeemedLiqAmt;
         _action.lockAmt = _redeemedLockAmt;
         _action.liqAmt = _redeemedLiqAmt;
-        _prepareAndSendTokens(_action, _redeemedAmt);
+        _prepareToSendTokens(_action, _redeemedAmt);
         emit Redemption(_action, _redeemedAmt);
     }
 
@@ -217,7 +221,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
 
         // Pack and send the tokens back through GMP 
         uint256 _redeemedAmt = _redeemedLockAmt + _redeemedLiqAmt; 
-        _prepareAndSendTokens(_action, _redeemedAmt);
+        _prepareToSendTokens(_action, _redeemedAmt);
         emit Redemption(_action, _redeemedAmt);
     }
 
@@ -238,6 +242,49 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     /*////////////////////////////////////////////////
                         AXELAR IMPL.
     */////////////////////////////////////////////////
+
+    /// @notice Public execute method that is used to trigger Router actions
+    /// @dev We want to support both Axelar GMP calls or calls from our local Accounts contract.     
+    /// If the callers address matches the expected accounts contract for the specified chain, 
+    /// we execute. Otherwise we call the parent execute method to follow the Axelar GMP path  
+    function execute(
+        bytes32 commandId,
+        string calldata sourceChain,
+        string calldata sourceAddress,
+        bytes calldata payload
+    ) public override(IAxelarExecutable, AxelarExecutable) {
+        if (_senderIsLocalAccountsContract()) {
+            _execute(sourceChain, sourceAddress, payload);
+        }
+        else {
+            super.execute(commandId, sourceChain, sourceAddress, payload);
+        }
+    }
+
+    function executeWithToken(
+        bytes32 commandId,
+        string calldata sourceChain,
+        string calldata sourceAddress,
+        bytes calldata payload,
+        string calldata tokenSymbol,
+        uint256 amount
+    ) public override(IAxelarExecutable, AxelarExecutable) {
+        if (_senderIsLocalAccountsContract()) {
+            _executeWithToken(sourceChain, sourceAddress, payload, tokenSymbol, amount);
+        }
+        else {
+            super.executeWithToken(commandId, sourceChain, sourceAddress, payload, tokenSymbol, amount);
+        }
+    }
+
+    function _senderIsLocalAccountsContract() internal view returns (bool) {
+        string memory accountAddress = registrar.getAccountsContractAddressByChain(chain);
+        if (StringToAddress.toAddress(accountAddress) == msg.sender &&
+            keccak256(abi.encode(chain)) == keccak256(abi.encode(chain))) {
+                return true;
+        }
+        return false;
+    }   
 
     modifier onlyAccountsContract(
         string calldata _sourceChain, 
@@ -263,7 +310,28 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         _;
     }
 
-    function _prepareAndSendTokens(
+    function _prepareToSendTokens(
+        VaultActionData memory _action, 
+        uint256 _sendAmt
+    ) internal {
+        if (keccak256(abi.encode(_action.destinationChain)) == keccak256(abi.encode(chain))) {
+            _prepareAndSendTokensLocal(_action, _sendAmt);
+        }
+        else {
+            _prepareAndSendTokensGMP(_action, _sendAmt);
+        }
+    }
+
+    function _prepareAndSendTokensLocal(
+        VaultActionData memory _action, 
+        uint256 _sendAmt
+    ) internal {
+        string memory accountsContractAddress = registrar.getAccountsContractAddressByChain((_action.destinationChain));
+        IERC20Metadata(_action.token).transfer(StringToAddress.toAddress(accountsContractAddress), _sendAmt);
+        emit TokensSent(_action, _sendAmt);
+    }
+
+    function _prepareAndSendTokensGMP(
         VaultActionData memory _action, 
         uint256 _sendAmt
         ) internal {
@@ -359,7 +427,6 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         onlyAccountsContract(sourceChain, sourceAddress)
         notZeroAddress(sourceAddress)
     {
-        
         // decode payload
         VaultActionData memory action = _unpackCalldata(payload);
         IRegistrar.StrategyParams memory params = registrar
@@ -371,11 +438,11 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         }
         catch Error(string memory reason) {
             emit LogError(action, reason);
-            _prepareAndSendTokens(action, amount);
+            _prepareToSendTokens(action, amount);
         }
         catch (bytes memory data) {
             emit LogErrorBytes(action, data);
-            _prepareAndSendTokens(action, amount);
+            _prepareToSendTokens(action, amount);
         }
     }
     

@@ -87,12 +87,13 @@ export declare namespace IRegistrar {
 
 export interface RouterInterface extends utils.Interface {
   functions: {
+    "chain()": FunctionFragment;
     "deposit((uint8,(uint8,address),(uint8,address)),(string,bytes4,bytes4,uint32[],address,uint256,uint256),string,uint256)": FunctionFragment;
     "execute(bytes32,string,string,bytes)": FunctionFragment;
     "executeWithToken(bytes32,string,string,bytes,string,uint256)": FunctionFragment;
     "gasReceiver()": FunctionFragment;
     "gateway()": FunctionFragment;
-    "initialize(address,address,address)": FunctionFragment;
+    "initialize(string,address,address,address)": FunctionFragment;
     "owner()": FunctionFragment;
     "registrar()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
@@ -102,6 +103,7 @@ export interface RouterInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "chain"
       | "deposit"
       | "execute"
       | "executeWithToken"
@@ -115,6 +117,7 @@ export interface RouterInterface extends utils.Interface {
       | "transferOwnership"
   ): FunctionFragment;
 
+  encodeFunctionData(functionFragment: "chain", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "deposit",
     values: [
@@ -154,6 +157,7 @@ export interface RouterInterface extends utils.Interface {
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
+      PromiseOrValue<string>,
       PromiseOrValue<string>
     ]
   ): string;
@@ -180,6 +184,7 @@ export interface RouterInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
 
+  decodeFunctionResult(functionFragment: "chain", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(
@@ -348,6 +353,8 @@ export interface Router extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    chain(overrides?: CallOverrides): Promise<[string]>;
+
     deposit(
       params: IRegistrar.StrategyParamsStruct,
       action: IRouter.VaultActionDataStruct,
@@ -379,6 +386,7 @@ export interface Router extends BaseContract {
     gateway(overrides?: CallOverrides): Promise<[string]>;
 
     initialize(
+      _chain: PromiseOrValue<string>,
       _gateway: PromiseOrValue<string>,
       _gasReceiver: PromiseOrValue<string>,
       _registrar: PromiseOrValue<string>,
@@ -409,6 +417,8 @@ export interface Router extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
+
+  chain(overrides?: CallOverrides): Promise<string>;
 
   deposit(
     params: IRegistrar.StrategyParamsStruct,
@@ -441,6 +451,7 @@ export interface Router extends BaseContract {
   gateway(overrides?: CallOverrides): Promise<string>;
 
   initialize(
+    _chain: PromiseOrValue<string>,
     _gateway: PromiseOrValue<string>,
     _gasReceiver: PromiseOrValue<string>,
     _registrar: PromiseOrValue<string>,
@@ -472,6 +483,8 @@ export interface Router extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    chain(overrides?: CallOverrides): Promise<string>;
+
     deposit(
       params: IRegistrar.StrategyParamsStruct,
       action: IRouter.VaultActionDataStruct,
@@ -503,6 +516,7 @@ export interface Router extends BaseContract {
     gateway(overrides?: CallOverrides): Promise<string>;
 
     initialize(
+      _chain: PromiseOrValue<string>,
       _gateway: PromiseOrValue<string>,
       _gasReceiver: PromiseOrValue<string>,
       _registrar: PromiseOrValue<string>,
@@ -583,6 +597,8 @@ export interface Router extends BaseContract {
   };
 
   estimateGas: {
+    chain(overrides?: CallOverrides): Promise<BigNumber>;
+
     deposit(
       params: IRegistrar.StrategyParamsStruct,
       action: IRouter.VaultActionDataStruct,
@@ -614,6 +630,7 @@ export interface Router extends BaseContract {
     gateway(overrides?: CallOverrides): Promise<BigNumber>;
 
     initialize(
+      _chain: PromiseOrValue<string>,
       _gateway: PromiseOrValue<string>,
       _gasReceiver: PromiseOrValue<string>,
       _registrar: PromiseOrValue<string>,
@@ -646,6 +663,8 @@ export interface Router extends BaseContract {
   };
 
   populateTransaction: {
+    chain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     deposit(
       params: IRegistrar.StrategyParamsStruct,
       action: IRouter.VaultActionDataStruct,
@@ -677,6 +696,7 @@ export interface Router extends BaseContract {
     gateway(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     initialize(
+      _chain: PromiseOrValue<string>,
       _gateway: PromiseOrValue<string>,
       _gasReceiver: PromiseOrValue<string>,
       _registrar: PromiseOrValue<string>,

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Modifications by @stevieraykatz to make compatible with OZ Upgradable Proxy 
 
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.8;
 
 import { IAxelarGateway } from '@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol';
 import { IAxelarExecutable } from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarExecutable.sol";
@@ -25,7 +25,7 @@ contract AxelarExecutable is IAxelarExecutable, Initializable {
         string calldata sourceChain,
         string calldata sourceAddress,
         bytes calldata payload
-    ) external override {
+    ) public override virtual {
         bytes32 payloadHash = keccak256(payload);
         if (!gateway.validateContractCall(commandId, sourceChain, sourceAddress, payloadHash))
             revert NotApprovedByGateway();
@@ -39,7 +39,7 @@ contract AxelarExecutable is IAxelarExecutable, Initializable {
         bytes calldata payload,
         string calldata tokenSymbol,
         uint256 amount
-    ) external override {
+    ) public override virtual {
         bytes32 payloadHash = keccak256(payload);
         if (
             !gateway.validateContractCallAndMint(
