@@ -32,8 +32,6 @@ export declare namespace IRegistrar {
     protocolTaxRate: PromiseOrValue<BigNumberish>;
     protocolTaxBasis: PromiseOrValue<BigNumberish>;
     protocolTaxCollector: PromiseOrValue<string>;
-    primaryChain: PromiseOrValue<string>;
-    primaryChainRouter: PromiseOrValue<string>;
     routerAddr: PromiseOrValue<string>;
     refundAddr: PromiseOrValue<string>;
   };
@@ -43,15 +41,11 @@ export declare namespace IRegistrar {
     number,
     string,
     string,
-    string,
-    string,
     string
   ] & {
     protocolTaxRate: number;
     protocolTaxBasis: number;
     protocolTaxCollector: string;
-    primaryChain: string;
-    primaryChainRouter: string;
     routerAddr: string;
     refundAddr: string;
   };
@@ -129,13 +123,15 @@ export declare namespace APGoldfinchConfigLib {
 export interface IRegistrarGoldfinchInterface extends utils.Interface {
   functions: {
     "getAPGoldfinchParams()": FunctionFragment;
+    "getAccountsContractAddressByChain(string)": FunctionFragment;
     "getAngelProtocolParams()": FunctionFragment;
     "getGasByToken(address)": FunctionFragment;
     "getRebalanceParams()": FunctionFragment;
     "getStrategyApprovalState(bytes4)": FunctionFragment;
     "getStrategyParamsById(bytes4)": FunctionFragment;
     "isTokenAccepted(address)": FunctionFragment;
-    "setAngelProtocolParams((uint32,uint32,address,string,string,address,address))": FunctionFragment;
+    "setAccountsContractAddressByChain(string,string)": FunctionFragment;
+    "setAngelProtocolParams((uint32,uint32,address,address,address))": FunctionFragment;
     "setGasByToken(address,uint256)": FunctionFragment;
     "setRebalanceParams((bool,uint32,uint32,bool,uint32,uint32))": FunctionFragment;
     "setStrategyApprovalState(bytes4,uint8)": FunctionFragment;
@@ -146,12 +142,14 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "getAPGoldfinchParams"
+      | "getAccountsContractAddressByChain"
       | "getAngelProtocolParams"
       | "getGasByToken"
       | "getRebalanceParams"
       | "getStrategyApprovalState"
       | "getStrategyParamsById"
       | "isTokenAccepted"
+      | "setAccountsContractAddressByChain"
       | "setAngelProtocolParams"
       | "setGasByToken"
       | "setRebalanceParams"
@@ -163,6 +161,10 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getAPGoldfinchParams",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAccountsContractAddressByChain",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "getAngelProtocolParams",
@@ -187,6 +189,10 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "isTokenAccepted",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setAccountsContractAddressByChain",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "setAngelProtocolParams",
@@ -223,6 +229,10 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getAccountsContractAddressByChain",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getAngelProtocolParams",
     data: BytesLike
   ): Result;
@@ -244,6 +254,10 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "isTokenAccepted",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setAccountsContractAddressByChain",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -272,6 +286,7 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "AccountsContractStorageChanged(string,string)": EventFragment;
     "AngelProtocolParamsChanged(tuple)": EventFragment;
     "GasFeeUpdated(address,uint256)": EventFragment;
     "RebalanceParamsChanged(tuple)": EventFragment;
@@ -280,6 +295,9 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
     "TokenAcceptanceChanged(address,bool)": EventFragment;
   };
 
+  getEvent(
+    nameOrSignatureOrTopic: "AccountsContractStorageChanged"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AngelProtocolParamsChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GasFeeUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RebalanceParamsChanged"): EventFragment;
@@ -287,6 +305,18 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "StrategyParamsChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenAcceptanceChanged"): EventFragment;
 }
+
+export interface AccountsContractStorageChangedEventObject {
+  chainName: string;
+  accountsContractAddress: string;
+}
+export type AccountsContractStorageChangedEvent = TypedEvent<
+  [string, string],
+  AccountsContractStorageChangedEventObject
+>;
+
+export type AccountsContractStorageChangedEventFilter =
+  TypedEventFilter<AccountsContractStorageChangedEvent>;
 
 export interface AngelProtocolParamsChangedEventObject {
   newAngelProtocolParams: IRegistrar.AngelProtocolParamsStructOutput;
@@ -390,6 +420,11 @@ export interface IRegistrarGoldfinch extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[APGoldfinchConfigLib.APGoldfinchConfigStructOutput]>;
 
+    getAccountsContractAddressByChain(
+      _targetChain: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     getAngelProtocolParams(
       overrides?: CallOverrides
     ): Promise<[IRegistrar.AngelProtocolParamsStructOutput]>;
@@ -417,6 +452,12 @@ export interface IRegistrarGoldfinch extends BaseContract {
       _tokenAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    setAccountsContractAddressByChain(
+      _chainName: PromiseOrValue<string>,
+      _accountsContractAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     setAngelProtocolParams(
       _angelProtocolParams: IRegistrar.AngelProtocolParamsStruct,
@@ -459,6 +500,11 @@ export interface IRegistrarGoldfinch extends BaseContract {
     overrides?: CallOverrides
   ): Promise<APGoldfinchConfigLib.APGoldfinchConfigStructOutput>;
 
+  getAccountsContractAddressByChain(
+    _targetChain: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   getAngelProtocolParams(
     overrides?: CallOverrides
   ): Promise<IRegistrar.AngelProtocolParamsStructOutput>;
@@ -486,6 +532,12 @@ export interface IRegistrarGoldfinch extends BaseContract {
     _tokenAddr: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  setAccountsContractAddressByChain(
+    _chainName: PromiseOrValue<string>,
+    _accountsContractAddress: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   setAngelProtocolParams(
     _angelProtocolParams: IRegistrar.AngelProtocolParamsStruct,
@@ -528,6 +580,11 @@ export interface IRegistrarGoldfinch extends BaseContract {
       overrides?: CallOverrides
     ): Promise<APGoldfinchConfigLib.APGoldfinchConfigStructOutput>;
 
+    getAccountsContractAddressByChain(
+      _targetChain: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     getAngelProtocolParams(
       overrides?: CallOverrides
     ): Promise<IRegistrar.AngelProtocolParamsStructOutput>;
@@ -555,6 +612,12 @@ export interface IRegistrarGoldfinch extends BaseContract {
       _tokenAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    setAccountsContractAddressByChain(
+      _chainName: PromiseOrValue<string>,
+      _accountsContractAddress: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setAngelProtocolParams(
       _angelProtocolParams: IRegistrar.AngelProtocolParamsStruct,
@@ -594,6 +657,15 @@ export interface IRegistrarGoldfinch extends BaseContract {
   };
 
   filters: {
+    "AccountsContractStorageChanged(string,string)"(
+      chainName?: PromiseOrValue<string> | null,
+      accountsContractAddress?: PromiseOrValue<string> | null
+    ): AccountsContractStorageChangedEventFilter;
+    AccountsContractStorageChanged(
+      chainName?: PromiseOrValue<string> | null,
+      accountsContractAddress?: PromiseOrValue<string> | null
+    ): AccountsContractStorageChangedEventFilter;
+
     "AngelProtocolParamsChanged(tuple)"(
       newAngelProtocolParams?: null
     ): AngelProtocolParamsChangedEventFilter;
@@ -652,6 +724,11 @@ export interface IRegistrarGoldfinch extends BaseContract {
   estimateGas: {
     getAPGoldfinchParams(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getAccountsContractAddressByChain(
+      _targetChain: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getAngelProtocolParams(overrides?: CallOverrides): Promise<BigNumber>;
 
     getGasByToken(
@@ -674,6 +751,12 @@ export interface IRegistrarGoldfinch extends BaseContract {
     isTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    setAccountsContractAddressByChain(
+      _chainName: PromiseOrValue<string>,
+      _accountsContractAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setAngelProtocolParams(
@@ -718,6 +801,11 @@ export interface IRegistrarGoldfinch extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    getAccountsContractAddressByChain(
+      _targetChain: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getAngelProtocolParams(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -744,6 +832,12 @@ export interface IRegistrarGoldfinch extends BaseContract {
     isTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    setAccountsContractAddressByChain(
+      _chainName: PromiseOrValue<string>,
+      _accountsContractAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setAngelProtocolParams(

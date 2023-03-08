@@ -23,12 +23,12 @@ describe("Router", function () {
     "protocolTaxRate" :2,
     "protocolTaxBasis" : 100,
     "protocolTaxCollector" : ethers.constants.AddressZero,
-    "primaryChain" : "Polygon",
-    "primaryChainRouter" : "",
     "routerAddr" : ethers.constants.AddressZero,
     "refundAddr" : ethers.constants.AddressZero
   } as IRegistrar.AngelProtocolParamsStruct
   let deadAddr = "0x000000000000000000000000000000000000dead"
+  let originatingChain = "polygon"
+  let accountsContract = deadAddr
 
   async function deployRouterAsProxy(
     gatewayAddress: string = "0xe432150cce91c13a887f7D836923d5597adD8E31", 
@@ -37,7 +37,6 @@ describe("Router", function () {
   Promise<Router> {
     [owner, user, collector] = await ethers.getSigners();
     let apParams = defaultApParams
-    apParams.primaryChainRouter = "0x000000000000000000000000000000000000dead" // Router errors for null addresses
     apParams.refundAddr = collector.address
     if (!registrar) {
       registrar = await deployRegistrarAsProxy()
@@ -82,12 +81,12 @@ describe("Router", function () {
   }
 
   async function packActionData(_actionData: IRouter.VaultActionDataStruct): Promise<string> {
-    const TypeList = ["bytes4", "bytes4", "uint[]", "address", "uint", "uint"]
+    const TypeList = ["string", "bytes4", "bytes4", "uint[]", "address", "uint", "uint"]
     return ethers.utils.defaultAbiCoder.encode(TypeList, VaultActionStructToArray(_actionData))
   }
 
   async function unpackActionData(_encodedActionData: string): Promise<IRouter.VaultActionDataStruct> {
-    const TypeList = ["string", "string", "uint[]", "string", "uint", "uint"]
+    const TypeList = ["string", "string", "string", "uint[]", "string", "uint", "uint"]
     let decoded = ethers.utils.defaultAbiCoder.decode(TypeList, _encodedActionData)
     return ArrayToVaultActionStruct(decoded)
   }
@@ -152,7 +151,7 @@ describe("Router", function () {
     it("Does not allow a non-accounts contract address to call executeWithToken", async function () {
       await expect(router.executeWithToken(
         ethers.utils.formatBytes32String("true"),
-        "Polygon", 
+        originatingChain, 
         owner.address, 
         ethers.utils.formatBytes32String("payload"),
         "USDC", 
@@ -163,7 +162,7 @@ describe("Router", function () {
     it("Does not allow a non-accounts contract address to call execute", async function () {
       await expect(router.execute(
         ethers.utils.formatBytes32String("true"),
-        "Polygon", 
+        originatingChain, 
         owner.address, 
         ethers.utils.formatBytes32String("payload")))
         .to.be.revertedWith("Unauthorized Call")
@@ -172,7 +171,7 @@ describe("Router", function () {
     it("Does not allow a non-primary chain to call executeWithToken", async function () {
       await expect(router.executeWithToken(
         ethers.utils.formatBytes32String("true"),
-        "Polygon", 
+        "Avalanche", 
         gateway.address, 
         ethers.utils.formatBytes32String("payload"),
         "USDC", 
@@ -199,6 +198,7 @@ describe("Router", function () {
     let router: Router
     let gasService: DummyGasService
     const getDefaultActionData = () => ({
+      destinationChain: originatingChain,
       strategyId: "0xffffffff",
       selector: "",
       accountIds: [1],
@@ -206,14 +206,6 @@ describe("Router", function () {
       lockAmt: 111,
       liqAmt: 222
     }) as IRouter.VaultActionDataStruct
-    // const defaultActionData = {
-    //   strategyId: "0xffffffff",
-    //   selector: "",
-    //   accountIds: [1],
-    //   token: "",
-    //   lockAmt: 111,
-    //   liqAmt: 222
-    // } as IRouter.VaultActionDataStruct
 
     describe("and the refund call is successful back through axelar", function () {
       before(async function () {
@@ -225,6 +217,7 @@ describe("Router", function () {
         registrar = await deployRegistrarAsProxy()
         await gateway.setTestTokenAddress(token.address)
         await registrar.setTokenAccepted(token.address, true)
+        await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract)
       })
   
       beforeEach(async function () {
@@ -248,8 +241,8 @@ describe("Router", function () {
         let packedData = await packActionData(actionData)
         await expect(router.executeWithToken(
           ethers.utils.formatBytes32String("true"),
-          defaultApParams.primaryChain,
-          defaultApParams.primaryChainRouter,
+          originatingChain,
+          accountsContract,
           packedData,
           token.symbol(),
           333
@@ -267,8 +260,8 @@ describe("Router", function () {
         let packedData = await packActionData(actionData)
         await expect(router.executeWithToken(
           ethers.utils.formatBytes32String("true"),
-          defaultApParams.primaryChain,
-          defaultApParams.primaryChainRouter,
+          originatingChain,
+          accountsContract,
           packedData,
           token.symbol(),
           333
@@ -286,8 +279,8 @@ describe("Router", function () {
         let packedData = await packActionData(actionData)
         await expect(router.executeWithToken(
           ethers.utils.formatBytes32String("true"),
-          defaultApParams.primaryChain,
-          defaultApParams.primaryChainRouter,
+          originatingChain,
+          accountsContract,
           packedData,
           "WRONG",
           333
@@ -305,8 +298,8 @@ describe("Router", function () {
         let packedData = await packActionData(actionData)
         await expect(router.executeWithToken(
           ethers.utils.formatBytes32String("true"),
-          defaultApParams.primaryChain,
-          defaultApParams.primaryChainRouter,
+          originatingChain,
+          accountsContract,
           packedData,
           token.symbol(),
           332
@@ -326,8 +319,8 @@ describe("Router", function () {
         let packedData = await packActionData(actionData)
         await expect(router.executeWithToken(
           ethers.utils.formatBytes32String("true"),
-          defaultApParams.primaryChain,
-          defaultApParams.primaryChainRouter,
+          originatingChain,
+          accountsContract,
           packedData,
           token.symbol(),
           0
@@ -345,8 +338,8 @@ describe("Router", function () {
         let packedData = await packActionData(actionData)
         await expect(router.executeWithToken(
           ethers.utils.formatBytes32String("true"),
-          defaultApParams.primaryChain,
-          defaultApParams.primaryChainRouter,
+          originatingChain,
+          accountsContract,
           packedData,
           token.symbol(),
           333
@@ -365,8 +358,8 @@ describe("Router", function () {
         let packedData = await packActionData(actionData)
         await expect(router.executeWithToken(
           ethers.utils.formatBytes32String("true"),
-          defaultApParams.primaryChain,
-          defaultApParams.primaryChainRouter,
+          originatingChain,
+          accountsContract,
           packedData,
           token.symbol(),
           333
@@ -387,8 +380,8 @@ describe("Router", function () {
         let packedData = await packActionData(actionData)
         await expect(router.execute(
           ethers.utils.formatBytes32String("true"),
-          defaultApParams.primaryChain,
-          defaultApParams.primaryChainRouter,
+          originatingChain,
+          accountsContract,
           packedData
         ))
         .to.be.revertedWith("Strategy not approved")
@@ -404,7 +397,8 @@ describe("Router", function () {
         token = await deployDummyERC20()
         registrar = await deployRegistrarAsProxy()
         await gateway.setTestTokenAddress(token.address)
-        await registrar.setTokenAccepted(token.address, true) 
+        await registrar.setTokenAccepted(token.address, true)
+        await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract)
       })
   
       beforeEach(async function () {
@@ -424,8 +418,8 @@ describe("Router", function () {
         let packedData = await packActionData(actionData)
         await expect(router.executeWithToken(
           ethers.utils.formatBytes32String("true"),
-          defaultApParams.primaryChain,
-          defaultApParams.primaryChainRouter,
+          originatingChain,
+          accountsContract,
           packedData,
           token.symbol(),
           333
@@ -444,8 +438,8 @@ describe("Router", function () {
         let packedData = await packActionData(actionData)
         await (expect(await router.executeWithToken(
           ethers.utils.formatBytes32String("true"),
-          defaultApParams.primaryChain,
-          defaultApParams.primaryChainRouter,
+          originatingChain,
+          accountsContract,
           packedData,
           token.symbol(),
           333
@@ -463,8 +457,8 @@ describe("Router", function () {
         let packedData = await packActionData(actionData)
         expect(await router.executeWithToken(
           ethers.utils.formatBytes32String("true"),
-          defaultApParams.primaryChain,
-          defaultApParams.primaryChainRouter,
+          originatingChain,
+          accountsContract,
           packedData,
           "WRONG",
           333
@@ -482,8 +476,8 @@ describe("Router", function () {
         let packedData = await packActionData(actionData)
         await expect(router.executeWithToken(
           ethers.utils.formatBytes32String("true"),
-          defaultApParams.primaryChain,
-          defaultApParams.primaryChainRouter,
+          originatingChain,
+          accountsContract,
           packedData,
           token.symbol(),
           332
@@ -503,8 +497,8 @@ describe("Router", function () {
         let packedData = await packActionData(actionData)
         await expect(router.executeWithToken(
           ethers.utils.formatBytes32String("true"),
-          defaultApParams.primaryChain,
-          defaultApParams.primaryChainRouter,
+          originatingChain,
+          accountsContract,
           packedData,
           token.symbol(),
           0
@@ -522,8 +516,8 @@ describe("Router", function () {
         let packedData = await packActionData(actionData)
         await expect(router.executeWithToken(
           ethers.utils.formatBytes32String("true"),
-          defaultApParams.primaryChain,
-          defaultApParams.primaryChainRouter,
+          originatingChain,
+          accountsContract,
           packedData,
           token.symbol(),
           333
@@ -542,8 +536,8 @@ describe("Router", function () {
         let packedData = await packActionData(actionData)
         await (expect(router.executeWithToken(
           ethers.utils.formatBytes32String("true"),
-          defaultApParams.primaryChain,
-          defaultApParams.primaryChainRouter,
+          originatingChain,
+          accountsContract,
           packedData,
           token.symbol(),
           333
@@ -564,8 +558,8 @@ describe("Router", function () {
         let packedData = await packActionData(actionData)
         await expect(router.execute(
           ethers.utils.formatBytes32String("true"),
-          defaultApParams.primaryChain,
-          defaultApParams.primaryChainRouter,
+          originatingChain,
+          accountsContract,
           packedData
         ))
         .to.be.revertedWith("Strategy not approved")
@@ -582,6 +576,7 @@ describe("Router", function () {
     let token: DummyERC20
     let router: Router
     let actionData = {
+      destinationChain: originatingChain,
       strategyId: "0xffffffff",
       selector: "",
       accountIds: [1],
@@ -599,6 +594,7 @@ describe("Router", function () {
       await liquidVault.setDefaultToken(token.address)
       await lockedVault.setDefaultToken(token.address)
       registrar = await deployRegistrarAsProxy()
+      await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract)
       await gateway.setTestTokenAddress(token.address)
       await registrar.setTokenAccepted(token.address, true)
       await registrar.setStrategyParams(
@@ -621,8 +617,8 @@ describe("Router", function () {
       let packedData = await packActionData(actionData)
       await expect(router.executeWithToken(
         ethers.utils.formatBytes32String("true"),
-        defaultApParams.primaryChain,
-        defaultApParams.primaryChainRouter,
+        originatingChain,
+        accountsContract,
         packedData,
         token.symbol(),
         333
@@ -638,8 +634,8 @@ describe("Router", function () {
       let packedData = await packActionData(actionData)
       await router.executeWithToken(
         ethers.utils.formatBytes32String("true"),
-        defaultApParams.primaryChain,
-        defaultApParams.primaryChainRouter,
+        originatingChain,
+        accountsContract,
         packedData,
         token.symbol(),
         333
@@ -651,8 +647,8 @@ describe("Router", function () {
       await lockedVault.setRouterAddress(router.address)
       await expect(router.execute(
         ethers.utils.formatBytes32String("true"),
-        defaultApParams.primaryChain,
-        defaultApParams.primaryChainRouter,
+        originatingChain,
+        accountsContract,
         packedData
       ))
       .to.emit(liquidVault, "Redemption")
@@ -667,8 +663,8 @@ describe("Router", function () {
       let packedData = await packActionData(actionData)
       await router.executeWithToken(
         ethers.utils.formatBytes32String("true"),
-        defaultApParams.primaryChain,
-        defaultApParams.primaryChainRouter,
+        originatingChain,
+        accountsContract,
         packedData,
         token.symbol(),
         333
@@ -682,8 +678,8 @@ describe("Router", function () {
       await token.mint(lockedVault.address,actionData.lockAmt)
       await expect(router.execute(
         ethers.utils.formatBytes32String("true"),
-        defaultApParams.primaryChain,
-        defaultApParams.primaryChainRouter,
+        originatingChain,
+        accountsContract,
         packedData
       ))
       .to.emit(liquidVault, "Redemption")
@@ -694,8 +690,8 @@ describe("Router", function () {
       let packedData = await packActionData(actionData)
       await expect(router.execute(
         ethers.utils.formatBytes32String("true"),
-        defaultApParams.primaryChain,
-        defaultApParams.primaryChainRouter,
+        originatingChain,
+        accountsContract,
         packedData
       ))
       .to.emit(liquidVault, "Harvest")
@@ -711,6 +707,7 @@ describe("Router", function () {
     let token: DummyERC20
     let router: Router
     let actionData = {
+      destinationChain: originatingChain,
       strategyId: "0xffffffff",
       selector: "",
       accountIds: [1],
@@ -728,6 +725,7 @@ describe("Router", function () {
       await liquidVault.setDefaultToken(token.address)
       await lockedVault.setDefaultToken(token.address)
       registrar = await deployRegistrarAsProxy()
+      await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract)
       await gateway.setTestTokenAddress(token.address)
       await registrar.setTokenAccepted(token.address, true)
       await registrar.setStrategyParams(
@@ -750,8 +748,8 @@ describe("Router", function () {
       let packedData = packActionData(actionData)
       await router.executeWithToken(        
         ethers.utils.formatBytes32String("true"),
-        defaultApParams.primaryChain,
-        defaultApParams.primaryChainRouter,
+        originatingChain,
+        accountsContract,
         packedData,
         token.symbol(),
         333
@@ -770,6 +768,7 @@ describe("Router", function () {
     let token: DummyERC20
     let router: Router
     let actionData = {
+      destinationChain: originatingChain,
       strategyId: "0xffffffff",
       selector: "",
       accountIds: [1],
@@ -787,6 +786,7 @@ describe("Router", function () {
       await liquidVault.setDefaultToken(token.address)
       await lockedVault.setDefaultToken(token.address)
       registrar = await deployRegistrarAsProxy()
+      await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract)
       await gateway.setTestTokenAddress(token.address)
       await registrar.setTokenAccepted(token.address, true)
       await registrar.setStrategyParams(
@@ -806,8 +806,8 @@ describe("Router", function () {
       let packedData = packActionData(actionData)
       await router.executeWithToken(        
         ethers.utils.formatBytes32String("true"),
-        defaultApParams.primaryChain,
-        defaultApParams.primaryChainRouter,
+        originatingChain,
+        accountsContract,
         packedData,
         token.symbol(),
         333
@@ -820,8 +820,8 @@ describe("Router", function () {
       let packedData = packActionData(actionData)
       expect(await router.execute(
         ethers.utils.formatBytes32String("true"),
-        defaultApParams.primaryChain,
-        defaultApParams.primaryChainRouter,
+        originatingChain,
+        accountsContract,
         packedData
       ))
       let routerBalAfter = await token.balanceOf(router.address) 
@@ -832,8 +832,8 @@ describe("Router", function () {
       let packedData = packActionData(actionData)
       expect(await router.execute(
         ethers.utils.formatBytes32String("true"),
-        defaultApParams.primaryChain,
-        defaultApParams.primaryChainRouter,
+        originatingChain,
+        accountsContract,
         packedData
       ))
       let allowance = await token.allowance(router.address, gateway.address)
@@ -844,8 +844,8 @@ describe("Router", function () {
       let packedData = packActionData(actionData)
       expect(await router.execute(
         ethers.utils.formatBytes32String("true"),
-        defaultApParams.primaryChain,
-        defaultApParams.primaryChainRouter,
+        originatingChain,
+        accountsContract,
         packedData
       ))
       let allowance = await token.allowance(router.address, gasService.address)
@@ -858,8 +858,8 @@ describe("Router", function () {
       await registrar.setGasByToken(token.address, 334)
       await expect(router.execute(
         ethers.utils.formatBytes32String("true"),
-        defaultApParams.primaryChain,
-        defaultApParams.primaryChainRouter,
+        originatingChain,
+        accountsContract,
         packedData
       )).to.be.revertedWith("Send amount does not cover gas")
     })
@@ -874,8 +874,8 @@ describe("Router", function () {
     //   let expectedLockedRedemption = BigNumber.from(222).sub(6)
     //   await expect(router.execute(
     //     ethers.utils.formatBytes32String("true"),
-    //     defaultApParams.primaryChain,
-    //     defaultApParams.primaryChainRouter,
+    //     originatingChain,
+    //     accountsContract,
     //     packedData
     //   ))
     //   .to.emit(router, "TokensSent")
@@ -900,6 +900,7 @@ describe("Router", function () {
     let token: DummyERC20
     let router: Router
     let actionData = {
+      destinationChain: originatingChain,
       strategyId: "0xffffffff",
       selector: "",
       accountIds: [1],
@@ -917,6 +918,7 @@ describe("Router", function () {
       await liquidVault.setDefaultToken(token.address)
       await lockedVault.setDefaultToken(token.address)
       registrar = await deployRegistrarAsProxy()
+      await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract)
       await gateway.setTestTokenAddress(token.address)
       await registrar.setTokenAccepted(token.address, true)
       await registrar.setStrategyParams(
@@ -937,8 +939,8 @@ describe("Router", function () {
       let packedData = packActionData(actionData)
       await router.executeWithToken(        
         ethers.utils.formatBytes32String("true"),
-        defaultApParams.primaryChain,
-        defaultApParams.primaryChainRouter,
+        originatingChain,
+        accountsContract,
         packedData,
         token.symbol(),
         333
@@ -954,8 +956,8 @@ describe("Router", function () {
       await lockedVault.setDummyAmt(actionData.lockAmt)
       expect(await router.execute(
         ethers.utils.formatBytes32String("true"),
-        defaultApParams.primaryChain,
-        defaultApParams.primaryChainRouter,
+        originatingChain,
+        accountsContract,
         packedData
       ))
       let routerBalAfter = await token.balanceOf(router.address) 
@@ -968,8 +970,8 @@ describe("Router", function () {
       await lockedVault.setDummyAmt(actionData.lockAmt)
       expect(await router.execute(
         ethers.utils.formatBytes32String("true"),
-        defaultApParams.primaryChain,
-        defaultApParams.primaryChainRouter,
+        originatingChain,
+        accountsContract,
         packedData
       ))
       let allowance = await token.allowance(router.address, gateway.address)
@@ -982,8 +984,8 @@ describe("Router", function () {
       await lockedVault.setDummyAmt(actionData.lockAmt)
       expect(await router.execute(
         ethers.utils.formatBytes32String("true"),
-        defaultApParams.primaryChain,
-        defaultApParams.primaryChainRouter,
+        originatingChain,
+        accountsContract,
         packedData
       ))
       let allowance = await token.allowance(router.address, gasService.address)
@@ -1000,8 +1002,8 @@ describe("Router", function () {
       await registrar.setGasByToken(token.address, 3)
       await expect(router.execute(
         ethers.utils.formatBytes32String("true"),
-        defaultApParams.primaryChain,
-        defaultApParams.primaryChainRouter,
+        originatingChain,
+        accountsContract,
         packedData
       )).to.be.revertedWith("Send amount does not cover gas")
     })

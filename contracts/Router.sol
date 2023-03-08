@@ -18,6 +18,8 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     IRegistrar public registrar;
     IAxelarGasService public gasReceiver;
 
+    uint256 constant PRECISION = 10**6;
+
     /*///////////////////////////////////////////////
                         PROXY INIT
     *////////////////////////////////////////////////
@@ -93,7 +95,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         VaultActionData memory _action
     ) 
         internal 
-        override 
+        override
         validateCall(_action)
     {
         // REDEEM
@@ -187,7 +189,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
 
     // Vault action::RedeemAll
     // @todo redemption amts need to affect _action data 
-        function _redeemAll(
+    function _redeemAll(
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
     ) internal onlyOneAccount(_action) {
@@ -222,7 +224,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
 
     // Vault action::Harvest
     // @todo redemption amts need to affect _action data 
-    function _harvest(
+    function _harvest( 
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
     ) internal {
@@ -237,24 +239,26 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
                         AXELAR IMPL.
     */////////////////////////////////////////////////
 
-    modifier onlyPrimaryChain(string calldata _sourceChain) {
-        IRegistrar.AngelProtocolParams memory APParams = registrar
-            .getAngelProtocolParams();
+    modifier onlyAccountsContract(
+        string calldata _sourceChain, 
+        string calldata _sourceAddress) 
+    {
+        string memory accountsContractAddress = 
+            registrar.getAccountsContractAddressByChain(_sourceChain);
         require(
-            keccak256(bytes(_sourceChain)) ==
-                keccak256(bytes(APParams.primaryChain)),
+            keccak256(bytes(_sourceAddress)) ==
+                keccak256(bytes(accountsContractAddress)),
             "Unauthorized Call"
         );
         _;
     }
 
-    modifier onlyPrimaryRouter(string calldata _sourceAddress) {
-        IRegistrar.AngelProtocolParams memory APParams = registrar
-            .getAngelProtocolParams();
+    modifier notZeroAddress(
+        string calldata _sourceAddress
+    )
+    {
         require(
-            StringToAddress.toAddress(_sourceAddress) ==
-                StringToAddress.toAddress(APParams.primaryChainRouter),
-            "Unauthorized Call"
+            StringToAddress.toAddress(_sourceAddress) != address(0)
         );
         _;
     }
@@ -265,18 +269,15 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         ) internal {
 
         // Pack the tokens and calldata for bridging back out over GMP
-
         IRegistrar.AngelProtocolParams memory apParams = registrar
             .getAngelProtocolParams();
-        
 
         // Prepare gas
         uint256 gasFee = registrar.getGasByToken(_action.token);
         require(_sendAmt > gasFee, "Send amount does not cover gas");
         uint256 amtLessGasFee = _sendAmt - gasFee;
 
-        // Split gas proportionally between liquid and lock amts 
-        uint256 PRECISION = 10**6;
+        // Split gas proportionally between liquid and lock amts
         uint256 liqGas = gasFee * (_action.liqAmt * PRECISION / _sendAmt) / PRECISION; 
         uint256 lockGas =  gasFee - liqGas;
         _action.liqAmt -= liqGas;
@@ -284,8 +285,8 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
 
         bytes memory payload = _packCallData(_action);
         try this.sendTokens(
-                apParams.primaryChain,
-                apParams.primaryChainRouter,
+                _action.destinationChain,
+                registrar.getAccountsContractAddressByChain(_action.destinationChain),
                 payload,
                 IERC20Metadata(_action.token).symbol(),
                 amtLessGasFee,
@@ -355,8 +356,8 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     )
         internal
         override
-        onlyPrimaryChain(sourceChain)
-        onlyPrimaryRouter(sourceAddress)
+        onlyAccountsContract(sourceChain, sourceAddress)
+        notZeroAddress(sourceAddress)
     {
         
         // decode payload
@@ -385,8 +386,8 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     )
         internal
         override
-        onlyPrimaryChain(sourceChain)
-        onlyPrimaryRouter(sourceAddress)
+        onlyAccountsContract(sourceChain, sourceAddress)
+        notZeroAddress(sourceAddress)
     {
         // decode payload
         VaultActionData memory action = _unpackCalldata(payload);

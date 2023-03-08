@@ -16,8 +16,6 @@ library RegistrarConfig {
     uint32 constant PROTOCOL_TAX_RATE = 2;
     uint32 constant PROTOCOL_TAX_BASIS = 100;
     address constant PROTOCOL_TAX_COLLECTOR = address(0);
-    string constant PRIMARY_CHAIN = "Polygon";
-    string constant PRIMARY_CHAIN_ROUTER_ADDRESS = "";
     address constant ROUTER_ADDRESS = address(0);
     address constant REFUND_ADDRESS = address(0);
 }

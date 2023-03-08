@@ -21,11 +21,12 @@ describe("Registrar", function () {
     "protocolTaxRate" :2,
     "protocolTaxBasis" : 100,
     "protocolTaxCollector" : ethers.constants.AddressZero,
-    "primaryChain" : "Polygon",
-    "primaryChainRouter" : "",
     "routerAddr" : ethers.constants.AddressZero,
     "refundAddr" : ethers.constants.AddressZero
-  } 
+  }
+
+  let originatingChain = "polygon"
+  let accountsContract = "0x000000000000000000000000000000000000dead"
 
   async function deployRegistrarAsProxy(): Promise<Registrar> {
     [owner, user] = await ethers.getSigners();
@@ -63,8 +64,6 @@ describe("Registrar", function () {
       expect(apParams.protocolTaxRate).to.equal(defaultApParams.protocolTaxRate)
       expect(apParams.protocolTaxBasis).to.equal(defaultApParams.protocolTaxBasis)
       expect(apParams.protocolTaxCollector).to.equal(defaultApParams.protocolTaxCollector)
-      expect(apParams.primaryChain).to.equal(defaultApParams.primaryChain)
-      expect(apParams.primaryChainRouter).to.equal(defaultApParams.primaryChainRouter)
       expect(apParams.routerAddr).to.equal(defaultApParams.routerAddr)
     })
 
@@ -105,6 +104,23 @@ describe("Registrar", function () {
         await registrar.setAngelProtocolParams(newValues)
         let returnedValues = await registrar.getAngelProtocolParams()
         expect(returnedValues.protocolTaxRate).to.equal(newValues.protocolTaxRate)
+      })
+    })
+
+    describe("setAccountsContractAddressByChain and getAccountsContractAddressByChain", async function () {
+      it("Should be an owner restricted method", async function () {
+        await expect(registrar.connect(user).setAccountsContractAddressByChain(originatingChain, accountsContract)).to.be.reverted
+      })
+
+      it("Should accept and set the new value", async function () {
+        await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract)
+        let storedAddressString = await registrar.getAccountsContractAddressByChain(originatingChain)
+        expect(storedAddressString).to.equal(accountsContract)
+      })
+
+      it("Should return the zero address for an unset chain", async function () {
+        let testAddressString = await registrar.getAccountsContractAddressByChain("Avalanche")
+        expect(testAddressString).to.equal("")
       })
     })
 

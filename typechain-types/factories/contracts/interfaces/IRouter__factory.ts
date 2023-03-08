@@ -26,6 +26,11 @@ const _abi = [
       {
         components: [
           {
+            internalType: "string",
+            name: "destinationChain",
+            type: "string",
+          },
+          {
             internalType: "bytes4",
             name: "strategyId",
             type: "bytes4",
@@ -70,6 +75,11 @@ const _abi = [
     inputs: [
       {
         components: [
+          {
+            internalType: "string",
+            name: "destinationChain",
+            type: "string",
+          },
           {
             internalType: "bytes4",
             name: "strategyId",
@@ -122,6 +132,11 @@ const _abi = [
       {
         components: [
           {
+            internalType: "string",
+            name: "destinationChain",
+            type: "string",
+          },
+          {
             internalType: "bytes4",
             name: "strategyId",
             type: "bytes4",
@@ -166,6 +181,11 @@ const _abi = [
     inputs: [
       {
         components: [
+          {
+            internalType: "string",
+            name: "destinationChain",
+            type: "string",
+          },
           {
             internalType: "bytes4",
             name: "strategyId",
@@ -218,6 +238,11 @@ const _abi = [
       {
         components: [
           {
+            internalType: "string",
+            name: "destinationChain",
+            type: "string",
+          },
+          {
             internalType: "bytes4",
             name: "strategyId",
             type: "bytes4",
@@ -269,6 +294,11 @@ const _abi = [
       {
         components: [
           {
+            internalType: "string",
+            name: "destinationChain",
+            type: "string",
+          },
+          {
             internalType: "bytes4",
             name: "strategyId",
             type: "bytes4",
@@ -319,6 +349,11 @@ const _abi = [
     inputs: [
       {
         components: [
+          {
+            internalType: "string",
+            name: "destinationChain",
+            type: "string",
+          },
           {
             internalType: "bytes4",
             name: "strategyId",
