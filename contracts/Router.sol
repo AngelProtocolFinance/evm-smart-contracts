@@ -253,7 +253,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         string calldata sourceAddress,
         bytes calldata payload
     ) public override(IAxelarExecutable, AxelarExecutable) {
-        if (_senderIsLocalAccountsContract()) {
+        if (_senderIsLocalAccountsContract(sourceChain)) {
             _execute(sourceChain, sourceAddress, payload);
         }
         else {
@@ -269,7 +269,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         string calldata tokenSymbol,
         uint256 amount
     ) public override(IAxelarExecutable, AxelarExecutable) {
-        if (_senderIsLocalAccountsContract()) {
+        if (_senderIsLocalAccountsContract(sourceChain)) {
             _executeWithToken(sourceChain, sourceAddress, payload, tokenSymbol, amount);
         }
         else {
@@ -277,10 +277,10 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         }
     }
 
-    function _senderIsLocalAccountsContract() internal view returns (bool) {
+    function _senderIsLocalAccountsContract(string calldata sourceChain) internal view returns (bool) {
         string memory accountAddress = registrar.getAccountsContractAddressByChain(chain);
         if (StringToAddress.toAddress(accountAddress) == msg.sender &&
-            keccak256(abi.encode(chain)) == keccak256(abi.encode(chain))) {
+            keccak256(abi.encode(sourceChain)) == keccak256(abi.encode(chain))) {
                 return true;
         }
         return false;
