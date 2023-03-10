@@ -14,6 +14,7 @@ import {AxelarExecutable} from "./axelar/AxelarExecutable.sol";
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
 import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService.sol";
 import { IAxelarExecutable } from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarExecutable.sol";
+import "hardhat/console.sol"; 
 
 contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     string public chain;
@@ -253,6 +254,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         string calldata sourceAddress,
         bytes calldata payload
     ) public override(IAxelarExecutable, AxelarExecutable) {
+        console.logString(sourceChain);
         if (_senderIsLocalAccountsContract(sourceChain)) {
             _execute(sourceChain, sourceAddress, payload);
         }
@@ -278,13 +280,12 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     }
 
     function _senderIsLocalAccountsContract(string calldata sourceChain) internal view returns (bool) {
-        string memory accountAddress = registrar.getAccountsContractAddressByChain(chain);
-        if (StringToAddress.toAddress(accountAddress) == msg.sender &&
-            keccak256(abi.encode(sourceChain)) == keccak256(abi.encode(chain))) {
-                return true;
+        if (keccak256(bytes(sourceChain)) == keccak256(bytes(chain))) {
+            string memory accountAddress = registrar.getAccountsContractAddressByChain(chain);
+            require(StringToAddress.toAddress(accountAddress) == msg.sender, "Unauthorized local call");
         }
         return false;
-    }   
+    }
 
     modifier onlyAccountsContract(
         string calldata _sourceChain, 
@@ -305,7 +306,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     )
     {
         require(
-            StringToAddress.toAddress(_sourceAddress) != address(0)
+            StringToAddress.toAddress(_sourceAddress) != address(0), "Unauthorized Call"
         );
         _;
     }
@@ -314,7 +315,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         VaultActionData memory _action, 
         uint256 _sendAmt
     ) internal {
-        if (keccak256(abi.encode(_action.destinationChain)) == keccak256(abi.encode(chain))) {
+        if (keccak256(bytes(_action.destinationChain)) == keccak256(bytes(chain))) {
             _prepareAndSendTokensLocal(_action, _sendAmt);
         }
         else {

@@ -15,6 +15,7 @@ import { getImplementationAddress } from '@openzeppelin/upgrades-core'
 // Axelar Gas Service:  0x2d5d7d31F671F86C782533cc367F14109a082712
 
 task("deploy:RouterAndRegistrar")
+  .addParam("chain", "Axelar chain name string, i.e. `polygon`")
   .addParam("gateway", "Axelar GMP gateway address")
   .addParam("gas", "Axelar GMP gas rcvr address")
   .setAction(async function (taskArguments: TaskArguments, hre) {
@@ -37,6 +38,7 @@ task("deploy:RouterAndRegistrar")
     // Deploy Router
     logger.out("Router deploying...")
     const RouterArgs = [
+      taskArguments.chain,
       taskArguments.gateway,
       taskArguments.gas,
       registrar.address
