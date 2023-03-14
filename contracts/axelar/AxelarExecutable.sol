@@ -3,6 +3,7 @@
 
 pragma solidity >=0.8.8;
 
+import { IRouter } from "../interfaces/IRouter.sol";
 import { IAxelarGateway } from '@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol';
 import { IAxelarExecutable } from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarExecutable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -59,7 +60,7 @@ contract AxelarExecutable is IAxelarExecutable, Initializable {
         string calldata sourceChain,
         string calldata sourceAddress,
         bytes calldata payload
-    ) internal virtual {}
+    ) internal virtual returns (IRouter.VaultActionData memory) {}
 
     function _executeWithToken(
         string calldata sourceChain,
@@ -67,5 +68,5 @@ contract AxelarExecutable is IAxelarExecutable, Initializable {
         bytes calldata payload,
         string calldata tokenSymbol,
         uint256 amount
-    ) internal virtual {}
+    ) internal virtual returns (IRouter.VaultActionData memory) {}
 }

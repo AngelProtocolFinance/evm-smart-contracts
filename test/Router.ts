@@ -176,9 +176,8 @@ describe("Router", function () {
         .to.be.revertedWith("Unauthorized Call")
     })
 
-    it("Does not allow a non-accounts contract address locally to call executeWithToken", async function () {
-      await expect(router.connect(user).executeWithToken(
-        ethers.utils.formatBytes32String("true"),
+    it("Does not allow a non-accounts contract address locally to call executeWithTokenLocal", async function () {
+      await expect(router.connect(user).executeWithTokenLocal(
         localChain, 
         user.address, 
         ethers.utils.formatBytes32String("payload"),
@@ -196,9 +195,8 @@ describe("Router", function () {
         .to.be.revertedWith("Unauthorized Call")
     })
 
-    it("Does not allow a non-accounts contract address locally to call execute", async function () {
-      await expect(router.connect(user).execute(
-        ethers.utils.formatBytes32String("true"),
+    it("Does not allow a non-accounts contract address locally to call executeLocal", async function () {
+      await expect(router.connect(user).executeLocal(
         localChain, 
         user.address, 
         ethers.utils.formatBytes32String("payload")))

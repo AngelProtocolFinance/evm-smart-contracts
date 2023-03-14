@@ -57,40 +57,14 @@ export declare namespace IRouter {
   };
 }
 
-export declare namespace IRegistrar {
-  export type VaultParamsStruct = {
-    Type: PromiseOrValue<BigNumberish>;
-    vaultAddr: PromiseOrValue<string>;
-  };
-
-  export type VaultParamsStructOutput = [number, string] & {
-    Type: number;
-    vaultAddr: string;
-  };
-
-  export type StrategyParamsStruct = {
-    approvalState: PromiseOrValue<BigNumberish>;
-    Locked: IRegistrar.VaultParamsStruct;
-    Liquid: IRegistrar.VaultParamsStruct;
-  };
-
-  export type StrategyParamsStructOutput = [
-    number,
-    IRegistrar.VaultParamsStructOutput,
-    IRegistrar.VaultParamsStructOutput
-  ] & {
-    approvalState: number;
-    Locked: IRegistrar.VaultParamsStructOutput;
-    Liquid: IRegistrar.VaultParamsStructOutput;
-  };
-}
-
 export interface RouterInterface extends utils.Interface {
   functions: {
     "chain()": FunctionFragment;
-    "deposit((uint8,(uint8,address),(uint8,address)),(string,bytes4,bytes4,uint32[],address,uint256,uint256),string,uint256)": FunctionFragment;
+    "deposit((string,bytes4,bytes4,uint32[],address,uint256,uint256),string,uint256)": FunctionFragment;
     "execute(bytes32,string,string,bytes)": FunctionFragment;
+    "executeLocal(string,string,bytes)": FunctionFragment;
     "executeWithToken(bytes32,string,string,bytes,string,uint256)": FunctionFragment;
+    "executeWithTokenLocal(string,string,bytes,string,uint256)": FunctionFragment;
     "gasReceiver()": FunctionFragment;
     "gateway()": FunctionFragment;
     "initialize(string,address,address,address)": FunctionFragment;
@@ -106,7 +80,9 @@ export interface RouterInterface extends utils.Interface {
       | "chain"
       | "deposit"
       | "execute"
+      | "executeLocal"
       | "executeWithToken"
+      | "executeWithTokenLocal"
       | "gasReceiver"
       | "gateway"
       | "initialize"
@@ -121,7 +97,6 @@ export interface RouterInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "deposit",
     values: [
-      IRegistrar.StrategyParamsStruct,
       IRouter.VaultActionDataStruct,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>
@@ -137,9 +112,27 @@ export interface RouterInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "executeLocal",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "executeWithToken",
     values: [
       PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "executeWithTokenLocal",
+    values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<BytesLike>,
@@ -188,7 +181,15 @@ export interface RouterInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "executeLocal",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "executeWithToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "executeWithTokenLocal",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -356,7 +357,6 @@ export interface Router extends BaseContract {
     chain(overrides?: CallOverrides): Promise<[string]>;
 
     deposit(
-      params: IRegistrar.StrategyParamsStruct,
       action: IRouter.VaultActionDataStruct,
       tokenSymbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -371,8 +371,24 @@ export interface Router extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    executeLocal(
+      sourceChain: PromiseOrValue<string>,
+      sourceAddress: PromiseOrValue<string>,
+      payload: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     executeWithToken(
       commandId: PromiseOrValue<BytesLike>,
+      sourceChain: PromiseOrValue<string>,
+      sourceAddress: PromiseOrValue<string>,
+      payload: PromiseOrValue<BytesLike>,
+      tokenSymbol: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    executeWithTokenLocal(
       sourceChain: PromiseOrValue<string>,
       sourceAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
@@ -421,7 +437,6 @@ export interface Router extends BaseContract {
   chain(overrides?: CallOverrides): Promise<string>;
 
   deposit(
-    params: IRegistrar.StrategyParamsStruct,
     action: IRouter.VaultActionDataStruct,
     tokenSymbol: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
@@ -436,8 +451,24 @@ export interface Router extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  executeLocal(
+    sourceChain: PromiseOrValue<string>,
+    sourceAddress: PromiseOrValue<string>,
+    payload: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   executeWithToken(
     commandId: PromiseOrValue<BytesLike>,
+    sourceChain: PromiseOrValue<string>,
+    sourceAddress: PromiseOrValue<string>,
+    payload: PromiseOrValue<BytesLike>,
+    tokenSymbol: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  executeWithTokenLocal(
     sourceChain: PromiseOrValue<string>,
     sourceAddress: PromiseOrValue<string>,
     payload: PromiseOrValue<BytesLike>,
@@ -486,7 +517,6 @@ export interface Router extends BaseContract {
     chain(overrides?: CallOverrides): Promise<string>;
 
     deposit(
-      params: IRegistrar.StrategyParamsStruct,
       action: IRouter.VaultActionDataStruct,
       tokenSymbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -501,6 +531,13 @@ export interface Router extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    executeLocal(
+      sourceChain: PromiseOrValue<string>,
+      sourceAddress: PromiseOrValue<string>,
+      payload: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<IRouter.VaultActionDataStructOutput>;
+
     executeWithToken(
       commandId: PromiseOrValue<BytesLike>,
       sourceChain: PromiseOrValue<string>,
@@ -510,6 +547,15 @@ export interface Router extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    executeWithTokenLocal(
+      sourceChain: PromiseOrValue<string>,
+      sourceAddress: PromiseOrValue<string>,
+      payload: PromiseOrValue<BytesLike>,
+      tokenSymbol: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<IRouter.VaultActionDataStructOutput>;
 
     gasReceiver(overrides?: CallOverrides): Promise<string>;
 
@@ -600,7 +646,6 @@ export interface Router extends BaseContract {
     chain(overrides?: CallOverrides): Promise<BigNumber>;
 
     deposit(
-      params: IRegistrar.StrategyParamsStruct,
       action: IRouter.VaultActionDataStruct,
       tokenSymbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -615,8 +660,24 @@ export interface Router extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    executeLocal(
+      sourceChain: PromiseOrValue<string>,
+      sourceAddress: PromiseOrValue<string>,
+      payload: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     executeWithToken(
       commandId: PromiseOrValue<BytesLike>,
+      sourceChain: PromiseOrValue<string>,
+      sourceAddress: PromiseOrValue<string>,
+      payload: PromiseOrValue<BytesLike>,
+      tokenSymbol: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    executeWithTokenLocal(
       sourceChain: PromiseOrValue<string>,
       sourceAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
@@ -666,7 +727,6 @@ export interface Router extends BaseContract {
     chain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     deposit(
-      params: IRegistrar.StrategyParamsStruct,
       action: IRouter.VaultActionDataStruct,
       tokenSymbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -681,8 +741,24 @@ export interface Router extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    executeLocal(
+      sourceChain: PromiseOrValue<string>,
+      sourceAddress: PromiseOrValue<string>,
+      payload: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     executeWithToken(
       commandId: PromiseOrValue<BytesLike>,
+      sourceChain: PromiseOrValue<string>,
+      sourceAddress: PromiseOrValue<string>,
+      payload: PromiseOrValue<BytesLike>,
+      tokenSymbol: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    executeWithTokenLocal(
       sourceChain: PromiseOrValue<string>,
       sourceAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,

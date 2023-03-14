@@ -96,8 +96,17 @@ abstract contract IRouter is IAxelarExecutable {
             );
     }
 
-    function _callSwitch(
-        IRegistrar.StrategyParams memory _params,
-        VaultActionData memory _action
-    ) internal virtual;
+    function executeLocal(
+        string calldata sourceChain,
+        string calldata sourceAddress,
+        bytes calldata payload
+    ) external virtual returns (VaultActionData memory);
+
+    function executeWithTokenLocal(
+        string calldata sourceChain,
+        string calldata sourceAddress,
+        bytes calldata payload,
+        string calldata tokenSymbol,
+        uint256 amount
+    ) external virtual returns (VaultActionData memory);
 }
