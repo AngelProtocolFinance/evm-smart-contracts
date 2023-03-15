@@ -431,6 +431,72 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "string",
+        name: "sourceChain",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "sourceAddress",
+        type: "string",
+      },
+      {
+        internalType: "bytes",
+        name: "payload",
+        type: "bytes",
+      },
+    ],
+    name: "executeLocal",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "string",
+            name: "destinationChain",
+            type: "string",
+          },
+          {
+            internalType: "bytes4",
+            name: "strategyId",
+            type: "bytes4",
+          },
+          {
+            internalType: "bytes4",
+            name: "selector",
+            type: "bytes4",
+          },
+          {
+            internalType: "uint32[]",
+            name: "accountIds",
+            type: "uint32[]",
+          },
+          {
+            internalType: "address",
+            name: "token",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "lockAmt",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "liqAmt",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct IRouter.VaultActionData",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "commandId",
         type: "bytes32",
@@ -463,6 +529,82 @@ const _abi = [
     ],
     name: "executeWithToken",
     outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "sourceChain",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "sourceAddress",
+        type: "string",
+      },
+      {
+        internalType: "bytes",
+        name: "payload",
+        type: "bytes",
+      },
+      {
+        internalType: "string",
+        name: "tokenSymbol",
+        type: "string",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "executeWithTokenLocal",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "string",
+            name: "destinationChain",
+            type: "string",
+          },
+          {
+            internalType: "bytes4",
+            name: "strategyId",
+            type: "bytes4",
+          },
+          {
+            internalType: "bytes4",
+            name: "selector",
+            type: "bytes4",
+          },
+          {
+            internalType: "uint32[]",
+            name: "accountIds",
+            type: "uint32[]",
+          },
+          {
+            internalType: "address",
+            name: "token",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "lockAmt",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "liqAmt",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct IRouter.VaultActionData",
+        name: "",
+        type: "tuple",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },

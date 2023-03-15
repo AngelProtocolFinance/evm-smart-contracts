@@ -27,8 +27,10 @@ describe("Router", function () {
     "refundAddr" : ethers.constants.AddressZero
   } as IRegistrar.AngelProtocolParamsStruct
   let deadAddr = "0x000000000000000000000000000000000000dead"
-  let originatingChain = "polygon"
-  let accountsContract = deadAddr
+  const originatingChain = "polygon"
+  const localChain = "ethereum" 
+  const accountsContract = deadAddr
+  let localAccountsContract
 
   async function deployRouterAsProxy(
     gatewayAddress: string = "0xe432150cce91c13a887f7D836923d5597adD8E31", 
@@ -44,6 +46,7 @@ describe("Router", function () {
     await registrar.setAngelProtocolParams(apParams)
     Router = await ethers.getContractFactory("Router") as Router__factory
     const router = await upgrades.deployProxy(Router, [
+      localChain,
       gatewayAddress,
       gasRecvAddress,
       registrar.address
@@ -139,16 +142,30 @@ describe("Router", function () {
   })
 
   describe("Protected methods", function () {
-    let router: Router
+    let lockedVault: DummyVault
+    let liquidVault: DummyVault
+    let registrar: Registrar
     let gateway: DummyGateway
+    let token: DummyERC20
+    let router: Router
+    let gasService: DummyGasService
     before(async function () {
       gateway = await deployDummyGateway() 
+      lockedVault = await deployDummyVault(0)
+      liquidVault = await deployDummyVault(1)
+      gasService = await deployDummyGasService()
+      token = await deployDummyERC20()
+      registrar = await deployRegistrarAsProxy()
+      await gateway.setTestTokenAddress(token.address)
+      await registrar.setTokenAccepted(token.address, true)
+      await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract)
+      await registrar.setAccountsContractAddressByChain(localChain, owner.address) 
     })
     beforeEach(async function () {
-      router = await deployRouterAsProxy(gateway.address)
+      router = await deployRouterAsProxy(gateway.address, gasService.address, registrar)
     })
 
-    it("Does not allow a non-accounts contract address to call executeWithToken", async function () {
+    it("Does not allow a non-accounts contract address on another chain to call executeWithToken via GMP", async function () {
       await expect(router.executeWithToken(
         ethers.utils.formatBytes32String("true"),
         originatingChain, 
@@ -159,13 +176,31 @@ describe("Router", function () {
         .to.be.revertedWith("Unauthorized Call")
     })
 
-    it("Does not allow a non-accounts contract address to call execute", async function () {
+    it("Does not allow a non-accounts contract address locally to call executeWithTokenLocal", async function () {
+      await expect(router.connect(user).executeWithTokenLocal(
+        localChain, 
+        user.address, 
+        ethers.utils.formatBytes32String("payload"),
+        "USDC", 
+        1))
+        .to.be.revertedWith("Unauthorized local call")
+    })
+
+    it("Does not allow a non-accounts contract address on another chain to call execute via GMP", async function () {
       await expect(router.execute(
         ethers.utils.formatBytes32String("true"),
         originatingChain, 
         owner.address, 
         ethers.utils.formatBytes32String("payload")))
         .to.be.revertedWith("Unauthorized Call")
+    })
+
+    it("Does not allow a non-accounts contract address locally to call executeLocal", async function () {
+      await expect(router.connect(user).executeLocal(
+        localChain, 
+        user.address, 
+        ethers.utils.formatBytes32String("payload")))
+        .to.be.revertedWith("Unauthorized local call")
     })
 
     it("Does not allow a non-primary chain to call executeWithToken", async function () {
