@@ -29,6 +29,7 @@ import type {
 
 export declare namespace IRouter {
   export type VaultActionDataStruct = {
+    destinationChain: PromiseOrValue<string>;
     strategyId: PromiseOrValue<BytesLike>;
     selector: PromiseOrValue<BytesLike>;
     accountIds: PromiseOrValue<BigNumberish>[];
@@ -40,11 +41,13 @@ export declare namespace IRouter {
   export type VaultActionDataStructOutput = [
     string,
     string,
+    string,
     number[],
     string,
     BigNumber,
     BigNumber
   ] & {
+    destinationChain: string;
     strategyId: string;
     selector: string;
     accountIds: number[];
@@ -57,18 +60,33 @@ export declare namespace IRouter {
 export interface IRouterInterface extends utils.Interface {
   functions: {
     "execute(bytes32,string,string,bytes)": FunctionFragment;
+    "executeLocal(string,string,bytes)": FunctionFragment;
     "executeWithToken(bytes32,string,string,bytes,string,uint256)": FunctionFragment;
+    "executeWithTokenLocal(string,string,bytes,string,uint256)": FunctionFragment;
     "gateway()": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "execute" | "executeWithToken" | "gateway"
+    nameOrSignatureOrTopic:
+      | "execute"
+      | "executeLocal"
+      | "executeWithToken"
+      | "executeWithTokenLocal"
+      | "gateway"
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "execute",
     values: [
       PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "executeLocal",
+    values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<BytesLike>
@@ -85,11 +103,29 @@ export interface IRouterInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "executeWithTokenLocal",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
   encodeFunctionData(functionFragment: "gateway", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "executeLocal",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "executeWithToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "executeWithTokenLocal",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "gateway", data: BytesLike): Result;
@@ -223,8 +259,24 @@ export interface IRouter extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    executeLocal(
+      sourceChain: PromiseOrValue<string>,
+      sourceAddress: PromiseOrValue<string>,
+      payload: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     executeWithToken(
       commandId: PromiseOrValue<BytesLike>,
+      sourceChain: PromiseOrValue<string>,
+      sourceAddress: PromiseOrValue<string>,
+      payload: PromiseOrValue<BytesLike>,
+      tokenSymbol: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    executeWithTokenLocal(
       sourceChain: PromiseOrValue<string>,
       sourceAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
@@ -244,8 +296,24 @@ export interface IRouter extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  executeLocal(
+    sourceChain: PromiseOrValue<string>,
+    sourceAddress: PromiseOrValue<string>,
+    payload: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   executeWithToken(
     commandId: PromiseOrValue<BytesLike>,
+    sourceChain: PromiseOrValue<string>,
+    sourceAddress: PromiseOrValue<string>,
+    payload: PromiseOrValue<BytesLike>,
+    tokenSymbol: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  executeWithTokenLocal(
     sourceChain: PromiseOrValue<string>,
     sourceAddress: PromiseOrValue<string>,
     payload: PromiseOrValue<BytesLike>,
@@ -265,6 +333,13 @@ export interface IRouter extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    executeLocal(
+      sourceChain: PromiseOrValue<string>,
+      sourceAddress: PromiseOrValue<string>,
+      payload: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<IRouter.VaultActionDataStructOutput>;
+
     executeWithToken(
       commandId: PromiseOrValue<BytesLike>,
       sourceChain: PromiseOrValue<string>,
@@ -274,6 +349,15 @@ export interface IRouter extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    executeWithTokenLocal(
+      sourceChain: PromiseOrValue<string>,
+      sourceAddress: PromiseOrValue<string>,
+      payload: PromiseOrValue<BytesLike>,
+      tokenSymbol: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<IRouter.VaultActionDataStructOutput>;
 
     gateway(overrides?: CallOverrides): Promise<string>;
   };
@@ -325,8 +409,24 @@ export interface IRouter extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    executeLocal(
+      sourceChain: PromiseOrValue<string>,
+      sourceAddress: PromiseOrValue<string>,
+      payload: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     executeWithToken(
       commandId: PromiseOrValue<BytesLike>,
+      sourceChain: PromiseOrValue<string>,
+      sourceAddress: PromiseOrValue<string>,
+      payload: PromiseOrValue<BytesLike>,
+      tokenSymbol: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    executeWithTokenLocal(
       sourceChain: PromiseOrValue<string>,
       sourceAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
@@ -347,8 +447,24 @@ export interface IRouter extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    executeLocal(
+      sourceChain: PromiseOrValue<string>,
+      sourceAddress: PromiseOrValue<string>,
+      payload: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     executeWithToken(
       commandId: PromiseOrValue<BytesLike>,
+      sourceChain: PromiseOrValue<string>,
+      sourceAddress: PromiseOrValue<string>,
+      payload: PromiseOrValue<BytesLike>,
+      tokenSymbol: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    executeWithTokenLocal(
       sourceChain: PromiseOrValue<string>,
       sourceAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,

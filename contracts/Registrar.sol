@@ -18,6 +18,7 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
     RebalanceParams public rebalanceParams;
     AngelProtocolParams public angelProtocolParams;
 
+    mapping(bytes32 => string) private accountsContractByChain;
     mapping(bytes4 => StrategyParams) VaultsByStrategyId;
     mapping(address => bool) AcceptedTokens;
     mapping(address=> uint256) GasFeeByToken;
@@ -47,8 +48,6 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
             RegistrarConfig.PROTOCOL_TAX_RATE,
             RegistrarConfig.PROTOCOL_TAX_BASIS,
             RegistrarConfig.PROTOCOL_TAX_COLLECTOR,
-            RegistrarConfig.PRIMARY_CHAIN,
-            RegistrarConfig.PRIMARY_CHAIN_ROUTER_ADDRESS,
             RegistrarConfig.ROUTER_ADDRESS,
             RegistrarConfig.REFUND_ADDRESS
         );
@@ -75,6 +74,14 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
         return angelProtocolParams;
     }
 
+    function getAccountsContractAddressByChain(string calldata _targetChain) 
+        external 
+        view
+        returns (string memory) 
+    {
+        return accountsContractByChain[keccak256(bytes(_targetChain))];
+    }
+ 
     function getStrategyParamsById(bytes4 _strategyId)
         external
         view
@@ -118,6 +125,14 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
     ) external override onlyOwner {
         angelProtocolParams = _angelProtocolParams;
         emit AngelProtocolParamsChanged(_angelProtocolParams);
+    }
+
+    function setAccountsContractAddressByChain(
+        string calldata _chainName,
+        string calldata _accountsContractAddress
+    ) external onlyOwner {
+        accountsContractByChain[keccak256(bytes(_chainName))] = _accountsContractAddress;
+        emit AccountsContractStorageChanged(_chainName, _accountsContractAddress);
     }
 
     function setTokenAccepted(address _tokenAddr, bool _isAccepted)

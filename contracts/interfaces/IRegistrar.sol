@@ -10,8 +10,10 @@ interface IRegistrar {
                         EVENTS
     */////////////////////////////////////////////////
     event RebalanceParamsChanged(RebalanceParams newRebalanceParams);
-    event AngelProtocolParamsChanged(
-        AngelProtocolParams newAngelProtocolParams
+    event AngelProtocolParamsChanged(AngelProtocolParams newAngelProtocolParams);
+    event AccountsContractStorageChanged(
+        string indexed chainName,
+        string indexed accountsContractAddress
     );
     event TokenAcceptanceChanged(address indexed tokenAddr, bool isAccepted);
     event StrategyApprovalChanged(bytes4 indexed _strategyId, StrategyApprovalState _approvalState);
@@ -40,8 +42,6 @@ interface IRegistrar {
         uint32 protocolTaxRate;
         uint32 protocolTaxBasis;
         address protocolTaxCollector;
-        string primaryChain;
-        string primaryChainRouter;
         address routerAddr;
         address refundAddr;
     }
@@ -53,7 +53,6 @@ interface IRegistrar {
         DEPRECATED
     }
 
-    // @TODO change to ENUM for approval
     struct StrategyParams {
         StrategyApprovalState approvalState;
         VaultParams Locked;
@@ -80,6 +79,11 @@ interface IRegistrar {
         view
         returns (AngelProtocolParams memory);
 
+    function getAccountsContractAddressByChain(string calldata _targetChain) 
+        external 
+        view
+        returns (string memory);
+
     function getStrategyParamsById(bytes4 _strategyId)
         external
         view
@@ -100,6 +104,11 @@ interface IRegistrar {
 
     function setAngelProtocolParams(
         AngelProtocolParams calldata _angelProtocolParams
+    ) external;
+
+    function setAccountsContractAddressByChain(
+        string memory _chainName,
+        string memory _accountsContractAddress
     ) external;
 
     /// @notice Change whether a strategy is approved

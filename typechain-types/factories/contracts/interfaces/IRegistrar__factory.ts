@@ -14,6 +14,25 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: "string",
+        name: "chainName",
+        type: "string",
+      },
+      {
+        indexed: true,
+        internalType: "string",
+        name: "accountsContractAddress",
+        type: "string",
+      },
+    ],
+    name: "AccountsContractStorageChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         components: [
           {
             internalType: "uint32",
@@ -29,16 +48,6 @@ const _abi = [
             internalType: "address",
             name: "protocolTaxCollector",
             type: "address",
-          },
-          {
-            internalType: "string",
-            name: "primaryChain",
-            type: "string",
-          },
-          {
-            internalType: "string",
-            name: "primaryChainRouter",
-            type: "string",
           },
           {
             internalType: "address",
@@ -194,6 +203,25 @@ const _abi = [
     type: "event",
   },
   {
+    inputs: [
+      {
+        internalType: "string",
+        name: "_targetChain",
+        type: "string",
+      },
+    ],
+    name: "getAccountsContractAddressByChain",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "getAngelProtocolParams",
     outputs: [
@@ -213,16 +241,6 @@ const _abi = [
             internalType: "address",
             name: "protocolTaxCollector",
             type: "address",
-          },
-          {
-            internalType: "string",
-            name: "primaryChain",
-            type: "string",
-          },
-          {
-            internalType: "string",
-            name: "primaryChainRouter",
-            type: "string",
           },
           {
             internalType: "address",
@@ -408,6 +426,24 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "string",
+        name: "_chainName",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "_accountsContractAddress",
+        type: "string",
+      },
+    ],
+    name: "setAccountsContractAddressByChain",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         components: [
           {
             internalType: "uint32",
@@ -423,16 +459,6 @@ const _abi = [
             internalType: "address",
             name: "protocolTaxCollector",
             type: "address",
-          },
-          {
-            internalType: "string",
-            name: "primaryChain",
-            type: "string",
-          },
-          {
-            internalType: "string",
-            name: "primaryChainRouter",
-            type: "string",
           },
           {
             internalType: "address",

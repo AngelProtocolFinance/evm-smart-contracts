@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 // author: @stevieraykatz
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.8;
 
 import {IRouter} from "./interfaces/IRouter.sol";
 import {IVault} from "./interfaces/IVault.sol";
@@ -13,20 +13,26 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {AxelarExecutable} from "./axelar/AxelarExecutable.sol";
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
 import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService.sol";
+import {IAxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarExecutable.sol";
 
-contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
+contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
+    string public chain;
     IRegistrar public registrar;
     IAxelarGasService public gasReceiver;
 
+    uint256 constant PRECISION = 10 ** 6;
+
     /*///////////////////////////////////////////////
                         PROXY INIT
-    *////////////////////////////////////////////////
+    */ ///////////////////////////////////////////////
 
     function initialize(
+        string calldata _chain,
         address _gateway,
         address _gasReceiver,
         address _registrar
     ) public initializer {
+        chain = _chain;
         registrar = IRegistrar(_registrar);
         gasReceiver = IAxelarGasService(_gasReceiver);
         __AxelarExecutable_init_unchained(_gateway);
@@ -35,7 +41,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
 
     /*///////////////////////////////////////////////
                     MODIFIERS
-    *////////////////////////////////////////////////
+    */ ///////////////////////////////////////////////
 
     modifier onlyOneAccount(VaultActionData memory _action) {
         require(_action.accountIds.length == 1, "Only one account allowed");
@@ -48,65 +54,68 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     }
 
     modifier validateDeposit(
-        VaultActionData memory action, 
-        string calldata tokenSymbol, 
+        VaultActionData memory action,
+        string calldata tokenSymbol,
         uint256 amount
-        ) 
-    {
+    ) {
         // Only one account accepted for deposit calls
         require(action.accountIds.length == 1, "Only one account allowed");
-        // deposit only 
-        require(action.selector == IVault.deposit.selector, "Only deposit accepts tokens");
-        // token fwd is token expected 
+        // deposit only
+        require(
+            action.selector == IVault.deposit.selector,
+            "Only deposit accepts tokens"
+        );
+        // token fwd is token expected
         address tokenAddress = gateway.tokenAddresses(tokenSymbol);
         require(tokenAddress == action.token, "Token mismatch");
-        // amt fwd equal expected amt 
-        require(amount == (action.liqAmt + action.lockAmt),"Amount mismatch");
-        // check that at least one vault is expected to receive a deposit 
-        require(action.lockAmt > 0 || action.liqAmt > 0,"No vault deposit specified");
+        // amt fwd equal expected amt
+        require(amount == (action.liqAmt + action.lockAmt), "Amount mismatch");
+        // check that at least one vault is expected to receive a deposit
+        require(
+            action.lockAmt > 0 || action.liqAmt > 0,
+            "No vault deposit specified"
+        );
         // check that token is accepted by angel protocol
-        require(registrar.isTokenAccepted(tokenAddress),"Token not accepted");
+        require(registrar.isTokenAccepted(tokenAddress), "Token not accepted");
         // Get parameters from registrar if approved
         require(
-            registrar.getStrategyApprovalState(action.strategyId) == IRegistrar.StrategyApprovalState.APPROVED,
-            "Strategy not approved");
+            registrar.getStrategyApprovalState(action.strategyId) ==
+                IRegistrar.StrategyApprovalState.APPROVED,
+            "Strategy not approved"
+        );
         _;
     }
 
-    modifier validateCall(
-        VaultActionData memory action
-    )
-    {
+    modifier validateCall(VaultActionData memory action) {
         require(
-            (registrar.getStrategyApprovalState(action.strategyId) == IRegistrar.StrategyApprovalState.APPROVED) || 
-            registrar.getStrategyApprovalState(action.strategyId) == IRegistrar.StrategyApprovalState.WITHDRAW_ONLY,
-            "Strategy not approved");
+            (registrar.getStrategyApprovalState(action.strategyId) ==
+                IRegistrar.StrategyApprovalState.APPROVED) ||
+                registrar.getStrategyApprovalState(action.strategyId) ==
+                IRegistrar.StrategyApprovalState.WITHDRAW_ONLY,
+            "Strategy not approved"
+        );
         _;
     }
 
     /*///////////////////////////////////////////////
                     ANGEL PROTOCOL ROUTER
-    *////////////////////////////////////////////////
+    */ ///////////////////////////////////////////////
 
     function _callSwitch(
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
-    ) 
-        internal 
-        override 
-        validateCall(_action)
-    {
+    ) internal validateCall(_action) returns (VaultActionData memory) {
         // REDEEM
         if (_action.selector == IVault.redeem.selector) {
-            _redeem(_params, _action);
+            return _redeem(_params, _action);
         }
         // REDEEM ALL
         else if (_action.selector == IVault.redeemAll.selector) {
-            _redeemAll(_params, _action);
+            return _redeemAll(_params, _action);
         }
         // HARVEST
         else if (_action.selector == IVault.harvest.selector) {
-            _harvest(_params, _action);
+            return _harvest(_params, _action);
         }
         // INVALID SELCTOR
         else {
@@ -115,22 +124,24 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     }
 
     // Vault action::Deposit
-    /// @notice Deposit into the associated liquid or locked vaults 
+    /// @notice Deposit into the associated liquid or locked vaults
     /// @dev onlySelf restricted public method to enable try/catch in caller
     function deposit(
-        IRegistrar.StrategyParams memory params,
         VaultActionData memory action,
         string calldata tokenSymbol,
         uint256 amount
-    ) 
-        public 
-        onlySelf 
-        validateDeposit(action, tokenSymbol, amount)
-    {
+    ) public onlySelf validateDeposit(action, tokenSymbol, amount) {
+        IRegistrar.StrategyParams memory params = registrar
+            .getStrategyParamsById(action.strategyId);
 
-        if(action.lockAmt > 0) {
+        if (action.lockAmt > 0) {
             // Send tokens to locked vault and call deposit
-            require(IERC20Metadata(action.token).transfer(params.Locked.vaultAddr, action.lockAmt));
+            require(
+                IERC20Metadata(action.token).transfer(
+                    params.Locked.vaultAddr,
+                    action.lockAmt
+                )
+            );
             IVaultLocked lockedVault = IVaultLocked(params.Locked.vaultAddr);
             lockedVault.deposit(
                 action.accountIds[0],
@@ -138,10 +149,15 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
                 action.lockAmt
             );
         }
-   
-        if(action.liqAmt >  0) {
-            // Send tokens to liquid vault and call deposit 
-            require(IERC20Metadata(action.token).transfer(params.Liquid.vaultAddr, action.liqAmt));
+
+        if (action.liqAmt > 0) {
+            // Send tokens to liquid vault and call deposit
+            require(
+                IERC20Metadata(action.token).transfer(
+                    params.Liquid.vaultAddr,
+                    action.liqAmt
+                )
+            );
             IVaultLiquid liquidVault = IVaultLiquid(params.Liquid.vaultAddr);
             liquidVault.deposit(
                 action.accountIds[0],
@@ -155,10 +171,7 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     function _redeem(
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
-    ) 
-        internal 
-        onlyOneAccount(_action) 
-    {
+    ) internal onlyOneAccount(_action) returns (VaultActionData memory) {
         IVaultLocked lockedVault = IVaultLocked(_params.Locked.vaultAddr);
         IVaultLiquid liquidVault = IVaultLiquid(_params.Liquid.vaultAddr);
 
@@ -168,142 +181,233 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
             _action.token,
             _action.lockAmt
         );
-        require(IERC20Metadata(_action.token).transferFrom(_params.Locked.vaultAddr, address(this), _redeemedLockAmt));
+        require(
+            IERC20Metadata(_action.token).transferFrom(
+                _params.Locked.vaultAddr,
+                address(this),
+                _redeemedLockAmt
+            )
+        );
 
         uint256 _redeemedLiqAmt = liquidVault.redeem(
             _action.accountIds[0],
             _action.token,
             _action.liqAmt
         );
-        require(IERC20Metadata(_action.token).transferFrom(_params.Liquid.vaultAddr, address(this), _redeemedLiqAmt));
+        require(
+            IERC20Metadata(_action.token).transferFrom(
+                _params.Liquid.vaultAddr,
+                address(this),
+                _redeemedLiqAmt
+            )
+        );
 
-        // Pack and send the tokens back through GMP 
+        // Pack and send the tokens back through GMP
         uint256 _redeemedAmt = _redeemedLockAmt + _redeemedLiqAmt;
         _action.lockAmt = _redeemedLockAmt;
         _action.liqAmt = _redeemedLiqAmt;
-        _prepareAndSendTokens(_action, _redeemedAmt);
+        _action = _prepareToSendTokens(_action, _redeemedAmt);
         emit Redemption(_action, _redeemedAmt);
+        return _action;
     }
 
     // Vault action::RedeemAll
-    // @todo redemption amts need to affect _action data 
-        function _redeemAll(
+    // @todo redemption amts need to affect _action data
+    function _redeemAll(
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
-    ) internal onlyOneAccount(_action) {
+    ) internal onlyOneAccount(_action) returns (VaultActionData memory) {
         IVaultLocked lockedVault = IVaultLocked(_params.Locked.vaultAddr);
         IVaultLiquid liquidVault = IVaultLiquid(_params.Liquid.vaultAddr);
 
         // Redeem tokens from vaults and txfer them to the Router
         uint256 _redeemedLockAmt;
-        if(_action.lockAmt > 0) {
-            _redeemedLockAmt = lockedVault.redeemAll(
-                _action.accountIds[0]);
-            require(IERC20Metadata(_action.token)
-                .transferFrom(_params.Locked.vaultAddr, address(this), _redeemedLockAmt));
+        if (_action.lockAmt > 0) {
+            _redeemedLockAmt = lockedVault.redeemAll(_action.accountIds[0]);
+            require(
+                IERC20Metadata(_action.token).transferFrom(
+                    _params.Locked.vaultAddr,
+                    address(this),
+                    _redeemedLockAmt
+                )
+            );
             _action.lockAmt = _redeemedLockAmt;
         }
 
         uint256 _redeemedLiqAmt;
-        if(_action.liqAmt > 0) {
-            _redeemedLiqAmt = liquidVault.redeemAll(
-                _action.accountIds[0]);
-            require(IERC20Metadata(_action.token)
-                .transferFrom(_params.Liquid.vaultAddr, address(this), _redeemedLiqAmt));
+        if (_action.liqAmt > 0) {
+            _redeemedLiqAmt = liquidVault.redeemAll(_action.accountIds[0]);
+            require(
+                IERC20Metadata(_action.token).transferFrom(
+                    _params.Liquid.vaultAddr,
+                    address(this),
+                    _redeemedLiqAmt
+                )
+            );
             _action.liqAmt = _redeemedLiqAmt;
         }
 
-        // Pack and send the tokens back through GMP 
-        uint256 _redeemedAmt = _redeemedLockAmt + _redeemedLiqAmt; 
-        _prepareAndSendTokens(_action, _redeemedAmt);
+        // Pack and send the tokens back through GMP
+        uint256 _redeemedAmt = _redeemedLockAmt + _redeemedLiqAmt;
+        _action = _prepareToSendTokens(_action, _redeemedAmt);
         emit Redemption(_action, _redeemedAmt);
+        return _action;
     }
 
-
     // Vault action::Harvest
-    // @todo redemption amts need to affect _action data 
+    // @todo redemption amts need to affect _action data
     function _harvest(
         IRegistrar.StrategyParams memory _params,
         VaultActionData memory _action
-    ) internal {
+    ) internal returns (VaultActionData memory) {
         IVaultLiquid liquidVault = IVaultLiquid(_params.Liquid.vaultAddr);
         IVaultLocked lockedVault = IVaultLocked(_params.Locked.vaultAddr);
         liquidVault.harvest(_action.accountIds);
         lockedVault.harvest(_action.accountIds);
         emit Harvest(_action);
+        return _action;
     }
 
     /*////////////////////////////////////////////////
                         AXELAR IMPL.
-    */////////////////////////////////////////////////
+    */ ////////////////////////////////////////////////
 
-    modifier onlyPrimaryChain(string calldata _sourceChain) {
-        IRegistrar.AngelProtocolParams memory APParams = registrar
-            .getAngelProtocolParams();
+    function executeLocal(
+        string calldata sourceChain,
+        string calldata sourceAddress,
+        bytes calldata payload
+    ) external override onlyLocalAccountsContract returns (VaultActionData memory) {
+        return _execute(sourceChain, sourceAddress, payload);
+    }
+
+    function executeWithTokenLocal(
+        string calldata sourceChain,
+        string calldata sourceAddress,
+        bytes calldata payload,
+        string calldata tokenSymbol,
+        uint256 amount
+    ) external override onlyLocalAccountsContract returns (VaultActionData memory) {
+        return
+            _executeWithToken(
+                sourceChain,
+                sourceAddress,
+                payload,
+                tokenSymbol,
+                amount
+            );
+    }
+
+    modifier onlyLocalAccountsContract() {
+        string memory accountAddress = registrar
+            .getAccountsContractAddressByChain(chain);
         require(
-            keccak256(bytes(_sourceChain)) ==
-                keccak256(bytes(APParams.primaryChain)),
+            StringToAddress.toAddress(accountAddress) == msg.sender,
+            "Unauthorized local call"
+        );
+        _;
+    }
+
+    modifier onlyAccountsContract(
+        string calldata _sourceChain,
+        string calldata _sourceAddress
+    ) {
+        string memory accountsContractAddress = registrar
+            .getAccountsContractAddressByChain(_sourceChain);
+        require(
+            keccak256(bytes(_sourceAddress)) ==
+                keccak256(bytes(accountsContractAddress)),
             "Unauthorized Call"
         );
         _;
     }
 
-    modifier onlyPrimaryRouter(string calldata _sourceAddress) {
-        IRegistrar.AngelProtocolParams memory APParams = registrar
-            .getAngelProtocolParams();
+    modifier notZeroAddress(string calldata _sourceAddress) {
         require(
-            StringToAddress.toAddress(_sourceAddress) ==
-                StringToAddress.toAddress(APParams.primaryChainRouter),
+            StringToAddress.toAddress(_sourceAddress) != address(0),
             "Unauthorized Call"
         );
         _;
     }
 
-    function _prepareAndSendTokens(
-        VaultActionData memory _action, 
+    function _prepareToSendTokens(
+        VaultActionData memory _action,
         uint256 _sendAmt
-        ) internal {
+    ) internal returns (VaultActionData memory) {
+        if (
+            keccak256(bytes(_action.destinationChain)) ==
+            keccak256(bytes(chain))
+        ) {
+            return _prepareAndSendTokensLocal(_action, _sendAmt);
+        } else {
+            return _prepareAndSendTokensGMP(_action, _sendAmt);
+        }
+    }
 
+    function _prepareAndSendTokensLocal(
+        VaultActionData memory _action,
+        uint256 _sendAmt
+    ) internal returns (VaultActionData memory) {
+        string memory accountsContractAddress = registrar
+            .getAccountsContractAddressByChain((_action.destinationChain));
+        IERC20Metadata(_action.token).transfer(
+            StringToAddress.toAddress(accountsContractAddress),
+            _sendAmt
+        );
+        emit TokensSent(_action, _sendAmt);
+        return _action;
+    }
+
+    function _prepareAndSendTokensGMP(
+        VaultActionData memory _action,
+        uint256 _sendAmt
+    ) internal returns (VaultActionData memory) {
         // Pack the tokens and calldata for bridging back out over GMP
-
         IRegistrar.AngelProtocolParams memory apParams = registrar
             .getAngelProtocolParams();
-        
 
         // Prepare gas
         uint256 gasFee = registrar.getGasByToken(_action.token);
         require(_sendAmt > gasFee, "Send amount does not cover gas");
         uint256 amtLessGasFee = _sendAmt - gasFee;
 
-        // Split gas proportionally between liquid and lock amts 
-        uint256 PRECISION = 10**6;
-        uint256 liqGas = gasFee * (_action.liqAmt * PRECISION / _sendAmt) / PRECISION; 
-        uint256 lockGas =  gasFee - liqGas;
+        // Split gas proportionally between liquid and lock amts
+        uint256 liqGas = (gasFee * ((_action.liqAmt * PRECISION) / _sendAmt)) /
+            PRECISION;
+        uint256 lockGas = gasFee - liqGas;
         _action.liqAmt -= liqGas;
         _action.lockAmt -= lockGas;
 
         bytes memory payload = _packCallData(_action);
-        try this.sendTokens(
-                apParams.primaryChain,
-                apParams.primaryChainRouter,
+        try
+            this.sendTokens(
+                _action.destinationChain,
+                registrar.getAccountsContractAddressByChain(
+                    _action.destinationChain
+                ),
                 payload,
                 IERC20Metadata(_action.token).symbol(),
                 amtLessGasFee,
                 _action.token,
                 gasFee
-            ) {
-                emit TokensSent(_action, amtLessGasFee);
-        }
-        catch Error(string memory reason) {
+            )
+        {
+            emit TokensSent(_action, amtLessGasFee);
+        } catch Error(string memory reason) {
             emit LogError(_action, reason);
-            IERC20Metadata(_action.token).transfer(apParams.refundAddr, _sendAmt);
+            IERC20Metadata(_action.token).transfer(
+                apParams.refundAddr,
+                _sendAmt
+            );
             emit FallbackRefund(_action, _sendAmt);
-        }
-        catch (bytes memory data) {
+        } catch (bytes memory data) {
             emit LogErrorBytes(_action, data);
-            IERC20Metadata(_action.token).transfer(apParams.refundAddr, _sendAmt);
+            IERC20Metadata(_action.token).transfer(
+                apParams.refundAddr,
+                _sendAmt
+            );
             emit FallbackRefund(_action, _sendAmt);
         }
+        return _action;
     }
 
     function sendTokens(
@@ -314,13 +418,12 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
         uint256 amount,
         address gasToken,
         uint256 gasFeeAmt
-    ) 
-        public 
-        onlySelf 
-    {
+    ) public onlySelf {
         address tokenAddress = gateway.tokenAddresses(symbol);
         require(IERC20Metadata(tokenAddress).approve(address(gateway), amount));
-        require(IERC20Metadata(gasToken).approve(address(gasReceiver), gasFeeAmt));
+        require(
+            IERC20Metadata(gasToken).approve(address(gasReceiver), gasFeeAmt)
+        );
 
         IRegistrar.AngelProtocolParams memory apParams = registrar
             .getAngelProtocolParams();
@@ -355,29 +458,26 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     )
         internal
         override
-        onlyPrimaryChain(sourceChain)
-        onlyPrimaryRouter(sourceAddress)
+        onlyAccountsContract(sourceChain, sourceAddress)
+        notZeroAddress(sourceAddress)
+        returns (VaultActionData memory)
     {
-        
         // decode payload
         VaultActionData memory action = _unpackCalldata(payload);
-        IRegistrar.StrategyParams memory params = registrar
-            .getStrategyParamsById(action.strategyId);
 
-        // Leverage this.call() to enable try/catch logic 
-        try this.deposit(params, action, tokenSymbol, amount) {
+        // Leverage this.call() to enable try/catch logic
+        try this.deposit(action, tokenSymbol, amount) {
             emit Deposit(action);
-        }
-        catch Error(string memory reason) {
+            return action;
+        } catch Error(string memory reason) {
             emit LogError(action, reason);
-            _prepareAndSendTokens(action, amount);
-        }
-        catch (bytes memory data) {
+            return _prepareToSendTokens(action, amount);
+        } catch (bytes memory data) {
             emit LogErrorBytes(action, data);
-            _prepareAndSendTokens(action, amount);
+            return _prepareToSendTokens(action, amount);
         }
     }
-    
+
     function _execute(
         string calldata sourceChain,
         string calldata sourceAddress,
@@ -385,8 +485,9 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
     )
         internal
         override
-        onlyPrimaryChain(sourceChain)
-        onlyPrimaryRouter(sourceAddress)
+        onlyAccountsContract(sourceChain, sourceAddress)
+        notZeroAddress(sourceAddress)
+        returns (VaultActionData memory)
     {
         // decode payload
         VaultActionData memory action = _unpackCalldata(payload);
@@ -394,6 +495,6 @@ contract Router is IRouter, AxelarExecutable, OwnableUpgradeable {
             .getStrategyParamsById(action.strategyId);
 
         // Switch for calling appropriate vault/method
-        _callSwitch(params, action);
+        return _callSwitch(params, action);
     }
 }
