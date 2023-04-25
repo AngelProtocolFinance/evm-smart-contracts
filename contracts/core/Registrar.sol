@@ -2,13 +2,13 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.0;
 
-import { IRegistrar } from "./interfaces/IRegistrar.sol";
-import { IVault } from "./interfaces/IVault.sol";
-import { RegistrarConfig } from "./lib/RegistrarConfig.sol";
+import { IRegistrar } from "../interfaces/IRegistrar.sol";
+import { IVault } from "../interfaces/IVault.sol";
+import { RegistrarConfig } from "../lib/RegistrarConfig.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 // Import integrations here
-import {APGoldfinchConfigLib} from "./integrations/goldfinch/APGoldfinchConfig.sol";
+import {APGoldfinchConfigLib} from "../integrations/goldfinch/APGoldfinchConfig.sol";
 
 contract Registrar is IRegistrar, OwnableUpgradeable {
 

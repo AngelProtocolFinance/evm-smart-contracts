@@ -3,6 +3,8 @@
 /* eslint-disable */
 import type * as axelar from "./axelar";
 export type { axelar };
+import type * as core from "./core";
+export type { core };
 import type * as integrations from "./integrations";
 export type { integrations };
 import type * as interfaces from "./interfaces";

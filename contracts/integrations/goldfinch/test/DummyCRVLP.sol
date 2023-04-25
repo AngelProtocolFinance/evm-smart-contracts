@@ -2,10 +2,10 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.0;
 
-import {ICurveLP} from "../ICurveLP.sol";
+import {ICurveLP2Pool} from "../../common/crv/ICurveLP.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract DummyCRVLP is ICurveLP {
+contract DummyCRVLP is ICurveLP2Pool {
   uint256 dy_for_get_dy;
   uint256 dy_for_exchange;
 

@@ -12,3 +12,5 @@ export function genWallet(printToConsole: Boolean = false) {
     }
     return wallet
 }
+
+genWallet(true) 

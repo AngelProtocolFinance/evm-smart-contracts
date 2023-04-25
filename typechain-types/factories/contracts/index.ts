@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as axelar from "./axelar";
+export * as core from "./core";
 export * as integrations from "./integrations";
 export * as interfaces from "./interfaces";
 export * as lib from "./lib";

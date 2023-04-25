@@ -9,7 +9,7 @@ import {APGoldfinchConfigLib} from "./APGoldfinchConfig.sol";
 
 // Integrations
 import {IStakingRewards} from "./IStakingRewards.sol";
-import {ICurveLP2Pool} from "../../interfaces/crv/ICurveLP.sol";
+import {ICurveLP2Pool} from "../common/crv/ICurveLP.sol";
 
 // Token
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";

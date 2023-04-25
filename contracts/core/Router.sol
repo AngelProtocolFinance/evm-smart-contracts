@@ -2,15 +2,15 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.8;
 
-import {IRouter} from "./interfaces/IRouter.sol";
-import {IVault} from "./interfaces/IVault.sol";
-import {IVaultLiquid} from "./interfaces/IVaultLiquid.sol";
-import {IVaultLocked} from "./interfaces/IVaultLocked.sol";
-import {IRegistrar} from "./interfaces/IRegistrar.sol";
-import {StringToAddress} from "./lib/StringAddressUtils.sol";
+import {IRouter} from "../interfaces/IRouter.sol";
+import {IVault} from "../interfaces/IVault.sol";
+import {IVaultLiquid} from "../interfaces/IVaultLiquid.sol";
+import {IVaultLocked} from "../interfaces/IVaultLocked.sol";
+import {IRegistrar} from "../interfaces/IRegistrar.sol";
+import {StringToAddress} from "../lib/StringAddressUtils.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {AxelarExecutable} from "./axelar/AxelarExecutable.sol";
+import {AxelarExecutable} from "../axelar/AxelarExecutable.sol";
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
 import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService.sol";
 import {IAxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarExecutable.sol";

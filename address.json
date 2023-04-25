@@ -10,6 +10,13 @@
     }
   },
   "31337": {
-    "registrar": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+    "usdc": {
+      "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6"
+    }
+  },
+  "80001": {
+    "usdc": {
+      "address": "0xA4C4bC12A1Ab33EeFd40BB216CcF44235d8Dc5de"
+    }
   }
 }

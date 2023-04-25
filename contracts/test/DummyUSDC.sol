@@ -1,0 +1,32 @@
+// SPDX-License-Identifier: UNLICENSED
+// author: @stevieraykatz
+pragma solidity >=0.8.0;
+
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract DummyUSDC is ERC20 {
+    uint8 tokenDecimals = 6; // USDC
+
+    constructor() ERC20("DummyUSDC","dUSDC") {
+    }
+
+    function mint(address account, uint256 amount) external {
+        _mint(account, amount);
+    }
+
+    function burn(address account, uint256 amount) external {
+        _burn(account, amount);
+    }
+
+    function approveFor(address owner, address spender, uint256 amount) external {
+        _approve(owner, spender, amount);
+    }
+
+    function setDecimals(uint8 _newDecimals) external {
+        tokenDecimals = _newDecimals;
+    }
+
+    function decimals() override public view returns (uint8) {
+        return tokenDecimals;
+    }
+}
