@@ -1,0 +1,135 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.16;
+
+import "./storage.sol";
+import {DistributorMessage} from "./message.sol";
+
+import {ERC20Upgrade} from "../ERC20Upgrade.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {AddressArray} from "../../lib/address/array.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+
+/**
+ *@title Distributor
+ * @dev Distributor contract
+ * The `Distributor` contract manages the distribution of the token
+ */
+contract Distributor is Storage, Initializable, ReentrancyGuard {
+    event DistributorConfigUpdated(DistributorStorage.Config config);
+    event DistributorAdded(address distributor);
+    event DistributorRemoved(address distributor);
+    event DistributorSpend(address recipient, uint256 amount);
+
+    /**
+     * @dev Initialize contract
+     * @param curDetails DistributorMessage.InstantiateMsg used to initialize contract
+     */
+    function initialize(
+        DistributorMessage.InstantiateMsg memory curDetails
+    ) public initializer {
+        state.config = DistributorStorage.Config({
+            timelockContract: curDetails.timelockContract,
+            whitelist: curDetails.whitelist,
+            spendLimit: curDetails.spendLimit,
+            haloToken: curDetails.haloToken
+        });
+        emit DistributorConfigUpdated(state.config);
+    }
+
+    /**
+     * @dev Update config for distributor contract
+     * @param spendLimit uint
+     * @param timelockContract address
+     */
+    function updateConfig(
+        uint256 spendLimit,
+        address timelockContract
+    ) public nonReentrant {
+        require(state.config.timelockContract == msg.sender, "Unauthorized");
+        state.config.timelockContract = timelockContract;
+        state.config.spendLimit = spendLimit;
+        emit DistributorConfigUpdated(state.config);
+    }
+
+    /**
+     * @dev Adds a distributor to the whitelist. Only the government contract is authorized to perform this action.
+     * @param distributor address
+     */
+    function addDistributor(address distributor) public nonReentrant {
+        require(state.config.timelockContract == msg.sender, "Unauthorized");
+
+        // require(state.config.whitelist.length > 0 && state.config.whitelist.indexOf(distributor) != -1, "Distributor already registered");
+
+        (, bool found) = AddressArray.indexOf(
+            state.config.whitelist,
+            distributor
+        );
+
+        if (!found) {
+            state.config.whitelist.push(distributor);
+            emit DistributorAdded(distributor);
+        }
+    }
+
+    /**
+     * @dev Removes a distributor to the whitelist. Only the government contract is authorized to perform this action.
+     * @param distributor address
+     */
+    function removeDistributor(address distributor) public nonReentrant {
+        require(state.config.timelockContract == msg.sender, "Unauthorized");
+        (uint256 index, bool found) = AddressArray.indexOf(
+            state.config.whitelist,
+            distributor
+        );
+        if (found) {
+            state.config.whitelist = AddressArray.remove(
+                state.config.whitelist,
+                index
+            );
+            emit DistributorRemoved(distributor);
+        }
+    }
+
+    /**
+     * @dev Transfers the specified amount of token from the contract to the recipient. Only the government contract is authorized to perform this action.
+     * @param recipient address
+     * @param amount uint
+     */
+    function spend(address recipient, uint256 amount) public nonReentrant {
+        (, bool found) = AddressArray.indexOf(
+            state.config.whitelist,
+            msg.sender
+        );
+        require(found, "Unauthorized");
+        require(
+            state.config.spendLimit >= amount,
+            "Cannot spend more than spend limit"
+        );
+        require(
+            IERC20Upgradeable(state.config.haloToken).transfer(
+                recipient,
+                amount
+            ),
+            "Transfer failed"
+        );
+        emit DistributorSpend(recipient, amount);
+    }
+
+    /**
+     * @notice Query the config of distributor
+     */
+    function queryConfig()
+        public
+        view
+        returns (DistributorMessage.ConfigResponse memory)
+    {
+        return
+            DistributorMessage.ConfigResponse({
+                timelockContract: state.config.timelockContract,
+                whitelist: state.config.whitelist,
+                spendLimit: state.config.spendLimit,
+                haloToken: state.config.haloToken
+            });
+    }
+}

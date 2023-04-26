@@ -1,1 +1,6 @@
-import "./registrar/index"
+import "./addMultisigOwner"
+import "./changeAdmin"
+import "./changeOwner"
+import "./createIndexFund"
+import "./updateRegistrar"
+import "./registrar"

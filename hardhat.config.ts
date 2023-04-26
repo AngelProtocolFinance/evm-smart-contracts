@@ -1,45 +1,65 @@
-import { HardhatUserConfig, task } from "hardhat/config";
-import { envConfig } from "./utils/env.config" 
+import { HardhatUserConfig } from "hardhat/config";
+import { envConfig, accounts } from "./utils/env.config" 
 import "@nomiclabs/hardhat-etherscan";
 import "@nomicfoundation/hardhat-chai-matchers"
 import '@openzeppelin/hardhat-upgrades';
 import "@nomiclabs/hardhat-ethers";
 import "@typechain/hardhat";
 import "solidity-coverage";
-import { env } from "process";
-
-// Tasks
-import "./tasks/accounts"
-import "./tasks/deploy"
-import "./tasks/manage"
+import "hardhat-abi-exporter"
+import "./tasks"
 
 const config: HardhatUserConfig = {
+  defaultNetwork: "hardhat",
   solidity:{
-    version: "0.8.15",
+    version: "0.8.16",
     settings: {
       optimizer: { 
         enabled: true, 
         runs: 200
-      }
+      },
+      evmVersion: "istanbul",
+      viaIR: true,
+      outputSelection: {
+        "*": {
+          "": ["ast"],
+          "*": [
+            "abi",
+            "metadata",
+            "devdoc",
+            "userdoc",
+            "storageLayout",
+            "evm.legacyAssembly",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "evm.gasEstimates",
+            "evm.assembly"
+          ]
+        }
+      },
     }
   },
   networks: {
     "mainnet": {
       url: envConfig.mainnetRPC,
-      accounts: [envConfig.deployer, envConfig.user]
+      accounts: accounts
     },
     "goerli": {
       url: envConfig.goerliRPC,
-      accounts: [envConfig.deployer, envConfig.user]
+      accounts: accounts
     },
     "mumbai": {
       url: envConfig.mumbaiRPC,
-      accounts: [envConfig.deployer, envConfig.user]
+      accounts: accounts
     },
     "polygon": {
       url: envConfig.polygonRPC,
-      accounts: [envConfig.deployer, envConfig.user]
+      accounts: accounts
     }
+  },
+  mocha: {
+    timeout: 400000,
   },
   etherscan: {
     apiKey: {
@@ -48,7 +68,27 @@ const config: HardhatUserConfig = {
       polygon: envConfig.polyscanAPIKey,
       polygonMumbai: envConfig.polyscanAPIKey
     }
-  }
+  },
+  abiExporter: [
+    {
+        path: "./abi/json",
+        runOnCompile: true,
+        clear: true,
+        flat: true,
+        spacing: 2,
+        format: "json",
+        except: ["IAxelarGateway"],
+    },
+    {
+        path: "./abi/minimal",
+        runOnCompile: true,
+        clear: true,
+        flat: true,
+        spacing: 2,
+        format: "minimal",
+        except: ["IAxelarGateway"],
+    },
+]
 }
 
 export default config;

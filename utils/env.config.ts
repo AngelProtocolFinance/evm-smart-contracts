@@ -4,13 +4,28 @@ import { resolve } from "path";
 dotenvConfig({ path: resolve(__dirname, "../.env") });
 
 
-const deployer: string | undefined = process.env.DEPLOYER_KEY;
-if (!deployer) {
+const DEPLOYER: string | undefined = process.env.DEPLOYER_KEY;
+if (!DEPLOYER) {
   throw new Error("Please set your DEPLOYER_KEY in a .env file");
 }
 
-const user: string | undefined = process.env.USER_KEY;
-if (!user) {
+const PROXYADMIN: string | undefined = process.env.PROXY_ADMIN_KEY;
+if (!PROXYADMIN) {
+  throw new Error("Please set your USER_KEY in a .env file");
+}
+
+const AP_TEAM_1: string | undefined = process.env.AP_TEAM_1_KEY;
+if (!AP_TEAM_1) {
+  throw new Error("Please set your USER_KEY in a .env file");
+}
+
+const AP_TEAM_2: string | undefined = process.env.AP_TEAM_2_KEY;
+if (!AP_TEAM_2) {
+  throw new Error("Please set your USER_KEY in a .env file");
+}
+
+const AP_TEAM_3: string | undefined = process.env.AP_TEAM_3_KEY;
+if (!AP_TEAM_3) {
   throw new Error("Please set your USER_KEY in a .env file");
 }
 
@@ -19,17 +34,17 @@ if (!mainnetRPC) {
   throw new Error("Please set your MAINNET_URL in a .env file");
 }
 
-const goerliRPC: string | undefined = process.env.GOERLI_URL
+const goerliRPC: string | undefined = process.env.GOERLI_RPC_URL
 if (!goerliRPC) {
   throw new Error("Please set the alchemy GoArby RPC url the .env file")
 }
 
-const polygonRPC: string | undefined = process.env.POLYGON_URL;
+const polygonRPC: string | undefined = process.env.POLYGON_RPC_URL;
 if (!polygonRPC) {
   throw new Error("Please set your MAINNET_URL in a .env file");
 }
 
-const mumbaiRPC: string | undefined = process.env.MUMBAI_URL
+const mumbaiRPC: string | undefined = process.env.MUMBAI_RPC_URL
 if (!mumbaiRPC) {
   throw new Error("Please set the alchemy GoArby RPC url the .env file")
 }
@@ -44,10 +59,20 @@ if (!polyscanAPIKey) {
   throw new Error("Please add the Etherscan API key to your .env file")
 }
 
+export var accounts = [
+  DEPLOYER,
+  PROXYADMIN,
+  AP_TEAM_1,
+  AP_TEAM_2,
+  AP_TEAM_3
+]
 
 export var envConfig = {
-  'deployer': deployer,
-  'user': user, 
+  'DEPLOYER': DEPLOYER,
+  'PROXYADMIN': PROXYADMIN, 
+  'AP_TEAM_1': AP_TEAM_1, 
+  'AP_TEAM_2': AP_TEAM_2, 
+  'AP_TEAM_3': AP_TEAM_3, 
   'mainnetRPC': mainnetRPC,
   'goerliRPC': goerliRPC,
   'polygonRPC': polygonRPC,
