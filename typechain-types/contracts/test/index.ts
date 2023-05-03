@@ -4,4 +4,5 @@
 export type { DummyERC20 } from "./DummyERC20";
 export type { DummyGasService } from "./DummyGasService";
 export type { DummyGateway } from "./DummyGateway";
+export type { DummyUSDC } from "./DummyUSDC";
 export type { DummyVault } from "./DummyVault";

@@ -5,18 +5,17 @@ import "@nomicfoundation/hardhat-chai-matchers"
 import '@openzeppelin/hardhat-upgrades';
 import "@nomiclabs/hardhat-ethers";
 import "@typechain/hardhat";
-import "solidity-coverage";
 import "hardhat-abi-exporter"
 import "./tasks"
 
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   solidity: {
-    version: "0.8.16",
+    version: "0.8.18",
     settings: {
         optimizer: {
             enabled: true,
-            runs: 1000,
+            runs: 200,
         },
         viaIR: true
     },
@@ -69,7 +68,7 @@ const config: HardhatUserConfig = {
         format: "minimal",
         except: ["IAxelarGateway"],
     },
-]
+  ]
 }
 
 export default config;

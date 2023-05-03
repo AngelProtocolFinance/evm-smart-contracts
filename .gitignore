@@ -2,7 +2,7 @@
 node_modules
 .idea
 package-lock.json
-yarn.lock
+.yarnclean
 .vscode
 .env
 .prettierrc

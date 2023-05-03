@@ -4,4 +4,5 @@
 export { DummyERC20__factory } from "./DummyERC20__factory";
 export { DummyGasService__factory } from "./DummyGasService__factory";
 export { DummyGateway__factory } from "./DummyGateway__factory";
+export { DummyUSDC__factory } from "./DummyUSDC__factory";
 export { DummyVault__factory } from "./DummyVault__factory";

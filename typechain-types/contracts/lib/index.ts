@@ -3,3 +3,8 @@
 /* eslint-disable */
 import type * as stringAddressUtilsSol from "./StringAddressUtils.sol";
 export type { stringAddressUtilsSol };
+import type * as strings from "./Strings";
+export type { strings };
+export type { APVault } from "./APVault";
+export type { ERC20 } from "./ERC20";
+export type { ERC4626 } from "./ERC4626";
