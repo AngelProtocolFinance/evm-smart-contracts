@@ -454,84 +454,89 @@ contract AccountDepositWithdrawEndowments is
             "Withdraws are not approved for this endowment"
         );
 
+        // fetch regisrar config
         RegistrarStorage.Config memory registrar_config = IRegistrar(
             state.config.registrarContract
         ).queryConfig();
 
-        // There is no way for normal endowments
-        // to withdraw locked funds
-        // before maturity
-        if (
-            tempEndowment.endow_type == AngelCoreStruct.EndowmentType.Charity &&
-            acctType == AngelCoreStruct.AccountType.Locked
-        ) {
-            // fetch regisrar config
+        // ** CHARITY TYPE WITHDRAWAL RULES **
+        // LIQUID: Only the endowment multisig can withdraw
+        // LOCKED: Msg must come from the locked withdraw contract
+        if (tempEndowment.endow_type == AngelCoreStruct.EndowmentType.Charity) {
+            if (acctType == AngelCoreStruct.AccountType.Locked) {
+                require(
+                    msg.sender == registrar_config.lockedWithdrawal,
+                    "Unauthorized"
+                );
+            } else if (acctType == AngelCoreStruct.AccountType.Liquid) {
+                require(msg.sender == tempEndowment.owner, "Unauthorized");
+            }
+        }
 
-            // should be locked withdraw contract
-            require(
-                msg.sender == registrar_config.lockedWithdrawal,
-                "Unauthorized"
-            );
-        } else if (
-            tempEndowment.endow_type == AngelCoreStruct.EndowmentType.Charity &&
-            acctType == AngelCoreStruct.AccountType.Liquid
-        ) {
-            require(msg.sender == tempEndowment.owner, "Unauthorized");
-        } else if (
-            tempEndowment.endow_type == AngelCoreStruct.EndowmentType.Normal &&
-            acctType == AngelCoreStruct.AccountType.Locked
-        ) {
-            if (
+        // ** NORMAL TYPE WITHDRAWAL RULES **
+        // In both balance types:
+        //      The endowment multisig OR beneficiaries whitelist addresses [if populated] can withdraw. After 
+        //      maturity has been reached, only addresses in Maturity Whitelist may withdraw. If the Maturity
+        //      Whitelist is not populated, then only the endowment multisig is allowed to withdraw.
+        // LIQUID: Same as above shared logic. 
+        // LOCKED: There is NO way to withdraw locked funds from an endowment before maturity!
+        if (tempEndowment.endow_type == AngelCoreStruct.EndowmentType.Normal) {
+            // Check if maturity has been reached for the endowment
+            // 0 == no maturity date
+            bool mature = (
                 tempEndowment.maturityTime != 0 &&
-                block.timestamp < tempEndowment.maturityTime
-            ) {
+                block.timestamp >= tempEndowment.maturityTime
+            );
+            
+            // can't withdraw before maturity
+            if (acctType == AngelCoreStruct.AccountType.Locked && !mature) {
                 revert(
                     "Endowment is not mature. Cannot withdraw before maturity time is reached."
                 );
             }
-            bool check = true;
-            for (
-                uint256 i = 0;
-                i < tempEndowment.maturityWhitelist.length;
-                i++
-            ) {
-                if (tempEndowment.maturityWhitelist[i] == msg.sender) {
-                    check = false;
-                }
-            }
 
-            if (check) {
-                revert("Sender address is not listed in maturityWhitelist.");
-            }
-        } else if (
-            tempEndowment.endow_type == AngelCoreStruct.EndowmentType.Normal &&
-            acctType == AngelCoreStruct.AccountType.Liquid
-        ) {
-            bool flag = false;
-            for (
-                uint256 i = 0;
-                i < tempEndowment.whitelistedBeneficiaries.length;
-                i++
-            ) {
-                if (msg.sender == tempEndowment.whitelistedBeneficiaries[i]) {
-                    flag = true;
+            // determine if msg sender is allowed to withdraw based on rules and maturity status
+            bool senderAllowed = false;
+            if (mature) {
+                if (tempEndowment.maturityWhitelist.length > 0) {
+                    bool inList = false;
+                    for (
+                        uint256 i = 0;
+                        i < tempEndowment.maturityWhitelist.length;
+                        i++
+                    ) {
+                        if (tempEndowment.maturityWhitelist[i] == msg.sender) {
+                            inList = true;
+                        }
+                    }
+                    require(inList, "Sender address is not listed in maturityWhitelist.");
+                } else {
+                    require(msg.sender == tempEndowment.owner, "Sender address is not the Endowment Multisig.");
                 }
-            }
-
-            if (!(msg.sender == tempEndowment.owner || flag)) {
-                revert(
-                    "Sender is not Endowment owner or is not listed in whitelist."
-                );
+            } else {
+                if (tempEndowment.whitelistedBeneficiaries.length > 0) {
+                    bool inList = false;
+                    for (
+                        uint256 i = 0;
+                        i < tempEndowment.whitelistedBeneficiaries.length;
+                        i++
+                    ) {
+                        if (tempEndowment.whitelistedBeneficiaries[i] == msg.sender) {
+                            inList = true;
+                        }
+                    }
+                    require(inList || msg.sender == tempEndowment.owner, "Sender address is not listed in whitelistedBeneficiaries or the Endowment Multisig.");
+                }
             }
         }
 
-        uint256 withdrawRate;
+        uint256 withdrawFeeRateAp;
         if (tempEndowment.endow_type == AngelCoreStruct.EndowmentType.Charity) {
-            withdrawRate = IRegistrar(state.config.registrarContract).queryFee(
+            withdrawFeeRateAp = IRegistrar(state.config.registrarContract).queryFee(
                 "accounts_withdraw_charity"
             );
         } else {
-            withdrawRate = IRegistrar(state.config.registrarContract).queryFee(
+            withdrawFeeRateAp = IRegistrar(state.config.registrarContract).queryFee(
                 "accounts_withdraw_normal"
             );
         }
@@ -545,49 +550,51 @@ contract AccountDepositWithdrawEndowments is
         }
 
         for (uint8 i = 0; i < curTokenaddress.length; i++) {
-            require(curAmount[i] != 0, "InvalidZeroAmount");
-
             uint256 balance = 0;
-            uint8 index = 0;
+
+            // ensure more than zero tokens requested
+            require(curAmount[i] > 0, "InvalidZeroAmount");
+    
             for (uint8 j = 0; j < state_bal.Cw20CoinVerified_addr.length; j++) {
                 if (curTokenaddress[i] == state_bal.Cw20CoinVerified_addr[j]) {
                     balance = state_bal.Cw20CoinVerified_amount[j];
-                    index = j;
+    
+                    // ensure balance of tokens can cover the requested withdraw amount
+                    require(balance > curAmount[i], "InsufficientFunds");
+                    
+                    // calculate AP Protocol fee owed on withdrawn token amount
+                    uint256 withdrawFeeAp = curAmount[i].mul(withdrawFeeRateAp).div(100);
+
+                    // TO DO: calculate endowment specific withdraw fee, if set. Only for Normal type.
+                    // Should be transfered to the Endowment Multisig.
+
+                    require(
+                        IERC20(curTokenaddress[i]).transfer(
+                            curBeneficiary,
+                            curAmount[i] - withdrawFeeAp
+                        ),
+                        "Transfer failed"
+                    );
+
+                    require(
+                        IERC20(curTokenaddress[i]).transfer(
+                            registrar_config.treasury,
+                            withdrawFeeAp
+                        ),
+                        "Transfer failed"
+                    );
+
+                    // reduce the temp state's balance by withdrawn token amount
+                    if (acctType == AngelCoreStruct.AccountType.Locked) {
+                        tempState.balances.locked.Cw20CoinVerified_amount[j] -= curAmount[i];
+                    } else {
+                        tempState.balances.liquid.Cw20CoinVerified_amount[j] -= curAmount[i];
+                    }
                 }
             }
-
-            require(balance > curAmount[i], "InsufficientFunds");
-
-            // only withdraws money which is available on the contract
-            // doesn't bring money from the vaults
-            {
-                uint256 withdrawFee = (curAmount[i].mul(withdrawRate)).div(100);
-
-                require(
-                    IERC20(curTokenaddress[i]).transfer(
-                        curBeneficiary,
-                        curAmount[i] - withdrawFee
-                    ),
-                    "Transfer failed"
-                );
-                require(
-                    IERC20(curTokenaddress[i]).transfer(
-                        registrar_config.treasury,
-                        withdrawFee
-                    ),
-                    "Transfer failed"
-                );
-            }
-
-            state_bal.Cw20CoinVerified_amount[index] -= curAmount[i];
         }
 
-        if (acctType == AngelCoreStruct.AccountType.Locked) {
-            tempState.balances.locked = state_bal;
-        } else {
-            tempState.balances.liquid = state_bal;
-        }
-
+        // update contract state with final temp state
         state.STATES[curId] = tempState;
         emit UpdateEndowmentState(curId, tempState);
     }
