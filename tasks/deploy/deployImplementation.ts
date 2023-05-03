@@ -1,5 +1,5 @@
 import { task } from "hardhat/config"
-import config from "../../config"
+import { envConfig } from "../../utils/env.config"
 import { deployImplementation } from "../../contracts/normalized_endowment/scripts/deployImplementation"
 
 task("Deploy:deployImplementation", "Will deploy Implementation")
@@ -20,12 +20,12 @@ task("Deploy:deployImplementation", "Will deploy Implementation")
             ];
 
             let donationMatchCharityData = {
-                reserveToken: config.DONATION_MATCH_CHARITY_DATA.reserveToken,
+                reserveToken: envConfig.DONATION_MATCH_CHARITY_DATA.reserveToken,
                 uniswapFactory:
-                    config.DONATION_MATCH_CHARITY_DATA.uniswapFactory,
+                    envConfig.DONATION_MATCH_CHARITY_DATA.uniswapFactory,
                 registrarContract: taskArgs.registraraddress,
-                poolFee: config.DONATION_MATCH_CHARITY_DATA.poolFee,
-                usdcAddress: config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
+                poolFee: envConfig.DONATION_MATCH_CHARITY_DATA.poolFee,
+                usdcAddress: envConfig.DONATION_MATCH_CHARITY_DATA.usdcAddress,
             };
 
             await deployImplementation(

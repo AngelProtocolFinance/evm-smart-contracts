@@ -1,5 +1,5 @@
 import { task } from "hardhat/config"
-import config from "../../config"
+import { envConfig } from "../../utils/env.config"
 import { charityApplications } from "../../contracts/multisigs/charity_applications/scripts/deploy"
 import addresses from "../../contract-address.json"
 
@@ -11,15 +11,15 @@ task(
     .setAction(async (taskArgs, hre) => {
         try {
             const charityApplicationsData: Parameters<typeof charityApplications>[0] = [
-                config.CHARITY_APPLICATION_DATA.expiry,
+                envConfig.CHARITY_APPLICATION_DATA.expiry,
                 addresses.multiSig.ApplicationsMultiSigProxy,
                 addresses.accounts.diamond,
-                config.CHARITY_APPLICATION_DATA.seedSplitToLiquid,
-                config.CHARITY_APPLICATION_DATA.newEndowGasMoney,
-                config.CHARITY_APPLICATION_DATA.gasAmount,
-                config.CHARITY_APPLICATION_DATA.fundSeedAsset,
-                config.CHARITY_APPLICATION_DATA.seedAsset,
-                config.CHARITY_APPLICATION_DATA.seedAssetAmount,
+                envConfig.CHARITY_APPLICATION_DATA.seedSplitToLiquid,
+                envConfig.CHARITY_APPLICATION_DATA.newEndowGasMoney,
+                envConfig.CHARITY_APPLICATION_DATA.gasAmount,
+                envConfig.CHARITY_APPLICATION_DATA.fundSeedAsset,
+                envConfig.CHARITY_APPLICATION_DATA.seedAsset,
+                envConfig.CHARITY_APPLICATION_DATA.seedAssetAmount,
             ];
             const isTrueSet = taskArgs.verify === "true";
 

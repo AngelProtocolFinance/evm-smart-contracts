@@ -1,5 +1,5 @@
 import { task } from "hardhat/config"
-import config from "../../config"
+import { envConfig } from "../../utils/env.config"
 import { deploySwapRouter } from "../../contracts/core/swap-router/scripts/deploy"
 
 task("Deploy:deploySwapRouter", "Will deploy SwapRouter contract")
@@ -13,8 +13,8 @@ task("Deploy:deploySwapRouter", "Will deploy SwapRouter contract")
             await deploySwapRouter(
                 taskArgs.registraraddress,
                 taskArgs.accountaddress,
-                config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS,
-                config.SWAP_ROUTER_DATA.SWAP_ROUTER_ADDRESS,
+                envConfig.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS,
+                envConfig.SWAP_ROUTER_DATA.SWAP_ROUTER_ADDRESS,
                 isTrueSet,
                 hre
             );

@@ -1,5 +1,5 @@
 import { task } from "hardhat/config"
-import config from "../../config"
+import { envConfig } from "../../utils/env.config"
 import { deployIndexFund } from "../../contracts/core/index-fund/scripts/deploy"
 
 task("Deploy:deployIndexFund", "Will deploy IndexFund contract")
@@ -9,9 +9,9 @@ task("Deploy:deployIndexFund", "Will deploy IndexFund contract")
         try {
             const indexFundData = {
                 registrarContract: taskArgs.registraraddress,
-                fundRotation: config.INDEX_FUND_DATA.fundRotation,
-                fundMemberLimit: config.INDEX_FUND_DATA.fundMemberLimit,
-                fundingGoal: config.INDEX_FUND_DATA.fundingGoal,
+                fundRotation: envConfig.INDEX_FUND_DATA.fundRotation,
+                fundMemberLimit: envConfig.INDEX_FUND_DATA.fundMemberLimit,
+                fundingGoal: envConfig.INDEX_FUND_DATA.fundingGoal,
             };
             var isTrueSet = taskArgs.verify === "true";
 

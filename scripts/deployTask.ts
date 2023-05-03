@@ -13,7 +13,7 @@ import { deployEndowmentMultiSig } from '../contracts/normalized_endowment/endow
 import { deployHaloImplementation } from '../contracts/halo/scripts/deploy'
 import { charityApplications } from '../contracts/multisigs/charity_applications/scripts/deploy'
 
-import config from '../config'
+import { envConfig } from "../utils/env.config"
 import { deployEmitters } from '../contracts/normalized_endowment/scripts/deployEmitter'
 import { giftCard } from '../contracts/accessory/gift-cards/scripts/deploy'
 import { deployFundraising } from '../contracts/accessory/fundraising/scripts/deploy'
@@ -84,7 +84,7 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 		const { run, network, ethers } = hre;
 
 
-		var Admins = config.AP_TEAM_MULTISIG_DATA.admins;
+		var Admins = envConfig.AP_TEAM_MULTISIG_DATA.admins;
 		if (apTeamAdmins.length != 0) Admins = apTeamAdmins;
 
 		[deployer, proxyAdmin] = await ethers.getSigners();
@@ -96,9 +96,9 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			const MockUSDC = await ethers.getContractFactory('MockUSDC');
 			mockUSDC = await MockUSDC.deploy('USDC', 'USDC', 100);
 			await mockUSDC.deployed();
-			config.REGISTRAR_DATA.acceptedTokens.cw20 = [mockUSDC.address];
-			config.REGISTRAR_UPDATE_CONFIG.usdcAddress = mockUSDC.address;
-			config.DONATION_MATCH_CHARITY_DATA.usdcAddress = mockUSDC.address;
+			envConfig.REGISTRAR_DATA.acceptedTokens.cw20 = [mockUSDC.address];
+			envConfig.REGISTRAR_UPDATE_CONFIG.usdcAddress = mockUSDC.address;
+			envConfig.DONATION_MATCH_CHARITY_DATA.usdcAddress = mockUSDC.address;
 
 			let tx = await mockUSDC.mint(deployer.address, ethers.utils.parseEther('10000000000000000000000'));
 			await tx.wait();
@@ -111,22 +111,22 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 		await deployLibraries(verify_contracts,hre);
 
 		const registrarData = {
-			treasury: config.REGISTRAR_DATA.treasury,
-			taxRate: config.REGISTRAR_DATA.taxRate,
-			rebalance: config.REGISTRAR_DATA.rebalance,
-			splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
-			acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
-			router: config.REGISTRAR_DATA.router,
-			axelerGateway: config.REGISTRAR_DATA.axelerGateway,
+			treasury: envConfig.REGISTRAR_DATA.treasury,
+			taxRate: envConfig.REGISTRAR_DATA.taxRate,
+			rebalance: envConfig.REGISTRAR_DATA.rebalance,
+			splitToLiquid: envConfig.REGISTRAR_DATA.splitToLiquid,
+			acceptedTokens: envConfig.REGISTRAR_DATA.acceptedTokens,
+			router: envConfig.REGISTRAR_DATA.router,
+			axelerGateway: envConfig.REGISTRAR_DATA.axelerGateway,
 		};
 
 		REGISTRAR_ADDRESS = await deployRegistrar(STRING_LIBRARY.address, registrarData,verify_contracts,hre);
 
-		var APTeamData: Parameters<APTeamMultiSig["initialize"]> = [Admins, config.AP_TEAM_MULTISIG_DATA.threshold, config.AP_TEAM_MULTISIG_DATA.requireExecution];
+		var APTeamData: Parameters<APTeamMultiSig["initialize"]> = [Admins, envConfig.AP_TEAM_MULTISIG_DATA.threshold, envConfig.AP_TEAM_MULTISIG_DATA.requireExecution];
 		var ApplicationData: Parameters<ApplicationsMultiSig["initialize"]> = [
 			Admins,
-			config.APPLICATION_MULTISIG_DATA.threshold,
-			config.APPLICATION_MULTISIG_DATA.requireExecution,
+			envConfig.APPLICATION_MULTISIG_DATA.threshold,
+			envConfig.APPLICATION_MULTISIG_DATA.requireExecution,
 		];
 		console.log(APTeamData, ApplicationData);
 		const multisigAddress = await deployMultisig(ApplicationData ,APTeamData, verify_contracts, hre);
@@ -148,15 +148,15 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 		console.log('emitters Contract deployed at:-', emitters);
 
 		let charityApplicationsData: Parameters<typeof charityApplications>[0] = [
-			config.CHARITY_APPLICATION_DATA.expiry,
+			envConfig.CHARITY_APPLICATION_DATA.expiry,
 			multisigAddress.ApplicationsMultiSig,
 			ACCOUNT_ADDRESS,
-			config.CHARITY_APPLICATION_DATA.seedSplitToLiquid,
-			config.CHARITY_APPLICATION_DATA.newEndowGasMoney,
-			config.CHARITY_APPLICATION_DATA.gasAmount,
-			config.CHARITY_APPLICATION_DATA.fundSeedAsset,
-			config.CHARITY_APPLICATION_DATA.seedAsset,
-			config.CHARITY_APPLICATION_DATA.seedAssetAmount,
+			envConfig.CHARITY_APPLICATION_DATA.seedSplitToLiquid,
+			envConfig.CHARITY_APPLICATION_DATA.newEndowGasMoney,
+			envConfig.CHARITY_APPLICATION_DATA.gasAmount,
+			envConfig.CHARITY_APPLICATION_DATA.fundSeedAsset,
+			envConfig.CHARITY_APPLICATION_DATA.seedAsset,
+			envConfig.CHARITY_APPLICATION_DATA.seedAssetAmount,
 		];
 
 		let charityApplicationsAddress = await charityApplications(charityApplicationsData, verify_contracts, hre);
@@ -165,8 +165,8 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 		const SWAP_ROUTER = await deploySwapRouter(
 			REGISTRAR_ADDRESS,
 			ACCOUNT_ADDRESS,
-			config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS,
-			config.SWAP_ROUTER_DATA.SWAP_ROUTER_ADDRESS,
+			envConfig.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS,
+			envConfig.SWAP_ROUTER_DATA.SWAP_ROUTER_ADDRESS,
 			verify_contracts,
 			hre
 		);
@@ -175,9 +175,9 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 
 		const indexFundData = {
 			registrarContract: REGISTRAR_ADDRESS,
-			fundRotation: config.INDEX_FUND_DATA.fundRotation,
-			fundMemberLimit: config.INDEX_FUND_DATA.fundMemberLimit,
-			fundingGoal: config.INDEX_FUND_DATA.fundingGoal,
+			fundRotation: envConfig.INDEX_FUND_DATA.fundRotation,
+			fundMemberLimit: envConfig.INDEX_FUND_DATA.fundMemberLimit,
+			fundingGoal: envConfig.INDEX_FUND_DATA.fundingGoal,
 		};
 
 		let INDEX_FUND_ADDRESS = await deployIndexFund(indexFundData, verify_contracts, hre);
@@ -206,10 +206,10 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 
 		let FundraisingDataInput = {
 			registrarContract: REGISTRAR_ADDRESS,
-			nextId: config.FundraisingDataInput.nextId,
-			campaignPeriodSeconds: config.FundraisingDataInput.campaignPeriodSeconds,
-			taxRate: config.FundraisingDataInput.taxRate,
-			acceptedTokens: config.FundraisingDataInput.acceptedTokens,
+			nextId: envConfig.FundraisingDataInput.nextId,
+			campaignPeriodSeconds: envConfig.FundraisingDataInput.campaignPeriodSeconds,
+			taxRate: envConfig.FundraisingDataInput.taxRate,
+			acceptedTokens: envConfig.FundraisingDataInput.acceptedTokens,
 		};
 		let fundraisingAddress = await deployFundraising(FundraisingDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre);
 
@@ -261,16 +261,16 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			console.log('Created HALO pool');
 
 			// create a uniswap pool for WETH and USDC
-			console.log('WETH address: ', config.REGISTRAR_UPDATE_CONFIG.wethAddress);
+			console.log('WETH address: ', envConfig.REGISTRAR_UPDATE_CONFIG.wethAddress);
 			console.log('USDC address: ', mockUSDC.address.toString());
 
 			sqrtPrice = '79228162514264334008320';
-			if (mockUSDC.address < config.REGISTRAR_UPDATE_CONFIG.wethAddress) {
+			if (mockUSDC.address < envConfig.REGISTRAR_UPDATE_CONFIG.wethAddress) {
 				sqrtPrice = '79228162514264337593543950336000000';
 			}
 			const createUniswapPoolParams2 = {
 				tokenA: mockUSDC.address,
-				tokenB: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
+				tokenB: envConfig.REGISTRAR_UPDATE_CONFIG.wethAddress,
 				uniswapFee: 3000,
 				amountA: ethers.utils.parseUnits('1000', 6),
 				sqrtPriceX96: sqrtPrice,
@@ -288,9 +288,9 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			const DAI = await ethers.getContractFactory('MockERC20');
 			const dai = await DAI.deploy('DAI', 'DAI', '1000000000');
 			await dai.deployed();
-			config.REGISTRAR_UPDATE_CONFIG.DAI_address = dai.address;
-			config.DONATION_MATCH_CHARITY_DATA.DAI_address = dai.address;
-			config.REGISTRAR_DATA.acceptedTokens.cw20.push(dai.address);
+			envConfig.REGISTRAR_UPDATE_CONFIG.DAI_address = dai.address;
+			envConfig.DONATION_MATCH_CHARITY_DATA.DAI_address = dai.address;
+			envConfig.REGISTRAR_DATA.acceptedTokens.cw20.push(dai.address);
 
 			// mint DAI
 			await dai.mint(deployer.address, ethers.utils.parseEther('100000000'));
@@ -322,17 +322,17 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 		// if PROD flag is false
 
 		let donationMatchCharityData = {
-			reserveToken: config.DONATION_MATCH_CHARITY_DATA.reserveToken,
-			uniswapFactory: config.DONATION_MATCH_CHARITY_DATA.uniswapFactory,
+			reserveToken: envConfig.DONATION_MATCH_CHARITY_DATA.reserveToken,
+			uniswapFactory: envConfig.DONATION_MATCH_CHARITY_DATA.uniswapFactory,
 			registrarContract: REGISTRAR_ADDRESS,
-			poolFee: config.DONATION_MATCH_CHARITY_DATA.poolFee,
-			usdcAddress: config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
+			poolFee: envConfig.DONATION_MATCH_CHARITY_DATA.poolFee,
+			usdcAddress: envConfig.DONATION_MATCH_CHARITY_DATA.usdcAddress,
 		};
 
 		if (network.name === 'hardhat') {
 			// haloToken
 			donationMatchCharityData.reserveToken = haloToken.address;
-			donationMatchCharityData.uniswapFactory = config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS;
+			donationMatchCharityData.uniswapFactory = envConfig.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS;
 			donationMatchCharityData.poolFee = 3000;
 			donationMatchCharityData.usdcAddress = mockUSDC!.address;
 		}
@@ -351,18 +351,18 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			await haloToken.transfer(implementations.DonationMatchCharity, ethers.utils.parseEther('100000000'));
 		}
 
-		config.REGISTRAR_DATA.acceptedTokens.cw20.push(haloToken.address);
+		envConfig.REGISTRAR_DATA.acceptedTokens.cw20.push(haloToken.address);
 
 		updateConfig = {
 			accountsContract: ACCOUNT_ADDRESS, //Address
-			taxRate: config.REGISTRAR_DATA.taxRate, //uint256
-			rebalance: config.REGISTRAR_DATA.rebalance,
+			taxRate: envConfig.REGISTRAR_DATA.taxRate, //uint256
+			rebalance: envConfig.REGISTRAR_DATA.rebalance,
 			approved_charities: [], //string[]
 			splitMax: 100, //uint256
 			splitMin: 0, //uint256
 			splitDefault: 50, //uint256
-			collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
-			acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
+			collectorShare: envConfig.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
+			acceptedTokens: envConfig.REGISTRAR_DATA.acceptedTokens,
 			subdaoGovCode: implementations.SubDao, //address
 			subdaoCw20TokenCode: implementations.SubDaoERC20, //address
 			subdaoBondingTokenCode: implementations.SubDaoBondingCurve, //address
@@ -372,11 +372,11 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			donationMatchCode: implementations.DonationMatch, //address
 			indexFundContract: INDEX_FUND_ADDRESS, //address
 			govContract: haloAddress.Gov.GovProxy, //address
-			treasury: config.REGISTRAR_DATA.treasury,
+			treasury: envConfig.REGISTRAR_DATA.treasury,
 			donationMatchCharitesContract: implementations.DonationMatchCharity, // once uniswap is setup //address
 			donationMatchEmitter: emitters.DonationMatchEmitter,
 			haloToken: haloAddress.Halo, //address
-			haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
+			haloTokenLpContract: envConfig.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
 			charitySharesContract: ADDRESS_ZERO, //TODO: //address
 			fundraisingContract: fundraisingAddress, //TODO: //address
 			applicationsReview: multisigAddress.ApplicationsMultiSig, //address
@@ -386,8 +386,8 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			charityProposal: charityApplicationsAddress, //address
 			lockedWithdrawal: implementations.LockedWithdraw, //address
 			proxyAdmin: proxyAdmin.address, //address
-			usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
-			wethAddress: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
+			usdcAddress: envConfig.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
+			wethAddress: envConfig.REGISTRAR_UPDATE_CONFIG.wethAddress,
 			cw900lvAddress: implementations.cw900lv,
 		};
 
@@ -409,7 +409,7 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 				stringLibrary: STRING_LIBRARY.address,
 				AngelCoreStruct: ANGEL_CORE_STRUCT.address,
 			},
-			dai: config.REGISTRAR_UPDATE_CONFIG.DAI_address,
+			dai: envConfig.REGISTRAR_UPDATE_CONFIG.DAI_address,
 			registrar: REGISTRAR_ADDRESS,
 			account: ACCOUNT_ADDRESS,
 			multisigAddress,

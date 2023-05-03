@@ -1,5 +1,5 @@
 import { task } from "hardhat/config"
-import config from "../../config"
+import { envConfig } from "../../utils/env.config"
 import { deployRegistrar } from "../../contracts/core/registrar/scripts/deploy"
 
 task("Deploy:deployRegistrar", "Will deploy Registrar contract")
@@ -8,13 +8,13 @@ task("Deploy:deployRegistrar", "Will deploy Registrar contract")
     .setAction(async (taskArgs, hre) => {
         try {
             const registrarData = {
-                treasury: config.REGISTRAR_DATA.treasury,
-                taxRate: config.REGISTRAR_DATA.taxRate,
-                rebalance: config.REGISTRAR_DATA.rebalance,
-                splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
-                acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
-                router: config.REGISTRAR_DATA.router,
-                axelerGateway: config.REGISTRAR_DATA.axelerGateway,
+                treasury: envConfig.REGISTRAR_DATA.treasury,
+                taxRate: envConfig.REGISTRAR_DATA.taxRate,
+                rebalance: envConfig.REGISTRAR_DATA.rebalance,
+                splitToLiquid: envConfig.REGISTRAR_DATA.splitToLiquid,
+                acceptedTokens: envConfig.REGISTRAR_DATA.acceptedTokens,
+                router: envConfig.REGISTRAR_DATA.router,
+                axelerGateway: envConfig.REGISTRAR_DATA.axelerGateway,
             };
             var isTrueSet = taskArgs.verify === "true";
             await deployRegistrar(

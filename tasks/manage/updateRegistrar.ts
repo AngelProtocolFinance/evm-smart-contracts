@@ -1,6 +1,7 @@
 import { task } from "hardhat/config"
 import type { TaskArguments } from "hardhat/types"
-import config from "../../config"
+import { envConfig } from "../../utils/env.config"
+
 import addresses from "../../contract-address.json"
 import { Registrar } from "../../typechain-types"
 import { RegistrarMessages } from "../../typechain-types/contracts/core/registrar/interface/IRegistrar"
@@ -21,15 +22,15 @@ task("manage:updateRegistrar", "Will update the registrar config")
 
             let newConfig: RegistrarMessages.UpdateConfigRequestStruct = {
                 accountsContract: addresses.accounts.diamond,
-                taxRate: config.REGISTRAR_DATA.taxRate,
-                rebalance: config.REGISTRAR_DATA.rebalance,
+                taxRate: envConfig.REGISTRAR_DATA.taxRate,
+                rebalance: envConfig.REGISTRAR_DATA.rebalance,
                 approved_charities: [],
-                splitMax: config.REGISTRAR_DATA.splitToLiquid.max,
-                splitMin: config.REGISTRAR_DATA.splitToLiquid.min,
+                splitMax: envConfig.REGISTRAR_DATA.splitToLiquid.max,
+                splitMin: envConfig.REGISTRAR_DATA.splitToLiquid.min,
                 splitDefault:
-                    config.REGISTRAR_DATA.splitToLiquid.defaultSplit,
+                    envConfig.REGISTRAR_DATA.splitToLiquid.defaultSplit,
                 collectorShare: 1,
-                acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
+                acceptedTokens: envConfig.REGISTRAR_DATA.acceptedTokens,
                 subdaoGovCode: apTeam1.address, // subdao gov wasm code
                 subdaoCw20TokenCode: apTeam1.address, // subdao gov token (basic CW20) wasm code
                 subdaoBondingTokenCode: apTeam1.address, // subdao gov token (w/ bonding-curve) wasm code

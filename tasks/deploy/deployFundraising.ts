@@ -1,5 +1,5 @@
 import { task } from "hardhat/config"
-import config from "../../config"
+import { envConfig } from "../../utils/env.config"
 import { deployFundraising } from "../../contracts/accessory/fundraising/scripts/deploy"
 
 task("Deploy:deployFundraising", "Will deploy Fundraising contract")
@@ -11,11 +11,11 @@ task("Deploy:deployFundraising", "Will deploy Fundraising contract")
             var isTrueSet = taskArgs.verify === "true";
             let FundraisingDataInput = {
                 registrarContract: taskArgs.registraraddress,
-                nextId: config.FundraisingDataInput.nextId,
+                nextId: envConfig.FundraisingDataInput.nextId,
                 campaignPeriodSeconds:
-                    config.FundraisingDataInput.campaignPeriodSeconds,
-                taxRate: config.FundraisingDataInput.taxRate,
-                acceptedTokens: config.FundraisingDataInput.acceptedTokens,
+                    envConfig.FundraisingDataInput.campaignPeriodSeconds,
+                taxRate: envConfig.FundraisingDataInput.taxRate,
+                acceptedTokens: envConfig.FundraisingDataInput.acceptedTokens,
             };
 
             await deployFundraising(

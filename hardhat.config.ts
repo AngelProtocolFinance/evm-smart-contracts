@@ -42,12 +42,10 @@ const config: HardhatUserConfig = {
   mocha: {
     timeout: 400000,
   },
-  etherscan: {
+  blockExplorer: {
     apiKey: {
       etherscan: envConfig.etherscanAPIKey,
-      goerli: envConfig.etherscanAPIKey,
-      polygon: envConfig.polyscanAPIKey,
-      polygonMumbai: envConfig.polyscanAPIKey
+      polyscan: envConfig.polyscanAPIKey,
     }
   },
   abiExporter: [
@@ -69,7 +67,7 @@ const config: HardhatUserConfig = {
         format: "minimal",
         except: ["IAxelarGateway"],
     },
-]
+  ]
 }
 
 export default config;

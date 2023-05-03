@@ -12,7 +12,7 @@ import { Vesting } from '../vesting/scripts/deploy'
 import { Staking } from '../staking/scripts/deploy'
 import { Collector } from '../collector/scripts/deploy'
 // const ethers = hre.ethers;
-import config from '../../../config'
+import { envConfig } from "../../../utils/env.config"
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
@@ -67,7 +67,7 @@ export async function deployHaloImplementation(
 			CommunitySpendLimit,
 			distributorWhitelist,
 			distributorSpendLimit,
-		} = config.HALO_IMPLEMENTATION_DATA;
+		} = envConfig.HALO_IMPLEMENTATION_DATA;
 
 		const { ethers, run, network } = hre;
 
@@ -79,7 +79,7 @@ export async function deployHaloImplementation(
 
 		let halo_code = await ethers.getContractAt('ERC20Upgrade', halo);
 
-		if (!config.PROD) {
+		if (!envConfig.PROD) {
 			await halo_code.mint(deployer.address, ethers.utils.parseEther('100000000000000000000000000'));
 		}
 
