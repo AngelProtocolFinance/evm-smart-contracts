@@ -547,14 +547,12 @@ contract AccountDepositWithdrawEndowments is
         }
 
         for (uint8 i = 0; i < curTokenaddress.length; i++) {
-            uint256 balance = 0;
-
             // ensure more than zero tokens requested
             require(curAmount[i] > 0, "InvalidZeroAmount");
     
             for (uint8 j = 0; j < state_bal.Cw20CoinVerified_addr.length; j++) {
                 if (curTokenaddress[i] == state_bal.Cw20CoinVerified_addr[j]) {
-                    balance = state_bal.Cw20CoinVerified_amount[j];
+                    uint256 balance = state_bal.Cw20CoinVerified_amount[j];
     
                     // ensure balance of tokens can cover the requested withdraw amount
                     require(balance > curAmount[i], "InsufficientFunds");
