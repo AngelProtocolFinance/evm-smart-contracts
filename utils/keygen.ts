@@ -3,6 +3,7 @@ import * as crypto from "crypto"
 import { pad } from "./logger"
 
 export function genWallet(printToConsole: Boolean = false) {
+    console.log("Generating a new wallet")
     var id = crypto.randomBytes(32).toString('hex')
     var privateKey = "0x"+id
     var wallet = new ethers.Wallet(privateKey)
@@ -12,3 +13,5 @@ export function genWallet(printToConsole: Boolean = false) {
     }
     return wallet
 }
+
+genWallet(true)

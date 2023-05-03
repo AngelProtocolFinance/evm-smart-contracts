@@ -11,34 +11,15 @@ import "./tasks"
 
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
-  solidity:{
+  solidity: {
     version: "0.8.16",
     settings: {
-      optimizer: { 
-        enabled: true, 
-        runs: 200
-      },
-      evmVersion: "istanbul",
-      viaIR: true,
-      outputSelection: {
-        "*": {
-          "": ["ast"],
-          "*": [
-            "abi",
-            "metadata",
-            "devdoc",
-            "userdoc",
-            "storageLayout",
-            "evm.legacyAssembly",
-            "evm.bytecode",
-            "evm.deployedBytecode",
-            "evm.methodIdentifiers",
-            "evm.gasEstimates",
-            "evm.assembly"
-          ]
-        }
-      },
-    }
+        optimizer: {
+            enabled: true,
+            runs: 1000,
+        },
+        viaIR: true
+    },
   },
   networks: {
     "mainnet": {
