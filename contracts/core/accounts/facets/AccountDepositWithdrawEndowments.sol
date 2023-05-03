@@ -561,23 +561,42 @@ contract AccountDepositWithdrawEndowments is
                     require(balance > curAmount[i], "InsufficientFunds");
                     
                     // calculate AP Protocol fee owed on withdrawn token amount
-                    uint256 withdrawFeeAp = curAmount[i].mul(withdrawFeeRateAp).div(100);
-
-                    // TO DO: calculate endowment specific withdraw fee, if set. Only for Normal type.
-                    // Should be transfered to the Endowment Multisig.
-
-                    require(
-                        IERC20(curTokenaddress[i]).transfer(
-                            curBeneficiary,
-                            curAmount[i] - withdrawFeeAp
-                        ),
-                        "Transfer failed"
-                    );
-
+                    uint256 withdrawFeeAp = (curAmount[i].mul(withdrawFeeRateAp)).div(100);
+                    // transfer AP Protocol fee to treasury
                     require(
                         IERC20(curTokenaddress[i]).transfer(
                             registrar_config.treasury,
                             withdrawFeeAp
+                        ),
+                        "Transfer failed"
+                    );
+
+                    // calculate Endowment specific withdraw fee if needed
+                    uint256 withdrawFeeEndow = 0;
+                    if (
+                        tempEndowment.withdrawFee.active &&
+                        tempEndowment.withdrawFee.feePercentage != 0 &&
+                        tempEndowment.withdrawFee.payoutAddress != address(0)
+                    ) {
+                        withdrawFeeEndow = (
+                            curAmount[i].mul(tempEndowment.withdrawFee.feePercentage)
+                        ).div(100);
+
+                        // transfer endowment withdraw fee to beneficiary address
+                        require(
+                            IERC20(curTokenaddress[i]).transfer(
+                                tempEndowment.withdrawFee.payoutAddress,
+                                withdrawFeeEndow
+                            ),
+                            "Insufficient Funds"
+                        );
+                    }
+
+                    // send all tokens (less fees) to the ultimate beneficiary address
+                    require(
+                        IERC20(curTokenaddress[i]).transfer(
+                            curBeneficiary,
+                            (curAmount[i] - withdrawFeeAp - withdrawFeeEndow)
                         ),
                         "Transfer failed"
                     );
