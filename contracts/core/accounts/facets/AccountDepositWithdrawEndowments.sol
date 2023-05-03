@@ -359,11 +359,9 @@ contract AccountDepositWithdrawEndowments is
 
         //donation matching flow
         //execute donor match will always be called on an EOA
-        {
-            if (
-                tempEndowment.endow_type ==
+        if (lockedAmount > 0) {
+            if (tempEndowment.endow_type ==
                 AngelCoreStruct.EndowmentType.Charity &&
-                lockedAmount > 0 &&
                 registrar_config.donationMatchCharitesContract != address(0)
             ) {
                 IDonationMatching(
