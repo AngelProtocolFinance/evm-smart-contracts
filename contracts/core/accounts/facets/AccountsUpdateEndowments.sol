@@ -35,7 +35,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             curDetails.id
         ];
-        AccountStorage.Config memory tempConfig = state.config;
+        // AccountStorage.Config memory tempConfig = state.config;
         AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[
             curDetails.id
         ];
@@ -43,7 +43,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
 
         if (
-            !(msg.sender == tempConfig.owner ||
+            !(msg.sender == state.config.owner ||
                 msg.sender == tempEndowment.owner)
         ) {
             if (
@@ -55,7 +55,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         }
 
         // only config owner can update owner, tier and endowment type fields
-        if (msg.sender == tempConfig.owner) {
+        if (msg.sender == state.config.owner) {
             tempEndowment.tier = curDetails.tier;
             if (curDetails.owner != address(0)) {
                 tempEndowment.owner = curDetails.owner;
@@ -134,7 +134,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
                 uint256 length = curDetails.categories.general.length;
                 if (
                     curDetails.categories.general[length - 1] >
-                    tempConfig.maxGeneralCategoryId
+                    state.config.maxGeneralCategoryId
                 ) {
                     revert("InvalidInputs");
                 }

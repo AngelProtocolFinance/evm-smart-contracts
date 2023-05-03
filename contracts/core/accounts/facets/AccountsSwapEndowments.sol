@@ -36,7 +36,7 @@ contract AccountsSwapEndowments is ReentrancyGuardFacet, AccountsEvents {
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[curId];
-        AccountStorage.Config memory tempConfig = state.config;
+        // AccountStorage.Config memory tempConfig = state.config;
         AccountStorage.EndowmentState memory tempState = state.STATES[curId];
 
         require(tempEndowment.owner == msg.sender, "Unauthorized");
@@ -46,7 +46,7 @@ contract AccountsSwapEndowments is ReentrancyGuardFacet, AccountsEvents {
         require(curTokenout != address(0), "InvalidInputs");
 
         RegistrarStorage.Config memory registrar_config = IRegistrar(
-            tempConfig.registrarContract
+            state.config.registrarContract
         ).queryConfig();
 
         require(

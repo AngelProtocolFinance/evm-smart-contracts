@@ -202,10 +202,10 @@ contract AccountDepositWithdrawEndowments is
     ) public payable nonReentrant {
         require(msg.value > 0, "Invalid Amount");
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.Config memory tempConfig = state.config;
+        // AccountStorage.Config memory tempConfig = state.config;
 
         RegistrarStorage.Config memory registrar_config = IRegistrar(
-            tempConfig.registrarContract
+            state.config.registrarContract
         ).queryConfig();
 
         // Swap ETH to USDC
@@ -228,10 +228,10 @@ contract AccountDepositWithdrawEndowments is
     ) public payable nonReentrant {
         require(curTokenaddress != address(0), "Invalid Token Address");
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.Config memory tempConfig = state.config;
+        // AccountStorage.Config memory tempConfig = state.config;
 
         RegistrarStorage.Config memory registrar_config = IRegistrar(
-            tempConfig.registrarContract
+            state.config.registrarContract
         ).queryConfig();
 
         bool isValid = AngelCoreStruct.cw20Valid(
@@ -560,24 +560,24 @@ contract AccountDepositWithdrawEndowments is
 
             // only withdraws money which is available on the contract
             // doesn't bring money from the vaults
-            {
-                uint256 withdrawFee = (curAmount[i].mul(withdrawRate)).div(100);
+            // {
+            //     uint256 withdrawFee = (curAmount[i].mul(withdrawRate)).div(100);
 
-                require(
-                    IERC20(curTokenaddress[i]).transfer(
-                        curBeneficiary,
-                        curAmount[i] - withdrawFee
-                    ),
-                    "Transfer failed"
-                );
-                require(
-                    IERC20(curTokenaddress[i]).transfer(
-                        registrar_config.treasury,
-                        withdrawFee
-                    ),
-                    "Transfer failed"
-                );
-            }
+            //     require(
+            //         IERC20(curTokenaddress[i]).transfer(
+            //             curBeneficiary,
+            //             curAmount[i] - withdrawFee
+            //         ),
+            //         "Transfer failed"
+            //     );
+            //     require(
+            //         IERC20(curTokenaddress[i]).transfer(
+            //             registrar_config.treasury,
+            //             withdrawFee
+            //         ),
+            //         "Transfer failed"
+            //     );
+            // }
 
             state_bal.Cw20CoinVerified_amount[index] -= curAmount[i];
         }

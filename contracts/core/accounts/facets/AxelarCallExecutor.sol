@@ -191,7 +191,7 @@ contract AxelarExecutionContract is ReentrancyGuardFacet, AccountsEvents {
      */
     function distributeToBeneficiary(uint256 curId) internal {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.Config memory tempConfig = state.config;
+        // AccountStorage.Config memory tempConfig = state.config;
         AccountStorage.EndowmentState storage tempState = state.STATES[curId];
 
         if (
@@ -265,7 +265,7 @@ contract AxelarExecutionContract is ReentrancyGuardFacet, AccountsEvents {
             AngelCoreStruct.BeneficiaryEnum.IndexFund
         ) {
             RegistrarStorage.Config memory registrar_config = IRegistrar(
-                tempConfig.registrarContract
+                state.config.registrarContract
             ).queryConfig();
 
             AngelCoreStruct.IndexFund memory temp_fund = IIndexFund(
@@ -355,19 +355,19 @@ contract AxelarExecutionContract is ReentrancyGuardFacet, AccountsEvents {
         AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[
             action.accountIds[0]
         ];
-        AccountStorage.Config memory tempConfig = state.config;
+        // AccountStorage.Config memory tempConfig = state.config;
         AccountStorage.EndowmentState storage tempState = state.STATES[
             action.accountIds[0]
         ];
 
         AngelCoreStruct.NetworkInfo memory networkInfo = IRegistrar(
-            tempConfig.registrarContract
+            state.config.registrarContract
         ).queryNetworkConnection(block.chainid);
 
         address token = IAxelarGateway(networkInfo.axelerGateway).tokenAddresses(tokenSymbol);
 
         require(
-            validateDepositFund(tempConfig.registrarContract, token, amount),
+            validateDepositFund(state.config.registrarContract, token, amount),
             "Invalid Asset"
         );
         string memory result = state.stratagyId[action.strategyId];

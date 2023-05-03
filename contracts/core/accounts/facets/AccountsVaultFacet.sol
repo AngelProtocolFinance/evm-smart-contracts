@@ -256,7 +256,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
         string[] memory curVaults
     ) public payable nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.Config memory tempConfig = state.config;
+        // AccountStorage.Config memory tempConfig = state.config;
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             curId
         ];
@@ -271,7 +271,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
 
         for (uint256 i = 0; i < curVaults.length; i++) {
             AngelCoreStruct.YieldVault memory vault_config = IRegistrar(
-                tempConfig.registrarContract
+                state.config.registrarContract
             ).queryVaultDetails(curVaults[i]);
 
             require(
@@ -314,7 +314,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
 
             executeCalls(
                 payloadObject,
-                tempConfig.registrarContract,
+                state.config.registrarContract,
                 vault_config.network
             );
         }

@@ -37,7 +37,7 @@ contract AccountsDAOEndowments is ReentrancyGuardFacet, AccountsEvents {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
 
         AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[curId];
-        AccountStorage.Config memory tempConfig = state.config;
+        // AccountStorage.Config memory tempConfig = state.config;
 
         require(tempEndowment.owner == msg.sender, "Unauthorized");
         require(tempEndowment.dao == address(0), "AD E01"); // A DAO already exists for this Endowment
@@ -56,7 +56,7 @@ contract AccountsDAOEndowments is ReentrancyGuardFacet, AccountsEvents {
                 token: curDetails.token,
                 endow_type: tempEndowment.endow_type,
                 endowOwner: tempEndowment.owner,
-                registrarContract: tempConfig.registrarContract
+                registrarContract: state.config.registrarContract
             });
 
         address daoAddress = IAccountDeployContract(address(this))

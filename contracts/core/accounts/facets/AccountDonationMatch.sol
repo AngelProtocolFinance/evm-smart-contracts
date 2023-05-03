@@ -106,7 +106,7 @@ contract AccountDonationMatch is ReentrancyGuardFacet, AccountsEvents {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
 
         AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[curId];
-        AccountStorage.Config memory tempConfig = state.config;
+        // AccountStorage.Config memory tempConfig = state.config;
 
         require(msg.sender == tempEndowment.owner, "Unauthorized");
 
@@ -115,7 +115,7 @@ contract AccountDonationMatch is ReentrancyGuardFacet, AccountsEvents {
         require(tempEndowment.donationMatchContract == address(0), "AD E03"); // A Donation Match contract already exists for this Endowment
 
         RegistrarStorage.Config memory registrar_config = IRegistrar(
-            tempConfig.registrarContract
+            state.config.registrarContract
         ).queryConfig();
 
         require(registrar_config.donationMatchCode != address(0), "AD E04"); // No implementation for donation matching contract
@@ -146,7 +146,7 @@ contract AccountDonationMatch is ReentrancyGuardFacet, AccountsEvents {
             memory _inputParam = DonationMatchMessages.InstantiateMessage({
                 reserveToken: curInputtoken,
                 uniswapFactory: curDetails.data.uniswapFactory,
-                registrarContract: tempConfig.registrarContract,
+                registrarContract: state.config.registrarContract,
                 poolFee: curDetails.data.poolFee,
                 usdcAddress: registrar_config.usdcAddress
             });
@@ -175,7 +175,7 @@ contract AccountDonationMatch is ReentrancyGuardFacet, AccountsEvents {
                     DonationMatchStorage.Config({
                         reserveToken: curInputtoken,
                         uniswapFactory: curDetails.data.uniswapFactory,
-                        registrarContract: tempConfig.registrarContract,
+                        registrarContract: state.config.registrarContract,
                         poolFee: curDetails.data.poolFee,
                         usdcAddress: registrar_config.usdcAddress
                     })
