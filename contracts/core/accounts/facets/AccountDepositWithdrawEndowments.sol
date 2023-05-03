@@ -375,8 +375,7 @@ contract AccountDepositWithdrawEndowments is
             } else if (
                 tempEndowment.endow_type ==
                 AngelCoreStruct.EndowmentType.Normal &&
-                tempEndowment.donationMatchContract != address(0) &&
-                lockedAmount > 0
+                tempEndowment.donationMatchContract != address(0)
             ) {
                 IDonationMatching(tempEndowment.donationMatchContract)
                     .executeDonorMatch(
