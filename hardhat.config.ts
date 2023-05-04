@@ -5,7 +5,7 @@ import "@nomicfoundation/hardhat-chai-matchers"
 import '@openzeppelin/hardhat-upgrades';
 import "@nomiclabs/hardhat-ethers";
 import "@typechain/hardhat";
-import "hardhat-abi-exporter"
+// import "hardhat-abi-exporter"
 // import "./tasks"
 
 const config: HardhatUserConfig = {
@@ -49,26 +49,26 @@ const config: HardhatUserConfig = {
       polygonMumbai: envConfig.polyscanAPIKey
     }
   },
-  abiExporter: [
-    {
-        path: "./abi/json",
-        runOnCompile: true,
-        clear: true,
-        flat: false,
-        spacing: 2,
-        format: "json",
-        except: ["IAxelarGateway"],
-    },
-    {
-        path: "./abi/minimal",
-        runOnCompile: true,
-        clear: true,
-        flat: false,
-        spacing: 2,
-        format: "minimal",
-        except: ["IAxelarGateway"],
-    },
-  ]
+  // abiExporter: [
+  //   {
+  //       path: "./abi/json",
+  //       runOnCompile: true,
+  //       clear: true,
+  //       flat: false,
+  //       spacing: 2,
+  //       format: "json",
+  //       except: ["IAxelarGateway"],
+  //   },
+  //   {
+  //       path: "./abi/minimal",
+  //       runOnCompile: true,
+  //       clear: true,
+  //       flat: false,
+  //       spacing: 2,
+  //       format: "minimal",
+  //       except: ["IAxelarGateway"],
+  //   },
+  // ]
 }
 
 export default config;
