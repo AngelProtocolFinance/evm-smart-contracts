@@ -6,7 +6,7 @@ import '@openzeppelin/hardhat-upgrades';
 import "@nomiclabs/hardhat-ethers";
 import "@typechain/hardhat";
 import "hardhat-abi-exporter"
-import "./tasks"
+// import "./tasks"
 
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
@@ -54,7 +54,7 @@ const config: HardhatUserConfig = {
         path: "./abi/json",
         runOnCompile: true,
         clear: true,
-        flat: true,
+        flat: false,
         spacing: 2,
         format: "json",
         except: ["IAxelarGateway"],
@@ -63,7 +63,7 @@ const config: HardhatUserConfig = {
         path: "./abi/minimal",
         runOnCompile: true,
         clear: true,
-        flat: true,
+        flat: false,
         spacing: 2,
         format: "minimal",
         except: ["IAxelarGateway"],
