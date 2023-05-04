@@ -4,11 +4,12 @@ import config from "../../config"
 import addresses from "../../contract-address.json"
 import { Registrar } from "../../typechain-types"
 import { RegistrarMessages } from "../../typechain-types/contracts/core/registrar/interface/IRegistrar"
+import { multisigs } from "../../typechain-types/contracts"
 
 task("manage:updateRegistrar", "Will update the registrar config")
     .setAction(async (taskArguments: TaskArguments, hre) => {
         try {
-            let [_deployer, proxyAdmin, apTeam1] = await hre.ethers.getSigners()
+            let [deployer, apTeam1] = await hre.ethers.getSigners()
 
             const registrar = (await hre.ethers.getContractAt(
                 "Registrar",
@@ -55,14 +56,19 @@ task("manage:updateRegistrar", "Will update the registrar config")
                 multisigEmitter:
                     addresses.EndowmentMultiSigAddress
                         .EndowmentMultiSigEmitterProxy,
-                charityProposal: apTeam1.address,
+                charityProposal: addresses.charityApplication.CharityApplicationProxy,
                 lockedWithdrawal: addresses.lockedWithdraw.LockedWithdrawProxy,
-                proxyAdmin: proxyAdmin.address,
+                proxyAdmin: deployer.address,
                 usdcAddress: addresses.Tokens.usdc,
                 wethAddress: addresses.Tokens.weth,
                 cw900lvAddress: apTeam1.address,
             }
-            await registrar.updateConfig(newConfig)
+            let tx = await registrar.updateConfig(newConfig)
+            await hre.ethers.provider.waitForTransaction(tx.hash)
+
+            let updatedConfig = await registrar.queryConfig()
+            console.log(updatedConfig)
+            
         } catch (error) {
             console.log(error)
         }

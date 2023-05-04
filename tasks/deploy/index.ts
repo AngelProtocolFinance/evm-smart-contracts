@@ -1,5 +1,3 @@
-import "./integrations"
-import "./routerAndRegistrar"
 import "./deployAngelProtocol"
 import "./deployCharityApplications"
 import "./deployDiamond"
