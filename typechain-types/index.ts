@@ -270,6 +270,8 @@ export type { DummyCRVLP } from "./contracts/integrations/goldfinch/test/DummyCR
 export { DummyCRVLP__factory } from "./factories/contracts/integrations/goldfinch/test/DummyCRVLP__factory";
 export type { DummyStakingRewards } from "./contracts/integrations/goldfinch/test/DummyStakingRewards";
 export { DummyStakingRewards__factory } from "./factories/contracts/integrations/goldfinch/test/DummyStakingRewards__factory";
+export type { ILocalRegistrar } from "./contracts/interfaces/ILocalRegistrar";
+export { ILocalRegistrar__factory } from "./factories/contracts/interfaces/ILocalRegistrar__factory";
 export type { IRouter } from "./contracts/interfaces/IRouter";
 export { IRouter__factory } from "./factories/contracts/interfaces/IRouter__factory";
 export type { IVaultLiquid } from "./contracts/interfaces/IVaultLiquid";
@@ -280,6 +282,8 @@ export type { StringToAddress } from "./contracts/lib/StringAddressUtils.sol/Str
 export { StringToAddress__factory } from "./factories/contracts/lib/StringAddressUtils.sol/StringToAddress__factory";
 export type { StringArray } from "./contracts/lib/Strings/string.sol/StringArray";
 export { StringArray__factory } from "./factories/contracts/lib/Strings/string.sol/StringArray__factory";
+export type { LocalRegistrar } from "./contracts/LocalRegistrar";
+export { LocalRegistrar__factory } from "./factories/contracts/LocalRegistrar__factory";
 export type { DummyGateway } from "./contracts/mock/DummyGateway";
 export { DummyGateway__factory } from "./factories/contracts/mock/DummyGateway__factory";
 export type { HaloToken } from "./contracts/mock/haloToken.sol/HaloToken";

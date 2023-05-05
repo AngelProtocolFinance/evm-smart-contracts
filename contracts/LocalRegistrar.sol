@@ -2,15 +2,15 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.0;
 
-import { IRegistrar } from "./interfaces/IRegistrar.sol";
+import { ILocalRegistrar } from "./interfaces/ILocalRegistrar.sol";
 import { IVault } from "./interfaces/IVault.sol";
-import { RegistrarConfig } from "./lib/RegistrarConfig.sol";
+import { LocalRegistrarConfig } from "./lib/LocalRegistrarConfig.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 // Import integrations here
 import {APGoldfinchConfigLib} from "./integrations/goldfinch/APGoldfinchConfig.sol";
 
-contract Registrar is IRegistrar, OwnableUpgradeable {
+contract LocalRegistrar is ILocalRegistrar, OwnableUpgradeable {
 
     /*////////////////////////////////////////////////
                     STORAGE INIT
@@ -36,20 +36,20 @@ contract Registrar is IRegistrar, OwnableUpgradeable {
         __Ownable_init_unchained();
 
         rebalanceParams = RebalanceParams(
-            RegistrarConfig.REBALANCE_LIQUID_PROFITS,
-            RegistrarConfig.LOCKED_REBALANCE_TO_LIQUID,
-            RegistrarConfig.INTEREST_DISTRIBUTION,
-            RegistrarConfig.LOCKED_PRINCIPLE_TO_LIQUID,
-            RegistrarConfig.PRINCIPLE_DISTRIBUTION,
-            RegistrarConfig.BASIS
+            LocalRegistrarConfig.REBALANCE_LIQUID_PROFITS,
+            LocalRegistrarConfig.LOCKED_REBALANCE_TO_LIQUID,
+            LocalRegistrarConfig.INTEREST_DISTRIBUTION,
+            LocalRegistrarConfig.LOCKED_PRINCIPLE_TO_LIQUID,
+            LocalRegistrarConfig.PRINCIPLE_DISTRIBUTION,
+            LocalRegistrarConfig.BASIS
         );
 
         angelProtocolParams = AngelProtocolParams(
-            RegistrarConfig.PROTOCOL_TAX_RATE,
-            RegistrarConfig.PROTOCOL_TAX_BASIS,
-            RegistrarConfig.PROTOCOL_TAX_COLLECTOR,
-            RegistrarConfig.ROUTER_ADDRESS,
-            RegistrarConfig.REFUND_ADDRESS
+            LocalRegistrarConfig.PROTOCOL_TAX_RATE,
+            LocalRegistrarConfig.PROTOCOL_TAX_BASIS,
+            LocalRegistrarConfig.PROTOCOL_TAX_COLLECTOR,
+            LocalRegistrarConfig.ROUTER_ADDRESS,
+            LocalRegistrarConfig.REFUND_ADDRESS
         );
     }
 

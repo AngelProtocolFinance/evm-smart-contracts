@@ -25,7 +25,7 @@ import type {
   TypedListener,
   OnEvent,
   PromiseOrValue,
-} from "../../../common";
+} from "../../common";
 
 export declare namespace ILocalRegistrar {
   export type AngelProtocolParamsStruct = {
@@ -102,27 +102,8 @@ export declare namespace ILocalRegistrar {
   };
 }
 
-export declare namespace APGoldfinchConfigLib {
-  export type CRVParamsStruct = {
-    allowedSlippage: PromiseOrValue<BigNumberish>;
-  };
-
-  export type CRVParamsStructOutput = [BigNumber] & {
-    allowedSlippage: BigNumber;
-  };
-
-  export type APGoldfinchConfigStruct = {
-    crvParams: APGoldfinchConfigLib.CRVParamsStruct;
-  };
-
-  export type APGoldfinchConfigStructOutput = [
-    APGoldfinchConfigLib.CRVParamsStructOutput
-  ] & { crvParams: APGoldfinchConfigLib.CRVParamsStructOutput };
-}
-
-export interface IRegistrarGoldfinchInterface extends utils.Interface {
+export interface ILocalRegistrarInterface extends utils.Interface {
   functions: {
-    "getAPGoldfinchParams()": FunctionFragment;
     "getAccountsContractAddressByChain(string)": FunctionFragment;
     "getAngelProtocolParams()": FunctionFragment;
     "getGasByToken(address)": FunctionFragment;
@@ -141,7 +122,6 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "getAPGoldfinchParams"
       | "getAccountsContractAddressByChain"
       | "getAngelProtocolParams"
       | "getGasByToken"
@@ -158,10 +138,6 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
       | "setTokenAccepted"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "getAPGoldfinchParams",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "getAccountsContractAddressByChain",
     values: [PromiseOrValue<string>]
@@ -224,10 +200,6 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "getAPGoldfinchParams",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "getAccountsContractAddressByChain",
     data: BytesLike
@@ -389,12 +361,12 @@ export type TokenAcceptanceChangedEvent = TypedEvent<
 export type TokenAcceptanceChangedEventFilter =
   TypedEventFilter<TokenAcceptanceChangedEvent>;
 
-export interface IRegistrarGoldfinch extends BaseContract {
+export interface ILocalRegistrar extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: IRegistrarGoldfinchInterface;
+  interface: ILocalRegistrarInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -416,10 +388,6 @@ export interface IRegistrarGoldfinch extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    getAPGoldfinchParams(
-      overrides?: CallOverrides
-    ): Promise<[APGoldfinchConfigLib.APGoldfinchConfigStructOutput]>;
-
     getAccountsContractAddressByChain(
       _targetChain: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -495,10 +463,6 @@ export interface IRegistrarGoldfinch extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
-
-  getAPGoldfinchParams(
-    overrides?: CallOverrides
-  ): Promise<APGoldfinchConfigLib.APGoldfinchConfigStructOutput>;
 
   getAccountsContractAddressByChain(
     _targetChain: PromiseOrValue<string>,
@@ -576,10 +540,6 @@ export interface IRegistrarGoldfinch extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    getAPGoldfinchParams(
-      overrides?: CallOverrides
-    ): Promise<APGoldfinchConfigLib.APGoldfinchConfigStructOutput>;
-
     getAccountsContractAddressByChain(
       _targetChain: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -722,8 +682,6 @@ export interface IRegistrarGoldfinch extends BaseContract {
   };
 
   estimateGas: {
-    getAPGoldfinchParams(overrides?: CallOverrides): Promise<BigNumber>;
-
     getAccountsContractAddressByChain(
       _targetChain: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -797,10 +755,6 @@ export interface IRegistrarGoldfinch extends BaseContract {
   };
 
   populateTransaction: {
-    getAPGoldfinchParams(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     getAccountsContractAddressByChain(
       _targetChain: PromiseOrValue<string>,
       overrides?: CallOverrides

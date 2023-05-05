@@ -13,5 +13,6 @@ export * as multisigs from "./multisigs";
 export * as normalizedEndowment from "./normalized_endowment";
 export * as test from "./test";
 export { Halo__factory } from "./Halo__factory";
+export { LocalRegistrar__factory } from "./LocalRegistrar__factory";
 export { Registrar__factory } from "./Registrar__factory";
 export { Router__factory } from "./Router__factory";

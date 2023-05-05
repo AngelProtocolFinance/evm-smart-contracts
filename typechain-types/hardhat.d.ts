@@ -545,6 +545,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DummyStakingRewards__factory>;
     getContractFactory(
+      name: "ILocalRegistrar",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ILocalRegistrar__factory>;
+    getContractFactory(
       name: "IRegistrar",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IRegistrar__factory>;
@@ -572,6 +576,10 @@ declare module "hardhat/types/runtime" {
       name: "StringArray",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.StringArray__factory>;
+    getContractFactory(
+      name: "LocalRegistrar",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.LocalRegistrar__factory>;
     getContractFactory(
       name: "DummyGateway",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -1455,6 +1463,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.DummyStakingRewards>;
     getContractAt(
+      name: "ILocalRegistrar",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ILocalRegistrar>;
+    getContractAt(
       name: "IRegistrar",
       address: string,
       signer?: ethers.Signer
@@ -1489,6 +1502,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.StringArray>;
+    getContractAt(
+      name: "LocalRegistrar",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.LocalRegistrar>;
     getContractAt(
       name: "DummyGateway",
       address: string,

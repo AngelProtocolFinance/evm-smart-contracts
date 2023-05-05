@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 
 import { IVault } from "./IVault.sol";
  
-interface IRegistrar {
+interface ILocalRegistrar {
 
     /*////////////////////////////////////////////////
                         EVENTS
@@ -29,7 +29,7 @@ interface IRegistrar {
     /*////////////////////////////////////////////////
                         CUSTOM TYPES
     */////////////////////////////////////////////////
-    struct RebalanceParams {
+    struct RebalanceParams { // missing basis 
         bool rebalanceLiquidProfits;
         uint32 lockedRebalanceToLiquid;
         uint32 interestDistribution;
@@ -38,7 +38,7 @@ interface IRegistrar {
         uint32 basis;
     }
 
-    struct AngelProtocolParams {
+    struct AngelProtocolParams { // Split in many places, see SHARED
         uint32 protocolTaxRate;
         uint32 protocolTaxBasis;
         address protocolTaxCollector;

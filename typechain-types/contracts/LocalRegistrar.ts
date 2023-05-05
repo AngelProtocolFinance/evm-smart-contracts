@@ -25,7 +25,7 @@ import type {
   TypedListener,
   OnEvent,
   PromiseOrValue,
-} from "../../../common";
+} from "../common";
 
 export declare namespace ILocalRegistrar {
   export type AngelProtocolParamsStruct = {
@@ -120,8 +120,10 @@ export declare namespace APGoldfinchConfigLib {
   ] & { crvParams: APGoldfinchConfigLib.CRVParamsStructOutput };
 }
 
-export interface IRegistrarGoldfinchInterface extends utils.Interface {
+export interface LocalRegistrarInterface extends utils.Interface {
   functions: {
+    "angelProtocolParams()": FunctionFragment;
+    "apGoldfinch()": FunctionFragment;
     "getAPGoldfinchParams()": FunctionFragment;
     "getAccountsContractAddressByChain(string)": FunctionFragment;
     "getAngelProtocolParams()": FunctionFragment;
@@ -129,7 +131,12 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
     "getRebalanceParams()": FunctionFragment;
     "getStrategyApprovalState(bytes4)": FunctionFragment;
     "getStrategyParamsById(bytes4)": FunctionFragment;
+    "initialize()": FunctionFragment;
     "isTokenAccepted(address)": FunctionFragment;
+    "owner()": FunctionFragment;
+    "rebalanceParams()": FunctionFragment;
+    "renounceOwnership()": FunctionFragment;
+    "setAPGoldfinchParams(((uint256)))": FunctionFragment;
     "setAccountsContractAddressByChain(string,string)": FunctionFragment;
     "setAngelProtocolParams((uint32,uint32,address,address,address))": FunctionFragment;
     "setGasByToken(address,uint256)": FunctionFragment;
@@ -137,10 +144,13 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
     "setStrategyApprovalState(bytes4,uint8)": FunctionFragment;
     "setStrategyParams(bytes4,address,address,uint8)": FunctionFragment;
     "setTokenAccepted(address,bool)": FunctionFragment;
+    "transferOwnership(address)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "angelProtocolParams"
+      | "apGoldfinch"
       | "getAPGoldfinchParams"
       | "getAccountsContractAddressByChain"
       | "getAngelProtocolParams"
@@ -148,7 +158,12 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
       | "getRebalanceParams"
       | "getStrategyApprovalState"
       | "getStrategyParamsById"
+      | "initialize"
       | "isTokenAccepted"
+      | "owner"
+      | "rebalanceParams"
+      | "renounceOwnership"
+      | "setAPGoldfinchParams"
       | "setAccountsContractAddressByChain"
       | "setAngelProtocolParams"
       | "setGasByToken"
@@ -156,8 +171,17 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
       | "setStrategyApprovalState"
       | "setStrategyParams"
       | "setTokenAccepted"
+      | "transferOwnership"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "angelProtocolParams",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "apGoldfinch",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "getAPGoldfinchParams",
     values?: undefined
@@ -187,8 +211,25 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
+    functionFragment: "initialize",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "isTokenAccepted",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "rebalanceParams",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setAPGoldfinchParams",
+    values: [APGoldfinchConfigLib.APGoldfinchConfigStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "setAccountsContractAddressByChain",
@@ -223,7 +264,19 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
     functionFragment: "setTokenAccepted",
     values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [PromiseOrValue<string>]
+  ): string;
 
+  decodeFunctionResult(
+    functionFragment: "angelProtocolParams",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "apGoldfinch",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "getAPGoldfinchParams",
     data: BytesLike
@@ -252,8 +305,22 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
     functionFragment: "getStrategyParamsById",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isTokenAccepted",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "rebalanceParams",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setAPGoldfinchParams",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -284,11 +351,17 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
     functionFragment: "setTokenAccepted",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
+    data: BytesLike
+  ): Result;
 
   events: {
     "AccountsContractStorageChanged(string,string)": EventFragment;
     "AngelProtocolParamsChanged(tuple)": EventFragment;
     "GasFeeUpdated(address,uint256)": EventFragment;
+    "Initialized(uint8)": EventFragment;
+    "OwnershipTransferred(address,address)": EventFragment;
     "RebalanceParamsChanged(tuple)": EventFragment;
     "StrategyApprovalChanged(bytes4,uint8)": EventFragment;
     "StrategyParamsChanged(bytes4,address,address,uint8)": EventFragment;
@@ -300,6 +373,8 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AngelProtocolParamsChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GasFeeUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RebalanceParamsChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StrategyApprovalChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StrategyParamsChanged"): EventFragment;
@@ -339,6 +414,25 @@ export type GasFeeUpdatedEvent = TypedEvent<
 >;
 
 export type GasFeeUpdatedEventFilter = TypedEventFilter<GasFeeUpdatedEvent>;
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
+
+export interface OwnershipTransferredEventObject {
+  previousOwner: string;
+  newOwner: string;
+}
+export type OwnershipTransferredEvent = TypedEvent<
+  [string, string],
+  OwnershipTransferredEventObject
+>;
+
+export type OwnershipTransferredEventFilter =
+  TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface RebalanceParamsChangedEventObject {
   newRebalanceParams: ILocalRegistrar.RebalanceParamsStructOutput;
@@ -389,12 +483,12 @@ export type TokenAcceptanceChangedEvent = TypedEvent<
 export type TokenAcceptanceChangedEventFilter =
   TypedEventFilter<TokenAcceptanceChangedEvent>;
 
-export interface IRegistrarGoldfinch extends BaseContract {
+export interface LocalRegistrar extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: IRegistrarGoldfinchInterface;
+  interface: LocalRegistrarInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -416,6 +510,26 @@ export interface IRegistrarGoldfinch extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    angelProtocolParams(
+      overrides?: CallOverrides
+    ): Promise<
+      [number, number, string, string, string] & {
+        protocolTaxRate: number;
+        protocolTaxBasis: number;
+        protocolTaxCollector: string;
+        routerAddr: string;
+        refundAddr: string;
+      }
+    >;
+
+    apGoldfinch(
+      overrides?: CallOverrides
+    ): Promise<
+      [APGoldfinchConfigLib.CRVParamsStructOutput] & {
+        crvParams: APGoldfinchConfigLib.CRVParamsStructOutput;
+      }
+    >;
+
     getAPGoldfinchParams(
       overrides?: CallOverrides
     ): Promise<[APGoldfinchConfigLib.APGoldfinchConfigStructOutput]>;
@@ -448,10 +562,38 @@ export interface IRegistrarGoldfinch extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[ILocalRegistrar.StrategyParamsStructOutput]>;
 
+    initialize(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     isTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    owner(overrides?: CallOverrides): Promise<[string]>;
+
+    rebalanceParams(
+      overrides?: CallOverrides
+    ): Promise<
+      [boolean, number, number, boolean, number, number] & {
+        rebalanceLiquidProfits: boolean;
+        lockedRebalanceToLiquid: number;
+        interestDistribution: number;
+        lockedPrincipleToLiquid: boolean;
+        principleDistribution: number;
+        basis: number;
+      }
+    >;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setAPGoldfinchParams(
+      _apGoldfinch: APGoldfinchConfigLib.APGoldfinchConfigStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     setAccountsContractAddressByChain(
       _chainName: PromiseOrValue<string>,
@@ -483,8 +625,8 @@ export interface IRegistrarGoldfinch extends BaseContract {
 
     setStrategyParams(
       _strategyId: PromiseOrValue<BytesLike>,
-      _liqAddr: PromiseOrValue<string>,
       _lockAddr: PromiseOrValue<string>,
+      _liqAddr: PromiseOrValue<string>,
       _approvalState: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -494,7 +636,28 @@ export interface IRegistrarGoldfinch extends BaseContract {
       _isAccepted: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
+
+  angelProtocolParams(
+    overrides?: CallOverrides
+  ): Promise<
+    [number, number, string, string, string] & {
+      protocolTaxRate: number;
+      protocolTaxBasis: number;
+      protocolTaxCollector: string;
+      routerAddr: string;
+      refundAddr: string;
+    }
+  >;
+
+  apGoldfinch(
+    overrides?: CallOverrides
+  ): Promise<APGoldfinchConfigLib.CRVParamsStructOutput>;
 
   getAPGoldfinchParams(
     overrides?: CallOverrides
@@ -528,10 +691,38 @@ export interface IRegistrarGoldfinch extends BaseContract {
     overrides?: CallOverrides
   ): Promise<ILocalRegistrar.StrategyParamsStructOutput>;
 
+  initialize(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   isTokenAccepted(
     _tokenAddr: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  owner(overrides?: CallOverrides): Promise<string>;
+
+  rebalanceParams(
+    overrides?: CallOverrides
+  ): Promise<
+    [boolean, number, number, boolean, number, number] & {
+      rebalanceLiquidProfits: boolean;
+      lockedRebalanceToLiquid: number;
+      interestDistribution: number;
+      lockedPrincipleToLiquid: boolean;
+      principleDistribution: number;
+      basis: number;
+    }
+  >;
+
+  renounceOwnership(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setAPGoldfinchParams(
+    _apGoldfinch: APGoldfinchConfigLib.APGoldfinchConfigStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   setAccountsContractAddressByChain(
     _chainName: PromiseOrValue<string>,
@@ -563,8 +754,8 @@ export interface IRegistrarGoldfinch extends BaseContract {
 
   setStrategyParams(
     _strategyId: PromiseOrValue<BytesLike>,
-    _liqAddr: PromiseOrValue<string>,
     _lockAddr: PromiseOrValue<string>,
+    _liqAddr: PromiseOrValue<string>,
     _approvalState: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -575,7 +766,28 @@ export interface IRegistrarGoldfinch extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  transferOwnership(
+    newOwner: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
+    angelProtocolParams(
+      overrides?: CallOverrides
+    ): Promise<
+      [number, number, string, string, string] & {
+        protocolTaxRate: number;
+        protocolTaxBasis: number;
+        protocolTaxCollector: string;
+        routerAddr: string;
+        refundAddr: string;
+      }
+    >;
+
+    apGoldfinch(
+      overrides?: CallOverrides
+    ): Promise<APGoldfinchConfigLib.CRVParamsStructOutput>;
+
     getAPGoldfinchParams(
       overrides?: CallOverrides
     ): Promise<APGoldfinchConfigLib.APGoldfinchConfigStructOutput>;
@@ -608,10 +820,34 @@ export interface IRegistrarGoldfinch extends BaseContract {
       overrides?: CallOverrides
     ): Promise<ILocalRegistrar.StrategyParamsStructOutput>;
 
+    initialize(overrides?: CallOverrides): Promise<void>;
+
     isTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    owner(overrides?: CallOverrides): Promise<string>;
+
+    rebalanceParams(
+      overrides?: CallOverrides
+    ): Promise<
+      [boolean, number, number, boolean, number, number] & {
+        rebalanceLiquidProfits: boolean;
+        lockedRebalanceToLiquid: number;
+        interestDistribution: number;
+        lockedPrincipleToLiquid: boolean;
+        principleDistribution: number;
+        basis: number;
+      }
+    >;
+
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    setAPGoldfinchParams(
+      _apGoldfinch: APGoldfinchConfigLib.APGoldfinchConfigStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setAccountsContractAddressByChain(
       _chainName: PromiseOrValue<string>,
@@ -643,8 +879,8 @@ export interface IRegistrarGoldfinch extends BaseContract {
 
     setStrategyParams(
       _strategyId: PromiseOrValue<BytesLike>,
-      _liqAddr: PromiseOrValue<string>,
       _lockAddr: PromiseOrValue<string>,
+      _liqAddr: PromiseOrValue<string>,
       _approvalState: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -652,6 +888,11 @@ export interface IRegistrarGoldfinch extends BaseContract {
     setTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       _isAccepted: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -681,6 +922,18 @@ export interface IRegistrarGoldfinch extends BaseContract {
       _tokenAddr?: PromiseOrValue<string> | null,
       _gasFee?: null
     ): GasFeeUpdatedEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
+
+    "OwnershipTransferred(address,address)"(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferredEventFilter;
+    OwnershipTransferred(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferredEventFilter;
 
     "RebalanceParamsChanged(tuple)"(
       newRebalanceParams?: null
@@ -722,6 +975,10 @@ export interface IRegistrarGoldfinch extends BaseContract {
   };
 
   estimateGas: {
+    angelProtocolParams(overrides?: CallOverrides): Promise<BigNumber>;
+
+    apGoldfinch(overrides?: CallOverrides): Promise<BigNumber>;
+
     getAPGoldfinchParams(overrides?: CallOverrides): Promise<BigNumber>;
 
     getAccountsContractAddressByChain(
@@ -748,9 +1005,26 @@ export interface IRegistrarGoldfinch extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    initialize(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     isTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    rebalanceParams(overrides?: CallOverrides): Promise<BigNumber>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setAPGoldfinchParams(
+      _apGoldfinch: APGoldfinchConfigLib.APGoldfinchConfigStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setAccountsContractAddressByChain(
@@ -783,8 +1057,8 @@ export interface IRegistrarGoldfinch extends BaseContract {
 
     setStrategyParams(
       _strategyId: PromiseOrValue<BytesLike>,
-      _liqAddr: PromiseOrValue<string>,
       _lockAddr: PromiseOrValue<string>,
+      _liqAddr: PromiseOrValue<string>,
       _approvalState: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -794,9 +1068,20 @@ export interface IRegistrarGoldfinch extends BaseContract {
       _isAccepted: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    angelProtocolParams(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    apGoldfinch(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     getAPGoldfinchParams(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -829,9 +1114,26 @@ export interface IRegistrarGoldfinch extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    initialize(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     isTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    rebalanceParams(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setAPGoldfinchParams(
+      _apGoldfinch: APGoldfinchConfigLib.APGoldfinchConfigStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setAccountsContractAddressByChain(
@@ -864,8 +1166,8 @@ export interface IRegistrarGoldfinch extends BaseContract {
 
     setStrategyParams(
       _strategyId: PromiseOrValue<BytesLike>,
-      _liqAddr: PromiseOrValue<string>,
       _lockAddr: PromiseOrValue<string>,
+      _liqAddr: PromiseOrValue<string>,
       _approvalState: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -873,6 +1175,11 @@ export interface IRegistrarGoldfinch extends BaseContract {
     setTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       _isAccepted: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

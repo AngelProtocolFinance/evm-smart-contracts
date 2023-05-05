@@ -2,7 +2,7 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.0;
 
-library RegistrarConfig {
+library LocalRegistrarConfig {
 
     // DEFAULT REBALANCE PARAMS
     bool constant REBALANCE_LIQUID_PROFITS = false;

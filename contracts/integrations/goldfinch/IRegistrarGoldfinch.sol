@@ -2,10 +2,10 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.0;
 
-import {IRegistrar} from "../../interfaces/IRegistrar.sol";
+import {ILocalRegistrar} from "../../interfaces/ILocalRegistrar.sol";
 import {APGoldfinchConfigLib} from "./APGoldfinchConfig.sol";
 
-interface IRegistrarGoldfinch is IRegistrar {
+interface IRegistrarGoldfinch is ILocalRegistrar {
 
     struct principle {
         uint256 usdcP;
