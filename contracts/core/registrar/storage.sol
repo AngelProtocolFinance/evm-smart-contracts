@@ -25,7 +25,7 @@ library RegistrarStorage {
         address haloToken; // TerraSwap HALO token addr
         address haloTokenLpContract;
         address govContract; // AP governance contract
-        address collectorAddr; // Collector address for new fee
+        address collectorAddr; // Collector address for new fee //SHARED
         uint256 collectorShare;
         address charitySharesContract;
         AngelCoreStruct.AcceptedTokens acceptedTokens; // list of approved native and CW20 coins can accept inward
@@ -48,7 +48,7 @@ library RegistrarStorage {
         mapping(string => AngelCoreStruct.YieldVault) VAULTS;
         string[] VAULT_POINTERS;
         mapping(uint256 => AngelCoreStruct.NetworkInfo) NETWORK_CONNECTIONS;
-        mapping(string => uint256) FEES;
+        mapping(string => uint256) FEES; // SHARED
     }
 }
 

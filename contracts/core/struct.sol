@@ -166,6 +166,7 @@ library AngelCoreStruct {
         }
     }
 
+    // SHARED
     struct RebalanceDetails {
         bool rebalanceLiquidInvestedProfits; // should invested portions of the liquid account be rebalanced?
         bool lockedInterestsToLiquid; // should Locked acct interest earned be distributed to the Liquid Acct?
@@ -539,7 +540,7 @@ library AngelCoreStruct {
     struct NetworkInfo {
         string name;
         uint256 chainId;
-        address router;
+        address router; //SHARED
         address axelerGateway;
         string ibcChannel; // Should be removed
         string transferChannel;

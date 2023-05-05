@@ -2,7 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export { ILocalRegistrar__factory } from "./ILocalRegistrar__factory";
-export { IRegistrar__factory } from "./IRegistrar__factory";
 export { IRouter__factory } from "./IRouter__factory";
 export { IVault__factory } from "./IVault__factory";
 export { IVaultLiquid__factory } from "./IVaultLiquid__factory";

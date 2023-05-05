@@ -2,7 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { ILocalRegistrar } from "./ILocalRegistrar";
-export type { IRegistrar } from "./IRegistrar";
 export type { IRouter } from "./IRouter";
 export type { IVault } from "./IVault";
 export type { IVaultLiquid } from "./IVaultLiquid";

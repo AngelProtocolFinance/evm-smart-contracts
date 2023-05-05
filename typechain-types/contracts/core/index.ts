@@ -9,6 +9,8 @@ import type * as proxySol from "./proxy.sol";
 export type { proxySol };
 import type * as registrar from "./registrar";
 export type { registrar };
+import type * as router from "./router";
+export type { router };
 import type * as structSol from "./struct.sol";
 export type { structSol };
 import type * as swapRouter from "./swap-router";

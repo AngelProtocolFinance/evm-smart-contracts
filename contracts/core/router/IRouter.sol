@@ -3,7 +3,7 @@
 pragma solidity >=0.8.0;
 
 import {IAxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarExecutable.sol";
-import {IVault} from "./IVault.sol";
+import {IVault} from "../../interfaces/IVault.sol";
 
 abstract contract IRouter is IAxelarExecutable {
     /*////////////////////////////////////////////////
