@@ -75,7 +75,7 @@ export declare namespace AccountStorage {
     donationMatchContract: PromiseOrValue<string>;
     allowlistedBeneficiaries: PromiseOrValue<string>[];
     allowlistedContributors: PromiseOrValue<string>[];
-    maturityWhitelist: PromiseOrValue<string>[];
+    maturityAllowlist: PromiseOrValue<string>[];
     earningsFee: AngelCoreStruct.EndowmentFeeStruct;
     withdrawFee: AngelCoreStruct.EndowmentFeeStruct;
     depositFee: AngelCoreStruct.EndowmentFeeStruct;
@@ -143,7 +143,7 @@ export declare namespace AccountStorage {
     donationMatchContract: string;
     allowlistedBeneficiaries: string[];
     allowlistedContributors: string[];
-    maturityWhitelist: string[];
+    maturityAllowlist: string[];
     earningsFee: AngelCoreStruct.EndowmentFeeStructOutput;
     withdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
     depositFee: AngelCoreStruct.EndowmentFeeStructOutput;
@@ -378,7 +378,7 @@ export declare namespace AngelCoreStruct {
     strategies: AngelCoreStruct.SettingsPermissionStruct;
     allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStruct;
     allowlistedContributors: AngelCoreStruct.SettingsPermissionStruct;
-    maturityWhitelist: AngelCoreStruct.SettingsPermissionStruct;
+    maturityAllowlist: AngelCoreStruct.SettingsPermissionStruct;
     maturityTime: AngelCoreStruct.SettingsPermissionStruct;
     profile: AngelCoreStruct.SettingsPermissionStruct;
     earningsFee: AngelCoreStruct.SettingsPermissionStruct;
@@ -416,7 +416,7 @@ export declare namespace AngelCoreStruct {
     strategies: AngelCoreStruct.SettingsPermissionStructOutput;
     allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStructOutput;
     allowlistedContributors: AngelCoreStruct.SettingsPermissionStructOutput;
-    maturityWhitelist: AngelCoreStruct.SettingsPermissionStructOutput;
+    maturityAllowlist: AngelCoreStruct.SettingsPermissionStructOutput;
     maturityTime: AngelCoreStruct.SettingsPermissionStructOutput;
     profile: AngelCoreStruct.SettingsPermissionStructOutput;
     earningsFee: AngelCoreStruct.SettingsPermissionStructOutput;

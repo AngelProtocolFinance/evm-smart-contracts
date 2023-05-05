@@ -567,7 +567,7 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "maturityWhitelist",
+                name: "maturityAllowlist",
                 type: "tuple",
               },
               {
@@ -930,7 +930,7 @@ const _abi = [
           },
           {
             internalType: "address[]",
-            name: "maturityWhitelist",
+            name: "maturityAllowlist",
             type: "address[]",
           },
           {
