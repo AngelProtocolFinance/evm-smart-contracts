@@ -3,10 +3,7 @@ import { ContractFactory } from "ethers";
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import addresses from "../../contract-address.json";
-import {
-    FacetCutAction,
-    getSelectors,
-} from "../../contracts/core/accounts/scripts/libraries/diamond";
+import { FacetCutAction, getSelectors } from "../../contracts/core/accounts/scripts/libraries/diamond";
 import {
     AccountDepositWithdrawEndowments__factory,
     AccountDonationMatch__factory,
@@ -45,10 +42,7 @@ task(
 
         console.log("Done.");
     } catch (error) {
-        logger.out(
-            `Facet upgrade failed, reason: ${error}`,
-            logger.Level.Error
-        );
+        logger.out(`Facet upgrade failed, reason: ${error}`, logger.Level.Error);
     }
 });
 
@@ -77,10 +71,7 @@ async function deployFacets(
                 functionSelectors: getSelectors(facet),
             });
         } catch (error) {
-            logger.out(
-                `Failed to deploy ${contractName}, reason: ${error}`,
-                logger.Level.Error
-            );
+            logger.out(`Failed to deploy ${contractName}, reason: ${error}`, logger.Level.Error);
         }
     }
     return cuts;
@@ -93,15 +84,9 @@ async function updateDiamond(
 ) {
     console.log("Updating Diamond with new facet addresses...");
 
-    const diamondCut = DiamondCutFacet__factory.connect(
-        addresses.accounts.diamond,
-        diamondOwner
-    );
+    const diamondCut = DiamondCutFacet__factory.connect(addresses.accounts.diamond, diamondOwner);
 
-    const diamondInit = DiamondInit__factory.connect(
-        addresses.accounts.diamond,
-        diamondOwner
-    );
+    const diamondInit = DiamondInit__factory.connect(addresses.accounts.diamond, diamondOwner);
     const tx = await diamondCut.diamondCut(cuts, diamondInit.address, "0x");
     await hre.ethers.provider.waitForTransaction(tx.hash);
 }
@@ -119,18 +104,9 @@ async function getFactories(
         new AccountDonationMatch__factory(diamondOwner),
         new AccountsStrategiesCopyEndowments__factory(diamondOwner),
         // core lib
-        new AccountsCreateEndowment__factory(
-            { "contracts/core/struct.sol:AngelCoreStruct": corestruct },
-            diamondOwner
-        ),
-        new AccountsQueryEndowments__factory(
-            { "contracts/core/struct.sol:AngelCoreStruct": corestruct },
-            diamondOwner
-        ),
-        new AccountsSwapEndowments__factory(
-            { "contracts/core/struct.sol:AngelCoreStruct": corestruct },
-            diamondOwner
-        ),
+        new AccountsCreateEndowment__factory({ "contracts/core/struct.sol:AngelCoreStruct": corestruct }, diamondOwner),
+        new AccountsQueryEndowments__factory({ "contracts/core/struct.sol:AngelCoreStruct": corestruct }, diamondOwner),
+        new AccountsSwapEndowments__factory({ "contracts/core/struct.sol:AngelCoreStruct": corestruct }, diamondOwner),
         new AccountsUpdateEndowments__factory(
             { "contracts/core/struct.sol:AngelCoreStruct": corestruct },
             diamondOwner
@@ -139,10 +115,7 @@ async function getFactories(
             { "contracts/core/struct.sol:AngelCoreStruct": corestruct },
             diamondOwner
         ),
-        new AxelarExecutionContract__factory(
-            { "contracts/core/struct.sol:AngelCoreStruct": corestruct },
-            diamondOwner
-        ),
+        new AxelarExecutionContract__factory({ "contracts/core/struct.sol:AngelCoreStruct": corestruct }, diamondOwner),
         // string lib
         new AccountsStrategiesUpdateEndowments__factory(
             { "contracts/lib/Strings/string.sol:StringArray": stringlib },

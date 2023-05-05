@@ -2,6 +2,7 @@ import { task } from "hardhat/config"
 import addresses from "../../contract-address.json"
 import { FacetCutAction, getSelectors } from "../../contracts/core/accounts/scripts/libraries/diamond"
 import { AccountsCreateEndowment__factory, DiamondCutFacet__factory, DiamondLoupeFacet__factory } from "../../typechain-types"
+import * as logger from "../../utils/logger"
 
 task("upgrade:upgradeAccountsCreateEndowment", "Will upgrade the AccountsCreateEndowment facet").setAction(async (_taskArguments, hre) => {
     try {
@@ -40,6 +41,6 @@ task("upgrade:upgradeAccountsCreateEndowment", "Will upgrade the AccountsCreateE
         const facetAddress = await diamondLoupe.facetAddress(sampleFunctionSelector)
         console.log("New Diamond's AccountsCreateEndowment facet address: ", facetAddress)
     } catch (error) {
-        console.log(`AccountsCreateEndowment facet upgrade failed, reason: ${error}`)
+        logger.out(`AccountsCreateEndowment facet upgrade failed, reason: ${error}`, logger.Level.Error)
     }
 })
