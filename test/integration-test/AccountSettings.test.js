@@ -57,7 +57,6 @@ describe('Account Settings Controller', function () {
 		let endowmentUpdateData = {
 			id: 1,
 			owner: deployer.address,
-			kycDonorsOnly: true,
 			endow_type: endowmentConfig.endow_type,
 			name: "testing name",
 			categories: endowmentConfig.categories,
@@ -159,7 +158,6 @@ describe('Account Settings Controller', function () {
 		let endowmentUpdateData = {
 			id: 1,
 			owner: deployer.address,
-			kycDonorsOnly: true,
 			endow_type: endowmentConfig.endow_type,
 			name: "testing name",
 			categories: endowmentConfig.categories,
@@ -296,7 +294,6 @@ describe('Account Settings Controller', function () {
 			image: endowmentConfig.settingsController.image,
 			logo: endowmentConfig.settingsController.logo,
 			categories: endowmentConfig.settingsController.categories,
-			kycDonorsOnly: endowmentConfig.settingsController.kycDonorsOnly,
 			splitToLiquid: endowmentConfig.settingsController.splitToLiquid,
 			ignoreUserSplits: endowmentConfig.settingsController.ignoreUserSplits,
 			allowlistedBeneficiaries: endowmentConfig.settingsController.allowlistedBeneficiaries,

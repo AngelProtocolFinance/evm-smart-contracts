@@ -54,7 +54,6 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                 logo: "",
                 image: "",
                 cw4_members: [wallet.address, endowState.owner],
-                kycDonorsOnly: false, 
                 cw3Threshold: {
                     enumData: 0,
                     data: {
@@ -223,15 +222,6 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                         }
                     },
                     balanceFee: {
-                        ownerControlled: false,
-                        govControlled: false,
-                        modifiableAfterInit: true,
-                        delegate: {
-                            Addr: apTeam1.address,
-                            expires: 0
-                        }
-                    },
-                    kycDonorsOnly: {
                         ownerControlled: false,
                         govControlled: false,
                         modifiableAfterInit: true,

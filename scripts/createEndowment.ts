@@ -210,15 +210,6 @@ async function deploy() {
                     expires: Math.floor(Date.now() / 1000) + 1000, // datetime int of delegation expiry
                 },
             },
-            kycDonorsOnly: {
-                ownerControlled: true,
-                govControlled: true,
-                modifiableAfterInit: true,
-                delegate: {
-                    Addr: ethers.constants.AddressZero,
-                    expires: Math.floor(Date.now() / 1000) + 1000, // datetime int of delegation expiry
-                },
-            },
             name: {
                 ownerControlled: true,
                 govControlled: true,

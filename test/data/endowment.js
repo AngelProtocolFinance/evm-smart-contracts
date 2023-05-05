@@ -28,7 +28,6 @@ const getCreateEndowmentConfig = async function (
 			logo: 'Some fancy logo',
 			image: 'Nice banner image',
 			cw4_members: cw4_members,
-			kycDonorsOnly: true,
 			cw3Threshold: {
 				enumData: 1,
 				data: {
@@ -197,15 +196,6 @@ const getCreateEndowmentConfig = async function (
 					},
 				},
 				balanceFee: {
-					ownerControlled: true,
-					govControlled: true,
-					modifiableAfterInit: true,
-					delegate: {
-						Addr: ADDRESS_ZERO,
-						expires: Math.floor(Date.now() / 1000) + 1000, // datetime int of delegation expiry
-					},
-				},
-				kycDonorsOnly: {
 					ownerControlled: true,
 					govControlled: true,
 					modifiableAfterInit: true,
