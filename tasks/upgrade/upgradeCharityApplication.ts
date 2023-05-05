@@ -54,7 +54,9 @@ task(
             CharityApplicationProxy: CharityApplicationProxy.address,
             CharityApplicationImplementation: charityApplicationImpl.address,
         }
-        await saveFrontendFiles({ charityApplication })
+        await saveFrontendFiles({ charityApplication });
+
+        console.log("Done.")
     } catch (error) {
         console.log(error)
     }
