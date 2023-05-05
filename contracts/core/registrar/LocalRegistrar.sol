@@ -17,6 +17,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
                     PROXY INIT
     */////////////////////////////////////////////////
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor () {
         _disableInitializers();
     }

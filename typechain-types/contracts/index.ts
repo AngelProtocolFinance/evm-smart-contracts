@@ -24,5 +24,3 @@ export type { normalizedEndowment };
 import type * as test from "./test";
 export type { test };
 export type { Halo } from "./Halo";
-export type { LocalRegistrar } from "./LocalRegistrar";
-export type { Router } from "./Router";
