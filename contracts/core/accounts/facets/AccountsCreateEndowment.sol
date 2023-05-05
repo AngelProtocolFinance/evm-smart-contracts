@@ -122,7 +122,8 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                 settingsController: curDetails.settingsController,
                 parent: curDetails.parent,
                 ignoreUserSplits: ignoreUserSplit,
-                splitToLiquid: splitSettings
+                splitToLiquid: splitSettings,
+                referralId: curDetails.referralId
             });
 
         state.STATES[state.config.nextAccountId] = AccountStorage

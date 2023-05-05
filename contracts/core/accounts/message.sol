@@ -37,6 +37,7 @@ library AccountMessages {
         address[] maturityWhitelist;
         bool ignoreUserSplits;
         AngelCoreStruct.SplitDetails splitToLiquid;
+        uint256 referralId;
     }
 
     struct UpdateEndowmentSettingsRequest {

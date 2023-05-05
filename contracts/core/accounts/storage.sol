@@ -47,6 +47,7 @@ library AccountStorage {
         uint256 parent; //TODO: not using this one also
         bool ignoreUserSplits;
         AngelCoreStruct.SplitDetails splitToLiquid;
+        uint256 referralId;
     }
 
     ///TODO: Have changed name from state to endowmentState to manage solidity code
