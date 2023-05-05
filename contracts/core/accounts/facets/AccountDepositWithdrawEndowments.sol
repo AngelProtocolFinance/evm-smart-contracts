@@ -454,8 +454,8 @@ contract AccountDepositWithdrawEndowments is
         // ** NORMAL TYPE WITHDRAWAL RULES **
         // In both balance types:
         //      The endowment multisig OR beneficiaries allowlist addresses [if populated] can withdraw. After 
-        //      maturity has been reached, only addresses in Maturity Whitelist may withdraw. If the Maturity
-        //      Whitelist is not populated, then only the endowment multisig is allowed to withdraw.
+        //      maturity has been reached, only addresses in Maturity Allowlist may withdraw. If the Maturity
+        //      Allowlist is not populated, then only the endowment multisig is allowed to withdraw.
         // LIQUID: Same as above shared logic. 
         // LOCKED: There is NO way to withdraw locked funds from an endowment before maturity!
         if (tempEndowment.endow_type == AngelCoreStruct.EndowmentType.Normal) {
@@ -476,17 +476,17 @@ contract AccountDepositWithdrawEndowments is
             // determine if msg sender is allowed to withdraw based on rules and maturity status
             bool senderAllowed = false;
             if (mature) {
-                if (tempEndowment.maturityWhitelist.length > 0) {
+                if (tempEndowment.maturityAllowlist.length > 0) {
                     for (
                         uint256 i = 0;
-                        i < tempEndowment.maturityWhitelist.length;
+                        i < tempEndowment.maturityAllowlist.length;
                         i++
                     ) {
-                        if (tempEndowment.maturityWhitelist[i] == msg.sender) {
+                        if (tempEndowment.maturityAllowlist[i] == msg.sender) {
                             senderAllowed = true;
                         }
                     }
-                    require(senderAllowed, "Sender address is not listed in maturityWhitelist.");
+                    require(senderAllowed, "Sender address is not listed in maturityAllowlist.");
                 } else {
                     require(msg.sender == tempEndowment.owner, "Sender address is not the Endowment Multisig.");
                 }

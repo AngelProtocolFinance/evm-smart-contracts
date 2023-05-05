@@ -101,7 +101,7 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                 withdrawFee: curDetails.withdrawFee,
                 depositFee: curDetails.depositFee,
                 balanceFee: curDetails.balanceFee,
-                maturityWhitelist: curDetails.maturityWhitelist,
+                maturityAllowlist: curDetails.maturityAllowlist,
                 tier: curDetails.tier,
                 logo: curDetails.logo,
                 image: curDetails.image,

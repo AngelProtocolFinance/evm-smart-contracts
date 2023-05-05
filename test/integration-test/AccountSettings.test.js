@@ -279,7 +279,7 @@ describe('Account Settings Controller', function () {
 
 		expect(endowment.allowlistedBeneficiaries.length === 1 && endowment.allowlistedBeneficiaries[0] === addrs[1].address, 'allowlisted beneficiaries not updated').to.equal(true);
 		expect(endowment.allowlistedContributors.length === 1 && endowment.allowlistedContributors[0] === addrs[1].address, 'allowlisted contributors not updated').to.equal(true);
-		expect(endowment.maturityWhitelist.length === 1 && endowment.maturityWhitelist[0] === addrs[1].address, 'maturity allowlist not updated').to.equal(true);
+		expect(endowment.maturityAllowlist.length === 1 && endowment.maturityAllowlist[0] === addrs[1].address, 'maturity allowlist not updated').to.equal(true);
 		// expect(endowment.splitToLiquid === endowmentConfig.splitToLiquid, 'split to liquid not updated').to.equal(true);
 		expect(endowment.ignoreUserSplits === false, 'ignore user splits not updated').to.equal(true);
 	});
@@ -298,7 +298,7 @@ describe('Account Settings Controller', function () {
 			ignoreUserSplits: endowmentConfig.settingsController.ignoreUserSplits,
 			allowlistedBeneficiaries: endowmentConfig.settingsController.allowlistedBeneficiaries,
 			allowlistedContributors: endowmentConfig.settingsController.allowlistedContributors,
-			maturityWhitelist: endowmentConfig.settingsController.maturityWhitelist,
+			maturityAllowlist: endowmentConfig.settingsController.maturityAllowlist,
 			earningsFee: endowmentConfig.settingsController.earningsFee,
 			depositFee: endowmentConfig.settingsController.depositFee,
 			withdrawFee: endowmentConfig.settingsController.withdrawFee,

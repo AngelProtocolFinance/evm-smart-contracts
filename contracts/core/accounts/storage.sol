@@ -37,7 +37,7 @@ library AccountStorage {
         address donationMatchContract;
         address[] allowlistedBeneficiaries;
         address[] allowlistedContributors;
-        address[] maturityWhitelist;
+        address[] maturityAllowlist;
         AngelCoreStruct.EndowmentFee earningsFee; //TODO: we can remove all this
         AngelCoreStruct.EndowmentFee withdrawFee; //TODO: we can remove all this
         AngelCoreStruct.EndowmentFee depositFee; //TODO: we can remove all this

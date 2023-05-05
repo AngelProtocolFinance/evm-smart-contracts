@@ -141,7 +141,7 @@ const getCreateEndowmentConfig = async function (
 						expires: Math.floor(Date.now() / 1000) + 1000, // datetime int of delegation expiry
 					},
 				},
-				maturityWhitelist: {
+				maturityAllowlist: {
 					ownerControlled: true,
 					govControlled: true,
 					modifiableAfterInit: true,
@@ -260,7 +260,7 @@ const getCreateEndowmentConfig = async function (
 				},
 			},
 			parent: ADDRESS_ZERO,
-			maturityWhitelist: [],
+			maturityAllowlist: [],
 			ignoreUserSplits: false,
 			splitToLiquid: {
 				max: 100,

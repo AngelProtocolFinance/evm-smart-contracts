@@ -65,7 +65,7 @@ export async function deployHaloImplementation(
 			GovHodlerOwner,
 			airdropOwner,
 			CommunitySpendLimit,
-			distributorWhitelist,
+			distributorAllowlist,
 			distributorSpendLimit,
 		} = config.HALO_IMPLEMENTATION_DATA;
 
@@ -88,7 +88,7 @@ export async function deployHaloImplementation(
 		const distributorAddress = await distributor(proxyAdmin.address, {
 			timelockContract: gov.TimeLock,
 			haloToken: halo,
-			allowlist: [...distributorWhitelist],
+			allowlist: [...distributorAllowlist],
 			spendLimit: distributorSpendLimit,
 		}, hre);
 		var response = {

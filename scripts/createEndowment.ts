@@ -112,8 +112,6 @@ async function deploy() {
         proposalLink: 0,
         settingsController: {
             endowmentController: {
-                ownerControlled: true,
-                govControlled: true,
                 modifiableAfterInit: true,
                 delegate: {
                     Addr: ethers.constants.AddressZero,
@@ -121,8 +119,6 @@ async function deploy() {
                 },
             },
             strategies: {
-                ownerControlled: true,
-                govControlled: true,
                 modifiableAfterInit: true,
                 delegate: {
                     Addr: ethers.constants.AddressZero,
@@ -130,8 +126,6 @@ async function deploy() {
                 },
             },
             allowlistedBeneficiaries: {
-                ownerControlled: true,
-                govControlled: true,
                 modifiableAfterInit: true,
                 delegate: {
                     Addr: ethers.constants.AddressZero,
@@ -139,17 +133,13 @@ async function deploy() {
                 },
             },
             allowlistedContributors: {
-                ownerControlled: true,
-                govControlled: true,
                 modifiableAfterInit: true,
                 delegate: {
                     Addr: ethers.constants.AddressZero,
                     expires: Math.floor(Date.now() / 1000) + 1000, // datetime int of delegation expiry
                 },
             },
-            maturityWhitelist: {
-                ownerControlled: true,
-                govControlled: true,
+            maturityAllowlist: {
                 modifiableAfterInit: true,
                 delegate: {
                     Addr: ethers.constants.AddressZero,
@@ -157,8 +147,6 @@ async function deploy() {
                 },
             },
             maturityTime: {
-                ownerControlled: true,
-                govControlled: true,
                 modifiableAfterInit: true,
                 delegate: {
                     Addr: ethers.constants.AddressZero,
@@ -166,8 +154,6 @@ async function deploy() {
                 },
             },
             profile: {
-                ownerControlled: true,
-                govControlled: true,
                 modifiableAfterInit: true,
                 delegate: {
                     Addr: ethers.constants.AddressZero,
@@ -175,8 +161,6 @@ async function deploy() {
                 },
             },
             earningsFee: {
-                ownerControlled: true,
-                govControlled: true,
                 modifiableAfterInit: true,
                 delegate: {
                     Addr: ethers.constants.AddressZero,
@@ -184,8 +168,6 @@ async function deploy() {
                 },
             },
             withdrawFee: {
-                ownerControlled: true,
-                govControlled: true,
                 modifiableAfterInit: true,
                 delegate: {
                     Addr: ethers.constants.AddressZero,
@@ -193,8 +175,6 @@ async function deploy() {
                 },
             },
             depositFee: {
-                ownerControlled: true,
-                govControlled: true,
                 modifiableAfterInit: true,
                 delegate: {
                     Addr: ethers.constants.AddressZero,
@@ -202,8 +182,6 @@ async function deploy() {
                 },
             },
             balanceFee: {
-                ownerControlled: true,
-                govControlled: true,
                 modifiableAfterInit: true,
                 delegate: {
                     Addr: ethers.constants.AddressZero,
@@ -211,8 +189,6 @@ async function deploy() {
                 },
             },
             name: {
-                ownerControlled: true,
-                govControlled: true,
                 modifiableAfterInit: true,
                 delegate: {
                     Addr: ethers.constants.AddressZero,
@@ -220,8 +196,6 @@ async function deploy() {
                 },
             },
             image: {
-                ownerControlled: true,
-                govControlled: true,
                 modifiableAfterInit: true,
                 delegate: {
                     Addr: ethers.constants.AddressZero,
@@ -229,8 +203,6 @@ async function deploy() {
                 },
             },
             logo: {
-                ownerControlled: true,
-                govControlled: true,
                 modifiableAfterInit: true,
                 delegate: {
                     Addr: ethers.constants.AddressZero,
@@ -238,8 +210,6 @@ async function deploy() {
                 },
             },
             categories: {
-                ownerControlled: true,
-                govControlled: true,
                 modifiableAfterInit: true,
                 delegate: {
                     Addr: ethers.constants.AddressZero,
@@ -247,8 +217,6 @@ async function deploy() {
                 },
             },
             splitToLiquid: {
-                ownerControlled: true,
-                govControlled: true,
                 modifiableAfterInit: true,
                 delegate: {
                     Addr: ethers.constants.AddressZero,
@@ -256,8 +224,6 @@ async function deploy() {
                 },
             },
             ignoreUserSplits: {
-                ownerControlled: true,
-                govControlled: true,
                 modifiableAfterInit: true,
                 delegate: {
                     Addr: ethers.constants.AddressZero,
@@ -266,7 +232,7 @@ async function deploy() {
             },
         },
         parent: ethers.constants.AddressZero,
-        maturityWhitelist: [],
+        maturityAllowlist: [],
         ignoreUserSplits: false,
         splitToLiquid: {
             max: 100,

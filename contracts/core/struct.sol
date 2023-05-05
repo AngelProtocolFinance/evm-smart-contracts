@@ -805,7 +805,7 @@ library AngelCoreStruct {
         SettingsPermission strategies;
         SettingsPermission allowlistedBeneficiaries;
         SettingsPermission allowlistedContributors;
-        SettingsPermission maturityWhitelist;
+        SettingsPermission maturityAllowlist;
         SettingsPermission maturityTime;
         SettingsPermission profile;
         SettingsPermission earningsFee;
@@ -831,9 +831,9 @@ library AngelCoreStruct {
             return _tempObject.endowmentController;
         } else if (
             keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("maturityWhitelist"))
+            keccak256(abi.encodePacked("maturityAllowlist"))
         ) {
-            return _tempObject.maturityWhitelist;
+            return _tempObject.maturityAllowlist;
         } else if (
             keccak256(abi.encodePacked(name)) ==
             keccak256(abi.encodePacked("splitToLiquid"))

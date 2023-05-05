@@ -104,7 +104,7 @@ const EXPORT_CONFIG = {
         GovHodlerOwner: "0x8B1386F6fE42995Db5F7f7018af90496103CD39e",
         airdropOwner: "0xce551C1125BfCdAb88048854522D0B220f41A6Ff",
         CommunitySpendLimit: 5000,
-        distributorWhitelist: [
+        distributorAllowlist: [
             "0x51d0e5cffb5748dD17f1E133C72E48fa94685bEc",
             "0x06eB8fcC1E02e06c0b6A47c396f14C5761C47433",
         ],

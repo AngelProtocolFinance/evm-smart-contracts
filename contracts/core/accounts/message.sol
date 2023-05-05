@@ -32,7 +32,7 @@ library AccountMessages {
         uint256 proposalLink;
         AngelCoreStruct.SettingsController settingsController;
         uint256 parent;
-        address[] maturityWhitelist;
+        address[] maturityAllowlist;
         bool ignoreUserSplits;
         AngelCoreStruct.SplitDetails splitToLiquid;
     }
@@ -58,7 +58,7 @@ library AccountMessages {
         AngelCoreStruct.SettingsPermission ignoreUserSplits;
         AngelCoreStruct.SettingsPermission allowlistedBeneficiaries;
         AngelCoreStruct.SettingsPermission allowlistedContributors;
-        AngelCoreStruct.SettingsPermission maturityWhitelist;
+        AngelCoreStruct.SettingsPermission maturityAllowlist;
         AngelCoreStruct.SettingsPermission earningsFee;
         AngelCoreStruct.SettingsPermission depositFee;
         AngelCoreStruct.SettingsPermission withdrawFee;
@@ -175,7 +175,7 @@ library AccountMessages {
         AngelCoreStruct.OneOffVaults oneoffVaults;
         AngelCoreStruct.RebalanceDetails rebalance;
         address donationMatchContract;
-        address[] maturityWhitelist;
+        address[] maturityAllowlist;
         bool depositApproved;
         bool withdrawApproved;
         uint256 pendingRedemptions;

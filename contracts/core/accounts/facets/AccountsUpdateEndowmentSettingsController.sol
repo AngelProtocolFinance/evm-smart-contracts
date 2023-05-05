@@ -94,7 +94,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
                 if (
                     AngelCoreStruct.canChange(
-                        tempEndowment.settingsController.maturityWhitelist,
+                        tempEndowment.settingsController.maturityAllowlist,
                         msg.sender,
                         tempEndowment.owner,
                         block.timestamp
@@ -112,11 +112,11 @@ contract AccountsUpdateEndowmentSettingsController is
                             "InvalidAddress"
                         );
                         (, bool found) = AddressArray.indexOf(
-                            tempEndowment.maturityWhitelist,
+                            tempEndowment.maturityAllowlist,
                             curDetails.maturity_allowlist_add[i]
                         );
                         if (!found)
-                            tempEndowment.maturityWhitelist.push(
+                            tempEndowment.maturityAllowlist.push(
                                 curDetails.maturity_allowlist_add[i]
                             );
                     }
@@ -126,16 +126,16 @@ contract AccountsUpdateEndowmentSettingsController is
                         i++
                     ) {
                         (uint256 index, bool found) = AddressArray.indexOf(
-                            tempEndowment.maturityWhitelist,
+                            tempEndowment.maturityAllowlist,
                             curDetails.maturity_allowlist_remove[i]
                         );
                         if (found)
-                            tempEndowment.maturityWhitelist = AddressArray
-                                .remove(tempEndowment.maturityWhitelist, index);
+                            tempEndowment.maturityAllowlist = AddressArray
+                                .remove(tempEndowment.maturityAllowlist, index);
                     }
                     emit EndowmentSettingUpdated(
                         curDetails.id,
-                        "maturityWhitelist"
+                        "maturityAllowlist"
                     );
                 }
             }
@@ -212,8 +212,8 @@ contract AccountsUpdateEndowmentSettingsController is
             .allowlistedBeneficiaries;
         tempEndowment.settingsController.allowlistedContributors = curDetails
             .allowlistedContributors;
-        tempEndowment.settingsController.maturityWhitelist = curDetails
-            .maturityWhitelist;
+        tempEndowment.settingsController.maturityAllowlist = curDetails
+            .maturityAllowlist;
         tempEndowment.settingsController.earningsFee = curDetails.earningsFee;
         tempEndowment.settingsController.depositFee = curDetails.depositFee;
         tempEndowment.settingsController.withdrawFee = curDetails.withdrawFee;
