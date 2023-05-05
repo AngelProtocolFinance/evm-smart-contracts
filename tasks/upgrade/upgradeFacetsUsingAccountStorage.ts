@@ -42,11 +42,11 @@ task("upgrade:upgradeFacetsUsingAccountStorage", "Will redeploy and upgrade all 
                 addresses.libraries.STRING_LIBRARY
             );
 
-            await updateDiamond(proxyAdmin, cuts, hre);
+            await updateDiamond(addresses.accounts.diamond, proxyAdmin, cuts, hre);
 
             if (verify) {
                 await verifyFacets(cuts, hre);
-                await verifyDiamond(proxyAdmin, hre);
+                await verifyDiamond(addresses.accounts.diamond, proxyAdmin, hre);
             }
 
             console.log("Done.");
@@ -89,11 +89,11 @@ async function deployFacets(
     return cuts;
 }
 
-async function updateDiamond(diamondOwner: SignerWithAddress, facetCuts: FacetCut[], hre: HardhatRuntimeEnvironment) {
+async function updateDiamond(diamondAddress: string, diamondOwner: SignerWithAddress, facetCuts: FacetCut[], hre: HardhatRuntimeEnvironment) {
     console.log("Updating Diamond with new facet addresses...");
 
-    const diamondCut = DiamondCutFacet__factory.connect(addresses.accounts.diamond, diamondOwner);
-    const diamondInit = DiamondInit__factory.connect(addresses.accounts.diamond, diamondOwner);
+    const diamondCut = DiamondCutFacet__factory.connect(diamondAddress, diamondOwner);
+    const diamondInit = DiamondInit__factory.connect(diamondAddress, diamondOwner);
     const cuts = facetCuts.map((x) => x.cut);
     const tx = await diamondCut.diamondCut(cuts, diamondInit.address, "0x");
     await hre.ethers.provider.waitForTransaction(tx.hash);
@@ -167,22 +167,22 @@ async function verifyFacets(facetCuts: FacetCut[], hre: HardhatRuntimeEnvironmen
     }
 }
 
-async function verifyDiamond(diamondOwner: SignerWithAddress, hre: HardhatRuntimeEnvironment): Promise<void> {
+async function verifyDiamond(diamondAddress: string, diamondOwner: SignerWithAddress, hre: HardhatRuntimeEnvironment): Promise<void> {
     console.log("Verifying the updated Diamond...");
 
     // need to get the actual DiamondCut address by looking it up using its `diamondCut` function selector
-    const diamondCut = DiamondCutFacet__factory.connect(addresses.accounts.diamond, diamondOwner);
+    const diamondCut = DiamondCutFacet__factory.connect(diamondAddress, diamondOwner);
 
     // generate the selector using the `diamondCut` function's ABI
     // https://docs.ethers.org/v5/api/utils/hashing/#utils-id
     const funcAbi = diamondCut.interface.functions["diamondCut((address,uint8,bytes4[])[],address,bytes)"].format();
     const diamondCutSelector = utils.id(funcAbi).substring(0, 10);
 
-    const loupe = DiamondLoupeFacet__factory.connect(addresses.accounts.diamond, diamondOwner);
+    const loupe = DiamondLoupeFacet__factory.connect(diamondAddress, diamondOwner);
     const diamondCutAddress = await loupe.facetAddress(diamondCutSelector);
 
     await hre.run("verify:verify", {
-        address: addresses.accounts.diamond,
+        address: diamondAddress,
         constructorArguments: [diamondOwner.address, diamondCutAddress],
     });
 }
