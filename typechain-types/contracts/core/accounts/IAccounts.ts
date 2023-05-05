@@ -34,35 +34,6 @@ export declare namespace AngelCoreStruct {
     general: BigNumber[];
   };
 
-  export type ThresholdDataStruct = {
-    weight: PromiseOrValue<BigNumberish>;
-    percentage: PromiseOrValue<BigNumberish>;
-    threshold: PromiseOrValue<BigNumberish>;
-    quorum: PromiseOrValue<BigNumberish>;
-  };
-
-  export type ThresholdDataStructOutput = [
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    BigNumber
-  ] & {
-    weight: BigNumber;
-    percentage: BigNumber;
-    threshold: BigNumber;
-    quorum: BigNumber;
-  };
-
-  export type ThresholdStruct = {
-    enumData: PromiseOrValue<BigNumberish>;
-    data: AngelCoreStruct.ThresholdDataStruct;
-  };
-
-  export type ThresholdStructOutput = [
-    number,
-    AngelCoreStruct.ThresholdDataStructOutput
-  ] & { enumData: number; data: AngelCoreStruct.ThresholdDataStructOutput };
-
   export type DurationDataStruct = {
     height: PromiseOrValue<BigNumberish>;
     time: PromiseOrValue<BigNumberish>;
@@ -412,7 +383,7 @@ export declare namespace AccountMessages {
     image: PromiseOrValue<string>;
     cw4_members: PromiseOrValue<string>[];
     kycDonorsOnly: PromiseOrValue<boolean>;
-    cw3Threshold: AngelCoreStruct.ThresholdStruct;
+    threshold: PromiseOrValue<BigNumberish>;
     cw3MaxVotingPeriod: AngelCoreStruct.DurationStruct;
     whitelistedBeneficiaries: PromiseOrValue<string>[];
     whitelistedContributors: PromiseOrValue<string>[];
@@ -446,7 +417,7 @@ export declare namespace AccountMessages {
     string,
     string[],
     boolean,
-    AngelCoreStruct.ThresholdStructOutput,
+    BigNumber,
     AngelCoreStruct.DurationStructOutput,
     string[],
     string[],
@@ -478,7 +449,7 @@ export declare namespace AccountMessages {
     image: string;
     cw4_members: string[];
     kycDonorsOnly: boolean;
-    cw3Threshold: AngelCoreStruct.ThresholdStructOutput;
+    threshold: BigNumber;
     cw3MaxVotingPeriod: AngelCoreStruct.DurationStructOutput;
     whitelistedBeneficiaries: string[];
     whitelistedContributors: string[];
@@ -714,7 +685,7 @@ export declare namespace AccountStorage {
 export interface IAccountsInterface extends utils.Interface {
   functions: {
     "copycatStrategies(uint256,uint8,uint256)": FunctionFragment;
-    "createEndowment((address,bool,uint256,uint256,string,(uint256[],uint256[]),uint256,uint8,string,string,address[],bool,(uint8,(uint256,uint256,uint256,uint256)),(uint8,(uint256,uint256)),address[],address[],uint256,uint256,uint256,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))),bool,uint256,((bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256))),uint256,address[],bool,(uint256,uint256,uint256)))": FunctionFragment;
+    "createEndowment((address,bool,uint256,uint256,string,(uint256[],uint256[]),uint256,uint8,string,string,address[],bool,uint256,(uint8,(uint256,uint256)),address[],address[],uint256,uint256,uint256,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))),bool,uint256,((bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256))),uint256,address[],bool,(uint256,uint256,uint256)))": FunctionFragment;
     "depositERC20(address,(uint256,uint256,uint256),address,uint256)": FunctionFragment;
     "queryConfig()": FunctionFragment;
     "queryEndowmentDetails(uint256)": FunctionFragment;

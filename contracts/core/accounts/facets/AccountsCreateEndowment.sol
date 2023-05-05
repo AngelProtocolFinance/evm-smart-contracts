@@ -44,6 +44,18 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
             );
         }
 
+        if (curDetails.cw4_members.length == 0) {
+            curDetails.cw4_members = new address[](1);
+            curDetails.cw4_members[0] = curDetails.owner;
+        }
+
+        if (AngelCoreStruct.EndowmentType.Normal == curDetails.endow_type) {
+            require(
+                curDetails.threshold <= curDetails.cw4_members.length,
+                "Threshold greater than member count"
+            );
+        }
+
         AngelCoreStruct.SplitDetails memory splitSettings;
         bool ignoreUserSplit;
 
@@ -127,12 +139,7 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
             state.config.nextAccountId,
             state.STATES[state.config.nextAccountId]
         );
-        if (curDetails.cw4_members.length == 0) {
-            curDetails.cw4_members = new address[](1);
-            curDetails.cw4_members[0] = curDetails.owner;
-        }
 
-        // by default required signatures is 50% of members (cw4_members.length / 2 + 1)
         state
             .ENDOWMENTS[state.config.nextAccountId]
             .owner = IEndowmentMultiSigFactory(registrar_config.multisigFactory)
@@ -140,7 +147,7 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                 state.config.nextAccountId,
                 registrar_config.multisigEmitter,
                 curDetails.cw4_members,
-                curDetails.cw4_members.length / 2 + 1
+                curDetails.threshold
             );
 
         if (curDetails.createDao) {

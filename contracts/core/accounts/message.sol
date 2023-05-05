@@ -18,7 +18,7 @@ library AccountMessages {
         // AngelCoreStruct.Member[] cw4_members;
         address[] cw4_members;
         bool kycDonorsOnly;
-        AngelCoreStruct.Threshold cw3Threshold;
+        uint256 threshold;
         AngelCoreStruct.Duration cw3MaxVotingPeriod;
         address[] whitelistedBeneficiaries;
         address[] whitelistedContributors;

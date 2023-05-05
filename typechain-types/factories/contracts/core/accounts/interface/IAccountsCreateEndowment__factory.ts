@@ -87,43 +87,9 @@ const _abi = [
             type: "bool",
           },
           {
-            components: [
-              {
-                internalType: "enum AngelCoreStruct.ThresholdEnum",
-                name: "enumData",
-                type: "uint8",
-              },
-              {
-                components: [
-                  {
-                    internalType: "uint256",
-                    name: "weight",
-                    type: "uint256",
-                  },
-                  {
-                    internalType: "uint256",
-                    name: "percentage",
-                    type: "uint256",
-                  },
-                  {
-                    internalType: "uint256",
-                    name: "threshold",
-                    type: "uint256",
-                  },
-                  {
-                    internalType: "uint256",
-                    name: "quorum",
-                    type: "uint256",
-                  },
-                ],
-                internalType: "struct AngelCoreStruct.ThresholdData",
-                name: "data",
-                type: "tuple",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.Threshold",
-            name: "cw3Threshold",
-            type: "tuple",
+            internalType: "uint256",
+            name: "threshold",
+            type: "uint256",
           },
           {
             components: [

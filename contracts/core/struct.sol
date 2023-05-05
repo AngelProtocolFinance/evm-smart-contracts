@@ -581,18 +581,6 @@ library AngelCoreStruct {
         uint256 weight;
     }
 
-    struct ThresholdData {
-        uint256 weight;
-        uint256 percentage;
-        uint256 threshold;
-        uint256 quorum;
-    }
-    enum ThresholdEnum {
-        AbsoluteCount,
-        AbsolutePercentage,
-        ThresholdQuorum
-    }
-
     struct DurationData {
         uint256 height;
         uint256 time;
@@ -651,11 +639,6 @@ library AngelCoreStruct {
     struct Expiration {
         ExpirationEnum enumData;
         ExpirationData data;
-    }
-
-    struct Threshold {
-        ThresholdEnum enumData;
-        ThresholdData data;
     }
 
     enum CurveTypeEnum {
