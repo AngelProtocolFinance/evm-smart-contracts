@@ -89,7 +89,12 @@ async function deployFacets(
     return cuts;
 }
 
-async function updateDiamond(diamondAddress: string, diamondOwner: SignerWithAddress, facetCuts: FacetCut[], hre: HardhatRuntimeEnvironment) {
+async function updateDiamond(
+    diamondAddress: string,
+    diamondOwner: SignerWithAddress,
+    facetCuts: FacetCut[],
+    hre: HardhatRuntimeEnvironment
+) {
     console.log("Updating Diamond with new facet addresses...");
 
     const diamondCut = DiamondCutFacet__factory.connect(diamondAddress, diamondOwner);
@@ -97,6 +102,45 @@ async function updateDiamond(diamondAddress: string, diamondOwner: SignerWithAdd
     const cuts = facetCuts.map((x) => x.cut);
     const tx = await diamondCut.diamondCut(cuts, diamondInit.address, "0x");
     await hre.ethers.provider.waitForTransaction(tx.hash);
+}
+
+async function verifyFacets(facetCuts: FacetCut[], hre: HardhatRuntimeEnvironment): Promise<void> {
+    console.log("Verifying newly deployed facets...");
+
+    for (const { facetName, cut } of facetCuts) {
+        try {
+            await hre.run("verify:verify", {
+                address: cut.facetAddress,
+                constructorArguments: [],
+            });
+        } catch (error) {
+            logger.out(`Failed to verify ${facetName} at ${cut.facetAddress}. Error: ${error}`, logger.Level.Warn);
+        }
+    }
+}
+
+async function verifyDiamond(
+    diamondAddress: string,
+    diamondOwner: SignerWithAddress,
+    hre: HardhatRuntimeEnvironment
+): Promise<void> {
+    console.log("Verifying the updated Diamond...");
+
+    // need to get the actual DiamondCut address by looking it up using its `diamondCut` function selector
+    const diamondCut = DiamondCutFacet__factory.connect(diamondAddress, diamondOwner);
+
+    // generate the selector using the `diamondCut` function's ABI
+    // https://docs.ethers.org/v5/api/utils/hashing/#utils-id
+    const funcAbi = diamondCut.interface.functions["diamondCut((address,uint8,bytes4[])[],address,bytes)"].format();
+    const diamondCutSelector = utils.id(funcAbi).substring(0, 10);
+
+    const loupe = DiamondLoupeFacet__factory.connect(diamondAddress, diamondOwner);
+    const diamondCutAddress = await loupe.facetAddress(diamondCutSelector);
+
+    await hre.run("verify:verify", {
+        address: diamondAddress,
+        constructorArguments: [diamondOwner.address, diamondCutAddress],
+    });
 }
 
 // Getting factories instantiated in bulk as they share the deploy/cut creation logic.
@@ -150,39 +194,4 @@ async function getFactories(
         ),
     ];
     return factories;
-}
-
-async function verifyFacets(facetCuts: FacetCut[], hre: HardhatRuntimeEnvironment): Promise<void> {
-    console.log("Verifying newly deployed facets...");
-
-    for (const { facetName, cut } of facetCuts) {
-        try {
-            await hre.run("verify:verify", {
-                address: cut.facetAddress,
-                constructorArguments: [],
-            });
-        } catch (error) {
-            logger.out(`Failed to verify ${facetName} at ${cut.facetAddress}. Error: ${error}`, logger.Level.Warn);
-        }
-    }
-}
-
-async function verifyDiamond(diamondAddress: string, diamondOwner: SignerWithAddress, hre: HardhatRuntimeEnvironment): Promise<void> {
-    console.log("Verifying the updated Diamond...");
-
-    // need to get the actual DiamondCut address by looking it up using its `diamondCut` function selector
-    const diamondCut = DiamondCutFacet__factory.connect(diamondAddress, diamondOwner);
-
-    // generate the selector using the `diamondCut` function's ABI
-    // https://docs.ethers.org/v5/api/utils/hashing/#utils-id
-    const funcAbi = diamondCut.interface.functions["diamondCut((address,uint8,bytes4[])[],address,bytes)"].format();
-    const diamondCutSelector = utils.id(funcAbi).substring(0, 10);
-
-    const loupe = DiamondLoupeFacet__factory.connect(diamondAddress, diamondOwner);
-    const diamondCutAddress = await loupe.facetAddress(diamondCutSelector);
-
-    await hre.run("verify:verify", {
-        address: diamondAddress,
-        constructorArguments: [diamondOwner.address, diamondCutAddress],
-    });
 }
