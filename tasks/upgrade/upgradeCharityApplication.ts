@@ -4,11 +4,11 @@ import { saveFrontendFiles } from "../../scripts/readWriteFile"
 import { CharityApplication__factory, ITransparentUpgradeableProxy__factory } from "../../typechain-types"
 import * as logger from "../../utils/logger"
 
-type TaskArguments = { verify_contracts: boolean }
+type TaskArguments = { verify: boolean }
 
 task("upgrade:upgradeCharityApplication", "Will upgrade the implementation of the Charity Application multisig")
-    .addOptionalParam("verify_contracts", "Flag specifying whether to verify the contract", false, types.boolean)
-    .setAction(async ({ verify_contracts }: TaskArguments, hre) => {
+    .addOptionalParam("verify", "Flag specifying whether to verify the contract", false, types.boolean)
+    .setAction(async ({ verify }: TaskArguments, hre) => {
         try {
             const [_deployer, proxyAdmin] = await hre.ethers.getSigners()
 
@@ -58,7 +58,7 @@ task("upgrade:upgradeCharityApplication", "Will upgrade the implementation of th
             }
             await saveFrontendFiles({ charityApplication })
 
-            if (verify_contracts) {
+            if (verify) {
                 console.log("Verifying the contract...")
 
                 await hre.run("verify:verify", {
