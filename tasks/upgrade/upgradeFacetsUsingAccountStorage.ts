@@ -1,6 +1,6 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { ContractFactory } from "ethers";
-import { task } from "hardhat/config";
+import { ContractFactory, utils } from "ethers";
+import { task, types } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import addresses from "../../contract-address.json";
 import { FacetCutAction, getSelectors } from "../../contracts/core/accounts/scripts/libraries/diamond";
@@ -21,37 +21,46 @@ import {
     AxelarExecutionContract__factory,
     DiamondCutFacet__factory,
     DiamondInit__factory,
+    DiamondLoupeFacet__factory,
     IDiamondCut,
 } from "../../typechain-types";
 import * as logger from "../../utils/logger";
 
-task(
-    "upgrade:upgradeFacetsUsingAccountStorage",
-    "Will redeploy and upgrade all facets that use AccountStorage struct"
-).setAction(async (_taskArguments, hre) => {
-    try {
-        const [_deployer, proxyAdmin] = await hre.ethers.getSigners();
+type FacetCut = { facetName: string; cut: IDiamondCut.FacetCutStruct };
 
-        const cuts = await deployFacets(
-            proxyAdmin,
-            addresses.libraries.ANGEL_CORE_STRUCT_LIBRARY,
-            addresses.libraries.STRING_LIBRARY
-        );
+type TaskArguments = { verify: boolean };
 
-        await updateDiamond(proxyAdmin, cuts, hre);
+task("upgrade:upgradeFacetsUsingAccountStorage", "Will redeploy and upgrade all facets that use AccountStorage struct")
+    .addOptionalParam("verify", "Flag specifying whether to verify the contract", false, types.boolean)
+    .setAction(async ({ verify }: TaskArguments, hre) => {
+        try {
+            const [_deployer, proxyAdmin] = await hre.ethers.getSigners();
 
-        console.log("Done.");
-    } catch (error) {
-        logger.out(`Facet upgrade failed, reason: ${error}`, logger.Level.Error);
-    }
-});
+            const cuts = await deployFacets(
+                proxyAdmin,
+                addresses.libraries.ANGEL_CORE_STRUCT_LIBRARY,
+                addresses.libraries.STRING_LIBRARY
+            );
+
+            await updateDiamond(proxyAdmin, cuts, hre);
+
+            if (verify) {
+                await verifyFacets(cuts, hre);
+                await verifyDiamond(proxyAdmin, hre);
+            }
+
+            console.log("Done.");
+        } catch (error) {
+            logger.out(`Facet upgrade failed, reason: ${error}`, logger.Level.Error);
+        }
+    });
 
 async function deployFacets(
     diamondOwner: SignerWithAddress,
     corestruct: string,
     stringlib: string
-): Promise<IDiamondCut.FacetCutStruct[]> {
-    const cuts: IDiamondCut.FacetCutStruct[] = [];
+): Promise<FacetCut[]> {
+    const cuts: FacetCut[] = [];
 
     console.log("Instantiating factories...");
 
@@ -66,9 +75,12 @@ async function deployFacets(
             await facet.deployed();
             console.log(`${contractName} deployed: ${facet.address}`);
             cuts.push({
-                facetAddress: facet.address,
-                action: FacetCutAction.Replace,
-                functionSelectors: getSelectors(facet),
+                facetName: contractName,
+                cut: {
+                    facetAddress: facet.address,
+                    action: FacetCutAction.Replace,
+                    functionSelectors: getSelectors(facet),
+                },
             });
         } catch (error) {
             logger.out(`Failed to deploy ${contractName}, reason: ${error}`, logger.Level.Error);
@@ -77,16 +89,12 @@ async function deployFacets(
     return cuts;
 }
 
-async function updateDiamond(
-    diamondOwner: SignerWithAddress,
-    cuts: IDiamondCut.FacetCutStruct[],
-    hre: HardhatRuntimeEnvironment
-) {
+async function updateDiamond(diamondOwner: SignerWithAddress, facetCuts: FacetCut[], hre: HardhatRuntimeEnvironment) {
     console.log("Updating Diamond with new facet addresses...");
 
     const diamondCut = DiamondCutFacet__factory.connect(addresses.accounts.diamond, diamondOwner);
-
     const diamondInit = DiamondInit__factory.connect(addresses.accounts.diamond, diamondOwner);
+    const cuts = facetCuts.map((x) => x.cut);
     const tx = await diamondCut.diamondCut(cuts, diamondInit.address, "0x");
     await hre.ethers.provider.waitForTransaction(tx.hash);
 }
@@ -142,4 +150,39 @@ async function getFactories(
         ),
     ];
     return factories;
+}
+
+async function verifyFacets(facetCuts: FacetCut[], hre: HardhatRuntimeEnvironment): Promise<void> {
+    console.log("Verifying newly deployed facets...");
+
+    for (const { facetName, cut } of facetCuts) {
+        try {
+            await hre.run("verify:verify", {
+                address: cut.facetAddress,
+                constructorArguments: [],
+            });
+        } catch (error) {
+            logger.out(`Failed to verify ${facetName} at ${cut.facetAddress}. Error: ${error}`, logger.Level.Warn);
+        }
+    }
+}
+
+async function verifyDiamond(diamondOwner: SignerWithAddress, hre: HardhatRuntimeEnvironment): Promise<void> {
+    console.log("Verifying the updated Diamond...");
+
+    // need to get the actual DiamondCut address by looking it up using its `diamondCut` function selector
+    const diamondCut = DiamondCutFacet__factory.connect(addresses.accounts.diamond, diamondOwner);
+
+    // generate the selector using the `diamondCut` function's ABI
+    // https://docs.ethers.org/v5/api/utils/hashing/#utils-id
+    const funcAbi = diamondCut.interface.functions["diamondCut((address,uint8,bytes4[])[],address,bytes)"].format();
+    const diamondCutSelector = utils.id(funcAbi).substring(0, 10);
+
+    const loupe = DiamondLoupeFacet__factory.connect(addresses.accounts.diamond, diamondOwner);
+    const diamondCutAddress = await loupe.facetAddress(diamondCutSelector);
+
+    await hre.run("verify:verify", {
+        address: addresses.accounts.diamond,
+        constructorArguments: [diamondOwner.address, diamondCutAddress],
+    });
 }
