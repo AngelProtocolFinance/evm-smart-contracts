@@ -2,13 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as accounts from "./accounts";
-export * as erc20Ap from "./erc20ap";
 export * as indexFund from "./index-fund";
 export * as proxySol from "./proxy.sol";
 export * as registrar from "./registrar";
-export * as strategy from "./strategy";
 export * as structSol from "./struct.sol";
 export * as swapRouter from "./swap-router";
-export * as vault from "./vault";
-export { Registrar__factory } from "./Registrar__factory";
-export { Router__factory } from "./Router__factory";

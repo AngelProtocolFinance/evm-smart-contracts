@@ -6,7 +6,7 @@ import '@openzeppelin/hardhat-upgrades';
 import "@nomiclabs/hardhat-ethers";
 import "@typechain/hardhat";
 // import "hardhat-abi-exporter"
-// import "./tasks"
+import "./tasks"
 
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",

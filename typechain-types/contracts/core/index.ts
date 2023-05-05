@@ -3,21 +3,13 @@
 /* eslint-disable */
 import type * as accounts from "./accounts";
 export type { accounts };
-import type * as erc20Ap from "./erc20ap";
-export type { erc20Ap };
 import type * as indexFund from "./index-fund";
 export type { indexFund };
 import type * as proxySol from "./proxy.sol";
 export type { proxySol };
 import type * as registrar from "./registrar";
 export type { registrar };
-import type * as strategy from "./strategy";
-export type { strategy };
 import type * as structSol from "./struct.sol";
 export type { structSol };
 import type * as swapRouter from "./swap-router";
 export type { swapRouter };
-import type * as vault from "./vault";
-export type { vault };
-export type { Registrar } from "./Registrar";
-export type { Router } from "./Router";
