@@ -220,20 +220,14 @@ export declare namespace AngelCoreStruct {
   };
 
   export type SettingsPermissionStruct = {
-    ownerControlled: PromiseOrValue<boolean>;
-    govControlled: PromiseOrValue<boolean>;
     modifiableAfterInit: PromiseOrValue<boolean>;
     delegate: AngelCoreStruct.DelegateStruct;
   };
 
   export type SettingsPermissionStructOutput = [
     boolean,
-    boolean,
-    boolean,
     AngelCoreStruct.DelegateStructOutput
   ] & {
-    ownerControlled: boolean;
-    govControlled: boolean;
     modifiableAfterInit: boolean;
     delegate: AngelCoreStruct.DelegateStructOutput;
   };
@@ -241,16 +235,15 @@ export declare namespace AngelCoreStruct {
   export type SettingsControllerStruct = {
     endowmentController: AngelCoreStruct.SettingsPermissionStruct;
     strategies: AngelCoreStruct.SettingsPermissionStruct;
-    whitelistedBeneficiaries: AngelCoreStruct.SettingsPermissionStruct;
-    whitelistedContributors: AngelCoreStruct.SettingsPermissionStruct;
+    allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStruct;
+    allowlistedContributors: AngelCoreStruct.SettingsPermissionStruct;
     maturityWhitelist: AngelCoreStruct.SettingsPermissionStruct;
     maturityTime: AngelCoreStruct.SettingsPermissionStruct;
     profile: AngelCoreStruct.SettingsPermissionStruct;
     earningsFee: AngelCoreStruct.SettingsPermissionStruct;
     withdrawFee: AngelCoreStruct.SettingsPermissionStruct;
     depositFee: AngelCoreStruct.SettingsPermissionStruct;
-    aumFee: AngelCoreStruct.SettingsPermissionStruct;
-    kycDonorsOnly: AngelCoreStruct.SettingsPermissionStruct;
+    balanceFee: AngelCoreStruct.SettingsPermissionStruct;
     name: AngelCoreStruct.SettingsPermissionStruct;
     image: AngelCoreStruct.SettingsPermissionStruct;
     logo: AngelCoreStruct.SettingsPermissionStruct;
@@ -276,21 +269,19 @@ export declare namespace AngelCoreStruct {
     AngelCoreStruct.SettingsPermissionStructOutput,
     AngelCoreStruct.SettingsPermissionStructOutput,
     AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
     AngelCoreStruct.SettingsPermissionStructOutput
   ] & {
     endowmentController: AngelCoreStruct.SettingsPermissionStructOutput;
     strategies: AngelCoreStruct.SettingsPermissionStructOutput;
-    whitelistedBeneficiaries: AngelCoreStruct.SettingsPermissionStructOutput;
-    whitelistedContributors: AngelCoreStruct.SettingsPermissionStructOutput;
+    allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStructOutput;
+    allowlistedContributors: AngelCoreStruct.SettingsPermissionStructOutput;
     maturityWhitelist: AngelCoreStruct.SettingsPermissionStructOutput;
     maturityTime: AngelCoreStruct.SettingsPermissionStructOutput;
     profile: AngelCoreStruct.SettingsPermissionStructOutput;
     earningsFee: AngelCoreStruct.SettingsPermissionStructOutput;
     withdrawFee: AngelCoreStruct.SettingsPermissionStructOutput;
     depositFee: AngelCoreStruct.SettingsPermissionStructOutput;
-    aumFee: AngelCoreStruct.SettingsPermissionStructOutput;
-    kycDonorsOnly: AngelCoreStruct.SettingsPermissionStructOutput;
+    balanceFee: AngelCoreStruct.SettingsPermissionStructOutput;
     name: AngelCoreStruct.SettingsPermissionStructOutput;
     image: AngelCoreStruct.SettingsPermissionStructOutput;
     logo: AngelCoreStruct.SettingsPermissionStructOutput;
@@ -325,18 +316,17 @@ export declare namespace AccountMessages {
     logo: PromiseOrValue<string>;
     image: PromiseOrValue<string>;
     cw4_members: PromiseOrValue<string>[];
-    kycDonorsOnly: PromiseOrValue<boolean>;
     cw3Threshold: AngelCoreStruct.ThresholdStruct;
     cw3MaxVotingPeriod: AngelCoreStruct.DurationStruct;
-    whitelistedBeneficiaries: PromiseOrValue<string>[];
-    whitelistedContributors: PromiseOrValue<string>[];
+    allowlistedBeneficiaries: PromiseOrValue<string>[];
+    allowlistedContributors: PromiseOrValue<string>[];
     splitMax: PromiseOrValue<BigNumberish>;
     splitMin: PromiseOrValue<BigNumberish>;
     splitDefault: PromiseOrValue<BigNumberish>;
     earningsFee: AngelCoreStruct.EndowmentFeeStruct;
     withdrawFee: AngelCoreStruct.EndowmentFeeStruct;
     depositFee: AngelCoreStruct.EndowmentFeeStruct;
-    aumFee: AngelCoreStruct.EndowmentFeeStruct;
+    balanceFee: AngelCoreStruct.EndowmentFeeStruct;
     dao: AngelCoreStruct.DaoSetupStruct;
     createDao: PromiseOrValue<boolean>;
     proposalLink: PromiseOrValue<BigNumberish>;
@@ -359,7 +349,6 @@ export declare namespace AccountMessages {
     string,
     string,
     string[],
-    boolean,
     AngelCoreStruct.ThresholdStructOutput,
     AngelCoreStruct.DurationStructOutput,
     string[],
@@ -391,18 +380,17 @@ export declare namespace AccountMessages {
     logo: string;
     image: string;
     cw4_members: string[];
-    kycDonorsOnly: boolean;
     cw3Threshold: AngelCoreStruct.ThresholdStructOutput;
     cw3MaxVotingPeriod: AngelCoreStruct.DurationStructOutput;
-    whitelistedBeneficiaries: string[];
-    whitelistedContributors: string[];
+    allowlistedBeneficiaries: string[];
+    allowlistedContributors: string[];
     splitMax: BigNumber;
     splitMin: BigNumber;
     splitDefault: BigNumber;
     earningsFee: AngelCoreStruct.EndowmentFeeStructOutput;
     withdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
     depositFee: AngelCoreStruct.EndowmentFeeStructOutput;
-    aumFee: AngelCoreStruct.EndowmentFeeStructOutput;
+    balanceFee: AngelCoreStruct.EndowmentFeeStructOutput;
     dao: AngelCoreStruct.DaoSetupStructOutput;
     createDao: boolean;
     proposalLink: BigNumber;
@@ -453,7 +441,7 @@ export declare namespace CharityApplicationsStorage {
 export interface ICharityApplicationInterface extends utils.Interface {
   functions: {
     "approveCharity(uint256)": FunctionFragment;
-    "proposeCharity((address,bool,uint256,uint256,string,(uint256[],uint256[]),uint256,uint8,string,string,address[],bool,(uint8,(uint256,uint256,uint256,uint256)),(uint8,(uint256,uint256)),address[],address[],uint256,uint256,uint256,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))),bool,uint256,((bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256))),uint256,address[],bool,(uint256,uint256,uint256)),string)": FunctionFragment;
+    "proposeCharity((address,bool,uint256,uint256,string,(uint256[],uint256[]),uint256,uint8,string,string,address[],(uint8,(uint256,uint256,uint256,uint256)),(uint8,(uint256,uint256)),address[],address[],uint256,uint256,uint256,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))),bool,uint256,((bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256))),uint256,address[],bool,(uint256,uint256,uint256)),string)": FunctionFragment;
     "rejectCharity(uint256)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "updateConfig(uint256,address,address,uint256,bool,uint256,bool,address,uint256)": FunctionFragment;

@@ -109,7 +109,7 @@ describe('Account Settings Controller', function () {
 		// set action to keccak256(abi.encodePacked("set"))	
 		const data = account.interface.encodeFunctionData('updateDelegate', [
 				1,
-				"whitelistedBeneficiaries",
+				"allowlistedBeneficiaries",
 				"set",
 				delegate.address,
 				Math.floor(Date.now() / 1000) + 360 * 24 * 60 * 60, // delegate expires in 360 days
@@ -142,17 +142,17 @@ describe('Account Settings Controller', function () {
 		let endowmentSettingsData = {
 			id: 1,
 			donationMatchActive: true,
-			whitelistedBeneficiaries: [addrs[0].address],
-			whitelistedContributors: [],
-			maturity_whitelist_add: [],
-			maturity_whitelist_remove: [],
+			allowlistedBeneficiaries: [addrs[0].address],
+			allowlistedContributors: [],
+			maturity_allowlist_add: [],
+			maturity_allowlist_remove: [],
 			splitToLiquid: endowmentConfig.splitToLiquid,
 			ignoreUserSplits: true
 		}
 		await account.connect(delegate).updateEndowmentSettings(endowmentSettingsData);
 
 		endowment = await accountQuery.queryEndowmentDetails(1);
-		expect(endowment.whitelistedBeneficiaries.length === 1 && endowment.whitelistedBeneficiaries[0] === addrs[0].address, 'whitelisted beneficiaries updated successfully').to.equal(true);
+		expect(endowment.allowlistedBeneficiaries.length === 1 && endowment.allowlistedBeneficiaries[0] === addrs[0].address, 'allowlisted beneficiaries updated successfully').to.equal(true);
 	});
 	it("should revert with the string `Unauthorized` when trying to update endowment details", async function() {
 		account = await ethers.getContractAt('AccountsUpdateEndowments', deployRes.addresses.account);
@@ -182,18 +182,18 @@ describe('Account Settings Controller', function () {
 		let endowmentSettingsData = {
 			id: 1,
 			donationMatchActive: true,
-			whitelistedBeneficiaries: [addrs[1].address],
-			whitelistedContributors: [],
-			maturity_whitelist_add: [],
-			maturity_whitelist_remove: [],
+			allowlistedBeneficiaries: [addrs[1].address],
+			allowlistedContributors: [],
+			maturity_allowlist_add: [],
+			maturity_allowlist_remove: [],
 			splitToLiquid: endowmentConfig.splitToLiquid,
 			ignoreUserSplits: true
 		}
 		await account.connect(delegate).updateEndowmentSettings(endowmentSettingsData);
 
 		endowment = await accountQuery.queryEndowmentDetails(1);
-		// console.log(endowment.whitelistedBeneficiaries);
-		expect(endowment.whitelistedBeneficiaries.length === 1 && endowment.whitelistedBeneficiaries[0] === addrs[0].address, 'whitelisted beneficiaries not updated as delegate has expired').to.equal(true);
+		// console.log(endowment.allowlistedBeneficiaries);
+		expect(endowment.allowlistedBeneficiaries.length === 1 && endowment.allowlistedBeneficiaries[0] === addrs[0].address, 'allowlisted beneficiaries not updated as delegate has expired').to.equal(true);
 		
 		MockDate.reset();
 	});
@@ -202,7 +202,7 @@ describe('Account Settings Controller', function () {
 		// set action to keccak256(abi.encodePacked("set"))	
 		const data = account.interface.encodeFunctionData('updateDelegate', [
 				1,
-				"whitelistedBeneficiaries",
+				"allowlistedBeneficiaries",
 				"revoke",
 				delegate.address,
 				Math.floor(Date.now() / 1000) + 360 * 24 * 60 * 60, 
@@ -230,33 +230,33 @@ describe('Account Settings Controller', function () {
 		expect(flag === 1, 'Transaction executed successfully').to.equal(true);
 
 
-		// try updating whitelisted beneficiaries via delegate
+		// try updating allowlisted beneficiaries via delegate
 		account = await ethers.getContractAt('AccountsUpdateEndowmentSettingsController', deployRes.addresses.account);
 		let endowmentSettingsData = {
 			id: 1,
 			donationMatchActive: true,
-			whitelistedBeneficiaries: [addrs[1].address],
-			whitelistedContributors: [],
-			maturity_whitelist_add: [],
-			maturity_whitelist_remove: [],
+			allowlistedBeneficiaries: [addrs[1].address],
+			allowlistedContributors: [],
+			maturity_allowlist_add: [],
+			maturity_allowlist_remove: [],
 			splitToLiquid: endowmentConfig.splitToLiquid,
 			ignoreUserSplits: true
 		}
 		await account.connect(delegate).updateEndowmentSettings(endowmentSettingsData);
 
 		endowment = await accountQuery.queryEndowmentDetails(1);
-		// console.log(endowment.whitelistedBeneficiaries);
-		expect(endowment.whitelistedBeneficiaries.length === 1 && endowment.whitelistedBeneficiaries[0] === addrs[0].address, 'whitelisted beneficiaries not updated as delegate has expired').to.equal(true);
+		// console.log(endowment.allowlistedBeneficiaries);
+		expect(endowment.allowlistedBeneficiaries.length === 1 && endowment.allowlistedBeneficiaries[0] === addrs[0].address, 'allowlisted beneficiaries not updated as delegate has expired').to.equal(true);
 	});
 	it("should update endowment settings through owner", async function() {
 		account = await ethers.getContractAt('AccountsUpdateEndowmentSettingsController', deployRes.addresses.account);
 		let endowmentSettingsData = {
 			id: 1,
 			donationMatchActive: true,
-			whitelistedBeneficiaries: [addrs[1].address],
-			whitelistedContributors: [addrs[1].address],
-			maturity_whitelist_add: [addrs[1].address, addrs[2].address],
-			maturity_whitelist_remove: [addrs[2].address],
+			allowlistedBeneficiaries: [addrs[1].address],
+			allowlistedContributors: [addrs[1].address],
+			maturity_allowlist_add: [addrs[1].address, addrs[2].address],
+			maturity_allowlist_remove: [addrs[2].address],
 			splitToLiquid: endowmentConfig.splitToLiquid,
 			ignoreUserSplits: false
 		}
@@ -279,9 +279,9 @@ describe('Account Settings Controller', function () {
 
 		endowment = await accountQuery.queryEndowmentDetails(1);
 
-		expect(endowment.whitelistedBeneficiaries.length === 1 && endowment.whitelistedBeneficiaries[0] === addrs[1].address, 'whitelisted beneficiaries not updated').to.equal(true);
-		expect(endowment.whitelistedContributors.length === 1 && endowment.whitelistedContributors[0] === addrs[1].address, 'whitelisted contributors not updated').to.equal(true);
-		expect(endowment.maturityWhitelist.length === 1 && endowment.maturityWhitelist[0] === addrs[1].address, 'maturity whitelist not updated').to.equal(true);
+		expect(endowment.allowlistedBeneficiaries.length === 1 && endowment.allowlistedBeneficiaries[0] === addrs[1].address, 'allowlisted beneficiaries not updated').to.equal(true);
+		expect(endowment.allowlistedContributors.length === 1 && endowment.allowlistedContributors[0] === addrs[1].address, 'allowlisted contributors not updated').to.equal(true);
+		expect(endowment.maturityWhitelist.length === 1 && endowment.maturityWhitelist[0] === addrs[1].address, 'maturity allowlist not updated').to.equal(true);
 		// expect(endowment.splitToLiquid === endowmentConfig.splitToLiquid, 'split to liquid not updated').to.equal(true);
 		expect(endowment.ignoreUserSplits === false, 'ignore user splits not updated').to.equal(true);
 	});
@@ -299,13 +299,13 @@ describe('Account Settings Controller', function () {
 			kycDonorsOnly: endowmentConfig.settingsController.kycDonorsOnly,
 			splitToLiquid: endowmentConfig.settingsController.splitToLiquid,
 			ignoreUserSplits: endowmentConfig.settingsController.ignoreUserSplits,
-			whitelistedBeneficiaries: endowmentConfig.settingsController.whitelistedBeneficiaries,
-			whitelistedContributors: endowmentConfig.settingsController.whitelistedContributors,
+			allowlistedBeneficiaries: endowmentConfig.settingsController.allowlistedBeneficiaries,
+			allowlistedContributors: endowmentConfig.settingsController.allowlistedContributors,
 			maturityWhitelist: endowmentConfig.settingsController.maturityWhitelist,
 			earningsFee: endowmentConfig.settingsController.earningsFee,
 			depositFee: endowmentConfig.settingsController.depositFee,
 			withdrawFee: endowmentConfig.settingsController.withdrawFee,
-			aumFee: endowmentConfig.settingsController.aumFee
+			balanceFee: endowmentConfig.settingsController.balanceFee
 		}
 
 		const data = account.interface.encodeFunctionData('updateEndowmentController', [updateEndowmentControllerData]);
@@ -337,7 +337,7 @@ describe('Account Settings Controller', function () {
 			earningsFee: endowmentConfig.earningsFee,
 			depositFee: endowmentConfig.depositFee,
 			withdrawFee: endowmentConfig.withdrawFee,
-			aumFee: endowmentConfig.aumFee
+			balanceFee: endowmentConfig.balanceFee
 		}
 
 		const data = account.interface.encodeFunctionData('updateEndowmentFees', [updateEndowmentFeesData]);

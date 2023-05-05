@@ -71,8 +71,8 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                         time: 0
                     }
                 },
-                whitelistedBeneficiaries: [wallet.address, apTeam2.address],
-                whitelistedContributors: [wallet.address, apTeam2.address],
+                allowlistedBeneficiaries: [wallet.address, apTeam2.address],
+                allowlistedContributors: [wallet.address, apTeam2.address],
                 splitMax: 100,
                 splitMin: 0,
                 splitDefault: 50,
@@ -91,7 +91,7 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                     feePercentage: 2,
                     active: true
                 },
-                aumFee: {
+                balanceFee: {
                     payoutAddress: apTeam1.address,
                     feePercentage: 2,
                     active: true
@@ -150,7 +150,7 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                             expires: 0
                         }
                     },
-                    whitelistedBeneficiaries: {
+                    allowlistedBeneficiaries: {
                         ownerControlled: false,
                         govControlled: false,
                         modifiableAfterInit: true,
@@ -159,7 +159,7 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                             expires: 0
                         }
                     },
-                    whitelistedContributors: {
+                    allowlistedContributors: {
                         ownerControlled: false,
                         govControlled: false,
                         modifiableAfterInit: true,
@@ -222,7 +222,7 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                             expires: 0
                         }
                     },
-                    aumFee: {
+                    balanceFee: {
                         ownerControlled: false,
                         govControlled: false,
                         modifiableAfterInit: true,

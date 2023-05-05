@@ -31,14 +31,14 @@ export declare namespace DistributorStorage {
   export type ConfigStruct = {
     timelockContract: PromiseOrValue<string>;
     haloToken: PromiseOrValue<string>;
-    whitelist: PromiseOrValue<string>[];
+    allowlist: PromiseOrValue<string>[];
     spendLimit: PromiseOrValue<BigNumberish>;
   };
 
   export type ConfigStructOutput = [string, string, string[], BigNumber] & {
     timelockContract: string;
     haloToken: string;
-    whitelist: string[];
+    allowlist: string[];
     spendLimit: BigNumber;
   };
 }
@@ -47,7 +47,7 @@ export declare namespace DistributorMessage {
   export type InstantiateMsgStruct = {
     timelockContract: PromiseOrValue<string>;
     haloToken: PromiseOrValue<string>;
-    whitelist: PromiseOrValue<string>[];
+    allowlist: PromiseOrValue<string>[];
     spendLimit: PromiseOrValue<BigNumberish>;
   };
 
@@ -59,14 +59,14 @@ export declare namespace DistributorMessage {
   ] & {
     timelockContract: string;
     haloToken: string;
-    whitelist: string[];
+    allowlist: string[];
     spendLimit: BigNumber;
   };
 
   export type ConfigResponseStruct = {
     timelockContract: PromiseOrValue<string>;
     haloToken: PromiseOrValue<string>;
-    whitelist: PromiseOrValue<string>[];
+    allowlist: PromiseOrValue<string>[];
     spendLimit: PromiseOrValue<BigNumberish>;
   };
 
@@ -78,7 +78,7 @@ export declare namespace DistributorMessage {
   ] & {
     timelockContract: string;
     haloToken: string;
-    whitelist: string[];
+    allowlist: string[];
     spendLimit: BigNumber;
   };
 }

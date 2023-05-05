@@ -24,7 +24,7 @@ import {IAccountsQuery} from "../interface/IAccountsQuery.sol";
 contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
     /**
     @notice Updates the endowment details.
-    @dev This function allows authorized users to update the endowment details like owner, tier, endowment type, rebalance, kycDonorsOnly, name, categories, logo, and image.
+    @dev This function allows authorized users to update the endowment details like owner, tier, endowment type, rebalance, name, categories, logo, and image.
     @param curDetails UpdateEndowmentDetailsRequest struct containing the updated endowment details.
     */
     function updateEndowmentDetails(
@@ -71,24 +71,11 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
             tempEndowment.rebalance = curDetails.rebalance;
         }
 
-        // if(tempEndowment.settingsController.kycDonorsOnly)
-        if (
-            AngelCoreStruct.canChange(
-                tempEndowment.settingsController.kycDonorsOnly,
-                msg.sender,
-                tempEndowment.owner,
-                tempEndowment.dao,
-                block.timestamp
-            )
-        ) {
-            tempEndowment.kycDonorsOnly = curDetails.kycDonorsOnly;
-        }
         if (
             AngelCoreStruct.canChange(
                 tempEndowment.settingsController.name,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
@@ -100,7 +87,6 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
                 tempEndowment.settingsController.categories,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
@@ -147,7 +133,6 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
                 tempEndowment.settingsController.logo,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
@@ -159,7 +144,6 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
                 tempEndowment.settingsController.image,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
@@ -204,7 +188,6 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
                 ),
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 delegateAddress,
                 delegateExpiry
             );
@@ -219,7 +202,6 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
                 ),
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             );
         } else {

@@ -737,14 +737,11 @@ library AngelCoreStruct {
         address sender,
         uint256 envTime
     ) public view returns (bool) {
-        if (
+        return (
+            self.Addr != address(0) &&
             sender == self.Addr &&
             (self.expires == 0 || envTime <= self.expires)
-        ) {
-            return true;
-        } else {
-            return false;
-        }
+        ) ? true : false;
     }
 
     struct EndowmentFee {
@@ -754,8 +751,6 @@ library AngelCoreStruct {
     }
 
     struct SettingsPermission {
-        bool ownerControlled;
-        bool govControlled;
         bool modifiableAfterInit;
         Delegate delegate;
     }
@@ -764,13 +759,11 @@ library AngelCoreStruct {
         SettingsPermission storage self,
         address sender,
         address owner,
-        address gov,
         address delegateAddr,
         uint256 delegateExpiry
     ) public {
         if (
-            (sender == owner && self.ownerControlled) ||
-            (gov != address(0) && self.govControlled && sender == gov)
+            sender == owner
         ) {
             self.delegate = Delegate({
                 Addr: delegateAddr,
@@ -783,14 +776,10 @@ library AngelCoreStruct {
         SettingsPermission storage self,
         address sender,
         address owner,
-        address gov,
         uint256 envTime
     ) public {
         if (
-            (sender == owner && self.ownerControlled) ||
-            (gov != address(0) && self.govControlled && sender == gov) ||
-            (self.delegate.Addr != address(0) &&
-                canTakeAction(self.delegate, sender, envTime))
+            canTakeAction(self.delegate, sender, envTime) || sender == owner            
         ) {
             self.delegate = Delegate({Addr: address(0), expires: 0});
         }
@@ -800,14 +789,11 @@ library AngelCoreStruct {
         SettingsPermission storage self,
         address sender,
         address owner,
-        address gov,
         uint256 envTime
     ) public view returns (bool) {
         if (
-            (sender == owner && self.ownerControlled) ||
-            (gov != address(0) && self.govControlled && sender == gov) ||
-            (self.delegate.Addr != address(0) &&
-                canTakeAction(self.delegate, sender, envTime))
+            self.modifiableAfterInit && 
+            (canTakeAction(self.delegate, sender, envTime) || sender == owner)
         ) {
             return self.modifiableAfterInit;
         }
@@ -817,16 +803,15 @@ library AngelCoreStruct {
     struct SettingsController {
         SettingsPermission endowmentController;
         SettingsPermission strategies;
-        SettingsPermission whitelistedBeneficiaries;
-        SettingsPermission whitelistedContributors;
+        SettingsPermission allowlistedBeneficiaries;
+        SettingsPermission allowlistedContributors;
         SettingsPermission maturityWhitelist;
         SettingsPermission maturityTime;
         SettingsPermission profile;
         SettingsPermission earningsFee;
         SettingsPermission withdrawFee;
         SettingsPermission depositFee;
-        SettingsPermission aumFee;
-        SettingsPermission kycDonorsOnly;
+        SettingsPermission balanceFee;
         SettingsPermission name;
         SettingsPermission image;
         SettingsPermission logo;
@@ -866,14 +851,14 @@ library AngelCoreStruct {
             return _tempObject.strategies;
         } else if (
             keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("whitelistedBeneficiaries"))
+            keccak256(abi.encodePacked("allowlistedBeneficiaries"))
         ) {
-            return _tempObject.whitelistedBeneficiaries;
+            return _tempObject.allowlistedBeneficiaries;
         } else if (
             keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("whitelistedContributors"))
+            keccak256(abi.encodePacked("allowlistedContributors"))
         ) {
-            return _tempObject.whitelistedContributors;
+            return _tempObject.allowlistedContributors;
         } else if (
             keccak256(abi.encodePacked(name)) ==
             keccak256(abi.encodePacked("maturityTime"))
@@ -901,14 +886,9 @@ library AngelCoreStruct {
             return _tempObject.depositFee;
         } else if (
             keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("aumFee"))
+            keccak256(abi.encodePacked("balanceFee"))
         ) {
-            return _tempObject.aumFee;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("kycDonorsOnly"))
-        ) {
-            return _tempObject.kycDonorsOnly;
+            return _tempObject.balanceFee;
         } else if (
             keccak256(abi.encodePacked(name)) ==
             keccak256(abi.encodePacked("name"))

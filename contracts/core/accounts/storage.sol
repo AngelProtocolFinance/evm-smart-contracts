@@ -28,7 +28,6 @@ library AccountStorage {
         AngelCoreStruct.AccountStrategies strategies;
         AngelCoreStruct.OneOffVaults oneoffVaults; // vaults not covered in account startegies (more efficient tracking of vaults vs. looking up allll vaults)
         AngelCoreStruct.RebalanceDetails rebalance; // parameters to guide rebalancing & harvesting of gains from locked/liquid accounts
-        bool kycDonorsOnly; // allow owner to state a preference for receiving only kyc'd donations (where possible) //TODO:
         uint256 pendingRedemptions; // number of vault redemptions currently pending for this endowment
         uint256 copycatStrategy; // endowment ID to copy their strategy
         uint256 proposalLink; // link back the CW3 Proposal that created an endowment
@@ -36,13 +35,13 @@ library AccountStorage {
         address daoToken;
         bool donationMatchActive; //TODO: check this de we need to do this
         address donationMatchContract;
-        address[] whitelistedBeneficiaries;
-        address[] whitelistedContributors;
+        address[] allowlistedBeneficiaries;
+        address[] allowlistedContributors;
         address[] maturityWhitelist;
         AngelCoreStruct.EndowmentFee earningsFee; //TODO: we can remove all this
         AngelCoreStruct.EndowmentFee withdrawFee; //TODO: we can remove all this
         AngelCoreStruct.EndowmentFee depositFee; //TODO: we can remove all this
-        AngelCoreStruct.EndowmentFee aumFee; //TODO: we can remove all this
+        AngelCoreStruct.EndowmentFee balanceFee; //TODO: we can remove all this
         AngelCoreStruct.SettingsController settingsController; //TODO: we can remove all this
         uint256 parent; //TODO: not using this one also
         bool ignoreUserSplits;

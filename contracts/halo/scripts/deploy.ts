@@ -88,7 +88,7 @@ export async function deployHaloImplementation(
 		const distributorAddress = await distributor(proxyAdmin.address, {
 			timelockContract: gov.TimeLock,
 			haloToken: halo,
-			whitelist: [...distributorWhitelist],
+			allowlist: [...distributorWhitelist],
 			spendLimit: distributorSpendLimit,
 		}, hre);
 		var response = {

@@ -33,7 +33,6 @@ async function deploy() {
         logo: "Some fancy logo",
         image: "Nice banner image",
         cw4_members: cw4_members,
-        kycDonorsOnly: true,
         cw3Threshold: {
             enumData: 1,
             data: {
@@ -50,8 +49,8 @@ async function deploy() {
                 time: Math.floor(Date.now() / 1000) + 1000,
             },
         },
-        whitelistedBeneficiaries: [],
-        whitelistedContributors: [],
+        allowlistedBeneficiaries: [],
+        allowlistedContributors: [],
         splitMax: 100,
         splitMin: 0,
         splitDefault: 50,
@@ -70,7 +69,7 @@ async function deploy() {
             feePercentage: 0,
             active: false,
         },
-        aumFee: {
+        balanceFee: {
             payoutAddress: ethers.constants.AddressZero,
             feePercentage: 0,
             active: false,
@@ -130,7 +129,7 @@ async function deploy() {
                     expires: Math.floor(Date.now() / 1000) + 1000, // datetime int of delegation expiry
                 },
             },
-            whitelistedBeneficiaries: {
+            allowlistedBeneficiaries: {
                 ownerControlled: true,
                 govControlled: true,
                 modifiableAfterInit: true,
@@ -139,7 +138,7 @@ async function deploy() {
                     expires: Math.floor(Date.now() / 1000) + 1000, // datetime int of delegation expiry
                 },
             },
-            whitelistedContributors: {
+            allowlistedContributors: {
                 ownerControlled: true,
                 govControlled: true,
                 modifiableAfterInit: true,
@@ -202,7 +201,7 @@ async function deploy() {
                     expires: Math.floor(Date.now() / 1000) + 1000, // datetime int of delegation expiry
                 },
             },
-            aumFee: {
+            balanceFee: {
                 ownerControlled: true,
                 govControlled: true,
                 modifiableAfterInit: true,

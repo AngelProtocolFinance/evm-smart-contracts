@@ -352,8 +352,8 @@ export type { ILockedWithdraw } from "./contracts/normalized_endowment/locked-wi
 export { ILockedWithdraw__factory } from "./factories/contracts/normalized_endowment/locked-withdraw/interface/ILockedWithdraw__factory";
 export type { LockedWithdraw } from "./contracts/normalized_endowment/locked-withdraw/LockedWithdraw";
 export { LockedWithdraw__factory } from "./factories/contracts/normalized_endowment/locked-withdraw/LockedWithdraw__factory";
-export type { SubDaoToken } from "./contracts/normalized_endowment/subdao-token/subdoa-token.sol/SubDaoToken";
-export { SubDaoToken__factory } from "./factories/contracts/normalized_endowment/subdao-token/subdoa-token.sol/SubDaoToken__factory";
+export type { SubDaoToken } from "./contracts/normalized_endowment/subdao-token/subdao-token.sol/SubDaoToken";
+export { SubDaoToken__factory } from "./factories/contracts/normalized_endowment/subdao-token/subdao-token.sol/SubDaoToken__factory";
 export type { BancorBondingCurve } from "./contracts/normalized_endowment/subdao-token/Token/BancorBondingCurve";
 export { BancorBondingCurve__factory } from "./factories/contracts/normalized_endowment/subdao-token/Token/BancorBondingCurve__factory";
 export type { ContinuousToken } from "./contracts/normalized_endowment/subdao-token/Token/Continous.sol/ContinuousToken";

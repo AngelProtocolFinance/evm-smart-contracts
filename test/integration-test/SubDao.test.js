@@ -337,7 +337,7 @@ describe('SubDao test', function () {
         feePercentage: 10,
         active: true,
       },
-      aumFee: {
+      balanceFee: {
         payoutAddress: ADDRESS_ZERO,
         feePercentage: 0,
         active: false,
