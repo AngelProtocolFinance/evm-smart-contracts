@@ -3,7 +3,7 @@ import { task } from "hardhat/config"
 import addresses from "../../contract-address.json"
 import { AccountsCreateEndowment, AccountsQueryEndowments, MultiSigGeneric, Registrar } from "../../typechain-types"
 import { AccountMessages } from "../../typechain-types/contracts/core/accounts/IAccounts"
-import { genWallet } from "../../util/keygen"
+import { genWallet } from "../../utils/keygen"
 
 task("manage:createCharityEndowment", "Will create a new charity endowment").setAction(
     async (_taskArguments, hre) => {
@@ -35,7 +35,7 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
 
 
             console.log("Generating new wallet as owner")
-            let wallet = genWallet(hre, true)
+            let wallet = genWallet(true)
 
             let endowState = await queryEndowmentFacet.queryEndowmentDetails(37) // Charity #1
 
