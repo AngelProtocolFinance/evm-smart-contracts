@@ -228,18 +228,11 @@ contract AccountDepositWithdrawEndowments is
     ) public payable nonReentrant {
         require(curTokenaddress != address(0), "Invalid Token Address");
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        // AccountStorage.Config memory tempConfig = state.config;
 
-        RegistrarStorage.Config memory registrar_config = IRegistrar(
-            state.config.registrarContract
-        ).queryConfig();
-
-        bool isValid = AngelCoreStruct.cw20Valid(
-            registrar_config.acceptedTokens.cw20,
-            curTokenaddress
-        );
-
-        require(isValid, "Invalid Token");
+        require(
+            IRegistrar(state.config.registrarContract)
+                .isTokenAccepted(curTokenaddress), 
+            "Invalid Token");
 
         bool curSuccess = IERC20(curTokenaddress).transferFrom(
             msg.sender,

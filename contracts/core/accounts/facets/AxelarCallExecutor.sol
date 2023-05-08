@@ -161,23 +161,9 @@ contract AxelarExecutionContract is ReentrancyGuardFacet, AccountsEvents {
         address curTokenaddress,
         uint256 curAmount
     ) internal view returns (bool) {
-        // AccountStorage.State storage state = LibAccounts.diamondStorage();
-        RegistrarStorage.Config memory registrar_config = IRegistrar(
+        require(IRegistrar(
             curRegistrar
-        ).queryConfig();
-
-        bool flag = false;
-        for (
-            uint8 i = 0;
-            i < registrar_config.acceptedTokens.cw20.length;
-            i++
-        ) {
-            if (curTokenaddress == registrar_config.acceptedTokens.cw20[i]) {
-                flag = true;
-            }
-        }
-
-        require(flag, "Not accepted token");
+        ).isTokenAccepted(curTokenaddress), "Not accepted token");
 
         require(curAmount > 0, "InvalidZeroAmount");
 

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.16;
 
 import {AngelCoreStruct} from "../struct.sol";
+import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 
 library AccountMessages {
     struct CreateEndowmentRequest {
@@ -84,7 +85,7 @@ library AccountMessages {
         uint256 tier; /// Option<u8>,
         string logo; /// Option<String>,
         string image; /// Option<String>,
-        AngelCoreStruct.RebalanceDetails rebalance;
+        LocalRegistrarLib.RebalanceParams rebalance;
     }
 
     struct Strategy {
@@ -177,7 +178,7 @@ library AccountMessages {
         AngelCoreStruct.EndowmentType endow_type;
         uint256 maturityTime;
         AngelCoreStruct.OneOffVaults oneoffVaults;
-        AngelCoreStruct.RebalanceDetails rebalance;
+        LocalRegistrarLib.RebalanceParams rebalance;
         address donationMatchContract;
         bool kycDonorsOnly;
         address[] maturityWhitelist;

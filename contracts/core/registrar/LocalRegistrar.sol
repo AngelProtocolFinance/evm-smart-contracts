@@ -22,8 +22,12 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
         _disableInitializers();
     }
 
-    function initialize() public initializer {
-        __Ownable_init_unchained();
+    function __LocalRegistrar_init() internal onlyInitializing {
+        __Ownable_init();
+        __LocalRegistrar_init_unchained();
+    }
+
+    function __LocalRegistrar_init_unchained() internal onlyInitializing {
         LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
             LocalRegistrarLib.localRegistrarStorage();
 
@@ -43,6 +47,11 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
             LocalRegistrarLib.ROUTER_ADDRESS,
             LocalRegistrarLib.REFUND_ADDRESS
         );
+    }
+
+    function initialize() public initializer {
+        __LocalRegistrar_init();
+        
     }
 
     /*////////////////////////////////////////////////
@@ -215,7 +224,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     /*////////////////////////////////////////////////
                         GOLDFINCH
     */////////////////////////////////////////////////
-    function getAPGoldfinchParams() external view returns (APGoldfinchConfigLib.APGoldfinchConfig memory) {
+    function getAPGoldfinchParams() external pure returns (APGoldfinchConfigLib.APGoldfinchConfig memory) {
         APGoldfinchConfigLib.APGoldfinchConfig storage grs = 
             APGoldfinchConfigLib.goldfinchRegistrarStorage();
         return grs;

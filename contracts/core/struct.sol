@@ -166,32 +166,32 @@ library AngelCoreStruct {
         }
     }
 
-    // SHARED
-    struct RebalanceDetails {
-        bool rebalanceLiquidInvestedProfits; // should invested portions of the liquid account be rebalanced?
-        bool lockedInterestsToLiquid; // should Locked acct interest earned be distributed to the Liquid Acct?
-        ///TODO: Should be decimal type insted of uint256
-        uint256 interest_distribution; // % of Locked acct interest earned to be distributed to the Liquid Acct
-        bool lockedPrincipleToLiquid; // should Locked acct principle be distributed to the Liquid Acct?
-        ///TODO: Should be decimal type insted of uint256
-        uint256 principle_distribution; // % of Locked acct principle to be distributed to the Liquid Acct
-    }
+    // SHARED -- now defined by LocalRegistrar 
+    // struct RebalanceDetails {
+    //     bool rebalanceLiquidInvestedProfits; // should invested portions of the liquid account be rebalanced?
+    //     bool lockedInterestsToLiquid; // should Locked acct interest earned be distributed to the Liquid Acct?
+    //     ///TODO: Should be decimal type insted of uint256
+    //     uint256 interest_distribution; // % of Locked acct interest earned to be distributed to the Liquid Acct
+    //     bool lockedPrincipleToLiquid; // should Locked acct principle be distributed to the Liquid Acct?
+    //     ///TODO: Should be decimal type insted of uint256
+    //     uint256 principle_distribution; // % of Locked acct principle to be distributed to the Liquid Acct
+    // }
 
-    function rebalanceDetailsDefaut()
-        public
-        pure
-        returns (RebalanceDetails memory)
-    {
-        RebalanceDetails memory _tempRebalanceDetails = RebalanceDetails({
-            rebalanceLiquidInvestedProfits: false,
-            lockedInterestsToLiquid: false,
-            interest_distribution: 20,
-            lockedPrincipleToLiquid: false,
-            principle_distribution: 0
-        });
+    // function rebalanceDetailsDefaut()
+    //     public
+    //     pure
+    //     returns (RebalanceDetails memory)
+    // {
+    //     RebalanceDetails memory _tempRebalanceDetails = RebalanceDetails({
+    //         rebalanceLiquidInvestedProfits: false,
+    //         lockedInterestsToLiquid: false,
+    //         interest_distribution: 20,
+    //         lockedPrincipleToLiquid: false,
+    //         principle_distribution: 0
+    //     });
 
-        return _tempRebalanceDetails;
-    }
+    //     return _tempRebalanceDetails;
+    // }
 
     struct DonationsReceived {
         uint256 locked;
@@ -489,8 +489,6 @@ library AngelCoreStruct {
         string charityNavigatorRating;
     }
 
-    ///CHanges made for registrar contract
-
     struct SplitDetails {
         uint256 max;
         uint256 min;
@@ -519,23 +517,23 @@ library AngelCoreStruct {
         }
     }
 
-    struct AcceptedTokens {
-        address[] cw20;
-    }
+    // struct AcceptedTokens {
+    //     address[] cw20;
+    // }
 
-    function cw20Valid(
-        address[] memory cw20,
-        address token
-    ) public pure returns (bool) {
-        bool check = false;
-        for (uint8 i = 0; i < cw20.length; i++) {
-            if (cw20[i] == token) {
-                check = true;
-            }
-        }
+    // function cw20Valid(
+    //     address[] memory cw20,
+    //     address token
+    // ) public pure returns (bool) {
+    //     bool check = false;
+    //     for (uint8 i = 0; i < cw20.length; i++) {
+    //         if (cw20[i] == token) {
+    //             check = true;
+    //         }
+    //     }
 
-        return check;
-    }
+    //     return check;
+    // }
 
     struct NetworkInfo {
         string name;
@@ -566,16 +564,16 @@ library AngelCoreStruct {
         None
     }
 
-    struct YieldVault {
-        string addr; // vault's contract address on chain where the Registrar lives/??
-        uint256 network; // Points to key in NetworkConnections storage map
-        address inputDenom; //?
-        address yieldToken; //?
-        bool approved;
-        EndowmentType[] restrictedFrom;
-        AccountType acctType;
-        VaultType vaultType;
-    }
+    // struct YieldVault {
+    //     string addr; // vault's contract address on chain where the Registrar lives/??
+    //     uint256 network; // Points to key in NetworkConnections storage map
+    //     address inputDenom; //?
+    //     address yieldToken; //?
+    //     bool approved;
+    //     EndowmentType[] restrictedFrom;
+    //     AccountType acctType;
+    //     VaultType vaultType;
+    // }
 
     struct Member {
         address addr;

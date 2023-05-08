@@ -1011,11 +1011,11 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     }
 
     /**
-     * @dev Validate deposit find (by querying registrar contract)
+     * @dev Validate deposit fund (by querying registrar contract)
      * @param fund Fund
      * @return True if fund is valid
      */
-    function validateDepositFind(
+    function validateDepositFund(
         AngelCoreStruct.AssetBase memory fund
     ) internal view returns (bool) {
         RegistrarStorage.Config memory registrar_config = IRegistrar(
@@ -1023,18 +1023,9 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
         ).queryConfig();
 
         if (fund.info == AngelCoreStruct.AssetInfoBase.Cw20) {
-            bool flag = false;
-            for (
-                uint256 i = 0;
-                i < registrar_config.acceptedTokens.cw20.length;
-                i++
-            ) {
-                if (registrar_config.acceptedTokens.cw20[i] == fund.addr) {
-                    flag = true;
-                }
-            }
-
-            require(flag, "Not accepted token");
+            require(IRegistrar(state.config.registrarContract)
+                .isTokenAccepted(fund.addr), 
+                "Not accepted token");
         } else {
             revert();
         }

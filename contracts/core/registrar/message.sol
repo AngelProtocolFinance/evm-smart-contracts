@@ -6,24 +6,25 @@ import {AngelCoreStruct} from "../struct.sol";
 library RegistrarMessages {
     struct InstantiateRequest {
         address treasury;
-        uint256 taxRate;
-        AngelCoreStruct.RebalanceDetails rebalance;
+        // uint256 taxRate;
+        // AngelCoreStruct.RebalanceDetails rebalance;
         AngelCoreStruct.SplitDetails splitToLiquid;
-        AngelCoreStruct.AcceptedTokens acceptedTokens;
+        // AngelCoreStruct.AcceptedTokens acceptedTokens;
         address router;
         address axelerGateway;
+        address axelarGasRecv;
     }
 
     struct UpdateConfigRequest {
         address accountsContract;
-        uint256 taxRate;
-        AngelCoreStruct.RebalanceDetails rebalance;
+        // uint256 taxRate;
+        // AngelCoreStruct.RebalanceDetails rebalance;
         string[] approved_charities;
         uint256 splitMax;
         uint256 splitMin;
         uint256 splitDefault;
         uint256 collectorShare;
-        AngelCoreStruct.AcceptedTokens acceptedTokens;
+        // AngelCoreStruct.AcceptedTokens acceptedTokens;
         // WASM CODES -> EVM -> Solidity Implementation contract addresses
         address subdaoGovCode; // subdao gov wasm code
         address subdaoCw20TokenCode; // subdao gov token (basic CW20) wasm code
@@ -72,20 +73,19 @@ library RegistrarMessages {
     }
 
     struct ConfigResponse {
-        address owner;
         uint256 version;
         address accountsContract;
         address treasury;
-        uint256 taxRate;
-        AngelCoreStruct.RebalanceDetails rebalance;
+        // uint256 taxRate;
+        // AngelCoreStruct.RebalanceDetails rebalance;
         address indexFund;
-        AngelCoreStruct.SplitDetails splitToLiquid;
+        // AngelCoreStruct.SplitDetails splitToLiquid;
         address haloToken;
         address govContract;
         address charitySharesContract;
         uint256 cw3Code;
         uint256 cw4Code;
-        AngelCoreStruct.AcceptedTokens acceptedTokens;
+        // AngelCoreStruct.AcceptedTokens acceptedTokens;
         address applicationsReview;
         address swapsRouter;
     }

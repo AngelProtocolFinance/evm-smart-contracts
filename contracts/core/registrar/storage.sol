@@ -5,7 +5,6 @@ import {AngelCoreStruct} from "../struct.sol";
 
 library RegistrarStorage {
     struct Config {
-        address owner; // AP TEAM MULTISIG
         //Application review multisig
         address applicationsReview; // Endowment application review team's CW3 (set as owner to start). Owner can set and change/revoke.
         address indexFundContract;
@@ -25,13 +24,12 @@ library RegistrarStorage {
         address haloToken; // TerraSwap HALO token addr
         address haloTokenLpContract;
         address govContract; // AP governance contract
-        address collectorAddr; // Collector address for new fee //SHARED
         uint256 collectorShare;
         address charitySharesContract;
-        AngelCoreStruct.AcceptedTokens acceptedTokens; // list of approved native and CW20 coins can accept inward
+        // AngelCoreStruct.AcceptedTokens acceptedTokens; // list of approved native and CW20 coins can accept inward
         //PROTOCOL LEVEL
         address fundraisingContract;
-        AngelCoreStruct.RebalanceDetails rebalance;
+        // AngelCoreStruct.RebalanceDetails rebalance;
         address swapsRouter;
         address multisigFactory;
         address multisigEmitter;
@@ -45,14 +43,12 @@ library RegistrarStorage {
 
     struct State {
         Config config;
-        mapping(string => AngelCoreStruct.YieldVault) VAULTS;
-        string[] VAULT_POINTERS;
+        // mapping(string => AngelCoreStruct.YieldVault) VAULTS;
+        // string[] VAULT_POINTERS;
         mapping(uint256 => AngelCoreStruct.NetworkInfo) NETWORK_CONNECTIONS;
-        mapping(string => uint256) FEES; // SHARED
     }
 }
 
 contract Storage {
     RegistrarStorage.State state;
-    bool initilized = false;
 }

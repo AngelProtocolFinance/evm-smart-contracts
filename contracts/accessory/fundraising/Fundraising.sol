@@ -84,8 +84,8 @@ contract Fundraising is StorageFundraising {
         uint256 taxRate,
         AngelCoreStruct.GenericBalance memory acceptedTokens
     ) public {
-        RegistrarStorage.Config memory registrarConfig = getRegistrarConfig();
-        require(msg.sender == registrarConfig.owner, "Unauthorized");
+        address registrarContract = state.config.registrarContract;
+        require(msg.sender == IRegistrar(registrarContract).owner(), "Unauthorized");
         state.config.campaignPeriodSeconds = campaignPeriodSeconds;
         state.config.taxRate = taxRate;
         state.config.acceptedTokens = acceptedTokens;

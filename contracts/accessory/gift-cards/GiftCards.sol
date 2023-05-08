@@ -96,7 +96,6 @@ contract GiftCards is Storage {
         uint256 depositId = state.config.nextDeposit;
 
         validateDepositFund(
-            state.config.registrarContract,
             fund.addr,
             fund.amount
         );
@@ -315,35 +314,15 @@ contract GiftCards is Storage {
 
     /**
      * @dev Validate deposit fund: checks if the fund is accepted by querying registrar contract
-     * @param curRegistrar the registrar contract
-     * @param curTokenaddress the token address
+     * @param curTokenAddress the token address
      * @param curAmount the amount
      */
     function validateDepositFund(
-        address curRegistrar,
-        address curTokenaddress,
+        address curTokenAddress,
         uint256 curAmount
     ) internal view returns (bool) {
-        // AccountStorage.State storage state = LibAccounts.diamondStorage();
-        RegistrarStorage.Config memory registrar_config = IRegistrar(
-            curRegistrar
-        ).queryConfig();
-
-        bool flag = false;
-        for (
-            uint8 i = 0;
-            i < registrar_config.acceptedTokens.cw20.length;
-            i++
-        ) {
-            if (curTokenaddress == registrar_config.acceptedTokens.cw20[i]) {
-                flag = true;
-            }
-        }
-
-        require(flag, "Not accepted token");
-
+        require(IRegistrar(state.config.registrarContract).isTokenAccepted(curTokenAddress));
         require(curAmount > 0, "InvalidZeroAmount");
-
         return true;
     }
 }
