@@ -111,22 +111,19 @@ contract AccountDonationMatch is ReentrancyGuardFacet, AccountsEvents {
         require(msg.sender == tempEndowment.owner, "Unauthorized");
 
         require(tempEndowment.owner != address(0), "AD E02"); //A DAO does not exist yet for this Endowment. Please set that up first.
-
         require(tempEndowment.donationMatchContract == address(0), "AD E03"); // A Donation Match contract already exists for this Endowment
+
+        require(curDetails.data.uniswapFactory != address(0), "Invalid Data");
+        require(curDetails.data.poolFee != 0, "Invalid Data");
 
         RegistrarStorage.Config memory registrar_config = IRegistrar(
             state.config.registrarContract
         ).queryConfig();
 
         require(registrar_config.donationMatchCode != address(0), "AD E04"); // No implementation for donation matching contract
-
-        require(curDetails.data.uniswapFactory != address(0), "Invalid Data");
-
         require(registrar_config.usdcAddress != address(0), "AD E05"); // Invalid Registrar Data
-        require(curDetails.data.poolFee != 0, "Invalid Data");
 
         address curInputtoken;
-
         if (
             curDetails.enumData ==
             AccountMessages.DonationMatchEnum.HaloTokenReserve
@@ -167,23 +164,21 @@ contract AccountDonationMatch is ReentrancyGuardFacet, AccountsEvents {
         // TODO: add donation match address?? :
         state.ENDOWMENTS[curId].donationMatchContract = donationMatch;
 
-        {
-            IDonationMatchEmitter(registrar_config.donationMatchEmitter)
-                .initializeDonationMatch(
-                    curId,
-                    donationMatch,
-                    DonationMatchStorage.Config({
-                        reserveToken: curInputtoken,
-                        uniswapFactory: curDetails.data.uniswapFactory,
-                        registrarContract: state.config.registrarContract,
-                        poolFee: curDetails.data.poolFee,
-                        usdcAddress: registrar_config.usdcAddress
-                    })
-                );
-            emit DonationMatchSetup(
+        IDonationMatchEmitter(registrar_config.donationMatchEmitter)
+            .initializeDonationMatch(
                 curId,
-                state.ENDOWMENTS[curId].donationMatchContract
+                donationMatch,
+                DonationMatchStorage.Config({
+                    reserveToken: curInputtoken,
+                    uniswapFactory: curDetails.data.uniswapFactory,
+                    registrarContract: state.config.registrarContract,
+                    poolFee: curDetails.data.poolFee,
+                    usdcAddress: registrar_config.usdcAddress
+                })
             );
-        }
+        emit DonationMatchSetup(
+            curId,
+            state.ENDOWMENTS[curId].donationMatchContract
+        );
     }
 }

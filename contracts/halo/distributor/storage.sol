@@ -5,7 +5,7 @@ library DistributorStorage {
     struct Config {
         address timelockContract;
         address haloToken;
-        address[] whitelist;
+        address[] allowlist;
         uint spendLimit;
     }
 

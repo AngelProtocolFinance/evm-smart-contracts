@@ -101,20 +101,19 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                 strategies: AngelCoreStruct.accountStrategiesDefaut(),
                 oneoffVaults: AngelCoreStruct.oneOffVaultsDefault(),
                 rebalance: AngelCoreStruct.rebalanceDetailsDefaut(),
-                kycDonorsOnly: curDetails.kycDonorsOnly,
                 pendingRedemptions: 0,
                 copycatStrategy: 0,
                 dao: address(0),
                 daoToken: address(0),
                 donationMatchActive: false,
                 donationMatchContract: donationMatchContract,
-                whitelistedBeneficiaries: curDetails.whitelistedBeneficiaries,
-                whitelistedContributors: curDetails.whitelistedContributors,
+                allowlistedBeneficiaries: curDetails.allowlistedBeneficiaries,
+                allowlistedContributors: curDetails.allowlistedContributors,
                 earningsFee: curDetails.earningsFee,
                 withdrawFee: curDetails.withdrawFee,
                 depositFee: curDetails.depositFee,
-                aumFee: curDetails.aumFee,
-                maturityWhitelist: curDetails.maturityWhitelist,
+                balanceFee: curDetails.balanceFee,
+                maturityAllowlist: curDetails.maturityAllowlist,
                 tier: curDetails.tier,
                 logo: curDetails.logo,
                 image: curDetails.image,
@@ -133,7 +132,8 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                 balances: AngelCoreStruct.BalanceInfo({
                     locked: AngelCoreStruct.genericBalanceDefault(),
                     liquid: AngelCoreStruct.genericBalanceDefault()
-                })
+                }),
+                lockedForever: false
             });
         emit UpdateEndowmentState(
             state.config.nextAccountId,

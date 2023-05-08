@@ -9,7 +9,7 @@ import {Array} from "../../lib/array.sol";
 import {ProxyContract} from "./../../core/proxy.sol";
 import {IRegistrar} from "../../core/registrar/interface/IRegistrar.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
-import {SubDaoToken, SubDaoTokenMessage, subDaoTokenStorage} from "./../subdao-token/subdoa-token.sol";
+import {SubDaoToken, SubDaoTokenMessage, subDaoTokenStorage} from "./../subdao-token/subdao-token.sol";
 import {QueryIIncentivisedVotingLockup} from "./../incentivised-voting/interface/QueryIIncentivisedVotingLockup.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {ISubdaoEmitter} from "./ISubdaoEmitter.sol";

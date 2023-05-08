@@ -54,7 +54,6 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                 logo: "",
                 image: "",
                 cw4_members: [wallet.address, endowState.owner],
-                kycDonorsOnly: false, 
                 cw3Threshold: {
                     enumData: 0,
                     data: {
@@ -71,8 +70,8 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                         time: 0
                     }
                 },
-                whitelistedBeneficiaries: [wallet.address, apTeam2.address],
-                whitelistedContributors: [wallet.address, apTeam2.address],
+                allowlistedBeneficiaries: [wallet.address, apTeam2.address],
+                allowlistedContributors: [wallet.address, apTeam2.address],
                 splitMax: 100,
                 splitMin: 0,
                 splitDefault: 50,
@@ -91,7 +90,7 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                     feePercentage: 2,
                     active: true
                 },
-                aumFee: {
+                balanceFee: {
                     payoutAddress: apTeam1.address,
                     feePercentage: 2,
                     active: true
@@ -133,8 +132,6 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                 proposalLink: 0,
                 settingsController: {
                     endowmentController: {
-                        ownerControlled: false,
-                        govControlled: false,
                         modifiableAfterInit: true,
                         delegate: {
                             Addr: apTeam1.address,
@@ -142,35 +139,27 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                         }
                     },
                     strategies: {
-                        ownerControlled: false,
-                        govControlled: false,
                         modifiableAfterInit: true,
                         delegate: {
                             Addr: apTeam1.address,
                             expires: 0
                         }
                     },
-                    whitelistedBeneficiaries: {
-                        ownerControlled: false,
-                        govControlled: false,
+                    allowlistedBeneficiaries: {
                         modifiableAfterInit: true,
                         delegate: {
                             Addr: apTeam1.address,
                             expires: 0
                         }
                     },
-                    whitelistedContributors: {
-                        ownerControlled: false,
-                        govControlled: false,
+                    allowlistedContributors: {
                         modifiableAfterInit: true,
                         delegate: {
                             Addr: apTeam1.address,
                             expires: 0
                         }
                     },
-                    maturityWhitelist: {
-                        ownerControlled: false,
-                        govControlled: false,
+                    maturityAllowlist: {
                         modifiableAfterInit: true,
                         delegate: {
                             Addr: apTeam1.address,
@@ -178,8 +167,6 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                         }
                     },
                     maturityTime: {
-                        ownerControlled: false,
-                        govControlled: false,
                         modifiableAfterInit: true,
                         delegate: {
                             Addr: apTeam1.address,
@@ -187,8 +174,6 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                         }
                     },
                     profile: {
-                        ownerControlled: false,
-                        govControlled: false,
                         modifiableAfterInit: true,
                         delegate: {
                             Addr: apTeam1.address,
@@ -196,8 +181,6 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                         }
                     },
                     earningsFee: {
-                        ownerControlled: false,
-                        govControlled: false,
                         modifiableAfterInit: true,
                         delegate: {
                             Addr: apTeam1.address,
@@ -205,8 +188,6 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                         }
                     },
                     withdrawFee: {
-                        ownerControlled: false,
-                        govControlled: false,
                         modifiableAfterInit: true,
                         delegate: {
                             Addr: apTeam1.address,
@@ -214,26 +195,13 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                         }
                     },
                     depositFee: {
-                        ownerControlled: false,
-                        govControlled: false,
                         modifiableAfterInit: true,
                         delegate: {
                             Addr: apTeam1.address,
                             expires: 0
                         }
                     },
-                    aumFee: {
-                        ownerControlled: false,
-                        govControlled: false,
-                        modifiableAfterInit: true,
-                        delegate: {
-                            Addr: apTeam1.address,
-                            expires: 0
-                        }
-                    },
-                    kycDonorsOnly: {
-                        ownerControlled: false,
-                        govControlled: false,
+                    balanceFee: {
                         modifiableAfterInit: true,
                         delegate: {
                             Addr: apTeam1.address,
@@ -241,8 +209,6 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                         }
                     },
                     name: {
-                        ownerControlled: false,
-                        govControlled: false,
                         modifiableAfterInit: true,
                         delegate: {
                             Addr: apTeam1.address,
@@ -250,8 +216,6 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                         }
                     },
                     image: {
-                        ownerControlled: false,
-                        govControlled: false,
                         modifiableAfterInit: true,
                         delegate: {
                             Addr: apTeam1.address,
@@ -259,8 +223,6 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                         }
                     },
                     logo: {
-                        ownerControlled: false,
-                        govControlled: false,
                         modifiableAfterInit: true,
                         delegate: {
                             Addr: apTeam1.address,
@@ -268,8 +230,6 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                         }
                     },
                     categories: {
-                        ownerControlled: false,
-                        govControlled: false,
                         modifiableAfterInit: true,
                         delegate: {
                             Addr: apTeam1.address,
@@ -277,8 +237,6 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                         }
                     },
                     splitToLiquid: {
-                        ownerControlled: false,
-                        govControlled: false,
                         modifiableAfterInit: true,
                         delegate: {
                             Addr: apTeam1.address,
@@ -286,8 +244,6 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                         }
                     },
                     ignoreUserSplits: {
-                        ownerControlled: false,
-                        govControlled: false,
                         modifiableAfterInit: true,
                         delegate: {
                             Addr: apTeam1.address,
@@ -296,7 +252,7 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                     }
                 },
                 parent: 0,
-                maturityWhitelist: [wallet.address, apTeam2.address],
+                maturityAllowlist: [wallet.address, apTeam2.address],
                 ignoreUserSplits: false,
                 splitToLiquid: {
                     max: 100,

@@ -191,37 +191,25 @@ export declare namespace AngelCoreStruct {
   };
 
   export type SettingsPermissionStruct = {
-    ownerControlled: PromiseOrValue<boolean>;
-    govControlled: PromiseOrValue<boolean>;
-    modifiableAfterInit: PromiseOrValue<boolean>;
     delegate: AngelCoreStruct.DelegateStruct;
   };
 
   export type SettingsPermissionStructOutput = [
-    boolean,
-    boolean,
-    boolean,
     AngelCoreStruct.DelegateStructOutput
-  ] & {
-    ownerControlled: boolean;
-    govControlled: boolean;
-    modifiableAfterInit: boolean;
-    delegate: AngelCoreStruct.DelegateStructOutput;
-  };
+  ] & { delegate: AngelCoreStruct.DelegateStructOutput };
 
   export type SettingsControllerStruct = {
     endowmentController: AngelCoreStruct.SettingsPermissionStruct;
     strategies: AngelCoreStruct.SettingsPermissionStruct;
-    whitelistedBeneficiaries: AngelCoreStruct.SettingsPermissionStruct;
-    whitelistedContributors: AngelCoreStruct.SettingsPermissionStruct;
-    maturityWhitelist: AngelCoreStruct.SettingsPermissionStruct;
+    allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStruct;
+    allowlistedContributors: AngelCoreStruct.SettingsPermissionStruct;
+    maturityAllowlist: AngelCoreStruct.SettingsPermissionStruct;
     maturityTime: AngelCoreStruct.SettingsPermissionStruct;
     profile: AngelCoreStruct.SettingsPermissionStruct;
     earningsFee: AngelCoreStruct.SettingsPermissionStruct;
     withdrawFee: AngelCoreStruct.SettingsPermissionStruct;
     depositFee: AngelCoreStruct.SettingsPermissionStruct;
-    aumFee: AngelCoreStruct.SettingsPermissionStruct;
-    kycDonorsOnly: AngelCoreStruct.SettingsPermissionStruct;
+    balanceFee: AngelCoreStruct.SettingsPermissionStruct;
     name: AngelCoreStruct.SettingsPermissionStruct;
     image: AngelCoreStruct.SettingsPermissionStruct;
     logo: AngelCoreStruct.SettingsPermissionStruct;
@@ -247,21 +235,19 @@ export declare namespace AngelCoreStruct {
     AngelCoreStruct.SettingsPermissionStructOutput,
     AngelCoreStruct.SettingsPermissionStructOutput,
     AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
     AngelCoreStruct.SettingsPermissionStructOutput
   ] & {
     endowmentController: AngelCoreStruct.SettingsPermissionStructOutput;
     strategies: AngelCoreStruct.SettingsPermissionStructOutput;
-    whitelistedBeneficiaries: AngelCoreStruct.SettingsPermissionStructOutput;
-    whitelistedContributors: AngelCoreStruct.SettingsPermissionStructOutput;
-    maturityWhitelist: AngelCoreStruct.SettingsPermissionStructOutput;
+    allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStructOutput;
+    allowlistedContributors: AngelCoreStruct.SettingsPermissionStructOutput;
+    maturityAllowlist: AngelCoreStruct.SettingsPermissionStructOutput;
     maturityTime: AngelCoreStruct.SettingsPermissionStructOutput;
     profile: AngelCoreStruct.SettingsPermissionStructOutput;
     earningsFee: AngelCoreStruct.SettingsPermissionStructOutput;
     withdrawFee: AngelCoreStruct.SettingsPermissionStructOutput;
     depositFee: AngelCoreStruct.SettingsPermissionStructOutput;
-    aumFee: AngelCoreStruct.SettingsPermissionStructOutput;
-    kycDonorsOnly: AngelCoreStruct.SettingsPermissionStructOutput;
+    balanceFee: AngelCoreStruct.SettingsPermissionStructOutput;
     name: AngelCoreStruct.SettingsPermissionStructOutput;
     image: AngelCoreStruct.SettingsPermissionStructOutput;
     logo: AngelCoreStruct.SettingsPermissionStructOutput;
@@ -299,21 +285,21 @@ export declare namespace AccountMessages {
     kycDonorsOnly: PromiseOrValue<boolean>;
     threshold: PromiseOrValue<BigNumberish>;
     cw3MaxVotingPeriod: AngelCoreStruct.DurationStruct;
-    whitelistedBeneficiaries: PromiseOrValue<string>[];
-    whitelistedContributors: PromiseOrValue<string>[];
+    allowlistedBeneficiaries: PromiseOrValue<string>[];
+    allowlistedContributors: PromiseOrValue<string>[];
     splitMax: PromiseOrValue<BigNumberish>;
     splitMin: PromiseOrValue<BigNumberish>;
     splitDefault: PromiseOrValue<BigNumberish>;
     earningsFee: AngelCoreStruct.EndowmentFeeStruct;
     withdrawFee: AngelCoreStruct.EndowmentFeeStruct;
     depositFee: AngelCoreStruct.EndowmentFeeStruct;
-    aumFee: AngelCoreStruct.EndowmentFeeStruct;
+    balanceFee: AngelCoreStruct.EndowmentFeeStruct;
     dao: AngelCoreStruct.DaoSetupStruct;
     createDao: PromiseOrValue<boolean>;
     proposalLink: PromiseOrValue<BigNumberish>;
     settingsController: AngelCoreStruct.SettingsControllerStruct;
     parent: PromiseOrValue<BigNumberish>;
-    maturityWhitelist: PromiseOrValue<string>[];
+    maturityAllowlist: PromiseOrValue<string>[];
     ignoreUserSplits: PromiseOrValue<boolean>;
     splitToLiquid: AngelCoreStruct.SplitDetailsStruct;
   };
@@ -365,21 +351,21 @@ export declare namespace AccountMessages {
     kycDonorsOnly: boolean;
     threshold: BigNumber;
     cw3MaxVotingPeriod: AngelCoreStruct.DurationStructOutput;
-    whitelistedBeneficiaries: string[];
-    whitelistedContributors: string[];
+    allowlistedBeneficiaries: string[];
+    allowlistedContributors: string[];
     splitMax: BigNumber;
     splitMin: BigNumber;
     splitDefault: BigNumber;
     earningsFee: AngelCoreStruct.EndowmentFeeStructOutput;
     withdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
     depositFee: AngelCoreStruct.EndowmentFeeStructOutput;
-    aumFee: AngelCoreStruct.EndowmentFeeStructOutput;
+    balanceFee: AngelCoreStruct.EndowmentFeeStructOutput;
     dao: AngelCoreStruct.DaoSetupStructOutput;
     createDao: boolean;
     proposalLink: BigNumber;
     settingsController: AngelCoreStruct.SettingsControllerStructOutput;
     parent: BigNumber;
-    maturityWhitelist: string[];
+    maturityAllowlist: string[];
     ignoreUserSplits: boolean;
     splitToLiquid: AngelCoreStruct.SplitDetailsStructOutput;
   };

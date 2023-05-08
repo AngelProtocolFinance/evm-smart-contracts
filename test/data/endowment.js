@@ -28,7 +28,6 @@ const getCreateEndowmentConfig = async function (
 			logo: 'Some fancy logo',
 			image: 'Nice banner image',
 			cw4_members: cw4_members,
-			kycDonorsOnly: true,
 			cw3Threshold: {
 				enumData: 1,
 				data: {
@@ -45,8 +44,8 @@ const getCreateEndowmentConfig = async function (
 					time: Math.floor(Date.now() / 1000) + 1000,
 				},
 			},
-			whitelistedBeneficiaries: [],
-			whitelistedContributors: [],
+			allowlistedBeneficiaries: [],
+			allowlistedContributors: [],
 			splitMax: 100,
 			splitMin: 0,
 			splitDefault: 50,
@@ -65,7 +64,7 @@ const getCreateEndowmentConfig = async function (
 				feePercentage: 0,
 				active: false,
 			},
-			aumFee: {
+			balanceFee: {
 				payoutAddress: ADDRESS_ZERO,
 				feePercentage: 0,
 				active: false,
@@ -124,7 +123,7 @@ const getCreateEndowmentConfig = async function (
 						expires: Math.floor(Date.now() / 1000) + 1000, // datetime int of delegation expiry
 					},
 				},
-				whitelistedBeneficiaries: {
+				allowlistedBeneficiaries: {
 					ownerControlled: true,
 					govControlled: true,
 					modifiableAfterInit: true,
@@ -133,7 +132,7 @@ const getCreateEndowmentConfig = async function (
 						expires: Math.floor(Date.now() / 1000) + 1000, // datetime int of delegation expiry
 					},
 				},
-				whitelistedContributors: {
+				allowlistedContributors: {
 					ownerControlled: true,
 					govControlled: true,
 					modifiableAfterInit: true,
@@ -142,7 +141,7 @@ const getCreateEndowmentConfig = async function (
 						expires: Math.floor(Date.now() / 1000) + 1000, // datetime int of delegation expiry
 					},
 				},
-				maturityWhitelist: {
+				maturityAllowlist: {
 					ownerControlled: true,
 					govControlled: true,
 					modifiableAfterInit: true,
@@ -196,16 +195,7 @@ const getCreateEndowmentConfig = async function (
 						expires: Math.floor(Date.now() / 1000) + 1000, // datetime int of delegation expiry
 					},
 				},
-				aumFee: {
-					ownerControlled: true,
-					govControlled: true,
-					modifiableAfterInit: true,
-					delegate: {
-						Addr: ADDRESS_ZERO,
-						expires: Math.floor(Date.now() / 1000) + 1000, // datetime int of delegation expiry
-					},
-				},
-				kycDonorsOnly: {
+				balanceFee: {
 					ownerControlled: true,
 					govControlled: true,
 					modifiableAfterInit: true,
@@ -270,7 +260,7 @@ const getCreateEndowmentConfig = async function (
 				},
 			},
 			parent: ADDRESS_ZERO,
-			maturityWhitelist: [],
+			maturityAllowlist: [],
 			ignoreUserSplits: false,
 			splitToLiquid: {
 				max: 100,

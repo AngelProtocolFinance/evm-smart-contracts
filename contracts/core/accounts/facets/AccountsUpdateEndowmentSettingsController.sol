@@ -29,10 +29,10 @@ contract AccountsUpdateEndowmentSettingsController is
     @dev Updates the settings of an endowment.
     @param curDetails Object containing the updated details of the endowment settings.
     @param curDetails.id The ID of the endowment to update.
-    @param curDetails.whitelistedBeneficiaries The updated list of whitelisted beneficiaries.
-    @param curDetails.whitelistedContributors The updated list of whitelisted contributors.
-    @param curDetails.maturity_whitelist_add The addresses to add to the maturity whitelist.
-    @param curDetails.maturity_whitelist_remove The addresses to remove from the maturity whitelist.
+    @param curDetails.allowlistedBeneficiaries The updated list of allowlisted beneficiaries.
+    @param curDetails.allowlistedContributors The updated list of allowlisted contributors.
+    @param curDetails.maturity_allowlist_add The addresses to add to the maturity allowlist.
+    @param curDetails.maturity_allowlist_remove The addresses to remove from the maturity allowlist.
     @param curDetails.splitToLiquid The updated split to liquid ratio.
     @param curDetails.ignoreUserSplits Whether or not to ignore user splits.
     Emits a EndowmentSettingUpdated event for each setting that has been updated.
@@ -50,9 +50,8 @@ contract AccountsUpdateEndowmentSettingsController is
             curDetails.id
         ];
 
-        if (tempEndowmentState.closingEndowment) {
-            revert("UpdatesAfterClosed");
-        }
+        require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
+        require(!tempEndowmentState.lockedForever, "Settings are locked forever");
 
         if (tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity) {
             if (tempEndowment.maturityTime > block.timestamp) {
@@ -60,18 +59,17 @@ contract AccountsUpdateEndowmentSettingsController is
                     AngelCoreStruct.canChange(
                         tempEndowment
                             .settingsController
-                            .whitelistedBeneficiaries,
+                            .allowlistedBeneficiaries,
                         msg.sender,
                         tempEndowment.owner,
-                        tempEndowment.dao,
                         block.timestamp
                     )
                 ) {
-                    tempEndowment.whitelistedBeneficiaries = curDetails
-                        .whitelistedBeneficiaries;
+                    tempEndowment.allowlistedBeneficiaries = curDetails
+                        .allowlistedBeneficiaries;
                     emit EndowmentSettingUpdated(
                         curDetails.id,
-                        "whitelistedBeneficiaries"
+                        "allowlistedBeneficiaries"
                     );
                 }
 
@@ -79,66 +77,64 @@ contract AccountsUpdateEndowmentSettingsController is
                     AngelCoreStruct.canChange(
                         tempEndowment
                             .settingsController
-                            .whitelistedContributors,
+                            .allowlistedContributors,
                         msg.sender,
                         tempEndowment.owner,
-                        tempEndowment.dao,
                         block.timestamp
                     )
                 ) {
-                    tempEndowment.whitelistedContributors = curDetails
-                        .whitelistedContributors;
+                    tempEndowment.allowlistedContributors = curDetails
+                        .allowlistedContributors;
                     emit EndowmentSettingUpdated(
                         curDetails.id,
-                        "whitelistedContributors"
+                        "allowlistedContributors"
                     );
                 }
 
                 if (
                     AngelCoreStruct.canChange(
-                        tempEndowment.settingsController.maturityWhitelist,
+                        tempEndowment.settingsController.maturityAllowlist,
                         msg.sender,
                         tempEndowment.owner,
-                        tempEndowment.dao,
                         block.timestamp
                     )
                 ) {
                     for (
                         uint256 i = 0;
-                        i < curDetails.maturity_whitelist_add.length;
+                        i < curDetails.maturity_allowlist_add.length;
                         i++
                     ) {
                         require(
                             Validator.addressChecker(
-                                curDetails.maturity_whitelist_add[i]
+                                curDetails.maturity_allowlist_add[i]
                             ),
                             "InvalidAddress"
                         );
                         (, bool found) = AddressArray.indexOf(
-                            tempEndowment.maturityWhitelist,
-                            curDetails.maturity_whitelist_add[i]
+                            tempEndowment.maturityAllowlist,
+                            curDetails.maturity_allowlist_add[i]
                         );
                         if (!found)
-                            tempEndowment.maturityWhitelist.push(
-                                curDetails.maturity_whitelist_add[i]
+                            tempEndowment.maturityAllowlist.push(
+                                curDetails.maturity_allowlist_add[i]
                             );
                     }
                     for (
                         uint256 i = 0;
-                        i < curDetails.maturity_whitelist_remove.length;
+                        i < curDetails.maturity_allowlist_remove.length;
                         i++
                     ) {
                         (uint256 index, bool found) = AddressArray.indexOf(
-                            tempEndowment.maturityWhitelist,
-                            curDetails.maturity_whitelist_remove[i]
+                            tempEndowment.maturityAllowlist,
+                            curDetails.maturity_allowlist_remove[i]
                         );
                         if (found)
-                            tempEndowment.maturityWhitelist = AddressArray
-                                .remove(tempEndowment.maturityWhitelist, index);
+                            tempEndowment.maturityAllowlist = AddressArray
+                                .remove(tempEndowment.maturityAllowlist, index);
                     }
                     emit EndowmentSettingUpdated(
                         curDetails.id,
-                        "maturityWhitelist"
+                        "maturityAllowlist"
                     );
                 }
             }
@@ -148,7 +144,6 @@ contract AccountsUpdateEndowmentSettingsController is
                 tempEndowment.settingsController.splitToLiquid,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
@@ -161,7 +156,6 @@ contract AccountsUpdateEndowmentSettingsController is
                 tempEndowment.settingsController.ignoreUserSplits,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
@@ -189,16 +183,14 @@ contract AccountsUpdateEndowmentSettingsController is
             curDetails.id
         ];
 
-        if (tempEndowmentState.closingEndowment) {
-            revert("UpdatesAfterClosed");
-        }
+        require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
+        require(!tempEndowmentState.lockedForever, "Settings are locked forever");
 
         if (
             !AngelCoreStruct.canChange(
                 tempEndowment.settingsController.endowmentController,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
@@ -210,22 +202,20 @@ contract AccountsUpdateEndowmentSettingsController is
         tempEndowment.settingsController.image = curDetails.image;
         tempEndowment.settingsController.logo = curDetails.logo;
         tempEndowment.settingsController.categories = curDetails.categories;
-        tempEndowment.settingsController.kycDonorsOnly = curDetails
-            .kycDonorsOnly;
         tempEndowment.settingsController.splitToLiquid = curDetails
             .splitToLiquid;
         tempEndowment.settingsController.ignoreUserSplits = curDetails
             .ignoreUserSplits;
-        tempEndowment.settingsController.whitelistedBeneficiaries = curDetails
-            .whitelistedBeneficiaries;
-        tempEndowment.settingsController.whitelistedContributors = curDetails
-            .whitelistedContributors;
-        tempEndowment.settingsController.maturityWhitelist = curDetails
-            .maturityWhitelist;
+        tempEndowment.settingsController.allowlistedBeneficiaries = curDetails
+            .allowlistedBeneficiaries;
+        tempEndowment.settingsController.allowlistedContributors = curDetails
+            .allowlistedContributors;
+        tempEndowment.settingsController.maturityAllowlist = curDetails
+            .maturityAllowlist;
         tempEndowment.settingsController.earningsFee = curDetails.earningsFee;
         tempEndowment.settingsController.depositFee = curDetails.depositFee;
         tempEndowment.settingsController.withdrawFee = curDetails.withdrawFee;
-        tempEndowment.settingsController.aumFee = curDetails.aumFee;
+        tempEndowment.settingsController.balanceFee = curDetails.balanceFee;
 
         state.ENDOWMENTS[curDetails.id] = tempEndowment;
         emit EndowmentSettingUpdated(curDetails.id, "endowmentController");
@@ -243,6 +233,9 @@ contract AccountsUpdateEndowmentSettingsController is
         AccountMessages.UpdateEndowmentFeeRequest memory curDetails
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
+        AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[
+            curDetails.id
+        ];
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             curDetails.id
         ];
@@ -251,13 +244,14 @@ contract AccountsUpdateEndowmentSettingsController is
             tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity,
             "Charity Endowments may not change endowment fees"
         );
+        require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
+        require(!tempEndowmentState.lockedForever, "Settings are locked forever");
 
         if (
             AngelCoreStruct.canChange(
                 tempEndowment.settingsController.earningsFee,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
@@ -269,7 +263,6 @@ contract AccountsUpdateEndowmentSettingsController is
                 tempEndowment.settingsController.depositFee,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
@@ -281,7 +274,6 @@ contract AccountsUpdateEndowmentSettingsController is
                 tempEndowment.settingsController.withdrawFee,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
@@ -290,14 +282,13 @@ contract AccountsUpdateEndowmentSettingsController is
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.aumFee,
+                tempEndowment.settingsController.balanceFee,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
-            tempEndowment.aumFee = curDetails.aumFee;
+            tempEndowment.balanceFee = curDetails.balanceFee;
         }
 
         state.ENDOWMENTS[curDetails.id] = tempEndowment;

@@ -7,7 +7,7 @@ import type { PromiseOrValue } from "../../../../../common";
 import type {
   SubDaoToken,
   SubDaoTokenInterface,
-} from "../../../../../contracts/normalized_endowment/subdao-token/subdoa-token.sol/SubDaoToken";
+} from "../../../../../contracts/normalized_endowment/subdao-token/subdao-token.sol/SubDaoToken";
 
 const _abi = [
   {

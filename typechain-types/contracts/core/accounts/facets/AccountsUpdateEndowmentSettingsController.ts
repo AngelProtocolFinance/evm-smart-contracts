@@ -65,7 +65,6 @@ export declare namespace AccountStorage {
     strategies: AngelCoreStruct.AccountStrategiesStruct;
     oneoffVaults: AngelCoreStruct.OneOffVaultsStruct;
     rebalance: AngelCoreStruct.RebalanceDetailsStruct;
-    kycDonorsOnly: PromiseOrValue<boolean>;
     pendingRedemptions: PromiseOrValue<BigNumberish>;
     copycatStrategy: PromiseOrValue<BigNumberish>;
     proposalLink: PromiseOrValue<BigNumberish>;
@@ -73,13 +72,13 @@ export declare namespace AccountStorage {
     daoToken: PromiseOrValue<string>;
     donationMatchActive: PromiseOrValue<boolean>;
     donationMatchContract: PromiseOrValue<string>;
-    whitelistedBeneficiaries: PromiseOrValue<string>[];
-    whitelistedContributors: PromiseOrValue<string>[];
-    maturityWhitelist: PromiseOrValue<string>[];
+    allowlistedBeneficiaries: PromiseOrValue<string>[];
+    allowlistedContributors: PromiseOrValue<string>[];
+    maturityAllowlist: PromiseOrValue<string>[];
     earningsFee: AngelCoreStruct.EndowmentFeeStruct;
     withdrawFee: AngelCoreStruct.EndowmentFeeStruct;
     depositFee: AngelCoreStruct.EndowmentFeeStruct;
-    aumFee: AngelCoreStruct.EndowmentFeeStruct;
+    balanceFee: AngelCoreStruct.EndowmentFeeStruct;
     settingsController: AngelCoreStruct.SettingsControllerStruct;
     parent: PromiseOrValue<BigNumberish>;
     ignoreUserSplits: PromiseOrValue<boolean>;
@@ -101,7 +100,6 @@ export declare namespace AccountStorage {
     AngelCoreStruct.AccountStrategiesStructOutput,
     AngelCoreStruct.OneOffVaultsStructOutput,
     AngelCoreStruct.RebalanceDetailsStructOutput,
-    boolean,
     BigNumber,
     BigNumber,
     BigNumber,
@@ -135,7 +133,6 @@ export declare namespace AccountStorage {
     strategies: AngelCoreStruct.AccountStrategiesStructOutput;
     oneoffVaults: AngelCoreStruct.OneOffVaultsStructOutput;
     rebalance: AngelCoreStruct.RebalanceDetailsStructOutput;
-    kycDonorsOnly: boolean;
     pendingRedemptions: BigNumber;
     copycatStrategy: BigNumber;
     proposalLink: BigNumber;
@@ -143,13 +140,13 @@ export declare namespace AccountStorage {
     daoToken: string;
     donationMatchActive: boolean;
     donationMatchContract: string;
-    whitelistedBeneficiaries: string[];
-    whitelistedContributors: string[];
-    maturityWhitelist: string[];
+    allowlistedBeneficiaries: string[];
+    allowlistedContributors: string[];
+    maturityAllowlist: string[];
     earningsFee: AngelCoreStruct.EndowmentFeeStructOutput;
     withdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
     depositFee: AngelCoreStruct.EndowmentFeeStructOutput;
-    aumFee: AngelCoreStruct.EndowmentFeeStructOutput;
+    balanceFee: AngelCoreStruct.EndowmentFeeStructOutput;
     settingsController: AngelCoreStruct.SettingsControllerStructOutput;
     parent: BigNumber;
     ignoreUserSplits: boolean;
@@ -175,18 +172,21 @@ export declare namespace AccountStorage {
     balances: AngelCoreStruct.BalanceInfoStruct;
     closingEndowment: PromiseOrValue<boolean>;
     closingBeneficiary: AngelCoreStruct.BeneficiaryStruct;
+    lockedForever: PromiseOrValue<boolean>;
   };
 
   export type EndowmentStateStructOutput = [
     AngelCoreStruct.DonationsReceivedStructOutput,
     AngelCoreStruct.BalanceInfoStructOutput,
     boolean,
-    AngelCoreStruct.BeneficiaryStructOutput
+    AngelCoreStruct.BeneficiaryStructOutput,
+    boolean
   ] & {
     donationsReceived: AngelCoreStruct.DonationsReceivedStructOutput;
     balances: AngelCoreStruct.BalanceInfoStructOutput;
     closingEndowment: boolean;
     closingBeneficiary: AngelCoreStruct.BeneficiaryStructOutput;
+    lockedForever: boolean;
   };
 }
 
@@ -363,37 +363,25 @@ export declare namespace AngelCoreStruct {
   };
 
   export type SettingsPermissionStruct = {
-    ownerControlled: PromiseOrValue<boolean>;
-    govControlled: PromiseOrValue<boolean>;
-    modifiableAfterInit: PromiseOrValue<boolean>;
     delegate: AngelCoreStruct.DelegateStruct;
   };
 
   export type SettingsPermissionStructOutput = [
-    boolean,
-    boolean,
-    boolean,
     AngelCoreStruct.DelegateStructOutput
-  ] & {
-    ownerControlled: boolean;
-    govControlled: boolean;
-    modifiableAfterInit: boolean;
-    delegate: AngelCoreStruct.DelegateStructOutput;
-  };
+  ] & { delegate: AngelCoreStruct.DelegateStructOutput };
 
   export type SettingsControllerStruct = {
     endowmentController: AngelCoreStruct.SettingsPermissionStruct;
     strategies: AngelCoreStruct.SettingsPermissionStruct;
-    whitelistedBeneficiaries: AngelCoreStruct.SettingsPermissionStruct;
-    whitelistedContributors: AngelCoreStruct.SettingsPermissionStruct;
-    maturityWhitelist: AngelCoreStruct.SettingsPermissionStruct;
+    allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStruct;
+    allowlistedContributors: AngelCoreStruct.SettingsPermissionStruct;
+    maturityAllowlist: AngelCoreStruct.SettingsPermissionStruct;
     maturityTime: AngelCoreStruct.SettingsPermissionStruct;
     profile: AngelCoreStruct.SettingsPermissionStruct;
     earningsFee: AngelCoreStruct.SettingsPermissionStruct;
     withdrawFee: AngelCoreStruct.SettingsPermissionStruct;
     depositFee: AngelCoreStruct.SettingsPermissionStruct;
-    aumFee: AngelCoreStruct.SettingsPermissionStruct;
-    kycDonorsOnly: AngelCoreStruct.SettingsPermissionStruct;
+    balanceFee: AngelCoreStruct.SettingsPermissionStruct;
     name: AngelCoreStruct.SettingsPermissionStruct;
     image: AngelCoreStruct.SettingsPermissionStruct;
     logo: AngelCoreStruct.SettingsPermissionStruct;
@@ -419,21 +407,19 @@ export declare namespace AngelCoreStruct {
     AngelCoreStruct.SettingsPermissionStructOutput,
     AngelCoreStruct.SettingsPermissionStructOutput,
     AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
     AngelCoreStruct.SettingsPermissionStructOutput
   ] & {
     endowmentController: AngelCoreStruct.SettingsPermissionStructOutput;
     strategies: AngelCoreStruct.SettingsPermissionStructOutput;
-    whitelistedBeneficiaries: AngelCoreStruct.SettingsPermissionStructOutput;
-    whitelistedContributors: AngelCoreStruct.SettingsPermissionStructOutput;
-    maturityWhitelist: AngelCoreStruct.SettingsPermissionStructOutput;
+    allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStructOutput;
+    allowlistedContributors: AngelCoreStruct.SettingsPermissionStructOutput;
+    maturityAllowlist: AngelCoreStruct.SettingsPermissionStructOutput;
     maturityTime: AngelCoreStruct.SettingsPermissionStructOutput;
     profile: AngelCoreStruct.SettingsPermissionStructOutput;
     earningsFee: AngelCoreStruct.SettingsPermissionStructOutput;
     withdrawFee: AngelCoreStruct.SettingsPermissionStructOutput;
     depositFee: AngelCoreStruct.SettingsPermissionStructOutput;
-    aumFee: AngelCoreStruct.SettingsPermissionStructOutput;
-    kycDonorsOnly: AngelCoreStruct.SettingsPermissionStructOutput;
+    balanceFee: AngelCoreStruct.SettingsPermissionStructOutput;
     name: AngelCoreStruct.SettingsPermissionStructOutput;
     image: AngelCoreStruct.SettingsPermissionStructOutput;
     logo: AngelCoreStruct.SettingsPermissionStructOutput;
@@ -570,21 +556,19 @@ export declare namespace AccountMessages {
     image: AngelCoreStruct.SettingsPermissionStruct;
     logo: AngelCoreStruct.SettingsPermissionStruct;
     categories: AngelCoreStruct.SettingsPermissionStruct;
-    kycDonorsOnly: AngelCoreStruct.SettingsPermissionStruct;
     splitToLiquid: AngelCoreStruct.SettingsPermissionStruct;
     ignoreUserSplits: AngelCoreStruct.SettingsPermissionStruct;
-    whitelistedBeneficiaries: AngelCoreStruct.SettingsPermissionStruct;
-    whitelistedContributors: AngelCoreStruct.SettingsPermissionStruct;
-    maturityWhitelist: AngelCoreStruct.SettingsPermissionStruct;
+    allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStruct;
+    allowlistedContributors: AngelCoreStruct.SettingsPermissionStruct;
+    maturityAllowlist: AngelCoreStruct.SettingsPermissionStruct;
     earningsFee: AngelCoreStruct.SettingsPermissionStruct;
     depositFee: AngelCoreStruct.SettingsPermissionStruct;
     withdrawFee: AngelCoreStruct.SettingsPermissionStruct;
-    aumFee: AngelCoreStruct.SettingsPermissionStruct;
+    balanceFee: AngelCoreStruct.SettingsPermissionStruct;
   };
 
   export type UpdateEndowmentControllerRequestStructOutput = [
     BigNumber,
-    AngelCoreStruct.SettingsPermissionStructOutput,
     AngelCoreStruct.SettingsPermissionStructOutput,
     AngelCoreStruct.SettingsPermissionStructOutput,
     AngelCoreStruct.SettingsPermissionStructOutput,
@@ -606,16 +590,15 @@ export declare namespace AccountMessages {
     image: AngelCoreStruct.SettingsPermissionStructOutput;
     logo: AngelCoreStruct.SettingsPermissionStructOutput;
     categories: AngelCoreStruct.SettingsPermissionStructOutput;
-    kycDonorsOnly: AngelCoreStruct.SettingsPermissionStructOutput;
     splitToLiquid: AngelCoreStruct.SettingsPermissionStructOutput;
     ignoreUserSplits: AngelCoreStruct.SettingsPermissionStructOutput;
-    whitelistedBeneficiaries: AngelCoreStruct.SettingsPermissionStructOutput;
-    whitelistedContributors: AngelCoreStruct.SettingsPermissionStructOutput;
-    maturityWhitelist: AngelCoreStruct.SettingsPermissionStructOutput;
+    allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStructOutput;
+    allowlistedContributors: AngelCoreStruct.SettingsPermissionStructOutput;
+    maturityAllowlist: AngelCoreStruct.SettingsPermissionStructOutput;
     earningsFee: AngelCoreStruct.SettingsPermissionStructOutput;
     depositFee: AngelCoreStruct.SettingsPermissionStructOutput;
     withdrawFee: AngelCoreStruct.SettingsPermissionStructOutput;
-    aumFee: AngelCoreStruct.SettingsPermissionStructOutput;
+    balanceFee: AngelCoreStruct.SettingsPermissionStructOutput;
   };
 
   export type UpdateEndowmentFeeRequestStruct = {
@@ -623,7 +606,7 @@ export declare namespace AccountMessages {
     earningsFee: AngelCoreStruct.EndowmentFeeStruct;
     depositFee: AngelCoreStruct.EndowmentFeeStruct;
     withdrawFee: AngelCoreStruct.EndowmentFeeStruct;
-    aumFee: AngelCoreStruct.EndowmentFeeStruct;
+    balanceFee: AngelCoreStruct.EndowmentFeeStruct;
   };
 
   export type UpdateEndowmentFeeRequestStructOutput = [
@@ -637,16 +620,16 @@ export declare namespace AccountMessages {
     earningsFee: AngelCoreStruct.EndowmentFeeStructOutput;
     depositFee: AngelCoreStruct.EndowmentFeeStructOutput;
     withdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
-    aumFee: AngelCoreStruct.EndowmentFeeStructOutput;
+    balanceFee: AngelCoreStruct.EndowmentFeeStructOutput;
   };
 
   export type UpdateEndowmentSettingsRequestStruct = {
     id: PromiseOrValue<BigNumberish>;
     donationMatchActive: PromiseOrValue<boolean>;
-    whitelistedBeneficiaries: PromiseOrValue<string>[];
-    whitelistedContributors: PromiseOrValue<string>[];
-    maturity_whitelist_add: PromiseOrValue<string>[];
-    maturity_whitelist_remove: PromiseOrValue<string>[];
+    allowlistedBeneficiaries: PromiseOrValue<string>[];
+    allowlistedContributors: PromiseOrValue<string>[];
+    maturity_allowlist_add: PromiseOrValue<string>[];
+    maturity_allowlist_remove: PromiseOrValue<string>[];
     splitToLiquid: AngelCoreStruct.SplitDetailsStruct;
     ignoreUserSplits: PromiseOrValue<boolean>;
   };
@@ -663,10 +646,10 @@ export declare namespace AccountMessages {
   ] & {
     id: BigNumber;
     donationMatchActive: boolean;
-    whitelistedBeneficiaries: string[];
-    whitelistedContributors: string[];
-    maturity_whitelist_add: string[];
-    maturity_whitelist_remove: string[];
+    allowlistedBeneficiaries: string[];
+    allowlistedContributors: string[];
+    maturity_allowlist_add: string[];
+    maturity_allowlist_remove: string[];
     splitToLiquid: AngelCoreStruct.SplitDetailsStructOutput;
     ignoreUserSplits: boolean;
   };
@@ -675,7 +658,7 @@ export declare namespace AccountMessages {
 export interface AccountsUpdateEndowmentSettingsControllerInterface
   extends utils.Interface {
   functions: {
-    "updateEndowmentController((uint256,(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256)),(bool,bool,bool,(address,uint256))))": FunctionFragment;
+    "updateEndowmentController((uint256,((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256))))": FunctionFragment;
     "updateEndowmentFees((uint256,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool)))": FunctionFragment;
     "updateEndowmentSettings((uint256,bool,address[],address[],address[],address[],(uint256,uint256,uint256),bool))": FunctionFragment;
   };

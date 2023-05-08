@@ -16,26 +16,25 @@ library AccountMessages {
         AngelCoreStruct.EndowmentType endow_type;
         string logo;
         string image;
-        // AngelCoreStruct.Member[] cw4_members;
         address[] cw4_members;
         bool kycDonorsOnly;
         uint256 threshold;
         AngelCoreStruct.Duration cw3MaxVotingPeriod;
-        address[] whitelistedBeneficiaries;
-        address[] whitelistedContributors;
+        address[] allowlistedBeneficiaries;
+        address[] allowlistedContributors;
         uint256 splitMax;
         uint256 splitMin;
         uint256 splitDefault;
         AngelCoreStruct.EndowmentFee earningsFee;
         AngelCoreStruct.EndowmentFee withdrawFee;
         AngelCoreStruct.EndowmentFee depositFee;
-        AngelCoreStruct.EndowmentFee aumFee;
+        AngelCoreStruct.EndowmentFee balanceFee;
         AngelCoreStruct.DaoSetup dao;
         bool createDao;
         uint256 proposalLink;
         AngelCoreStruct.SettingsController settingsController;
         uint256 parent;
-        address[] maturityWhitelist;
+        address[] maturityAllowlist;
         bool ignoreUserSplits;
         AngelCoreStruct.SplitDetails splitToLiquid;
     }
@@ -43,10 +42,10 @@ library AccountMessages {
     struct UpdateEndowmentSettingsRequest {
         uint256 id;
         bool donationMatchActive;
-        address[] whitelistedBeneficiaries;
-        address[] whitelistedContributors;
-        address[] maturity_whitelist_add;
-        address[] maturity_whitelist_remove;
+        address[] allowlistedBeneficiaries;
+        address[] allowlistedContributors;
+        address[] maturity_allowlist_add;
+        address[] maturity_allowlist_remove;
         AngelCoreStruct.SplitDetails splitToLiquid;
         bool ignoreUserSplits;
     }
@@ -57,16 +56,15 @@ library AccountMessages {
         AngelCoreStruct.SettingsPermission image;
         AngelCoreStruct.SettingsPermission logo;
         AngelCoreStruct.SettingsPermission categories;
-        AngelCoreStruct.SettingsPermission kycDonorsOnly;
         AngelCoreStruct.SettingsPermission splitToLiquid;
         AngelCoreStruct.SettingsPermission ignoreUserSplits;
-        AngelCoreStruct.SettingsPermission whitelistedBeneficiaries;
-        AngelCoreStruct.SettingsPermission whitelistedContributors;
-        AngelCoreStruct.SettingsPermission maturityWhitelist;
+        AngelCoreStruct.SettingsPermission allowlistedBeneficiaries;
+        AngelCoreStruct.SettingsPermission allowlistedContributors;
+        AngelCoreStruct.SettingsPermission maturityAllowlist;
         AngelCoreStruct.SettingsPermission earningsFee;
         AngelCoreStruct.SettingsPermission depositFee;
         AngelCoreStruct.SettingsPermission withdrawFee;
-        AngelCoreStruct.SettingsPermission aumFee;
+        AngelCoreStruct.SettingsPermission balanceFee;
     }
 
     struct UpdateEndowmentStatusRequest {
@@ -78,7 +76,6 @@ library AccountMessages {
     struct UpdateEndowmentDetailsRequest {
         uint256 id; /// u32,
         address owner; /// Option<String>,
-        bool kycDonorsOnly; /// Option<bool>,
         AngelCoreStruct.EndowmentType endow_type; /// Option<String>,
         string name; /// Option<String>,
         AngelCoreStruct.Categories categories; /// Option<Categories>,
@@ -180,8 +177,7 @@ library AccountMessages {
         AngelCoreStruct.OneOffVaults oneoffVaults;
         LocalRegistrarLib.RebalanceParams rebalance;
         address donationMatchContract;
-        bool kycDonorsOnly;
-        address[] maturityWhitelist;
+        address[] maturityAllowlist;
         bool depositApproved;
         bool withdrawApproved;
         uint256 pendingRedemptions;
@@ -207,7 +203,7 @@ library AccountMessages {
         AngelCoreStruct.EndowmentFee earningsFee;
         AngelCoreStruct.EndowmentFee depositFee;
         AngelCoreStruct.EndowmentFee withdrawFee;
-        AngelCoreStruct.EndowmentFee aumFee;
+        AngelCoreStruct.EndowmentFee balanceFee;
     }
 
     enum DonationMatchEnum {

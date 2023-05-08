@@ -185,7 +185,7 @@ contract Fundraising is StorageFundraising {
                     break;
                 }
             }
-            if (pos < 0) revert("Token not in whitelist");
+            if (pos < 0) revert("Token not in allowlist");
             fundingThreshold.Cw20CoinVerified_amount = new uint256[](1);
             fundingThreshold.Cw20CoinVerified_addr = new address[](1);
             fundingThreshold.Cw20CoinVerified_amount[0] =
@@ -291,7 +291,7 @@ contract Fundraising is StorageFundraising {
             revert("Campaign is expired");
         if (msg.sender != campaign.creator) revert("Unauthorized");
 
-        // ensure the token is on the whitelist
+        // ensure the token is on the allowlist
         bool found = false;
         for (
             uint256 i = 0;
@@ -345,7 +345,7 @@ contract Fundraising is StorageFundraising {
 
         if (!campaign.open || FundraisingLib.isExpired(campaign)) revert();
 
-        // ensure the token is on the whitelist
+        // ensure the token is on the allowlist
         bool found = false;
         for (
             uint256 i = 0;
@@ -360,7 +360,7 @@ contract Fundraising is StorageFundraising {
                 break;
             }
         }
-        if (!found) revert("Token not in whitelist");
+        if (!found) revert("Token not in allowlist");
         require(
             balance.coinNativeAmount == msg.value,
             "Native coin amount does not match value received"

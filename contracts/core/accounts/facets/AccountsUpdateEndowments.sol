@@ -24,7 +24,7 @@ import {IAccountsQuery} from "../interface/IAccountsQuery.sol";
 contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
     /**
     @notice Updates the endowment details.
-    @dev This function allows authorized users to update the endowment details like owner, tier, endowment type, rebalance, kycDonorsOnly, name, categories, logo, and image.
+    @dev This function allows authorized users to update the endowment details like owner, tier, endowment type, rebalance, name, categories, logo, and image.
     @param curDetails UpdateEndowmentDetailsRequest struct containing the updated endowment details.
     */
     function updateEndowmentDetails(
@@ -41,7 +41,8 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         ];
 
         require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
-
+        require(!tempEndowmentState.lockedForever, "Settings are locked forever");
+        
         if (
             !(msg.sender == state.config.owner ||
                 msg.sender == tempEndowment.owner)
@@ -71,24 +72,11 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
             tempEndowment.rebalance = curDetails.rebalance;
         }
 
-        // if(tempEndowment.settingsController.kycDonorsOnly)
-        if (
-            AngelCoreStruct.canChange(
-                tempEndowment.settingsController.kycDonorsOnly,
-                msg.sender,
-                tempEndowment.owner,
-                tempEndowment.dao,
-                block.timestamp
-            )
-        ) {
-            tempEndowment.kycDonorsOnly = curDetails.kycDonorsOnly;
-        }
         if (
             AngelCoreStruct.canChange(
                 tempEndowment.settingsController.name,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
@@ -100,7 +88,6 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
                 tempEndowment.settingsController.categories,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
@@ -147,7 +134,6 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
                 tempEndowment.settingsController.logo,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
@@ -159,7 +145,6 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
                 tempEndowment.settingsController.image,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
@@ -187,11 +172,13 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         uint256 delegateExpiry
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-
+        AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[id];
         AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];
         // AngelCoreStruct.SettingsPermission memory tempSettings = AngelCoreStruct.getPermissions(state.ENDOWMENTS[id].settingsController,setting);
 
         require(msg.sender == tempEndowment.owner, "Unauthorized");
+        require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
+        require(!tempEndowmentState.lockedForever, "Settings are locked forever");
 
         if (
             keccak256(abi.encodePacked(action)) ==
@@ -204,7 +191,6 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
                 ),
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 delegateAddress,
                 delegateExpiry
             );
@@ -219,7 +205,6 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
                 ),
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             );
         } else {

@@ -5,14 +5,14 @@ library DistributorMessage {
     struct InstantiateMsg {
         address timelockContract;
         address haloToken;
-        address[] whitelist;
+        address[] allowlist;
         uint spendLimit;
     }
 
     struct ConfigResponse {
         address timelockContract;
         address haloToken;
-        address[] whitelist;
+        address[] allowlist;
         uint spendLimit;
     }
 }
