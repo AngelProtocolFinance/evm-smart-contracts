@@ -4,9 +4,9 @@ import { FacetCutAction, getSelectors } from "../../contracts/core/accounts/scri
 import {
     AccountsCreateEndowment__factory,
     DiamondCutFacet__factory,
-    DiamondInit__factory,
     DiamondLoupeFacet__factory,
 } from "../../typechain-types"
+import * as logger from "../../utils/logger"
 
 task("upgrade:upgradeAccountsCreateEndowment", "Will upgrade the AccountsCreateEndowment facet").setAction(
     async (_taskArguments, hre) => {
@@ -37,8 +37,7 @@ task("upgrade:upgradeAccountsCreateEndowment", "Will upgrade the AccountsCreateE
 
             const diamondCut = DiamondCutFacet__factory.connect(addresses.accounts.diamond, proxyAdmin)
 
-            const diamondInit = DiamondInit__factory.connect(addresses.accounts.diamond, proxyAdmin)
-            const tx = await diamondCut.diamondCut([curDiamondCut], diamondInit.address, "0x")
+            const tx = await diamondCut.diamondCut([curDiamondCut], addresses.accounts.diamond, "0x")
             await hre.ethers.provider.waitForTransaction(tx.hash)
 
             // // Confirm that the diamond facet is using the new implementation
@@ -47,7 +46,7 @@ task("upgrade:upgradeAccountsCreateEndowment", "Will upgrade the AccountsCreateE
             const facetAddress = await diamondLoupe.facetAddress(sampleFunctionSelector)
             console.log("New Diamond's AccountsCreateEndowment facet address: ", facetAddress)
         } catch (error) {
-            console.log(`AccountsCreateEndowment facet upgrade failed, reason: ${error}`)
+            logger.out(`AccountsCreateEndowment facet upgrade failed, reason: ${error}`, logger.Level.Error)
         }
     }
 )
