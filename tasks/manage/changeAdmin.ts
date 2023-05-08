@@ -11,10 +11,7 @@ task("manage:changeAdmin", "Will update the admin for all proxy contracts")
     .addParam("newAdmin", "New admin address")
     .setAction(async (taskArguments, hre) => {
         try {
-            const readline = createInterface({
-                input: process.stdin,
-                output: process.stdout,
-            })
+            const readline = createInterface({ input: process.stdin, output: process.stdout })
 
             const answer = await readline.question(`Are you sure you wish to set ${taskArguments.newAdmin} as the new admin? (Y/y)`)
 

@@ -48,7 +48,10 @@ task("upgrade:upgradeCharityApplication", "Will upgrade the implementation of th
             await hre.ethers.provider.waitForTransaction(tx.hash)
 
             // // Confirm that the proxy is pointed to the new implementation
-            const newCharityApplImpl = await hre.ethers.provider.getStorageAt(CharityApplicationProxy.address, IMPLEMENTATION_ADDRESS_SLOT)
+            const newCharityApplImpl = await hre.ethers.provider.getStorageAt(
+                CharityApplicationProxy.address,
+                IMPLEMENTATION_ADDRESS_SLOT
+            )
             console.log("New Charity Application Impl: ", newCharityApplImpl)
 
             // // Save frontend files
