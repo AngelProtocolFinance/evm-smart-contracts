@@ -2,9 +2,9 @@ import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
 import { LocalRegistrar, LocalRegistrar__factory } from "../typechain-types"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
-import { StrategyApprovalState } from "../utils/IRegistrarHelpers"
+import { StrategyApprovalState } from "./utils/ILocalRegistrarHelpers"
 
-describe("Registrar", function () {
+describe("Local Registrar", function () {
   let owner: SignerWithAddress
   let user: SignerWithAddress
   let Registrar: LocalRegistrar__factory

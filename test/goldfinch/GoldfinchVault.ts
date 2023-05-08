@@ -1,20 +1,20 @@
 import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
-import { Registrar, Registrar__factory } from "../../typechain-types"
+import { LocalRegistrar, LocalRegistrar__factory } from "../../typechain-types"
 import { DummyCRVLP, DummyCRVLP__factory } from "../../typechain-types";
 import { DummyStakingRewards, DummyStakingRewards__factory } from "../../typechain-types";
 import { DummyERC20, DummyERC20__factory } from "../../typechain-types";
 import { GoldfinchVault, GoldfinchVault__factory } from "../../typechain-types"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { BigNumber } from "ethers";
-import { StrategyApprovalState } from "../../utils/IRegistrarHelpers"
+import { StrategyApprovalState } from "../utils/ILocalRegistrarHelpers"
 
 
 describe("Goldfinch Vault", function () {
   let owner: SignerWithAddress
   let taxCollector: SignerWithAddress
   let user: SignerWithAddress
-  let Registrar: Registrar__factory
+  let Registrar: LocalRegistrar__factory
   let Vault: GoldfinchVault__factory
   let StakingToken: DummyERC20__factory    // FIDU 
   let RewardToken: DummyERC20__factory     // GFI 
@@ -56,10 +56,10 @@ describe("Goldfinch Vault", function () {
 
 
 
-  async function deployAndConfigureRegistrarAsProxy(): Promise<Registrar> {
+  async function deployAndConfigureRegistrarAsProxy(): Promise<LocalRegistrar> {
     [owner, taxCollector, user] = await ethers.getSigners();
-    Registrar = await ethers.getContractFactory("Registrar") as Registrar__factory;
-    const registrar = await upgrades.deployProxy(Registrar) as Registrar
+    Registrar = await ethers.getContractFactory("LocalRegistrar") as LocalRegistrar__factory;
+    const registrar = await upgrades.deployProxy(Registrar) as LocalRegistrar
     await registrar.deployed()
     
 
@@ -185,7 +185,7 @@ describe("Goldfinch Vault", function () {
   })
 
   describe("upon Deposit", function () {
-    let registrar: Registrar
+    let registrar: LocalRegistrar
     let crvLP: DummyCRVLP
     let stakingPool: DummyStakingRewards
     let stableToken: DummyERC20
@@ -357,7 +357,7 @@ describe("Goldfinch Vault", function () {
   })
 
   describe("upon Redemption", function () {
-    let registrar: Registrar
+    let registrar: LocalRegistrar
     let crvLP: DummyCRVLP
     let stakingPool: DummyStakingRewards
     let stableToken: DummyERC20
@@ -560,7 +560,7 @@ describe("Goldfinch Vault", function () {
   })
 
   describe("upon RedeemAll", function () {
-    let registrar: Registrar
+    let registrar: LocalRegistrar
     let crvLP: DummyCRVLP
     let stakingPool: DummyStakingRewards
     let stableToken: DummyERC20
@@ -682,7 +682,7 @@ describe("Goldfinch Vault", function () {
   })
 
   describe("upon Harvest", function () {
-    let registrar: Registrar
+    let registrar: LocalRegistrar
     let crvLP: DummyCRVLP
     let stakingPool: DummyStakingRewards
     let stableToken: DummyERC20

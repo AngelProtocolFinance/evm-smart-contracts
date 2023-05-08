@@ -1,15 +1,16 @@
 import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
 import { Router, Router__factory } from "../typechain-types"
-import { IRouter, VaultActionStructToArray, ArrayToVaultActionStruct } from "../utils/IRouterHelpers"
-import { Registrar, Registrar__factory, IRegistrar } from "../typechain-types"
+import { IRouter, VaultActionStructToArray, ArrayToVaultActionStruct } from "./utils/IRouterHelpers"
+import { LocalRegistrar, LocalRegistrar__factory } from "../typechain-types"
+import { LocalRegistrarLib } from "../typechain-types/contracts/core/registrar/LocalRegistrar";
 import { IVault } from "../typechain-types"
 import { DummyVault, DummyVault__factory } from "../typechain-types"
 import { DummyGateway, DummyGateway__factory } from "../typechain-types"
 import { DummyGasService, DummyGasService__factory } from "../typechain-types"
 import { DummyERC20, DummyERC20__factory } from "../typechain-types"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
-import { StrategyApprovalState } from "../utils/IRegistrarHelpers"
+import { StrategyApprovalState } from "./utils/ILocalRegistrarHelpers"
 import { BigNumber } from "ethers";
 import { deepEqual } from "assert";
 
@@ -18,14 +19,14 @@ describe("Router", function () {
   let user: SignerWithAddress
   let collector: SignerWithAddress
   let Router: Router__factory
-  let Registrar: Registrar__factory
+  let Registrar: LocalRegistrar__factory
   let defaultApParams = {
     "protocolTaxRate" :2,
     "protocolTaxBasis" : 100,
     "protocolTaxCollector" : ethers.constants.AddressZero,
     "routerAddr" : ethers.constants.AddressZero,
     "refundAddr" : ethers.constants.AddressZero
-  } as IRegistrar.AngelProtocolParamsStruct
+  } as LocalRegistrarLib.AngelProtocolParamsStruct
   let deadAddr = "0x000000000000000000000000000000000000dead"
   const originatingChain = "polygon"
   const localChain = "ethereum" 
@@ -35,7 +36,7 @@ describe("Router", function () {
   async function deployRouterAsProxy(
     gatewayAddress: string = "0xe432150cce91c13a887f7D836923d5597adD8E31", 
     gasRecvAddress: string = "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
-    registrar?: Registrar): 
+    registrar?: LocalRegistrar): 
   Promise<Router> {
     [owner, user, collector] = await ethers.getSigners();
     let apParams = defaultApParams
@@ -55,9 +56,9 @@ describe("Router", function () {
     return router 
   }
 
-  async function deployRegistrarAsProxy(): Promise<Registrar> {
-    Registrar = await ethers.getContractFactory("Registrar") as Registrar__factory
-    const registrar = await upgrades.deployProxy(Registrar) as Registrar
+  async function deployRegistrarAsProxy(): Promise<LocalRegistrar> {
+    Registrar = await ethers.getContractFactory("LocalRegistrar") as LocalRegistrar__factory
+    const registrar = await upgrades.deployProxy(Registrar) as LocalRegistrar
     await registrar.deployed();
     return registrar
   }
@@ -144,7 +145,7 @@ describe("Router", function () {
   describe("Protected methods", function () {
     let lockedVault: DummyVault
     let liquidVault: DummyVault
-    let registrar: Registrar
+    let registrar: LocalRegistrar
     let gateway: DummyGateway
     let token: DummyERC20
     let router: Router
@@ -227,7 +228,7 @@ describe("Router", function () {
   describe("Correctly triggers the refund process on failed Deposit", function () {
     let lockedVault: DummyVault
     let liquidVault: DummyVault
-    let registrar: Registrar
+    let registrar: LocalRegistrar
     let gateway: DummyGateway
     let token: DummyERC20
     let router: Router
@@ -605,7 +606,7 @@ describe("Router", function () {
   describe("Routes messages according to payload instructions", function () {
     let lockedVault: DummyVault
     let liquidVault: DummyVault
-    let registrar: Registrar
+    let registrar: LocalRegistrar
     let gateway: DummyGateway
     let gasService: DummyGasService
     let token: DummyERC20
@@ -736,7 +737,7 @@ describe("Router", function () {
   describe("Deposit", function () {
     let lockedVault: DummyVault
     let liquidVault: DummyVault
-    let registrar: Registrar
+    let registrar: LocalRegistrar
     let gateway: DummyGateway
     let gasService: DummyGasService
     let token: DummyERC20
@@ -797,7 +798,7 @@ describe("Router", function () {
   describe("Redeem", function () {
     let lockedVault: DummyVault
     let liquidVault: DummyVault
-    let registrar: Registrar
+    let registrar: LocalRegistrar
     let gateway: DummyGateway
     let gasService: DummyGasService
     let token: DummyERC20
@@ -929,7 +930,7 @@ describe("Router", function () {
   describe("RedeemAll", function () {
     let lockedVault: DummyVault
     let liquidVault: DummyVault
-    let registrar: Registrar
+    let registrar: LocalRegistrar
     let gateway: DummyGateway
     let gasService: DummyGasService
     let token: DummyERC20
