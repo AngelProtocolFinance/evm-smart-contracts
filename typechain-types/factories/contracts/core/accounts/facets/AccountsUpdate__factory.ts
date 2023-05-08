@@ -627,11 +627,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -655,11 +650,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -685,11 +675,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -713,11 +698,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -743,11 +723,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -771,11 +746,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -801,11 +771,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -829,11 +794,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -859,11 +819,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -887,11 +842,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -917,11 +867,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -945,11 +890,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -975,11 +915,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -1003,11 +938,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -1033,11 +963,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -1062,11 +987,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -1090,11 +1010,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -1593,11 +1508,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -1621,11 +1531,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -1651,11 +1556,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -1679,11 +1579,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -1709,11 +1604,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -1737,11 +1627,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -1767,11 +1652,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -1795,11 +1675,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -1825,11 +1700,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -1853,11 +1723,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -1883,11 +1748,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -1911,11 +1771,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -1941,11 +1796,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -1969,11 +1819,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -1999,11 +1844,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -2028,11 +1868,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -2056,11 +1891,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -2243,6 +2073,11 @@ const _abi = [
             name: "closingBeneficiary",
             type: "tuple",
           },
+          {
+            internalType: "bool",
+            name: "lockedForever",
+            type: "bool",
+          },
         ],
         indexed: false,
         internalType: "struct AccountStorage.EndowmentState",
@@ -2287,7 +2122,7 @@ const _abi = [
 ] as const;
 
 const _bytecode =
-  "0x608080604052346100165761053f908161001c8239f35b600080fdfe604060808152600436101561001357600080fd5b600090813560e01c806318a74064146101355763880cdc311461003557600080fd5b346101315760203660031901126101315761004e61030a565b6100566103f9565b61007860018060a01b036000805160206104ea83398151915254163314610325565b610081816104d1565b156100ed576000805160206104ea83398151915280546001600160a01b0319166001600160a01b039092169190911790557fac1d08a003ef1a59dc293567c82fb7944f492767e6c4aeae082aefb8600e11349051806100df81610360565b0390a16100ea61049a565b80f35b815162461bcd60e51b815260206004820152601b60248201527f456e74657220612076616c6964206f776e6572206164647265737300000000006044820152606490fd5b5080fd5b50903461030757816003193601126103075761014f61030a565b9160243561015b6103f9565b8151936080850185811067ffffffffffffffff8211176102f357835260018060a01b0394856000805160206104ea83398151915254168082527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4687815416602084019081527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d47938454938882019485527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4896610221885492606085019384523314610325565b61022a816104d1565b156102af5791888c927fac1d08a003ef1a59dc293567c82fb7944f492767e6c4aeae082aefb8600e11349c9d61029195168096525251166000805160206104ea8339815191529060018060a01b03166bffffffffffffffffffffffff60a01b825416179055565b81546001600160a01b0319161790555190555551806100df81610360565b895162461bcd60e51b815260206004820152601960248201527f696e76616c6964207265676973747261722061646472657373000000000000006044820152606490fd5b634e487b7160e01b85526041600452602485fd5b80fd5b600435906001600160a01b038216820361032057565b600080fd5b1561032c57565b60405162461bcd60e51b815260206004820152600c60248201526b155b985d5d1a1bdc9a5e995960a21b6044820152606490fd5b6000805160206104ea833981519152546001600160a01b0390811682527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d46541660208201527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d475460408201527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4854606082015260800190565b7ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4b805460ff8160a01c16158015610491575b1561044c5733300361043b575050565b60ff60a01b1916600160a01b179055565b60405162461bcd60e51b815260206004820152601f60248201527f5265656e7472616e637947756172643a207265656e7472616e742063616c6c006044820152606490fd5b5033301461042b565b3330036104a357565b7ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4b805460ff60a01b19169055565b6001600160a01b0316156104e457600190565b60009056fef42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d45a2646970667358221220d7d8e1e99e50d09a6c9615e01cfff16f61b732c42b9d9422fd683ab931c4a7a464736f6c63430008120033";
+  "0x608080604052346100165761053f908161001c8239f35b600080fdfe604060808152600436101561001357600080fd5b600090813560e01c806318a74064146101355763880cdc311461003557600080fd5b346101315760203660031901126101315761004e61030a565b6100566103f9565b61007860018060a01b036000805160206104ea83398151915254163314610325565b610081816104d1565b156100ed576000805160206104ea83398151915280546001600160a01b0319166001600160a01b039092169190911790557fac1d08a003ef1a59dc293567c82fb7944f492767e6c4aeae082aefb8600e11349051806100df81610360565b0390a16100ea61049a565b80f35b815162461bcd60e51b815260206004820152601b60248201527f456e74657220612076616c6964206f776e6572206164647265737300000000006044820152606490fd5b5080fd5b50903461030757816003193601126103075761014f61030a565b9160243561015b6103f9565b8151936080850185811067ffffffffffffffff8211176102f357835260018060a01b0394856000805160206104ea83398151915254168082527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4687815416602084019081527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d47938454938882019485527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4896610221885492606085019384523314610325565b61022a816104d1565b156102af5791888c927fac1d08a003ef1a59dc293567c82fb7944f492767e6c4aeae082aefb8600e11349c9d61029195168096525251166000805160206104ea8339815191529060018060a01b03166bffffffffffffffffffffffff60a01b825416179055565b81546001600160a01b0319161790555190555551806100df81610360565b895162461bcd60e51b815260206004820152601960248201527f696e76616c6964207265676973747261722061646472657373000000000000006044820152606490fd5b634e487b7160e01b85526041600452602485fd5b80fd5b600435906001600160a01b038216820361032057565b600080fd5b1561032c57565b60405162461bcd60e51b815260206004820152600c60248201526b155b985d5d1a1bdc9a5e995960a21b6044820152606490fd5b6000805160206104ea833981519152546001600160a01b0390811682527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d46541660208201527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d475460408201527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4854606082015260800190565b7ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4b805460ff8160a01c16158015610491575b1561044c5733300361043b575050565b60ff60a01b1916600160a01b179055565b60405162461bcd60e51b815260206004820152601f60248201527f5265656e7472616e637947756172643a207265656e7472616e742063616c6c006044820152606490fd5b5033301461042b565b3330036104a357565b7ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4b805460ff60a01b19169055565b6001600160a01b0316156104e457600190565b60009056fef42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d45a26469706673582212205a207283358fc927c183bf2f254584c496e877ece87229aac4522e1977a2005b64736f6c63430008120033";
 
 type AccountsUpdateConstructorParams =
   | [signer?: Signer]

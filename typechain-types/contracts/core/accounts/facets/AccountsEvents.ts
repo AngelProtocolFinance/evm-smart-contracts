@@ -163,18 +163,21 @@ export declare namespace AccountStorage {
     balances: AngelCoreStruct.BalanceInfoStruct;
     closingEndowment: PromiseOrValue<boolean>;
     closingBeneficiary: AngelCoreStruct.BeneficiaryStruct;
+    lockedForever: PromiseOrValue<boolean>;
   };
 
   export type EndowmentStateStructOutput = [
     AngelCoreStruct.DonationsReceivedStructOutput,
     AngelCoreStruct.BalanceInfoStructOutput,
     boolean,
-    AngelCoreStruct.BeneficiaryStructOutput
+    AngelCoreStruct.BeneficiaryStructOutput,
+    boolean
   ] & {
     donationsReceived: AngelCoreStruct.DonationsReceivedStructOutput;
     balances: AngelCoreStruct.BalanceInfoStructOutput;
     closingEndowment: boolean;
     closingBeneficiary: AngelCoreStruct.BeneficiaryStructOutput;
+    lockedForever: boolean;
   };
 }
 
@@ -351,17 +354,12 @@ export declare namespace AngelCoreStruct {
   };
 
   export type SettingsPermissionStruct = {
-    modifiableAfterInit: PromiseOrValue<boolean>;
     delegate: AngelCoreStruct.DelegateStruct;
   };
 
   export type SettingsPermissionStructOutput = [
-    boolean,
     AngelCoreStruct.DelegateStructOutput
-  ] & {
-    modifiableAfterInit: boolean;
-    delegate: AngelCoreStruct.DelegateStructOutput;
-  };
+  ] & { delegate: AngelCoreStruct.DelegateStructOutput };
 
   export type SettingsControllerStruct = {
     endowmentController: AngelCoreStruct.SettingsPermissionStruct;

@@ -457,11 +457,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -485,11 +480,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -515,11 +505,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -543,11 +528,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -573,11 +553,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -601,11 +576,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -631,11 +601,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -659,11 +624,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -689,11 +649,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -717,11 +672,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -747,11 +697,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -775,11 +720,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -805,11 +745,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -833,11 +768,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -863,11 +793,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -892,11 +817,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -920,11 +840,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -1395,11 +1310,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -1423,11 +1333,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -1453,11 +1358,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -1481,11 +1381,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -1511,11 +1406,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -1539,11 +1429,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -1569,11 +1454,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -1597,11 +1477,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -1627,11 +1502,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -1655,11 +1525,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -1685,11 +1550,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -1713,11 +1573,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -1743,11 +1598,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -1771,11 +1621,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {
@@ -1801,11 +1646,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -1830,11 +1670,6 @@ const _abi = [
               {
                 components: [
                   {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
                     components: [
                       {
                         internalType: "address",
@@ -1858,11 +1693,6 @@ const _abi = [
               },
               {
                 components: [
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
                   {
                     components: [
                       {

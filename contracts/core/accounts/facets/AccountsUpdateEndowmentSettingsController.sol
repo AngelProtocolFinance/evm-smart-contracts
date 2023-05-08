@@ -50,9 +50,8 @@ contract AccountsUpdateEndowmentSettingsController is
             curDetails.id
         ];
 
-        if (tempEndowmentState.closingEndowment) {
-            revert("UpdatesAfterClosed");
-        }
+        require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
+        require(!tempEndowmentState.lockedForever, "Settings are locked forever");
 
         if (tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity) {
             if (tempEndowment.maturityTime > block.timestamp) {
@@ -184,9 +183,8 @@ contract AccountsUpdateEndowmentSettingsController is
             curDetails.id
         ];
 
-        if (tempEndowmentState.closingEndowment) {
-            revert("UpdatesAfterClosed");
-        }
+        require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
+        require(!tempEndowmentState.lockedForever, "Settings are locked forever");
 
         if (
             !AngelCoreStruct.canChange(
@@ -235,6 +233,9 @@ contract AccountsUpdateEndowmentSettingsController is
         AccountMessages.UpdateEndowmentFeeRequest memory curDetails
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
+        AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[
+            curDetails.id
+        ];
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             curDetails.id
         ];
@@ -243,6 +244,8 @@ contract AccountsUpdateEndowmentSettingsController is
             tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity,
             "Charity Endowments may not change endowment fees"
         );
+        require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
+        require(!tempEndowmentState.lockedForever, "Settings are locked forever");
 
         if (
             AngelCoreStruct.canChange(

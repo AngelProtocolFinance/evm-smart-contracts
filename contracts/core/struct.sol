@@ -741,7 +741,7 @@ library AngelCoreStruct {
             self.Addr != address(0) &&
             sender == self.Addr &&
             (self.expires == 0 || envTime <= self.expires)
-        ) ? true : false;
+        );
     }
 
     struct EndowmentFee {
@@ -751,7 +751,6 @@ library AngelCoreStruct {
     }
 
     struct SettingsPermission {
-        bool modifiableAfterInit;
         Delegate delegate;
     }
 
@@ -791,13 +790,7 @@ library AngelCoreStruct {
         address owner,
         uint256 envTime
     ) public view returns (bool) {
-        if (
-            self.modifiableAfterInit && 
-            (canTakeAction(self.delegate, sender, envTime) || sender == owner)
-        ) {
-            return self.modifiableAfterInit;
-        }
-        return false;
+        return (canTakeAction(self.delegate, sender, envTime) || sender == owner);
     }
 
     struct SettingsController {

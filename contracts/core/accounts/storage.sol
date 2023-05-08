@@ -33,17 +33,17 @@ library AccountStorage {
         uint256 proposalLink; // link back the CW3 Proposal that created an endowment
         address dao;
         address daoToken;
-        bool donationMatchActive; //TODO: check this de we need to do this
+        bool donationMatchActive;
         address donationMatchContract;
         address[] allowlistedBeneficiaries;
         address[] allowlistedContributors;
         address[] maturityAllowlist;
-        AngelCoreStruct.EndowmentFee earningsFee; //TODO: we can remove all this
-        AngelCoreStruct.EndowmentFee withdrawFee; //TODO: we can remove all this
-        AngelCoreStruct.EndowmentFee depositFee; //TODO: we can remove all this
-        AngelCoreStruct.EndowmentFee balanceFee; //TODO: we can remove all this
-        AngelCoreStruct.SettingsController settingsController; //TODO: we can remove all this
-        uint256 parent; //TODO: not using this one also
+        AngelCoreStruct.EndowmentFee earningsFee;
+        AngelCoreStruct.EndowmentFee withdrawFee;
+        AngelCoreStruct.EndowmentFee depositFee;
+        AngelCoreStruct.EndowmentFee balanceFee;
+        AngelCoreStruct.SettingsController settingsController;
+        uint256 parent;
         bool ignoreUserSplits;
         AngelCoreStruct.SplitDetails splitToLiquid;
     }
@@ -54,6 +54,7 @@ library AccountStorage {
         AngelCoreStruct.BalanceInfo balances;
         bool closingEndowment;
         AngelCoreStruct.Beneficiary closingBeneficiary;
+        bool lockedForever;
     }
 
     struct AllowanceData {

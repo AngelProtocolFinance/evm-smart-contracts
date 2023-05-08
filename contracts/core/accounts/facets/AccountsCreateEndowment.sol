@@ -120,7 +120,8 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                 balances: AngelCoreStruct.BalanceInfo({
                     locked: AngelCoreStruct.genericBalanceDefault(),
                     liquid: AngelCoreStruct.genericBalanceDefault()
-                })
+                }),
+                lockedForever: false
             });
         emit UpdateEndowmentState(
             state.config.nextAccountId,

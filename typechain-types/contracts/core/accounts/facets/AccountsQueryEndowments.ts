@@ -145,17 +145,12 @@ export declare namespace AngelCoreStruct {
   };
 
   export type SettingsPermissionStruct = {
-    modifiableAfterInit: PromiseOrValue<boolean>;
     delegate: AngelCoreStruct.DelegateStruct;
   };
 
   export type SettingsPermissionStructOutput = [
-    boolean,
     AngelCoreStruct.DelegateStructOutput
-  ] & {
-    modifiableAfterInit: boolean;
-    delegate: AngelCoreStruct.DelegateStructOutput;
-  };
+  ] & { delegate: AngelCoreStruct.DelegateStructOutput };
 
   export type SettingsControllerStruct = {
     endowmentController: AngelCoreStruct.SettingsPermissionStruct;

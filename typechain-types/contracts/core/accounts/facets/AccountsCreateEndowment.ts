@@ -172,18 +172,21 @@ export declare namespace AccountStorage {
     balances: AngelCoreStruct.BalanceInfoStruct;
     closingEndowment: PromiseOrValue<boolean>;
     closingBeneficiary: AngelCoreStruct.BeneficiaryStruct;
+    lockedForever: PromiseOrValue<boolean>;
   };
 
   export type EndowmentStateStructOutput = [
     AngelCoreStruct.DonationsReceivedStructOutput,
     AngelCoreStruct.BalanceInfoStructOutput,
     boolean,
-    AngelCoreStruct.BeneficiaryStructOutput
+    AngelCoreStruct.BeneficiaryStructOutput,
+    boolean
   ] & {
     donationsReceived: AngelCoreStruct.DonationsReceivedStructOutput;
     balances: AngelCoreStruct.BalanceInfoStructOutput;
     closingEndowment: boolean;
     closingBeneficiary: AngelCoreStruct.BeneficiaryStructOutput;
+    lockedForever: boolean;
   };
 }
 
@@ -360,17 +363,12 @@ export declare namespace AngelCoreStruct {
   };
 
   export type SettingsPermissionStruct = {
-    modifiableAfterInit: PromiseOrValue<boolean>;
     delegate: AngelCoreStruct.DelegateStruct;
   };
 
   export type SettingsPermissionStructOutput = [
-    boolean,
     AngelCoreStruct.DelegateStructOutput
-  ] & {
-    modifiableAfterInit: boolean;
-    delegate: AngelCoreStruct.DelegateStructOutput;
-  };
+  ] & { delegate: AngelCoreStruct.DelegateStructOutput };
 
   export type SettingsControllerStruct = {
     endowmentController: AngelCoreStruct.SettingsPermissionStruct;
@@ -731,7 +729,7 @@ export declare namespace AccountMessages {
 
 export interface AccountsCreateEndowmentInterface extends utils.Interface {
   functions: {
-    "createEndowment((address,bool,uint256,uint256,string,(uint256[],uint256[]),uint256,uint8,string,string,address[],(uint8,(uint256,uint256,uint256,uint256)),(uint8,(uint256,uint256)),address[],address[],uint256,uint256,uint256,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))),bool,uint256,((bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256))),uint256,address[],bool,(uint256,uint256,uint256)))": FunctionFragment;
+    "createEndowment((address,bool,uint256,uint256,string,(uint256[],uint256[]),uint256,uint8,string,string,address[],(uint8,(uint256,uint256,uint256,uint256)),(uint8,(uint256,uint256)),address[],address[],uint256,uint256,uint256,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))),bool,uint256,(((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256))),uint256,address[],bool,(uint256,uint256,uint256)))": FunctionFragment;
   };
 
   getFunction(nameOrSignatureOrTopic: "createEndowment"): FunctionFragment;

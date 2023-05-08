@@ -41,7 +41,8 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         ];
 
         require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
-
+        require(!tempEndowmentState.lockedForever, "Settings are locked forever");
+        
         if (
             !(msg.sender == state.config.owner ||
                 msg.sender == tempEndowment.owner)
@@ -171,11 +172,13 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         uint256 delegateExpiry
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-
+        AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[id];
         AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];
         // AngelCoreStruct.SettingsPermission memory tempSettings = AngelCoreStruct.getPermissions(state.ENDOWMENTS[id].settingsController,setting);
 
         require(msg.sender == tempEndowment.owner, "Unauthorized");
+        require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
+        require(!tempEndowmentState.lockedForever, "Settings are locked forever");
 
         if (
             keccak256(abi.encodePacked(action)) ==

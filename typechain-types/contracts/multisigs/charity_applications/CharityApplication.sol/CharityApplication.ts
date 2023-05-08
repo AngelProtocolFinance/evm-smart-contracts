@@ -220,17 +220,12 @@ export declare namespace AngelCoreStruct {
   };
 
   export type SettingsPermissionStruct = {
-    modifiableAfterInit: PromiseOrValue<boolean>;
     delegate: AngelCoreStruct.DelegateStruct;
   };
 
   export type SettingsPermissionStructOutput = [
-    boolean,
     AngelCoreStruct.DelegateStructOutput
-  ] & {
-    modifiableAfterInit: boolean;
-    delegate: AngelCoreStruct.DelegateStructOutput;
-  };
+  ] & { delegate: AngelCoreStruct.DelegateStructOutput };
 
   export type SettingsControllerStruct = {
     endowmentController: AngelCoreStruct.SettingsPermissionStruct;
@@ -444,7 +439,7 @@ export interface CharityApplicationInterface extends utils.Interface {
     "config()": FunctionFragment;
     "initialize(uint256,address,address,uint256,bool,uint256,bool,address,uint256)": FunctionFragment;
     "proposals(uint256)": FunctionFragment;
-    "proposeCharity((address,bool,uint256,uint256,string,(uint256[],uint256[]),uint256,uint8,string,string,address[],(uint8,(uint256,uint256,uint256,uint256)),(uint8,(uint256,uint256)),address[],address[],uint256,uint256,uint256,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))),bool,uint256,((bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256))),uint256,address[],bool,(uint256,uint256,uint256)),string)": FunctionFragment;
+    "proposeCharity((address,bool,uint256,uint256,string,(uint256[],uint256[]),uint256,uint8,string,string,address[],(uint8,(uint256,uint256,uint256,uint256)),(uint8,(uint256,uint256)),address[],address[],uint256,uint256,uint256,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))),bool,uint256,(((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256))),uint256,address[],bool,(uint256,uint256,uint256)),string)": FunctionFragment;
     "queryConfig()": FunctionFragment;
     "rejectCharity(uint256)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
