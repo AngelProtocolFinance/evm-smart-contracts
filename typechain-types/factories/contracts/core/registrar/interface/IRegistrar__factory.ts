@@ -12,15 +12,23 @@ import type {
 const _abi = [
   {
     inputs: [],
+    name: "owner",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "queryConfig",
     outputs: [
       {
         components: [
-          {
-            internalType: "address",
-            name: "owner",
-            type: "address",
-          },
           {
             internalType: "address",
             name: "applicationsReview",

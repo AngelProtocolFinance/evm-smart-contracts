@@ -127,7 +127,6 @@ export declare namespace AngelCoreStruct {
 
 export declare namespace RegistrarStorage {
   export type ConfigStruct = {
-    owner: PromiseOrValue<string>;
     applicationsReview: PromiseOrValue<string>;
     indexFundContract: PromiseOrValue<string>;
     accountsContract: PromiseOrValue<string>;
@@ -176,7 +175,6 @@ export declare namespace RegistrarStorage {
     string,
     string,
     string,
-    string,
     AngelCoreStruct.SplitDetailsStructOutput,
     string,
     string,
@@ -197,7 +195,6 @@ export declare namespace RegistrarStorage {
     string,
     string
   ] & {
-    owner: string;
     applicationsReview: string;
     indexFundContract: string;
     accountsContract: string;
@@ -387,6 +384,7 @@ export declare namespace RegistrarMessages {
 
 export interface IRegistrarInterface extends utils.Interface {
   functions: {
+    "owner()": FunctionFragment;
     "queryConfig()": FunctionFragment;
     "queryFee(string)": FunctionFragment;
     "queryNetworkConnection(uint256)": FunctionFragment;
@@ -406,6 +404,7 @@ export interface IRegistrarInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "owner"
       | "queryConfig"
       | "queryFee"
       | "queryNetworkConnection"
@@ -423,6 +422,7 @@ export interface IRegistrarInterface extends utils.Interface {
       | "vaultUpdate"
   ): FunctionFragment;
 
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "queryConfig",
     values?: undefined
@@ -501,6 +501,7 @@ export interface IRegistrarInterface extends utils.Interface {
     ]
   ): string;
 
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "queryConfig",
     data: BytesLike
@@ -580,6 +581,8 @@ export interface IRegistrar extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    owner(overrides?: CallOverrides): Promise<[string]>;
+
     queryConfig(
       overrides?: CallOverrides
     ): Promise<[RegistrarStorage.ConfigStructOutput]>;
@@ -674,6 +677,8 @@ export interface IRegistrar extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  owner(overrides?: CallOverrides): Promise<string>;
+
   queryConfig(
     overrides?: CallOverrides
   ): Promise<RegistrarStorage.ConfigStructOutput>;
@@ -760,6 +765,8 @@ export interface IRegistrar extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    owner(overrides?: CallOverrides): Promise<string>;
+
     queryConfig(
       overrides?: CallOverrides
     ): Promise<RegistrarStorage.ConfigStructOutput>;
@@ -849,6 +856,8 @@ export interface IRegistrar extends BaseContract {
   filters: {};
 
   estimateGas: {
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
+
     queryConfig(overrides?: CallOverrides): Promise<BigNumber>;
 
     queryFee(
@@ -932,6 +941,8 @@ export interface IRegistrar extends BaseContract {
   };
 
   populateTransaction: {
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     queryConfig(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     queryFee(

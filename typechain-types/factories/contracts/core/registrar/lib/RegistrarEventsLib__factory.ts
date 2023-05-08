@@ -165,11 +165,6 @@ const _abi = [
         components: [
           {
             internalType: "address",
-            name: "owner",
-            type: "address",
-          },
-          {
-            internalType: "address",
             name: "applicationsReview",
             type: "address",
           },
@@ -455,7 +450,7 @@ const _abi = [
 ] as const;
 
 const _bytecode =
-  "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea2646970667358221220313523e9500fb12ec9669abb77856c87f7f1bbe77da8db83a348b1c7a9ac4f7f64736f6c63430008120033";
+  "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea2646970667358221220d2c01eaf53429fe39eb8449a1f99eb9e98144b0b4e9996e61082b517a203718664736f6c63430008120033";
 
 type RegistrarEventsLibConstructorParams =
   | [signer?: Signer]

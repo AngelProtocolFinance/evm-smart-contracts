@@ -282,7 +282,6 @@ export declare namespace FundraisingMessage {
 
 export declare namespace RegistrarStorage {
   export type ConfigStruct = {
-    owner: PromiseOrValue<string>;
     applicationsReview: PromiseOrValue<string>;
     indexFundContract: PromiseOrValue<string>;
     accountsContract: PromiseOrValue<string>;
@@ -331,7 +330,6 @@ export declare namespace RegistrarStorage {
     string,
     string,
     string,
-    string,
     AngelCoreStruct.SplitDetailsStructOutput,
     string,
     string,
@@ -352,7 +350,6 @@ export declare namespace RegistrarStorage {
     string,
     string
   ] & {
-    owner: string;
     applicationsReview: string;
     indexFundContract: string;
     accountsContract: string;

@@ -129,9 +129,83 @@ export declare namespace AngelCoreStruct {
   };
 }
 
+export declare namespace LocalRegistrarLib {
+  export type AngelProtocolParamsStruct = {
+    protocolTaxRate: PromiseOrValue<BigNumberish>;
+    protocolTaxBasis: PromiseOrValue<BigNumberish>;
+    protocolTaxCollector: PromiseOrValue<string>;
+    routerAddr: PromiseOrValue<string>;
+    refundAddr: PromiseOrValue<string>;
+  };
+
+  export type AngelProtocolParamsStructOutput = [
+    number,
+    number,
+    string,
+    string,
+    string
+  ] & {
+    protocolTaxRate: number;
+    protocolTaxBasis: number;
+    protocolTaxCollector: string;
+    routerAddr: string;
+    refundAddr: string;
+  };
+
+  export type RebalanceParamsStruct = {
+    rebalanceLiquidProfits: PromiseOrValue<boolean>;
+    lockedRebalanceToLiquid: PromiseOrValue<BigNumberish>;
+    interestDistribution: PromiseOrValue<BigNumberish>;
+    lockedPrincipleToLiquid: PromiseOrValue<boolean>;
+    principleDistribution: PromiseOrValue<BigNumberish>;
+    basis: PromiseOrValue<BigNumberish>;
+  };
+
+  export type RebalanceParamsStructOutput = [
+    boolean,
+    number,
+    number,
+    boolean,
+    number,
+    number
+  ] & {
+    rebalanceLiquidProfits: boolean;
+    lockedRebalanceToLiquid: number;
+    interestDistribution: number;
+    lockedPrincipleToLiquid: boolean;
+    principleDistribution: number;
+    basis: number;
+  };
+
+  export type VaultParamsStruct = {
+    Type: PromiseOrValue<BigNumberish>;
+    vaultAddr: PromiseOrValue<string>;
+  };
+
+  export type VaultParamsStructOutput = [number, string] & {
+    Type: number;
+    vaultAddr: string;
+  };
+
+  export type StrategyParamsStruct = {
+    approvalState: PromiseOrValue<BigNumberish>;
+    Locked: LocalRegistrarLib.VaultParamsStruct;
+    Liquid: LocalRegistrarLib.VaultParamsStruct;
+  };
+
+  export type StrategyParamsStructOutput = [
+    number,
+    LocalRegistrarLib.VaultParamsStructOutput,
+    LocalRegistrarLib.VaultParamsStructOutput
+  ] & {
+    approvalState: number;
+    Locked: LocalRegistrarLib.VaultParamsStructOutput;
+    Liquid: LocalRegistrarLib.VaultParamsStructOutput;
+  };
+}
+
 export declare namespace RegistrarStorage {
   export type ConfigStruct = {
-    owner: PromiseOrValue<string>;
     applicationsReview: PromiseOrValue<string>;
     indexFundContract: PromiseOrValue<string>;
     accountsContract: PromiseOrValue<string>;
@@ -180,7 +254,6 @@ export declare namespace RegistrarStorage {
     string,
     string,
     string,
-    string,
     AngelCoreStruct.SplitDetailsStructOutput,
     string,
     string,
@@ -201,7 +274,6 @@ export declare namespace RegistrarStorage {
     string,
     string
   ] & {
-    owner: string;
     applicationsReview: string;
     indexFundContract: string;
     accountsContract: string;
@@ -387,76 +459,129 @@ export declare namespace RegistrarMessages {
     wethAddress: string;
     cw900lvAddress: string;
   };
+}
 
-  export type VaultAddRequestStruct = {
-    network: PromiseOrValue<BigNumberish>;
-    stratagyName: PromiseOrValue<string>;
-    inputDenom: PromiseOrValue<string>;
-    yieldToken: PromiseOrValue<string>;
-    restrictedFrom: PromiseOrValue<BigNumberish>[];
-    acctType: PromiseOrValue<BigNumberish>;
-    vaultType: PromiseOrValue<BigNumberish>;
+export declare namespace APGoldfinchConfigLib {
+  export type CRVParamsStruct = {
+    allowedSlippage: PromiseOrValue<BigNumberish>;
   };
 
-  export type VaultAddRequestStructOutput = [
-    BigNumber,
-    string,
-    string,
-    string,
-    number[],
-    number,
-    number
-  ] & {
-    network: BigNumber;
-    stratagyName: string;
-    inputDenom: string;
-    yieldToken: string;
-    restrictedFrom: number[];
-    acctType: number;
-    vaultType: number;
+  export type CRVParamsStructOutput = [BigNumber] & {
+    allowedSlippage: BigNumber;
   };
+
+  export type APGoldfinchConfigStruct = {
+    crvParams: APGoldfinchConfigLib.CRVParamsStruct;
+  };
+
+  export type APGoldfinchConfigStructOutput = [
+    APGoldfinchConfigLib.CRVParamsStructOutput
+  ] & { crvParams: APGoldfinchConfigLib.CRVParamsStructOutput };
 }
 
 export interface RegistrarInterface extends utils.Interface {
   functions: {
+    "getAPGoldfinchParams()": FunctionFragment;
+    "getAccountsContractAddressByChain(string)": FunctionFragment;
+    "getAngelProtocolParams()": FunctionFragment;
+    "getGasByToken(address)": FunctionFragment;
+    "getRebalanceParams()": FunctionFragment;
+    "getStrategyApprovalState(bytes4)": FunctionFragment;
+    "getStrategyParamsById(bytes4)": FunctionFragment;
     "initialize((address,uint256,(bool,bool,uint256,bool,uint256),(uint256,uint256,uint256),(address[]),address,address))": FunctionFragment;
+    "initialize()": FunctionFragment;
+    "isTokenAccepted(address)": FunctionFragment;
+    "owner()": FunctionFragment;
     "queryConfig()": FunctionFragment;
     "queryFee(string)": FunctionFragment;
     "queryNetworkConnection(uint256)": FunctionFragment;
-    "queryVaultDetails(string)": FunctionFragment;
-    "queryVaultList(uint256,uint8,uint8,uint8,uint8,uint256,uint256)": FunctionFragment;
-    "queryVaultListDep(uint256,uint8,uint8,uint8,uint8,uint256,uint256)": FunctionFragment;
+    "renounceOwnership()": FunctionFragment;
+    "setAPGoldfinchParams(((uint256)))": FunctionFragment;
+    "setAccountsContractAddressByChain(string,string)": FunctionFragment;
+    "setAngelProtocolParams((uint32,uint32,address,address,address))": FunctionFragment;
+    "setGasByToken(address,uint256)": FunctionFragment;
+    "setRebalanceParams((bool,uint32,uint32,bool,uint32,uint32))": FunctionFragment;
+    "setStrategyApprovalState(bytes4,uint8)": FunctionFragment;
+    "setStrategyParams(bytes4,address,address,uint8)": FunctionFragment;
+    "setTokenAccepted(address,bool)": FunctionFragment;
+    "transferOwnership(address)": FunctionFragment;
     "updateConfig((address,uint256,(bool,bool,uint256,bool,uint256),string[],uint256,uint256,uint256,uint256,(address[]),address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address))": FunctionFragment;
     "updateFees((string[],uint256[]))": FunctionFragment;
     "updateNetworkConnections((string,uint256,address,address,string,string,address,uint256),string)": FunctionFragment;
-    "updateOwner(address)": FunctionFragment;
-    "vaultAdd((uint256,string,address,address,uint8[],uint8,uint8))": FunctionFragment;
-    "vaultRemove(string)": FunctionFragment;
-    "vaultUpdate(string,bool,uint8[])": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "initialize"
+      | "getAPGoldfinchParams"
+      | "getAccountsContractAddressByChain"
+      | "getAngelProtocolParams"
+      | "getGasByToken"
+      | "getRebalanceParams"
+      | "getStrategyApprovalState"
+      | "getStrategyParamsById"
+      | "initialize((address,uint256,(bool,bool,uint256,bool,uint256),(uint256,uint256,uint256),(address[]),address,address))"
+      | "initialize()"
+      | "isTokenAccepted"
+      | "owner"
       | "queryConfig"
       | "queryFee"
       | "queryNetworkConnection"
-      | "queryVaultDetails"
-      | "queryVaultList"
-      | "queryVaultListDep"
+      | "renounceOwnership"
+      | "setAPGoldfinchParams"
+      | "setAccountsContractAddressByChain"
+      | "setAngelProtocolParams"
+      | "setGasByToken"
+      | "setRebalanceParams"
+      | "setStrategyApprovalState"
+      | "setStrategyParams"
+      | "setTokenAccepted"
+      | "transferOwnership"
       | "updateConfig"
       | "updateFees"
       | "updateNetworkConnections"
-      | "updateOwner"
-      | "vaultAdd"
-      | "vaultRemove"
-      | "vaultUpdate"
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "initialize",
+    functionFragment: "getAPGoldfinchParams",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAccountsContractAddressByChain",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAngelProtocolParams",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getGasByToken",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRebalanceParams",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getStrategyApprovalState",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getStrategyParamsById",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initialize((address,uint256,(bool,bool,uint256,bool,uint256),(uint256,uint256,uint256),(address[]),address,address))",
     values: [RegistrarMessages.InstantiateRequestStruct]
   ): string;
+  encodeFunctionData(
+    functionFragment: "initialize()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isTokenAccepted",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "queryConfig",
     values?: undefined
@@ -470,32 +595,49 @@ export interface RegistrarInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "queryVaultDetails",
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setAPGoldfinchParams",
+    values: [APGoldfinchConfigLib.APGoldfinchConfigStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setAccountsContractAddressByChain",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setAngelProtocolParams",
+    values: [LocalRegistrarLib.AngelProtocolParamsStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setGasByToken",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRebalanceParams",
+    values: [LocalRegistrarLib.RebalanceParamsStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setStrategyApprovalState",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setStrategyParams",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setTokenAccepted",
+    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "queryVaultList",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "queryVaultListDep",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ]
   ): string;
   encodeFunctionData(
     functionFragment: "updateConfig",
@@ -509,28 +651,48 @@ export interface RegistrarInterface extends utils.Interface {
     functionFragment: "updateNetworkConnections",
     values: [AngelCoreStruct.NetworkInfoStruct, PromiseOrValue<string>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "updateOwner",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "vaultAdd",
-    values: [RegistrarMessages.VaultAddRequestStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "vaultRemove",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "vaultUpdate",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<boolean>,
-      PromiseOrValue<BigNumberish>[]
-    ]
-  ): string;
 
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getAPGoldfinchParams",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAccountsContractAddressByChain",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAngelProtocolParams",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getGasByToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getRebalanceParams",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getStrategyApprovalState",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getStrategyParamsById",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "initialize((address,uint256,(bool,bool,uint256,bool,uint256),(uint256,uint256,uint256),(address[]),address,address))",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "initialize()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isTokenAccepted",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "queryConfig",
     data: BytesLike
@@ -541,15 +703,43 @@ export interface RegistrarInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "queryVaultDetails",
+    functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "queryVaultList",
+    functionFragment: "setAPGoldfinchParams",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "queryVaultListDep",
+    functionFragment: "setAccountsContractAddressByChain",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setAngelProtocolParams",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setGasByToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRebalanceParams",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setStrategyApprovalState",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setStrategyParams",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setTokenAccepted",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -561,40 +751,57 @@ export interface RegistrarInterface extends utils.Interface {
     functionFragment: "updateNetworkConnections",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateOwner",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "vaultAdd", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "vaultRemove",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "vaultUpdate",
-    data: BytesLike
-  ): Result;
 
   events: {
+    "AccountsContractStorageChanged(string,string)": EventFragment;
     "AddVault(string,tuple)": EventFragment;
+    "AngelProtocolParamsChanged(tuple)": EventFragment;
     "DeleteNetworkConnection(uint256)": EventFragment;
+    "GasFeeUpdated(address,uint256)": EventFragment;
+    "Initialized(uint8)": EventFragment;
+    "OwnershipTransferred(address,address)": EventFragment;
     "PostNetworkConnection(uint256,tuple)": EventFragment;
+    "RebalanceParamsChanged(tuple)": EventFragment;
     "RemoveVault(string)": EventFragment;
+    "StrategyApprovalChanged(bytes4,uint8)": EventFragment;
+    "StrategyParamsChanged(bytes4,address,address,uint8)": EventFragment;
+    "TokenAcceptanceChanged(address,bool)": EventFragment;
     "UpdateRegistrarConfig(tuple)": EventFragment;
     "UpdateRegistrarFees(tuple)": EventFragment;
-    "UpdateRegistrarOwner(address)": EventFragment;
     "UpdateVault(string,bool,uint8[])": EventFragment;
   };
 
+  getEvent(
+    nameOrSignatureOrTopic: "AccountsContractStorageChanged"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AddVault"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AngelProtocolParamsChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DeleteNetworkConnection"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "GasFeeUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PostNetworkConnection"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RebalanceParamsChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RemoveVault"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "StrategyApprovalChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "StrategyParamsChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TokenAcceptanceChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdateRegistrarConfig"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdateRegistrarFees"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "UpdateRegistrarOwner"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdateVault"): EventFragment;
 }
+
+export interface AccountsContractStorageChangedEventObject {
+  chainName: string;
+  accountsContractAddress: string;
+}
+export type AccountsContractStorageChangedEvent = TypedEvent<
+  [string, string],
+  AccountsContractStorageChangedEventObject
+>;
+
+export type AccountsContractStorageChangedEventFilter =
+  TypedEventFilter<AccountsContractStorageChangedEvent>;
 
 export interface AddVaultEventObject {
   strategyName: string;
@@ -607,6 +814,17 @@ export type AddVaultEvent = TypedEvent<
 
 export type AddVaultEventFilter = TypedEventFilter<AddVaultEvent>;
 
+export interface AngelProtocolParamsChangedEventObject {
+  newAngelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStructOutput;
+}
+export type AngelProtocolParamsChangedEvent = TypedEvent<
+  [LocalRegistrarLib.AngelProtocolParamsStructOutput],
+  AngelProtocolParamsChangedEventObject
+>;
+
+export type AngelProtocolParamsChangedEventFilter =
+  TypedEventFilter<AngelProtocolParamsChangedEvent>;
+
 export interface DeleteNetworkConnectionEventObject {
   chainId: BigNumber;
 }
@@ -617,6 +835,36 @@ export type DeleteNetworkConnectionEvent = TypedEvent<
 
 export type DeleteNetworkConnectionEventFilter =
   TypedEventFilter<DeleteNetworkConnectionEvent>;
+
+export interface GasFeeUpdatedEventObject {
+  _tokenAddr: string;
+  _gasFee: BigNumber;
+}
+export type GasFeeUpdatedEvent = TypedEvent<
+  [string, BigNumber],
+  GasFeeUpdatedEventObject
+>;
+
+export type GasFeeUpdatedEventFilter = TypedEventFilter<GasFeeUpdatedEvent>;
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
+
+export interface OwnershipTransferredEventObject {
+  previousOwner: string;
+  newOwner: string;
+}
+export type OwnershipTransferredEvent = TypedEvent<
+  [string, string],
+  OwnershipTransferredEventObject
+>;
+
+export type OwnershipTransferredEventFilter =
+  TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface PostNetworkConnectionEventObject {
   chainId: BigNumber;
@@ -630,12 +878,61 @@ export type PostNetworkConnectionEvent = TypedEvent<
 export type PostNetworkConnectionEventFilter =
   TypedEventFilter<PostNetworkConnectionEvent>;
 
+export interface RebalanceParamsChangedEventObject {
+  newRebalanceParams: LocalRegistrarLib.RebalanceParamsStructOutput;
+}
+export type RebalanceParamsChangedEvent = TypedEvent<
+  [LocalRegistrarLib.RebalanceParamsStructOutput],
+  RebalanceParamsChangedEventObject
+>;
+
+export type RebalanceParamsChangedEventFilter =
+  TypedEventFilter<RebalanceParamsChangedEvent>;
+
 export interface RemoveVaultEventObject {
   strategyName: string;
 }
 export type RemoveVaultEvent = TypedEvent<[string], RemoveVaultEventObject>;
 
 export type RemoveVaultEventFilter = TypedEventFilter<RemoveVaultEvent>;
+
+export interface StrategyApprovalChangedEventObject {
+  _strategyId: string;
+  _approvalState: number;
+}
+export type StrategyApprovalChangedEvent = TypedEvent<
+  [string, number],
+  StrategyApprovalChangedEventObject
+>;
+
+export type StrategyApprovalChangedEventFilter =
+  TypedEventFilter<StrategyApprovalChangedEvent>;
+
+export interface StrategyParamsChangedEventObject {
+  _strategyId: string;
+  _lockAddr: string;
+  _liqAddr: string;
+  _approvalState: number;
+}
+export type StrategyParamsChangedEvent = TypedEvent<
+  [string, string, string, number],
+  StrategyParamsChangedEventObject
+>;
+
+export type StrategyParamsChangedEventFilter =
+  TypedEventFilter<StrategyParamsChangedEvent>;
+
+export interface TokenAcceptanceChangedEventObject {
+  tokenAddr: string;
+  isAccepted: boolean;
+}
+export type TokenAcceptanceChangedEvent = TypedEvent<
+  [string, boolean],
+  TokenAcceptanceChangedEventObject
+>;
+
+export type TokenAcceptanceChangedEventFilter =
+  TypedEventFilter<TokenAcceptanceChangedEvent>;
 
 export interface UpdateRegistrarConfigEventObject {
   details: RegistrarStorage.ConfigStructOutput;
@@ -658,17 +955,6 @@ export type UpdateRegistrarFeesEvent = TypedEvent<
 
 export type UpdateRegistrarFeesEventFilter =
   TypedEventFilter<UpdateRegistrarFeesEvent>;
-
-export interface UpdateRegistrarOwnerEventObject {
-  newOwner: string;
-}
-export type UpdateRegistrarOwnerEvent = TypedEvent<
-  [string],
-  UpdateRegistrarOwnerEventObject
->;
-
-export type UpdateRegistrarOwnerEventFilter =
-  TypedEventFilter<UpdateRegistrarOwnerEvent>;
 
 export interface UpdateVaultEventObject {
   strategyName: string;
@@ -709,10 +995,53 @@ export interface Registrar extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    initialize(
+    getAPGoldfinchParams(
+      overrides?: CallOverrides
+    ): Promise<[APGoldfinchConfigLib.APGoldfinchConfigStructOutput]>;
+
+    getAccountsContractAddressByChain(
+      _targetChain: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    getAngelProtocolParams(
+      overrides?: CallOverrides
+    ): Promise<[LocalRegistrarLib.AngelProtocolParamsStructOutput]>;
+
+    getGasByToken(
+      _tokenAddr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    getRebalanceParams(
+      overrides?: CallOverrides
+    ): Promise<[LocalRegistrarLib.RebalanceParamsStructOutput]>;
+
+    getStrategyApprovalState(
+      _strategyId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[number]>;
+
+    getStrategyParamsById(
+      _strategyId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[LocalRegistrarLib.StrategyParamsStructOutput]>;
+
+    "initialize((address,uint256,(bool,bool,uint256,bool,uint256),(uint256,uint256,uint256),(address[]),address,address))"(
       curDetails: RegistrarMessages.InstantiateRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    "initialize()"(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    isTokenAccepted(
+      _tokenAddr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    owner(overrides?: CallOverrides): Promise<[string]>;
 
     queryConfig(
       overrides?: CallOverrides
@@ -732,36 +1061,61 @@ export interface Registrar extends BaseContract {
       }
     >;
 
-    queryVaultDetails(
-      _stratagyName: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<
-      [AngelCoreStruct.YieldVaultStructOutput] & {
-        response: AngelCoreStruct.YieldVaultStructOutput;
-      }
-    >;
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
-    queryVaultList(
-      network: PromiseOrValue<BigNumberish>,
-      endowmentType: PromiseOrValue<BigNumberish>,
-      accountType: PromiseOrValue<BigNumberish>,
-      vaultType: PromiseOrValue<BigNumberish>,
-      approved: PromiseOrValue<BigNumberish>,
-      startAfter: PromiseOrValue<BigNumberish>,
-      limit: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[AngelCoreStruct.YieldVaultStructOutput[]]>;
+    setAPGoldfinchParams(
+      _apGoldfinch: APGoldfinchConfigLib.APGoldfinchConfigStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
-    queryVaultListDep(
-      network: PromiseOrValue<BigNumberish>,
-      endowmentType: PromiseOrValue<BigNumberish>,
-      accountType: PromiseOrValue<BigNumberish>,
-      vaultType: PromiseOrValue<BigNumberish>,
-      approved: PromiseOrValue<BigNumberish>,
-      startAfter: PromiseOrValue<BigNumberish>,
-      limit: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[AngelCoreStruct.YieldVaultStructOutput[]]>;
+    setAccountsContractAddressByChain(
+      _chainName: PromiseOrValue<string>,
+      _accountsContractAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setAngelProtocolParams(
+      _angelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setGasByToken(
+      _tokenAddr: PromiseOrValue<string>,
+      _gasFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setRebalanceParams(
+      _rebalanceParams: LocalRegistrarLib.RebalanceParamsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setStrategyApprovalState(
+      _strategyId: PromiseOrValue<BytesLike>,
+      _approvalState: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setStrategyParams(
+      _strategyId: PromiseOrValue<BytesLike>,
+      _lockAddr: PromiseOrValue<string>,
+      _liqAddr: PromiseOrValue<string>,
+      _approvalState: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setTokenAccepted(
+      _tokenAddr: PromiseOrValue<string>,
+      _isAccepted: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     updateConfig(
       curDetails: RegistrarMessages.UpdateConfigRequestStruct,
@@ -778,34 +1132,55 @@ export interface Registrar extends BaseContract {
       action: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    updateOwner(
-      newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    vaultAdd(
-      curDetails: RegistrarMessages.VaultAddRequestStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    vaultRemove(
-      _stratagyName: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    vaultUpdate(
-      _stratagyName: PromiseOrValue<string>,
-      curApproved: PromiseOrValue<boolean>,
-      curRestrictedfrom: PromiseOrValue<BigNumberish>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
   };
 
-  initialize(
+  getAPGoldfinchParams(
+    overrides?: CallOverrides
+  ): Promise<APGoldfinchConfigLib.APGoldfinchConfigStructOutput>;
+
+  getAccountsContractAddressByChain(
+    _targetChain: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  getAngelProtocolParams(
+    overrides?: CallOverrides
+  ): Promise<LocalRegistrarLib.AngelProtocolParamsStructOutput>;
+
+  getGasByToken(
+    _tokenAddr: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  getRebalanceParams(
+    overrides?: CallOverrides
+  ): Promise<LocalRegistrarLib.RebalanceParamsStructOutput>;
+
+  getStrategyApprovalState(
+    _strategyId: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<number>;
+
+  getStrategyParamsById(
+    _strategyId: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<LocalRegistrarLib.StrategyParamsStructOutput>;
+
+  "initialize((address,uint256,(bool,bool,uint256,bool,uint256),(uint256,uint256,uint256),(address[]),address,address))"(
     curDetails: RegistrarMessages.InstantiateRequestStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  "initialize()"(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  isTokenAccepted(
+    _tokenAddr: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  owner(overrides?: CallOverrides): Promise<string>;
 
   queryConfig(
     overrides?: CallOverrides
@@ -821,32 +1196,61 @@ export interface Registrar extends BaseContract {
     overrides?: CallOverrides
   ): Promise<AngelCoreStruct.NetworkInfoStructOutput>;
 
-  queryVaultDetails(
-    _stratagyName: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<AngelCoreStruct.YieldVaultStructOutput>;
+  renounceOwnership(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
-  queryVaultList(
-    network: PromiseOrValue<BigNumberish>,
-    endowmentType: PromiseOrValue<BigNumberish>,
-    accountType: PromiseOrValue<BigNumberish>,
-    vaultType: PromiseOrValue<BigNumberish>,
-    approved: PromiseOrValue<BigNumberish>,
-    startAfter: PromiseOrValue<BigNumberish>,
-    limit: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<AngelCoreStruct.YieldVaultStructOutput[]>;
+  setAPGoldfinchParams(
+    _apGoldfinch: APGoldfinchConfigLib.APGoldfinchConfigStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
-  queryVaultListDep(
-    network: PromiseOrValue<BigNumberish>,
-    endowmentType: PromiseOrValue<BigNumberish>,
-    accountType: PromiseOrValue<BigNumberish>,
-    vaultType: PromiseOrValue<BigNumberish>,
-    approved: PromiseOrValue<BigNumberish>,
-    startAfter: PromiseOrValue<BigNumberish>,
-    limit: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<AngelCoreStruct.YieldVaultStructOutput[]>;
+  setAccountsContractAddressByChain(
+    _chainName: PromiseOrValue<string>,
+    _accountsContractAddress: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setAngelProtocolParams(
+    _angelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setGasByToken(
+    _tokenAddr: PromiseOrValue<string>,
+    _gasFee: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setRebalanceParams(
+    _rebalanceParams: LocalRegistrarLib.RebalanceParamsStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setStrategyApprovalState(
+    _strategyId: PromiseOrValue<BytesLike>,
+    _approvalState: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setStrategyParams(
+    _strategyId: PromiseOrValue<BytesLike>,
+    _lockAddr: PromiseOrValue<string>,
+    _liqAddr: PromiseOrValue<string>,
+    _approvalState: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setTokenAccepted(
+    _tokenAddr: PromiseOrValue<string>,
+    _isAccepted: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  transferOwnership(
+    newOwner: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   updateConfig(
     curDetails: RegistrarMessages.UpdateConfigRequestStruct,
@@ -864,33 +1268,52 @@ export interface Registrar extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  updateOwner(
-    newOwner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  vaultAdd(
-    curDetails: RegistrarMessages.VaultAddRequestStruct,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  vaultRemove(
-    _stratagyName: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  vaultUpdate(
-    _stratagyName: PromiseOrValue<string>,
-    curApproved: PromiseOrValue<boolean>,
-    curRestrictedfrom: PromiseOrValue<BigNumberish>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
-    initialize(
+    getAPGoldfinchParams(
+      overrides?: CallOverrides
+    ): Promise<APGoldfinchConfigLib.APGoldfinchConfigStructOutput>;
+
+    getAccountsContractAddressByChain(
+      _targetChain: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    getAngelProtocolParams(
+      overrides?: CallOverrides
+    ): Promise<LocalRegistrarLib.AngelProtocolParamsStructOutput>;
+
+    getGasByToken(
+      _tokenAddr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getRebalanceParams(
+      overrides?: CallOverrides
+    ): Promise<LocalRegistrarLib.RebalanceParamsStructOutput>;
+
+    getStrategyApprovalState(
+      _strategyId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<number>;
+
+    getStrategyParamsById(
+      _strategyId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<LocalRegistrarLib.StrategyParamsStructOutput>;
+
+    "initialize((address,uint256,(bool,bool,uint256,bool,uint256),(uint256,uint256,uint256),(address[]),address,address))"(
       curDetails: RegistrarMessages.InstantiateRequestStruct,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    "initialize()"(overrides?: CallOverrides): Promise<void>;
+
+    isTokenAccepted(
+      _tokenAddr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    owner(overrides?: CallOverrides): Promise<string>;
 
     queryConfig(
       overrides?: CallOverrides
@@ -906,32 +1329,59 @@ export interface Registrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<AngelCoreStruct.NetworkInfoStructOutput>;
 
-    queryVaultDetails(
-      _stratagyName: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<AngelCoreStruct.YieldVaultStructOutput>;
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
-    queryVaultList(
-      network: PromiseOrValue<BigNumberish>,
-      endowmentType: PromiseOrValue<BigNumberish>,
-      accountType: PromiseOrValue<BigNumberish>,
-      vaultType: PromiseOrValue<BigNumberish>,
-      approved: PromiseOrValue<BigNumberish>,
-      startAfter: PromiseOrValue<BigNumberish>,
-      limit: PromiseOrValue<BigNumberish>,
+    setAPGoldfinchParams(
+      _apGoldfinch: APGoldfinchConfigLib.APGoldfinchConfigStruct,
       overrides?: CallOverrides
-    ): Promise<AngelCoreStruct.YieldVaultStructOutput[]>;
+    ): Promise<void>;
 
-    queryVaultListDep(
-      network: PromiseOrValue<BigNumberish>,
-      endowmentType: PromiseOrValue<BigNumberish>,
-      accountType: PromiseOrValue<BigNumberish>,
-      vaultType: PromiseOrValue<BigNumberish>,
-      approved: PromiseOrValue<BigNumberish>,
-      startAfter: PromiseOrValue<BigNumberish>,
-      limit: PromiseOrValue<BigNumberish>,
+    setAccountsContractAddressByChain(
+      _chainName: PromiseOrValue<string>,
+      _accountsContractAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<AngelCoreStruct.YieldVaultStructOutput[]>;
+    ): Promise<void>;
+
+    setAngelProtocolParams(
+      _angelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setGasByToken(
+      _tokenAddr: PromiseOrValue<string>,
+      _gasFee: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setRebalanceParams(
+      _rebalanceParams: LocalRegistrarLib.RebalanceParamsStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setStrategyApprovalState(
+      _strategyId: PromiseOrValue<BytesLike>,
+      _approvalState: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setStrategyParams(
+      _strategyId: PromiseOrValue<BytesLike>,
+      _lockAddr: PromiseOrValue<string>,
+      _liqAddr: PromiseOrValue<string>,
+      _approvalState: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setTokenAccepted(
+      _tokenAddr: PromiseOrValue<string>,
+      _isAccepted: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     updateConfig(
       curDetails: RegistrarMessages.UpdateConfigRequestStruct,
@@ -948,41 +1398,56 @@ export interface Registrar extends BaseContract {
       action: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    updateOwner(
-      newOwner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    vaultAdd(
-      curDetails: RegistrarMessages.VaultAddRequestStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    vaultRemove(
-      _stratagyName: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    vaultUpdate(
-      _stratagyName: PromiseOrValue<string>,
-      curApproved: PromiseOrValue<boolean>,
-      curRestrictedfrom: PromiseOrValue<BigNumberish>[],
-      overrides?: CallOverrides
-    ): Promise<void>;
   };
 
   filters: {
+    "AccountsContractStorageChanged(string,string)"(
+      chainName?: PromiseOrValue<string> | null,
+      accountsContractAddress?: PromiseOrValue<string> | null
+    ): AccountsContractStorageChangedEventFilter;
+    AccountsContractStorageChanged(
+      chainName?: PromiseOrValue<string> | null,
+      accountsContractAddress?: PromiseOrValue<string> | null
+    ): AccountsContractStorageChangedEventFilter;
+
     "AddVault(string,tuple)"(
       strategyName?: null,
       vault?: null
     ): AddVaultEventFilter;
     AddVault(strategyName?: null, vault?: null): AddVaultEventFilter;
 
+    "AngelProtocolParamsChanged(tuple)"(
+      newAngelProtocolParams?: null
+    ): AngelProtocolParamsChangedEventFilter;
+    AngelProtocolParamsChanged(
+      newAngelProtocolParams?: null
+    ): AngelProtocolParamsChangedEventFilter;
+
     "DeleteNetworkConnection(uint256)"(
       chainId?: null
     ): DeleteNetworkConnectionEventFilter;
     DeleteNetworkConnection(chainId?: null): DeleteNetworkConnectionEventFilter;
+
+    "GasFeeUpdated(address,uint256)"(
+      _tokenAddr?: PromiseOrValue<string> | null,
+      _gasFee?: null
+    ): GasFeeUpdatedEventFilter;
+    GasFeeUpdated(
+      _tokenAddr?: PromiseOrValue<string> | null,
+      _gasFee?: null
+    ): GasFeeUpdatedEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
+
+    "OwnershipTransferred(address,address)"(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferredEventFilter;
+    OwnershipTransferred(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferredEventFilter;
 
     "PostNetworkConnection(uint256,tuple)"(
       chainId?: null,
@@ -993,8 +1458,46 @@ export interface Registrar extends BaseContract {
       networkInfo?: null
     ): PostNetworkConnectionEventFilter;
 
+    "RebalanceParamsChanged(tuple)"(
+      newRebalanceParams?: null
+    ): RebalanceParamsChangedEventFilter;
+    RebalanceParamsChanged(
+      newRebalanceParams?: null
+    ): RebalanceParamsChangedEventFilter;
+
     "RemoveVault(string)"(strategyName?: null): RemoveVaultEventFilter;
     RemoveVault(strategyName?: null): RemoveVaultEventFilter;
+
+    "StrategyApprovalChanged(bytes4,uint8)"(
+      _strategyId?: PromiseOrValue<BytesLike> | null,
+      _approvalState?: null
+    ): StrategyApprovalChangedEventFilter;
+    StrategyApprovalChanged(
+      _strategyId?: PromiseOrValue<BytesLike> | null,
+      _approvalState?: null
+    ): StrategyApprovalChangedEventFilter;
+
+    "StrategyParamsChanged(bytes4,address,address,uint8)"(
+      _strategyId?: PromiseOrValue<BytesLike> | null,
+      _lockAddr?: PromiseOrValue<string> | null,
+      _liqAddr?: PromiseOrValue<string> | null,
+      _approvalState?: null
+    ): StrategyParamsChangedEventFilter;
+    StrategyParamsChanged(
+      _strategyId?: PromiseOrValue<BytesLike> | null,
+      _lockAddr?: PromiseOrValue<string> | null,
+      _liqAddr?: PromiseOrValue<string> | null,
+      _approvalState?: null
+    ): StrategyParamsChangedEventFilter;
+
+    "TokenAcceptanceChanged(address,bool)"(
+      tokenAddr?: PromiseOrValue<string> | null,
+      isAccepted?: null
+    ): TokenAcceptanceChangedEventFilter;
+    TokenAcceptanceChanged(
+      tokenAddr?: PromiseOrValue<string> | null,
+      isAccepted?: null
+    ): TokenAcceptanceChangedEventFilter;
 
     "UpdateRegistrarConfig(tuple)"(
       details?: null
@@ -1005,11 +1508,6 @@ export interface Registrar extends BaseContract {
       details?: null
     ): UpdateRegistrarFeesEventFilter;
     UpdateRegistrarFees(details?: null): UpdateRegistrarFeesEventFilter;
-
-    "UpdateRegistrarOwner(address)"(
-      newOwner?: null
-    ): UpdateRegistrarOwnerEventFilter;
-    UpdateRegistrarOwner(newOwner?: null): UpdateRegistrarOwnerEventFilter;
 
     "UpdateVault(string,bool,uint8[])"(
       strategyName?: null,
@@ -1024,10 +1522,47 @@ export interface Registrar extends BaseContract {
   };
 
   estimateGas: {
-    initialize(
+    getAPGoldfinchParams(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getAccountsContractAddressByChain(
+      _targetChain: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getAngelProtocolParams(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getGasByToken(
+      _tokenAddr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getRebalanceParams(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getStrategyApprovalState(
+      _strategyId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getStrategyParamsById(
+      _strategyId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "initialize((address,uint256,(bool,bool,uint256,bool,uint256),(uint256,uint256,uint256),(address[]),address,address))"(
       curDetails: RegistrarMessages.InstantiateRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    "initialize()"(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    isTokenAccepted(
+      _tokenAddr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     queryConfig(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1041,31 +1576,60 @@ export interface Registrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    queryVaultDetails(
-      _stratagyName: PromiseOrValue<string>,
-      overrides?: CallOverrides
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    queryVaultList(
-      network: PromiseOrValue<BigNumberish>,
-      endowmentType: PromiseOrValue<BigNumberish>,
-      accountType: PromiseOrValue<BigNumberish>,
-      vaultType: PromiseOrValue<BigNumberish>,
-      approved: PromiseOrValue<BigNumberish>,
-      startAfter: PromiseOrValue<BigNumberish>,
-      limit: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+    setAPGoldfinchParams(
+      _apGoldfinch: APGoldfinchConfigLib.APGoldfinchConfigStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    queryVaultListDep(
-      network: PromiseOrValue<BigNumberish>,
-      endowmentType: PromiseOrValue<BigNumberish>,
-      accountType: PromiseOrValue<BigNumberish>,
-      vaultType: PromiseOrValue<BigNumberish>,
-      approved: PromiseOrValue<BigNumberish>,
-      startAfter: PromiseOrValue<BigNumberish>,
-      limit: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+    setAccountsContractAddressByChain(
+      _chainName: PromiseOrValue<string>,
+      _accountsContractAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setAngelProtocolParams(
+      _angelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setGasByToken(
+      _tokenAddr: PromiseOrValue<string>,
+      _gasFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setRebalanceParams(
+      _rebalanceParams: LocalRegistrarLib.RebalanceParamsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setStrategyApprovalState(
+      _strategyId: PromiseOrValue<BytesLike>,
+      _approvalState: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setStrategyParams(
+      _strategyId: PromiseOrValue<BytesLike>,
+      _lockAddr: PromiseOrValue<string>,
+      _liqAddr: PromiseOrValue<string>,
+      _approvalState: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setTokenAccepted(
+      _tokenAddr: PromiseOrValue<string>,
+      _isAccepted: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     updateConfig(
@@ -1083,35 +1647,56 @@ export interface Registrar extends BaseContract {
       action: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
-
-    updateOwner(
-      newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    vaultAdd(
-      curDetails: RegistrarMessages.VaultAddRequestStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    vaultRemove(
-      _stratagyName: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    vaultUpdate(
-      _stratagyName: PromiseOrValue<string>,
-      curApproved: PromiseOrValue<boolean>,
-      curRestrictedfrom: PromiseOrValue<BigNumberish>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    initialize(
+    getAPGoldfinchParams(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getAccountsContractAddressByChain(
+      _targetChain: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getAngelProtocolParams(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getGasByToken(
+      _tokenAddr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getRebalanceParams(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getStrategyApprovalState(
+      _strategyId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getStrategyParamsById(
+      _strategyId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "initialize((address,uint256,(bool,bool,uint256,bool,uint256),(uint256,uint256,uint256),(address[]),address,address))"(
       curDetails: RegistrarMessages.InstantiateRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    "initialize()"(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    isTokenAccepted(
+      _tokenAddr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     queryConfig(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1125,31 +1710,60 @@ export interface Registrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    queryVaultDetails(
-      _stratagyName: PromiseOrValue<string>,
-      overrides?: CallOverrides
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    queryVaultList(
-      network: PromiseOrValue<BigNumberish>,
-      endowmentType: PromiseOrValue<BigNumberish>,
-      accountType: PromiseOrValue<BigNumberish>,
-      vaultType: PromiseOrValue<BigNumberish>,
-      approved: PromiseOrValue<BigNumberish>,
-      startAfter: PromiseOrValue<BigNumberish>,
-      limit: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+    setAPGoldfinchParams(
+      _apGoldfinch: APGoldfinchConfigLib.APGoldfinchConfigStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    queryVaultListDep(
-      network: PromiseOrValue<BigNumberish>,
-      endowmentType: PromiseOrValue<BigNumberish>,
-      accountType: PromiseOrValue<BigNumberish>,
-      vaultType: PromiseOrValue<BigNumberish>,
-      approved: PromiseOrValue<BigNumberish>,
-      startAfter: PromiseOrValue<BigNumberish>,
-      limit: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+    setAccountsContractAddressByChain(
+      _chainName: PromiseOrValue<string>,
+      _accountsContractAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setAngelProtocolParams(
+      _angelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setGasByToken(
+      _tokenAddr: PromiseOrValue<string>,
+      _gasFee: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setRebalanceParams(
+      _rebalanceParams: LocalRegistrarLib.RebalanceParamsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setStrategyApprovalState(
+      _strategyId: PromiseOrValue<BytesLike>,
+      _approvalState: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setStrategyParams(
+      _strategyId: PromiseOrValue<BytesLike>,
+      _lockAddr: PromiseOrValue<string>,
+      _liqAddr: PromiseOrValue<string>,
+      _approvalState: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setTokenAccepted(
+      _tokenAddr: PromiseOrValue<string>,
+      _isAccepted: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     updateConfig(
@@ -1165,28 +1779,6 @@ export interface Registrar extends BaseContract {
     updateNetworkConnections(
       networkInfo: AngelCoreStruct.NetworkInfoStruct,
       action: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    updateOwner(
-      newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    vaultAdd(
-      curDetails: RegistrarMessages.VaultAddRequestStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    vaultRemove(
-      _stratagyName: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    vaultUpdate(
-      _stratagyName: PromiseOrValue<string>,
-      curApproved: PromiseOrValue<boolean>,
-      curRestrictedfrom: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
