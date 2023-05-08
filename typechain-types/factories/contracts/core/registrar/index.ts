@@ -4,3 +4,4 @@
 export * as interface from "./interface";
 export * as lib from "./lib";
 export * as registrarSol from "./registrar.sol";
+export { LocalRegistrar__factory } from "./LocalRegistrar__factory";

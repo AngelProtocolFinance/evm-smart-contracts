@@ -98,6 +98,11 @@ contract Registrar is Storage, ReentrancyGuard {
     );
     event DeleteNetworkConnection(uint256 chainId);
 
+    modifier onlyOwner {
+        require(msg.sender == state.config.owner,"Unauthorized");
+        _;
+    }
+
     /**
      * @notice intialize function for the contract
      * @dev initialize function for the contract only called once at the time of deployment
@@ -201,8 +206,7 @@ contract Registrar is Storage, ReentrancyGuard {
      */
     function updateConfig(
         RegistrarMessages.UpdateConfigRequest memory curDetails
-    ) public nonReentrant {
-        require(msg.sender == state.config.owner, "E04"); //Account not authorized
+    ) public onlyOwner nonReentrant {
         // Set applications review
         if (Validator.addressChecker(curDetails.applicationsReview)) {
             state.config.applicationsReview = curDetails.applicationsReview;
@@ -361,8 +365,7 @@ contract Registrar is Storage, ReentrancyGuard {
      * @dev Update the owner of the registrar
      * @param newOwner The new owner of the registrar
      */
-    function updateOwner(address newOwner) public nonReentrant {
-        require(msg.sender == state.config.owner, "Account not authorized");
+    function updateOwner(address newOwner) public nonReentrant onlyOwner {
         require(Validator.addressChecker(newOwner), "Invalid New Owner");
 
         state.config.owner = newOwner;
@@ -371,7 +374,7 @@ contract Registrar is Storage, ReentrancyGuard {
 
     function updateFees(
         RegistrarMessages.UpdateFeeRequest memory curDetails
-    ) public nonReentrant {
+    ) public nonReentrant onlyOwner {
         require(
             curDetails.keys.length == curDetails.values.length,
             "Invalid input"
@@ -390,8 +393,7 @@ contract Registrar is Storage, ReentrancyGuard {
      */
     function vaultAdd(
         RegistrarMessages.VaultAddRequest memory curDetails
-    ) public nonReentrant {
-        require(msg.sender == state.config.owner, "Account not authorized");
+    ) public nonReentrant onlyOwner {
 
         uint256 vaultNetwork;
         if (curDetails.network == 0) {
@@ -425,8 +427,7 @@ contract Registrar is Storage, ReentrancyGuard {
      * @dev Remove a vault from the registrar
      * @param _stratagyName The name of the vault to remove
      */
-    function vaultRemove(string memory _stratagyName) public nonReentrant {
-        require(msg.sender == state.config.owner, "Account not authorized");
+    function vaultRemove(string memory _stratagyName) public nonReentrant onlyOwner {
 
         delete state.VAULTS[_stratagyName];
         uint256 delIndex;
@@ -455,8 +456,7 @@ contract Registrar is Storage, ReentrancyGuard {
         string memory _stratagyName,
         bool curApproved,
         AngelCoreStruct.EndowmentType[] memory curRestrictedfrom
-    ) public nonReentrant {
-        require(msg.sender == state.config.owner, "Account not authorized");
+    ) public nonReentrant onlyOwner {
 
         state.VAULTS[_stratagyName].approved = curApproved;
         state.VAULTS[_stratagyName].restrictedFrom = curRestrictedfrom;
@@ -471,8 +471,7 @@ contract Registrar is Storage, ReentrancyGuard {
     function updateNetworkConnections(
         AngelCoreStruct.NetworkInfo memory networkInfo,
         string memory action
-    ) public nonReentrant {
-        require(msg.sender == state.config.owner, "Account not authorized");
+    ) public nonReentrant onlyOwner {
 
         if (Validator.compareStrings(action, "post")) {
             state.NETWORK_CONNECTIONS[networkInfo.chainId] = networkInfo;

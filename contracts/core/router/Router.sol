@@ -2,22 +2,23 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.8;
 
-import {IRouter} from "./interfaces/IRouter.sol";
-import {IVault} from "./interfaces/IVault.sol";
-import {IVaultLiquid} from "./interfaces/IVaultLiquid.sol";
-import {IVaultLocked} from "./interfaces/IVaultLocked.sol";
-import {IRegistrar} from "./interfaces/IRegistrar.sol";
-import {StringToAddress} from "./lib/StringAddressUtils.sol";
+import {IRouter} from "./IRouter.sol";
+import {IVault} from "../../interfaces/IVault.sol";
+import {IVaultLiquid} from "../../interfaces/IVaultLiquid.sol";
+import {IVaultLocked} from "../../interfaces/IVaultLocked.sol";
+import {ILocalRegistrar} from "../registrar/interface/ILocalRegistrar.sol";
+import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
+import {StringToAddress} from "../../lib/StringAddressUtils.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {AxelarExecutable} from "./axelar/AxelarExecutable.sol";
+import {AxelarExecutable} from "../../axelar/AxelarExecutable.sol";
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
 import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService.sol";
 import {IAxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarExecutable.sol";
 
 contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     string public chain;
-    IRegistrar public registrar;
+    ILocalRegistrar public registrar;
     IAxelarGasService public gasReceiver;
 
     uint256 constant PRECISION = 10 ** 6;
@@ -33,7 +34,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         address _registrar
     ) public initializer {
         chain = _chain;
-        registrar = IRegistrar(_registrar);
+        registrar = ILocalRegistrar(_registrar);
         gasReceiver = IAxelarGasService(_gasReceiver);
         __AxelarExecutable_init_unchained(_gateway);
         __Ownable_init_unchained();
@@ -80,7 +81,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         // Get parameters from registrar if approved
         require(
             registrar.getStrategyApprovalState(action.strategyId) ==
-                IRegistrar.StrategyApprovalState.APPROVED,
+                LocalRegistrarLib.StrategyApprovalState.APPROVED,
             "Strategy not approved"
         );
         _;
@@ -89,9 +90,9 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     modifier validateCall(VaultActionData memory action) {
         require(
             (registrar.getStrategyApprovalState(action.strategyId) ==
-                IRegistrar.StrategyApprovalState.APPROVED) ||
+                LocalRegistrarLib.StrategyApprovalState.APPROVED) ||
                 registrar.getStrategyApprovalState(action.strategyId) ==
-                IRegistrar.StrategyApprovalState.WITHDRAW_ONLY,
+                LocalRegistrarLib.StrategyApprovalState.WITHDRAW_ONLY,
             "Strategy not approved"
         );
         _;
@@ -102,7 +103,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     */ ///////////////////////////////////////////////
 
     function _callSwitch(
-        IRegistrar.StrategyParams memory _params,
+        LocalRegistrarLib.StrategyParams memory _params,
         VaultActionData memory _action
     ) internal validateCall(_action) returns (VaultActionData memory) {
         // REDEEM
@@ -131,7 +132,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         string calldata tokenSymbol,
         uint256 amount
     ) public onlySelf validateDeposit(action, tokenSymbol, amount) {
-        IRegistrar.StrategyParams memory params = registrar
+        LocalRegistrarLib.StrategyParams memory params = registrar
             .getStrategyParamsById(action.strategyId);
 
         if (action.lockAmt > 0) {
@@ -169,7 +170,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
 
     // Vault action::Redeem
     function _redeem(
-        IRegistrar.StrategyParams memory _params,
+        LocalRegistrarLib.StrategyParams memory _params,
         VaultActionData memory _action
     ) internal onlyOneAccount(_action) returns (VaultActionData memory) {
         IVaultLocked lockedVault = IVaultLocked(_params.Locked.vaultAddr);
@@ -214,7 +215,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     // Vault action::RedeemAll
     // @todo redemption amts need to affect _action data
     function _redeemAll(
-        IRegistrar.StrategyParams memory _params,
+        LocalRegistrarLib.StrategyParams memory _params,
         VaultActionData memory _action
     ) internal onlyOneAccount(_action) returns (VaultActionData memory) {
         IVaultLocked lockedVault = IVaultLocked(_params.Locked.vaultAddr);
@@ -257,7 +258,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     // Vault action::Harvest
     // @todo redemption amts need to affect _action data
     function _harvest(
-        IRegistrar.StrategyParams memory _params,
+        LocalRegistrarLib.StrategyParams memory _params,
         VaultActionData memory _action
     ) internal returns (VaultActionData memory) {
         IVaultLiquid liquidVault = IVaultLiquid(_params.Liquid.vaultAddr);
@@ -362,7 +363,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         uint256 _sendAmt
     ) internal returns (VaultActionData memory) {
         // Pack the tokens and calldata for bridging back out over GMP
-        IRegistrar.AngelProtocolParams memory apParams = registrar
+        LocalRegistrarLib.AngelProtocolParams memory apParams = registrar
             .getAngelProtocolParams();
 
         // Prepare gas
@@ -425,7 +426,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
             IERC20Metadata(gasToken).approve(address(gasReceiver), gasFeeAmt)
         );
 
-        IRegistrar.AngelProtocolParams memory apParams = registrar
+        LocalRegistrarLib.AngelProtocolParams memory apParams = registrar
             .getAngelProtocolParams();
 
         gasReceiver.payGasForContractCallWithToken(
@@ -491,7 +492,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     {
         // decode payload
         VaultActionData memory action = _unpackCalldata(payload);
-        IRegistrar.StrategyParams memory params = registrar
+        LocalRegistrarLib.StrategyParams memory params = registrar
             .getStrategyParamsById(action.strategyId);
 
         // Switch for calling appropriate vault/method

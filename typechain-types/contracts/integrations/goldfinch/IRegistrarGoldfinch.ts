@@ -27,7 +27,7 @@ import type {
   PromiseOrValue,
 } from "../../../common";
 
-export declare namespace IRegistrar {
+export declare namespace LocalRegistrarLib {
   export type AngelProtocolParamsStruct = {
     protocolTaxRate: PromiseOrValue<BigNumberish>;
     protocolTaxBasis: PromiseOrValue<BigNumberish>;
@@ -87,18 +87,18 @@ export declare namespace IRegistrar {
 
   export type StrategyParamsStruct = {
     approvalState: PromiseOrValue<BigNumberish>;
-    Locked: IRegistrar.VaultParamsStruct;
-    Liquid: IRegistrar.VaultParamsStruct;
+    Locked: LocalRegistrarLib.VaultParamsStruct;
+    Liquid: LocalRegistrarLib.VaultParamsStruct;
   };
 
   export type StrategyParamsStructOutput = [
     number,
-    IRegistrar.VaultParamsStructOutput,
-    IRegistrar.VaultParamsStructOutput
+    LocalRegistrarLib.VaultParamsStructOutput,
+    LocalRegistrarLib.VaultParamsStructOutput
   ] & {
     approvalState: number;
-    Locked: IRegistrar.VaultParamsStructOutput;
-    Liquid: IRegistrar.VaultParamsStructOutput;
+    Locked: LocalRegistrarLib.VaultParamsStructOutput;
+    Liquid: LocalRegistrarLib.VaultParamsStructOutput;
   };
 }
 
@@ -196,7 +196,7 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setAngelProtocolParams",
-    values: [IRegistrar.AngelProtocolParamsStruct]
+    values: [LocalRegistrarLib.AngelProtocolParamsStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "setGasByToken",
@@ -204,7 +204,7 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setRebalanceParams",
-    values: [IRegistrar.RebalanceParamsStruct]
+    values: [LocalRegistrarLib.RebalanceParamsStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "setStrategyApprovalState",
@@ -319,10 +319,10 @@ export type AccountsContractStorageChangedEventFilter =
   TypedEventFilter<AccountsContractStorageChangedEvent>;
 
 export interface AngelProtocolParamsChangedEventObject {
-  newAngelProtocolParams: IRegistrar.AngelProtocolParamsStructOutput;
+  newAngelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStructOutput;
 }
 export type AngelProtocolParamsChangedEvent = TypedEvent<
-  [IRegistrar.AngelProtocolParamsStructOutput],
+  [LocalRegistrarLib.AngelProtocolParamsStructOutput],
   AngelProtocolParamsChangedEventObject
 >;
 
@@ -341,10 +341,10 @@ export type GasFeeUpdatedEvent = TypedEvent<
 export type GasFeeUpdatedEventFilter = TypedEventFilter<GasFeeUpdatedEvent>;
 
 export interface RebalanceParamsChangedEventObject {
-  newRebalanceParams: IRegistrar.RebalanceParamsStructOutput;
+  newRebalanceParams: LocalRegistrarLib.RebalanceParamsStructOutput;
 }
 export type RebalanceParamsChangedEvent = TypedEvent<
-  [IRegistrar.RebalanceParamsStructOutput],
+  [LocalRegistrarLib.RebalanceParamsStructOutput],
   RebalanceParamsChangedEventObject
 >;
 
@@ -427,7 +427,7 @@ export interface IRegistrarGoldfinch extends BaseContract {
 
     getAngelProtocolParams(
       overrides?: CallOverrides
-    ): Promise<[IRegistrar.AngelProtocolParamsStructOutput]>;
+    ): Promise<[LocalRegistrarLib.AngelProtocolParamsStructOutput]>;
 
     getGasByToken(
       _tokenAddr: PromiseOrValue<string>,
@@ -436,7 +436,7 @@ export interface IRegistrarGoldfinch extends BaseContract {
 
     getRebalanceParams(
       overrides?: CallOverrides
-    ): Promise<[IRegistrar.RebalanceParamsStructOutput]>;
+    ): Promise<[LocalRegistrarLib.RebalanceParamsStructOutput]>;
 
     getStrategyApprovalState(
       _strategyId: PromiseOrValue<BytesLike>,
@@ -446,7 +446,7 @@ export interface IRegistrarGoldfinch extends BaseContract {
     getStrategyParamsById(
       _strategyId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[IRegistrar.StrategyParamsStructOutput]>;
+    ): Promise<[LocalRegistrarLib.StrategyParamsStructOutput]>;
 
     isTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
@@ -460,7 +460,7 @@ export interface IRegistrarGoldfinch extends BaseContract {
     ): Promise<ContractTransaction>;
 
     setAngelProtocolParams(
-      _angelProtocolParams: IRegistrar.AngelProtocolParamsStruct,
+      _angelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -471,7 +471,7 @@ export interface IRegistrarGoldfinch extends BaseContract {
     ): Promise<ContractTransaction>;
 
     setRebalanceParams(
-      _rebalanceParams: IRegistrar.RebalanceParamsStruct,
+      _rebalanceParams: LocalRegistrarLib.RebalanceParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -507,7 +507,7 @@ export interface IRegistrarGoldfinch extends BaseContract {
 
   getAngelProtocolParams(
     overrides?: CallOverrides
-  ): Promise<IRegistrar.AngelProtocolParamsStructOutput>;
+  ): Promise<LocalRegistrarLib.AngelProtocolParamsStructOutput>;
 
   getGasByToken(
     _tokenAddr: PromiseOrValue<string>,
@@ -516,7 +516,7 @@ export interface IRegistrarGoldfinch extends BaseContract {
 
   getRebalanceParams(
     overrides?: CallOverrides
-  ): Promise<IRegistrar.RebalanceParamsStructOutput>;
+  ): Promise<LocalRegistrarLib.RebalanceParamsStructOutput>;
 
   getStrategyApprovalState(
     _strategyId: PromiseOrValue<BytesLike>,
@@ -526,7 +526,7 @@ export interface IRegistrarGoldfinch extends BaseContract {
   getStrategyParamsById(
     _strategyId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
-  ): Promise<IRegistrar.StrategyParamsStructOutput>;
+  ): Promise<LocalRegistrarLib.StrategyParamsStructOutput>;
 
   isTokenAccepted(
     _tokenAddr: PromiseOrValue<string>,
@@ -540,7 +540,7 @@ export interface IRegistrarGoldfinch extends BaseContract {
   ): Promise<ContractTransaction>;
 
   setAngelProtocolParams(
-    _angelProtocolParams: IRegistrar.AngelProtocolParamsStruct,
+    _angelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -551,7 +551,7 @@ export interface IRegistrarGoldfinch extends BaseContract {
   ): Promise<ContractTransaction>;
 
   setRebalanceParams(
-    _rebalanceParams: IRegistrar.RebalanceParamsStruct,
+    _rebalanceParams: LocalRegistrarLib.RebalanceParamsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -587,7 +587,7 @@ export interface IRegistrarGoldfinch extends BaseContract {
 
     getAngelProtocolParams(
       overrides?: CallOverrides
-    ): Promise<IRegistrar.AngelProtocolParamsStructOutput>;
+    ): Promise<LocalRegistrarLib.AngelProtocolParamsStructOutput>;
 
     getGasByToken(
       _tokenAddr: PromiseOrValue<string>,
@@ -596,7 +596,7 @@ export interface IRegistrarGoldfinch extends BaseContract {
 
     getRebalanceParams(
       overrides?: CallOverrides
-    ): Promise<IRegistrar.RebalanceParamsStructOutput>;
+    ): Promise<LocalRegistrarLib.RebalanceParamsStructOutput>;
 
     getStrategyApprovalState(
       _strategyId: PromiseOrValue<BytesLike>,
@@ -606,7 +606,7 @@ export interface IRegistrarGoldfinch extends BaseContract {
     getStrategyParamsById(
       _strategyId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<IRegistrar.StrategyParamsStructOutput>;
+    ): Promise<LocalRegistrarLib.StrategyParamsStructOutput>;
 
     isTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
@@ -620,7 +620,7 @@ export interface IRegistrarGoldfinch extends BaseContract {
     ): Promise<void>;
 
     setAngelProtocolParams(
-      _angelProtocolParams: IRegistrar.AngelProtocolParamsStruct,
+      _angelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -631,7 +631,7 @@ export interface IRegistrarGoldfinch extends BaseContract {
     ): Promise<void>;
 
     setRebalanceParams(
-      _rebalanceParams: IRegistrar.RebalanceParamsStruct,
+      _rebalanceParams: LocalRegistrarLib.RebalanceParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -760,7 +760,7 @@ export interface IRegistrarGoldfinch extends BaseContract {
     ): Promise<BigNumber>;
 
     setAngelProtocolParams(
-      _angelProtocolParams: IRegistrar.AngelProtocolParamsStruct,
+      _angelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -771,7 +771,7 @@ export interface IRegistrarGoldfinch extends BaseContract {
     ): Promise<BigNumber>;
 
     setRebalanceParams(
-      _rebalanceParams: IRegistrar.RebalanceParamsStruct,
+      _rebalanceParams: LocalRegistrarLib.RebalanceParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -841,7 +841,7 @@ export interface IRegistrarGoldfinch extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     setAngelProtocolParams(
-      _angelProtocolParams: IRegistrar.AngelProtocolParamsStruct,
+      _angelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -852,7 +852,7 @@ export interface IRegistrarGoldfinch extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     setRebalanceParams(
-      _rebalanceParams: IRegistrar.RebalanceParamsStruct,
+      _rebalanceParams: LocalRegistrarLib.RebalanceParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

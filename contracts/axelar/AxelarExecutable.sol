@@ -3,7 +3,7 @@
 
 pragma solidity >=0.8.8;
 
-import { IRouter } from "../interfaces/IRouter.sol";
+import { IRouter } from "../core/router/IRouter.sol";
 import { IAxelarGateway } from '@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol';
 import { IAxelarExecutable } from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarExecutable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";

@@ -429,6 +429,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ProxyContract__factory>;
     getContractFactory(
+      name: "ILocalRegistrar",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ILocalRegistrar__factory>;
+    getContractFactory(
       name: "IRegistrar",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IRegistrar__factory>;
@@ -437,6 +441,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.RegistrarEventsLib__factory>;
     getContractFactory(
+      name: "LocalRegistrar",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.LocalRegistrar__factory>;
+    getContractFactory(
       name: "Registrar",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Registrar__factory>;
@@ -444,6 +452,14 @@ declare module "hardhat/types/runtime" {
       name: "RegistrarLib",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.RegistrarLib__factory>;
+    getContractFactory(
+      name: "IRouter",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IRouter__factory>;
+    getContractFactory(
+      name: "Router",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Router__factory>;
     getContractFactory(
       name: "AngelCoreStruct",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -544,14 +560,6 @@ declare module "hardhat/types/runtime" {
       name: "DummyStakingRewards",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DummyStakingRewards__factory>;
-    getContractFactory(
-      name: "IRegistrar",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IRegistrar__factory>;
-    getContractFactory(
-      name: "IRouter",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IRouter__factory>;
     getContractFactory(
       name: "IVault",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -764,14 +772,6 @@ declare module "hardhat/types/runtime" {
       name: "NewERC20",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.NewERC20__factory>;
-    getContractFactory(
-      name: "Registrar",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Registrar__factory>;
-    getContractFactory(
-      name: "Router",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Router__factory>;
     getContractFactory(
       name: "DummyERC20",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -1310,6 +1310,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.ProxyContract>;
     getContractAt(
+      name: "ILocalRegistrar",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ILocalRegistrar>;
+    getContractAt(
       name: "IRegistrar",
       address: string,
       signer?: ethers.Signer
@@ -1320,6 +1325,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.RegistrarEventsLib>;
     getContractAt(
+      name: "LocalRegistrar",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.LocalRegistrar>;
+    getContractAt(
       name: "Registrar",
       address: string,
       signer?: ethers.Signer
@@ -1329,6 +1339,16 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.RegistrarLib>;
+    getContractAt(
+      name: "IRouter",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IRouter>;
+    getContractAt(
+      name: "Router",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Router>;
     getContractAt(
       name: "AngelCoreStruct",
       address: string,
@@ -1454,16 +1474,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.DummyStakingRewards>;
-    getContractAt(
-      name: "IRegistrar",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IRegistrar>;
-    getContractAt(
-      name: "IRouter",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IRouter>;
     getContractAt(
       name: "IVault",
       address: string,
@@ -1729,16 +1739,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.NewERC20>;
-    getContractAt(
-      name: "Registrar",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Registrar>;
-    getContractAt(
-      name: "Router",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Router>;
     getContractAt(
       name: "DummyERC20",
       address: string,
