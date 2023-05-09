@@ -1,4 +1,5 @@
 import "./upgradeAccountsCreateEndowment"
+import "./upgradeAccountsUpdateEndowmentSettingsController"
 import "./upgradeCharityApplication"
 import "./upgradeContractsUsingAccountStorage"
 import "./upgradeFacetsUsingAccountStorage"
