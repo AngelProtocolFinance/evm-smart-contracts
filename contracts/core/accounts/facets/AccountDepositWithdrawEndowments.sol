@@ -33,165 +33,165 @@ contract AccountDepositWithdrawEndowments is
     using SafeMath for uint256;
     event SwappedToken(uint256 amountOut);
 
-    /**
-     * @dev Processes liquid vault investment for an endowment account.
-     * @param curId ID of the current endowment account.
-     * @param tempEndowment Storage reference of the current endowment account.
-     * @param liquidAmount Amount of tokens to invest in liquid vaults.
-     * @param registrarContract Address of the registrar contract.
-     * @return uint256 Amount of leftover tokens after investing in liquid vaults.
-     * @return AccountStorage.Endowment Storage reference of the updated endowment account.
-     */
-    function processLiquidVault(
-        uint256 curId,
-        AccountStorage.Endowment storage tempEndowment,
-        uint256 liquidAmount,
-        address registrarContract
-    ) internal returns (uint256, AccountStorage.Endowment storage) {
-        AccountStorage.State storage state = LibAccounts.diamondStorage();
-        // string[] memory liquidStratageAddress = tempEndowment.strategies.liquid_vault;
-        // uint256[] memory tempEndowment.strategies.liquidPercentage = tempEndowment.strategies.liquidPercentage;
+    // /**
+    //  * @dev Processes liquid vault investment for an endowment account.
+    //  * @param curId ID of the current endowment account.
+    //  * @param tempEndowment Storage reference of the current endowment account.
+    //  * @param liquidAmount Amount of tokens to invest in liquid vaults.
+    //  * @param registrarContract Address of the registrar contract.
+    //  * @return uint256 Amount of leftover tokens after investing in liquid vaults.
+    //  * @return AccountStorage.Endowment Storage reference of the updated endowment account.
+    //  */
+    // function processLiquidVault(
+    //     uint256 curId,
+    //     AccountStorage.Endowment storage tempEndowment,
+    //     uint256 liquidAmount,
+    //     address registrarContract
+    // ) internal returns (uint256, AccountStorage.Endowment storage) {
+    //     AccountStorage.State storage state = LibAccounts.diamondStorage();
+    //     // string[] memory liquidStratageAddress = tempEndowment.strategies.liquid_vault;
+    //     // uint256[] memory tempEndowment.strategies.liquidPercentage = tempEndowment.strategies.liquidPercentage;
 
-        AngelCoreStruct.accountStratagyLiquidCheck(
-            tempEndowment.strategies,
-            tempEndowment.oneoffVaults
-        );
+    //     AngelCoreStruct.accountStratagyLiquidCheck(
+    //         tempEndowment.strategies,
+    //         tempEndowment.oneoffVaults
+    //     );
 
-        uint256 leftoversLiquid = liquidAmount;
+    //     uint256 leftoversLiquid = liquidAmount;
 
-        for (
-            uint256 i = 0;
-            i < tempEndowment.strategies.liquidPercentage.length;
-            i++
-        ) {
-            if (
-                liquidAmount.mul(tempEndowment.strategies.liquidPercentage[i]) <
-                100
-            ) {
-                continue;
-            }
-            leftoversLiquid -= liquidAmount
-                .mul(tempEndowment.strategies.liquidPercentage[i])
-                .div(100);
+    //     for (
+    //         uint256 i = 0;
+    //         i < tempEndowment.strategies.liquidPercentage.length;
+    //         i++
+    //     ) {
+    //         if (
+    //             liquidAmount.mul(tempEndowment.strategies.liquidPercentage[i]) <
+    //             100
+    //         ) {
+    //             continue;
+    //         }
+    //         leftoversLiquid -= liquidAmount
+    //             .mul(tempEndowment.strategies.liquidPercentage[i])
+    //             .div(100);
 
-            AngelCoreStruct.YieldVault memory vault_config = IRegistrar(
-                registrarContract
-            ).queryVaultDetails(tempEndowment.strategies.liquid_vault[i]);
+    //         AngelCoreStruct.YieldVault memory vault_config = IRegistrar(
+    //             registrarContract
+    //         ).queryVaultDetails(tempEndowment.strategies.liquid_vault[i]);
 
-            require(
-                vault_config.approved,
-                "Vault is not approved to accept deposits"
-            );
+    //         require(
+    //             vault_config.approved,
+    //             "Vault is not approved to accept deposits"
+    //         );
 
-            uint32[] memory curIds = new uint32[](1);
-            curIds[0] = uint32(curId);
+    //         uint32[] memory curIds = new uint32[](1);
+    //         curIds[0] = uint32(curId);
 
-            uint256 tempAmount = liquidAmount
-                .mul(tempEndowment.strategies.liquidPercentage[i])
-                .div(100);
+    //         uint256 tempAmount = liquidAmount
+    //             .mul(tempEndowment.strategies.liquidPercentage[i])
+    //             .div(100);
 
-            //Updating balance of vault
-            state.vaultBalance[curId][AngelCoreStruct.AccountType.Liquid][
-                vault_config.addr
-            ] += tempAmount;
-            state.stratagyId[bytes4(keccak256(bytes(vault_config.addr)))] = vault_config.addr;
-            IAxelarGateway.VaultActionData memory payloadObject = IAxelarGateway
-                .VaultActionData({
-                    strategyId: bytes4(keccak256(bytes(vault_config.addr))),
-                    selector: IVault.deposit.selector,
-                    accountIds: curIds,
-                    token: vault_config.inputDenom,
-                    lockAmt: 0,
-                    liqAmt: tempAmount
-                });
-            executeCallsWithToken(
-                payloadObject,
-                registrarContract,
-                tempAmount,
-                vault_config.network
-            );
-        }
-        emit UpdateEndowment(curId, tempEndowment);
-        return (leftoversLiquid, tempEndowment);
-    }
+    //         //Updating balance of vault
+    //         state.vaultBalance[curId][AngelCoreStruct.AccountType.Liquid][
+    //             vault_config.addr
+    //         ] += tempAmount;
+    //         state.stratagyId[bytes4(keccak256(bytes(vault_config.addr)))] = vault_config.addr;
+    //         IAxelarGateway.VaultActionData memory payloadObject = IAxelarGateway
+    //             .VaultActionData({
+    //                 strategyId: bytes4(keccak256(bytes(vault_config.addr))),
+    //                 selector: IVault.deposit.selector,
+    //                 accountIds: curIds,
+    //                 token: vault_config.inputDenom,
+    //                 lockAmt: 0,
+    //                 liqAmt: tempAmount
+    //             });
+    //         executeCallsWithToken(
+    //             payloadObject,
+    //             registrarContract,
+    //             tempAmount,
+    //             vault_config.network
+    //         );
+    //     }
+    //     emit UpdateEndowment(curId, tempEndowment);
+    //     return (leftoversLiquid, tempEndowment);
+    // }
 
-    /**
-     * @dev Processes locked vault investment for an endowment account.
-     * @param curId ID of the current endowment account.
-     * @param tempEndowment Storage reference of the current endowment account.
-     * @param lockedAmount Amount of tokens to invest in locked vaults.
-     * @param registrarContract Address of the registrar contract.
-     * @return uint256 Amount of leftover tokens after investing in locked vaults.
-     * @return AccountStorage.Endowment Storage reference of the updated endowment account.
-     */
-    function processLockedVault(
-        uint256 curId,
-        AccountStorage.Endowment storage tempEndowment,
-        uint256 lockedAmount,
-        address registrarContract
-    ) internal returns (uint256, AccountStorage.Endowment storage) {
-        AccountStorage.State storage state = LibAccounts.diamondStorage();
+    // /**
+    //  * @dev Processes locked vault investment for an endowment account.
+    //  * @param curId ID of the current endowment account.
+    //  * @param tempEndowment Storage reference of the current endowment account.
+    //  * @param lockedAmount Amount of tokens to invest in locked vaults.
+    //  * @param registrarContract Address of the registrar contract.
+    //  * @return uint256 Amount of leftover tokens after investing in locked vaults.
+    //  * @return AccountStorage.Endowment Storage reference of the updated endowment account.
+    //  */
+    // function processLockedVault(
+    //     uint256 curId,
+    //     AccountStorage.Endowment storage tempEndowment,
+    //     uint256 lockedAmount,
+    //     address registrarContract
+    // ) internal returns (uint256, AccountStorage.Endowment storage) {
+    //     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
-        AngelCoreStruct.accountStratagyLockedCheck(
-            tempEndowment.strategies,
-            tempEndowment.oneoffVaults
-        );
+    //     AngelCoreStruct.accountStratagyLockedCheck(
+    //         tempEndowment.strategies,
+    //         tempEndowment.oneoffVaults
+    //     );
 
-        uint256 leftoversLocked = lockedAmount;
+    //     uint256 leftoversLocked = lockedAmount;
 
-        for (
-            uint256 i = 0;
-            i < tempEndowment.strategies.lockedPercentage.length;
-            i++
-        ) {
-            if (
-                lockedAmount.mul(tempEndowment.strategies.lockedPercentage[i]) <
-                100
-            ) {
-                continue;
-            }
-            leftoversLocked -= lockedAmount
-                .mul(tempEndowment.strategies.lockedPercentage[i])
-                .div(100);
+    //     for (
+    //         uint256 i = 0;
+    //         i < tempEndowment.strategies.lockedPercentage.length;
+    //         i++
+    //     ) {
+    //         if (
+    //             lockedAmount.mul(tempEndowment.strategies.lockedPercentage[i]) <
+    //             100
+    //         ) {
+    //             continue;
+    //         }
+    //         leftoversLocked -= lockedAmount
+    //             .mul(tempEndowment.strategies.lockedPercentage[i])
+    //             .div(100);
 
-            AngelCoreStruct.YieldVault memory vault_config = IRegistrar(
-                registrarContract
-            ).queryVaultDetails(tempEndowment.strategies.locked_vault[i]);
+    //         AngelCoreStruct.YieldVault memory vault_config = IRegistrar(
+    //             registrarContract
+    //         ).queryVaultDetails(tempEndowment.strategies.locked_vault[i]);
 
-            require(
-                vault_config.approved,
-                "Vault is not approved to accept deposits"
-            );
+    //         require(
+    //             vault_config.approved,
+    //             "Vault is not approved to accept deposits"
+    //         );
 
-            uint32[] memory curIds = new uint32[](1);
-            curIds[0] = uint32(curId);
-            uint256 tempAmount = lockedAmount
-                .mul(tempEndowment.strategies.lockedPercentage[i])
-                .div(100);
-            //Updating balance of vault
-            state.vaultBalance[curId][AngelCoreStruct.AccountType.Locked][
-                vault_config.addr
-            ] += tempAmount;
-            state.stratagyId[bytes4(keccak256(bytes(vault_config.addr)))] = vault_config.addr;
-            IRouter.VaultActionData memory payloadObject = IRouter
-                .VaultActionData({
-                    strategyId: bytes4(keccak256(bytes(vault_config.addr))),
-                    selector: IVault.deposit.selector,
-                    accountIds: curIds,
-                    token: vault_config.inputDenom,
-                    lockAmt: tempAmount,
-                    liqAmt: 0
-                });
-            executeCallsWithToken(
-                payloadObject,
-                registrarContract,
-                tempAmount,
-                vault_config.network
-            );
-        }
-        emit UpdateEndowment(curId, tempEndowment);
-        return (leftoversLocked, tempEndowment);
-    }
+    //         uint32[] memory curIds = new uint32[](1);
+    //         curIds[0] = uint32(curId);
+    //         uint256 tempAmount = lockedAmount
+    //             .mul(tempEndowment.strategies.lockedPercentage[i])
+    //             .div(100);
+    //         //Updating balance of vault
+    //         state.vaultBalance[curId][AngelCoreStruct.AccountType.Locked][
+    //             vault_config.addr
+    //         ] += tempAmount;
+    //         state.stratagyId[bytes4(keccak256(bytes(vault_config.addr)))] = vault_config.addr;
+    //         IRouter.VaultActionData memory payloadObject = IRouter
+    //             .VaultActionData({
+    //                 strategyId: bytes4(keccak256(bytes(vault_config.addr))),
+    //                 selector: IVault.deposit.selector,
+    //                 accountIds: curIds,
+    //                 token: vault_config.inputDenom,
+    //                 lockAmt: tempAmount,
+    //                 liqAmt: 0
+    //             });
+    //         executeCallsWithToken(
+    //             payloadObject,
+    //             registrarContract,
+    //             tempAmount,
+    //             vault_config.network
+    //         );
+    //     }
+    //     emit UpdateEndowment(curId, tempEndowment);
+    //     return (leftoversLocked, tempEndowment);
+    // }
 
     /**
      * @notice Deposit ETH into the account (later swaps into USDC and then deposits into the account)
@@ -235,28 +235,31 @@ contract AccountDepositWithdrawEndowments is
                 .isTokenAccepted(curTokenaddress), 
             "Invalid Token");
 
-        bool curSuccess = IERC20(curTokenaddress).transferFrom(
+        RegistrarStorage.Config memory registrar_config = 
+            IRegistrar(state.config.registrarContract)
+            .queryConfig();
+
+        require(IERC20(curTokenaddress).transferFrom(
             msg.sender,
             address(this),
-            curAmount
-        );
-        require(curSuccess, "Transfer failed");
-        curSuccess = IERC20(curTokenaddress).approve(
+            curAmount),
+        "Transfer failed"); 
+
+        require(IERC20(curTokenaddress).approve(
             registrar_config.swapsRouter,
-            curAmount
-        );
-        require(curSuccess, "Approval failed");
+            curAmount),
+            "Approval failed");
 
         if (curTokenaddress == registrar_config.usdcAddress) {
             processToken(curDetails, curTokenaddress, curAmount);
             return;
-        } else {
+        } 
+        else {
             uint256 usdcAmount = ISwappingV3(registrar_config.swapsRouter)
                 .swapTokenToUsdc(curTokenaddress, curAmount);
 
             processToken(curDetails, registrar_config.usdcAddress, usdcAmount);
             emit SwappedToken(usdcAmount);
-            return;
         }
     }
 
@@ -297,9 +300,9 @@ contract AccountDepositWithdrawEndowments is
             tempEndowment.depositFee.feePercentage != 0 &&
             tempEndowment.depositFee.payoutAddress != address(0)
         ) {
-            uint256 depositFeeAmount = (
-                curAmount.mul(tempEndowment.depositFee.feePercentage)
-            ).div(100);
+            uint256 depositFeeAmount = (curAmount
+                .mul(tempEndowment.depositFee.feePercentage))
+                .div(AngelCoreStruct.FEE_BASIS);
             curAmount = curAmount.sub(depositFeeAmount);
 
             require(
@@ -307,19 +310,19 @@ contract AccountDepositWithdrawEndowments is
                     tempEndowment.depositFee.payoutAddress,
                     depositFeeAmount
                 ),
-                "Insufficient Funds"
+                "Transfer Failed"
             );
         }
 
-        uint256 lockedSplit = curDetails.lockedPercentage;
-        uint256 liquidSplit = curDetails.liquidPercentage;
+        uint256 lockedSplitPercent = curDetails.lockedPercentage;
+        uint256 liquidSplitPercent = curDetails.liquidPercentage;
 
-        AngelCoreStruct.SplitDetails
-            memory registrar_split_configs = registrar_config.splitToLiquid;
+        AngelCoreStruct.SplitDetails memory registrar_split_configs = 
+            registrar_config.splitToLiquid;
 
         require(
             registrar_config.indexFundContract != address(0),
-            "ContractNotConfigured"
+            "No Index Fund"
         );
 
         if (msg.sender != registrar_config.indexFundContract) {
@@ -329,24 +332,26 @@ contract AccountDepositWithdrawEndowments is
                 (tempEndowment.splitToLiquid.min == 0 &&
                     tempEndowment.splitToLiquid.max == 0)
             ) {
-                (lockedSplit, liquidSplit) = AngelCoreStruct.checkSplits(
+                (lockedSplitPercent, liquidSplitPercent) = AngelCoreStruct.checkSplits(
                     registrar_split_configs,
-                    lockedSplit,
-                    liquidSplit,
+                    lockedSplitPercent,
+                    liquidSplitPercent,
                     tempEndowment.ignoreUserSplits
                 );
             } else {
-                (lockedSplit, liquidSplit) = AngelCoreStruct.checkSplits(
+                (lockedSplitPercent, liquidSplitPercent) = AngelCoreStruct.checkSplits(
                     tempEndowment.splitToLiquid,
-                    lockedSplit,
-                    liquidSplit,
+                    lockedSplitPercent,
+                    liquidSplitPercent,
                     tempEndowment.ignoreUserSplits
                 );
             }
         }
 
-        uint256 lockedAmount = (curAmount.mul(lockedSplit)).div(100);
-        uint256 liquidAmount = (curAmount.mul(liquidSplit)).div(100);
+        uint256 lockedAmount = (curAmount.mul(lockedSplitPercent))
+                                .div(AngelCoreStruct.PERCENT_BASIS);
+        uint256 liquidAmount = (curAmount.mul(liquidSplitPercent))
+                                .div(AngelCoreStruct.PERCENT_BASIS);
 
         state.STATES[curDetails.id].donationsReceived.locked += lockedAmount;
         state.STATES[curDetails.id].donationsReceived.liquid += liquidAmount;
@@ -403,15 +408,15 @@ contract AccountDepositWithdrawEndowments is
      * @param curId The endowment id
      * @param acctType The account type to withdraw from
      * @param curBeneficiary The address to send the funds to
-     * @param curTokenaddress The token address to withdraw
+     * @param curTokenAddress The token address to withdraw
      * @param curAmount The amount to withdraw
      */
     function withdraw(
         uint256 curId,
         AngelCoreStruct.AccountType acctType,
         address curBeneficiary,
-        address[] memory curTokenaddress,
-        uint256[] memory curAmount
+        address curTokenAddress,
+        uint256 curAmount
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
 
@@ -419,8 +424,8 @@ contract AccountDepositWithdrawEndowments is
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             curId
         ];
-        AccountStorage.EndowmentState memory tempState = state.STATES[curId];
 
+        require(curAmount > 0, "InvalidZeroAmount");
         require(
             tempEndowment.withdrawApproved,
             "Withdraws are not approved for this endowment"
@@ -513,77 +518,66 @@ contract AccountDepositWithdrawEndowments is
 
         AngelCoreStruct.GenericBalance memory state_bal;
 
+        uint256 current_bal;
         if (acctType == AngelCoreStruct.AccountType.Locked) {
-            state_bal = tempState.balances.locked;
+            current_bal = state.STATES[curId].balances.locked.balancesByToken[curTokenAddress];
         } else {
-            state_bal = tempState.balances.liquid;
+            current_bal = state.STATES[curId].balances.liquid.balancesByToken[curTokenAddress];
         }
 
-        for (uint8 i = 0; i < curTokenaddress.length; i++) {
-            // ensure more than zero tokens requested
-            require(curAmount[i] > 0, "InvalidZeroAmount");
-    
-            for (uint8 j = 0; j < state_bal.Cw20CoinVerified_addr.length; j++) {
-                if (curTokenaddress[i] == state_bal.Cw20CoinVerified_addr[j]) {
-                    uint256 balance = state_bal.Cw20CoinVerified_amount[j];
-    
-                    // ensure balance of tokens can cover the requested withdraw amount
-                    require(balance > curAmount[i], "InsufficientFunds");
-                    
-                    // calculate AP Protocol fee owed on withdrawn token amount
-                    uint256 withdrawFeeAp = (curAmount[i].mul(withdrawFeeRateAp)).div(100);
-                    // transfer AP Protocol fee to treasury
-                    require(
-                        IERC20(curTokenaddress[i]).transfer(
-                            registrar_config.treasury,
-                            withdrawFeeAp
-                        ),
-                        "Transfer failed"
-                    );
+        // ensure balance of tokens can cover the requested withdraw amount
+        require(current_bal > curAmount, "InsufficientFunds");
+        
+        // calculate AP Protocol fee owed on withdrawn token amount
+        uint256 withdrawFeeAp = (curAmount.mul(withdrawFeeRateAp))
+                                .div(AngelCoreStruct.FEE_BASIS);
 
-                    // calculate Endowment specific withdraw fee if needed
-                    uint256 withdrawFeeEndow = 0;
-                    if (
-                        tempEndowment.withdrawFee.active &&
-                        tempEndowment.withdrawFee.feePercentage != 0 &&
-                        tempEndowment.withdrawFee.payoutAddress != address(0)
-                    ) {
-                        withdrawFeeEndow = (
-                            curAmount[i].mul(tempEndowment.withdrawFee.feePercentage)
-                        ).div(100);
+        // transfer AP Protocol fee to treasury
+        require(
+            IERC20(curTokenAddress).transfer(
+                registrar_config.treasury,
+                withdrawFeeAp
+            ),
+            "Transfer failed"
+        );
 
-                        // transfer endowment withdraw fee to beneficiary address
-                        require(
-                            IERC20(curTokenaddress[i]).transfer(
-                                tempEndowment.withdrawFee.payoutAddress,
-                                withdrawFeeEndow
-                            ),
-                            "Insufficient Funds"
-                        );
-                    }
+        // calculate Endowment specific withdraw fee if needed
+        uint256 withdrawFeeEndow = 0;
+        if (
+            tempEndowment.withdrawFee.active &&
+            tempEndowment.withdrawFee.feePercentage != 0 &&
+            tempEndowment.withdrawFee.payoutAddress != address(0)
+        ) {
+            withdrawFeeEndow = (curAmount.mul(tempEndowment.withdrawFee.feePercentage))
+                                .div(AngelCoreStruct.PERCENT_BASIS);
 
-                    // send all tokens (less fees) to the ultimate beneficiary address
-                    require(
-                        IERC20(curTokenaddress[i]).transfer(
-                            curBeneficiary,
-                            (curAmount[i] - withdrawFeeAp - withdrawFeeEndow)
-                        ),
-                        "Transfer failed"
-                    );
-
-                    // reduce the temp state's balance by withdrawn token amount
-                    if (acctType == AngelCoreStruct.AccountType.Locked) {
-                        tempState.balances.locked.Cw20CoinVerified_amount[j] -= curAmount[i];
-                    } else {
-                        tempState.balances.liquid.Cw20CoinVerified_amount[j] -= curAmount[i];
-                    }
-                }
-            }
+            // transfer endowment withdraw fee to beneficiary address
+            require(
+                IERC20(curTokenAddress).transfer(
+                    tempEndowment.withdrawFee.payoutAddress,
+                    withdrawFeeEndow
+                ),
+                "Insufficient Funds"
+            );
         }
 
-        // update contract state with final temp state
-        state.STATES[curId] = tempState;
-        emit UpdateEndowmentState(curId, tempState);
+        // send all tokens (less fees) to the ultimate beneficiary address
+        require(
+            IERC20(curTokenAddress).transfer(
+                curBeneficiary,
+                (curAmount - withdrawFeeAp - withdrawFeeEndow)
+            ),
+            "Transfer failed"
+        );
+
+        // reduce the orgs balance by the withdrawn token amount
+        if (acctType == AngelCoreStruct.AccountType.Locked) {
+            state.STATES[curId].balances.locked.balancesByToken[curTokenAddress] -= curAmount;
+        } else {
+            state.STATES[curId].balances.liquid.balancesByToken[curTokenAddress] -= curAmount;
+        }
+        
+        emit UpdateEndowmentState(curId, state.STATES[curId]);
     }
 
     /**

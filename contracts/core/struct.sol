@@ -219,103 +219,88 @@ library AngelCoreStruct {
 
     struct GenericBalance {
         uint256 coinNativeAmount;
-        uint256[] Cw20CoinVerified_amount;
-        address[] Cw20CoinVerified_addr;
+        mapping(address => uint256) balancesByToken;
     }
 
     function addToken(
         GenericBalance storage curTemp,
-        address curTokenaddress,
+        address curTokenAddress,
         uint256 curAmount
     ) public {
-        bool notFound = true;
-        for (uint8 i = 0; i < curTemp.Cw20CoinVerified_addr.length; i++) {
-            if (curTemp.Cw20CoinVerified_addr[i] == curTokenaddress) {
-                notFound = false;
-                curTemp.Cw20CoinVerified_amount[i] += curAmount;
-            }
-        }
-        if (notFound) {
-            curTemp.Cw20CoinVerified_addr.push(curTokenaddress);
-            curTemp.Cw20CoinVerified_amount.push(curAmount);
-        }
+        curTemp.balancesByToken[curTokenAddress] += curAmount;
     }
 
-    function addTokenMem(
-        GenericBalance memory curTemp,
-        address curTokenaddress,
-        uint256 curAmount
-    ) public pure returns (GenericBalance memory) {
-        bool notFound = true;
-        for (uint8 i = 0; i < curTemp.Cw20CoinVerified_addr.length; i++) {
-            if (curTemp.Cw20CoinVerified_addr[i] == curTokenaddress) {
-                notFound = false;
-                curTemp.Cw20CoinVerified_amount[i] += curAmount;
-            }
-        }
-        if (notFound) {
-            GenericBalance memory new_temp = GenericBalance({
-                coinNativeAmount: curTemp.coinNativeAmount,
-                Cw20CoinVerified_amount: new uint256[](
-                    curTemp.Cw20CoinVerified_amount.length + 1
-                ),
-                Cw20CoinVerified_addr: new address[](
-                    curTemp.Cw20CoinVerified_addr.length + 1
-                )
-            });
-            for (uint256 i = 0; i < curTemp.Cw20CoinVerified_addr.length; i++) {
-                new_temp.Cw20CoinVerified_addr[i] = curTemp
-                    .Cw20CoinVerified_addr[i];
-                new_temp.Cw20CoinVerified_amount[i] = curTemp
-                    .Cw20CoinVerified_amount[i];
-            }
-            new_temp.Cw20CoinVerified_addr[
-                curTemp.Cw20CoinVerified_addr.length
-            ] = curTokenaddress;
-            new_temp.Cw20CoinVerified_amount[
-                curTemp.Cw20CoinVerified_amount.length
-            ] = curAmount;
-            return new_temp;
-        } else return curTemp;
-    }
+    // function addTokenMem(
+    //     GenericBalance memory curTemp,
+    //     address curTokenaddress,
+    //     uint256 curAmount
+    // ) public pure returns (GenericBalance memory) {
+    //     bool notFound = true;
+    //     for (uint8 i = 0; i < curTemp.Cw20CoinVerified_addr.length; i++) {
+    //         if (curTemp.Cw20CoinVerified_addr[i] == curTokenaddress) {
+    //             notFound = false;
+    //             curTemp.Cw20CoinVerified_amount[i] += curAmount;
+    //         }
+    //     }
+    //     if (notFound) {
+    //         GenericBalance memory new_temp = GenericBalance({
+    //             coinNativeAmount: curTemp.coinNativeAmount,
+    //             Cw20CoinVerified_amount: new uint256[](
+    //                 curTemp.Cw20CoinVerified_amount.length + 1
+    //             ),
+    //             Cw20CoinVerified_addr: new address[](
+    //                 curTemp.Cw20CoinVerified_addr.length + 1
+    //             )
+    //         });
+    //         for (uint256 i = 0; i < curTemp.Cw20CoinVerified_addr.length; i++) {
+    //             new_temp.Cw20CoinVerified_addr[i] = curTemp
+    //                 .Cw20CoinVerified_addr[i];
+    //             new_temp.Cw20CoinVerified_amount[i] = curTemp
+    //                 .Cw20CoinVerified_amount[i];
+    //         }
+    //         new_temp.Cw20CoinVerified_addr[
+    //             curTemp.Cw20CoinVerified_addr.length
+    //         ] = curTokenaddress;
+    //         new_temp.Cw20CoinVerified_amount[
+    //             curTemp.Cw20CoinVerified_amount.length
+    //         ] = curAmount;
+    //         return new_temp;
+    //     } else return curTemp;
+    // }
 
     function subToken(
         GenericBalance storage curTemp,
-        address curTokenaddress,
+        address curTokenAddress,
         uint256 curAmount
     ) public {
-        for (uint8 i = 0; i < curTemp.Cw20CoinVerified_addr.length; i++) {
-            if (curTemp.Cw20CoinVerified_addr[i] == curTokenaddress) {
-                curTemp.Cw20CoinVerified_amount[i] -= curAmount;
-            }
-        }
+        curTemp.balancesByToken[curTokenAddress] -= curAmount;
     }
 
-    function subTokenMem(
-        GenericBalance memory curTemp,
-        address curTokenaddress,
-        uint256 curAmount
-    ) public pure returns (GenericBalance memory) {
-        for (uint8 i = 0; i < curTemp.Cw20CoinVerified_addr.length; i++) {
-            if (curTemp.Cw20CoinVerified_addr[i] == curTokenaddress) {
-                curTemp.Cw20CoinVerified_amount[i] -= curAmount;
-            }
-        }
-        return curTemp;
-    }
+    // function subTokenMem(
+    //     GenericBalance memory curTemp,
+    //     address curTokenaddress,
+    //     uint256 curAmount
+    // ) public pure returns (GenericBalance memory) {
+    //     for (uint8 i = 0; i < curTemp.Cw20CoinVerified_addr.length; i++) {
+    //         if (curTemp.Cw20CoinVerified_addr[i] == curTokenaddress) {
+    //             curTemp.Cw20CoinVerified_amount[i] -= curAmount;
+    //         }
+    //     }
+    //     return curTemp;
+    // }
 
-    function splitBalance(
-        uint256[] storage cw20Coin,
-        uint256 splitFactor
-    ) public view returns (uint256[] memory) {
-        uint256[] memory curTemp = new uint256[](cw20Coin.length);
-        for (uint8 i = 0; i < cw20Coin.length; i++) {
-            uint256 result = SafeMath.div(cw20Coin[i], splitFactor);
-            curTemp[i] = result;
-        }
+    // function splitBalance(
+    //     uint256[] storage cw20Coin,
+    //     uint256 splitFactor
+    // ) public view returns (uint256[] memory) {
+    //     uint256[] memory curTemp = new uint256[](cw20Coin.length);
+    //     for (uint8 i = 0; i < cw20Coin.length; i++) {
+    //         uint256 result = SafeMath.div(cw20Coin[i], splitFactor);
+    //         curTemp[i] = result;
+    //     }
 
-        return curTemp;
-    }
+    //     return curTemp;
+    // }
 
     function receiveGenericBalance(
         address[] storage curReceiveaddr,
@@ -404,14 +389,14 @@ library AngelCoreStruct {
         string website;
     }
 
-    function genericBalanceDefault()
-        public
-        pure
-        returns (GenericBalance memory)
-    {
-        GenericBalance memory empty;
-        return empty;
-    }
+    // function genericBalanceDefault()
+    //     public
+    //     pure
+    //     returns (GenericBalance memory)
+    // {
+    //     GenericBalance memory empty;
+    //     return empty;
+    // }
 
     struct BalanceInfo {
         GenericBalance locked;
@@ -729,6 +714,9 @@ library AngelCoreStruct {
         uint256 feePercentage;
         bool active;
     }
+
+    uint256 constant FEE_BASIS = 1000;      // gives 0.1% precision for fees
+    uint256 constant PERCENT_BASIS = 100;   // gives 1% precision for declared percentages
 
     struct SettingsPermission {
         Delegate delegate;

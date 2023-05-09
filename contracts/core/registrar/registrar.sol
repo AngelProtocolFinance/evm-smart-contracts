@@ -378,20 +378,32 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
         return state.config;
     }
     
-    // function updateFees(
-    //     RegistrarMessages.UpdateFeeRequest memory curDetails
-    // ) public nonReentrant onlyOwner {
-    //     require(
-    //         curDetails.keys.length == curDetails.values.length,
-    //         "Invalid input"
-    //     );
+    function updateFees(
+        RegistrarMessages.UpdateFeeRequest memory curDetails
+    ) public nonReentrant onlyOwner {
+        require(
+            curDetails.keys.length == curDetails.values.length,
+            "Invalid input"
+        );
 
-    //     for (uint256 i = 0; i < curDetails.keys.length; i++) {
-    //         require(curDetails.values[i] < 100, "invalid percentage value");
-    //         state.FEES[curDetails.keys[i]] = curDetails.values[i];
-    //     }
-    //     emit UpdateRegistrarFees(curDetails);
-    // }
+        for (uint256 i = 0; i < curDetails.keys.length; i++) {
+            require(curDetails.values[i] < AngelCoreStruct.FEE_BASIS, "invalid fee value");
+            state.FEES[curDetails.keys[i]] = curDetails.values[i];
+        }
+        emit UpdateRegistrarFees(curDetails);
+    }
+    
+    /**
+     * @dev Query the fee in registrar
+     * @param name The name of the fee to query
+     * @return response The fee
+     */
+    function queryFee(
+        string memory name
+    ) public view returns (uint256 response) {
+        response = state.FEES[name];
+    }
+
 
     // /**
     //  * @dev Add a new vault to the registrar
@@ -601,17 +613,6 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     //     string memory _stratagyName
     // ) public view returns (AngelCoreStruct.YieldVault memory response) {
     //     response = state.VAULTS[_stratagyName];
-    // }
-
-    // /**
-    //  * @dev Query the fee in registrar
-    //  * @param name The name of the fee to query
-    //  * @return response The fee
-    //  */
-    // function queryFee(
-    //     string memory name
-    // ) public view returns (uint256 response) {
-    //     response = state.FEES[name];
     // }
 
     // returns true if the vault satisfies the given conditions

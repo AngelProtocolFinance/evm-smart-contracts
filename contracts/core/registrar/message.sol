@@ -68,7 +68,6 @@ library RegistrarMessages {
 
     struct UpdateFeeRequest {
         string[] keys;
-        // TODO Change to decimal
         uint256[] values;
     }
 
