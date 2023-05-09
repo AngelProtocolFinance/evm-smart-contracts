@@ -11,7 +11,7 @@ export async function deployDiamond(
     ANGEL_CORE_STRUCT: string,
     STRING_LIBRARY: string,
     hre: HardhatRuntimeEnvironment,
-    shouldVerify = false
+    verify_contracts = false
 ) {
     try {
         const [_deployer, diamondAdmin] = await hre.ethers.getSigners()
@@ -25,7 +25,7 @@ export async function deployDiamond(
 
         await updateDiamond(diamondAddress, diamondAdmin, owner, registrar, cuts, hre)
 
-        if (shouldVerify) {
+        if (verify_contracts) {
             await verify(diamondAddress, diamondCutAddress, cuts, diamondAdmin, hre)
         }
 

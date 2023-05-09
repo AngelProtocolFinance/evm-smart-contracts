@@ -8,7 +8,7 @@ task("Deploy:deployAccountDiamond", "It will deploy account diamond contracts")
     .addParam("stringlib", "string lib address")
     .setAction(async (taskArgs, hre) => {
         try {
-            const verify = hre.network.name !== "hardhat" && hre.network.name !== "localhost"
+            const verify_contracts = hre.network.name !== "hardhat" && hre.network.name !== "localhost"
 
             await deployDiamond(
                 taskArgs.apteammultisig,
@@ -16,7 +16,7 @@ task("Deploy:deployAccountDiamond", "It will deploy account diamond contracts")
                 taskArgs.corestruct,
                 taskArgs.stringlib,
                 hre,
-                verify
+                verify_contracts
             )
         } catch (error) {
             console.log(error)
