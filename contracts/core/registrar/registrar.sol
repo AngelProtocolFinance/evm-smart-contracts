@@ -172,7 +172,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
             gasReceiver: curDetails.axelarGasRecv,
             gasLimit: 0,
             router: curDetails.router,
-            axelerGateway: curDetails.axelerGateway
+            axelarGateway: curDetails.axelarGateway
         });
         emit PostNetworkConnection(
             block.chainid,

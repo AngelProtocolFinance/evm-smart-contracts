@@ -9,7 +9,8 @@ abstract contract IVault {
     /// principle balance
     enum VaultType {
         LOCKED,
-        LIQUID
+        LIQUID,
+        NONE
     }
 
     /// @notice Event emited on each Deposit call

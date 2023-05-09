@@ -219,10 +219,8 @@ library AngelCoreStruct {
 
     struct GenericBalance {
         uint256 coinNativeAmount;
-        // Coin[] native;
         uint256[] Cw20CoinVerified_amount;
         address[] Cw20CoinVerified_addr;
-        // Cw20CoinVerified[] cw20;
     }
 
     function addToken(
@@ -539,7 +537,7 @@ library AngelCoreStruct {
         string name;
         uint256 chainId;
         address router; //SHARED
-        address axelerGateway;
+        address axelarGateway;
         string ibcChannel; // Should be removed
         string transferChannel;
         address gasReceiver; // Should be removed

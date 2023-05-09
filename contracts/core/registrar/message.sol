@@ -11,7 +11,7 @@ library RegistrarMessages {
         AngelCoreStruct.SplitDetails splitToLiquid;
         // AngelCoreStruct.AcceptedTokens acceptedTokens;
         address router;
-        address axelerGateway;
+        address axelarGateway;
         address axelarGasRecv;
     }
 

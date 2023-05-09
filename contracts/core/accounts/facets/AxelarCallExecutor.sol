@@ -75,7 +75,7 @@ contract AxelarExecutionContract is ReentrancyGuardFacet, AccountsEvents {
             state.config.registrarContract
         ).queryNetworkConnection(block.chainid);
 
-        address gateway = networkInfo.axelerGateway;
+        address gateway = networkInfo.axelarGateway;
 
         bytes32 payloadHash = keccak256(payload);
         if (

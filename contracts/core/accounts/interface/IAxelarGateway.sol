@@ -87,15 +87,6 @@ interface IAxelarGateway {
 
     event Upgraded(address indexed implementation);
 
-    struct VaultActionData {
-        bytes4 strategyId;
-        bytes4 selector;
-        uint32[] accountIds;
-        address token;
-        uint256 lockAmt;
-        uint256 liqAmt;
-    }
-
     /********************\
     |* Public Functions *|
     \********************/

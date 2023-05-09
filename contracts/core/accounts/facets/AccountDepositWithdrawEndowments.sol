@@ -8,6 +8,7 @@ import {AccountMessages} from "../message.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interface/IRegistrar.sol";
+import {IRouter} from "../../router/IRouter.sol";
 import {IAxelarGateway} from "./../interface/IAxelarGateway.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -173,7 +174,7 @@ contract AccountDepositWithdrawEndowments is
                 vault_config.addr
             ] += tempAmount;
             state.stratagyId[bytes4(keccak256(bytes(vault_config.addr)))] = vault_config.addr;
-            IAxelarGateway.VaultActionData memory payloadObject = IAxelarGateway
+            IRouter.VaultActionData memory payloadObject = IRouter
                 .VaultActionData({
                     strategyId: bytes4(keccak256(bytes(vault_config.addr))),
                     selector: IVault.deposit.selector,
@@ -594,7 +595,7 @@ contract AccountDepositWithdrawEndowments is
      * @param network The network you want to transfer token
      */
     function executeCallsWithToken(
-        IAxelarGateway.VaultActionData memory payloadObject,
+        IRouter.VaultActionData memory payloadObject,
         address registrarContract,
         uint256 amount,
         uint256 network

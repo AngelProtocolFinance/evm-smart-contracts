@@ -29,108 +29,68 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
      * @notice This function that allows users to invest in a yield vault using tokens from their locked or liquid account in an endowment.
      * @dev Allows the owner of an endowment to invest tokens into specified yield vaults.
      * @param curId The endowment id
-     * @param curAccountType The account type
-     * @param curVaults The vaults to withdraw from
+     * @param curStrategies The strategies to invest into
      * @param curTokens The tokens to withdraw
      * @param curAmount The amount to withdraw
      */
-    function vaultsInvest(
+    function strategyInvest(
         uint32 curId,
-        AngelCoreStruct.AccountType curAccountType,
-        string[] memory curVaults,
-        address[] memory curTokens,
-        uint256[] memory curAmount
+        bytes4 curStrategy,
+        string curToken,
+        uint256 curLockAmt,
+        uint256 curLiquidAmt
     ) public payable nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             curId
         ];
-
-        AngelCoreStruct.GenericBalance memory current_bal;
-
-        if (curAccountType == AngelCoreStruct.AccountType.Locked) {
-            current_bal = state.STATES[curId].balances.locked;
-        } else {
-            current_bal = state.STATES[curId].balances.liquid;
-        }
-
         require(tempEndowment.owner == msg.sender, "Unauthorized");
-
+        require(state.STATES[curId].balances.locked >= curLockAmt);
+        require(state.STATES[curId].balances.liquid >= curLiquidAmt);
         require(
-            (curTokens.length == curAmount.length) &&
-                (curVaults.length == curAmount.length),
-            "Invalid params"
+            IRegistrar(state.config.registrarContract).getStrategyApprovalState(
+                curStrategy
+            ) == LocalRegistrarLib.StrategyApprovalState.APPROVED,
+            "Vault is not approved"
         );
-        require(curTokens.length > 0, "Invalid params");
 
-        AngelCoreStruct.YieldVault memory vault_config;
-        uint256 lockedAmount;
-        uint256 liquidAmount;
+        AngelCoreStruct.NetworkInfo memory network = 
+            IRegistrar(state.config.registrarContract)
+            .queryNetworkConnection(block.chainId);
 
-        for (uint8 i = 0; i < curTokens.length; i++) {
-            vault_config = IRegistrar(
-                state.config.registrarContract
-            ).queryVaultDetails(curVaults[i]);
-            require(
-                vault_config.approved,
-                "Vault is not approved to accept deposits"
+        address tokenAddress = IAxelarGateway(network.axelarGateway)
+            .tokenAddresses(curToken);
+
+        require(IRegistrar(state.config.registrarContract)
+            .isTokenApproved(tokenAddress),
+            "Token not approved");
+
+        LocalRegistrarLib.StrategyParams memory stratParams = 
+            IRegistrar(state.config.registrarContract)
+            .getStrategyParamsById(curStrategy);
+
+        IRouter.VaultActionData memory payload = IRouter
+            .VaultActionData({
+                strategyId: curStrategy,
+                selector: IVault.deposit.selector,
+                accountIds: [curIds],
+                token: curToken,
+                lockAmt: lockedAmount,
+                liqAmt: liquidAmount
+            });
+        
+        VaultActionData memory response = 
+            IRouter(network.router)
+            .executeWithTokenLocal(
+                network.name, 
+                address(this), 
+                payload,
+                curToken,
+                (curLockAmt + curLiqAmt)
             );
 
-            require(
-                vault_config.acctType == curAccountType,
-                "Vault and Endowment AccountTypes do not match"
-            );
-            
-            lockedAmount = 0;
-            liquidAmount = 0;
-
-            
-            (lockedAmount, liquidAmount) = processCheck(
-                curId,
-                curVaults[i],
-                curAmount[i],
-                curAccountType,
-                tempEndowment.oneoffVaults
-            );
-            console.log("LiquidIncest",tempEndowment.oneoffVaults.liquid.length);
-
-            current_bal = processDeduct(
-                curTokens[i],
-                current_bal,
-                curAmount[i]
-            );
-
-            (curTokens[i], curAmount[i]) = processInvest(
-                state.config.registrarContract,
-                curTokens[i],
-                curAmount[i]
-            );
-
-            {
-                string memory curTemp = vault_config.addr;
-                state.stratagyId[bytes4(keccak256(bytes(curTemp)))] = curTemp;
-                uint32[] memory curIds = new uint32[](1);
-                curIds[0] = curId;
-                //Create VaultActionData
-                IAxelarGateway.VaultActionData
-                    memory payloadObject = IAxelarGateway.VaultActionData({
-                        strategyId: bytes4(keccak256(bytes(curTemp))),
-                        selector: IVault.deposit.selector,
-                        accountIds: curIds,
-                        token: vault_config.inputDenom,
-                        lockAmt: lockedAmount,
-                        liqAmt: liquidAmount
-                    });
-
-                executeCallsWithToken(
-                    payloadObject,
-                    state.config.registrarContract,
-                    curAmount[i],
-                    vault_config.network
-                );
-            }
-        }
-
+        // PROCESS RESPONSE
+        
         {
             state.ENDOWMENTS[curId] = tempEndowment;
             emit UpdateEndowment(curId, tempEndowment);
@@ -147,7 +107,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
         address currentToken,
         AngelCoreStruct.GenericBalance memory currentBalance,
         uint256 currentInputAmount
-    ) internal pure returns (AngelCoreStruct.GenericBalance memory){
+    ) internal pure returns (AngelCoreStruct.GenericBalance memory) {
         uint256 currentAmount = 0;
         uint8 atIndex = 0;
         for (
@@ -168,13 +128,12 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
     }
 
     function processCheck(
-        uint256 currentId, 
-        string memory currentVault, 
-        uint256 currentAmount, 
+        uint256 currentId,
+        string memory currentVault,
+        uint256 currentAmount,
         AngelCoreStruct.AccountType currentAccountType,
         AngelCoreStruct.OneOffVaults storage currentObject
-    ) internal returns (uint256, uint256){
-
+    ) internal returns (uint256, uint256) {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
 
         uint256 lockedAmount = 0;
@@ -187,10 +146,10 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
                 currentVault
             );
             lockedAmount = currentAmount;
-            
+
             state.vaultBalance[currentId][AngelCoreStruct.AccountType.Locked][
-            currentVault] += lockedAmount;
-                
+                currentVault
+            ] += lockedAmount;
         } else if (currentAccountType == AngelCoreStruct.AccountType.Liquid) {
             AngelCoreStruct.checkTokenInOffVault(
                 currentObject.liquid,
@@ -198,9 +157,10 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
                 currentVault
             );
             liquidAmount = currentAmount;
-                
+
             state.vaultBalance[currentId][AngelCoreStruct.AccountType.Liquid][
-            currentVault] += liquidAmount;    
+                currentVault
+            ] += liquidAmount;
         }
 
         return (lockedAmount, liquidAmount);
@@ -214,7 +174,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
      * @param amount The amount to invest
      * @return The token and amount to invest
      */
-    function processInvest(
+    function _processInvest(
         address registrarContract,
         address token,
         uint256 amount
@@ -261,10 +221,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
             curId
         ];
 
-        require(
-            curVaults.length > 0,
-            "Invalid"
-        );
+        require(curVaults.length > 0, "Invalid");
 
         require(tempEndowment.owner == msg.sender, "Unauthorized");
         require(tempEndowment.pendingRedemptions == 0, "RedemptionInProgress");
@@ -287,14 +244,18 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
                     tempEndowment.oneoffVaults.locked,
                     curVaults[i]
                 );
-                lockedAmount =  state.vaultBalance[curId][AngelCoreStruct.AccountType.Locked][curVaults[i]];
+                lockedAmount = state.vaultBalance[curId][
+                    AngelCoreStruct.AccountType.Locked
+                ][curVaults[i]];
             }
             if (curAccountType == AngelCoreStruct.AccountType.Liquid) {
                 AngelCoreStruct.removeLast(
                     tempEndowment.oneoffVaults.liquid,
                     curVaults[i]
                 );
-                liquidAmount = state.vaultBalance[curId][AngelCoreStruct.AccountType.Liquid][curVaults[i]];
+                liquidAmount = state.vaultBalance[curId][
+                    AngelCoreStruct.AccountType.Liquid
+                ][curVaults[i]];
             }
 
             uint32[] memory curIds = new uint32[](1);
