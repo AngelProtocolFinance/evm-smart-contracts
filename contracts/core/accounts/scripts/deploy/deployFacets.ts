@@ -47,7 +47,7 @@ export default async function deployFacets(
                 facetName: contractName,
                 cut: {
                     facetAddress: facet.address,
-                    action: FacetCutAction.Replace,
+                    action: FacetCutAction.Add,
                     functionSelectors: getSelectors(facet),
                 },
             })
