@@ -79,8 +79,6 @@ library AccountStorage {
         address gateway;
         address gasRevicer;
         bool reentrancyGuardLocked;
-        //1 => Locked => GOLDFINCH => 10000
-        //endowmentId => accountType => vault => balance
         mapping(bytes4 => string) stratagyId;
 
         mapping(uint256 => mapping(AngelCoreStruct.AccountType => mapping(string => uint256))) vaultBalance;

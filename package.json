@@ -62,6 +62,7 @@
     "merkletreejs": "^0.3.9",
     "mockdate": "^3.0.5",
     "npm-check-updates": "^16.10.8",
+    "simple-git": "^3.18.0",
     "web3": "^1.8.2"
   },
   "main": "hardhat.config.ts",

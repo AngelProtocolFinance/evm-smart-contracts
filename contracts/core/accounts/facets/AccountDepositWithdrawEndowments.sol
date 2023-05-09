@@ -18,7 +18,6 @@ import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {ISwappingV3} from "./../../swap-router/Interface/ISwappingV3.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
 import {IVault} from "./../interface/IVault.sol";
-import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 /**
@@ -626,11 +625,6 @@ contract AccountDepositWithdrawEndowments is
                 msg.sender
             );
         }
-        //print network it
-        console.log(block.chainid);
-        //print amount
-        console.log(amount);
-        console.log("Calling contract", senderInfo.axelerGateway);
 
         IERC20(payloadObject.token).approve(senderInfo.axelerGateway, amount);
         //Call the contract

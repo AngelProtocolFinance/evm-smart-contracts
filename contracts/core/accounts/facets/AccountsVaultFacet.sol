@@ -8,6 +8,8 @@ import {AccountMessages} from "../message.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interface/IRegistrar.sol";
+import {LocalRegistrarLib} from "../../registrar/lib/LocalRegistrarLib.sol";
+import {IRouter} from "../../router/IRouter.sol";
 import {Utils} from "../../../lib/utils.sol";
 import {IIndexFund} from "../../index-fund/Iindex-fund.sol";
 import {IAxelarGateway} from "./../interface/IAxelarGateway.sol";
@@ -29,9 +31,10 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
      * @notice This function that allows users to invest in a yield vault using tokens from their locked or liquid account in an endowment.
      * @dev Allows the owner of an endowment to invest tokens into specified yield vaults.
      * @param curId The endowment id
-     * @param curStrategies The strategies to invest into
-     * @param curTokens The tokens to withdraw
-     * @param curAmount The amount to withdraw
+     * @param curStrategy The strategies to invest into
+     * @param curToken The tokens to withdraw
+     * @param curLockAmt The amount to deposit lock 
+     * @param curLiquidAmt The amount to deposit liquid
      */
     function strategyInvest(
         uint32 curId,
@@ -73,10 +76,10 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
             .VaultActionData({
                 strategyId: curStrategy,
                 selector: IVault.deposit.selector,
-                accountIds: [curIds],
+                accountIds: [curId],
                 token: curToken,
-                lockAmt: lockedAmount,
-                liqAmt: liquidAmount
+                lockAmt: curLockAmt,
+                liqAmt: curLiquidAmt
             });
         
         VaultActionData memory response = 
@@ -90,7 +93,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
             );
 
         // PROCESS RESPONSE
-        
+
         {
             state.ENDOWMENTS[curId] = tempEndowment;
             emit UpdateEndowment(curId, tempEndowment);
@@ -290,7 +293,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
      * @param network The network you want to transfer token
      */
     function executeCallsWithToken(
-        IAxelarGateway.VaultActionData memory payloadObject,
+        IRouter.VaultActionData memory payloadObject,
         address registrarContract,
         uint256 amount,
         uint256 network
@@ -340,7 +343,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
      * @param network The network you want to transfer token
      */
     function executeCalls(
-        IAxelarGateway.VaultActionData memory payloadObject,
+        IRouter.VaultActionData memory payloadObject,
         address registrarContract,
         uint256 network
     ) internal {
