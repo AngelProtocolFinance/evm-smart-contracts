@@ -136,7 +136,8 @@ export async function main(apTeamAdmins = [], verify_contracts = false) {
 			REGISTRAR_ADDRESS,
 			ANGEL_CORE_STRUCT.address,
 			STRING_LIBRARY.address,
-			hre
+			hre,
+			verify_contracts
 		);
 
 		addressWriter.accountDiamond = ACCOUNT_ADDRESS;

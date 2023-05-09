@@ -114,7 +114,8 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
 			REGISTRAR_ADDRESS,
 			ANGEL_CORE_STRUCT.address,
 			STRING_LIBRARY.address,
-			hre
+			hre,
+			verify_contracts
 		);
 		console.log('Account contract deployed at:-', ACCOUNT_ADDRESS);
 
