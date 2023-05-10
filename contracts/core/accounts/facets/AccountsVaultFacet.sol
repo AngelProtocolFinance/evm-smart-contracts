@@ -103,6 +103,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
             response.status == IRouter.VaultActionStatus.FAIL_TOKENS_REFUNDED) {
             state.STATES[curId].balances.locked.balancesByToken[tokenAddress] -= response.lockAmt;
             state.STATES[curId].balances.liquid.balancesByToken[tokenAddress] -= response.liqAmt;
+            state.STATES[curId].activeStrategies[curStrategy] == true;
             emit UpdateEndowmentState(curId, state.STATES[curId]);
         }
     }
@@ -160,10 +161,14 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
                 address(this), 
                 payload
             );
-        
-        state.STATES[curId].balances.locked.balancesByToken[tokenAddress] += response.lockAmt;
-        state.STATES[curId].balances.liquid.balancesByToken[tokenAddress] += response.liqAmt;
-        emit UpdateEndowmentState(curId, state.STATES[curId]);
+        if (response.status == IRouter.VaultActionStatus.SUCCESS) {
+            state.STATES[curId].balances.locked.balancesByToken[tokenAddress] += response.lockAmt;
+            state.STATES[curId].balances.liquid.balancesByToken[tokenAddress] += response.liqAmt;
+            emit UpdateEndowmentState(curId, state.STATES[curId]);
+        }
+        if (response.status == IRouter.VaultActionStatus.POSITION_EXITED) {
+            state.STATES[curId].activeStrategies[curStrategy] == false;
+        }
     }
 
     /**
@@ -215,9 +220,14 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
                 payload
             );
         
-        state.STATES[curId].balances.locked.balancesByToken[tokenAddress] += response.lockAmt;
-        state.STATES[curId].balances.liquid.balancesByToken[tokenAddress] += response.liqAmt;
-        emit UpdateEndowmentState(curId, state.STATES[curId]);
+        if (response.status == IRouter.VaultActionStatus.SUCCESS) {
+            state.STATES[curId].balances.locked.balancesByToken[tokenAddress] += response.lockAmt;
+            state.STATES[curId].balances.liquid.balancesByToken[tokenAddress] += response.liqAmt;
+            emit UpdateEndowmentState(curId, state.STATES[curId]);
+        }
+        if (response.status == IRouter.VaultActionStatus.POSITION_EXITED) {
+            state.STATES[curId].activeStrategies[curStrategy] == false;
+        }
     }
 
     // function processDeduct(
