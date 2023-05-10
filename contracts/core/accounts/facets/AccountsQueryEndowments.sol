@@ -20,33 +20,22 @@ contract AccountsQueryEndowments {
      * @dev This function queries the balance of a token for an endowment based on its type and address
      * @param curId The id of the endowment
      * @param curAccountType The account type
-     * @param curTokenaddress The address of the token
+     * @param curTokenAddress The address of the token
      * @return tokenAmount balance of token
      */
     function queryTokenAmount(
         uint256 curId,
         AngelCoreStruct.AccountType curAccountType,
-        address curTokenaddress
+        address curTokenAddress
     ) public view returns (uint256 tokenAmount) {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        require(address(0) != curTokenaddress, "Invalid token address");
-
-        AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[
-            curId
-        ];
+        require(address(0) != curTokenAddress, "Invalid token address");
 
         if (curAccountType == AngelCoreStruct.AccountType.Locked) {
-            tokenAmount = AngelCoreStruct.getTokenAmount(
-                tempEndowmentState.balances.locked.Cw20CoinVerified_addr,
-                tempEndowmentState.balances.locked.Cw20CoinVerified_amount,
-                curTokenaddress
-            );
-        } else {
-            tokenAmount = AngelCoreStruct.getTokenAmount(
-                tempEndowmentState.balances.liquid.Cw20CoinVerified_addr,
-                tempEndowmentState.balances.liquid.Cw20CoinVerified_amount,
-                curTokenaddress
-            );
+            tokenAmount = state.STATES[curId].balances.locked.balancesByToken[curTokenAddress];
+        } 
+        else {
+            tokenAmount = state.STATES[curId].balances.liquid.balancesByToken[curTokenAddress];
         }
     }
 
@@ -76,8 +65,13 @@ contract AccountsQueryEndowments {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         config = AccountMessages.ConfigResponse({
             owner: state.config.owner,
-            version: "",
-            registrarContract: state.config.registrarContract
+            version: state.config.version,
+            registrarContract: state.config.registrarContract,
+            nextAccountId: state.config.nextAccountId,
+            maxGeneralCategoryId: state.config.maxGeneralCategoryId,
+            subDao: state.config.subDao,
+            gateway: state.config.gateway,
+            gasReceiver: state.config.gasRevicer
         });
     }
 
@@ -91,31 +85,27 @@ contract AccountsQueryEndowments {
         uint256 curId
     ) public view returns (AccountMessages.StateResponse memory stateResponse) {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[
-            curId
-        ];
-
         stateResponse = AccountMessages.StateResponse({
-            donationsReceived: tempEndowmentState.donationsReceived,
-            closingEndowment: tempEndowmentState.closingEndowment,
-            closingBeneficiary: tempEndowmentState.closingBeneficiary
+            donationsReceived: state.STATES[curId].donationsReceived,
+            closingEndowment: state.STATES[curId].closingEndowment,
+            closingBeneficiary: state.STATES[curId].closingBeneficiary
         });
     }
 
-    /**
-     * @dev Queries the balance of a specific vault for an endowment account.
-     * @param curId ID of the endowment account.
-     * @param vaultType Type of the vault account.
-     * @param vault Address of the vault contract.
-     * @return vaultBalance Balance of the specified vault.
-     */
-    function queryVaultBalance(
-        uint256 curId,
-        AngelCoreStruct.AccountType vaultType,
-        string memory vault
-    ) public view returns (uint256 vaultBalance) {
-        AccountStorage.State storage state = LibAccounts.diamondStorage();
+    // /**
+    //  * @dev Queries the balance of a specific vault for an endowment account.
+    //  * @param curId ID of the endowment account.
+    //  * @param vaultType Type of the vault account.
+    //  * @param vault Address of the vault contract.
+    //  * @return vaultBalance Balance of the specified vault.
+    //  */
+    // function queryVaultBalance(
+    //     uint256 curId,
+    //     AngelCoreStruct.AccountType vaultType,
+    //     string memory vault
+    // ) public view returns (uint256 vaultBalance) {
+    //     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
-        vaultBalance = state.vaultBalance[curId][vaultType][vault];
-    }
+    //     vaultBalance = state.vaultBalance[curId][vaultType][vault];
+    // }
 }

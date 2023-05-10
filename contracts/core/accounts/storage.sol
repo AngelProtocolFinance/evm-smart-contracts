@@ -7,9 +7,14 @@ import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 library AccountStorage {
     struct Config {
         address owner;
+        string version;
         address registrarContract;
         uint256 nextAccountId;
         uint256 maxGeneralCategoryId;
+        address subDao;
+        address gateway;
+        address gasRevicer;
+        bool reentrancyGuardLocked;
     }
 
     struct Endowment {
@@ -75,13 +80,8 @@ library AccountStorage {
         //owner -> spender -> token -> Allowance Struct
         mapping(address => mapping(address => mapping(address => AllowanceData))) ALLOWANCES;
         Config config;
-        address subDao;
-        address gateway;
-        address gasRevicer;
-        bool reentrancyGuardLocked;
-        mapping(bytes4 => string) stratagyId;
-
-        mapping(uint256 => mapping(AngelCoreStruct.AccountType => mapping(string => uint256))) vaultBalance;
+        // mapping(bytes4 => string) stratagyId;
+        // mapping(uint256 => mapping(AngelCoreStruct.AccountType => mapping(string => uint256))) vaultBalance;
     }
 }
 

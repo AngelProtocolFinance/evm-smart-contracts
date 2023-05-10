@@ -40,8 +40,16 @@ abstract contract IRouter is IAxelarExecutable {
         address token;
         uint256 lockAmt;
         uint256 liqAmt;
+        VaultActionStatus status;
     }
 
+    enum VaultActionStatus {
+        UNPROCESSED,
+        SUCCESS,
+        FAIL_TOKENS_RETURNED,
+        FAIL_TOKENS_REFUNDED,
+        POSITION_EXITED
+    }
 
     /*////////////////////////////////////////////////
                         METHODS
@@ -60,10 +68,11 @@ abstract contract IRouter is IAxelarExecutable {
             uint32[] memory accountIds,
             address token,
             uint256 lockAmt,
-            uint256 liqAmt
+            uint256 liqAmt,
+            VaultActionStatus status
         ) = abi.decode(
                 _calldata,
-                (string, bytes4, bytes4, uint32[], address, uint256, uint256)
+                (string, bytes4, bytes4, uint32[], address, uint256, uint256, VaultActionStatus)
             );
 
         return
@@ -74,7 +83,8 @@ abstract contract IRouter is IAxelarExecutable {
                 accountIds,
                 token,
                 lockAmt,
-                liqAmt
+                liqAmt,
+                status
             );
     }
 
@@ -91,7 +101,8 @@ abstract contract IRouter is IAxelarExecutable {
                 _calldata.accountIds,
                 _calldata.token,
                 _calldata.lockAmt,
-                _calldata.liqAmt
+                _calldata.liqAmt,
+                _calldata.status
             );
     }
 

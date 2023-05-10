@@ -30,13 +30,13 @@ abstract contract ReentrancyGuardFacet {
         // On the first call to nonReentrant, _status will be _NOT_ENTERED
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         require(
-            !state.reentrancyGuardLocked || (address(this) == msg.sender),
+            !state.config.reentrancyGuardLocked || (address(this) == msg.sender),
             "ReentrancyGuard: reentrant call"
         );
 
         // Any calls to nonReentrant after this point will fail
         if (address(this) != msg.sender) {
-            state.reentrancyGuardLocked = true;
+            state.config.reentrancyGuardLocked = true;
         }
     }
 
@@ -50,7 +50,7 @@ abstract contract ReentrancyGuardFacet {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
 
         if (address(this) != msg.sender) {
-            state.reentrancyGuardLocked = false;
+            state.config.reentrancyGuardLocked = false;
         }
     }
 }

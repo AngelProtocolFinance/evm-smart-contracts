@@ -28,7 +28,7 @@ import "hardhat/console.sol";
  */
 contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
     /**
-     * @notice This function that allows users to invest in a yield vault using tokens from their locked or liquid account in an endowment.
+     * @notice This function that allows users to deposit into a yield strategy using tokens from their locked or liquid account in an endowment.
      * @dev Allows the owner of an endowment to invest tokens into specified yield vaults.
      * @param curId The endowment id
      * @param curStrategy The strategies to invest into
@@ -82,7 +82,8 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
                 accountIds: [curId],
                 token: curToken,
                 lockAmt: curLockAmt,
-                liqAmt: curLiquidAmt
+                liqAmt: curLiquidAmt,
+                status: IRouter.VaultActionStatus.UNPROCESSED
             });
         
         IRouter.VaultActionData memory response = 
@@ -108,7 +109,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
      * @param curLockAmt The amt to remdeem from the locked component
      * @param curLiquidAmt The amt to redeem from the liquid component
      */
-    function vaultsRedeem(
+    function strategyRedeem(
         uint32 curId,
         bytes4 curStrategy,
         string memory curToken,
@@ -116,7 +117,6 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
         uint256 curLiquidAmt
     ) public payable nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        // AccountStorage.Config memory tempConfig = state.config;
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             curId
         ];
@@ -143,7 +143,62 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
                 accountIds: curId,
                 token: curToken,
                 lockAmt: curLockAmt,
-                liqAmt: curLiquidAmt
+                liqAmt: curLiquidAmt,
+                status: IRouter.VaultActionStatus.UNPROCESSED
+            });
+
+        IRouter.VaultActionData memory response = 
+            IRouter(network.router)
+            .executeLocal(
+                network.name, 
+                address(this), 
+                payload
+            );
+        
+        state.STATES[curId].balances.locked.balancesByToken[tokenAddress] += response.lockAmt;
+        state.STATES[curId].balances.liquid.balancesByToken[tokenAddress] += response.liqAmt;
+        emit UpdateEndowmentState(curId, state.STATES[curId]);
+    }
+
+    /**
+     * @notice Allows an endowment owner to redeem their funds from multiple yield strategies.
+     * @param curId  The endowment ID
+     * @param curStrategy The strategy to redeem from
+     * @param curToken The vaults to redeem from
+     */
+    function strategyRedeemAll(
+        uint32 curId,
+        bytes4 curStrategy,
+        string memory curToken
+    ) public payable nonReentrant {
+        AccountStorage.State storage state = LibAccounts.diamondStorage();
+        AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
+            curId
+        ];
+        require(tempEndowment.owner == msg.sender, "Unauthorized");
+        require(tempEndowment.pendingRedemptions == 0, "RedemptionInProgress");
+        require(
+            IRegistrar(state.config.registrarContract).getStrategyApprovalState(
+                curStrategy
+            ) == LocalRegistrarLib.StrategyApprovalState.APPROVED,
+            "Vault is not approved"
+        );
+        AngelCoreStruct.NetworkInfo memory network = 
+            IRegistrar(state.config.registrarContract)
+            .queryNetworkConnection(block.chainId);
+        
+        address tokenAddress = IAxelarGateway(network.axelarGateway)
+            .tokenAddresses(curToken);
+
+        IRouter.VaultActionData memory payload = IAxelarGateway
+            .VaultActionData({
+                strategyId: curStrategy,
+                selector: IVault.redeemAll.selector,
+                accountIds: curId,
+                token: curToken,
+                lockAmt: 0,
+                liqAmt: 0,
+                status: IRouter.VaultActionStatus.UNPROCESSED
             });
 
         IRouter.VaultActionData memory response = 
