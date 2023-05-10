@@ -2,8 +2,8 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { ContractFactory, utils } from "ethers"
 import { task, types } from "hardhat/config"
 import { HardhatRuntimeEnvironment, Network } from "hardhat/types"
-import addresses from "../../contract-address.json"
-import { FacetCutAction, getSelectors } from "../../contracts/core/accounts/scripts/libraries/diamond"
+import addresses from "../../../contract-address.json"
+import { FacetCutAction, getSelectors } from "../../../contracts/core/accounts/scripts/libraries/diamond"
 import {
     AccountDepositWithdrawEndowments__factory,
     AccountDonationMatch__factory,
@@ -23,22 +23,21 @@ import {
     DiamondInit__factory,
     DiamondLoupeFacet__factory,
     IDiamondCut,
-} from "../../typechain-types"
-import * as logger from "../../utils/logger"
+} from "../../../typechain-types"
+import * as logger from "../../../utils/logger"
 
 type FacetCut = { facetName: string; cut: IDiamondCut.FacetCutStruct }
 
-type TaskArguments = { facets: string }
+type TaskArguments = { facets: string[] }
 
 task("upgrade:upgradeFacets", "Will redeploy and upgrade all facets that use AccountStorage struct")
-    .addParam("facets", "Comma separated list of facets to upgrade", undefined, types.string)
+    .addVariadicPositionalParam("facets", "List of facets to upgrade")
     .setAction(async (taskArguments: TaskArguments, hre) => {
         try {
             const [_deployer, proxyAdmin] = await hre.ethers.getSigners()
 
-            const facetNames = taskArguments.facets.split(/, /)
             const cuts = await deployFacets(
-                facetNames,
+                taskArguments.facets,
                 proxyAdmin,
                 addresses.libraries.ANGEL_CORE_STRUCT_LIBRARY,
                 addresses.libraries.STRING_LIBRARY
