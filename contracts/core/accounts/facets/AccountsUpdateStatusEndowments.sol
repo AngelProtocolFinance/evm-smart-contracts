@@ -81,12 +81,12 @@ contract AccountsUpdateStatusEndowments is
                 AngelCoreStruct.BeneficiaryEnum.None
             ) {
                 _tempBeneficiary = curDetails.beneficiary;
-            } else 
+            } else {
                 require(
                     registrar_config.indexFundContract != address(0),
                     "Index Fund Contract is not configured in Registrar"
                 );
-{
+
                 AngelCoreStruct.IndexFund[] memory funds = IIndexFund(
                     registrar_config.indexFundContract
                 ).queryInvolvedFunds(curDetails.endowmentId);
