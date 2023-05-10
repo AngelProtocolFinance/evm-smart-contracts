@@ -103,6 +103,7 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                 rebalance: AngelCoreStruct.rebalanceDetailsDefaut(),
                 pendingRedemptions: 0,
                 copycatStrategy: 0,
+                multisig: curDetails.owner,
                 dao: address(0),
                 daoToken: address(0),
                 donationMatchActive: false,
@@ -143,15 +144,14 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
             state.STATES[state.config.nextAccountId]
         );
 
-        state
-            .ENDOWMENTS[state.config.nextAccountId]
-            .owner = IEndowmentMultiSigFactory(registrar_config.multisigFactory)
+        state.ENDOWMENTS[state.config.nextAccountId].owner = IEndowmentMultiSigFactory(registrar_config.multisigFactory)
             .create(
                 state.config.nextAccountId,
                 registrar_config.multisigEmitter,
                 curDetails.cw4_members,
                 curDetails.threshold
             );
+        state.ENDOWMENTS[state.config.nextAccountId].multisig = state.ENDOWMENTS[state.config.nextAccountId].owner;
 
         if (curDetails.createDao) {
             subDaoMessage.InstantiateMsg memory createDaoMessage = subDaoMessage

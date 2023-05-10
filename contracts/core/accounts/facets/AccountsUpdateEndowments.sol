@@ -45,9 +45,9 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         
         // there are several fields that are restricted to changing only by the Endowment Owner
         if (msg.sender == tempEndowment.owner) {
-            // An Endowment's owner can be set as the subdao OR the endowment multisig contract
+            // An Endowment's owner can be set as the gov dao OR the endowment multisig contract
             if (curDetails.owner != address(0) &&
-                (curDetails.owner == tempEndowment.subDao || curDetails.owner == tempEndowment.multisig)
+                (curDetails.owner == tempEndowment.dao || curDetails.owner == tempEndowment.multisig)
             ) {
                 tempEndowment.owner = curDetails.owner;
             }

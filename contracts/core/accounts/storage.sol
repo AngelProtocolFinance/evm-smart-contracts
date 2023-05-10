@@ -38,6 +38,7 @@ library AccountStorage {
         uint256 pendingRedemptions; // number of vault redemptions currently pending for this endowment
         uint256 copycatStrategy; // endowment ID to copy their strategy
         uint256 proposalLink; // link back the CW3 Proposal that created an endowment
+        address multisig;
         address dao;
         address daoToken;
         bool donationMatchActive;
