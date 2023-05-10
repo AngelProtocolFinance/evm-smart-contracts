@@ -43,33 +43,22 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
         require(!tempEndowmentState.lockedForever, "Settings are locked forever");
         
-        if (
-            !(msg.sender == state.config.owner ||
-                msg.sender == tempEndowment.owner)
-        ) {
-            if (
-                tempEndowment.dao == address(0) ||
-                msg.sender != tempEndowment.dao
+        // there are several fields that are restricted to changing only by the Endowment Owner
+        if (msg.sender == tempEndowment.owner) {
+            // An Endowment's owner can be set as the subdao OR the endowment multisig contract
+            if (curDetails.owner != address(0) &&
+                (curDetails.owner == tempEndowment.subDao || curDetails.owner == tempEndowment.multisig)
             ) {
-                revert("Unauthorized");
-            }
-        }
-
-        // only config owner can update owner, tier and endowment type fields
-        if (msg.sender == state.config.owner) {
-            tempEndowment.tier = curDetails.tier;
-            if (curDetails.owner != address(0)) {
                 tempEndowment.owner = curDetails.owner;
             }
-            tempEndowment.endow_type = curDetails.endow_type;
             require(
                 curDetails.endow_type != AngelCoreStruct.EndowmentType.None,
                 "InvalidInputs"
             );
-        }
 
-        if (tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity) {
-            tempEndowment.rebalance = curDetails.rebalance;
+            if (tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity) {
+                tempEndowment.rebalance = curDetails.rebalance;
+            }
         }
 
         if (
