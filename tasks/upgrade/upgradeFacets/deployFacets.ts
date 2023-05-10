@@ -17,6 +17,7 @@ import {
     AccountsVaultFacet__factory,
     AxelarExecutionContract__factory,
 } from "../../../typechain-types"
+import getContractName from "../../../utils/getContractName"
 import * as logger from "../../../utils/logger"
 import { FacetCut } from "./types"
 
@@ -91,58 +92,58 @@ function getFacetFactory(
 ): ContractFactory | string {
     switch (facetName) {
         // no lib
-        case getFacetName(AccountsAllowance__factory):
+        case getContractName(AccountsAllowance__factory):
             return new AccountsAllowance__factory(diamondOwner)
-        case getFacetName(AccountsDAOEndowments__factory):
+        case getContractName(AccountsDAOEndowments__factory):
             return new AccountsDAOEndowments__factory(diamondOwner)
-        case getFacetName(AccountDonationMatch__factory):
+        case getContractName(AccountDonationMatch__factory):
             return new AccountDonationMatch__factory(diamondOwner)
-        case getFacetName(AccountsStrategiesCopyEndowments__factory):
+        case getContractName(AccountsStrategiesCopyEndowments__factory):
             return new AccountsStrategiesCopyEndowments__factory(diamondOwner)
         // core lib
-        case getFacetName(AccountsCreateEndowment__factory):
+        case getContractName(AccountsCreateEndowment__factory):
             return new AccountsCreateEndowment__factory(
                 { "contracts/core/struct.sol:AngelCoreStruct": corestruct },
                 diamondOwner
             )
-        case getFacetName(AccountsQueryEndowments__factory):
+        case getContractName(AccountsQueryEndowments__factory):
             return new AccountsQueryEndowments__factory(
                 { "contracts/core/struct.sol:AngelCoreStruct": corestruct },
                 diamondOwner
             )
-        case getFacetName(AccountsSwapEndowments__factory):
+        case getContractName(AccountsSwapEndowments__factory):
             return new AccountsSwapEndowments__factory(
                 { "contracts/core/struct.sol:AngelCoreStruct": corestruct },
                 diamondOwner
             )
-        case getFacetName(AccountsUpdateEndowments__factory):
+        case getContractName(AccountsUpdateEndowments__factory):
             return new AccountsUpdateEndowments__factory(
                 { "contracts/core/struct.sol:AngelCoreStruct": corestruct },
                 diamondOwner
             )
-        case getFacetName(AccountsUpdateEndowmentSettingsController__factory):
+        case getContractName(AccountsUpdateEndowmentSettingsController__factory):
             return new AccountsUpdateEndowmentSettingsController__factory(
                 { "contracts/core/struct.sol:AngelCoreStruct": corestruct },
                 diamondOwner
             )
-        case getFacetName(AxelarExecutionContract__factory):
+        case getContractName(AxelarExecutionContract__factory):
             return new AxelarExecutionContract__factory(
                 { "contracts/core/struct.sol:AngelCoreStruct": corestruct },
                 diamondOwner
             )
         // string lib
-        case getFacetName(AccountsStrategiesUpdateEndowments__factory):
+        case getContractName(AccountsStrategiesUpdateEndowments__factory):
             return new AccountsStrategiesUpdateEndowments__factory(
                 { "contracts/lib/Strings/string.sol:StringArray": stringlib },
                 diamondOwner
             )
-        case getFacetName(AccountsUpdateStatusEndowments__factory):
+        case getContractName(AccountsUpdateStatusEndowments__factory):
             return new AccountsUpdateStatusEndowments__factory(
                 { "contracts/lib/Strings/string.sol:StringArray": stringlib },
                 diamondOwner
             )
         // all libs
-        case getFacetName(AccountDepositWithdrawEndowments__factory):
+        case getContractName(AccountDepositWithdrawEndowments__factory):
             return new AccountDepositWithdrawEndowments__factory(
                 {
                     "contracts/core/struct.sol:AngelCoreStruct": corestruct,
@@ -150,7 +151,7 @@ function getFacetFactory(
                 },
                 diamondOwner
             )
-        case getFacetName(AccountsVaultFacet__factory):
+        case getContractName(AccountsVaultFacet__factory):
             return new AccountsVaultFacet__factory(
                 {
                     "contracts/core/struct.sol:AngelCoreStruct": corestruct,
@@ -161,8 +162,4 @@ function getFacetFactory(
         default:
             return facetName
     }
-}
-
-function getFacetName<T extends new (...args: any[]) => any>(clazz: T): string {
-    return clazz.name.replace("__factory", "")
 }
