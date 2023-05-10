@@ -241,44 +241,44 @@ contract AccountsUpdateStatusEndowments is
 
     }
 
-    /**
-     * @notice Sends token to the different chain with the message
-     * @param payloadObject message object
-     * @param network The network you want to transfer token
-     */
-    function executeCalls(
-        IAxelarGateway.VaultActionData memory payloadObject,
-        address registrarContract,
-        uint256 network
-    ) internal {
+    // /**
+    //  * @notice Sends token to the different chain with the message
+    //  * @param payloadObject message object
+    //  * @param network The network you want to transfer token
+    //  */
+    // function executeCalls(
+    //     IAxelarGateway.VaultActionData memory payloadObject,
+    //     address registrarContract,
+    //     uint256 network
+    // ) internal {
 
-        // Encode Valts action Data
-        bytes memory Encodedpayload = abi.encode(payloadObject);
+    //     // Encode Valts action Data
+    //     bytes memory Encodedpayload = abi.encode(payloadObject);
 
-        AngelCoreStruct.NetworkInfo memory senderInfo = IRegistrar(
-            registrarContract
-        ).queryNetworkConnection(block.chainid);
+    //     AngelCoreStruct.NetworkInfo memory senderInfo = IRegistrar(
+    //         registrarContract
+    //     ).queryNetworkConnection(block.chainid);
 
-        AngelCoreStruct.NetworkInfo memory recieverInfo = IRegistrar(
-            registrarContract
-        ).queryNetworkConnection(network);
-        uint256 curEth = recieverInfo.gasLimit;
-        if (curEth > 0) {
-            IAxelarGateway(senderInfo.gasReceiver).payNativeGasForContractCall{
-                value: curEth
-            }(
-                address(this),
-                recieverInfo.name,
-                StringArray.addressToString(recieverInfo.router),
-                Encodedpayload,
-                msg.sender
-            );
-        }
-        //Call the contract
-        IAxelarGateway(senderInfo.axelerGateway).callContract({
-            destinationChain: recieverInfo.name,
-            contractAddress: StringArray.addressToString(recieverInfo.router),
-            payload: Encodedpayload
-        });
-    }
+    //     AngelCoreStruct.NetworkInfo memory recieverInfo = IRegistrar(
+    //         registrarContract
+    //     ).queryNetworkConnection(network);
+    //     uint256 curEth = recieverInfo.gasLimit;
+    //     if (curEth > 0) {
+    //         IAxelarGateway(senderInfo.gasReceiver).payNativeGasForContractCall{
+    //             value: curEth
+    //         }(
+    //             address(this),
+    //             recieverInfo.name,
+    //             StringArray.addressToString(recieverInfo.router),
+    //             Encodedpayload,
+    //             msg.sender
+    //         );
+    //     }
+    //     //Call the contract
+    //     IAxelarGateway(senderInfo.axelerGateway).callContract({
+    //         destinationChain: recieverInfo.name,
+    //         contractAddress: StringArray.addressToString(recieverInfo.router),
+    //         payload: Encodedpayload
+    //     });
+    // }
 }

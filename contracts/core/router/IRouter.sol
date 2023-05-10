@@ -44,11 +44,16 @@ abstract contract IRouter is IAxelarExecutable {
     }
 
     enum VaultActionStatus {
-        UNPROCESSED,
-        SUCCESS,
-        FAIL_TOKENS_RETURNED,
-        FAIL_TOKENS_REFUNDED,
-        POSITION_EXITED
+        UNPROCESSED,                // INIT state
+        SUCCESS,                    // Ack 
+        POSITION_EXITED             // Position fully exited 
+        FAIL_TOKENS_RETURNED,       // Tokens returned to accounts contract
+        FAIL_TOKENS_FALLBACK,       // Tokens failed to be returned to accounts contract
+    }
+
+    struct RedemptionResponse {
+        uint256 amount; 
+        VaultActionStatus status;
     }
 
     /*////////////////////////////////////////////////

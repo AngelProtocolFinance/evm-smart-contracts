@@ -13,7 +13,7 @@ library AccountStorage {
         uint256 maxGeneralCategoryId;
         address subDao;
         address gateway;
-        address gasRevicer;
+        address gasReceiver;
         bool reentrancyGuardLocked;
     }
 
@@ -62,6 +62,7 @@ library AccountStorage {
         bool closingEndowment;
         AngelCoreStruct.Beneficiary closingBeneficiary;
         bool lockedForever;
+        mapping(bytes4 => bool) activeStrategies;
     }
 
     struct AllowanceData {

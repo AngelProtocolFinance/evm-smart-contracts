@@ -64,8 +64,11 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
         address tokenAddress = IAxelarGateway(network.axelarGateway)
             .tokenAddresses(curToken);
 
-        require(state.STATES[curId].balances.locked.balancesByToken[tokenAddress] >= curLockAmt);
-        require(state.STATES[curId].balances.liquid.balancesByToken[tokenAddress] >= curLiquidAmt);
+        require(
+            state.STATES[curId].balances.locked.balancesByToken[tokenAddress] >= curLockAmt, 
+            "Insufficient Balance");
+        require(state.STATES[curId].balances.liquid.balancesByToken[tokenAddress] >= curLiquidAmt, 
+            "Insufficient Balance");
 
         require(IRegistrar(state.config.registrarContract)
             .isTokenApproved(tokenAddress),
@@ -96,9 +99,12 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
                 (curLockAmt + curLiquidAmt)
             );
         
-        state.STATES[curId].balances.locked.balancesByToken[tokenAddress] -= response.lockAmt;
-        state.STATES[curId].balances.liquid.balancesByToken[tokenAddress] -= response.liqAmt;
-        emit UpdateEndowmentState(curId, state.STATES[curId]);
+        if (response.status == IRouter.VaultActionStatus.SUCCESS ||
+            response.status == IRouter.VaultActionStatus.FAIL_TOKENS_REFUNDED) {
+            state.STATES[curId].balances.locked.balancesByToken[tokenAddress] -= response.lockAmt;
+            state.STATES[curId].balances.liquid.balancesByToken[tokenAddress] -= response.liqAmt;
+            emit UpdateEndowmentState(curId, state.STATES[curId]);
+        }
     }
 
     /**
