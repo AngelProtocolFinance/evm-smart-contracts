@@ -7,6 +7,7 @@ import {
     DiamondLoupeFacet__factory,
 } from "../../typechain-types"
 import * as logger from "../../utils/logger"
+import shouldVerify from "../../utils/shouldVerify"
 
 task(
     "upgrade:upgradeAccountsUpdateEndowmentSettingsController",
@@ -52,6 +53,15 @@ task(
         const facetAddress = await diamondLoupe.facetAddress(sampleFunctionSelector)
         if (facetAddress !== contract.address) {
             throw new Error(`Diamond's facet's new address wronly set, new address: ${facetAddress}`)
+        }
+
+        if (shouldVerify(hre.network)) {
+            console.log("Verifying the contract...")
+
+            await hre.run("verify:verify", {
+                address: facetAddress,
+                constructorArguments: [],
+            })
         }
     } catch (error) {
         logger.out(
