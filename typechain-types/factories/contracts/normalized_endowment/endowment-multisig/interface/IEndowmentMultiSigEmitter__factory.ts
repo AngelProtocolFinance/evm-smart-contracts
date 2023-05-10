@@ -251,6 +251,11 @@ const _abi = [
             name: "executed",
             type: "bool",
           },
+          {
+            internalType: "bytes",
+            name: "metadata",
+            type: "bytes",
+          },
         ],
         internalType: "struct MultiSigStorage.Transaction",
         name: "transaction",

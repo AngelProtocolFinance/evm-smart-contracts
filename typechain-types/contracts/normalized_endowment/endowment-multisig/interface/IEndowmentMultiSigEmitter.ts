@@ -31,6 +31,7 @@ export declare namespace MultiSigStorage {
     value: PromiseOrValue<BigNumberish>;
     data: PromiseOrValue<BytesLike>;
     executed: PromiseOrValue<boolean>;
+    metadata: PromiseOrValue<BytesLike>;
   };
 
   export type TransactionStructOutput = [
@@ -39,7 +40,8 @@ export declare namespace MultiSigStorage {
     string,
     BigNumber,
     string,
-    boolean
+    boolean,
+    string
   ] & {
     title: string;
     description: string;
@@ -47,6 +49,7 @@ export declare namespace MultiSigStorage {
     value: BigNumber;
     data: string;
     executed: boolean;
+    metadata: string;
   };
 }
 
@@ -61,7 +64,7 @@ export interface IEndowmentMultiSigEmitterInterface extends utils.Interface {
     "removeOwnerEndowment(uint256,address)": FunctionFragment;
     "requirementChangeEndowment(uint256,uint256)": FunctionFragment;
     "revokeEndowment(uint256,address,uint256)": FunctionFragment;
-    "submitEndowment(uint256,uint256,(string,string,address,uint256,bytes,bool))": FunctionFragment;
+    "submitEndowment(uint256,uint256,(string,string,address,uint256,bytes,bool,bytes))": FunctionFragment;
   };
 
   getFunction(

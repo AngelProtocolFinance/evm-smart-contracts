@@ -111,14 +111,16 @@ contract EndowmentMultiSig is MultiSigGeneric {
         string memory description,
         address destination,
         uint256 value,
-        bytes memory data
+        bytes memory data,
+        bytes memory metadata
     ) public virtual override returns (uint256 transactionId) {
         transactionId = addTransaction(
             title,
             description,
             destination,
             value,
-            data
+            data,
+            metadata
         );
         confirmTransaction(transactionId);
     }
@@ -190,20 +192,23 @@ contract EndowmentMultiSig is MultiSigGeneric {
      * @param destination the destination of the transaction
      * @param value the value of the transaction
      * @param data the data of the transaction
+     * @param metadata Encoded transaction metadata, can contain dynamic content.
      */
     function addTransaction(
         string memory title,
         string memory description,
         address destination,
         uint256 value,
-        bytes memory data
+        bytes memory data,
+        bytes memory metadata
     ) internal override returns (uint256 transactionId) {
         transactionId = super.addTransaction(
             title,
             description,
             destination,
             value,
-            data
+            data,
+            metadata
         );
         IEndowmentMultiSigEmitter(EMITTER_ADDRESS).submitEndowment(
             ENDOWMENT_ID,
@@ -214,7 +219,8 @@ contract EndowmentMultiSig is MultiSigGeneric {
                 destination: destination,
                 value: value,
                 data: data,
-                executed: false
+                executed: false,
+                metadata: metadata
             })
         );
         return transactionId;
