@@ -1,5 +1,6 @@
 import { task } from "hardhat/config"
 import addresses from "../../../contract-address.json"
+import confirmAction from "../../../utils/confirmAction"
 import * as logger from "../../../utils/logger"
 import shouldVerify from "../../../utils/shouldVerify"
 import cutDiamond from "./cutDiamond"
@@ -12,6 +13,13 @@ task("upgrade:upgradeFacets", "Will redeploy and upgrade all facets that use Acc
     .addVariadicPositionalParam("facets", "List of facets to upgrade")
     .setAction(async (taskArguments: TaskArguments, hre) => {
         try {
+            const isConfirmed = await confirmAction(
+                `You're about to upgrade the following facets:\n- ${taskArguments.facets.join("\n- ")}`
+            )
+            if (!isConfirmed) {
+                return console.log("Aborting...")
+            }
+
             const [_deployer, proxyAdmin] = await hre.ethers.getSigners()
 
             const cuts = await deployFacets(
