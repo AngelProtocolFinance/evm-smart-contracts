@@ -30,8 +30,8 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
     function updateEndowmentDetails(
         AccountMessages.UpdateEndowmentDetailsRequest memory curDetails
     ) public nonReentrant {
+        require(curDetails.endow_type != AngelCoreStruct.EndowmentType.None, "InvalidInputs");
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             curDetails.id
         ];
@@ -39,10 +39,9 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[
             curDetails.id
         ];
-
         require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
         require(!tempEndowmentState.lockedForever, "Settings are locked forever");
-        
+
         // there are several fields that are restricted to changing only by the Endowment Owner
         if (msg.sender == tempEndowment.owner) {
             // An Endowment's owner can be set as the gov dao OR the endowment multisig contract
@@ -51,10 +50,6 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
             ) {
                 tempEndowment.owner = curDetails.owner;
             }
-            require(
-                curDetails.endow_type != AngelCoreStruct.EndowmentType.None,
-                "InvalidInputs"
-            );
 
             if (tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity) {
                 tempEndowment.rebalance = curDetails.rebalance;
