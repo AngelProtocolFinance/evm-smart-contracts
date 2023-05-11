@@ -22,17 +22,17 @@ task("upgrade:upgradeFacets", "Will redeploy and upgrade all facets that use Acc
 
             const [_deployer, proxyAdmin] = await hre.ethers.getSigners()
 
-            const cuts = await deployFacets(
+            const facetCuts = await deployFacets(
                 taskArguments.facets,
                 proxyAdmin,
                 addresses.libraries.ANGEL_CORE_STRUCT_LIBRARY,
                 addresses.libraries.STRING_LIBRARY
             )
 
-            await cutDiamond(addresses.accounts.diamond, proxyAdmin, cuts, hre)
+            await cutDiamond(addresses.accounts.diamond, proxyAdmin, facetCuts, hre)
 
             if (shouldVerify(hre.network)) {
-                await verify(cuts, addresses.accounts.diamond, proxyAdmin, hre)
+                await verify(facetCuts, hre)
             }
         } catch (error) {
             logger.out(`Upgrade facets failed, reason: ${error}`, logger.Level.Error)
