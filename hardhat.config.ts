@@ -1,5 +1,5 @@
 import { HardhatUserConfig } from "hardhat/config";
-import { envConfig, accounts } from "./utils/env.config" 
+import { envConfig, accounts } from "./utils" 
 import "@nomiclabs/hardhat-etherscan";
 import "@nomicfoundation/hardhat-chai-matchers"
 import '@openzeppelin/hardhat-upgrades';

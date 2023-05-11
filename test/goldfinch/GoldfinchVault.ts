@@ -7,7 +7,7 @@ import { DummyERC20, DummyERC20__factory } from "../../typechain-types";
 import { GoldfinchVault, GoldfinchVault__factory } from "../../typechain-types"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { BigNumber } from "ethers";
-import { StrategyApprovalState } from "../../utils/IRegistrarHelpers"
+import { StrategyApprovalState } from "../../utils"
 
 
 describe("Goldfinch Vault", function () {

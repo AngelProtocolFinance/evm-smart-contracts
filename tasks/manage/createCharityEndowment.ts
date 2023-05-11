@@ -3,7 +3,7 @@ import { task } from "hardhat/config"
 import addresses from "../../contract-address.json"
 import { AccountsCreateEndowment, AccountsQueryEndowments, MultiSigGeneric, Registrar } from "../../typechain-types"
 import { AccountMessages } from "../../typechain-types/contracts/core/accounts/IAccounts"
-import { genWallet } from "../../utils/keygen"
+import { genWallet } from "../../utils"
 
 task("manage:createCharityEndowment", "Will create a new charity endowment").setAction(
     async (_taskArguments, hre) => {

@@ -17,7 +17,7 @@ import {
     AccountsVaultFacet__factory,
     AxelarExecutionContract__factory,
 } from "../../../typechain-types"
-import getContractName from "../../../utils/getContractName"
+import { getContractName } from "../../../utils"
 import * as logger from "../../../utils/logger"
 import { FacetCut } from "./types"
 
