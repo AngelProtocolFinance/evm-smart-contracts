@@ -30,8 +30,8 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
     function updateEndowmentDetails(
         AccountMessages.UpdateEndowmentDetailsRequest memory curDetails
     ) public nonReentrant {
+        require(curDetails.endow_type != AngelCoreStruct.EndowmentType.None, "InvalidInputs");
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             curDetails.id
         ];
@@ -39,37 +39,21 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[
             curDetails.id
         ];
-
         require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
         require(!tempEndowmentState.lockedForever, "Settings are locked forever");
-        
-        if (
-            !(msg.sender == state.config.owner ||
-                msg.sender == tempEndowment.owner)
-        ) {
-            if (
-                tempEndowment.dao == address(0) ||
-                msg.sender != tempEndowment.dao
-            ) {
-                revert("Unauthorized");
-            }
-        }
 
-        // only config owner can update owner, tier and endowment type fields
-        if (msg.sender == state.config.owner) {
-            tempEndowment.tier = curDetails.tier;
-            if (curDetails.owner != address(0)) {
+        // there are several fields that are restricted to changing only by the Endowment Owner
+        if (msg.sender == tempEndowment.owner) {
+            // An Endowment's owner can be set as the gov dao OR the endowment multisig contract
+            if (curDetails.owner != address(0) &&
+                (curDetails.owner == tempEndowment.dao || curDetails.owner == tempEndowment.multisig)
+            ) {
                 tempEndowment.owner = curDetails.owner;
             }
-            tempEndowment.endow_type = curDetails.endow_type;
-            require(
-                curDetails.endow_type != AngelCoreStruct.EndowmentType.None,
-                "InvalidInputs"
-            );
-        }
 
-        if (tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity) {
-            tempEndowment.rebalance = curDetails.rebalance;
+            if (tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity) {
+                tempEndowment.rebalance = curDetails.rebalance;
+            }
         }
 
         if (

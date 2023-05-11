@@ -69,7 +69,7 @@ library AccountMessages {
 
     struct UpdateEndowmentStatusRequest {
         uint256 endowmentId;
-        uint256 status;
+        AngelCoreStruct.EndowmentStatus status;
         AngelCoreStruct.Beneficiary beneficiary;
     }
 
