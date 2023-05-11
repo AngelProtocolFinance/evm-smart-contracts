@@ -36,8 +36,6 @@ contract AccountsUpdateStatusEndowments is
         AccountMessages.UpdateEndowmentStatusRequest memory curDetails
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-
-        address registrarAddress = state.config.registrarContract;
         AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[
             curDetails.endowmentId
         ];
@@ -48,48 +46,30 @@ contract AccountsUpdateStatusEndowments is
         );
 
         RegistrarStorage.Config memory registrar_config = IRegistrar(
-            registrarAddress
+            state.config.registrarContract
         ).queryConfig();
-
-        require(msg.sender == state.config.owner, "Unauthorized");
-
-        require(curDetails.status <= 3, "Status not found");
 
         AngelCoreStruct.EndowmentStatus _newStatus;
 
-        if (curDetails.status == 0) {
-            _newStatus = AngelCoreStruct.EndowmentStatus.Inactive;
-        } else if (curDetails.status == 1) {
+        if (curDetails.status == 1) {
+            // only the Accounts owner (ex. AP Team Multisig || AP Gov) can freeze/unfreeze
+            require(msg.sender == state.config.owner, "Unauthorized");
             _newStatus = AngelCoreStruct.EndowmentStatus.Approved;
-        } else if (curDetails.status == 2) {
-            _newStatus = AngelCoreStruct.EndowmentStatus.Frozen;
-        } else if (curDetails.status == 3) {
-            _newStatus = AngelCoreStruct.EndowmentStatus.Closed;
-        } else {
-            revert("Invalid EndowmentStatus");
-        }
-
-        require(
-            tempEndowment.status != _newStatus,
-            "New status similar to current status"
-        );
-
-        require(
-            registrar_config.indexFundContract != address(0),
-            "ContractNotConfigured"
-        );
-
-        address[] memory curTarget = new address[](0);
-        uint256[] memory curValue = new uint256[](0);
-        bytes[] memory curCalldata = new bytes[](0);
-
-        if (_newStatus == AngelCoreStruct.EndowmentStatus.Approved) {
             tempEndowment.depositApproved = true;
             tempEndowment.withdrawApproved = true;
-        } else if (_newStatus == AngelCoreStruct.EndowmentStatus.Frozen) {
+        } else if (curDetails.status == 2) {
+            // only the Accounts owner (ex. AP Team Multisig || AP Gov) can freeze/unfreeze
+            require(msg.sender == state.config.owner, "Unauthorized");
+            _newStatus = AngelCoreStruct.EndowmentStatus.Frozen;
             tempEndowment.depositApproved = true;
             tempEndowment.withdrawApproved = false;
-        } else if (_newStatus == AngelCoreStruct.EndowmentStatus.Closed) {
+        } else if (curDetails.status == 3) {
+            // only endowment owner can close their accounts
+            require(msg.sender == state.config.owner, "Unauthorized");
+            _newStatus = AngelCoreStruct.EndowmentStatus.Closed;
+            tempEndowment.depositApproved = false;
+            tempEndowment.withdrawApproved = false;
+
             AngelCoreStruct.Beneficiary memory _tempBeneficiary;
 
             curTarget = new address[](2);
@@ -102,6 +82,11 @@ contract AccountsUpdateStatusEndowments is
             ) {
                 _tempBeneficiary = curDetails.beneficiary;
             } else {
+                require(
+                    registrar_config.indexFundContract != address(0),
+                    "Index Fund Contract is not configured in Registrar"
+                );
+
                 AngelCoreStruct.IndexFund[] memory funds = IIndexFund(
                     registrar_config.indexFundContract
                 ).queryInvolvedFunds(curDetails.endowmentId);
@@ -125,9 +110,6 @@ contract AccountsUpdateStatusEndowments is
                 }
             }
 
-            tempEndowment.depositApproved = false;
-            tempEndowment.withdrawApproved = false;
-
             curTarget[0] = registrar_config.indexFundContract;
             curValue[0] = 0;
             curCalldata[0] = abi.encodeWithSignature(
@@ -142,7 +124,18 @@ contract AccountsUpdateStatusEndowments is
                 curDetails.endowmentId,
                 _tempBeneficiary
             );
+        } else {
+            revert("Invalid EndowmentStatus input");
         }
+
+        require(
+            tempEndowment.status != _newStatus,
+            "New status similar to current status"
+        );
+
+        address[] memory curTarget = new address[](0);
+        uint256[] memory curValue = new uint256[](0);
+        bytes[] memory curCalldata = new bytes[](0);
 
         tempEndowment.status = _newStatus;
         state.ENDOWMENTS[curDetails.endowmentId] = tempEndowment;
@@ -178,8 +171,6 @@ contract AccountsUpdateStatusEndowments is
         console.log("pendingRedemptions",redemtion);
         tempEndowment.depositApproved = false;
 
-        // state.ENDOWMENTS[curId] = tempEndowment;
-        //TODO: check enent here
         emit UpdateEndowmentState(curId, state.STATES[curId]);
     }
 
