@@ -3,7 +3,7 @@ import * as logger from "../../../utils/logger"
 import { FacetCut } from "./types"
 
 export default async function verify(facetCuts: FacetCut[], hre: HardhatRuntimeEnvironment): Promise<void> {
-    console.log("Verifying newly deployed facets...")
+    logger.out("Verifying newly deployed facets...")
 
     for (const { facetName, cut } of facetCuts) {
         try {

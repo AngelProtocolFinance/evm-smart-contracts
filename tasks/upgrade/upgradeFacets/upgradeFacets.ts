@@ -17,7 +17,7 @@ task("upgrade:upgradeFacets", "Will redeploy and upgrade all facets that use Acc
                 `You're about to upgrade the following facets:\n- ${taskArguments.facets.join("\n- ")}`
             )
             if (!isConfirmed) {
-                return console.log("Aborting...")
+                return logger.out("Aborting...")
             }
 
             const [_deployer, proxyAdmin] = await hre.ethers.getSigners()
@@ -37,6 +37,6 @@ task("upgrade:upgradeFacets", "Will redeploy and upgrade all facets that use Acc
         } catch (error) {
             logger.out(`Upgrade facets failed, reason: ${error}`, logger.Level.Error)
         } finally {
-            console.log("Done.")
+            logger.out("Done.")
         }
     })

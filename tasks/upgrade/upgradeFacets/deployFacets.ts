@@ -29,18 +29,18 @@ export default async function deployFacets(
 ): Promise<FacetCut[]> {
     const cuts: FacetCut[] = []
 
-    console.log("Instantiating factories...")
+    logger.out("Instantiating factories...")
 
     const facetFactories = await getFacetFactories(facetNames, diamondOwner, corestruct, stringlib)
 
-    console.log("Deploying all facets that use AccountStorage struct...")
+    logger.out("Deploying all facets that use AccountStorage struct...")
 
     for (const facetFactory of facetFactories) {
         const { facetName, factory } = facetFactory
         try {
             const facet = await factory.deploy()
             await facet.deployed()
-            console.log(`${facetName} deployed: ${facet.address}`)
+            logger.out(`${facetName} deployed: ${facet.address}`)
             cuts.push({
                 facetName,
                 cut: {

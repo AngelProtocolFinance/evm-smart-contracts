@@ -29,7 +29,7 @@ task(
         const charityApplicationImpl = await CharityApplication.deploy()
         await charityApplicationImpl.deployed()
 
-        console.log("CharityApplication implementation address:", charityApplicationImpl.address)
+        logger.out(`CharityApplication implementation address: ${charityApplicationImpl.address}`)
 
         const CharityApplicationProxy = ITransparentUpgradeableProxy__factory.connect(
             addresses.charityApplication.CharityApplicationProxy,
@@ -41,8 +41,8 @@ task(
             CharityApplicationProxy.address,
             IMPLEMENTATION_ADDRESS_SLOT
         )
-        console.log("Current AP Team Impl: ", currentCharityApplImpl)
-        console.log("For proxy at: ", CharityApplicationProxy.address)
+        logger.out(`Current AP Team Impl: ${currentCharityApplImpl}`)
+        logger.out(`For proxy at: ${CharityApplicationProxy.address}`)
 
         const tx = await CharityApplicationProxy.upgradeTo(charityApplicationImpl.address)
         await hre.ethers.provider.waitForTransaction(tx.hash)
@@ -52,7 +52,7 @@ task(
             CharityApplicationProxy.address,
             IMPLEMENTATION_ADDRESS_SLOT
         )
-        console.log("New Charity Application Impl: ", newCharityApplImpl)
+        logger.out(`New Charity Application Impl: ${newCharityApplImpl}`)
 
         // // Save frontend files
         const charityApplication = {
@@ -62,7 +62,7 @@ task(
         await saveFrontendFiles({ charityApplication })
 
         if (shouldVerify(hre.network)) {
-            console.log("Verifying the contract...")
+            logger.out("Verifying the contract...")
 
             await hre.run("verify:verify", {
                 address: CharityApplicationLibInstance.address,
@@ -77,9 +77,9 @@ task(
                 constructorArguments: [charityApplicationImpl.address, proxyAdmin.address, "0x"],
             })
         }
-
-        console.log("Done.")
     } catch (error) {
         logger.out(error, logger.Level.Error)
+    } finally {
+        logger.out("Done.")
     }
 })
