@@ -68,11 +68,6 @@ contract AccountsUpdateStatusEndowments is
             tempEndowment.withdrawApproved = false;
 
             AngelCoreStruct.Beneficiary memory _tempBeneficiary;
-
-            curTarget = new address[](2);
-            curValue = new uint256[](2);
-            curCalldata = new bytes[](2);
-
             if (
                 curDetails.beneficiary.enumData !=
                 AngelCoreStruct.BeneficiaryEnum.None
@@ -106,6 +101,10 @@ contract AccountsUpdateStatusEndowments is
                     });
                 }
             }
+
+            curTarget = new address[](2);
+            curValue = new uint256[](2);
+            curCalldata = new bytes[](2);
 
             curTarget[0] = registrar_config.indexFundContract;
             curValue[0] = 0;
