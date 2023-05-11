@@ -5,7 +5,7 @@ import { EndowmentMultiSig__factory, MultiSigWalletFactory__factory } from "../.
 import * as logger from "../../utils/logger"
 
 task(
-    "upgrade:upgradeEndowmentMultisig",
+    "upgrade:upgradeEndowmentMultiSig",
     "Will upgrade the implementation of the EndowmentMultiSig contracts"
 ).setAction(async (_taskArguments, hre) => {
     try {
