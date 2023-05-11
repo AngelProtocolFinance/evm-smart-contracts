@@ -1,6 +1,6 @@
 import { task } from "hardhat/config"
 import type { TaskArguments } from "hardhat/types"
-import * as logger from "../../utils/logger"
+import { logger } from "../../utils"
 import * as fs from "fs"
 import { Router, Router__factory } from "../../typechain-types"
 import { Registrar, Registrar__factory } from "../../typechain-types"

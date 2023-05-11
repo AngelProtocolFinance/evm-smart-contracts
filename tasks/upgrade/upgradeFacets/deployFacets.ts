@@ -17,8 +17,7 @@ import {
     AccountsVaultFacet__factory,
     AxelarExecutionContract__factory,
 } from "../../../typechain-types"
-import { getContractName } from "../../../utils"
-import * as logger from "../../../utils/logger"
+import { getContractName, logger } from "../../../utils"
 import { FacetCut } from "./types"
 
 export default async function deployFacets(

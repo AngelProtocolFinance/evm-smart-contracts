@@ -1,6 +1,6 @@
 import { task,types } from "hardhat/config"
 import type { TaskArguments } from "hardhat/types"
-import * as logger from "../../../utils/logger"
+import { logger } from "../../../utils"
 import * as fs from "fs"
 import { GoldfinchVault, GoldfinchVault__factory, Registrar} from "../../../typechain-types"
 import { getImplementationAddress } from '@openzeppelin/upgrades-core'

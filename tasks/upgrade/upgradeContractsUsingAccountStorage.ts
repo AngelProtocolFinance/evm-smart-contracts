@@ -16,7 +16,7 @@ import {
     AxelarExecutionContract__factory,
 } from "../../typechain-types"
 import { getContractName } from "../../utils"
-import * as logger from "../../utils/logger"
+import { logger } from "../../utils"
 
 task(
     "upgrade:upgradeContractsUsingAccountStorage",
