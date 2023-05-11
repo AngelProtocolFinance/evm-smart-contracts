@@ -48,7 +48,7 @@
     "EndowmentMultiSigEmitterProxy": "0xE5cAcaCd2230e53054ddc9bbB7d1cB56b892FC76",
     "EndowmentMultiSigEmitterImplementation": "0x234deE964Cc3AF52D5A2567C1FD6F6Eb58998204",
     "MultiSigWalletFactory": "0x386FE56636177cE392B751919B4D6EABA24D6F25",
-    "MultiSigWalletImplementation": "0xf86eA7Fb5cDa0EE846429208Aa6132F6e938F05A"
+    "MultiSigWalletImplementation": "0x8174D68F8e42D1ec084FAe425f42821dCa1352E1"
   },
   "Tokens": {
     "usdc": "0xe6b8a5CF854791412c1f6EFC7CAf629f5Df1c747",
