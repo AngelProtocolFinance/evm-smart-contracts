@@ -24,13 +24,12 @@ import {IAccountsQuery} from "../interface/IAccountsQuery.sol";
 contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
     /**
     @notice Updates the endowment details.
-    @dev This function allows authorized users to update the endowment details like owner, tier, endowment type, rebalance, name, categories, logo, and image.
+    @dev This function allows the Endowment owner to update the endowment details like owner & rebalance and allows them or their Delegate(s) to update name, categories, logo, and image.
     @param curDetails UpdateEndowmentDetailsRequest struct containing the updated endowment details.
     */
     function updateEndowmentDetails(
         AccountMessages.UpdateEndowmentDetailsRequest memory curDetails
     ) public nonReentrant {
-        require(curDetails.endow_type != AngelCoreStruct.EndowmentType.None, "InvalidInputs");
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             curDetails.id
