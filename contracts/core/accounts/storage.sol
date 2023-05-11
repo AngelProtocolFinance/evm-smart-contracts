@@ -50,7 +50,7 @@ library AccountStorage {
         AngelCoreStruct.EndowmentFee withdrawFee;
         AngelCoreStruct.EndowmentFee depositFee;
         AngelCoreStruct.EndowmentFee balanceFee;
-        AngelCoreStruct.SettingsController settingsController;
+        mapping(string => Delegate) settingsController;
         uint256 parent;
         bool ignoreUserSplits;
         AngelCoreStruct.SplitDetails splitToLiquid;
@@ -77,7 +77,6 @@ library AccountStorage {
         mapping(uint256 => uint256) DAOTOKENBALANCE;
         mapping(uint256 => EndowmentState) STATES;
         mapping(uint256 => Endowment) ENDOWMENTS;
-        mapping(uint256 => AngelCoreStruct.Profile) PROFILES;
         //owner -> spender -> token -> Allowance Struct
         mapping(address => mapping(address => mapping(address => AllowanceData))) ALLOWANCES;
         Config config;

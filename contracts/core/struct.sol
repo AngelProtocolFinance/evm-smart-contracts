@@ -691,19 +691,19 @@ library AngelCoreStruct {
     }
 
     struct Delegate {
-        address Addr;
+        address addr;
         uint256 expires; // datetime int of delegation expiry
     }
 
     function canTakeAction(
-        Delegate storage self,
+        Delegate storage delegate,
         address sender,
         uint256 envTime
     ) public view returns (bool) {
         return (
-            self.Addr != address(0) &&
-            sender == self.Addr &&
-            (self.expires == 0 || envTime <= self.expires)
+            delegate.addr != address(0) &&
+            sender == delegate.addr &&
+            (delegate.expires == 0 || envTime <= delegate.expires)
         );
     }
 
@@ -716,161 +716,18 @@ library AngelCoreStruct {
     uint256 constant FEE_BASIS = 1000;      // gives 0.1% precision for fees
     uint256 constant PERCENT_BASIS = 100;   // gives 1% precision for declared percentages
 
-    struct SettingsPermission {
-        Delegate delegate;
-    }
-
-    function setDelegate(
-        SettingsPermission storage self,
-        address sender,
-        address owner,
-        address delegateAddr,
-        uint256 delegateExpiry
-    ) public {
-        if (
-            sender == owner
-        ) {
-            self.delegate = Delegate({
-                Addr: delegateAddr,
-                expires: delegateExpiry
-            });
-        }
-    }
-
-    function revokeDelegate(
-        SettingsPermission storage self,
-        address sender,
-        address owner,
-        uint256 envTime
-    ) public {
-        if (
-            canTakeAction(self.delegate, sender, envTime) || sender == owner            
-        ) {
-            self.delegate = Delegate({Addr: address(0), expires: 0});
-        }
-    }
-
     function canChange(
-        SettingsPermission storage self,
+        Delegate storage delegate,
         address sender,
         address owner,
         uint256 envTime
     ) public view returns (bool) {
-        return (canTakeAction(self.delegate, sender, envTime) || sender == owner);
-    }
-
-    struct SettingsController {
-        SettingsPermission endowmentController;
-        SettingsPermission strategies;
-        SettingsPermission allowlistedBeneficiaries;
-        SettingsPermission allowlistedContributors;
-        SettingsPermission maturityAllowlist;
-        SettingsPermission maturityTime;
-        SettingsPermission profile;
-        SettingsPermission earningsFee;
-        SettingsPermission withdrawFee;
-        SettingsPermission depositFee;
-        SettingsPermission balanceFee;
-        SettingsPermission name;
-        SettingsPermission image;
-        SettingsPermission logo;
-        SettingsPermission categories;
-        SettingsPermission splitToLiquid;
-        SettingsPermission ignoreUserSplits;
-    }
-
-    function getPermissions(
-        SettingsController storage _tempObject,
-        string memory name
-    ) public view returns (SettingsPermission storage) {
-        if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("endowmentController"))
-        ) {
-            return _tempObject.endowmentController;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("maturityAllowlist"))
-        ) {
-            return _tempObject.maturityAllowlist;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("splitToLiquid"))
-        ) {
-            return _tempObject.splitToLiquid;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("ignoreUserSplits"))
-        ) {
-            return _tempObject.ignoreUserSplits;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("strategies"))
-        ) {
-            return _tempObject.strategies;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("allowlistedBeneficiaries"))
-        ) {
-            return _tempObject.allowlistedBeneficiaries;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("allowlistedContributors"))
-        ) {
-            return _tempObject.allowlistedContributors;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("maturityTime"))
-        ) {
-            return _tempObject.maturityTime;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("profile"))
-        ) {
-            return _tempObject.profile;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("earningsFee"))
-        ) {
-            return _tempObject.earningsFee;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("withdrawFee"))
-        ) {
-            return _tempObject.withdrawFee;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("depositFee"))
-        ) {
-            return _tempObject.depositFee;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("balanceFee"))
-        ) {
-            return _tempObject.balanceFee;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("name"))
-        ) {
-            return _tempObject.name;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("image"))
-        ) {
-            return _tempObject.image;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("logo"))
-        ) {
-            return _tempObject.logo;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("categories"))
-        ) {
-            return _tempObject.categories;
-        } else {
-            revert("InvalidInputs");
-        }
+        // can be changed if:
+        // 1. sender is a valid delegate address and their powers have not expired
+        // 2. sender is the endow owner && (no set delegate || an expired delegate) (ie. owner must first revoke their delegation)
+        return (canTakeAction(delegate, sender, envTime) ||
+            (sender == owner && !canTakeAction(delegate, sender, envTime))
+        );
     }
 
     // None at the start as pending starts at 1 in ap rust contracts (in cw3 core)

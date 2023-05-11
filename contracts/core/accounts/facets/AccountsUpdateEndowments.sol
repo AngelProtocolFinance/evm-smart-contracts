@@ -57,7 +57,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.name,
+                tempEndowment.settingsController["name"],
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -68,7 +68,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.categories,
+                tempEndowment.settingsController["categories"],
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -114,7 +114,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.logo,
+                tempEndowment.settingsController["logo"],
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -125,7 +125,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.image,
+                tempEndowment.settingsController["image"],
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -157,41 +157,21 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[id];
         AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];
-        // AngelCoreStruct.SettingsPermission memory tempSettings = AngelCoreStruct.getPermissions(state.ENDOWMENTS[id].settingsController,setting);
 
-        require(msg.sender == tempEndowment.owner, "Unauthorized");
         require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
         require(!tempEndowmentState.lockedForever, "Settings are locked forever");
+        require(tempEndowmentState.settingsController[setting], "Invalid input"); 
 
         if (
-            keccak256(abi.encodePacked(action)) ==
-            keccak256(abi.encodePacked("set"))
+            keccak256(abi.encodePacked(action)) == keccak256(abi.encodePacked("set"))
         ) {
-            AngelCoreStruct.setDelegate(
-                AngelCoreStruct.getPermissions(
-                    state.ENDOWMENTS[id].settingsController,
-                    setting
-                ),
-                msg.sender,
-                tempEndowment.owner,
-                delegateAddress,
-                delegateExpiry
-            );
+            require(msg.sender == tempEndowment.owner, "Unauthorized");
+            tempEndowmentState.settingsController[setting] = Delegate({addr: delegateAddress, expires: delegateExpiry});
         } else if (
-            keccak256(abi.encodePacked(action)) ==
-            keccak256(abi.encodePacked("revoke"))
+            keccak256(abi.encodePacked(action)) == keccak256(abi.encodePacked("revoke"))
         ) {
-            AngelCoreStruct.revokeDelegate(
-                AngelCoreStruct.getPermissions(
-                    state.ENDOWMENTS[id].settingsController,
-                    setting
-                ),
-                msg.sender,
-                tempEndowment.owner,
-                block.timestamp
-            );
-        } else {
-            revert("Invalid Input");
+            require(AngelCoreStruct.canChange(msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
+            tempEndowmentState.settingsController[setting] = Delegate({addr: address(0), expires: 0});
         }
 
         emit UpdateEndowment(id, tempEndowment);

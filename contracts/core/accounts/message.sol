@@ -51,20 +51,19 @@ library AccountMessages {
     }
     struct UpdateEndowmentControllerRequest {
         uint256 id;
-        AngelCoreStruct.SettingsPermission endowmentController;
-        AngelCoreStruct.SettingsPermission name;
-        AngelCoreStruct.SettingsPermission image;
-        AngelCoreStruct.SettingsPermission logo;
-        AngelCoreStruct.SettingsPermission categories;
-        AngelCoreStruct.SettingsPermission splitToLiquid;
-        AngelCoreStruct.SettingsPermission ignoreUserSplits;
-        AngelCoreStruct.SettingsPermission allowlistedBeneficiaries;
-        AngelCoreStruct.SettingsPermission allowlistedContributors;
-        AngelCoreStruct.SettingsPermission maturityAllowlist;
-        AngelCoreStruct.SettingsPermission earningsFee;
-        AngelCoreStruct.SettingsPermission depositFee;
-        AngelCoreStruct.SettingsPermission withdrawFee;
-        AngelCoreStruct.SettingsPermission balanceFee;
+        AngelCoreStruct.Delegate name;
+        AngelCoreStruct.Delegate image;
+        AngelCoreStruct.Delegate logo;
+        AngelCoreStruct.Delegate categories;
+        AngelCoreStruct.Delegate splitToLiquid;
+        AngelCoreStruct.Delegate ignoreUserSplits;
+        AngelCoreStruct.Delegate allowlistedBeneficiaries;
+        AngelCoreStruct.Delegate allowlistedContributors;
+        AngelCoreStruct.Delegate maturityAllowlist;
+        AngelCoreStruct.Delegate earningsFee;
+        AngelCoreStruct.Delegate depositFee;
+        AngelCoreStruct.Delegate withdrawFee;
+        AngelCoreStruct.Delegate balanceFee;
     }
 
     struct UpdateEndowmentStatusRequest {

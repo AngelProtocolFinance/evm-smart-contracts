@@ -57,16 +57,13 @@ contract AccountsUpdateEndowmentSettingsController is
             if (tempEndowment.maturityTime > block.timestamp) {
                 if (
                     AngelCoreStruct.canChange(
-                        tempEndowment
-                            .settingsController
-                            .allowlistedBeneficiaries,
+                        tempEndowment.settingsController["allowlistedBeneficiaries"],
                         msg.sender,
                         tempEndowment.owner,
                         block.timestamp
                     )
                 ) {
-                    tempEndowment.allowlistedBeneficiaries = curDetails
-                        .allowlistedBeneficiaries;
+                    tempEndowment.allowlistedBeneficiaries = curDetails.allowlistedBeneficiaries;
                     emit EndowmentSettingUpdated(
                         curDetails.id,
                         "allowlistedBeneficiaries"
@@ -75,16 +72,13 @@ contract AccountsUpdateEndowmentSettingsController is
 
                 if (
                     AngelCoreStruct.canChange(
-                        tempEndowment
-                            .settingsController
-                            .allowlistedContributors,
+                        tempEndowment.settingsController["allowlistedContributors"],
                         msg.sender,
                         tempEndowment.owner,
                         block.timestamp
                     )
                 ) {
-                    tempEndowment.allowlistedContributors = curDetails
-                        .allowlistedContributors;
+                    tempEndowment.allowlistedContributors = curDetails.allowlistedContributors;
                     emit EndowmentSettingUpdated(
                         curDetails.id,
                         "allowlistedContributors"
@@ -93,7 +87,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
                 if (
                     AngelCoreStruct.canChange(
-                        tempEndowment.settingsController.maturityAllowlist,
+                        tempEndowment.settingsController["maturityAllowlist"],
                         msg.sender,
                         tempEndowment.owner,
                         block.timestamp
@@ -141,7 +135,7 @@ contract AccountsUpdateEndowmentSettingsController is
         }
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.splitToLiquid,
+                tempEndowment.settingsController["splitToLiquid"],
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -153,7 +147,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.ignoreUserSplits,
+                tempEndowment.settingsController["ignoreUserSplits"],
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -168,7 +162,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
     /**
     @notice Updates the controller of the specified endowment
-    @dev Only the current controller of the endowment or the owner or DAO can call this function
+    @dev Only the endowment owner can call this function
     @param curDetails The updated details of the endowment controller
     @param curDetails.id The ID of the endowment
     */
@@ -185,19 +179,8 @@ contract AccountsUpdateEndowmentSettingsController is
 
         require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
         require(!tempEndowmentState.lockedForever, "Settings are locked forever");
+        require(msg.sender == tempEndowment.owner, "Unauthorized");
 
-        if (
-            !AngelCoreStruct.canChange(
-                tempEndowment.settingsController.endowmentController,
-                msg.sender,
-                tempEndowment.owner,
-                block.timestamp
-            )
-        ) {
-            revert("Unauthorized");
-        }
-        tempEndowment.settingsController.endowmentController = curDetails
-            .endowmentController;
         tempEndowment.settingsController.name = curDetails.name;
         tempEndowment.settingsController.image = curDetails.image;
         tempEndowment.settingsController.logo = curDetails.logo;
@@ -249,7 +232,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.earningsFee,
+                tempEndowment.settingsController["earningsFee"],
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -260,7 +243,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.depositFee,
+                tempEndowment.settingsController["depositFee"],
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -271,7 +254,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.withdrawFee,
+                tempEndowment.settingsController["withdrawFee"],
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -282,7 +265,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.balanceFee,
+                tempEndowment.settingsController["balanceFee"],
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
