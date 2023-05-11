@@ -1,9 +1,9 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { task } from "hardhat/config"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
-import { createInterface } from "node:readline/promises"
 import addresses from "../../contract-address.json"
 import { ITransparentUpgradeableProxy__factory, OwnershipFacet__factory } from "../../typechain-types"
+import confirmAction from "../../utils/confirmAction"
 import * as logger from "../../utils/logger"
 
 task("manage:changeAdmin", "Will update the admin for all proxy contracts")
@@ -11,11 +11,8 @@ task("manage:changeAdmin", "Will update the admin for all proxy contracts")
     .addParam("newAdmin", "New admin address")
     .setAction(async (taskArguments, hre) => {
         try {
-            const readline = createInterface({ input: process.stdin, output: process.stdout })
-
-            const answer = await readline.question(`Are you sure you wish to set ${taskArguments.newAdmin} as the new admin? (Y/y)`)
-
-            if (!/^(|y|yes)$/i.test(answer)) {
+            const isConfirmed = await confirmAction(`You're about to set ${taskArguments.newAdmin} as the new admin`)
+            if (!isConfirmed) {
                 return console.log("Aborting...")
             }
 
@@ -31,7 +28,11 @@ task("manage:changeAdmin", "Will update the admin for all proxy contracts")
         }
     })
 
-async function transferAccountOwnership(currentAdmin: SignerWithAddress, newAdmin: string, hre: HardhatRuntimeEnvironment) {
+async function transferAccountOwnership(
+    currentAdmin: SignerWithAddress,
+    newAdmin: string,
+    hre: HardhatRuntimeEnvironment
+) {
     try {
         const ownershipFacet = OwnershipFacet__factory.connect(addresses.accounts.diamond, currentAdmin)
         const tx = await ownershipFacet.transferOwnership(newAdmin)
