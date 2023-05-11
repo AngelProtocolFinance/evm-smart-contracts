@@ -25,9 +25,6 @@ library AccountStorage {
         AngelCoreStruct.EndowmentType endow_type;
         string logo;
         string image;
-        AngelCoreStruct.EndowmentStatus status;
-        bool depositApproved; // approved to receive donations & transact
-        bool withdrawApproved; // approved to withdraw funds
         uint256 maturityTime; // datetime int of endowment maturity
         //OG:AngelCoreStruct.AccountStrategies
         // uint256 strategies; // vaults and percentages for locked/liquid accounts donations where auto_invest == TRUE

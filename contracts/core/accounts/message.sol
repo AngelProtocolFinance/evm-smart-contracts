@@ -68,7 +68,6 @@ library AccountMessages {
 
     struct UpdateEndowmentStatusRequest {
         uint256 endowmentId;
-        AngelCoreStruct.EndowmentStatus status;
         AngelCoreStruct.Beneficiary beneficiary;
     }
 
@@ -134,7 +133,6 @@ library AccountMessages {
     struct EndowmentEntry {
         uint256 id; // u32,
         address owner; // String,
-        AngelCoreStruct.EndowmentStatus status; // EndowmentStatus,
         AngelCoreStruct.EndowmentType endow_type; // EndowmentType,
         string name; // Option<String>,
         string logo; // Option<String>,
@@ -173,15 +171,12 @@ library AccountMessages {
         address daoToken;
         string description;
         AngelCoreStruct.AccountStrategies strategies;
-        AngelCoreStruct.EndowmentStatus status;
         AngelCoreStruct.EndowmentType endow_type;
         uint256 maturityTime;
         AngelCoreStruct.OneOffVaults oneoffVaults;
         LocalRegistrarLib.RebalanceParams rebalance;
         address donationMatchContract;
         address[] maturityAllowlist;
-        bool depositApproved;
-        bool withdrawApproved;
         uint256 pendingRedemptions;
         string logo;
         string image;

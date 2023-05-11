@@ -39,67 +39,49 @@ contract AccountsUpdateStatusEndowments is
         AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[
             curDetails.endowmentId
         ];
+        AccountStorage.EndownmentState memory tempEndowmentState = state.STATES[
+            curDetails.endowmentId
+        ];
 
-        require(
-            tempEndowment.status != AngelCoreStruct.EndowmentStatus.Closed,
-            "Account closed"
-        );
+        require(msg.sender == tempEndowment.owner, "Unauthorized"); 
+        require(!tempEndowmentState.closingEndowment,"Endowment is closed");
 
         RegistrarStorage.Config memory registrar_config = IRegistrar(
             state.config.registrarContract
         ).queryConfig();
 
-        AngelCoreStruct.EndowmentStatus _newStatus;
+        AngelCoreStruct.Beneficiary memory _tempBeneficiary;
+        if (
+            curDetails.beneficiary.enumData !=
+            AngelCoreStruct.BeneficiaryEnum.None
+        ) {
+            _tempBeneficiary = curDetails.beneficiary;
+        } else {
+            require(
+                registrar_config.indexFundContract != address(0),
+                "Index Fund Contract is not configured in Registrar"
+            );
 
-        if (curDetails.status == AngelCoreStruct.EndowmentStatus.Approved) {
-            // only the Accounts owner (ex. AP Team Multisig || AP Gov) can freeze/unfreeze
-            require(msg.sender == state.config.owner, "Unauthorized");
-            tempEndowment.depositApproved = true;
-            tempEndowment.withdrawApproved = true;
-        } else if (curDetails.status == AngelCoreStruct.EndowmentStatus.Frozen) {
-            // only the Accounts owner (ex. AP Team Multisig || AP Gov) can freeze/unfreeze
-            require(msg.sender == state.config.owner, "Unauthorized");
-            tempEndowment.depositApproved = true;
-            tempEndowment.withdrawApproved = false;
-        } else if (curDetails.status == AngelCoreStruct.EndowmentStatus.Closed) {
-            // only endowment owner can close their accounts
-            require(msg.sender == state.config.owner, "Unauthorized");\
-            tempEndowment.depositApproved = false;
-            tempEndowment.withdrawApproved = false;
+            AngelCoreStruct.IndexFund[] memory funds = IIndexFund(
+                registrar_config.indexFundContract
+            ).queryInvolvedFunds(curDetails.endowmentId);
 
-            AngelCoreStruct.Beneficiary memory _tempBeneficiary;
-            if (
-                curDetails.beneficiary.enumData !=
-                AngelCoreStruct.BeneficiaryEnum.None
-            ) {
-                _tempBeneficiary = curDetails.beneficiary;
+            if (funds.length == 0) {
+                _tempBeneficiary = AngelCoreStruct.Beneficiary({
+                    data: AngelCoreStruct.BeneficiaryData({
+                        id: 0,
+                        addr: registrar_config.treasury
+                    }),
+                    enumData: AngelCoreStruct.BeneficiaryEnum.Wallet
+                });
             } else {
-                require(
-                    registrar_config.indexFundContract != address(0),
-                    "Index Fund Contract is not configured in Registrar"
-                );
-
-                AngelCoreStruct.IndexFund[] memory funds = IIndexFund(
-                    registrar_config.indexFundContract
-                ).queryInvolvedFunds(curDetails.endowmentId);
-
-                if (funds.length == 0) {
-                    _tempBeneficiary = AngelCoreStruct.Beneficiary({
-                        data: AngelCoreStruct.BeneficiaryData({
-                            id: 0,
-                            addr: registrar_config.treasury
-                        }),
-                        enumData: AngelCoreStruct.BeneficiaryEnum.Wallet
-                    });
-                } else {
-                    _tempBeneficiary = AngelCoreStruct.Beneficiary({
-                        data: AngelCoreStruct.BeneficiaryData({
-                            id: funds[0].id,
-                            addr: address(0)
-                        }),
-                        enumData: AngelCoreStruct.BeneficiaryEnum.IndexFund
-                    });
-                }
+                _tempBeneficiary = AngelCoreStruct.Beneficiary({
+                    data: AngelCoreStruct.BeneficiaryData({
+                        id: funds[0].id,
+                        addr: address(0)
+                    }),
+                    enumData: AngelCoreStruct.BeneficiaryEnum.IndexFund
+                });
             }
 
             curTarget = new address[](2);
@@ -120,14 +102,7 @@ contract AccountsUpdateStatusEndowments is
                 curDetails.endowmentId,
                 _tempBeneficiary
             );
-        } else {
-            revert("Invalid EndowmentStatus input");
         }
-
-        require(
-            tempEndowment.status != _newStatus,
-            "New status similar to current status"
-        );
 
         address[] memory curTarget = new address[](0);
         uint256[] memory curValue = new uint256[](0);
@@ -165,7 +140,6 @@ contract AccountsUpdateStatusEndowments is
         uint256 redemtion = uint256(tempEndowment.oneoffVaults.liquid.length) + uint256(tempEndowment.oneoffVaults.locked.length);
         tempEndowment.pendingRedemptions = redemtion;
         console.log("pendingRedemptions",redemtion);
-        tempEndowment.depositApproved = false;
 
         emit UpdateEndowmentState(curId, state.STATES[curId]);
     }

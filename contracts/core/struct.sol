@@ -52,13 +52,6 @@ library AngelCoreStruct {
         Normal,
     }
 
-    enum EndowmentStatus {
-        Inactive,
-        Approved,
-        Frozen,
-        Closed
-    }
-
     struct AccountStrategies {
         string[] locked_vault;
         uint256[] lockedPercentage;

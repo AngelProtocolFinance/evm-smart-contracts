@@ -127,9 +127,6 @@ contract Fundraising is StorageFundraising {
         AccountStorage.Endowment memory endowment_details = IAccountsQuery(
             accountsContract
         ).queryEndowmentDetails(endowmentId);
-        if (
-            endowment_details.status != AngelCoreStruct.EndowmentStatus.Approved
-        ) revert("Unauthorized");
 
         // assert that the campaign has started already
         if (
