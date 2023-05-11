@@ -76,10 +76,8 @@ library AccountMessages {
     struct UpdateEndowmentDetailsRequest {
         uint256 id; /// u32,
         address owner; /// Option<String>,
-        AngelCoreStruct.EndowmentType endow_type; /// Option<String>,
         string name; /// Option<String>,
         AngelCoreStruct.Categories categories; /// Option<Categories>,
-        uint256 tier; /// Option<u8>,
         string logo; /// Option<String>,
         string image; /// Option<String>,
         LocalRegistrarLib.RebalanceParams rebalance;

@@ -47,11 +47,9 @@ library AngelCoreStruct {
         uint256[] general;
     }
 
-    ///TODO: by default are not internal need to create a custom internal function for this refer :- https://ethereum.stackexchange.com/questions/21155/how-to-expose-enum-in-solidity-contract
     enum EndowmentType {
         Charity,
         Normal,
-        None
     }
 
     enum EndowmentStatus {
