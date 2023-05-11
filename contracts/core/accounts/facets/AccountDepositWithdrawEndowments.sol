@@ -194,10 +194,10 @@ contract AccountDepositWithdrawEndowments is
     // }
 
     /**
-     * @notice Deposit ETH into the account (later swaps into USDC and then deposits into the account)
+     * @notice Deposit MATIC into the account (later swaps into USDC and then deposits into the account)
      * @param curDetails The details of the deposit
      */
-    function depositEth(
+    function depositMatic(
         AccountMessages.DepositRequest memory curDetails
     ) public payable nonReentrant {
         require(msg.value > 0, "Invalid Amount");

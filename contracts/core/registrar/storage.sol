@@ -43,8 +43,7 @@ library RegistrarStorage {
 
     struct State {
         Config config;
-        // mapping(string => AngelCoreStruct.YieldVault) VAULTS;
-        // string[] VAULT_POINTERS;
+        bytes4[] STRATEGIES;
         mapping(string => uint256) FEES;
         mapping(uint256 => AngelCoreStruct.NetworkInfo) NETWORK_CONNECTIONS;
     }

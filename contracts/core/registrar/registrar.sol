@@ -13,85 +13,12 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {LocalRegistrar} from "./LocalRegistrar.sol";
 
 /**
- * @title Registrar Library
- * @dev Library for Registrar for size fixes
- */
-// library RegistrarLib {
-//     /*
-//      * TODO: add doc string @badrik
-//      */
-//     function filterVault(
-//         AngelCoreStruct.YieldVault memory data,
-//         uint256 network,
-//         AngelCoreStruct.EndowmentType endowmentType,
-//         AngelCoreStruct.AccountType accountType,
-//         AngelCoreStruct.VaultType vaultType,
-//         AngelCoreStruct.BoolOptional approved
-//     ) public pure returns (bool) {
-//         // check all conditions based on default null param if anyone of them is false return false
-
-//         if (approved != AngelCoreStruct.BoolOptional.None) {
-//             if (approved == AngelCoreStruct.BoolOptional.True) {
-//                 if (data.approved != true) {
-//                     return false;
-//                 }
-//             }
-//             if (approved == AngelCoreStruct.BoolOptional.False) {
-//                 if (data.approved != false) {
-//                     return false;
-//                 }
-//             }
-//         }
-
-//         if (endowmentType != AngelCoreStruct.EndowmentType.None) {
-//             // check if given endowment type is not in restricted from. if it is return false
-//             bool found = false;
-//             for (uint256 i = 0; i < data.restrictedFrom.length; i++) {
-//                 if (data.restrictedFrom[i] == endowmentType) {
-//                     found = true;
-//                 }
-//             }
-//             if (found) {
-//                 return false;
-//             }
-//         }
-
-//         if (accountType != AngelCoreStruct.AccountType.None) {
-//             if (data.acctType != accountType) {
-//                 return false;
-//             }
-//         }
-
-//         if (vaultType != AngelCoreStruct.VaultType.None) {
-//             if (data.vaultType != vaultType) {
-//                 return false;
-//             }
-//         }
-
-//         if (network != 0) {
-//             if (data.network != network) {
-//                 return false;
-//             }
-//         }
-
-//         return true;
-//     }
-// }
-
-/**
  * @title Registrar Contract
  * @dev Contract for Registrar
  */
 contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     event UpdateRegistrarConfig(RegistrarStorage.Config details);
     event UpdateRegistrarFees(RegistrarMessages.UpdateFeeRequest details);
-    // event AddVault(string strategyName, AngelCoreStruct.YieldVault vault);
-    // event RemoveVault(string strategyName);
-    // event UpdateVault(
-    //     string strategyName,
-    //     bool approved,
-    //     AngelCoreStruct.EndowmentType[] endowmentTypes
-    // );
     event PostNetworkConnection(
         uint256 chainId,
         AngelCoreStruct.NetworkInfo networkInfo
@@ -402,6 +329,48 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
         string memory name
     ) public view returns (uint256 response) {
         response = state.FEES[name];
+    }
+
+    // OVERRIDES
+    function setStrategyParams(
+        bytes4 _strategyId,
+        address _lockAddr,
+        address _liqAddr,
+        LocalRegistrarLib.StrategyApprovalState _approvalState
+    ) external override onlyOwner {
+        bool inList;
+        for (uint256 i = 0; i < VAULT.length; i++) {
+            if (STRATEGIES[i] == _strategyId) {
+                inList = true;
+            }
+        }
+        if (!inList) {
+            STRATEGIES.push(_strategyId);
+        }
+        super.setStrategyParams(_strategyId, _lockAddr, _liqAddr);
+    }
+
+    function setStrategyApprovalState(bytes4 _strategyId, LocalRegistrarLib.StrategyApprovalState _approvalState)
+        external
+        override
+        onlyOwner
+    {
+        if (_approvalState == StrategyApprovalState.DEPRECATED) {
+            uint256 delIndex;
+            bool indexFound;
+            for (uint256 i = 0; i < STRATEGIES.length; i++) {
+                if (STRATEGIES[i] == _strategyId) {
+                    delIndex = i;
+                    indexFound =true;
+                    break;
+                }
+            }
+            if (indexFound) {
+                STRATEGIES[delIndex] = STRATEGIES[STRATEGIES.length - 1];
+                STRATEGIES.pop();
+            }
+        }
+        super.setStrategyApprovalState(_strategyId, _approvalState);
     }
 
 

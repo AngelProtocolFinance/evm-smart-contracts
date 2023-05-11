@@ -55,7 +55,6 @@ library AccountStorage {
         AngelCoreStruct.SplitDetails splitToLiquid;
     }
 
-    ///TODO: Have changed name from state to endowmentState to manage solidity code
     struct EndowmentState {
         AngelCoreStruct.DonationsReceived donationsReceived;
         AngelCoreStruct.BalanceInfo balances;
