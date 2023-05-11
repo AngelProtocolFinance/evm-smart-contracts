@@ -51,22 +51,19 @@ contract AccountsUpdateStatusEndowments is
 
         AngelCoreStruct.EndowmentStatus _newStatus;
 
-        if (curDetails.status == 1) {
+        if (curDetails.status == AngelCoreStruct.EndowmentStatus.Approved) {
             // only the Accounts owner (ex. AP Team Multisig || AP Gov) can freeze/unfreeze
             require(msg.sender == state.config.owner, "Unauthorized");
-            _newStatus = AngelCoreStruct.EndowmentStatus.Approved;
             tempEndowment.depositApproved = true;
             tempEndowment.withdrawApproved = true;
-        } else if (curDetails.status == 2) {
+        } else if (curDetails.status == AngelCoreStruct.EndowmentStatus.Frozen) {
             // only the Accounts owner (ex. AP Team Multisig || AP Gov) can freeze/unfreeze
             require(msg.sender == state.config.owner, "Unauthorized");
-            _newStatus = AngelCoreStruct.EndowmentStatus.Frozen;
             tempEndowment.depositApproved = true;
             tempEndowment.withdrawApproved = false;
-        } else if (curDetails.status == 3) {
+        } else if (curDetails.status == AngelCoreStruct.EndowmentStatus.Closed) {
             // only endowment owner can close their accounts
-            require(msg.sender == state.config.owner, "Unauthorized");
-            _newStatus = AngelCoreStruct.EndowmentStatus.Closed;
+            require(msg.sender == state.config.owner, "Unauthorized");\
             tempEndowment.depositApproved = false;
             tempEndowment.withdrawApproved = false;
 
