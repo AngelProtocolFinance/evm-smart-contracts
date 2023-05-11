@@ -13,7 +13,7 @@ task(
 
         console.log("Deploying a new EndowmentMultiSig contract...")
 
-        const factory = new EndowmentMultiSig__factory(_deployer)
+        const factory = new EndowmentMultiSig__factory(proxyAdmin)
         const contract = await factory.deploy()
         await contract.deployed()
 
@@ -21,7 +21,7 @@ task(
 
         const multisigWalletFactory = MultiSigWalletFactory__factory.connect(
             addresses.EndowmentMultiSigAddress.MultiSigWalletFactory,
-            _deployer
+            proxyAdmin
         )
         const tx = await multisigWalletFactory.updateImplementation(contract.address)
         console.log(`Tx hash: ${tx.hash}`)
