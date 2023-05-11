@@ -10,9 +10,13 @@ task(
     "Will upgrade the implementation of the Charity Application multisig"
 ).setAction(async (_taskArguments, hre) => {
     try {
+        logger.out("Upgrading CharityApplication implementation...")
+
         const [_deployer, proxyAdmin] = await hre.ethers.getSigners()
 
         const IMPLEMENTATION_ADDRESS_SLOT = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
+
+        logger.out("Upgrading CharityApplicationLib...")
 
         const CharityApplicationLib = await hre.ethers.getContractFactory("CharityApplicationLib", proxyAdmin)
         const CharityApplicationLibInstance = await CharityApplicationLib.deploy()
