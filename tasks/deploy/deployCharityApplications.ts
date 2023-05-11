@@ -1,7 +1,7 @@
 import { task } from "hardhat/config"
-import config from "../../config"
-import { charityApplications } from "../../contracts/multisigs/charity_applications/scripts/deploy"
-import addresses from "../../contract-address.json"
+import config from "config"
+import { charityApplications } from "contracts/multisigs/charity_applications/scripts/deploy"
+import addresses from "contract-address.json"
 
 task(
     "Deploy:deployCharityApplications",

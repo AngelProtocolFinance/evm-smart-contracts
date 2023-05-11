@@ -2,9 +2,9 @@
 // yours, or create new ones.
 
 import path from "path"
-import { saveFrontendFiles } from "../../../../scripts/readWriteFile"
+import { saveFrontendFiles } from "scripts/readWriteFile"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
-import { FundraisingMessage } from "../../../../typechain-types/contracts/accessory/fundraising/Fundraising"
+import { FundraisingMessage } from "typechain-types/contracts/accessory/fundraising/Fundraising"
 
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 

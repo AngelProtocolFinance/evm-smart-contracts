@@ -1,8 +1,8 @@
 import { ethers, upgrades } from "hardhat";
-import { logger } from "../utils"
+import { logger } from "utils"
 import * as fs from "fs";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { Router, Router__factory } from "../typechain-types"
+import { Router, Router__factory } from "typechain-types"
 import { BigNumber } from "ethers";
 
 async function deploy() {

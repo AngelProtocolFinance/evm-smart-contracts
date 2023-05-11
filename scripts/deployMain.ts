@@ -1,21 +1,21 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 
-import { deployDiamond } from "../contracts/core/accounts/scripts/deploy"
-import { deployIndexFund } from "../contracts/core/index-fund/scripts/deploy"
-import { deployRegistrar } from "../contracts/core/registrar/scripts/deploy"
-import { deploySwapRouter } from "../contracts/core/swap-router/scripts/deploy"
-import { deployHaloImplementation } from "../contracts/halo/scripts/deploy"
-import { charityApplications } from "../contracts/multisigs/charity_applications/scripts/deploy"
-import { deployMultisig } from "../contracts/multisigs/scripts/deploy"
-import { deployEndowmentMultiSig } from "../contracts/normalized_endowment/endowment-multisig/scripts/deploy"
-import { deployImplementation } from "../contracts/normalized_endowment/scripts/deployImplementation"
+import { deployDiamond } from "contracts/core/accounts/scripts/deploy"
+import { deployIndexFund } from "contracts/core/index-fund/scripts/deploy"
+import { deployRegistrar } from "contracts/core/registrar/scripts/deploy"
+import { deploySwapRouter } from "contracts/core/swap-router/scripts/deploy"
+import { deployHaloImplementation } from "contracts/halo/scripts/deploy"
+import { charityApplications } from "contracts/multisigs/charity_applications/scripts/deploy"
+import { deployMultisig } from "contracts/multisigs/scripts/deploy"
+import { deployEndowmentMultiSig } from "contracts/normalized_endowment/endowment-multisig/scripts/deploy"
+import { deployImplementation } from "contracts/normalized_endowment/scripts/deployImplementation"
 
 import hre from "hardhat"
-import config from "../config"
-import { deployFundraising } from "../contracts/accessory/fundraising/scripts/deploy"
-import { giftCard } from "../contracts/accessory/gift-cards/scripts/deploy"
-import { deployEmitters } from "../contracts/normalized_endowment/scripts/deployEmitter"
+import config from "config"
+import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
+import { giftCard } from "contracts/accessory/gift-cards/scripts/deploy"
+import { deployEmitters } from "contracts/normalized_endowment/scripts/deployEmitter"
 
 var ANGEL_CORE_STRUCT: Contract
 var STRING_LIBRARY: Contract
@@ -33,7 +33,7 @@ let addressWriter: AddressWriter = {}
 
 import { Contract } from "ethers"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
-import { APTeamMultiSig, ApplicationsMultiSig } from "../typechain-types"
+import { APTeamMultiSig, ApplicationsMultiSig } from "typechain-types"
 import { cleanFile, saveFrontendFiles } from "./readWriteFile"
 
 async function deployLibraries(verify_contracts: boolean, hre: HardhatRuntimeEnvironment) {

@@ -7,7 +7,7 @@ import {
     DiamondInit,
     DiamondInit__factory,
     Diamond__factory,
-} from "../../../../../typechain-types"
+} from "typechain-types"
 import deployFacets from "./deployFacets"
 import updateDiamond from "./updateDiamond"
 import verify from "./verify"

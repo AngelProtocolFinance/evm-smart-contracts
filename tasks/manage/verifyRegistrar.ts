@@ -1,9 +1,8 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { task } from "hardhat/config"
-import addresses from "../../contract-address.json"
-import { Registrar } from "../../typechain-types"
-import { AccountMessages } from "../../typechain-types/contracts/core/accounts/IAccounts"
-import { genWallet } from "../../util/keygen"
+import addresses from "contract-address.json"
+import { Registrar } from "typechain-types"
+import { AccountMessages } from "typechain-types/contracts/core/accounts/IAccounts"
 
 task("manage:verifyRegistrar", "Will create a new charity endowment").setAction(
     async (_taskArguments, hre) => {

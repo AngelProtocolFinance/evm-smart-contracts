@@ -1,5 +1,5 @@
 import { ethers } from "hardhat"
-import { IAccounts__factory } from "../typechain-types"
+import { IAccounts__factory } from "typechain-types"
 
 async function deploy() {
     const [_deployer, apTeam1] = await ethers.getSigners()

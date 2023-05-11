@@ -19,8 +19,8 @@ import {
     AxelarExecutionContract__factory,
     DiamondLoupeFacet__factory,
     OwnershipFacet__factory,
-} from "../../../../../typechain-types"
-import * as logger from "../../../../../utils/logger"
+} from "typechain-types"
+import { logger } from "utils"
 import { FacetCutAction, getSelectors } from "../libraries/diamond"
 import { FacetCut } from "./types"
 

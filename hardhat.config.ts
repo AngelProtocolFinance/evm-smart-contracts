@@ -5,6 +5,7 @@ import "@nomicfoundation/hardhat-chai-matchers"
 import '@openzeppelin/hardhat-upgrades';
 import "@nomiclabs/hardhat-ethers";
 import "@typechain/hardhat";
+require("tsconfig-paths/register")
 // import "hardhat-abi-exporter"
 import "./tasks"
 

@@ -1,8 +1,8 @@
 import { task } from "hardhat/config"
-import addresses from "../../contract-address.json"
-import { saveFrontendFiles } from "../../scripts/readWriteFile"
-import { EndowmentMultiSig__factory, MultiSigWalletFactory__factory } from "../../typechain-types"
-import * as logger from "../../utils/logger"
+import addresses from "contract-address.json"
+import { saveFrontendFiles } from "scripts/readWriteFile"
+import { EndowmentMultiSig__factory, MultiSigWalletFactory__factory } from "typechain-types"
+import { logger } from "utils"
 
 task(
     "upgrade:upgradeEndowmentMultiSig",

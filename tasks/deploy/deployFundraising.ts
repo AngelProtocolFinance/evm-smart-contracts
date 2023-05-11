@@ -1,6 +1,6 @@
 import { task } from "hardhat/config"
-import config from "../../config"
-import { deployFundraising } from "../../contracts/accessory/fundraising/scripts/deploy"
+import config from "config"
+import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
 
 task("Deploy:deployFundraising", "Will deploy Fundraising contract")
     .addParam("verify", "Want to verify contract")

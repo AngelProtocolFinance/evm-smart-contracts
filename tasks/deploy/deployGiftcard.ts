@@ -1,5 +1,5 @@
 import { task } from "hardhat/config"
-import { giftCard } from "../../contracts/accessory/gift-cards/scripts/deploy"
+import { giftCard } from "contracts/accessory/gift-cards/scripts/deploy"
 
 task("Deploy:deployGiftCard", "Will deploy GiftCardContracts contract")
     .addParam("verify", "Want to verify contract")

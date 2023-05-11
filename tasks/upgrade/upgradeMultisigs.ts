@@ -1,9 +1,9 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { BytesLike } from "ethers"
 import { task } from "hardhat/config"
-import addresses from "../../contract-address.json"
-import { APTeamMultiSig__factory, ApplicationsMultiSig__factory, ITransparentUpgradeableProxy__factory } from "../../typechain-types"
-import { saveFrontendFiles } from '../../scripts/readWriteFile'
+import addresses from "contract-address.json"
+import { APTeamMultiSig__factory, ApplicationsMultiSig__factory, ITransparentUpgradeableProxy__factory } from "typechain-types"
+import { saveFrontendFiles } from 'scripts/readWriteFile'
 
 task("upgrade:upgradeMultisig", "Will upgrade the implementation of the AP Team and Applications multisigs")
     .setAction(

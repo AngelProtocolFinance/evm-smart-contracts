@@ -1,4 +1,4 @@
-import { genWallet } from "../utils";
+import { genWallet } from "utils";
 
 async function main() {
   let a = genWallet(true)

@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
-import { Halo, Halo__factory } from "../typechain-types"
+import { Halo, Halo__factory } from "typechain-types"
 import { BigNumber } from "ethers";
 
 describe("Halo token", function () {

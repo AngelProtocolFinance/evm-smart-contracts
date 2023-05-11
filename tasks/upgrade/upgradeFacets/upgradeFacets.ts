@@ -1,6 +1,6 @@
 import { task } from "hardhat/config"
-import addresses from "../../../contract-address.json"
-import { confirmAction, logger, shouldVerify } from "../../../utils"
+import addresses from "contract-address.json"
+import { confirmAction, logger, shouldVerify } from "utils"
 import cutDiamond from "./cutDiamond"
 import deployFacets from "./deployFacets"
 import verify from "./verify"

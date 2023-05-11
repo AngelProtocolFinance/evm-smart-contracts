@@ -1,7 +1,7 @@
 import { task, types } from "hardhat/config"
 import type { TaskArguments } from "hardhat/types";
-import { Registrar, Registrar__factory } from "../../../typechain-types"
-import { logger } from "../../../utils"
+import { Registrar, Registrar__factory } from "typechain-types"
+import { logger } from "utils"
 import * as fs from "fs"
 import { BigNumber } from "ethers";
 
