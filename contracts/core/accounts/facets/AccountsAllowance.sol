@@ -36,7 +36,26 @@ contract AccountsAllowance is ReentrancyGuardFacet, AccountsEvents {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[curId];
 
-        require((msg.sender == tempEndowment.owner), "Unauthorized");
+        // TO DO: We ought to group permissions under since `allowlist` to greatly simplify the logic
+        // and the Web app UI already shows as single permission.
+        require((
+            AngelCoreStruct.canChange(
+                tempEndowment.settingsController["allowlistedBeneficiaries"],
+                msg.sender,
+                tempEndowment.owner,
+                block.timestamp
+            ) || AngelCoreStruct.canChange(
+                tempEndowment.settingsController["allowlistedContributors"],
+                msg.sender,
+                tempEndowment.owner,
+                block.timestamp
+            ) || AngelCoreStruct.canChange(
+                tempEndowment.settingsController["maturityAllowlist"],
+                msg.sender,
+                tempEndowment.owner,
+                block.timestamp
+            )
+        ), "Unauthorized");
 
         if (curAllowance.expires) {
             require(block.number > curAllowance.height, "Expired");

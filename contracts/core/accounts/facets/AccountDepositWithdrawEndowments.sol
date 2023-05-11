@@ -203,6 +203,10 @@ contract AccountDepositWithdrawEndowments is
         require(msg.value > 0, "Invalid Amount");
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Config memory tempConfig = state.config;
+        AccountStorage.EndowmentState storage tempEndowmentState = state.STATE[
+            curDetails.id
+        ];
+        require(!tempEndowmentState.closingEndowment, "Endowment is closed");
 
         RegistrarStorage.Config memory registrar_config = IRegistrar(
             tempConfig.registrarContract
@@ -230,6 +234,10 @@ contract AccountDepositWithdrawEndowments is
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Config memory tempConfig = state.config;
 
+        AccountStorage.EndowmentState storage tempEndowmentState = state.STATE[
+            curDetails.id
+        ];
+        require(!tempEndowmentState.closingEndowment, "Endowment is closed");
         require(
             IRegistrar(state.config.registrarContract)
                 .isTokenAccepted(curTokenaddress), 
@@ -279,13 +287,7 @@ contract AccountDepositWithdrawEndowments is
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             curDetails.id
         ];
-
-        require(
-            tempEndowment.depositApproved,
-            "Deposits are not approved for this endowment"
-        );
         require(curTokenaddress != address(0), "Invalid ERC20 token");
-
         require(
             curDetails.lockedPercentage + curDetails.liquidPercentage == 100,
             "InvalidSplit"
@@ -418,18 +420,16 @@ contract AccountDepositWithdrawEndowments is
         address curTokenAddress,
         uint256 curAmount
     ) public nonReentrant {
-        AccountStorage.State storage state = LibAccounts.diamondStorage();
+        require(curAmount > 0, "InvalidZeroAmount");
 
-        // AccountStorage.Config memory tempConfig = state.config;
+        AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             curId
         ];
-
-        require(curAmount > 0, "InvalidZeroAmount");
-        require(
-            tempEndowment.withdrawApproved,
-            "Withdraws are not approved for this endowment"
-        );
+        AccountStorage.EndowmentState storage tempEndowmentState = state.STATE[
+            curDetails.id
+        ];
+        require(!tempEndowmentState.closingEndowment, "Endowment is closed");
 
         // fetch regisrar config
         RegistrarStorage.Config memory registrar_config = IRegistrar(
