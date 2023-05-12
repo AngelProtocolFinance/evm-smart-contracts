@@ -57,7 +57,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController["name"],
+                tempEndowment.settingsController.name,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -68,7 +68,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController["categories"],
+                tempEndowment.settingsController.categories,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -114,7 +114,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController["logo"],
+                tempEndowment.settingsController.logo,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -125,7 +125,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController["image"],
+                tempEndowment.settingsController.image,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp

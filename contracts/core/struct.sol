@@ -49,7 +49,7 @@ library AngelCoreStruct {
 
     enum EndowmentType {
         Charity,
-        Normal,
+        Normal
     }
 
     struct AccountStrategies {
@@ -698,6 +698,25 @@ library AngelCoreStruct {
             sender == delegate.addr &&
             (delegate.expires == 0 || envTime <= delegate.expires)
         );
+    }
+
+    struct SettingsController {
+        Delegate strategies;
+        Delegate allowlistedBeneficiaries;
+        Delegate allowlistedContributors;
+        Delegate maturityAllowlist;
+        Delegate maturityTime;
+        Delegate profile;
+        Delegate earningsFee;
+        Delegate withdrawFee;
+        Delegate depositFee;
+        Delegate balanceFee;
+        Delegate name;
+        Delegate image;
+        Delegate logo;
+        Delegate categories;
+        Delegate splitToLiquid;
+        Delegate ignoreUserSplits;
     }
 
     struct EndowmentFee {

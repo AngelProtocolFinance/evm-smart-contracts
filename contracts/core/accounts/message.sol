@@ -49,21 +49,10 @@ library AccountMessages {
         AngelCoreStruct.SplitDetails splitToLiquid;
         bool ignoreUserSplits;
     }
+
     struct UpdateEndowmentControllerRequest {
         uint256 id;
-        AngelCoreStruct.Delegate name;
-        AngelCoreStruct.Delegate image;
-        AngelCoreStruct.Delegate logo;
-        AngelCoreStruct.Delegate categories;
-        AngelCoreStruct.Delegate splitToLiquid;
-        AngelCoreStruct.Delegate ignoreUserSplits;
-        AngelCoreStruct.Delegate allowlistedBeneficiaries;
-        AngelCoreStruct.Delegate allowlistedContributors;
-        AngelCoreStruct.Delegate maturityAllowlist;
-        AngelCoreStruct.Delegate earningsFee;
-        AngelCoreStruct.Delegate depositFee;
-        AngelCoreStruct.Delegate withdrawFee;
-        AngelCoreStruct.Delegate balanceFee;
+        AngelCoreStruct.SettingsController settingsController;
     }
 
     struct UpdateEndowmentStatusRequest {

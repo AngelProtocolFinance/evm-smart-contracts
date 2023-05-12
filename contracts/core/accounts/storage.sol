@@ -47,7 +47,7 @@ library AccountStorage {
         AngelCoreStruct.EndowmentFee withdrawFee;
         AngelCoreStruct.EndowmentFee depositFee;
         AngelCoreStruct.EndowmentFee balanceFee;
-        mapping(string => Delegate) settingsController;
+        AngelCoreStruct.SettingsController settingsController;
         uint256 parent;
         bool ignoreUserSplits;
         AngelCoreStruct.SplitDetails splitToLiquid;

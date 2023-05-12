@@ -40,17 +40,17 @@ contract AccountsAllowance is ReentrancyGuardFacet, AccountsEvents {
         // and the Web app UI already shows as single permission.
         require((
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController["allowlistedBeneficiaries"],
+                tempEndowment.settingsController.allowlistedBeneficiaries,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
             ) || AngelCoreStruct.canChange(
-                tempEndowment.settingsController["allowlistedContributors"],
+                tempEndowment.settingsController.allowlistedContributors,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
             ) || AngelCoreStruct.canChange(
-                tempEndowment.settingsController["maturityAllowlist"],
+                tempEndowment.settingsController.maturityAllowlist,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp

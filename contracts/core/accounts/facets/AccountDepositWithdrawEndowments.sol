@@ -427,7 +427,7 @@ contract AccountDepositWithdrawEndowments is
             curId
         ];
         AccountStorage.EndowmentState storage tempEndowmentState = state.STATE[
-            curDetails.id
+            curId
         ];
         require(!tempEndowmentState.closingEndowment, "Endowment is closed");
 
