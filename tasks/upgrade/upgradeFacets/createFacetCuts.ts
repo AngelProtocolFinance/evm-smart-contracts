@@ -1,14 +1,16 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { FacetCutAction, getSelectors } from "contracts/core/accounts/scripts/libraries/diamond"
 import { DiamondLoupeFacet, DiamondLoupeFacet__factory } from "typechain-types"
+import { ADDRESS_ZERO, logger } from "utils"
 import { Facet, FacetCut } from "./types"
-import { logger, ADDRESS_ZERO } from "utils"
 
 export default async function createFacetCuts(
     facets: Facet[],
     diamondAddress: string,
     diamondOwner: SignerWithAddress
 ): Promise<FacetCut[]> {
+    logger.out("Creating facet cuts...")
+
     const facetCuts: FacetCut[] = []
 
     const loupe = DiamondLoupeFacet__factory.connect(diamondAddress, diamondOwner)
@@ -71,17 +73,16 @@ async function getFacetSelectors(
         const selector = allSelectors[j]
         try {
             const address = await loupe.facetAddress(selector)
-            
+
             if (address === ADDRESS_ZERO) {
                 toAdd.push(selector)
-                continue;
+                continue
             }
-            
+
             toReplace.push(selector)
             if (!curFacetAddress) {
                 curFacetAddress = address
             }
-
         } catch (error) {
             logger.out(`Error occurred getting facet address for selector ${selector}, reason: ${error}`)
         }

@@ -28,7 +28,6 @@ task("upgrade:upgradeFacets", "Will redeploy and upgrade all facets that use Acc
                 addresses.libraries.STRING_LIBRARY
             )
 
-            logger.out("Creating facet cuts...")
             const facetCuts = await createFacetCuts(facets, addresses.accounts.diamond, proxyAdmin)
 
             await cutDiamond(addresses.accounts.diamond, proxyAdmin, facetCuts, hre)
