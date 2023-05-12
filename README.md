@@ -399,7 +399,7 @@ Slither: `slither . --json static_audit.json --checklist` or use the extension i
         │   └── Power.sol
         ├── message.sol
         ├── storage.sol
-        └── subdoa-token.sol
+        └── subdao-token.sol
 ```
 
 #### Tests
