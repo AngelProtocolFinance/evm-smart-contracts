@@ -32,7 +32,7 @@ export default async function deployFacets(
 
     const facetFactories = await getFacetFactories(facetNames, diamondOwner, corestruct, stringlib)
 
-    logger.out("Deploying all facets that use AccountStorage struct...")
+    logger.out("Deploying facets...")
 
     for (const facetFactory of facetFactories) {
         const { facetName, factory } = facetFactory
