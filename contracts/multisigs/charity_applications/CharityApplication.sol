@@ -30,7 +30,7 @@ library CharityApplicationLib {
             storage proposals,
         CharityApplicationsStorage.Config storage config
     ) public {
-        require(!proposals[proposalCounter], "Proposal already exists");
+        require(proposals[proposalCounter].proposer == address(0), "Proposal already exists");
         require(charityApplication.endow_type == AngelCoreStruct.EndowmentType.Charity, "Unauthorized");
         require(charityApplication.categories.sdgs.length == 0, "No UN SDGs given");
 
