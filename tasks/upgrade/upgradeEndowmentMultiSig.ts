@@ -17,7 +17,7 @@ task(
         const contract = await factory.deploy()
         await contract.deployed()
 
-        logger.out(`Deployed at: ${contract.address}.`)
+        logger.out(`Deployed at: ${contract.address}`)
 
         logger.out(`Upgrading EndowmentMultiSig implementation address inside MultiSigWalletFactory...`)
 
