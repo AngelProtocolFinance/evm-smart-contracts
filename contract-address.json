@@ -7,8 +7,8 @@
   "multiSig": {
     "ApplicationsMultiSigProxy": "0x1edC050B5d84cbB0cA0b56356f3F7307efcd50Fb",
     "APTeamMultiSigProxy": "0xC26Ac43b14ebCbff5029792052aF3e4DF3233902",
-    "ApplicationMultisigImplementation": "0xd5E678721eC53E30B8D3FB2b31bc843b29f0eD4F",
-    "APTeamMultisigImplementation": "0xAdA7073f0f422A40e8A1921817F347e7dc121b3F"
+    "ApplicationMultisigImplementation": "0x5e0bCEfAAbd91706fc42A3b6d6364935b2B26C2c",
+    "APTeamMultisigImplementation": "0xb3E77FeC435C7bc11ffA3e5fC720bdA118ee0C05"
   },
   "charityApplication": {
     "CharityApplicationProxy": "0x14A7bb3A01D9011D39FC0ECb5d09C84f7F596e4B",
