@@ -23,99 +23,73 @@ contract AccountsAllowance is ReentrancyGuardFacet, AccountsEvents {
      * @param curId The id of the endowment
      * @param curAction The action to be performed
      * @param curSpender The address of the spender
-     * @param curAllowance The allowance data
-     * @param curTokenaddress The address of the token
+     * @param curToken The address of the token
+     * @param curAmount The allowance amount
      */
     function manageAllowances(
         uint256 curId,
         string memory curAction,
         address curSpender,
-        AccountStorage.AllowanceData memory curAllowance,
-        address curTokenaddress
+        address curToken,
+        uint256 curAmount
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[curId];
 
-        // TO DO: We ought to group permissions under since `allowlist` to greatly simplify the logic
-        // and the Web app UI already shows as single permission.
-        require((
-            AngelCoreStruct.canChange(
+        require(!state.STATES[curId].closingEndowment, "Endowment is closed");
+        require(curToken != address(0), "Invalid Token");
+        require(keccak256(abi.encodePacked("add")) ==
+            keccak256(abi.encodePacked(curAction)) || keccak256(abi.encodePacked("remove")) ==
+            keccak256(abi.encodePacked(curAction)), "Invalid Operation");
+
+        // Only the endowment owner or a delegate whom controls the appropriate allowlist can update allowances
+        // Allowances are additionally restricted to existing allowlisted addresses
+        bool inAllowlist = false;
+        if (tempEndowment.maturityTime >= block.timestamp) {
+            require(AngelCoreStruct.canChange(
                 tempEndowment.settingsController.allowlistedBeneficiaries,
                 msg.sender,
                 tempEndowment.owner,
-                block.timestamp
-            ) || AngelCoreStruct.canChange(
-                tempEndowment.settingsController.allowlistedContributors,
-                msg.sender,
-                tempEndowment.owner,
-                block.timestamp
-            ) || AngelCoreStruct.canChange(
+                block.timestamp), "Unauthorized");
+            for (uint8 i = 0; i < tempEndowment.allowlistedBeneficiaries.length; i++) {
+                if (tempEndowment.allowlistedBeneficiaries[i] == curSpender) {
+                    inAllowlist = true;
+                    break;
+                }
+            }
+        } else {
+            require(AngelCoreStruct.canChange(
                 tempEndowment.settingsController.maturityAllowlist,
                 msg.sender,
                 tempEndowment.owner,
-                block.timestamp
-            )
-        ), "Unauthorized");
-
-        if (curAllowance.expires) {
-            require(block.number > curAllowance.height, "Expired");
-            require(block.timestamp > curAllowance.timestamp, "Expired");
+                block.timestamp), "Unauthorized");
+            for (uint8 i = 0; i < tempEndowment.maturityAllowlist.length; i++) {
+                if (tempEndowment.maturityAllowlist[i] == curSpender) {
+                    inAllowlist = true;
+                    break;
+                }
+            }
         }
-
-        require(curSpender != address(0), "Invalid Spender");
-        require(curTokenaddress != address(0), "Invalid Token");
+        require(inAllowlist, "Invalid Spender");
 
         if (
-            keccak256(abi.encodePacked("add")) ==
-            keccak256(abi.encodePacked(curAction)) &&
-            state.ALLOWANCES[msg.sender][curSpender][curTokenaddress].configured
+            keccak256(abi.encodePacked("remove")) ==
+            keccak256(abi.encodePacked(curAction))
         ) {
-            state
-            .ALLOWANCES[msg.sender][curSpender][curTokenaddress]
-                .allowanceAmount += curAllowance.allowanceAmount;
-            state
-            .ALLOWANCES[msg.sender][curSpender][curTokenaddress]
-                .configured = true;
-            state
-            .ALLOWANCES[msg.sender][curSpender][curTokenaddress]
-                .height = curAllowance.height;
-            state
-            .ALLOWANCES[msg.sender][curSpender][curTokenaddress]
-                .timestamp = curAllowance.timestamp;
-            state
-            .ALLOWANCES[msg.sender][curSpender][curTokenaddress]
-                .expires = curAllowance.expires;
-            emit AllowanceStateUpdatedTo(
-                msg.sender,
-                curSpender,
-                curTokenaddress,
-                state.ALLOWANCES[msg.sender][curSpender][curTokenaddress]
-            );
+            delete state.ALLOWANCES[curId][curSpender][curToken];
+            emit RemoveAllowance(msg.sender, curSpender, curToken);
         } else if (
             keccak256(abi.encodePacked("add")) ==
             keccak256(abi.encodePacked(curAction))
         ) {
-            state.ALLOWANCES[msg.sender][curSpender][
-                curTokenaddress
-            ] = curAllowance;
-            state
-            .ALLOWANCES[msg.sender][curSpender][curTokenaddress]
-                .configured = true;
+            require(curAmount > 0, "Zero amount");
+            state.ALLOWANCES[curId][curSpender][curToken] = curAmount;
             emit AllowanceStateUpdatedTo(
                 msg.sender,
                 curSpender,
-                curTokenaddress,
-                state.ALLOWANCES[msg.sender][curSpender][curTokenaddress]
+                curToken,
+                state.ALLOWANCES[curId][curSpender][curToken]
             );
-        } else if (
-            keccak256(abi.encodePacked("remove")) ==
-            keccak256(abi.encodePacked(curAction)) &&
-            state.ALLOWANCES[msg.sender][curSpender][curTokenaddress].configured
-        ) {
-            delete state.ALLOWANCES[msg.sender][curSpender][curTokenaddress];
-            emit RemoveAllowance(msg.sender, curSpender, curTokenaddress);
-        } else {
-            revert("Invalid Operation");
         }
     }
 
@@ -123,29 +97,31 @@ contract AccountsAllowance is ReentrancyGuardFacet, AccountsEvents {
      * @notice withdraw the funds user has granted the allowance for
      * @dev This function spends the allowance of an account
      * @param curId The id of the endowment
-     * @param curTokenaddress The address of the token
+     * @param curToken The address of the token
      * @param curAmount The amount to be spent
      */
     function spendAllowance(
         uint256 curId,
-        address curTokenaddress,
-        uint256 curAmount,
-        address curRecipient
+        address curToken,
+        uint256 curAmount
     ) public nonReentrant {
+        require(curToken != address(0), "Invalid token address");
+        require(curAmount != 0, "Zero Amount");
+
         AccountStorage.State storage state = LibAccounts.diamondStorage();
+        require(state.ALLOWANCES[curId][msg.sender][curToken], "Allowance does not exist");
+        require(
+            state.ALLOWANCES[curId][msg.sender][curToken] > curAmount,
+            "Amount reqested exceeds allowance balance"
+        );
+
+        AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[curId];
         AccountStorage.EndowmentState memory tempState = state.STATES[curId];
-
-        AngelCoreStruct.GenericBalance memory state_bal = tempState
-            .balances
-            .liquid;
-
-        require(curTokenaddress != address(0), "Invalid token address");
-        require(curAmount != 0, "Invalid Amount claimed");
-
+        AngelCoreStruct.GenericBalance memory state_bal = tempState.balances.liquid;
         uint256 balance = 0;
         uint256 index = 0;
         for (uint8 i = 0; i < state_bal.Cw20CoinVerified_addr.length; i++) {
-            if (state_bal.Cw20CoinVerified_addr[i] == curTokenaddress) {
+            if (state_bal.Cw20CoinVerified_addr[i] == curToken) {
                 balance = state_bal.Cw20CoinVerified_amount[i];
                 index = i;
                 break;
@@ -154,41 +130,11 @@ contract AccountsAllowance is ReentrancyGuardFacet, AccountsEvents {
 
         require(curAmount < balance, "InsufficientFunds");
 
-        AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[curId];
-        address spender = msg.sender;
-        address owner = tempEndowment.owner;
-
-        require(
-            state.ALLOWANCES[owner][spender][curTokenaddress].configured,
-            "NoAllowance"
-        );
-
-        if (state.ALLOWANCES[owner][spender][curTokenaddress].expires) {
-            require(
-                state.ALLOWANCES[owner][spender][curTokenaddress].height <
-                    block.number,
-                "Expired"
-            );
-            require(
-                state.ALLOWANCES[owner][spender][curTokenaddress].timestamp <
-                    block.timestamp,
-                "Expired"
-            );
-        }
-
-        require(
-            state.ALLOWANCES[owner][spender][curTokenaddress].allowanceAmount >
-                curAmount,
-            "NoAllowance"
-        );
-
-        state
-        .ALLOWANCES[owner][spender][curTokenaddress]
-            .allowanceAmount -= curAmount;
+        state.ALLOWANCES[curId][msg.sender][curToken] -= curAmount;
         state_bal.Cw20CoinVerified_amount[index] -= curAmount;
 
         require(
-            IERC20(curTokenaddress).transfer(curRecipient, curAmount),
+            IERC20(curToken).transfer(msg.sender, curAmount),
             "Transfer failed"
         );
 

@@ -22,7 +22,7 @@ abstract contract AccountsEvents {
         address sender,
         address spender,
         address tokenAddress,
-        AccountStorage.AllowanceData allowance
+        uint256 allowance
     );
     event EndowmentCreated(uint256 id, AccountStorage.Endowment endowment);
     event UpdateEndowment(uint256 id, AccountStorage.Endowment endowment);

@@ -62,20 +62,12 @@ library AccountStorage {
         mapping(bytes4 => bool) activeStrategies;
     }
 
-    struct AllowanceData {
-        uint256 height;
-        uint256 timestamp;
-        bool expires;
-        uint256 allowanceAmount;
-        bool configured;
-    }
-
     struct State {
         mapping(uint256 => uint256) DAOTOKENBALANCE;
         mapping(uint256 => EndowmentState) STATES;
         mapping(uint256 => Endowment) ENDOWMENTS;
-        //owner -> spender -> token -> Allowance Struct
-        mapping(address => mapping(address => mapping(address => AllowanceData))) ALLOWANCES;
+        // unit256 -> spender -> token -> amount
+        mapping(uint256 => mapping(address => mapping(address => uint256))) ALLOWANCES;
         Config config;
         // mapping(bytes4 => string) stratagyId;
         // mapping(uint256 => mapping(AngelCoreStruct.AccountType => mapping(string => uint256))) vaultBalance;
