@@ -7,6 +7,7 @@ export default async function verify(facetCuts: FacetCut[], hre: HardhatRuntimeE
 
     for (const { facetName, cut } of facetCuts) {
         try {
+            logger.out(`Verifying ${facetName}...`)
             await hre.run("verify:verify", {
                 address: cut.facetAddress,
                 constructorArguments: [],
