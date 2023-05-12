@@ -49,6 +49,8 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
             curDetails.cw4_members[0] = curDetails.owner;
         }
 
+        require(curDetails.threshold > 0, "Threshold must be a positive number");
+
         if (AngelCoreStruct.EndowmentType.Normal == curDetails.endow_type) {
             require(
                 curDetails.threshold <= curDetails.cw4_members.length,
