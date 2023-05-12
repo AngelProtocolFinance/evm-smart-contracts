@@ -1,6 +1,6 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
-import * as logger from "../../../../../utils/logger"
+import { logger } from "utils"
 import { FacetCut } from "./types"
 
 export default async function verify(
@@ -10,7 +10,7 @@ export default async function verify(
     admin: SignerWithAddress,
     hre: HardhatRuntimeEnvironment
 ): Promise<void> {
-    console.log("Verifying newly deployed facets...")
+    logger.out("Verifying newly deployed facets...")
 
     for (const { facetName, cut } of facetCuts) {
         try {
@@ -18,13 +18,13 @@ export default async function verify(
                 address: cut.facetAddress,
                 constructorArguments: [],
             })
-            console.log(`${facetName} verified.`)
+            logger.out(`${facetName} verified.`)
         } catch (error) {
             logger.out(`Failed to verify ${facetName} at ${cut.facetAddress}. Error: ${error}`, logger.Level.Warn)
         }
     }
 
-    console.log("Verifying the Diamond...")
+    logger.out("Verifying the Diamond...")
 
     try {
         await hre.run("verify:verify", {

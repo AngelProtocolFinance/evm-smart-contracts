@@ -1,9 +1,8 @@
 import { task } from "hardhat/config"
-import addresses from "../../contract-address.json"
-import { saveFrontendFiles } from "../../scripts/readWriteFile"
-import { CharityApplication__factory, ITransparentUpgradeableProxy__factory } from "../../typechain-types"
-import * as logger from "../../utils/logger"
-import shouldVerify from "../../utils/shouldVerify"
+import addresses from "contract-address.json"
+import { saveFrontendFiles } from "scripts/readWriteFile"
+import { CharityApplication__factory, ITransparentUpgradeableProxy__factory } from "typechain-types"
+import { logger, shouldVerify } from "utils"
 
 task(
     "upgrade:upgradeCharityApplication",

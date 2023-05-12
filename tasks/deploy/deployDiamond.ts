@@ -1,6 +1,6 @@
+import { deployDiamond } from "contracts/core/accounts/scripts/deploy"
 import { task } from "hardhat/config"
-import { deployDiamond } from "../../contracts/core/accounts/scripts/deploy"
-import * as logger from "../../utils/logger"
+import { logger } from "utils"
 
 task("Deploy:deployAccountDiamond", "It will deploy account diamond contracts")
     .addParam("apteammultisig", "APTeamMultiSig address")
@@ -20,7 +20,7 @@ task("Deploy:deployAccountDiamond", "It will deploy account diamond contracts")
                 verify_contracts
             )
 
-            console.log("Done.")
+            logger.out("Done.")
         } catch (error) {
             logger.out(`Diamond deployment failed, reason: ${error}`, logger.Level.Error)
         }

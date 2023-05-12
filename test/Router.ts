@@ -1,15 +1,14 @@
 import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
-import { Router, Router__factory } from "../typechain-types"
-import { IRouter, VaultActionStructToArray, ArrayToVaultActionStruct } from "../utils/IRouterHelpers"
-import { Registrar, Registrar__factory, IRegistrar } from "../typechain-types"
-import { IVault } from "../typechain-types"
-import { DummyVault, DummyVault__factory } from "../typechain-types"
-import { DummyGateway, DummyGateway__factory } from "../typechain-types"
-import { DummyGasService, DummyGasService__factory } from "../typechain-types"
-import { DummyERC20, DummyERC20__factory } from "../typechain-types"
+import { Router, Router__factory } from "typechain-types"
+import { IRouter, VaultActionStructToArray, ArrayToVaultActionStruct, StrategyApprovalState } from "utils"
+import { Registrar, Registrar__factory, IRegistrar } from "typechain-types"
+import { IVault } from "typechain-types"
+import { DummyVault, DummyVault__factory } from "typechain-types"
+import { DummyGateway, DummyGateway__factory } from "typechain-types"
+import { DummyGasService, DummyGasService__factory } from "typechain-types"
+import { DummyERC20, DummyERC20__factory } from "typechain-types"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
-import { StrategyApprovalState } from "../utils/IRegistrarHelpers"
 import { BigNumber } from "ethers";
 import { deepEqual } from "assert";
 

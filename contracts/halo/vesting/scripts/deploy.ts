@@ -3,7 +3,7 @@
 
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import path from "path"
-import { VestingMessage } from "../../../../typechain-types/contracts/halo/vesting/Vesting"
+import { VestingMessage } from "typechain-types/contracts/halo/vesting/Vesting"
 // const hre = require("hardhat");
 // const ethers = hre.ethers;
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";

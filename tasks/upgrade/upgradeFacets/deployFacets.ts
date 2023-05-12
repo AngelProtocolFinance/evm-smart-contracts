@@ -1,6 +1,6 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { ContractFactory } from "ethers"
-import { FacetCutAction, getSelectors } from "../../../contracts/core/accounts/scripts/libraries/diamond"
+import { FacetCutAction, getSelectors } from "contracts/core/accounts/scripts/libraries/diamond"
 import {
     AccountDepositWithdrawEndowments__factory,
     AccountDonationMatch__factory,
@@ -16,9 +16,8 @@ import {
     AccountsUpdateStatusEndowments__factory,
     AccountsVaultFacet__factory,
     AxelarExecutionContract__factory,
-} from "../../../typechain-types"
-import getContractName from "../../../utils/getContractName"
-import * as logger from "../../../utils/logger"
+} from "typechain-types"
+import { getContractName, logger } from "utils"
 import { FacetCut } from "./types"
 
 export default async function deployFacets(

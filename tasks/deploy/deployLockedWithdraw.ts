@@ -1,6 +1,6 @@
 import { task } from "hardhat/config"
-import config from "../../config"
-import { deployLockedWithdraw } from "../../contracts/normalized_endowment/locked-withdraw/scripts/deploy"
+import config from "config"
+import { deployLockedWithdraw } from "contracts/normalized_endowment/locked-withdraw/scripts/deploy"
 
 task(
     "Deploy:deployLockedWithdraw",

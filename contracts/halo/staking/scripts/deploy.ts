@@ -3,7 +3,7 @@
 
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import path from "path"
-import { Staking } from "../../../../typechain-types/contracts/halo/staking/Staking.sol/Staking"
+import { Staking } from "typechain-types/contracts/halo/staking/Staking.sol/Staking"
 // const hre = require("hardhat");
 // const ethers = hre.ethers;
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";

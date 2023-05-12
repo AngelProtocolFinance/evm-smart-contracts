@@ -1,8 +1,8 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { BytesLike } from "ethers"
 import { task } from "hardhat/config"
-import addresses from "../../contract-address.json"
-import { IndexFund, MultiSigGeneric } from "../../typechain-types"
+import addresses from "contract-address.json"
+import { IndexFund, MultiSigGeneric } from "typechain-types"
 
 task("manage:createIndexFund", "Will create a new index fund").setAction(
     async (_taskArguments, hre) => {

@@ -1,8 +1,8 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { task } from "hardhat/config"
 import type { TaskArguments } from "hardhat/types"
-import addresses from "../../contract-address.json"
-import { IndexFund } from "../../typechain-types"
+import addresses from "contract-address.json"
+import { IndexFund } from "typechain-types"
 
 task(
     "manage:changeOwner",

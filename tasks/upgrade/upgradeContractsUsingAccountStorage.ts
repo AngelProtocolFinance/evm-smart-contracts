@@ -14,9 +14,8 @@ import {
     AccountsUpdateStatusEndowments__factory,
     AccountsVaultFacet__factory,
     AxelarExecutionContract__factory,
-} from "../../typechain-types"
-import getContractName from "../../utils/getContractName"
-import * as logger from "../../utils/logger"
+} from "typechain-types"
+import { getContractName, logger } from "utils"
 
 task(
     "upgrade:upgradeContractsUsingAccountStorage",

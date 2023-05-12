@@ -1,10 +1,9 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { task } from "hardhat/config"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
-import addresses from "../../contract-address.json"
-import { ITransparentUpgradeableProxy__factory, OwnershipFacet__factory } from "../../typechain-types"
-import confirmAction from "../../utils/confirmAction"
-import * as logger from "../../utils/logger"
+import addresses from "contract-address.json"
+import { ITransparentUpgradeableProxy__factory, OwnershipFacet__factory } from "typechain-types"
+import { confirmAction, logger } from "utils"
 
 task("manage:changeAdmin", "Will update the admin for all proxy contracts")
     .addParam("currentAdmin", "Current admin address")

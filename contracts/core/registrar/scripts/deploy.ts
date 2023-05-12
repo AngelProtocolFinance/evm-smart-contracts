@@ -2,10 +2,10 @@
 // yours, or create new ones.
 
 import path from 'path'
-import config from './../../../../config'
-import { saveFrontendFiles } from '../../../../scripts/readWriteFile'
+import config from 'config'
+import { saveFrontendFiles } from 'scripts/readWriteFile'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { RegistrarMessages } from "../../../../typechain-types/contracts/core/registrar/registrar.sol/Registrar"
+import { RegistrarMessages } from "typechain-types/contracts/core/registrar/registrar.sol/Registrar"
 
 const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
 

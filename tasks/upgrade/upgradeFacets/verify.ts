@@ -1,5 +1,5 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types"
-import * as logger from "../../../utils/logger"
+import { logger } from "utils"
 import { FacetCut } from "./types"
 
 export default async function verify(facetCuts: FacetCut[], hre: HardhatRuntimeEnvironment): Promise<void> {
