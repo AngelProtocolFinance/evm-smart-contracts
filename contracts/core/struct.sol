@@ -718,9 +718,7 @@ library AngelCoreStruct {
         // can be changed if:
         // 1. sender is a valid delegate address and their powers have not expired
         // 2. sender is the endow owner && (no set delegate || an expired delegate) (ie. owner must first revoke their delegation)
-        return (canTakeAction(delegate, sender, envTime) ||
-            (sender == owner && !canTakeAction(delegate, sender, envTime))
-        );
+        return canTakeAction(delegate, sender, envTime) || sender == owner;
     }
 
     // None at the start as pending starts at 1 in ap rust contracts (in cw3 core)
