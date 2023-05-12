@@ -15,8 +15,7 @@ import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
 import {IAxelarGateway} from "./../interface/IAxelarGateway.sol";
 import {StringArray} from "./../../../lib/Strings/string.sol";
-import {IVault} from "./../interface/IVault.sol";
-import "hardhat/console.sol";
+import {IVault} from "../../../interfaces/IVault.sol";
 
 /**
  * @title AccountsUpdateStatusEndowments
@@ -63,7 +62,7 @@ contract AccountsUpdateStatusEndowments is
             tempEndowment.withdrawApproved = false;
         } else if (curDetails.status == AngelCoreStruct.EndowmentStatus.Closed) {
             // only endowment owner can close their accounts
-            require(msg.sender == state.config.owner, "Unauthorized");\
+            require(msg.sender == state.config.owner, "Unauthorized");
             tempEndowment.depositApproved = false;
             tempEndowment.withdrawApproved = false;
 
