@@ -11,6 +11,7 @@ import "./storage.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {LocalRegistrar} from "./LocalRegistrar.sol";
+import {LocalRegistrarLib} from "./lib/LocalRegistrarLib.sol";
 
 /**
  * @title Registrar Contract
@@ -345,7 +346,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
         address _liqAddr,
         LocalRegistrarLib.StrategyApprovalState _approvalState
     ) external override onlyOwner {
-        if (_approvalState == StrategyApprovalState.DEPRECATED) {
+        if (_approvalState == LocalRegistrarLib.StrategyApprovalState.DEPRECATED) {
             _removeStrategy(_strategyId);
         }
         else {
@@ -359,15 +360,15 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
         override
         onlyOwner
     {
-        if (_approvalState == StrategyApprovalState.DEPRECATED) {
+        if (_approvalState == LocalRegistrarLib.StrategyApprovalState.DEPRECATED) {
             _removeStrategy(_strategyId);
         }
         super.setStrategyApprovalState(_strategyId, _approvalState);
     }
 
-    function _maybeAddStrategy(bytes3 _strategyId) internal {
+    function _maybeAddStrategy(bytes4 _strategyId) internal {
         bool inList;
-        for (uint256 i = 0; i < VAULT.length; i++) {
+        for (uint256 i = 0; i < state.STRATEGIES.length; i++) {
             if (state.STRATEGIES[i] == _strategyId) {
                 inList = true;
             }
@@ -388,7 +389,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
             }
         }
         if (indexFound) {
-            state.STRATEGIES[delIndex] = state.STRATEGIES[STRATEGIES.length - 1];
+            state.STRATEGIES[delIndex] = state.STRATEGIES[state.STRATEGIES.length - 1];
             state.STRATEGIES.pop();
         }
     }

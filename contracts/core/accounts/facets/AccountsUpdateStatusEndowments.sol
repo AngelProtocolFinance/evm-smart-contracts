@@ -49,6 +49,9 @@ contract AccountsUpdateStatusEndowments is
         ).queryConfig();
 
         AngelCoreStruct.EndowmentStatus _newStatus;
+        address[] memory curTarget = new address[](0);
+        uint256[] memory curValue = new uint256[](0);
+        bytes[] memory curCalldata = new bytes[](0);
 
         if (curDetails.status == AngelCoreStruct.EndowmentStatus.Approved) {
             // only the Accounts owner (ex. AP Team Multisig || AP Gov) can freeze/unfreeze
@@ -100,10 +103,6 @@ contract AccountsUpdateStatusEndowments is
                     });
                 }
             }
-
-            address[] memory curTarget = new address[](0);
-            uint256[] memory curValue = new uint256[](0);
-            bytes[] memory curCalldata = new bytes[](0);
 
             curTarget[0] = registrar_config.indexFundContract;
             curValue[0] = 0;
