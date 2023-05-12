@@ -203,7 +203,7 @@ contract AccountDepositWithdrawEndowments is
         require(msg.value > 0, "Invalid Amount");
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Config memory tempConfig = state.config;
-        AccountStorage.EndowmentState storage tempEndowmentState = state.STATE[
+        AccountStorage.EndowmentState storage tempEndowmentState = state.STATES[
             curDetails.id
         ];
         require(!tempEndowmentState.closingEndowment, "Endowment is closed");
@@ -234,7 +234,7 @@ contract AccountDepositWithdrawEndowments is
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Config memory tempConfig = state.config;
 
-        AccountStorage.EndowmentState storage tempEndowmentState = state.STATE[
+        AccountStorage.EndowmentState storage tempEndowmentState = state.STATES[
             curDetails.id
         ];
         require(!tempEndowmentState.closingEndowment, "Endowment is closed");
@@ -426,7 +426,7 @@ contract AccountDepositWithdrawEndowments is
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             curId
         ];
-        AccountStorage.EndowmentState storage tempEndowmentState = state.STATE[
+        AccountStorage.EndowmentState storage tempEndowmentState = state.STATES[
             curId
         ];
         require(!tempEndowmentState.closingEndowment, "Endowment is closed");
