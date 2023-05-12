@@ -75,10 +75,6 @@ task(
                 address: charityApplicationImpl.address,
                 constructorArguments: [],
             })
-            await hre.run("verify:verify", {
-                address: CharityApplicationProxy.address,
-                constructorArguments: [charityApplicationImpl.address, proxyAdmin.address, "0x"],
-            })
         }
     } catch (error) {
         logger.out(error, logger.Level.Error)

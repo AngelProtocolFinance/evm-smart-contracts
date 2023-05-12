@@ -1,8 +1,8 @@
-import { task } from "hardhat/config"
 import addresses from "contract-address.json"
+import { task } from "hardhat/config"
 import { saveFrontendFiles } from "scripts/readWriteFile"
 import { EndowmentMultiSig__factory, MultiSigWalletFactory__factory } from "typechain-types"
-import { logger } from "utils"
+import { logger, shouldVerify } from "utils"
 
 task(
     "upgrade:upgradeEndowmentMultiSig",
@@ -36,6 +36,15 @@ task(
         const EndowmentMultiSigAddress = { ...addresses.EndowmentMultiSigAddress }
         EndowmentMultiSigAddress.MultiSigWalletImplementation = contract.address
         await saveFrontendFiles({ EndowmentMultiSigAddress })
+
+        if (shouldVerify(hre.network)) {
+            logger.out("Verifying the contract...")
+
+            await hre.run("verify:verify", {
+                address: contract.address,
+                constructorArguments: [],
+            })
+        }
     } catch (error) {
         logger.out(`EndowmentMultiSig upgrade failed, reason: ${error}`, logger.Level.Error)
     } finally {
