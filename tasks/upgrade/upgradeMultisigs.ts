@@ -70,7 +70,7 @@ task("upgrade:upgradeMultisig", "Will upgrade the implementation of the AP Team 
             )
             console.log("New Apps impl: ", newAppsImpl)
 
-            // Save frontend files
+            logger.out("Saving the new implementation address to JSON file...")
             let multiSig = {
                 ApplicationsMultiSigProxy: ApplicationsProxy.address,
                 APTeamMultiSigProxy: APTeamProxy.address,

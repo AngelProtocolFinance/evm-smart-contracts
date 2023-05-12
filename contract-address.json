@@ -7,12 +7,12 @@
   "multiSig": {
     "ApplicationsMultiSigProxy": "0x1edC050B5d84cbB0cA0b56356f3F7307efcd50Fb",
     "APTeamMultiSigProxy": "0xC26Ac43b14ebCbff5029792052aF3e4DF3233902",
-    "ApplicationMultisigImplementation": "0x5e0bCEfAAbd91706fc42A3b6d6364935b2B26C2c",
-    "APTeamMultisigImplementation": "0xb3E77FeC435C7bc11ffA3e5fC720bdA118ee0C05"
+    "ApplicationMultisigImplementation": "0x4AE860A84232AE513FdD1E6ce337AA8e12c5773c",
+    "APTeamMultisigImplementation": "0xDFa0b7F54F7e0d4491B28bE693a70fFEEFf0Cc1f"
   },
   "charityApplication": {
     "CharityApplicationProxy": "0x14A7bb3A01D9011D39FC0ECb5d09C84f7F596e4B",
-    "CharityApplicationImplementation": "0xBD34Ee0998D3523B214e279D4DcA25fAA440b12b"
+    "CharityApplicationImplementation": "0x05cB202D956F035232E29c76436a8E0049B1a193"
   },
   "swapRouterAddress2": {
     "swapRouterProxy": "0x0c00F32a3603ba39f6D1eACD21a0D60d2c58675c",
@@ -48,7 +48,7 @@
     "EndowmentMultiSigEmitterProxy": "0xE5cAcaCd2230e53054ddc9bbB7d1cB56b892FC76",
     "EndowmentMultiSigEmitterImplementation": "0x234deE964Cc3AF52D5A2567C1FD6F6Eb58998204",
     "MultiSigWalletFactory": "0x386FE56636177cE392B751919B4D6EABA24D6F25",
-    "MultiSigWalletImplementation": "0x29589307B3bcadA713e14384accE21f5253f3cb0"
+    "MultiSigWalletImplementation": "0x8412698fC0cF27a09771b21f5833f61f72290295"
   },
   "Tokens": {
     "usdc": "0xe6b8a5CF854791412c1f6EFC7CAf629f5Df1c747",
