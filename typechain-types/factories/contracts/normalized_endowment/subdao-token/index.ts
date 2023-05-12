@@ -2,4 +2,5 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as token from "./Token";
+export * as subdaoTokenSol from "./subdao-token.sol";
 export * as subdoaTokenSol from "./subdoa-token.sol";

@@ -737,6 +737,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.SubDaoToken__factory>;
     getContractFactory(
+      name: "SubDaoToken",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.SubDaoToken__factory>;
+    getContractFactory(
       name: "BancorBondingCurve",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BancorBondingCurve__factory>;
@@ -1689,6 +1693,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.LockedWithdraw>;
+    getContractAt(
+      name: "SubDaoToken",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.SubDaoToken>;
     getContractAt(
       name: "SubDaoToken",
       address: string,
