@@ -131,12 +131,14 @@ contract DonationMatch is Storage, Initializable {
 
         // give allowance to dao token contract
 
-        bool success = IERC20(token).approve(
-            state.config.reserveToken,
-            reserveTokenAmount
+        require(
+            IERC20(token)
+            .approve(
+                state.config.reserveToken,
+                reserveTokenAmount
+            ), 
+            "Token transfer failed"
         );
-
-        require(success, "Token transfer failed");
 
         IDonationMatchEmitter(emitterAddress).giveApprovalErC20(
             endowmentId,

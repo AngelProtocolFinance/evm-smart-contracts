@@ -15,18 +15,18 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 interface IAccountsDepositWithdrawEndowments {
     function depositDonationMatchErC20(
         uint256 curId,
-        address curToken,
+        address curTokenAddress,
         uint256 curAmount
     ) external;
 
-    function depositEth(
+    function depositMatic(
         AccountMessages.DepositRequest memory curDetails
     ) external payable;
 
     //Pending
     function depositERC20(
         AccountMessages.DepositRequest memory curDetails,
-        address curTokenaddress,
+        address curTokenAddress,
         uint256 curAmount
     ) external;
 
@@ -34,9 +34,7 @@ interface IAccountsDepositWithdrawEndowments {
         uint256 curId,
         AngelCoreStruct.AccountType acctType,
         address curBeneficiary,
-        address[] memory curTokenaddress,
-        uint256[] memory curAmount
+        address curTokenAddress,
+        uint256 curAmount
     ) external;
-
-    function harvest(address vaultAddr) external returns (bool);
 }
