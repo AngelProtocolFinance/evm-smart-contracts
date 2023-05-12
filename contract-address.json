@@ -12,7 +12,7 @@
   },
   "charityApplication": {
     "CharityApplicationProxy": "0x14A7bb3A01D9011D39FC0ECb5d09C84f7F596e4B",
-    "CharityApplicationImplementation": "0x9e7D361578F614185521d25f4592461858aCFF05"
+    "CharityApplicationImplementation": "0xdFDC34382250abC47E434a5F0b7c8829065e97c2"
   },
   "swapRouterAddress2": {
     "swapRouterProxy": "0x0c00F32a3603ba39f6D1eACD21a0D60d2c58675c",
@@ -48,7 +48,7 @@
     "EndowmentMultiSigEmitterProxy": "0xE5cAcaCd2230e53054ddc9bbB7d1cB56b892FC76",
     "EndowmentMultiSigEmitterImplementation": "0x234deE964Cc3AF52D5A2567C1FD6F6Eb58998204",
     "MultiSigWalletFactory": "0x386FE56636177cE392B751919B4D6EABA24D6F25",
-    "MultiSigWalletImplementation": "0x8174D68F8e42D1ec084FAe425f42821dCa1352E1"
+    "MultiSigWalletImplementation": "0x6aDb337b65598e737376d6F18043B4Aa92e0088b"
   },
   "Tokens": {
     "usdc": "0xe6b8a5CF854791412c1f6EFC7CAf629f5Df1c747",
