@@ -101,9 +101,9 @@ contract AccountsUpdateStatusEndowments is
                 }
             }
 
-            curTarget = new address[](2);
-            curValue = new uint256[](2);
-            curCalldata = new bytes[](2);
+            address[] memory curTarget = new address[](0);
+            uint256[] memory curValue = new uint256[](0);
+            bytes[] memory curCalldata = new bytes[](0);
 
             curTarget[0] = registrar_config.indexFundContract;
             curValue[0] = 0;
@@ -127,10 +127,6 @@ contract AccountsUpdateStatusEndowments is
             tempEndowment.status != _newStatus,
             "New status similar to current status"
         );
-
-        address[] memory curTarget = new address[](0);
-        uint256[] memory curValue = new uint256[](0);
-        bytes[] memory curCalldata = new bytes[](0);
 
         tempEndowment.status = _newStatus;
         state.ENDOWMENTS[curDetails.endowmentId] = tempEndowment;
@@ -159,73 +155,82 @@ contract AccountsUpdateStatusEndowments is
         state.STATES[curId].closingEndowment = true;
         state.STATES[curId].closingBeneficiary = curBeneficiary;
 
-        redeemAllFromVault(uint32(curId), tempEndowment.oneoffVaults);
-        console.log("tempEndowment.oneoffVaults.locked.length",tempEndowment.oneoffVaults.liquid.length, tempEndowment.oneoffVaults.locked.length);
+        require(checkFullyExited(uint32(curId)),"Not fully exited");
         uint256 redemtion = uint256(tempEndowment.oneoffVaults.liquid.length) + uint256(tempEndowment.oneoffVaults.locked.length);
         tempEndowment.pendingRedemptions = redemtion;
-        console.log("pendingRedemptions",redemtion);
         tempEndowment.depositApproved = false;
 
         emit UpdateEndowmentState(curId, state.STATES[curId]);
     }
 
-    function redeemAllFromVault(uint32 curId, AngelCoreStruct.OneOffVaults memory allVaults) internal {
-
+    function checkFullyExited(uint32 curId) internal view returns (bool) {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        address registrarContract = state.config.registrarContract;
-        
-        for(uint i=0;i<allVaults.liquid.length;i++){
-            AngelCoreStruct.YieldVault memory vault_config = IRegistrar(
-                registrarContract
-            ).queryVaultDetails(allVaults.liquid[i]);
-
-            uint32[] memory curIds = new uint32[](1);
-            curIds[0] = curId;
-            uint256 amount = state.vaultBalance[curId][AngelCoreStruct.AccountType.Liquid][allVaults.liquid[i]];
-            console.log("redeemAllFromVault", amount);
-            IAxelarGateway.VaultActionData memory payloadObject = IAxelarGateway
-                .VaultActionData({
-                    strategyId: bytes4(keccak256(bytes(vault_config.addr))),
-                    selector: IVault.redeemAll.selector,
-                    accountIds: curIds,
-                    token: vault_config.inputDenom,
-                    lockAmt: 0,
-                    liqAmt: amount
-                });
-
-            executeCalls(
-                payloadObject,
-                state.config.registrarContract,
-                vault_config.network
-            );
+        bytes4[] memory allStrategies = IRegistrar(state.config.registrarContract).queryAllStrategies(); 
+        for (uint256 i; i < allStrategies.length; i++) {
+            if(state.STATES[curId].activeStrategies[allStrategies[i]]) {
+                return false;
+            }
         }
-
-        for(uint i=0;i<allVaults.locked.length;i++){
-            AngelCoreStruct.YieldVault memory vault_config = IRegistrar(
-                registrarContract
-            ).queryVaultDetails(allVaults.locked[i]);
-
-            uint32[] memory curIds = new uint32[](1);
-            curIds[0] = curId;
-            uint256 amount = state.vaultBalance[curId][AngelCoreStruct.AccountType.Locked][allVaults.liquid[i]];
-            IAxelarGateway.VaultActionData memory payloadObject = IAxelarGateway
-                .VaultActionData({
-                    strategyId: bytes4(keccak256(bytes(vault_config.addr))),
-                    selector: IVault.redeemAll.selector,
-                    accountIds: curIds,
-                    token: vault_config.inputDenom,
-                    lockAmt: amount,
-                    liqAmt: 0
-                });
-
-            executeCalls(
-                payloadObject,
-                state.config.registrarContract,
-                vault_config.network
-            );
-        }
-
+        return true;
     }
+
+    // function redeemAllFromVault(uint32 curId, AngelCoreStruct.OneOffVaults memory allVaults) internal {
+
+    //     AccountStorage.State storage state = LibAccounts.diamondStorage();
+    //     address registrarContract = state.config.registrarContract;
+        
+    //     for(uint i=0;i<allVaults.liquid.length;i++){
+    //         AngelCoreStruct.YieldVault memory vault_config = IRegistrar(
+    //             registrarContract
+    //         ).queryVaultDetails(allVaults.liquid[i]);
+
+    //         uint32[] memory curIds = new uint32[](1);
+    //         curIds[0] = curId;
+    //         uint256 amount = state.vaultBalance[curId][AngelCoreStruct.AccountType.Liquid][allVaults.liquid[i]];
+    //         console.log("redeemAllFromVault", amount);
+    //         IAxelarGateway.VaultActionData memory payloadObject = IAxelarGateway
+    //             .VaultActionData({
+    //                 strategyId: bytes4(keccak256(bytes(vault_config.addr))),
+    //                 selector: IVault.redeemAll.selector,
+    //                 accountIds: curIds,
+    //                 token: vault_config.inputDenom,
+    //                 lockAmt: 0,
+    //                 liqAmt: amount
+    //             });
+
+    //         executeCalls(
+    //             payloadObject,
+    //             state.config.registrarContract,
+    //             vault_config.network
+    //         );
+    //     }
+
+    //     for(uint i=0;i<allVaults.locked.length;i++){
+    //         AngelCoreStruct.YieldVault memory vault_config = IRegistrar(
+    //             registrarContract
+    //         ).queryVaultDetails(allVaults.locked[i]);
+
+    //         uint32[] memory curIds = new uint32[](1);
+    //         curIds[0] = curId;
+    //         uint256 amount = state.vaultBalance[curId][AngelCoreStruct.AccountType.Locked][allVaults.liquid[i]];
+    //         IAxelarGateway.VaultActionData memory payloadObject = IAxelarGateway
+    //             .VaultActionData({
+    //                 strategyId: bytes4(keccak256(bytes(vault_config.addr))),
+    //                 selector: IVault.redeemAll.selector,
+    //                 accountIds: curIds,
+    //                 token: vault_config.inputDenom,
+    //                 lockAmt: amount,
+    //                 liqAmt: 0
+    //             });
+
+    //         executeCalls(
+    //             payloadObject,
+    //             state.config.registrarContract,
+    //             vault_config.network
+    //         );
+    //     }
+
+    // }
 
     // /**
     //  * @notice Sends token to the different chain with the message

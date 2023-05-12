@@ -7,13 +7,13 @@ import {AccountMessages} from "../message.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interface/IRegistrar.sol";
+import {IRouter} from "../../router/IRouter.sol";
 import {Utils} from "../../../lib/utils.sol";
 import {IIndexFund} from "../../index-fund/Iindex-fund.sol";
 import {IAxelarGateway} from "./../interface/IAxelarGateway.sol";
 import {StringArray} from "./../../../lib/Strings/string.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
-import "hardhat/console.sol";
 
 /**
  * @title AxelarCallExecutor
@@ -31,17 +31,18 @@ contract AxelarExecutionContract is ReentrancyGuardFacet, AccountsEvents {
      */
     function _unpackCalldata(
         bytes memory curCalldata
-    ) internal virtual returns (IAxelarGateway.VaultActionData memory) {
+    ) internal virtual returns (IRouter.VaultActionData memory) {
         (
             bytes4 strategyId,
             bytes4 selector,
             uint32[] memory accountIds,
             address token,
             uint256 lockAmt,
-            uint256 liqAmt
+            uint256 liqAmt,
+            IRouter.VaultActionStatus status
         ) = abi.decode(
                 curCalldata,
-                (bytes4, bytes4, uint32[], address, uint256, uint256)
+                (bytes4, bytes4, uint32[], address, uint256, uint256, IRouter.VaultActionStatus)
             );
 
         return
@@ -193,7 +194,6 @@ contract AxelarExecutionContract is ReentrancyGuardFacet, AccountsEvents {
                 .Cw20CoinVerified_addr
                 .length +
                 tempState.balances.locked.Cw20CoinVerified_addr.length;
-            console.log("size", size);
             address[] memory finalTarget = new address[](size);
             uint256[] memory finalValue = new uint256[](size);
             bytes[] memory finalCallData = new bytes[](size);
@@ -336,7 +336,7 @@ contract AxelarExecutionContract is ReentrancyGuardFacet, AccountsEvents {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
 
         // decode payload
-        IAxelarGateway.VaultActionData memory action = _unpackCalldata(payload);
+        IRouter.VaultActionData memory action = _unpackCalldata(payload);
 
         AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[
             action.accountIds[0]
@@ -380,14 +380,12 @@ contract AxelarExecutionContract is ReentrancyGuardFacet, AccountsEvents {
         }
 
         state.STATES[action.accountIds[0]] = tempState;
-        console.log("temp-1",tempEndowment.pendingRedemptions);
         if (tempEndowment.pendingRedemptions == 0) {} else if (
             tempEndowment.pendingRedemptions == 1
         ) {
             tempEndowment.pendingRedemptions = 0;
 
             if (tempState.closingEndowment) {
-                console.log("calling distributeToBeneficiary");
                 distributeToBeneficiary(action.accountIds[0]);
             }
         } else {

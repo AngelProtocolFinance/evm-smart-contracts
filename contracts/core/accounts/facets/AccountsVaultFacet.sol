@@ -17,7 +17,7 @@ import {StringArray} from "./../../../lib/Strings/string.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
 import {ISwappingV3} from "./../../swap-router/Interface/ISwappingV3.sol";
-import {IVault} from "./../interface/IVault.sol";
+import {IVault} from "./../../../interfaces/IVault.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "hardhat/console.sol";

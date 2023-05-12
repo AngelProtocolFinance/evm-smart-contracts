@@ -49,7 +49,7 @@ library AngelCoreStruct {
 
     enum EndowmentType {
         Charity,
-        Normal,
+        Normal
     }
 
     enum EndowmentStatus {

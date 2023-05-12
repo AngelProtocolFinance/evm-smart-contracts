@@ -17,7 +17,7 @@ import {IDonationMatching} from "./../../../normalized_endowment/donation-match/
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {ISwappingV3} from "./../../swap-router/Interface/ISwappingV3.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
-import {IVault} from "./../interface/IVault.sol";
+import {IVault} from "./../../../interfaces/IVault.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 /**
