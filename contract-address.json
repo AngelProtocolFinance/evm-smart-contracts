@@ -12,7 +12,7 @@
   },
   "charityApplication": {
     "CharityApplicationProxy": "0x14A7bb3A01D9011D39FC0ECb5d09C84f7F596e4B",
-    "CharityApplicationImplementation": "0xdFDC34382250abC47E434a5F0b7c8829065e97c2"
+    "CharityApplicationImplementation": "0xc46f97302327FD7aB54220576a9A65d5C39a516f"
   },
   "swapRouterAddress2": {
     "swapRouterProxy": "0x0c00F32a3603ba39f6D1eACD21a0D60d2c58675c",

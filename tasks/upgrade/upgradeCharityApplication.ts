@@ -9,7 +9,7 @@ task(
     "Will upgrade the implementation of the Charity Application multisig"
 ).setAction(async (_taskArguments, hre) => {
     try {
-        logger.out("Upgrading CharityApplication implementation...")
+        logger.out("Upgrading CharityApplication...")
 
         const [_deployer, proxyAdmin] = await hre.ethers.getSigners()
 
@@ -20,6 +20,7 @@ task(
         const CharityApplicationLib = await hre.ethers.getContractFactory("CharityApplicationLib", proxyAdmin)
         const CharityApplicationLibInstance = await CharityApplicationLib.deploy()
         await CharityApplicationLibInstance.deployed()
+        logger.out(`Deployed at ${CharityApplicationLibInstance.address}`)
 
         const CharityApplication = new CharityApplication__factory(
             {
@@ -65,12 +66,8 @@ task(
         await saveFrontendFiles({ charityApplication })
 
         if (shouldVerify(hre.network)) {
-            logger.out("Verifying the contract...")
+            logger.out("Verifying CharityApplication implementation...")
 
-            await hre.run("verify:verify", {
-                address: CharityApplicationLibInstance.address,
-                constructorArguments: [],
-            })
             await hre.run("verify:verify", {
                 address: charityApplicationImpl.address,
                 constructorArguments: [],
