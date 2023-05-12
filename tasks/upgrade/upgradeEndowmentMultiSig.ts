@@ -33,7 +33,7 @@ task(
             throw new Error(`Failed to update EndowmentMultiSig implementation address inside MultiSigWalletFactory.`)
         }
 
-        logger.out("Saving new implementation address to JSON file...")
+        logger.out("Saving the new implementation address to JSON file...")
 
         const EndowmentMultiSigAddress = { ...addresses.EndowmentMultiSigAddress }
         EndowmentMultiSigAddress.MultiSigWalletImplementation = contract.address
