@@ -1,6 +1,7 @@
-import { task } from "hardhat/config"
 import addresses from "contract-address.json"
+import { task } from "hardhat/config"
 import { confirmAction, logger, shouldVerify } from "utils"
+import createFacetCuts from "./createFacetCuts"
 import cutDiamond from "./cutDiamond"
 import deployFacets from "./deployFacets"
 import verify from "./verify"
@@ -20,12 +21,14 @@ task("upgrade:upgradeFacets", "Will redeploy and upgrade all facets that use Acc
 
             const [_deployer, proxyAdmin] = await hre.ethers.getSigners()
 
-            const facetCuts = await deployFacets(
+            const facets = await deployFacets(
                 taskArguments.facets,
                 proxyAdmin,
                 addresses.libraries.ANGEL_CORE_STRUCT_LIBRARY,
                 addresses.libraries.STRING_LIBRARY
             )
+
+            const facetCuts = await createFacetCuts(facets, addresses.accounts.diamond, proxyAdmin)
 
             await cutDiamond(addresses.accounts.diamond, proxyAdmin, facetCuts, hre)
 

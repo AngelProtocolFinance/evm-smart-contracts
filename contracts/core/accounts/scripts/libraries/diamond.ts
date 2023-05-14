@@ -7,7 +7,7 @@ interface Selectors extends Array<string> {
     get: (functionNames: string[]) => Selectors
 }
 
-const FacetCutAction = { Add: 0, Replace: 1, Remove: 2 }
+enum FacetCutAction { Add = 0, Replace = 1, Remove = 2 }
 
 // get function selectors from ABI
 function getSelectors(contract: Contract): Selectors {

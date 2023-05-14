@@ -1,6 +1,5 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { ContractFactory } from "ethers"
-import { FacetCutAction, getSelectors } from "contracts/core/accounts/scripts/libraries/diamond"
 import {
     AccountDepositWithdrawEndowments__factory,
     AccountDonationMatch__factory,
@@ -18,15 +17,15 @@ import {
     AxelarExecutionContract__factory,
 } from "typechain-types"
 import { getContractName, logger } from "utils"
-import { FacetCut } from "./types"
+import { Facet } from "./types"
 
 export default async function deployFacets(
     facetNames: string[],
     diamondOwner: SignerWithAddress,
     corestruct: string,
     stringlib: string
-): Promise<FacetCut[]> {
-    const cuts: FacetCut[] = []
+): Promise<Facet[]> {
+    const facets: Facet[] = []
 
     logger.out("Instantiating factories...")
 
@@ -40,19 +39,12 @@ export default async function deployFacets(
             const facet = await factory.deploy()
             await facet.deployed()
             logger.out(`${facetName} deployed: ${facet.address}`)
-            cuts.push({
-                facetName,
-                cut: {
-                    facetAddress: facet.address,
-                    action: FacetCutAction.Replace,
-                    functionSelectors: getSelectors(facet),
-                },
-            })
+            facets.push({ name: facetName, contract: facet })
         } catch (error) {
             logger.out(`Failed to deploy ${facetName}, reason: ${error}`, logger.Level.Error)
         }
     }
-    return cuts
+    return facets
 }
 
 type FacetFactory = { facetName: string; factory: ContractFactory }
