@@ -65,10 +65,12 @@ export declare namespace AccountStorage {
     maturityTime: PromiseOrValue<BigNumberish>;
     strategies: AngelCoreStruct.AccountStrategiesStruct;
     oneoffVaults: AngelCoreStruct.OneOffVaultsStruct;
-    rebalance: AngelCoreStruct.RebalanceDetailsStruct;
+    rebalance: LocalRegistrarLib.RebalanceParamsStruct;
+    kycDonorsOnly: PromiseOrValue<boolean>;
     pendingRedemptions: PromiseOrValue<BigNumberish>;
     copycatStrategy: PromiseOrValue<BigNumberish>;
     proposalLink: PromiseOrValue<BigNumberish>;
+    multisig: PromiseOrValue<string>;
     dao: PromiseOrValue<string>;
     daoToken: PromiseOrValue<string>;
     donationMatchActive: PromiseOrValue<boolean>;
@@ -100,10 +102,12 @@ export declare namespace AccountStorage {
     BigNumber,
     AngelCoreStruct.AccountStrategiesStructOutput,
     AngelCoreStruct.OneOffVaultsStructOutput,
-    AngelCoreStruct.RebalanceDetailsStructOutput,
+    LocalRegistrarLib.RebalanceParamsStructOutput,
+    boolean,
     BigNumber,
     BigNumber,
     BigNumber,
+    string,
     string,
     string,
     boolean,
@@ -133,10 +137,12 @@ export declare namespace AccountStorage {
     maturityTime: BigNumber;
     strategies: AngelCoreStruct.AccountStrategiesStructOutput;
     oneoffVaults: AngelCoreStruct.OneOffVaultsStructOutput;
-    rebalance: AngelCoreStruct.RebalanceDetailsStructOutput;
+    rebalance: LocalRegistrarLib.RebalanceParamsStructOutput;
+    kycDonorsOnly: boolean;
     pendingRedemptions: BigNumber;
     copycatStrategy: BigNumber;
     proposalLink: BigNumber;
+    multisig: string;
     dao: string;
     daoToken: string;
     donationMatchActive: boolean;
@@ -156,38 +162,36 @@ export declare namespace AccountStorage {
 
   export type ConfigStruct = {
     owner: PromiseOrValue<string>;
+    version: PromiseOrValue<string>;
     registrarContract: PromiseOrValue<string>;
     nextAccountId: PromiseOrValue<BigNumberish>;
     maxGeneralCategoryId: PromiseOrValue<BigNumberish>;
+    subDao: PromiseOrValue<string>;
+    gateway: PromiseOrValue<string>;
+    gasReceiver: PromiseOrValue<string>;
+    reentrancyGuardLocked: PromiseOrValue<boolean>;
   };
 
-  export type ConfigStructOutput = [string, string, BigNumber, BigNumber] & {
+  export type ConfigStructOutput = [
+    string,
+    string,
+    string,
+    BigNumber,
+    BigNumber,
+    string,
+    string,
+    string,
+    boolean
+  ] & {
     owner: string;
+    version: string;
     registrarContract: string;
     nextAccountId: BigNumber;
     maxGeneralCategoryId: BigNumber;
-  };
-
-  export type EndowmentStateStruct = {
-    donationsReceived: AngelCoreStruct.DonationsReceivedStruct;
-    balances: AngelCoreStruct.BalanceInfoStruct;
-    closingEndowment: PromiseOrValue<boolean>;
-    closingBeneficiary: AngelCoreStruct.BeneficiaryStruct;
-    lockedForever: PromiseOrValue<boolean>;
-  };
-
-  export type EndowmentStateStructOutput = [
-    AngelCoreStruct.DonationsReceivedStructOutput,
-    AngelCoreStruct.BalanceInfoStructOutput,
-    boolean,
-    AngelCoreStruct.BeneficiaryStructOutput,
-    boolean
-  ] & {
-    donationsReceived: AngelCoreStruct.DonationsReceivedStructOutput;
-    balances: AngelCoreStruct.BalanceInfoStructOutput;
-    closingEndowment: boolean;
-    closingBeneficiary: AngelCoreStruct.BeneficiaryStructOutput;
-    lockedForever: boolean;
+    subDao: string;
+    gateway: string;
+    gasReceiver: string;
+    reentrancyGuardLocked: boolean;
   };
 }
 
@@ -319,28 +323,6 @@ export declare namespace AngelCoreStruct {
     liquidAmount: BigNumber[];
   };
 
-  export type RebalanceDetailsStruct = {
-    rebalanceLiquidInvestedProfits: PromiseOrValue<boolean>;
-    lockedInterestsToLiquid: PromiseOrValue<boolean>;
-    interest_distribution: PromiseOrValue<BigNumberish>;
-    lockedPrincipleToLiquid: PromiseOrValue<boolean>;
-    principle_distribution: PromiseOrValue<BigNumberish>;
-  };
-
-  export type RebalanceDetailsStructOutput = [
-    boolean,
-    boolean,
-    BigNumber,
-    boolean,
-    BigNumber
-  ] & {
-    rebalanceLiquidInvestedProfits: boolean;
-    lockedInterestsToLiquid: boolean;
-    interest_distribution: BigNumber;
-    lockedPrincipleToLiquid: boolean;
-    principle_distribution: BigNumber;
-  };
-
   export type EndowmentFeeStruct = {
     payoutAddress: PromiseOrValue<string>;
     feePercentage: PromiseOrValue<BigNumberish>;
@@ -440,65 +422,6 @@ export declare namespace AngelCoreStruct {
     min: BigNumber;
     defaultSplit: BigNumber;
   };
-
-  export type DonationsReceivedStruct = {
-    locked: PromiseOrValue<BigNumberish>;
-    liquid: PromiseOrValue<BigNumberish>;
-  };
-
-  export type DonationsReceivedStructOutput = [BigNumber, BigNumber] & {
-    locked: BigNumber;
-    liquid: BigNumber;
-  };
-
-  export type GenericBalanceStruct = {
-    coinNativeAmount: PromiseOrValue<BigNumberish>;
-    Cw20CoinVerified_amount: PromiseOrValue<BigNumberish>[];
-    Cw20CoinVerified_addr: PromiseOrValue<string>[];
-  };
-
-  export type GenericBalanceStructOutput = [
-    BigNumber,
-    BigNumber[],
-    string[]
-  ] & {
-    coinNativeAmount: BigNumber;
-    Cw20CoinVerified_amount: BigNumber[];
-    Cw20CoinVerified_addr: string[];
-  };
-
-  export type BalanceInfoStruct = {
-    locked: AngelCoreStruct.GenericBalanceStruct;
-    liquid: AngelCoreStruct.GenericBalanceStruct;
-  };
-
-  export type BalanceInfoStructOutput = [
-    AngelCoreStruct.GenericBalanceStructOutput,
-    AngelCoreStruct.GenericBalanceStructOutput
-  ] & {
-    locked: AngelCoreStruct.GenericBalanceStructOutput;
-    liquid: AngelCoreStruct.GenericBalanceStructOutput;
-  };
-
-  export type BeneficiaryDataStruct = {
-    id: PromiseOrValue<BigNumberish>;
-    addr: PromiseOrValue<string>;
-  };
-
-  export type BeneficiaryDataStructOutput = [BigNumber, string] & {
-    id: BigNumber;
-    addr: string;
-  };
-
-  export type BeneficiaryStruct = {
-    data: AngelCoreStruct.BeneficiaryDataStruct;
-    enumData: PromiseOrValue<BigNumberish>;
-  };
-
-  export type BeneficiaryStructOutput = [
-    AngelCoreStruct.BeneficiaryDataStructOutput,
-    number
-  ] & { data: AngelCoreStruct.BeneficiaryDataStructOutput; enumData: number };
 }
 
 export declare namespace SubDaoMessage {
@@ -549,6 +472,33 @@ export declare namespace SubDaoMessage {
   };
 }
 
+export declare namespace LocalRegistrarLib {
+  export type RebalanceParamsStruct = {
+    rebalanceLiquidProfits: PromiseOrValue<boolean>;
+    lockedRebalanceToLiquid: PromiseOrValue<BigNumberish>;
+    interestDistribution: PromiseOrValue<BigNumberish>;
+    lockedPrincipleToLiquid: PromiseOrValue<boolean>;
+    principleDistribution: PromiseOrValue<BigNumberish>;
+    basis: PromiseOrValue<BigNumberish>;
+  };
+
+  export type RebalanceParamsStructOutput = [
+    boolean,
+    number,
+    number,
+    boolean,
+    number,
+    number
+  ] & {
+    rebalanceLiquidProfits: boolean;
+    lockedRebalanceToLiquid: number;
+    interestDistribution: number;
+    lockedPrincipleToLiquid: boolean;
+    principleDistribution: number;
+    basis: number;
+  };
+}
+
 export declare namespace AccountMessages {
   export type DepositRequestStruct = {
     id: PromiseOrValue<BigNumberish>;
@@ -566,15 +516,28 @@ export declare namespace AccountMessages {
 export interface AccountDepositWithdrawEndowmentsInterface
   extends utils.Interface {
   functions: {
+    "depositDonationMatchErC20(uint256,address,uint256)": FunctionFragment;
     "depositERC20((uint256,uint256,uint256),address,uint256)": FunctionFragment;
-    "depositEth((uint256,uint256,uint256))": FunctionFragment;
-    "withdraw(uint256,uint8,address,address[],uint256[])": FunctionFragment;
+    "depositMatic((uint256,uint256,uint256))": FunctionFragment;
+    "withdraw(uint256,uint8,address,address,uint256)": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "depositERC20" | "depositEth" | "withdraw"
+    nameOrSignatureOrTopic:
+      | "depositDonationMatchErC20"
+      | "depositERC20"
+      | "depositMatic"
+      | "withdraw"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "depositDonationMatchErC20",
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
   encodeFunctionData(
     functionFragment: "depositERC20",
     values: [
@@ -584,7 +547,7 @@ export interface AccountDepositWithdrawEndowmentsInterface
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "depositEth",
+    functionFragment: "depositMatic",
     values: [AccountMessages.DepositRequestStruct]
   ): string;
   encodeFunctionData(
@@ -593,16 +556,23 @@ export interface AccountDepositWithdrawEndowmentsInterface
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
-      PromiseOrValue<string>[],
-      PromiseOrValue<BigNumberish>[]
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
     ]
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "depositDonationMatchErC20",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "depositERC20",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "depositEth", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "depositMatic",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
   events: {
@@ -618,7 +588,6 @@ export interface AccountDepositWithdrawEndowmentsInterface
     "SwappedToken(uint256)": EventFragment;
     "UpdateConfig(tuple)": EventFragment;
     "UpdateEndowment(uint256,tuple)": EventFragment;
-    "UpdateEndowmentState(uint256,tuple)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AllowanceStateUpdatedTo"): EventFragment;
@@ -633,7 +602,6 @@ export interface AccountDepositWithdrawEndowmentsInterface
   getEvent(nameOrSignatureOrTopic: "SwappedToken"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdateConfig"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdateEndowment"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "UpdateEndowmentState"): EventFragment;
 }
 
 export interface AllowanceStateUpdatedToEventObject {
@@ -781,18 +749,6 @@ export type UpdateEndowmentEvent = TypedEvent<
 
 export type UpdateEndowmentEventFilter = TypedEventFilter<UpdateEndowmentEvent>;
 
-export interface UpdateEndowmentStateEventObject {
-  id: BigNumber;
-  state: AccountStorage.EndowmentStateStructOutput;
-}
-export type UpdateEndowmentStateEvent = TypedEvent<
-  [BigNumber, AccountStorage.EndowmentStateStructOutput],
-  UpdateEndowmentStateEventObject
->;
-
-export type UpdateEndowmentStateEventFilter =
-  TypedEventFilter<UpdateEndowmentStateEvent>;
-
 export interface AccountDepositWithdrawEndowments extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
@@ -820,14 +776,21 @@ export interface AccountDepositWithdrawEndowments extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    depositERC20(
-      curDetails: AccountMessages.DepositRequestStruct,
-      curTokenaddress: PromiseOrValue<string>,
+    depositDonationMatchErC20(
+      curId: PromiseOrValue<BigNumberish>,
+      curTokenAddress: PromiseOrValue<string>,
       curAmount: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    depositEth(
+    depositERC20(
+      curDetails: AccountMessages.DepositRequestStruct,
+      curTokenAddress: PromiseOrValue<string>,
+      curAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    depositMatic(
       curDetails: AccountMessages.DepositRequestStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -836,20 +799,27 @@ export interface AccountDepositWithdrawEndowments extends BaseContract {
       curId: PromiseOrValue<BigNumberish>,
       acctType: PromiseOrValue<BigNumberish>,
       curBeneficiary: PromiseOrValue<string>,
-      curTokenaddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
+      curTokenAddress: PromiseOrValue<string>,
+      curAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
-  depositERC20(
-    curDetails: AccountMessages.DepositRequestStruct,
-    curTokenaddress: PromiseOrValue<string>,
+  depositDonationMatchErC20(
+    curId: PromiseOrValue<BigNumberish>,
+    curTokenAddress: PromiseOrValue<string>,
     curAmount: PromiseOrValue<BigNumberish>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  depositEth(
+  depositERC20(
+    curDetails: AccountMessages.DepositRequestStruct,
+    curTokenAddress: PromiseOrValue<string>,
+    curAmount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  depositMatic(
     curDetails: AccountMessages.DepositRequestStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -858,20 +828,27 @@ export interface AccountDepositWithdrawEndowments extends BaseContract {
     curId: PromiseOrValue<BigNumberish>,
     acctType: PromiseOrValue<BigNumberish>,
     curBeneficiary: PromiseOrValue<string>,
-    curTokenaddress: PromiseOrValue<string>[],
-    curAmount: PromiseOrValue<BigNumberish>[],
+    curTokenAddress: PromiseOrValue<string>,
+    curAmount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    depositERC20(
-      curDetails: AccountMessages.DepositRequestStruct,
-      curTokenaddress: PromiseOrValue<string>,
+    depositDonationMatchErC20(
+      curId: PromiseOrValue<BigNumberish>,
+      curTokenAddress: PromiseOrValue<string>,
       curAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    depositEth(
+    depositERC20(
+      curDetails: AccountMessages.DepositRequestStruct,
+      curTokenAddress: PromiseOrValue<string>,
+      curAmount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    depositMatic(
       curDetails: AccountMessages.DepositRequestStruct,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -880,8 +857,8 @@ export interface AccountDepositWithdrawEndowments extends BaseContract {
       curId: PromiseOrValue<BigNumberish>,
       acctType: PromiseOrValue<BigNumberish>,
       curBeneficiary: PromiseOrValue<string>,
-      curTokenaddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
+      curTokenAddress: PromiseOrValue<string>,
+      curAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -992,26 +969,24 @@ export interface AccountDepositWithdrawEndowments extends BaseContract {
       endowment?: null
     ): UpdateEndowmentEventFilter;
     UpdateEndowment(id?: null, endowment?: null): UpdateEndowmentEventFilter;
-
-    "UpdateEndowmentState(uint256,tuple)"(
-      id?: null,
-      state?: null
-    ): UpdateEndowmentStateEventFilter;
-    UpdateEndowmentState(
-      id?: null,
-      state?: null
-    ): UpdateEndowmentStateEventFilter;
   };
 
   estimateGas: {
-    depositERC20(
-      curDetails: AccountMessages.DepositRequestStruct,
-      curTokenaddress: PromiseOrValue<string>,
+    depositDonationMatchErC20(
+      curId: PromiseOrValue<BigNumberish>,
+      curTokenAddress: PromiseOrValue<string>,
       curAmount: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    depositEth(
+    depositERC20(
+      curDetails: AccountMessages.DepositRequestStruct,
+      curTokenAddress: PromiseOrValue<string>,
+      curAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    depositMatic(
       curDetails: AccountMessages.DepositRequestStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1020,21 +995,28 @@ export interface AccountDepositWithdrawEndowments extends BaseContract {
       curId: PromiseOrValue<BigNumberish>,
       acctType: PromiseOrValue<BigNumberish>,
       curBeneficiary: PromiseOrValue<string>,
-      curTokenaddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
+      curTokenAddress: PromiseOrValue<string>,
+      curAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    depositERC20(
-      curDetails: AccountMessages.DepositRequestStruct,
-      curTokenaddress: PromiseOrValue<string>,
+    depositDonationMatchErC20(
+      curId: PromiseOrValue<BigNumberish>,
+      curTokenAddress: PromiseOrValue<string>,
       curAmount: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    depositEth(
+    depositERC20(
+      curDetails: AccountMessages.DepositRequestStruct,
+      curTokenAddress: PromiseOrValue<string>,
+      curAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    depositMatic(
       curDetails: AccountMessages.DepositRequestStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -1043,8 +1025,8 @@ export interface AccountDepositWithdrawEndowments extends BaseContract {
       curId: PromiseOrValue<BigNumberish>,
       acctType: PromiseOrValue<BigNumberish>,
       curBeneficiary: PromiseOrValue<string>,
-      curTokenaddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
+      curTokenAddress: PromiseOrValue<string>,
+      curAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

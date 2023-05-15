@@ -159,7 +159,7 @@ contract AccountsUpdateStatusEndowments is
         tempEndowment.pendingRedemptions = redemtion;
         tempEndowment.depositApproved = false;
 
-        emit UpdateEndowmentState(curId, state.STATES[curId]);
+        // emit UpdateEndowmentState(curId, state.STATES[curId]);
     }
 
     function checkFullyExited(uint32 curId) internal view returns (bool) {

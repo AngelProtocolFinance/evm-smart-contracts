@@ -43,15 +43,12 @@ contract AccountsUpdateEndowmentSettingsController is
         AccountMessages.UpdateEndowmentSettingsRequest memory curDetails
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[
-            curDetails.id
-        ];
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             curDetails.id
         ];
 
-        require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
-        require(!tempEndowmentState.lockedForever, "Settings are locked forever");
+        require(!state.STATES[curDetails.id].closingEndowment, "UpdatesAfterClosed");
+        require(!state.STATES[curDetails.id].lockedForever, "Settings are locked forever");
 
         if (tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity) {
             if (tempEndowment.maturityTime > block.timestamp) {
@@ -179,12 +176,9 @@ contract AccountsUpdateEndowmentSettingsController is
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             curDetails.id
         ];
-        AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[
-            curDetails.id
-        ];
 
-        require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
-        require(!tempEndowmentState.lockedForever, "Settings are locked forever");
+        require(!state.STATES[curDetails.id].closingEndowment, "UpdatesAfterClosed");
+        require(!state.STATES[curDetails.id].lockedForever, "Settings are locked forever");
 
         if (
             !AngelCoreStruct.canChange(
@@ -233,9 +227,6 @@ contract AccountsUpdateEndowmentSettingsController is
         AccountMessages.UpdateEndowmentFeeRequest memory curDetails
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[
-            curDetails.id
-        ];
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             curDetails.id
         ];
@@ -244,8 +235,8 @@ contract AccountsUpdateEndowmentSettingsController is
             tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity,
             "Charity Endowments may not change endowment fees"
         );
-        require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
-        require(!tempEndowmentState.lockedForever, "Settings are locked forever");
+        require(!state.STATES[curDetails.id].closingEndowment, "UpdatesAfterClosed");
+        require(!state.STATES[curDetails.id].lockedForever, "Settings are locked forever");
 
         if (
             AngelCoreStruct.canChange(

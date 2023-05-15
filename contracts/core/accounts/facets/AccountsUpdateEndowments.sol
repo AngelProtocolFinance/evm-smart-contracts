@@ -34,12 +34,9 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             curDetails.id
         ];
-        // AccountStorage.Config memory tempConfig = state.config;
-        AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[
-            curDetails.id
-        ];
-        require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
-        require(!tempEndowmentState.lockedForever, "Settings are locked forever");
+
+        require(!state.STATES[curDetails.id].closingEndowment, "UpdatesAfterClosed");
+        require(!state.STATES[curDetails.id].lockedForever, "Settings are locked forever");
 
         // there are several fields that are restricted to changing only by the Endowment Owner
         if (msg.sender == tempEndowment.owner) {
@@ -155,13 +152,11 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         uint256 delegateExpiry
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[id];
         AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];
-        // AngelCoreStruct.SettingsPermission memory tempSettings = AngelCoreStruct.getPermissions(state.ENDOWMENTS[id].settingsController,setting);
 
         require(msg.sender == tempEndowment.owner, "Unauthorized");
-        require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
-        require(!tempEndowmentState.lockedForever, "Settings are locked forever");
+        require(!state.STATES[id].closingEndowment, "UpdatesAfterClosed");
+        require(!state.STATES[id].lockedForever, "Settings are locked forever");
 
         if (
             keccak256(abi.encodePacked(action)) ==

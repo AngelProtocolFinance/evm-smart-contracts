@@ -28,6 +28,18 @@ import type {
   PromiseOrValue,
 } from "../../common";
 
+export declare namespace IRouter {
+  export type RedemptionResponseStruct = {
+    amount: PromiseOrValue<BigNumberish>;
+    status: PromiseOrValue<BigNumberish>;
+  };
+
+  export type RedemptionResponseStructOutput = [BigNumber, number] & {
+    amount: BigNumber;
+    status: number;
+  };
+}
+
 export interface DummyVaultInterface extends utils.Interface {
   functions: {
     "deposit(uint32,address,uint256)": FunctionFragment;
@@ -288,7 +300,7 @@ export interface DummyVault extends BaseContract {
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<IRouter.RedemptionResponseStructOutput>;
 
     redeemAll(
       accountId: PromiseOrValue<BigNumberish>,

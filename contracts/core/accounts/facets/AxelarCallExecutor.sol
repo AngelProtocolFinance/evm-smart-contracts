@@ -23,133 +23,100 @@ import {AccountsEvents} from "./AccountsEvents.sol";
 contract AxelarExecutionContract is ReentrancyGuardFacet, AccountsEvents {
     error NotApprovedByGateway();
 
-    /**
-     * @notice Unpacks the calldata into a VaultActionData struct
-     * @dev This method is virtual so that it can be overridden by child contracts
-     * @param curCalldata The calldata to unpack
-     * @return VaultActionData struct containing the unpacked calldata
-     */
-    function _unpackCalldata(
-        bytes memory curCalldata
-    ) internal virtual returns (IRouter.VaultActionData memory) {
-        (
-            bytes4 strategyId,
-            bytes4 selector,
-            uint32[] memory accountIds,
-            address token,
-            uint256 lockAmt,
-            uint256 liqAmt,
-            IRouter.VaultActionStatus status
-        ) = abi.decode(
-                curCalldata,
-                (bytes4, bytes4, uint32[], address, uint256, uint256, IRouter.VaultActionStatus)
-            );
+    // /**
+    //  * @notice Executes a contract call
+    //  * @dev Executes a cross-chain action by validating the payload and then calling the internal _execute function.
+    //  * @param commandId  The command id
+    //  * @param sourceChain  The source chain
+    //  * @param sourceAddress  The source address
+    //  * @param payload  The payload
+    //  */
+    // function execute(
+    //     bytes32 commandId,
+    //     string calldata sourceChain,
+    //     string calldata sourceAddress,
+    //     bytes calldata payload
+    // ) external nonReentrant {
+    //     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
-        return
-            IAxelarGateway.VaultActionData(
-                strategyId,
-                selector,
-                accountIds,
-                token,
-                lockAmt,
-                liqAmt
-            );
-    }
+    //     AngelCoreStruct.NetworkInfo memory networkInfo = IRegistrar(
+    //         state.config.registrarContract
+    //     ).queryNetworkConnection(block.chainid);
 
-    /**
-     * @notice Executes a contract call
-     * @dev Executes a cross-chain action by validating the payload and then calling the internal _execute function.
-     * @param commandId  The command id
-     * @param sourceChain  The source chain
-     * @param sourceAddress  The source address
-     * @param payload  The payload
-     */
-    function execute(
-        bytes32 commandId,
-        string calldata sourceChain,
-        string calldata sourceAddress,
-        bytes calldata payload
-    ) external nonReentrant {
-        AccountStorage.State storage state = LibAccounts.diamondStorage();
+    //     address gateway = networkInfo.axelarGateway;
 
-        AngelCoreStruct.NetworkInfo memory networkInfo = IRegistrar(
-            state.config.registrarContract
-        ).queryNetworkConnection(block.chainid);
+    //     bytes32 payloadHash = keccak256(payload);
+    //     if (
+    //         !IAxelarGateway(gateway).validateContractCall(
+    //             commandId,
+    //             sourceChain,
+    //             sourceAddress,
+    //             payloadHash
+    //         )
+    //     ) revert NotApprovedByGateway();
 
-        address gateway = networkInfo.axelarGateway;
+    //     _execute(sourceChain, sourceAddress, payload);
+    // }
 
-        bytes32 payloadHash = keccak256(payload);
-        if (
-            !IAxelarGateway(gateway).validateContractCall(
-                commandId,
-                sourceChain,
-                sourceAddress,
-                payloadHash
-            )
-        ) revert NotApprovedByGateway();
+    // /**
+    //  * @notice Executes a contract call with token
+    //  * @param commandId  The command id
+    //  * @param sourceChain The source chain
+    //  * @param sourceAddress  The source address
+    //  * @param payload  The payload
+    //  * @param tokenSymbol  The token symbol
+    //  * @param amount  The amount
+    //  */
+    // function executeWithToken(
+    //     bytes32 commandId,
+    //     string calldata sourceChain,
+    //     string calldata sourceAddress,
+    //     bytes calldata payload,
+    //     string calldata tokenSymbol,
+    //     uint256 amount
+    // ) external nonReentrant {
 
-        _execute(sourceChain, sourceAddress, payload);
-    }
+    //     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
-    /**
-     * @notice Executes a contract call with token
-     * @param commandId  The command id
-     * @param sourceChain The source chain
-     * @param sourceAddress  The source address
-     * @param payload  The payload
-     * @param tokenSymbol  The token symbol
-     * @param amount  The amount
-     */
-    function executeWithToken(
-        bytes32 commandId,
-        string calldata sourceChain,
-        string calldata sourceAddress,
-        bytes calldata payload,
-        string calldata tokenSymbol,
-        uint256 amount
-    ) external nonReentrant {
+    //     AngelCoreStruct.NetworkInfo memory networkInfo = IRegistrar(
+    //         state.config.registrarContract
+    //     ).queryNetworkConnection(block.chainid);
 
-        AccountStorage.State storage state = LibAccounts.diamondStorage();
+    //     address gateway = networkInfo.axelerGateway;
 
-        AngelCoreStruct.NetworkInfo memory networkInfo = IRegistrar(
-            state.config.registrarContract
-        ).queryNetworkConnection(block.chainid);
+    //     bytes32 payloadHash = keccak256(payload);
 
-        address gateway = networkInfo.axelerGateway;
+    //     if (
+    //         !IAxelarGateway(gateway).validateContractCallAndMint(
+    //             commandId,
+    //             sourceChain,
+    //             sourceAddress,
+    //             payloadHash,
+    //             tokenSymbol,
+    //             amount
+    //         )
+    //     ) revert NotApprovedByGateway();
 
-        bytes32 payloadHash = keccak256(payload);
+    //     _executeWithToken(
+    //         payload,
+    //         tokenSymbol,
+    //         amount
+    //     );
+    // }
 
-        if (
-            !IAxelarGateway(gateway).validateContractCallAndMint(
-                commandId,
-                sourceChain,
-                sourceAddress,
-                payloadHash,
-                tokenSymbol,
-                amount
-            )
-        ) revert NotApprovedByGateway();
-
-        _executeWithToken(
-            payload,
-            tokenSymbol,
-            amount
-        );
-    }
-
-    /**
-     * @notice Executes a contract call. It contains business logic for execute function
-     * @param sourceChain  The source chain
-     * @param sourceAddress  The source address
-     * @param payload  The payload
-     */
-    function _execute(
-        string calldata sourceChain,
-        string calldata sourceAddress,
-        bytes calldata payload
-    ) internal {
-        // TODO: we are not listning to this event for now
-    }
+    // /**
+    //  * @notice Executes a contract call. It contains business logic for execute function
+    //  * @param sourceChain  The source chain
+    //  * @param sourceAddress  The source address
+    //  * @param payload  The payload
+    //  */
+    // function _execute(
+    //     string calldata sourceChain,
+    //     string calldata sourceAddress,
+    //     bytes calldata payload
+    // ) internal {
+    //     // TODO: we are not listning to this event for now
+    // }
 
     /**
      * @notice This function validates the deposit fund
@@ -171,230 +138,230 @@ contract AxelarExecutionContract is ReentrancyGuardFacet, AccountsEvents {
         return true;
     }
 
-    /**
-     * @notice Distributes the locked and liquid balances of an endowment to its closing beneficiary, according to their specified type.
-     * @param curId The ID of the endowment being distributed.
-     * @dev This function should only be called by other internal functions in the contract.
-     */
-    function distributeToBeneficiary(uint256 curId) internal {
-        AccountStorage.State storage state = LibAccounts.diamondStorage();
-        // AccountStorage.Config memory tempConfig = state.config;
-        AccountStorage.EndowmentState storage tempState = state.STATES[curId];
+    // /**
+    //  * @notice Distributes the locked and liquid balances of an endowment to its closing beneficiary, according to their specified type.
+    //  * @param curId The ID of the endowment being distributed.
+    //  * @dev This function should only be called by other internal functions in the contract.
+    //  */
+    // function distributeToBeneficiary(uint256 curId) internal {
+    //     AccountStorage.State storage state = LibAccounts.diamondStorage();
+    //     // AccountStorage.Config memory tempConfig = state.config;
+    //     AccountStorage.EndowmentState storage tempState = state.STATES[curId];
 
-        if (
-            tempState.closingBeneficiary.enumData ==
-            AngelCoreStruct.BeneficiaryEnum.None
-        ) {} else if (
-            tempState.closingBeneficiary.enumData ==
-            AngelCoreStruct.BeneficiaryEnum.Wallet
-        ) {
-            uint256 size = tempState
-                .balances
-                .liquid
-                .Cw20CoinVerified_addr
-                .length +
-                tempState.balances.locked.Cw20CoinVerified_addr.length;
-            address[] memory finalTarget = new address[](size);
-            uint256[] memory finalValue = new uint256[](size);
-            bytes[] memory finalCallData = new bytes[](size);
+    //     if (
+    //         tempState.closingBeneficiary.enumData ==
+    //         AngelCoreStruct.BeneficiaryEnum.None
+    //     ) {} else if (
+    //         tempState.closingBeneficiary.enumData ==
+    //         AngelCoreStruct.BeneficiaryEnum.Wallet
+    //     ) {
+    //         uint256 size = tempState
+    //             .balances
+    //             .liquid
+    //             .Cw20CoinVerified_addr
+    //             .length +
+    //             tempState.balances.locked.Cw20CoinVerified_addr.length;
+    //         address[] memory finalTarget = new address[](size);
+    //         uint256[] memory finalValue = new uint256[](size);
+    //         bytes[] memory finalCallData = new bytes[](size);
 
-            for (
-                uint8 i = 0;
-                i < tempState.balances.liquid.Cw20CoinVerified_addr.length;
-                i++
-            ) {
-                address target = tempState
-                    .balances
-                    .liquid
-                    .Cw20CoinVerified_addr[i];
-                uint256 value = 0;
-                bytes memory callData = abi.encodeWithSignature(
-                    "transfer(address,uint256)",
-                    tempState.closingBeneficiary.data.addr,
-                    tempState.balances.liquid.Cw20CoinVerified_amount[i]
-                );
+    //         for (
+    //             uint8 i = 0;
+    //             i < tempState.balances.liquid.Cw20CoinVerified_addr.length;
+    //             i++
+    //         ) {
+    //             address target = tempState
+    //                 .balances
+    //                 .liquid
+    //                 .Cw20CoinVerified_addr[i];
+    //             uint256 value = 0;
+    //             bytes memory callData = abi.encodeWithSignature(
+    //                 "transfer(address,uint256)",
+    //                 tempState.closingBeneficiary.data.addr,
+    //                 tempState.balances.liquid.Cw20CoinVerified_amount[i]
+    //             );
 
-                finalTarget[i] = target;
-                finalValue[i] = value;
-                finalCallData[i] = callData;
-            }
+    //             finalTarget[i] = target;
+    //             finalValue[i] = value;
+    //             finalCallData[i] = callData;
+    //         }
 
-            uint256 count = tempState
-                .balances
-                .liquid
-                .Cw20CoinVerified_addr
-                .length;
-            for (
-                uint256 i = 0;
-                i < tempState.balances.locked.Cw20CoinVerified_addr.length;
-                i++
-            ) {
-                address target = tempState
-                    .balances
-                    .locked
-                    .Cw20CoinVerified_addr[i];
-                uint256 value = 0;
-                bytes memory callData = abi.encodeWithSignature(
-                    "transfer(address,uint256)",
-                    tempState.closingBeneficiary.data.addr,
-                    tempState.balances.locked.Cw20CoinVerified_amount[i]
-                );
+    //         uint256 count = tempState
+    //             .balances
+    //             .liquid
+    //             .Cw20CoinVerified_addr
+    //             .length;
+    //         for (
+    //             uint256 i = 0;
+    //             i < tempState.balances.locked.Cw20CoinVerified_addr.length;
+    //             i++
+    //         ) {
+    //             address target = tempState
+    //                 .balances
+    //                 .locked
+    //                 .Cw20CoinVerified_addr[i];
+    //             uint256 value = 0;
+    //             bytes memory callData = abi.encodeWithSignature(
+    //                 "transfer(address,uint256)",
+    //                 tempState.closingBeneficiary.data.addr,
+    //                 tempState.balances.locked.Cw20CoinVerified_amount[i]
+    //             );
 
-                finalTarget[count + i] = target;
-                finalValue[count + i] = value;
-                finalCallData[count + i] = callData;
-            }
+    //             finalTarget[count + i] = target;
+    //             finalValue[count + i] = value;
+    //             finalCallData[count + i] = callData;
+    //         }
 
-            Utils._execute(finalTarget, finalValue, finalCallData);
-        } else if (
-            tempState.closingBeneficiary.enumData ==
-            AngelCoreStruct.BeneficiaryEnum.IndexFund
-        ) {
-            RegistrarStorage.Config memory registrar_config = IRegistrar(
-                state.config.registrarContract
-            ).queryConfig();
+    //         Utils._execute(finalTarget, finalValue, finalCallData);
+    //     } else if (
+    //         tempState.closingBeneficiary.enumData ==
+    //         AngelCoreStruct.BeneficiaryEnum.IndexFund
+    //     ) {
+    //         RegistrarStorage.Config memory registrar_config = IRegistrar(
+    //             state.config.registrarContract
+    //         ).queryConfig();
 
-            AngelCoreStruct.IndexFund memory temp_fund = IIndexFund(
-                registrar_config.indexFundContract
-            ).queryFundDetails(tempState.closingBeneficiary.data.id);
+    //         AngelCoreStruct.IndexFund memory temp_fund = IIndexFund(
+    //             registrar_config.indexFundContract
+    //         ).queryFundDetails(tempState.closingBeneficiary.data.id);
 
-            uint256[] memory members = temp_fund.members;
-            uint256 membersCount = members.length;
+    //         uint256[] memory members = temp_fund.members;
+    //         uint256 membersCount = members.length;
 
-            uint256[] memory splitLiquid = AngelCoreStruct.splitBalance(
-                tempState.balances.liquid.Cw20CoinVerified_amount,
-                membersCount
-            );
-            uint256[] memory splitLocked = AngelCoreStruct.splitBalance(
-                tempState.balances.locked.Cw20CoinVerified_amount,
-                membersCount
-            );
+    //         uint256[] memory splitLiquid = AngelCoreStruct.splitBalance(
+    //             tempState.balances.liquid.Cw20CoinVerified_amount,
+    //             membersCount
+    //         );
+    //         uint256[] memory splitLocked = AngelCoreStruct.splitBalance(
+    //             tempState.balances.locked.Cw20CoinVerified_amount,
+    //             membersCount
+    //         );
 
-            for (uint8 i = 0; i < membersCount; i++) {
-                AccountStorage.EndowmentState storage rcv_endow = state.STATES[
-                    members[i]
-                ];
-                AngelCoreStruct.receiveGenericBalanceModified(
-                    rcv_endow.balances.locked.Cw20CoinVerified_addr,
-                    rcv_endow.balances.locked.Cw20CoinVerified_amount,
-                    tempState.balances.locked.Cw20CoinVerified_addr,
-                    splitLocked
-                );
-                AngelCoreStruct.receiveGenericBalanceModified(
-                    rcv_endow.balances.liquid.Cw20CoinVerified_addr,
-                    rcv_endow.balances.liquid.Cw20CoinVerified_amount,
-                    tempState.balances.liquid.Cw20CoinVerified_addr,
-                    splitLiquid
-                );
+    //         for (uint8 i = 0; i < membersCount; i++) {
+    //             AccountStorage.EndowmentState storage rcv_endow = state.STATES[
+    //                 members[i]
+    //             ];
+    //             AngelCoreStruct.receiveGenericBalanceModified(
+    //                 rcv_endow.balances.locked.Cw20CoinVerified_addr,
+    //                 rcv_endow.balances.locked.Cw20CoinVerified_amount,
+    //                 tempState.balances.locked.Cw20CoinVerified_addr,
+    //                 splitLocked
+    //             );
+    //             AngelCoreStruct.receiveGenericBalanceModified(
+    //                 rcv_endow.balances.liquid.Cw20CoinVerified_addr,
+    //                 rcv_endow.balances.liquid.Cw20CoinVerified_amount,
+    //                 tempState.balances.liquid.Cw20CoinVerified_addr,
+    //                 splitLiquid
+    //             );
 
-                state.STATES[members[i]] = rcv_endow;
-            }
-        } else if (
-            tempState.closingBeneficiary.enumData ==
-            AngelCoreStruct.BeneficiaryEnum.EndowmentId
-        ) {
-            AccountStorage.EndowmentState storage recivingEndowment = state
-                .STATES[tempState.closingBeneficiary.data.id];
+    //             state.STATES[members[i]] = rcv_endow;
+    //         }
+    //     } else if (
+    //         tempState.closingBeneficiary.enumData ==
+    //         AngelCoreStruct.BeneficiaryEnum.EndowmentId
+    //     ) {
+    //         AccountStorage.EndowmentState storage recivingEndowment = state
+    //             .STATES[tempState.closingBeneficiary.data.id];
 
-            AngelCoreStruct.receiveGenericBalance(
-                recivingEndowment.balances.locked.Cw20CoinVerified_addr,
-                recivingEndowment.balances.locked.Cw20CoinVerified_amount,
-                tempState.balances.locked.Cw20CoinVerified_addr,
-                tempState.balances.locked.Cw20CoinVerified_amount
-            );
+    //         AngelCoreStruct.receiveGenericBalance(
+    //             recivingEndowment.balances.locked.Cw20CoinVerified_addr,
+    //             recivingEndowment.balances.locked.Cw20CoinVerified_amount,
+    //             tempState.balances.locked.Cw20CoinVerified_addr,
+    //             tempState.balances.locked.Cw20CoinVerified_amount
+    //         );
 
-            AngelCoreStruct.receiveGenericBalance(
-                recivingEndowment.balances.liquid.Cw20CoinVerified_addr,
-                recivingEndowment.balances.liquid.Cw20CoinVerified_amount,
-                tempState.balances.liquid.Cw20CoinVerified_addr,
-                tempState.balances.liquid.Cw20CoinVerified_amount
-            );
+    //         AngelCoreStruct.receiveGenericBalance(
+    //             recivingEndowment.balances.liquid.Cw20CoinVerified_addr,
+    //             recivingEndowment.balances.liquid.Cw20CoinVerified_amount,
+    //             tempState.balances.liquid.Cw20CoinVerified_addr,
+    //             tempState.balances.liquid.Cw20CoinVerified_amount
+    //         );
 
-            state.STATES[
-                tempState.closingBeneficiary.data.id
-            ] = recivingEndowment;
-        }
+    //         state.STATES[
+    //             tempState.closingBeneficiary.data.id
+    //         ] = recivingEndowment;
+    //     }
 
-        tempState.balances.locked = AngelCoreStruct.genericBalanceDefault();
-        tempState.balances.liquid = AngelCoreStruct.genericBalanceDefault();
+    //     tempState.balances.locked = AngelCoreStruct.genericBalanceDefault();
+    //     tempState.balances.liquid = AngelCoreStruct.genericBalanceDefault();
 
-        state.STATES[curId] = tempState;
-        emit UpdateEndowmentState(curId, tempState);
-    }
+    //     state.STATES[curId] = tempState;
+    //     // emit UpdateEndowmentState(curId, tempState);
+    // }
 
-    /**
-     * @notice Execute a token transfer with a specified amount
-     * @param payload Payload data
-     * @param tokenSymbol Token symbol
-     * @param amount Amount of tokens
-     */
-    function _executeWithToken(
-        bytes calldata payload,
-        string calldata tokenSymbol,
-        uint256 amount
-    ) internal {
-        AccountStorage.State storage state = LibAccounts.diamondStorage();
+    // /**
+    //  * @notice Execute a token transfer with a specified amount
+    //  * @param payload Payload data
+    //  * @param tokenSymbol Token symbol
+    //  * @param amount Amount of tokens
+    //  */
+    // function _executeWithToken(
+    //     bytes calldata payload,
+    //     string calldata tokenSymbol,
+    //     uint256 amount
+    // ) internal {
+    //     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
-        // decode payload
-        IRouter.VaultActionData memory action = _unpackCalldata(payload);
+    //     // decode payload
+    //     IRouter.VaultActionData memory action = _unpackCalldata(payload);
 
-        AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[
-            action.accountIds[0]
-        ];
-        // AccountStorage.Config memory tempConfig = state.config;
-        AccountStorage.EndowmentState storage tempState = state.STATES[
-            action.accountIds[0]
-        ];
+    //     AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[
+    //         action.accountIds[0]
+    //     ];
+    //     // AccountStorage.Config memory tempConfig = state.config;
+    //     AccountStorage.EndowmentState storage tempState = state.STATES[
+    //         action.accountIds[0]
+    //     ];
 
-        AngelCoreStruct.NetworkInfo memory networkInfo = IRegistrar(
-            state.config.registrarContract
-        ).queryNetworkConnection(block.chainid);
+    //     AngelCoreStruct.NetworkInfo memory networkInfo = IRegistrar(
+    //         state.config.registrarContract
+    //     ).queryNetworkConnection(block.chainid);
 
-        address token = IAxelarGateway(networkInfo.axelerGateway).tokenAddresses(tokenSymbol);
+    //     address token = IAxelarGateway(networkInfo.axelerGateway).tokenAddresses(tokenSymbol);
 
-        require(
-            validateDepositFund(state.config.registrarContract, token, amount),
-            "Invalid Asset"
-        );
-        string memory result = state.stratagyId[action.strategyId];
+    //     require(
+    //         validateDepositFund(state.config.registrarContract, token, amount),
+    //         "Invalid Asset"
+    //     );
+    //     string memory result = state.stratagyId[action.strategyId];
 
-        if (action.lockAmt > 0) {
-            state.vaultBalance[action.accountIds[0]][
-                AngelCoreStruct.AccountType.Locked
-            ][result] -= action.lockAmt;
-            AngelCoreStruct.addToken(
-                tempState.balances.locked,
-                token,
-                action.lockAmt
-            );
-        }
-        if (action.liqAmt > 0) {
-            state.vaultBalance[action.accountIds[0]][
-                AngelCoreStruct.AccountType.Liquid
-            ][result] -= action.liqAmt;
-            AngelCoreStruct.addToken(
-                tempState.balances.liquid,
-                token,
-                action.liqAmt
-            );
-        }
+    //     if (action.lockAmt > 0) {
+    //         state.vaultBalance[action.accountIds[0]][
+    //             AngelCoreStruct.AccountType.Locked
+    //         ][result] -= action.lockAmt;
+    //         AngelCoreStruct.addToken(
+    //             tempState.balances.locked,
+    //             token,
+    //             action.lockAmt
+    //         );
+    //     }
+    //     if (action.liqAmt > 0) {
+    //         state.vaultBalance[action.accountIds[0]][
+    //             AngelCoreStruct.AccountType.Liquid
+    //         ][result] -= action.liqAmt;
+    //         AngelCoreStruct.addToken(
+    //             tempState.balances.liquid,
+    //             token,
+    //             action.liqAmt
+    //         );
+    //     }
 
-        state.STATES[action.accountIds[0]] = tempState;
-        if (tempEndowment.pendingRedemptions == 0) {} else if (
-            tempEndowment.pendingRedemptions == 1
-        ) {
-            tempEndowment.pendingRedemptions = 0;
+    //     state.STATES[action.accountIds[0]] = tempState;
+    //     if (tempEndowment.pendingRedemptions == 0) {} else if (
+    //         tempEndowment.pendingRedemptions == 1
+    //     ) {
+    //         tempEndowment.pendingRedemptions = 0;
 
-            if (tempState.closingEndowment) {
-                distributeToBeneficiary(action.accountIds[0]);
-            }
-        } else {
-            tempEndowment.pendingRedemptions -= 1;
-        }
+    //         if (tempState.closingEndowment) {
+    //             distributeToBeneficiary(action.accountIds[0]);
+    //         }
+    //     } else {
+    //         tempEndowment.pendingRedemptions -= 1;
+    //     }
 
-        state.ENDOWMENTS[action.accountIds[0]] = tempEndowment;
+    //     state.ENDOWMENTS[action.accountIds[0]] = tempEndowment;
 
-        emit UpdateEndowment(action.accountIds[0], tempEndowment);
-        emit UpdateEndowmentState(action.accountIds[0], tempState);
-    }
+    //     emit UpdateEndowment(action.accountIds[0], tempEndowment);
+    //     // emit UpdateEndowmentState(action.accountIds[0], tempState);
+    // }
 }

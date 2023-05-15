@@ -104,77 +104,56 @@ contract AccountsAllowance is ReentrancyGuardFacet, AccountsEvents {
      * @notice withdraw the funds user has granted the allowance for
      * @dev This function spends the allowance of an account
      * @param curId The id of the endowment
-     * @param curTokenaddress The address of the token
+     * @param curTokenAddress The address of the token
      * @param curAmount The amount to be spent
      */
     function spendAllowance(
         uint256 curId,
-        address curTokenaddress,
+        address curTokenAddress,
         uint256 curAmount,
         address curRecipient
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.EndowmentState memory tempState = state.STATES[curId];
-
-        AngelCoreStruct.GenericBalance memory state_bal = tempState
-            .balances
-            .liquid;
-
-        require(curTokenaddress != address(0), "Invalid token address");
-        require(curAmount != 0, "Invalid Amount claimed");
-
-        uint256 balance = 0;
-        uint256 index = 0;
-        for (uint8 i = 0; i < state_bal.Cw20CoinVerified_addr.length; i++) {
-            if (state_bal.Cw20CoinVerified_addr[i] == curTokenaddress) {
-                balance = state_bal.Cw20CoinVerified_amount[i];
-                index = i;
-                break;
-            }
-        }
-
-        require(curAmount < balance, "InsufficientFunds");
+        require(curTokenAddress != address(0), "Invalid token address");
+        require(curAmount != 0, "Invalid amount");
+        require(curAmount < state.STATES[curId].balances.liquid.balancesByToken[curTokenAddress], "Insufficient Funds");
 
         AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[curId];
         address spender = msg.sender;
         address owner = tempEndowment.owner;
 
         require(
-            state.ALLOWANCES[owner][spender][curTokenaddress].configured,
+            state.ALLOWANCES[owner][spender][curTokenAddress].configured,
             "NoAllowance"
         );
 
-        if (state.ALLOWANCES[owner][spender][curTokenaddress].expires) {
+        if (state.ALLOWANCES[owner][spender][curTokenAddress].expires) {
             require(
-                state.ALLOWANCES[owner][spender][curTokenaddress].height <
+                state.ALLOWANCES[owner][spender][curTokenAddress].height <
                     block.number,
                 "Expired"
             );
             require(
-                state.ALLOWANCES[owner][spender][curTokenaddress].timestamp <
+                state.ALLOWANCES[owner][spender][curTokenAddress].timestamp <
                     block.timestamp,
                 "Expired"
             );
         }
 
         require(
-            state.ALLOWANCES[owner][spender][curTokenaddress].allowanceAmount >
+            state.ALLOWANCES[owner][spender][curTokenAddress].allowanceAmount >
                 curAmount,
             "NoAllowance"
         );
 
-        state
-        .ALLOWANCES[owner][spender][curTokenaddress]
+        state.ALLOWANCES[owner][spender][curTokenAddress]
             .allowanceAmount -= curAmount;
-        state_bal.Cw20CoinVerified_amount[index] -= curAmount;
+
+        state.STATES[curId].balances.liquid.balancesByToken[curTokenAddress] -= curAmount;
 
         require(
-            IERC20(curTokenaddress).transfer(curRecipient, curAmount),
+            IERC20(curTokenAddress).transfer(curRecipient, curAmount),
             "Transfer failed"
         );
-
-        tempState.balances.liquid = state_bal;
-        state.STATES[curId] = tempState;
-        emit UpdateEndowmentState(curId, tempState);
     }
 }

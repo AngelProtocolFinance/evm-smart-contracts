@@ -412,7 +412,7 @@ contract AccountDepositWithdrawEndowments is
             curTokenAddress,
             liquidAmount
         );
-        emit UpdateEndowmentState(curDetails.id, state.STATES[curDetails.id]);
+        // emit UpdateEndowmentState(curDetails.id, state.STATES[curDetails.id]);
 
         state.ENDOWMENTS[curDetails.id] = tempEndowment;
         emit UpdateEndowment(curDetails.id, tempEndowment);
@@ -532,8 +532,6 @@ contract AccountDepositWithdrawEndowments is
             );
         }
 
-        AngelCoreStruct.GenericBalance memory state_bal;
-
         uint256 current_bal;
         if (acctType == AngelCoreStruct.AccountType.Locked) {
             current_bal = state.STATES[curId].balances.locked.balancesByToken[curTokenAddress];
@@ -593,6 +591,6 @@ contract AccountDepositWithdrawEndowments is
             state.STATES[curId].balances.liquid.balancesByToken[curTokenAddress] -= curAmount;
         }
         
-        emit UpdateEndowmentState(curId, state.STATES[curId]);
+        // emit UpdateEndowmentState(curId, state.STATES[curId]);
     }
 }

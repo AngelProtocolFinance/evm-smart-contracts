@@ -3,6 +3,7 @@
 pragma solidity >=0.8.8;
 
 import {IRouter} from "./IRouter.sol";
+import {RouterLib} from "./RouterLib.sol";
 import {IVault} from "../../interfaces/IVault.sol";
 import {IVaultLiquid} from "../../interfaces/IVaultLiquid.sol";
 import {IVaultLocked} from "../../interfaces/IVaultLocked.sol";
@@ -386,7 +387,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         _action.liqAmt -= liqGas;
         _action.lockAmt -= lockGas;
 
-        bytes memory payload = _packCallData(_action);
+        bytes memory payload = RouterLib.packCallData(_action);
         try
             this.sendTokens(
                 _action.destinationChain,
@@ -474,7 +475,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         returns (VaultActionData memory)
     {
         // decode payload
-        VaultActionData memory action = _unpackCalldata(payload);
+        VaultActionData memory action = RouterLib.unpackCalldata(payload);
 
         // Leverage this.call() to enable try/catch logic
         try this.deposit(action, tokenSymbol, amount) {
@@ -504,7 +505,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         returns (VaultActionData memory)
     {
         // decode payload
-        VaultActionData memory action = _unpackCalldata(payload);
+        VaultActionData memory action = RouterLib.unpackCalldata(payload);
         LocalRegistrarLib.StrategyParams memory params = registrar
             .getStrategyParamsById(action.strategyId);
 

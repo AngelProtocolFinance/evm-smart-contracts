@@ -36,6 +36,7 @@ export declare namespace IRouter {
     token: PromiseOrValue<string>;
     lockAmt: PromiseOrValue<BigNumberish>;
     liqAmt: PromiseOrValue<BigNumberish>;
+    status: PromiseOrValue<BigNumberish>;
   };
 
   export type VaultActionDataStructOutput = [
@@ -45,7 +46,8 @@ export declare namespace IRouter {
     number[],
     string,
     BigNumber,
-    BigNumber
+    BigNumber,
+    number
   ] & {
     destinationChain: string;
     strategyId: string;
@@ -54,6 +56,7 @@ export declare namespace IRouter {
     token: string;
     lockAmt: BigNumber;
     liqAmt: BigNumber;
+    status: number;
   };
 }
 

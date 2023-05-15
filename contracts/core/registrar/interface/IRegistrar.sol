@@ -42,6 +42,8 @@ interface IRegistrar is ILocalRegistrar {
         returns (RegistrarStorage.Config memory);
 
     function testQuery() external view returns (string[] memory);
+    
+    function queryAllStrategies() view external returns (bytes4[] memory allStrategies);
 
     // function testQueryStruct()
     //     external
