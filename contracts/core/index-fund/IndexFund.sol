@@ -73,7 +73,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
             activeFund: 0,
             nextFundId: 1,
             roundDonations: 0,
-            rotatingFunds: [],
+            rotatingFunds: uint256[],
             nextRotationBlock: block.number + state.config.fundRotation
         });
         emit UpdateIndexFundState(state.state);
@@ -225,6 +225,8 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
         }
 
         // remove from rotating funds list
+        bool found;
+        uint256 index;
         (index, found) = Array.indexOf(state.state.rotatingFunds, fundId);
         if (found) {
             Array.remove(state.state.rotatingFunds, index);
@@ -814,6 +816,8 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
         }
 
         // check if the current active fund is in the rotation and not expired
+        bool found;
+        uint256 index;
         (index, found) = Array.indexOf(state.state.rotatingFunds, currFund);
         if (!found || index == activeFunds.length - 1) {
             // set to the first fund in the list
