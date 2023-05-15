@@ -16,7 +16,6 @@ import {AddressArray} from "../../lib/address/array.sol";
 import {IRegistrar} from "../registrar/interface/IRegistrar.sol";
 import {RegistrarStorage} from "../registrar/storage.sol";
 import {Validator} from "../registrar/lib/validator.sol";
-import {Validator} from "../registrar/lib/validator.sol";
 import {AccountMessages} from "../accounts/message.sol";
 
 // TODO: Edit Query functions with start and limit to optimise the size of data being returned
