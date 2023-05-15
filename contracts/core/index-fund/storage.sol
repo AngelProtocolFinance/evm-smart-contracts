@@ -10,13 +10,13 @@ library IndexFundStorage {
         uint256 fundRotation; // how many blocks are in a rotation cycle for the active IndexFund
         uint256 fundMemberLimit; // limit to number of members an IndexFund can have
         uint256 fundingGoal; // donation funding limit (in UUSD) to trigger early cycle of the Active IndexFund
-        address[] alliance_members;
     }
 
     struct _State {
         uint256 totalFunds;
-        uint256 activeFund; // index ID of the Active IndexFund
-        uint256 round_donations; // total donations given to active charity this round
+        uint256 activeFund; // ID of the Active IndexFund
+        uint256[] rotatingFunds; // list of active, rotating funds (ex. 17 funds, 1 for each of the UNSDGs)
+        uint256 roundDonations; // total donations given to active charity this round
         uint256 nextRotationBlock; // block height to perform next rotation on
         uint256 nextFundId;
     }
@@ -32,11 +32,8 @@ library IndexFundStorage {
     struct State {
         Config config;
         _State state;
-        // mapping(address => AngelCoreStruct.GenericBalance) TCA_DONATIONS;
-        // mapping(address => AngelCoreStruct.AllianceMember) ALLIANCE_MEMBERS;
-        // address[] ALLIANCE_MEMBERS_LIST;
-        mapping(uint256 => AngelCoreStruct.IndexFund) FUND;
-        uint256[] FUND_LIST;
+        mapping(uint256 => AngelCoreStruct.IndexFund) FUNDS;
+        mapping(uint32 => uint256[]) FUNDS_BY_ENDOWMENT; // Endow ID >> [Fund IDs] 
         DonationMessages donationMessages;
         bool initIndexFund;
     }

@@ -20,20 +20,14 @@ library IndexFundMessage {
     struct StateResponseMessage {
         uint256 totalFunds;
         uint256 activeFund; // index ID of the Active IndexFund
-        uint256 round_donations; // total donations given to active charity this round
+        uint256[] rotatingFunds; // list of fund ID in the active rotation
+        uint256 roundDonations; // total donations given to active charity this round
         uint256 nextRotationBlock; // block height to perform next rotation on
     }
 
     struct DonationDetailsResponse {
         address addr;
         uint256 totalUst;
-    }
-
-    struct AllianceMemberResponse {
-        address wallet;
-        string name;
-        string logo;
-        string website;
     }
 
     struct DepositMsg {
