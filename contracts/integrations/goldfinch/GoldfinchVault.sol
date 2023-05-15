@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 
 // Angel Protocol
 import {IVault} from "../../interfaces/IVault.sol";
+import {IRouter} from "../../core/router/IRouter.sol";
 import {IRegistrarGoldfinch} from "./IRegistrarGoldfinch.sol";
 import {APGoldfinchConfigLib} from "./APGoldfinchConfig.sol";
 import {LocalRegistrarLib} from "../../core/registrar/lib/LocalRegistrarLib.sol";
@@ -153,7 +154,14 @@ contract GoldfinchVault is IVault, IERC721Receiver {
         uint32 accountId,
         address token,
         uint256 amt
-    ) external payable override approvedRouterOnly onlyUSDC(token) nonzeroPositionOnly(accountId) returns (uint256)  {
+    ) 
+    external 
+    payable 
+    override 
+    approvedRouterOnly 
+    onlyUSDC(token) 
+    nonzeroPositionOnly(accountId) 
+    returns (IRouter.RedemptionResponse memory)  {
         LocalRegistrarLib.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
         IStakingRewards.StakedPosition memory position = stakingPool.getPosition(tokenIdByAccountId[accountId]);
 
@@ -167,7 +175,15 @@ contract GoldfinchVault is IVault, IERC721Receiver {
 
         _updatePrinciples(accountId, redeemedFIDU);
         IERC20(USDC).approve(apParams.routerAddr, redeemedUSDC);
-        return redeemedUSDC;
+        IRouter.RedemptionResponse memory response = IRouter.RedemptionResponse({
+            amount: redeemedUSDC,
+            status: IRouter.VaultActionStatus.SUCCESS 
+        });
+        
+        if (principleByAccountId[accountId].usdcP == 0) {
+            response.status = IRouter.VaultActionStatus.POSITION_EXITED;
+        } 
+        return response;
     }
 
     /// @notice redeem all of the value from the vault contract

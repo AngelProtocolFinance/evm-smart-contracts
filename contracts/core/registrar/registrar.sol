@@ -11,6 +11,7 @@ import "./storage.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {LocalRegistrar} from "./LocalRegistrar.sol";
+import {LocalRegistrarLib} from "./lib/LocalRegistrarLib.sol";
 
 /**
  * @title Registrar Contract
@@ -331,21 +332,25 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
         response = state.FEES[name];
     }
 
-    // OVERRIDES
+    // STRATEGY ARRAY HANDLING
+    function queryAllStrategies() view external returns (bytes4[] memory allStrategies) {
+        allStrategies = new bytes4[](state.STRATEGIES.length);
+        for(uint256 i; i < allStrategies.length; i++) {
+            allStrategies[i] = state.STRATEGIES[i];
+        }
+    }
+
     function setStrategyParams(
         bytes4 _strategyId,
         address _lockAddr,
         address _liqAddr,
         LocalRegistrarLib.StrategyApprovalState _approvalState
     ) external override onlyOwner {
-        bool inList;
-        for (uint256 i = 0; i < VAULT.length; i++) {
-            if (STRATEGIES[i] == _strategyId) {
-                inList = true;
-            }
+        if (_approvalState == LocalRegistrarLib.StrategyApprovalState.DEPRECATED) {
+            _removeStrategy(_strategyId);
         }
-        if (!inList) {
-            STRATEGIES.push(_strategyId);
+        else {
+            _maybeAddStrategy(_strategyId);
         }
         super.setStrategyParams(_strategyId, _lockAddr, _liqAddr);
     }
@@ -355,22 +360,38 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
         override
         onlyOwner
     {
-        if (_approvalState == StrategyApprovalState.DEPRECATED) {
-            uint256 delIndex;
-            bool indexFound;
-            for (uint256 i = 0; i < STRATEGIES.length; i++) {
-                if (STRATEGIES[i] == _strategyId) {
-                    delIndex = i;
-                    indexFound =true;
-                    break;
-                }
-            }
-            if (indexFound) {
-                STRATEGIES[delIndex] = STRATEGIES[STRATEGIES.length - 1];
-                STRATEGIES.pop();
-            }
+        if (_approvalState == LocalRegistrarLib.StrategyApprovalState.DEPRECATED) {
+            _removeStrategy(_strategyId);
         }
         super.setStrategyApprovalState(_strategyId, _approvalState);
+    }
+
+    function _maybeAddStrategy(bytes4 _strategyId) internal {
+        bool inList;
+        for (uint256 i = 0; i < state.STRATEGIES.length; i++) {
+            if (state.STRATEGIES[i] == _strategyId) {
+                inList = true;
+            }
+        }
+        if (!inList) {
+            state.STRATEGIES.push(_strategyId);
+        }
+    }
+
+    function _removeStrategy(bytes4 _strategyId) internal {
+        uint256 delIndex;
+        bool indexFound;
+        for (uint256 i = 0; i < state.STRATEGIES.length; i++) {
+            if (state.STRATEGIES[i] == _strategyId) {
+                delIndex = i;
+                indexFound =true;
+                break;
+            }
+        }
+        if (indexFound) {
+            state.STRATEGIES[delIndex] = state.STRATEGIES[state.STRATEGIES.length - 1];
+            state.STRATEGIES.pop();
+        }
     }
 
 

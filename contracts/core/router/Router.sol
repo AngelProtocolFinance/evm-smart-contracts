@@ -483,11 +483,11 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
             return action;
         } catch Error(string memory reason) {
             emit LogError(action, reason);
-            _action.status = VaultActionStatus.FAIL_TOKENS_RETURNED; // Optimistically set to RETURN status, FALLBACK changes if necessary 
+            action.status = VaultActionStatus.FAIL_TOKENS_RETURNED; // Optimistically set to RETURN status, FALLBACK changes if necessary 
             return _prepareToSendTokens(action, amount);
         } catch (bytes memory data) {
             emit LogErrorBytes(action, data);
-            _action.status = VaultActionStatus.FAIL_TOKENS_RETURNED;
+            action.status = VaultActionStatus.FAIL_TOKENS_RETURNED;
             return _prepareToSendTokens(action, amount);
         }
     }

@@ -396,7 +396,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
         }
 
         // validate fund
-        validateDepositFind(fund);
+        validateDepositFund(fund);
 
         // check each of the currently allowed Alliance member addr
         bool isAllianceMem = false;

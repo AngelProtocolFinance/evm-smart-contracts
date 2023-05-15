@@ -9,13 +9,6 @@ library RegistrarEventsLib {
     event UpdateRegistrarConfig(RegistrarStorage.Config details);
     event UpdateRegistrarOwner(address newOwner);
     event UpdateRegistrarFees(RegistrarMessages.UpdateFeeRequest details);
-    event AddVault(string strategyName, AngelCoreStruct.YieldVault vault);
-    event RemoveVault(string strategyName);
-    event UpdateVault(
-        string strategyName,
-        bool approved,
-        AngelCoreStruct.EndowmentType[] endowmentTypes
-    );
     event PostNetworkConnection(
         uint256 chainId,
         AngelCoreStruct.NetworkInfo networkInfo

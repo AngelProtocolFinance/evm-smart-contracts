@@ -17,8 +17,9 @@ import {IDonationMatching} from "./../../../normalized_endowment/donation-match/
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {ISwappingV3} from "./../../swap-router/Interface/ISwappingV3.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
-import {IVault} from "./../interface/IVault.sol";
+import {IVault} from "./../../../interfaces/IVault.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import {IAccountsDepositWithdrawEndowments} from "../interface/IAccountsDepositWithdrawEndowments.sol";
 
 /**
  * @title AccountDepositWithdrawEndowments
@@ -28,7 +29,8 @@ import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 contract AccountDepositWithdrawEndowments is
     ReentrancyGuardFacet,
-    AccountsEvents
+    AccountsEvents,
+    IAccountsDepositWithdrawEndowments
 {
     using SafeMath for uint256;
     event SwappedToken(uint256 amountOut);
@@ -219,18 +221,32 @@ contract AccountDepositWithdrawEndowments is
         processToken(curDetails, registrar_config.usdcAddress, usdcAmount);
     }
 
+    // @TODO need implementation requirements for this method
+    /**
+     * @notice Donation match deposit
+     * @param curId The details of the deposit
+     * @param curTokenAddress The address of the token to deposit
+     * @param curAmount The amount of the token to deposit
+     */
+    function depositDonationMatchErC20(
+        uint256 curId,
+        address curTokenAddress,
+        uint256 curAmount
+    ) external {}
+
+
     /**
      * @notice Deposit ERC20 into the account (later swaps into USDC and then deposits into the account)
      * @param curDetails The details of the deposit
-     * @param curTokenaddress The address of the token to deposit
+     * @param curTokenAddress The address of the token to deposit
      * @param curAmount The amount of the token to deposit
      */
     function depositERC20(
         AccountMessages.DepositRequest memory curDetails,
-        address curTokenaddress,
+        address curTokenAddress,
         uint256 curAmount
-    ) public payable nonReentrant {
-        require(curTokenaddress != address(0), "Invalid Token Address");
+    ) public nonReentrant {
+        require(curTokenAddress != address(0), "Invalid Token Address");
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Config memory tempConfig = state.config;
 
@@ -240,31 +256,31 @@ contract AccountDepositWithdrawEndowments is
         require(!tempEndowmentState.closingEndowment, "Endowment is closed");
         require(
             IRegistrar(state.config.registrarContract)
-                .isTokenAccepted(curTokenaddress), 
+                .isTokenAccepted(curTokenAddress), 
             "Invalid Token");
 
         RegistrarStorage.Config memory registrar_config = 
             IRegistrar(state.config.registrarContract)
             .queryConfig();
 
-        require(IERC20(curTokenaddress).transferFrom(
+        require(IERC20(curTokenAddress).transferFrom(
             msg.sender,
             address(this),
             curAmount),
         "Transfer failed"); 
 
-        require(IERC20(curTokenaddress).approve(
+        require(IERC20(curTokenAddress).approve(
             registrar_config.swapsRouter,
             curAmount),
             "Approval failed");
 
-        if (curTokenaddress == registrar_config.usdcAddress) {
-            processToken(curDetails, curTokenaddress, curAmount);
+        if (curTokenAddress == registrar_config.usdcAddress) {
+            processToken(curDetails, curTokenAddress, curAmount);
             return;
         } 
         else {
             uint256 usdcAmount = ISwappingV3(registrar_config.swapsRouter)
-                .swapTokenToUsdc(curTokenaddress, curAmount);
+                .swapTokenToUsdc(curTokenAddress, curAmount);
 
             processToken(curDetails, registrar_config.usdcAddress, usdcAmount);
             emit SwappedToken(usdcAmount);
@@ -275,19 +291,25 @@ contract AccountDepositWithdrawEndowments is
      * @notice Deposit ERC20 (USDC) into the account
      * @dev manages vaults deposit and keeps leftover funds after vaults deposit on accounts diamond
      * @param curDetails The details of the deposit
-     * @param curTokenaddress The address of the token to deposit (only called with USDC address)
+     * @param curTokenAddress The address of the token to deposit (only called with USDC address)
      * @param curAmount The amount of the token to deposit (in USDC)
      */
     function processToken(
         AccountMessages.DepositRequest memory curDetails,
-        address curTokenaddress,
+        address curTokenAddress,
         uint256 curAmount
     ) internal {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             curDetails.id
         ];
-        require(curTokenaddress != address(0), "Invalid ERC20 token");
+
+        require(
+            tempEndowment.depositApproved,
+            "Deposits are not approved for this endowment"
+        );
+        require(curTokenAddress != address(0), "Invalid ERC20 token");
+
         require(
             curDetails.lockedPercentage + curDetails.liquidPercentage == 100,
             "InvalidSplit"
@@ -308,7 +330,7 @@ contract AccountDepositWithdrawEndowments is
             curAmount = curAmount.sub(depositFeeAmount);
 
             require(
-                IERC20(curTokenaddress).transfer(
+                IERC20(curTokenAddress).transfer(
                     tempEndowment.depositFee.payoutAddress,
                     depositFeeAmount
                 ),
@@ -390,12 +412,12 @@ contract AccountDepositWithdrawEndowments is
 
         AngelCoreStruct.addToken(
             state.STATES[curDetails.id].balances.locked,
-            curTokenaddress,
+            curTokenAddress,
             lockedAmount
         );
         AngelCoreStruct.addToken(
             state.STATES[curDetails.id].balances.liquid,
-            curTokenaddress,
+            curTokenAddress,
             liquidAmount
         );
         emit UpdateEndowmentState(curDetails.id, state.STATES[curDetails.id]);
@@ -578,56 +600,5 @@ contract AccountDepositWithdrawEndowments is
         }
         
         emit UpdateEndowmentState(curId, state.STATES[curId]);
-    }
-
-    /**
-     * @notice Sends token to the different chain with the message
-     * @param payloadObject message object
-     * @param registrarContract registrar contract address
-     * @param amount Amount of funds to be transfered
-     * @param network The network you want to transfer token
-     */
-    function executeCallsWithToken(
-        IRouter.VaultActionData memory payloadObject,
-        address registrarContract,
-        uint256 amount,
-        uint256 network
-    ) internal {
-        // TODO: check if event has to be emitted
-        // AccountStorage.State storage state = LibAccounts.diamondStorage();
-
-        // Encode Valts action Data
-        bytes memory Encodedpayload = abi.encode(payloadObject);
-
-        AngelCoreStruct.NetworkInfo memory senderInfo = IRegistrar(
-            registrarContract
-        ).queryNetworkConnection(block.chainid);
-
-        AngelCoreStruct.NetworkInfo memory recieverInfo = IRegistrar(
-            registrarContract
-        ).queryNetworkConnection(network);
-        uint256 curEth = recieverInfo.gasLimit;
-        if (curEth > 0) {
-            IAxelarGateway(senderInfo.gasReceiver)
-                .payNativeGasForContractCallWithToken{value: curEth}(
-                address(this),
-                recieverInfo.name,
-                StringArray.addressToString(recieverInfo.router),
-                Encodedpayload,
-                IERC20Metadata(payloadObject.token).symbol(),
-                amount,
-                msg.sender
-            );
-        }
-
-        IERC20(payloadObject.token).approve(senderInfo.axelerGateway, amount);
-        //Call the contract
-        IAxelarGateway(senderInfo.axelerGateway).callContractWithToken({
-            destinationChain: recieverInfo.name,
-            contractAddress: StringArray.addressToString(recieverInfo.router),
-            payload: Encodedpayload,
-            symbol: IERC20Metadata(payloadObject.token).symbol(),
-            amount: amount
-        });
     }
 }
