@@ -102,7 +102,6 @@ contract LockedWithdraw is
      * @notice function used to propose a withdraw
      * @dev Propose a withdraw
      * @param accountId The account id of the endowment
-     * @param curBeneficiary The address of the beneficiary
      * @param curTokenaddress The address of the token
      * @param curAmount The amount of the token
      */
