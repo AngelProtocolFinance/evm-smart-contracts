@@ -63,14 +63,14 @@ library AccountStorage {
     }
 
     struct State {
-        mapping(uint256 => uint256) DAOTOKENBALANCE;
-        mapping(uint256 => EndowmentState) STATES;
-        mapping(uint256 => Endowment) ENDOWMENTS;
-        // unit256 -> spender -> token -> amount
-        mapping(uint256 => mapping(address => mapping(address => uint256))) ALLOWANCES;
+        mapping(uint32 => uint256) DAOTOKENBALANCE;
+        mapping(uint32 => EndowmentState) STATES;
+        mapping(uint32 => Endowment) ENDOWMENTS;
+        // endow ID -> spender Addr -> token Addr -> amount
+        mapping(uint32 => mapping(address => mapping(address => uint256))) ALLOWANCES;
         Config config;
         // mapping(bytes4 => string) stratagyId;
-        // mapping(uint256 => mapping(AngelCoreStruct.AccountType => mapping(string => uint256))) vaultBalance;
+        // mapping(uint32 => mapping(AngelCoreStruct.AccountType => mapping(string => uint256))) vaultBalance;
     }
 }
 

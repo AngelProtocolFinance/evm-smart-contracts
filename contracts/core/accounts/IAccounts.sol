@@ -29,8 +29,9 @@ interface IAccounts {
         uint256 maxGeneralCategoryId
     ) external returns (bool);
 
-    function updateEndowmentStatusMsg(
-        AccountMessages.UpdateEndowmentStatusRequest memory curDetails
+    function closeEndowment(
+        uint32 curId,
+        AngelCoreStruct.Beneficiary memory curBeneficiary
     ) external returns (bool response);
 
     function updateEndowmentDetails(
@@ -38,7 +39,7 @@ interface IAccounts {
     ) external returns (bool);
 
     function updateDelegate(
-        uint256 id,
+        uint32 id,
         string memory setting,
         string memory action,
         address delegateAddress,
@@ -46,20 +47,20 @@ interface IAccounts {
     ) external returns (bool);
 
     function updateStrategies(
-        uint256 id,
+        uint32 id,
         AngelCoreStruct.AccountType acctType,
         AccountMessages.Strategy[] memory strategies
     ) external returns (bool);
 
     function copycatStrategies(
-        uint256 id,
+        uint32 id,
         AngelCoreStruct.AccountType acctType,
         uint256 idToCopy
     ) external returns (bool);
 
     //TODO: Complete This contract once swap-router is completed.
     function swapToken(
-        uint256 curId,
+        uint32 curId,
         AngelCoreStruct.AccountType,
         uint128 curAmount,
         address curTokenin,
@@ -138,12 +139,12 @@ interface IAccounts {
         view
         returns (AccountMessages.ConfigResponse memory);
 
-    function queryState(uint256 curId)
+    function queryState(uint32 curId)
         external
         view
         returns (AccountMessages.StateResponse memory);
 
-    function queryEndowmentDetails(uint256 curId)
+    function queryEndowmentDetails(uint32 curId)
         external
         view
         returns (AccountStorage.Endowment memory);

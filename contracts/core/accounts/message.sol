@@ -40,7 +40,7 @@ library AccountMessages {
     }
 
     struct UpdateEndowmentSettingsRequest {
-        uint256 id;
+        uint32 id;
         bool donationMatchActive;
         address[] allowlistedBeneficiaries;
         address[] allowlistedContributors;
@@ -51,17 +51,12 @@ library AccountMessages {
     }
 
     struct UpdateEndowmentControllerRequest {
-        uint256 id;
+        uint32 id;
         AngelCoreStruct.SettingsController settingsController;
     }
 
-    struct UpdateEndowmentStatusRequest {
-        uint256 endowmentId;
-        AngelCoreStruct.Beneficiary beneficiary;
-    }
-
     struct UpdateEndowmentDetailsRequest {
-        uint256 id; /// u32,
+        uint32 id;
         address owner; /// Option<String>,
         string name; /// Option<String>,
         AngelCoreStruct.Categories categories; /// Option<Categories>,
@@ -76,7 +71,7 @@ library AccountMessages {
     }
 
     struct UpdateProfileRequest {
-        uint256 id;
+        uint32 id;
         string overview;
         string url;
         string registrationNumber;
@@ -120,7 +115,7 @@ library AccountMessages {
     }
 
     struct EndowmentEntry {
-        uint256 id; // u32,
+        uint32 id; // u32,
         address owner; // String,
         AngelCoreStruct.EndowmentType endow_type; // EndowmentType,
         string name; // Option<String>,
@@ -179,13 +174,13 @@ library AccountMessages {
     }
 
     struct DepositRequest {
-        uint256 id;
+        uint32 id;
         uint256 lockedPercentage;
         uint256 liquidPercentage;
     }
 
     struct UpdateEndowmentFeeRequest {
-        uint256 id;
+        uint32 id;
         AngelCoreStruct.EndowmentFee earningsFee;
         AngelCoreStruct.EndowmentFee depositFee;
         AngelCoreStruct.EndowmentFee withdrawFee;

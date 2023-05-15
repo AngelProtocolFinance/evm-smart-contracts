@@ -166,12 +166,12 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
             keccak256(abi.encodePacked(action)) == keccak256(abi.encodePacked("set"))
         ) {
             require(msg.sender == tempEndowment.owner, "Unauthorized");
-            tempEndowmentState.settingsController[setting] = Delegate({addr: delegateAddress, expires: delegateExpiry});
+            tempEndowmentState.settingsController[setting] = AngelCoreStruct.Delegate({addr: delegateAddress, expires: delegateExpiry});
         } else if (
             keccak256(abi.encodePacked(action)) == keccak256(abi.encodePacked("revoke"))
         ) {
             require(AngelCoreStruct.canChange(msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
-            tempEndowmentState.settingsController[setting] = Delegate({addr: address(0), expires: 0});
+            tempEndowmentState.settingsController[setting] = AngelCoreStruct.Delegate({addr: address(0), expires: 0});
         }
 
         emit UpdateEndowment(id, tempEndowment);
