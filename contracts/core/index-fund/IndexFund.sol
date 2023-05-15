@@ -60,9 +60,6 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
         maxLimit = 30;
         defaultLimit = 10;
 
-        require(!state.initIndexFund, "AlreadyInitilized");
-        state.initIndexFund = true;
-
         state.config = IndexFundStorage.Config({
             owner: msg.sender,
             registrarContract: curDetails.registrarContract,
@@ -177,7 +174,6 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
             name: name,
             description: description,
             members: members,
-            rotatingFund: rotatingFund,
             splitToLiquid: splitToLiquid,
             expiryTime: expiryTime,
             expiryHeight: expiryHeight
@@ -217,10 +213,8 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     function removeIndexFund(
         uint256 fundId
     ) public nonReentrant returns (bool) {
-        if (msg.sender != state.config.owner) {
-            revert("Unauthorized");
-        }
-        require(state.FUNDS_BY_ENDOWMENT[fundId].length >= 0, "Invalid fundId");
+        require(msg.sender != state.config.owner, "Unauthorized");
+        require(state.FUNDS[fundId].members.length >= 0, "Invalid Fund");
 
         if (state.state.activeFund == fundId) {
             state.state.activeFund = rotateFund(
@@ -230,6 +224,13 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
             );
             emit UpdateActiveFund(state.state.activeFund);
         }
+
+        // remove from rotating funds list
+        (index, found) = Array.indexOf(state.state.rotatingFunds, fundId);
+        if (found) {
+            Array.remove(state.state.rotatingFunds, index);
+        }
+
         state.state.totalFunds -= 1;
         delete state.FUNDS[fundId];
         emit IndexFundRemoved(fundId);
@@ -297,18 +298,23 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
                 state.FUNDS[fundId].members.push(add[i]);
                 emit MemberAdded(fundId, add[i]);
             }
+            (index, found) = Array.indexOf(state.FUNDS_BY_ENDOWMENT[add[i]], fundId);
+            if (!found) {
+                state.FUNDS_BY_ENDOWMENT[add[i]].push(fundId);
+            }
         }
 
         // remove members
         for (uint256 i = 0; i < remove.length; i++) {
-            (index, found) = Array.indexOf(
-                state.FUNDS[fundId].members,
-                remove[i]
-            );
+            (index, found) = Array.indexOf(state.FUNDS[fundId].members, remove[i]);
             if (found) {
                 Array.remove(state.FUNDS[fundId].members, index);
+                emit MemberRemoved(fundId, remove[i]);
             }
-            emit MemberRemoved(fundId, remove[i]);
+            (index, found) = Array.indexOf(state.FUNDS_BY_ENDOWMENT[remove[i]], fundId);
+            if (found) {
+                Array.remove(state.FUNDS_BY_ENDOWMENT[remove[i]], fundId);
+            }
         }
 
         require(
@@ -791,71 +797,30 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
         uint256 envHeight,
         uint256 envTime
     ) internal view returns (uint256) {
-        uint256 activeFundCount = 0;
-
-        // TODO: can be optimised by storing indexes of active funds in a memory array
-
-        for (uint256 i = 0; i < state.FUNDS.length; i++) {
-            if (
-                !fundIsExpired(
-                    state.FUNDS[i],
-                    envHeight,
-                    envTime
-                ) && state.FUNDS[i].rotatingFund == true
-            ) {
-                activeFundCount++;
-            }
-        }
-
-        uint256 indexer = 0;
-
         AngelCoreStruct.IndexFund[]
             memory activeFunds = new AngelCoreStruct.IndexFund[](
-                activeFundCount
+                state.state.rotatingFunds.length
             );
 
-        for (uint256 i = 0; i < state.FUNDS.length; i++) {
+        for (uint256 i = 0; i < state.state.rotatingFunds.length; i++) {
             if (
                 !fundIsExpired(
-                    state.FUNDS[i],
+                    state.FUNDS[state.state.rotatingFunds[i]],
                     envHeight,
                     envTime
-                ) && state.FUNDS[i].rotatingFund == true
+                )
             ) {
-                activeFunds[indexer] = state.FUNDS[i];
-                indexer++;
+                activeFunds[i] = state.FUNDS[state.state.rotatingFunds[i]];
             }
         }
 
-        // default value outside of index range
-        uint256 currFundIndex = activeFunds.length + 1;
-
-        for (uint256 i = 0; i < activeFunds.length; i++) {
-            if (activeFunds[i].id == currFund) {
-                currFundIndex = i;
-            }
-        }
-
-        if (currFundIndex < state.FUNDS.length) {
-            if (currFundIndex == activeFunds.length - 1) {
-                return activeFunds[0].id;
-            } else {
-                return activeFunds[currFundIndex + 1].id;
-            }
+        // check if the current active fund is in the rotation and not expired
+        (index, found) = Array.indexOf(state.state.rotatingFunds, currFund);
+        if (!found || index == activeFunds.length - 1) {
+            // set to the first fund in the list
+            return activeFunds[0].id;
         } else {
-            AngelCoreStruct.IndexFund memory filter_fund;
-            for (uint256 i = 0; i < activeFunds.length; i++) {
-                if (activeFunds[i].id > currFund) {
-                    filter_fund = activeFunds[i];
-                    break;
-                }
-            }
-
-            if (filter_fund.id != 0) {
-                return filter_fund.id;
-            } else {
-                return activeFunds[0].id;
-            }
+            return activeFunds[index + 1].id;
         }
     }
 
