@@ -465,16 +465,19 @@ contract AccountDepositWithdrawEndowments is
             state.config.registrarContract
         ).queryConfig();
 
-        // ** CHARITY TYPE WITHDRAWAL RULES **
-        // LIQUID: Only the endowment multisig can withdraw
-        // LOCKED: Msg must come from the locked withdraw contract
-        if (tempEndowment.endow_type == AngelCoreStruct.EndowmentType.Charity && acctType == AngelCoreStruct.AccountType.Locked) {
-            require(
-                msg.sender == registrar_config.lockedWithdrawal,
-                "Unauthorized"
-            );
+        // ** SHARED LOCKED WITHDRAWAL RULES **
+        // LOCKED: Msg must come from the locked withdraw contract if NOT mature yet
+        // Charities never mature & Normal endowments optionally mature
+        // Check if maturity has been reached for the endowment (0 == no maturity date)
+        bool mature = (
+            tempEndowment.maturityTime != 0 &&
+            block.timestamp >= tempEndowment.maturityTime
+        );
+        // Cannot withdraw from locked before maturity unless via early locked withdraw approval contract
+        if (acctType == AngelCoreStruct.AccountType.Locked && !mature) {
+            require(msg.sender == registrar_config.lockedWithdrawal, "Cannot withdraw before maturity time is reached unless via early withdraw approval.");
             // A/N: We ensure that locked withdraw requests always go to the requesting endowment's
-            // LIQUID account to prevent the AP Multisig from sending Locked withdraws to a random address. 
+            // LIQUID account to prevent the AP Multisig from sending Locked withdraws to a random address.
             curBeneficiaryAddress = address(0);
             curBeneficiaryEndowId = curId;
         } else {
@@ -486,23 +489,8 @@ contract AccountDepositWithdrawEndowments is
         //      The endowment multisig OR beneficiaries allowlist addresses [if populated] can withdraw. After 
         //      maturity has been reached, only addresses in Maturity Allowlist may withdraw. If the Maturity
         //      Allowlist is not populated, then only the endowment multisig is allowed to withdraw.
-        // LIQUID: Same as above shared logic. 
-        // LOCKED: There is NO way to withdraw locked funds from an endowment before maturity!
+        // LIQUID & LOCKED(after Maturity): Only the endowment multisig can withdraw
         if (tempEndowment.endow_type == AngelCoreStruct.EndowmentType.Normal) {
-            // Check if maturity has been reached for the endowment
-            // 0 == no maturity date
-            bool mature = (
-                tempEndowment.maturityTime != 0 &&
-                block.timestamp >= tempEndowment.maturityTime
-            );
-            
-            // can't withdraw before maturity
-            if (acctType == AngelCoreStruct.AccountType.Locked && !mature) {
-                revert(
-                    "Endowment is not mature. Cannot withdraw before maturity time is reached."
-                );
-            }
-
             // determine if msg sender is allowed to withdraw based on rules and maturity status
             bool senderAllowed = false;
             if (mature) {
