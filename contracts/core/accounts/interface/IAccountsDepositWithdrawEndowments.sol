@@ -33,7 +33,8 @@ interface IAccountsDepositWithdrawEndowments {
     function withdraw(
         uint256 curId,
         AngelCoreStruct.AccountType acctType,
-        address curBeneficiary,
+        address curBeneficiaryAddress,
+        uint256 curBeneficiaryEndowId,
         address curTokenAddress,
         uint256 curAmount
     ) external;

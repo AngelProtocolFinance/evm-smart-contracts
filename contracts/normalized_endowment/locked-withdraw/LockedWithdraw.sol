@@ -102,19 +102,16 @@ contract LockedWithdraw is
      * @notice function used to propose a withdraw
      * @dev Propose a withdraw
      * @param accountId The account id of the endowment
-     * @param curBeneficiary The address of the beneficiary
      * @param curTokenaddress The address of the token
      * @param curAmount The amount of the token
      */
     function propose(
         uint256 accountId,
-        address curBeneficiary,
         address[] memory curTokenaddress,
         uint256[] memory curAmount
     ) public override nonReentrant isEndowment(accountId) {
         withdrawData[accountId] = LockedWithdrawStorage.Withdraw({
             pending: true,
-            beneficiary: curBeneficiary,
             tokenAddress: curTokenaddress,
             amount: curAmount
         });
@@ -122,7 +119,6 @@ contract LockedWithdraw is
         emit LockedWithdrawInitiated(
             accountId,
             msg.sender,
-            curBeneficiary,
             curTokenaddress,
             curAmount
         );
@@ -153,7 +149,6 @@ contract LockedWithdraw is
 
         emit LockedWithdrawApproved(
             accountId,
-            withdrawData[accountId].beneficiary,
             withdrawData[accountId].tokenAddress,
             withdrawData[accountId].amount
         );
@@ -180,10 +175,11 @@ contract LockedWithdraw is
         bytes[] memory curCalldatas = new bytes[](1);
 
         curCalldatas[0] = abi.encodeWithSignature(
-            "withdraw(uint256,uint8,address,address[],uint256[])",
+            "withdraw(uint256,uint8,address,uint256,address[],uint256[])",
             accountId,
             AngelCoreStruct.AccountType.Locked,
-            withdrawData[accountId].beneficiary,
+            address(0),
+            accountId,
             withdrawData[accountId].tokenAddress,
             withdrawData[accountId].amount
         );

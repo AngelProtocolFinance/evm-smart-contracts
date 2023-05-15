@@ -4,7 +4,6 @@ pragma solidity ^0.8.16;
 library LockedWithdrawStorage {
     struct Withdraw {
         bool pending;
-        address beneficiary;
         address[] tokenAddress;
         uint256[] amount;
     }
