@@ -10,7 +10,6 @@ abstract contract ILockedWithdraw is IERC165 {
     event LockedWithdrawInitiated(
         uint256 indexed accountId,
         address indexed initiator,
-        address indexed curBeneficiary,
         address[] curTokenaddress,
         uint256[] curAmount
     );
@@ -18,7 +17,6 @@ abstract contract ILockedWithdraw is IERC165 {
     event LockedWithdrawAPTeam(uint256 accountId, address sender);
     event LockedWithdrawApproved(
         uint256 indexed accountId,
-        address indexed curBeneficiary,
         address[] curTokenaddress,
         uint256[] curAmount
     );
@@ -31,7 +29,6 @@ abstract contract ILockedWithdraw is IERC165 {
     // approval/propose function for endowments
     function propose(
         uint256 accountId,
-        address curBeneficiary,
         address[] memory curTokenaddress,
         uint256[] memory curAmount
     ) public virtual;
