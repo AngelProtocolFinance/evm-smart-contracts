@@ -4,9 +4,9 @@
 import path from "path"
 // const hre = require("hardhat");
 // const {ethers,run,network} = require('hardhat');
-import { saveFrontendFiles } from "../../../../scripts/readWriteFile"
+import { saveFrontendFiles } from "scripts/readWriteFile"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
-import { GiftCardsMessage } from "../../../../typechain-types/contracts/accessory/gift-cards/GiftCards"
+import { GiftCardsMessage } from "typechain-types/contracts/accessory/gift-cards/GiftCards"
 
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 

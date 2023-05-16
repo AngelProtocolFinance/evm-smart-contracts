@@ -1,5 +1,5 @@
 import { task } from "hardhat/config"
-import { deployEmitters } from "../../contracts/normalized_endowment/scripts/deployEmitter"
+import { deployEmitters } from "contracts/normalized_endowment/scripts/deployEmitter"
 
 task("Deploy:deployEmitters", "Will deploy Emitters contract")
     .addParam("verify", "Want to verify contract")

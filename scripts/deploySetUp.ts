@@ -3,25 +3,25 @@
 
 import path from 'path'
 
-import { deployDiamond } from '../contracts/core/accounts/scripts/deploy'
+import { deployDiamond } from 'contracts/core/accounts/scripts/deploy'
 import hre from 'hardhat'
-import { deployRegistrar } from '../contracts/core/registrar/scripts/deploy'
-import { deployImplementation } from '../contracts/normalized_endowment/scripts/deployImplementation'
-import { deployMultisig } from '../contracts/multisigs/scripts/deploy'
-import { deploySwapRouter } from '../contracts/core/swap-router/scripts/deploy'
-import { deployIndexFund } from '../contracts/core/index-fund/scripts/deploy'
-import { deployEndowmentMultiSig } from '../contracts/normalized_endowment/endowment-multisig/scripts/deploy'
-import { deployHaloImplementation } from '../contracts/halo/scripts/deploy'
-import { charityApplications } from '../contracts/multisigs/charity_applications/scripts/deploy'
+import { deployRegistrar } from 'contracts/core/registrar/scripts/deploy'
+import { deployImplementation } from 'contracts/normalized_endowment/scripts/deployImplementation'
+import { deployMultisig } from 'contracts/multisigs/scripts/deploy'
+import { deploySwapRouter } from 'contracts/core/swap-router/scripts/deploy'
+import { deployIndexFund } from 'contracts/core/index-fund/scripts/deploy'
+import { deployEndowmentMultiSig } from 'contracts/normalized_endowment/endowment-multisig/scripts/deploy'
+import { deployHaloImplementation } from 'contracts/halo/scripts/deploy'
+import { charityApplications } from 'contracts/multisigs/charity_applications/scripts/deploy'
 const ethers = hre.ethers;
 
-import config from './../config'
-import { deployEmitters } from '../contracts/normalized_endowment/scripts/deployEmitter'
-import { giftCard } from '../contracts/accessory/gift-cards/scripts/deploy'
-import { deployFundraising } from '../contracts/accessory/fundraising/scripts/deploy'
+import config from 'config'
+import { deployEmitters } from 'contracts/normalized_endowment/scripts/deployEmitter'
+import { giftCard } from 'contracts/accessory/gift-cards/scripts/deploy'
+import { deployFundraising } from 'contracts/accessory/fundraising/scripts/deploy'
 import { convertCompilerOptionsFromJson } from 'typescript'
 import { Contract } from 'ethers'
-import { APTeamMultiSig, ApplicationsMultiSig } from '../typechain-types'
+import { APTeamMultiSig, ApplicationsMultiSig } from 'typechain-types'
 
 //TODO: Deploy and initilize emitters
 //TODO: deploy gift card contract
@@ -114,7 +114,8 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
 			REGISTRAR_ADDRESS,
 			ANGEL_CORE_STRUCT.address,
 			STRING_LIBRARY.address,
-			hre
+			hre,
+			verify_contracts
 		);
 		console.log('Account contract deployed at:-', ACCOUNT_ADDRESS);
 

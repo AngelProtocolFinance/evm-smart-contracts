@@ -54,6 +54,7 @@ library AccountStorage {
         uint256 parent;
         bool ignoreUserSplits;
         AngelCoreStruct.SplitDetails splitToLiquid;
+        uint256 referralId;
     }
 
     struct EndowmentState {

@@ -830,6 +830,11 @@ const _abi = [
             name: "splitToLiquid",
             type: "tuple",
           },
+          {
+            internalType: "uint256",
+            name: "referralId",
+            type: "uint256",
+          },
         ],
         internalType: "struct AccountStorage.Endowment",
         name: "endowment",

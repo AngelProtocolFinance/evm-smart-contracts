@@ -3,7 +3,7 @@
 
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import path from "path"
-import { CollectorMessage } from "../../../../typechain-types/contracts/halo/collector/Collector"
+import { CollectorMessage } from "typechain-types/contracts/halo/collector/Collector"
 // const hre = require("hardhat");
 // const ethers = hre.ethers;
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";

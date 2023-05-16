@@ -1,5 +1,5 @@
 import { task } from "hardhat/config"
-import { deployHaloImplementation } from "../../contracts/halo/scripts/deploy"
+import { deployHaloImplementation } from "contracts/halo/scripts/deploy"
 
 task(
     "Deploy:deployHaloImplementation",

@@ -3,7 +3,7 @@
 
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import path from "path"
-import { GovHodlerMessage } from "../../../../typechain-types/contracts/halo/gov-hodler/GovHodler"
+import { GovHodlerMessage } from "typechain-types/contracts/halo/gov-hodler/GovHodler"
 // const hre = require("hardhat");
 // const ethers = hre.ethers;
 

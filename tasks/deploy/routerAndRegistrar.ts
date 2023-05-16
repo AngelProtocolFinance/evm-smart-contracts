@@ -1,10 +1,9 @@
+import { getImplementationAddress } from '@openzeppelin/upgrades-core'
+import * as fs from "fs"
 import { task } from "hardhat/config"
 import type { TaskArguments } from "hardhat/types"
-import * as logger from "../../utils/logger"
-import * as fs from "fs"
-import { Router, Router__factory } from "../../typechain-types"
-import { Registrar, Registrar__factory } from "../../typechain-types"
-import { getImplementationAddress } from '@openzeppelin/upgrades-core'
+import { Registrar, Registrar__factory, Router, Router__factory } from "typechain-types"
+import { logger } from "utils"
 
 // Goerli addresses
 // Axelar Gateway:      0xe432150cce91c13a887f7D836923d5597adD8E31

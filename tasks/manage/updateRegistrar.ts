@@ -1,10 +1,10 @@
 import { task } from "hardhat/config"
 import type { TaskArguments } from "hardhat/types"
-import config from "../../config"
-import addresses from "../../contract-address.json"
-import { Registrar } from "../../typechain-types"
-import { RegistrarMessages } from "../../typechain-types/contracts/core/registrar/interface/IRegistrar"
-import { multisigs } from "../../typechain-types/contracts"
+import config from "config"
+import addresses from "contract-address.json"
+import { Registrar } from "typechain-types"
+import { RegistrarMessages } from "typechain-types/contracts/core/registrar/interface/IRegistrar"
+import { multisigs } from "typechain-types/contracts"
 
 task("manage:updateRegistrar", "Will update the registrar config")
     .setAction(async (taskArguments: TaskArguments, hre) => {

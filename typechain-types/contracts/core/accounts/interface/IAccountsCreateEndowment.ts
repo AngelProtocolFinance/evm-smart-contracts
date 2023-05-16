@@ -298,6 +298,7 @@ export declare namespace AccountMessages {
     maturityAllowlist: PromiseOrValue<string>[];
     ignoreUserSplits: PromiseOrValue<boolean>;
     splitToLiquid: AngelCoreStruct.SplitDetailsStruct;
+    referralId: PromiseOrValue<BigNumberish>;
   };
 
   export type CreateEndowmentRequestStructOutput = [
@@ -331,7 +332,8 @@ export declare namespace AccountMessages {
     BigNumber,
     string[],
     boolean,
-    AngelCoreStruct.SplitDetailsStructOutput
+    AngelCoreStruct.SplitDetailsStructOutput,
+    BigNumber
   ] & {
     owner: string;
     withdrawBeforeMaturity: boolean;
@@ -364,12 +366,13 @@ export declare namespace AccountMessages {
     maturityAllowlist: string[];
     ignoreUserSplits: boolean;
     splitToLiquid: AngelCoreStruct.SplitDetailsStructOutput;
+    referralId: BigNumber;
   };
 }
 
 export interface IAccountsCreateEndowmentInterface extends utils.Interface {
   functions: {
-    "createEndowment((address,bool,uint256,uint256,string,(uint256[],uint256[]),uint256,uint8,string,string,address[],bool,uint256,(uint8,(uint256,uint256)),address[],address[],uint256,uint256,uint256,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))),bool,uint256,(((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256))),uint256,address[],bool,(uint256,uint256,uint256)))": FunctionFragment;
+    "createEndowment((address,bool,uint256,uint256,string,(uint256[],uint256[]),uint256,uint8,string,string,address[],bool,uint256,(uint8,(uint256,uint256)),address[],address[],uint256,uint256,uint256,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))),bool,uint256,(((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256))),uint256,address[],bool,(uint256,uint256,uint256),uint256))": FunctionFragment;
   };
 
   getFunction(nameOrSignatureOrTopic: "createEndowment"): FunctionFragment;

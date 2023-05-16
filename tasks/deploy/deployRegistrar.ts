@@ -1,6 +1,6 @@
 import { task } from "hardhat/config"
-import config from "../../config"
-import { deployRegistrar } from "../../contracts/core/registrar/scripts/deploy"
+import config from "config"
+import { deployRegistrar } from "contracts/core/registrar/scripts/deploy"
 
 task("Deploy:deployRegistrar", "Will deploy Registrar contract")
     .addParam("verify", "Want to verify contract")

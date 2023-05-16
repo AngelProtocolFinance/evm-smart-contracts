@@ -265,18 +265,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ISwapRouter__factory>;
     getContractFactory(
-      name: "Fundraising",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Fundraising__factory>;
-    getContractFactory(
-      name: "FundraisingLib",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.FundraisingLib__factory>;
-    getContractFactory(
-      name: "GiftCards",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.GiftCards__factory>;
-    getContractFactory(
       name: "AxelarExecutable",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AxelarExecutable__factory>;
@@ -357,10 +345,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AccountsStrategiesCopyEndowments__factory>;
     getContractFactory(
-      name: "AccountsStrategiesUpdateEndowments",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.AccountsStrategiesUpdateEndowments__factory>;
-    getContractFactory(
       name: "AccountsSwapEndowments",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AccountsSwapEndowments__factory>;
@@ -413,10 +397,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IAxelarGateway__factory>;
     getContractFactory(
-      name: "IVault",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IVault__factory>;
-    getContractFactory(
       name: "IIndexFund",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IIndexFund__factory>;
@@ -449,10 +429,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Registrar__factory>;
     getContractFactory(
-      name: "RegistrarLib",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.RegistrarLib__factory>;
-    getContractFactory(
       name: "IRouter",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IRouter__factory>;
@@ -460,10 +436,6 @@ declare module "hardhat/types/runtime" {
       name: "Router",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Router__factory>;
-    getContractFactory(
-      name: "RouterLib",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.RouterLib__factory>;
     getContractFactory(
       name: "AngelCoreStruct",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -736,10 +708,6 @@ declare module "hardhat/types/runtime" {
       name: "LockedWithdraw",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.LockedWithdraw__factory>;
-    getContractFactory(
-      name: "SubDaoToken",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.SubDaoToken__factory>;
     getContractFactory(
       name: "SubDaoToken",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -1113,21 +1081,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.ISwapRouter>;
     getContractAt(
-      name: "Fundraising",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Fundraising>;
-    getContractAt(
-      name: "FundraisingLib",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.FundraisingLib>;
-    getContractAt(
-      name: "GiftCards",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.GiftCards>;
-    getContractAt(
       name: "AxelarExecutable",
       address: string,
       signer?: ethers.Signer
@@ -1228,11 +1181,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.AccountsStrategiesCopyEndowments>;
     getContractAt(
-      name: "AccountsStrategiesUpdateEndowments",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.AccountsStrategiesUpdateEndowments>;
-    getContractAt(
       name: "AccountsSwapEndowments",
       address: string,
       signer?: ethers.Signer
@@ -1298,11 +1246,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IAxelarGateway>;
     getContractAt(
-      name: "IVault",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IVault>;
-    getContractAt(
       name: "IIndexFund",
       address: string,
       signer?: ethers.Signer
@@ -1343,11 +1286,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.Registrar>;
     getContractAt(
-      name: "RegistrarLib",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.RegistrarLib>;
-    getContractAt(
       name: "IRouter",
       address: string,
       signer?: ethers.Signer
@@ -1357,11 +1295,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Router>;
-    getContractAt(
-      name: "RouterLib",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.RouterLib>;
     getContractAt(
       name: "AngelCoreStruct",
       address: string,
@@ -1702,11 +1635,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.LockedWithdraw>;
-    getContractAt(
-      name: "SubDaoToken",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.SubDaoToken>;
     getContractAt(
       name: "SubDaoToken",
       address: string,

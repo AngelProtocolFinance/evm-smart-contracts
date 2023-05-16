@@ -6,4 +6,3 @@ export { IAccountsCreateEndowment__factory } from "./IAccountsCreateEndowment__f
 export { IAccountsDepositWithdrawEndowments__factory } from "./IAccountsDepositWithdrawEndowments__factory";
 export { IAccountsQuery__factory } from "./IAccountsQuery__factory";
 export { IAxelarGateway__factory } from "./IAxelarGateway__factory";
-export { IVault__factory } from "./IVault__factory";

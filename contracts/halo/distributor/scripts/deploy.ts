@@ -2,7 +2,7 @@
 // yours, or create new ones.
 
 import path from "path"
-import { DistributorMessage } from "../../../../typechain-types/contracts/halo/distributor/Distributor"
+import { DistributorMessage } from "typechain-types/contracts/halo/distributor/Distributor"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 // const hre = require("hardhat");
 // const ethers = hre.ethers;
