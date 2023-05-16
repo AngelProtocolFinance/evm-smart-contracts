@@ -76,9 +76,9 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
             .isTokenAccepted(tokenAddress),
             "Token not approved");
 
-        LocalRegistrarLib.StrategyParams memory stratParams = 
-            IRegistrar(state.config.registrarContract)
-            .getStrategyParamsById(curStrategy);
+        // LocalRegistrarLib.StrategyParams memory stratParams = 
+        //     IRegistrar(state.config.registrarContract)
+        //     .getStrategyParamsById(curStrategy);
 
         uint32[] memory accts = new uint32[](1);
         accts[0] = curId;

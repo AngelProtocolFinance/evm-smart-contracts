@@ -248,7 +248,7 @@ contract AccountDepositWithdrawEndowments is
     ) public nonReentrant {
         require(curTokenAddress != address(0), "Invalid Token Address");
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.Config memory tempConfig = state.config;
+        // AccountStorage.Config memory tempConfig = state.config;
 
         AccountStorage.EndowmentState storage tempEndowmentState = state.STATES[
             curDetails.id

@@ -712,7 +712,7 @@ library AngelCoreStruct {
 
     function controllerSettingValid(
         string memory setting
-    ) public view returns (bool) {
+    ) public pure returns (bool) {
         bytes32 _setting = keccak256(abi.encodePacked(setting));
         return (_setting == keccak256(abi.encodePacked("strategies")) ||
             _setting == keccak256(abi.encodePacked("allowlistedBeneficiaries")) ||

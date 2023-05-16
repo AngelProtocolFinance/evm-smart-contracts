@@ -782,10 +782,6 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     function validateDepositFund(
         AngelCoreStruct.AssetBase memory fund
     ) internal view returns (bool) {
-        RegistrarStorage.Config memory registrar_config = IRegistrar(
-            state.config.registrarContract
-        ).queryConfig();
-
         if (fund.info == AngelCoreStruct.AssetInfoBase.Cw20) {
             require(IRegistrar(state.config.registrarContract)
                 .isTokenAccepted(fund.addr), 
