@@ -11,6 +11,419 @@ import type {
 
 const _abi = [
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "string",
+        name: "chainName",
+        type: "string",
+      },
+      {
+        indexed: true,
+        internalType: "string",
+        name: "accountsContractAddress",
+        type: "string",
+      },
+    ],
+    name: "AccountsContractStorageChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "protocolTaxRate",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "protocolTaxBasis",
+            type: "uint32",
+          },
+          {
+            internalType: "address",
+            name: "protocolTaxCollector",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "routerAddr",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "refundAddr",
+            type: "address",
+          },
+        ],
+        indexed: false,
+        internalType: "struct LocalRegistrarLib.AngelProtocolParams",
+        name: "newAngelProtocolParams",
+        type: "tuple",
+      },
+    ],
+    name: "AngelProtocolParamsChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "_tokenAddr",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "_gasFee",
+        type: "uint256",
+      },
+    ],
+    name: "GasFeeUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "bool",
+            name: "rebalanceLiquidProfits",
+            type: "bool",
+          },
+          {
+            internalType: "uint32",
+            name: "lockedRebalanceToLiquid",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "interestDistribution",
+            type: "uint32",
+          },
+          {
+            internalType: "bool",
+            name: "lockedPrincipleToLiquid",
+            type: "bool",
+          },
+          {
+            internalType: "uint32",
+            name: "principleDistribution",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "basis",
+            type: "uint32",
+          },
+        ],
+        indexed: false,
+        internalType: "struct LocalRegistrarLib.RebalanceParams",
+        name: "newRebalanceParams",
+        type: "tuple",
+      },
+    ],
+    name: "RebalanceParamsChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes4",
+        name: "_strategyId",
+        type: "bytes4",
+      },
+      {
+        indexed: false,
+        internalType: "enum LocalRegistrarLib.StrategyApprovalState",
+        name: "_approvalState",
+        type: "uint8",
+      },
+    ],
+    name: "StrategyApprovalChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes4",
+        name: "_strategyId",
+        type: "bytes4",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "_lockAddr",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "_liqAddr",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "enum LocalRegistrarLib.StrategyApprovalState",
+        name: "_approvalState",
+        type: "uint8",
+      },
+    ],
+    name: "StrategyParamsChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "tokenAddr",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "isAccepted",
+        type: "bool",
+      },
+    ],
+    name: "TokenAcceptanceChanged",
+    type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "_targetChain",
+        type: "string",
+      },
+    ],
+    name: "getAccountsContractAddressByChain",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getAngelProtocolParams",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint32",
+            name: "protocolTaxRate",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "protocolTaxBasis",
+            type: "uint32",
+          },
+          {
+            internalType: "address",
+            name: "protocolTaxCollector",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "routerAddr",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "refundAddr",
+            type: "address",
+          },
+        ],
+        internalType: "struct LocalRegistrarLib.AngelProtocolParams",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_tokenAddr",
+        type: "address",
+      },
+    ],
+    name: "getGasByToken",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getRebalanceParams",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "bool",
+            name: "rebalanceLiquidProfits",
+            type: "bool",
+          },
+          {
+            internalType: "uint32",
+            name: "lockedRebalanceToLiquid",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "interestDistribution",
+            type: "uint32",
+          },
+          {
+            internalType: "bool",
+            name: "lockedPrincipleToLiquid",
+            type: "bool",
+          },
+          {
+            internalType: "uint32",
+            name: "principleDistribution",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "basis",
+            type: "uint32",
+          },
+        ],
+        internalType: "struct LocalRegistrarLib.RebalanceParams",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes4",
+        name: "_strategyId",
+        type: "bytes4",
+      },
+    ],
+    name: "getStrategyApprovalState",
+    outputs: [
+      {
+        internalType: "enum LocalRegistrarLib.StrategyApprovalState",
+        name: "",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes4",
+        name: "_strategyId",
+        type: "bytes4",
+      },
+    ],
+    name: "getStrategyParamsById",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "enum LocalRegistrarLib.StrategyApprovalState",
+            name: "approvalState",
+            type: "uint8",
+          },
+          {
+            components: [
+              {
+                internalType: "enum IVault.VaultType",
+                name: "Type",
+                type: "uint8",
+              },
+              {
+                internalType: "address",
+                name: "vaultAddr",
+                type: "address",
+              },
+            ],
+            internalType: "struct LocalRegistrarLib.VaultParams",
+            name: "Locked",
+            type: "tuple",
+          },
+          {
+            components: [
+              {
+                internalType: "enum IVault.VaultType",
+                name: "Type",
+                type: "uint8",
+              },
+              {
+                internalType: "address",
+                name: "vaultAddr",
+                type: "address",
+              },
+            ],
+            internalType: "struct LocalRegistrarLib.VaultParams",
+            name: "Liquid",
+            type: "tuple",
+          },
+        ],
+        internalType: "struct LocalRegistrarLib.StrategyParams",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_tokenAddr",
+        type: "address",
+      },
+    ],
+    name: "isTokenAccepted",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "owner",
     outputs: [
@@ -18,6 +431,19 @@ const _abi = [
         internalType: "address",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "queryAllStrategies",
+    outputs: [
+      {
+        internalType: "bytes4[]",
+        name: "allStrategies",
+        type: "bytes4[]",
       },
     ],
     stateMutability: "view",
@@ -132,11 +558,6 @@ const _abi = [
             type: "address",
           },
           {
-            internalType: "address",
-            name: "collectorAddr",
-            type: "address",
-          },
-          {
             internalType: "uint256",
             name: "collectorShare",
             type: "uint256",
@@ -147,53 +568,9 @@ const _abi = [
             type: "address",
           },
           {
-            components: [
-              {
-                internalType: "address[]",
-                name: "cw20",
-                type: "address[]",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.AcceptedTokens",
-            name: "acceptedTokens",
-            type: "tuple",
-          },
-          {
             internalType: "address",
             name: "fundraisingContract",
             type: "address",
-          },
-          {
-            components: [
-              {
-                internalType: "bool",
-                name: "rebalanceLiquidInvestedProfits",
-                type: "bool",
-              },
-              {
-                internalType: "bool",
-                name: "lockedInterestsToLiquid",
-                type: "bool",
-              },
-              {
-                internalType: "uint256",
-                name: "interest_distribution",
-                type: "uint256",
-              },
-              {
-                internalType: "bool",
-                name: "lockedPrincipleToLiquid",
-                type: "bool",
-              },
-              {
-                internalType: "uint256",
-                name: "principle_distribution",
-                type: "uint256",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.RebalanceDetails",
-            name: "rebalance",
-            type: "tuple",
           },
           {
             internalType: "address",
@@ -297,7 +674,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "axelerGateway",
+            name: "axelarGateway",
             type: "address",
           },
           {
@@ -333,243 +710,185 @@ const _abi = [
     inputs: [
       {
         internalType: "string",
-        name: "_stratagyName",
+        name: "_chainName",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "_accountsContractAddress",
         type: "string",
       },
     ],
-    name: "queryVaultDetails",
-    outputs: [
+    name: "setAccountsContractAddressByChain",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
       {
         components: [
           {
-            internalType: "string",
-            name: "addr",
-            type: "string",
+            internalType: "uint32",
+            name: "protocolTaxRate",
+            type: "uint32",
           },
           {
-            internalType: "uint256",
-            name: "network",
-            type: "uint256",
+            internalType: "uint32",
+            name: "protocolTaxBasis",
+            type: "uint32",
           },
           {
             internalType: "address",
-            name: "inputDenom",
+            name: "protocolTaxCollector",
             type: "address",
           },
           {
             internalType: "address",
-            name: "yieldToken",
+            name: "routerAddr",
             type: "address",
           },
           {
-            internalType: "bool",
-            name: "approved",
-            type: "bool",
-          },
-          {
-            internalType: "enum AngelCoreStruct.EndowmentType[]",
-            name: "restrictedFrom",
-            type: "uint8[]",
-          },
-          {
-            internalType: "enum AngelCoreStruct.AccountType",
-            name: "acctType",
-            type: "uint8",
-          },
-          {
-            internalType: "enum AngelCoreStruct.VaultType",
-            name: "vaultType",
-            type: "uint8",
+            internalType: "address",
+            name: "refundAddr",
+            type: "address",
           },
         ],
-        internalType: "struct AngelCoreStruct.YieldVault",
-        name: "response",
+        internalType: "struct LocalRegistrarLib.AngelProtocolParams",
+        name: "_angelProtocolParams",
         type: "tuple",
       },
     ],
-    stateMutability: "view",
+    name: "setAngelProtocolParams",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "network",
-        type: "uint256",
-      },
-      {
-        internalType: "enum AngelCoreStruct.EndowmentType",
-        name: "endowmentType",
-        type: "uint8",
-      },
-      {
-        internalType: "enum AngelCoreStruct.AccountType",
-        name: "accountType",
-        type: "uint8",
-      },
-      {
-        internalType: "enum AngelCoreStruct.VaultType",
-        name: "vaultType",
-        type: "uint8",
-      },
-      {
-        internalType: "enum AngelCoreStruct.BoolOptional",
-        name: "approved",
-        type: "uint8",
+        internalType: "address",
+        name: "_tokenAddr",
+        type: "address",
       },
       {
         internalType: "uint256",
-        name: "startAfter",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "limit",
+        name: "_gasFee",
         type: "uint256",
       },
     ],
-    name: "queryVaultList",
-    outputs: [
-      {
-        components: [
-          {
-            internalType: "string",
-            name: "addr",
-            type: "string",
-          },
-          {
-            internalType: "uint256",
-            name: "network",
-            type: "uint256",
-          },
-          {
-            internalType: "address",
-            name: "inputDenom",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "yieldToken",
-            type: "address",
-          },
-          {
-            internalType: "bool",
-            name: "approved",
-            type: "bool",
-          },
-          {
-            internalType: "enum AngelCoreStruct.EndowmentType[]",
-            name: "restrictedFrom",
-            type: "uint8[]",
-          },
-          {
-            internalType: "enum AngelCoreStruct.AccountType",
-            name: "acctType",
-            type: "uint8",
-          },
-          {
-            internalType: "enum AngelCoreStruct.VaultType",
-            name: "vaultType",
-            type: "uint8",
-          },
-        ],
-        internalType: "struct AngelCoreStruct.YieldVault[]",
-        name: "",
-        type: "tuple[]",
-      },
-    ],
-    stateMutability: "view",
+    name: "setGasByToken",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "network",
-        type: "uint256",
-      },
-      {
-        internalType: "enum AngelCoreStruct.EndowmentType",
-        name: "endowmentType",
-        type: "uint8",
-      },
-      {
-        internalType: "enum AngelCoreStruct.AccountType",
-        name: "accountType",
-        type: "uint8",
-      },
-      {
-        internalType: "enum AngelCoreStruct.VaultType",
-        name: "vaultType",
-        type: "uint8",
-      },
-      {
-        internalType: "enum AngelCoreStruct.BoolOptional",
-        name: "approved",
-        type: "uint8",
-      },
-      {
-        internalType: "uint256",
-        name: "startAfter",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "limit",
-        type: "uint256",
-      },
-    ],
-    name: "queryVaultListDep",
-    outputs: [
-      {
         components: [
           {
-            internalType: "string",
-            name: "addr",
-            type: "string",
-          },
-          {
-            internalType: "uint256",
-            name: "network",
-            type: "uint256",
-          },
-          {
-            internalType: "address",
-            name: "inputDenom",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "yieldToken",
-            type: "address",
-          },
-          {
             internalType: "bool",
-            name: "approved",
+            name: "rebalanceLiquidProfits",
             type: "bool",
           },
           {
-            internalType: "enum AngelCoreStruct.EndowmentType[]",
-            name: "restrictedFrom",
-            type: "uint8[]",
+            internalType: "uint32",
+            name: "lockedRebalanceToLiquid",
+            type: "uint32",
           },
           {
-            internalType: "enum AngelCoreStruct.AccountType",
-            name: "acctType",
-            type: "uint8",
+            internalType: "uint32",
+            name: "interestDistribution",
+            type: "uint32",
           },
           {
-            internalType: "enum AngelCoreStruct.VaultType",
-            name: "vaultType",
-            type: "uint8",
+            internalType: "bool",
+            name: "lockedPrincipleToLiquid",
+            type: "bool",
+          },
+          {
+            internalType: "uint32",
+            name: "principleDistribution",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "basis",
+            type: "uint32",
           },
         ],
-        internalType: "struct AngelCoreStruct.YieldVault[]",
-        name: "",
-        type: "tuple[]",
+        internalType: "struct LocalRegistrarLib.RebalanceParams",
+        name: "_rebalanceParams",
+        type: "tuple",
       },
     ],
-    stateMutability: "view",
+    name: "setRebalanceParams",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes4",
+        name: "_strategyId",
+        type: "bytes4",
+      },
+      {
+        internalType: "enum LocalRegistrarLib.StrategyApprovalState",
+        name: "_approvalState",
+        type: "uint8",
+      },
+    ],
+    name: "setStrategyApprovalState",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes4",
+        name: "_strategyId",
+        type: "bytes4",
+      },
+      {
+        internalType: "address",
+        name: "_liqAddr",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_lockAddr",
+        type: "address",
+      },
+      {
+        internalType: "enum LocalRegistrarLib.StrategyApprovalState",
+        name: "_approvalState",
+        type: "uint8",
+      },
+    ],
+    name: "setStrategyParams",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_tokenAddr",
+        type: "address",
+      },
+      {
+        internalType: "bool",
+        name: "_isAccepted",
+        type: "bool",
+      },
+    ],
+    name: "setTokenAccepted",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -586,61 +905,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "testQueryStruct",
-    outputs: [
-      {
-        components: [
-          {
-            internalType: "string",
-            name: "addr",
-            type: "string",
-          },
-          {
-            internalType: "uint256",
-            name: "network",
-            type: "uint256",
-          },
-          {
-            internalType: "address",
-            name: "inputDenom",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "yieldToken",
-            type: "address",
-          },
-          {
-            internalType: "bool",
-            name: "approved",
-            type: "bool",
-          },
-          {
-            internalType: "enum AngelCoreStruct.EndowmentType[]",
-            name: "restrictedFrom",
-            type: "uint8[]",
-          },
-          {
-            internalType: "enum AngelCoreStruct.AccountType",
-            name: "acctType",
-            type: "uint8",
-          },
-          {
-            internalType: "enum AngelCoreStruct.VaultType",
-            name: "vaultType",
-            type: "uint8",
-          },
-        ],
-        internalType: "struct AngelCoreStruct.YieldVault[]",
-        name: "",
-        type: "tuple[]",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         components: [
@@ -648,43 +912,6 @@ const _abi = [
             internalType: "address",
             name: "accountsContract",
             type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "taxRate",
-            type: "uint256",
-          },
-          {
-            components: [
-              {
-                internalType: "bool",
-                name: "rebalanceLiquidInvestedProfits",
-                type: "bool",
-              },
-              {
-                internalType: "bool",
-                name: "lockedInterestsToLiquid",
-                type: "bool",
-              },
-              {
-                internalType: "uint256",
-                name: "interest_distribution",
-                type: "uint256",
-              },
-              {
-                internalType: "bool",
-                name: "lockedPrincipleToLiquid",
-                type: "bool",
-              },
-              {
-                internalType: "uint256",
-                name: "principle_distribution",
-                type: "uint256",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.RebalanceDetails",
-            name: "rebalance",
-            type: "tuple",
           },
           {
             internalType: "string[]",
@@ -710,18 +937,6 @@ const _abi = [
             internalType: "uint256",
             name: "collectorShare",
             type: "uint256",
-          },
-          {
-            components: [
-              {
-                internalType: "address[]",
-                name: "cw20",
-                type: "address[]",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.AcceptedTokens",
-            name: "acceptedTokens",
-            type: "tuple",
           },
           {
             internalType: "address",
@@ -910,7 +1125,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "axelerGateway",
+            name: "axelarGateway",
             type: "address",
           },
           {

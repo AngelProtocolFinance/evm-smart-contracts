@@ -39,10 +39,9 @@ contract AccountsUpdateStatusEndowments is
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[curId];
-        AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[curId];
 
         require(msg.sender == tempEndowment.owner, "Unauthorized");
-        require(!tempEndowmentState.closingEndowment,"Endowment is closed");
+        require(!state.STATES[curId].closingEndowment,"Endowment is closed");
         require(tempEndowment.pendingRedemptions == 0, "RedemptionInProgress");
 
         RegistrarStorage.Config memory registrar_config = IRegistrar(
@@ -77,6 +76,12 @@ contract AccountsUpdateStatusEndowments is
                     }),
                     enumData: AngelCoreStruct.BeneficiaryEnum.IndexFund
                 });
+                // remove closing endowment from all Index Funds that it is in
+                Utils._execute(
+                    registrar_config.indexFundContract,
+                    0,
+                    abi.encodeWithSignature("removeMember(uint256)", curId)
+                );
             }
         }
 
@@ -86,20 +91,10 @@ contract AccountsUpdateStatusEndowments is
         require(checkFullyExited(uint32(curId)),"Not fully exited");
         uint256 redemption = uint256(tempEndowment.oneoffVaults.liquid.length) + uint256(tempEndowment.oneoffVaults.locked.length);
         tempEndowment.pendingRedemptions = redemption;
-        tempEndowment.depositApproved = false;
         state.ENDOWMENTS[curId] = tempEndowment;
 
         emit UpdateEndowment(curId, state.ENDOWMENTS[curId]);
-        emit UpdateEndowmentState(curId, state.STATES[curId]);
-
-        // remove closing endowment from all Index Funds that it is in
-        if (funds.length > 0) {
-            Utils._execute(
-                [registrar_config.indexFundContract],
-                [0],
-                [abi.encodeWithSignature("removeMember(uint256)", curId)]
-            );
-        }
+        // emit UpdateEndowmentState(curId, state.STATES[curId]);
     }
 
     function checkFullyExited(uint32 curId) internal view returns (bool) {

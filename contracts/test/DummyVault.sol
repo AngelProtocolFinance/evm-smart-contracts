@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 
 import {IVault} from "../interfaces/IVault.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IRouter} from "../core/router/IRouter.sol";
 
 contract DummyVault is IVault {
 
@@ -38,10 +39,13 @@ contract DummyVault is IVault {
         emit DepositMade(accountId, vaultType, token, amt);
     }
 
-    function redeem(uint32 accountId, address token, uint256 amt) payable external override returns (uint256) {
+    function redeem(uint32 accountId, address token, uint256 amt) payable external override returns (IRouter.RedemptionResponse memory) {
         IERC20(token).approve(msg.sender, amt);
         emit Redemption(accountId, vaultType, token, amt);
-        return amt;
+        return IRouter.RedemptionResponse({
+            amount: amt,
+            status: IRouter.VaultActionStatus.SUCCESS
+        });
     }
 
     function redeemAll(uint32 accountId) payable external override returns (uint256) {

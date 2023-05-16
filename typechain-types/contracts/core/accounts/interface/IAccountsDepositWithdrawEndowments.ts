@@ -43,17 +43,15 @@ export interface IAccountsDepositWithdrawEndowmentsInterface
   functions: {
     "depositDonationMatchErC20(uint256,address,uint256)": FunctionFragment;
     "depositERC20((uint256,uint256,uint256),address,uint256)": FunctionFragment;
-    "depositEth((uint256,uint256,uint256))": FunctionFragment;
-    "harvest(address)": FunctionFragment;
-    "withdraw(uint256,uint8,address,address[],uint256[])": FunctionFragment;
+    "depositMatic((uint256,uint256,uint256))": FunctionFragment;
+    "withdraw(uint256,uint8,address,address,uint256)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "depositDonationMatchErC20"
       | "depositERC20"
-      | "depositEth"
-      | "harvest"
+      | "depositMatic"
       | "withdraw"
   ): FunctionFragment;
 
@@ -74,12 +72,8 @@ export interface IAccountsDepositWithdrawEndowmentsInterface
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "depositEth",
+    functionFragment: "depositMatic",
     values: [AccountMessages.DepositRequestStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "harvest",
-    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "withdraw",
@@ -87,8 +81,8 @@ export interface IAccountsDepositWithdrawEndowmentsInterface
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
-      PromiseOrValue<string>[],
-      PromiseOrValue<BigNumberish>[]
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
     ]
   ): string;
 
@@ -100,8 +94,10 @@ export interface IAccountsDepositWithdrawEndowmentsInterface
     functionFragment: "depositERC20",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "depositEth", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "harvest", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "depositMatic",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
   events: {};
@@ -136,102 +132,87 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
   functions: {
     depositDonationMatchErC20(
       curId: PromiseOrValue<BigNumberish>,
-      curToken: PromiseOrValue<string>,
+      curTokenAddress: PromiseOrValue<string>,
       curAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     depositERC20(
       curDetails: AccountMessages.DepositRequestStruct,
-      curTokenaddress: PromiseOrValue<string>,
+      curTokenAddress: PromiseOrValue<string>,
       curAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    depositEth(
+    depositMatic(
       curDetails: AccountMessages.DepositRequestStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    harvest(
-      vaultAddr: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     withdraw(
       curId: PromiseOrValue<BigNumberish>,
       acctType: PromiseOrValue<BigNumberish>,
       curBeneficiary: PromiseOrValue<string>,
-      curTokenaddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
+      curTokenAddress: PromiseOrValue<string>,
+      curAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
   depositDonationMatchErC20(
     curId: PromiseOrValue<BigNumberish>,
-    curToken: PromiseOrValue<string>,
+    curTokenAddress: PromiseOrValue<string>,
     curAmount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   depositERC20(
     curDetails: AccountMessages.DepositRequestStruct,
-    curTokenaddress: PromiseOrValue<string>,
+    curTokenAddress: PromiseOrValue<string>,
     curAmount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  depositEth(
+  depositMatic(
     curDetails: AccountMessages.DepositRequestStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  harvest(
-    vaultAddr: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   withdraw(
     curId: PromiseOrValue<BigNumberish>,
     acctType: PromiseOrValue<BigNumberish>,
     curBeneficiary: PromiseOrValue<string>,
-    curTokenaddress: PromiseOrValue<string>[],
-    curAmount: PromiseOrValue<BigNumberish>[],
+    curTokenAddress: PromiseOrValue<string>,
+    curAmount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     depositDonationMatchErC20(
       curId: PromiseOrValue<BigNumberish>,
-      curToken: PromiseOrValue<string>,
+      curTokenAddress: PromiseOrValue<string>,
       curAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     depositERC20(
       curDetails: AccountMessages.DepositRequestStruct,
-      curTokenaddress: PromiseOrValue<string>,
+      curTokenAddress: PromiseOrValue<string>,
       curAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    depositEth(
+    depositMatic(
       curDetails: AccountMessages.DepositRequestStruct,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    harvest(
-      vaultAddr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
 
     withdraw(
       curId: PromiseOrValue<BigNumberish>,
       acctType: PromiseOrValue<BigNumberish>,
       curBeneficiary: PromiseOrValue<string>,
-      curTokenaddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
+      curTokenAddress: PromiseOrValue<string>,
+      curAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -241,34 +222,29 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
   estimateGas: {
     depositDonationMatchErC20(
       curId: PromiseOrValue<BigNumberish>,
-      curToken: PromiseOrValue<string>,
+      curTokenAddress: PromiseOrValue<string>,
       curAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     depositERC20(
       curDetails: AccountMessages.DepositRequestStruct,
-      curTokenaddress: PromiseOrValue<string>,
+      curTokenAddress: PromiseOrValue<string>,
       curAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    depositEth(
+    depositMatic(
       curDetails: AccountMessages.DepositRequestStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    harvest(
-      vaultAddr: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     withdraw(
       curId: PromiseOrValue<BigNumberish>,
       acctType: PromiseOrValue<BigNumberish>,
       curBeneficiary: PromiseOrValue<string>,
-      curTokenaddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
+      curTokenAddress: PromiseOrValue<string>,
+      curAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -276,34 +252,29 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
   populateTransaction: {
     depositDonationMatchErC20(
       curId: PromiseOrValue<BigNumberish>,
-      curToken: PromiseOrValue<string>,
+      curTokenAddress: PromiseOrValue<string>,
       curAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     depositERC20(
       curDetails: AccountMessages.DepositRequestStruct,
-      curTokenaddress: PromiseOrValue<string>,
+      curTokenAddress: PromiseOrValue<string>,
       curAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    depositEth(
+    depositMatic(
       curDetails: AccountMessages.DepositRequestStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    harvest(
-      vaultAddr: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     withdraw(
       curId: PromiseOrValue<BigNumberish>,
       acctType: PromiseOrValue<BigNumberish>,
       curBeneficiary: PromiseOrValue<string>,
-      curTokenaddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
+      curTokenAddress: PromiseOrValue<string>,
+      curAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

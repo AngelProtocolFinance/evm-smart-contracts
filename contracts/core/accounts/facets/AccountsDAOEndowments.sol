@@ -31,7 +31,7 @@ contract AccountsDAOEndowments is ReentrancyGuardFacet, AccountsEvents {
      * @param curDetails The details of the DAO
      */
     function setupDao(
-        uint256 curId,
+        uint32 curId,
         AngelCoreStruct.DaoSetup memory curDetails
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();

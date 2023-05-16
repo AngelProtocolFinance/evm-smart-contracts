@@ -34,12 +34,9 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             curDetails.id
         ];
-        // AccountStorage.Config memory tempConfig = state.config;
-        AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[
-            curDetails.id
-        ];
-        require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
-        require(!tempEndowmentState.lockedForever, "Settings are locked forever");
+
+        require(!state.STATES[curDetails.id].closingEndowment, "UpdatesAfterClosed");
+        require(!state.STATES[curDetails.id].lockedForever, "Settings are locked forever");
 
         // there are several fields that are restricted to changing only by the Endowment Owner
         if (msg.sender == tempEndowment.owner) {
@@ -148,30 +145,69 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
     @param delegateExpiry The timestamp at which the delegate's permission expires
     */
     function updateDelegate(
-        uint256 id,
+        uint32 id,
         string memory setting,
         string memory action,
         address delegateAddress,
         uint256 delegateExpiry
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[id];
-        AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];
+        AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
 
-        require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
-        require(!tempEndowmentState.lockedForever, "Settings are locked forever");
-        require(tempEndowmentState.settingsController[setting], "Invalid input"); 
+        require(!state.STATES[id].closingEndowment, "UpdatesAfterClosed");
+        require(!state.STATES[id].lockedForever, "Settings are locked forever");
+        require(AngelCoreStruct.controllerSettingValid(setting), "Invalid setting input");
 
-        if (
-            keccak256(abi.encodePacked(action)) == keccak256(abi.encodePacked("set"))
-        ) {
-            require(msg.sender == tempEndowment.owner, "Unauthorized");
-            tempEndowmentState.settingsController[setting] = AngelCoreStruct.Delegate({addr: delegateAddress, expires: delegateExpiry});
-        } else if (
-            keccak256(abi.encodePacked(action)) == keccak256(abi.encodePacked("revoke"))
-        ) {
-            require(AngelCoreStruct.canChange(msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
-            tempEndowmentState.settingsController[setting] = AngelCoreStruct.Delegate({addr: address(0), expires: 0});
+        AngelCoreStruct.Delegate memory newDelegate = AngelCoreStruct.Delegate({addr: address(0), expires: 0});
+        if (keccak256(abi.encodePacked(action)) == keccak256(abi.encodePacked("set"))) {
+            newDelegate = AngelCoreStruct.Delegate({addr: delegateAddress, expires: delegateExpiry});
+        }
+
+        bytes32 _setting = keccak256(abi.encodePacked(setting));
+        if (_setting == keccak256(abi.encodePacked("strategies"))) {
+           require(AngelCoreStruct.canChange(tempEndowment.settingsController.strategies, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
+           tempEndowment.settingsController.strategies = newDelegate;
+        } else if (_setting == keccak256(abi.encodePacked("allowlistedBeneficiaries"))) {
+           require(AngelCoreStruct.canChange(tempEndowment.settingsController.allowlistedBeneficiaries, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
+           tempEndowment.settingsController.allowlistedBeneficiaries = newDelegate;
+        } else if (_setting == keccak256(abi.encodePacked("allowlistedContributors"))) {
+           require(AngelCoreStruct.canChange(tempEndowment.settingsController.allowlistedContributors, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
+           tempEndowment.settingsController.allowlistedContributors = newDelegate;
+        } else if (_setting == keccak256(abi.encodePacked("maturityAllowlist"))) {
+           require(AngelCoreStruct.canChange(tempEndowment.settingsController.maturityAllowlist, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
+           tempEndowment.settingsController.maturityAllowlist = newDelegate;
+        } else if (_setting == keccak256(abi.encodePacked("maturityTime"))) {
+           require(AngelCoreStruct.canChange(tempEndowment.settingsController.maturityTime, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
+           tempEndowment.settingsController.maturityTime = newDelegate;
+        } else if (_setting == keccak256(abi.encodePacked("withdrawFee"))) {
+           require(AngelCoreStruct.canChange(tempEndowment.settingsController.withdrawFee, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
+           tempEndowment.settingsController.withdrawFee = newDelegate;
+        } else if (_setting == keccak256(abi.encodePacked("depositFee"))) {
+           require(AngelCoreStruct.canChange(tempEndowment.settingsController.depositFee, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
+           tempEndowment.settingsController.depositFee = newDelegate;
+        } else if (_setting == keccak256(abi.encodePacked("balanceFee"))) {
+           require(AngelCoreStruct.canChange(tempEndowment.settingsController.balanceFee, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
+           tempEndowment.settingsController.balanceFee = newDelegate;
+        } else if (_setting == keccak256(abi.encodePacked("name"))) {
+           require(AngelCoreStruct.canChange(tempEndowment.settingsController.name, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
+           tempEndowment.settingsController.name = newDelegate;
+        } else if (_setting == keccak256(abi.encodePacked("image"))) {
+           require(AngelCoreStruct.canChange(tempEndowment.settingsController.image, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
+           tempEndowment.settingsController.image = newDelegate;
+        } else if (_setting == keccak256(abi.encodePacked("logo"))) {
+           require(AngelCoreStruct.canChange(tempEndowment.settingsController.logo, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
+           tempEndowment.settingsController.logo = newDelegate;
+        } else if (_setting == keccak256(abi.encodePacked("categories"))) {
+           require(AngelCoreStruct.canChange(tempEndowment.settingsController.categories, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
+           tempEndowment.settingsController.categories = newDelegate;
+        } else if (_setting == keccak256(abi.encodePacked("splitToLiquid"))) {
+           require(AngelCoreStruct.canChange(tempEndowment.settingsController.splitToLiquid, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
+           tempEndowment.settingsController.splitToLiquid = newDelegate;
+        } else if (_setting == keccak256(abi.encodePacked("ignoreUserSplits"))) {
+           require(AngelCoreStruct.canChange(tempEndowment.settingsController.ignoreUserSplits, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
+           tempEndowment.settingsController.ignoreUserSplits = newDelegate;
+        } else {
+            revert("Input setting was not found");
         }
 
         emit UpdateEndowment(id, tempEndowment);

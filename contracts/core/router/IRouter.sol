@@ -5,7 +5,7 @@ pragma solidity >=0.8.0;
 import {IAxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarExecutable.sol";
 import {IVault} from "../../interfaces/IVault.sol";
 
-abstract contract IRouter is IAxelarExecutable {
+interface IRouter is IAxelarExecutable {
     /*////////////////////////////////////////////////
                         EVENTS
     */////////////////////////////////////////////////
@@ -56,66 +56,11 @@ abstract contract IRouter is IAxelarExecutable {
         VaultActionStatus status;
     }
 
-    /*////////////////////////////////////////////////
-                        METHODS
-    */////////////////////////////////////////////////
-
-    // Internal data packing methods
-    function _unpackCalldata(bytes memory _calldata)
-        internal
-        virtual
-        returns (VaultActionData memory)
-    {
-        (
-            string memory destinationChain,
-            bytes4 strategyId,
-            bytes4 selector,
-            uint32[] memory accountIds,
-            address token,
-            uint256 lockAmt,
-            uint256 liqAmt,
-            VaultActionStatus status
-        ) = abi.decode(
-                _calldata,
-                (string, bytes4, bytes4, uint32[], address, uint256, uint256, VaultActionStatus)
-            );
-
-        return
-            VaultActionData(
-                destinationChain,
-                strategyId,
-                selector,
-                accountIds,
-                token,
-                lockAmt,
-                liqAmt,
-                status
-            );
-    }
-
-    function _packCallData(VaultActionData memory _calldata)
-        internal
-        virtual
-        returns (bytes memory)
-    {
-        return
-            abi.encode(
-                _calldata.destinationChain,
-                _calldata.strategyId,
-                _calldata.selector,
-                _calldata.accountIds,
-                _calldata.token,
-                _calldata.lockAmt,
-                _calldata.liqAmt,
-                _calldata.status
-            );
-    }
-
     function executeLocal(
         string calldata sourceChain,
         string calldata sourceAddress,
         bytes calldata payload
-    ) external virtual returns (VaultActionData memory);
+    ) external returns (VaultActionData memory);
 
     function executeWithTokenLocal(
         string calldata sourceChain,
@@ -123,5 +68,5 @@ abstract contract IRouter is IAxelarExecutable {
         bytes calldata payload,
         string calldata tokenSymbol,
         uint256 amount
-    ) external virtual returns (VaultActionData memory);
+    ) external returns (VaultActionData memory);
 }

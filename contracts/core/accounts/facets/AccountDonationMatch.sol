@@ -28,7 +28,7 @@ contract AccountDonationMatch is ReentrancyGuardFacet, AccountsEvents {
      * @param curAmount Amount of DAOToken to deposit
      */
     function depositDonationMatchErC20(
-        uint256 curId,
+        uint32 curId,
         address curToken,
         uint256 curAmount
     ) public {
@@ -65,7 +65,7 @@ contract AccountDonationMatch is ReentrancyGuardFacet, AccountsEvents {
      * @param curAmount Amount of DAOToken to withdraw
      */
     function withdrawDonationMatchErC20(
-        uint256 curId,
+        uint32 curId,
         address curRecipient,
         uint256 curAmount
     ) public {
@@ -100,7 +100,7 @@ contract AccountDonationMatch is ReentrancyGuardFacet, AccountsEvents {
      * @param curDetails The details of the donation match contract
      */
     function setupDonationMatch(
-        uint256 curId,
+        uint32 curId,
         AccountMessages.DonationMatch memory curDetails
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();

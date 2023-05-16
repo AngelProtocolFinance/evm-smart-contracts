@@ -345,18 +345,18 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
         address _lockAddr,
         address _liqAddr,
         LocalRegistrarLib.StrategyApprovalState _approvalState
-    ) external override onlyOwner {
+    ) public override onlyOwner {
         if (_approvalState == LocalRegistrarLib.StrategyApprovalState.DEPRECATED) {
             _removeStrategy(_strategyId);
         }
         else {
             _maybeAddStrategy(_strategyId);
         }
-        super.setStrategyParams(_strategyId, _lockAddr, _liqAddr);
+        super.setStrategyParams(_strategyId, _lockAddr, _liqAddr, _approvalState);
     }
 
     function setStrategyApprovalState(bytes4 _strategyId, LocalRegistrarLib.StrategyApprovalState _approvalState)
-        external
+        public
         override
         onlyOwner
     {

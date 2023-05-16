@@ -165,16 +165,7 @@ contract LockedWithdraw is
      * @param accountId The account id of the endowment
      */
     function _executeWithdraw(uint32 accountId) internal {
-        address[] memory curTargets = new address[](1);
-
-        curTargets[0] = config.accounts;
-
-        uint256[] memory curValues = new uint256[](1);
-        curValues[0] = 0;
-
-        bytes[] memory curCalldatas = new bytes[](1);
-
-        curCalldatas[0] = abi.encodeWithSignature(
+        Utils._execute(config.accounts, 0, abi.encodeWithSignature(
             "withdraw(uint32,uint8,address,uint32,address[],uint256[])",
             accountId,
             AngelCoreStruct.AccountType.Locked,
@@ -182,8 +173,6 @@ contract LockedWithdraw is
             accountId,
             withdrawData[accountId].tokenAddress,
             withdrawData[accountId].amount
-        );
-
-        Utils._execute(curTargets, curValues, curCalldatas);
+        ));
     }
 }

@@ -456,18 +456,18 @@ const _abi = [
             components: [
               {
                 internalType: "bool",
-                name: "rebalanceLiquidInvestedProfits",
+                name: "rebalanceLiquidProfits",
                 type: "bool",
               },
               {
-                internalType: "bool",
-                name: "lockedInterestsToLiquid",
-                type: "bool",
+                internalType: "uint32",
+                name: "lockedRebalanceToLiquid",
+                type: "uint32",
               },
               {
-                internalType: "uint256",
-                name: "interest_distribution",
-                type: "uint256",
+                internalType: "uint32",
+                name: "interestDistribution",
+                type: "uint32",
               },
               {
                 internalType: "bool",
@@ -475,14 +475,24 @@ const _abi = [
                 type: "bool",
               },
               {
-                internalType: "uint256",
-                name: "principle_distribution",
-                type: "uint256",
+                internalType: "uint32",
+                name: "principleDistribution",
+                type: "uint32",
+              },
+              {
+                internalType: "uint32",
+                name: "basis",
+                type: "uint32",
               },
             ],
-            internalType: "struct AngelCoreStruct.RebalanceDetails",
+            internalType: "struct LocalRegistrarLib.RebalanceParams",
             name: "rebalance",
             type: "tuple",
+          },
+          {
+            internalType: "bool",
+            name: "kycDonorsOnly",
+            type: "bool",
           },
           {
             internalType: "uint256",
@@ -498,6 +508,11 @@ const _abi = [
             internalType: "uint256",
             name: "proposalLink",
             type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "multisig",
+            type: "address",
           },
           {
             internalType: "address",
@@ -1177,6 +1192,11 @@ const _abi = [
             type: "address",
           },
           {
+            internalType: "string",
+            name: "version",
+            type: "string",
+          },
+          {
             internalType: "address",
             name: "registrarContract",
             type: "address",
@@ -1190,6 +1210,26 @@ const _abi = [
             internalType: "uint256",
             name: "maxGeneralCategoryId",
             type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "subDao",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "gateway",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "gasReceiver",
+            type: "address",
+          },
+          {
+            internalType: "bool",
+            name: "reentrancyGuardLocked",
+            type: "bool",
           },
         ],
         indexed: false,
@@ -1337,18 +1377,18 @@ const _abi = [
             components: [
               {
                 internalType: "bool",
-                name: "rebalanceLiquidInvestedProfits",
+                name: "rebalanceLiquidProfits",
                 type: "bool",
               },
               {
-                internalType: "bool",
-                name: "lockedInterestsToLiquid",
-                type: "bool",
+                internalType: "uint32",
+                name: "lockedRebalanceToLiquid",
+                type: "uint32",
               },
               {
-                internalType: "uint256",
-                name: "interest_distribution",
-                type: "uint256",
+                internalType: "uint32",
+                name: "interestDistribution",
+                type: "uint32",
               },
               {
                 internalType: "bool",
@@ -1356,14 +1396,24 @@ const _abi = [
                 type: "bool",
               },
               {
-                internalType: "uint256",
-                name: "principle_distribution",
-                type: "uint256",
+                internalType: "uint32",
+                name: "principleDistribution",
+                type: "uint32",
+              },
+              {
+                internalType: "uint32",
+                name: "basis",
+                type: "uint32",
               },
             ],
-            internalType: "struct AngelCoreStruct.RebalanceDetails",
+            internalType: "struct LocalRegistrarLib.RebalanceParams",
             name: "rebalance",
             type: "tuple",
+          },
+          {
+            internalType: "bool",
+            name: "kycDonorsOnly",
+            type: "bool",
           },
           {
             internalType: "uint256",
@@ -1379,6 +1429,11 @@ const _abi = [
             internalType: "uint256",
             name: "proposalLink",
             type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "multisig",
+            type: "address",
           },
           {
             internalType: "address",
@@ -1958,134 +2013,6 @@ const _abi = [
       },
     ],
     name: "UpdateEndowment",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "id",
-        type: "uint256",
-      },
-      {
-        components: [
-          {
-            components: [
-              {
-                internalType: "uint256",
-                name: "locked",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
-                name: "liquid",
-                type: "uint256",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.DonationsReceived",
-            name: "donationsReceived",
-            type: "tuple",
-          },
-          {
-            components: [
-              {
-                components: [
-                  {
-                    internalType: "uint256",
-                    name: "coinNativeAmount",
-                    type: "uint256",
-                  },
-                  {
-                    internalType: "uint256[]",
-                    name: "Cw20CoinVerified_amount",
-                    type: "uint256[]",
-                  },
-                  {
-                    internalType: "address[]",
-                    name: "Cw20CoinVerified_addr",
-                    type: "address[]",
-                  },
-                ],
-                internalType: "struct AngelCoreStruct.GenericBalance",
-                name: "locked",
-                type: "tuple",
-              },
-              {
-                components: [
-                  {
-                    internalType: "uint256",
-                    name: "coinNativeAmount",
-                    type: "uint256",
-                  },
-                  {
-                    internalType: "uint256[]",
-                    name: "Cw20CoinVerified_amount",
-                    type: "uint256[]",
-                  },
-                  {
-                    internalType: "address[]",
-                    name: "Cw20CoinVerified_addr",
-                    type: "address[]",
-                  },
-                ],
-                internalType: "struct AngelCoreStruct.GenericBalance",
-                name: "liquid",
-                type: "tuple",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.BalanceInfo",
-            name: "balances",
-            type: "tuple",
-          },
-          {
-            internalType: "bool",
-            name: "closingEndowment",
-            type: "bool",
-          },
-          {
-            components: [
-              {
-                components: [
-                  {
-                    internalType: "uint256",
-                    name: "id",
-                    type: "uint256",
-                  },
-                  {
-                    internalType: "address",
-                    name: "addr",
-                    type: "address",
-                  },
-                ],
-                internalType: "struct AngelCoreStruct.BeneficiaryData",
-                name: "data",
-                type: "tuple",
-              },
-              {
-                internalType: "enum AngelCoreStruct.BeneficiaryEnum",
-                name: "enumData",
-                type: "uint8",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.Beneficiary",
-            name: "closingBeneficiary",
-            type: "tuple",
-          },
-          {
-            internalType: "bool",
-            name: "lockedForever",
-            type: "bool",
-          },
-        ],
-        indexed: false,
-        internalType: "struct AccountStorage.EndowmentState",
-        name: "state",
-        type: "tuple",
-      },
-    ],
-    name: "UpdateEndowmentState",
     type: "event",
   },
 ] as const;

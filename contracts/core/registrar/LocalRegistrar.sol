@@ -179,7 +179,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     }
 
     function setStrategyApprovalState(bytes4 _strategyId, LocalRegistrarLib.StrategyApprovalState _approvalState)
-        external virtual override onlyOwner {
+        public virtual override onlyOwner {
         LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
             LocalRegistrarLib.localRegistrarStorage();
 
@@ -192,7 +192,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
         address _lockAddr,
         address _liqAddr,
         LocalRegistrarLib.StrategyApprovalState _approvalState
-    ) external virtual override onlyOwner {
+    ) public virtual onlyOwner {
         LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
             LocalRegistrarLib.localRegistrarStorage();
 

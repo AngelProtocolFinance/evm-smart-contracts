@@ -26,12 +26,31 @@ export declare namespace AccountMessages {
     owner: PromiseOrValue<string>;
     version: PromiseOrValue<string>;
     registrarContract: PromiseOrValue<string>;
+    nextAccountId: PromiseOrValue<BigNumberish>;
+    maxGeneralCategoryId: PromiseOrValue<BigNumberish>;
+    subDao: PromiseOrValue<string>;
+    gateway: PromiseOrValue<string>;
+    gasReceiver: PromiseOrValue<string>;
   };
 
-  export type ConfigResponseStructOutput = [string, string, string] & {
+  export type ConfigResponseStructOutput = [
+    string,
+    string,
+    string,
+    BigNumber,
+    BigNumber,
+    string,
+    string,
+    string
+  ] & {
     owner: string;
     version: string;
     registrarContract: string;
+    nextAccountId: BigNumber;
+    maxGeneralCategoryId: BigNumber;
+    subDao: string;
+    gateway: string;
+    gasReceiver: string;
   };
 
   export type StateResponseStruct = {
@@ -98,28 +117,6 @@ export declare namespace AngelCoreStruct {
     lockedAmount: BigNumber[];
     liquid: string[];
     liquidAmount: BigNumber[];
-  };
-
-  export type RebalanceDetailsStruct = {
-    rebalanceLiquidInvestedProfits: PromiseOrValue<boolean>;
-    lockedInterestsToLiquid: PromiseOrValue<boolean>;
-    interest_distribution: PromiseOrValue<BigNumberish>;
-    lockedPrincipleToLiquid: PromiseOrValue<boolean>;
-    principle_distribution: PromiseOrValue<BigNumberish>;
-  };
-
-  export type RebalanceDetailsStructOutput = [
-    boolean,
-    boolean,
-    BigNumber,
-    boolean,
-    BigNumber
-  ] & {
-    rebalanceLiquidInvestedProfits: boolean;
-    lockedInterestsToLiquid: boolean;
-    interest_distribution: BigNumber;
-    lockedPrincipleToLiquid: boolean;
-    principle_distribution: BigNumber;
   };
 
   export type EndowmentFeeStruct = {
@@ -253,6 +250,33 @@ export declare namespace AngelCoreStruct {
   ] & { data: AngelCoreStruct.BeneficiaryDataStructOutput; enumData: number };
 }
 
+export declare namespace LocalRegistrarLib {
+  export type RebalanceParamsStruct = {
+    rebalanceLiquidProfits: PromiseOrValue<boolean>;
+    lockedRebalanceToLiquid: PromiseOrValue<BigNumberish>;
+    interestDistribution: PromiseOrValue<BigNumberish>;
+    lockedPrincipleToLiquid: PromiseOrValue<boolean>;
+    principleDistribution: PromiseOrValue<BigNumberish>;
+    basis: PromiseOrValue<BigNumberish>;
+  };
+
+  export type RebalanceParamsStructOutput = [
+    boolean,
+    number,
+    number,
+    boolean,
+    number,
+    number
+  ] & {
+    rebalanceLiquidProfits: boolean;
+    lockedRebalanceToLiquid: number;
+    interestDistribution: number;
+    lockedPrincipleToLiquid: boolean;
+    principleDistribution: number;
+    basis: number;
+  };
+}
+
 export declare namespace AccountStorage {
   export type EndowmentStruct = {
     owner: PromiseOrValue<string>;
@@ -268,10 +292,12 @@ export declare namespace AccountStorage {
     maturityTime: PromiseOrValue<BigNumberish>;
     strategies: AngelCoreStruct.AccountStrategiesStruct;
     oneoffVaults: AngelCoreStruct.OneOffVaultsStruct;
-    rebalance: AngelCoreStruct.RebalanceDetailsStruct;
+    rebalance: LocalRegistrarLib.RebalanceParamsStruct;
+    kycDonorsOnly: PromiseOrValue<boolean>;
     pendingRedemptions: PromiseOrValue<BigNumberish>;
     copycatStrategy: PromiseOrValue<BigNumberish>;
     proposalLink: PromiseOrValue<BigNumberish>;
+    multisig: PromiseOrValue<string>;
     dao: PromiseOrValue<string>;
     daoToken: PromiseOrValue<string>;
     donationMatchActive: PromiseOrValue<boolean>;
@@ -303,10 +329,12 @@ export declare namespace AccountStorage {
     BigNumber,
     AngelCoreStruct.AccountStrategiesStructOutput,
     AngelCoreStruct.OneOffVaultsStructOutput,
-    AngelCoreStruct.RebalanceDetailsStructOutput,
+    LocalRegistrarLib.RebalanceParamsStructOutput,
+    boolean,
     BigNumber,
     BigNumber,
     BigNumber,
+    string,
     string,
     string,
     boolean,
@@ -336,10 +364,12 @@ export declare namespace AccountStorage {
     maturityTime: BigNumber;
     strategies: AngelCoreStruct.AccountStrategiesStructOutput;
     oneoffVaults: AngelCoreStruct.OneOffVaultsStructOutput;
-    rebalance: AngelCoreStruct.RebalanceDetailsStructOutput;
+    rebalance: LocalRegistrarLib.RebalanceParamsStructOutput;
+    kycDonorsOnly: boolean;
     pendingRedemptions: BigNumber;
     copycatStrategy: BigNumber;
     proposalLink: BigNumber;
+    multisig: string;
     dao: string;
     daoToken: string;
     donationMatchActive: boolean;
@@ -364,7 +394,6 @@ export interface AccountsQueryEndowmentsInterface extends utils.Interface {
     "queryEndowmentDetails(uint256)": FunctionFragment;
     "queryState(uint256)": FunctionFragment;
     "queryTokenAmount(uint256,uint8,address)": FunctionFragment;
-    "queryVaultBalance(uint256,uint8,string)": FunctionFragment;
   };
 
   getFunction(
@@ -373,7 +402,6 @@ export interface AccountsQueryEndowmentsInterface extends utils.Interface {
       | "queryEndowmentDetails"
       | "queryState"
       | "queryTokenAmount"
-      | "queryVaultBalance"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -396,14 +424,6 @@ export interface AccountsQueryEndowmentsInterface extends utils.Interface {
       PromiseOrValue<string>
     ]
   ): string;
-  encodeFunctionData(
-    functionFragment: "queryVaultBalance",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
-    ]
-  ): string;
 
   decodeFunctionResult(
     functionFragment: "queryConfig",
@@ -416,10 +436,6 @@ export interface AccountsQueryEndowmentsInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "queryState", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "queryTokenAmount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "queryVaultBalance",
     data: BytesLike
   ): Result;
 
@@ -482,16 +498,9 @@ export interface AccountsQueryEndowments extends BaseContract {
     queryTokenAmount(
       curId: PromiseOrValue<BigNumberish>,
       curAccountType: PromiseOrValue<BigNumberish>,
-      curTokenaddress: PromiseOrValue<string>,
+      curTokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { tokenAmount: BigNumber }>;
-
-    queryVaultBalance(
-      curId: PromiseOrValue<BigNumberish>,
-      vaultType: PromiseOrValue<BigNumberish>,
-      vault: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { vaultBalance: BigNumber }>;
   };
 
   queryConfig(
@@ -511,14 +520,7 @@ export interface AccountsQueryEndowments extends BaseContract {
   queryTokenAmount(
     curId: PromiseOrValue<BigNumberish>,
     curAccountType: PromiseOrValue<BigNumberish>,
-    curTokenaddress: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  queryVaultBalance(
-    curId: PromiseOrValue<BigNumberish>,
-    vaultType: PromiseOrValue<BigNumberish>,
-    vault: PromiseOrValue<string>,
+    curTokenAddress: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -540,14 +542,7 @@ export interface AccountsQueryEndowments extends BaseContract {
     queryTokenAmount(
       curId: PromiseOrValue<BigNumberish>,
       curAccountType: PromiseOrValue<BigNumberish>,
-      curTokenaddress: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    queryVaultBalance(
-      curId: PromiseOrValue<BigNumberish>,
-      vaultType: PromiseOrValue<BigNumberish>,
-      vault: PromiseOrValue<string>,
+      curTokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -570,14 +565,7 @@ export interface AccountsQueryEndowments extends BaseContract {
     queryTokenAmount(
       curId: PromiseOrValue<BigNumberish>,
       curAccountType: PromiseOrValue<BigNumberish>,
-      curTokenaddress: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    queryVaultBalance(
-      curId: PromiseOrValue<BigNumberish>,
-      vaultType: PromiseOrValue<BigNumberish>,
-      vault: PromiseOrValue<string>,
+      curTokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -598,14 +586,7 @@ export interface AccountsQueryEndowments extends BaseContract {
     queryTokenAmount(
       curId: PromiseOrValue<BigNumberish>,
       curAccountType: PromiseOrValue<BigNumberish>,
-      curTokenaddress: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    queryVaultBalance(
-      curId: PromiseOrValue<BigNumberish>,
-      vaultType: PromiseOrValue<BigNumberish>,
-      vault: PromiseOrValue<string>,
+      curTokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

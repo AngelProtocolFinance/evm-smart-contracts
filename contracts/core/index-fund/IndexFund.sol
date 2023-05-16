@@ -510,7 +510,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
                 fund.addr
             );
 
-        Utils._execute(target, value, callData);
+        Utils._execute(target[0], value[0], callData[0]);
 
         // Clean up storage for next call
         delete state.donationMessages.member_ids;

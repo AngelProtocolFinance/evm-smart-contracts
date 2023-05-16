@@ -7,7 +7,7 @@ import {subDaoStorage} from "./storage.sol";
 
 library subDaoMessage {
     struct InstantiateMsg {
-        uint256 id;
+        uint32 id;
         address owner;
         uint256 quorum;
         uint256 threshold;

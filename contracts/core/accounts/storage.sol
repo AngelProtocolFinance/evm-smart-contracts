@@ -9,7 +9,7 @@ library AccountStorage {
         address owner;
         string version;
         address registrarContract;
-        uint256 nextAccountId;
+        uint32 nextAccountId;
         uint256 maxGeneralCategoryId;
         address subDao;
         address gateway;
@@ -33,7 +33,6 @@ library AccountStorage {
         LocalRegistrarLib.RebalanceParams rebalance; // parameters to guide rebalancing & harvesting of gains from locked/liquid accounts
         bool kycDonorsOnly; // allow owner to state a preference for receiving only kyc'd donations (where possible) //TODO:
         uint256 pendingRedemptions; // number of vault redemptions currently pending for this endowment
-        uint256 copycatStrategy; // endowment ID to copy their strategy
         uint256 proposalLink; // link back the CW3 Proposal that created an endowment
         address multisig;
         address dao;
@@ -43,12 +42,11 @@ library AccountStorage {
         address[] allowlistedBeneficiaries;
         address[] allowlistedContributors;
         address[] maturityAllowlist;
-        AngelCoreStruct.EndowmentFee earningsFee;
         AngelCoreStruct.EndowmentFee withdrawFee;
         AngelCoreStruct.EndowmentFee depositFee;
         AngelCoreStruct.EndowmentFee balanceFee;
         AngelCoreStruct.SettingsController settingsController;
-        uint256 parent;
+        uint32 parent;
         bool ignoreUserSplits;
         AngelCoreStruct.SplitDetails splitToLiquid;
     }

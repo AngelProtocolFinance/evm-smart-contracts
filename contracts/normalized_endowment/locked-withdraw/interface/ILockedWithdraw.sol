@@ -21,7 +21,7 @@ abstract contract ILockedWithdraw is IERC165 {
         uint256[] curAmount
     );
 
-    event LockedWithdrawRejected(uint256 indexed accountId);
+    event LockedWithdrawRejected(uint32 indexed accountId);
 
     // approval function for ap team
     function approve(uint32 accountId) public virtual;

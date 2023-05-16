@@ -10,10 +10,12 @@ import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interface/IRegistrar.sol";
 import {LocalRegistrarLib} from "../../registrar/lib/LocalRegistrarLib.sol";
 import {IRouter} from "../../router/IRouter.sol";
+import {RouterLib} from "../../router/RouterLib.sol";
 import {Utils} from "../../../lib/utils.sol";
 import {IIndexFund} from "../../index-fund/Iindex-fund.sol";
 import {IAxelarGateway} from "./../interface/IAxelarGateway.sol";
 import {StringArray} from "./../../../lib/Strings/string.sol";
+import {AddressToString} from "../../../lib/StringAddressUtils.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
 import {ISwappingV3} from "./../../swap-router/Interface/ISwappingV3.sol";
@@ -59,7 +61,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
 
         AngelCoreStruct.NetworkInfo memory network = 
             IRegistrar(state.config.registrarContract)
-            .queryNetworkConnection(block.chainId);
+            .queryNetworkConnection(block.chainid);
 
         address tokenAddress = IAxelarGateway(network.axelarGateway)
             .tokenAddresses(curToken);
@@ -71,40 +73,45 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
             "Insufficient Balance");
 
         require(IRegistrar(state.config.registrarContract)
-            .isTokenApproved(tokenAddress),
+            .isTokenAccepted(tokenAddress),
             "Token not approved");
 
         LocalRegistrarLib.StrategyParams memory stratParams = 
             IRegistrar(state.config.registrarContract)
             .getStrategyParamsById(curStrategy);
 
+        uint32[] memory accts = new uint32[](1);
+        accts[0] = curId;
+
         IRouter.VaultActionData memory payload = IRouter
             .VaultActionData({
+                destinationChain: network.name,
                 strategyId: curStrategy,
                 selector: IVault.deposit.selector,
-                accountIds: [curId],
-                token: curToken,
+                accountIds: accts,
+                token: tokenAddress,
                 lockAmt: curLockAmt,
                 liqAmt: curLiquidAmt,
                 status: IRouter.VaultActionStatus.UNPROCESSED
             });
-        
+        bytes memory packedPayload = RouterLib.packCallData(payload);
+
         IRouter.VaultActionData memory response = 
             IRouter(network.router)
             .executeWithTokenLocal(
                 network.name, 
-                address(this), 
-                payload,
+                AddressToString.toString(address(this)), 
+                packedPayload,
                 curToken,
                 (curLockAmt + curLiquidAmt)
             );
         
         if (response.status == IRouter.VaultActionStatus.SUCCESS ||
-            response.status == IRouter.VaultActionStatus.FAIL_TOKENS_REFUNDED) {
+            response.status == IRouter.VaultActionStatus.FAIL_TOKENS_FALLBACK) {
             state.STATES[curId].balances.locked.balancesByToken[tokenAddress] -= response.lockAmt;
             state.STATES[curId].balances.liquid.balancesByToken[tokenAddress] -= response.liqAmt;
             state.STATES[curId].activeStrategies[curStrategy] == true;
-            emit UpdateEndowmentState(curId, state.STATES[curId]);
+            // emit UpdateEndowmentState(curId, state.STATES[curId]);
         }
     }
 
@@ -138,33 +145,39 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
         );
         AngelCoreStruct.NetworkInfo memory network = 
             IRegistrar(state.config.registrarContract)
-            .queryNetworkConnection(block.chainId);
+            .queryNetworkConnection(block.chainid);
 
         address tokenAddress = IAxelarGateway(network.axelarGateway)
             .tokenAddresses(curToken);
 
-        IRouter.VaultActionData memory payload = IAxelarGateway
+
+        uint32[] memory accts = new uint32[](1);
+        accts[0] = curId;
+        IRouter.VaultActionData memory payload = IRouter
             .VaultActionData({
+                destinationChain: network.name,
                 strategyId: curStrategy,
                 selector: IVault.redeem.selector,
-                accountIds: curId,
-                token: curToken,
+                accountIds: accts,
+                token: tokenAddress,
                 lockAmt: curLockAmt,
                 liqAmt: curLiquidAmt,
                 status: IRouter.VaultActionStatus.UNPROCESSED
             });
 
+        bytes memory packedPayload = RouterLib.packCallData(payload);
+
         IRouter.VaultActionData memory response = 
             IRouter(network.router)
             .executeLocal(
                 network.name, 
-                address(this), 
-                payload
+                AddressToString.toString(address(this)), 
+                packedPayload
             );
         if (response.status == IRouter.VaultActionStatus.SUCCESS) {
             state.STATES[curId].balances.locked.balancesByToken[tokenAddress] += response.lockAmt;
             state.STATES[curId].balances.liquid.balancesByToken[tokenAddress] += response.liqAmt;
-            emit UpdateEndowmentState(curId, state.STATES[curId]);
+            // emit UpdateEndowmentState(curId, state.STATES[curId]);
         }
         if (response.status == IRouter.VaultActionStatus.POSITION_EXITED) {
             state.STATES[curId].activeStrategies[curStrategy] == false;
@@ -196,34 +209,38 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
         );
         AngelCoreStruct.NetworkInfo memory network = 
             IRegistrar(state.config.registrarContract)
-            .queryNetworkConnection(block.chainId);
+            .queryNetworkConnection(block.chainid);
         
         address tokenAddress = IAxelarGateway(network.axelarGateway)
             .tokenAddresses(curToken);
 
-        IRouter.VaultActionData memory payload = IAxelarGateway
+        uint32[] memory accts = new uint32[](1);
+        accts[0] = curId;
+        IRouter.VaultActionData memory payload = IRouter
             .VaultActionData({
+                destinationChain: network.name,
                 strategyId: curStrategy,
                 selector: IVault.redeemAll.selector,
-                accountIds: curId,
-                token: curToken,
+                accountIds: accts,
+                token: tokenAddress,
                 lockAmt: 0,
                 liqAmt: 0,
                 status: IRouter.VaultActionStatus.UNPROCESSED
             });
+        bytes memory packedPayload = RouterLib.packCallData(payload);
 
         IRouter.VaultActionData memory response = 
             IRouter(network.router)
             .executeLocal(
                 network.name, 
-                address(this), 
-                payload
+                AddressToString.toString(address(this)), 
+                packedPayload
             );
         
         if (response.status == IRouter.VaultActionStatus.SUCCESS) {
             state.STATES[curId].balances.locked.balancesByToken[tokenAddress] += response.lockAmt;
             state.STATES[curId].balances.liquid.balancesByToken[tokenAddress] += response.liqAmt;
-            emit UpdateEndowmentState(curId, state.STATES[curId]);
+            // emit UpdateEndowmentState(curId, state.STATES[curId]);
         }
         if (response.status == IRouter.VaultActionStatus.POSITION_EXITED) {
             state.STATES[curId].activeStrategies[curStrategy] == false;

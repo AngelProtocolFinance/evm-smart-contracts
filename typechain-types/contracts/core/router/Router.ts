@@ -36,6 +36,7 @@ export declare namespace IRouter {
     token: PromiseOrValue<string>;
     lockAmt: PromiseOrValue<BigNumberish>;
     liqAmt: PromiseOrValue<BigNumberish>;
+    status: PromiseOrValue<BigNumberish>;
   };
 
   export type VaultActionDataStructOutput = [
@@ -45,7 +46,8 @@ export declare namespace IRouter {
     number[],
     string,
     BigNumber,
-    BigNumber
+    BigNumber,
+    number
   ] & {
     destinationChain: string;
     strategyId: string;
@@ -54,13 +56,14 @@ export declare namespace IRouter {
     token: string;
     lockAmt: BigNumber;
     liqAmt: BigNumber;
+    status: number;
   };
 }
 
 export interface RouterInterface extends utils.Interface {
   functions: {
     "chain()": FunctionFragment;
-    "deposit((string,bytes4,bytes4,uint32[],address,uint256,uint256),string,uint256)": FunctionFragment;
+    "deposit((string,bytes4,bytes4,uint32[],address,uint256,uint256,uint8),string,uint256)": FunctionFragment;
     "execute(bytes32,string,string,bytes)": FunctionFragment;
     "executeLocal(string,string,bytes)": FunctionFragment;
     "executeWithToken(bytes32,string,string,bytes,string,uint256)": FunctionFragment;

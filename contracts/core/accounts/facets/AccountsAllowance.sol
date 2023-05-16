@@ -27,14 +27,14 @@ contract AccountsAllowance is ReentrancyGuardFacet, AccountsEvents {
      * @param curAmount The allowance amount
      */
     function manageAllowances(
-        uint256 curId,
+        uint32 curId,
         string memory curAction,
         address curSpender,
         address curToken,
         uint256 curAmount
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[curId];
+        AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[curId];
 
         require(!state.STATES[curId].closingEndowment, "Endowment is closed");
         require(curToken != address(0), "Invalid Token");
@@ -101,7 +101,7 @@ contract AccountsAllowance is ReentrancyGuardFacet, AccountsEvents {
      * @param curAmount The amount to be spent
      */
     function spendAllowance(
-        uint256 curId,
+        uint32 curId,
         address curToken,
         uint256 curAmount
     ) public nonReentrant {
@@ -109,37 +109,19 @@ contract AccountsAllowance is ReentrancyGuardFacet, AccountsEvents {
         require(curAmount != 0, "Zero Amount");
 
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        require(state.ALLOWANCES[curId][msg.sender][curToken], "Allowance does not exist");
+        require(state.ALLOWANCES[curId][msg.sender][curToken] > 0, "Allowance does not exist");
         require(
             state.ALLOWANCES[curId][msg.sender][curToken] > curAmount,
             "Amount reqested exceeds allowance balance"
         );
-
-        AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[curId];
-        AccountStorage.EndowmentState memory tempState = state.STATES[curId];
-        AngelCoreStruct.GenericBalance memory state_bal = tempState.balances.liquid;
-        uint256 balance = 0;
-        uint256 index = 0;
-        for (uint8 i = 0; i < state_bal.Cw20CoinVerified_addr.length; i++) {
-            if (state_bal.Cw20CoinVerified_addr[i] == curToken) {
-                balance = state_bal.Cw20CoinVerified_amount[i];
-                index = i;
-                break;
-            }
-        }
-
-        require(curAmount < balance, "InsufficientFunds");
+        require(curAmount < state.STATES[curId].balances.liquid.balancesByToken[curToken], "InsufficientFunds");
 
         state.ALLOWANCES[curId][msg.sender][curToken] -= curAmount;
-        state_bal.Cw20CoinVerified_amount[index] -= curAmount;
+        state.STATES[curId].balances.liquid.balancesByToken[curToken] -= curAmount;
 
         require(
             IERC20(curToken).transfer(msg.sender, curAmount),
             "Transfer failed"
         );
-
-        tempState.balances.liquid = state_bal;
-        state.STATES[curId] = tempState;
-        emit UpdateEndowmentState(curId, tempState);
     }
 }
