@@ -107,7 +107,6 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                 donationMatchContract: donationMatchContract,
                 allowlistedBeneficiaries: curDetails.allowlistedBeneficiaries,
                 allowlistedContributors: curDetails.allowlistedContributors,
-                earningsFee: curDetails.earningsFee,
                 withdrawFee: curDetails.withdrawFee,
                 depositFee: curDetails.depositFee,
                 balanceFee: curDetails.balanceFee,

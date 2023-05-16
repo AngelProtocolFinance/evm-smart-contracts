@@ -27,34 +27,34 @@ contract DonationMatchEmitter {
         _;
     }
     event DonationMatchInitialized(
-        uint256 endowmentId,
+        uint32 endowmentId,
         address donationMatch,
         DonationMatchStorage.Config config
     );
     event Erc20ApprovalGiven(
-        uint256 endowmentId,
+        uint32 endowmentId,
         address tokenAddress,
         address spender,
         uint amount
     );
     event Erc20Transfer(
-        uint256 endowmentId,
+        uint32 endowmentId,
         address tokenAddress,
         address recipient,
         uint amount
     );
-    event Erc20Burned(uint256 endowmentId, address tokenAddress, uint amount);
+    event Erc20Burned(uint32 endowmentId, address tokenAddress, uint amount);
     event DonationMatchExecuted(
         address donationMatch,
         address tokenAddress,
         uint amount,
         address accountsContract,
-        uint256 endowmentId,
+        uint32 endowmentId,
         address donor
     );
 
     function initializeDonationMatch(
-        uint256 endowmentId,
+        uint32 endowmentId,
         address donationMatch,
         DonationMatchStorage.Config memory config
     ) public isOwner {
@@ -63,7 +63,7 @@ contract DonationMatchEmitter {
     }
 
     function giveApprovalErC20(
-        uint256 endowmentId,
+        uint32 endowmentId,
         address tokenAddress,
         address recipient,
         uint amount
@@ -72,7 +72,7 @@ contract DonationMatchEmitter {
     }
 
     function transferErC20(
-        uint256 endowmentId,
+        uint32 endowmentId,
         address tokenAddress,
         address recipient,
         uint amount
@@ -81,7 +81,7 @@ contract DonationMatchEmitter {
     }
 
     function burnErC20(
-        uint256 endowmentId,
+        uint32 endowmentId,
         address tokenAddress,
         uint amount
     ) public isEmitter {
@@ -92,7 +92,7 @@ contract DonationMatchEmitter {
         address tokenAddress,
         uint256 amount,
         address curAccountsContract,
-        uint256 endowmentId,
+        uint32 endowmentId,
         address donor
     ) public isEmitter {
         emit DonationMatchExecuted(

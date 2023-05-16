@@ -34,7 +34,7 @@ contract AccountsAllowance is ReentrancyGuardFacet, AccountsEvents {
         uint256 curAmount
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[curId];
+        AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[curId];
 
         require(!state.STATES[curId].closingEndowment, "Endowment is closed");
         require(curToken != address(0), "Invalid Token");

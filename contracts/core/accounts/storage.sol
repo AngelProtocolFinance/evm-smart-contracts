@@ -42,7 +42,6 @@ library AccountStorage {
         address[] allowlistedBeneficiaries;
         address[] allowlistedContributors;
         address[] maturityAllowlist;
-        AngelCoreStruct.EndowmentFee earningsFee;
         AngelCoreStruct.EndowmentFee withdrawFee;
         AngelCoreStruct.EndowmentFee depositFee;
         AngelCoreStruct.EndowmentFee balanceFee;

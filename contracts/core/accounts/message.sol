@@ -33,7 +33,7 @@ library AccountMessages {
         bool createDao;
         uint256 proposalLink;
         AngelCoreStruct.SettingsController settingsController;
-        uint256 parent;
+        uint32 parent;
         address[] maturityAllowlist;
         bool ignoreUserSplits;
         AngelCoreStruct.SplitDetails splitToLiquid;

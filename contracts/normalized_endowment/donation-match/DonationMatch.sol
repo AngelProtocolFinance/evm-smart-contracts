@@ -20,7 +20,7 @@ interface SubdaoToken {
     function executeDonorMatch(
         uint256 curAmount,
         address curAccountscontract,
-        uint256 curEndowmentid,
+        uint32 curEndowmentid,
         address curDonor
     ) external;
 }
@@ -74,7 +74,7 @@ contract DonationMatch is Storage, Initializable {
      * @param token address
      */
     function executeDonorMatch(
-        uint256 endowmentId,
+        uint32 endowmentId,
         uint256 amount,
         address donor,
         address token

@@ -234,7 +234,7 @@ contract CharityApplication is
             .Status
             .Approved;
 
-        uint256 endowmentId = _executeCharity(proposalId);
+        uint32 endowmentId = _executeCharity(proposalId);
 
         emit CharityApproved(proposalId, endowmentId);
     }
@@ -269,8 +269,8 @@ contract CharityApplication is
      */
     function _executeCharity(
         uint256 proposalId
-    ) internal isApproved(proposalId) notExpired(proposalId) returns (uint256) {
-        uint256 endowmentId = IAccountsCreateEndowment(config.accountsContract)
+    ) internal isApproved(proposalId) notExpired(proposalId) returns (uint32) {
+        uint32 endowmentId = IAccountsCreateEndowment(config.accountsContract)
             .createEndowment(proposals[proposalId].charityApplication);
 
         if (config.newEndowGasMoney) {

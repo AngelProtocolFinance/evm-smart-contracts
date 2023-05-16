@@ -206,17 +206,6 @@ contract AccountsUpdateEndowmentSettingsController is
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.earningsFee,
-                msg.sender,
-                tempEndowment.owner,
-                block.timestamp
-            )
-        ) {
-            tempEndowment.earningsFee = curDetails.earningsFee;
-        }
-
-        if (
-            AngelCoreStruct.canChange(
                 tempEndowment.settingsController.depositFee,
                 msg.sender,
                 tempEndowment.owner,

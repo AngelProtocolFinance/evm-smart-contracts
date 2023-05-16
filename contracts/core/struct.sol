@@ -699,8 +699,6 @@ library AngelCoreStruct {
         Delegate allowlistedContributors;
         Delegate maturityAllowlist;
         Delegate maturityTime;
-        Delegate profile;
-        Delegate earningsFee;
         Delegate withdrawFee;
         Delegate depositFee;
         Delegate balanceFee;
@@ -710,6 +708,27 @@ library AngelCoreStruct {
         Delegate categories;
         Delegate splitToLiquid;
         Delegate ignoreUserSplits;
+    }
+
+    function controllerSettingValid(
+        string memory setting
+    ) public view returns (bool) {
+        bytes32 _setting = keccak256(abi.encodePacked(setting));
+        return (_setting == keccak256(abi.encodePacked("strategies")) ||
+            _setting == keccak256(abi.encodePacked("allowlistedBeneficiaries")) ||
+            _setting == keccak256(abi.encodePacked("allowlistedContributors")) ||
+            _setting == keccak256(abi.encodePacked("maturityAllowlist")) ||
+            _setting == keccak256(abi.encodePacked("maturityTime")) ||
+            _setting == keccak256(abi.encodePacked("withdrawFee")) ||
+            _setting == keccak256(abi.encodePacked("depositFee")) ||
+            _setting == keccak256(abi.encodePacked("balanceFee")) ||
+            _setting == keccak256(abi.encodePacked("name")) ||
+            _setting == keccak256(abi.encodePacked("image")) ||
+            _setting == keccak256(abi.encodePacked("logo")) ||
+            _setting == keccak256(abi.encodePacked("categories")) ||
+            _setting == keccak256(abi.encodePacked("splitToLiquid")) ||
+            _setting == keccak256(abi.encodePacked("ignoreUserSplits"))
+        ) ? true : false;
     }
 
     struct EndowmentFee {
