@@ -31,8 +31,8 @@ export declare namespace AccountMessages {
     liquidPercentage: PromiseOrValue<BigNumberish>;
   };
 
-  export type DepositRequestStructOutput = [BigNumber, BigNumber, BigNumber] & {
-    id: BigNumber;
+  export type DepositRequestStructOutput = [number, BigNumber, BigNumber] & {
+    id: number;
     lockedPercentage: BigNumber;
     liquidPercentage: BigNumber;
   };
@@ -41,10 +41,10 @@ export declare namespace AccountMessages {
 export interface IAccountsDepositWithdrawEndowmentsInterface
   extends utils.Interface {
   functions: {
-    "depositDonationMatchErC20(uint256,address,uint256)": FunctionFragment;
-    "depositERC20((uint256,uint256,uint256),address,uint256)": FunctionFragment;
-    "depositMatic((uint256,uint256,uint256))": FunctionFragment;
-    "withdraw(uint256,uint8,address,address,uint256)": FunctionFragment;
+    "depositDonationMatchErC20(uint32,address,uint256)": FunctionFragment;
+    "depositERC20((uint32,uint256,uint256),address,uint256)": FunctionFragment;
+    "depositMatic((uint32,uint256,uint256))": FunctionFragment;
+    "withdraw(uint32,uint8,address,uint32,address,uint256)": FunctionFragment;
   };
 
   getFunction(
@@ -81,6 +81,7 @@ export interface IAccountsDepositWithdrawEndowmentsInterface
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>
     ]
@@ -152,7 +153,8 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
     withdraw(
       curId: PromiseOrValue<BigNumberish>,
       acctType: PromiseOrValue<BigNumberish>,
-      curBeneficiary: PromiseOrValue<string>,
+      curBeneficiaryAddress: PromiseOrValue<string>,
+      curBeneficiaryEndowId: PromiseOrValue<BigNumberish>,
       curTokenAddress: PromiseOrValue<string>,
       curAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -181,7 +183,8 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
   withdraw(
     curId: PromiseOrValue<BigNumberish>,
     acctType: PromiseOrValue<BigNumberish>,
-    curBeneficiary: PromiseOrValue<string>,
+    curBeneficiaryAddress: PromiseOrValue<string>,
+    curBeneficiaryEndowId: PromiseOrValue<BigNumberish>,
     curTokenAddress: PromiseOrValue<string>,
     curAmount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -210,7 +213,8 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
     withdraw(
       curId: PromiseOrValue<BigNumberish>,
       acctType: PromiseOrValue<BigNumberish>,
-      curBeneficiary: PromiseOrValue<string>,
+      curBeneficiaryAddress: PromiseOrValue<string>,
+      curBeneficiaryEndowId: PromiseOrValue<BigNumberish>,
       curTokenAddress: PromiseOrValue<string>,
       curAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -242,7 +246,8 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
     withdraw(
       curId: PromiseOrValue<BigNumberish>,
       acctType: PromiseOrValue<BigNumberish>,
-      curBeneficiary: PromiseOrValue<string>,
+      curBeneficiaryAddress: PromiseOrValue<string>,
+      curBeneficiaryEndowId: PromiseOrValue<BigNumberish>,
       curTokenAddress: PromiseOrValue<string>,
       curAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -272,7 +277,8 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
     withdraw(
       curId: PromiseOrValue<BigNumberish>,
       acctType: PromiseOrValue<BigNumberish>,
-      curBeneficiary: PromiseOrValue<string>,
+      curBeneficiaryAddress: PromiseOrValue<string>,
+      curBeneficiaryEndowId: PromiseOrValue<BigNumberish>,
       curTokenAddress: PromiseOrValue<string>,
       curAmount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }

@@ -122,7 +122,7 @@ export declare namespace SubDaoMessage {
   };
 
   export type InstantiateMsgStructOutput = [
-    BigNumber,
+    number,
     string,
     BigNumber,
     BigNumber,
@@ -136,7 +136,7 @@ export declare namespace SubDaoMessage {
     string,
     string
   ] & {
-    id: BigNumber;
+    id: number;
     owner: string;
     quorum: BigNumber;
     threshold: BigNumber;
@@ -287,7 +287,7 @@ export declare namespace SubDaoStorage {
 
 export interface ISubdaoEmitterInterface extends utils.Interface {
   functions: {
-    "initializeSubdao(address,(uint256,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address))": FunctionFragment;
+    "initializeSubdao(address,(uint32,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address))": FunctionFragment;
     "transferFromSubdao(address,address,address,uint256)": FunctionFragment;
     "transferSubdao(address,address,uint256)": FunctionFragment;
     "updateSubdaoConfig((address,address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256))": FunctionFragment;

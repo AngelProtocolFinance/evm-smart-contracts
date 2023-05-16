@@ -15,9 +15,9 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: "uint256",
+        internalType: "uint32",
         name: "accountId",
-        type: "uint256",
+        type: "uint32",
       },
       {
         indexed: false,
@@ -34,15 +34,9 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "uint256",
+        internalType: "uint32",
         name: "accountId",
-        type: "uint256",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "curBeneficiary",
-        type: "address",
+        type: "uint32",
       },
       {
         indexed: false,
@@ -65,9 +59,9 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: "uint256",
+        internalType: "uint32",
         name: "accountId",
-        type: "uint256",
+        type: "uint32",
       },
       {
         indexed: false,
@@ -84,20 +78,14 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "uint256",
+        internalType: "uint32",
         name: "accountId",
-        type: "uint256",
+        type: "uint32",
       },
       {
         indexed: true,
         internalType: "address",
         name: "initiator",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "curBeneficiary",
         type: "address",
       },
       {
@@ -121,9 +109,9 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "uint256",
+        internalType: "uint32",
         name: "accountId",
-        type: "uint256",
+        type: "uint32",
       },
     ],
     name: "LockedWithdrawRejected",
@@ -132,9 +120,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
+        internalType: "uint32",
         name: "accountId",
-        type: "uint256",
+        type: "uint32",
       },
     ],
     name: "approve",
@@ -145,14 +133,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
+        internalType: "uint32",
         name: "accountId",
-        type: "uint256",
-      },
-      {
-        internalType: "address",
-        name: "curBeneficiary",
-        type: "address",
+        type: "uint32",
       },
       {
         internalType: "address[]",
@@ -173,9 +156,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
+        internalType: "uint32",
         name: "accountId",
-        type: "uint256",
+        type: "uint32",
       },
     ],
     name: "reject",

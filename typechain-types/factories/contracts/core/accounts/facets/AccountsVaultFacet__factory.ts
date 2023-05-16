@@ -32,37 +32,10 @@ const _abi = [
         type: "address",
       },
       {
-        components: [
-          {
-            internalType: "uint256",
-            name: "height",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "timestamp",
-            type: "uint256",
-          },
-          {
-            internalType: "bool",
-            name: "expires",
-            type: "bool",
-          },
-          {
-            internalType: "uint256",
-            name: "allowanceAmount",
-            type: "uint256",
-          },
-          {
-            internalType: "bool",
-            name: "configured",
-            type: "bool",
-          },
-        ],
         indexed: false,
-        internalType: "struct AccountStorage.AllowanceData",
+        internalType: "uint256",
         name: "allowance",
-        type: "tuple",
+        type: "uint256",
       },
     ],
     name: "AllowanceStateUpdatedTo",
@@ -74,9 +47,9 @@ const _abi = [
       {
         components: [
           {
-            internalType: "uint256",
+            internalType: "uint32",
             name: "id",
-            type: "uint256",
+            type: "uint32",
           },
           {
             internalType: "address",
@@ -379,21 +352,6 @@ const _abi = [
             type: "string",
           },
           {
-            internalType: "enum AngelCoreStruct.EndowmentStatus",
-            name: "status",
-            type: "uint8",
-          },
-          {
-            internalType: "bool",
-            name: "depositApproved",
-            type: "bool",
-          },
-          {
-            internalType: "bool",
-            name: "withdrawApproved",
-            type: "bool",
-          },
-          {
             internalType: "uint256",
             name: "maturityTime",
             type: "uint256",
@@ -501,11 +459,6 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "copycatStrategy",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
             name: "proposalLink",
             type: "uint256",
           },
@@ -548,28 +501,6 @@ const _abi = [
             internalType: "address[]",
             name: "maturityAllowlist",
             type: "address[]",
-          },
-          {
-            components: [
-              {
-                internalType: "address",
-                name: "payoutAddress",
-                type: "address",
-              },
-              {
-                internalType: "uint256",
-                name: "feePercentage",
-                type: "uint256",
-              },
-              {
-                internalType: "bool",
-                name: "active",
-                type: "bool",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.EndowmentFee",
-            name: "earningsFee",
-            type: "tuple",
           },
           {
             components: [
@@ -642,408 +573,238 @@ const _abi = [
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
                   },
-                ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "endowmentController",
-                type: "tuple",
-              },
-              {
-                components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "strategies",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "allowlistedBeneficiaries",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "allowlistedContributors",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "maturityAllowlist",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "maturityTime",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
                   },
-                ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "profile",
-                type: "tuple",
-              },
-              {
-                components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "earningsFee",
-                type: "tuple",
-              },
-              {
-                components: [
-                  {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
-                  },
-                ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "withdrawFee",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "depositFee",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "balanceFee",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "name",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "image",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "logo",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "categories",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "splitToLiquid",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "ignoreUserSplits",
                 type: "tuple",
               },
@@ -1053,9 +814,9 @@ const _abi = [
             type: "tuple",
           },
           {
-            internalType: "uint256",
+            internalType: "uint32",
             name: "parent",
-            type: "uint256",
+            type: "uint32",
           },
           {
             internalType: "bool",
@@ -1202,9 +963,9 @@ const _abi = [
             type: "address",
           },
           {
-            internalType: "uint256",
+            internalType: "uint32",
             name: "nextAccountId",
-            type: "uint256",
+            type: "uint32",
           },
           {
             internalType: "uint256",
@@ -1298,21 +1059,6 @@ const _abi = [
             internalType: "string",
             name: "image",
             type: "string",
-          },
-          {
-            internalType: "enum AngelCoreStruct.EndowmentStatus",
-            name: "status",
-            type: "uint8",
-          },
-          {
-            internalType: "bool",
-            name: "depositApproved",
-            type: "bool",
-          },
-          {
-            internalType: "bool",
-            name: "withdrawApproved",
-            type: "bool",
           },
           {
             internalType: "uint256",
@@ -1422,11 +1168,6 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "copycatStrategy",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
             name: "proposalLink",
             type: "uint256",
           },
@@ -1469,28 +1210,6 @@ const _abi = [
             internalType: "address[]",
             name: "maturityAllowlist",
             type: "address[]",
-          },
-          {
-            components: [
-              {
-                internalType: "address",
-                name: "payoutAddress",
-                type: "address",
-              },
-              {
-                internalType: "uint256",
-                name: "feePercentage",
-                type: "uint256",
-              },
-              {
-                internalType: "bool",
-                name: "active",
-                type: "bool",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.EndowmentFee",
-            name: "earningsFee",
-            type: "tuple",
           },
           {
             components: [
@@ -1563,408 +1282,238 @@ const _abi = [
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
                   },
-                ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "endowmentController",
-                type: "tuple",
-              },
-              {
-                components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "strategies",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "allowlistedBeneficiaries",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "allowlistedContributors",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "maturityAllowlist",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "maturityTime",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
                   },
-                ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "profile",
-                type: "tuple",
-              },
-              {
-                components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "earningsFee",
-                type: "tuple",
-              },
-              {
-                components: [
-                  {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
-                  },
-                ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "withdrawFee",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "depositFee",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "balanceFee",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "name",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "image",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "logo",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "categories",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "splitToLiquid",
                 type: "tuple",
               },
               {
                 components: [
                   {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
                   },
                 ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "ignoreUserSplits",
                 type: "tuple",
               },
@@ -1974,9 +1523,9 @@ const _abi = [
             type: "tuple",
           },
           {
-            internalType: "uint256",
+            internalType: "uint32",
             name: "parent",
-            type: "uint256",
+            type: "uint32",
           },
           {
             internalType: "bool",
@@ -2107,7 +1656,7 @@ const _abi = [
 ] as const;
 
 const _bytecode =
-  "0x60808060405234610016576117e3908161001c8239f35b600080fdfe6080604052600436101561001257600080fd5b60003560e01c806338896f3c1461080557806350fbb6d1146104835763b7a944141461003d57600080fd5b606036600319011261040e5760043563ffffffff811680910361040e57602490813563ffffffff60e01b811680910361040e5760443567ffffffffffffffff811161040e57610090903690600401610ef7565b9161009961153b565b806000526020917ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4283526040600020936100ec601460018060a01b03966100e4888254163314610f9a565b0154156114c1565b7ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d47546040516326fcc45760e11b81526004810184905290861685828981845afa9081156103a6578892600092610454575b50600482101561043f57610155600160009314610fed565b60405163820d0f1560e01b815246600482015292839182905afa9081156103a6576101ad92869160009361041a575b508760608401511660405180809681946349ad89fb60e11b83528660048401528d83019061118d565b03915afa80156103a65786926000916103d6575b50610246926000916040516101d581610e9d565b60018152883681830137876101e982611241565b52845196604051976101fa89610e80565b8852898801526361761df360e11b6040880152606087015216938460808201528160a08201528160c08201528160e082015260405180948192634639e78960e11b83526004830161129b565b038173__$c40b67afa9b1d437a5c01b321574efeac2$__5af49081156103a6576102a59660009384936103b2575b5060408201511690518361028730611624565b604051631f971e2d60e21b8152998a95869485939060048501611504565b03925af19384156103a657600094610381575b5060e0840192835194600586101561036c576001600596146102fe575b505050505110156102ea576102e86115dc565b005b634e487b7160e01b60009081526021600452fd5b60c060a0820151918560005260008051602061178e83398151915292838552600360406000200186600052855261033b6040600020918254611359565b905501519360005281528460406000200191600052526103616040600020918254611359565b9055388080806102d5565b86634e487b7160e01b60005260216004526000fd5b61039f9194503d806000833e6103978183610eb9565b810190611391565b92386102b8565b6040513d6000823e3d90fd5b6103cf9193503d8086833e6103c78183610eb9565b810190611264565b9138610274565b809350868092503d8311610413575b6103ef8183610eb9565b8101031261040e57600086610406610246946110a8565b9150926101c1565b600080fd5b503d6103e5565b6104389193503d806000833e6104308183610eb9565b8101906110bc565b9138610184565b82634e487b7160e01b60005260216004526000fd5b610475919250873d891161047c575b61046d8183610eb9565b810190610fd5565b903861013d565b503d610463565b63ffffffff61049136610f3e565b929490919361049e61153b565b1690816000526020927ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4284526040600020946104eb601460018060a01b03976100e4898254163314610f9a565b7ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d47546040516326fcc45760e11b81526001600160e01b0319909816600489018190526024989091881687828b81845afa9081156103a6578a926000926107e6575b50600482101561043f57610564600160009314610fed565b60405163820d0f1560e01b815246600482015292839182905afa9283156103a65787916000946107c3575b50906105be91896060860151168b6040518095819482936349ad89fb60e11b845287600485015283019061118d565b03915afa80156103a6578891600091610780575b509360009291610657956040516105e881610e9d565b600181528a3681830137896105fc82611241565b528651946040519561060d87610e80565b86528b8601526326e11bb960e11b60408601526060850152169586608084015260a083015260c08201528160e082015260405180948192634639e78960e11b83526004830161129b565b038173__$c40b67afa9b1d437a5c01b321574efeac2$__5af49081156103a657610697966000938493610764575060408201511690518361028730611624565b03925af19384156103a657600094610747575b5060e0840192835194600586101561036c576001600596146106d957505050505110156102ea576102e86115dc565b60c060a0820151918560005260008051602061178e8339815191529283855260036040600020018660005285526107166040600020918254611359565b9055015193600052815284604060002001916000525261073c6040600020918254611359565b9055838080806102d5565b61075d9194503d806000833e6103978183610eb9565b92856106aa565b6107799193503d8086833e6103c78183610eb9565b9189610274565b80939250888092503d83116107bc575b61079a8183610eb9565b8101031261040e5761065793886107b26000946110a8565b91955091926105d2565b503d610790565b6105be929194506107de903d806000833e6104308183610eb9565b93909161058f565b6107fe919250893d8b1161047c5761046d8183610eb9565b908b61054c565b61080e36610f3e565b61081993929361153b565b63ffffffff85166000527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4260205261085f60018060a01b03604060002054163314610f9a565b7ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d47546040516326fcc45760e11b81526001600160e01b0319851660048201526001600160a01b039091169490602081602481895afa9081156103a657600091610e61575b506004811015610c895760016108d99114610fed565b60405163820d0f1560e01b815246600482015292600084602481895afa9384156103a657600094610e44575b5060608401516040516349ad89fb60e11b815260206004820181905290979188906001600160a01b0316818061093e602482018961118d565b03915afa9687156103a657600097610e08575b5063ffffffff881660005260008051602061178e833981519152602052600360406000200160018060a01b0388166000526020526109968260406000205410156111b2565b63ffffffff881660005260008051602061178e833981519152602052600560406000200160018060a01b0388166000526020526109da8460406000205410156111b2565b6040516302b05ecb60e11b81526001600160a01b0388166004820152602081602481855afa9081156103a657600091610dcd575b5015610d93576040516342b8c5e960e01b81526001600160e01b0319871660048201529060a090829060249082905afa80156103a657610ced575b506000610ae495604051610a5c81610e9d565b600181526020368183013763ffffffff8a16610a7782611241565b5286519160405192610a8884610e80565b835263ffffffff60e01b1660208301526320dcd90b60e01b6040830152606082015260018060a01b03881660808201528260a08201528460c08201528160e082015260405180978192634639e78960e11b83526004830161129b565b038173__$c40b67afa9b1d437a5c01b321574efeac2$__5af49485156103a657600095610cba575b506000610b7b93819593610b9a610b6894610b3f60018060a01b03604089015116975194610b3930611624565b92611359565b92610b8b6040519b8c9a8b998a98630bb3905160e31b8a5260a060048b015260a48a019061118d565b60031995868a83030160248b015261118d565b908488830301604489015261118d565b9185830301606486015261118d565b90608483015203925af19081156103a657600091610c9f575b5060e0810180516005811015610c8957600114908115610c74575b50610bdc575b6102e86115dc565b60c08160a063ffffffff93015183861660005260008051602061178e833981519152602052600360406000200160018060a01b038616600052602052610c2860406000209182546114b4565b90550151921660005260008051602061178e83398151915260205260056040600020019060018060a01b0316600052602052610c6a60406000209182546114b4565b9055808080610bd4565b9050516005811015610c895760041484610bce565b634e487b7160e01b600052602160045260246000fd5b610cb491503d806000833e6103978183610eb9565b83610bb3565b610b68919550610b7b9360009593610b9a610cdf88943d8087833e6103c78183610eb9565b989450509395509350610b0c565b60a0953d60a011610d8b575b610d038783610eb9565b60a082888101031261040e5760405180606081011067ffffffffffffffff606083011117610d7557606081016040528251600481101561040e57610d6b6000946060610ae49b6040948652610d5d818401602085016111f5565b6020870152820191016111f5565b9101529550610a49565b634e487b7160e01b600052604160045260246000fd5b3d9650610cf9565b60405162461bcd60e51b8152602060048201526012602482015271151bdad95b881b9bdd08185c1c1c9bdd995960721b6044820152606490fd5b90506020813d602011610e00575b81610de860209383610eb9565b8101031261040e5751801515810361040e5789610a0e565b3d9150610ddb565b9096506020813d602011610e3c575b81610e2460209383610eb9565b8101031261040e57610e35906110a8565b9588610951565b3d9150610e17565b610e5a9194503d806000833e6104308183610eb9565b9287610905565b610e7a915060203d60201161047c5761046d8183610eb9565b876108c3565b610100810190811067ffffffffffffffff821117610d7557604052565b6040810190811067ffffffffffffffff821117610d7557604052565b90601f8019910116810190811067ffffffffffffffff821117610d7557604052565b67ffffffffffffffff8111610d7557601f01601f191660200190565b81601f8201121561040e57803590610f0e82610edb565b92610f1c6040519485610eb9565b8284526020838301011161040e57816000926020809301838601378301015290565b60a060031982011261040e5760043563ffffffff8116810361040e57916024356001600160e01b03198116810361040e57916044359067ffffffffffffffff821161040e57610f8f91600401610ef7565b906064359060843590565b15610fa157565b60405162461bcd60e51b815260206004820152600c60248201526b155b985d5d1a1bdc9a5e995960a21b6044820152606490fd5b9081602091031261040e5751600481101561040e5790565b15610ff457565b60405162461bcd60e51b815260206004820152601560248201527415985d5b1d081a5cc81b9bdd08185c1c1c9bdd9959605a1b6044820152606490fd5b60005b8381106110445750506000910152565b8181015183820152602001611034565b9092919261106181610edb565b9161106f6040519384610eb9565b82948284528282011161040e576020611089930190611031565b565b9080601f8301121561040e5781516110a592602001611054565b90565b51906001600160a01b038216820361040e57565b9060208282031261040e57815167ffffffffffffffff9283821161040e57016101008183031261040e57604051926110f384610e80565b815181811161040e578361110891840161108b565b845260208201516020850152611120604083016110a8565b6040850152611131606083016110a8565b6060850152608082015181811161040e578361114e91840161108b565b608085015260a082015190811161040e5760e09261116d91830161108b565b60a084015261117e60c082016110a8565b60c0840152015160e082015290565b906020916111a681518092818552858086019101611031565b601f01601f1916010190565b156111b957565b60405162461bcd60e51b8152602060048201526014602482015273496e73756666696369656e742042616c616e636560601b6044820152606490fd5b919082604091031261040e576040516040810181811067ffffffffffffffff821117610d75576040528092805190600282101561040e57602061123c9181938552016110a8565b910152565b80511561124e5760200190565b634e487b7160e01b600052603260045260246000fd5b60208183031261040e5780519067ffffffffffffffff821161040e57019080601f8301121561040e5781516110a592602001611054565b6020918282528051906112bb61010092838686015261012085019061118d565b9363ffffffff60e01b80828401511660408601526040830151166060850152606082015194601f1985820301608086015281808751928381520196019160005b82811061133f575050505060e09060018060a01b0360808201511660a085015260a081015160c085015260c0810151828501520151916005831015610c8957015290565b835163ffffffff16885296810196928101926001016112fb565b9190820180921161136657565b634e487b7160e01b600052601160045260246000fd5b51906001600160e01b03198216820361040e57565b602090818184031261040e57805167ffffffffffffffff9182821161040e5701916101008385031261040e57604051936113ca85610e80565b835183811161040e57816113df91860161108b565b85526113ec82850161137c565b828601526113fc6040850161137c565b6040860152606084015183811161040e57840181601f8201121561040e578051938411610d75578360051b906040519461143885840187610eb9565b8552838086019282010192831161040e578301905b8282106114985750505050606083015260e09061146c608082016110a8565b608084015260a081015160a084015260c081015160c08401520151600581101561040e5760e082015290565b815163ffffffff8116810361040e57815290830190830161144d565b9190820391821161136657565b156114c857565b60405162461bcd60e51b8152602060048201526014602482015273526564656d7074696f6e496e50726f677265737360601b6044820152606490fd5b9161152d9061151f6110a5959360608652606086019061118d565b90848203602086015261118d565b91604081840391015261118d565b7ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4c805460ff8160a01c161580156115d3575b1561158e5733300361157d575050565b60ff60a01b1916600160a01b179055565b60405162461bcd60e51b815260206004820152601f60248201527f5265656e7472616e637947756172643a207265656e7472616e742063616c6c006044820152606490fd5b5033301461156d565b3330036115e557565b7ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4c805460ff60a01b19169055565b90815181101561124e570160200190565b604051906bffffffffffffffffffffffff199060601b1660208201526014815261164d81610e9d565b80516040519061165c82610e9d565b601082526f181899199a1a9b1b9c1cb0b131b232b360811b6020830152825160019281841b60029280820484149015171561136657820194858311611366576116bd6116a787610edb565b966116b56040519889610eb9565b808852610edb565b6020870190601f190136823786511561124e5760309053855185101561124e576078602187015360005b8481106116f75750505050505090565b6001600160f81b03198061171861170e8486611613565b5160fc1c86611613565b51169082881b918383048714841517156113665782870190818811611366576117459060001a918b611613565b53611760600f6117558587611613565b5160f81c1686611613565b511660039182018092116113665761177c9060001a9189611613565b5360001981146113665785016116e756fef42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d41a2646970667358221220fd3d7a3df4de85e39cee9390e7984c0caf3e3655d0d1fbb39bf109f29382827764736f6c63430008120033";
+  "0x608080604052346100165761178c908161001c8239f35b600080fdfe6080604052600436101561001257600080fd5b60003560e01c806338896f3c146107dd57806350fbb6d1146104695763b7a944141461003d57600080fd5b60603660031901126103f65760043563ffffffff81168082036103f65760249081359063ffffffff60e01b82168092036103f65760443567ffffffffffffffff81116103f657610091903690600401610e56565b9161009a611504565b6100a385610ef9565b926100c7601360018060a01b03956100bf878254163314610f63565b01541561148a565b7ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d46546040516326fcc45760e11b8152600481018490526020949186169085818981855afa90811561038c5760009161043c575b50600481101561042757879291610135600160009314610fb6565b60405163820d0f1560e01b815246600482015293849182905afa91821561038c5761018d938691600094610402575b508760608501511660405180809781946349ad89fb60e11b83528660048401528d830190611156565b03915afa90811561038c5786936000926103bc575b509260009161022894604051906101b882610dfc565b600182528836818401376101cb8261120a565b52845196604051976101dc89610ddf565b8852888801526361761df360e11b6040880152606087015216938460808201528160a08201528160c08201528160e082015260405180948192634639e78960e11b835260048301611264565b038173__$c40b67afa9b1d437a5c01b321574efeac2$__5af490811561038c57610287956000938493610398575b50604082015116905183610269306115ed565b604051631f971e2d60e21b81529889958694859390600485016114cd565b03925af192831561038c57600093610367575b5060e083019283516005811015610352576001146102f8575b505050519060058210156102e457506002146102d4575b6102d26115a5565b005b6102dd90610f2e565b50386102ca565b634e487b7160e01b60009081526021600452fd5b8060a060c0920151600361030b89610f2e565b018460005285526103226040600020918254611322565b9055015191600561033287610f2e565b0191600052526103486040600020918254611322565b90553880806102b3565b85634e487b7160e01b60005260216004526000fd5b6103859193503d806000833e61037d8183610e18565b81019061135a565b913861029a565b6040513d6000823e3d90fd5b6103b59193503d8086833e6103ad8183610e18565b81019061122d565b9138610256565b935090508483813d81116103fb575b6103d58183610e18565b810103126103f657856000916103ed61022895611071565b925090936101a2565b600080fd5b503d6103cb565b6104209194503d806000833e6104188183610e18565b810190611085565b9238610164565b87634e487b7160e01b60005260216004526000fd5b61045c9150863d8811610462575b6104548183610e18565b810190610f9e565b3861011a565b503d61044a565b61047236610e9d565b919061047c611504565b61048585610ef9565b926104a1601360018060a01b03956100bf878254163314610f63565b7ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d46546040516326fcc45760e11b81526001600160e01b0319909616600487018190526024966020959287169086818a81855afa90811561038c576000916107c0575b5060048110156107ab57889161051d600160009314610fb6565b60405163820d0f1560e01b815246600482015292839182905afa92831561038c578691600094610788575b509061057791886060860151168a6040518095819482936349ad89fb60e11b8452876004850152830190611156565b03915afa801561038c578791600091610745575b509360009291610618956040516105a181610dfc565b600181528936818301378c63ffffffff6105ba8361120a565b91169052865194604051956105ce87610ddf565b86528a8601526326e11bb960e11b60408601526060850152169586608084015260a083015260c08201528160e082015260405180948192634639e78960e11b835260048301611264565b038173__$c40b67afa9b1d437a5c01b321574efeac2$__5af490811561038c576106589560009384936107295750604082015116905183610269306115ed565b03925af192831561038c5760009361070c575b5060e083019283516005811015610352576001146106b2575b505050519060058210156102e457506002146106a2576102d26115a5565b6106ab90610f2e565b50806102ca565b8060a060c092015160036106c589610f2e565b018460005285526106dc6040600020918254611322565b905501519160056106ec87610f2e565b0191600052526107026040600020918254611322565b9055838080610684565b6107229193503d806000833e61037d8183610e18565b918561066b565b61073e9193503d8086833e6103ad8183610e18565b9189610256565b80939250878092503d8311610781575b61075f8183610e18565b810103126103f6576106189387610777600094611071565b919550919261058b565b503d610755565b610577929194506107a3903d806000833e6104188183610e18565b939091610548565b88634e487b7160e01b60005260216004526000fd5b6107d79150873d8911610462576104548183610e18565b8a610503565b6107e636610e9d565b6107f1949394611504565b61080e6001600160a01b0361080586610ef9565b54163314610f63565b7ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d46546040516326fcc45760e11b81526001600160e01b0319871660048201526001600160a01b039091169390602081602481885afa90811561038c57600091610dc0575b506004811015610be65760016108889114610fb6565b60405163820d0f1560e01b815246600482015292600084602481885afa93841561038c57600094610da3575b5060608401516040516349ad89fb60e11b815260206004820181905290969187906001600160a01b031681806108ed6024820189611156565b03915afa95861561038c57600096610d67575b50600361090c88610f2e565b0160018060a01b03871660005260205261092d82604060002054101561117b565b600561093888610f2e565b0160018060a01b03871660005260205261095984604060002054101561117b565b6040516302b05ecb60e11b81526001600160a01b0387166004820152602081602481855afa90811561038c57600091610d2c575b5015610cf2576040516342b8c5e960e01b81526001600160e01b0319891660048201529060a090829060249082905afa801561038c57610c4c575b506000610a64976040516109db81610dfc565b60018152602036818301376109ef8161120a565b63ffffffff8a16905286519160405192610a0884610ddf565b835263ffffffff60e01b1660208301526320dcd90b60e01b6040830152606082015260018060a01b03871660808201528260a08201528460c08201528160e082015260405180998192634639e78960e11b835260048301611264565b038173__$c40b67afa9b1d437a5c01b321574efeac2$__5af496871561038c57600097610c19575b506000610afb93819593610b1a610ae894610abf60018060a01b03604089015116975194610ab9306115ed565b92611322565b92610b0b6040519d8e9a8b998a98630bb3905160e31b8a5260a060048b015260a48a0190611156565b60031995868a83030160248b0152611156565b9084888303016044890152611156565b91858303016064860152611156565b90608483015203925af192831561038c57600093610bfc575b5060e0830180516005811015610be657600114908115610bd1575b50610b5b576102d26115a5565b60c08360a0610bc89501516003610b7186610f2e565b0160018060a01b038516600052602052610b91604060002091825461147d565b90550151906005610ba184610f2e565b019060018060a01b0316600052602052610bc1604060002091825461147d565b9055610f2e565b508080806102ca565b9050516005811015610be65760041484610b4e565b634e487b7160e01b600052602160045260246000fd5b610c129193503d806000833e61037d8183610e18565b9183610b33565b610ae8919750610afb9360009593610b1a610c3e88943d8087833e6103ad8183610e18565b9a9450509395509350610a8c565b60a0973d60a011610cea575b610c628983610e18565b60a0828a810103126103f65760405180606081011067ffffffffffffffff606083011117610cd45760608101604052825160048110156103f657610cca6000946060610a649d6040948652610cbc818401602085016111be565b6020870152820191016111be565b91015297506109c8565b634e487b7160e01b600052604160045260246000fd5b3d9850610c58565b60405162461bcd60e51b8152602060048201526012602482015271151bdad95b881b9bdd08185c1c1c9bdd995960721b6044820152606490fd5b90506020813d602011610d5f575b81610d4760209383610e18565b810103126103f6575180151581036103f6578961098d565b3d9150610d3a565b9095506020813d602011610d9b575b81610d8360209383610e18565b810103126103f657610d9490611071565b9488610900565b3d9150610d76565b610db99194503d806000833e6104188183610e18565b92876108b4565b610dd9915060203d602011610462576104548183610e18565b87610872565b610100810190811067ffffffffffffffff821117610cd457604052565b6040810190811067ffffffffffffffff821117610cd457604052565b90601f8019910116810190811067ffffffffffffffff821117610cd457604052565b67ffffffffffffffff8111610cd457601f01601f191660200190565b81601f820112156103f657803590610e6d82610e3a565b92610e7b6040519485610e18565b828452602083830101116103f657816000926020809301838601378301015290565b60a06003198201126103f65760043563ffffffff811681036103f657916024356001600160e01b0319811681036103f657916044359067ffffffffffffffff82116103f657610eee91600401610e56565b906064359060843590565b63ffffffff166000527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d42602052604060002090565b63ffffffff166000527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d41602052604060002090565b15610f6a57565b60405162461bcd60e51b815260206004820152600c60248201526b155b985d5d1a1bdc9a5e995960a21b6044820152606490fd5b908160209103126103f6575160048110156103f65790565b15610fbd57565b60405162461bcd60e51b815260206004820152601560248201527415985d5b1d081a5cc81b9bdd08185c1c1c9bdd9959605a1b6044820152606490fd5b60005b83811061100d5750506000910152565b8181015183820152602001610ffd565b9092919261102a81610e3a565b916110386040519384610e18565b8294828452828201116103f6576020611052930190610ffa565b565b9080601f830112156103f657815161106e9260200161101d565b90565b51906001600160a01b03821682036103f657565b906020828203126103f657815167ffffffffffffffff928382116103f65701610100818303126103f657604051926110bc84610ddf565b81518181116103f657836110d1918401611054565b8452602082015160208501526110e960408301611071565b60408501526110fa60608301611071565b606085015260808201518181116103f65783611117918401611054565b608085015260a08201519081116103f65760e092611136918301611054565b60a084015261114760c08201611071565b60c0840152015160e082015290565b9060209161116f81518092818552858086019101610ffa565b601f01601f1916010190565b1561118257565b60405162461bcd60e51b8152602060048201526014602482015273496e73756666696369656e742042616c616e636560601b6044820152606490fd5b91908260409103126103f6576040516040810181811067ffffffffffffffff821117610cd457604052809280519060028210156103f6576020611205918193855201611071565b910152565b8051156112175760200190565b634e487b7160e01b600052603260045260246000fd5b6020818303126103f65780519067ffffffffffffffff82116103f657019080601f830112156103f657815161106e9260200161101d565b602091828252805190611284610100928386860152610120850190611156565b9363ffffffff60e01b80828401511660408601526040830151166060850152606082015194601f1985820301608086015281808751928381520196019160005b828110611308575050505060e09060018060a01b0360808201511660a085015260a081015160c085015260c0810151828501520151916005831015610be657015290565b835163ffffffff16885296810196928101926001016112c4565b9190820180921161132f57565b634e487b7160e01b600052601160045260246000fd5b51906001600160e01b0319821682036103f657565b60209081818403126103f657805167ffffffffffffffff918282116103f6570191610100838503126103f6576040519361139385610ddf565b83518381116103f657816113a8918601611054565b85526113b5828501611345565b828601526113c560408501611345565b604086015260608401518381116103f657840181601f820112156103f6578051938411610cd4578360051b906040519461140185840187610e18565b855283808601928201019283116103f6578301905b8282106114615750505050606083015260e09061143560808201611071565b608084015260a081015160a084015260c081015160c0840152015160058110156103f65760e082015290565b815163ffffffff811681036103f6578152908301908301611416565b9190820391821161132f57565b1561149157565b60405162461bcd60e51b8152602060048201526014602482015273526564656d7074696f6e496e50726f677265737360601b6044820152606490fd5b916114f6906114e861106e9593606086526060860190611156565b908482036020860152611156565b916040818403910152611156565b7ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4a805460ff8160a01c1615801561159c575b1561155757333003611546575050565b60ff60a01b1916600160a01b179055565b60405162461bcd60e51b815260206004820152601f60248201527f5265656e7472616e637947756172643a207265656e7472616e742063616c6c006044820152606490fd5b50333014611536565b3330036115ae57565b7ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4a805460ff60a01b19169055565b908151811015611217570160200190565b604051906bffffffffffffffffffffffff199060601b1660208201526014815261161681610dfc565b80516040519061162582610dfc565b601082526f181899199a1a9b1b9c1cb0b131b232b360811b6020830152825160019281841b60029280820484149015171561132f5782019485831161132f5761168661167087610e3a565b9661167e6040519889610e18565b808852610e3a565b6020870190601f190136823786511561121757603090538551851015611217576078602187015360005b8481106116c05750505050505090565b6001600160f81b0319806116e16116d784866115dc565b5160fc1c866115dc565b51169082881b9183830487148415171561132f578287019081881161132f5761170e9060001a918b6115dc565b53611729600f61171e85876115dc565b5160f81c16866115dc565b5116600391820180921161132f576117459060001a91896115dc565b53600019811461132f5785016116b056fea26469706673582212206ebf6fccdcbc9620ebfbb92f530b9d80d2bead7b49b264f201407614b7618d0d64736f6c63430008120033";
 
 type AccountsVaultFacetConstructorParams =
   | [linkLibraryAddresses: AccountsVaultFacetLibraryAddresses, signer?: Signer]

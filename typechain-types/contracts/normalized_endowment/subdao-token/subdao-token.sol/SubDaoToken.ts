@@ -69,7 +69,7 @@ export interface SubDaoTokenInterface extends utils.Interface {
     "decreaseAllowance(address,uint256)": FunctionFragment;
     "denomTokenAddress()": FunctionFragment;
     "executeBuyCw20(uint256)": FunctionFragment;
-    "executeDonorMatch(uint256,address,uint256,address)": FunctionFragment;
+    "executeDonorMatch(uint256,address,uint32,address)": FunctionFragment;
     "executeSell(address,uint256)": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
     "grantRole(bytes32,address)": FunctionFragment;
@@ -573,7 +573,7 @@ export interface SubDaoToken extends BaseContract {
     executeDonorMatch(
       curAmount: PromiseOrValue<BigNumberish>,
       curAccountscontract: PromiseOrValue<string>,
-      curEndowmentid: PromiseOrValue<BigNumberish>,
+      curEndowmentId: PromiseOrValue<BigNumberish>,
       curDonor: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -737,7 +737,7 @@ export interface SubDaoToken extends BaseContract {
   executeDonorMatch(
     curAmount: PromiseOrValue<BigNumberish>,
     curAccountscontract: PromiseOrValue<string>,
-    curEndowmentid: PromiseOrValue<BigNumberish>,
+    curEndowmentId: PromiseOrValue<BigNumberish>,
     curDonor: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -899,7 +899,7 @@ export interface SubDaoToken extends BaseContract {
     executeDonorMatch(
       curAmount: PromiseOrValue<BigNumberish>,
       curAccountscontract: PromiseOrValue<string>,
-      curEndowmentid: PromiseOrValue<BigNumberish>,
+      curEndowmentId: PromiseOrValue<BigNumberish>,
       curDonor: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -1124,7 +1124,7 @@ export interface SubDaoToken extends BaseContract {
     executeDonorMatch(
       curAmount: PromiseOrValue<BigNumberish>,
       curAccountscontract: PromiseOrValue<string>,
-      curEndowmentid: PromiseOrValue<BigNumberish>,
+      curEndowmentId: PromiseOrValue<BigNumberish>,
       curDonor: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1293,7 +1293,7 @@ export interface SubDaoToken extends BaseContract {
     executeDonorMatch(
       curAmount: PromiseOrValue<BigNumberish>,
       curAccountscontract: PromiseOrValue<string>,
-      curEndowmentid: PromiseOrValue<BigNumberish>,
+      curEndowmentId: PromiseOrValue<BigNumberish>,
       curDonor: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

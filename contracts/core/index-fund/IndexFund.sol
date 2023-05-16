@@ -259,12 +259,13 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
         // remove member from all involved funds if in their members array
         bool found;
-        uint256 index;
-        for (uint256 i = 0; i < state.FUNDS_BY_ENDOWMENT[member].length; i++) {
-            (index, found) = Array.indexOf(state.FUNDS[state.FUNDS_BY_ENDOWMENT[member][i]].members, member);
+        uint32 index;
+        for (uint32 i = 0; i < state.FUNDS_BY_ENDOWMENT[member].length; i++) {
+            uint256 fundId = state.FUNDS_BY_ENDOWMENT[member][i];
+            (index, found) = Array.indexOf32(state.FUNDS[fundId].members, member);
             if (found) {
-                Array.remove(state.FUNDS[state.FUNDS_BY_ENDOWMENT[member][i]].members, index);
-                emit MemberRemoved(state.FUNDS_BY_ENDOWMENT[member][i], member);
+                Array.remove32(state.FUNDS[fundId].members, index);
+                emit MemberRemoved(fundId, member);
             }
         }
         delete state.FUNDS_BY_ENDOWMENT[member];

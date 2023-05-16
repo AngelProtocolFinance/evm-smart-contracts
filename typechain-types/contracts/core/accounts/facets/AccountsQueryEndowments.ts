@@ -132,79 +132,62 @@ export declare namespace AngelCoreStruct {
   };
 
   export type DelegateStruct = {
-    Addr: PromiseOrValue<string>;
+    addr: PromiseOrValue<string>;
     expires: PromiseOrValue<BigNumberish>;
   };
 
   export type DelegateStructOutput = [string, BigNumber] & {
-    Addr: string;
+    addr: string;
     expires: BigNumber;
   };
 
-  export type SettingsPermissionStruct = {
-    delegate: AngelCoreStruct.DelegateStruct;
-  };
-
-  export type SettingsPermissionStructOutput = [
-    AngelCoreStruct.DelegateStructOutput
-  ] & { delegate: AngelCoreStruct.DelegateStructOutput };
-
   export type SettingsControllerStruct = {
-    endowmentController: AngelCoreStruct.SettingsPermissionStruct;
-    strategies: AngelCoreStruct.SettingsPermissionStruct;
-    allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStruct;
-    allowlistedContributors: AngelCoreStruct.SettingsPermissionStruct;
-    maturityAllowlist: AngelCoreStruct.SettingsPermissionStruct;
-    maturityTime: AngelCoreStruct.SettingsPermissionStruct;
-    profile: AngelCoreStruct.SettingsPermissionStruct;
-    earningsFee: AngelCoreStruct.SettingsPermissionStruct;
-    withdrawFee: AngelCoreStruct.SettingsPermissionStruct;
-    depositFee: AngelCoreStruct.SettingsPermissionStruct;
-    balanceFee: AngelCoreStruct.SettingsPermissionStruct;
-    name: AngelCoreStruct.SettingsPermissionStruct;
-    image: AngelCoreStruct.SettingsPermissionStruct;
-    logo: AngelCoreStruct.SettingsPermissionStruct;
-    categories: AngelCoreStruct.SettingsPermissionStruct;
-    splitToLiquid: AngelCoreStruct.SettingsPermissionStruct;
-    ignoreUserSplits: AngelCoreStruct.SettingsPermissionStruct;
+    strategies: AngelCoreStruct.DelegateStruct;
+    allowlistedBeneficiaries: AngelCoreStruct.DelegateStruct;
+    allowlistedContributors: AngelCoreStruct.DelegateStruct;
+    maturityAllowlist: AngelCoreStruct.DelegateStruct;
+    maturityTime: AngelCoreStruct.DelegateStruct;
+    withdrawFee: AngelCoreStruct.DelegateStruct;
+    depositFee: AngelCoreStruct.DelegateStruct;
+    balanceFee: AngelCoreStruct.DelegateStruct;
+    name: AngelCoreStruct.DelegateStruct;
+    image: AngelCoreStruct.DelegateStruct;
+    logo: AngelCoreStruct.DelegateStruct;
+    categories: AngelCoreStruct.DelegateStruct;
+    splitToLiquid: AngelCoreStruct.DelegateStruct;
+    ignoreUserSplits: AngelCoreStruct.DelegateStruct;
   };
 
   export type SettingsControllerStructOutput = [
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput
   ] & {
-    endowmentController: AngelCoreStruct.SettingsPermissionStructOutput;
-    strategies: AngelCoreStruct.SettingsPermissionStructOutput;
-    allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStructOutput;
-    allowlistedContributors: AngelCoreStruct.SettingsPermissionStructOutput;
-    maturityAllowlist: AngelCoreStruct.SettingsPermissionStructOutput;
-    maturityTime: AngelCoreStruct.SettingsPermissionStructOutput;
-    profile: AngelCoreStruct.SettingsPermissionStructOutput;
-    earningsFee: AngelCoreStruct.SettingsPermissionStructOutput;
-    withdrawFee: AngelCoreStruct.SettingsPermissionStructOutput;
-    depositFee: AngelCoreStruct.SettingsPermissionStructOutput;
-    balanceFee: AngelCoreStruct.SettingsPermissionStructOutput;
-    name: AngelCoreStruct.SettingsPermissionStructOutput;
-    image: AngelCoreStruct.SettingsPermissionStructOutput;
-    logo: AngelCoreStruct.SettingsPermissionStructOutput;
-    categories: AngelCoreStruct.SettingsPermissionStructOutput;
-    splitToLiquid: AngelCoreStruct.SettingsPermissionStructOutput;
-    ignoreUserSplits: AngelCoreStruct.SettingsPermissionStructOutput;
+    strategies: AngelCoreStruct.DelegateStructOutput;
+    allowlistedBeneficiaries: AngelCoreStruct.DelegateStructOutput;
+    allowlistedContributors: AngelCoreStruct.DelegateStructOutput;
+    maturityAllowlist: AngelCoreStruct.DelegateStructOutput;
+    maturityTime: AngelCoreStruct.DelegateStructOutput;
+    withdrawFee: AngelCoreStruct.DelegateStructOutput;
+    depositFee: AngelCoreStruct.DelegateStructOutput;
+    balanceFee: AngelCoreStruct.DelegateStructOutput;
+    name: AngelCoreStruct.DelegateStructOutput;
+    image: AngelCoreStruct.DelegateStructOutput;
+    logo: AngelCoreStruct.DelegateStructOutput;
+    categories: AngelCoreStruct.DelegateStructOutput;
+    splitToLiquid: AngelCoreStruct.DelegateStructOutput;
+    ignoreUserSplits: AngelCoreStruct.DelegateStructOutput;
   };
 
   export type SplitDetailsStruct = {
@@ -230,12 +213,14 @@ export declare namespace AngelCoreStruct {
   };
 
   export type BeneficiaryDataStruct = {
-    id: PromiseOrValue<BigNumberish>;
+    endowId: PromiseOrValue<BigNumberish>;
+    fundId: PromiseOrValue<BigNumberish>;
     addr: PromiseOrValue<string>;
   };
 
-  export type BeneficiaryDataStructOutput = [BigNumber, string] & {
-    id: BigNumber;
+  export type BeneficiaryDataStructOutput = [number, BigNumber, string] & {
+    endowId: number;
+    fundId: BigNumber;
     addr: string;
   };
 
@@ -286,16 +271,12 @@ export declare namespace AccountStorage {
     endow_type: PromiseOrValue<BigNumberish>;
     logo: PromiseOrValue<string>;
     image: PromiseOrValue<string>;
-    status: PromiseOrValue<BigNumberish>;
-    depositApproved: PromiseOrValue<boolean>;
-    withdrawApproved: PromiseOrValue<boolean>;
     maturityTime: PromiseOrValue<BigNumberish>;
     strategies: AngelCoreStruct.AccountStrategiesStruct;
     oneoffVaults: AngelCoreStruct.OneOffVaultsStruct;
     rebalance: LocalRegistrarLib.RebalanceParamsStruct;
     kycDonorsOnly: PromiseOrValue<boolean>;
     pendingRedemptions: PromiseOrValue<BigNumberish>;
-    copycatStrategy: PromiseOrValue<BigNumberish>;
     proposalLink: PromiseOrValue<BigNumberish>;
     multisig: PromiseOrValue<string>;
     dao: PromiseOrValue<string>;
@@ -305,7 +286,6 @@ export declare namespace AccountStorage {
     allowlistedBeneficiaries: PromiseOrValue<string>[];
     allowlistedContributors: PromiseOrValue<string>[];
     maturityAllowlist: PromiseOrValue<string>[];
-    earningsFee: AngelCoreStruct.EndowmentFeeStruct;
     withdrawFee: AngelCoreStruct.EndowmentFeeStruct;
     depositFee: AngelCoreStruct.EndowmentFeeStruct;
     balanceFee: AngelCoreStruct.EndowmentFeeStruct;
@@ -323,9 +303,6 @@ export declare namespace AccountStorage {
     number,
     string,
     string,
-    number,
-    boolean,
-    boolean,
     BigNumber,
     AngelCoreStruct.AccountStrategiesStructOutput,
     AngelCoreStruct.OneOffVaultsStructOutput,
@@ -333,7 +310,6 @@ export declare namespace AccountStorage {
     boolean,
     BigNumber,
     BigNumber,
-    BigNumber,
     string,
     string,
     string,
@@ -345,9 +321,8 @@ export declare namespace AccountStorage {
     AngelCoreStruct.EndowmentFeeStructOutput,
     AngelCoreStruct.EndowmentFeeStructOutput,
     AngelCoreStruct.EndowmentFeeStructOutput,
-    AngelCoreStruct.EndowmentFeeStructOutput,
     AngelCoreStruct.SettingsControllerStructOutput,
-    BigNumber,
+    number,
     boolean,
     AngelCoreStruct.SplitDetailsStructOutput
   ] & {
@@ -358,16 +333,12 @@ export declare namespace AccountStorage {
     endow_type: number;
     logo: string;
     image: string;
-    status: number;
-    depositApproved: boolean;
-    withdrawApproved: boolean;
     maturityTime: BigNumber;
     strategies: AngelCoreStruct.AccountStrategiesStructOutput;
     oneoffVaults: AngelCoreStruct.OneOffVaultsStructOutput;
     rebalance: LocalRegistrarLib.RebalanceParamsStructOutput;
     kycDonorsOnly: boolean;
     pendingRedemptions: BigNumber;
-    copycatStrategy: BigNumber;
     proposalLink: BigNumber;
     multisig: string;
     dao: string;
@@ -377,12 +348,11 @@ export declare namespace AccountStorage {
     allowlistedBeneficiaries: string[];
     allowlistedContributors: string[];
     maturityAllowlist: string[];
-    earningsFee: AngelCoreStruct.EndowmentFeeStructOutput;
     withdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
     depositFee: AngelCoreStruct.EndowmentFeeStructOutput;
     balanceFee: AngelCoreStruct.EndowmentFeeStructOutput;
     settingsController: AngelCoreStruct.SettingsControllerStructOutput;
-    parent: BigNumber;
+    parent: number;
     ignoreUserSplits: boolean;
     splitToLiquid: AngelCoreStruct.SplitDetailsStructOutput;
   };
@@ -391,9 +361,9 @@ export declare namespace AccountStorage {
 export interface AccountsQueryEndowmentsInterface extends utils.Interface {
   functions: {
     "queryConfig()": FunctionFragment;
-    "queryEndowmentDetails(uint256)": FunctionFragment;
-    "queryState(uint256)": FunctionFragment;
-    "queryTokenAmount(uint256,uint8,address)": FunctionFragment;
+    "queryEndowmentDetails(uint32)": FunctionFragment;
+    "queryState(uint32)": FunctionFragment;
+    "queryTokenAmount(uint32,uint8,address)": FunctionFragment;
   };
 
   getFunction(

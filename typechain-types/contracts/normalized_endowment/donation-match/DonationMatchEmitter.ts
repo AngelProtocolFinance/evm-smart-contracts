@@ -47,13 +47,13 @@ export declare namespace DonationMatchStorage {
 
 export interface DonationMatchEmitterInterface extends utils.Interface {
   functions: {
-    "burnErC20(uint256,address,uint256)": FunctionFragment;
-    "executeDonorMatch(address,uint256,address,uint256,address)": FunctionFragment;
-    "giveApprovalErC20(uint256,address,address,uint256)": FunctionFragment;
+    "burnErC20(uint32,address,uint256)": FunctionFragment;
+    "executeDonorMatch(address,uint256,address,uint32,address)": FunctionFragment;
+    "giveApprovalErC20(uint32,address,address,uint256)": FunctionFragment;
     "initDonationMatchEmiiter(address)": FunctionFragment;
-    "initializeDonationMatch(uint256,address,(address,address,address,address,uint24))": FunctionFragment;
+    "initializeDonationMatch(uint32,address,(address,address,address,address,uint24))": FunctionFragment;
     "isDonationMatch(address)": FunctionFragment;
-    "transferErC20(uint256,address,address,uint256)": FunctionFragment;
+    "transferErC20(uint32,address,address,uint256)": FunctionFragment;
   };
 
   getFunction(
@@ -147,11 +147,11 @@ export interface DonationMatchEmitterInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "DonationMatchExecuted(address,address,uint256,address,uint256,address)": EventFragment;
-    "DonationMatchInitialized(uint256,address,tuple)": EventFragment;
-    "Erc20ApprovalGiven(uint256,address,address,uint256)": EventFragment;
-    "Erc20Burned(uint256,address,uint256)": EventFragment;
-    "Erc20Transfer(uint256,address,address,uint256)": EventFragment;
+    "DonationMatchExecuted(address,address,uint256,address,uint32,address)": EventFragment;
+    "DonationMatchInitialized(uint32,address,tuple)": EventFragment;
+    "Erc20ApprovalGiven(uint32,address,address,uint256)": EventFragment;
+    "Erc20Burned(uint32,address,uint256)": EventFragment;
+    "Erc20Transfer(uint32,address,address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "DonationMatchExecuted"): EventFragment;
@@ -166,11 +166,11 @@ export interface DonationMatchExecutedEventObject {
   tokenAddress: string;
   amount: BigNumber;
   accountsContract: string;
-  endowmentId: BigNumber;
+  endowmentId: number;
   donor: string;
 }
 export type DonationMatchExecutedEvent = TypedEvent<
-  [string, string, BigNumber, string, BigNumber, string],
+  [string, string, BigNumber, string, number, string],
   DonationMatchExecutedEventObject
 >;
 
@@ -178,12 +178,12 @@ export type DonationMatchExecutedEventFilter =
   TypedEventFilter<DonationMatchExecutedEvent>;
 
 export interface DonationMatchInitializedEventObject {
-  endowmentId: BigNumber;
+  endowmentId: number;
   donationMatch: string;
   config: DonationMatchStorage.ConfigStructOutput;
 }
 export type DonationMatchInitializedEvent = TypedEvent<
-  [BigNumber, string, DonationMatchStorage.ConfigStructOutput],
+  [number, string, DonationMatchStorage.ConfigStructOutput],
   DonationMatchInitializedEventObject
 >;
 
@@ -191,13 +191,13 @@ export type DonationMatchInitializedEventFilter =
   TypedEventFilter<DonationMatchInitializedEvent>;
 
 export interface Erc20ApprovalGivenEventObject {
-  endowmentId: BigNumber;
+  endowmentId: number;
   tokenAddress: string;
   spender: string;
   amount: BigNumber;
 }
 export type Erc20ApprovalGivenEvent = TypedEvent<
-  [BigNumber, string, string, BigNumber],
+  [number, string, string, BigNumber],
   Erc20ApprovalGivenEventObject
 >;
 
@@ -205,25 +205,25 @@ export type Erc20ApprovalGivenEventFilter =
   TypedEventFilter<Erc20ApprovalGivenEvent>;
 
 export interface Erc20BurnedEventObject {
-  endowmentId: BigNumber;
+  endowmentId: number;
   tokenAddress: string;
   amount: BigNumber;
 }
 export type Erc20BurnedEvent = TypedEvent<
-  [BigNumber, string, BigNumber],
+  [number, string, BigNumber],
   Erc20BurnedEventObject
 >;
 
 export type Erc20BurnedEventFilter = TypedEventFilter<Erc20BurnedEvent>;
 
 export interface Erc20TransferEventObject {
-  endowmentId: BigNumber;
+  endowmentId: number;
   tokenAddress: string;
   recipient: string;
   amount: BigNumber;
 }
 export type Erc20TransferEvent = TypedEvent<
-  [BigNumber, string, string, BigNumber],
+  [number, string, string, BigNumber],
   Erc20TransferEventObject
 >;
 
@@ -407,7 +407,7 @@ export interface DonationMatchEmitter extends BaseContract {
   };
 
   filters: {
-    "DonationMatchExecuted(address,address,uint256,address,uint256,address)"(
+    "DonationMatchExecuted(address,address,uint256,address,uint32,address)"(
       donationMatch?: null,
       tokenAddress?: null,
       amount?: null,
@@ -424,7 +424,7 @@ export interface DonationMatchEmitter extends BaseContract {
       donor?: null
     ): DonationMatchExecutedEventFilter;
 
-    "DonationMatchInitialized(uint256,address,tuple)"(
+    "DonationMatchInitialized(uint32,address,tuple)"(
       endowmentId?: null,
       donationMatch?: null,
       config?: null
@@ -435,7 +435,7 @@ export interface DonationMatchEmitter extends BaseContract {
       config?: null
     ): DonationMatchInitializedEventFilter;
 
-    "Erc20ApprovalGiven(uint256,address,address,uint256)"(
+    "Erc20ApprovalGiven(uint32,address,address,uint256)"(
       endowmentId?: null,
       tokenAddress?: null,
       spender?: null,
@@ -448,7 +448,7 @@ export interface DonationMatchEmitter extends BaseContract {
       amount?: null
     ): Erc20ApprovalGivenEventFilter;
 
-    "Erc20Burned(uint256,address,uint256)"(
+    "Erc20Burned(uint32,address,uint256)"(
       endowmentId?: null,
       tokenAddress?: null,
       amount?: null
@@ -459,7 +459,7 @@ export interface DonationMatchEmitter extends BaseContract {
       amount?: null
     ): Erc20BurnedEventFilter;
 
-    "Erc20Transfer(uint256,address,address,uint256)"(
+    "Erc20Transfer(uint32,address,address,uint256)"(
       endowmentId?: null,
       tokenAddress?: null,
       recipient?: null,

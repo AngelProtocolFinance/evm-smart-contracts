@@ -29,10 +29,10 @@ import type {
 
 export interface LockedWithdrawInterface extends utils.Interface {
   functions: {
-    "approve(uint256)": FunctionFragment;
+    "approve(uint32)": FunctionFragment;
     "initialize(address,address,address,address)": FunctionFragment;
-    "propose(uint256,address,address[],uint256[])": FunctionFragment;
-    "reject(uint256)": FunctionFragment;
+    "propose(uint32,address[],uint256[])": FunctionFragment;
+    "reject(uint32)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "updateConfig(address,address,address,address)": FunctionFragment;
   };
@@ -64,7 +64,6 @@ export interface LockedWithdrawInterface extends utils.Interface {
     functionFragment: "propose",
     values: [
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
       PromiseOrValue<string>[],
       PromiseOrValue<BigNumberish>[]
     ]
@@ -102,11 +101,11 @@ export interface LockedWithdrawInterface extends utils.Interface {
 
   events: {
     "Initialized(uint8)": EventFragment;
-    "LockedWithdrawAPTeam(uint256,address)": EventFragment;
-    "LockedWithdrawApproved(uint256,address,address[],uint256[])": EventFragment;
-    "LockedWithdrawEndowment(uint256,address)": EventFragment;
-    "LockedWithdrawInitiated(uint256,address,address,address[],uint256[])": EventFragment;
-    "LockedWithdrawRejected(uint256)": EventFragment;
+    "LockedWithdrawAPTeam(uint32,address)": EventFragment;
+    "LockedWithdrawApproved(uint32,address[],uint256[])": EventFragment;
+    "LockedWithdrawEndowment(uint32,address)": EventFragment;
+    "LockedWithdrawInitiated(uint32,address,address[],uint256[])": EventFragment;
+    "LockedWithdrawRejected(uint32)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
@@ -125,11 +124,11 @@ export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface LockedWithdrawAPTeamEventObject {
-  accountId: BigNumber;
+  accountId: number;
   sender: string;
 }
 export type LockedWithdrawAPTeamEvent = TypedEvent<
-  [BigNumber, string],
+  [number, string],
   LockedWithdrawAPTeamEventObject
 >;
 
@@ -137,13 +136,12 @@ export type LockedWithdrawAPTeamEventFilter =
   TypedEventFilter<LockedWithdrawAPTeamEvent>;
 
 export interface LockedWithdrawApprovedEventObject {
-  accountId: BigNumber;
-  curBeneficiary: string;
+  accountId: number;
   curTokenaddress: string[];
   curAmount: BigNumber[];
 }
 export type LockedWithdrawApprovedEvent = TypedEvent<
-  [BigNumber, string, string[], BigNumber[]],
+  [number, string[], BigNumber[]],
   LockedWithdrawApprovedEventObject
 >;
 
@@ -151,11 +149,11 @@ export type LockedWithdrawApprovedEventFilter =
   TypedEventFilter<LockedWithdrawApprovedEvent>;
 
 export interface LockedWithdrawEndowmentEventObject {
-  accountId: BigNumber;
+  accountId: number;
   sender: string;
 }
 export type LockedWithdrawEndowmentEvent = TypedEvent<
-  [BigNumber, string],
+  [number, string],
   LockedWithdrawEndowmentEventObject
 >;
 
@@ -163,14 +161,13 @@ export type LockedWithdrawEndowmentEventFilter =
   TypedEventFilter<LockedWithdrawEndowmentEvent>;
 
 export interface LockedWithdrawInitiatedEventObject {
-  accountId: BigNumber;
+  accountId: number;
   initiator: string;
-  curBeneficiary: string;
   curTokenaddress: string[];
   curAmount: BigNumber[];
 }
 export type LockedWithdrawInitiatedEvent = TypedEvent<
-  [BigNumber, string, string, string[], BigNumber[]],
+  [number, string, string[], BigNumber[]],
   LockedWithdrawInitiatedEventObject
 >;
 
@@ -178,10 +175,10 @@ export type LockedWithdrawInitiatedEventFilter =
   TypedEventFilter<LockedWithdrawInitiatedEvent>;
 
 export interface LockedWithdrawRejectedEventObject {
-  accountId: BigNumber;
+  accountId: number;
 }
 export type LockedWithdrawRejectedEvent = TypedEvent<
-  [BigNumber],
+  [number],
   LockedWithdrawRejectedEventObject
 >;
 
@@ -230,7 +227,6 @@ export interface LockedWithdraw extends BaseContract {
 
     propose(
       accountId: PromiseOrValue<BigNumberish>,
-      curBeneficiary: PromiseOrValue<string>,
       curTokenaddress: PromiseOrValue<string>[],
       curAmount: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -270,7 +266,6 @@ export interface LockedWithdraw extends BaseContract {
 
   propose(
     accountId: PromiseOrValue<BigNumberish>,
-    curBeneficiary: PromiseOrValue<string>,
     curTokenaddress: PromiseOrValue<string>[],
     curAmount: PromiseOrValue<BigNumberish>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -310,7 +305,6 @@ export interface LockedWithdraw extends BaseContract {
 
     propose(
       accountId: PromiseOrValue<BigNumberish>,
-      curBeneficiary: PromiseOrValue<string>,
       curTokenaddress: PromiseOrValue<string>[],
       curAmount: PromiseOrValue<BigNumberish>[],
       overrides?: CallOverrides
@@ -339,7 +333,7 @@ export interface LockedWithdraw extends BaseContract {
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
 
-    "LockedWithdrawAPTeam(uint256,address)"(
+    "LockedWithdrawAPTeam(uint32,address)"(
       accountId?: null,
       sender?: null
     ): LockedWithdrawAPTeamEventFilter;
@@ -348,20 +342,18 @@ export interface LockedWithdraw extends BaseContract {
       sender?: null
     ): LockedWithdrawAPTeamEventFilter;
 
-    "LockedWithdrawApproved(uint256,address,address[],uint256[])"(
+    "LockedWithdrawApproved(uint32,address[],uint256[])"(
       accountId?: PromiseOrValue<BigNumberish> | null,
-      curBeneficiary?: PromiseOrValue<string> | null,
       curTokenaddress?: null,
       curAmount?: null
     ): LockedWithdrawApprovedEventFilter;
     LockedWithdrawApproved(
       accountId?: PromiseOrValue<BigNumberish> | null,
-      curBeneficiary?: PromiseOrValue<string> | null,
       curTokenaddress?: null,
       curAmount?: null
     ): LockedWithdrawApprovedEventFilter;
 
-    "LockedWithdrawEndowment(uint256,address)"(
+    "LockedWithdrawEndowment(uint32,address)"(
       accountId?: null,
       sender?: null
     ): LockedWithdrawEndowmentEventFilter;
@@ -370,22 +362,20 @@ export interface LockedWithdraw extends BaseContract {
       sender?: null
     ): LockedWithdrawEndowmentEventFilter;
 
-    "LockedWithdrawInitiated(uint256,address,address,address[],uint256[])"(
+    "LockedWithdrawInitiated(uint32,address,address[],uint256[])"(
       accountId?: PromiseOrValue<BigNumberish> | null,
       initiator?: PromiseOrValue<string> | null,
-      curBeneficiary?: PromiseOrValue<string> | null,
       curTokenaddress?: null,
       curAmount?: null
     ): LockedWithdrawInitiatedEventFilter;
     LockedWithdrawInitiated(
       accountId?: PromiseOrValue<BigNumberish> | null,
       initiator?: PromiseOrValue<string> | null,
-      curBeneficiary?: PromiseOrValue<string> | null,
       curTokenaddress?: null,
       curAmount?: null
     ): LockedWithdrawInitiatedEventFilter;
 
-    "LockedWithdrawRejected(uint256)"(
+    "LockedWithdrawRejected(uint32)"(
       accountId?: PromiseOrValue<BigNumberish> | null
     ): LockedWithdrawRejectedEventFilter;
     LockedWithdrawRejected(
@@ -409,7 +399,6 @@ export interface LockedWithdraw extends BaseContract {
 
     propose(
       accountId: PromiseOrValue<BigNumberish>,
-      curBeneficiary: PromiseOrValue<string>,
       curTokenaddress: PromiseOrValue<string>[],
       curAmount: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -450,7 +439,6 @@ export interface LockedWithdraw extends BaseContract {
 
     propose(
       accountId: PromiseOrValue<BigNumberish>,
-      curBeneficiary: PromiseOrValue<string>,
       curTokenaddress: PromiseOrValue<string>[],
       curAmount: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }

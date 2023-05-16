@@ -23,9 +23,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint256",
+        internalType: "uint32",
         name: "curEndowmentid",
-        type: "uint256",
+        type: "uint32",
       },
       {
         internalType: "address",
