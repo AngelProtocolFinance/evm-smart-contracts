@@ -476,7 +476,7 @@ export declare namespace AccountMessages {
 
 export interface AccountsUpdateEndowmentsInterface extends utils.Interface {
   functions: {
-    "updateDelegate(uint32,string,string,address,uint256)": FunctionFragment;
+    "updateDelegate(uint32,uint8,uint8,address,uint256)": FunctionFragment;
     "updateEndowmentDetails((uint32,address,string,(uint256[],uint256[]),string,string,(bool,uint32,uint32,bool,uint32,uint32)))": FunctionFragment;
   };
 
@@ -488,8 +488,8 @@ export interface AccountsUpdateEndowmentsInterface extends utils.Interface {
     functionFragment: "updateDelegate",
     values: [
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>
     ]
@@ -699,8 +699,8 @@ export interface AccountsUpdateEndowments extends BaseContract {
   functions: {
     updateDelegate(
       id: PromiseOrValue<BigNumberish>,
-      setting: PromiseOrValue<string>,
-      action: PromiseOrValue<string>,
+      setting: PromiseOrValue<BigNumberish>,
+      action: PromiseOrValue<BigNumberish>,
       delegateAddress: PromiseOrValue<string>,
       delegateExpiry: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -714,8 +714,8 @@ export interface AccountsUpdateEndowments extends BaseContract {
 
   updateDelegate(
     id: PromiseOrValue<BigNumberish>,
-    setting: PromiseOrValue<string>,
-    action: PromiseOrValue<string>,
+    setting: PromiseOrValue<BigNumberish>,
+    action: PromiseOrValue<BigNumberish>,
     delegateAddress: PromiseOrValue<string>,
     delegateExpiry: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -729,8 +729,8 @@ export interface AccountsUpdateEndowments extends BaseContract {
   callStatic: {
     updateDelegate(
       id: PromiseOrValue<BigNumberish>,
-      setting: PromiseOrValue<string>,
-      action: PromiseOrValue<string>,
+      setting: PromiseOrValue<BigNumberish>,
+      action: PromiseOrValue<BigNumberish>,
       delegateAddress: PromiseOrValue<string>,
       delegateExpiry: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -850,8 +850,8 @@ export interface AccountsUpdateEndowments extends BaseContract {
   estimateGas: {
     updateDelegate(
       id: PromiseOrValue<BigNumberish>,
-      setting: PromiseOrValue<string>,
-      action: PromiseOrValue<string>,
+      setting: PromiseOrValue<BigNumberish>,
+      action: PromiseOrValue<BigNumberish>,
       delegateAddress: PromiseOrValue<string>,
       delegateExpiry: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -866,8 +866,8 @@ export interface AccountsUpdateEndowments extends BaseContract {
   populateTransaction: {
     updateDelegate(
       id: PromiseOrValue<BigNumberish>,
-      setting: PromiseOrValue<string>,
-      action: PromiseOrValue<string>,
+      setting: PromiseOrValue<BigNumberish>,
+      action: PromiseOrValue<BigNumberish>,
       delegateAddress: PromiseOrValue<string>,
       delegateExpiry: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }

@@ -110,7 +110,6 @@ export interface AngelCoreStructInterface extends utils.Interface {
     "accountStrategiesDefaut()": FunctionFragment;
     "beneficiaryDefault()": FunctionFragment;
     "checkSplits((uint256,uint256,uint256),uint256,uint256,bool)": FunctionFragment;
-    "controllerSettingValid(string)": FunctionFragment;
     "deductTokens(uint256,uint256)": FunctionFragment;
     "donationsReceivedDefault()": FunctionFragment;
     "getTokenAmount(address[],uint256[],address)": FunctionFragment;
@@ -122,7 +121,6 @@ export interface AngelCoreStructInterface extends utils.Interface {
       | "accountStrategiesDefaut"
       | "beneficiaryDefault"
       | "checkSplits"
-      | "controllerSettingValid"
       | "deductTokens"
       | "donationsReceivedDefault"
       | "getTokenAmount"
@@ -145,10 +143,6 @@ export interface AngelCoreStructInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<boolean>
     ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "controllerSettingValid",
-    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "deductTokens",
@@ -181,10 +175,6 @@ export interface AngelCoreStructInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "checkSplits",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "controllerSettingValid",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -250,11 +240,6 @@ export interface AngelCoreStruct extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber]>;
 
-    controllerSettingValid(
-      setting: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
     deductTokens(
       curAmount: PromiseOrValue<BigNumberish>,
       curDeductamount: PromiseOrValue<BigNumberish>,
@@ -292,11 +277,6 @@ export interface AngelCoreStruct extends BaseContract {
     userOverride: PromiseOrValue<boolean>,
     overrides?: CallOverrides
   ): Promise<[BigNumber, BigNumber]>;
-
-  controllerSettingValid(
-    setting: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
 
   deductTokens(
     curAmount: PromiseOrValue<BigNumberish>,
@@ -336,11 +316,6 @@ export interface AngelCoreStruct extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber]>;
 
-    controllerSettingValid(
-      setting: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     deductTokens(
       curAmount: PromiseOrValue<BigNumberish>,
       curDeductamount: PromiseOrValue<BigNumberish>,
@@ -378,11 +353,6 @@ export interface AngelCoreStruct extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    controllerSettingValid(
-      setting: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     deductTokens(
       curAmount: PromiseOrValue<BigNumberish>,
       curDeductamount: PromiseOrValue<BigNumberish>,
@@ -415,11 +385,6 @@ export interface AngelCoreStruct extends BaseContract {
       userLocked: PromiseOrValue<BigNumberish>,
       userLiquid: PromiseOrValue<BigNumberish>,
       userOverride: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    controllerSettingValid(
-      setting: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

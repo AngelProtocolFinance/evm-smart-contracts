@@ -6,8 +6,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 library AngelCoreStruct {
     enum AccountType {
         Locked,
-        Liquid,
-        None
+        Liquid
     }
 
     enum Tier {
@@ -50,6 +49,11 @@ library AngelCoreStruct {
     enum EndowmentType {
         Charity,
         Normal
+    }
+
+    enum AllowanceAction {
+        Add,
+        Remove
     }
 
     struct AccountStrategies {
@@ -680,6 +684,11 @@ library AngelCoreStruct {
         address addr;
         uint256 expires; // datetime int of delegation expiry
     }
+    
+    enum DelegateAction {
+        Set,
+        Revoke
+    }
 
     function canTakeAction(
         Delegate storage delegate,
@@ -710,26 +719,23 @@ library AngelCoreStruct {
         Delegate ignoreUserSplits;
     }
 
-    function controllerSettingValid(
-        string memory setting
-    ) public pure returns (bool) {
-        bytes32 _setting = keccak256(abi.encodePacked(setting));
-        return (_setting == keccak256(abi.encodePacked("strategies")) ||
-            _setting == keccak256(abi.encodePacked("allowlistedBeneficiaries")) ||
-            _setting == keccak256(abi.encodePacked("allowlistedContributors")) ||
-            _setting == keccak256(abi.encodePacked("maturityAllowlist")) ||
-            _setting == keccak256(abi.encodePacked("maturityTime")) ||
-            _setting == keccak256(abi.encodePacked("withdrawFee")) ||
-            _setting == keccak256(abi.encodePacked("depositFee")) ||
-            _setting == keccak256(abi.encodePacked("balanceFee")) ||
-            _setting == keccak256(abi.encodePacked("name")) ||
-            _setting == keccak256(abi.encodePacked("image")) ||
-            _setting == keccak256(abi.encodePacked("logo")) ||
-            _setting == keccak256(abi.encodePacked("categories")) ||
-            _setting == keccak256(abi.encodePacked("splitToLiquid")) ||
-            _setting == keccak256(abi.encodePacked("ignoreUserSplits"))
-        ) ? true : false;
+    enum ControllerSettingOption {
+        Strategies,
+        AllowlistedBeneficiaries,
+        AllowlistedContributors,
+        MaturityAllowlist,
+        MaturityTime,
+        WithdrawFee,
+        DepositFee,
+        BalanceFee,
+        Name,
+        Image,
+        Logo,
+        Categories,
+        SplitToLiquid,
+        IgnoreUserSplits
     }
+
 
     struct EndowmentFee {
         address payoutAddress;

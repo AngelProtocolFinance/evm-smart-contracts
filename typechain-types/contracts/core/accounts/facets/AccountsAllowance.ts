@@ -446,8 +446,8 @@ export declare namespace AccountStorage {
 
 export interface AccountsAllowanceInterface extends utils.Interface {
   functions: {
-    "manageAllowances(uint32,string,address,address,uint256)": FunctionFragment;
-    "spendAllowance(uint32,address,uint256)": FunctionFragment;
+    "manageAllowances(uint32,uint8,address,address,uint256)": FunctionFragment;
+    "spendAllowance(uint32,address,uint256,address)": FunctionFragment;
   };
 
   getFunction(
@@ -458,7 +458,7 @@ export interface AccountsAllowanceInterface extends utils.Interface {
     functionFragment: "manageAllowances",
     values: [
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>
@@ -469,7 +469,8 @@ export interface AccountsAllowanceInterface extends utils.Interface {
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>
     ]
   ): string;
 
@@ -672,52 +673,55 @@ export interface AccountsAllowance extends BaseContract {
 
   functions: {
     manageAllowances(
-      curId: PromiseOrValue<BigNumberish>,
-      curAction: PromiseOrValue<string>,
-      curSpender: PromiseOrValue<string>,
-      curToken: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      endowId: PromiseOrValue<BigNumberish>,
+      action: PromiseOrValue<BigNumberish>,
+      spender: PromiseOrValue<string>,
+      token: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     spendAllowance(
-      curId: PromiseOrValue<BigNumberish>,
-      curToken: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      endowId: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
   manageAllowances(
-    curId: PromiseOrValue<BigNumberish>,
-    curAction: PromiseOrValue<string>,
-    curSpender: PromiseOrValue<string>,
-    curToken: PromiseOrValue<string>,
-    curAmount: PromiseOrValue<BigNumberish>,
+    endowId: PromiseOrValue<BigNumberish>,
+    action: PromiseOrValue<BigNumberish>,
+    spender: PromiseOrValue<string>,
+    token: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   spendAllowance(
-    curId: PromiseOrValue<BigNumberish>,
-    curToken: PromiseOrValue<string>,
-    curAmount: PromiseOrValue<BigNumberish>,
+    endowId: PromiseOrValue<BigNumberish>,
+    token: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
+    recipient: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     manageAllowances(
-      curId: PromiseOrValue<BigNumberish>,
-      curAction: PromiseOrValue<string>,
-      curSpender: PromiseOrValue<string>,
-      curToken: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      endowId: PromiseOrValue<BigNumberish>,
+      action: PromiseOrValue<BigNumberish>,
+      spender: PromiseOrValue<string>,
+      token: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     spendAllowance(
-      curId: PromiseOrValue<BigNumberish>,
-      curToken: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      endowId: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      recipient: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -829,36 +833,38 @@ export interface AccountsAllowance extends BaseContract {
 
   estimateGas: {
     manageAllowances(
-      curId: PromiseOrValue<BigNumberish>,
-      curAction: PromiseOrValue<string>,
-      curSpender: PromiseOrValue<string>,
-      curToken: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      endowId: PromiseOrValue<BigNumberish>,
+      action: PromiseOrValue<BigNumberish>,
+      spender: PromiseOrValue<string>,
+      token: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     spendAllowance(
-      curId: PromiseOrValue<BigNumberish>,
-      curToken: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      endowId: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     manageAllowances(
-      curId: PromiseOrValue<BigNumberish>,
-      curAction: PromiseOrValue<string>,
-      curSpender: PromiseOrValue<string>,
-      curToken: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      endowId: PromiseOrValue<BigNumberish>,
+      action: PromiseOrValue<BigNumberish>,
+      spender: PromiseOrValue<string>,
+      token: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     spendAllowance(
-      curId: PromiseOrValue<BigNumberish>,
-      curToken: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      endowId: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      recipient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

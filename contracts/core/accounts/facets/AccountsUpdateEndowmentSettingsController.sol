@@ -177,7 +177,6 @@ contract AccountsUpdateEndowmentSettingsController is
 
         tempEndowment.settingsController = curDetails.settingsController;
 
-        state.ENDOWMENTS[curDetails.id] = tempEndowment;
         emit EndowmentSettingUpdated(curDetails.id, "endowmentController");
         emit UpdateEndowment(curDetails.id, tempEndowment);
     }
