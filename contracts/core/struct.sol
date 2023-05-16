@@ -389,7 +389,7 @@ library AngelCoreStruct {
 
     ///TODO: need to test this same names already declared in other libraries
     struct EndowmentId {
-        uint256 id;
+        uint32 id;
     }
 
     struct IndexFund {
@@ -410,7 +410,8 @@ library AngelCoreStruct {
     }
 
     struct BeneficiaryData {
-        uint32 id;
+        uint32 endowId;
+        uint256 fundId;
         address addr;
     }
 
@@ -429,7 +430,7 @@ library AngelCoreStruct {
     function beneficiaryDefault() public pure returns (Beneficiary memory) {
         Beneficiary memory curTemp = Beneficiary({
             enumData: BeneficiaryEnum.None,
-            data: BeneficiaryData({id: 0, addr: address(0)})
+            data: BeneficiaryData({endowId: 0, fundId: 0, addr: address(0)})
         });
 
         return curTemp;

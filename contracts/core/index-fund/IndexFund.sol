@@ -73,7 +73,6 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
             activeFund: 0,
             nextFundId: 1,
             roundDonations: 0,
-            rotatingFunds: uint256[],
             nextRotationBlock: block.number + state.config.fundRotation
         });
         emit UpdateIndexFundState(state.state);
@@ -156,7 +155,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     function createIndexFund(
         string memory name,
         string memory description,
-        uint256[] memory members,
+        uint32[] memory members,
         bool rotatingFund,
         uint256 splitToLiquid,
         uint256 expiryTime,
@@ -195,7 +194,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
         }
 
         if (rotatingFund) {
-            state.state.rotatingFunds.push(state.state.nextFundId);
+            state.rotatingFunds.push(state.state.nextFundId);
         }
 
         state.state.totalFunds += 1;
@@ -227,9 +226,9 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
         // remove from rotating funds list
         bool found;
         uint256 index;
-        (index, found) = Array.indexOf(state.state.rotatingFunds, fundId);
+        (index, found) = Array.indexOf(state.rotatingFunds, fundId);
         if (found) {
-            Array.remove(state.state.rotatingFunds, index);
+            Array.remove(state.rotatingFunds, index);
         }
 
         state.state.totalFunds -= 1;
@@ -259,16 +258,13 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
         require(state.FUNDS_BY_ENDOWMENT[member].length >= 0);
 
         // remove member from all involved funds if in their members array
+        bool found;
+        uint256 index;
         for (uint256 i = 0; i < state.FUNDS_BY_ENDOWMENT[member].length; i++) {
-            bool found;
-            uint256 index;
-            (index, found) = Array.indexOf(
-                state.FUNDS[state.FUNDS_BY_ENDOWMENT[i]].members,
-                member
-            );
+            (index, found) = Array.indexOf(state.FUNDS[state.FUNDS_BY_ENDOWMENT[member][i]].members, member);
             if (found) {
-                Array.remove(state.FUNDS[state.FUNDS_BY_ENDOWMENT[i]].members, index);
-                emit MemberRemoved(i, member);
+                Array.remove(state.FUNDS[state.FUNDS_BY_ENDOWMENT[member][i]].members, index);
+                emit MemberRemoved(state.FUNDS_BY_ENDOWMENT[member][i], member);
             }
         }
         delete state.FUNDS_BY_ENDOWMENT[member];
@@ -278,50 +274,31 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     /**
      *  @notice function to update fund members
      *  @dev can be called by current owner to add/remove member to an index fund
-     *  @param fundId id of index fund to be updated
-     *  @param add array of members to be added to index fund
-     *  @param remove array of members to be removed from index fund
+     *  @param fundId the id of index fund to be updated
+     *  @param members array of members to be set for the index fund
      */
     function updateFundMembers(
         uint256 fundId,
-        uint32[] memory add,
-        uint32[] memory remove
+        uint32[] memory members
     ) public nonReentrant returns (bool) {
-        bool found;
-        uint256 index;
         require(msg.sender == state.config.owner, "Unauthorized");
+        require(members.length < state.config.fundMemberLimit, "Fund member limit exceeded");
         require(!fundIsExpired(state.FUNDS[fundId], block.number, block.timestamp), "Index Fund Expired");
 
-        // add members
-        for (uint256 i = 0; i < add.length; i++) {
-            (index, found) = Array.indexOf(state.FUNDS[fundId].members, add[i]);
+        // set members on fund
+        state.FUNDS[fundId].members = members;
+
+        // update members by endowment records
+        bool found;
+        uint256 index;
+        for (uint i = 0; i < members.length; i++) {
+            uint256[] memory funds = state.FUNDS_BY_ENDOWMENT[members[i]];
+            (index, found) = Array.indexOf(funds, fundId);
             if (!found) {
-                state.FUNDS[fundId].members.push(add[i]);
-                emit MemberAdded(fundId, add[i]);
-            }
-            (index, found) = Array.indexOf(state.FUNDS_BY_ENDOWMENT[add[i]], fundId);
-            if (!found) {
-                state.FUNDS_BY_ENDOWMENT[add[i]].push(fundId);
+                state.FUNDS_BY_ENDOWMENT[members[i]].push(fundId);
             }
         }
 
-        // remove members
-        for (uint256 i = 0; i < remove.length; i++) {
-            (index, found) = Array.indexOf(state.FUNDS[fundId].members, remove[i]);
-            if (found) {
-                Array.remove(state.FUNDS[fundId].members, index);
-                emit MemberRemoved(fundId, remove[i]);
-            }
-            (index, found) = Array.indexOf(state.FUNDS_BY_ENDOWMENT[remove[i]], fundId);
-            if (found) {
-                Array.remove(state.FUNDS_BY_ENDOWMENT[remove[i]], fundId);
-            }
-        }
-
-        require(
-            state.FUNDS[fundId].members.length < state.config.fundMemberLimit,
-            "Fund member limit exceeded"
-        );
         return true;
     }
 
@@ -531,7 +508,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
      * @param curDonationMessages Donation messages
      */
     function updateDonationMessages(
-        uint256[] memory members,
+        uint32[] memory members,
         uint256 split,
         uint256 balance,
         IndexFundStorage.DonationMessages storage curDonationMessages
@@ -695,37 +672,6 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     }
 
     /**
-     * @dev Query fund list
-     * @param startAfter Start after (Index after which to start getting values)
-     * @param limit Limit (total number of values to return)
-     * @return Fund details
-     */
-    function queryFundsList(
-        uint256 startAfter,
-        uint256 limit
-    ) public view returns (AngelCoreStruct.IndexFund[] memory) {
-        if (limit == 0) {
-            limit = defaultLimit;
-        }
-
-        if (limit > maxLimit) {
-            limit = maxLimit;
-        }
-
-        AngelCoreStruct.IndexFund[]
-            memory resp = new AngelCoreStruct.IndexFund[](limit);
-
-        for (uint256 i = 0; i < limit; i++) {
-            if (i + startAfter >= state.FUNDS.length) {
-                break;
-            }
-            resp[i] = state.FUNDS[state.FUNDS[i + startAfter]];
-        }
-
-        return resp;
-    }
-
-    /**
      * @dev Query fund details
      * @param fundId Fund id
      * @return Fund details
@@ -742,7 +688,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
      * @return Fund details
      */
     function queryInvolvedFunds(
-        uint256 endowmentId
+        uint32 endowmentId
     ) public view returns (AngelCoreStruct.IndexFund[] memory) {
         // make memory and allocate to response object
         AngelCoreStruct.IndexFund[]
@@ -800,25 +746,25 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     ) internal view returns (uint256) {
         AngelCoreStruct.IndexFund[]
             memory activeFunds = new AngelCoreStruct.IndexFund[](
-                state.state.rotatingFunds.length
+                state.rotatingFunds.length
             );
 
-        for (uint256 i = 0; i < state.state.rotatingFunds.length; i++) {
+        for (uint256 i = 0; i < state.rotatingFunds.length; i++) {
             if (
                 !fundIsExpired(
-                    state.FUNDS[state.state.rotatingFunds[i]],
+                    state.FUNDS[state.rotatingFunds[i]],
                     envHeight,
                     envTime
                 )
             ) {
-                activeFunds[i] = state.FUNDS[state.state.rotatingFunds[i]];
+                activeFunds[i] = state.FUNDS[state.rotatingFunds[i]];
             }
         }
 
         // check if the current active fund is in the rotation and not expired
         bool found;
         uint256 index;
-        (index, found) = Array.indexOf(state.state.rotatingFunds, currFund);
+        (index, found) = Array.indexOf(state.rotatingFunds, currFund);
         if (!found || index == activeFunds.length - 1) {
             // set to the first fund in the list
             return activeFunds[0].id;

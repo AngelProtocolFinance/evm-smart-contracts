@@ -63,7 +63,8 @@ contract AccountsUpdateStatusEndowments is
             if (funds.length == 0) {
                 curBeneficiary = AngelCoreStruct.Beneficiary({
                     data: AngelCoreStruct.BeneficiaryData({
-                        id: 0,
+                        endowId: 0,
+                        fundId: 0,
                         addr: registrar_config.treasury
                     }),
                     enumData: AngelCoreStruct.BeneficiaryEnum.Wallet
@@ -71,7 +72,8 @@ contract AccountsUpdateStatusEndowments is
             } else {
                 curBeneficiary = AngelCoreStruct.Beneficiary({
                     data: AngelCoreStruct.BeneficiaryData({
-                        id: funds[0].id,
+                        endowId: 0,
+                        fundId: funds[0].id,
                         addr: address(0)
                     }),
                     enumData: AngelCoreStruct.BeneficiaryEnum.IndexFund

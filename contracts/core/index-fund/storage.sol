@@ -15,14 +15,13 @@ library IndexFundStorage {
     struct _State {
         uint256 totalFunds;
         uint256 activeFund; // ID of the Active IndexFund in the current rotation set
-        uint256[] rotatingFunds; // list of active, rotating funds (ex. 17 funds, 1 for each of the UNSDGs)
         uint256 roundDonations; // total donations given to active charity this round
         uint256 nextRotationBlock; // block height to perform next rotation on
         uint256 nextFundId;
     }
 
     struct DonationMessages {
-        uint256[] member_ids;
+        uint32[] member_ids;
         uint256[] locked_donation_amount;
         uint256[] liquid_donation_amount;
         uint256[] lockedSplit;
@@ -34,6 +33,7 @@ library IndexFundStorage {
         _State state;
         mapping(uint256 => AngelCoreStruct.IndexFund) FUNDS;
         mapping(uint32 => uint256[]) FUNDS_BY_ENDOWMENT; // Endow ID >> [Fund IDs] 
+        uint256[] rotatingFunds; // list of active, rotating funds (ex. 17 funds, 1 for each of the UNSDGs)
         DonationMessages donationMessages;
     }
 }
