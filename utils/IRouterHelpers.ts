@@ -4,7 +4,7 @@ import type {
   } from "ethers";
   import type {
     PromiseOrValue,
-  } from "../typechain-types/common";
+  } from "typechain-types/common";
 
 export declare namespace IRouter {
     export type VaultActionDataStruct = {

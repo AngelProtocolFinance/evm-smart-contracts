@@ -1,12 +1,24 @@
 {
   "compilerOptions": {
-    "target": "es2018",
-    "module": "commonjs",
-    "strict": true,
-    "esModuleInterop": true,
-    "outDir": "dist",
-    "declaration": true
+      "baseUrl": ".",
+      "target": "es2018",
+      "module": "commonjs",
+      "strict": true,
+      "esModuleInterop": true,
+      "resolveJsonModule": true,
+      "forceConsistentCasingInFileNames": true,
+      "allowSyntheticDefaultImports": true,
+      "outDir": "dist",
+      "declaration": true,
+      "skipLibCheck": true,
   },
-  "include": ["./scripts", "./utils", "./tasks/*", "./test", "./typechain"],
+  "include": [
+      "./constants",
+      "./scripts",
+      "./utils",
+      "./tasks/*",
+      "./test",
+      "./typechain-types"
+  ],
   "files": ["./hardhat.config.ts"]
 }

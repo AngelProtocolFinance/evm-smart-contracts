@@ -1,13 +1,20 @@
-import { expect } from "chai";
-import { ethers, upgrades } from "hardhat";
-import { Registrar, Registrar__factory } from "../../typechain-types"
-import { DummyCRVLP, DummyCRVLP__factory } from "../../typechain-types";
-import { DummyStakingRewards, DummyStakingRewards__factory } from "../../typechain-types";
-import { DummyERC20, DummyERC20__factory } from "../../typechain-types";
-import { GoldfinchVault, GoldfinchVault__factory } from "../../typechain-types"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
-import { BigNumber } from "ethers";
-import { StrategyApprovalState } from "../../utils/IRegistrarHelpers"
+import { expect } from "chai"
+import { BigNumber } from "ethers"
+import { ethers, upgrades } from "hardhat"
+import { 
+  DummyCRVLP, 
+  DummyCRVLP__factory, 
+  DummyERC20,
+  DummyERC20__factory,
+  DummyStakingRewards,
+  DummyStakingRewards__factory,
+  GoldfinchVault,
+  GoldfinchVault__factory,
+  Registrar,
+  Registrar__factory
+} from "typechain-types"
+import { StrategyApprovalState } from "utils"
 
 
 describe("Goldfinch Vault", function () {

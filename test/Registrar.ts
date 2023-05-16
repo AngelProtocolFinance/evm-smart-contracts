@@ -1,13 +1,13 @@
 import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
-import { Registrar, Registrar__factory, IRegistrar, IRegistrarGoldfinch__factory } from "../typechain-types"
+import { LocalRegistrar, LocalRegistrar__factory } from "typechain-types"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
-import { StrategyApprovalState } from "../utils/IRegistrarHelpers"
+import { StrategyApprovalState } from "utils"
 
 describe("Registrar", function () {
   let owner: SignerWithAddress
   let user: SignerWithAddress
-  let Registrar: Registrar__factory
+  let Registrar: LocalRegistrar__factory
 
   let defaultRebalParams = {    
     "rebalanceLiquidProfits": false,
@@ -28,16 +28,16 @@ describe("Registrar", function () {
   let originatingChain = "polygon"
   let accountsContract = "0x000000000000000000000000000000000000dead"
 
-  async function deployRegistrarAsProxy(): Promise<Registrar> {
+  async function deployRegistrarAsProxy(): Promise<LocalRegistrar> {
     [owner, user] = await ethers.getSigners();
-    Registrar = await ethers.getContractFactory("Registrar") as Registrar__factory;
-    const registrar = await upgrades.deployProxy(Registrar) as Registrar
+    Registrar = await ethers.getContractFactory("LocalRegistrar") as LocalRegistrar__factory;
+    const registrar = await upgrades.deployProxy(Registrar) as LocalRegistrar
     await registrar.deployed();
     return registrar;
   }
 
   describe("Deployment", function () {
-    let registrar: Registrar
+    let registrar: LocalRegistrar
     beforeEach(async function () {
       registrar = await deployRegistrarAsProxy();
     })
@@ -68,13 +68,13 @@ describe("Registrar", function () {
     })
 
     it("Should not allow a non-owner to run an upgrade", async function () {
-      const UserRegistrar = await ethers.getContractFactory("Registrar", user) as Registrar__factory
+      const UserRegistrar = await ethers.getContractFactory("LocalRegistrar", user) as LocalRegistrar__factory
       await expect(upgrades.upgradeProxy(registrar.address, UserRegistrar)).to.be.reverted
     })
   })
 
   describe("Setters and Getters", function () {
-    let registrar: Registrar
+    let registrar: LocalRegistrar
     beforeEach(async function () {
       registrar = await deployRegistrarAsProxy();
     })
@@ -203,7 +203,7 @@ describe("Registrar", function () {
   })
 
   describe("Events", function () {
-    let registrar: Registrar
+    let registrar: LocalRegistrar
     beforeEach(async function () {
       registrar = await deployRegistrarAsProxy();
     })

@@ -17,13 +17,55 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "NothingReceived",
+    name: "InvalidAmounts",
     type: "error",
   },
   {
     inputs: [],
-    name: "TransferFailed",
+    name: "NotCollector",
     type: "error",
+  },
+  {
+    inputs: [],
+    name: "NothingReceived",
+    type: "error",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "txHash",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "logIndex",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "gasToken",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "gasFeeAmount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "refundAddress",
+        type: "address",
+      },
+    ],
+    name: "ExpressGasAdded",
+    type: "event",
   },
   {
     anonymous: false,
@@ -177,6 +219,98 @@ const _abi = [
     inputs: [
       {
         indexed: true,
+        internalType: "address",
+        name: "sourceAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "destinationChain",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "destinationAddress",
+        type: "string",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "payloadHash",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "symbol",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "gasToken",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "gasFeeAmount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "refundAddress",
+        type: "address",
+      },
+    ],
+    name: "GasPaidForExpressCallWithToken",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "txHash",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "logIndex",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "gasFeeAmount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "refundAddress",
+        type: "address",
+      },
+    ],
+    name: "NativeExpressGasAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
         internalType: "bytes32",
         name: "txHash",
         type: "bytes32",
@@ -302,6 +436,94 @@ const _abi = [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sourceAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "destinationChain",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "destinationAddress",
+        type: "string",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "payloadHash",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "symbol",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "gasFeeAmount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "refundAddress",
+        type: "address",
+      },
+    ],
+    name: "NativeGasPaidForExpressCallWithToken",
+    type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "txHash",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "txIndex",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "gasToken",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "gasFeeAmount",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "refundAddress",
+        type: "address",
+      },
+    ],
+    name: "addExpressGas",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes32",
@@ -352,6 +574,29 @@ const _abi = [
         type: "address",
       },
     ],
+    name: "addNativeExpressGas",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "txHash",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "logIndex",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "refundAddress",
+        type: "address",
+      },
+    ],
     name: "addNativeGas",
     outputs: [],
     stateMutability: "payable",
@@ -369,9 +614,27 @@ const _abi = [
         name: "tokens",
         type: "address[]",
       },
+      {
+        internalType: "uint256[]",
+        name: "amounts",
+        type: "uint256[]",
+      },
     ],
     name: "collectFees",
     outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "gasCollector",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -494,6 +757,59 @@ const _abi = [
         type: "bytes",
       },
       {
+        internalType: "string",
+        name: "symbol",
+        type: "string",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "gasToken",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "gasFeeAmount",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "refundAddress",
+        type: "address",
+      },
+    ],
+    name: "payGasForExpressCallWithToken",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        internalType: "string",
+        name: "destinationChain",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "destinationAddress",
+        type: "string",
+      },
+      {
+        internalType: "bytes",
+        name: "payload",
+        type: "bytes",
+      },
+      {
         internalType: "address",
         name: "refundAddress",
         type: "address",
@@ -550,6 +866,49 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        internalType: "string",
+        name: "destinationChain",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "destinationAddress",
+        type: "string",
+      },
+      {
+        internalType: "bytes",
+        name: "payload",
+        type: "bytes",
+      },
+      {
+        internalType: "string",
+        name: "symbol",
+        type: "string",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "refundAddress",
+        type: "address",
+      },
+    ],
+    name: "payNativeGasForExpressCallWithToken",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address payable",
         name: "receiver",
         type: "address",
@@ -573,7 +932,7 @@ const _abi = [
 ] as const;
 
 const _bytecode =
-  "0x608060405234801561001057600080fd5b506107bb806100206000396000f3fe60806040526004361061007b5760003560e01c8063cd433ada1161004e578063cd433ada146100f7578063da854d7514610105578063edb6b3a514610120578063fd09e3bd1461014957600080fd5b80630c93e3bb1461008057806382ad6f351461009a578063ab1999ba146100ba578063c62c2002146100dc575b600080fd5b61009861008e3660046101e1565b5050505050505050565b005b3480156100a657600080fd5b506100986100b53660046102a1565b505050565b3480156100c657600080fd5b506100986100d53660046102e2565b5050505050565b6100986100ea366004610338565b5050505050505050505050565b6100986100b536600461042b565b34801561011157600080fd5b506100986100b5366004610464565b34801561012c57600080fd5b5061009861013b36600461058f565b505050505050505050505050565b34801561015557600080fd5b506100986101643660046106ad565b50505050505050505050565b6001600160a01b038116811461018557600080fd5b50565b803561019381610170565b919050565b60008083601f8401126101aa57600080fd5b50813567ffffffffffffffff8111156101c257600080fd5b6020830191508360208285010111156101da57600080fd5b9250929050565b60008060008060008060008060a0898b0312156101fd57600080fd5b883561020881610170565b9750602089013567ffffffffffffffff8082111561022557600080fd5b6102318c838d01610198565b909950975060408b013591508082111561024a57600080fd5b6102568c838d01610198565b909750955060608b013591508082111561026f57600080fd5b5061027c8b828c01610198565b909450925050608089013561029081610170565b809150509295985092959890939650565b6000806000606084860312156102b657600080fd5b83356102c181610170565b925060208401356102d181610170565b929592945050506040919091013590565b600080600080600060a086880312156102fa57600080fd5b8535945060208601359350604086013561031381610170565b925060608601359150608086013561032a81610170565b809150509295509295909350565b600080600080600080600080600080600060e08c8e03121561035957600080fd5b6103628c610188565b9a5067ffffffffffffffff8060208e0135111561037e57600080fd5b61038e8e60208f01358f01610198565b909b50995060408d01358110156103a457600080fd5b6103b48e60408f01358f01610198565b909950975060608d01358110156103ca57600080fd5b6103da8e60608f01358f01610198565b909750955060808d01358110156103f057600080fd5b506104018d60808e01358e01610198565b909450925060a08c0135915061041960c08d01610188565b90509295989b509295989b9093969950565b60008060006060848603121561044057600080fd5b8335925060208401359150604084013561045981610170565b809150509250925092565b60008060006040848603121561047957600080fd5b833561048481610170565b9250602084013567ffffffffffffffff808211156104a157600080fd5b818601915086601f8301126104b557600080fd5b8135818111156104c457600080fd5b8760208260051b85010111156104d957600080fd5b6020830194508093505050509250925092565b634e487b7160e01b600052604160045260246000fd5b600082601f83011261051357600080fd5b813567ffffffffffffffff8082111561052e5761052e6104ec565b604051601f8301601f19908116603f01168101908282118183101715610556576105566104ec565b8160405283815286602085880101111561056f57600080fd5b836020870160208301376000602085830101528094505050505092915050565b6000806000806000806000806000806000806101208d8f0312156105b257600080fd5b6105bb8d610188565b9b5067ffffffffffffffff60208e013511156105d657600080fd5b6105e68e60208f01358f01610198565b909b50995067ffffffffffffffff60408e0135111561060457600080fd5b6106148e60408f01358f01610198565b909950975067ffffffffffffffff60608e0135111561063257600080fd5b6106428e60608f01358f01610198565b909750955067ffffffffffffffff60808e0135111561066057600080fd5b6106708e60808f01358f01610502565b945060a08d0135935061068560c08e01610188565b925060e08d0135915061069b6101008e01610188565b90509295989b509295989b509295989b565b60008060008060008060008060008060e08b8d0312156106cc57600080fd5b8a356106d781610170565b995060208b013567ffffffffffffffff808211156106f457600080fd5b6107008e838f01610198565b909b50995060408d013591508082111561071957600080fd5b6107258e838f01610198565b909950975060608d013591508082111561073e57600080fd5b5061074b8d828e01610198565b90965094505060808b013561075f81610170565b925060a08b0135915061077460c08c01610188565b90509295989b9194979a509295985056fea2646970667358221220334945aa6bc28126560ce303a24416962e1d4fc9de521a89a87b3da9404b8a0764736f6c634300080f0033";
+  "0x6080806040523461001657610637908161001c8239f35b600080fdfe60808060405260048036101561001457600080fd5b600091823560e01c9081630c93e3bb146103cb5781631055eaaf1461037157816317a49f7c146102df5781632e9b7470146102d55781632edd2aa81461027c5781634d238489146102cb57816382ad6f351461029b578163892b50071461028157508063ab1999ba1461027c578063c62c200214610264578063cd433ada14610254578063edb6b3a5146101405763fd09e3bd146100b157600080fd5b3461013c5760e036600319011261013c576100ca61043e565b5067ffffffffffffffff90602435828111610138576100ec903690830161049c565b505060443582811161013857610105903690830161049c565b50506064359182116101345761011d9136910161049c565b5050610127610459565b5061013061046f565b5080f35b8280fd5b8380fd5b5080fd5b509034610251576101203660031901126102515761015c61043e565b5067ffffffffffffffff6024358181116101345761017d903690850161049c565b505060443581811161013457610196903690850161049c565b5050606435818111610134576101af903690850161049c565b505060843590808211610134573660238301121561013457818401359080821161023e5760405190601f8301601f19908116603f011682019081118282101761022b57849550604052818152366024838501011161022657816024602094018483013701015261021d61046f565b50610130610485565b505050fd5b634e487b7160e01b855260418652602485fd5b634e487b7160e01b845260418552602484fd5b80fd5b8261025e366105d7565b50505080f35b8261026e366104fb565b505050505050505050505080f35b6105a6565b83903461013c578160031936011261013c57602090308152f35b8334610251576060366003190112610251576102b561043e565b506024356001600160a01b038116036102515780f35b8361025e366105d7565b8361026e366104fb565b50503461013c5761012036600319011261013c576102fb61043e565b5067ffffffffffffffff906024358281116101385761031d903690830161049c565b505060443582811161013857610336903690830161049c565b50506064358281116101385761034f903690830161049c565b5050608435918211610134576103679136910161049c565b505061021d61046f565b50503461013c57606036600319011261013c5761038c61043e565b5067ffffffffffffffff90602435828111610138576103ae90369083016104ca565b5050604435918211610134576103c6913691016104ca565b505080f35b505060a036600319011261013c576103e161043e565b5067ffffffffffffffff9060243582811161013857610403903690830161049c565b50506044358281116101385761041c903690830161049c565b5050606435918211610134576104349136910161049c565b5050610130610459565b600435906001600160a01b038216820361045457565b600080fd5b608435906001600160a01b038216820361045457565b60c435906001600160a01b038216820361045457565b61010435906001600160a01b038216820361045457565b9181601f840112156104545782359167ffffffffffffffff8311610454576020838186019501011161045457565b9181601f840112156104545782359167ffffffffffffffff8311610454576020808501948460051b01011161045457565b9060e0600319830112610454576001600160a01b03916004358381168103610454579267ffffffffffffffff92602435848111610454578361053f9160040161049c565b94909493604435828111610454578161055a9160040161049c565b9490949360643584811161045457836105759160040161049c565b949094936084359182116104545761058f9160040161049c565b9290929160a4359160c43590811681036104545790565b346104545760a0366003190112610454576001600160a01b0360443581811603610454576084359081160361045457005b60609060031901126104545760043590602435906044356001600160a01b0381168103610454579056fea26469706673582212206ebf643f39052a558299eff7fe86a3eb1ed77c81bdb05b1ab8f8d86aa84ff87164736f6c63430008120033";
 
 type DummyGasServiceConstructorParams =
   | [signer?: Signer]

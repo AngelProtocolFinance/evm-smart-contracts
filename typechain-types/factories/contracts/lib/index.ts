@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as stringAddressUtilsSol from "./StringAddressUtils.sol";
+export * as strings from "./Strings";

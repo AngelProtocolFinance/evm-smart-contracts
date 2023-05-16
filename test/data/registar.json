@@ -1,0 +1,55 @@
+{
+	"InstantiateRequest": [
+		"0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
+		100,
+		[true, true, 10, true, 20],
+		[50, 30, 50],
+		[["Ether"], ["USDC"]]
+	],
+	"UpdateConfigRequest": [
+		"0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
+		"0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
+		"0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
+		10,
+		[true, true, 10, true, 20],
+		["charity1", "charity2"],
+		50,
+		10,
+		50,
+		"0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
+		"0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
+		"0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
+		0,
+		0,
+		["Ether"],
+		["USDC,USDT"],
+		"0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
+		"0x5B38Da6a701c568545dCfcB03FcB875f56beddC4"
+	],
+
+	"UpdateNetworkInfo": {
+		"networkInfo": ["Ethereum", 1, "", "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4", 0],
+		"action": "post"
+	},
+
+	"VaultAddLocked": [
+		5,
+		"0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
+		"USDC",
+		"0x5B38Da6a701c568545dCfcB03FcB875f56beddC4",
+		[2],
+		0,
+		0
+	],
+	"VaultAddLiquid": [
+		5,
+		"0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2",
+		"USDC",
+		"0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2",
+		[2],
+		1,
+		0
+	],
+
+	"VaultListQuery": []
+}

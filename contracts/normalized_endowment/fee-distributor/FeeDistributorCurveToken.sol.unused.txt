@@ -1,0 +1,508 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.16;
+
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+struct Point {
+    int128 bias;
+    int128 slope;
+    uint256 ts;
+    uint256 blk;
+}
+
+interface IcurIncentivisedVotingLockup {
+    function checkpoint() external;
+
+    function globalEpoch() external view returns (uint256);
+
+    function pointHistory(uint256) external view returns (Point memory);
+
+    function userPointEpoch(address) external view returns (uint256);
+
+    function userPointHistory(address, uint256)
+        external
+        view
+        returns (Point memory);
+}
+
+/**
+ * @title Curve Fee Distribution Contract
+ */
+contract FeeDistributorCurveToken is Initializable, ReentrancyGuard {
+    uint256 constant WEEK = 7 * 86400;
+    uint256 constant TOKEN_CHECKPOINT_DEADLINE = 86400;
+
+    struct data {
+        uint256 startTime;
+        uint256 timeCursor;
+        mapping(address => uint256) timeCursorOf;
+        mapping(address => uint256) userEpochOf;
+        uint256 lastTokenTime;
+        mapping(uint256 => uint256) tokensPerWeek;
+        address votingEscrow;
+        address token;
+        uint256 totalReceived;
+        uint256 tokenLastBalance;
+        mapping(uint256 => uint256) veSupply;
+        address admin;
+        address futureAdmin;
+        bool canCheckpointToken;
+        address emergencyReturn;
+        bool isKilled;
+    }
+    data public state;
+
+    /**
+     * @notice Contract constructor
+     * @param curVotingEscrow VotingEscrow contract address
+     * @param curStartTime Epoch time for fee distribution to start
+     * @param curToken Fee token address (3CRV)
+     * @param curAdmin Admin address
+     * @param curEmergencyReturn Address to transfer `curToken` balance to
+     *                          if this contract is killed
+     */
+    function initFeeDistributor(
+        address curVotingEscrow,
+        uint256 curStartTime,
+        address curToken,
+        address curAdmin,
+        address curEmergencyReturn
+    ) external initializer {
+        uint256 t = (curStartTime / WEEK) * WEEK;
+        state.startTime = t;
+        state.lastTokenTime = t;
+        state.timeCursor = t;
+        state.token = curToken;
+        state.votingEscrow = curVotingEscrow;
+        state.admin = curAdmin;
+        state.emergencyReturn = curEmergencyReturn;
+    }
+
+    /**
+     * @notice Update the token checkpoint
+     * @dev Calculates the total number of tokens to be distributed in a given week.
+     *      During setup for the initial distribution this function is only callable
+     *      by the contract owner. Beyond initial distro, it can be enabled for anyone
+     *      to call.
+     */
+    function checkpointToken() public nonReentrant {
+        // assert (msg.sender == self.admin) or\
+        //    (self.can_checkpoint_token and (block.timestamp > self.last_token_time + TOKEN_CHECKPOINT_DEADLINE))
+        assert(
+            msg.sender == state.admin ||
+                (state.canCheckpointToken &&
+                    block.timestamp >
+                    state.lastTokenTime + TOKEN_CHECKPOINT_DEADLINE)
+        );
+        uint256 tokenBalance = IERC20(state.token).balanceOf(address(this));
+        uint256 toDistribute = tokenBalance - state.tokenLastBalance;
+        state.tokenLastBalance = tokenBalance;
+
+        uint256 t = state.lastTokenTime;
+        uint256 sinceLast = block.timestamp - t;
+        state.lastTokenTime = block.timestamp;
+        uint256 thisWeek = (t / WEEK) * WEEK;
+        uint256 nextWeek = 0;
+
+        for (uint256 i = 0; i < 20; i++) {
+            nextWeek = thisWeek + WEEK;
+            if (block.timestamp < nextWeek) {
+                if (sinceLast == 0 && block.timestamp == t) {
+                    state.tokensPerWeek[thisWeek] += toDistribute;
+                } else {
+                    state.tokensPerWeek[thisWeek] +=
+                        (toDistribute * (block.timestamp - t)) /
+                        sinceLast;
+                }
+                break;
+            } else {
+                if (sinceLast == 0 && nextWeek == t) {
+                    state.tokensPerWeek[thisWeek] += toDistribute;
+                } else {
+                    state.tokensPerWeek[thisWeek] +=
+                        (toDistribute * (nextWeek - t)) /
+                        sinceLast;
+                }
+            }
+            t = nextWeek;
+            thisWeek = nextWeek;
+        }
+
+        // emit CheckpointToken(block.timestamp, toDistribute);
+    }
+
+    function findTimestampEpoch(address ve, uint256 timestamp)
+        internal
+        view
+        returns (uint256)
+    {
+        uint256 mini = 0;
+        uint256 maxi = IcurIncentivisedVotingLockup(ve).globalEpoch();
+        for (uint256 i = 0; i < 128; i++) {
+            if (mini >= maxi) {
+                break;
+            }
+            uint256 mid = (mini + maxi + 2) / 2;
+            Point memory pt = IcurIncentivisedVotingLockup(ve).pointHistory(
+                mid
+            );
+            if (pt.ts <= timestamp) {
+                mini = mid;
+            } else {
+                maxi = mid - 1;
+            }
+        }
+        return mini;
+    }
+
+    function findTimestampUserEpoch(
+        address ve,
+        address user,
+        uint256 timestamp,
+        uint256 maxUserEpoch
+    ) internal view returns (uint256) {
+        uint256 mini = 0;
+        uint256 maxi = maxUserEpoch;
+        for (uint256 i = 0; i < 128; i++) {
+            if (mini >= maxi) {
+                break;
+            }
+            uint256 mid = (mini + maxi + 2) / 2;
+            Point memory pt = IcurIncentivisedVotingLockup(ve).userPointHistory(
+                user,
+                mid
+            );
+            if (pt.ts <= timestamp) {
+                mini = mid;
+            } else {
+                maxi = mid - 1;
+            }
+        }
+        return mini;
+    }
+
+    /**
+     * @notice Get the veCRV balance for `curUser` at `_timestamp`
+     * @param user Address to query balance for
+     * @param timestamp Epoch time
+     * @return uint256 veCRV balance
+     */
+    function veForAt(address user, uint256 timestamp)
+        public
+        view
+        returns (uint256)
+    {
+        address ve = state.votingEscrow;
+        uint256 maxUserEpoch = IcurIncentivisedVotingLockup(ve).userPointEpoch(
+            user
+        );
+        uint256 epoch = findTimestampUserEpoch(
+            ve,
+            user,
+            timestamp,
+            maxUserEpoch
+        );
+        Point memory pt = IcurIncentivisedVotingLockup(ve).userPointHistory(
+            user,
+            epoch
+        );
+        return
+            pt.bias - pt.slope * int128(uint128(timestamp - pt.ts)) < 0
+                ? 0
+                : uint256(
+                    uint128(
+                        pt.bias - pt.slope * int128(uint128(timestamp - pt.ts))
+                    )
+                );
+    }
+
+    /**
+     * @notice Update the veCRV total supply checkpoint
+     * @dev The checkpoint is also updated by the first claimant each
+     *      new epoch week. This function may be called independently
+     *      of a claim, to reduce claiming gas costs.
+     */
+    function checkpointTotalSupply() public nonReentrant {
+        IcurIncentivisedVotingLockup(state.votingEscrow).checkpoint();
+        uint256 t = state.timeCursor;
+        uint256 roundedTimestamp = (block.timestamp / WEEK) * WEEK;
+        for (uint256 i = 0; i < 20; i++) {
+            if (t > roundedTimestamp) {
+                break;
+            } else {
+                uint256 epoch = findTimestampEpoch(state.votingEscrow, t);
+                Point memory pt = IcurIncentivisedVotingLockup(
+                    state.votingEscrow
+                ).pointHistory(epoch);
+                int128 dt = 0;
+                if (t > pt.ts) {
+                    dt = int128(uint128(t - pt.ts));
+                }
+                state.veSupply[t] = pt.bias - pt.slope * dt < 0
+                    ? 0
+                    : uint256(uint128(pt.bias - pt.slope * dt));
+            }
+            t += WEEK;
+        }
+        state.timeCursor = t;
+    }
+
+    function _claim(
+        address addr,
+        address ve,
+        uint256 curLastTokenTime
+    ) internal returns (uint256) {
+        uint256 userEpoch = 0;
+        uint256 toDistribute = 0;
+
+        uint256 maxUserEpoch = IcurIncentivisedVotingLockup(ve).userPointEpoch(
+            addr
+        );
+        uint256 startTime = state.startTime;
+
+        if (maxUserEpoch == 0) {
+            return 0;
+        }
+
+        uint256 weekCursor = state.timeCursorOf[addr];
+        if (weekCursor == 0) {
+            userEpoch = findTimestampUserEpoch(
+                ve,
+                addr,
+                startTime,
+                maxUserEpoch
+            );
+        } else {
+            userEpoch = state.userEpochOf[addr];
+        }
+
+        if (userEpoch == 0) {
+            userEpoch = 1;
+        }
+
+        Point memory userPoint = IcurIncentivisedVotingLockup(ve)
+            .userPointHistory(addr, userEpoch);
+
+        if (weekCursor == 0) {
+            weekCursor = ((userPoint.ts + WEEK - 1) / WEEK) * WEEK;
+        }
+
+        if (weekCursor >= curLastTokenTime) {
+            return 0;
+        }
+
+        if (weekCursor < startTime) {
+            weekCursor = startTime;
+        }
+        Point memory oldUserPoint;
+
+        for (uint256 i = 0; i < 50; i++) {
+            if (weekCursor >= curLastTokenTime) {
+                break;
+            }
+
+            if (weekCursor >= userPoint.ts && userEpoch <= maxUserEpoch) {
+                userEpoch += 1;
+                oldUserPoint = userPoint;
+                if (userEpoch > maxUserEpoch) {
+                    userPoint = Point(0, 0, 0, 0);
+                } else {
+                    userPoint = IcurIncentivisedVotingLockup(ve)
+                        .userPointHistory(addr, userEpoch);
+                }
+            } else {
+                int128 dt = int128(uint128(weekCursor - oldUserPoint.ts));
+                uint256 balanceOf = oldUserPoint.bias -
+                    dt *
+                    oldUserPoint.slope <
+                    0
+                    ? 0
+                    : uint256(
+                        uint128(oldUserPoint.bias - dt * oldUserPoint.slope)
+                    );
+                if (balanceOf == 0 && userEpoch > maxUserEpoch) {
+                    break;
+                }
+                if (balanceOf > 0) {
+                    toDistribute +=
+                        (balanceOf * state.tokensPerWeek[weekCursor]) /
+                        state.veSupply[weekCursor];
+                }
+                weekCursor += WEEK;
+            }
+        }
+
+        userEpoch = userEpoch - 1 > maxUserEpoch ? maxUserEpoch : userEpoch - 1;
+        state.userEpochOf[addr] = userEpoch;
+        state.timeCursorOf[addr] = weekCursor;
+
+        // emit Claimed(addr, toDistribute, userEpoch, maxUserEpoch);
+        return toDistribute;
+    }
+
+    /**
+     * @notice Claim fees for `curAddr`
+     * @dev Each call to claim look at a maximum of 50 user veCRV points.
+     *      For accounts with many veCRV related actions, this function
+     *      may need to be called more than once to claim all available
+     *      fees. In the `Claimed` event that fires, if `claim_epoch` is
+     *      less than `max_epoch`, the account may claim again.
+     * @param addr Address to claim fees for
+     * @return uint256 Amount of fees claimed in the call
+     */
+    function claim(address addr) external nonReentrant returns (uint256) {
+        if (addr == address(0)) {
+            addr = msg.sender;
+        }
+        require(!state.isKilled, "Contract is killed");
+
+        if (block.timestamp >= state.timeCursor) {
+            checkpointTotalSupply();
+        }
+
+        uint256 lastTokenTime = state.lastTokenTime;
+        if (
+            state.canCheckpointToken &&
+            block.timestamp > lastTokenTime + TOKEN_CHECKPOINT_DEADLINE
+        ) {
+            checkpointToken();
+            lastTokenTime = block.timestamp;
+        }
+
+        lastTokenTime = (lastTokenTime / WEEK) * WEEK;
+        uint256 amount = _claim(addr, state.votingEscrow, lastTokenTime);
+        if (amount != 0) {
+            state.tokenLastBalance -= amount;
+            require(IERC20(state.token).transfer(addr, amount), "Transfer failed");
+        }
+        return amount;
+    }
+
+    /**
+     * @notice Claim fees for `_addrs`
+     * @dev Each call to claim look at a maximum of 50 user veCRV points.
+     *      For accounts with many veCRV related actions, this function
+     *      may need to be called more than once to claim all available
+     *      fees. In the `Claimed` event that fires, if `claim_epoch` is
+     *      less than `max_epoch`, the account may claim again.
+     * @param addrs Addresses to claim fees for
+     * @return bool success
+     */
+    function claimMany(address[] calldata addrs)
+        external
+        nonReentrant
+        returns (bool)
+    {
+        require(!state.isKilled, "Contract is killed");
+
+        if (block.timestamp >= state.timeCursor) {
+            checkpointTotalSupply();
+        }
+
+        uint256 lastTokenTime = state.lastTokenTime;
+        if (
+            state.canCheckpointToken &&
+            block.timestamp > lastTokenTime + TOKEN_CHECKPOINT_DEADLINE
+        ) {
+            checkpointToken();
+            lastTokenTime = block.timestamp;
+        }
+
+        lastTokenTime = (lastTokenTime / WEEK) * WEEK;
+        uint256 amount = 0;
+        for (uint256 i = 0; i < addrs.length; i++) {
+            amount += _claim(addrs[i], state.votingEscrow, lastTokenTime);
+        }
+        if (amount != 0) {
+            state.tokenLastBalance -= amount;
+            require(IERC20(state.token).transfer(msg.sender, amount), "Transfer failed");
+        }
+        return true;
+    }
+
+    /**
+     * @notice Receive 3CRV into the contract and trigger a token checkpoint
+     * @param curCoin Address of the coin being received (must be 3CRV)
+     * @return bool success
+     */
+    function burn(address curCoin) external nonReentrant returns (bool) {
+        require(curCoin == state.token, "Invalid coin");
+        require(!state.isKilled, "Contract is killed");
+        uint256 amount = IERC20(curCoin).balanceOf(msg.sender);
+        if (amount != 0) {
+            require(IERC20(curCoin).transferFrom(msg.sender, address(this), amount), "TransferFrom failed");
+            if (
+                state.canCheckpointToken &&
+                block.timestamp >
+                state.lastTokenTime + TOKEN_CHECKPOINT_DEADLINE
+            ) {
+                checkpointToken();
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @notice Commit transfer of ownership
+     * @param addr New admin address
+     */
+    function commitAdmin(address addr) external nonReentrant {
+        require(msg.sender == state.admin, "Access denied");
+        state.futureAdmin = addr;
+        // emit CommitAdmin(addr);
+    }
+
+    /**
+     * @notice Apply transfer of ownership
+     */
+    function applyAdmin() external nonReentrant {
+        require(msg.sender == state.admin, "Access denied");
+        require(state.futureAdmin != address(0), "Invalid address");
+        state.admin = state.futureAdmin;
+        // emit ApplyAdmin(state.futureAdmin);
+    }
+
+    /**
+     * @notice Toggle permission for checkpointing by any account
+     */
+    function toggleAllowCheckpointToken() external nonReentrant {
+        require(msg.sender == state.admin, "Access denied");
+        state.canCheckpointToken = !state.canCheckpointToken;
+        // emit ToggleAllowCheckpointToken(state.canCheckpointToken);
+    }
+
+    /**
+     * @notice Kill the contract
+     * @dev Killing transfers the entire 3CRV balance to the emergency return address
+     *      and blocks the ability to claim or burn. The contract cannot be unkilled.
+     */
+    function killMe() external nonReentrant {
+        require(msg.sender == state.admin, "Access denied");
+        state.isKilled = true;
+        require(IERC20(state.token).transfer(
+            state.emergencyReturn,
+            IERC20(state.token).balanceOf(address(this))
+        ), "Transfer failed");
+    }
+
+    /**
+     * @notice Recover ERC20 tokens from this contract
+     * @dev Tokens are sent to the emergency return address.
+     * @param curCoin Token address
+     * @return bool success
+     */
+    function recoverBalance(address curCoin)
+        external
+        nonReentrant
+        returns (bool)
+    {
+        require(msg.sender == state.admin, "Access denied");
+        require(curCoin != state.token, "Invalid coin");
+        uint256 amount = IERC20(curCoin).balanceOf(address(this));
+        bool success = IERC20(curCoin).transfer(state.emergencyReturn, amount);
+        require(success, "Transfer failed");
+        return true;
+    }
+}

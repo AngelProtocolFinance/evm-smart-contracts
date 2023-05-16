@@ -1,45 +1,46 @@
-import { HardhatUserConfig, task } from "hardhat/config";
-import { envConfig } from "./utils/env.config" 
+import { HardhatUserConfig } from "hardhat/config";
+import { envConfig, accounts } from "./utils" 
 import "@nomiclabs/hardhat-etherscan";
 import "@nomicfoundation/hardhat-chai-matchers"
 import '@openzeppelin/hardhat-upgrades';
 import "@nomiclabs/hardhat-ethers";
 import "@typechain/hardhat";
-import "solidity-coverage";
-import { env } from "process";
-
-// Tasks
-import "./tasks/accounts"
-import "./tasks/deploy"
-import "./tasks/manage"
+require("tsconfig-paths/register") // must use `require`, otherwise TS complains about missing declaration files
+// import "hardhat-abi-exporter"
+import "./tasks"
 
 const config: HardhatUserConfig = {
-  solidity:{
-    version: "0.8.15",
+  defaultNetwork: "hardhat",
+  solidity: {
+    version: "0.8.18",
     settings: {
-      optimizer: { 
-        enabled: true, 
-        runs: 200
-      }
-    }
+        optimizer: {
+            enabled: true,
+            runs: 200,
+        },
+        viaIR: true
+    },
   },
   networks: {
     "mainnet": {
       url: envConfig.mainnetRPC,
-      accounts: [envConfig.deployer, envConfig.user]
+      accounts: accounts
     },
     "goerli": {
       url: envConfig.goerliRPC,
-      accounts: [envConfig.deployer, envConfig.user]
+      accounts: accounts
     },
     "mumbai": {
       url: envConfig.mumbaiRPC,
-      accounts: [envConfig.deployer, envConfig.user]
+      accounts: accounts
     },
     "polygon": {
       url: envConfig.polygonRPC,
-      accounts: [envConfig.deployer, envConfig.user]
+      accounts: accounts
     }
+  },
+  mocha: {
+    timeout: 400000,
   },
   etherscan: {
     apiKey: {
@@ -48,7 +49,27 @@ const config: HardhatUserConfig = {
       polygon: envConfig.polyscanAPIKey,
       polygonMumbai: envConfig.polyscanAPIKey
     }
-  }
+  },
+  // abiExporter: [
+  //   {
+  //       path: "./abi/json",
+  //       runOnCompile: true,
+  //       clear: true,
+  //       flat: false,
+  //       spacing: 2,
+  //       format: "json",
+  //       except: ["IAxelarGateway"],
+  //   },
+  //   {
+  //       path: "./abi/minimal",
+  //       runOnCompile: true,
+  //       clear: true,
+  //       flat: false,
+  //       spacing: 2,
+  //       format: "minimal",
+  //       except: ["IAxelarGateway"],
+  //   },
+  // ]
 }
 
 export default config;

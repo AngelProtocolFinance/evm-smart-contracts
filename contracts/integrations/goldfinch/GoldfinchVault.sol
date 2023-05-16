@@ -6,6 +6,7 @@ pragma solidity >=0.8.0;
 import {IVault} from "../../interfaces/IVault.sol";
 import {IRegistrarGoldfinch} from "./IRegistrarGoldfinch.sol";
 import {APGoldfinchConfigLib} from "./APGoldfinchConfig.sol";
+import {LocalRegistrarLib} from "../../core/registrar/lib/LocalRegistrarLib.sol";
 
 // Integrations
 import {IStakingRewards} from "./IStakingRewards.sol";
@@ -79,12 +80,12 @@ contract GoldfinchVault is IVault, IERC721Receiver {
     }
 
     function _isApprovedRouter() internal view override returns (bool){
-        IRegistrarGoldfinch.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
+        LocalRegistrarLib.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
         return(apParams.routerAddr == msg.sender);
     }
 
     function _isSiblingVault() internal view returns (bool) {
-        IRegistrarGoldfinch.StrategyParams memory stratParams = registrar.getStrategyParamsById(STRATEGY_ID);
+        LocalRegistrarLib.StrategyParams memory stratParams = registrar.getStrategyParamsById(STRATEGY_ID);
         return(msg.sender == stratParams.Locked.vaultAddr);
     }
 
@@ -153,7 +154,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
         address token,
         uint256 amt
     ) external payable override approvedRouterOnly onlyUSDC(token) nonzeroPositionOnly(accountId) returns (uint256)  {
-        IRegistrarGoldfinch.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
+        LocalRegistrarLib.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
         IStakingRewards.StakedPosition memory position = stakingPool.getPosition(tokenIdByAccountId[accountId]);
 
         _claimGFI(accountId);                                                                               // harvest GFI -> Tax Collector
@@ -176,7 +177,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
     /// @return redemptionAmt returns the number of tokens redeemed by the call
     function redeemAll(uint32 accountId) payable external override approvedRouterOnly nonzeroPositionOnly(accountId) returns (uint256) {
         IStakingRewards.StakedPosition memory position = stakingPool.getPosition(tokenIdByAccountId[accountId]);
-        IRegistrarGoldfinch.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
+        LocalRegistrarLib.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
 
         _claimGFI(accountId);      
         uint256 yield_withPrecision = _calcYield_withPrecision(accountId, position.amount);             // determine yield as a rate demoninated in USDC
@@ -199,7 +200,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
     /// on the target yield strategy and VaultType. Only callable by an Angel Protocol Keeper
     /// @param accountIds Used to specify whether the harvest should be called against a specific account or accounts
     function harvest(uint32[] calldata accountIds) external override approvedRouterOnly {
-        IRegistrarGoldfinch.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
+        LocalRegistrarLib.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
         for (uint256 i; i < accountIds.length; i++) {
             _harvestSingle(accountIds[i], apParams);
         }
@@ -230,7 +231,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
 
     function _harvestSingle(
         uint32 accountId, 
-        IRegistrarGoldfinch.AngelProtocolParams memory apParams
+        LocalRegistrarLib.AngelProtocolParams memory apParams
         ) internal nonzeroPositionOnly(accountId) {
         IStakingRewards.StakedPosition memory position = stakingPool.getPosition(tokenIdByAccountId[accountId]);
         
@@ -257,7 +258,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
         }
 
         // For locked vaults, we rebal and deposit to liquid
-        IRegistrarGoldfinch.RebalanceParams memory rbParams = registrar.getRebalanceParams();
+        LocalRegistrarLib.RebalanceParams memory rbParams = registrar.getRebalanceParams();
         uint256 rebalAmt = ((taxableAmt - tax) * rbParams.lockedRebalanceToLiquid) / rbParams.basis;
         
         // Unstake necessary FIDU to cover tax + rebalance to liquid 
@@ -269,13 +270,13 @@ contract GoldfinchVault is IVault, IERC721Receiver {
         require(IERC20(USDC).transfer(apParams.protocolTaxCollector, tax));     // Scrape tax USDC to tax collector
 
         // Rebalance to sibling vault
-        IRegistrarGoldfinch.StrategyParams memory stratParams = registrar.getStrategyParamsById(STRATEGY_ID);
+        LocalRegistrarLib.StrategyParams memory stratParams = registrar.getStrategyParamsById(STRATEGY_ID);
         require(IERC20(USDC).transfer(stratParams.Liquid.vaultAddr, (redeemedUSDC - tax))); 
         IVault(stratParams.Liquid.vaultAddr).deposit(accountId, USDC, (redeemedUSDC - tax));
     }
 
     function _taxRedemption(
-        IRegistrarGoldfinch.AngelProtocolParams memory apParams, 
+        LocalRegistrarLib.AngelProtocolParams memory apParams, 
         uint256 yield_withPrecision, 
         uint256 redeemedAmt) internal returns (uint256) {
         uint256 taxedAmt = _calcTax(yield_withPrecision, redeemedAmt);
@@ -314,12 +315,12 @@ contract GoldfinchVault is IVault, IERC721Receiver {
     function _claimGFI(uint32 accountId) internal {
         stakingPool.getReward(tokenIdByAccountId[accountId]);
         uint256 bal = IERC20(GFI).balanceOf(address(this));
-        IRegistrarGoldfinch.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
+        LocalRegistrarLib.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
         require(IERC20(GFI).transfer(apParams.protocolTaxCollector, bal));
     } 
 
     function _calcTax(uint256 yield_withPrecision, uint256 taxableAmt) internal view returns (uint256) {
-        IRegistrarGoldfinch.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
+        LocalRegistrarLib.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
         return ((yield_withPrecision * taxableAmt * apParams.protocolTaxRate)/apParams.protocolTaxBasis)/PRECISION;
     }   
 

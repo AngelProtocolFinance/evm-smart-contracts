@@ -1,8 +1,22 @@
-## Local dev env
+## Local env
 node_modules
+.idea
+package-lock.json
+.yarnclean
+.vscode
+.env
+.prettierrc
+.nvmrc
+contract-address-local.json
+dist
+
+#Coverage files
+coverage
+
+#Hardhat files
 cache
 artifacts
-dist
-.env
 .openzeppelin
-.vscode
+
+# Py
+Pipfile.lock
