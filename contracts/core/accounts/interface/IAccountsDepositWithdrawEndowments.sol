@@ -14,7 +14,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 interface IAccountsDepositWithdrawEndowments {
     function depositDonationMatchErC20(
-        uint256 curId,
+        uint32 curId,
         address curTokenAddress,
         uint256 curAmount
     ) external;
@@ -31,10 +31,10 @@ interface IAccountsDepositWithdrawEndowments {
     ) external;
 
     function withdraw(
-        uint256 curId,
+        uint32 curId,
         AngelCoreStruct.AccountType acctType,
         address curBeneficiaryAddress,
-        uint256 curBeneficiaryEndowId,
+        uint32 curBeneficiaryEndowId,
         address curTokenAddress,
         uint256 curAmount
     ) external;

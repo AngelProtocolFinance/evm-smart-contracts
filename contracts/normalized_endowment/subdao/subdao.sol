@@ -180,10 +180,7 @@ library SubDaoLib {
             curEndowType == AngelCoreStruct.EndowmentType.Normal
         ) {
             require(
-                AngelCoreStruct.cw20Valid(
-                    registrar_config.acceptedTokens.cw20,
-                    curToken.data.existingCw20Data
-                ),
+                IRegistrar(config.registrarContract).isTokenAccepted(curToken.data.existingCw20Data),
                 "NotInApprovedCoins"
             );
             config.daoToken = curToken.data.existingCw20Data;

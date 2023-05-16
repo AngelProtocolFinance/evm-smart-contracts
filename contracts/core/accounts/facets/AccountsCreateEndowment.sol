@@ -8,6 +8,7 @@ import {AccountMessages} from "../message.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interface/IRegistrar.sol";
+import {LocalRegistrarLib} from "../../registrar/lib/LocalRegistrarLib.sol";
 // import {Cw3EndowmentMessages, CW3Endowment} from "./../../../normalized_endowment/cw3-endowment/CW3Endowment.sol";
 import {SubDao, subDaoMessage} from "./../../../normalized_endowment/subdao/subdao.sol";
 import {ISubDao} from "./../../../normalized_endowment/subdao/Isubdao.sol";
@@ -28,7 +29,7 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
      */
     function createEndowment(
         AccountMessages.CreateEndowmentRequest memory curDetails
-    ) public nonReentrant returns (uint256) {
+    ) public nonReentrant returns (uint32) {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
 
         address registrarAddress = state.config.registrarContract;
@@ -97,9 +98,8 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                 maturityTime: curDetails.maturityTime,
                 strategies: AngelCoreStruct.accountStrategiesDefaut(),
                 oneoffVaults: AngelCoreStruct.oneOffVaultsDefault(),
-                rebalance: AngelCoreStruct.rebalanceDetailsDefaut(),
+                rebalance: IRegistrar(registrarAddress).getRebalanceParams(),
                 pendingRedemptions: 0,
-                copycatStrategy: 0,
                 multisig: curDetails.owner,
                 dao: address(0),
                 daoToken: address(0),
@@ -119,7 +119,8 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                 settingsController: curDetails.settingsController,
                 parent: curDetails.parent,
                 ignoreUserSplits: ignoreUserSplit,
-                splitToLiquid: splitSettings
+                splitToLiquid: splitSettings,
+                kycDonorsOnly: false
             });
 
         // state.STATES[state.config.nextAccountId] = AccountStorage
@@ -136,10 +137,10 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
         state.STATES[state.config.nextAccountId].closingEndowment = false;
         state.STATES[state.config.nextAccountId].lockedForever = false;
 
-        emit UpdateEndowmentState(
-            state.config.nextAccountId,
-            state.STATES[state.config.nextAccountId]
-        );
+        // emit UpdateEndowmentState(
+        //     state.config.nextAccountId,
+        //     state.STATES[state.config.nextAccountId]
+        // );
 
         state.ENDOWMENTS[state.config.nextAccountId].owner = IEndowmentMultiSigFactory(registrar_config.multisigFactory)
             .create(

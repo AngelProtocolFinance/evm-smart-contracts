@@ -344,18 +344,11 @@ library AngelCoreStruct {
     }
 
     function deductTokens(
-        address[] memory curAddress,
-        uint256[] memory curAmount,
-        address curDeducttokenfor,
+        uint256 curAmount,
         uint256 curDeductamount
-    ) public pure returns (uint256[] memory) {
-        for (uint8 i = 0; i < curAddress.length; i++) {
-            if (curAddress[i] == curDeducttokenfor) {
-                require(curAmount[i] > curDeductamount, "Insufficient Funds");
-                curAmount[i] -= curDeductamount;
-            }
-        }
-
+    ) public pure returns (uint256) {
+        require(curAmount > curDeductamount, "Insufficient Funds");
+        curAmount -= curDeductamount;
         return curAmount;
     }
 

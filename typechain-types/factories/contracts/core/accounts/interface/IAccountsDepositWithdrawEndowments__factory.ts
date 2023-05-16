@@ -19,7 +19,7 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "curToken",
+        name: "curTokenAddress",
         type: "address",
       },
       {
@@ -59,7 +59,7 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "curTokenaddress",
+        name: "curTokenAddress",
         type: "address",
       },
       {
@@ -98,28 +98,9 @@ const _abi = [
         type: "tuple",
       },
     ],
-    name: "depositEth",
+    name: "depositMatic",
     outputs: [],
     stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "vaultAddr",
-        type: "address",
-      },
-    ],
-    name: "harvest",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -140,14 +121,14 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "address[]",
-        name: "curTokenaddress",
-        type: "address[]",
+        internalType: "address",
+        name: "curTokenAddress",
+        type: "address",
       },
       {
-        internalType: "uint256[]",
+        internalType: "uint256",
         name: "curAmount",
-        type: "uint256[]",
+        type: "uint256",
       },
     ],
     name: "withdraw",

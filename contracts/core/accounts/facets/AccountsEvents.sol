@@ -37,5 +37,5 @@ abstract contract AccountsEvents {
         uint256 curAmountout
     );
     event EndowmentSettingUpdated(uint256 id, string setting);
-    event UpdateEndowmentState(uint256 id, AccountStorage.EndowmentState state);
+    // event UpdateEndowmentState(uint256 id, AccountStorage.EndowmentState state);
 }

@@ -31,6 +31,31 @@ const _abi = [
             name: "registrarContract",
             type: "address",
           },
+          {
+            internalType: "uint256",
+            name: "nextAccountId",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "maxGeneralCategoryId",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "subDao",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "gateway",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "gasReceiver",
+            type: "address",
+          },
         ],
         internalType: "struct AccountMessages.ConfigResponse",
         name: "config",
@@ -177,18 +202,18 @@ const _abi = [
             components: [
               {
                 internalType: "bool",
-                name: "rebalanceLiquidInvestedProfits",
+                name: "rebalanceLiquidProfits",
                 type: "bool",
               },
               {
-                internalType: "bool",
-                name: "lockedInterestsToLiquid",
-                type: "bool",
+                internalType: "uint32",
+                name: "lockedRebalanceToLiquid",
+                type: "uint32",
               },
               {
-                internalType: "uint256",
-                name: "interest_distribution",
-                type: "uint256",
+                internalType: "uint32",
+                name: "interestDistribution",
+                type: "uint32",
               },
               {
                 internalType: "bool",
@@ -196,14 +221,24 @@ const _abi = [
                 type: "bool",
               },
               {
-                internalType: "uint256",
-                name: "principle_distribution",
-                type: "uint256",
+                internalType: "uint32",
+                name: "principleDistribution",
+                type: "uint32",
+              },
+              {
+                internalType: "uint32",
+                name: "basis",
+                type: "uint32",
               },
             ],
-            internalType: "struct AngelCoreStruct.RebalanceDetails",
+            internalType: "struct LocalRegistrarLib.RebalanceParams",
             name: "rebalance",
             type: "tuple",
+          },
+          {
+            internalType: "bool",
+            name: "kycDonorsOnly",
+            type: "bool",
           },
           {
             internalType: "uint256",
@@ -219,6 +254,11 @@ const _abi = [
             internalType: "uint256",
             name: "proposalLink",
             type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "multisig",
+            type: "address",
           },
           {
             internalType: "address",

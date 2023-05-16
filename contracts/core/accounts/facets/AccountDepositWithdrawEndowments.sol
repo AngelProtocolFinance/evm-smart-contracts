@@ -229,7 +229,7 @@ contract AccountDepositWithdrawEndowments is
      * @param curAmount The amount of the token to deposit
      */
     function depositDonationMatchErC20(
-        uint256 curId,
+        uint32 curId,
         address curTokenAddress,
         uint256 curAmount
     ) external {}
@@ -304,12 +304,7 @@ contract AccountDepositWithdrawEndowments is
             curDetails.id
         ];
 
-        require(
-            tempEndowment.depositApproved,
-            "Deposits are not approved for this endowment"
-        );
         require(curTokenAddress != address(0), "Invalid ERC20 token");
-
         require(
             curDetails.lockedPercentage + curDetails.liquidPercentage == 100,
             "InvalidSplit"
@@ -420,7 +415,7 @@ contract AccountDepositWithdrawEndowments is
             curTokenAddress,
             liquidAmount
         );
-        emit UpdateEndowmentState(curDetails.id, state.STATES[curDetails.id]);
+        // emit UpdateEndowmentState(curDetails.id, state.STATES[curDetails.id]);
 
         state.ENDOWMENTS[curDetails.id] = tempEndowment;
         emit UpdateEndowment(curDetails.id, tempEndowment);
@@ -437,10 +432,10 @@ contract AccountDepositWithdrawEndowments is
      * @param curAmount The amount to withdraw
      */
     function withdraw(
-        uint256 curId,
+        uint32 curId,
         AngelCoreStruct.AccountType acctType,
         address curBeneficiaryAddress,
-        uint256 curBeneficiaryEndowId,
+        uint32 curBeneficiaryEndowId,
         address curTokenAddress,
         uint256 curAmount
     ) public nonReentrant {
@@ -535,8 +530,6 @@ contract AccountDepositWithdrawEndowments is
             );
         }
 
-        AngelCoreStruct.GenericBalance memory state_bal;
-
         uint256 current_bal;
         if (acctType == AngelCoreStruct.AccountType.Locked) {
             current_bal = state.STATES[curId].balances.locked.balancesByToken[curTokenAddress];
@@ -594,7 +587,7 @@ contract AccountDepositWithdrawEndowments is
             require(!state.STATES[curBeneficiaryEndowId].closingEndowment, "Beneficiary endowment is closed");
             // Send deposit message to 100% Liquid account of an endowment
             processToken(
-                AccountMessages.DepositRequest { id: curId, lockedPercentage: 0, liquidPercentage: 100 },
+                AccountMessages.DepositRequest({ id: curId, lockedPercentage: 0, liquidPercentage: 100 }),
                 curTokenAddress,
                 (curAmount - withdrawFeeAp - withdrawFeeEndow)
             );
@@ -607,6 +600,6 @@ contract AccountDepositWithdrawEndowments is
             state.STATES[curId].balances.liquid.balancesByToken[curTokenAddress] -= curAmount;
         }
         
-        emit UpdateEndowmentState(curId, state.STATES[curId]);
+        // emit UpdateEndowmentState(curId, state.STATES[curId]);
     }
 }

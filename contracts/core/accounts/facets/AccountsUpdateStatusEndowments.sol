@@ -90,7 +90,7 @@ contract AccountsUpdateStatusEndowments is
         state.ENDOWMENTS[curId] = tempEndowment;
 
         emit UpdateEndowment(curId, state.ENDOWMENTS[curId]);
-        emit UpdateEndowmentState(curId, state.STATES[curId]);
+        // emit UpdateEndowmentState(curId, state.STATES[curId]);
 
         // remove closing endowment from all Index Funds that it is in
         if (funds.length > 0) {

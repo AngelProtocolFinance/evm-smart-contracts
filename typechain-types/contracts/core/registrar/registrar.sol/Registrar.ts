@@ -27,108 +27,6 @@ import type {
   PromiseOrValue,
 } from "../../../../common";
 
-export declare namespace AngelCoreStruct {
-  export type YieldVaultStruct = {
-    addr: PromiseOrValue<string>;
-    network: PromiseOrValue<BigNumberish>;
-    inputDenom: PromiseOrValue<string>;
-    yieldToken: PromiseOrValue<string>;
-    approved: PromiseOrValue<boolean>;
-    restrictedFrom: PromiseOrValue<BigNumberish>[];
-    acctType: PromiseOrValue<BigNumberish>;
-    vaultType: PromiseOrValue<BigNumberish>;
-  };
-
-  export type YieldVaultStructOutput = [
-    string,
-    BigNumber,
-    string,
-    string,
-    boolean,
-    number[],
-    number,
-    number
-  ] & {
-    addr: string;
-    network: BigNumber;
-    inputDenom: string;
-    yieldToken: string;
-    approved: boolean;
-    restrictedFrom: number[];
-    acctType: number;
-    vaultType: number;
-  };
-
-  export type NetworkInfoStruct = {
-    name: PromiseOrValue<string>;
-    chainId: PromiseOrValue<BigNumberish>;
-    router: PromiseOrValue<string>;
-    axelerGateway: PromiseOrValue<string>;
-    ibcChannel: PromiseOrValue<string>;
-    transferChannel: PromiseOrValue<string>;
-    gasReceiver: PromiseOrValue<string>;
-    gasLimit: PromiseOrValue<BigNumberish>;
-  };
-
-  export type NetworkInfoStructOutput = [
-    string,
-    BigNumber,
-    string,
-    string,
-    string,
-    string,
-    string,
-    BigNumber
-  ] & {
-    name: string;
-    chainId: BigNumber;
-    router: string;
-    axelerGateway: string;
-    ibcChannel: string;
-    transferChannel: string;
-    gasReceiver: string;
-    gasLimit: BigNumber;
-  };
-
-  export type SplitDetailsStruct = {
-    max: PromiseOrValue<BigNumberish>;
-    min: PromiseOrValue<BigNumberish>;
-    defaultSplit: PromiseOrValue<BigNumberish>;
-  };
-
-  export type SplitDetailsStructOutput = [BigNumber, BigNumber, BigNumber] & {
-    max: BigNumber;
-    min: BigNumber;
-    defaultSplit: BigNumber;
-  };
-
-  export type AcceptedTokensStruct = { cw20: PromiseOrValue<string>[] };
-
-  export type AcceptedTokensStructOutput = [string[]] & { cw20: string[] };
-
-  export type RebalanceDetailsStruct = {
-    rebalanceLiquidInvestedProfits: PromiseOrValue<boolean>;
-    lockedInterestsToLiquid: PromiseOrValue<boolean>;
-    interest_distribution: PromiseOrValue<BigNumberish>;
-    lockedPrincipleToLiquid: PromiseOrValue<boolean>;
-    principle_distribution: PromiseOrValue<BigNumberish>;
-  };
-
-  export type RebalanceDetailsStructOutput = [
-    boolean,
-    boolean,
-    BigNumber,
-    boolean,
-    BigNumber
-  ] & {
-    rebalanceLiquidInvestedProfits: boolean;
-    lockedInterestsToLiquid: boolean;
-    interest_distribution: BigNumber;
-    lockedPrincipleToLiquid: boolean;
-    principle_distribution: BigNumber;
-  };
-}
-
 export declare namespace LocalRegistrarLib {
   export type AngelProtocolParamsStruct = {
     protocolTaxRate: PromiseOrValue<BigNumberish>;
@@ -204,6 +102,51 @@ export declare namespace LocalRegistrarLib {
   };
 }
 
+export declare namespace AngelCoreStruct {
+  export type NetworkInfoStruct = {
+    name: PromiseOrValue<string>;
+    chainId: PromiseOrValue<BigNumberish>;
+    router: PromiseOrValue<string>;
+    axelarGateway: PromiseOrValue<string>;
+    ibcChannel: PromiseOrValue<string>;
+    transferChannel: PromiseOrValue<string>;
+    gasReceiver: PromiseOrValue<string>;
+    gasLimit: PromiseOrValue<BigNumberish>;
+  };
+
+  export type NetworkInfoStructOutput = [
+    string,
+    BigNumber,
+    string,
+    string,
+    string,
+    string,
+    string,
+    BigNumber
+  ] & {
+    name: string;
+    chainId: BigNumber;
+    router: string;
+    axelarGateway: string;
+    ibcChannel: string;
+    transferChannel: string;
+    gasReceiver: string;
+    gasLimit: BigNumber;
+  };
+
+  export type SplitDetailsStruct = {
+    max: PromiseOrValue<BigNumberish>;
+    min: PromiseOrValue<BigNumberish>;
+    defaultSplit: PromiseOrValue<BigNumberish>;
+  };
+
+  export type SplitDetailsStructOutput = [BigNumber, BigNumber, BigNumber] & {
+    max: BigNumber;
+    min: BigNumber;
+    defaultSplit: BigNumber;
+  };
+}
+
 export declare namespace RegistrarStorage {
   export type ConfigStruct = {
     applicationsReview: PromiseOrValue<string>;
@@ -223,12 +166,9 @@ export declare namespace RegistrarStorage {
     haloToken: PromiseOrValue<string>;
     haloTokenLpContract: PromiseOrValue<string>;
     govContract: PromiseOrValue<string>;
-    collectorAddr: PromiseOrValue<string>;
     collectorShare: PromiseOrValue<BigNumberish>;
     charitySharesContract: PromiseOrValue<string>;
-    acceptedTokens: AngelCoreStruct.AcceptedTokensStruct;
     fundraisingContract: PromiseOrValue<string>;
-    rebalance: AngelCoreStruct.RebalanceDetailsStruct;
     swapsRouter: PromiseOrValue<string>;
     multisigFactory: PromiseOrValue<string>;
     multisigEmitter: PromiseOrValue<string>;
@@ -258,12 +198,9 @@ export declare namespace RegistrarStorage {
     string,
     string,
     string,
-    string,
     BigNumber,
     string,
-    AngelCoreStruct.AcceptedTokensStructOutput,
     string,
-    AngelCoreStruct.RebalanceDetailsStructOutput,
     string,
     string,
     string,
@@ -291,12 +228,9 @@ export declare namespace RegistrarStorage {
     haloToken: string;
     haloTokenLpContract: string;
     govContract: string;
-    collectorAddr: string;
     collectorShare: BigNumber;
     charitySharesContract: string;
-    acceptedTokens: AngelCoreStruct.AcceptedTokensStructOutput;
     fundraisingContract: string;
-    rebalance: AngelCoreStruct.RebalanceDetailsStructOutput;
     swapsRouter: string;
     multisigFactory: string;
     multisigEmitter: string;
@@ -322,42 +256,33 @@ export declare namespace RegistrarMessages {
 
   export type InstantiateRequestStruct = {
     treasury: PromiseOrValue<string>;
-    taxRate: PromiseOrValue<BigNumberish>;
-    rebalance: AngelCoreStruct.RebalanceDetailsStruct;
     splitToLiquid: AngelCoreStruct.SplitDetailsStruct;
-    acceptedTokens: AngelCoreStruct.AcceptedTokensStruct;
     router: PromiseOrValue<string>;
-    axelerGateway: PromiseOrValue<string>;
+    axelarGateway: PromiseOrValue<string>;
+    axelarGasRecv: PromiseOrValue<string>;
   };
 
   export type InstantiateRequestStructOutput = [
     string,
-    BigNumber,
-    AngelCoreStruct.RebalanceDetailsStructOutput,
     AngelCoreStruct.SplitDetailsStructOutput,
-    AngelCoreStruct.AcceptedTokensStructOutput,
+    string,
     string,
     string
   ] & {
     treasury: string;
-    taxRate: BigNumber;
-    rebalance: AngelCoreStruct.RebalanceDetailsStructOutput;
     splitToLiquid: AngelCoreStruct.SplitDetailsStructOutput;
-    acceptedTokens: AngelCoreStruct.AcceptedTokensStructOutput;
     router: string;
-    axelerGateway: string;
+    axelarGateway: string;
+    axelarGasRecv: string;
   };
 
   export type UpdateConfigRequestStruct = {
     accountsContract: PromiseOrValue<string>;
-    taxRate: PromiseOrValue<BigNumberish>;
-    rebalance: AngelCoreStruct.RebalanceDetailsStruct;
     approved_charities: PromiseOrValue<string>[];
     splitMax: PromiseOrValue<BigNumberish>;
     splitMin: PromiseOrValue<BigNumberish>;
     splitDefault: PromiseOrValue<BigNumberish>;
     collectorShare: PromiseOrValue<BigNumberish>;
-    acceptedTokens: AngelCoreStruct.AcceptedTokensStruct;
     subdaoGovCode: PromiseOrValue<string>;
     subdaoCw20TokenCode: PromiseOrValue<string>;
     subdaoBondingTokenCode: PromiseOrValue<string>;
@@ -388,14 +313,11 @@ export declare namespace RegistrarMessages {
 
   export type UpdateConfigRequestStructOutput = [
     string,
-    BigNumber,
-    AngelCoreStruct.RebalanceDetailsStructOutput,
     string[],
     BigNumber,
     BigNumber,
     BigNumber,
     BigNumber,
-    AngelCoreStruct.AcceptedTokensStructOutput,
     string,
     string,
     string,
@@ -424,14 +346,11 @@ export declare namespace RegistrarMessages {
     string
   ] & {
     accountsContract: string;
-    taxRate: BigNumber;
-    rebalance: AngelCoreStruct.RebalanceDetailsStructOutput;
     approved_charities: string[];
     splitMax: BigNumber;
     splitMin: BigNumber;
     splitDefault: BigNumber;
     collectorShare: BigNumber;
-    acceptedTokens: AngelCoreStruct.AcceptedTokensStructOutput;
     subdaoGovCode: string;
     subdaoCw20TokenCode: string;
     subdaoBondingTokenCode: string;
@@ -488,10 +407,11 @@ export interface RegistrarInterface extends utils.Interface {
     "getRebalanceParams()": FunctionFragment;
     "getStrategyApprovalState(bytes4)": FunctionFragment;
     "getStrategyParamsById(bytes4)": FunctionFragment;
-    "initialize((address,uint256,(bool,bool,uint256,bool,uint256),(uint256,uint256,uint256),(address[]),address,address))": FunctionFragment;
+    "initialize((address,(uint256,uint256,uint256),address,address,address))": FunctionFragment;
     "initialize()": FunctionFragment;
     "isTokenAccepted(address)": FunctionFragment;
     "owner()": FunctionFragment;
+    "queryAllStrategies()": FunctionFragment;
     "queryConfig()": FunctionFragment;
     "queryFee(string)": FunctionFragment;
     "queryNetworkConnection(uint256)": FunctionFragment;
@@ -505,7 +425,7 @@ export interface RegistrarInterface extends utils.Interface {
     "setStrategyParams(bytes4,address,address,uint8)": FunctionFragment;
     "setTokenAccepted(address,bool)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
-    "updateConfig((address,uint256,(bool,bool,uint256,bool,uint256),string[],uint256,uint256,uint256,uint256,(address[]),address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address))": FunctionFragment;
+    "updateConfig((address,string[],uint256,uint256,uint256,uint256,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address))": FunctionFragment;
     "updateFees((string[],uint256[]))": FunctionFragment;
     "updateNetworkConnections((string,uint256,address,address,string,string,address,uint256),string)": FunctionFragment;
   };
@@ -519,10 +439,11 @@ export interface RegistrarInterface extends utils.Interface {
       | "getRebalanceParams"
       | "getStrategyApprovalState"
       | "getStrategyParamsById"
-      | "initialize((address,uint256,(bool,bool,uint256,bool,uint256),(uint256,uint256,uint256),(address[]),address,address))"
+      | "initialize((address,(uint256,uint256,uint256),address,address,address))"
       | "initialize()"
       | "isTokenAccepted"
       | "owner"
+      | "queryAllStrategies"
       | "queryConfig"
       | "queryFee"
       | "queryNetworkConnection"
@@ -570,7 +491,7 @@ export interface RegistrarInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "initialize((address,uint256,(bool,bool,uint256,bool,uint256),(uint256,uint256,uint256),(address[]),address,address))",
+    functionFragment: "initialize((address,(uint256,uint256,uint256),address,address,address))",
     values: [RegistrarMessages.InstantiateRequestStruct]
   ): string;
   encodeFunctionData(
@@ -582,6 +503,10 @@ export interface RegistrarInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "queryAllStrategies",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "queryConfig",
     values?: undefined
@@ -681,7 +606,7 @@ export interface RegistrarInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "initialize((address,uint256,(bool,bool,uint256,bool,uint256),(uint256,uint256,uint256),(address[]),address,address))",
+    functionFragment: "initialize((address,(uint256,uint256,uint256),address,address,address))",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -693,6 +618,10 @@ export interface RegistrarInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "queryAllStrategies",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "queryConfig",
     data: BytesLike
@@ -754,7 +683,6 @@ export interface RegistrarInterface extends utils.Interface {
 
   events: {
     "AccountsContractStorageChanged(string,string)": EventFragment;
-    "AddVault(string,tuple)": EventFragment;
     "AngelProtocolParamsChanged(tuple)": EventFragment;
     "DeleteNetworkConnection(uint256)": EventFragment;
     "GasFeeUpdated(address,uint256)": EventFragment;
@@ -762,19 +690,16 @@ export interface RegistrarInterface extends utils.Interface {
     "OwnershipTransferred(address,address)": EventFragment;
     "PostNetworkConnection(uint256,tuple)": EventFragment;
     "RebalanceParamsChanged(tuple)": EventFragment;
-    "RemoveVault(string)": EventFragment;
     "StrategyApprovalChanged(bytes4,uint8)": EventFragment;
     "StrategyParamsChanged(bytes4,address,address,uint8)": EventFragment;
     "TokenAcceptanceChanged(address,bool)": EventFragment;
     "UpdateRegistrarConfig(tuple)": EventFragment;
     "UpdateRegistrarFees(tuple)": EventFragment;
-    "UpdateVault(string,bool,uint8[])": EventFragment;
   };
 
   getEvent(
     nameOrSignatureOrTopic: "AccountsContractStorageChanged"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AddVault"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AngelProtocolParamsChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DeleteNetworkConnection"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GasFeeUpdated"): EventFragment;
@@ -782,13 +707,11 @@ export interface RegistrarInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PostNetworkConnection"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RebalanceParamsChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RemoveVault"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StrategyApprovalChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StrategyParamsChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenAcceptanceChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdateRegistrarConfig"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdateRegistrarFees"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "UpdateVault"): EventFragment;
 }
 
 export interface AccountsContractStorageChangedEventObject {
@@ -802,17 +725,6 @@ export type AccountsContractStorageChangedEvent = TypedEvent<
 
 export type AccountsContractStorageChangedEventFilter =
   TypedEventFilter<AccountsContractStorageChangedEvent>;
-
-export interface AddVaultEventObject {
-  strategyName: string;
-  vault: AngelCoreStruct.YieldVaultStructOutput;
-}
-export type AddVaultEvent = TypedEvent<
-  [string, AngelCoreStruct.YieldVaultStructOutput],
-  AddVaultEventObject
->;
-
-export type AddVaultEventFilter = TypedEventFilter<AddVaultEvent>;
 
 export interface AngelProtocolParamsChangedEventObject {
   newAngelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStructOutput;
@@ -889,13 +801,6 @@ export type RebalanceParamsChangedEvent = TypedEvent<
 export type RebalanceParamsChangedEventFilter =
   TypedEventFilter<RebalanceParamsChangedEvent>;
 
-export interface RemoveVaultEventObject {
-  strategyName: string;
-}
-export type RemoveVaultEvent = TypedEvent<[string], RemoveVaultEventObject>;
-
-export type RemoveVaultEventFilter = TypedEventFilter<RemoveVaultEvent>;
-
 export interface StrategyApprovalChangedEventObject {
   _strategyId: string;
   _approvalState: number;
@@ -956,18 +861,6 @@ export type UpdateRegistrarFeesEvent = TypedEvent<
 export type UpdateRegistrarFeesEventFilter =
   TypedEventFilter<UpdateRegistrarFeesEvent>;
 
-export interface UpdateVaultEventObject {
-  strategyName: string;
-  approved: boolean;
-  endowmentTypes: number[];
-}
-export type UpdateVaultEvent = TypedEvent<
-  [string, boolean, number[]],
-  UpdateVaultEventObject
->;
-
-export type UpdateVaultEventFilter = TypedEventFilter<UpdateVaultEvent>;
-
 export interface Registrar extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
@@ -1027,7 +920,7 @@ export interface Registrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[LocalRegistrarLib.StrategyParamsStructOutput]>;
 
-    "initialize((address,uint256,(bool,bool,uint256,bool,uint256),(uint256,uint256,uint256),(address[]),address,address))"(
+    "initialize((address,(uint256,uint256,uint256),address,address,address))"(
       curDetails: RegistrarMessages.InstantiateRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -1042,6 +935,10 @@ export interface Registrar extends BaseContract {
     ): Promise<[boolean]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
+
+    queryAllStrategies(
+      overrides?: CallOverrides
+    ): Promise<[string[]] & { allStrategies: string[] }>;
 
     queryConfig(
       overrides?: CallOverrides
@@ -1166,7 +1063,7 @@ export interface Registrar extends BaseContract {
     overrides?: CallOverrides
   ): Promise<LocalRegistrarLib.StrategyParamsStructOutput>;
 
-  "initialize((address,uint256,(bool,bool,uint256,bool,uint256),(uint256,uint256,uint256),(address[]),address,address))"(
+  "initialize((address,(uint256,uint256,uint256),address,address,address))"(
     curDetails: RegistrarMessages.InstantiateRequestStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -1181,6 +1078,8 @@ export interface Registrar extends BaseContract {
   ): Promise<boolean>;
 
   owner(overrides?: CallOverrides): Promise<string>;
+
+  queryAllStrategies(overrides?: CallOverrides): Promise<string[]>;
 
   queryConfig(
     overrides?: CallOverrides
@@ -1301,7 +1200,7 @@ export interface Registrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<LocalRegistrarLib.StrategyParamsStructOutput>;
 
-    "initialize((address,uint256,(bool,bool,uint256,bool,uint256),(uint256,uint256,uint256),(address[]),address,address))"(
+    "initialize((address,(uint256,uint256,uint256),address,address,address))"(
       curDetails: RegistrarMessages.InstantiateRequestStruct,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -1314,6 +1213,8 @@ export interface Registrar extends BaseContract {
     ): Promise<boolean>;
 
     owner(overrides?: CallOverrides): Promise<string>;
+
+    queryAllStrategies(overrides?: CallOverrides): Promise<string[]>;
 
     queryConfig(
       overrides?: CallOverrides
@@ -1410,12 +1311,6 @@ export interface Registrar extends BaseContract {
       accountsContractAddress?: PromiseOrValue<string> | null
     ): AccountsContractStorageChangedEventFilter;
 
-    "AddVault(string,tuple)"(
-      strategyName?: null,
-      vault?: null
-    ): AddVaultEventFilter;
-    AddVault(strategyName?: null, vault?: null): AddVaultEventFilter;
-
     "AngelProtocolParamsChanged(tuple)"(
       newAngelProtocolParams?: null
     ): AngelProtocolParamsChangedEventFilter;
@@ -1465,9 +1360,6 @@ export interface Registrar extends BaseContract {
       newRebalanceParams?: null
     ): RebalanceParamsChangedEventFilter;
 
-    "RemoveVault(string)"(strategyName?: null): RemoveVaultEventFilter;
-    RemoveVault(strategyName?: null): RemoveVaultEventFilter;
-
     "StrategyApprovalChanged(bytes4,uint8)"(
       _strategyId?: PromiseOrValue<BytesLike> | null,
       _approvalState?: null
@@ -1508,17 +1400,6 @@ export interface Registrar extends BaseContract {
       details?: null
     ): UpdateRegistrarFeesEventFilter;
     UpdateRegistrarFees(details?: null): UpdateRegistrarFeesEventFilter;
-
-    "UpdateVault(string,bool,uint8[])"(
-      strategyName?: null,
-      approved?: null,
-      endowmentTypes?: null
-    ): UpdateVaultEventFilter;
-    UpdateVault(
-      strategyName?: null,
-      approved?: null,
-      endowmentTypes?: null
-    ): UpdateVaultEventFilter;
   };
 
   estimateGas: {
@@ -1548,7 +1429,7 @@ export interface Registrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "initialize((address,uint256,(bool,bool,uint256,bool,uint256),(uint256,uint256,uint256),(address[]),address,address))"(
+    "initialize((address,(uint256,uint256,uint256),address,address,address))"(
       curDetails: RegistrarMessages.InstantiateRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1563,6 +1444,8 @@ export interface Registrar extends BaseContract {
     ): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    queryAllStrategies(overrides?: CallOverrides): Promise<BigNumber>;
 
     queryConfig(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1682,7 +1565,7 @@ export interface Registrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "initialize((address,uint256,(bool,bool,uint256,bool,uint256),(uint256,uint256,uint256),(address[]),address,address))"(
+    "initialize((address,(uint256,uint256,uint256),address,address,address))"(
       curDetails: RegistrarMessages.InstantiateRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -1697,6 +1580,10 @@ export interface Registrar extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    queryAllStrategies(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     queryConfig(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

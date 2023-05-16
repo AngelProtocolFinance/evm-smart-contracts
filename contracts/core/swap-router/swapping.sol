@@ -151,41 +151,37 @@ contract SwapRouter is Storage {
     }
 
     /**
-     * @dev This function swaps multiple tokens for the specified output token and returns the amount obtained.
-     * @param curTokenin address[]
-     * @param curTokenout address[]
-     * @param curAmountin uint256
-     * @param curAmountout uint256[]
+     * @dev This function swaps a token for the specified output token and returns the amount obtained.
+     * @param curTokenIn address
+     * @param curTokenOut address
+     * @param curAmountIn uint256
+     * @param curAmountOut uint256
      * @return amountPossible Returns the amount of token obtained after swapping the tokens.
      */
     function executeSwapOperations(
-        address[] memory curTokenin,
-        address curTokenout,
-        uint256[] memory curAmountin,
-        uint256 curAmountout
+        address curTokenIn,
+        address curTokenOut,
+        uint256 curAmountIn,
+        uint256 curAmountOut
     ) public returns (uint256) {
-        uint256 callLength = curTokenin.length;
 
-        require(callLength > 0, "Invalid callToken length");
+        uint256 amountPossible;
+        
+        amountPossible += swap(
+            curTokenIn,
+            curTokenOut,
+            curAmountIn,
+            address(this)
+        );
 
-        uint256 amountPossible = 0;
-
-        for (uint8 i = 0; i < callLength; i++) {
-            amountPossible += swap(
-                curTokenin[i],
-                curTokenout,
-                curAmountin[i],
-                address(this)
-            );
-        }
 
         require(
-            amountPossible >= curAmountout,
+            amountPossible >= curAmountOut,
             "Output funds less than the minimum funds"
         );
 
         require(
-            IERC20(curTokenout).transfer(msg.sender, amountPossible),
+            IERC20(curTokenOut).transfer(msg.sender, amountPossible),
             "Transfer failed"
         );
 

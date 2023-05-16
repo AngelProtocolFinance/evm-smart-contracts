@@ -28,6 +28,18 @@ import type {
   PromiseOrValue,
 } from "../../../common";
 
+export declare namespace IRouter {
+  export type RedemptionResponseStruct = {
+    amount: PromiseOrValue<BigNumberish>;
+    status: PromiseOrValue<BigNumberish>;
+  };
+
+  export type RedemptionResponseStructOutput = [BigNumber, number] & {
+    amount: BigNumber;
+    status: number;
+  };
+}
+
 export interface GoldfinchVaultInterface extends utils.Interface {
   functions: {
     "FIDU()": FunctionFragment;
@@ -342,7 +354,7 @@ export interface GoldfinchVault extends BaseContract {
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<IRouter.RedemptionResponseStructOutput>;
 
     redeemAll(
       accountId: PromiseOrValue<BigNumberish>,

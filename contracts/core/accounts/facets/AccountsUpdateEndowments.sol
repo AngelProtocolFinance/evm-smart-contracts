@@ -34,12 +34,9 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             curDetails.id
         ];
-        // AccountStorage.Config memory tempConfig = state.config;
-        AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[
-            curDetails.id
-        ];
-        require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
-        require(!tempEndowmentState.lockedForever, "Settings are locked forever");
+
+        require(!state.STATES[curDetails.id].closingEndowment, "UpdatesAfterClosed");
+        require(!state.STATES[curDetails.id].lockedForever, "Settings are locked forever");
 
         // there are several fields that are restricted to changing only by the Endowment Owner
         if (msg.sender == tempEndowment.owner) {
@@ -148,30 +145,29 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
     @param delegateExpiry The timestamp at which the delegate's permission expires
     */
     function updateDelegate(
-        uint256 id,
+        uint32 id,
         string memory setting,
         string memory action,
         address delegateAddress,
         uint256 delegateExpiry
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[id];
         AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];
 
-        require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
-        require(!tempEndowmentState.lockedForever, "Settings are locked forever");
-        require(tempEndowmentState.settingsController[setting], "Invalid input"); 
+        require(!state.STATES[id].closingEndowment, "UpdatesAfterClosed");
+        require(!state.STATES[id].lockedForever, "Settings are locked forever");
+        require(state.STATES[id].settingsController[setting], "Invalid input");
 
         if (
             keccak256(abi.encodePacked(action)) == keccak256(abi.encodePacked("set"))
         ) {
             require(msg.sender == tempEndowment.owner, "Unauthorized");
-            tempEndowmentState.settingsController[setting] = AngelCoreStruct.Delegate({addr: delegateAddress, expires: delegateExpiry});
+            state.STATES[id].settingsController[setting] = AngelCoreStruct.Delegate({addr: delegateAddress, expires: delegateExpiry});
         } else if (
             keccak256(abi.encodePacked(action)) == keccak256(abi.encodePacked("revoke"))
         ) {
             require(AngelCoreStruct.canChange(msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
-            tempEndowmentState.settingsController[setting] = AngelCoreStruct.Delegate({addr: address(0), expires: 0});
+            state.STATES[id].settingsController[setting] = AngelCoreStruct.Delegate({addr: address(0), expires: 0});
         }
 
         emit UpdateEndowment(id, tempEndowment);

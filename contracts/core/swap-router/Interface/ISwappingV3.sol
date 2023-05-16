@@ -17,9 +17,9 @@ interface ISwappingV3 {
     ) external payable returns (uint256);
 
     function executeSwapOperations(
-        address[] memory curTokenin,
-        address curTokenout,
-        uint256[] memory curAmountin,
-        uint256 curAmountout
+        address curTokenIn,
+        address curTokenOut,
+        uint256 curAmountIn,
+        uint256 curAmountOut
     ) external returns (uint256);
 }

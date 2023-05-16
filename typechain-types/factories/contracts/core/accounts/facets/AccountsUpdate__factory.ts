@@ -456,18 +456,18 @@ const _abi = [
             components: [
               {
                 internalType: "bool",
-                name: "rebalanceLiquidInvestedProfits",
+                name: "rebalanceLiquidProfits",
                 type: "bool",
               },
               {
-                internalType: "bool",
-                name: "lockedInterestsToLiquid",
-                type: "bool",
+                internalType: "uint32",
+                name: "lockedRebalanceToLiquid",
+                type: "uint32",
               },
               {
-                internalType: "uint256",
-                name: "interest_distribution",
-                type: "uint256",
+                internalType: "uint32",
+                name: "interestDistribution",
+                type: "uint32",
               },
               {
                 internalType: "bool",
@@ -475,14 +475,24 @@ const _abi = [
                 type: "bool",
               },
               {
-                internalType: "uint256",
-                name: "principle_distribution",
-                type: "uint256",
+                internalType: "uint32",
+                name: "principleDistribution",
+                type: "uint32",
+              },
+              {
+                internalType: "uint32",
+                name: "basis",
+                type: "uint32",
               },
             ],
-            internalType: "struct AngelCoreStruct.RebalanceDetails",
+            internalType: "struct LocalRegistrarLib.RebalanceParams",
             name: "rebalance",
             type: "tuple",
+          },
+          {
+            internalType: "bool",
+            name: "kycDonorsOnly",
+            type: "bool",
           },
           {
             internalType: "uint256",
@@ -498,6 +508,11 @@ const _abi = [
             internalType: "uint256",
             name: "proposalLink",
             type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "multisig",
+            type: "address",
           },
           {
             internalType: "address",
@@ -1177,6 +1192,11 @@ const _abi = [
             type: "address",
           },
           {
+            internalType: "string",
+            name: "version",
+            type: "string",
+          },
+          {
             internalType: "address",
             name: "registrarContract",
             type: "address",
@@ -1190,6 +1210,26 @@ const _abi = [
             internalType: "uint256",
             name: "maxGeneralCategoryId",
             type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "subDao",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "gateway",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "gasReceiver",
+            type: "address",
+          },
+          {
+            internalType: "bool",
+            name: "reentrancyGuardLocked",
+            type: "bool",
           },
         ],
         indexed: false,
@@ -1337,18 +1377,18 @@ const _abi = [
             components: [
               {
                 internalType: "bool",
-                name: "rebalanceLiquidInvestedProfits",
+                name: "rebalanceLiquidProfits",
                 type: "bool",
               },
               {
-                internalType: "bool",
-                name: "lockedInterestsToLiquid",
-                type: "bool",
+                internalType: "uint32",
+                name: "lockedRebalanceToLiquid",
+                type: "uint32",
               },
               {
-                internalType: "uint256",
-                name: "interest_distribution",
-                type: "uint256",
+                internalType: "uint32",
+                name: "interestDistribution",
+                type: "uint32",
               },
               {
                 internalType: "bool",
@@ -1356,14 +1396,24 @@ const _abi = [
                 type: "bool",
               },
               {
-                internalType: "uint256",
-                name: "principle_distribution",
-                type: "uint256",
+                internalType: "uint32",
+                name: "principleDistribution",
+                type: "uint32",
+              },
+              {
+                internalType: "uint32",
+                name: "basis",
+                type: "uint32",
               },
             ],
-            internalType: "struct AngelCoreStruct.RebalanceDetails",
+            internalType: "struct LocalRegistrarLib.RebalanceParams",
             name: "rebalance",
             type: "tuple",
+          },
+          {
+            internalType: "bool",
+            name: "kycDonorsOnly",
+            type: "bool",
           },
           {
             internalType: "uint256",
@@ -1379,6 +1429,11 @@ const _abi = [
             internalType: "uint256",
             name: "proposalLink",
             type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "multisig",
+            type: "address",
           },
           {
             internalType: "address",
@@ -1961,134 +2016,6 @@ const _abi = [
     type: "event",
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "id",
-        type: "uint256",
-      },
-      {
-        components: [
-          {
-            components: [
-              {
-                internalType: "uint256",
-                name: "locked",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
-                name: "liquid",
-                type: "uint256",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.DonationsReceived",
-            name: "donationsReceived",
-            type: "tuple",
-          },
-          {
-            components: [
-              {
-                components: [
-                  {
-                    internalType: "uint256",
-                    name: "coinNativeAmount",
-                    type: "uint256",
-                  },
-                  {
-                    internalType: "uint256[]",
-                    name: "Cw20CoinVerified_amount",
-                    type: "uint256[]",
-                  },
-                  {
-                    internalType: "address[]",
-                    name: "Cw20CoinVerified_addr",
-                    type: "address[]",
-                  },
-                ],
-                internalType: "struct AngelCoreStruct.GenericBalance",
-                name: "locked",
-                type: "tuple",
-              },
-              {
-                components: [
-                  {
-                    internalType: "uint256",
-                    name: "coinNativeAmount",
-                    type: "uint256",
-                  },
-                  {
-                    internalType: "uint256[]",
-                    name: "Cw20CoinVerified_amount",
-                    type: "uint256[]",
-                  },
-                  {
-                    internalType: "address[]",
-                    name: "Cw20CoinVerified_addr",
-                    type: "address[]",
-                  },
-                ],
-                internalType: "struct AngelCoreStruct.GenericBalance",
-                name: "liquid",
-                type: "tuple",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.BalanceInfo",
-            name: "balances",
-            type: "tuple",
-          },
-          {
-            internalType: "bool",
-            name: "closingEndowment",
-            type: "bool",
-          },
-          {
-            components: [
-              {
-                components: [
-                  {
-                    internalType: "uint256",
-                    name: "id",
-                    type: "uint256",
-                  },
-                  {
-                    internalType: "address",
-                    name: "addr",
-                    type: "address",
-                  },
-                ],
-                internalType: "struct AngelCoreStruct.BeneficiaryData",
-                name: "data",
-                type: "tuple",
-              },
-              {
-                internalType: "enum AngelCoreStruct.BeneficiaryEnum",
-                name: "enumData",
-                type: "uint8",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.Beneficiary",
-            name: "closingBeneficiary",
-            type: "tuple",
-          },
-          {
-            internalType: "bool",
-            name: "lockedForever",
-            type: "bool",
-          },
-        ],
-        indexed: false,
-        internalType: "struct AccountStorage.EndowmentState",
-        name: "state",
-        type: "tuple",
-      },
-    ],
-    name: "UpdateEndowmentState",
-    type: "event",
-  },
-  {
     inputs: [
       {
         internalType: "address",
@@ -2122,7 +2049,7 @@ const _abi = [
 ] as const;
 
 const _bytecode =
-  "0x608080604052346100165761053f908161001c8239f35b600080fdfe604060808152600436101561001357600080fd5b600090813560e01c806318a74064146101355763880cdc311461003557600080fd5b346101315760203660031901126101315761004e61030a565b6100566103f9565b61007860018060a01b036000805160206104ea83398151915254163314610325565b610081816104d1565b156100ed576000805160206104ea83398151915280546001600160a01b0319166001600160a01b039092169190911790557fac1d08a003ef1a59dc293567c82fb7944f492767e6c4aeae082aefb8600e11349051806100df81610360565b0390a16100ea61049a565b80f35b815162461bcd60e51b815260206004820152601b60248201527f456e74657220612076616c6964206f776e6572206164647265737300000000006044820152606490fd5b5080fd5b50903461030757816003193601126103075761014f61030a565b9160243561015b6103f9565b8151936080850185811067ffffffffffffffff8211176102f357835260018060a01b0394856000805160206104ea83398151915254168082527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4687815416602084019081527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d47938454938882019485527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4896610221885492606085019384523314610325565b61022a816104d1565b156102af5791888c927fac1d08a003ef1a59dc293567c82fb7944f492767e6c4aeae082aefb8600e11349c9d61029195168096525251166000805160206104ea8339815191529060018060a01b03166bffffffffffffffffffffffff60a01b825416179055565b81546001600160a01b0319161790555190555551806100df81610360565b895162461bcd60e51b815260206004820152601960248201527f696e76616c6964207265676973747261722061646472657373000000000000006044820152606490fd5b634e487b7160e01b85526041600452602485fd5b80fd5b600435906001600160a01b038216820361032057565b600080fd5b1561032c57565b60405162461bcd60e51b815260206004820152600c60248201526b155b985d5d1a1bdc9a5e995960a21b6044820152606490fd5b6000805160206104ea833981519152546001600160a01b0390811682527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d46541660208201527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d475460408201527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4854606082015260800190565b7ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4b805460ff8160a01c16158015610491575b1561044c5733300361043b575050565b60ff60a01b1916600160a01b179055565b60405162461bcd60e51b815260206004820152601f60248201527f5265656e7472616e637947756172643a207265656e7472616e742063616c6c006044820152606490fd5b5033301461042b565b3330036104a357565b7ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4b805460ff60a01b19169055565b6001600160a01b0316156104e457600190565b60009056fef42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d45a2646970667358221220e9fe9c1a3497d83926566900d8fcf5da5b7bc5952ab19445f19767b5696ad35b64736f6c63430008120033";
+  "0x6080806040523461001657610ae1908161001c8239f35b600080fdfe6080604052600436101561001257600080fd5b60003560e01c806318a74064146101345763880cdc311461003257600080fd5b3461012f57602036600319011261012f5761004b6106d9565b6100536108ff565b61007560018060a01b03600080516020610a4c833981519152541633146106ef565b61007e816109b3565b156100ea57600080516020610a4c83398151915280546001600160a01b0319166001600160a01b039092169190911790557fb507e59cbd4727fd2e50fb1bbd46a14aff086b76fb09cf1cc14749c0f757e57b604051806100dd81610764565b0390a16100e861098e565b005b60405162461bcd60e51b815260206004820152601b60248201527f456e74657220612076616c6964206f776e6572206164647265737300000000006044820152606490fd5b600080fd5b3461012f57604036600319011261012f5761014d6106d9565b6101556108ff565b60405190610120820182811067ffffffffffffffff8211176106105760405260018060a01b03600080516020610a4c8339815191525416808352604051906000600080516020610a8c833981519152546101ae8161072a565b80855290600181169081156106bd575060011461066b575b50829003601f01601f191682019167ffffffffffffffff8311818410176106105760409283526020850152600080516020610a2c833981519152546001600160a01b03908116928501929092527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d485460608501527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d495460808501526000805160206109cc83398151915254821660a0808601919091526000805160206109ec83398151915254831660c0860152600080516020610a0c8339815191525492831660e08601529190911c60ff1615156101008401526102c59033146106ef565b6102ce816109b3565b15610626576001600160a01b03908116604083015260243560808301528151600080516020610a4c83398151915280546001600160a01b03191691909216179055602081015180519067ffffffffffffffff8211610610578190610340600080516020610a8c8339815191525461072a565b601f811161058f575b50602090601f83116001146104fd576000926104f2575b50508160011b916000199060031b1c191617600080516020610a8c833981519152555b60018060a01b036040820151166bffffffffffffffffffffffff60a01b9081600080516020610a2c833981519152541617600080516020610a2c8339815191525560608201517ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d485560808201517ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d495560018060a01b0360a083015116816000805160206109cc8339815191525416176000805160206109cc8339815191525560018060a01b0360c083015116906000805160206109ec8339815191525416176000805160206109ec8339815191525560018060a01b0360e082015116600080516020610a0c833981519152549161010060ff60a01b910151151560a01b16916affffffffffffffffffffff60a81b161717600080516020610a0c833981519152557fb507e59cbd4727fd2e50fb1bbd46a14aff086b76fb09cf1cc14749c0f757e57b604051806100dd81610764565b015190508380610360565b9250600080516020610a8c833981519152600052600080516020610a6c833981519152906000935b601f1984168510610574576001945083601f1981161061055b575b505050811b01600080516020610a8c83398151915255610383565b015160001960f88460031b161c19169055838080610540565b81810151835560209485019460019093019290910190610525565b909150600080516020610a8c833981519152600052601f830160051c600080516020610a6c83398151915201602084106105fb575b908392915b601f820160051c600080516020610a6c8339815191520181106105ec5750610349565b600081558493506001016105c9565b50600080516020610a6c8339815191526105c4565b634e487b7160e01b600052604160045260246000fd5b60405162461bcd60e51b815260206004820152601960248201527f696e76616c6964207265676973747261722061646472657373000000000000006044820152606490fd5b9050600080516020610a8c833981519152600052600080516020610a6c8339815191526000905b8282106106a7575060209150830101856101c6565b6001816020925483858901015201910190610692565b90506020925060ff191682850152151560051b830101856101c6565b600435906001600160a01b038216820361012f57565b156106f657565b60405162461bcd60e51b815260206004820152600c60248201526b155b985d5d1a1bdc9a5e995960a21b6044820152606490fd5b90600182811c9216801561075a575b602083101461074457565b634e487b7160e01b600052602260045260246000fd5b91607f1691610739565b60209081815260018060a01b0380600080516020610a4c83398151915254168383015261012090816040840152600093600080516020610a8c8339815191529081546107af8161072a565b928361014088015260019182811690816000146108d7575060011461088e575b505050508060ff91600080516020610a2c833981519152541660608501527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d485460808501527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d495460a0850152806000805160206109cc833981519152541660c0850152806000805160206109ec833981519152541660e0850152600080516020610a0c8339815191525490811661010085015260a01c16151591015290565b6000908152939650600080516020610a6c8339815191525b8385106108c257505050508201610160019260ff3880806107cf565b805487860161016001529382019381016108a6565b94935050505060ff9295506101609183191682860152151560051b84010193903880806107cf565b600080516020610a0c833981519152805460ff8160a01c16158015610985575b156109405733300361092f575050565b60ff60a01b1916600160a01b179055565b60405162461bcd60e51b815260206004820152601f60248201527f5265656e7472616e637947756172643a207265656e7472616e742063616c6c006044820152606490fd5b5033301461091f565b33300361099757565b600080516020610a0c833981519152805460ff60a01b19169055565b6001600160a01b0316156109c657600190565b60009056fef42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4af42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4bf42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4cf42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d47f42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d45ebb685a78b10aaac3bab71ad259c60cb6817d2de30fb2196f0835ca255c2a897f42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d46a264697066735822122014e318d79b8472f3e39f11ed953da1e6eaaadfc20c4d0c2e318e012c69067ca364736f6c63430008120033";
 
 type AccountsUpdateConstructorParams =
   | [signer?: Signer]

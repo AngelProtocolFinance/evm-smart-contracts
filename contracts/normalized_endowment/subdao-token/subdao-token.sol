@@ -68,13 +68,13 @@ contract SubDaoToken is Storage, ContinuousToken {
      * @dev This function is used to transfer an amount from the sender to the contract and divide it into four parts: donor's share, endowment's share, burn and the deposit in an endowment contract.
      * @param curAmount uint256
      * @param curAccountscontract address
-     * @param curEndowmentid uint256
+     * @param curEndowmentId uint256
      * @param curDonor address
      */
     function executeDonorMatch(
         uint256 curAmount,
         address curAccountscontract,
-        uint256 curEndowmentid,
+        uint32 curEndowmentId,
         address curDonor
     ) public {
         require(curAmount > 100, "InvalidZeroAmount");
@@ -102,7 +102,7 @@ contract SubDaoToken is Storage, ContinuousToken {
 
         IAccountsDepositWithdrawEndowments(curAccountscontract)
             .depositDonationMatchErC20(
-                curEndowmentid,
+                curEndowmentId,
                 address(this),
                 endowmentAmount
             );

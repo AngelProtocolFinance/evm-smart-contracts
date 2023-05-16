@@ -26,7 +26,7 @@ contract LockedWithdraw is
      * Modifiers
      */
 
-    modifier isEndowment(uint256 accountId) {
+    modifier isEndowment(uint32 accountId) {
         require(
             IEndowmentMultiSigFactory(config.endowFactory)
                 .endowmentIdToMultisig(accountId) == msg.sender,
@@ -46,12 +46,12 @@ contract LockedWithdraw is
     //     _;
     // }
 
-    modifier isPending(uint256 accountId) {
+    modifier isPending(uint32 accountId) {
         require(withdrawData[accountId].pending == true, "Pending Txns");
         _;
     }
 
-    // modifier isNotPending(uint256 accountId) {
+    // modifier isNotPending(uint32 accountId) {
     //     require(withdrawData[accountId].pending == false, "No Txns");
     //     _;
     // }
@@ -106,7 +106,7 @@ contract LockedWithdraw is
      * @param curAmount The amount of the token
      */
     function propose(
-        uint256 accountId,
+        uint32 accountId,
         address[] memory curTokenaddress,
         uint256[] memory curAmount
     ) public override nonReentrant isEndowment(accountId) {
@@ -131,7 +131,7 @@ contract LockedWithdraw is
      * @dev Reject a withdraw to free endowment to add another locked request
      */
     function reject(
-        uint256 accountId
+        uint32 accountId
     ) public override nonReentrant isApteam isPending(accountId) {
         emit LockedWithdrawRejected(accountId);
         withdrawData[accountId].pending = false;
@@ -143,7 +143,7 @@ contract LockedWithdraw is
      * @param accountId The account id of the endowment
      */
     function approve(
-        uint256 accountId
+        uint32 accountId
     ) public override nonReentrant isApteam isPending(accountId) {
         emit LockedWithdrawAPTeam(accountId, msg.sender);
 
@@ -164,7 +164,7 @@ contract LockedWithdraw is
      * @dev Execute withdraw message on accounts (internal function)
      * @param accountId The account id of the endowment
      */
-    function _executeWithdraw(uint256 accountId) internal {
+    function _executeWithdraw(uint32 accountId) internal {
         address[] memory curTargets = new address[](1);
 
         curTargets[0] = config.accounts;
@@ -175,7 +175,7 @@ contract LockedWithdraw is
         bytes[] memory curCalldatas = new bytes[](1);
 
         curCalldatas[0] = abi.encodeWithSignature(
-            "withdraw(uint256,uint8,address,uint256,address[],uint256[])",
+            "withdraw(uint32,uint8,address,uint32,address[],uint256[])",
             accountId,
             AngelCoreStruct.AccountType.Locked,
             address(0),

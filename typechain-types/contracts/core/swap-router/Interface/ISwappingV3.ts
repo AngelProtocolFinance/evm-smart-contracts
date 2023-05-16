@@ -26,7 +26,7 @@ import type {
 
 export interface ISwappingV3Interface extends utils.Interface {
   functions: {
-    "executeSwapOperations(address[],address,uint256[],uint256)": FunctionFragment;
+    "executeSwapOperations(address,address,uint256,uint256)": FunctionFragment;
     "swapEthToAnyToken(address)": FunctionFragment;
     "swapEthToToken()": FunctionFragment;
     "swapTokenToUsdc(address,uint256)": FunctionFragment;
@@ -43,9 +43,9 @@ export interface ISwappingV3Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "executeSwapOperations",
     values: [
-      PromiseOrValue<string>[],
       PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>[],
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
   ): string;
@@ -110,10 +110,10 @@ export interface ISwappingV3 extends BaseContract {
 
   functions: {
     executeSwapOperations(
-      curTokenin: PromiseOrValue<string>[],
-      curTokenout: PromiseOrValue<string>,
-      curAmountin: PromiseOrValue<BigNumberish>[],
-      curAmountout: PromiseOrValue<BigNumberish>,
+      curTokenIn: PromiseOrValue<string>,
+      curTokenOut: PromiseOrValue<string>,
+      curAmountIn: PromiseOrValue<BigNumberish>,
+      curAmountOut: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -134,10 +134,10 @@ export interface ISwappingV3 extends BaseContract {
   };
 
   executeSwapOperations(
-    curTokenin: PromiseOrValue<string>[],
-    curTokenout: PromiseOrValue<string>,
-    curAmountin: PromiseOrValue<BigNumberish>[],
-    curAmountout: PromiseOrValue<BigNumberish>,
+    curTokenIn: PromiseOrValue<string>,
+    curTokenOut: PromiseOrValue<string>,
+    curAmountIn: PromiseOrValue<BigNumberish>,
+    curAmountOut: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -158,10 +158,10 @@ export interface ISwappingV3 extends BaseContract {
 
   callStatic: {
     executeSwapOperations(
-      curTokenin: PromiseOrValue<string>[],
-      curTokenout: PromiseOrValue<string>,
-      curAmountin: PromiseOrValue<BigNumberish>[],
-      curAmountout: PromiseOrValue<BigNumberish>,
+      curTokenIn: PromiseOrValue<string>,
+      curTokenOut: PromiseOrValue<string>,
+      curAmountIn: PromiseOrValue<BigNumberish>,
+      curAmountOut: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -183,10 +183,10 @@ export interface ISwappingV3 extends BaseContract {
 
   estimateGas: {
     executeSwapOperations(
-      curTokenin: PromiseOrValue<string>[],
-      curTokenout: PromiseOrValue<string>,
-      curAmountin: PromiseOrValue<BigNumberish>[],
-      curAmountout: PromiseOrValue<BigNumberish>,
+      curTokenIn: PromiseOrValue<string>,
+      curTokenOut: PromiseOrValue<string>,
+      curAmountIn: PromiseOrValue<BigNumberish>,
+      curAmountOut: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -208,10 +208,10 @@ export interface ISwappingV3 extends BaseContract {
 
   populateTransaction: {
     executeSwapOperations(
-      curTokenin: PromiseOrValue<string>[],
-      curTokenout: PromiseOrValue<string>,
-      curAmountin: PromiseOrValue<BigNumberish>[],
-      curAmountout: PromiseOrValue<BigNumberish>,
+      curTokenIn: PromiseOrValue<string>,
+      curTokenOut: PromiseOrValue<string>,
+      curAmountIn: PromiseOrValue<BigNumberish>,
+      curAmountOut: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -18,5 +18,5 @@ library LockedWithdrawStorage {
 
 contract Storage {
     LockedWithdrawStorage.Config config;
-    mapping(uint256 => LockedWithdrawStorage.Withdraw) withdrawData;
+    mapping(uint32 => LockedWithdrawStorage.Withdraw) withdrawData;
 }

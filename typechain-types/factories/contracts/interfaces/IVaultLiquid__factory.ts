@@ -155,9 +155,21 @@ const _abi = [
     name: "redeem",
     outputs: [
       {
-        internalType: "uint256",
+        components: [
+          {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+          {
+            internalType: "enum IRouter.VaultActionStatus",
+            name: "status",
+            type: "uint8",
+          },
+        ],
+        internalType: "struct IRouter.RedemptionResponse",
         name: "",
-        type: "uint256",
+        type: "tuple",
       },
     ],
     stateMutability: "payable",
