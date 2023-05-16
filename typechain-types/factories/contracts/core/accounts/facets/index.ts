@@ -10,8 +10,6 @@ export { AccountsCreateEndowment__factory } from "./AccountsCreateEndowment__fac
 export { AccountsDAOEndowments__factory } from "./AccountsDAOEndowments__factory";
 export { AccountsEvents__factory } from "./AccountsEvents__factory";
 export { AccountsQueryEndowments__factory } from "./AccountsQueryEndowments__factory";
-export { AccountsStrategiesCopyEndowments__factory } from "./AccountsStrategiesCopyEndowments__factory";
-export { AccountsStrategiesUpdateEndowments__factory } from "./AccountsStrategiesUpdateEndowments__factory";
 export { AccountsSwapEndowments__factory } from "./AccountsSwapEndowments__factory";
 export { AccountsUpdate__factory } from "./AccountsUpdate__factory";
 export { AccountsUpdateEndowmentSettingsController__factory } from "./AccountsUpdateEndowmentSettingsController__factory";

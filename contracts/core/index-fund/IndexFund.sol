@@ -10,7 +10,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {IndexFundMessage} from "./message.sol";
 import {AngelCoreStruct} from "../struct.sol";
-import {Array} from "../../lib/array.sol";
+import {Array, Array32} from "../../lib/array.sol";
 import {Utils} from "../../lib/utils.sol";
 import {AddressArray} from "../../lib/address/array.sol";
 import {IRegistrar} from "../registrar/interface/IRegistrar.sol";
@@ -262,9 +262,9 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
         uint32 index;
         for (uint32 i = 0; i < state.FUNDS_BY_ENDOWMENT[member].length; i++) {
             uint256 fundId = state.FUNDS_BY_ENDOWMENT[member][i];
-            (index, found) = Array.indexOf32(state.FUNDS[fundId].members, member);
+            (index, found) = Array32.indexOf(state.FUNDS[fundId].members, member);
             if (found) {
-                Array.remove32(state.FUNDS[fundId].members, index);
+                Array32.remove(state.FUNDS[fundId].members, index);
                 emit MemberRemoved(fundId, member);
             }
         }

@@ -2,4 +2,3 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { Registrar } from "./Registrar";
-export type { RegistrarLib } from "./RegistrarLib";

@@ -2,4 +2,3 @@
 /* tslint:disable */
 /* eslint-disable */
 export { Registrar__factory } from "./Registrar__factory";
-export { RegistrarLib__factory } from "./RegistrarLib__factory";

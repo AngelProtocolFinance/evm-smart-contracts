@@ -58,35 +58,6 @@ library Array {
     //     return curMin;
     // }
 
-    function indexOf32(uint32[] memory arr, uint32 searchFor)
-        internal
-        pure
-        returns (uint32, bool)
-    {
-        for (uint32 i = 0; i < arr.length; i++) {
-            if (arr[i] == searchFor) {
-                return (i, true);
-            }
-        }
-        // not found
-        return (0, false);
-    }
-
-    function remove32(uint32[] storage data, uint32 index)
-        internal
-        returns (uint32[] memory)
-    {
-        if (index >= data.length) {
-            revert("Error in remove: internal");
-        }
-
-        for (uint32 i = index; i < data.length - 1; i++) {
-            data[i] = data[i + 1];
-        }
-        data.pop();
-        return data;
-    }
-
     function indexOf(uint256[] memory arr, uint256 searchFor)
         internal
         pure
@@ -110,6 +81,38 @@ library Array {
         }
 
         for (uint256 i = index; i < data.length - 1; i++) {
+            data[i] = data[i + 1];
+        }
+        data.pop();
+        return data;
+    }
+}
+
+
+library Array32 {
+    function indexOf(uint32[] memory arr, uint32 searchFor)
+        internal
+        pure
+        returns (uint32, bool)
+    {
+        for (uint32 i = 0; i < arr.length; i++) {
+            if (arr[i] == searchFor) {
+                return (i, true);
+            }
+        }
+        // not found
+        return (0, false);
+    }
+
+    function remove(uint32[] storage data, uint32 index)
+        internal
+        returns (uint32[] memory)
+    {
+        if (index >= data.length) {
+            revert("Error in remove: internal");
+        }
+
+        for (uint32 i = index; i < data.length - 1; i++) {
             data[i] = data[i + 1];
         }
         data.pop();
