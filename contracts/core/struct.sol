@@ -396,8 +396,7 @@ library AngelCoreStruct {
         uint256 id;
         string name;
         string description;
-        uint256[] members;
-        bool rotatingFund; // set a fund as a rotating fund
+        uint32[] members;
         //Fund Specific: over-riding SC level setting to handle a fixed split value
         // Defines the % to split off into liquid account, and if defined overrides all other splits
         uint256 splitToLiquid;
@@ -411,7 +410,7 @@ library AngelCoreStruct {
     }
 
     struct BeneficiaryData {
-        uint256 id;
+        uint32 id;
         address addr;
     }
 
