@@ -55,16 +55,13 @@ contract AccountsUpdateEndowmentSettingsController is
             if (tempEndowment.maturityTime <= 0 || tempEndowment.maturityTime > block.timestamp) {
                 if (
                     AngelCoreStruct.canChange(
-                        tempEndowment
-                            .settingsController
-                            .allowlistedBeneficiaries,
+                        tempEndowment.settingsController.allowlistedBeneficiaries,
                         msg.sender,
                         tempEndowment.owner,
                         block.timestamp
                     )
                 ) {
-                    tempEndowment.allowlistedBeneficiaries = curDetails
-                        .allowlistedBeneficiaries;
+                    tempEndowment.allowlistedBeneficiaries = curDetails.allowlistedBeneficiaries;
                     emit EndowmentSettingUpdated(
                         curDetails.id,
                         "allowlistedBeneficiaries"
@@ -73,16 +70,13 @@ contract AccountsUpdateEndowmentSettingsController is
 
                 if (
                     AngelCoreStruct.canChange(
-                        tempEndowment
-                            .settingsController
-                            .allowlistedContributors,
+                        tempEndowment.settingsController.allowlistedContributors,
                         msg.sender,
                         tempEndowment.owner,
                         block.timestamp
                     )
                 ) {
-                    tempEndowment.allowlistedContributors = curDetails
-                        .allowlistedContributors;
+                    tempEndowment.allowlistedContributors = curDetails.allowlistedContributors;
                     emit EndowmentSettingUpdated(
                         curDetails.id,
                         "allowlistedContributors"
@@ -166,7 +160,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
     /**
     @notice Updates the controller of the specified endowment
-    @dev Only the current controller of the endowment or the owner or DAO can call this function
+    @dev Only the endowment owner can call this function
     @param curDetails The updated details of the endowment controller
     @param curDetails.id The ID of the endowment
     */
@@ -180,39 +174,10 @@ contract AccountsUpdateEndowmentSettingsController is
 
         require(!state.STATES[curDetails.id].closingEndowment, "UpdatesAfterClosed");
         require(!state.STATES[curDetails.id].lockedForever, "Settings are locked forever");
+        require(msg.sender == tempEndowment.owner, "Unauthorized");
 
-        if (
-            !AngelCoreStruct.canChange(
-                tempEndowment.settingsController.endowmentController,
-                msg.sender,
-                tempEndowment.owner,
-                block.timestamp
-            )
-        ) {
-            revert("Unauthorized");
-        }
-        tempEndowment.settingsController.endowmentController = curDetails
-            .endowmentController;
-        tempEndowment.settingsController.name = curDetails.name;
-        tempEndowment.settingsController.image = curDetails.image;
-        tempEndowment.settingsController.logo = curDetails.logo;
-        tempEndowment.settingsController.categories = curDetails.categories;
-        tempEndowment.settingsController.splitToLiquid = curDetails
-            .splitToLiquid;
-        tempEndowment.settingsController.ignoreUserSplits = curDetails
-            .ignoreUserSplits;
-        tempEndowment.settingsController.allowlistedBeneficiaries = curDetails
-            .allowlistedBeneficiaries;
-        tempEndowment.settingsController.allowlistedContributors = curDetails
-            .allowlistedContributors;
-        tempEndowment.settingsController.maturityAllowlist = curDetails
-            .maturityAllowlist;
-        tempEndowment.settingsController.earningsFee = curDetails.earningsFee;
-        tempEndowment.settingsController.depositFee = curDetails.depositFee;
-        tempEndowment.settingsController.withdrawFee = curDetails.withdrawFee;
-        tempEndowment.settingsController.balanceFee = curDetails.balanceFee;
+        tempEndowment.settingsController = curDetails.settingsController;
 
-        state.ENDOWMENTS[curDetails.id] = tempEndowment;
         emit EndowmentSettingUpdated(curDetails.id, "endowmentController");
         emit UpdateEndowment(curDetails.id, tempEndowment);
     }
@@ -238,17 +203,6 @@ contract AccountsUpdateEndowmentSettingsController is
         );
         require(!state.STATES[curDetails.id].closingEndowment, "UpdatesAfterClosed");
         require(!state.STATES[curDetails.id].lockedForever, "Settings are locked forever");
-
-        if (
-            AngelCoreStruct.canChange(
-                tempEndowment.settingsController.earningsFee,
-                msg.sender,
-                tempEndowment.owner,
-                block.timestamp
-            )
-        ) {
-            tempEndowment.earningsFee = curDetails.earningsFee;
-        }
 
         if (
             AngelCoreStruct.canChange(

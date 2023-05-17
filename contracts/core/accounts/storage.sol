@@ -9,7 +9,7 @@ library AccountStorage {
         address owner;
         string version;
         address registrarContract;
-        uint256 nextAccountId;
+        uint32 nextAccountId;
         uint256 maxGeneralCategoryId;
         address subDao;
         address gateway;
@@ -25,9 +25,6 @@ library AccountStorage {
         AngelCoreStruct.EndowmentType endow_type;
         string logo;
         string image;
-        AngelCoreStruct.EndowmentStatus status;
-        bool depositApproved; // approved to receive donations & transact
-        bool withdrawApproved; // approved to withdraw funds
         uint256 maturityTime; // datetime int of endowment maturity
         //OG:AngelCoreStruct.AccountStrategies
         // uint256 strategies; // vaults and percentages for locked/liquid accounts donations where auto_invest == TRUE
@@ -36,7 +33,6 @@ library AccountStorage {
         LocalRegistrarLib.RebalanceParams rebalance; // parameters to guide rebalancing & harvesting of gains from locked/liquid accounts
         bool kycDonorsOnly; // allow owner to state a preference for receiving only kyc'd donations (where possible) //TODO:
         uint256 pendingRedemptions; // number of vault redemptions currently pending for this endowment
-        uint256 copycatStrategy; // endowment ID to copy their strategy
         uint256 proposalLink; // link back the CW3 Proposal that created an endowment
         address multisig;
         address dao;
@@ -46,12 +42,11 @@ library AccountStorage {
         address[] allowlistedBeneficiaries;
         address[] allowlistedContributors;
         address[] maturityAllowlist;
-        AngelCoreStruct.EndowmentFee earningsFee;
         AngelCoreStruct.EndowmentFee withdrawFee;
         AngelCoreStruct.EndowmentFee depositFee;
         AngelCoreStruct.EndowmentFee balanceFee;
         AngelCoreStruct.SettingsController settingsController;
-        uint256 parent;
+        uint32 parent;
         bool ignoreUserSplits;
         AngelCoreStruct.SplitDetails splitToLiquid;
         uint256 referralId;
@@ -66,24 +61,15 @@ library AccountStorage {
         mapping(bytes4 => bool) activeStrategies;
     }
 
-    struct AllowanceData {
-        uint256 height;
-        uint256 timestamp;
-        bool expires;
-        uint256 allowanceAmount;
-        bool configured;
-    }
-
     struct State {
-        mapping(uint256 => uint256) DAOTOKENBALANCE;
-        mapping(uint256 => EndowmentState) STATES;
-        mapping(uint256 => Endowment) ENDOWMENTS;
-        mapping(uint256 => AngelCoreStruct.Profile) PROFILES;
-        //owner -> spender -> token -> Allowance Struct
-        mapping(address => mapping(address => mapping(address => AllowanceData))) ALLOWANCES;
+        mapping(uint32 => uint256) DAOTOKENBALANCE;
+        mapping(uint32 => EndowmentState) STATES;
+        mapping(uint32 => Endowment) ENDOWMENTS;
+        // endow ID -> spender Addr -> token Addr -> amount
+        mapping(uint32 => mapping(address => mapping(address => uint256))) ALLOWANCES;
         Config config;
         // mapping(bytes4 => string) stratagyId;
-        // mapping(uint256 => mapping(AngelCoreStruct.AccountType => mapping(string => uint256))) vaultBalance;
+        // mapping(uint32 => mapping(AngelCoreStruct.AccountType => mapping(string => uint256))) vaultBalance;
     }
 }
 

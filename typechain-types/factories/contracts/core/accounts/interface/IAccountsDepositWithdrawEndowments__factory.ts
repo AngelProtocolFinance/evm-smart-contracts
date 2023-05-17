@@ -13,9 +13,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
+        internalType: "uint32",
         name: "curId",
-        type: "uint256",
+        type: "uint32",
       },
       {
         internalType: "address",
@@ -38,9 +38,9 @@ const _abi = [
       {
         components: [
           {
-            internalType: "uint256",
+            internalType: "uint32",
             name: "id",
-            type: "uint256",
+            type: "uint32",
           },
           {
             internalType: "uint256",
@@ -78,9 +78,9 @@ const _abi = [
       {
         components: [
           {
-            internalType: "uint256",
+            internalType: "uint32",
             name: "id",
-            type: "uint256",
+            type: "uint32",
           },
           {
             internalType: "uint256",
@@ -106,9 +106,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
+        internalType: "uint32",
         name: "curId",
-        type: "uint256",
+        type: "uint32",
       },
       {
         internalType: "enum AngelCoreStruct.AccountType",
@@ -117,8 +117,13 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "curBeneficiary",
+        name: "curBeneficiaryAddress",
         type: "address",
+      },
+      {
+        internalType: "uint32",
+        name: "curBeneficiaryEndowId",
+        type: "uint32",
       },
       {
         internalType: "address",

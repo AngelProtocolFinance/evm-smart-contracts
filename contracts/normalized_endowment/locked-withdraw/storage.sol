@@ -4,9 +4,8 @@ pragma solidity ^0.8.16;
 library LockedWithdrawStorage {
     struct Withdraw {
         bool pending;
-        address beneficiary;
-        address[] tokenAddress;
-        uint256[] amount;
+        address tokenAddress;
+        uint256 amount;
     }
 
     struct Config {
@@ -19,5 +18,5 @@ library LockedWithdrawStorage {
 
 contract Storage {
     LockedWithdrawStorage.Config config;
-    mapping(uint256 => LockedWithdrawStorage.Withdraw) withdrawData;
+    mapping(uint32 => LockedWithdrawStorage.Withdraw) withdrawData;
 }

@@ -33,7 +33,7 @@ library AccountMessages {
         bool createDao;
         uint256 proposalLink;
         AngelCoreStruct.SettingsController settingsController;
-        uint256 parent;
+        uint32 parent;
         address[] maturityAllowlist;
         bool ignoreUserSplits;
         AngelCoreStruct.SplitDetails splitToLiquid;
@@ -41,7 +41,7 @@ library AccountMessages {
     }
 
     struct UpdateEndowmentSettingsRequest {
-        uint256 id;
+        uint32 id;
         bool donationMatchActive;
         address[] allowlistedBeneficiaries;
         address[] allowlistedContributors;
@@ -50,32 +50,14 @@ library AccountMessages {
         AngelCoreStruct.SplitDetails splitToLiquid;
         bool ignoreUserSplits;
     }
-    struct UpdateEndowmentControllerRequest {
-        uint256 id;
-        AngelCoreStruct.SettingsPermission endowmentController;
-        AngelCoreStruct.SettingsPermission name;
-        AngelCoreStruct.SettingsPermission image;
-        AngelCoreStruct.SettingsPermission logo;
-        AngelCoreStruct.SettingsPermission categories;
-        AngelCoreStruct.SettingsPermission splitToLiquid;
-        AngelCoreStruct.SettingsPermission ignoreUserSplits;
-        AngelCoreStruct.SettingsPermission allowlistedBeneficiaries;
-        AngelCoreStruct.SettingsPermission allowlistedContributors;
-        AngelCoreStruct.SettingsPermission maturityAllowlist;
-        AngelCoreStruct.SettingsPermission earningsFee;
-        AngelCoreStruct.SettingsPermission depositFee;
-        AngelCoreStruct.SettingsPermission withdrawFee;
-        AngelCoreStruct.SettingsPermission balanceFee;
-    }
 
-    struct UpdateEndowmentStatusRequest {
-        uint256 endowmentId;
-        AngelCoreStruct.EndowmentStatus status;
-        AngelCoreStruct.Beneficiary beneficiary;
+    struct UpdateEndowmentControllerRequest {
+        uint32 id;
+        AngelCoreStruct.SettingsController settingsController;
     }
 
     struct UpdateEndowmentDetailsRequest {
-        uint256 id; /// u32,
+        uint32 id;
         address owner; /// Option<String>,
         string name; /// Option<String>,
         AngelCoreStruct.Categories categories; /// Option<Categories>,
@@ -90,7 +72,7 @@ library AccountMessages {
     }
 
     struct UpdateProfileRequest {
-        uint256 id;
+        uint32 id;
         string overview;
         string url;
         string registrationNumber;
@@ -134,9 +116,8 @@ library AccountMessages {
     }
 
     struct EndowmentEntry {
-        uint256 id; // u32,
+        uint32 id; // u32,
         address owner; // String,
-        AngelCoreStruct.EndowmentStatus status; // EndowmentStatus,
         AngelCoreStruct.EndowmentType endow_type; // EndowmentType,
         string name; // Option<String>,
         string logo; // Option<String>,
@@ -175,15 +156,12 @@ library AccountMessages {
         address daoToken;
         string description;
         AngelCoreStruct.AccountStrategies strategies;
-        AngelCoreStruct.EndowmentStatus status;
         AngelCoreStruct.EndowmentType endow_type;
         uint256 maturityTime;
         AngelCoreStruct.OneOffVaults oneoffVaults;
         LocalRegistrarLib.RebalanceParams rebalance;
         address donationMatchContract;
         address[] maturityAllowlist;
-        bool depositApproved;
-        bool withdrawApproved;
         uint256 pendingRedemptions;
         string logo;
         string image;
@@ -197,13 +175,13 @@ library AccountMessages {
     }
 
     struct DepositRequest {
-        uint256 id;
+        uint32 id;
         uint256 lockedPercentage;
         uint256 liquidPercentage;
     }
 
     struct UpdateEndowmentFeeRequest {
-        uint256 id;
+        uint32 id;
         AngelCoreStruct.EndowmentFee earningsFee;
         AngelCoreStruct.EndowmentFee depositFee;
         AngelCoreStruct.EndowmentFee withdrawFee;

@@ -38,14 +38,9 @@ const _abi = [
             type: "string",
           },
           {
-            internalType: "uint256[]",
+            internalType: "uint32[]",
             name: "members",
-            type: "uint256[]",
-          },
-          {
-            internalType: "bool",
-            name: "rotatingFund",
-            type: "bool",
+            type: "uint32[]",
           },
           {
             internalType: "uint256",
@@ -99,14 +94,9 @@ const _abi = [
             type: "string",
           },
           {
-            internalType: "uint256[]",
+            internalType: "uint32[]",
             name: "members",
-            type: "uint256[]",
-          },
-          {
-            internalType: "bool",
-            name: "rotatingFund",
-            type: "bool",
+            type: "uint32[]",
           },
           {
             internalType: "uint256",

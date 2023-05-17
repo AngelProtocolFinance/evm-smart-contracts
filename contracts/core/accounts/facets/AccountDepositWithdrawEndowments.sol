@@ -205,6 +205,10 @@ contract AccountDepositWithdrawEndowments is
         require(msg.value > 0, "Invalid Amount");
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Config memory tempConfig = state.config;
+        AccountStorage.EndowmentState storage tempEndowmentState = state.STATES[
+            curDetails.id
+        ];
+        require(!tempEndowmentState.closingEndowment, "Endowment is closed");
 
         RegistrarStorage.Config memory registrar_config = IRegistrar(
             tempConfig.registrarContract
@@ -225,7 +229,7 @@ contract AccountDepositWithdrawEndowments is
      * @param curAmount The amount of the token to deposit
      */
     function depositDonationMatchErC20(
-        uint256 curId,
+        uint32 curId,
         address curTokenAddress,
         uint256 curAmount
     ) external {}
@@ -244,8 +248,12 @@ contract AccountDepositWithdrawEndowments is
     ) public nonReentrant {
         require(curTokenAddress != address(0), "Invalid Token Address");
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.Config memory tempConfig = state.config;
+        // AccountStorage.Config memory tempConfig = state.config;
 
+        AccountStorage.EndowmentState storage tempEndowmentState = state.STATES[
+            curDetails.id
+        ];
+        require(!tempEndowmentState.closingEndowment, "Endowment is closed");
         require(
             IRegistrar(state.config.registrarContract)
                 .isTokenAccepted(curTokenAddress), 
@@ -296,12 +304,7 @@ contract AccountDepositWithdrawEndowments is
             curDetails.id
         ];
 
-        require(
-            tempEndowment.depositApproved,
-            "Deposits are not approved for this endowment"
-        );
         require(curTokenAddress != address(0), "Invalid ERC20 token");
-
         require(
             curDetails.lockedPercentage + curDetails.liquidPercentage == 100,
             "InvalidSplit"
@@ -342,12 +345,8 @@ contract AccountDepositWithdrawEndowments is
         );
 
         if (msg.sender != registrar_config.indexFundContract) {
-            if (
-                tempEndowment.endow_type ==
-                AngelCoreStruct.EndowmentType.Charity ||
-                (tempEndowment.splitToLiquid.min == 0 &&
-                    tempEndowment.splitToLiquid.max == 0)
-            ) {
+            if (tempEndowment.endow_type == AngelCoreStruct.EndowmentType.Charity) {
+                // use the Registrar default split for Charities
                 (lockedSplitPercent, liquidSplitPercent) = AngelCoreStruct.checkSplits(
                     registrar_split_configs,
                     lockedSplitPercent,
@@ -355,6 +354,7 @@ contract AccountDepositWithdrawEndowments is
                     tempEndowment.ignoreUserSplits
                 );
             } else {
+                // use the Endowment's SplitDetails for ASTs
                 (lockedSplitPercent, liquidSplitPercent) = AngelCoreStruct.checkSplits(
                     tempEndowment.splitToLiquid,
                     lockedSplitPercent,
@@ -423,47 +423,57 @@ contract AccountDepositWithdrawEndowments is
      * @dev Withdraws funds available on the accounts diamond after checking certain conditions
      * @param curId The endowment id
      * @param acctType The account type to withdraw from
-     * @param curBeneficiary The address to send the funds to
+     * @param curBeneficiaryAddress The address to send funds to
+     * @param curBeneficiaryEndowId The endowment to send funds to
      * @param curTokenAddress The token address to withdraw
      * @param curAmount The amount to withdraw
      */
     function withdraw(
-        uint256 curId,
+        uint32 curId,
         AngelCoreStruct.AccountType acctType,
-        address curBeneficiary,
+        address curBeneficiaryAddress,
+        uint32 curBeneficiaryEndowId,
         address curTokenAddress,
         uint256 curAmount
     ) public nonReentrant {
-        AccountStorage.State storage state = LibAccounts.diamondStorage();
+        require(curAmount > 0, "InvalidZeroAmount");
+        require(
+            (curBeneficiaryAddress != address(0) && curBeneficiaryEndowId == 0) ||
+            (curBeneficiaryAddress == address(0) && curBeneficiaryEndowId != 0),
+            "Must provide Beneficiary Address xor Endowment ID"
+        );
 
-        // AccountStorage.Config memory tempConfig = state.config;
+        AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             curId
         ];
-
-        require(curAmount > 0, "InvalidZeroAmount");
-        require(
-            tempEndowment.withdrawApproved,
-            "Withdraws are not approved for this endowment"
-        );
+        AccountStorage.EndowmentState storage tempEndowmentState = state.STATES[
+            curId
+        ];
+        require(!tempEndowmentState.closingEndowment, "Endowment is closed");
 
         // fetch regisrar config
         RegistrarStorage.Config memory registrar_config = IRegistrar(
             state.config.registrarContract
         ).queryConfig();
 
-        // ** CHARITY TYPE WITHDRAWAL RULES **
-        // LIQUID: Only the endowment multisig can withdraw
-        // LOCKED: Msg must come from the locked withdraw contract
-        if (tempEndowment.endow_type == AngelCoreStruct.EndowmentType.Charity) {
-            if (acctType == AngelCoreStruct.AccountType.Locked) {
-                require(
-                    msg.sender == registrar_config.lockedWithdrawal,
-                    "Unauthorized"
-                );
-            } else if (acctType == AngelCoreStruct.AccountType.Liquid) {
-                require(msg.sender == tempEndowment.owner, "Unauthorized");
-            }
+        // ** SHARED LOCKED WITHDRAWAL RULES **
+        // LOCKED: Msg must come from the locked withdraw contract if NOT mature yet
+        // Charities never mature & Normal endowments optionally mature
+        // Check if maturity has been reached for the endowment (0 == no maturity date)
+        bool mature = (
+            tempEndowment.maturityTime != 0 &&
+            block.timestamp >= tempEndowment.maturityTime
+        );
+        // Cannot withdraw from locked before maturity unless via early locked withdraw approval contract
+        if (acctType == AngelCoreStruct.AccountType.Locked && !mature) {
+            require(msg.sender == registrar_config.lockedWithdrawal, "Cannot withdraw before maturity time is reached unless via early withdraw approval.");
+            // A/N: We ensure that locked withdraw requests always go to the requesting endowment's
+            // LIQUID account to prevent the AP Multisig from sending Locked withdraws to a random address.
+            curBeneficiaryAddress = address(0);
+            curBeneficiaryEndowId = curId;
+        } else {
+            require(msg.sender == tempEndowment.owner, "Unauthorized");
         }
 
         // ** NORMAL TYPE WITHDRAWAL RULES **
@@ -471,23 +481,8 @@ contract AccountDepositWithdrawEndowments is
         //      The endowment multisig OR beneficiaries allowlist addresses [if populated] can withdraw. After 
         //      maturity has been reached, only addresses in Maturity Allowlist may withdraw. If the Maturity
         //      Allowlist is not populated, then only the endowment multisig is allowed to withdraw.
-        // LIQUID: Same as above shared logic. 
-        // LOCKED: There is NO way to withdraw locked funds from an endowment before maturity!
+        // LIQUID & LOCKED(after Maturity): Only the endowment multisig can withdraw
         if (tempEndowment.endow_type == AngelCoreStruct.EndowmentType.Normal) {
-            // Check if maturity has been reached for the endowment
-            // 0 == no maturity date
-            bool mature = (
-                tempEndowment.maturityTime != 0 &&
-                block.timestamp >= tempEndowment.maturityTime
-            );
-            
-            // can't withdraw before maturity
-            if (acctType == AngelCoreStruct.AccountType.Locked && !mature) {
-                revert(
-                    "Endowment is not mature. Cannot withdraw before maturity time is reached."
-                );
-            }
-
             // determine if msg sender is allowed to withdraw based on rules and maturity status
             bool senderAllowed = false;
             if (mature) {
@@ -575,14 +570,25 @@ contract AccountDepositWithdrawEndowments is
             );
         }
 
-        // send all tokens (less fees) to the ultimate beneficiary address
-        require(
-            IERC20(curTokenAddress).transfer(
-                curBeneficiary,
+        // send all tokens (less fees) to the ultimate beneficiary address/endowment
+        if (curBeneficiaryAddress != address(0)) {
+            require(
+                IERC20(curTokenAddress).transfer(
+                    curBeneficiaryAddress,
+                    (curAmount - withdrawFeeAp - withdrawFeeEndow)
+                ),
+                "Transfer failed"
+            );
+        } else {
+            // check endowment specified is not closed
+            require(!state.STATES[curBeneficiaryEndowId].closingEndowment, "Beneficiary endowment is closed");
+            // Send deposit message to 100% Liquid account of an endowment
+            processToken(
+                AccountMessages.DepositRequest({ id: curId, lockedPercentage: 0, liquidPercentage: 100 }),
+                curTokenAddress,
                 (curAmount - withdrawFeeAp - withdrawFeeEndow)
-            ),
-            "Transfer failed"
-        );
+            );
+        }
 
         // reduce the orgs balance by the withdrawn token amount
         if (acctType == AngelCoreStruct.AccountType.Locked) {

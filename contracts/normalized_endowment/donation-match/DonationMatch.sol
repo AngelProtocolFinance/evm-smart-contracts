@@ -20,7 +20,7 @@ interface SubdaoToken {
     function executeDonorMatch(
         uint256 curAmount,
         address curAccountscontract,
-        uint256 curEndowmentid,
+        uint32 curEndowmentid,
         address curDonor
     ) external;
 }
@@ -74,7 +74,7 @@ contract DonationMatch is Storage, Initializable {
      * @param token address
      */
     function executeDonorMatch(
-        uint256 endowmentId,
+        uint32 endowmentId,
         uint256 amount,
         address donor,
         address token
@@ -97,19 +97,12 @@ contract DonationMatch is Storage, Initializable {
             registrar_config.accountsContract
         ).queryEndowmentDetails(endowmentId);
 
-        require(
-            endow_detail.status == AngelCoreStruct.EndowmentStatus.Approved,
-            "Unauthorized"
-        );
-
         if (endow_detail.endow_type == AngelCoreStruct.EndowmentType.Charity) {
             require(
                 address(this) == registrar_config.donationMatchCharitesContract,
                 "Unauthorized"
             );
-        }
-
-        if (endow_detail.endow_type == AngelCoreStruct.EndowmentType.Normal) {
+        } else if (endow_detail.endow_type == AngelCoreStruct.EndowmentType.Normal) {
             require(
                 address(this) == endow_detail.donationMatchContract,
                 "Unauthorized"

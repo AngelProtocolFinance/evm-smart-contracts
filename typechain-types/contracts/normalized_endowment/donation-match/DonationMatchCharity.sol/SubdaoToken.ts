@@ -25,7 +25,7 @@ import type {
 
 export interface SubdaoTokenInterface extends utils.Interface {
   functions: {
-    "executeDonorMatch(uint256,address,uint256,address)": FunctionFragment;
+    "executeDonorMatch(uint256,address,uint32,address)": FunctionFragment;
   };
 
   getFunction(nameOrSignatureOrTopic: "executeDonorMatch"): FunctionFragment;

@@ -170,8 +170,6 @@ export type { AccountsEvents } from "./contracts/core/accounts/facets/AccountsEv
 export { AccountsEvents__factory } from "./factories/contracts/core/accounts/facets/AccountsEvents__factory";
 export type { AccountsQueryEndowments } from "./contracts/core/accounts/facets/AccountsQueryEndowments";
 export { AccountsQueryEndowments__factory } from "./factories/contracts/core/accounts/facets/AccountsQueryEndowments__factory";
-export type { AccountsStrategiesCopyEndowments } from "./contracts/core/accounts/facets/AccountsStrategiesCopyEndowments";
-export { AccountsStrategiesCopyEndowments__factory } from "./factories/contracts/core/accounts/facets/AccountsStrategiesCopyEndowments__factory";
 export type { AccountsSwapEndowments } from "./contracts/core/accounts/facets/AccountsSwapEndowments";
 export { AccountsSwapEndowments__factory } from "./factories/contracts/core/accounts/facets/AccountsSwapEndowments__factory";
 export type { AccountsUpdate } from "./contracts/core/accounts/facets/AccountsUpdate";

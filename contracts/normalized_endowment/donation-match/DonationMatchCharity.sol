@@ -22,7 +22,7 @@ interface SubdaoToken {
     function executeDonorMatch(
         uint256 curAmount,
         address curAccountscontract,
-        uint256 curEndowmentid,
+        uint32 curEndowmentid,
         address curDonor
     ) external;
 }
@@ -39,19 +39,19 @@ contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
         DonationMatchStorage.Config config
     );
     event DonationMatchCharityErc20ApprovalGiven(
-        uint256 endowmentId,
+        uint32 endowmentId,
         address tokenAddress,
         address spender,
         uint256 amount
     );
     event DonationMatchCharityErc20Transfer(
-        uint256 endowmentId,
+        uint32 endowmentId,
         address tokenAddress,
         address recipient,
         uint256 amount
     );
     event DonationMatchCharityErc20Burned(
-        uint256 endowmentId,
+        uint32 endowmentId,
         address tokenAddress,
         uint256 amount
     );
@@ -60,7 +60,7 @@ contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
         address tokenAddress,
         uint256 amount,
         address accountsContract,
-        uint256 endowmentId,
+        uint32 endowmentId,
         address donor
     );
 
@@ -86,7 +86,7 @@ contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
     }
 
     function executeDonorMatch(
-        uint256 endowmentId,
+        uint32 endowmentId,
         uint256 amount,
         address donor,
         address token
@@ -109,19 +109,12 @@ contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
             registrar_config.accountsContract
         ).queryEndowmentDetails(endowmentId);
 
-        require(
-            endow_detail.status == AngelCoreStruct.EndowmentStatus.Approved,
-            "Unauthorized"
-        );
-
         if (endow_detail.endow_type == AngelCoreStruct.EndowmentType.Charity) {
             require(
                 address(this) == registrar_config.donationMatchCharitesContract,
                 "Unauthorized"
             );
-        }
-
-        if (endow_detail.endow_type == AngelCoreStruct.EndowmentType.Normal) {
+        } else if (endow_detail.endow_type == AngelCoreStruct.EndowmentType.Normal) {
             require(
                 address(this) == endow_detail.donationMatchContract,
                 "Unauthorized"

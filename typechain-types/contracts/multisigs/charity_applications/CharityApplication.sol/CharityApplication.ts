@@ -181,79 +181,62 @@ export declare namespace AngelCoreStruct {
   };
 
   export type DelegateStruct = {
-    Addr: PromiseOrValue<string>;
+    addr: PromiseOrValue<string>;
     expires: PromiseOrValue<BigNumberish>;
   };
 
   export type DelegateStructOutput = [string, BigNumber] & {
-    Addr: string;
+    addr: string;
     expires: BigNumber;
   };
 
-  export type SettingsPermissionStruct = {
-    delegate: AngelCoreStruct.DelegateStruct;
-  };
-
-  export type SettingsPermissionStructOutput = [
-    AngelCoreStruct.DelegateStructOutput
-  ] & { delegate: AngelCoreStruct.DelegateStructOutput };
-
   export type SettingsControllerStruct = {
-    endowmentController: AngelCoreStruct.SettingsPermissionStruct;
-    strategies: AngelCoreStruct.SettingsPermissionStruct;
-    allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStruct;
-    allowlistedContributors: AngelCoreStruct.SettingsPermissionStruct;
-    maturityAllowlist: AngelCoreStruct.SettingsPermissionStruct;
-    maturityTime: AngelCoreStruct.SettingsPermissionStruct;
-    profile: AngelCoreStruct.SettingsPermissionStruct;
-    earningsFee: AngelCoreStruct.SettingsPermissionStruct;
-    withdrawFee: AngelCoreStruct.SettingsPermissionStruct;
-    depositFee: AngelCoreStruct.SettingsPermissionStruct;
-    balanceFee: AngelCoreStruct.SettingsPermissionStruct;
-    name: AngelCoreStruct.SettingsPermissionStruct;
-    image: AngelCoreStruct.SettingsPermissionStruct;
-    logo: AngelCoreStruct.SettingsPermissionStruct;
-    categories: AngelCoreStruct.SettingsPermissionStruct;
-    splitToLiquid: AngelCoreStruct.SettingsPermissionStruct;
-    ignoreUserSplits: AngelCoreStruct.SettingsPermissionStruct;
+    strategies: AngelCoreStruct.DelegateStruct;
+    allowlistedBeneficiaries: AngelCoreStruct.DelegateStruct;
+    allowlistedContributors: AngelCoreStruct.DelegateStruct;
+    maturityAllowlist: AngelCoreStruct.DelegateStruct;
+    maturityTime: AngelCoreStruct.DelegateStruct;
+    withdrawFee: AngelCoreStruct.DelegateStruct;
+    depositFee: AngelCoreStruct.DelegateStruct;
+    balanceFee: AngelCoreStruct.DelegateStruct;
+    name: AngelCoreStruct.DelegateStruct;
+    image: AngelCoreStruct.DelegateStruct;
+    logo: AngelCoreStruct.DelegateStruct;
+    categories: AngelCoreStruct.DelegateStruct;
+    splitToLiquid: AngelCoreStruct.DelegateStruct;
+    ignoreUserSplits: AngelCoreStruct.DelegateStruct;
   };
 
   export type SettingsControllerStructOutput = [
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput
   ] & {
-    endowmentController: AngelCoreStruct.SettingsPermissionStructOutput;
-    strategies: AngelCoreStruct.SettingsPermissionStructOutput;
-    allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStructOutput;
-    allowlistedContributors: AngelCoreStruct.SettingsPermissionStructOutput;
-    maturityAllowlist: AngelCoreStruct.SettingsPermissionStructOutput;
-    maturityTime: AngelCoreStruct.SettingsPermissionStructOutput;
-    profile: AngelCoreStruct.SettingsPermissionStructOutput;
-    earningsFee: AngelCoreStruct.SettingsPermissionStructOutput;
-    withdrawFee: AngelCoreStruct.SettingsPermissionStructOutput;
-    depositFee: AngelCoreStruct.SettingsPermissionStructOutput;
-    balanceFee: AngelCoreStruct.SettingsPermissionStructOutput;
-    name: AngelCoreStruct.SettingsPermissionStructOutput;
-    image: AngelCoreStruct.SettingsPermissionStructOutput;
-    logo: AngelCoreStruct.SettingsPermissionStructOutput;
-    categories: AngelCoreStruct.SettingsPermissionStructOutput;
-    splitToLiquid: AngelCoreStruct.SettingsPermissionStructOutput;
-    ignoreUserSplits: AngelCoreStruct.SettingsPermissionStructOutput;
+    strategies: AngelCoreStruct.DelegateStructOutput;
+    allowlistedBeneficiaries: AngelCoreStruct.DelegateStructOutput;
+    allowlistedContributors: AngelCoreStruct.DelegateStructOutput;
+    maturityAllowlist: AngelCoreStruct.DelegateStructOutput;
+    maturityTime: AngelCoreStruct.DelegateStructOutput;
+    withdrawFee: AngelCoreStruct.DelegateStructOutput;
+    depositFee: AngelCoreStruct.DelegateStructOutput;
+    balanceFee: AngelCoreStruct.DelegateStructOutput;
+    name: AngelCoreStruct.DelegateStructOutput;
+    image: AngelCoreStruct.DelegateStructOutput;
+    logo: AngelCoreStruct.DelegateStructOutput;
+    categories: AngelCoreStruct.DelegateStructOutput;
+    splitToLiquid: AngelCoreStruct.DelegateStructOutput;
+    ignoreUserSplits: AngelCoreStruct.DelegateStructOutput;
   };
 
   export type SplitDetailsStruct = {
@@ -333,7 +316,7 @@ export declare namespace AccountMessages {
     boolean,
     BigNumber,
     AngelCoreStruct.SettingsControllerStructOutput,
-    BigNumber,
+    number,
     string[],
     boolean,
     AngelCoreStruct.SplitDetailsStructOutput,
@@ -366,7 +349,7 @@ export declare namespace AccountMessages {
     createDao: boolean;
     proposalLink: BigNumber;
     settingsController: AngelCoreStruct.SettingsControllerStructOutput;
-    parent: BigNumber;
+    parent: number;
     maturityAllowlist: string[];
     ignoreUserSplits: boolean;
     splitToLiquid: AngelCoreStruct.SplitDetailsStructOutput;
@@ -416,7 +399,7 @@ export interface CharityApplicationInterface extends utils.Interface {
     "config()": FunctionFragment;
     "initialize(uint256,address,address,uint256,bool,uint256,bool,address,uint256)": FunctionFragment;
     "proposals(uint256)": FunctionFragment;
-    "proposeCharity((address,bool,uint256,uint256,string,(uint256[],uint256[]),uint256,uint8,string,string,address[],bool,uint256,(uint8,(uint256,uint256)),address[],address[],uint256,uint256,uint256,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))),bool,uint256,(((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256)),((address,uint256))),uint256,address[],bool,(uint256,uint256,uint256),uint256),string)": FunctionFragment;
+    "proposeCharity((address,bool,uint256,uint256,string,(uint256[],uint256[]),uint256,uint8,string,string,address[],bool,uint256,(uint8,(uint256,uint256)),address[],address[],uint256,uint256,uint256,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))),bool,uint256,((address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256)),uint32,address[],bool,(uint256,uint256,uint256),uint256),string)": FunctionFragment;
     "queryConfig()": FunctionFragment;
     "rejectCharity(uint256)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;

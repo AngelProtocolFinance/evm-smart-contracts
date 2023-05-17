@@ -27,176 +27,6 @@ import type {
   PromiseOrValue,
 } from "../../../../common";
 
-export declare namespace AccountStorage {
-  export type AllowanceDataStruct = {
-    height: PromiseOrValue<BigNumberish>;
-    timestamp: PromiseOrValue<BigNumberish>;
-    expires: PromiseOrValue<boolean>;
-    allowanceAmount: PromiseOrValue<BigNumberish>;
-    configured: PromiseOrValue<boolean>;
-  };
-
-  export type AllowanceDataStructOutput = [
-    BigNumber,
-    BigNumber,
-    boolean,
-    BigNumber,
-    boolean
-  ] & {
-    height: BigNumber;
-    timestamp: BigNumber;
-    expires: boolean;
-    allowanceAmount: BigNumber;
-    configured: boolean;
-  };
-
-  export type EndowmentStruct = {
-    owner: PromiseOrValue<string>;
-    name: PromiseOrValue<string>;
-    categories: AngelCoreStruct.CategoriesStruct;
-    tier: PromiseOrValue<BigNumberish>;
-    endow_type: PromiseOrValue<BigNumberish>;
-    logo: PromiseOrValue<string>;
-    image: PromiseOrValue<string>;
-    status: PromiseOrValue<BigNumberish>;
-    depositApproved: PromiseOrValue<boolean>;
-    withdrawApproved: PromiseOrValue<boolean>;
-    maturityTime: PromiseOrValue<BigNumberish>;
-    strategies: AngelCoreStruct.AccountStrategiesStruct;
-    oneoffVaults: AngelCoreStruct.OneOffVaultsStruct;
-    rebalance: LocalRegistrarLib.RebalanceParamsStruct;
-    kycDonorsOnly: PromiseOrValue<boolean>;
-    pendingRedemptions: PromiseOrValue<BigNumberish>;
-    copycatStrategy: PromiseOrValue<BigNumberish>;
-    proposalLink: PromiseOrValue<BigNumberish>;
-    multisig: PromiseOrValue<string>;
-    dao: PromiseOrValue<string>;
-    daoToken: PromiseOrValue<string>;
-    donationMatchActive: PromiseOrValue<boolean>;
-    donationMatchContract: PromiseOrValue<string>;
-    allowlistedBeneficiaries: PromiseOrValue<string>[];
-    allowlistedContributors: PromiseOrValue<string>[];
-    maturityAllowlist: PromiseOrValue<string>[];
-    earningsFee: AngelCoreStruct.EndowmentFeeStruct;
-    withdrawFee: AngelCoreStruct.EndowmentFeeStruct;
-    depositFee: AngelCoreStruct.EndowmentFeeStruct;
-    balanceFee: AngelCoreStruct.EndowmentFeeStruct;
-    settingsController: AngelCoreStruct.SettingsControllerStruct;
-    parent: PromiseOrValue<BigNumberish>;
-    ignoreUserSplits: PromiseOrValue<boolean>;
-    splitToLiquid: AngelCoreStruct.SplitDetailsStruct;
-    referralId: PromiseOrValue<BigNumberish>;
-  };
-
-  export type EndowmentStructOutput = [
-    string,
-    string,
-    AngelCoreStruct.CategoriesStructOutput,
-    BigNumber,
-    number,
-    string,
-    string,
-    number,
-    boolean,
-    boolean,
-    BigNumber,
-    AngelCoreStruct.AccountStrategiesStructOutput,
-    AngelCoreStruct.OneOffVaultsStructOutput,
-    LocalRegistrarLib.RebalanceParamsStructOutput,
-    boolean,
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    string,
-    string,
-    string,
-    boolean,
-    string,
-    string[],
-    string[],
-    string[],
-    AngelCoreStruct.EndowmentFeeStructOutput,
-    AngelCoreStruct.EndowmentFeeStructOutput,
-    AngelCoreStruct.EndowmentFeeStructOutput,
-    AngelCoreStruct.EndowmentFeeStructOutput,
-    AngelCoreStruct.SettingsControllerStructOutput,
-    BigNumber,
-    boolean,
-    AngelCoreStruct.SplitDetailsStructOutput,
-    BigNumber
-  ] & {
-    owner: string;
-    name: string;
-    categories: AngelCoreStruct.CategoriesStructOutput;
-    tier: BigNumber;
-    endow_type: number;
-    logo: string;
-    image: string;
-    status: number;
-    depositApproved: boolean;
-    withdrawApproved: boolean;
-    maturityTime: BigNumber;
-    strategies: AngelCoreStruct.AccountStrategiesStructOutput;
-    oneoffVaults: AngelCoreStruct.OneOffVaultsStructOutput;
-    rebalance: LocalRegistrarLib.RebalanceParamsStructOutput;
-    kycDonorsOnly: boolean;
-    pendingRedemptions: BigNumber;
-    copycatStrategy: BigNumber;
-    proposalLink: BigNumber;
-    multisig: string;
-    dao: string;
-    daoToken: string;
-    donationMatchActive: boolean;
-    donationMatchContract: string;
-    allowlistedBeneficiaries: string[];
-    allowlistedContributors: string[];
-    maturityAllowlist: string[];
-    earningsFee: AngelCoreStruct.EndowmentFeeStructOutput;
-    withdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
-    depositFee: AngelCoreStruct.EndowmentFeeStructOutput;
-    balanceFee: AngelCoreStruct.EndowmentFeeStructOutput;
-    settingsController: AngelCoreStruct.SettingsControllerStructOutput;
-    parent: BigNumber;
-    ignoreUserSplits: boolean;
-    splitToLiquid: AngelCoreStruct.SplitDetailsStructOutput;
-    referralId: BigNumber;
-  };
-
-  export type ConfigStruct = {
-    owner: PromiseOrValue<string>;
-    version: PromiseOrValue<string>;
-    registrarContract: PromiseOrValue<string>;
-    nextAccountId: PromiseOrValue<BigNumberish>;
-    maxGeneralCategoryId: PromiseOrValue<BigNumberish>;
-    subDao: PromiseOrValue<string>;
-    gateway: PromiseOrValue<string>;
-    gasReceiver: PromiseOrValue<string>;
-    reentrancyGuardLocked: PromiseOrValue<boolean>;
-  };
-
-  export type ConfigStructOutput = [
-    string,
-    string,
-    string,
-    BigNumber,
-    BigNumber,
-    string,
-    string,
-    string,
-    boolean
-  ] & {
-    owner: string;
-    version: string;
-    registrarContract: string;
-    nextAccountId: BigNumber;
-    maxGeneralCategoryId: BigNumber;
-    subDao: string;
-    gateway: string;
-    gasReceiver: string;
-    reentrancyGuardLocked: boolean;
-  };
-}
-
 export declare namespace AngelCoreStruct {
   export type CurveTypeDataStruct = {
     value: PromiseOrValue<BigNumberish>;
@@ -338,79 +168,62 @@ export declare namespace AngelCoreStruct {
   };
 
   export type DelegateStruct = {
-    Addr: PromiseOrValue<string>;
+    addr: PromiseOrValue<string>;
     expires: PromiseOrValue<BigNumberish>;
   };
 
   export type DelegateStructOutput = [string, BigNumber] & {
-    Addr: string;
+    addr: string;
     expires: BigNumber;
   };
 
-  export type SettingsPermissionStruct = {
-    delegate: AngelCoreStruct.DelegateStruct;
-  };
-
-  export type SettingsPermissionStructOutput = [
-    AngelCoreStruct.DelegateStructOutput
-  ] & { delegate: AngelCoreStruct.DelegateStructOutput };
-
   export type SettingsControllerStruct = {
-    endowmentController: AngelCoreStruct.SettingsPermissionStruct;
-    strategies: AngelCoreStruct.SettingsPermissionStruct;
-    allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStruct;
-    allowlistedContributors: AngelCoreStruct.SettingsPermissionStruct;
-    maturityAllowlist: AngelCoreStruct.SettingsPermissionStruct;
-    maturityTime: AngelCoreStruct.SettingsPermissionStruct;
-    profile: AngelCoreStruct.SettingsPermissionStruct;
-    earningsFee: AngelCoreStruct.SettingsPermissionStruct;
-    withdrawFee: AngelCoreStruct.SettingsPermissionStruct;
-    depositFee: AngelCoreStruct.SettingsPermissionStruct;
-    balanceFee: AngelCoreStruct.SettingsPermissionStruct;
-    name: AngelCoreStruct.SettingsPermissionStruct;
-    image: AngelCoreStruct.SettingsPermissionStruct;
-    logo: AngelCoreStruct.SettingsPermissionStruct;
-    categories: AngelCoreStruct.SettingsPermissionStruct;
-    splitToLiquid: AngelCoreStruct.SettingsPermissionStruct;
-    ignoreUserSplits: AngelCoreStruct.SettingsPermissionStruct;
+    strategies: AngelCoreStruct.DelegateStruct;
+    allowlistedBeneficiaries: AngelCoreStruct.DelegateStruct;
+    allowlistedContributors: AngelCoreStruct.DelegateStruct;
+    maturityAllowlist: AngelCoreStruct.DelegateStruct;
+    maturityTime: AngelCoreStruct.DelegateStruct;
+    withdrawFee: AngelCoreStruct.DelegateStruct;
+    depositFee: AngelCoreStruct.DelegateStruct;
+    balanceFee: AngelCoreStruct.DelegateStruct;
+    name: AngelCoreStruct.DelegateStruct;
+    image: AngelCoreStruct.DelegateStruct;
+    logo: AngelCoreStruct.DelegateStruct;
+    categories: AngelCoreStruct.DelegateStruct;
+    splitToLiquid: AngelCoreStruct.DelegateStruct;
+    ignoreUserSplits: AngelCoreStruct.DelegateStruct;
   };
 
   export type SettingsControllerStructOutput = [
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput
   ] & {
-    endowmentController: AngelCoreStruct.SettingsPermissionStructOutput;
-    strategies: AngelCoreStruct.SettingsPermissionStructOutput;
-    allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStructOutput;
-    allowlistedContributors: AngelCoreStruct.SettingsPermissionStructOutput;
-    maturityAllowlist: AngelCoreStruct.SettingsPermissionStructOutput;
-    maturityTime: AngelCoreStruct.SettingsPermissionStructOutput;
-    profile: AngelCoreStruct.SettingsPermissionStructOutput;
-    earningsFee: AngelCoreStruct.SettingsPermissionStructOutput;
-    withdrawFee: AngelCoreStruct.SettingsPermissionStructOutput;
-    depositFee: AngelCoreStruct.SettingsPermissionStructOutput;
-    balanceFee: AngelCoreStruct.SettingsPermissionStructOutput;
-    name: AngelCoreStruct.SettingsPermissionStructOutput;
-    image: AngelCoreStruct.SettingsPermissionStructOutput;
-    logo: AngelCoreStruct.SettingsPermissionStructOutput;
-    categories: AngelCoreStruct.SettingsPermissionStructOutput;
-    splitToLiquid: AngelCoreStruct.SettingsPermissionStructOutput;
-    ignoreUserSplits: AngelCoreStruct.SettingsPermissionStructOutput;
+    strategies: AngelCoreStruct.DelegateStructOutput;
+    allowlistedBeneficiaries: AngelCoreStruct.DelegateStructOutput;
+    allowlistedContributors: AngelCoreStruct.DelegateStructOutput;
+    maturityAllowlist: AngelCoreStruct.DelegateStructOutput;
+    maturityTime: AngelCoreStruct.DelegateStructOutput;
+    withdrawFee: AngelCoreStruct.DelegateStructOutput;
+    depositFee: AngelCoreStruct.DelegateStructOutput;
+    balanceFee: AngelCoreStruct.DelegateStructOutput;
+    name: AngelCoreStruct.DelegateStructOutput;
+    image: AngelCoreStruct.DelegateStructOutput;
+    logo: AngelCoreStruct.DelegateStructOutput;
+    categories: AngelCoreStruct.DelegateStructOutput;
+    splitToLiquid: AngelCoreStruct.DelegateStructOutput;
+    ignoreUserSplits: AngelCoreStruct.DelegateStructOutput;
   };
 
   export type SplitDetailsStruct = {
@@ -444,7 +257,7 @@ export declare namespace SubDaoMessage {
   };
 
   export type InstantiateMsgStructOutput = [
-    BigNumber,
+    number,
     string,
     BigNumber,
     BigNumber,
@@ -458,7 +271,7 @@ export declare namespace SubDaoMessage {
     string,
     string
   ] & {
-    id: BigNumber;
+    id: number;
     owner: string;
     quorum: BigNumber;
     threshold: BigNumber;
@@ -501,6 +314,139 @@ export declare namespace LocalRegistrarLib {
   };
 }
 
+export declare namespace AccountStorage {
+  export type EndowmentStruct = {
+    owner: PromiseOrValue<string>;
+    name: PromiseOrValue<string>;
+    categories: AngelCoreStruct.CategoriesStruct;
+    tier: PromiseOrValue<BigNumberish>;
+    endow_type: PromiseOrValue<BigNumberish>;
+    logo: PromiseOrValue<string>;
+    image: PromiseOrValue<string>;
+    maturityTime: PromiseOrValue<BigNumberish>;
+    strategies: AngelCoreStruct.AccountStrategiesStruct;
+    oneoffVaults: AngelCoreStruct.OneOffVaultsStruct;
+    rebalance: LocalRegistrarLib.RebalanceParamsStruct;
+    kycDonorsOnly: PromiseOrValue<boolean>;
+    pendingRedemptions: PromiseOrValue<BigNumberish>;
+    proposalLink: PromiseOrValue<BigNumberish>;
+    multisig: PromiseOrValue<string>;
+    dao: PromiseOrValue<string>;
+    daoToken: PromiseOrValue<string>;
+    donationMatchActive: PromiseOrValue<boolean>;
+    donationMatchContract: PromiseOrValue<string>;
+    allowlistedBeneficiaries: PromiseOrValue<string>[];
+    allowlistedContributors: PromiseOrValue<string>[];
+    maturityAllowlist: PromiseOrValue<string>[];
+    withdrawFee: AngelCoreStruct.EndowmentFeeStruct;
+    depositFee: AngelCoreStruct.EndowmentFeeStruct;
+    balanceFee: AngelCoreStruct.EndowmentFeeStruct;
+    settingsController: AngelCoreStruct.SettingsControllerStruct;
+    parent: PromiseOrValue<BigNumberish>;
+    ignoreUserSplits: PromiseOrValue<boolean>;
+    splitToLiquid: AngelCoreStruct.SplitDetailsStruct;
+    referralId: PromiseOrValue<BigNumberish>;
+  };
+
+  export type EndowmentStructOutput = [
+    string,
+    string,
+    AngelCoreStruct.CategoriesStructOutput,
+    BigNumber,
+    number,
+    string,
+    string,
+    BigNumber,
+    AngelCoreStruct.AccountStrategiesStructOutput,
+    AngelCoreStruct.OneOffVaultsStructOutput,
+    LocalRegistrarLib.RebalanceParamsStructOutput,
+    boolean,
+    BigNumber,
+    BigNumber,
+    string,
+    string,
+    string,
+    boolean,
+    string,
+    string[],
+    string[],
+    string[],
+    AngelCoreStruct.EndowmentFeeStructOutput,
+    AngelCoreStruct.EndowmentFeeStructOutput,
+    AngelCoreStruct.EndowmentFeeStructOutput,
+    AngelCoreStruct.SettingsControllerStructOutput,
+    number,
+    boolean,
+    AngelCoreStruct.SplitDetailsStructOutput,
+    BigNumber
+  ] & {
+    owner: string;
+    name: string;
+    categories: AngelCoreStruct.CategoriesStructOutput;
+    tier: BigNumber;
+    endow_type: number;
+    logo: string;
+    image: string;
+    maturityTime: BigNumber;
+    strategies: AngelCoreStruct.AccountStrategiesStructOutput;
+    oneoffVaults: AngelCoreStruct.OneOffVaultsStructOutput;
+    rebalance: LocalRegistrarLib.RebalanceParamsStructOutput;
+    kycDonorsOnly: boolean;
+    pendingRedemptions: BigNumber;
+    proposalLink: BigNumber;
+    multisig: string;
+    dao: string;
+    daoToken: string;
+    donationMatchActive: boolean;
+    donationMatchContract: string;
+    allowlistedBeneficiaries: string[];
+    allowlistedContributors: string[];
+    maturityAllowlist: string[];
+    withdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
+    depositFee: AngelCoreStruct.EndowmentFeeStructOutput;
+    balanceFee: AngelCoreStruct.EndowmentFeeStructOutput;
+    settingsController: AngelCoreStruct.SettingsControllerStructOutput;
+    parent: number;
+    ignoreUserSplits: boolean;
+    splitToLiquid: AngelCoreStruct.SplitDetailsStructOutput;
+    referralId: BigNumber;
+  };
+
+  export type ConfigStruct = {
+    owner: PromiseOrValue<string>;
+    version: PromiseOrValue<string>;
+    registrarContract: PromiseOrValue<string>;
+    nextAccountId: PromiseOrValue<BigNumberish>;
+    maxGeneralCategoryId: PromiseOrValue<BigNumberish>;
+    subDao: PromiseOrValue<string>;
+    gateway: PromiseOrValue<string>;
+    gasReceiver: PromiseOrValue<string>;
+    reentrancyGuardLocked: PromiseOrValue<boolean>;
+  };
+
+  export type ConfigStructOutput = [
+    string,
+    string,
+    string,
+    number,
+    BigNumber,
+    string,
+    string,
+    string,
+    boolean
+  ] & {
+    owner: string;
+    version: string;
+    registrarContract: string;
+    nextAccountId: number;
+    maxGeneralCategoryId: BigNumber;
+    subDao: string;
+    gateway: string;
+    gasReceiver: string;
+    reentrancyGuardLocked: boolean;
+  };
+}
+
 export declare namespace AccountMessages {
   export type UpdateEndowmentDetailsRequestStruct = {
     id: PromiseOrValue<BigNumberish>;
@@ -513,7 +459,7 @@ export declare namespace AccountMessages {
   };
 
   export type UpdateEndowmentDetailsRequestStructOutput = [
-    BigNumber,
+    number,
     string,
     string,
     AngelCoreStruct.CategoriesStructOutput,
@@ -521,7 +467,7 @@ export declare namespace AccountMessages {
     string,
     LocalRegistrarLib.RebalanceParamsStructOutput
   ] & {
-    id: BigNumber;
+    id: number;
     owner: string;
     name: string;
     categories: AngelCoreStruct.CategoriesStructOutput;
@@ -533,8 +479,8 @@ export declare namespace AccountMessages {
 
 export interface AccountsUpdateEndowmentsInterface extends utils.Interface {
   functions: {
-    "updateDelegate(uint256,string,string,address,uint256)": FunctionFragment;
-    "updateEndowmentDetails((uint256,address,string,(uint256[],uint256[]),string,string,(bool,uint32,uint32,bool,uint32,uint32)))": FunctionFragment;
+    "updateDelegate(uint32,uint8,uint8,address,uint256)": FunctionFragment;
+    "updateEndowmentDetails((uint32,address,string,(uint256[],uint256[]),string,string,(bool,uint32,uint32,bool,uint32,uint32)))": FunctionFragment;
   };
 
   getFunction(
@@ -545,8 +491,8 @@ export interface AccountsUpdateEndowmentsInterface extends utils.Interface {
     functionFragment: "updateDelegate",
     values: [
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>
     ]
@@ -566,7 +512,7 @@ export interface AccountsUpdateEndowmentsInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "AllowanceStateUpdatedTo(address,address,address,tuple)": EventFragment;
+    "AllowanceStateUpdatedTo(address,address,address,uint256)": EventFragment;
     "DaoContractCreated(tuple,address)": EventFragment;
     "DonationDeposited(uint256,uint256)": EventFragment;
     "DonationMatchSetup(uint256,address)": EventFragment;
@@ -596,10 +542,10 @@ export interface AllowanceStateUpdatedToEventObject {
   sender: string;
   spender: string;
   tokenAddress: string;
-  allowance: AccountStorage.AllowanceDataStructOutput;
+  allowance: BigNumber;
 }
 export type AllowanceStateUpdatedToEvent = TypedEvent<
-  [string, string, string, AccountStorage.AllowanceDataStructOutput],
+  [string, string, string, BigNumber],
   AllowanceStateUpdatedToEventObject
 >;
 
@@ -756,8 +702,8 @@ export interface AccountsUpdateEndowments extends BaseContract {
   functions: {
     updateDelegate(
       id: PromiseOrValue<BigNumberish>,
-      setting: PromiseOrValue<string>,
-      action: PromiseOrValue<string>,
+      setting: PromiseOrValue<BigNumberish>,
+      action: PromiseOrValue<BigNumberish>,
       delegateAddress: PromiseOrValue<string>,
       delegateExpiry: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -771,8 +717,8 @@ export interface AccountsUpdateEndowments extends BaseContract {
 
   updateDelegate(
     id: PromiseOrValue<BigNumberish>,
-    setting: PromiseOrValue<string>,
-    action: PromiseOrValue<string>,
+    setting: PromiseOrValue<BigNumberish>,
+    action: PromiseOrValue<BigNumberish>,
     delegateAddress: PromiseOrValue<string>,
     delegateExpiry: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -786,8 +732,8 @@ export interface AccountsUpdateEndowments extends BaseContract {
   callStatic: {
     updateDelegate(
       id: PromiseOrValue<BigNumberish>,
-      setting: PromiseOrValue<string>,
-      action: PromiseOrValue<string>,
+      setting: PromiseOrValue<BigNumberish>,
+      action: PromiseOrValue<BigNumberish>,
       delegateAddress: PromiseOrValue<string>,
       delegateExpiry: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -800,7 +746,7 @@ export interface AccountsUpdateEndowments extends BaseContract {
   };
 
   filters: {
-    "AllowanceStateUpdatedTo(address,address,address,tuple)"(
+    "AllowanceStateUpdatedTo(address,address,address,uint256)"(
       sender?: null,
       spender?: null,
       tokenAddress?: null,
@@ -907,8 +853,8 @@ export interface AccountsUpdateEndowments extends BaseContract {
   estimateGas: {
     updateDelegate(
       id: PromiseOrValue<BigNumberish>,
-      setting: PromiseOrValue<string>,
-      action: PromiseOrValue<string>,
+      setting: PromiseOrValue<BigNumberish>,
+      action: PromiseOrValue<BigNumberish>,
       delegateAddress: PromiseOrValue<string>,
       delegateExpiry: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -923,8 +869,8 @@ export interface AccountsUpdateEndowments extends BaseContract {
   populateTransaction: {
     updateDelegate(
       id: PromiseOrValue<BigNumberish>,
-      setting: PromiseOrValue<string>,
-      action: PromiseOrValue<string>,
+      setting: PromiseOrValue<BigNumberish>,
+      action: PromiseOrValue<BigNumberish>,
       delegateAddress: PromiseOrValue<string>,
       delegateExpiry: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }

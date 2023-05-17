@@ -15,9 +15,9 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: "uint256",
+        internalType: "uint32",
         name: "accountId",
-        type: "uint256",
+        type: "uint32",
       },
       {
         indexed: false,
@@ -34,27 +34,21 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "uint256",
+        internalType: "uint32",
         name: "accountId",
-        type: "uint256",
+        type: "uint32",
       },
       {
-        indexed: true,
+        indexed: false,
         internalType: "address",
-        name: "curBeneficiary",
+        name: "tokenaddress",
         type: "address",
       },
       {
         indexed: false,
-        internalType: "address[]",
-        name: "curTokenaddress",
-        type: "address[]",
-      },
-      {
-        indexed: false,
-        internalType: "uint256[]",
-        name: "curAmount",
-        type: "uint256[]",
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
       },
     ],
     name: "LockedWithdrawApproved",
@@ -65,9 +59,9 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: "uint256",
+        internalType: "uint32",
         name: "accountId",
-        type: "uint256",
+        type: "uint32",
       },
       {
         indexed: false,
@@ -84,9 +78,9 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "uint256",
+        internalType: "uint32",
         name: "accountId",
-        type: "uint256",
+        type: "uint32",
       },
       {
         indexed: true,
@@ -95,22 +89,16 @@ const _abi = [
         type: "address",
       },
       {
-        indexed: true,
+        indexed: false,
         internalType: "address",
-        name: "curBeneficiary",
+        name: "tokenaddress",
         type: "address",
       },
       {
         indexed: false,
-        internalType: "address[]",
-        name: "curTokenaddress",
-        type: "address[]",
-      },
-      {
-        indexed: false,
-        internalType: "uint256[]",
-        name: "curAmount",
-        type: "uint256[]",
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
       },
     ],
     name: "LockedWithdrawInitiated",
@@ -121,9 +109,9 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "uint256",
+        internalType: "uint32",
         name: "accountId",
-        type: "uint256",
+        type: "uint32",
       },
     ],
     name: "LockedWithdrawRejected",
@@ -132,9 +120,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
+        internalType: "uint32",
         name: "accountId",
-        type: "uint256",
+        type: "uint32",
       },
     ],
     name: "approve",
@@ -145,24 +133,19 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
+        internalType: "uint32",
         name: "accountId",
-        type: "uint256",
+        type: "uint32",
       },
       {
         internalType: "address",
-        name: "curBeneficiary",
+        name: "tokenaddress",
         type: "address",
       },
       {
-        internalType: "address[]",
-        name: "curTokenaddress",
-        type: "address[]",
-      },
-      {
-        internalType: "uint256[]",
-        name: "curAmount",
-        type: "uint256[]",
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
       },
     ],
     name: "propose",
@@ -173,9 +156,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
+        internalType: "uint32",
         name: "accountId",
-        type: "uint256",
+        type: "uint32",
       },
     ],
     name: "reject",
@@ -206,22 +189,22 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "curRegistrar",
+        name: "registrar",
         type: "address",
       },
       {
         internalType: "address",
-        name: "curAccounts",
+        name: "accounts",
         type: "address",
       },
       {
         internalType: "address",
-        name: "curApteammultisig",
+        name: "apteammultisig",
         type: "address",
       },
       {
         internalType: "address",
-        name: "curEndowfactory",
+        name: "endowfactory",
         type: "address",
       },
     ],

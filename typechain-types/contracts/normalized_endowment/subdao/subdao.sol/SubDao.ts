@@ -122,7 +122,7 @@ export declare namespace SubDaoMessage {
   };
 
   export type InstantiateMsgStructOutput = [
-    BigNumber,
+    number,
     string,
     BigNumber,
     BigNumber,
@@ -136,7 +136,7 @@ export declare namespace SubDaoMessage {
     string,
     string
   ] & {
-    id: BigNumber;
+    id: number;
     owner: string;
     quorum: BigNumber;
     threshold: BigNumber;
@@ -220,13 +220,13 @@ export declare namespace SubDaoStorage {
 
 export interface SubDaoInterface extends utils.Interface {
   functions: {
-    "buildDaoTokenMesage((uint256,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address))": FunctionFragment;
+    "buildDaoTokenMesage((uint32,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address))": FunctionFragment;
     "castVote(uint256,uint8)": FunctionFragment;
     "createPoll(uint256,string,string,string,(uint256[],address[],bytes[]))": FunctionFragment;
     "endPoll(uint256)": FunctionFragment;
     "executePoll(uint256)": FunctionFragment;
     "expirePoll(uint256)": FunctionFragment;
-    "initializeSubDao((uint256,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address),address)": FunctionFragment;
+    "initializeSubDao((uint32,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address),address)": FunctionFragment;
     "queryConfig()": FunctionFragment;
     "queryState()": FunctionFragment;
     "registerContract(address,address)": FunctionFragment;

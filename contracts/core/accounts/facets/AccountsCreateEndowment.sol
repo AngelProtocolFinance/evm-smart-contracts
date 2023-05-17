@@ -29,7 +29,7 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
      */
     function createEndowment(
         AccountMessages.CreateEndowmentRequest memory curDetails
-    ) public nonReentrant returns (uint256) {
+    ) public nonReentrant returns (uint32) {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
 
         address registrarAddress = state.config.registrarContract;
@@ -97,16 +97,12 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                 name: curDetails.name,
                 categories: curDetails.categories,
                 endow_type: curDetails.endow_type,
-                status: AngelCoreStruct.EndowmentStatus.Approved,
-                depositApproved: true,
-                withdrawApproved: true,
                 maturityTime: curDetails.maturityTime,
                 strategies: AngelCoreStruct.accountStrategiesDefaut(),
                 oneoffVaults: AngelCoreStruct.oneOffVaultsDefault(),
                 rebalance: IRegistrar(registrarAddress).getRebalanceParams(),
                 kycDonorsOnly: curDetails.kycDonorsOnly,
                 pendingRedemptions: 0,
-                copycatStrategy: 0,
                 multisig: curDetails.owner,
                 dao: address(0),
                 daoToken: address(0),
@@ -114,7 +110,6 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                 donationMatchContract: donationMatchContract,
                 allowlistedBeneficiaries: curDetails.allowlistedBeneficiaries,
                 allowlistedContributors: curDetails.allowlistedContributors,
-                earningsFee: curDetails.earningsFee,
                 withdrawFee: curDetails.withdrawFee,
                 depositFee: curDetails.depositFee,
                 balanceFee: curDetails.balanceFee,

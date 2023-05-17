@@ -24,7 +24,7 @@ contract AccountsQueryEndowments {
      * @return tokenAmount balance of token
      */
     function queryTokenAmount(
-        uint256 curId,
+        uint32 curId,
         AngelCoreStruct.AccountType curAccountType,
         address curTokenAddress
     ) public view returns (uint256 tokenAmount) {
@@ -46,7 +46,7 @@ contract AccountsQueryEndowments {
      * @return endowment The endowment details
      */
     function queryEndowmentDetails(
-        uint256 curId
+        uint32 curId
     ) public view returns (AccountStorage.Endowment memory endowment) {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         endowment = state.ENDOWMENTS[curId];
@@ -82,7 +82,7 @@ contract AccountsQueryEndowments {
      * @return stateResponse The endowment state
      */
     function queryState(
-        uint256 curId
+        uint32 curId
     ) public view returns (AccountMessages.StateResponse memory stateResponse) {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         stateResponse = AccountMessages.StateResponse({
@@ -100,7 +100,7 @@ contract AccountsQueryEndowments {
     //  * @return vaultBalance Balance of the specified vault.
     //  */
     // function queryVaultBalance(
-    //     uint256 curId,
+    //     uint32 curId,
     //     AngelCoreStruct.AccountType vaultType,
     //     string memory vault
     // ) public view returns (uint256 vaultBalance) {

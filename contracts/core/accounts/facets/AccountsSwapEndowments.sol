@@ -28,7 +28,7 @@ contract AccountsSwapEndowments is ReentrancyGuardFacet, AccountsEvents {
      * @param curTokenOut The address of the token to be received
      */
     function swapToken(
-        uint256 curId,
+        uint32 curId,
         AngelCoreStruct.AccountType curAccountType,
         uint256 curAmount,
         address curTokenIn,
@@ -99,7 +99,7 @@ contract AccountsSwapEndowments is ReentrancyGuardFacet, AccountsEvents {
      * @param curAccountType The type of the account
      */
     function updateStateBalance(
-        uint256 curId,
+        uint32 curId,
         address curTokenaddress,
         uint256 curAmount,
         AngelCoreStruct.AccountType curAccountType
