@@ -345,12 +345,8 @@ contract AccountDepositWithdrawEndowments is
         );
 
         if (msg.sender != registrar_config.indexFundContract) {
-            if (
-                tempEndowment.endow_type ==
-                AngelCoreStruct.EndowmentType.Charity ||
-                (tempEndowment.splitToLiquid.min == 0 &&
-                    tempEndowment.splitToLiquid.max == 0)
-            ) {
+            if (tempEndowment.endow_type == AngelCoreStruct.EndowmentType.Charity) {
+                // use the Registrar default split for Charities
                 (lockedSplitPercent, liquidSplitPercent) = AngelCoreStruct.checkSplits(
                     registrar_split_configs,
                     lockedSplitPercent,
@@ -358,6 +354,7 @@ contract AccountDepositWithdrawEndowments is
                     tempEndowment.ignoreUserSplits
                 );
             } else {
+                // use the Endowment's SplitDetails for ASTs
                 (lockedSplitPercent, liquidSplitPercent) = AngelCoreStruct.checkSplits(
                     tempEndowment.splitToLiquid,
                     lockedSplitPercent,

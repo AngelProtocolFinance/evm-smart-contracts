@@ -463,27 +463,28 @@ library AngelCoreStruct {
     struct SplitDetails {
         uint256 max;
         uint256 min;
-        uint256 defaultSplit; // for when a split parameter is not provided
+        uint256 defaultSplit; // for when a user splits are not used
     }
 
     function checkSplits(
-        SplitDetails memory registrarSplits,
+        SplitDetails memory splits,
         uint256 userLocked,
         uint256 userLiquid,
         bool userOverride
     ) public pure returns (uint256, uint256) {
-        // check that the split provided by a non-TCA address meets the default
-        // requirements for splits that is set in the Registrar contract
-        if (
-            userLiquid > registrarSplits.max ||
-            userLiquid < registrarSplits.min ||
-            userOverride == true
-        ) {
-            return (
-                100 - registrarSplits.defaultSplit,
-                registrarSplits.defaultSplit
-            );
+        // check that the split provided by a user meets the endowment's
+        // requirements for splits (set per Endowment)
+        if (userOverride) {
+            // ignore user splits and use the endowment's default split
+            return (100 - splits.defaultSplit, splits.defaultSplit);
+        } else if (userLiquid > splits.max) {
+            // adjust upper range up within the max split threshold
+            return (splits.max, 100 - splits.max);
+        } else if (userLiquid < splits.min) {
+            // adjust lower range up within the min split threshold
+            return (100 - splits.min, splits.min);
         } else {
+            // use the user entered split as is
             return (userLocked, userLiquid);
         }
     }

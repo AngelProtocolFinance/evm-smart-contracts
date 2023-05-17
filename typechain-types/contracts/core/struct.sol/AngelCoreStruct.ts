@@ -233,7 +233,7 @@ export interface AngelCoreStruct extends BaseContract {
     ): Promise<[AngelCoreStruct.BeneficiaryStructOutput]>;
 
     checkSplits(
-      registrarSplits: AngelCoreStruct.SplitDetailsStruct,
+      splits: AngelCoreStruct.SplitDetailsStruct,
       userLocked: PromiseOrValue<BigNumberish>,
       userLiquid: PromiseOrValue<BigNumberish>,
       userOverride: PromiseOrValue<boolean>,
@@ -271,7 +271,7 @@ export interface AngelCoreStruct extends BaseContract {
   ): Promise<AngelCoreStruct.BeneficiaryStructOutput>;
 
   checkSplits(
-    registrarSplits: AngelCoreStruct.SplitDetailsStruct,
+    splits: AngelCoreStruct.SplitDetailsStruct,
     userLocked: PromiseOrValue<BigNumberish>,
     userLiquid: PromiseOrValue<BigNumberish>,
     userOverride: PromiseOrValue<boolean>,
@@ -309,7 +309,7 @@ export interface AngelCoreStruct extends BaseContract {
     ): Promise<AngelCoreStruct.BeneficiaryStructOutput>;
 
     checkSplits(
-      registrarSplits: AngelCoreStruct.SplitDetailsStruct,
+      splits: AngelCoreStruct.SplitDetailsStruct,
       userLocked: PromiseOrValue<BigNumberish>,
       userLiquid: PromiseOrValue<BigNumberish>,
       userOverride: PromiseOrValue<boolean>,
@@ -346,7 +346,7 @@ export interface AngelCoreStruct extends BaseContract {
     beneficiaryDefault(overrides?: CallOverrides): Promise<BigNumber>;
 
     checkSplits(
-      registrarSplits: AngelCoreStruct.SplitDetailsStruct,
+      splits: AngelCoreStruct.SplitDetailsStruct,
       userLocked: PromiseOrValue<BigNumberish>,
       userLiquid: PromiseOrValue<BigNumberish>,
       userOverride: PromiseOrValue<boolean>,
@@ -381,7 +381,7 @@ export interface AngelCoreStruct extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     checkSplits(
-      registrarSplits: AngelCoreStruct.SplitDetailsStruct,
+      splits: AngelCoreStruct.SplitDetailsStruct,
       userLocked: PromiseOrValue<BigNumberish>,
       userLiquid: PromiseOrValue<BigNumberish>,
       userOverride: PromiseOrValue<boolean>,
