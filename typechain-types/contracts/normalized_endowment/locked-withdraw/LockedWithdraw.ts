@@ -31,7 +31,7 @@ export interface LockedWithdrawInterface extends utils.Interface {
   functions: {
     "approve(uint32)": FunctionFragment;
     "initialize(address,address,address,address)": FunctionFragment;
-    "propose(uint32,address[],uint256[])": FunctionFragment;
+    "propose(uint32,address,uint256)": FunctionFragment;
     "reject(uint32)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "updateConfig(address,address,address,address)": FunctionFragment;
@@ -64,8 +64,8 @@ export interface LockedWithdrawInterface extends utils.Interface {
     functionFragment: "propose",
     values: [
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>[],
-      PromiseOrValue<BigNumberish>[]
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
     ]
   ): string;
   encodeFunctionData(
@@ -102,9 +102,9 @@ export interface LockedWithdrawInterface extends utils.Interface {
   events: {
     "Initialized(uint8)": EventFragment;
     "LockedWithdrawAPTeam(uint32,address)": EventFragment;
-    "LockedWithdrawApproved(uint32,address[],uint256[])": EventFragment;
+    "LockedWithdrawApproved(uint32,address,uint256)": EventFragment;
     "LockedWithdrawEndowment(uint32,address)": EventFragment;
-    "LockedWithdrawInitiated(uint32,address,address[],uint256[])": EventFragment;
+    "LockedWithdrawInitiated(uint32,address,address,uint256)": EventFragment;
     "LockedWithdrawRejected(uint32)": EventFragment;
   };
 
@@ -137,11 +137,11 @@ export type LockedWithdrawAPTeamEventFilter =
 
 export interface LockedWithdrawApprovedEventObject {
   accountId: number;
-  curTokenaddress: string[];
-  curAmount: BigNumber[];
+  tokenaddress: string;
+  amount: BigNumber;
 }
 export type LockedWithdrawApprovedEvent = TypedEvent<
-  [number, string[], BigNumber[]],
+  [number, string, BigNumber],
   LockedWithdrawApprovedEventObject
 >;
 
@@ -163,11 +163,11 @@ export type LockedWithdrawEndowmentEventFilter =
 export interface LockedWithdrawInitiatedEventObject {
   accountId: number;
   initiator: string;
-  curTokenaddress: string[];
-  curAmount: BigNumber[];
+  tokenaddress: string;
+  amount: BigNumber;
 }
 export type LockedWithdrawInitiatedEvent = TypedEvent<
-  [number, string, string[], BigNumber[]],
+  [number, string, string, BigNumber],
   LockedWithdrawInitiatedEventObject
 >;
 
@@ -218,17 +218,17 @@ export interface LockedWithdraw extends BaseContract {
     ): Promise<ContractTransaction>;
 
     initialize(
-      curRegistrar: PromiseOrValue<string>,
-      curAccounts: PromiseOrValue<string>,
-      curApteammultisig: PromiseOrValue<string>,
-      curEndowfactory: PromiseOrValue<string>,
+      registrar: PromiseOrValue<string>,
+      accounts: PromiseOrValue<string>,
+      apteammultisig: PromiseOrValue<string>,
+      endowfactory: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     propose(
       accountId: PromiseOrValue<BigNumberish>,
-      curTokenaddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
+      tokenaddress: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -243,10 +243,10 @@ export interface LockedWithdraw extends BaseContract {
     ): Promise<[boolean]>;
 
     updateConfig(
-      curRegistrar: PromiseOrValue<string>,
-      curAccounts: PromiseOrValue<string>,
-      curApteammultisig: PromiseOrValue<string>,
-      curEndowfactory: PromiseOrValue<string>,
+      registrar: PromiseOrValue<string>,
+      accounts: PromiseOrValue<string>,
+      apteammultisig: PromiseOrValue<string>,
+      endowfactory: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -257,17 +257,17 @@ export interface LockedWithdraw extends BaseContract {
   ): Promise<ContractTransaction>;
 
   initialize(
-    curRegistrar: PromiseOrValue<string>,
-    curAccounts: PromiseOrValue<string>,
-    curApteammultisig: PromiseOrValue<string>,
-    curEndowfactory: PromiseOrValue<string>,
+    registrar: PromiseOrValue<string>,
+    accounts: PromiseOrValue<string>,
+    apteammultisig: PromiseOrValue<string>,
+    endowfactory: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   propose(
     accountId: PromiseOrValue<BigNumberish>,
-    curTokenaddress: PromiseOrValue<string>[],
-    curAmount: PromiseOrValue<BigNumberish>[],
+    tokenaddress: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -282,10 +282,10 @@ export interface LockedWithdraw extends BaseContract {
   ): Promise<boolean>;
 
   updateConfig(
-    curRegistrar: PromiseOrValue<string>,
-    curAccounts: PromiseOrValue<string>,
-    curApteammultisig: PromiseOrValue<string>,
-    curEndowfactory: PromiseOrValue<string>,
+    registrar: PromiseOrValue<string>,
+    accounts: PromiseOrValue<string>,
+    apteammultisig: PromiseOrValue<string>,
+    endowfactory: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -296,17 +296,17 @@ export interface LockedWithdraw extends BaseContract {
     ): Promise<void>;
 
     initialize(
-      curRegistrar: PromiseOrValue<string>,
-      curAccounts: PromiseOrValue<string>,
-      curApteammultisig: PromiseOrValue<string>,
-      curEndowfactory: PromiseOrValue<string>,
+      registrar: PromiseOrValue<string>,
+      accounts: PromiseOrValue<string>,
+      apteammultisig: PromiseOrValue<string>,
+      endowfactory: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     propose(
       accountId: PromiseOrValue<BigNumberish>,
-      curTokenaddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
+      tokenaddress: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -321,10 +321,10 @@ export interface LockedWithdraw extends BaseContract {
     ): Promise<boolean>;
 
     updateConfig(
-      curRegistrar: PromiseOrValue<string>,
-      curAccounts: PromiseOrValue<string>,
-      curApteammultisig: PromiseOrValue<string>,
-      curEndowfactory: PromiseOrValue<string>,
+      registrar: PromiseOrValue<string>,
+      accounts: PromiseOrValue<string>,
+      apteammultisig: PromiseOrValue<string>,
+      endowfactory: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -342,15 +342,15 @@ export interface LockedWithdraw extends BaseContract {
       sender?: null
     ): LockedWithdrawAPTeamEventFilter;
 
-    "LockedWithdrawApproved(uint32,address[],uint256[])"(
+    "LockedWithdrawApproved(uint32,address,uint256)"(
       accountId?: PromiseOrValue<BigNumberish> | null,
-      curTokenaddress?: null,
-      curAmount?: null
+      tokenaddress?: null,
+      amount?: null
     ): LockedWithdrawApprovedEventFilter;
     LockedWithdrawApproved(
       accountId?: PromiseOrValue<BigNumberish> | null,
-      curTokenaddress?: null,
-      curAmount?: null
+      tokenaddress?: null,
+      amount?: null
     ): LockedWithdrawApprovedEventFilter;
 
     "LockedWithdrawEndowment(uint32,address)"(
@@ -362,17 +362,17 @@ export interface LockedWithdraw extends BaseContract {
       sender?: null
     ): LockedWithdrawEndowmentEventFilter;
 
-    "LockedWithdrawInitiated(uint32,address,address[],uint256[])"(
+    "LockedWithdrawInitiated(uint32,address,address,uint256)"(
       accountId?: PromiseOrValue<BigNumberish> | null,
       initiator?: PromiseOrValue<string> | null,
-      curTokenaddress?: null,
-      curAmount?: null
+      tokenaddress?: null,
+      amount?: null
     ): LockedWithdrawInitiatedEventFilter;
     LockedWithdrawInitiated(
       accountId?: PromiseOrValue<BigNumberish> | null,
       initiator?: PromiseOrValue<string> | null,
-      curTokenaddress?: null,
-      curAmount?: null
+      tokenaddress?: null,
+      amount?: null
     ): LockedWithdrawInitiatedEventFilter;
 
     "LockedWithdrawRejected(uint32)"(
@@ -390,17 +390,17 @@ export interface LockedWithdraw extends BaseContract {
     ): Promise<BigNumber>;
 
     initialize(
-      curRegistrar: PromiseOrValue<string>,
-      curAccounts: PromiseOrValue<string>,
-      curApteammultisig: PromiseOrValue<string>,
-      curEndowfactory: PromiseOrValue<string>,
+      registrar: PromiseOrValue<string>,
+      accounts: PromiseOrValue<string>,
+      apteammultisig: PromiseOrValue<string>,
+      endowfactory: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     propose(
       accountId: PromiseOrValue<BigNumberish>,
-      curTokenaddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
+      tokenaddress: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -415,10 +415,10 @@ export interface LockedWithdraw extends BaseContract {
     ): Promise<BigNumber>;
 
     updateConfig(
-      curRegistrar: PromiseOrValue<string>,
-      curAccounts: PromiseOrValue<string>,
-      curApteammultisig: PromiseOrValue<string>,
-      curEndowfactory: PromiseOrValue<string>,
+      registrar: PromiseOrValue<string>,
+      accounts: PromiseOrValue<string>,
+      apteammultisig: PromiseOrValue<string>,
+      endowfactory: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -430,17 +430,17 @@ export interface LockedWithdraw extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initialize(
-      curRegistrar: PromiseOrValue<string>,
-      curAccounts: PromiseOrValue<string>,
-      curApteammultisig: PromiseOrValue<string>,
-      curEndowfactory: PromiseOrValue<string>,
+      registrar: PromiseOrValue<string>,
+      accounts: PromiseOrValue<string>,
+      apteammultisig: PromiseOrValue<string>,
+      endowfactory: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     propose(
       accountId: PromiseOrValue<BigNumberish>,
-      curTokenaddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
+      tokenaddress: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -455,10 +455,10 @@ export interface LockedWithdraw extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     updateConfig(
-      curRegistrar: PromiseOrValue<string>,
-      curAccounts: PromiseOrValue<string>,
-      curApteammultisig: PromiseOrValue<string>,
-      curEndowfactory: PromiseOrValue<string>,
+      registrar: PromiseOrValue<string>,
+      accounts: PromiseOrValue<string>,
+      apteammultisig: PromiseOrValue<string>,
+      endowfactory: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

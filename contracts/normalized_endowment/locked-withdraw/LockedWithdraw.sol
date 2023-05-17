@@ -9,6 +9,7 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Utils} from "../../lib/utils.sol";
 import {IEndowmentMultiSigFactory} from "../endowment-multisig/interface/IEndowmentMultiSigFactory.sol";
+import {IAccountsDepositWithdrawEndowments} from "../../core/accounts/interface/IAccountsDepositWithdrawEndowments.sol";
 
 /**
  * @title LockedWithdraw
@@ -59,68 +60,68 @@ contract LockedWithdraw is
     /**
      * @notice function used to initialize the contract
      * @dev Initialize the contract
-     * @param curRegistrar The address of the registrar contract
-     * @param curAccounts The address of the accounts contract
-     * @param curApteammultisig The address of the AP Team Multisig
-     * @param curEndowfactory The address of the endowment factory
+     * @param registrar The address of the registrar contract
+     * @param accounts The address of the accounts contract
+     * @param apteammultisig The address of the AP Team Multisig
+     * @param endowfactory The address of the endowment factory
      */
     function initialize(
-        address curRegistrar,
-        address curAccounts,
-        address curApteammultisig,
-        address curEndowfactory
+        address registrar,
+        address accounts,
+        address apteammultisig,
+        address endowfactory
     ) public initializer {
-        config.registrar = curRegistrar;
-        config.accounts = curAccounts;
-        config.apTeamMultisig = curApteammultisig;
-        config.endowFactory = curEndowfactory;
+        config.registrar = registrar;
+        config.accounts = accounts;
+        config.apTeamMultisig = apteammultisig;
+        config.endowFactory = endowfactory;
     }
 
     /**
      * @notice function used to update the config
      * @dev Update the config
-     * @param curRegistrar The address of the registrar contract
-     * @param curAccounts The address of the accounts contract
-     * @param curApteammultisig The address of the AP Team Multisig
-     * @param curEndowfactory The address of the endowment factory
+     * @param registrar The address of the registrar contract
+     * @param accounts The address of the accounts contract
+     * @param apteammultisig The address of the AP Team Multisig
+     * @param endowfactory The address of the endowment factory
      */
     function updateConfig(
-        address curRegistrar,
-        address curAccounts,
-        address curApteammultisig,
-        address curEndowfactory
+        address registrar,
+        address accounts,
+        address apteammultisig,
+        address endowfactory
     ) public override nonReentrant isApteam {
-        if (curRegistrar != address(0)) config.registrar = curRegistrar;
-        if (curAccounts != address(0)) config.accounts = curAccounts;
-        if (curApteammultisig != address(0))
-            config.apTeamMultisig = curApteammultisig;
-        if (curEndowfactory != address(0))
-            config.endowFactory = curEndowfactory;
+        if (registrar != address(0)) config.registrar = registrar;
+        if (accounts != address(0)) config.accounts = accounts;
+        if (apteammultisig != address(0))
+            config.apTeamMultisig = apteammultisig;
+        if (endowfactory != address(0))
+            config.endowFactory = endowfactory;
     }
 
     /**
      * @notice function used to propose a withdraw
      * @dev Propose a withdraw
      * @param accountId The account id of the endowment
-     * @param curTokenaddress The address of the token
-     * @param curAmount The amount of the token
+     * @param tokenaddress The address of the token
+     * @param amount The amount of the token
      */
     function propose(
         uint32 accountId,
-        address[] memory curTokenaddress,
-        uint256[] memory curAmount
+        address tokenaddress,
+        uint256 amount
     ) public override nonReentrant isEndowment(accountId) {
         withdrawData[accountId] = LockedWithdrawStorage.Withdraw({
             pending: true,
-            tokenAddress: curTokenaddress,
-            amount: curAmount
+            tokenAddress: tokenaddress,
+            amount: amount
         });
 
         emit LockedWithdrawInitiated(
             accountId,
             msg.sender,
-            curTokenaddress,
-            curAmount
+            tokenaddress,
+            amount
         );
 
         emit LockedWithdrawEndowment(accountId, msg.sender);
@@ -146,7 +147,6 @@ contract LockedWithdraw is
         uint32 accountId
     ) public override nonReentrant isApteam isPending(accountId) {
         emit LockedWithdrawAPTeam(accountId, msg.sender);
-
         emit LockedWithdrawApproved(
             accountId,
             withdrawData[accountId].tokenAddress,
@@ -154,25 +154,15 @@ contract LockedWithdraw is
         );
 
         // execute withdraw
-        _executeWithdraw(accountId);
-
-        withdrawData[accountId].pending = false;
-    }
-
-    /**
-     * @notice internal function used to execute withdraw message on accounts
-     * @dev Execute withdraw message on accounts (internal function)
-     * @param accountId The account id of the endowment
-     */
-    function _executeWithdraw(uint32 accountId) internal {
-        Utils._execute(config.accounts, 0, abi.encodeWithSignature(
-            "withdraw(uint32,uint8,address,uint32,address[],uint256[])",
+        IAccountsDepositWithdrawEndowments(config.accounts).withdraw(
             accountId,
             AngelCoreStruct.AccountType.Locked,
             address(0),
             accountId,
             withdrawData[accountId].tokenAddress,
             withdrawData[accountId].amount
-        ));
+        );
+
+        withdrawData[accountId].pending = false;
     }
 }
