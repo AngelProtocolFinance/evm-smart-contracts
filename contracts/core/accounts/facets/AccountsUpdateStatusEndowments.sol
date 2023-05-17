@@ -79,11 +79,8 @@ contract AccountsUpdateStatusEndowments is
                     enumData: AngelCoreStruct.BeneficiaryEnum.IndexFund
                 });
                 // remove closing endowment from all Index Funds that it is in
-                Utils._execute(
-                    registrar_config.indexFundContract,
-                    0,
-                    abi.encodeWithSignature("removeMember(uint256)", curId)
-                );
+                IIndexFund(registrar_config.indexFundContract)
+                    .removeMember(curId);
             }
         }
 
