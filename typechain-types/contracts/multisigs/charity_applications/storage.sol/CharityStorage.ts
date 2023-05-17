@@ -279,6 +279,7 @@ export declare namespace AccountMessages {
     maturityAllowlist: PromiseOrValue<string>[];
     ignoreUserSplits: PromiseOrValue<boolean>;
     splitToLiquid: AngelCoreStruct.SplitDetailsStruct;
+    referralId: PromiseOrValue<BigNumberish>;
   };
 
   export type CreateEndowmentRequestStructOutput = [
@@ -312,7 +313,8 @@ export declare namespace AccountMessages {
     number,
     string[],
     boolean,
-    AngelCoreStruct.SplitDetailsStructOutput
+    AngelCoreStruct.SplitDetailsStructOutput,
+    BigNumber
   ] & {
     owner: string;
     withdrawBeforeMaturity: boolean;
@@ -345,6 +347,7 @@ export declare namespace AccountMessages {
     maturityAllowlist: string[];
     ignoreUserSplits: boolean;
     splitToLiquid: AngelCoreStruct.SplitDetailsStructOutput;
+    referralId: BigNumber;
   };
 }
 

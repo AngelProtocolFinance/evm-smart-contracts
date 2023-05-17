@@ -3,4 +3,3 @@
 /* eslint-disable */
 export type { IRouter } from "./IRouter";
 export type { Router } from "./Router";
-export type { RouterLib } from "./RouterLib";

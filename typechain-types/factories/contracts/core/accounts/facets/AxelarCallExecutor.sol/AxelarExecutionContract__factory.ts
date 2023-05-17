@@ -850,6 +850,11 @@ const _abi = [
             name: "splitToLiquid",
             type: "tuple",
           },
+          {
+            internalType: "uint256",
+            name: "referralId",
+            type: "uint256",
+          },
         ],
         indexed: false,
         internalType: "struct AccountStorage.Endowment",
@@ -1559,6 +1564,11 @@ const _abi = [
             name: "splitToLiquid",
             type: "tuple",
           },
+          {
+            internalType: "uint256",
+            name: "referralId",
+            type: "uint256",
+          },
         ],
         indexed: false,
         internalType: "struct AccountStorage.Endowment",
@@ -1572,7 +1582,7 @@ const _abi = [
 ] as const;
 
 const _bytecode =
-  "0x60808060405234601357603a908160198239f35b600080fdfe600080fdfea2646970667358221220db955509c64780dc0801303dd24bab2a3e940c30cb590f1de84d8fdf129924b064736f6c63430008120033";
+  "0x60808060405234601357603a908160198239f35b600080fdfe600080fdfea2646970667358221220d17b8e219fcff7d7567f398ea4312fcdf3a7feb01a7fbffbe52a159ab6fbb8ce64736f6c63430008120033";
 
 type AxelarExecutionContractConstructorParams =
   | [signer?: Signer]

@@ -3,4 +3,3 @@
 /* eslint-disable */
 export { IRouter__factory } from "./IRouter__factory";
 export { Router__factory } from "./Router__factory";
-export { RouterLib__factory } from "./RouterLib__factory";

@@ -51,7 +51,8 @@ contract AccountsUpdateEndowmentSettingsController is
         require(!state.STATES[curDetails.id].lockedForever, "Settings are locked forever");
 
         if (tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity) {
-            if (tempEndowment.maturityTime > block.timestamp) {
+            // when maturity time is <= 0 it means it's not set, i.e. the AST is perpetual
+            if (tempEndowment.maturityTime <= 0 || tempEndowment.maturityTime > block.timestamp) {
                 if (
                     AngelCoreStruct.canChange(
                         tempEndowment.settingsController.allowlistedBeneficiaries,

@@ -2,7 +2,7 @@
 // yours, or create new ones.
 
 import { HardhatRuntimeEnvironment } from "hardhat/types"
-import { saveFrontendFiles } from "../../../scripts/readWriteFile"
+import { saveFrontendFiles } from "scripts/readWriteFile"
 
 const deploySubDaoEmitter = async (proxyAdmin: string,accountAddress: string,verify_contracts: boolean, hre: HardhatRuntimeEnvironment) =>{
   try {

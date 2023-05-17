@@ -2,8 +2,8 @@
 // yours, or create new ones.
 
 import path from 'path'
-import config from './../../../../config'
-import { saveFrontendFiles } from '../../../../scripts/readWriteFile'
+import config from 'config'
+import { saveFrontendFiles } from 'scripts/readWriteFile'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';

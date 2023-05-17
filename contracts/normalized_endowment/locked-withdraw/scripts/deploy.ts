@@ -2,7 +2,7 @@
 // yours, or create new ones.
 
 import path from 'path'
-import { saveFrontendFiles } from './../../../../scripts/readWriteFile'
+import { saveFrontendFiles } from 'scripts/readWriteFile'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';

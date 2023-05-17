@@ -3,7 +3,7 @@
 
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import { deployLockedWithdraw } from '../locked-withdraw/scripts/deploy'
-import { saveFrontendFiles } from './../../../scripts/readWriteFile'
+import { saveFrontendFiles } from 'scripts/readWriteFile'
 
 const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
 

@@ -145,13 +145,14 @@ export interface StorageMultiSig extends BaseContract {
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
-      [string, string, string, BigNumber, string, boolean] & {
+      [string, string, string, BigNumber, string, boolean, string] & {
         title: string;
         description: string;
         destination: string;
         value: BigNumber;
         data: string;
         executed: boolean;
+        metadata: string;
       }
     >;
   };
@@ -182,13 +183,14 @@ export interface StorageMultiSig extends BaseContract {
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<
-    [string, string, string, BigNumber, string, boolean] & {
+    [string, string, string, BigNumber, string, boolean, string] & {
       title: string;
       description: string;
       destination: string;
       value: BigNumber;
       data: string;
       executed: boolean;
+      metadata: string;
     }
   >;
 
@@ -219,13 +221,14 @@ export interface StorageMultiSig extends BaseContract {
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
-      [string, string, string, BigNumber, string, boolean] & {
+      [string, string, string, BigNumber, string, boolean, string] & {
         title: string;
         description: string;
         destination: string;
         value: BigNumber;
         data: string;
         executed: boolean;
+        metadata: string;
       }
     >;
   };

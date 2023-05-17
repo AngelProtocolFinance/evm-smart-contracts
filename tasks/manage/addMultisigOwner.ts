@@ -1,7 +1,7 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { task } from "hardhat/config"
 import type { TaskArguments } from "hardhat/types"
-import { MultiSigGeneric } from "../../typechain-types"
+import { MultiSigGeneric } from "typechain-types"
 
 task("manage:addMultisigOwner", "Will add the specified address to the multisig as an owner")
     .addParam("multisig", "Address of multisig")

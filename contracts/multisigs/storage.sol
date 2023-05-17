@@ -9,6 +9,7 @@ library MultiSigStorage {
         uint256 value;
         bytes data;
         bool executed;
+        bytes metadata;
     }
 }
 

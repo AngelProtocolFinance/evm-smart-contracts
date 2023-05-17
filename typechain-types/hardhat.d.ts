@@ -433,10 +433,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Router__factory>;
     getContractFactory(
-      name: "RouterLib",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.RouterLib__factory>;
-    getContractFactory(
       name: "AngelCoreStruct",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AngelCoreStruct__factory>;
@@ -1290,11 +1286,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Router>;
-    getContractAt(
-      name: "RouterLib",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.RouterLib>;
     getContractAt(
       name: "AngelCoreStruct",
       address: string,

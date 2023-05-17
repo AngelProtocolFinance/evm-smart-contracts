@@ -12,7 +12,7 @@ import { Vesting } from '../vesting/scripts/deploy'
 import { Staking } from '../staking/scripts/deploy'
 import { Collector } from '../collector/scripts/deploy'
 // const ethers = hre.ethers;
-import config from '../../../config'
+import config from 'config'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';

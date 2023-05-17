@@ -3,7 +3,7 @@ import { setupNetwork } from "@axelar-network/axelar-local-dev"
 import fs from "fs"
 
 import { Wallet } from "ethers"
-import config from "../config"
+import config from "config"
 
 async function setUp() {
     try {

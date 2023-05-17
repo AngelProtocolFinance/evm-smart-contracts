@@ -35,6 +35,7 @@ export declare namespace MultiSigStorage {
     value: PromiseOrValue<BigNumberish>;
     data: PromiseOrValue<BytesLike>;
     executed: PromiseOrValue<boolean>;
+    metadata: PromiseOrValue<BytesLike>;
   };
 
   export type TransactionStructOutput = [
@@ -43,7 +44,8 @@ export declare namespace MultiSigStorage {
     string,
     BigNumber,
     string,
-    boolean
+    boolean,
+    string
   ] & {
     title: string;
     description: string;
@@ -51,6 +53,7 @@ export declare namespace MultiSigStorage {
     value: BigNumber;
     data: string;
     executed: boolean;
+    metadata: string;
   };
 }
 
@@ -76,7 +79,7 @@ export interface MultiSigGenericInterface extends utils.Interface {
     "requireExecution()": FunctionFragment;
     "required()": FunctionFragment;
     "revokeConfirmation(uint256)": FunctionFragment;
-    "submitTransaction(string,string,address,uint256,bytes)": FunctionFragment;
+    "submitTransaction(string,string,address,uint256,bytes,bytes)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "transactionCount()": FunctionFragment;
     "transactions(uint256)": FunctionFragment;
@@ -200,6 +203,7 @@ export interface MultiSigGenericInterface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
       PromiseOrValue<BytesLike>
     ]
   ): string;
@@ -540,6 +544,7 @@ export interface MultiSigGeneric extends BaseContract {
       destination: PromiseOrValue<string>,
       value: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
+      metadata: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -554,13 +559,14 @@ export interface MultiSigGeneric extends BaseContract {
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
-      [string, string, string, BigNumber, string, boolean] & {
+      [string, string, string, BigNumber, string, boolean, string] & {
         title: string;
         description: string;
         destination: string;
         value: BigNumber;
         data: string;
         executed: boolean;
+        metadata: string;
       }
     >;
   };
@@ -667,6 +673,7 @@ export interface MultiSigGeneric extends BaseContract {
     destination: PromiseOrValue<string>,
     value: PromiseOrValue<BigNumberish>,
     data: PromiseOrValue<BytesLike>,
+    metadata: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -681,13 +688,14 @@ export interface MultiSigGeneric extends BaseContract {
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<
-    [string, string, string, BigNumber, string, boolean] & {
+    [string, string, string, BigNumber, string, boolean, string] & {
       title: string;
       description: string;
       destination: string;
       value: BigNumber;
       data: string;
       executed: boolean;
+      metadata: string;
     }
   >;
 
@@ -794,6 +802,7 @@ export interface MultiSigGeneric extends BaseContract {
       destination: PromiseOrValue<string>,
       value: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
+      metadata: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -808,13 +817,14 @@ export interface MultiSigGeneric extends BaseContract {
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
-      [string, string, string, BigNumber, string, boolean] & {
+      [string, string, string, BigNumber, string, boolean, string] & {
         title: string;
         description: string;
         destination: string;
         value: BigNumber;
         data: string;
         executed: boolean;
+        metadata: string;
       }
     >;
   };
@@ -994,6 +1004,7 @@ export interface MultiSigGeneric extends BaseContract {
       destination: PromiseOrValue<string>,
       value: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
+      metadata: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1113,6 +1124,7 @@ export interface MultiSigGeneric extends BaseContract {
       destination: PromiseOrValue<string>,
       value: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
+      metadata: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

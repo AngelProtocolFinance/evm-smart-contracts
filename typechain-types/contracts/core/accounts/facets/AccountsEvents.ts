@@ -336,6 +336,7 @@ export declare namespace AccountStorage {
     parent: PromiseOrValue<BigNumberish>;
     ignoreUserSplits: PromiseOrValue<boolean>;
     splitToLiquid: AngelCoreStruct.SplitDetailsStruct;
+    referralId: PromiseOrValue<BigNumberish>;
   };
 
   export type EndowmentStructOutput = [
@@ -367,7 +368,8 @@ export declare namespace AccountStorage {
     AngelCoreStruct.SettingsControllerStructOutput,
     number,
     boolean,
-    AngelCoreStruct.SplitDetailsStructOutput
+    AngelCoreStruct.SplitDetailsStructOutput,
+    BigNumber
   ] & {
     owner: string;
     name: string;
@@ -398,6 +400,7 @@ export declare namespace AccountStorage {
     parent: number;
     ignoreUserSplits: boolean;
     splitToLiquid: AngelCoreStruct.SplitDetailsStructOutput;
+    referralId: BigNumber;
   };
 
   export type ConfigStruct = {

@@ -30,33 +30,11 @@ library CharityApplicationLib {
             storage proposals,
         CharityApplicationsStorage.Config storage config
     ) public {
-        uint256 proposalId = proposalCounter;
-
-        proposalCounter++;
-
-        require(
-            proposals[proposalId].status ==
-                CharityApplicationsStorage.Status.None,
-            "Already exists"
-        );
-
-        // charity check
-        if (
-            charityApplication.endow_type !=
-            AngelCoreStruct.EndowmentType.Charity
-        ) {
-            revert("Unauthorized");
-        }
-
-        // set explicitly to 0 (None) regardless of what user passes
-        charityApplication.maturityTime = 0;
-
-        if (charityApplication.categories.sdgs.length == 0) {
-            revert("Invalid UN SDG inputs given");
-        }
+        require(proposals[proposalCounter].proposer == address(0), "Proposal already exists");
+        require(charityApplication.endow_type == AngelCoreStruct.EndowmentType.Charity, "Unauthorized");
+        require(charityApplication.categories.sdgs.length > 0, "No UN SDGs given");
 
         // check all sdgs id
-
         for (
             uint256 i = 0;
             i < charityApplication.categories.sdgs.length;
@@ -70,9 +48,12 @@ library CharityApplicationLib {
             }
         }
 
-        proposals[proposalId] = CharityApplicationsStorage
+        // Maturity always set to zero (None) for all Charity Endowments
+        charityApplication.maturityTime = 0;
+        // save new proposal
+        proposals[proposalCounter] = CharityApplicationsStorage
             .CharityApplicationProposal({
-                proposalId: proposalId,
+                proposalId: proposalCounter,
                 proposer: msg.sender,
                 charityApplication: charityApplication,
                 meta: meta,

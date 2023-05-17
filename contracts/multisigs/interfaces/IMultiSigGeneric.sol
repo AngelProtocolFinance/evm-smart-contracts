@@ -52,13 +52,15 @@ abstract contract IMultiSigGeneric is IERC165 {
     /// @param destination Transaction target address.
     /// @param value Transaction ether value.
     /// @param data Transaction data payload.
+    /// @param metadata Encoded transaction metadata, can contain dynamic content.
     /// @return transactionId transaction ID.
     function submitTransaction(
         string memory title,
         string memory description,
         address destination,
         uint256 value,
-        bytes memory data
+        bytes memory data,
+        bytes memory metadata
     ) public virtual returns (uint256 transactionId);
 
     /// @dev Allows an owner to confirm a transaction.
@@ -89,13 +91,15 @@ abstract contract IMultiSigGeneric is IERC165 {
     /// @param destination Transaction target address.
     /// @param value Transaction ether value.
     /// @param data Transaction data payload.
+    /// @param metadata Encoded transaction metadata, can contain dynamic content.
     /// @return transactionId Returns transaction ID.
     function addTransaction(
         string memory title,
         string memory description,
         address destination,
         uint256 value,
-        bytes memory data
+        bytes memory data,
+        bytes memory metadata
     ) internal virtual returns (uint256 transactionId);
 
     /*

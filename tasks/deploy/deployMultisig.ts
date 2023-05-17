@@ -1,7 +1,7 @@
 import { task } from "hardhat/config"
-import config from "../../config"
-import { ApplicationsMultiSig, APTeamMultiSig } from "../../typechain-types"
-import { deployMultisig } from "../../contracts/multisigs/scripts/deploy"
+import config from "config"
+import { ApplicationsMultiSig, APTeamMultiSig } from "typechain-types"
+import { deployMultisig } from "contracts/multisigs/scripts/deploy"
 
 task("Deploy:deployMultisig", "Will deploy Multisig contract")
     .addParam("verify", "Want to verify contract")

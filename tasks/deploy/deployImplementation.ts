@@ -1,6 +1,6 @@
 import { task } from "hardhat/config"
-import config from "../../config"
-import { deployImplementation } from "../../contracts/normalized_endowment/scripts/deployImplementation"
+import config from "config"
+import { deployImplementation } from "contracts/normalized_endowment/scripts/deployImplementation"
 
 task("Deploy:deployImplementation", "Will deploy Implementation")
     .addParam("verify", "Want to verify contract")

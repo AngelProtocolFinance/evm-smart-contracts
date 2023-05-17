@@ -1,5 +1,5 @@
 import { task } from "hardhat/config"
-import { mainTask } from "../../scripts/deployTask"
+import { mainTask } from "scripts/deployTask"
 
 task("Deploy:deployAngelProtocol", "Will deploy CompleteAngel protocol")
     .addParam("verify", "Want to verify contract")

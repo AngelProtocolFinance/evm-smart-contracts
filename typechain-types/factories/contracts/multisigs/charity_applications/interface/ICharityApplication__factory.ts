@@ -708,6 +708,11 @@ const _abi = [
             name: "splitToLiquid",
             type: "tuple",
           },
+          {
+            internalType: "uint256",
+            name: "referralId",
+            type: "uint256",
+          },
         ],
         indexed: false,
         internalType: "struct AccountMessages.CreateEndowmentRequest",
@@ -1548,6 +1553,11 @@ const _abi = [
             internalType: "struct AngelCoreStruct.SplitDetails",
             name: "splitToLiquid",
             type: "tuple",
+          },
+          {
+            internalType: "uint256",
+            name: "referralId",
+            type: "uint256",
           },
         ],
         internalType: "struct AccountMessages.CreateEndowmentRequest",

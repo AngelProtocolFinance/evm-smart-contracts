@@ -214,8 +214,6 @@ export type { IRouter } from "./contracts/core/router/IRouter";
 export { IRouter__factory } from "./factories/contracts/core/router/IRouter__factory";
 export type { Router } from "./contracts/core/router/Router";
 export { Router__factory } from "./factories/contracts/core/router/Router__factory";
-export type { RouterLib } from "./contracts/core/router/RouterLib";
-export { RouterLib__factory } from "./factories/contracts/core/router/RouterLib__factory";
 export type { AngelCoreStruct } from "./contracts/core/struct.sol/AngelCoreStruct";
 export { AngelCoreStruct__factory } from "./factories/contracts/core/struct.sol/AngelCoreStruct__factory";
 export type { IPool } from "./contracts/core/swap-router/Interface/Ipool.sol/IPool";

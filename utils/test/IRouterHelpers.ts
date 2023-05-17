@@ -1,10 +1,7 @@
 import type {
     BigNumberish,
     BytesLike
-  } from "ethers";
-  import type {
-    PromiseOrValue,
-  } from "../../typechain-types/common";
+  } from "ethers"
 
 export declare namespace IRouter {
     export type VaultActionDataStruct = {

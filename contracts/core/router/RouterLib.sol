@@ -11,7 +11,7 @@ library RouterLib {
 
     // Data packing methods
     function unpackCalldata(bytes memory _calldata)
-        public pure
+        internal pure
         returns (IRouter.VaultActionData memory)
     {
         (
@@ -42,7 +42,7 @@ library RouterLib {
     }
 
     function packCallData(IRouter.VaultActionData memory _calldata)
-        public pure
+        internal pure
         returns (bytes memory)
     {
         return

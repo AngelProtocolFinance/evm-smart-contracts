@@ -50,6 +50,8 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
             curDetails.cw4_members[0] = curDetails.owner;
         }
 
+        require(curDetails.threshold > 0, "Threshold must be a positive number");
+
         if (AngelCoreStruct.EndowmentType.Normal == curDetails.endow_type) {
             require(
                 curDetails.threshold <= curDetails.cw4_members.length,
@@ -99,6 +101,7 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                 strategies: AngelCoreStruct.accountStrategiesDefaut(),
                 oneoffVaults: AngelCoreStruct.oneOffVaultsDefault(),
                 rebalance: IRegistrar(registrarAddress).getRebalanceParams(),
+                kycDonorsOnly: curDetails.kycDonorsOnly,
                 pendingRedemptions: 0,
                 multisig: curDetails.owner,
                 dao: address(0),
@@ -119,7 +122,7 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                 parent: curDetails.parent,
                 ignoreUserSplits: ignoreUserSplit,
                 splitToLiquid: splitSettings,
-                kycDonorsOnly: false
+                referralId: curDetails.referralId
             });
 
         // state.STATES[state.config.nextAccountId] = AccountStorage

@@ -1,3 +1,5 @@
-import "./upgradeMultisigs"
 import "./upgradeCharityApplication"
-import "./upgradeAccountsCreateEndowment"
+import "./upgradeContractsUsingAccountStorage"
+import "./upgradeFacets"
+import "./upgradeEndowmentMultiSig"
+import "./upgradeMultisigs"
