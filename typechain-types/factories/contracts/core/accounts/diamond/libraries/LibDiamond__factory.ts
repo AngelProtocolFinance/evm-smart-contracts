@@ -33,19 +33,19 @@ const _abi = [
         ],
         indexed: false,
         internalType: "struct IDiamondCut.FacetCut[]",
-        name: "curDiamondcut",
+        name: "diamondcut",
         type: "tuple[]",
       },
       {
         indexed: false,
         internalType: "address",
-        name: "curInit",
+        name: "init",
         type: "address",
       },
       {
         indexed: false,
         internalType: "bytes",
-        name: "curCalldata",
+        name: "data",
         type: "bytes",
       },
     ],
@@ -74,7 +74,7 @@ const _abi = [
 ] as const;
 
 const _bytecode =
-  "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea2646970667358221220fa2064192c50554434c3677244f4eedeccff35d2d5b6065f6fadd6af548a491664736f6c63430008120033";
+  "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea264697066735822122070cb793473ef5fd1d75324eae0156c41ec0901983f7bb76788f01933dd6fb94f64736f6c63430008120033";
 
 type LibDiamondConstructorParams =
   | [signer?: Signer]

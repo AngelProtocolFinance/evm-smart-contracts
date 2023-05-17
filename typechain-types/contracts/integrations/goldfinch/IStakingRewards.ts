@@ -84,7 +84,7 @@ export interface IStakingRewardsInterface extends utils.Interface {
   functions: {
     "accumulatedRewardsPerToken()": FunctionFragment;
     "addToStake(uint256,uint256)": FunctionFragment;
-    "depositToCurveAndStakeFrom(address,uint256,uint256)": FunctionFragment;
+    "depositToveAndStakeFrom(address,uint256,uint256)": FunctionFragment;
     "getPosition(uint256)": FunctionFragment;
     "getReward(uint256)": FunctionFragment;
     "kick(uint256)": FunctionFragment;
@@ -98,7 +98,7 @@ export interface IStakingRewardsInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "accumulatedRewardsPerToken"
       | "addToStake"
-      | "depositToCurveAndStakeFrom"
+      | "depositToveAndStakeFrom"
       | "getPosition"
       | "getReward"
       | "kick"
@@ -117,7 +117,7 @@ export interface IStakingRewardsInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "depositToCurveAndStakeFrom",
+    functionFragment: "depositToveAndStakeFrom",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
@@ -159,7 +159,7 @@ export interface IStakingRewardsInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "addToStake", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "depositToCurveAndStakeFrom",
+    functionFragment: "depositToveAndStakeFrom",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -217,7 +217,7 @@ export interface IStakingRewards extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    depositToCurveAndStakeFrom(
+    depositToveAndStakeFrom(
       nftRecipient: PromiseOrValue<string>,
       fiduAmount: PromiseOrValue<BigNumberish>,
       usdcAmount: PromiseOrValue<BigNumberish>,
@@ -271,7 +271,7 @@ export interface IStakingRewards extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  depositToCurveAndStakeFrom(
+  depositToveAndStakeFrom(
     nftRecipient: PromiseOrValue<string>,
     fiduAmount: PromiseOrValue<BigNumberish>,
     usdcAmount: PromiseOrValue<BigNumberish>,
@@ -321,7 +321,7 @@ export interface IStakingRewards extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    depositToCurveAndStakeFrom(
+    depositToveAndStakeFrom(
       nftRecipient: PromiseOrValue<string>,
       fiduAmount: PromiseOrValue<BigNumberish>,
       usdcAmount: PromiseOrValue<BigNumberish>,
@@ -374,7 +374,7 @@ export interface IStakingRewards extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    depositToCurveAndStakeFrom(
+    depositToveAndStakeFrom(
       nftRecipient: PromiseOrValue<string>,
       fiduAmount: PromiseOrValue<BigNumberish>,
       usdcAmount: PromiseOrValue<BigNumberish>,
@@ -427,7 +427,7 @@ export interface IStakingRewards extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    depositToCurveAndStakeFrom(
+    depositToveAndStakeFrom(
       nftRecipient: PromiseOrValue<string>,
       fiduAmount: PromiseOrValue<BigNumberish>,
       usdcAmount: PromiseOrValue<BigNumberish>,

@@ -232,10 +232,10 @@ export interface IEndowmentMultiSigEmitter extends BaseContract {
     createMultisig(
       multisigAddress: PromiseOrValue<string>,
       endowmentId: PromiseOrValue<BigNumberish>,
-      curEmitter: PromiseOrValue<string>,
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
-      curRequireexecution: PromiseOrValue<boolean>,
+      emitter: PromiseOrValue<string>,
+      owners: PromiseOrValue<string>[],
+      required: PromiseOrValue<BigNumberish>,
+      requireexecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -301,10 +301,10 @@ export interface IEndowmentMultiSigEmitter extends BaseContract {
   createMultisig(
     multisigAddress: PromiseOrValue<string>,
     endowmentId: PromiseOrValue<BigNumberish>,
-    curEmitter: PromiseOrValue<string>,
-    curOwners: PromiseOrValue<string>[],
-    curRequired: PromiseOrValue<BigNumberish>,
-    curRequireexecution: PromiseOrValue<boolean>,
+    emitter: PromiseOrValue<string>,
+    owners: PromiseOrValue<string>[],
+    required: PromiseOrValue<BigNumberish>,
+    requireexecution: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -370,10 +370,10 @@ export interface IEndowmentMultiSigEmitter extends BaseContract {
     createMultisig(
       multisigAddress: PromiseOrValue<string>,
       endowmentId: PromiseOrValue<BigNumberish>,
-      curEmitter: PromiseOrValue<string>,
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
-      curRequireexecution: PromiseOrValue<boolean>,
+      emitter: PromiseOrValue<string>,
+      owners: PromiseOrValue<string>[],
+      required: PromiseOrValue<BigNumberish>,
+      requireexecution: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -442,10 +442,10 @@ export interface IEndowmentMultiSigEmitter extends BaseContract {
     createMultisig(
       multisigAddress: PromiseOrValue<string>,
       endowmentId: PromiseOrValue<BigNumberish>,
-      curEmitter: PromiseOrValue<string>,
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
-      curRequireexecution: PromiseOrValue<boolean>,
+      emitter: PromiseOrValue<string>,
+      owners: PromiseOrValue<string>[],
+      required: PromiseOrValue<BigNumberish>,
+      requireexecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -512,10 +512,10 @@ export interface IEndowmentMultiSigEmitter extends BaseContract {
     createMultisig(
       multisigAddress: PromiseOrValue<string>,
       endowmentId: PromiseOrValue<BigNumberish>,
-      curEmitter: PromiseOrValue<string>,
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
-      curRequireexecution: PromiseOrValue<boolean>,
+      emitter: PromiseOrValue<string>,
+      owners: PromiseOrValue<string>[],
+      required: PromiseOrValue<BigNumberish>,
+      requireexecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

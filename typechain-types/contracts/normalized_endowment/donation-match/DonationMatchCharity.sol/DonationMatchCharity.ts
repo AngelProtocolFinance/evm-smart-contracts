@@ -247,7 +247,7 @@ export interface DonationMatchCharity extends BaseContract {
     ): Promise<ContractTransaction>;
 
     initialize(
-      curDetails: DonationMatchMessages.InstantiateMessageStruct,
+      details: DonationMatchMessages.InstantiateMessageStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -265,7 +265,7 @@ export interface DonationMatchCharity extends BaseContract {
   ): Promise<ContractTransaction>;
 
   initialize(
-    curDetails: DonationMatchMessages.InstantiateMessageStruct,
+    details: DonationMatchMessages.InstantiateMessageStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -283,7 +283,7 @@ export interface DonationMatchCharity extends BaseContract {
     ): Promise<void>;
 
     initialize(
-      curDetails: DonationMatchMessages.InstantiateMessageStruct,
+      details: DonationMatchMessages.InstantiateMessageStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -370,7 +370,7 @@ export interface DonationMatchCharity extends BaseContract {
     ): Promise<BigNumber>;
 
     initialize(
-      curDetails: DonationMatchMessages.InstantiateMessageStruct,
+      details: DonationMatchMessages.InstantiateMessageStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -387,7 +387,7 @@ export interface DonationMatchCharity extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initialize(
-      curDetails: DonationMatchMessages.InstantiateMessageStruct,
+      details: DonationMatchMessages.InstantiateMessageStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

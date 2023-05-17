@@ -523,9 +523,7 @@ export interface DummyGasService extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    gasCollector(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    gasCollector(overrides?: CallOverrides): Promise<[string]>;
 
     payGasForContractCall(
       sender: PromiseOrValue<string>,
@@ -642,9 +640,7 @@ export interface DummyGasService extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  gasCollector(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  gasCollector(overrides?: CallOverrides): Promise<string>;
 
   payGasForContractCall(
     sender: PromiseOrValue<string>,
@@ -1061,9 +1057,7 @@ export interface DummyGasService extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    gasCollector(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    gasCollector(overrides?: CallOverrides): Promise<BigNumber>;
 
     payGasForContractCall(
       sender: PromiseOrValue<string>,
@@ -1181,9 +1175,7 @@ export interface DummyGasService extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    gasCollector(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    gasCollector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     payGasForContractCall(
       sender: PromiseOrValue<string>,

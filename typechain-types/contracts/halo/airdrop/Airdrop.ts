@@ -246,7 +246,7 @@ export interface Airdrop extends BaseContract {
     ): Promise<ContractTransaction>;
 
     initialize(
-      curDetails: AirdropMessage.InstantiateMsgStruct,
+      details: AirdropMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -285,7 +285,7 @@ export interface Airdrop extends BaseContract {
   ): Promise<ContractTransaction>;
 
   initialize(
-    curDetails: AirdropMessage.InstantiateMsgStruct,
+    details: AirdropMessage.InstantiateMsgStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -324,7 +324,7 @@ export interface Airdrop extends BaseContract {
     ): Promise<void>;
 
     initialize(
-      curDetails: AirdropMessage.InstantiateMsgStruct,
+      details: AirdropMessage.InstantiateMsgStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -403,7 +403,7 @@ export interface Airdrop extends BaseContract {
     ): Promise<BigNumber>;
 
     initialize(
-      curDetails: AirdropMessage.InstantiateMsgStruct,
+      details: AirdropMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -441,7 +441,7 @@ export interface Airdrop extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initialize(
-      curDetails: AirdropMessage.InstantiateMsgStruct,
+      details: AirdropMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -5,6 +5,6 @@ import {AccountMessages} from "../message.sol";
 
 interface IAccountsCreateEndowment {
     function createEndowment(
-        AccountMessages.CreateEndowmentRequest memory curDetails
+        AccountMessages.CreateEndowmentRequest memory details
     ) external returns (uint32);
 }

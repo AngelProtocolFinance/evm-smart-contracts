@@ -23,17 +23,17 @@ contract Airdrop is Storage, Initializable, ReentrancyGuard {
 
     /**
      * @dev Initialize contract
-     * @param curDetails AirdropMessage.InstantiateMsg used to initialize contract
+     * @param details AirdropMessage.InstantiateMsg used to initialize contract
      */
     function initialize(
-        AirdropMessage.InstantiateMsg memory curDetails
+        AirdropMessage.InstantiateMsg memory details
     ) public initializer {
         state.config = AirdropStorage.Config({
-            owner: curDetails.owner,
-            haloToken: curDetails.haloToken
+            owner: details.owner,
+            haloToken: details.haloToken
         });
         state.latestStage = 0;
-        emit AirdropInitialized(curDetails.owner, curDetails.haloToken);
+        emit AirdropInitialized(details.owner, details.haloToken);
     }
 
     /**

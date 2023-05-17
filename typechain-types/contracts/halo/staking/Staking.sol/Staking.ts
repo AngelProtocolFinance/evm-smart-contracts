@@ -542,7 +542,7 @@ export interface Staking extends BaseContract {
     ): Promise<ContractTransaction>;
 
     updateInterestRate(
-      curInterestRate: PromiseOrValue<BigNumberish>,
+      interestRate: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -678,7 +678,7 @@ export interface Staking extends BaseContract {
   ): Promise<ContractTransaction>;
 
   updateInterestRate(
-    curInterestRate: PromiseOrValue<BigNumberish>,
+    interestRate: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -808,7 +808,7 @@ export interface Staking extends BaseContract {
     ): Promise<void>;
 
     updateInterestRate(
-      curInterestRate: PromiseOrValue<BigNumberish>,
+      interestRate: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -1005,7 +1005,7 @@ export interface Staking extends BaseContract {
     ): Promise<BigNumber>;
 
     updateInterestRate(
-      curInterestRate: PromiseOrValue<BigNumberish>,
+      interestRate: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -1134,7 +1134,7 @@ export interface Staking extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     updateInterestRate(
-      curInterestRate: PromiseOrValue<BigNumberish>,
+      interestRate: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

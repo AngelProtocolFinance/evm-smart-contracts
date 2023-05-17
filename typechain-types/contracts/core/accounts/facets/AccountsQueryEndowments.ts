@@ -451,7 +451,7 @@ export interface AccountsQueryEndowments extends BaseContract {
     >;
 
     queryEndowmentDetails(
-      curId: PromiseOrValue<BigNumberish>,
+      id: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
       [AccountStorage.EndowmentStructOutput] & {
@@ -460,7 +460,7 @@ export interface AccountsQueryEndowments extends BaseContract {
     >;
 
     queryState(
-      curId: PromiseOrValue<BigNumberish>,
+      id: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
       [AccountMessages.StateResponseStructOutput] & {
@@ -469,9 +469,9 @@ export interface AccountsQueryEndowments extends BaseContract {
     >;
 
     queryTokenAmount(
-      curId: PromiseOrValue<BigNumberish>,
-      curAccountType: PromiseOrValue<BigNumberish>,
-      curTokenAddress: PromiseOrValue<string>,
+      id: PromiseOrValue<BigNumberish>,
+      accountType: PromiseOrValue<BigNumberish>,
+      tokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { tokenAmount: BigNumber }>;
   };
@@ -481,19 +481,19 @@ export interface AccountsQueryEndowments extends BaseContract {
   ): Promise<AccountMessages.ConfigResponseStructOutput>;
 
   queryEndowmentDetails(
-    curId: PromiseOrValue<BigNumberish>,
+    id: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<AccountStorage.EndowmentStructOutput>;
 
   queryState(
-    curId: PromiseOrValue<BigNumberish>,
+    id: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<AccountMessages.StateResponseStructOutput>;
 
   queryTokenAmount(
-    curId: PromiseOrValue<BigNumberish>,
-    curAccountType: PromiseOrValue<BigNumberish>,
-    curTokenAddress: PromiseOrValue<string>,
+    id: PromiseOrValue<BigNumberish>,
+    accountType: PromiseOrValue<BigNumberish>,
+    tokenAddress: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -503,19 +503,19 @@ export interface AccountsQueryEndowments extends BaseContract {
     ): Promise<AccountMessages.ConfigResponseStructOutput>;
 
     queryEndowmentDetails(
-      curId: PromiseOrValue<BigNumberish>,
+      id: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<AccountStorage.EndowmentStructOutput>;
 
     queryState(
-      curId: PromiseOrValue<BigNumberish>,
+      id: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<AccountMessages.StateResponseStructOutput>;
 
     queryTokenAmount(
-      curId: PromiseOrValue<BigNumberish>,
-      curAccountType: PromiseOrValue<BigNumberish>,
-      curTokenAddress: PromiseOrValue<string>,
+      id: PromiseOrValue<BigNumberish>,
+      accountType: PromiseOrValue<BigNumberish>,
+      tokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -526,19 +526,19 @@ export interface AccountsQueryEndowments extends BaseContract {
     queryConfig(overrides?: CallOverrides): Promise<BigNumber>;
 
     queryEndowmentDetails(
-      curId: PromiseOrValue<BigNumberish>,
+      id: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     queryState(
-      curId: PromiseOrValue<BigNumberish>,
+      id: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     queryTokenAmount(
-      curId: PromiseOrValue<BigNumberish>,
-      curAccountType: PromiseOrValue<BigNumberish>,
-      curTokenAddress: PromiseOrValue<string>,
+      id: PromiseOrValue<BigNumberish>,
+      accountType: PromiseOrValue<BigNumberish>,
+      tokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -547,19 +547,19 @@ export interface AccountsQueryEndowments extends BaseContract {
     queryConfig(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     queryEndowmentDetails(
-      curId: PromiseOrValue<BigNumberish>,
+      id: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     queryState(
-      curId: PromiseOrValue<BigNumberish>,
+      id: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     queryTokenAmount(
-      curId: PromiseOrValue<BigNumberish>,
-      curAccountType: PromiseOrValue<BigNumberish>,
-      curTokenAddress: PromiseOrValue<string>,
+      id: PromiseOrValue<BigNumberish>,
+      accountType: PromiseOrValue<BigNumberish>,
+      tokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

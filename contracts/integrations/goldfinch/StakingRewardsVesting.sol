@@ -34,12 +34,12 @@ library StakingRewardsVesting {
     return rewards.totalVested.add(rewards.totalPreviouslyVested).sub(rewards.totalClaimed);
   }
 
-  function currentGrant(Rewards storage rewards) internal view returns (uint256) {
+  function rentGrant(Rewards storage rewards) internal view returns (uint256) {
     return rewards.totalUnvested.add(rewards.totalVested);
   }
 
   function checkpoint(Rewards storage rewards) internal {
-    uint256 newTotalVested = totalVestedAt(rewards.startTime, rewards.endTime, block.timestamp, rewards.currentGrant());
+    uint256 newTotalVested = totalVestedAt(rewards.startTime, rewards.endTime, block.timestamp, rewards.rentGrant());
 
     if (newTotalVested > rewards.totalVested) {
       uint256 difference = newTotalVested.sub(rewards.totalVested);

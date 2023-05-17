@@ -61,7 +61,7 @@ export async function deployHaloImplementation(
 	try {
 
 		const {
-			curTimelock,
+			timelock,
 			GovHodlerOwner,
 			airdropOwner,
 			CommunitySpendLimit,
@@ -75,7 +75,7 @@ export async function deployHaloImplementation(
 
 		let halo = await deployERC20(proxyAdmin.address,verify_contracts,hre);
 
-		let gov = await deployGov(proxyAdmin.address, halo, curTimelock, verify_contracts,hre);
+		let gov = await deployGov(proxyAdmin.address, halo, timelock, verify_contracts,hre);
 
 		let halo_code = await ethers.getContractAt('ERC20Upgrade', halo);
 

@@ -13,15 +13,15 @@ import { IDiamondCut } from "./interfaces/IDiamondCut.sol";
 
 contract Diamond {    
 
-    constructor(address curContractowner, address curDiamondcutfacet) payable {        
-        LibDiamond.setContractOwner(curContractowner);
+    constructor(address contractowner, address diamondcutfacet) payable {        
+        LibDiamond.setContractOwner(contractowner);
 
         // Add the diamondCut external function from the diamondCutFacet
         IDiamondCut.FacetCut[] memory cut = new IDiamondCut.FacetCut[](1);
         bytes4[] memory functionSelectors = new bytes4[](1);
         functionSelectors[0] = IDiamondCut.diamondCut.selector;
         cut[0] = IDiamondCut.FacetCut({
-            facetAddress: curDiamondcutfacet, 
+            facetAddress: diamondcutfacet, 
             action: IDiamondCut.FacetCutAction.Add, 
             functionSelectors: functionSelectors
         });

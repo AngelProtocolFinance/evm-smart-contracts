@@ -37,25 +37,25 @@ library Array {
     }
 
     function max(uint256[] memory data) internal pure returns (uint256) {
-        uint256 curMax = data[0];
+        uint256 max = data[0];
         for (uint256 i = 1; i < data.length; i++) {
-            if (curMax < data[i]) {
-                curMax = data[i];
+            if (max < data[i]) {
+                max = data[i];
             }
         }
 
-        return curMax;
+        return max;
     }
 
     // function min(uint256[] memory data) internal pure returns (uint256) {
-    //     uint256 curMin = data[0];
+    //     uint256 min = data[0];
     //     for (uint256 i = 1; i < data.length; i++) {
-    //         if (curMin > data[i]) {
-    //             curMin = data[i];
+    //         if (min > data[i]) {
+    //             min = data[i];
     //         }
     //     }
 
-    //     return curMin;
+    //     return min;
     // }
 
     function indexOf(uint256[] memory arr, uint256 searchFor)

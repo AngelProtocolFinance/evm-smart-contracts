@@ -25,30 +25,30 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
     /**
     @notice Updates the endowment details.
     @dev This function allows the Endowment owner to update the endowment details like owner & rebalance and allows them or their Delegate(s) to update name, categories, logo, and image.
-    @param curDetails UpdateEndowmentDetailsRequest struct containing the updated endowment details.
+    @param details UpdateEndowmentDetailsRequest struct containing the updated endowment details.
     */
     function updateEndowmentDetails(
-        AccountMessages.UpdateEndowmentDetailsRequest memory curDetails
+        AccountMessages.UpdateEndowmentDetailsRequest memory details
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
-            curDetails.id
+            details.id
         ];
 
-        require(!state.STATES[curDetails.id].closingEndowment, "UpdatesAfterClosed");
-        require(!state.STATES[curDetails.id].lockedForever, "Settings are locked forever");
+        require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
+        require(!state.STATES[details.id].lockedForever, "Settings are locked forever");
 
         // there are several fields that are restricted to changing only by the Endowment Owner
         if (msg.sender == tempEndowment.owner) {
             // An Endowment's owner can be set as the gov dao OR the endowment multisig contract
-            if (curDetails.owner != address(0) &&
-                (curDetails.owner == tempEndowment.dao || curDetails.owner == tempEndowment.multisig)
+            if (details.owner != address(0) &&
+                (details.owner == tempEndowment.dao || details.owner == tempEndowment.multisig)
             ) {
-                tempEndowment.owner = curDetails.owner;
+                tempEndowment.owner = details.owner;
             }
 
             if (tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity) {
-                tempEndowment.rebalance = curDetails.rebalance;
+                tempEndowment.rebalance = details.rebalance;
             }
         }
 
@@ -60,7 +60,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
                 block.timestamp
             )
         ) {
-            tempEndowment.name = curDetails.name;
+            tempEndowment.name = details.name;
         }
 
         if (
@@ -75,38 +75,38 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
                 tempEndowment.endow_type ==
                 AngelCoreStruct.EndowmentType.Charity
             ) {
-                if (curDetails.categories.sdgs.length == 0) {
+                if (details.categories.sdgs.length == 0) {
                     revert("InvalidInputs");
                 }
-                curDetails.categories.sdgs = Array.sort(
-                    curDetails.categories.sdgs
+                details.categories.sdgs = Array.sort(
+                    details.categories.sdgs
                 );
                 for (
                     uint256 i = 0;
-                    i < curDetails.categories.sdgs.length;
+                    i < details.categories.sdgs.length;
                     i++
                 ) {
                     if (
-                        curDetails.categories.sdgs[i] > 17 ||
-                        curDetails.categories.sdgs[i] == 0
+                        details.categories.sdgs[i] > 17 ||
+                        details.categories.sdgs[i] == 0
                     ) {
                         revert("InvalidInputs");
                     }
                 }
             }
-            if (curDetails.categories.general.length > 0) {
-                curDetails.categories.general = Array.sort(
-                    curDetails.categories.general
+            if (details.categories.general.length > 0) {
+                details.categories.general = Array.sort(
+                    details.categories.general
                 );
-                uint256 length = curDetails.categories.general.length;
+                uint256 length = details.categories.general.length;
                 if (
-                    curDetails.categories.general[length - 1] >
+                    details.categories.general[length - 1] >
                     state.config.maxGeneralCategoryId
                 ) {
                     revert("InvalidInputs");
                 }
             }
-            tempEndowment.categories = curDetails.categories;
+            tempEndowment.categories = details.categories;
         }
 
         if (
@@ -117,7 +117,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
                 block.timestamp
             )
         ) {
-            tempEndowment.logo = curDetails.logo;
+            tempEndowment.logo = details.logo;
         }
 
         if (
@@ -128,11 +128,11 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
                 block.timestamp
             )
         ) {
-            tempEndowment.image = curDetails.image;
+            tempEndowment.image = details.image;
         }
 
-        state.ENDOWMENTS[curDetails.id] = tempEndowment;
-        emit UpdateEndowment(curDetails.id, tempEndowment);
+        state.ENDOWMENTS[details.id] = tempEndowment;
+        emit UpdateEndowment(details.id, tempEndowment);
     }
 
     /**

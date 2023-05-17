@@ -70,14 +70,14 @@ export declare namespace AngelCoreStruct {
     active: boolean;
   };
 
-  export type CurveTypeDataStruct = {
+  export type VeTypeDataStruct = {
     value: PromiseOrValue<BigNumberish>;
     scale: PromiseOrValue<BigNumberish>;
     slope: PromiseOrValue<BigNumberish>;
     power: PromiseOrValue<BigNumberish>;
   };
 
-  export type CurveTypeDataStructOutput = [
+  export type VeTypeDataStructOutput = [
     BigNumber,
     BigNumber,
     BigNumber,
@@ -89,28 +89,28 @@ export declare namespace AngelCoreStruct {
     power: BigNumber;
   };
 
-  export type CurveTypeStruct = {
-    curve_type: PromiseOrValue<BigNumberish>;
-    data: AngelCoreStruct.CurveTypeDataStruct;
+  export type VeTypeStruct = {
+    ve_type: PromiseOrValue<BigNumberish>;
+    data: AngelCoreStruct.VeTypeDataStruct;
   };
 
-  export type CurveTypeStructOutput = [
+  export type VeTypeStructOutput = [
     number,
-    AngelCoreStruct.CurveTypeDataStructOutput
-  ] & { curve_type: number; data: AngelCoreStruct.CurveTypeDataStructOutput };
+    AngelCoreStruct.VeTypeDataStructOutput
+  ] & { ve_type: number; data: AngelCoreStruct.VeTypeDataStructOutput };
 
   export type DaoTokenDataStruct = {
     existingCw20Data: PromiseOrValue<string>;
     newCw20InitialSupply: PromiseOrValue<BigNumberish>;
     newCw20Name: PromiseOrValue<string>;
     newCw20Symbol: PromiseOrValue<string>;
-    bondingCurveCurveType: AngelCoreStruct.CurveTypeStruct;
-    bondingCurveName: PromiseOrValue<string>;
-    bondingCurveSymbol: PromiseOrValue<string>;
-    bondingCurveDecimals: PromiseOrValue<BigNumberish>;
-    bondingCurveReserveDenom: PromiseOrValue<string>;
-    bondingCurveReserveDecimals: PromiseOrValue<BigNumberish>;
-    bondingCurveUnbondingPeriod: PromiseOrValue<BigNumberish>;
+    bondingveveType: AngelCoreStruct.VeTypeStruct;
+    bondingveName: PromiseOrValue<string>;
+    bondingveSymbol: PromiseOrValue<string>;
+    bondingveDecimals: PromiseOrValue<BigNumberish>;
+    bondingveReserveDenom: PromiseOrValue<string>;
+    bondingveReserveDecimals: PromiseOrValue<BigNumberish>;
+    bondingveUnbondingPeriod: PromiseOrValue<BigNumberish>;
   };
 
   export type DaoTokenDataStructOutput = [
@@ -118,7 +118,7 @@ export declare namespace AngelCoreStruct {
     BigNumber,
     string,
     string,
-    AngelCoreStruct.CurveTypeStructOutput,
+    AngelCoreStruct.VeTypeStructOutput,
     string,
     string,
     BigNumber,
@@ -130,13 +130,13 @@ export declare namespace AngelCoreStruct {
     newCw20InitialSupply: BigNumber;
     newCw20Name: string;
     newCw20Symbol: string;
-    bondingCurveCurveType: AngelCoreStruct.CurveTypeStructOutput;
-    bondingCurveName: string;
-    bondingCurveSymbol: string;
-    bondingCurveDecimals: BigNumber;
-    bondingCurveReserveDenom: string;
-    bondingCurveReserveDecimals: BigNumber;
-    bondingCurveUnbondingPeriod: BigNumber;
+    bondingveveType: AngelCoreStruct.VeTypeStructOutput;
+    bondingveName: string;
+    bondingveSymbol: string;
+    bondingveDecimals: BigNumber;
+    bondingveReserveDenom: string;
+    bondingveReserveDecimals: BigNumber;
+    bondingveUnbondingPeriod: BigNumber;
   };
 
   export type DaoTokenStruct = {
@@ -666,15 +666,15 @@ export interface CharityApplication extends BaseContract {
     >;
 
     initialize(
-      curExpiry: PromiseOrValue<BigNumberish>,
-      curApplicationmultisig: PromiseOrValue<string>,
-      curAccountscontract: PromiseOrValue<string>,
-      curSeedsplittoliquid: PromiseOrValue<BigNumberish>,
-      curNewendowgasmoney: PromiseOrValue<boolean>,
-      curGasamount: PromiseOrValue<BigNumberish>,
-      curFundseedasset: PromiseOrValue<boolean>,
-      curSeedasset: PromiseOrValue<string>,
-      curSeedassetamount: PromiseOrValue<BigNumberish>,
+      expiry: PromiseOrValue<BigNumberish>,
+      applicationmultisig: PromiseOrValue<string>,
+      accountscontract: PromiseOrValue<string>,
+      seedsplittoliquid: PromiseOrValue<BigNumberish>,
+      newendowgasmoney: PromiseOrValue<boolean>,
+      gasamount: PromiseOrValue<BigNumberish>,
+      fundseedasset: PromiseOrValue<boolean>,
+      seedasset: PromiseOrValue<string>,
+      seedassetamount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -720,15 +720,15 @@ export interface CharityApplication extends BaseContract {
     ): Promise<[boolean]>;
 
     updateConfig(
-      curExpiry: PromiseOrValue<BigNumberish>,
-      curApplicationmultisig: PromiseOrValue<string>,
-      curAccountscontract: PromiseOrValue<string>,
-      curSeedsplittoliquid: PromiseOrValue<BigNumberish>,
-      curNewendowgasmoney: PromiseOrValue<boolean>,
-      curGasamount: PromiseOrValue<BigNumberish>,
-      curFundseedasset: PromiseOrValue<boolean>,
-      curSeedasset: PromiseOrValue<string>,
-      curSeedassetamount: PromiseOrValue<BigNumberish>,
+      expiry: PromiseOrValue<BigNumberish>,
+      applicationmultisig: PromiseOrValue<string>,
+      accountscontract: PromiseOrValue<string>,
+      seedsplittoliquid: PromiseOrValue<BigNumberish>,
+      newendowgasmoney: PromiseOrValue<boolean>,
+      gasamount: PromiseOrValue<BigNumberish>,
+      fundseedasset: PromiseOrValue<boolean>,
+      seedasset: PromiseOrValue<string>,
+      seedassetamount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -765,15 +765,15 @@ export interface CharityApplication extends BaseContract {
   >;
 
   initialize(
-    curExpiry: PromiseOrValue<BigNumberish>,
-    curApplicationmultisig: PromiseOrValue<string>,
-    curAccountscontract: PromiseOrValue<string>,
-    curSeedsplittoliquid: PromiseOrValue<BigNumberish>,
-    curNewendowgasmoney: PromiseOrValue<boolean>,
-    curGasamount: PromiseOrValue<BigNumberish>,
-    curFundseedasset: PromiseOrValue<boolean>,
-    curSeedasset: PromiseOrValue<string>,
-    curSeedassetamount: PromiseOrValue<BigNumberish>,
+    expiry: PromiseOrValue<BigNumberish>,
+    applicationmultisig: PromiseOrValue<string>,
+    accountscontract: PromiseOrValue<string>,
+    seedsplittoliquid: PromiseOrValue<BigNumberish>,
+    newendowgasmoney: PromiseOrValue<boolean>,
+    gasamount: PromiseOrValue<BigNumberish>,
+    fundseedasset: PromiseOrValue<boolean>,
+    seedasset: PromiseOrValue<string>,
+    seedassetamount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -819,15 +819,15 @@ export interface CharityApplication extends BaseContract {
   ): Promise<boolean>;
 
   updateConfig(
-    curExpiry: PromiseOrValue<BigNumberish>,
-    curApplicationmultisig: PromiseOrValue<string>,
-    curAccountscontract: PromiseOrValue<string>,
-    curSeedsplittoliquid: PromiseOrValue<BigNumberish>,
-    curNewendowgasmoney: PromiseOrValue<boolean>,
-    curGasamount: PromiseOrValue<BigNumberish>,
-    curFundseedasset: PromiseOrValue<boolean>,
-    curSeedasset: PromiseOrValue<string>,
-    curSeedassetamount: PromiseOrValue<BigNumberish>,
+    expiry: PromiseOrValue<BigNumberish>,
+    applicationmultisig: PromiseOrValue<string>,
+    accountscontract: PromiseOrValue<string>,
+    seedsplittoliquid: PromiseOrValue<BigNumberish>,
+    newendowgasmoney: PromiseOrValue<boolean>,
+    gasamount: PromiseOrValue<BigNumberish>,
+    fundseedasset: PromiseOrValue<boolean>,
+    seedasset: PromiseOrValue<string>,
+    seedassetamount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -864,15 +864,15 @@ export interface CharityApplication extends BaseContract {
     >;
 
     initialize(
-      curExpiry: PromiseOrValue<BigNumberish>,
-      curApplicationmultisig: PromiseOrValue<string>,
-      curAccountscontract: PromiseOrValue<string>,
-      curSeedsplittoliquid: PromiseOrValue<BigNumberish>,
-      curNewendowgasmoney: PromiseOrValue<boolean>,
-      curGasamount: PromiseOrValue<BigNumberish>,
-      curFundseedasset: PromiseOrValue<boolean>,
-      curSeedasset: PromiseOrValue<string>,
-      curSeedassetamount: PromiseOrValue<BigNumberish>,
+      expiry: PromiseOrValue<BigNumberish>,
+      applicationmultisig: PromiseOrValue<string>,
+      accountscontract: PromiseOrValue<string>,
+      seedsplittoliquid: PromiseOrValue<BigNumberish>,
+      newendowgasmoney: PromiseOrValue<boolean>,
+      gasamount: PromiseOrValue<BigNumberish>,
+      fundseedasset: PromiseOrValue<boolean>,
+      seedasset: PromiseOrValue<string>,
+      seedassetamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -918,15 +918,15 @@ export interface CharityApplication extends BaseContract {
     ): Promise<boolean>;
 
     updateConfig(
-      curExpiry: PromiseOrValue<BigNumberish>,
-      curApplicationmultisig: PromiseOrValue<string>,
-      curAccountscontract: PromiseOrValue<string>,
-      curSeedsplittoliquid: PromiseOrValue<BigNumberish>,
-      curNewendowgasmoney: PromiseOrValue<boolean>,
-      curGasamount: PromiseOrValue<BigNumberish>,
-      curFundseedasset: PromiseOrValue<boolean>,
-      curSeedasset: PromiseOrValue<string>,
-      curSeedassetamount: PromiseOrValue<BigNumberish>,
+      expiry: PromiseOrValue<BigNumberish>,
+      applicationmultisig: PromiseOrValue<string>,
+      accountscontract: PromiseOrValue<string>,
+      seedsplittoliquid: PromiseOrValue<BigNumberish>,
+      newendowgasmoney: PromiseOrValue<boolean>,
+      gasamount: PromiseOrValue<BigNumberish>,
+      fundseedasset: PromiseOrValue<boolean>,
+      seedasset: PromiseOrValue<string>,
+      seedassetamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -1009,15 +1009,15 @@ export interface CharityApplication extends BaseContract {
     config(overrides?: CallOverrides): Promise<BigNumber>;
 
     initialize(
-      curExpiry: PromiseOrValue<BigNumberish>,
-      curApplicationmultisig: PromiseOrValue<string>,
-      curAccountscontract: PromiseOrValue<string>,
-      curSeedsplittoliquid: PromiseOrValue<BigNumberish>,
-      curNewendowgasmoney: PromiseOrValue<boolean>,
-      curGasamount: PromiseOrValue<BigNumberish>,
-      curFundseedasset: PromiseOrValue<boolean>,
-      curSeedasset: PromiseOrValue<string>,
-      curSeedassetamount: PromiseOrValue<BigNumberish>,
+      expiry: PromiseOrValue<BigNumberish>,
+      applicationmultisig: PromiseOrValue<string>,
+      accountscontract: PromiseOrValue<string>,
+      seedsplittoliquid: PromiseOrValue<BigNumberish>,
+      newendowgasmoney: PromiseOrValue<boolean>,
+      gasamount: PromiseOrValue<BigNumberish>,
+      fundseedasset: PromiseOrValue<boolean>,
+      seedasset: PromiseOrValue<string>,
+      seedassetamount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1045,15 +1045,15 @@ export interface CharityApplication extends BaseContract {
     ): Promise<BigNumber>;
 
     updateConfig(
-      curExpiry: PromiseOrValue<BigNumberish>,
-      curApplicationmultisig: PromiseOrValue<string>,
-      curAccountscontract: PromiseOrValue<string>,
-      curSeedsplittoliquid: PromiseOrValue<BigNumberish>,
-      curNewendowgasmoney: PromiseOrValue<boolean>,
-      curGasamount: PromiseOrValue<BigNumberish>,
-      curFundseedasset: PromiseOrValue<boolean>,
-      curSeedasset: PromiseOrValue<string>,
-      curSeedassetamount: PromiseOrValue<BigNumberish>,
+      expiry: PromiseOrValue<BigNumberish>,
+      applicationmultisig: PromiseOrValue<string>,
+      accountscontract: PromiseOrValue<string>,
+      seedsplittoliquid: PromiseOrValue<BigNumberish>,
+      newendowgasmoney: PromiseOrValue<boolean>,
+      gasamount: PromiseOrValue<BigNumberish>,
+      fundseedasset: PromiseOrValue<boolean>,
+      seedasset: PromiseOrValue<string>,
+      seedassetamount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -1067,15 +1067,15 @@ export interface CharityApplication extends BaseContract {
     config(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     initialize(
-      curExpiry: PromiseOrValue<BigNumberish>,
-      curApplicationmultisig: PromiseOrValue<string>,
-      curAccountscontract: PromiseOrValue<string>,
-      curSeedsplittoliquid: PromiseOrValue<BigNumberish>,
-      curNewendowgasmoney: PromiseOrValue<boolean>,
-      curGasamount: PromiseOrValue<BigNumberish>,
-      curFundseedasset: PromiseOrValue<boolean>,
-      curSeedasset: PromiseOrValue<string>,
-      curSeedassetamount: PromiseOrValue<BigNumberish>,
+      expiry: PromiseOrValue<BigNumberish>,
+      applicationmultisig: PromiseOrValue<string>,
+      accountscontract: PromiseOrValue<string>,
+      seedsplittoliquid: PromiseOrValue<BigNumberish>,
+      newendowgasmoney: PromiseOrValue<boolean>,
+      gasamount: PromiseOrValue<BigNumberish>,
+      fundseedasset: PromiseOrValue<boolean>,
+      seedasset: PromiseOrValue<string>,
+      seedassetamount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1103,15 +1103,15 @@ export interface CharityApplication extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     updateConfig(
-      curExpiry: PromiseOrValue<BigNumberish>,
-      curApplicationmultisig: PromiseOrValue<string>,
-      curAccountscontract: PromiseOrValue<string>,
-      curSeedsplittoliquid: PromiseOrValue<BigNumberish>,
-      curNewendowgasmoney: PromiseOrValue<boolean>,
-      curGasamount: PromiseOrValue<BigNumberish>,
-      curFundseedasset: PromiseOrValue<boolean>,
-      curSeedasset: PromiseOrValue<string>,
-      curSeedassetamount: PromiseOrValue<BigNumberish>,
+      expiry: PromiseOrValue<BigNumberish>,
+      applicationmultisig: PromiseOrValue<string>,
+      accountscontract: PromiseOrValue<string>,
+      seedsplittoliquid: PromiseOrValue<BigNumberish>,
+      newendowgasmoney: PromiseOrValue<boolean>,
+      gasamount: PromiseOrValue<BigNumberish>,
+      fundseedasset: PromiseOrValue<boolean>,
+      seedasset: PromiseOrValue<string>,
+      seedassetamount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

@@ -450,7 +450,7 @@ export interface ApplicationsMultiSig extends BaseContract {
     ): Promise<ContractTransaction>;
 
     changeRequirement(
-      curRequired: PromiseOrValue<BigNumberish>,
+      required: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -497,9 +497,9 @@ export interface ApplicationsMultiSig extends BaseContract {
     ): Promise<[BigNumber[]] & { curTransactionids: BigNumber[] }>;
 
     initialize(
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
-      curRequireexecution: PromiseOrValue<boolean>,
+      owners: PromiseOrValue<string>[],
+      required: PromiseOrValue<BigNumberish>,
+      requireexecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -579,7 +579,7 @@ export interface ApplicationsMultiSig extends BaseContract {
   ): Promise<ContractTransaction>;
 
   changeRequirement(
-    curRequired: PromiseOrValue<BigNumberish>,
+    required: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -626,9 +626,9 @@ export interface ApplicationsMultiSig extends BaseContract {
   ): Promise<BigNumber[]>;
 
   initialize(
-    curOwners: PromiseOrValue<string>[],
-    curRequired: PromiseOrValue<BigNumberish>,
-    curRequireexecution: PromiseOrValue<boolean>,
+    owners: PromiseOrValue<string>[],
+    required: PromiseOrValue<BigNumberish>,
+    requireexecution: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -708,7 +708,7 @@ export interface ApplicationsMultiSig extends BaseContract {
     ): Promise<void>;
 
     changeRequirement(
-      curRequired: PromiseOrValue<BigNumberish>,
+      required: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -755,9 +755,9 @@ export interface ApplicationsMultiSig extends BaseContract {
     ): Promise<BigNumber[]>;
 
     initialize(
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
-      curRequireexecution: PromiseOrValue<boolean>,
+      owners: PromiseOrValue<string>[],
+      required: PromiseOrValue<BigNumberish>,
+      requireexecution: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -910,7 +910,7 @@ export interface ApplicationsMultiSig extends BaseContract {
     ): Promise<BigNumber>;
 
     changeRequirement(
-      curRequired: PromiseOrValue<BigNumberish>,
+      required: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -957,9 +957,9 @@ export interface ApplicationsMultiSig extends BaseContract {
     ): Promise<BigNumber>;
 
     initialize(
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
-      curRequireexecution: PromiseOrValue<boolean>,
+      owners: PromiseOrValue<string>[],
+      required: PromiseOrValue<BigNumberish>,
+      requireexecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1030,7 +1030,7 @@ export interface ApplicationsMultiSig extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     changeRequirement(
-      curRequired: PromiseOrValue<BigNumberish>,
+      required: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1077,9 +1077,9 @@ export interface ApplicationsMultiSig extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initialize(
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
-      curRequireexecution: PromiseOrValue<boolean>,
+      owners: PromiseOrValue<string>[],
+      required: PromiseOrValue<BigNumberish>,
+      requireexecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

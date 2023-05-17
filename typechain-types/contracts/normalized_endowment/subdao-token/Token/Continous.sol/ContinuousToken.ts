@@ -45,7 +45,7 @@ export interface ContinuousTokenInterface extends utils.Interface {
     "grantRole(bytes32,address)": FunctionFragment;
     "hasRole(bytes32,address)": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
-    "initCurveToken(string,string,uint256,address)": FunctionFragment;
+    "initveToken(string,string,uint256,address)": FunctionFragment;
     "name()": FunctionFragment;
     "renounceRole(bytes32,address)": FunctionFragment;
     "reserveBalance()": FunctionFragment;
@@ -78,7 +78,7 @@ export interface ContinuousTokenInterface extends utils.Interface {
       | "grantRole"
       | "hasRole"
       | "increaseAllowance"
-      | "initCurveToken"
+      | "initveToken"
       | "name"
       | "renounceRole"
       | "reserveBalance"
@@ -165,7 +165,7 @@ export interface ContinuousTokenInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "initCurveToken",
+    functionFragment: "initveToken",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
@@ -261,7 +261,7 @@ export interface ContinuousTokenInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "initCurveToken",
+    functionFragment: "initveToken",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
@@ -429,28 +429,28 @@ export interface ContinuousToken extends BaseContract {
     ): Promise<[BigNumber]>;
 
     calculateContinuousBurnReturn(
-      curAmount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { burnAmount: BigNumber }>;
 
     calculateContinuousMintReturn(
-      curAmount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { mintAmount: BigNumber }>;
 
     calculatePurchaseReturn(
-      curSupply: PromiseOrValue<BigNumberish>,
-      curReservebalance: PromiseOrValue<BigNumberish>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curDepositamount: PromiseOrValue<BigNumberish>,
+      supply: PromiseOrValue<BigNumberish>,
+      reservebalance: PromiseOrValue<BigNumberish>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      depositamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
     calculateSaleReturn(
-      curSupply: PromiseOrValue<BigNumberish>,
-      curReservebalance: PromiseOrValue<BigNumberish>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curSellamount: PromiseOrValue<BigNumberish>,
+      supply: PromiseOrValue<BigNumberish>,
+      reservebalance: PromiseOrValue<BigNumberish>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      sellamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -487,11 +487,11 @@ export interface ContinuousToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    initCurveToken(
-      curName: PromiseOrValue<string>,
-      curSymbol: PromiseOrValue<string>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curDenomtokenaddress: PromiseOrValue<string>,
+    initveToken(
+      name: PromiseOrValue<string>,
+      symbol: PromiseOrValue<string>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      denomtokenaddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -562,28 +562,28 @@ export interface ContinuousToken extends BaseContract {
   ): Promise<BigNumber>;
 
   calculateContinuousBurnReturn(
-    curAmount: PromiseOrValue<BigNumberish>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   calculateContinuousMintReturn(
-    curAmount: PromiseOrValue<BigNumberish>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   calculatePurchaseReturn(
-    curSupply: PromiseOrValue<BigNumberish>,
-    curReservebalance: PromiseOrValue<BigNumberish>,
-    curReserveratio: PromiseOrValue<BigNumberish>,
-    curDepositamount: PromiseOrValue<BigNumberish>,
+    supply: PromiseOrValue<BigNumberish>,
+    reservebalance: PromiseOrValue<BigNumberish>,
+    reserveratio: PromiseOrValue<BigNumberish>,
+    depositamount: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   calculateSaleReturn(
-    curSupply: PromiseOrValue<BigNumberish>,
-    curReservebalance: PromiseOrValue<BigNumberish>,
-    curReserveratio: PromiseOrValue<BigNumberish>,
-    curSellamount: PromiseOrValue<BigNumberish>,
+    supply: PromiseOrValue<BigNumberish>,
+    reservebalance: PromiseOrValue<BigNumberish>,
+    reserveratio: PromiseOrValue<BigNumberish>,
+    sellamount: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -620,11 +620,11 @@ export interface ContinuousToken extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  initCurveToken(
-    curName: PromiseOrValue<string>,
-    curSymbol: PromiseOrValue<string>,
-    curReserveratio: PromiseOrValue<BigNumberish>,
-    curDenomtokenaddress: PromiseOrValue<string>,
+  initveToken(
+    name: PromiseOrValue<string>,
+    symbol: PromiseOrValue<string>,
+    reserveratio: PromiseOrValue<BigNumberish>,
+    denomtokenaddress: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -695,28 +695,28 @@ export interface ContinuousToken extends BaseContract {
     ): Promise<BigNumber>;
 
     calculateContinuousBurnReturn(
-      curAmount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     calculateContinuousMintReturn(
-      curAmount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     calculatePurchaseReturn(
-      curSupply: PromiseOrValue<BigNumberish>,
-      curReservebalance: PromiseOrValue<BigNumberish>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curDepositamount: PromiseOrValue<BigNumberish>,
+      supply: PromiseOrValue<BigNumberish>,
+      reservebalance: PromiseOrValue<BigNumberish>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      depositamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     calculateSaleReturn(
-      curSupply: PromiseOrValue<BigNumberish>,
-      curReservebalance: PromiseOrValue<BigNumberish>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curSellamount: PromiseOrValue<BigNumberish>,
+      supply: PromiseOrValue<BigNumberish>,
+      reservebalance: PromiseOrValue<BigNumberish>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      sellamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -753,11 +753,11 @@ export interface ContinuousToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    initCurveToken(
-      curName: PromiseOrValue<string>,
-      curSymbol: PromiseOrValue<string>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curDenomtokenaddress: PromiseOrValue<string>,
+    initveToken(
+      name: PromiseOrValue<string>,
+      symbol: PromiseOrValue<string>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      denomtokenaddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -889,28 +889,28 @@ export interface ContinuousToken extends BaseContract {
     ): Promise<BigNumber>;
 
     calculateContinuousBurnReturn(
-      curAmount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     calculateContinuousMintReturn(
-      curAmount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     calculatePurchaseReturn(
-      curSupply: PromiseOrValue<BigNumberish>,
-      curReservebalance: PromiseOrValue<BigNumberish>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curDepositamount: PromiseOrValue<BigNumberish>,
+      supply: PromiseOrValue<BigNumberish>,
+      reservebalance: PromiseOrValue<BigNumberish>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      depositamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     calculateSaleReturn(
-      curSupply: PromiseOrValue<BigNumberish>,
-      curReservebalance: PromiseOrValue<BigNumberish>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curSellamount: PromiseOrValue<BigNumberish>,
+      supply: PromiseOrValue<BigNumberish>,
+      reservebalance: PromiseOrValue<BigNumberish>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      sellamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -947,11 +947,11 @@ export interface ContinuousToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    initCurveToken(
-      curName: PromiseOrValue<string>,
-      curSymbol: PromiseOrValue<string>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curDenomtokenaddress: PromiseOrValue<string>,
+    initveToken(
+      name: PromiseOrValue<string>,
+      symbol: PromiseOrValue<string>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      denomtokenaddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1025,28 +1025,28 @@ export interface ContinuousToken extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     calculateContinuousBurnReturn(
-      curAmount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     calculateContinuousMintReturn(
-      curAmount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     calculatePurchaseReturn(
-      curSupply: PromiseOrValue<BigNumberish>,
-      curReservebalance: PromiseOrValue<BigNumberish>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curDepositamount: PromiseOrValue<BigNumberish>,
+      supply: PromiseOrValue<BigNumberish>,
+      reservebalance: PromiseOrValue<BigNumberish>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      depositamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     calculateSaleReturn(
-      curSupply: PromiseOrValue<BigNumberish>,
-      curReservebalance: PromiseOrValue<BigNumberish>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curSellamount: PromiseOrValue<BigNumberish>,
+      supply: PromiseOrValue<BigNumberish>,
+      reservebalance: PromiseOrValue<BigNumberish>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      sellamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1083,11 +1083,11 @@ export interface ContinuousToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    initCurveToken(
-      curName: PromiseOrValue<string>,
-      curSymbol: PromiseOrValue<string>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curDenomtokenaddress: PromiseOrValue<string>,
+    initveToken(
+      name: PromiseOrValue<string>,
+      symbol: PromiseOrValue<string>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      denomtokenaddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

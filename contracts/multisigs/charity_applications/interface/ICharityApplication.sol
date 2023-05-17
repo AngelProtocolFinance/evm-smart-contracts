@@ -62,14 +62,14 @@ abstract contract ICharityApplication is IERC165 {
     function rejectCharity(uint256 proposalId) public virtual;
 
     function updateConfig(
-        uint256 curExpiry,
-        address curApteammultisig,
-        address curAccountscontract,
-        uint256 curSeedsplittoliquid,
-        bool curNewendowgasmoney,
-        uint256 curGasamount,
-        bool curFundseedasset,
-        address curSeedasset,
-        uint256 curSeedassetamount
+        uint256 expiry,
+        address apteammultisig,
+        address accountscontract,
+        uint256 seedsplittoliquid,
+        bool newendowgasmoney,
+        uint256 gasamount,
+        bool fundseedasset,
+        address seedasset,
+        uint256 seedassetamount
     ) public virtual;
 }

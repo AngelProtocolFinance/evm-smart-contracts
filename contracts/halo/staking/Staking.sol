@@ -9,7 +9,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 interface IStakingHalo {
-    function updateInterestRate(uint256 curInterestRate) external;
+    function updateInterestRate(uint256 interestRate) external;
 
     function stake(
         uint256 amount,
@@ -102,16 +102,16 @@ contract Staking is Initializable, ERC20, Pausable, ReentrancyGuard, Ownable {
 
     /**
      * @dev Allows the contract owner to update the interest rate applied to staked tokens.
-     * @param curInterestRate uint256
+     * @param interestRate uint256
      */
     function updateInterestRate(
-        uint256 curInterestRate
+        uint256 interestRate
     ) public nonReentrant onlyOwner {
         require(
-            0 <= curInterestRate && curInterestRate <= 100,
+            0 <= interestRate && interestRate <= 100,
             "Invalid interest rate"
         );
-        interestRate = curInterestRate;
+        interestRate = interestRate;
     }
 
     /**

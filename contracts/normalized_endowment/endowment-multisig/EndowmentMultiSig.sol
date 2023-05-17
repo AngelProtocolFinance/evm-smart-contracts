@@ -25,22 +25,22 @@ contract EndowmentMultiSig is MultiSigGeneric {
      * @notice initialize the multisig with the endowment id and the endowment multisig emitter address
      * @dev special initialize function for endowment multisig
      * @param endowmentId the endowment id
-     * @param curEmitter the endowment multisig emitter address
-     * @param curOwners the owners of the multisig
-     * @param curRequired the required number of signatures
-     * @param curRequireexecution the require execution flag
+     * @param emitter the endowment multisig emitter address
+     * @param owners the owners of the multisig
+     * @param required the required number of signatures
+     * @param requireexecution the require execution flag
      */
     function initialize(
         uint256 endowmentId,
-        address curEmitter,
-        address[] memory curOwners,
-        uint256 curRequired,
-        bool curRequireexecution
+        address emitter,
+        address[] memory owners,
+        uint256 required,
+        bool requireexecution
     ) public initializer {
-        require(curEmitter != address(0), "Invalid Address");
+        require(emitter != address(0), "Invalid Address");
         ENDOWMENT_ID = endowmentId;
-        EMITTER_ADDRESS = curEmitter;
-        super.initialize(curOwners, curRequired, curRequireexecution);
+        EMITTER_ADDRESS = emitter;
+        super.initialize(owners, required, requireexecution);
     }
 
     /**
@@ -89,13 +89,13 @@ contract EndowmentMultiSig is MultiSigGeneric {
     /**
      * @notice overriden the generic multisig changeRequirement function
      * @dev emits the requirementChangeEndowment event
-     * @param curRequired the new required number of signatures
+     * @param required the new required number of signatures
      */
-    function changeRequirement(uint256 curRequired) public override {
-        super.changeRequirement(curRequired);
+    function changeRequirement(uint256 required) public override {
+        super.changeRequirement(required);
         IEndowmentMultiSigEmitter(EMITTER_ADDRESS).requirementChangeEndowment(
             ENDOWMENT_ID,
-            curRequired
+            required
         );
     }
 

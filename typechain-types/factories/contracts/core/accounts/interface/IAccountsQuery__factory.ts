@@ -69,7 +69,7 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "curId",
+        name: "id",
         type: "uint256",
       },
     ],
@@ -636,7 +636,7 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "curId",
+        name: "id",
         type: "uint256",
       },
     ],
@@ -713,17 +713,17 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "curId",
+        name: "id",
         type: "uint256",
       },
       {
         internalType: "enum AngelCoreStruct.AccountType",
-        name: "curAccountType",
+        name: "accountType",
         type: "uint8",
       },
       {
         internalType: "address",
-        name: "curTokenaddress",
+        name: "tokenaddress",
         type: "address",
       },
     ],

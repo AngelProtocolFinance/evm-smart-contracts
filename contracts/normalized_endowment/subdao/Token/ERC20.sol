@@ -10,17 +10,17 @@ contract NewERC20 is ERC20Upgradeable, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     function initErC20(
-        string memory curName,
-        string memory curSymbol,
-        address curMintaddress,
-        uint256 curTotalmint,
-        address curAdmin
+        string memory name,
+        string memory symbol,
+        address mintaddress,
+        uint256 totalmint,
+        address admin
     ) public initializer {
 
-        _grantRole(DEFAULT_ADMIN_ROLE, curAdmin);
+        _grantRole(DEFAULT_ADMIN_ROLE, admin);
         _grantRole(MINTER_ROLE, msg.sender);
-        __ERC20_init(curName, curSymbol);
-        mint(curMintaddress, curTotalmint);
+        __ERC20_init(name, symbol);
+        mint(mintaddress, totalmint);
     }
 
     function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {

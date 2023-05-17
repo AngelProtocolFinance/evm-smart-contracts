@@ -302,8 +302,8 @@ const _abi = [
                       {
                         components: [
                           {
-                            internalType: "enum AngelCoreStruct.CurveTypeEnum",
-                            name: "curve_type",
+                            internalType: "enum AngelCoreStruct.veTypeEnum",
+                            name: "ve_type",
                             type: "uint8",
                           },
                           {
@@ -329,44 +329,43 @@ const _abi = [
                                 type: "uint128",
                               },
                             ],
-                            internalType:
-                              "struct AngelCoreStruct.CurveTypeData",
+                            internalType: "struct AngelCoreStruct.veTypeData",
                             name: "data",
                             type: "tuple",
                           },
                         ],
-                        internalType: "struct AngelCoreStruct.CurveType",
-                        name: "bondingCurveCurveType",
+                        internalType: "struct AngelCoreStruct.veType",
+                        name: "bondingveveType",
                         type: "tuple",
                       },
                       {
                         internalType: "string",
-                        name: "bondingCurveName",
+                        name: "bondingveName",
                         type: "string",
                       },
                       {
                         internalType: "string",
-                        name: "bondingCurveSymbol",
+                        name: "bondingveSymbol",
                         type: "string",
                       },
                       {
                         internalType: "uint256",
-                        name: "bondingCurveDecimals",
+                        name: "bondingveDecimals",
                         type: "uint256",
                       },
                       {
                         internalType: "address",
-                        name: "bondingCurveReserveDenom",
+                        name: "bondingveReserveDenom",
                         type: "address",
                       },
                       {
                         internalType: "uint256",
-                        name: "bondingCurveReserveDecimals",
+                        name: "bondingveReserveDecimals",
                         type: "uint256",
                       },
                       {
                         internalType: "uint256",
-                        name: "bondingCurveUnbondingPeriod",
+                        name: "bondingveUnbondingPeriod",
                         type: "uint256",
                       },
                     ],
@@ -683,7 +682,7 @@ const _abi = [
           },
         ],
         internalType: "struct AccountMessages.CreateEndowmentRequest",
-        name: "curDetails",
+        name: "details",
         type: "tuple",
       },
     ],

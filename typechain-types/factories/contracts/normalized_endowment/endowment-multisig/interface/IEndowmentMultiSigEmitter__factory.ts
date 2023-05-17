@@ -65,22 +65,22 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "curEmitter",
+        name: "emitter",
         type: "address",
       },
       {
         internalType: "address[]",
-        name: "curOwners",
+        name: "owners",
         type: "address[]",
       },
       {
         internalType: "uint256",
-        name: "curRequired",
+        name: "required",
         type: "uint256",
       },
       {
         internalType: "bool",
-        name: "curRequireexecution",
+        name: "requireexecution",
         type: "bool",
       },
     ],

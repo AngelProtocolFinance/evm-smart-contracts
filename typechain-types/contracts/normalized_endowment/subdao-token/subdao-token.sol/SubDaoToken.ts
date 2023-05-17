@@ -32,7 +32,7 @@ export declare namespace SubDaoTokenMessage {
     name: PromiseOrValue<string>;
     symbol: PromiseOrValue<string>;
     reserveDenom: PromiseOrValue<string>;
-    curve_type: PromiseOrValue<BigNumberish>;
+    ve_type: PromiseOrValue<BigNumberish>;
     unbondingPeriod: PromiseOrValue<BigNumberish>;
   };
 
@@ -46,7 +46,7 @@ export declare namespace SubDaoTokenMessage {
     name: string;
     symbol: string;
     reserveDenom: string;
-    curve_type: number;
+    ve_type: number;
     unbondingPeriod: BigNumber;
   };
 }
@@ -75,7 +75,7 @@ export interface SubDaoTokenInterface extends utils.Interface {
     "grantRole(bytes32,address)": FunctionFragment;
     "hasRole(bytes32,address)": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
-    "initCurveToken(string,string,uint256,address)": FunctionFragment;
+    "initveToken(string,string,uint256,address)": FunctionFragment;
     "name()": FunctionFragment;
     "renounceRole(bytes32,address)": FunctionFragment;
     "reserveBalance()": FunctionFragment;
@@ -114,7 +114,7 @@ export interface SubDaoTokenInterface extends utils.Interface {
       | "grantRole"
       | "hasRole"
       | "increaseAllowance"
-      | "initCurveToken"
+      | "initveToken"
       | "name"
       | "renounceRole"
       | "reserveBalance"
@@ -230,7 +230,7 @@ export interface SubDaoTokenInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "initCurveToken",
+    functionFragment: "initveToken",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
@@ -350,7 +350,7 @@ export interface SubDaoTokenInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "initCurveToken",
+    functionFragment: "initveToken",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
@@ -518,28 +518,28 @@ export interface SubDaoToken extends BaseContract {
     ): Promise<[BigNumber]>;
 
     calculateContinuousBurnReturn(
-      curAmount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { burnAmount: BigNumber }>;
 
     calculateContinuousMintReturn(
-      curAmount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { mintAmount: BigNumber }>;
 
     calculatePurchaseReturn(
-      curSupply: PromiseOrValue<BigNumberish>,
-      curReservebalance: PromiseOrValue<BigNumberish>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curDepositamount: PromiseOrValue<BigNumberish>,
+      supply: PromiseOrValue<BigNumberish>,
+      reservebalance: PromiseOrValue<BigNumberish>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      depositamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
     calculateSaleReturn(
-      curSupply: PromiseOrValue<BigNumberish>,
-      curReservebalance: PromiseOrValue<BigNumberish>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curSellamount: PromiseOrValue<BigNumberish>,
+      supply: PromiseOrValue<BigNumberish>,
+      reservebalance: PromiseOrValue<BigNumberish>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      sellamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -550,8 +550,8 @@ export interface SubDaoToken extends BaseContract {
     ): Promise<ContractTransaction>;
 
     continuosToken(
-      curMsg: SubDaoTokenMessage.InstantiateMsgStruct,
-      curEmitteraddress: PromiseOrValue<string>,
+      msg: SubDaoTokenMessage.InstantiateMsgStruct,
+      emitteraddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -566,21 +566,21 @@ export interface SubDaoToken extends BaseContract {
     denomTokenAddress(overrides?: CallOverrides): Promise<[string]>;
 
     executeBuyCw20(
-      curAmount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     executeDonorMatch(
-      curAmount: PromiseOrValue<BigNumberish>,
-      curAccountscontract: PromiseOrValue<string>,
-      curEndowmentId: PromiseOrValue<BigNumberish>,
-      curDonor: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      accountscontract: PromiseOrValue<string>,
+      endowmentId: PromiseOrValue<BigNumberish>,
+      donor: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     executeSell(
-      curReciver: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      reciver: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -607,11 +607,11 @@ export interface SubDaoToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    initCurveToken(
-      curName: PromiseOrValue<string>,
-      curSymbol: PromiseOrValue<string>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curDenomtokenaddress: PromiseOrValue<string>,
+    initveToken(
+      name: PromiseOrValue<string>,
+      symbol: PromiseOrValue<string>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      denomtokenaddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -682,28 +682,28 @@ export interface SubDaoToken extends BaseContract {
   ): Promise<BigNumber>;
 
   calculateContinuousBurnReturn(
-    curAmount: PromiseOrValue<BigNumberish>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   calculateContinuousMintReturn(
-    curAmount: PromiseOrValue<BigNumberish>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   calculatePurchaseReturn(
-    curSupply: PromiseOrValue<BigNumberish>,
-    curReservebalance: PromiseOrValue<BigNumberish>,
-    curReserveratio: PromiseOrValue<BigNumberish>,
-    curDepositamount: PromiseOrValue<BigNumberish>,
+    supply: PromiseOrValue<BigNumberish>,
+    reservebalance: PromiseOrValue<BigNumberish>,
+    reserveratio: PromiseOrValue<BigNumberish>,
+    depositamount: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   calculateSaleReturn(
-    curSupply: PromiseOrValue<BigNumberish>,
-    curReservebalance: PromiseOrValue<BigNumberish>,
-    curReserveratio: PromiseOrValue<BigNumberish>,
-    curSellamount: PromiseOrValue<BigNumberish>,
+    supply: PromiseOrValue<BigNumberish>,
+    reservebalance: PromiseOrValue<BigNumberish>,
+    reserveratio: PromiseOrValue<BigNumberish>,
+    sellamount: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -714,8 +714,8 @@ export interface SubDaoToken extends BaseContract {
   ): Promise<ContractTransaction>;
 
   continuosToken(
-    curMsg: SubDaoTokenMessage.InstantiateMsgStruct,
-    curEmitteraddress: PromiseOrValue<string>,
+    msg: SubDaoTokenMessage.InstantiateMsgStruct,
+    emitteraddress: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -730,21 +730,21 @@ export interface SubDaoToken extends BaseContract {
   denomTokenAddress(overrides?: CallOverrides): Promise<string>;
 
   executeBuyCw20(
-    curAmount: PromiseOrValue<BigNumberish>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   executeDonorMatch(
-    curAmount: PromiseOrValue<BigNumberish>,
-    curAccountscontract: PromiseOrValue<string>,
-    curEndowmentId: PromiseOrValue<BigNumberish>,
-    curDonor: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
+    accountscontract: PromiseOrValue<string>,
+    endowmentId: PromiseOrValue<BigNumberish>,
+    donor: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   executeSell(
-    curReciver: PromiseOrValue<string>,
-    curAmount: PromiseOrValue<BigNumberish>,
+    reciver: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -771,11 +771,11 @@ export interface SubDaoToken extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  initCurveToken(
-    curName: PromiseOrValue<string>,
-    curSymbol: PromiseOrValue<string>,
-    curReserveratio: PromiseOrValue<BigNumberish>,
-    curDenomtokenaddress: PromiseOrValue<string>,
+  initveToken(
+    name: PromiseOrValue<string>,
+    symbol: PromiseOrValue<string>,
+    reserveratio: PromiseOrValue<BigNumberish>,
+    denomtokenaddress: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -846,28 +846,28 @@ export interface SubDaoToken extends BaseContract {
     ): Promise<BigNumber>;
 
     calculateContinuousBurnReturn(
-      curAmount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     calculateContinuousMintReturn(
-      curAmount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     calculatePurchaseReturn(
-      curSupply: PromiseOrValue<BigNumberish>,
-      curReservebalance: PromiseOrValue<BigNumberish>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curDepositamount: PromiseOrValue<BigNumberish>,
+      supply: PromiseOrValue<BigNumberish>,
+      reservebalance: PromiseOrValue<BigNumberish>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      depositamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     calculateSaleReturn(
-      curSupply: PromiseOrValue<BigNumberish>,
-      curReservebalance: PromiseOrValue<BigNumberish>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curSellamount: PromiseOrValue<BigNumberish>,
+      supply: PromiseOrValue<BigNumberish>,
+      reservebalance: PromiseOrValue<BigNumberish>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      sellamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -876,8 +876,8 @@ export interface SubDaoToken extends BaseContract {
     claimTokens(overrides?: CallOverrides): Promise<void>;
 
     continuosToken(
-      curMsg: SubDaoTokenMessage.InstantiateMsgStruct,
-      curEmitteraddress: PromiseOrValue<string>,
+      msg: SubDaoTokenMessage.InstantiateMsgStruct,
+      emitteraddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -892,21 +892,21 @@ export interface SubDaoToken extends BaseContract {
     denomTokenAddress(overrides?: CallOverrides): Promise<string>;
 
     executeBuyCw20(
-      curAmount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     executeDonorMatch(
-      curAmount: PromiseOrValue<BigNumberish>,
-      curAccountscontract: PromiseOrValue<string>,
-      curEndowmentId: PromiseOrValue<BigNumberish>,
-      curDonor: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      accountscontract: PromiseOrValue<string>,
+      endowmentId: PromiseOrValue<BigNumberish>,
+      donor: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     executeSell(
-      curReciver: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      reciver: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -933,11 +933,11 @@ export interface SubDaoToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    initCurveToken(
-      curName: PromiseOrValue<string>,
-      curSymbol: PromiseOrValue<string>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curDenomtokenaddress: PromiseOrValue<string>,
+    initveToken(
+      name: PromiseOrValue<string>,
+      symbol: PromiseOrValue<string>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      denomtokenaddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1069,28 +1069,28 @@ export interface SubDaoToken extends BaseContract {
     ): Promise<BigNumber>;
 
     calculateContinuousBurnReturn(
-      curAmount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     calculateContinuousMintReturn(
-      curAmount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     calculatePurchaseReturn(
-      curSupply: PromiseOrValue<BigNumberish>,
-      curReservebalance: PromiseOrValue<BigNumberish>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curDepositamount: PromiseOrValue<BigNumberish>,
+      supply: PromiseOrValue<BigNumberish>,
+      reservebalance: PromiseOrValue<BigNumberish>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      depositamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     calculateSaleReturn(
-      curSupply: PromiseOrValue<BigNumberish>,
-      curReservebalance: PromiseOrValue<BigNumberish>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curSellamount: PromiseOrValue<BigNumberish>,
+      supply: PromiseOrValue<BigNumberish>,
+      reservebalance: PromiseOrValue<BigNumberish>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      sellamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1101,8 +1101,8 @@ export interface SubDaoToken extends BaseContract {
     ): Promise<BigNumber>;
 
     continuosToken(
-      curMsg: SubDaoTokenMessage.InstantiateMsgStruct,
-      curEmitteraddress: PromiseOrValue<string>,
+      msg: SubDaoTokenMessage.InstantiateMsgStruct,
+      emitteraddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1117,21 +1117,21 @@ export interface SubDaoToken extends BaseContract {
     denomTokenAddress(overrides?: CallOverrides): Promise<BigNumber>;
 
     executeBuyCw20(
-      curAmount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     executeDonorMatch(
-      curAmount: PromiseOrValue<BigNumberish>,
-      curAccountscontract: PromiseOrValue<string>,
-      curEndowmentId: PromiseOrValue<BigNumberish>,
-      curDonor: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      accountscontract: PromiseOrValue<string>,
+      endowmentId: PromiseOrValue<BigNumberish>,
+      donor: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     executeSell(
-      curReciver: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      reciver: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1158,11 +1158,11 @@ export interface SubDaoToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    initCurveToken(
-      curName: PromiseOrValue<string>,
-      curSymbol: PromiseOrValue<string>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curDenomtokenaddress: PromiseOrValue<string>,
+    initveToken(
+      name: PromiseOrValue<string>,
+      symbol: PromiseOrValue<string>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      denomtokenaddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1236,28 +1236,28 @@ export interface SubDaoToken extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     calculateContinuousBurnReturn(
-      curAmount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     calculateContinuousMintReturn(
-      curAmount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     calculatePurchaseReturn(
-      curSupply: PromiseOrValue<BigNumberish>,
-      curReservebalance: PromiseOrValue<BigNumberish>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curDepositamount: PromiseOrValue<BigNumberish>,
+      supply: PromiseOrValue<BigNumberish>,
+      reservebalance: PromiseOrValue<BigNumberish>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      depositamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     calculateSaleReturn(
-      curSupply: PromiseOrValue<BigNumberish>,
-      curReservebalance: PromiseOrValue<BigNumberish>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curSellamount: PromiseOrValue<BigNumberish>,
+      supply: PromiseOrValue<BigNumberish>,
+      reservebalance: PromiseOrValue<BigNumberish>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      sellamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1270,8 +1270,8 @@ export interface SubDaoToken extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     continuosToken(
-      curMsg: SubDaoTokenMessage.InstantiateMsgStruct,
-      curEmitteraddress: PromiseOrValue<string>,
+      msg: SubDaoTokenMessage.InstantiateMsgStruct,
+      emitteraddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1286,21 +1286,21 @@ export interface SubDaoToken extends BaseContract {
     denomTokenAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     executeBuyCw20(
-      curAmount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     executeDonorMatch(
-      curAmount: PromiseOrValue<BigNumberish>,
-      curAccountscontract: PromiseOrValue<string>,
-      curEndowmentId: PromiseOrValue<BigNumberish>,
-      curDonor: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      accountscontract: PromiseOrValue<string>,
+      endowmentId: PromiseOrValue<BigNumberish>,
+      donor: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     executeSell(
-      curReciver: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      reciver: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1327,11 +1327,11 @@ export interface SubDaoToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    initCurveToken(
-      curName: PromiseOrValue<string>,
-      curSymbol: PromiseOrValue<string>,
-      curReserveratio: PromiseOrValue<BigNumberish>,
-      curDenomtokenaddress: PromiseOrValue<string>,
+    initveToken(
+      name: PromiseOrValue<string>,
+      symbol: PromiseOrValue<string>,
+      reserveratio: PromiseOrValue<BigNumberish>,
+      denomtokenaddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

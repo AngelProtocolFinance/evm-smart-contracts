@@ -8,14 +8,14 @@ contract SubdaoEmitter {
     bool initialized = false;
     address accountsContract;
 
-    function initEmitter(address curAccountscontract) public {
+    function initEmitter(address accountscontract) public {
         require(
-            curAccountscontract != address(0),
+            accountscontract != address(0),
             "Invalid accounts contract address"
         );
         require(!initialized, "Already Initialized");
         initialized = true;
-        accountsContract = curAccountscontract;
+        accountsContract = accountscontract;
     }
 
     mapping(address => bool) isSubdao;

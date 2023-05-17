@@ -513,9 +513,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.GoldfinchVault__factory>;
     getContractFactory(
-      name: "ICurveLP",
+      name: "IveLP",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ICurveLP__factory>;
+    ): Promise<Contracts.IveLP__factory>;
     getContractFactory(
       name: "IRegistrarGoldfinch",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -1387,10 +1387,10 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.GoldfinchVault>;
     getContractAt(
-      name: "ICurveLP",
+      name: "IveLP",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.ICurveLP>;
+    ): Promise<Contracts.IveLP>;
     getContractAt(
       name: "IRegistrarGoldfinch",
       address: string,

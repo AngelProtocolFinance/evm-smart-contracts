@@ -21,71 +21,71 @@ contract AccountsSwapEndowments is ReentrancyGuardFacet, AccountsEvents {
     /**
      * @notice This function swaps tokens for an endowment
      * @dev This function swaps tokens for an endowment
-     * @param curId The id of the endowment
-     * @param curAccountType The type of the account
-     * @param curAmount The amount of tokens to be swapped
-     * @param curTokenIn The address of the token to be swapped
-     * @param curTokenOut The address of the token to be received
+     * @param id The id of the endowment
+     * @param accountType The type of the account
+     * @param amount The amount of tokens to be swapped
+     * @param tokenIn The address of the token to be swapped
+     * @param tokenOut The address of the token to be received
      */
     function swapToken(
-        uint32 curId,
-        AngelCoreStruct.AccountType curAccountType,
-        uint256 curAmount,
-        address curTokenIn,
-        address curTokenOut
+        uint32 id,
+        AngelCoreStruct.AccountType accountType,
+        uint256 amount,
+        address tokenIn,
+        address tokenOut
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[curId];
+        AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];
 
         require(tempEndowment.owner == msg.sender, "Unauthorized");
-        require(curAmount > 0, "InvalidInputs");
-        require(curTokenIn != address(0), "InvalidInputs");
-        require(curTokenOut != address(0), "InvalidInputs");
+        require(amount > 0, "InvalidInputs");
+        require(tokenIn != address(0), "InvalidInputs");
+        require(tokenOut != address(0), "InvalidInputs");
 
         RegistrarStorage.Config memory registrar_config = IRegistrar(
             state.config.registrarContract
         ).queryConfig();
 
         require(
-            IERC20(curTokenIn).balanceOf(address(this)) >= curAmount,
+            IERC20(tokenIn).balanceOf(address(this)) >= amount,
             "BalanceTooSmall"
         );
 
-        if (curAccountType == AngelCoreStruct.AccountType.Locked) {
-            state.STATES[curId].balances.locked.balancesByToken[curTokenIn] = 
+        if (accountType == AngelCoreStruct.AccountType.Locked) {
+            state.STATES[id].balances.locked.balancesByToken[tokenIn] = 
                 AngelCoreStruct.deductTokens(
-                    state.STATES[curId].balances.locked.balancesByToken[curTokenIn],
-                    curAmount
+                    state.STATES[id].balances.locked.balancesByToken[tokenIn],
+                    amount
                 );
         } else {
-            state.STATES[curId].balances.liquid.balancesByToken[curTokenIn] = 
+            state.STATES[id].balances.liquid.balancesByToken[tokenIn] = 
                 AngelCoreStruct.deductTokens(
-                    state.STATES[curId].balances.liquid.balancesByToken[curTokenIn],
-                    curAmount
+                    state.STATES[id].balances.liquid.balancesByToken[tokenIn],
+                    amount
                 );
         }
 
         require(
-            IERC20(curTokenIn).approve(registrar_config.swapsRouter, curAmount),
+            IERC20(tokenIn).approve(registrar_config.swapsRouter, amount),
             "Approve failed"
         );
 
         uint256 output = ISwappingV3(registrar_config.swapsRouter)
             .executeSwapOperations(
-                curTokenIn,
-                curTokenOut,
-                curAmount,
+                tokenIn,
+                tokenOut,
+                amount,
                 0 // TODO: this will revert whenever swap_amount > 0
             );
 
-        updateStateBalance(curId, curTokenOut, output, curAccountType);
-        // emit UpdateEndowmentState(curId, tempState);
+        updateStateBalance(id, tokenOut, output, accountType);
+        // emit UpdateEndowmentState(id, tempState);
         emit SwapToken(
-            curId,
-            curAccountType,
-            curAmount,
-            curTokenIn,
-            curTokenOut,
+            id,
+            accountType,
+            amount,
+            tokenIn,
+            tokenOut,
             0
         );
     }
@@ -93,30 +93,30 @@ contract AccountsSwapEndowments is ReentrancyGuardFacet, AccountsEvents {
     /**
      * @notice This function updates the state balance of the endowment
      * @dev updates the state balance of the endowment based on account type
-     * @param curId The id of the endowment
-     * @param curTokenaddress The address of the token
-     * @param curAmount The amount of tokens
-     * @param curAccountType The type of the account
+     * @param id The id of the endowment
+     * @param tokenaddress The address of the token
+     * @param amount The amount of tokens
+     * @param accountType The type of the account
      */
     function updateStateBalance(
-        uint32 curId,
-        address curTokenaddress,
-        uint256 curAmount,
-        AngelCoreStruct.AccountType curAccountType
+        uint32 id,
+        address tokenaddress,
+        uint256 amount,
+        AngelCoreStruct.AccountType accountType
     ) internal {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
 
-        if (curAccountType == AngelCoreStruct.AccountType.Locked) {
+        if (accountType == AngelCoreStruct.AccountType.Locked) {
             AngelCoreStruct.addToken(
-                state.STATES[curId].balances.locked,
-                curTokenaddress,
-                curAmount
+                state.STATES[id].balances.locked,
+                tokenaddress,
+                amount
             );
         } else {
             AngelCoreStruct.addToken(
-                state.STATES[curId].balances.liquid,
-                curTokenaddress,
-                curAmount
+                state.STATES[id].balances.liquid,
+                tokenaddress,
+                amount
             );
         }
     }

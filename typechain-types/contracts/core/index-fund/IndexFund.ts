@@ -544,13 +544,13 @@ export interface IndexFund extends BaseContract {
 
     depositERC20(
       senderAddr: PromiseOrValue<string>,
-      curDetails: IndexFundMessage.DepositMsgStruct,
+      details: IndexFundMessage.DepositMsgStruct,
       fund: AngelCoreStruct.AssetBaseStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     initIndexFund(
-      curDetails: IndexFundMessage.InstantiateMessageStruct,
+      details: IndexFundMessage.InstantiateMessageStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -587,7 +587,7 @@ export interface IndexFund extends BaseContract {
     ): Promise<ContractTransaction>;
 
     updateConfig(
-      curDetails: IndexFundMessage.UpdateConfigMessageStruct,
+      details: IndexFundMessage.UpdateConfigMessageStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -621,13 +621,13 @@ export interface IndexFund extends BaseContract {
 
   depositERC20(
     senderAddr: PromiseOrValue<string>,
-    curDetails: IndexFundMessage.DepositMsgStruct,
+    details: IndexFundMessage.DepositMsgStruct,
     fund: AngelCoreStruct.AssetBaseStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   initIndexFund(
-    curDetails: IndexFundMessage.InstantiateMessageStruct,
+    details: IndexFundMessage.InstantiateMessageStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -664,7 +664,7 @@ export interface IndexFund extends BaseContract {
   ): Promise<ContractTransaction>;
 
   updateConfig(
-    curDetails: IndexFundMessage.UpdateConfigMessageStruct,
+    details: IndexFundMessage.UpdateConfigMessageStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -698,13 +698,13 @@ export interface IndexFund extends BaseContract {
 
     depositERC20(
       senderAddr: PromiseOrValue<string>,
-      curDetails: IndexFundMessage.DepositMsgStruct,
+      details: IndexFundMessage.DepositMsgStruct,
       fund: AngelCoreStruct.AssetBaseStruct,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     initIndexFund(
-      curDetails: IndexFundMessage.InstantiateMessageStruct,
+      details: IndexFundMessage.InstantiateMessageStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -741,7 +741,7 @@ export interface IndexFund extends BaseContract {
     ): Promise<boolean>;
 
     updateConfig(
-      curDetails: IndexFundMessage.UpdateConfigMessageStruct,
+      details: IndexFundMessage.UpdateConfigMessageStruct,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -828,13 +828,13 @@ export interface IndexFund extends BaseContract {
 
     depositERC20(
       senderAddr: PromiseOrValue<string>,
-      curDetails: IndexFundMessage.DepositMsgStruct,
+      details: IndexFundMessage.DepositMsgStruct,
       fund: AngelCoreStruct.AssetBaseStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     initIndexFund(
-      curDetails: IndexFundMessage.InstantiateMessageStruct,
+      details: IndexFundMessage.InstantiateMessageStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -865,7 +865,7 @@ export interface IndexFund extends BaseContract {
     ): Promise<BigNumber>;
 
     updateConfig(
-      curDetails: IndexFundMessage.UpdateConfigMessageStruct,
+      details: IndexFundMessage.UpdateConfigMessageStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -900,13 +900,13 @@ export interface IndexFund extends BaseContract {
 
     depositERC20(
       senderAddr: PromiseOrValue<string>,
-      curDetails: IndexFundMessage.DepositMsgStruct,
+      details: IndexFundMessage.DepositMsgStruct,
       fund: AngelCoreStruct.AssetBaseStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     initIndexFund(
-      curDetails: IndexFundMessage.InstantiateMessageStruct,
+      details: IndexFundMessage.InstantiateMessageStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -939,7 +939,7 @@ export interface IndexFund extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     updateConfig(
-      curDetails: IndexFundMessage.UpdateConfigMessageStruct,
+      details: IndexFundMessage.UpdateConfigMessageStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

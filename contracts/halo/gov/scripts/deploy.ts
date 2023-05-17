@@ -7,7 +7,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types"
 
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
-export async function deployGov(proxyAdmin = ADDRESS_ZERO, haloTokenAddress: string, curTimelock: string, verify_contracts: boolean, hre: HardhatRuntimeEnvironment) { // TODO: remove param curTimelock
+export async function deployGov(proxyAdmin = ADDRESS_ZERO, haloTokenAddress: string, timelock: string, verify_contracts: boolean, hre: HardhatRuntimeEnvironment) { // TODO: remove param timelock
     try {
 
       const { ethers, run, network } = hre;

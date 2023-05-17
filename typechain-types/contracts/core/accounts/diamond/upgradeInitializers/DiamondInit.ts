@@ -67,22 +67,22 @@ export interface DiamondInit extends BaseContract {
 
   functions: {
     init(
-      curOwner: PromiseOrValue<string>,
-      curRegistrar: PromiseOrValue<string>,
+      owner: PromiseOrValue<string>,
+      registrar: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
   init(
-    curOwner: PromiseOrValue<string>,
-    curRegistrar: PromiseOrValue<string>,
+    owner: PromiseOrValue<string>,
+    registrar: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     init(
-      curOwner: PromiseOrValue<string>,
-      curRegistrar: PromiseOrValue<string>,
+      owner: PromiseOrValue<string>,
+      registrar: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -91,16 +91,16 @@ export interface DiamondInit extends BaseContract {
 
   estimateGas: {
     init(
-      curOwner: PromiseOrValue<string>,
-      curRegistrar: PromiseOrValue<string>,
+      owner: PromiseOrValue<string>,
+      registrar: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     init(
-      curOwner: PromiseOrValue<string>,
-      curRegistrar: PromiseOrValue<string>,
+      owner: PromiseOrValue<string>,
+      registrar: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

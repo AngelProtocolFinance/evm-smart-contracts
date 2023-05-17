@@ -8,14 +8,14 @@ contract DonationMatchEmitter {
     address accountsContract;
     mapping(address => bool) public isDonationMatch;
 
-    function initDonationMatchEmiiter(address curAccountscontract) public {
+    function initDonationMatchEmiiter(address accountscontract) public {
         require(
-            curAccountscontract != address(0),
+            accountscontract != address(0),
             "Invalid accounts contract address"
         );
         require(!initialized, "Already initialized");
         initialized = true;
-        accountsContract = curAccountscontract;
+        accountsContract = accountscontract;
     }
 
     modifier isOwner() {
@@ -91,7 +91,7 @@ contract DonationMatchEmitter {
     function executeDonorMatch(
         address tokenAddress,
         uint256 amount,
-        address curAccountsContract,
+        address accountsContract,
         uint32 endowmentId,
         address donor
     ) public isEmitter {
@@ -99,7 +99,7 @@ contract DonationMatchEmitter {
             msg.sender,
             tokenAddress,
             amount,
-            curAccountsContract,
+            accountsContract,
             endowmentId,
             donor
         );

@@ -45,9 +45,9 @@ export interface LibDiamondInterface extends utils.Interface {
 }
 
 export interface DiamondCutEventObject {
-  curDiamondcut: IDiamondCut.FacetCutStructOutput[];
-  curInit: string;
-  curCalldata: string;
+  diamondcut: IDiamondCut.FacetCutStructOutput[];
+  init: string;
+  data: string;
 }
 export type DiamondCutEvent = TypedEvent<
   [IDiamondCut.FacetCutStructOutput[], string, string],
@@ -100,14 +100,14 @@ export interface LibDiamond extends BaseContract {
 
   filters: {
     "DiamondCut(tuple[],address,bytes)"(
-      curDiamondcut?: null,
-      curInit?: null,
-      curCalldata?: null
+      diamondcut?: null,
+      init?: null,
+      data?: null
     ): DiamondCutEventFilter;
     DiamondCut(
-      curDiamondcut?: null,
-      curInit?: null,
-      curCalldata?: null
+      diamondcut?: null,
+      init?: null,
+      data?: null
     ): DiamondCutEventFilter;
 
     "OwnershipTransferred(address,address)"(

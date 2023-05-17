@@ -164,7 +164,7 @@ export interface GovHodler extends BaseContract {
     ): Promise<ContractTransaction>;
 
     initialiaze(
-      curDetails: GovHodlerMessage.InstantiateMsgStruct,
+      details: GovHodlerMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -181,7 +181,7 @@ export interface GovHodler extends BaseContract {
   ): Promise<ContractTransaction>;
 
   initialiaze(
-    curDetails: GovHodlerMessage.InstantiateMsgStruct,
+    details: GovHodlerMessage.InstantiateMsgStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -198,7 +198,7 @@ export interface GovHodler extends BaseContract {
     ): Promise<void>;
 
     initialiaze(
-      curDetails: GovHodlerMessage.InstantiateMsgStruct,
+      details: GovHodlerMessage.InstantiateMsgStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -235,7 +235,7 @@ export interface GovHodler extends BaseContract {
     ): Promise<BigNumber>;
 
     initialiaze(
-      curDetails: GovHodlerMessage.InstantiateMsgStruct,
+      details: GovHodlerMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -253,7 +253,7 @@ export interface GovHodler extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initialiaze(
-      curDetails: GovHodlerMessage.InstantiateMsgStruct,
+      details: GovHodlerMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

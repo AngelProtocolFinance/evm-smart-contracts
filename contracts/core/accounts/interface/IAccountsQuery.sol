@@ -7,13 +7,13 @@ import {AngelCoreStruct} from "../../struct.sol";
 
 interface IAccountsQuery {
     function queryTokenAmount(
-        uint256 curId,
-        AngelCoreStruct.AccountType curAccountType,
-        address curTokenaddress
+        uint256 id,
+        AngelCoreStruct.AccountType accountType,
+        address tokenaddress
     ) external view returns (uint256 tokenAmount);
 
     function queryEndowmentDetails(
-        uint256 curId
+        uint256 id
     ) external view returns (AccountStorage.Endowment memory endowment);
 
     function queryConfig()
@@ -22,7 +22,7 @@ interface IAccountsQuery {
         returns (AccountMessages.ConfigResponse memory config);
 
     function queryState(
-        uint256 curId
+        uint256 id
     )
         external
         view

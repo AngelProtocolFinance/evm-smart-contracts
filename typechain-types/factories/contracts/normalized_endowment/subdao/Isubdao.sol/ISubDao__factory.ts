@@ -91,8 +91,8 @@ const _abi = [
                   {
                     components: [
                       {
-                        internalType: "enum AngelCoreStruct.CurveTypeEnum",
-                        name: "curve_type",
+                        internalType: "enum AngelCoreStruct.veTypeEnum",
+                        name: "ve_type",
                         type: "uint8",
                       },
                       {
@@ -118,43 +118,43 @@ const _abi = [
                             type: "uint128",
                           },
                         ],
-                        internalType: "struct AngelCoreStruct.CurveTypeData",
+                        internalType: "struct AngelCoreStruct.veTypeData",
                         name: "data",
                         type: "tuple",
                       },
                     ],
-                    internalType: "struct AngelCoreStruct.CurveType",
-                    name: "bondingCurveCurveType",
+                    internalType: "struct AngelCoreStruct.veType",
+                    name: "bondingveveType",
                     type: "tuple",
                   },
                   {
                     internalType: "string",
-                    name: "bondingCurveName",
+                    name: "bondingveName",
                     type: "string",
                   },
                   {
                     internalType: "string",
-                    name: "bondingCurveSymbol",
+                    name: "bondingveSymbol",
                     type: "string",
                   },
                   {
                     internalType: "uint256",
-                    name: "bondingCurveDecimals",
+                    name: "bondingveDecimals",
                     type: "uint256",
                   },
                   {
                     internalType: "address",
-                    name: "bondingCurveReserveDenom",
+                    name: "bondingveReserveDenom",
                     type: "address",
                   },
                   {
                     internalType: "uint256",
-                    name: "bondingCurveReserveDecimals",
+                    name: "bondingveReserveDecimals",
                     type: "uint256",
                   },
                   {
                     internalType: "uint256",
-                    name: "bondingCurveUnbondingPeriod",
+                    name: "bondingveUnbondingPeriod",
                     type: "uint256",
                   },
                 ],
@@ -184,7 +184,7 @@ const _abi = [
           },
         ],
         internalType: "struct subDaoMessage.InstantiateMsg",
-        name: "curMsg",
+        name: "msg",
         type: "tuple",
       },
     ],
@@ -197,7 +197,7 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "curPollid",
+        name: "pollid",
         type: "uint256",
       },
       {
@@ -215,27 +215,27 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "curProposer",
+        name: "proposer",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "curDepositamount",
+        name: "depositamount",
         type: "uint256",
       },
       {
         internalType: "string",
-        name: "curTitle",
+        name: "title",
         type: "string",
       },
       {
         internalType: "string",
-        name: "curDescription",
+        name: "description",
         type: "string",
       },
       {
         internalType: "string",
-        name: "curLink",
+        name: "link",
         type: "string",
       },
       {
@@ -257,7 +257,7 @@ const _abi = [
           },
         ],
         internalType: "struct subDaoStorage.ExecuteData",
-        name: "curExecuteMsgs",
+        name: "executeMsgs",
         type: "tuple",
       },
     ],
@@ -270,7 +270,7 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "curPollid",
+        name: "pollid",
         type: "uint256",
       },
     ],
@@ -283,7 +283,7 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "curPollid",
+        name: "pollid",
         type: "uint256",
       },
     ],
@@ -296,7 +296,7 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "curPollid",
+        name: "pollid",
         type: "uint256",
       },
     ],
@@ -409,12 +409,12 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "curVetoken",
+        name: "vetoken",
         type: "address",
       },
       {
         internalType: "address",
-        name: "curSwapfactory",
+        name: "swapfactory",
         type: "address",
       },
     ],
@@ -427,42 +427,42 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "curOwner",
+        name: "owner",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "curQuorum",
+        name: "quorum",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "curThreshold",
+        name: "threshold",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "curVotingperiod",
+        name: "votingperiod",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "curTimelockperiod",
+        name: "timelockperiod",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "curExpirationperiod",
+        name: "expirationperiod",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "curProposaldeposit",
+        name: "proposaldeposit",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "curSnapshotperiod",
+        name: "snapshotperiod",
         type: "uint256",
       },
     ],

@@ -132,91 +132,91 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
 
   functions: {
     depositDonationMatchErC20(
-      curId: PromiseOrValue<BigNumberish>,
-      curTokenAddress: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      id: PromiseOrValue<BigNumberish>,
+      tokenAddress: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     depositERC20(
-      curDetails: AccountMessages.DepositRequestStruct,
-      curTokenAddress: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      details: AccountMessages.DepositRequestStruct,
+      tokenAddress: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     depositMatic(
-      curDetails: AccountMessages.DepositRequestStruct,
+      details: AccountMessages.DepositRequestStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     withdraw(
-      curId: PromiseOrValue<BigNumberish>,
+      id: PromiseOrValue<BigNumberish>,
       acctType: PromiseOrValue<BigNumberish>,
-      curBeneficiaryAddress: PromiseOrValue<string>,
-      curBeneficiaryEndowId: PromiseOrValue<BigNumberish>,
-      curTokenAddress: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      beneficiaryAddress: PromiseOrValue<string>,
+      beneficiaryEndowId: PromiseOrValue<BigNumberish>,
+      tokenAddress: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
   depositDonationMatchErC20(
-    curId: PromiseOrValue<BigNumberish>,
-    curTokenAddress: PromiseOrValue<string>,
-    curAmount: PromiseOrValue<BigNumberish>,
+    id: PromiseOrValue<BigNumberish>,
+    tokenAddress: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   depositERC20(
-    curDetails: AccountMessages.DepositRequestStruct,
-    curTokenAddress: PromiseOrValue<string>,
-    curAmount: PromiseOrValue<BigNumberish>,
+    details: AccountMessages.DepositRequestStruct,
+    tokenAddress: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   depositMatic(
-    curDetails: AccountMessages.DepositRequestStruct,
+    details: AccountMessages.DepositRequestStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   withdraw(
-    curId: PromiseOrValue<BigNumberish>,
+    id: PromiseOrValue<BigNumberish>,
     acctType: PromiseOrValue<BigNumberish>,
-    curBeneficiaryAddress: PromiseOrValue<string>,
-    curBeneficiaryEndowId: PromiseOrValue<BigNumberish>,
-    curTokenAddress: PromiseOrValue<string>,
-    curAmount: PromiseOrValue<BigNumberish>,
+    beneficiaryAddress: PromiseOrValue<string>,
+    beneficiaryEndowId: PromiseOrValue<BigNumberish>,
+    tokenAddress: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     depositDonationMatchErC20(
-      curId: PromiseOrValue<BigNumberish>,
-      curTokenAddress: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      id: PromiseOrValue<BigNumberish>,
+      tokenAddress: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     depositERC20(
-      curDetails: AccountMessages.DepositRequestStruct,
-      curTokenAddress: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      details: AccountMessages.DepositRequestStruct,
+      tokenAddress: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     depositMatic(
-      curDetails: AccountMessages.DepositRequestStruct,
+      details: AccountMessages.DepositRequestStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
     withdraw(
-      curId: PromiseOrValue<BigNumberish>,
+      id: PromiseOrValue<BigNumberish>,
       acctType: PromiseOrValue<BigNumberish>,
-      curBeneficiaryAddress: PromiseOrValue<string>,
-      curBeneficiaryEndowId: PromiseOrValue<BigNumberish>,
-      curTokenAddress: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      beneficiaryAddress: PromiseOrValue<string>,
+      beneficiaryEndowId: PromiseOrValue<BigNumberish>,
+      tokenAddress: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -225,62 +225,62 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
 
   estimateGas: {
     depositDonationMatchErC20(
-      curId: PromiseOrValue<BigNumberish>,
-      curTokenAddress: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      id: PromiseOrValue<BigNumberish>,
+      tokenAddress: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     depositERC20(
-      curDetails: AccountMessages.DepositRequestStruct,
-      curTokenAddress: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      details: AccountMessages.DepositRequestStruct,
+      tokenAddress: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     depositMatic(
-      curDetails: AccountMessages.DepositRequestStruct,
+      details: AccountMessages.DepositRequestStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     withdraw(
-      curId: PromiseOrValue<BigNumberish>,
+      id: PromiseOrValue<BigNumberish>,
       acctType: PromiseOrValue<BigNumberish>,
-      curBeneficiaryAddress: PromiseOrValue<string>,
-      curBeneficiaryEndowId: PromiseOrValue<BigNumberish>,
-      curTokenAddress: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      beneficiaryAddress: PromiseOrValue<string>,
+      beneficiaryEndowId: PromiseOrValue<BigNumberish>,
+      tokenAddress: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     depositDonationMatchErC20(
-      curId: PromiseOrValue<BigNumberish>,
-      curTokenAddress: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      id: PromiseOrValue<BigNumberish>,
+      tokenAddress: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     depositERC20(
-      curDetails: AccountMessages.DepositRequestStruct,
-      curTokenAddress: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      details: AccountMessages.DepositRequestStruct,
+      tokenAddress: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     depositMatic(
-      curDetails: AccountMessages.DepositRequestStruct,
+      details: AccountMessages.DepositRequestStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     withdraw(
-      curId: PromiseOrValue<BigNumberish>,
+      id: PromiseOrValue<BigNumberish>,
       acctType: PromiseOrValue<BigNumberish>,
-      curBeneficiaryAddress: PromiseOrValue<string>,
-      curBeneficiaryEndowId: PromiseOrValue<BigNumberish>,
-      curTokenAddress: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
+      beneficiaryAddress: PromiseOrValue<string>,
+      beneficiaryEndowId: PromiseOrValue<BigNumberish>,
+      tokenAddress: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

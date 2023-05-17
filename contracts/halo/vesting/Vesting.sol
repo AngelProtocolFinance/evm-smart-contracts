@@ -33,16 +33,16 @@ contract Vesting is Ownable, ReentrancyGuard {
 
     /**
      * @dev Initialize contract
-     * @param curDetails instantiate message containing halo token address
+     * @param details instantiate message containing halo token address
      */
 
     function initialize(
-        VestingMessage.InstantiateMsg memory curDetails
+        VestingMessage.InstantiateMsg memory details
     ) public {
         require(haloToken == address(0), "Already initialized");
-        haloToken = curDetails.haloToken;
+        haloToken = details.haloToken;
         totalVested = 0;
-        emit VestingInitialized(curDetails.haloToken);
+        emit VestingInitialized(details.haloToken);
     }
 
     /**
@@ -111,13 +111,13 @@ contract Vesting is Ownable, ReentrancyGuard {
 
     /**
      * @dev Allows the owner of the contract to modify the vesting duration.
-     * @param curVestingduration uint
+     * @param vestingduration uint
      */
     function modifyVestingDuration(
-        uint256 curVestingduration
+        uint256 vestingduration
     ) public onlyOwner {
-        vestingDuration = curVestingduration;
-        emit VestingDurationModified(curVestingduration);
+        vestingDuration = vestingduration;
+        emit VestingDurationModified(vestingduration);
     }
 
     function min(uint256 a, uint256 b) internal pure returns (uint256) {

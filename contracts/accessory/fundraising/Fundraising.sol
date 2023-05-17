@@ -45,18 +45,18 @@
 
 //     /**
 //      * @dev Initialize the contract
-//      * @param curDetails FundraisingMessage.InstantiateMsg used to initialize the contract
+//      * @param details FundraisingMessage.InstantiateMsg used to initialize the contract
 //      */
 //     function initFundraising(
-//         FundraisingMessage.InstantiateMsg memory curDetails
+//         FundraisingMessage.InstantiateMsg memory details
 //     ) public {
 //         if (initialized) revert("Already initialized");
 //         initialized = true;
-//         state.config.registrarContract = curDetails.registrarContract;
-//         state.config.nextId = curDetails.nextId;
-//         state.config.campaignPeriodSeconds = curDetails.campaignPeriodSeconds;
-//         state.config.taxRate = curDetails.taxRate;
-//         state.config.acceptedTokens = curDetails.acceptedTokens;
+//         state.config.registrarContract = details.registrarContract;
+//         state.config.nextId = details.nextId;
+//         state.config.campaignPeriodSeconds = details.campaignPeriodSeconds;
+//         state.config.taxRate = details.taxRate;
+//         state.config.acceptedTokens = details.acceptedTokens;
 //         emit FundraisingConfigUpdated(state.config);
 //     }
 

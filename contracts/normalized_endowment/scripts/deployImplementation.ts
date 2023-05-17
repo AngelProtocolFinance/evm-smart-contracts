@@ -176,24 +176,24 @@ const deploySubDaoERC20 = async (verify_contracts: boolean, hre: HardhatRuntimeE
 	}
 };
 
-const deploySubDaoBondingCurve = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
+const deploySubDaoBondingve = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
 	try {
 		const {network,run,ethers} = hre;
 
-		const subDaoCurveToken = await ethers.getContractFactory('SubDaoToken');
-		const subDaoCurveTokenImplementation = await subDaoCurveToken.deploy();
-		await subDaoCurveTokenImplementation.deployed();
+		const subDaoveToken = await ethers.getContractFactory('SubDaoToken');
+		const subDaoveTokenImplementation = await subDaoveToken.deploy();
+		await subDaoveTokenImplementation.deployed();
 
-		HaloImplementations.subDaoCurveTokenImplementation = subDaoCurveTokenImplementation.address;
+		HaloImplementations.subDaoveTokenImplementation = subDaoveTokenImplementation.address;
 
 		if (verify_contracts) {
 			await run('verify:verify', {
-				address: subDaoCurveTokenImplementation.address,
+				address: subDaoveTokenImplementation.address,
 				constructorArguments: [],
 			});
 		}
 
-		return Promise.resolve(subDaoCurveTokenImplementation.address);
+		return Promise.resolve(subDaoveTokenImplementation.address);
 	} catch (e) {
 		console.error(e);
 		return Promise.reject(e);
@@ -203,7 +203,7 @@ const deploySubDaoBondingCurve = async (verify_contracts: boolean, hre: HardhatR
 const deployFeeDistributor = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
 	try {
 		const {network,run,ethers} = hre;
-		// const FeeDistributor = await ethers.getContractFactory('FeeDistributorCurveToken');
+		// const FeeDistributor = await ethers.getContractFactory('FeeDistributorveToken');
 		// const feeDistributorImplementation = await FeeDistributor.deploy();
 		// await feeDistributorImplementation.deployed();
 
@@ -246,7 +246,7 @@ export async function deployImplementation(ANGEL_CORE_STRUCT: string, LockedWith
 			DonationMatchCharity: await deployDonationMatchCharity(proxyAdmin.address, donationMatchCharityData,verify_contracts, hre),
 			SubDao: await deploySubDao(ANGEL_CORE_STRUCT,verify_contracts, hre),
 			SubDaoERC20: await deploySubDaoERC20(verify_contracts, hre),
-			SubDaoBondingCurve: await deploySubDaoBondingCurve(verify_contracts,hre),
+			SubDaoBondingve: await deploySubDaoBondingve(verify_contracts,hre),
 			FeeDistributor: await deployFeeDistributor(verify_contracts,hre),
 			IncentiisedVoting: await deployIncentiisedVoting(verify_contracts,hre),
 			LockedWithdraw: await deployLockedWithdraw(proxyAdmin.address, LockedWithdrawData,verify_contracts,hre),

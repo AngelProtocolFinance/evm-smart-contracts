@@ -99,58 +99,58 @@ export interface IERC20WithCheckpointing extends BaseContract {
 
   functions: {
     balanceOf(
-      curOwner: PromiseOrValue<string>,
+      owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
     balanceOfAt(
-      curOwner: PromiseOrValue<string>,
-      curBlocknumber: PromiseOrValue<BigNumberish>,
+      owner: PromiseOrValue<string>,
+      blocknumber: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
     totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     totalSupplyAt(
-      curBlocknumber: PromiseOrValue<BigNumberish>,
+      blocknumber: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
   };
 
   balanceOf(
-    curOwner: PromiseOrValue<string>,
+    owner: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   balanceOfAt(
-    curOwner: PromiseOrValue<string>,
-    curBlocknumber: PromiseOrValue<BigNumberish>,
+    owner: PromiseOrValue<string>,
+    blocknumber: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
   totalSupplyAt(
-    curBlocknumber: PromiseOrValue<BigNumberish>,
+    blocknumber: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   callStatic: {
     balanceOf(
-      curOwner: PromiseOrValue<string>,
+      owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     balanceOfAt(
-      curOwner: PromiseOrValue<string>,
-      curBlocknumber: PromiseOrValue<BigNumberish>,
+      owner: PromiseOrValue<string>,
+      blocknumber: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     totalSupplyAt(
-      curBlocknumber: PromiseOrValue<BigNumberish>,
+      blocknumber: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -159,40 +159,40 @@ export interface IERC20WithCheckpointing extends BaseContract {
 
   estimateGas: {
     balanceOf(
-      curOwner: PromiseOrValue<string>,
+      owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     balanceOfAt(
-      curOwner: PromiseOrValue<string>,
-      curBlocknumber: PromiseOrValue<BigNumberish>,
+      owner: PromiseOrValue<string>,
+      blocknumber: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     totalSupplyAt(
-      curBlocknumber: PromiseOrValue<BigNumberish>,
+      blocknumber: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     balanceOf(
-      curOwner: PromiseOrValue<string>,
+      owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     balanceOfAt(
-      curOwner: PromiseOrValue<string>,
-      curBlocknumber: PromiseOrValue<BigNumberish>,
+      owner: PromiseOrValue<string>,
+      blocknumber: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     totalSupplyAt(
-      curBlocknumber: PromiseOrValue<BigNumberish>,
+      blocknumber: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

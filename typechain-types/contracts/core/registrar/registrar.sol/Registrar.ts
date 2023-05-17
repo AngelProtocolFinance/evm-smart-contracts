@@ -921,7 +921,7 @@ export interface Registrar extends BaseContract {
     ): Promise<[LocalRegistrarLib.StrategyParamsStructOutput]>;
 
     "initialize((address,(uint256,uint256,uint256),address,address,address))"(
-      curDetails: RegistrarMessages.InstantiateRequestStruct,
+      details: RegistrarMessages.InstantiateRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1015,12 +1015,12 @@ export interface Registrar extends BaseContract {
     ): Promise<ContractTransaction>;
 
     updateConfig(
-      curDetails: RegistrarMessages.UpdateConfigRequestStruct,
+      details: RegistrarMessages.UpdateConfigRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     updateFees(
-      curDetails: RegistrarMessages.UpdateFeeRequestStruct,
+      details: RegistrarMessages.UpdateFeeRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1064,7 +1064,7 @@ export interface Registrar extends BaseContract {
   ): Promise<LocalRegistrarLib.StrategyParamsStructOutput>;
 
   "initialize((address,(uint256,uint256,uint256),address,address,address))"(
-    curDetails: RegistrarMessages.InstantiateRequestStruct,
+    details: RegistrarMessages.InstantiateRequestStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1152,12 +1152,12 @@ export interface Registrar extends BaseContract {
   ): Promise<ContractTransaction>;
 
   updateConfig(
-    curDetails: RegistrarMessages.UpdateConfigRequestStruct,
+    details: RegistrarMessages.UpdateConfigRequestStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   updateFees(
-    curDetails: RegistrarMessages.UpdateFeeRequestStruct,
+    details: RegistrarMessages.UpdateFeeRequestStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1201,7 +1201,7 @@ export interface Registrar extends BaseContract {
     ): Promise<LocalRegistrarLib.StrategyParamsStructOutput>;
 
     "initialize((address,(uint256,uint256,uint256),address,address,address))"(
-      curDetails: RegistrarMessages.InstantiateRequestStruct,
+      details: RegistrarMessages.InstantiateRequestStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1285,12 +1285,12 @@ export interface Registrar extends BaseContract {
     ): Promise<void>;
 
     updateConfig(
-      curDetails: RegistrarMessages.UpdateConfigRequestStruct,
+      details: RegistrarMessages.UpdateConfigRequestStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
     updateFees(
-      curDetails: RegistrarMessages.UpdateFeeRequestStruct,
+      details: RegistrarMessages.UpdateFeeRequestStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1430,7 +1430,7 @@ export interface Registrar extends BaseContract {
     ): Promise<BigNumber>;
 
     "initialize((address,(uint256,uint256,uint256),address,address,address))"(
-      curDetails: RegistrarMessages.InstantiateRequestStruct,
+      details: RegistrarMessages.InstantiateRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1516,12 +1516,12 @@ export interface Registrar extends BaseContract {
     ): Promise<BigNumber>;
 
     updateConfig(
-      curDetails: RegistrarMessages.UpdateConfigRequestStruct,
+      details: RegistrarMessages.UpdateConfigRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     updateFees(
-      curDetails: RegistrarMessages.UpdateFeeRequestStruct,
+      details: RegistrarMessages.UpdateFeeRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1566,7 +1566,7 @@ export interface Registrar extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     "initialize((address,(uint256,uint256,uint256),address,address,address))"(
-      curDetails: RegistrarMessages.InstantiateRequestStruct,
+      details: RegistrarMessages.InstantiateRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1654,12 +1654,12 @@ export interface Registrar extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     updateConfig(
-      curDetails: RegistrarMessages.UpdateConfigRequestStruct,
+      details: RegistrarMessages.UpdateConfigRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     updateFees(
-      curDetails: RegistrarMessages.UpdateFeeRequestStruct,
+      details: RegistrarMessages.UpdateFeeRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

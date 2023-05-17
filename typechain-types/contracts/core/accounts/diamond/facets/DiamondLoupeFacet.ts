@@ -117,62 +117,62 @@ export interface DiamondLoupeFacet extends BaseContract {
 
   functions: {
     facetAddress(
-      curFunctionselector: PromiseOrValue<BytesLike>,
+      functionselector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[string] & { curFacetaddress: string }>;
+    ): Promise<[string] & { facetaddress: string }>;
 
     facetAddresses(
       overrides?: CallOverrides
-    ): Promise<[string[]] & { curFacetaddresses: string[] }>;
+    ): Promise<[string[]] & { facetaddresses: string[] }>;
 
     facetFunctionSelectors(
-      curFacet: PromiseOrValue<string>,
+      facet: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<[string[]] & { curFacetfunctionselectors: string[] }>;
+    ): Promise<[string[]] & { facetfunctionselectors: string[] }>;
 
     facets(
       overrides?: CallOverrides
     ): Promise<
       [IDiamondLoupe.FacetStructOutput[]] & {
-        curFacets: IDiamondLoupe.FacetStructOutput[];
+        facets: IDiamondLoupe.FacetStructOutput[];
       }
     >;
 
     supportsInterface(
-      curInterfaceid: PromiseOrValue<BytesLike>,
+      interfaceid: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
   };
 
   facetAddress(
-    curFunctionselector: PromiseOrValue<BytesLike>,
+    functionselector: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string>;
 
   facetAddresses(overrides?: CallOverrides): Promise<string[]>;
 
   facetFunctionSelectors(
-    curFacet: PromiseOrValue<string>,
+    facet: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<string[]>;
 
   facets(overrides?: CallOverrides): Promise<IDiamondLoupe.FacetStructOutput[]>;
 
   supportsInterface(
-    curInterfaceid: PromiseOrValue<BytesLike>,
+    interfaceid: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
   callStatic: {
     facetAddress(
-      curFunctionselector: PromiseOrValue<BytesLike>,
+      functionselector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string>;
 
     facetAddresses(overrides?: CallOverrides): Promise<string[]>;
 
     facetFunctionSelectors(
-      curFacet: PromiseOrValue<string>,
+      facet: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<string[]>;
 
@@ -181,7 +181,7 @@ export interface DiamondLoupeFacet extends BaseContract {
     ): Promise<IDiamondLoupe.FacetStructOutput[]>;
 
     supportsInterface(
-      curInterfaceid: PromiseOrValue<BytesLike>,
+      interfaceid: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
   };
@@ -190,42 +190,42 @@ export interface DiamondLoupeFacet extends BaseContract {
 
   estimateGas: {
     facetAddress(
-      curFunctionselector: PromiseOrValue<BytesLike>,
+      functionselector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     facetAddresses(overrides?: CallOverrides): Promise<BigNumber>;
 
     facetFunctionSelectors(
-      curFacet: PromiseOrValue<string>,
+      facet: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     facets(overrides?: CallOverrides): Promise<BigNumber>;
 
     supportsInterface(
-      curInterfaceid: PromiseOrValue<BytesLike>,
+      interfaceid: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     facetAddress(
-      curFunctionselector: PromiseOrValue<BytesLike>,
+      functionselector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     facetAddresses(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     facetFunctionSelectors(
-      curFacet: PromiseOrValue<string>,
+      facet: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     facets(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     supportsInterface(
-      curInterfaceid: PromiseOrValue<BytesLike>,
+      interfaceid: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

@@ -26,83 +26,83 @@ contract SubDaoToken is Storage, ContinuousToken {
 
     /**
      * @dev Initialize contract
-     * @param curMsg SubDaoTokenMessage.InstantiateMsg used to initialize contract
-     * @param curEmitteraddress address
+     * @param msg SubDaoTokenMessage.InstantiateMsg used to initialize contract
+     * @param emitteraddress address
      */
     function continuosToken(
-        SubDaoTokenMessage.InstantiateMsg memory curMsg,
-        address curEmitteraddress
+        SubDaoTokenMessage.InstantiateMsg memory msg,
+        address emitteraddress
     ) public initializer {
-        require(curEmitteraddress != address(0), "Invalid Address");
-        emitterAddress = curEmitteraddress;
-        initCurveToken(
-            curMsg.name,
-            curMsg.symbol,
-            subDaoTokenStorage.getReserveRatio(curMsg.curve_type),
-            curMsg.reserveDenom
+        require(emitteraddress != address(0), "Invalid Address");
+        emitterAddress = emitteraddress;
+        initveToken(
+            msg.name,
+            msg.symbol,
+            subDaoTokenStorage.getReserveRatio(msg.ve_type),
+            msg.reserveDenom
         );
 
-        tokenInfo.name = curMsg.name;
-        tokenInfo.symbol = curMsg.symbol;
-        tokenInfo.decimals = 18; //Equivalue to curMsg.decimals
+        tokenInfo.name = msg.name;
+        tokenInfo.symbol = msg.symbol;
+        tokenInfo.decimals = 18; //Equivalue to msg.decimals
         tokenInfo.mint = subDaoTokenStorage.MinterData({
             minter: address(this),
             cap: 0,
             hasCap: false
         });
 
-        reserveDenom = curMsg.reserveDenom;
+        reserveDenom = msg.reserveDenom;
 
         config.unbondingPeriod = AngelCoreStruct.Duration({
             enumData: AngelCoreStruct.DurationEnum.Time,
             data: AngelCoreStruct.DurationData({
                 height: 0,
-                time: curMsg.unbondingPeriod
+                time: msg.unbondingPeriod
             })
         });
-        // ISubdaoTokenEmitter(emitterAddress).initializeSubdaoToken(curMsg);
+        // ISubdaoTokenEmitter(emitterAddress).initializeSubdaoToken(msg);
     }
 
     //TODO: check we have a un used parameter
     /**
      * @dev This function is used to transfer an amount from the sender to the contract and divide it into four parts: donor's share, endowment's share, burn and the deposit in an endowment contract.
-     * @param curAmount uint256
-     * @param curAccountscontract address
-     * @param curEndowmentId uint256
-     * @param curDonor address
+     * @param amount uint256
+     * @param accountscontract address
+     * @param endowmentId uint256
+     * @param donor address
      */
     function executeDonorMatch(
-        uint256 curAmount,
-        address curAccountscontract,
-        uint32 curEndowmentId,
-        address curDonor
+        uint256 amount,
+        address accountscontract,
+        uint32 endowmentId,
+        address donor
     ) public {
-        require(curAmount > 100, "InvalidZeroAmount");
+        require(amount > 100, "InvalidZeroAmount");
 
         //  changing flow as each mint operation changes the amount of tokens that are minted
 
-        // total possible subdao mint for curAmount  (give 40 % to donor, 40% to endowment, rest burn)
-        uint256 totalMinted = mint(curAmount, address(this));
+        // total possible subdao mint for amount  (give 40 % to donor, 40% to endowment, rest burn)
+        uint256 totalMinted = mint(amount, address(this));
 
         uint256 donorAmount = (totalMinted.mul(40)).div(100);
         uint256 endowmentAmount = (totalMinted.mul(40)).div(100);
         uint256 burnAmount = totalMinted.sub(donorAmount).sub(endowmentAmount);
 
         require(
-            IERC20(address(this)).transfer(curDonor, donorAmount),
+            IERC20(address(this)).transfer(donor, donorAmount),
             "Transfer failed"
         ); // 40% to donor
 
         burn(burnAmount, address(this)); // 20% burn
 
         require(
-            IERC20(address(this)).approve(curAccountscontract, endowmentAmount),
+            IERC20(address(this)).approve(accountscontract, endowmentAmount),
             "Approve failed"
         );
 
-        IAccountsDepositWithdrawEndowments(curAccountscontract)
+        IAccountsDepositWithdrawEndowments(accountscontract)
             .depositDonationMatchErC20(
-                curEndowmentId,
+                endowmentId,
                 address(this),
                 endowmentAmount
             );
@@ -112,7 +112,7 @@ contract SubDaoToken is Storage, ContinuousToken {
             IERC20(reserveDenom).transferFrom(
                 msg.sender,
                 address(this),
-                curAmount
+                amount
             ),
             "TransferFrom failed"
         );
@@ -120,15 +120,15 @@ contract SubDaoToken is Storage, ContinuousToken {
 
     /**
      * @dev This function is used to transfer an amount from the sender to the contract and mint the same amount for the sender.
-     * @param curAmount uint256
+     * @param amount uint256
      */
-    function executeBuyCw20(uint256 curAmount) public {
-        require(curAmount > 100, "InvalidZeroAmount");
+    function executeBuyCw20(uint256 amount) public {
+        require(amount > 100, "InvalidZeroAmount");
         require(
             IERC20(reserveDenom).transferFrom(
                 msg.sender,
                 address(this),
-                curAmount
+                amount
             ),
             "TransferFrom failed"
         );
@@ -136,33 +136,33 @@ contract SubDaoToken is Storage, ContinuousToken {
         //     reserveDenom,
         //     msg.sender,
         //     address(this),
-        //     curAmount
+        //     amount
         // );
 
-        mint(curAmount, msg.sender);
+        mint(amount, msg.sender);
         // ISubdaoTokenEmitter(emitterAddress).mintSt(
         //     address(this),
-        //     curAmount,
+        //     amount,
         //     msg.sender
         // );
     }
 
     /**
-     * @dev This function is used to transfer an amount from the contract to the given `curReciver` and burn the same amount from the sender.
-     * @param curAmount uint256
-     * @param curReciver address
+     * @dev This function is used to transfer an amount from the contract to the given `reciver` and burn the same amount from the sender.
+     * @param amount uint256
+     * @param reciver address
      */
-    function executeSell(address curReciver, uint256 curAmount) public {
-        doSell(curReciver, curAmount);
+    function executeSell(address reciver, uint256 amount) public {
+        doSell(reciver, amount);
     }
 
     /**
      * @dev This function is an internal function used by the `executeSell` function to perform the actual transfer and burn operations.
-     * @param curAmount uint256
-     * @param curReciver address
+     * @param amount uint256
+     * @param reciver address
      */
-    function doSell(address curReciver, uint256 curAmount) internal {
-        uint256 burnedAmount = burn(curAmount, curReciver);
+    function doSell(address reciver, uint256 amount) internal {
+        uint256 burnedAmount = burn(amount, reciver);
         // ISubdaoTokenEmitter(emitterAddress).burnSt(
         //     address(this),
         //     burnedAmount
@@ -210,21 +210,21 @@ contract SubDaoToken is Storage, ContinuousToken {
 
     /**
      * @notice This function is used to check if the release time of the token has passed and if the token can be claimed.
-     * @param curSender address
+     * @param sender address
      * @return amount Amount of claimable tokens
      */
-    function claimTokensCheck(address curSender) internal returns (uint256) {
+    function claimTokensCheck(address sender) internal returns (uint256) {
         uint256 amount = 0;
 
-        for (uint256 i = 0; i < CLAIM_AMOUNT[curSender].details.length; i++) {
+        for (uint256 i = 0; i < CLAIM_AMOUNT[sender].details.length; i++) {
             if (
-                CLAIM_AMOUNT[curSender].details[i].releaseTime <
+                CLAIM_AMOUNT[sender].details[i].releaseTime <
                 block.timestamp &&
-                !CLAIM_AMOUNT[curSender].details[i].isClaimed
+                !CLAIM_AMOUNT[sender].details[i].isClaimed
             ) {
-                amount += CLAIM_AMOUNT[curSender].details[i].amount;
-                CLAIM_AMOUNT[curSender].details[i].isClaimed = true;
-                // ISubdaoTokenEmitter(emitterAddress).claimSt(curSender, i);
+                amount += CLAIM_AMOUNT[sender].details[i].amount;
+                CLAIM_AMOUNT[sender].details[i].isClaimed = true;
+                // ISubdaoTokenEmitter(emitterAddress).claimSt(sender, i);
             }
         }
 

@@ -12,8 +12,8 @@ library RegistrarStorage {
         address treasury;
         address subdaoGovCode; // subdao gov wasm code
         address subdaoCw20TokenCode; // subdao gov cw20 token wasm code
-        address subdaoBondingTokenCode; // subdao gov bonding curve token wasm code
-        address subdaoCw900Code; // subdao gov ve-CURVE contract for locked token voting
+        address subdaoBondingTokenCode; // subdao gov bonding ve token wasm code
+        address subdaoCw900Code; // subdao gov ve-vE contract for locked token voting
         address subdaoDistributorCode; // subdao gov fee distributor wasm code
         address subdaoEmitter;
         address donationMatchCode; // donation matching contract wasm code

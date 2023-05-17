@@ -32,7 +32,7 @@ library AccountStorage {
         AngelCoreStruct.OneOffVaults oneoffVaults; // vaults not covered in account startegies (more efficient tracking of vaults vs. looking up allll vaults)
         LocalRegistrarLib.RebalanceParams rebalance; // parameters to guide rebalancing & harvesting of gains from locked/liquid accounts
         bool kycDonorsOnly; // allow owner to state a preference for receiving only kyc'd donations (where possible) //TODO:
-        uint256 pendingRedemptions; // number of vault redemptions currently pending for this endowment
+        uint256 pendingRedemptions; // number of vault redemptions rently pending for this endowment
         uint256 proposalLink; // link back the CW3 Proposal that created an endowment
         address multisig;
         address dao;

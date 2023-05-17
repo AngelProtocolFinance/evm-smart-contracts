@@ -6,8 +6,8 @@ import {AngelCoreStruct} from "./../../struct.sol";
 
 interface ISwappingV3 {
     function swapTokenToUsdc(
-        address curTokena,
-        uint256 curAmountin
+        address tokena,
+        uint256 amountin
     ) external returns (uint256);
 
     function swapEthToToken() external payable returns (uint256);
@@ -17,9 +17,9 @@ interface ISwappingV3 {
     ) external payable returns (uint256);
 
     function executeSwapOperations(
-        address curTokenIn,
-        address curTokenOut,
-        uint256 curAmountIn,
-        uint256 curAmountOut
+        address tokenIn,
+        address tokenOut,
+        uint256 amountIn,
+        uint256 amountOut
     ) external returns (uint256);
 }

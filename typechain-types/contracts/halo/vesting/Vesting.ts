@@ -246,12 +246,12 @@ export interface Vesting extends BaseContract {
     haloToken(overrides?: CallOverrides): Promise<[string]>;
 
     initialize(
-      curDetails: VestingMessage.InstantiateMsgStruct,
+      details: VestingMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     modifyVestingDuration(
-      curVestingduration: PromiseOrValue<BigNumberish>,
+      vestingduration: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -302,12 +302,12 @@ export interface Vesting extends BaseContract {
   haloToken(overrides?: CallOverrides): Promise<string>;
 
   initialize(
-    curDetails: VestingMessage.InstantiateMsgStruct,
+    details: VestingMessage.InstantiateMsgStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   modifyVestingDuration(
-    curVestingduration: PromiseOrValue<BigNumberish>,
+    vestingduration: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -358,12 +358,12 @@ export interface Vesting extends BaseContract {
     haloToken(overrides?: CallOverrides): Promise<string>;
 
     initialize(
-      curDetails: VestingMessage.InstantiateMsgStruct,
+      details: VestingMessage.InstantiateMsgStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
     modifyVestingDuration(
-      curVestingduration: PromiseOrValue<BigNumberish>,
+      vestingduration: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -453,12 +453,12 @@ export interface Vesting extends BaseContract {
     haloToken(overrides?: CallOverrides): Promise<BigNumber>;
 
     initialize(
-      curDetails: VestingMessage.InstantiateMsgStruct,
+      details: VestingMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     modifyVestingDuration(
-      curVestingduration: PromiseOrValue<BigNumberish>,
+      vestingduration: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -503,12 +503,12 @@ export interface Vesting extends BaseContract {
     haloToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     initialize(
-      curDetails: VestingMessage.InstantiateMsgStruct,
+      details: VestingMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     modifyVestingDuration(
-      curVestingduration: PromiseOrValue<BigNumberish>,
+      vestingduration: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

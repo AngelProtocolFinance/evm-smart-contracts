@@ -34,17 +34,17 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     /**
      * @notice intialize function for the contract
      * @dev initialize function for the contract only called once at the time of deployment
-     * @param curDetails details for the contract
+     * @param details details for the contract
      */
     function initialize(
-        RegistrarMessages.InstantiateRequest memory curDetails
+        RegistrarMessages.InstantiateRequest memory details
     ) public {
         __LocalRegistrar_init();
         state.config = RegistrarStorage.Config({
             applicationsReview: msg.sender,
             indexFundContract: address(0),
             accountsContract: address(0),
-            treasury: curDetails.treasury,
+            treasury: details.treasury,
             subdaoGovCode: address(0), // Sub dao implementation
             subdaoCw20TokenCode: address(0), // NewERC20 implementation
             subdaoBondingTokenCode: address(0), // Continous Token implementation
@@ -52,8 +52,8 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
             subdaoDistributorCode: address(0),
             subdaoEmitter: address(0),
             donationMatchCode: address(0),
-            // rebalance: curDetails.rebalance,
-            splitToLiquid: curDetails.splitToLiquid,
+            // rebalance: details.rebalance,
+            splitToLiquid: details.splitToLiquid,
             haloToken: address(0),
             haloTokenLpContract: address(0),
             govContract: address(0),
@@ -61,7 +61,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
             donationMatchEmitter: address(0),
             collectorShare: 50,
             charitySharesContract: address(0),
-            // acceptedTokens: curDetails.acceptedTokens,
+            // acceptedTokens: details.acceptedTokens,
             fundraisingContract: address(0),
             swapsRouter: address(0),
             multisigFactory: address(0),
@@ -75,7 +75,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
         });
         emit UpdateRegistrarConfig(state.config);
 
-        // TODO everything about FEEs is currently broken. The rates are wrong and they arent unified with
+        // TODO everything about FEEs is rently broken. The rates are wrong and they arent unified with
         // the way we can track basis points for clean division. Rework needed 
         // state.FEES["accounts_withdraw"] = 2;
         // string[] memory feeKeys = new string[](2);
@@ -83,7 +83,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
         // feeKeys[1] = "accounts_withdraw";
 
         // uint256[] memory feeValues = new uint256[](2);
-        // feeValues[0] = curDetails.taxRate;
+        // feeValues[0] = details.taxRate;
         // feeValues[1] = 2;
         // emit UpdateRegistrarFees(
         //     RegistrarMessages.UpdateFeeRequest({
@@ -97,10 +97,10 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
             chainId: block.chainid,
             ibcChannel: "",
             transferChannel: "",
-            gasReceiver: curDetails.axelarGasRecv,
+            gasReceiver: details.axelarGasRecv,
             gasLimit: 0,
-            router: curDetails.router,
-            axelarGateway: curDetails.axelarGateway
+            router: details.router,
+            axelarGateway: details.axelarGateway
         });
         emit PostNetworkConnection(
             block.chainid,
@@ -113,149 +113,149 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     /**
      * @notice update config function for the contract
      * @dev update config function for the contract
-     * @param curDetails details for the contract
+     * @param details details for the contract
      */
     function updateConfig(
-        RegistrarMessages.UpdateConfigRequest memory curDetails
+        RegistrarMessages.UpdateConfigRequest memory details
     ) public onlyOwner nonReentrant {
         // Set applications review
-        if (Validator.addressChecker(curDetails.applicationsReview)) {
-            state.config.applicationsReview = curDetails.applicationsReview;
+        if (Validator.addressChecker(details.applicationsReview)) {
+            state.config.applicationsReview = details.applicationsReview;
         }
 
-        if (Validator.addressChecker(curDetails.accountsContract)) {
-            state.config.accountsContract = curDetails.accountsContract;
+        if (Validator.addressChecker(details.accountsContract)) {
+            state.config.accountsContract = details.accountsContract;
         }
 
-        if (Validator.addressChecker(curDetails.swapsRouter)) {
-            state.config.swapsRouter = curDetails.swapsRouter;
+        if (Validator.addressChecker(details.swapsRouter)) {
+            state.config.swapsRouter = details.swapsRouter;
         }
 
-        if (Validator.addressChecker(curDetails.charitySharesContract)) {
-            state.config.charitySharesContract = curDetails
+        if (Validator.addressChecker(details.charitySharesContract)) {
+            state.config.charitySharesContract = details
                 .charitySharesContract;
         }
 
-        if (Validator.addressChecker(curDetails.indexFundContract)) {
-            state.config.indexFundContract = curDetails.indexFundContract;
+        if (Validator.addressChecker(details.indexFundContract)) {
+            state.config.indexFundContract = details.indexFundContract;
         }
 
-        if (Validator.addressChecker(curDetails.treasury)) {
-            state.config.treasury = curDetails.treasury;
+        if (Validator.addressChecker(details.treasury)) {
+            state.config.treasury = details.treasury;
         }
 
-        // require(curDetails.taxRate <= 100, "E06"); //Invalid tax rate input
+        // require(details.taxRate <= 100, "E06"); //Invalid tax rate input
         // // change taxRate from optional to required field because theres no way to map default value to tax rate
         // // since this is an update call, frontend will always send rebalance details
-        // state.config.rebalance = curDetails.rebalance;
+        // state.config.rebalance = details.rebalance;
 
         // check splits
         AngelCoreStruct.SplitDetails memory split_details = AngelCoreStruct
             .SplitDetails({
-                max: curDetails.splitMax,
-                min: curDetails.splitMin,
-                defaultSplit: curDetails.splitDefault
+                max: details.splitMax,
+                min: details.splitMin,
+                defaultSplit: details.splitDefault
             });
 
         require(Validator.splitChecker(split_details), "Invalid Splits");
         state.config.splitToLiquid = split_details;
 
         if (
-            Validator.addressChecker(curDetails.donationMatchCharitesContract)
+            Validator.addressChecker(details.donationMatchCharitesContract)
         ) {
-            state.config.donationMatchCharitesContract = curDetails
+            state.config.donationMatchCharitesContract = details
                 .donationMatchCharitesContract;
         }
-        if (Validator.addressChecker(curDetails.donationMatchEmitter)) {
-            state.config.donationMatchEmitter = curDetails.donationMatchEmitter;
+        if (Validator.addressChecker(details.donationMatchEmitter)) {
+            state.config.donationMatchEmitter = details.donationMatchEmitter;
         }
 
-        // state.config.acceptedTokens = curDetails.acceptedTokens;
+        // state.config.acceptedTokens = details.acceptedTokens;
 
-        if (Validator.addressChecker(curDetails.fundraisingContract)) {
-            state.config.fundraisingContract = curDetails.fundraisingContract;
+        if (Validator.addressChecker(details.fundraisingContract)) {
+            state.config.fundraisingContract = details.fundraisingContract;
         }
 
         // TODO update decimal logic
-        if (curDetails.collectorShare != 0) {
-            state.config.collectorShare = curDetails.collectorShare;
+        if (details.collectorShare != 0) {
+            state.config.collectorShare = details.collectorShare;
         }
 
-        if (Validator.addressChecker(curDetails.govContract)) {
-            state.config.govContract = curDetails.govContract;
+        if (Validator.addressChecker(details.govContract)) {
+            state.config.govContract = details.govContract;
         }
 
-        if (Validator.addressChecker(curDetails.subdaoGovCode)) {
-            state.config.subdaoGovCode = curDetails.subdaoGovCode;
+        if (Validator.addressChecker(details.subdaoGovCode)) {
+            state.config.subdaoGovCode = details.subdaoGovCode;
         }
 
-        if (Validator.addressChecker(curDetails.subdaoBondingTokenCode)) {
-            state.config.subdaoBondingTokenCode = curDetails
+        if (Validator.addressChecker(details.subdaoBondingTokenCode)) {
+            state.config.subdaoBondingTokenCode = details
                 .subdaoBondingTokenCode;
         }
 
-        if (Validator.addressChecker(curDetails.subdaoCw20TokenCode)) {
-            state.config.subdaoCw20TokenCode = curDetails.subdaoCw20TokenCode;
+        if (Validator.addressChecker(details.subdaoCw20TokenCode)) {
+            state.config.subdaoCw20TokenCode = details.subdaoCw20TokenCode;
         }
 
-        if (Validator.addressChecker(curDetails.subdaoCw900Code)) {
-            state.config.subdaoCw900Code = curDetails.subdaoCw900Code;
+        if (Validator.addressChecker(details.subdaoCw900Code)) {
+            state.config.subdaoCw900Code = details.subdaoCw900Code;
         }
 
-        if (Validator.addressChecker(curDetails.subdaoDistributorCode)) {
-            state.config.subdaoDistributorCode = curDetails
+        if (Validator.addressChecker(details.subdaoDistributorCode)) {
+            state.config.subdaoDistributorCode = details
                 .subdaoDistributorCode;
         }
-        if (Validator.addressChecker(curDetails.subdaoEmitter)) {
-            state.config.subdaoEmitter = curDetails.subdaoEmitter;
+        if (Validator.addressChecker(details.subdaoEmitter)) {
+            state.config.subdaoEmitter = details.subdaoEmitter;
         }
 
-        if (Validator.addressChecker(curDetails.donationMatchCode)) {
-            state.config.donationMatchCode = curDetails.donationMatchCode;
+        if (Validator.addressChecker(details.donationMatchCode)) {
+            state.config.donationMatchCode = details.donationMatchCode;
         }
 
-        if (Validator.addressChecker(curDetails.haloToken)) {
-            state.config.haloToken = curDetails.haloToken;
+        if (Validator.addressChecker(details.haloToken)) {
+            state.config.haloToken = details.haloToken;
         }
 
-        if (Validator.addressChecker(curDetails.haloTokenLpContract)) {
-            state.config.haloTokenLpContract = curDetails.haloTokenLpContract;
+        if (Validator.addressChecker(details.haloTokenLpContract)) {
+            state.config.haloTokenLpContract = details.haloTokenLpContract;
         }
 
-        if (Validator.addressChecker(curDetails.multisigEmitter)) {
-            state.config.multisigEmitter = curDetails.multisigEmitter;
+        if (Validator.addressChecker(details.multisigEmitter)) {
+            state.config.multisigEmitter = details.multisigEmitter;
         }
 
-        if (Validator.addressChecker(curDetails.multisigFactory)) {
-            state.config.multisigFactory = curDetails.multisigFactory;
+        if (Validator.addressChecker(details.multisigFactory)) {
+            state.config.multisigFactory = details.multisigFactory;
         }
 
-        if (Validator.addressChecker(curDetails.charityProposal)) {
-            state.config.charityProposal = curDetails.charityProposal;
+        if (Validator.addressChecker(details.charityProposal)) {
+            state.config.charityProposal = details.charityProposal;
         }
 
-        if (Validator.addressChecker(curDetails.lockedWithdrawal)) {
-            state.config.lockedWithdrawal = curDetails.lockedWithdrawal;
+        if (Validator.addressChecker(details.lockedWithdrawal)) {
+            state.config.lockedWithdrawal = details.lockedWithdrawal;
         }
 
-        if (Validator.addressChecker(curDetails.proxyAdmin)) {
-            state.config.proxyAdmin = curDetails.proxyAdmin;
+        if (Validator.addressChecker(details.proxyAdmin)) {
+            state.config.proxyAdmin = details.proxyAdmin;
         }
 
-        if (Validator.addressChecker(curDetails.usdcAddress)) {
-            state.config.usdcAddress = curDetails.usdcAddress;
+        if (Validator.addressChecker(details.usdcAddress)) {
+            state.config.usdcAddress = details.usdcAddress;
         }
 
-        if (Validator.addressChecker(curDetails.wethAddress)) {
-            state.config.wethAddress = curDetails.wethAddress;
+        if (Validator.addressChecker(details.wethAddress)) {
+            state.config.wethAddress = details.wethAddress;
         }
 
-        if (Validator.addressChecker(curDetails.cw900lvAddress)) {
-            state.config.cw900lvAddress = curDetails.cw900lvAddress;
+        if (Validator.addressChecker(details.cw900lvAddress)) {
+            state.config.cw900lvAddress = details.cw900lvAddress;
         }
         // state.config.acceptedTokens = AngelCoreStruct.AcceptedTokens({
-        //     native: curDetails.accepted_tokens_native,
-        //     cw20: curDetails.accepted_tokens_cw20
+        //     native: details.accepted_tokens_native,
+        //     cw20: details.accepted_tokens_cw20
         // });
         emit UpdateRegistrarConfig(state.config);
     }
@@ -307,18 +307,18 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     }
     
     function updateFees(
-        RegistrarMessages.UpdateFeeRequest memory curDetails
+        RegistrarMessages.UpdateFeeRequest memory details
     ) public nonReentrant onlyOwner {
         require(
-            curDetails.keys.length == curDetails.values.length,
+            details.keys.length == details.values.length,
             "Invalid input"
         );
 
-        for (uint256 i = 0; i < curDetails.keys.length; i++) {
-            require(curDetails.values[i] < AngelCoreStruct.FEE_BASIS, "invalid fee value");
-            state.FEES[curDetails.keys[i]] = curDetails.values[i];
+        for (uint256 i = 0; i < details.keys.length; i++) {
+            require(details.values[i] < AngelCoreStruct.FEE_BASIS, "invalid fee value");
+            state.FEES[details.keys[i]] = details.values[i];
         }
-        emit UpdateRegistrarFees(curDetails);
+        emit UpdateRegistrarFees(details);
     }
     
     /**
@@ -397,37 +397,37 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
 
     // /**
     //  * @dev Add a new vault to the registrar
-    //  * @param curDetails The details of the vault to add
+    //  * @param details The details of the vault to add
     //  */
     // function vaultAdd(
-    //     RegistrarMessages.VaultAddRequest memory curDetails
+    //     RegistrarMessages.VaultAddRequest memory details
     // ) public nonReentrant onlyOwner {
 
     //     uint256 vaultNetwork;
-    //     if (curDetails.network == 0) {
+    //     if (details.network == 0) {
     //         vaultNetwork = block.chainid;
     //     } else {
-    //         vaultNetwork = curDetails.network;
+    //         vaultNetwork = details.network;
     //     }
 
-    //     if (!(Validator.addressChecker(curDetails.yieldToken))) {
+    //     if (!(Validator.addressChecker(details.yieldToken))) {
     //         revert("Failed to validate yield token address");
     //     }
 
-    //     state.VAULTS[curDetails.stratagyName] = AngelCoreStruct.YieldVault({
+    //     state.VAULTS[details.stratagyName] = AngelCoreStruct.YieldVault({
     //         network: vaultNetwork,
-    //         addr: curDetails.stratagyName,
-    //         inputDenom: curDetails.inputDenom,
-    //         yieldToken: curDetails.yieldToken,
+    //         addr: details.stratagyName,
+    //         inputDenom: details.inputDenom,
+    //         yieldToken: details.yieldToken,
     //         approved: true,
-    //         restrictedFrom: curDetails.restrictedFrom,
-    //         acctType: curDetails.acctType,
-    //         vaultType: curDetails.vaultType
+    //         restrictedFrom: details.restrictedFrom,
+    //         acctType: details.acctType,
+    //         vaultType: details.vaultType
     //     });
-    //     state.VAULT_POINTERS.push(curDetails.stratagyName);
+    //     state.VAULT_POINTERS.push(details.stratagyName);
     //     emit AddVault(
-    //         curDetails.stratagyName,
-    //         state.VAULTS[curDetails.stratagyName]
+    //         details.stratagyName,
+    //         state.VAULTS[details.stratagyName]
     //     );
     // }
 
@@ -457,18 +457,18 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     // /**
     //  * @dev Update a vault in the registrar
     //  * @param _stratagyName The name of the vault to update
-    //  * @param curApproved Whether the vault is approved or not
-    //  * @param curRestrictedfrom The list of endowments that are restricted from using this vault
+    //  * @param approved Whether the vault is approved or not
+    //  * @param restrictedfrom The list of endowments that are restricted from using this vault
     //  */
     // function vaultUpdate(
     //     string memory _stratagyName,
-    //     bool curApproved,
-    //     AngelCoreStruct.EndowmentType[] memory curRestrictedfrom
+    //     bool approved,
+    //     AngelCoreStruct.EndowmentType[] memory restrictedfrom
     // ) public nonReentrant onlyOwner {
 
-    //     state.VAULTS[_stratagyName].approved = curApproved;
-    //     state.VAULTS[_stratagyName].restrictedFrom = curRestrictedfrom;
-    //     emit UpdateVault(_stratagyName, curApproved, curRestrictedfrom);
+    //     state.VAULTS[_stratagyName].approved = approved;
+    //     state.VAULTS[_stratagyName].restrictedFrom = restrictedfrom;
+    //     emit UpdateVault(_stratagyName, approved, restrictedfrom);
     // }
 
     // /**

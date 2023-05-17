@@ -340,10 +340,10 @@ export type EndowmentSubmissionEventFilter =
 export interface MultisigCreatedEventObject {
   multisigAddress: string;
   endowmentId: BigNumber;
-  curEmitter: string;
-  curOwners: string[];
-  curRequired: BigNumber;
-  curRequireexecution: boolean;
+  emitter: string;
+  owners: string[];
+  required: BigNumber;
+  requireexecution: boolean;
 }
 export type MultisigCreatedEvent = TypedEvent<
   [string, BigNumber, string, string[], BigNumber, boolean],
@@ -395,10 +395,10 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
     createMultisig(
       multisigAddress: PromiseOrValue<string>,
       endowmentId: PromiseOrValue<BigNumberish>,
-      curEmitter: PromiseOrValue<string>,
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
-      curRequireexecution: PromiseOrValue<boolean>,
+      emitter: PromiseOrValue<string>,
+      owners: PromiseOrValue<string>[],
+      required: PromiseOrValue<BigNumberish>,
+      requireexecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -422,7 +422,7 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
     ): Promise<ContractTransaction>;
 
     initEndowmentMultiSigEmitter(
-      curMultisigfactory: PromiseOrValue<string>,
+      multisigfactory: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -469,10 +469,10 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
   createMultisig(
     multisigAddress: PromiseOrValue<string>,
     endowmentId: PromiseOrValue<BigNumberish>,
-    curEmitter: PromiseOrValue<string>,
-    curOwners: PromiseOrValue<string>[],
-    curRequired: PromiseOrValue<BigNumberish>,
-    curRequireexecution: PromiseOrValue<boolean>,
+    emitter: PromiseOrValue<string>,
+    owners: PromiseOrValue<string>[],
+    required: PromiseOrValue<BigNumberish>,
+    requireexecution: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -496,7 +496,7 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
   ): Promise<ContractTransaction>;
 
   initEndowmentMultiSigEmitter(
-    curMultisigfactory: PromiseOrValue<string>,
+    multisigfactory: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -543,10 +543,10 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
     createMultisig(
       multisigAddress: PromiseOrValue<string>,
       endowmentId: PromiseOrValue<BigNumberish>,
-      curEmitter: PromiseOrValue<string>,
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
-      curRequireexecution: PromiseOrValue<boolean>,
+      emitter: PromiseOrValue<string>,
+      owners: PromiseOrValue<string>[],
+      required: PromiseOrValue<BigNumberish>,
+      requireexecution: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -570,7 +570,7 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
     ): Promise<void>;
 
     initEndowmentMultiSigEmitter(
-      curMultisigfactory: PromiseOrValue<string>,
+      multisigfactory: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -694,18 +694,18 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
     "MultisigCreated(address,uint256,address,address[],uint256,bool)"(
       multisigAddress?: null,
       endowmentId?: null,
-      curEmitter?: null,
-      curOwners?: null,
-      curRequired?: null,
-      curRequireexecution?: null
+      emitter?: null,
+      owners?: null,
+      required?: null,
+      requireexecution?: null
     ): MultisigCreatedEventFilter;
     MultisigCreated(
       multisigAddress?: null,
       endowmentId?: null,
-      curEmitter?: null,
-      curOwners?: null,
-      curRequired?: null,
-      curRequireexecution?: null
+      emitter?: null,
+      owners?: null,
+      required?: null,
+      requireexecution?: null
     ): MultisigCreatedEventFilter;
   };
 
@@ -726,10 +726,10 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
     createMultisig(
       multisigAddress: PromiseOrValue<string>,
       endowmentId: PromiseOrValue<BigNumberish>,
-      curEmitter: PromiseOrValue<string>,
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
-      curRequireexecution: PromiseOrValue<boolean>,
+      emitter: PromiseOrValue<string>,
+      owners: PromiseOrValue<string>[],
+      required: PromiseOrValue<BigNumberish>,
+      requireexecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -753,7 +753,7 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
     ): Promise<BigNumber>;
 
     initEndowmentMultiSigEmitter(
-      curMultisigfactory: PromiseOrValue<string>,
+      multisigfactory: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -801,10 +801,10 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
     createMultisig(
       multisigAddress: PromiseOrValue<string>,
       endowmentId: PromiseOrValue<BigNumberish>,
-      curEmitter: PromiseOrValue<string>,
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
-      curRequireexecution: PromiseOrValue<boolean>,
+      emitter: PromiseOrValue<string>,
+      owners: PromiseOrValue<string>[],
+      required: PromiseOrValue<BigNumberish>,
+      requireexecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -828,7 +828,7 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initEndowmentMultiSigEmitter(
-      curMultisigfactory: PromiseOrValue<string>,
+      multisigfactory: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

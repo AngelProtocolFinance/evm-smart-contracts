@@ -8,10 +8,10 @@ import {AccountMessages} from "../message.sol";
 
 abstract contract AccountsEvents {
     event DaoContractCreated(
-        subDaoMessage.InstantiateMsg curCreatedaomessage,
+        subDaoMessage.InstantiateMsg createdaomessage,
         address daoAddress
     );
-    event DonationDeposited(uint256 curId, uint256 curAmount);
+    event DonationDeposited(uint256 id, uint256 amount);
     event DonationWithdrawn(uint256 id, address recipient, uint256 amount);
     event RemoveAllowance(
         address sender,
@@ -29,12 +29,12 @@ abstract contract AccountsEvents {
     event UpdateConfig(AccountStorage.Config config);
     event DonationMatchSetup(uint256 id, address donationMatchContract);
     event SwapToken(
-        uint256 curId,
-        AngelCoreStruct.AccountType curAccountType,
-        uint256 curAmount,
-        address curTokenin,
-        address curTokenout,
-        uint256 curAmountout
+        uint256 id,
+        AngelCoreStruct.AccountType accountType,
+        uint256 amount,
+        address tokenin,
+        address tokenout,
+        uint256 amountout
     );
     event EndowmentSettingUpdated(uint256 id, string setting);
     // event UpdateEndowmentState(uint256 id, AccountStorage.EndowmentState state);

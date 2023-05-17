@@ -53,16 +53,16 @@ contract MultiSigGeneric is
         _;
     }
 
-    modifier notNull(address curAddress) {
-        require(curAddress != address(0));
+    modifier notNull(address addr) {
+        require(addr != address(0));
         _;
     }
 
-    modifier validRequirement(uint256 ownerCount, uint256 curRequired) {
+    modifier validRequirement(uint256 ownerCount, uint256 required) {
         require(
             ownerCount <= MAX_OWNER_COUNT &&
-                curRequired <= ownerCount &&
-                curRequired != 0 &&
+                required <= ownerCount &&
+                required != 0 &&
                 ownerCount != 0
         );
         _;
@@ -82,20 +82,20 @@ contract MultiSigGeneric is
      * Public functions
      */
     /// @dev Contract constructor sets initial owners and required number of confirmations.
-    /// @param curOwners List of initial owners.
-    /// @param curRequired Number of required confirmations.
+    /// @param owners List of initial owners.
+    /// @param required Number of required confirmations.
     function initialize(
-        address[] memory curOwners,
-        uint256 curRequired,
-        bool curRequireexecution
-    ) public virtual initializer validRequirement(curOwners.length, curRequired) {
-        for (uint256 i = 0; i < curOwners.length; i++) {
-            require(!isOwner[curOwners[i]] && curOwners[i] != address(0));
-            isOwner[curOwners[i]] = true;
+        address[] memory owners,
+        uint256 required,
+        bool requireexecution
+    ) public virtual initializer validRequirement(owners.length, required) {
+        for (uint256 i = 0; i < owners.length; i++) {
+            require(!isOwner[owners[i]] && owners[i] != address(0));
+            isOwner[owners[i]] = true;
         }
-        owners = curOwners;
-        required = curRequired;
-        requireExecution = curRequireexecution;
+        owners = owners;
+        required = required;
+        requireExecution = requireexecution;
     }
 
     /// @dev Allows to add a new owner. Transaction has to be sent by wallet.
@@ -158,16 +158,16 @@ contract MultiSigGeneric is
     }
 
     /// @dev Allows to change the number of required confirmations. Transaction has to be sent by wallet.
-    /// @param curRequired Number of required confirmations.
-    function changeRequirement(uint256 curRequired)
+    /// @param required Number of required confirmations.
+    function changeRequirement(uint256 required)
         public
         virtual
         override
         onlyWallet
-        validRequirement(owners.length, curRequired)
+        validRequirement(owners.length, required)
     {
-        required = curRequired;
-        emit RequirementChange(curRequired);
+        required = required;
+        emit RequirementChange(required);
     }
 
     /// @dev Allows an owner to submit and confirm a transaction.
