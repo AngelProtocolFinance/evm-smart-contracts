@@ -2,7 +2,7 @@
 
 pragma solidity >=0.8.0;
 
-interface ICurveLP {
+interface IveLP {
   function coins(uint256) external view returns (address);
 
   function token() external view returns (address);

@@ -59,7 +59,7 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "depositToCurveAndStakeFrom",
+    name: "depositToveAndStakeFrom",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

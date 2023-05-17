@@ -14,7 +14,7 @@ library IndexFundStorage {
 
     struct _State {
         uint256 totalFunds;
-        uint256 activeFund; // ID of the Active IndexFund in the current rotation set
+        uint256 activeFund; // ID of the Active IndexFund in the rent rotation set
         uint256 roundDonations; // total donations given to active charity this round
         uint256 nextRotationBlock; // block height to perform next rotation on
         uint256 nextFundId;

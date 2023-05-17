@@ -247,7 +247,7 @@ export interface Distributor extends BaseContract {
     ): Promise<ContractTransaction>;
 
     initialize(
-      curDetails: DistributorMessage.InstantiateMsgStruct,
+      details: DistributorMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -279,7 +279,7 @@ export interface Distributor extends BaseContract {
   ): Promise<ContractTransaction>;
 
   initialize(
-    curDetails: DistributorMessage.InstantiateMsgStruct,
+    details: DistributorMessage.InstantiateMsgStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -311,7 +311,7 @@ export interface Distributor extends BaseContract {
     ): Promise<void>;
 
     initialize(
-      curDetails: DistributorMessage.InstantiateMsgStruct,
+      details: DistributorMessage.InstantiateMsgStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -375,7 +375,7 @@ export interface Distributor extends BaseContract {
     ): Promise<BigNumber>;
 
     initialize(
-      curDetails: DistributorMessage.InstantiateMsgStruct,
+      details: DistributorMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -406,7 +406,7 @@ export interface Distributor extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initialize(
-      curDetails: DistributorMessage.InstantiateMsgStruct,
+      details: DistributorMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

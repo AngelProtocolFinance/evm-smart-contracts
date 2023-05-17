@@ -241,8 +241,8 @@ export interface AngelCoreStruct extends BaseContract {
     ): Promise<[BigNumber, BigNumber]>;
 
     deductTokens(
-      curAmount: PromiseOrValue<BigNumberish>,
-      curDeductamount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
+      deductamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -251,9 +251,9 @@ export interface AngelCoreStruct extends BaseContract {
     ): Promise<[AngelCoreStruct.DonationsReceivedStructOutput]>;
 
     getTokenAmount(
-      curAddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
-      curTokenaddress: PromiseOrValue<string>,
+      addresses: PromiseOrValue<string>[],
+      amounts: PromiseOrValue<BigNumberish>[],
+      token: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -279,8 +279,8 @@ export interface AngelCoreStruct extends BaseContract {
   ): Promise<[BigNumber, BigNumber]>;
 
   deductTokens(
-    curAmount: PromiseOrValue<BigNumberish>,
-    curDeductamount: PromiseOrValue<BigNumberish>,
+    amount: PromiseOrValue<BigNumberish>,
+    deductamount: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -289,9 +289,9 @@ export interface AngelCoreStruct extends BaseContract {
   ): Promise<AngelCoreStruct.DonationsReceivedStructOutput>;
 
   getTokenAmount(
-    curAddress: PromiseOrValue<string>[],
-    curAmount: PromiseOrValue<BigNumberish>[],
-    curTokenaddress: PromiseOrValue<string>,
+    addresses: PromiseOrValue<string>[],
+    amounts: PromiseOrValue<BigNumberish>[],
+    token: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -317,8 +317,8 @@ export interface AngelCoreStruct extends BaseContract {
     ): Promise<[BigNumber, BigNumber]>;
 
     deductTokens(
-      curAmount: PromiseOrValue<BigNumberish>,
-      curDeductamount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
+      deductamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -327,9 +327,9 @@ export interface AngelCoreStruct extends BaseContract {
     ): Promise<AngelCoreStruct.DonationsReceivedStructOutput>;
 
     getTokenAmount(
-      curAddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
-      curTokenaddress: PromiseOrValue<string>,
+      addresses: PromiseOrValue<string>[],
+      amounts: PromiseOrValue<BigNumberish>[],
+      token: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -354,17 +354,17 @@ export interface AngelCoreStruct extends BaseContract {
     ): Promise<BigNumber>;
 
     deductTokens(
-      curAmount: PromiseOrValue<BigNumberish>,
-      curDeductamount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
+      deductamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     donationsReceivedDefault(overrides?: CallOverrides): Promise<BigNumber>;
 
     getTokenAmount(
-      curAddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
-      curTokenaddress: PromiseOrValue<string>,
+      addresses: PromiseOrValue<string>[],
+      amounts: PromiseOrValue<BigNumberish>[],
+      token: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -389,8 +389,8 @@ export interface AngelCoreStruct extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     deductTokens(
-      curAmount: PromiseOrValue<BigNumberish>,
-      curDeductamount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
+      deductamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -399,9 +399,9 @@ export interface AngelCoreStruct extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getTokenAmount(
-      curAddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
-      curTokenaddress: PromiseOrValue<string>,
+      addresses: PromiseOrValue<string>[],
+      amounts: PromiseOrValue<BigNumberish>[],
+      token: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

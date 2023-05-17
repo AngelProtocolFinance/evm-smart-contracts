@@ -14,17 +14,17 @@ const _abi = [
     inputs: [
       {
         internalType: "uint32",
-        name: "curId",
+        name: "id",
         type: "uint32",
       },
       {
         internalType: "address",
-        name: "curTokenAddress",
+        name: "tokenAddress",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "curAmount",
+        name: "amount",
         type: "uint256",
       },
     ],
@@ -54,17 +54,17 @@ const _abi = [
           },
         ],
         internalType: "struct AccountMessages.DepositRequest",
-        name: "curDetails",
+        name: "details",
         type: "tuple",
       },
       {
         internalType: "address",
-        name: "curTokenAddress",
+        name: "tokenAddress",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "curAmount",
+        name: "amount",
         type: "uint256",
       },
     ],
@@ -94,7 +94,7 @@ const _abi = [
           },
         ],
         internalType: "struct AccountMessages.DepositRequest",
-        name: "curDetails",
+        name: "details",
         type: "tuple",
       },
     ],
@@ -107,7 +107,7 @@ const _abi = [
     inputs: [
       {
         internalType: "uint32",
-        name: "curId",
+        name: "id",
         type: "uint32",
       },
       {
@@ -117,22 +117,22 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "curBeneficiaryAddress",
+        name: "beneficiaryAddress",
         type: "address",
       },
       {
         internalType: "uint32",
-        name: "curBeneficiaryEndowId",
+        name: "beneficiaryEndowId",
         type: "uint32",
       },
       {
         internalType: "address",
-        name: "curTokenAddress",
+        name: "tokenAddress",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "curAmount",
+        name: "amount",
         type: "uint256",
       },
     ],

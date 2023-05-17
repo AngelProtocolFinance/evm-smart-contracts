@@ -14,7 +14,7 @@ const _abi = [
     inputs: [
       {
         internalType: "uint32",
-        name: "curId",
+        name: "id",
         type: "uint32",
       },
       {
@@ -48,7 +48,7 @@ const _abi = [
           },
         ],
         internalType: "struct AngelCoreStruct.Beneficiary",
-        name: "curBeneficiary",
+        name: "beneficiary",
         type: "tuple",
       },
     ],
@@ -384,8 +384,8 @@ const _abi = [
                       {
                         components: [
                           {
-                            internalType: "enum AngelCoreStruct.CurveTypeEnum",
-                            name: "curve_type",
+                            internalType: "enum AngelCoreStruct.veTypeEnum",
+                            name: "ve_type",
                             type: "uint8",
                           },
                           {
@@ -411,44 +411,43 @@ const _abi = [
                                 type: "uint128",
                               },
                             ],
-                            internalType:
-                              "struct AngelCoreStruct.CurveTypeData",
+                            internalType: "struct AngelCoreStruct.veTypeData",
                             name: "data",
                             type: "tuple",
                           },
                         ],
-                        internalType: "struct AngelCoreStruct.CurveType",
-                        name: "bondingCurveCurveType",
+                        internalType: "struct AngelCoreStruct.veType",
+                        name: "bondingveveType",
                         type: "tuple",
                       },
                       {
                         internalType: "string",
-                        name: "bondingCurveName",
+                        name: "bondingveName",
                         type: "string",
                       },
                       {
                         internalType: "string",
-                        name: "bondingCurveSymbol",
+                        name: "bondingveSymbol",
                         type: "string",
                       },
                       {
                         internalType: "uint256",
-                        name: "bondingCurveDecimals",
+                        name: "bondingveDecimals",
                         type: "uint256",
                       },
                       {
                         internalType: "address",
-                        name: "bondingCurveReserveDenom",
+                        name: "bondingveReserveDenom",
                         type: "address",
                       },
                       {
                         internalType: "uint256",
-                        name: "bondingCurveReserveDecimals",
+                        name: "bondingveReserveDecimals",
                         type: "uint256",
                       },
                       {
                         internalType: "uint256",
-                        name: "bondingCurveUnbondingPeriod",
+                        name: "bondingveUnbondingPeriod",
                         type: "uint256",
                       },
                     ],
@@ -765,7 +764,7 @@ const _abi = [
           },
         ],
         internalType: "struct AccountMessages.CreateEndowmentRequest",
-        name: "curDetails",
+        name: "details",
         type: "tuple",
       },
     ],
@@ -806,17 +805,17 @@ const _abi = [
           },
         ],
         internalType: "struct AccountMessages.DepositRequest",
-        name: "curDetails",
+        name: "details",
         type: "tuple",
       },
       {
         internalType: "address",
-        name: "curTokenaddress",
+        name: "tokenaddress",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "curAmount",
+        name: "amount",
         type: "uint256",
       },
     ],
@@ -890,7 +889,7 @@ const _abi = [
     inputs: [
       {
         internalType: "uint32",
-        name: "curId",
+        name: "id",
         type: "uint32",
       },
     ],
@@ -1457,7 +1456,7 @@ const _abi = [
     inputs: [
       {
         internalType: "uint32",
-        name: "curId",
+        name: "id",
         type: "uint32",
       },
     ],
@@ -1534,7 +1533,7 @@ const _abi = [
     inputs: [
       {
         internalType: "uint32",
-        name: "curId",
+        name: "id",
         type: "uint32",
       },
       {
@@ -1544,17 +1543,17 @@ const _abi = [
       },
       {
         internalType: "uint128",
-        name: "curAmount",
+        name: "amount",
         type: "uint128",
       },
       {
         internalType: "address",
-        name: "curTokenin",
+        name: "tokenin",
         type: "address",
       },
       {
         internalType: "address",
-        name: "curTokenout",
+        name: "tokenout",
         type: "address",
       },
     ],
@@ -1717,7 +1716,7 @@ const _abi = [
           },
         ],
         internalType: "struct AccountMessages.UpdateEndowmentDetailsRequest",
-        name: "curDetails",
+        name: "details",
         type: "tuple",
       },
     ],
@@ -1796,22 +1795,22 @@ const _abi = [
     inputs: [
       {
         internalType: "uint32",
-        name: "curId",
+        name: "id",
         type: "uint32",
       },
       {
         internalType: "enum AngelCoreStruct.AccountType",
-        name: "curAccountType",
+        name: "accountType",
         type: "uint8",
       },
       {
         internalType: "address[]",
-        name: "curTokens",
+        name: "tokens",
         type: "address[]",
       },
       {
         internalType: "uint256[]",
-        name: "curAmount",
+        name: "amount",
         type: "uint256[]",
       },
     ],

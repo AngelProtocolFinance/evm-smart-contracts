@@ -35,7 +35,7 @@ const _abi = [
     outputs: [
       {
         internalType: "address",
-        name: "curOwner",
+        name: "owner",
         type: "address",
       },
     ],
@@ -46,7 +46,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "curNewowner",
+        name: "newowner",
         type: "address",
       },
     ],

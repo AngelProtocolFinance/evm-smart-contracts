@@ -136,15 +136,15 @@ export interface SwapRouter extends BaseContract {
 
   functions: {
     executeSwapOperations(
-      curTokenIn: PromiseOrValue<string>,
-      curTokenOut: PromiseOrValue<string>,
-      curAmountIn: PromiseOrValue<BigNumberish>,
-      curAmountOut: PromiseOrValue<BigNumberish>,
+      tokenIn: PromiseOrValue<string>,
+      tokenOut: PromiseOrValue<string>,
+      amountIn: PromiseOrValue<BigNumberish>,
+      amountOut: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     intiSwapRouter(
-      curDetails: SwapRouterMessages.InstantiateMsgStruct,
+      details: SwapRouterMessages.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -158,22 +158,22 @@ export interface SwapRouter extends BaseContract {
     ): Promise<ContractTransaction>;
 
     swapTokenToUsdc(
-      curTokena: PromiseOrValue<string>,
-      curAmountin: PromiseOrValue<BigNumberish>,
+      tokena: PromiseOrValue<string>,
+      amountin: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
   executeSwapOperations(
-    curTokenIn: PromiseOrValue<string>,
-    curTokenOut: PromiseOrValue<string>,
-    curAmountIn: PromiseOrValue<BigNumberish>,
-    curAmountOut: PromiseOrValue<BigNumberish>,
+    tokenIn: PromiseOrValue<string>,
+    tokenOut: PromiseOrValue<string>,
+    amountIn: PromiseOrValue<BigNumberish>,
+    amountOut: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   intiSwapRouter(
-    curDetails: SwapRouterMessages.InstantiateMsgStruct,
+    details: SwapRouterMessages.InstantiateMsgStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -187,22 +187,22 @@ export interface SwapRouter extends BaseContract {
   ): Promise<ContractTransaction>;
 
   swapTokenToUsdc(
-    curTokena: PromiseOrValue<string>,
-    curAmountin: PromiseOrValue<BigNumberish>,
+    tokena: PromiseOrValue<string>,
+    amountin: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     executeSwapOperations(
-      curTokenIn: PromiseOrValue<string>,
-      curTokenOut: PromiseOrValue<string>,
-      curAmountIn: PromiseOrValue<BigNumberish>,
-      curAmountOut: PromiseOrValue<BigNumberish>,
+      tokenIn: PromiseOrValue<string>,
+      tokenOut: PromiseOrValue<string>,
+      amountIn: PromiseOrValue<BigNumberish>,
+      amountOut: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     intiSwapRouter(
-      curDetails: SwapRouterMessages.InstantiateMsgStruct,
+      details: SwapRouterMessages.InstantiateMsgStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -214,8 +214,8 @@ export interface SwapRouter extends BaseContract {
     swapEthToToken(overrides?: CallOverrides): Promise<BigNumber>;
 
     swapTokenToUsdc(
-      curTokena: PromiseOrValue<string>,
-      curAmountin: PromiseOrValue<BigNumberish>,
+      tokena: PromiseOrValue<string>,
+      amountin: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -224,15 +224,15 @@ export interface SwapRouter extends BaseContract {
 
   estimateGas: {
     executeSwapOperations(
-      curTokenIn: PromiseOrValue<string>,
-      curTokenOut: PromiseOrValue<string>,
-      curAmountIn: PromiseOrValue<BigNumberish>,
-      curAmountOut: PromiseOrValue<BigNumberish>,
+      tokenIn: PromiseOrValue<string>,
+      tokenOut: PromiseOrValue<string>,
+      amountIn: PromiseOrValue<BigNumberish>,
+      amountOut: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     intiSwapRouter(
-      curDetails: SwapRouterMessages.InstantiateMsgStruct,
+      details: SwapRouterMessages.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -246,23 +246,23 @@ export interface SwapRouter extends BaseContract {
     ): Promise<BigNumber>;
 
     swapTokenToUsdc(
-      curTokena: PromiseOrValue<string>,
-      curAmountin: PromiseOrValue<BigNumberish>,
+      tokena: PromiseOrValue<string>,
+      amountin: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     executeSwapOperations(
-      curTokenIn: PromiseOrValue<string>,
-      curTokenOut: PromiseOrValue<string>,
-      curAmountIn: PromiseOrValue<BigNumberish>,
-      curAmountOut: PromiseOrValue<BigNumberish>,
+      tokenIn: PromiseOrValue<string>,
+      tokenOut: PromiseOrValue<string>,
+      amountIn: PromiseOrValue<BigNumberish>,
+      amountOut: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     intiSwapRouter(
-      curDetails: SwapRouterMessages.InstantiateMsgStruct,
+      details: SwapRouterMessages.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -276,8 +276,8 @@ export interface SwapRouter extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     swapTokenToUsdc(
-      curTokena: PromiseOrValue<string>,
-      curAmountin: PromiseOrValue<BigNumberish>,
+      tokena: PromiseOrValue<string>,
+      amountin: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

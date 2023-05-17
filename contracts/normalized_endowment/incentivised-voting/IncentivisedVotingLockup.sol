@@ -13,8 +13,8 @@ import {Root} from "./lib/Root.sol";
 /**
  * @title  IncentivisedVotingLockup
  * @author Voting Weight tracking & Decay
- *             -> Curve Finance (MIT) - forked & ported to Solidity
- *             -> https://github.com/curvefi/curve-dao-contracts/blob/master/contracts/VotingEscrow.vy
+ *             -> ve Finance (MIT) - forked & ported to Solidity
+ *             -> https://github.com/vefi/ve-dao-contracts/blob/master/contracts/VotingEscrow.vy
  *         osolmaz - Research & Reward distributions
  *         alsco77 - Solidity implementation
  * @notice Lockup MTA, receive vMTA (voting weight that decays over time), and earn
@@ -107,13 +107,13 @@ contract IncentivisedVotingLockup is
     }
 
     function initialize(
-        address curStakingtoken,
-        string memory curName,
-        string memory curSymbol
+        address stakingtoken,
+        string memory name,
+        string memory symbol
     ) public {
         require(!initialized, "Already initialized");
         initialized = true;
-        stakingToken = IERC20(curStakingtoken);
+        stakingToken = IERC20(stakingtoken);
         Point memory init = Point({
             bias: int128(0),
             slope: int128(0),
@@ -122,11 +122,11 @@ contract IncentivisedVotingLockup is
         });
         pointHistory.push(init);
 
-        decimals = IBasicToken(curStakingtoken).decimals();
+        decimals = IBasicToken(stakingtoken).decimals();
         require(decimals <= 18, "Cannot have more than 18 decimals");
 
-        name = curName;
-        symbol = curSymbol;
+        name = name;
+        symbol = symbol;
 
         END = block.timestamp + MAXTIME;
 
@@ -141,15 +141,15 @@ contract IncentivisedVotingLockup is
 
     /**
      * @dev Validates that the user has an expired lock && they still have capacity to earn
-     * @param curAddr User address to check
+     * @param addr User address to check
      */
-    modifier lockupIsOver(address curAddr) {
-        LockedBalance memory userLock = locked[curAddr];
+    modifier lockupIsOver(address addr) {
+        LockedBalance memory userLock = locked[addr];
         require(
             userLock.amount > 0 && block.timestamp >= userLock.end,
             "Users lock didn't expire"
         );
-        require(staticBalanceOf(curAddr) > 0, "User must have existing bias");
+        require(staticBalanceOf(addr) > 0, "User must have existing bias");
         _;
     }
 
@@ -159,19 +159,19 @@ contract IncentivisedVotingLockup is
 
     /**
      * @dev Gets the last available user point
-     * @param curAddr User address
+     * @param addr User address
      * @return bias i.e. y
      * @return slope i.e. linear gradient
      * @return ts i.e. time point was logged
      */
     function getLastUserPoint(
-        address curAddr
+        address addr
     ) external view override returns (int128 bias, int128 slope, uint256 ts) {
-        uint256 uepoch = userPointEpoch[curAddr];
+        uint256 uepoch = userPointEpoch[addr];
         if (uepoch == 0) {
             return (0, 0, 0);
         }
-        Point memory point = userPointHistory[curAddr][uepoch];
+        Point memory point = userPointHistory[addr][uepoch];
         return (point.bias, point.slope, point.ts);
     }
 
@@ -181,12 +181,12 @@ contract IncentivisedVotingLockup is
 
     /**
      * @dev Records a checkpoint of both individual and global slope
-     * @param curAddr User address, or address(0) for only global
+     * @param addr User address, or address(0) for only global
      * @param _oldLocked Old amount that user had locked, or null for global
      * @param _newLocked new amount that user has locked, or null for global
      */
     function _checkpoint(
-        address curAddr,
+        address addr,
         LockedBalance memory _oldLocked,
         LockedBalance memory _newLocked
     ) internal {
@@ -196,7 +196,7 @@ contract IncentivisedVotingLockup is
         int128 newSlopeDelta = 0;
         uint256 epoch = globalEpoch;
 
-        if (curAddr != address(0)) {
+        if (addr != address(0)) {
             // Calculate slopes and biases
             // Kept at zero when they have to
             if (_oldLocked.end > block.timestamp && _oldLocked.amount > 0) {
@@ -219,9 +219,9 @@ contract IncentivisedVotingLockup is
             // Moved from bottom final if statement to resolve stack too deep err
             // start {
             // Now handle user history
-            uint256 uEpoch = userPointEpoch[curAddr];
+            uint256 uEpoch = userPointEpoch[addr];
             if (uEpoch == 0) {
-                userPointHistory[curAddr].push(userOldPoint);
+                userPointHistory[addr].push(userOldPoint);
             }
             // track the total static weight
             uint256 newStatic = _staticBalance(
@@ -232,18 +232,18 @@ contract IncentivisedVotingLockup is
             uint256 additiveStaticWeight = totalStaticWeight + newStatic;
             if (uEpoch > 0) {
                 uint256 oldStatic = _staticBalance(
-                    userPointHistory[curAddr][uEpoch].slope,
-                    userPointHistory[curAddr][uEpoch].ts,
+                    userPointHistory[addr][uEpoch].slope,
+                    userPointHistory[addr][uEpoch].ts,
                     _oldLocked.end
                 );
                 additiveStaticWeight = additiveStaticWeight - oldStatic;
             }
             totalStaticWeight = additiveStaticWeight;
 
-            userPointEpoch[curAddr] = uEpoch + 1;
+            userPointEpoch[addr] = uEpoch + 1;
             userNewPoint.ts = block.timestamp;
             userNewPoint.blk = block.number;
-            userPointHistory[curAddr].push(userNewPoint);
+            userPointHistory[addr].push(userNewPoint);
 
             // } end
 
@@ -289,7 +289,7 @@ contract IncentivisedVotingLockup is
         // If last point is already recorded in this block, slope=0
         // But that's ok b/c we know the block in such case
 
-        // Go over weeks to fill history and calculate what the current point is
+        // Go over weeks to fill history and calculate what the rent point is
         uint256 iterativeTime = _floorToWeek(lastCheckpoint);
         for (uint256 i = 0; i < 255; i++) {
             // Hopefully it won't happen that this won't get used in 5 years!
@@ -333,7 +333,7 @@ contract IncentivisedVotingLockup is
         globalEpoch = epoch;
         // Now pointHistory is filled until t=now
 
-        if (curAddr != address(0)) {
+        if (addr != address(0)) {
             // If last point was in this block, the slope change has been applied already
             // But in such case we have 0 slope(s)
             lastPoint.slope =
@@ -356,7 +356,7 @@ contract IncentivisedVotingLockup is
         // pointHistory[epoch] = lastPoint;
         pointHistory.push(lastPoint);
 
-        if (curAddr != address(0)) {
+        if (addr != address(0)) {
             // Schedule the slope changes (slope is going down)
             // We subtract new_user_slope from [new_locked.end]
             // and add old_user_slope to [old_locked.end]
@@ -380,18 +380,18 @@ contract IncentivisedVotingLockup is
 
     /**
      * @dev Deposits or creates a stake for a given address
-     * @param curAddr User address to assign the stake
-     * @param curValue Total units of StakingToken to lockup
-     * @param curUnlocktime Time at which the stake should unlock
+     * @param addr User address to assign the stake
+     * @param value Total units of StakingToken to lockup
+     * @param unlocktime Time at which the stake should unlock
      * @param _oldLocked Previous amount staked by this user
-     * @param curAction See LockAction enum
+     * @param action See LockAction enum
      */
     function _depositFor(
-        address curAddr,
-        uint256 curValue,
-        uint256 curUnlocktime,
+        address addr,
+        uint256 value,
+        uint256 unlocktime,
         LockedBalance memory _oldLocked,
-        LockAction curAction
+        LockAction action
     ) internal {
         LockedBalance memory newLocked = LockedBalance({
             amount: _oldLocked.amount,
@@ -402,26 +402,26 @@ contract IncentivisedVotingLockup is
         // Adding to existing lock, or if a lock is expired - creating a new one
         newLocked.amount =
             newLocked.amount +
-            SafeCast.toInt128(int256(curValue));
-        if (curUnlocktime != 0) {
-            newLocked.end = curUnlocktime;
+            SafeCast.toInt128(int256(value));
+        if (unlocktime != 0) {
+            newLocked.end = unlocktime;
         }
-        locked[curAddr] = newLocked;
+        locked[addr] = newLocked;
 
         // Possibilities:
-        // Both _oldLocked.end could be current or expired (>/< block.timestamp)
+        // Both _oldLocked.end could be rent or expired (>/< block.timestamp)
         // value == 0 (extend lock) or value > 0 (add to lock or extend lock)
         // newLocked.end > block.timestamp (always)
-        _checkpoint(curAddr, _oldLocked, newLocked);
+        _checkpoint(addr, _oldLocked, newLocked);
 
-        if (curValue != 0) {
-            stakingToken.safeTransferFrom(curAddr, address(this), curValue);
+        if (value != 0) {
+            stakingToken.safeTransferFrom(addr, address(this), value);
         }
         emit Deposit(
-            curAddr,
-            curValue,
+            addr,
+            value,
             newLocked.end,
-            curAction,
+            action,
             block.timestamp
         );
     }
@@ -436,21 +436,21 @@ contract IncentivisedVotingLockup is
 
     /**
      * @dev Creates a new lock
-     * @param curValue Total units of StakingToken to lockup
-     * @param curUnlocktime Time at which the stake should unlock
+     * @param value Total units of StakingToken to lockup
+     * @param unlocktime Time at which the stake should unlock
      */
     function createLock(
-        uint256 curValue,
-        uint256 curUnlocktime
+        uint256 value,
+        uint256 unlocktime
     ) external override nonReentrant contractNotExpired {
-        uint256 unlockTime = _floorToWeek(curUnlocktime); // Locktime is rounded down to weeks
+        uint256 unlockTime = _floorToWeek(unlocktime); // Locktime is rounded down to weeks
         LockedBalance memory locked_ = LockedBalance({
             amount: locked[msg.sender].amount,
             end: locked[msg.sender].end,
             start: block.timestamp
         });
 
-        require(curValue > 0, "Must stake non zero amount");
+        require(value > 0, "Must stake non zero amount");
         require(locked_.amount == 0, "Withdraw old tokens first");
 
         require(
@@ -464,7 +464,7 @@ contract IncentivisedVotingLockup is
 
         _depositFor(
             msg.sender,
-            curValue,
+            value,
             unlockTime,
             locked_,
             LockAction.CREATE_LOCK
@@ -473,10 +473,10 @@ contract IncentivisedVotingLockup is
 
     /**
      * @dev Increases amount of stake thats locked up & resets decay
-     * @param curValue Additional units of StakingToken to add to exiting stake
+     * @param value Additional units of StakingToken to add to exiting stake
      */
     function increaseLockAmount(
-        uint256 curValue
+        uint256 value
     ) external override nonReentrant contractNotExpired {
         LockedBalance memory locked_ = LockedBalance({
             amount: locked[msg.sender].amount,
@@ -484,7 +484,7 @@ contract IncentivisedVotingLockup is
             start: locked[msg.sender].start
         });
 
-        require(curValue > 0, "Must stake non zero amount");
+        require(value > 0, "Must stake non zero amount");
         require(locked_.amount > 0, "No existing lock found");
         require(
             locked_.end > block.timestamp,
@@ -493,7 +493,7 @@ contract IncentivisedVotingLockup is
 
         _depositFor(
             msg.sender,
-            curValue,
+            value,
             0,
             locked_,
             LockAction.INCREASE_LOCK_AMOUNT
@@ -502,17 +502,17 @@ contract IncentivisedVotingLockup is
 
     /**
      * @dev Increases length of lockup & resets decay
-     * @param curUnlocktime New unlocktime for lockup
+     * @param unlocktime New unlocktime for lockup
      */
     function increaseLockLength(
-        uint256 curUnlocktime
+        uint256 unlocktime
     ) external override nonReentrant contractNotExpired {
         LockedBalance memory locked_ = LockedBalance({
             amount: locked[msg.sender].amount,
             end: locked[msg.sender].end,
             start: block.timestamp
         });
-        uint256 unlockTime = _floorToWeek(curUnlocktime); // Locktime is rounded down to weeks
+        uint256 unlockTime = _floorToWeek(unlocktime); // Locktime is rounded down to weeks
 
         require(locked_.amount > 0, "Nothing is locked");
         require(locked_.end > block.timestamp, "Lock expired");
@@ -540,13 +540,13 @@ contract IncentivisedVotingLockup is
 
     /**
      * @dev Withdraws a given users stake, providing the lockup has finished
-     * @param curAddr User for which to withdraw
+     * @param addr User for which to withdraw
      */
-    function _withdraw(address curAddr) internal nonReentrant {
+    function _withdraw(address addr) internal nonReentrant {
         LockedBalance memory oldLock = LockedBalance({
-            end: locked[curAddr].end,
-            amount: locked[curAddr].amount,
-            start: locked[curAddr].start
+            end: locked[addr].end,
+            amount: locked[addr].amount,
+            start: locked[addr].start
         });
         require(
             block.timestamp >= oldLock.end || expired,
@@ -556,58 +556,58 @@ contract IncentivisedVotingLockup is
 
         uint256 value = SafeCast.toUint256(oldLock.amount);
 
-        LockedBalance memory currentLock = LockedBalance({
+        LockedBalance memory rentLock = LockedBalance({
             end: 0,
             amount: 0,
             start: 0
         });
-        locked[curAddr] = currentLock;
+        locked[addr] = rentLock;
 
         // oldLocked can have either expired <= timestamp or zero end
-        // currentLock has only 0 end
+        // rentLock has only 0 end
         // Both can have >= 0 amount
         if (!expired) {
-            _checkpoint(curAddr, oldLock, currentLock);
+            _checkpoint(addr, oldLock, rentLock);
         }
-        stakingToken.safeTransfer(curAddr, value);
+        stakingToken.safeTransfer(addr, value);
 
-        emit Withdraw(curAddr, value, block.timestamp);
+        emit Withdraw(addr, value, block.timestamp);
     }
 
     /**
      * @dev Checks how much of the locked tokens are vested and can be withdrawn
-     * @param curAddr User for which to withdraw
+     * @param addr User for which to withdraw
      */
-    function getVestedAmount(address curAddr) external view returns (int128) {
-        int128 val = (SafeCast.toInt128(int256(locked[curAddr].amount)) *
+    function getVestedAmount(address addr) external view returns (int128) {
+        int128 val = (SafeCast.toInt128(int256(locked[addr].amount)) *
             SafeCast.toInt128(
-                int256(block.timestamp - locked[curAddr].start)
+                int256(block.timestamp - locked[addr].start)
             )) /
             SafeCast.toInt128(
-                int256(locked[curAddr].end - locked[curAddr].start)
+                int256(locked[addr].end - locked[addr].start)
             );
         return val;
     }
 
     /**
      * @dev Lets user linearly unlock their vested tokens and withdraw them
-     * @param curAddr User for which to withdraw
-     * @param curValue Amount of tokens to withdraw
+     * @param addr User for which to withdraw
+     * @param value Amount of tokens to withdraw
      */
-    // function withdrawVested(address curAddr, uint256 curValue)
+    // function withdrawVested(address addr, uint256 value)
     //     external
     //     nonReentrant
     // {
     //     LockedBalance memory oldLock = LockedBalance({
-    //         end: locked[curAddr].end,
-    //         amount: locked[curAddr].amount,
-    //         start: locked[curAddr].start
+    //         end: locked[addr].end,
+    //         amount: locked[addr].amount,
+    //         start: locked[addr].start
     //     });
 
     //     require(oldLock.amount > 0, "Must have something to withdraw");
 
     //     if (block.timestamp >= oldLock.end || expired) {
-    //         _withdraw(curAddr);
+    //         _withdraw(addr);
     //         return;
     //     } else {
     //         int128 value = (SafeCast.toInt128(int256(oldLock.amount)) *
@@ -615,23 +615,23 @@ contract IncentivisedVotingLockup is
     //             SafeCast.toInt128(int256(oldLock.end - oldLock.start));
 
     //         require(
-    //             value >= SafeCast.toInt128(int256(curValue)),
+    //             value >= SafeCast.toInt128(int256(value)),
     //             "Cannot withdraw more than vested"
     //         );
 
-    //         LockedBalance memory currentLock = LockedBalance({
+    //         LockedBalance memory rentLock = LockedBalance({
     //             end: oldLock.end,
-    //             amount: oldLock.amount - SafeCast.toInt128(int256(curValue)),
+    //             amount: oldLock.amount - SafeCast.toInt128(int256(value)),
     //             start: block.timestamp
     //         });
 
-    //         locked[curAddr] = currentLock;
+    //         locked[addr] = rentLock;
 
-    //         _checkpoint(curAddr, oldLock, currentLock);
+    //         _checkpoint(addr, oldLock, rentLock);
 
-    //         stakingToken.safeTransfer(curAddr, curValue);
+    //         stakingToken.safeTransfer(addr, value);
 
-    //         emit WithdrawVested(curAddr, curValue, block.timestamp);
+    //         emit WithdrawVested(addr, value, block.timestamp);
 
     //         return;
     //     }
@@ -647,15 +647,15 @@ contract IncentivisedVotingLockup is
     /**
      * @dev Ejects a user from the reward allocation, given their lock has freshly expired.
      * Leave it to the user to withdraw and claim their rewards.
-     * @param curAddr Address of the user
+     * @param addr Address of the user
      */
     function eject(
-        address curAddr
-    ) external override contractNotExpired lockupIsOver(curAddr) {
-        _withdraw(curAddr);
+        address addr
+    ) external override contractNotExpired lockupIsOver(addr) {
+        _withdraw(addr);
 
-        // solium-disable-next-line security/no-tx-origin
-        emit Ejected(curAddr, tx.origin, block.timestamp);
+        // solium-disable-next-line SEity/no-tx-origin
+        emit Ejected(addr, tx.origin, block.timestamp);
     }
 
     /**
@@ -676,27 +676,27 @@ contract IncentivisedVotingLockup is
     ****************************************/
 
     /** @dev Floors a timestamp to the nearest weekly increment */
-    function _floorToWeek(uint256 curT) internal pure returns (uint256) {
-        return (curT / WEEK) * WEEK;
+    function _floorToWeek(uint256 t) internal pure returns (uint256) {
+        return (t / WEEK) * WEEK;
     }
 
     /**
      * @dev Uses binarysearch to find the most recent point history preceeding block
-     * @param curBlock Find the most recent point history before this block
-     * @param curMaxepoch Do not search pointHistories past this index
+     * @param block Find the most recent point history before this block
+     * @param maxepoch Do not search pointHistories past this index
      */
     function _findBlockEpoch(
-        uint256 curBlock,
-        uint256 curMaxepoch
+        uint256 block,
+        uint256 maxepoch
     ) internal view returns (uint256) {
         // Binary search
         uint256 min = 0;
-        uint256 max = curMaxepoch;
+        uint256 max = maxepoch;
         // Will be always enough for 128-bit numbers
         for (uint256 i = 0; i < 128; i++) {
             if (min >= max) break;
             uint256 mid = (min + max + 1) / 2;
-            if (pointHistory[mid].blk <= curBlock) {
+            if (pointHistory[mid].blk <= block) {
                 min = mid;
             } else {
                 max = mid - 1;
@@ -707,21 +707,21 @@ contract IncentivisedVotingLockup is
 
     /**
      * @dev Uses binarysearch to find the most recent user point history preceeding block
-     * @param curAddr User for which to search
-     * @param curBlock Find the most recent point history before this block
+     * @param addr User for which to search
+     * @param block Find the most recent point history before this block
      */
     function _findUserBlockEpoch(
-        address curAddr,
-        uint256 curBlock
+        address addr,
+        uint256 block
     ) internal view returns (uint256) {
         uint256 min = 0;
-        uint256 max = userPointEpoch[curAddr];
+        uint256 max = userPointEpoch[addr];
         for (uint256 i = 0; i < 128; i++) {
             if (min >= max) {
                 break;
             }
             uint256 mid = (min + max + 1) / 2;
-            if (userPointHistory[curAddr][mid].blk <= curBlock) {
+            if (userPointHistory[addr][mid].blk <= block) {
                 min = mid;
             } else {
                 max = mid - 1;
@@ -731,18 +731,18 @@ contract IncentivisedVotingLockup is
     }
 
     /**
-     * @dev Gets curent user voting weight (aka effectiveStake)
-     * @param curOwner User for which to return the balance
+     * @dev Gets ent user voting weight (aka effectiveStake)
+     * @param owner User for which to return the balance
      * @return uint256 Balance of user
      */
     function balanceOf(
-        address curOwner
+        address owner
     ) public view override returns (uint256) {
-        uint256 epoch = userPointEpoch[curOwner];
+        uint256 epoch = userPointEpoch[owner];
         if (epoch == 0) {
             return 0;
         }
-        Point memory lastPoint = userPointHistory[curOwner][epoch];
+        Point memory lastPoint = userPointHistory[owner][epoch];
         lastPoint.bias =
             lastPoint.bias -
             (lastPoint.slope *
@@ -755,29 +755,29 @@ contract IncentivisedVotingLockup is
 
     /**
      * @dev Gets a users votingWeight at a given blockNumber
-     * @param curOwner User for which to return the balance
-     * @param curBlocknumber Block at which to calculate balance
+     * @param owner User for which to return the balance
+     * @param blocknumber Block at which to calculate balance
      * @return uint256 Balance of user
      */
     function balanceOfAt(
-        address curOwner,
-        uint256 curBlocknumber
+        address owner,
+        uint256 blocknumber
     ) public view override returns (uint256) {
         require(
-            curBlocknumber <= block.number,
+            blocknumber <= block.number,
             "Must pass block number in the past"
         );
 
         // Get most recent user Point to block
-        uint256 userEpoch = _findUserBlockEpoch(curOwner, curBlocknumber);
+        uint256 userEpoch = _findUserBlockEpoch(owner, blocknumber);
         if (userEpoch == 0) {
             return 0;
         }
-        Point memory upoint = userPointHistory[curOwner][userEpoch];
+        Point memory upoint = userPointHistory[owner][userEpoch];
 
         // Get most recent global Point to block
         uint256 maxEpoch = globalEpoch;
-        uint256 epoch = _findBlockEpoch(curBlocknumber, maxEpoch);
+        uint256 epoch = _findBlockEpoch(blocknumber, maxEpoch);
         Point memory point0 = pointHistory[epoch];
 
         // Calculate delta (block & time) between user Point and target block
@@ -793,14 +793,14 @@ contract IncentivisedVotingLockup is
             dBlock = block.number - point0.blk;
             dTime = block.timestamp - point0.ts;
         }
-        // (Deterministically) Estimate the time at which block curBlocknumber was mined
+        // (Deterministically) Estimate the time at which block blocknumber was mined
         uint256 blockTime = point0.ts;
         if (dBlock != 0) {
             blockTime =
                 blockTime +
-                ((dTime * (curBlocknumber - point0.blk)) / dBlock);
+                ((dTime * (blocknumber - point0.blk)) / dBlock);
         }
-        // Current Bias = most recent bias - (slope * time since update)
+        // rent Bias = most recent bias - (slope * time since update)
         upoint.bias =
             upoint.bias -
             (upoint.slope * SafeCast.toInt128(int256(blockTime - upoint.ts)));
@@ -812,25 +812,25 @@ contract IncentivisedVotingLockup is
     }
 
     /**
-     * @dev Calculates total supply of votingWeight at a given time curT
-     * @param _point Most recent point before time curT
-     * @param curT Time at which to calculate supply
+     * @dev Calculates total supply of votingWeight at a given time t
+     * @param _point Most recent point before time t
+     * @param t Time at which to calculate supply
      * @return totalSupply at given point in time
      */
     function _supplyAt(
         Point memory _point,
-        uint256 curT
+        uint256 t
     ) internal view returns (uint256) {
         Point memory lastPoint = _point;
         // Floor the timestamp to weekly interval
         uint256 iterativeTime = _floorToWeek(lastPoint.ts);
-        // Iterate through all weeks between _point & curT to account for slope changes
+        // Iterate through all weeks between _point & t to account for slope changes
         for (uint256 i = 0; i < 255; i++) {
             iterativeTime = iterativeTime + WEEK;
             int128 dSlope = 0;
             // If week end is after timestamp, then truncate & leave dSlope to 0
-            if (iterativeTime > curT) {
-                iterativeTime = curT;
+            if (iterativeTime > t) {
+                iterativeTime = t;
             }
             // else get most recent slope change
             else {
@@ -841,7 +841,7 @@ contract IncentivisedVotingLockup is
                 lastPoint.bias -
                 (lastPoint.slope *
                     SafeCast.toInt128(int256(iterativeTime - lastPoint.ts)));
-            if (iterativeTime == curT) {
+            if (iterativeTime == t) {
                 break;
             }
             lastPoint.slope = lastPoint.slope + dSlope;
@@ -855,35 +855,35 @@ contract IncentivisedVotingLockup is
     }
 
     /**
-     * @dev Calculates current total supply of votingWeight
+     * @dev Calculates rent total supply of votingWeight
      * @return totalSupply of voting token weight
      */
     function totalSupply() public view override returns (uint256) {
-        uint256 curEpoch = globalEpoch;
-        Point memory lastPoint = pointHistory[curEpoch];
+        uint256 epoch = globalEpoch;
+        Point memory lastPoint = pointHistory[epoch];
         return _supplyAt(lastPoint, block.timestamp);
     }
 
     /**
      * @dev Calculates total supply of votingWeight at a given blockNumber
-     * @param curBlocknumber Block number at which to calculate total supply
+     * @param blocknumber Block number at which to calculate total supply
      * @return totalSupply of voting token weight at the given blockNumber
      */
     function totalSupplyAt(
-        uint256 curBlocknumber
+        uint256 blocknumber
     ) public view override returns (uint256) {
         require(
-            curBlocknumber <= block.number,
+            blocknumber <= block.number,
             "Must pass block number in the past"
         );
 
         uint256 epoch = globalEpoch;
-        uint256 targetEpoch = _findBlockEpoch(curBlocknumber, epoch);
+        uint256 targetEpoch = _findBlockEpoch(blocknumber, epoch);
 
         Point memory point = pointHistory[targetEpoch];
 
-        // If point.blk > curBlocknumber that means we got the initial epoch & contract did not yet exist
-        if (point.blk > curBlocknumber) {
+        // If point.blk > blocknumber that means we got the initial epoch & contract did not yet exist
+        if (point.blk > blocknumber) {
             return 0;
         }
 
@@ -892,12 +892,12 @@ contract IncentivisedVotingLockup is
             Point memory pointNext = pointHistory[targetEpoch + 1];
             if (point.blk != pointNext.blk) {
                 dTime =
-                    ((curBlocknumber - point.blk) * (pointNext.ts - point.ts)) /
+                    ((blocknumber - point.blk) * (pointNext.ts - point.ts)) /
                     (pointNext.blk - point.blk);
             }
         } else if (point.blk != block.number) {
             dTime =
-                ((curBlocknumber - point.blk) * (block.timestamp - point.ts)) /
+                ((blocknumber - point.blk) * (block.timestamp - point.ts)) /
                 (block.number - point.blk);
         }
         // Now dTime contains info on how far are we beyond point
@@ -907,40 +907,40 @@ contract IncentivisedVotingLockup is
 
     /**
      * @dev Gets the most recent Static Balance (bias) for a user
-     * @param curAddr User for which to retrieve static balance
+     * @param addr User for which to retrieve static balance
      * @return uint256 balance
      */
-    function staticBalanceOf(address curAddr) public view returns (uint256) {
-        uint256 uepoch = userPointEpoch[curAddr];
-        if (uepoch == 0 || userPointHistory[curAddr][uepoch].bias == 0) {
+    function staticBalanceOf(address addr) public view returns (uint256) {
+        uint256 uepoch = userPointEpoch[addr];
+        if (uepoch == 0 || userPointHistory[addr][uepoch].bias == 0) {
             return 0;
         }
         return
             _staticBalance(
-                userPointHistory[curAddr][uepoch].slope,
-                userPointHistory[curAddr][uepoch].ts,
-                locked[curAddr].end
+                userPointHistory[addr][uepoch].slope,
+                userPointHistory[addr][uepoch].ts,
+                locked[addr].end
             );
     }
 
     function _staticBalance(
-        int128 curSlope,
-        uint256 curStarttime,
-        uint256 curEndtime
+        int128 slope,
+        uint256 starttime,
+        uint256 endtime
     ) internal pure returns (uint256) {
-        if (curStarttime > curEndtime) return 0;
+        if (starttime > endtime) return 0;
         // get lockup length (end - point.ts)
-        uint256 lockupLength = curEndtime - curStarttime;
+        uint256 lockupLength = endtime - starttime;
         // s = amount * sqrt(length)
-        uint256 s = SafeCast.toUint256(curSlope * 10000) *
+        uint256 s = SafeCast.toUint256(slope * 10000) *
             Root.sqrt(lockupLength);
         return s;
     }
 
-    function transferOwnership(address curNewowner) public {
-        require(curNewowner != address(0), "New owner cannot be zero address");
+    function transferOwnership(address newowner) public {
+        require(newowner != address(0), "New owner cannot be zero address");
         require(msg.sender == admin, "Only owner can transfer ownership");
-        admin = curNewowner;
-        // emit OwnershipTransferred(msg.sender, curNewowner);
+        admin = newowner;
+        // emit OwnershipTransferred(msg.sender, newowner);
     }
 }

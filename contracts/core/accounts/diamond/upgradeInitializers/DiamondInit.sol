@@ -25,7 +25,7 @@ import {AccountStorage} from "./../../storage.sol";
 contract DiamondInit {
     // You can add parameters to this function in order to pass in
     // data to set your own state variables
-    function init(address curOwner, address curRegistrar) external {
+    function init(address owner, address registrar) external {
         // adding ERC165 data
         LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
         ds.supportedInterfaces[type(IERC165).interfaceId] = true;
@@ -35,22 +35,22 @@ contract DiamondInit {
 
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         require(
-            Validator.addressChecker(curOwner),
+            Validator.addressChecker(owner),
             "Enter a valid owner address"
         );
         require(
-            Validator.addressChecker(curRegistrar),
+            Validator.addressChecker(registrar),
             "Enter a valid registrar address"
         );
 
-        state.config.owner = curOwner;
-        state.config.registrarContract = curRegistrar;
+        state.config.owner = owner;
+        state.config.registrarContract = registrar;
         state.config.nextAccountId = 1;
         state.config.maxGeneralCategoryId = 1;
 
         // add your own state variables
         // EIP-2535 specifies that the `diamondCut` function takes two optional
-        // arguments: address curInit and bytes calldata curCalldata
+        // arguments: address init and bytes calldata calldata
         // These arguments are used to execute an arbitrary function using delegatecall
         // in order to set state variables in the diamond during deployment or an upgrade
         // More info here: https://eips.ethereum.org/EIPS/eip-2535#diamond-interface

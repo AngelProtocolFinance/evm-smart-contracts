@@ -9,11 +9,11 @@ interface IERC173 {
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
     /// @notice Get the address of the owner
-    /// @return curOwner The address of the owner.
-    function owner() external view returns (address curOwner);
+    /// @return owner The address of the owner.
+    function owner() external view returns (address owner);
 
     /// @notice Set the address of the new owner of the contract
-    /// @dev Set curNewowner to address(0) to renounce any ownership.
-    /// @param curNewowner The address of the new owner of the contract
-    function transferOwnership(address curNewowner) external;
+    /// @dev Set newowner to address(0) to renounce any ownership.
+    /// @param newowner The address of the new owner of the contract
+    function transferOwnership(address newowner) external;
 }

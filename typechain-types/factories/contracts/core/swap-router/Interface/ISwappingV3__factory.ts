@@ -14,22 +14,22 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "curTokenIn",
+        name: "tokenIn",
         type: "address",
       },
       {
         internalType: "address",
-        name: "curTokenOut",
+        name: "tokenOut",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "curAmountIn",
+        name: "amountIn",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "curAmountOut",
+        name: "amountOut",
         type: "uint256",
       },
     ],
@@ -80,12 +80,12 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "curTokena",
+        name: "tokena",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "curAmountin",
+        name: "amountin",
         type: "uint256",
       },
     ],

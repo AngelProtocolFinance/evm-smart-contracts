@@ -19,7 +19,7 @@ import "./storage.sol";
 
 interface IAccounts {
     function createEndowment(
-        AccountMessages.CreateEndowmentRequest memory curDetails
+        AccountMessages.CreateEndowmentRequest memory details
     ) external returns (bool response);
 
     function updateOwner(address newOwner) external returns (bool);
@@ -30,12 +30,12 @@ interface IAccounts {
     ) external returns (bool);
 
     function closeEndowment(
-        uint32 curId,
-        AngelCoreStruct.Beneficiary memory curBeneficiary
+        uint32 id,
+        AngelCoreStruct.Beneficiary memory beneficiary
     ) external returns (bool response);
 
     function updateEndowmentDetails(
-        AccountMessages.UpdateEndowmentDetailsRequest memory curDetails
+        AccountMessages.UpdateEndowmentDetailsRequest memory details
     ) external returns (bool);
 
     function updateDelegate(
@@ -60,11 +60,11 @@ interface IAccounts {
 
     //TODO: Complete This contract once swap-router is completed.
     function swapToken(
-        uint32 curId,
+        uint32 id,
         AngelCoreStruct.AccountType,
-        uint128 curAmount,
-        address curTokenin,
-        address curTokenout
+        uint128 amount,
+        address tokenin,
+        address tokenout
     ) external returns (bool);
 
     // function swapReceipt(){
@@ -85,16 +85,16 @@ interface IAccounts {
 
     function depositERC20(
         address senderAddr,
-        AccountMessages.DepositRequest memory curDetails,
-        address curTokenaddress,
-        uint256 curAmount
+        AccountMessages.DepositRequest memory details,
+        address tokenaddress,
+        uint256 amount
     ) external returns (bool);
 
     function vaultsInvest(
-        uint32 curId,
-        AngelCoreStruct.AccountType curAccountType,
-        address[] memory curTokens,
-        uint256[] memory curAmount
+        uint32 id,
+        AngelCoreStruct.AccountType accountType,
+        address[] memory tokens,
+        uint256[] memory amount
     ) external returns (bool);
 
     // function vaultsRedeem(){
@@ -139,12 +139,12 @@ interface IAccounts {
         view
         returns (AccountMessages.ConfigResponse memory);
 
-    function queryState(uint32 curId)
+    function queryState(uint32 id)
         external
         view
         returns (AccountMessages.StateResponse memory);
 
-    function queryEndowmentDetails(uint32 curId)
+    function queryEndowmentDetails(uint32 id)
         external
         view
         returns (AccountStorage.Endowment memory);

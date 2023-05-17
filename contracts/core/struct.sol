@@ -142,21 +142,21 @@ library AngelCoreStruct {
     }
 
     function checkTokenInOffVault(
-        string[] storage curAvailible,
+        string[] storage availible,
         uint256[] storage cerAvailibleAmount, 
-        string memory curToken
+        string memory token
     ) public {
         bool check = true;
-        for (uint8 j = 0; j < curAvailible.length; j++) {
+        for (uint8 j = 0; j < availible.length; j++) {
             if (
-                keccak256(abi.encodePacked(curAvailible[j])) ==
-                keccak256(abi.encodePacked(curToken))
+                keccak256(abi.encodePacked(availible[j])) ==
+                keccak256(abi.encodePacked(token))
             ) {
                 check = false;
             }
         }
         if (check) {
-            curAvailible.push(curToken);
+            availible.push(token);
             cerAvailibleAmount.push(0);
         }
     }
@@ -218,153 +218,153 @@ library AngelCoreStruct {
     }
 
     function addToken(
-        GenericBalance storage curTemp,
-        address curTokenAddress,
-        uint256 curAmount
+        GenericBalance storage temp,
+        address tokenAddress,
+        uint256 amount
     ) public {
-        curTemp.balancesByToken[curTokenAddress] += curAmount;
+        temp.balancesByToken[tokenAddress] += amount;
     }
 
     // function addTokenMem(
-    //     GenericBalance memory curTemp,
-    //     address curTokenaddress,
-    //     uint256 curAmount
+    //     GenericBalance memory temp,
+    //     address tokenaddress,
+    //     uint256 amount
     // ) public pure returns (GenericBalance memory) {
     //     bool notFound = true;
-    //     for (uint8 i = 0; i < curTemp.Cw20CoinVerified_addr.length; i++) {
-    //         if (curTemp.Cw20CoinVerified_addr[i] == curTokenaddress) {
+    //     for (uint8 i = 0; i < temp.Cw20CoinVerified_addr.length; i++) {
+    //         if (temp.Cw20CoinVerified_addr[i] == tokenaddress) {
     //             notFound = false;
-    //             curTemp.Cw20CoinVerified_amount[i] += curAmount;
+    //             temp.Cw20CoinVerified_amount[i] += amount;
     //         }
     //     }
     //     if (notFound) {
     //         GenericBalance memory new_temp = GenericBalance({
-    //             coinNativeAmount: curTemp.coinNativeAmount,
+    //             coinNativeAmount: temp.coinNativeAmount,
     //             Cw20CoinVerified_amount: new uint256[](
-    //                 curTemp.Cw20CoinVerified_amount.length + 1
+    //                 temp.Cw20CoinVerified_amount.length + 1
     //             ),
     //             Cw20CoinVerified_addr: new address[](
-    //                 curTemp.Cw20CoinVerified_addr.length + 1
+    //                 temp.Cw20CoinVerified_addr.length + 1
     //             )
     //         });
-    //         for (uint256 i = 0; i < curTemp.Cw20CoinVerified_addr.length; i++) {
-    //             new_temp.Cw20CoinVerified_addr[i] = curTemp
+    //         for (uint256 i = 0; i < temp.Cw20CoinVerified_addr.length; i++) {
+    //             new_temp.Cw20CoinVerified_addr[i] = temp
     //                 .Cw20CoinVerified_addr[i];
-    //             new_temp.Cw20CoinVerified_amount[i] = curTemp
+    //             new_temp.Cw20CoinVerified_amount[i] = temp
     //                 .Cw20CoinVerified_amount[i];
     //         }
     //         new_temp.Cw20CoinVerified_addr[
-    //             curTemp.Cw20CoinVerified_addr.length
-    //         ] = curTokenaddress;
+    //             temp.Cw20CoinVerified_addr.length
+    //         ] = tokenaddress;
     //         new_temp.Cw20CoinVerified_amount[
-    //             curTemp.Cw20CoinVerified_amount.length
-    //         ] = curAmount;
+    //             temp.Cw20CoinVerified_amount.length
+    //         ] = amount;
     //         return new_temp;
-    //     } else return curTemp;
+    //     } else return temp;
     // }
 
     function subToken(
-        GenericBalance storage curTemp,
-        address curTokenAddress,
-        uint256 curAmount
+        GenericBalance storage temp,
+        address tokenAddress,
+        uint256 amount
     ) public {
-        curTemp.balancesByToken[curTokenAddress] -= curAmount;
+        temp.balancesByToken[tokenAddress] -= amount;
     }
 
     // function subTokenMem(
-    //     GenericBalance memory curTemp,
-    //     address curTokenaddress,
-    //     uint256 curAmount
+    //     GenericBalance memory temp,
+    //     address tokenaddress,
+    //     uint256 amount
     // ) public pure returns (GenericBalance memory) {
-    //     for (uint8 i = 0; i < curTemp.Cw20CoinVerified_addr.length; i++) {
-    //         if (curTemp.Cw20CoinVerified_addr[i] == curTokenaddress) {
-    //             curTemp.Cw20CoinVerified_amount[i] -= curAmount;
+    //     for (uint8 i = 0; i < temp.Cw20CoinVerified_addr.length; i++) {
+    //         if (temp.Cw20CoinVerified_addr[i] == tokenaddress) {
+    //             temp.Cw20CoinVerified_amount[i] -= amount;
     //         }
     //     }
-    //     return curTemp;
+    //     return temp;
     // }
 
     // function splitBalance(
     //     uint256[] storage cw20Coin,
     //     uint256 splitFactor
     // ) public view returns (uint256[] memory) {
-    //     uint256[] memory curTemp = new uint256[](cw20Coin.length);
+    //     uint256[] memory temp = new uint256[](cw20Coin.length);
     //     for (uint8 i = 0; i < cw20Coin.length; i++) {
     //         uint256 result = SafeMath.div(cw20Coin[i], splitFactor);
-    //         curTemp[i] = result;
+    //         temp[i] = result;
     //     }
 
-    //     return curTemp;
+    //     return temp;
     // }
 
     function receiveGenericBalance(
-        address[] storage curReceiveaddr,
-        uint256[] storage curReceiveamount,
-        address[] storage curSenderaddr,
-        uint256[] storage curSenderamount
+        address[] storage receiveaddr,
+        uint256[] storage receiveamount,
+        address[] storage senderaddr,
+        uint256[] storage senderamount
     ) public {
-        uint256 a = curSenderaddr.length;
-        uint256 b = curReceiveaddr.length;
+        uint256 a = senderaddr.length;
+        uint256 b = receiveaddr.length;
 
         for (uint8 i = 0; i < a; i++) {
             bool flag = true;
             for (uint8 j = 0; j < b; j++) {
-                if (curSenderaddr[i] == curReceiveaddr[j]) {
+                if (senderaddr[i] == receiveaddr[j]) {
                     flag = false;
-                    curReceiveamount[j] += curSenderamount[i];
+                    receiveamount[j] += senderamount[i];
                 }
             }
 
             if (flag) {
-                curReceiveaddr.push(curSenderaddr[i]);
-                curReceiveamount.push(curSenderamount[i]);
+                receiveaddr.push(senderaddr[i]);
+                receiveamount.push(senderamount[i]);
             }
         }
     }
 
     function receiveGenericBalanceModified(
-        address[] storage curReceiveaddr,
-        uint256[] storage curReceiveamount,
-        address[] storage curSenderaddr,
-        uint256[] memory curSenderamount
+        address[] storage receiveaddr,
+        uint256[] storage receiveamount,
+        address[] storage senderaddr,
+        uint256[] memory senderamount
     ) public {
-        uint256 a = curSenderaddr.length;
-        uint256 b = curReceiveaddr.length;
+        uint256 a = senderaddr.length;
+        uint256 b = receiveaddr.length;
 
         for (uint8 i = 0; i < a; i++) {
             bool flag = true;
             for (uint8 j = 0; j < b; j++) {
-                if (curSenderaddr[i] == curReceiveaddr[j]) {
+                if (senderaddr[i] == receiveaddr[j]) {
                     flag = false;
-                    curReceiveamount[j] += curSenderamount[i];
+                    receiveamount[j] += senderamount[i];
                 }
             }
 
             if (flag) {
-                curReceiveaddr.push(curSenderaddr[i]);
-                curReceiveamount.push(curSenderamount[i]);
+                receiveaddr.push(senderaddr[i]);
+                receiveamount.push(senderamount[i]);
             }
         }
     }
 
     function deductTokens(
-        uint256 curAmount,
-        uint256 curDeductamount
+        uint256 amount,
+        uint256 deductamount
     ) public pure returns (uint256) {
-        require(curAmount > curDeductamount, "Insufficient Funds");
-        curAmount -= curDeductamount;
-        return curAmount;
+        require(amount > deductamount, "Insufficient Funds");
+        amount -= deductamount;
+        return amount;
     }
 
     function getTokenAmount(
-        address[] memory curAddress,
-        uint256[] memory curAmount,
-        address curTokenaddress
+        address[] memory addresses,
+        uint256[] memory amounts,
+        address token
     ) public pure returns (uint256) {
         uint256 amount = 0;
-        for (uint8 i = 0; i < curAddress.length; i++) {
-            if (curAddress[i] == curTokenaddress) {
-                amount = curAmount[i];
+        for (uint8 i = 0; i < addresses.length; i++) {
+            if (addresses[i] == token) {
+                amount = amounts[i];
             }
         }
 
@@ -432,12 +432,12 @@ library AngelCoreStruct {
     }
 
     function beneficiaryDefault() public pure returns (Beneficiary memory) {
-        Beneficiary memory curTemp = Beneficiary({
+        Beneficiary memory temp = Beneficiary({
             enumData: BeneficiaryEnum.None,
             data: BeneficiaryData({endowId: 0, fundId: 0, addr: address(0)})
         });
 
-        return curTemp;
+        return temp;
     }
 
     struct SocialMedialUrls {
@@ -612,43 +612,43 @@ library AngelCoreStruct {
         ExpirationData data;
     }
 
-    enum CurveTypeEnum {
+    enum veTypeEnum {
         Constant,
         Linear,
         SquarRoot
     }
 
     //TODO: remove if unused
-    // function getReserveRatio(CurveTypeEnum curCurveType)
+    // function getReserveRatio(veTypeEnum curveType)
     //     public
     //     pure
     //     returns (uint256)
     // {
-    //     if (curCurveType == CurveTypeEnum.Linear) {
+    //     if (curveType == veTypeEnum.Linear) {
     //         return 500000;
-    //     } else if (curCurveType == CurveTypeEnum.SquarRoot) {
+    //     } else if (curveType == veTypeEnum.SquarRoot) {
     //         return 660000;
     //     } else {
     //         return 1000000;
     //     }
     // }
 
-    struct CurveTypeData {
+    struct veTypeData {
         uint128 value;
         uint256 scale;
         uint128 slope;
         uint128 power;
     }
 
-    struct CurveType {
-        CurveTypeEnum curve_type;
-        CurveTypeData data;
+    struct veType {
+        veTypeEnum ve_type;
+        veTypeData data;
     }
 
     enum TokenType {
         ExistingCw20,
         NewCw20,
-        BondingCurve
+        Bondingve
     }
 
     struct DaoTokenData {
@@ -656,13 +656,13 @@ library AngelCoreStruct {
         uint256 newCw20InitialSupply;
         string newCw20Name;
         string newCw20Symbol;
-        CurveType bondingCurveCurveType;
-        string bondingCurveName;
-        string bondingCurveSymbol;
-        uint256 bondingCurveDecimals;
-        address bondingCurveReserveDenom;
-        uint256 bondingCurveReserveDecimals;
-        uint256 bondingCurveUnbondingPeriod;
+        veType bondingveveType;
+        string bondingveName;
+        string bondingveSymbol;
+        uint256 bondingveDecimals;
+        address bondingveReserveDenom;
+        uint256 bondingveReserveDecimals;
+        uint256 bondingveUnbondingPeriod;
     }
 
     struct DaoToken {

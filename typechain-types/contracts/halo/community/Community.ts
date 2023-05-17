@@ -179,7 +179,7 @@ export interface Community extends BaseContract {
 
   functions: {
     initialize(
-      curDetails: CommunityMessage.InstantiateMsgStruct,
+      details: CommunityMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -201,7 +201,7 @@ export interface Community extends BaseContract {
   };
 
   initialize(
-    curDetails: CommunityMessage.InstantiateMsgStruct,
+    details: CommunityMessage.InstantiateMsgStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -223,7 +223,7 @@ export interface Community extends BaseContract {
 
   callStatic: {
     initialize(
-      curDetails: CommunityMessage.InstantiateMsgStruct,
+      details: CommunityMessage.InstantiateMsgStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -262,7 +262,7 @@ export interface Community extends BaseContract {
 
   estimateGas: {
     initialize(
-      curDetails: CommunityMessage.InstantiateMsgStruct,
+      details: CommunityMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -283,7 +283,7 @@ export interface Community extends BaseContract {
 
   populateTransaction: {
     initialize(
-      curDetails: CommunityMessage.InstantiateMsgStruct,
+      details: CommunityMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

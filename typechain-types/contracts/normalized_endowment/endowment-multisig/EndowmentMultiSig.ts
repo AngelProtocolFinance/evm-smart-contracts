@@ -493,7 +493,7 @@ export interface EndowmentMultiSig extends BaseContract {
     ): Promise<ContractTransaction>;
 
     changeRequirement(
-      curRequired: PromiseOrValue<BigNumberish>,
+      required: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -521,7 +521,7 @@ export interface EndowmentMultiSig extends BaseContract {
     getConfirmations(
       transactionId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<[string[]] & { curConfirmations: string[] }>;
+    ): Promise<[string[]] & { ownerConfirmations: string[] }>;
 
     getOwners(overrides?: CallOverrides): Promise<[string[]]>;
 
@@ -537,14 +537,14 @@ export interface EndowmentMultiSig extends BaseContract {
       pending: PromiseOrValue<boolean>,
       executed: PromiseOrValue<boolean>,
       overrides?: CallOverrides
-    ): Promise<[BigNumber[]] & { curTransactionids: BigNumber[] }>;
+    ): Promise<[BigNumber[]] & { transactionIds: BigNumber[] }>;
 
     "initialize(uint256,address,address[],uint256,bool)"(
       endowmentId: PromiseOrValue<BigNumberish>,
-      curEmitter: PromiseOrValue<string>,
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
-      curRequireexecution: PromiseOrValue<boolean>,
+      emitter: PromiseOrValue<string>,
+      owners: PromiseOrValue<string>[],
+      required: PromiseOrValue<BigNumberish>,
+      requireexecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -635,7 +635,7 @@ export interface EndowmentMultiSig extends BaseContract {
   ): Promise<ContractTransaction>;
 
   changeRequirement(
-    curRequired: PromiseOrValue<BigNumberish>,
+    required: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -683,10 +683,10 @@ export interface EndowmentMultiSig extends BaseContract {
 
   "initialize(uint256,address,address[],uint256,bool)"(
     endowmentId: PromiseOrValue<BigNumberish>,
-    curEmitter: PromiseOrValue<string>,
-    curOwners: PromiseOrValue<string>[],
-    curRequired: PromiseOrValue<BigNumberish>,
-    curRequireexecution: PromiseOrValue<boolean>,
+    emitter: PromiseOrValue<string>,
+    owners: PromiseOrValue<string>[],
+    required: PromiseOrValue<BigNumberish>,
+    requireexecution: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -777,7 +777,7 @@ export interface EndowmentMultiSig extends BaseContract {
     ): Promise<void>;
 
     changeRequirement(
-      curRequired: PromiseOrValue<BigNumberish>,
+      required: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -825,10 +825,10 @@ export interface EndowmentMultiSig extends BaseContract {
 
     "initialize(uint256,address,address[],uint256,bool)"(
       endowmentId: PromiseOrValue<BigNumberish>,
-      curEmitter: PromiseOrValue<string>,
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
-      curRequireexecution: PromiseOrValue<boolean>,
+      emitter: PromiseOrValue<string>,
+      owners: PromiseOrValue<string>[],
+      required: PromiseOrValue<BigNumberish>,
+      requireexecution: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -992,7 +992,7 @@ export interface EndowmentMultiSig extends BaseContract {
     ): Promise<BigNumber>;
 
     changeRequirement(
-      curRequired: PromiseOrValue<BigNumberish>,
+      required: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1040,10 +1040,10 @@ export interface EndowmentMultiSig extends BaseContract {
 
     "initialize(uint256,address,address[],uint256,bool)"(
       endowmentId: PromiseOrValue<BigNumberish>,
-      curEmitter: PromiseOrValue<string>,
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
-      curRequireexecution: PromiseOrValue<boolean>,
+      emitter: PromiseOrValue<string>,
+      owners: PromiseOrValue<string>[],
+      required: PromiseOrValue<BigNumberish>,
+      requireexecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1125,7 +1125,7 @@ export interface EndowmentMultiSig extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     changeRequirement(
-      curRequired: PromiseOrValue<BigNumberish>,
+      required: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1173,10 +1173,10 @@ export interface EndowmentMultiSig extends BaseContract {
 
     "initialize(uint256,address,address[],uint256,bool)"(
       endowmentId: PromiseOrValue<BigNumberish>,
-      curEmitter: PromiseOrValue<string>,
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
-      curRequireexecution: PromiseOrValue<boolean>,
+      emitter: PromiseOrValue<string>,
+      owners: PromiseOrValue<string>[],
+      required: PromiseOrValue<BigNumberish>,
+      requireexecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

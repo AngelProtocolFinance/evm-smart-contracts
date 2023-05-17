@@ -231,7 +231,7 @@ export interface Collector extends BaseContract {
 
   functions: {
     initialize(
-      curDetails: CollectorMessage.InstantiateMsgStruct,
+      details: CollectorMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -253,7 +253,7 @@ export interface Collector extends BaseContract {
   };
 
   initialize(
-    curDetails: CollectorMessage.InstantiateMsgStruct,
+    details: CollectorMessage.InstantiateMsgStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -275,7 +275,7 @@ export interface Collector extends BaseContract {
 
   callStatic: {
     initialize(
-      curDetails: CollectorMessage.InstantiateMsgStruct,
+      details: CollectorMessage.InstantiateMsgStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -311,7 +311,7 @@ export interface Collector extends BaseContract {
 
   estimateGas: {
     initialize(
-      curDetails: CollectorMessage.InstantiateMsgStruct,
+      details: CollectorMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -332,7 +332,7 @@ export interface Collector extends BaseContract {
 
   populateTransaction: {
     initialize(
-      curDetails: CollectorMessage.InstantiateMsgStruct,
+      details: CollectorMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

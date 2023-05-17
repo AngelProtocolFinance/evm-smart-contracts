@@ -8,25 +8,25 @@ import {ILocalRegistrar} from "./ILocalRegistrar.sol";
 
 interface IRegistrar is ILocalRegistrar {
     function updateConfig(
-        RegistrarMessages.UpdateConfigRequest memory curDetails
+        RegistrarMessages.UpdateConfigRequest memory details
     ) external;
 
     function updateOwner(address newOwner) external;
 
     function updateFees(
-        RegistrarMessages.UpdateFeeRequest memory curDetails
+        RegistrarMessages.UpdateFeeRequest memory details
     ) external;
 
     function vaultAdd(
-        RegistrarMessages.VaultAddRequest memory curDetails
+        RegistrarMessages.VaultAddRequest memory details
     ) external;
 
     function vaultRemove(string memory _stratagyName) external;
 
     function vaultUpdate(
         string memory _stratagyName,
-        bool curApproved,
-        AngelCoreStruct.EndowmentType[] memory curRestrictedfrom
+        bool approved,
+        AngelCoreStruct.EndowmentType[] memory restrictedfrom
     ) external;
 
     function updateNetworkConnections(

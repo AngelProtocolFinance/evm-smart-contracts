@@ -46,13 +46,13 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     /**
      * @notice Initializer function for index fund contract, to be called when proxy is deployed
      * @dev This function is called by deployer only once at the time of initialization
-     * @param curDetails IndexFundMessage.InstantiateMessage
+     * @param details IndexFundMessage.InstantiateMessage
      */
     function initIndexFund(
-        IndexFundMessage.InstantiateMessage memory curDetails
+        IndexFundMessage.InstantiateMessage memory details
     ) public initializer {
         require(
-            curDetails.registrarContract != address(0),
+            details.registrarContract != address(0),
             "invalid registrar address"
         );
 
@@ -61,10 +61,10 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
         state.config = IndexFundStorage.Config({
             owner: msg.sender,
-            registrarContract: curDetails.registrarContract,
-            fundRotation: curDetails.fundRotation,
-            fundMemberLimit: curDetails.fundMemberLimit,
-            fundingGoal: curDetails.fundingGoal
+            registrarContract: details.registrarContract,
+            fundRotation: details.fundRotation,
+            fundMemberLimit: details.fundMemberLimit,
+            fundingGoal: details.fundingGoal
         });
         emit ConfigUpdated(state.config);
 
@@ -80,7 +80,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
     /**
      * @notice function to update ownder of the contract
-     * @dev can be called by current owner to set new owner
+     * @dev can be called by rent owner to set new owner
      * @param newOwner address of new owner
      */
     function updateOwner(address newOwner) public nonReentrant returns (bool) {
@@ -97,7 +97,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
     /**
      * @notice function to update registrar contract address
-     * @dev can be called by current owner to set new registrar contract address
+     * @dev can be called by rent owner to set new registrar contract address
      * @param newRegistrar address of new registrar contract
      */
     function updateRegistrar(
@@ -116,34 +116,34 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
     /**
      * @notice function to update config of index fund
-     * @dev can be called by current owner to set new config
-     * @param curDetails IndexFundMessage.UpdateConfigMessage
+     * @dev can be called by rent owner to set new config
+     * @param details IndexFundMessage.UpdateConfigMessage
      */
     function updateConfig(
-        IndexFundMessage.UpdateConfigMessage memory curDetails
+        IndexFundMessage.UpdateConfigMessage memory details
     ) public nonReentrant returns (bool) {
         if (msg.sender != state.config.owner) {
             revert("Unauthorized");
         }
 
-        if (curDetails.fundingGoal != 0) {
-            if (curDetails.fundingGoal < state.state.roundDonations) {
+        if (details.fundingGoal != 0) {
+            if (details.fundingGoal < state.state.roundDonations) {
                 revert("Invalid Inputs");
             }
-            state.config.fundingGoal = curDetails.fundingGoal;
+            state.config.fundingGoal = details.fundingGoal;
         } else {
             state.config.fundingGoal = 0;
         }
 
-        state.config.fundRotation = curDetails.fundRotation;
-        state.config.fundMemberLimit = curDetails.fundMemberLimit;
+        state.config.fundRotation = details.fundRotation;
+        state.config.fundMemberLimit = details.fundMemberLimit;
         emit ConfigUpdated(state.config);
         return true;
     }
 
     /**
      * @notice function to create index fund
-     * @dev can be called by current owner to create index fund
+     * @dev can be called by rent owner to create index fund
      * @param name name of index fund
      * @param description description of index fund
      * @param members array of members of index fund
@@ -205,7 +205,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
     /**
      * @notice function to remove index fund
-     * @dev can be called by current owner to remove an index fund
+     * @dev can be called by rent owner to remove an index fund
      * @param fundId id of index fund to be removed
      */
     function removeIndexFund(
@@ -239,7 +239,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
     /**
      *  @notice function to remove member from all the index funds
-     *  @dev can be called by current owner to remove a member from all the index funds
+     *  @dev can be called by rent owner to remove a member from all the index funds
      *  @param member member to be removed from index fund
      */
     function removeMember(uint32 member) public nonReentrant returns (bool) {
@@ -274,7 +274,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
     /**
      *  @notice function to update fund members
-     *  @dev can be called by current owner to add/remove member to an index fund
+     *  @dev can be called by rent owner to add/remove member to an index fund
      *  @param fundId the id of index fund to be updated
      *  @param members array of members to be set for the index fund
      */
@@ -306,12 +306,12 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     /**
      * @notice deposit function which can be called by user to add funds to index fund
      * @dev converted from rust implementation, handles donations by managing limits and rotating active fund
-     * @param curDetails deposit details
+     * @param details deposit details
      * @param fund fund to deposit to
      */
     function depositERC20(
         address senderAddr,
-        IndexFundMessage.DepositMsg memory curDetails,
+        IndexFundMessage.DepositMsg memory details,
         AngelCoreStruct.AssetBase memory fund
     ) public nonReentrant returns (bool) {
         if (fund.info != AngelCoreStruct.AssetInfoBase.Cw20) {
@@ -345,15 +345,15 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
             state.config.registrarContract
         ).queryConfig();
 
-        if (curDetails.fundId != 0) {
+        if (details.fundId != 0) {
             require(
-                state.FUNDS[curDetails.fundId].members.length != 0,
+                state.FUNDS[details.fundId].members.length != 0,
                 "Empty Fund"
             );
 
             require(
                 !fundIsExpired(
-                    state.FUNDS[curDetails.fundId],
+                    state.FUNDS[details.fundId],
                     block.number,
                     block.timestamp
                 ),
@@ -362,12 +362,12 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
             uint256 split = calculateSplit(
                 registrar_config.splitToLiquid,
-                state.FUNDS[curDetails.fundId].splitToLiquid,
-                curDetails.split
+                state.FUNDS[details.fundId].splitToLiquid,
+                details.split
             );
 
             updateDonationMessages(
-                state.FUNDS[curDetails.fundId].members,
+                state.FUNDS[details.fundId].members,
                 split,
                 fund.amount,
                 state.donationMessages
@@ -394,7 +394,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
                     uint256 goalLeftover = state.config.fundingGoal -
                         state.state.roundDonations;
 
-                    uint256 curActiveFund = state.state.activeFund;
+                    uint256 activeFund = state.state.activeFund;
 
 
                     if (depositAmount >= goalLeftover) {
@@ -416,12 +416,12 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
                     uint256 split = calculateSplit(
                         registrar_config.splitToLiquid,
-                        state.FUNDS[curActiveFund].splitToLiquid,
-                        curDetails.split
+                        state.FUNDS[activeFund].splitToLiquid,
+                        details.split
                     );
 
                     updateDonationMessages(
-                        state.FUNDS[curActiveFund].members,
+                        state.FUNDS[activeFund].members,
                         split,
                         loopDonation,
                         state.donationMessages
@@ -447,7 +447,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
                 uint256 split = calculateSplit(
                     registrar_config.splitToLiquid,
                     state.FUNDS[state.state.activeFund].splitToLiquid,
-                    curDetails.split
+                    details.split
                 );
 
                 updateDonationMessages(
@@ -506,13 +506,13 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
      * @param members Array of members
      * @param split Split to liquid
      * @param balance Balance of fund
-     * @param curDonationMessages Donation messages
+     * @param donationMessages Donation messages
      */
     function updateDonationMessages(
         uint32[] memory members,
         uint256 split,
         uint256 balance,
-        IndexFundStorage.DonationMessages storage curDonationMessages
+        IndexFundStorage.DonationMessages storage donationMessages
     ) internal {
         uint256 memberPortion = balance;
 
@@ -529,10 +529,10 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
             for (
                 uint256 j = 0;
-                j < curDonationMessages.member_ids.length;
+                j < donationMessages.member_ids.length;
                 j++
             ) {
-                if (curDonationMessages.member_ids[j] == members[i]) {
+                if (donationMessages.member_ids[j] == members[i]) {
                     alreadyExists = true;
                     index = j;
                     break;
@@ -540,41 +540,41 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
             }
 
             if (alreadyExists) {
-                curDonationMessages.lockedSplit[index] = lockSplit;
-                curDonationMessages.liquidSplit[index] = split;
-                curDonationMessages.locked_donation_amount[index] +=
+                donationMessages.lockedSplit[index] = lockSplit;
+                donationMessages.liquidSplit[index] = split;
+                donationMessages.locked_donation_amount[index] +=
                     (memberPortion * lockSplit) /
                     100;
                 // avoid any over and under flows
-                curDonationMessages.liquid_donation_amount[index] += (
+                donationMessages.liquid_donation_amount[index] += (
                     (memberPortion - ((memberPortion * lockSplit) / 100))
                 );
             } else {
-                curDonationMessages.member_ids.push(members[i]);
-                curDonationMessages.lockedSplit.push(lockSplit);
-                curDonationMessages.liquidSplit.push(split);
-                curDonationMessages.locked_donation_amount.push(
+                donationMessages.member_ids.push(members[i]);
+                donationMessages.lockedSplit.push(lockSplit);
+                donationMessages.liquidSplit.push(split);
+                donationMessages.locked_donation_amount.push(
                     (memberPortion * lockSplit) / 100
                 );
                 // avoid any over and under flows
-                curDonationMessages.liquid_donation_amount.push(
+                donationMessages.liquid_donation_amount.push(
                     (memberPortion - ((memberPortion * lockSplit) / 100))
                 );
             }
         }
-        emit DonationMessagesUpdated(curDonationMessages);
+        emit DonationMessagesUpdated(donationMessages);
     }
 
     /**
      * @dev Build donation messages
-     * @param curAccountscontract Accounts contract address
-     * @param curDonationMessages Donation messages
-     * @param curTokenaddress Token address
+     * @param accountscontract Accounts contract address
+     * @param donationMessages Donation messages
+     * @param tokenaddress Token address
      */
     function buildDonationMessages(
-        address curAccountscontract,
-        IndexFundStorage.DonationMessages storage curDonationMessages,
-        address curTokenaddress
+        address accountscontract,
+        IndexFundStorage.DonationMessages storage donationMessages,
+        address tokenaddress
     )
         internal
         view
@@ -584,23 +584,23 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
             bytes[] memory callData
         )
     {
-        target = new address[](curDonationMessages.member_ids.length);
-        value = new uint256[](curDonationMessages.member_ids.length);
-        callData = new bytes[](curDonationMessages.member_ids.length);
+        target = new address[](donationMessages.member_ids.length);
+        value = new uint256[](donationMessages.member_ids.length);
+        callData = new bytes[](donationMessages.member_ids.length);
         // TODO: check with andrey for the split logic in index fund
-        for (uint256 i = 0; i < curDonationMessages.member_ids.length; i++) {
-            target[i] = curAccountscontract;
+        for (uint256 i = 0; i < donationMessages.member_ids.length; i++) {
+            target[i] = accountscontract;
             value[i] = 0;
             callData[i] = abi.encodeWithSignature(
                 "depositERC20((uint256,uint256,uint256),address,uint256)",
                 AccountMessages.DepositRequest({
-                    id: curDonationMessages.member_ids[i],
-                    lockedPercentage: curDonationMessages.lockedSplit[i],
-                    liquidPercentage: curDonationMessages.liquidSplit[i]
+                    id: donationMessages.member_ids[i],
+                    lockedPercentage: donationMessages.lockedSplit[i],
+                    liquidPercentage: donationMessages.liquidSplit[i]
                 }),
-                curTokenaddress,
-                curDonationMessages.locked_donation_amount[i] +
-                    curDonationMessages.liquid_donation_amount[i]
+                tokenaddress,
+                donationMessages.locked_donation_amount[i] +
+                    donationMessages.liquid_donation_amount[i]
             );
         }
     }
@@ -718,8 +718,8 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     /**
      * @dev Check if fund is expired
      * @param fund Fund
-     * @param envHeight Current block height
-     * @param envTime Current block time
+     * @param envHeight rent block height
+     * @param envTime rent block time
      * @return True if fund is expired
      */
     function fundIsExpired(
@@ -735,13 +735,13 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
     /**
      * @dev rotate active based if investment goal is fulfilled
-     * @param currFund Current Active fund
-     * @param envHeight Current block height
-     * @param envTime Current block time
+     * @param rFund rent Active fund
+     * @param envHeight rent block height
+     * @param envTime rent block time
      * @return New active fund
      */
     function rotateFund(
-        uint256 currFund,
+        uint256 rFund,
         uint256 envHeight,
         uint256 envTime
     ) internal view returns (uint256) {
@@ -762,10 +762,10 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
             }
         }
 
-        // check if the current active fund is in the rotation and not expired
+        // check if the rent active fund is in the rotation and not expired
         bool found;
         uint256 index;
-        (index, found) = Array.indexOf(state.rotatingFunds, currFund);
+        (index, found) = Array.indexOf(state.rotatingFunds, rFund);
         if (!found || index == activeFunds.length - 1) {
             // set to the first fund in the list
             return activeFunds[0].id;

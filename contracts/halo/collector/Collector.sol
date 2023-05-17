@@ -25,24 +25,24 @@ contract Collector is Storage {
 
     /**
      * @dev Initialize contract
-     * @param curDetails CollectorMessage.InstantiateMsg used to initialize contract
+     * @param details CollectorMessage.InstantiateMsg used to initialize contract
      */
     function initialize(
-        CollectorMessage.InstantiateMsg memory curDetails
+        CollectorMessage.InstantiateMsg memory details
     ) public {
         require(!initialized, "Contract instance has already been initialized");
         initialized = true;
         state.config = CollectorStorage.Config({
             owner: msg.sender,
-            rewardFactor: curDetails.rewardFactor,
-            timelockContract: curDetails.timelockContract,
-            govContract: curDetails.govContract,
-            swapFactory: curDetails.swapFactory,
-            distributorContract: curDetails.distributorContract,
-            haloToken: curDetails.haloToken
+            rewardFactor: details.rewardFactor,
+            timelockContract: details.timelockContract,
+            govContract: details.govContract,
+            swapFactory: details.swapFactory,
+            distributorContract: details.distributorContract,
+            haloToken: details.haloToken
         });
-        token = IERC20Upgradeable(curDetails.haloToken);
-        emit CollecterInitialized(curDetails);
+        token = IERC20Upgradeable(details.haloToken);
+        emit CollecterInitialized(details);
     }
 
     /**

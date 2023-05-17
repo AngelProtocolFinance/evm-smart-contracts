@@ -35,9 +35,9 @@ library StringArray {
         result = (keccak256(abi.encodePacked(s1)) == keccak256(abi.encodePacked(s2)));
     }
 
-    function addressToString(address curAddr) public pure returns(string memory) 
+    function addressToString(address addr) public pure returns(string memory) 
     {
-        bytes32 value = bytes32(uint256(uint160(curAddr)));
+        bytes32 value = bytes32(uint256(uint160(addr)));
         bytes memory alphabet = "0123456789abcdef";
     
         bytes memory str = new bytes(51);

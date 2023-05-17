@@ -23,16 +23,16 @@ contract Distributor is Storage, Initializable, ReentrancyGuard {
 
     /**
      * @dev Initialize contract
-     * @param curDetails DistributorMessage.InstantiateMsg used to initialize contract
+     * @param details DistributorMessage.InstantiateMsg used to initialize contract
      */
     function initialize(
-        DistributorMessage.InstantiateMsg memory curDetails
+        DistributorMessage.InstantiateMsg memory details
     ) public initializer {
         state.config = DistributorStorage.Config({
-            timelockContract: curDetails.timelockContract,
-            allowlist: curDetails.allowlist,
-            spendLimit: curDetails.spendLimit,
-            haloToken: curDetails.haloToken
+            timelockContract: details.timelockContract,
+            allowlist: details.allowlist,
+            spendLimit: details.spendLimit,
+            haloToken: details.haloToken
         });
         emit DistributorConfigUpdated(state.config);
     }

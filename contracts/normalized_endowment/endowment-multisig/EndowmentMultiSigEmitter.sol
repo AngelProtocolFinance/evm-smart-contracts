@@ -16,11 +16,11 @@ contract EndowmentMultiSigEmitter {
     address multisigFactory;
     mapping(address => bool) isMultisig;
 
-    function initEndowmentMultiSigEmitter(address curMultisigfactory) public {
-        require(curMultisigfactory != address(0), "Invalid Address");
+    function initEndowmentMultiSigEmitter(address multisigfactory) public {
+        require(multisigfactory != address(0), "Invalid Address");
         require(!isInitialized, "Already initialized");
         isInitialized = true;
-        multisigFactory = curMultisigfactory;
+        multisigFactory = multisigfactory;
     }
 
     modifier isEmitter() {
@@ -34,10 +34,10 @@ contract EndowmentMultiSigEmitter {
     event MultisigCreated(
         address multisigAddress,
         uint256 endowmentId,
-        address curEmitter,
-        address[] curOwners,
-        uint256 curRequired,
-        bool curRequireexecution
+        address emitter,
+        address[] owners,
+        uint256 required,
+        bool requireexecution
     );
     event EndowmentConfirmation(
         uint256 endowmentId,
@@ -65,27 +65,27 @@ contract EndowmentMultiSigEmitter {
      * @notice emits MultisigCreated event
      * @param multisigAddress the multisig address
      * @param endowmentId the endowment id
-     * @param curEmitter the emitter of the multisig
-     * @param curOwners the owners of the multisig
-     * @param curRequired the required number of signatures
-     * @param curRequireexecution the require execution flag
+     * @param emitter the emitter of the multisig
+     * @param owners the owners of the multisig
+     * @param required the required number of signatures
+     * @param requireexecution the require execution flag
      */
     function createMultisig(
         address multisigAddress,
         uint256 endowmentId,
-        address curEmitter,
-        address[] memory curOwners,
-        uint256 curRequired,
-        bool curRequireexecution
+        address emitter,
+        address[] memory owners,
+        uint256 required,
+        bool requireexecution
     ) public isOwner {
         isMultisig[multisigAddress] = true;
         emit MultisigCreated(
             multisigAddress,
             endowmentId,
-            curEmitter,
-            curOwners,
-            curRequired,
-            curRequireexecution
+            emitter,
+            owners,
+            required,
+            requireexecution
         );
     }
 

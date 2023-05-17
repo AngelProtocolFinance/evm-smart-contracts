@@ -49,9 +49,9 @@ interface IEndowmentMultiSigEmitter {
     function createMultisig(
         address multisigAddress,
         uint256 endowmentId,
-        address curEmitter,
-        address[] memory curOwners,
-        uint256 curRequired,
-        bool curRequireexecution
+        address emitter,
+        address[] memory owners,
+        uint256 required,
+        bool requireexecution
     ) external;
 }

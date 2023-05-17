@@ -28,8 +28,8 @@ library RegistrarMessages {
         // WASM CODES -> EVM -> Solidity Implementation contract addresses
         address subdaoGovCode; // subdao gov wasm code
         address subdaoCw20TokenCode; // subdao gov token (basic CW20) wasm code
-        address subdaoBondingTokenCode; // subdao gov token (w/ bonding-curve) wasm code
-        address subdaoCw900Code; // subdao gov ve-CURVE contract for locked token voting
+        address subdaoBondingTokenCode; // subdao gov token (w/ bonding-ve) wasm code
+        address subdaoCw900Code; // subdao gov ve-vE contract for locked token voting
         address subdaoDistributorCode; // subdao gov fee distributor wasm code
         address subdaoEmitter;
         address donationMatchCode; // donation matching contract wasm code

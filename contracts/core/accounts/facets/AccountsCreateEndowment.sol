@@ -25,10 +25,10 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
     /**
      * @notice This function creates an endowment
      * @dev creates an endowment based on parameters and setups a dao if required
-     * @param curDetails The details of the endowment
+     * @param details The details of the endowment
      */
     function createEndowment(
-        AccountMessages.CreateEndowmentRequest memory curDetails
+        AccountMessages.CreateEndowmentRequest memory details
     ) public nonReentrant returns (uint32) {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
 
@@ -38,23 +38,23 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
             registrarAddress
         ).queryConfig();
 
-        if (AngelCoreStruct.EndowmentType.Charity == curDetails.endow_type) {
+        if (AngelCoreStruct.EndowmentType.Charity == details.endow_type) {
             require(
                 msg.sender == registrar_config.charityProposal,
                 "Unauthorized"
             );
         }
 
-        if (curDetails.cw4_members.length == 0) {
-            curDetails.cw4_members = new address[](1);
-            curDetails.cw4_members[0] = curDetails.owner;
+        if (details.cw4_members.length == 0) {
+            details.cw4_members = new address[](1);
+            details.cw4_members[0] = details.owner;
         }
 
-        require(curDetails.threshold > 0, "Threshold must be a positive number");
+        require(details.threshold > 0, "Threshold must be a positive number");
 
-        if (AngelCoreStruct.EndowmentType.Normal == curDetails.endow_type) {
+        if (AngelCoreStruct.EndowmentType.Normal == details.endow_type) {
             require(
-                curDetails.threshold <= curDetails.cw4_members.length,
+                details.threshold <= details.cw4_members.length,
                 "Threshold greater than member count"
             );
         }
@@ -62,24 +62,24 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
         AngelCoreStruct.SplitDetails memory splitSettings;
         bool ignoreUserSplit;
 
-        if (AngelCoreStruct.EndowmentType.Charity == curDetails.endow_type) {
+        if (AngelCoreStruct.EndowmentType.Charity == details.endow_type) {
             ignoreUserSplit = false;
         } else {
-            splitSettings = curDetails.splitToLiquid;
-            ignoreUserSplit = curDetails.ignoreUserSplits;
+            splitSettings = details.splitToLiquid;
+            ignoreUserSplit = details.ignoreUserSplits;
         }
 
         address donationMatchContract = address(0);
-        if (AngelCoreStruct.EndowmentType.Charity == curDetails.endow_type) {
+        if (AngelCoreStruct.EndowmentType.Charity == details.endow_type) {
             donationMatchContract = registrar_config
                 .donationMatchCharitesContract;
         }
 
-        if (curDetails.categories.general.length > 0) {
-            uint256 max = curDetails.categories.general[0];
-            for (uint256 i = 1; i < curDetails.categories.general.length; i++) {
-                if (max < curDetails.categories.general[i]) {
-                    max = curDetails.categories.general[i];
+        if (details.categories.general.length > 0) {
+            uint256 max = details.categories.general[0];
+            for (uint256 i = 1; i < details.categories.general.length; i++) {
+                if (max < details.categories.general[i]) {
+                    max = details.categories.general[i];
                 }
             }
 
@@ -87,42 +87,42 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
         }
 
         require(
-            Validator.addressChecker(curDetails.owner),
+            Validator.addressChecker(details.owner),
             "Invalid owner address"
         );
 
         state.ENDOWMENTS[state.config.nextAccountId] = AccountStorage
             .Endowment({
-                owner: curDetails.owner,
-                name: curDetails.name,
-                categories: curDetails.categories,
-                endow_type: curDetails.endow_type,
-                maturityTime: curDetails.maturityTime,
+                owner: details.owner,
+                name: details.name,
+                categories: details.categories,
+                endow_type: details.endow_type,
+                maturityTime: details.maturityTime,
                 strategies: AngelCoreStruct.accountStrategiesDefaut(),
                 oneoffVaults: AngelCoreStruct.oneOffVaultsDefault(),
                 rebalance: IRegistrar(registrarAddress).getRebalanceParams(),
-                kycDonorsOnly: curDetails.kycDonorsOnly,
+                kycDonorsOnly: details.kycDonorsOnly,
                 pendingRedemptions: 0,
-                multisig: curDetails.owner,
+                multisig: details.owner,
                 dao: address(0),
                 daoToken: address(0),
                 donationMatchActive: false,
                 donationMatchContract: donationMatchContract,
-                allowlistedBeneficiaries: curDetails.allowlistedBeneficiaries,
-                allowlistedContributors: curDetails.allowlistedContributors,
-                withdrawFee: curDetails.withdrawFee,
-                depositFee: curDetails.depositFee,
-                balanceFee: curDetails.balanceFee,
-                maturityAllowlist: curDetails.maturityAllowlist,
-                tier: curDetails.tier,
-                logo: curDetails.logo,
-                image: curDetails.image,
-                proposalLink: curDetails.proposalLink,
-                settingsController: curDetails.settingsController,
-                parent: curDetails.parent,
+                allowlistedBeneficiaries: details.allowlistedBeneficiaries,
+                allowlistedContributors: details.allowlistedContributors,
+                withdrawFee: details.withdrawFee,
+                depositFee: details.depositFee,
+                balanceFee: details.balanceFee,
+                maturityAllowlist: details.maturityAllowlist,
+                tier: details.tier,
+                logo: details.logo,
+                image: details.image,
+                proposalLink: details.proposalLink,
+                settingsController: details.settingsController,
+                parent: details.parent,
                 ignoreUserSplits: ignoreUserSplit,
                 splitToLiquid: splitSettings,
-                referralId: curDetails.referralId
+                referralId: details.referralId
             });
 
         // state.STATES[state.config.nextAccountId] = AccountStorage
@@ -148,24 +148,24 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
             .create(
                 state.config.nextAccountId,
                 registrar_config.multisigEmitter,
-                curDetails.cw4_members,
-                curDetails.threshold
+                details.cw4_members,
+                details.threshold
             );
         state.ENDOWMENTS[state.config.nextAccountId].multisig = state.ENDOWMENTS[state.config.nextAccountId].owner;
 
-        if (curDetails.createDao) {
+        if (details.createDao) {
             subDaoMessage.InstantiateMsg memory createDaoMessage = subDaoMessage
                 .InstantiateMsg({
                     id: state.config.nextAccountId,
-                    quorum: curDetails.dao.quorum,
+                    quorum: details.dao.quorum,
                     owner: state.ENDOWMENTS[state.config.nextAccountId].owner,
-                    threshold: curDetails.dao.threshold,
-                    votingPeriod: curDetails.dao.votingPeriod,
-                    timelockPeriod: curDetails.dao.timelockPeriod,
-                    expirationPeriod: curDetails.dao.expirationPeriod,
-                    proposalDeposit: curDetails.dao.proposalDeposit,
-                    snapshotPeriod: curDetails.dao.snapshotPeriod,
-                    token: curDetails.dao.token,
+                    threshold: details.dao.threshold,
+                    votingPeriod: details.dao.votingPeriod,
+                    timelockPeriod: details.dao.timelockPeriod,
+                    expirationPeriod: details.dao.expirationPeriod,
+                    proposalDeposit: details.dao.proposalDeposit,
+                    snapshotPeriod: details.dao.snapshotPeriod,
+                    token: details.dao.token,
                     endow_type: state
                         .ENDOWMENTS[state.config.nextAccountId]
                         .endow_type,

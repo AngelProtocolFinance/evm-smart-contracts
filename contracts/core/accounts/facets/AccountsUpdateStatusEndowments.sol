@@ -28,20 +28,20 @@ contract AccountsUpdateStatusEndowments is
 {
     /**
      * @notice Closes an endowment, setting the endowment state to "closingEndowment" and the closing beneficiary to the provided beneficiary.
-     * @param curId The ID of the endowment to be closed.
-     * @param curBeneficiary The beneficiary that will receive any remaining funds in the endowment.
-     * @dev The function will revert if a redemption is currently in progress.
+     * @param id The ID of the endowment to be closed.
+     * @param beneficiary The beneficiary that will receive any remaining funds in the endowment.
+     * @dev The function will revert if a redemption is rently in progress.
      * @dev Emits an `UpdateEndowmentState` event with the updated state of the endowment.
      */
     function closeEndowment(
-        uint32 curId,
-        AngelCoreStruct.Beneficiary memory curBeneficiary
+        uint32 id,
+        AngelCoreStruct.Beneficiary memory beneficiary
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[curId];
+        AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
 
         require(msg.sender == tempEndowment.owner, "Unauthorized");
-        require(!state.STATES[curId].closingEndowment,"Endowment is closed");
+        require(!state.STATES[id].closingEndowment,"Endowment is closed");
         require(tempEndowment.pendingRedemptions == 0, "RedemptionInProgress");
 
         RegistrarStorage.Config memory registrar_config = IRegistrar(
@@ -49,7 +49,7 @@ contract AccountsUpdateStatusEndowments is
         ).queryConfig();
 
         require(
-            curBeneficiary.enumData != AngelCoreStruct.BeneficiaryEnum.None ||
+            beneficiary.enumData != AngelCoreStruct.BeneficiaryEnum.None ||
             registrar_config.indexFundContract != address(0),
             "Beneficiary is NONE & Index Fund Contract is not configured in Registrar"
         );
@@ -58,10 +58,10 @@ contract AccountsUpdateStatusEndowments is
         // or send to the first index fund if it is in one.
         AngelCoreStruct.IndexFund[] memory funds = IIndexFund(
             registrar_config.indexFundContract
-        ).queryInvolvedFunds(curId);
-        if (curBeneficiary.enumData == AngelCoreStruct.BeneficiaryEnum.None) {
+        ).queryInvolvedFunds(id);
+        if (beneficiary.enumData == AngelCoreStruct.BeneficiaryEnum.None) {
             if (funds.length == 0) {
-                curBeneficiary = AngelCoreStruct.Beneficiary({
+                beneficiary = AngelCoreStruct.Beneficiary({
                     data: AngelCoreStruct.BeneficiaryData({
                         endowId: 0,
                         fundId: 0,
@@ -70,7 +70,7 @@ contract AccountsUpdateStatusEndowments is
                     enumData: AngelCoreStruct.BeneficiaryEnum.Wallet
                 });
             } else {
-                curBeneficiary = AngelCoreStruct.Beneficiary({
+                beneficiary = AngelCoreStruct.Beneficiary({
                     data: AngelCoreStruct.BeneficiaryData({
                         endowId: 0,
                         fundId: funds[0].id,
@@ -80,34 +80,34 @@ contract AccountsUpdateStatusEndowments is
                 });
                 // remove closing endowment from all Index Funds that it is in
                 IIndexFund(registrar_config.indexFundContract)
-                    .removeMember(curId);
+                    .removeMember(id);
             }
         }
 
-        state.STATES[curId].closingEndowment = true;
-        state.STATES[curId].closingBeneficiary = curBeneficiary;
+        state.STATES[id].closingEndowment = true;
+        state.STATES[id].closingBeneficiary = beneficiary;
 
-        require(checkFullyExited(uint32(curId)),"Not fully exited");
+        require(checkFullyExited(uint32(id)),"Not fully exited");
         uint256 redemption = uint256(tempEndowment.oneoffVaults.liquid.length) + uint256(tempEndowment.oneoffVaults.locked.length);
         tempEndowment.pendingRedemptions = redemption;
-        state.ENDOWMENTS[curId] = tempEndowment;
+        state.ENDOWMENTS[id] = tempEndowment;
 
-        emit UpdateEndowment(curId, state.ENDOWMENTS[curId]);
-        // emit UpdateEndowmentState(curId, state.STATES[curId]);
+        emit UpdateEndowment(id, state.ENDOWMENTS[id]);
+        // emit UpdateEndowmentState(id, state.STATES[id]);
     }
 
-    function checkFullyExited(uint32 curId) internal view returns (bool) {
+    function checkFullyExited(uint32 id) internal view returns (bool) {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         bytes4[] memory allStrategies = IRegistrar(state.config.registrarContract).queryAllStrategies();
         for (uint256 i; i < allStrategies.length; i++) {
-            if(state.STATES[curId].activeStrategies[allStrategies[i]]) {
+            if(state.STATES[id].activeStrategies[allStrategies[i]]) {
                 return false;
             }
         }
         return true;
     }
 
-    // function redeemAllFromVault(uint32 curId, AngelCoreStruct.OneOffVaults memory allVaults) internal {
+    // function redeemAllFromVault(uint32 id, AngelCoreStruct.OneOffVaults memory allVaults) internal {
 
     //     AccountStorage.State storage state = LibAccounts.diamondStorage();
     //     address registrarContract = state.config.registrarContract;
@@ -117,15 +117,15 @@ contract AccountsUpdateStatusEndowments is
     //             registrarContract
     //         ).queryVaultDetails(allVaults.liquid[i]);
 
-    //         uint32[] memory curIds = new uint32[](1);
-    //         curIds[0] = curId;
-    //         uint256 amount = state.vaultBalance[curId][AngelCoreStruct.AccountType.Liquid][allVaults.liquid[i]];
+    //         uint32[] memory ids = new uint32[](1);
+    //         ids[0] = id;
+    //         uint256 amount = state.vaultBalance[id][AngelCoreStruct.AccountType.Liquid][allVaults.liquid[i]];
     //         console.log("redeemAllFromVault", amount);
     //         IAxelarGateway.VaultActionData memory payloadObject = IAxelarGateway
     //             .VaultActionData({
     //                 strategyId: bytes4(keccak256(bytes(vault_config.addr))),
     //                 selector: IVault.redeemAll.selector,
-    //                 accountIds: curIds,
+    //                 accountIds: ids,
     //                 token: vault_config.inputDenom,
     //                 lockAmt: 0,
     //                 liqAmt: amount
@@ -143,14 +143,14 @@ contract AccountsUpdateStatusEndowments is
     //             registrarContract
     //         ).queryVaultDetails(allVaults.locked[i]);
 
-    //         uint32[] memory curIds = new uint32[](1);
-    //         curIds[0] = curId;
-    //         uint256 amount = state.vaultBalance[curId][AngelCoreStruct.AccountType.Locked][allVaults.liquid[i]];
+    //         uint32[] memory ids = new uint32[](1);
+    //         ids[0] = id;
+    //         uint256 amount = state.vaultBalance[id][AngelCoreStruct.AccountType.Locked][allVaults.liquid[i]];
     //         IAxelarGateway.VaultActionData memory payloadObject = IAxelarGateway
     //             .VaultActionData({
     //                 strategyId: bytes4(keccak256(bytes(vault_config.addr))),
     //                 selector: IVault.redeemAll.selector,
-    //                 accountIds: curIds,
+    //                 accountIds: ids,
     //                 token: vault_config.inputDenom,
     //                 lockAmt: amount,
     //                 liqAmt: 0
@@ -186,10 +186,10 @@ contract AccountsUpdateStatusEndowments is
     //     AngelCoreStruct.NetworkInfo memory recieverInfo = IRegistrar(
     //         registrarContract
     //     ).queryNetworkConnection(network);
-    //     uint256 curEth = recieverInfo.gasLimit;
-    //     if (curEth > 0) {
+    //     uint256 eth = recieverInfo.gasLimit;
+    //     if (eth > 0) {
     //         IAxelarGateway(senderInfo.gasReceiver).payNativeGasForContractCall{
-    //             value: curEth
+    //             value: eth
     //         }(
     //             address(this),
     //             recieverInfo.name,

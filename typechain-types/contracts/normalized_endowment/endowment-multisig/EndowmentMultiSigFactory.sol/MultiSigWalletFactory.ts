@@ -196,8 +196,8 @@ export interface MultiSigWalletFactory extends BaseContract {
     create(
       endowmentId: PromiseOrValue<BigNumberish>,
       emitterAddress: PromiseOrValue<string>,
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
+      owners: PromiseOrValue<string>[],
+      required: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -247,8 +247,8 @@ export interface MultiSigWalletFactory extends BaseContract {
   create(
     endowmentId: PromiseOrValue<BigNumberish>,
     emitterAddress: PromiseOrValue<string>,
-    curOwners: PromiseOrValue<string>[],
-    curRequired: PromiseOrValue<BigNumberish>,
+    owners: PromiseOrValue<string>[],
+    required: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -298,8 +298,8 @@ export interface MultiSigWalletFactory extends BaseContract {
     create(
       endowmentId: PromiseOrValue<BigNumberish>,
       emitterAddress: PromiseOrValue<string>,
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
+      owners: PromiseOrValue<string>[],
+      required: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -368,8 +368,8 @@ export interface MultiSigWalletFactory extends BaseContract {
     create(
       endowmentId: PromiseOrValue<BigNumberish>,
       emitterAddress: PromiseOrValue<string>,
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
+      owners: PromiseOrValue<string>[],
+      required: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -420,8 +420,8 @@ export interface MultiSigWalletFactory extends BaseContract {
     create(
       endowmentId: PromiseOrValue<BigNumberish>,
       emitterAddress: PromiseOrValue<string>,
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
+      owners: PromiseOrValue<string>[],
+      required: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

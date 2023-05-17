@@ -266,7 +266,7 @@ export interface DonationMatchEmitter extends BaseContract {
     executeDonorMatch(
       tokenAddress: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      curAccountsContract: PromiseOrValue<string>,
+      accountsContract: PromiseOrValue<string>,
       endowmentId: PromiseOrValue<BigNumberish>,
       donor: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -281,7 +281,7 @@ export interface DonationMatchEmitter extends BaseContract {
     ): Promise<ContractTransaction>;
 
     initDonationMatchEmiiter(
-      curAccountscontract: PromiseOrValue<string>,
+      accountscontract: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -316,7 +316,7 @@ export interface DonationMatchEmitter extends BaseContract {
   executeDonorMatch(
     tokenAddress: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
-    curAccountsContract: PromiseOrValue<string>,
+    accountsContract: PromiseOrValue<string>,
     endowmentId: PromiseOrValue<BigNumberish>,
     donor: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -331,7 +331,7 @@ export interface DonationMatchEmitter extends BaseContract {
   ): Promise<ContractTransaction>;
 
   initDonationMatchEmiiter(
-    curAccountscontract: PromiseOrValue<string>,
+    accountscontract: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -366,7 +366,7 @@ export interface DonationMatchEmitter extends BaseContract {
     executeDonorMatch(
       tokenAddress: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      curAccountsContract: PromiseOrValue<string>,
+      accountsContract: PromiseOrValue<string>,
       endowmentId: PromiseOrValue<BigNumberish>,
       donor: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -381,7 +381,7 @@ export interface DonationMatchEmitter extends BaseContract {
     ): Promise<void>;
 
     initDonationMatchEmiiter(
-      curAccountscontract: PromiseOrValue<string>,
+      accountscontract: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -484,7 +484,7 @@ export interface DonationMatchEmitter extends BaseContract {
     executeDonorMatch(
       tokenAddress: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      curAccountsContract: PromiseOrValue<string>,
+      accountsContract: PromiseOrValue<string>,
       endowmentId: PromiseOrValue<BigNumberish>,
       donor: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -499,7 +499,7 @@ export interface DonationMatchEmitter extends BaseContract {
     ): Promise<BigNumber>;
 
     initDonationMatchEmiiter(
-      curAccountscontract: PromiseOrValue<string>,
+      accountscontract: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -535,7 +535,7 @@ export interface DonationMatchEmitter extends BaseContract {
     executeDonorMatch(
       tokenAddress: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      curAccountsContract: PromiseOrValue<string>,
+      accountsContract: PromiseOrValue<string>,
       endowmentId: PromiseOrValue<BigNumberish>,
       donor: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -550,7 +550,7 @@ export interface DonationMatchEmitter extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initDonationMatchEmiiter(
-      curAccountscontract: PromiseOrValue<string>,
+      accountscontract: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

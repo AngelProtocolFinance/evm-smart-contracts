@@ -18,10 +18,10 @@ import {IAccountsDepositWithdrawEndowments} from "./../../core/accounts/interfac
 
 interface SubdaoToken {
     function executeDonorMatch(
-        uint256 curAmount,
-        address curAccountscontract,
-        uint32 curEndowmentid,
-        address curDonor
+        uint256 amount,
+        address accountscontract,
+        uint32 endowmentid,
+        address donor
     ) external;
 }
 
@@ -41,29 +41,29 @@ contract DonationMatch is Storage, Initializable {
 
     /**
      * @dev Initialize contract
-     * @param curDetails DonationMatchMessages.InstantiateMsg used to initialize contract
-     * @param curEmitteraddress address
+     * @param details DonationMatchMessages.InstantiateMsg used to initialize contract
+     * @param emitteraddress address
      */
     function initialize(
-        DonationMatchMessages.InstantiateMessage memory curDetails,
-        address curEmitteraddress
+        DonationMatchMessages.InstantiateMessage memory details,
+        address emitteraddress
     ) public initializer {
-        require(curEmitteraddress != address(0), "Invalid Address");
-        emitterAddress = curEmitteraddress;
-        require(curDetails.reserveToken != address(0), "Invalid Address");
-        state.config.reserveToken = curDetails.reserveToken;
+        require(emitteraddress != address(0), "Invalid Address");
+        emitterAddress = emitteraddress;
+        require(details.reserveToken != address(0), "Invalid Address");
+        state.config.reserveToken = details.reserveToken;
 
-        require(curDetails.uniswapFactory != address(0), "Invalid Address");
-        state.config.uniswapFactory = curDetails.uniswapFactory;
+        require(details.uniswapFactory != address(0), "Invalid Address");
+        state.config.uniswapFactory = details.uniswapFactory;
 
-        require(curDetails.registrarContract != address(0), "Invalid Address");
-        state.config.registrarContract = curDetails.registrarContract;
+        require(details.registrarContract != address(0), "Invalid Address");
+        state.config.registrarContract = details.registrarContract;
 
-        require(curDetails.poolFee > 0, "Invalid Fee");
-        state.config.poolFee = curDetails.poolFee;
+        require(details.poolFee > 0, "Invalid Fee");
+        state.config.poolFee = details.poolFee;
 
-        require(curDetails.usdcAddress != address(0), "Invalid Address");
-        state.config.usdcAddress = curDetails.usdcAddress;
+        require(details.usdcAddress != address(0), "Invalid Address");
+        state.config.usdcAddress = details.usdcAddress;
     }
 
     /**
@@ -190,7 +190,7 @@ contract DonationMatch is Storage, Initializable {
         } else {
             // call execute donor match on dao token contract
 
-            // approve reserve currency to dao token contract [GIVE approval]
+            // approve reserve rency to dao token contract [GIVE approval]
 
             require(
                 IERC20(state.config.reserveToken).approve(
@@ -228,17 +228,17 @@ contract DonationMatch is Storage, Initializable {
     }
 
     function queryUniswapPrice(
-        address curTokenin,
-        uint256 curAmountin,
-        address curTokenout
+        address tokenin,
+        uint256 amountin,
+        address tokenout
     ) internal view returns (uint256) {
-        if (curTokenin == curTokenout) {
-            return curAmountin;
+        if (tokenin == tokenout) {
+            return amountin;
         }
 
         address pool = IUniswapV3Factory(state.config.uniswapFactory).getPool(
-            curTokenin,
-            curTokenout,
+            tokenin,
+            tokenout,
             state.config.poolFee
         );
         if (pool == address(0)) {
@@ -247,13 +247,13 @@ contract DonationMatch is Storage, Initializable {
 
         (uint160 sqrtPriceX96, , , , , , ) = IUniswapV3PoolState(pool).slot0();
 
-        if (curTokenin < curTokenout) {
+        if (tokenin < tokenout) {
             return
-                (((curAmountin * sqrtPriceX96) / 2 ** 96) * sqrtPriceX96) /
+                (((amountin * sqrtPriceX96) / 2 ** 96) * sqrtPriceX96) /
                 2 ** 96;
         } else {
             return
-                (((curAmountin * 2 ** 96) / sqrtPriceX96) * 2 ** 96) /
+                (((amountin * 2 ** 96) / sqrtPriceX96) * 2 ** 96) /
                 sqrtPriceX96;
         }
     }

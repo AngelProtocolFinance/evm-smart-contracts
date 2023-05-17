@@ -21,9 +21,9 @@ import type {
   TypedListener,
   OnEvent,
   PromiseOrValue,
-} from "../../../common";
+} from "../../../../common";
 
-export interface ICurveLPInterface extends utils.Interface {
+export interface IveLPInterface extends utils.Interface {
   functions: {
     "add_liquidity(uint256[2],uint256,bool,address)": FunctionFragment;
     "balances(uint256)": FunctionFragment;
@@ -133,12 +133,12 @@ export interface ICurveLPInterface extends utils.Interface {
   events: {};
 }
 
-export interface ICurveLP extends BaseContract {
+export interface IveLP extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: ICurveLPInterface;
+  interface: IveLPInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,

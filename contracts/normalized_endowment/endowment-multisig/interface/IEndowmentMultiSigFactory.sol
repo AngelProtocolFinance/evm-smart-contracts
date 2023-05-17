@@ -5,8 +5,8 @@ interface IEndowmentMultiSigFactory {
     function create(
         uint256 endowmentId,
         address emitterAddress,
-        address[] memory curOwners,
-        uint256 curRequired
+        address[] memory owners,
+        uint256 required
     ) external returns (address);
 
     function updateImplementation(address implementationAddress) external;

@@ -120,33 +120,33 @@ contract AxelarExecutionContract is ReentrancyGuardFacet, AccountsEvents {
 
     /**
      * @notice This function validates the deposit fund
-     * @param curRegistrar  The registrar address
-     * @param curTokenaddress  The token address
-     * @param curAmount  The amount
+     * @param registrar  The registrar address
+     * @param tokenaddress  The token address
+     * @param amount  The amount
      */
     function validateDepositFund(
-        address curRegistrar,
-        address curTokenaddress,
-        uint256 curAmount
+        address registrar,
+        address tokenaddress,
+        uint256 amount
     ) internal view returns (bool) {
         require(IRegistrar(
-            curRegistrar
-        ).isTokenAccepted(curTokenaddress), "Not accepted token");
+            registrar
+        ).isTokenAccepted(tokenaddress), "Not accepted token");
 
-        require(curAmount > 0, "InvalidZeroAmount");
+        require(amount > 0, "InvalidZeroAmount");
 
         return true;
     }
 
     // /**
     //  * @notice Distributes the locked and liquid balances of an endowment to its closing beneficiary, according to their specified type.
-    //  * @param curId The ID of the endowment being distributed.
+    //  * @param id The ID of the endowment being distributed.
     //  * @dev This function should only be called by other internal functions in the contract.
     //  */
-    // function distributeToBeneficiary(uint256 curId) internal {
+    // function distributeToBeneficiary(uint256 id) internal {
     //     AccountStorage.State storage state = LibAccounts.diamondStorage();
     //     // AccountStorage.Config memory tempConfig = state.config;
-    //     AccountStorage.EndowmentState storage tempState = state.STATES[curId];
+    //     AccountStorage.EndowmentState storage tempState = state.STATES[id];
 
     //     if (
     //         tempState.closingBeneficiary.enumData ==
@@ -285,8 +285,8 @@ contract AxelarExecutionContract is ReentrancyGuardFacet, AccountsEvents {
     //     tempState.balances.locked = AngelCoreStruct.genericBalanceDefault();
     //     tempState.balances.liquid = AngelCoreStruct.genericBalanceDefault();
 
-    //     state.STATES[curId] = tempState;
-    //     // emit UpdateEndowmentState(curId, tempState);
+    //     state.STATES[id] = tempState;
+    //     // emit UpdateEndowmentState(id, tempState);
     // }
 
     // /**

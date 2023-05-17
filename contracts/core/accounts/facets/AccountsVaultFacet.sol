@@ -32,29 +32,29 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
     /**
      * @notice This function that allows users to deposit into a yield strategy using tokens from their locked or liquid account in an endowment.
      * @dev Allows the owner of an endowment to invest tokens into specified yield vaults.
-     * @param curId The endowment id
-     * @param curStrategy The strategies to invest into
-     * @param curToken The tokens to withdraw
-     * @param curLockAmt The amount to deposit lock 
-     * @param curLiquidAmt The amount to deposit liquid
+     * @param id The endowment id
+     * @param strategy The strategies to invest into
+     * @param token The tokens to withdraw
+     * @param lockAmt The amount to deposit lock 
+     * @param liquidAmt The amount to deposit liquid
      */
     function strategyInvest(
-        uint32 curId,
-        bytes4 curStrategy,
-        string memory curToken,
-        uint256 curLockAmt,
-        uint256 curLiquidAmt
+        uint32 id,
+        bytes4 strategy,
+        string memory token,
+        uint256 lockAmt,
+        uint256 liquidAmt
     ) public payable nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
-            curId
+            id
         ];
 
         require(tempEndowment.owner == msg.sender, "Unauthorized");
 
         require(
             IRegistrar(state.config.registrarContract).getStrategyApprovalState(
-                curStrategy
+                strategy
             ) == LocalRegistrarLib.StrategyApprovalState.APPROVED,
             "Vault is not approved"
         );
@@ -64,12 +64,12 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
             .queryNetworkConnection(block.chainid);
 
         address tokenAddress = IAxelarGateway(network.axelarGateway)
-            .tokenAddresses(curToken);
+            .tokenAddresses(token);
 
         require(
-            state.STATES[curId].balances.locked.balancesByToken[tokenAddress] >= curLockAmt, 
+            state.STATES[id].balances.locked.balancesByToken[tokenAddress] >= lockAmt, 
             "Insufficient Balance");
-        require(state.STATES[curId].balances.liquid.balancesByToken[tokenAddress] >= curLiquidAmt, 
+        require(state.STATES[id].balances.liquid.balancesByToken[tokenAddress] >= liquidAmt, 
             "Insufficient Balance");
 
         require(IRegistrar(state.config.registrarContract)
@@ -77,17 +77,17 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
             "Token not approved");
 
         uint32[] memory accts = new uint32[](1);
-        accts[0] = curId;
+        accts[0] = id;
 
         IRouter.VaultActionData memory payload = IRouter
             .VaultActionData({
                 destinationChain: network.name,
-                strategyId: curStrategy,
+                strategyId: strategy,
                 selector: IVault.deposit.selector,
                 accountIds: accts,
                 token: tokenAddress,
-                lockAmt: curLockAmt,
-                liqAmt: curLiquidAmt,
+                lockAmt: lockAmt,
+                liqAmt: liquidAmt,
                 status: IRouter.VaultActionStatus.UNPROCESSED
             });
         bytes memory packedPayload = RouterLib.packCallData(payload);
@@ -98,44 +98,44 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
                 network.name, 
                 AddressToString.toString(address(this)), 
                 packedPayload,
-                curToken,
-                (curLockAmt + curLiquidAmt)
+                token,
+                (lockAmt + liquidAmt)
             );
         
         if (response.status == IRouter.VaultActionStatus.SUCCESS ||
             response.status == IRouter.VaultActionStatus.FAIL_TOKENS_FALLBACK) {
-            state.STATES[curId].balances.locked.balancesByToken[tokenAddress] -= response.lockAmt;
-            state.STATES[curId].balances.liquid.balancesByToken[tokenAddress] -= response.liqAmt;
-            state.STATES[curId].activeStrategies[curStrategy] == true;
-            // emit UpdateEndowmentState(curId, state.STATES[curId]);
+            state.STATES[id].balances.locked.balancesByToken[tokenAddress] -= response.lockAmt;
+            state.STATES[id].balances.liquid.balancesByToken[tokenAddress] -= response.liqAmt;
+            state.STATES[id].activeStrategies[strategy] == true;
+            // emit UpdateEndowmentState(id, state.STATES[id]);
         }
     }
 
     /**
      * @notice Allows an endowment owner to redeem their funds from multiple yield strategies.
-     * @param curId  The endowment ID
-     * @param curStrategy The strategy to redeem from
-     * @param curToken The vaults to redeem from
-     * @param curLockAmt The amt to remdeem from the locked component
-     * @param curLiquidAmt The amt to redeem from the liquid component
+     * @param id  The endowment ID
+     * @param strategy The strategy to redeem from
+     * @param token The vaults to redeem from
+     * @param lockAmt The amt to remdeem from the locked component
+     * @param liquidAmt The amt to redeem from the liquid component
      */
     function strategyRedeem(
-        uint32 curId,
-        bytes4 curStrategy,
-        string memory curToken,
-        uint256 curLockAmt,
-        uint256 curLiquidAmt
+        uint32 id,
+        bytes4 strategy,
+        string memory token,
+        uint256 lockAmt,
+        uint256 liquidAmt
     ) public payable nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
-            curId
+            id
         ];
 
         require(tempEndowment.owner == msg.sender, "Unauthorized");
         require(tempEndowment.pendingRedemptions == 0, "RedemptionInProgress");
         require(
             IRegistrar(state.config.registrarContract).getStrategyApprovalState(
-                curStrategy
+                strategy
             ) == LocalRegistrarLib.StrategyApprovalState.APPROVED,
             "Vault is not approved"
         );
@@ -144,20 +144,20 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
             .queryNetworkConnection(block.chainid);
 
         address tokenAddress = IAxelarGateway(network.axelarGateway)
-            .tokenAddresses(curToken);
+            .tokenAddresses(token);
 
 
         uint32[] memory accts = new uint32[](1);
-        accts[0] = curId;
+        accts[0] = id;
         IRouter.VaultActionData memory payload = IRouter
             .VaultActionData({
                 destinationChain: network.name,
-                strategyId: curStrategy,
+                strategyId: strategy,
                 selector: IVault.redeem.selector,
                 accountIds: accts,
                 token: tokenAddress,
-                lockAmt: curLockAmt,
-                liqAmt: curLiquidAmt,
+                lockAmt: lockAmt,
+                liqAmt: liquidAmt,
                 status: IRouter.VaultActionStatus.UNPROCESSED
             });
 
@@ -171,35 +171,35 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
                 packedPayload
             );
         if (response.status == IRouter.VaultActionStatus.SUCCESS) {
-            state.STATES[curId].balances.locked.balancesByToken[tokenAddress] += response.lockAmt;
-            state.STATES[curId].balances.liquid.balancesByToken[tokenAddress] += response.liqAmt;
-            // emit UpdateEndowmentState(curId, state.STATES[curId]);
+            state.STATES[id].balances.locked.balancesByToken[tokenAddress] += response.lockAmt;
+            state.STATES[id].balances.liquid.balancesByToken[tokenAddress] += response.liqAmt;
+            // emit UpdateEndowmentState(id, state.STATES[id]);
         }
         if (response.status == IRouter.VaultActionStatus.POSITION_EXITED) {
-            state.STATES[curId].activeStrategies[curStrategy] == false;
+            state.STATES[id].activeStrategies[strategy] == false;
         }
     }
 
     /**
      * @notice Allows an endowment owner to redeem their funds from multiple yield strategies.
-     * @param curId  The endowment ID
-     * @param curStrategy The strategy to redeem from
-     * @param curToken The vaults to redeem from
+     * @param id  The endowment ID
+     * @param strategy The strategy to redeem from
+     * @param token The vaults to redeem from
      */
     function strategyRedeemAll(
-        uint32 curId,
-        bytes4 curStrategy,
-        string memory curToken
+        uint32 id,
+        bytes4 strategy,
+        string memory token
     ) public payable nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
-            curId
+            id
         ];
         require(tempEndowment.owner == msg.sender, "Unauthorized");
         require(tempEndowment.pendingRedemptions == 0, "RedemptionInProgress");
         require(
             IRegistrar(state.config.registrarContract).getStrategyApprovalState(
-                curStrategy
+                strategy
             ) == LocalRegistrarLib.StrategyApprovalState.APPROVED,
             "Vault is not approved"
         );
@@ -208,14 +208,14 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
             .queryNetworkConnection(block.chainid);
         
         address tokenAddress = IAxelarGateway(network.axelarGateway)
-            .tokenAddresses(curToken);
+            .tokenAddresses(token);
 
         uint32[] memory accts = new uint32[](1);
-        accts[0] = curId;
+        accts[0] = id;
         IRouter.VaultActionData memory payload = IRouter
             .VaultActionData({
                 destinationChain: network.name,
-                strategyId: curStrategy,
+                strategyId: strategy,
                 selector: IVault.redeemAll.selector,
                 accountIds: accts,
                 token: tokenAddress,
@@ -234,72 +234,72 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
             );
         
         if (response.status == IRouter.VaultActionStatus.SUCCESS) {
-            state.STATES[curId].balances.locked.balancesByToken[tokenAddress] += response.lockAmt;
-            state.STATES[curId].balances.liquid.balancesByToken[tokenAddress] += response.liqAmt;
-            // emit UpdateEndowmentState(curId, state.STATES[curId]);
+            state.STATES[id].balances.locked.balancesByToken[tokenAddress] += response.lockAmt;
+            state.STATES[id].balances.liquid.balancesByToken[tokenAddress] += response.liqAmt;
+            // emit UpdateEndowmentState(id, state.STATES[id]);
         }
         if (response.status == IRouter.VaultActionStatus.POSITION_EXITED) {
-            state.STATES[curId].activeStrategies[curStrategy] == false;
+            state.STATES[id].activeStrategies[strategy] == false;
         }
     }
 
     // function processDeduct(
-    //     address currentToken,
-    //     AngelCoreStruct.GenericBalance memory currentBalance,
-    //     uint256 currentInputAmount
+    //     address rentToken,
+    //     AngelCoreStruct.GenericBalance memory rentBalance,
+    //     uint256 rentInputAmount
     // ) internal pure returns (AngelCoreStruct.GenericBalance memory) {
-    //     uint256 currentAmount = 0;
+    //     uint256 rentAmount = 0;
     //     uint8 atIndex = 0;
     //     for (
     //         uint8 j = 0;
-    //         j < currentBalance.Cw20CoinVerified_addr.length;
+    //         j < rentBalance.Cw20CoinVerified_addr.length;
     //         j++
     //     ) {
-    //         if (currentBalance.Cw20CoinVerified_addr[j] == currentToken) {
-    //             currentAmount = currentBalance.Cw20CoinVerified_amount[j];
+    //         if (rentBalance.Cw20CoinVerified_addr[j] == rentToken) {
+    //             rentAmount = rentBalance.Cw20CoinVerified_amount[j];
     //             atIndex = j;
     //             break;
     //         }
     //     }
-    //     require(currentInputAmount < currentAmount, "InsufficientFunds");
-    //     currentBalance.Cw20CoinVerified_amount[atIndex] -= currentInputAmount;
+    //     require(rentInputAmount < rentAmount, "InsufficientFunds");
+    //     rentBalance.Cw20CoinVerified_amount[atIndex] -= rentInputAmount;
 
-    //     return currentBalance;
+    //     return rentBalance;
     // }
 
     // function processCheck(
-    //     uint256 currentId,
-    //     string memory currentVault,
-    //     uint256 currentAmount,
-    //     AngelCoreStruct.AccountType currentAccountType,
-    //     AngelCoreStruct.OneOffVaults storage currentObject
+    //     uint256 rentId,
+    //     string memory rentVault,
+    //     uint256 rentAmount,
+    //     AngelCoreStruct.AccountType rentAccountType,
+    //     AngelCoreStruct.OneOffVaults storage rentObject
     // ) internal returns (uint256, uint256) {
     //     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
     //     uint256 lockedAmount = 0;
     //     uint256 liquidAmount = 0;
 
-    //     if (currentAccountType == AngelCoreStruct.AccountType.Locked) {
+    //     if (rentAccountType == AngelCoreStruct.AccountType.Locked) {
     //         AngelCoreStruct.checkTokenInOffVault(
-    //             currentObject.locked,
-    //             currentObject.lockedAmount,
-    //             currentVault
+    //             rentObject.locked,
+    //             rentObject.lockedAmount,
+    //             rentVault
     //         );
-    //         lockedAmount = currentAmount;
+    //         lockedAmount = rentAmount;
 
-    //         state.vaultBalance[currentId][AngelCoreStruct.AccountType.Locked][
-    //             currentVault
+    //         state.vaultBalance[rentId][AngelCoreStruct.AccountType.Locked][
+    //             rentVault
     //         ] += lockedAmount;
-    //     } else if (currentAccountType == AngelCoreStruct.AccountType.Liquid) {
+    //     } else if (rentAccountType == AngelCoreStruct.AccountType.Liquid) {
     //         AngelCoreStruct.checkTokenInOffVault(
-    //             currentObject.liquid,
-    //             currentObject.liquidAmount,
-    //             currentVault
+    //             rentObject.liquid,
+    //             rentObject.liquidAmount,
+    //             rentVault
     //         );
-    //         liquidAmount = currentAmount;
+    //         liquidAmount = rentAmount;
 
-    //         state.vaultBalance[currentId][AngelCoreStruct.AccountType.Liquid][
-    //             currentVault
+    //         state.vaultBalance[rentId][AngelCoreStruct.AccountType.Liquid][
+    //             rentVault
     //         ] += liquidAmount;
     //     }
 
@@ -369,10 +369,10 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
     //     AngelCoreStruct.NetworkInfo memory recieverInfo = IRegistrar(
     //         registrarContract
     //     ).queryNetworkConnection(network);
-    //     uint256 curEth = recieverInfo.gasLimit;
-    //     if (curEth > 0) {
+    //     uint256 eth = recieverInfo.gasLimit;
+    //     if (eth > 0) {
     //         IAxelarGateway(senderInfo.gasReceiver)
-    //             .payNativeGasForContractCallWithToken{value: curEth}(
+    //             .payNativeGasForContractCallWithToken{value: eth}(
     //             address(this),
     //             recieverInfo.name,
     //             StringArray.addressToString(recieverInfo.router),
@@ -418,10 +418,10 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
     //     AngelCoreStruct.NetworkInfo memory recieverInfo = IRegistrar(
     //         registrarContract
     //     ).queryNetworkConnection(network);
-    //     uint256 curEth = recieverInfo.gasLimit;
-    //     if (curEth > 0) {
+    //     uint256 eth = recieverInfo.gasLimit;
+    //     if (eth > 0) {
     //         IAxelarGateway(senderInfo.gasReceiver).payNativeGasForContractCall{
-    //             value: curEth
+    //             value: eth
     //         }(
     //             address(this),
     //             recieverInfo.name,

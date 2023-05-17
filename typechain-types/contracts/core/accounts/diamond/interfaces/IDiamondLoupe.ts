@@ -107,37 +107,37 @@ export interface IDiamondLoupe extends BaseContract {
 
   functions: {
     facetAddress(
-      curFunctionselector: PromiseOrValue<BytesLike>,
+      functionselector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[string] & { curFacetaddress: string }>;
+    ): Promise<[string] & { facetaddress: string }>;
 
     facetAddresses(
       overrides?: CallOverrides
-    ): Promise<[string[]] & { curFacetaddresses: string[] }>;
+    ): Promise<[string[]] & { facetaddresses: string[] }>;
 
     facetFunctionSelectors(
-      curFacet: PromiseOrValue<string>,
+      facet: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<[string[]] & { curFacetfunctionselectors: string[] }>;
+    ): Promise<[string[]] & { facetfunctionselectors: string[] }>;
 
     facets(
       overrides?: CallOverrides
     ): Promise<
       [IDiamondLoupe.FacetStructOutput[]] & {
-        curFacets: IDiamondLoupe.FacetStructOutput[];
+        facets: IDiamondLoupe.FacetStructOutput[];
       }
     >;
   };
 
   facetAddress(
-    curFunctionselector: PromiseOrValue<BytesLike>,
+    functionselector: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string>;
 
   facetAddresses(overrides?: CallOverrides): Promise<string[]>;
 
   facetFunctionSelectors(
-    curFacet: PromiseOrValue<string>,
+    facet: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<string[]>;
 
@@ -145,14 +145,14 @@ export interface IDiamondLoupe extends BaseContract {
 
   callStatic: {
     facetAddress(
-      curFunctionselector: PromiseOrValue<BytesLike>,
+      functionselector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string>;
 
     facetAddresses(overrides?: CallOverrides): Promise<string[]>;
 
     facetFunctionSelectors(
-      curFacet: PromiseOrValue<string>,
+      facet: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<string[]>;
 
@@ -165,14 +165,14 @@ export interface IDiamondLoupe extends BaseContract {
 
   estimateGas: {
     facetAddress(
-      curFunctionselector: PromiseOrValue<BytesLike>,
+      functionselector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     facetAddresses(overrides?: CallOverrides): Promise<BigNumber>;
 
     facetFunctionSelectors(
-      curFacet: PromiseOrValue<string>,
+      facet: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -181,14 +181,14 @@ export interface IDiamondLoupe extends BaseContract {
 
   populateTransaction: {
     facetAddress(
-      curFunctionselector: PromiseOrValue<BytesLike>,
+      functionselector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     facetAddresses(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     facetFunctionSelectors(
-      curFacet: PromiseOrValue<string>,
+      facet: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

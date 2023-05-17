@@ -36,13 +36,13 @@
 
 //     // Initialise the contract
 //     function initialize(
-//         GiftCardsMessage.InstantiateMsg memory curDetails
+//         GiftCardsMessage.InstantiateMsg memory details
 //     ) public {
 //         require(!initFlag, "Already initialised");
 //         initFlag = true;
 //         state.config.owner = msg.sender;
-//         state.config.registrarContract = curDetails.registrarContract;
-//         state.config.keeper = curDetails.keeper;
+//         state.config.registrarContract = details.registrarContract;
+//         state.config.keeper = details.keeper;
 //         state.config.nextDeposit = 1;
 //         emit GiftCardsUpdateConfig(state.config);
 //     }
@@ -315,15 +315,15 @@
 
 //     /**
 //      * @dev Validate deposit fund: checks if the fund is accepted by querying registrar contract
-//      * @param curTokenAddress the token address
-//      * @param curAmount the amount
+//      * @param tokenAddress the token address
+//      * @param amount the amount
 //      */
 //     function validateDepositFund(
-//         address curTokenAddress,
-//         uint256 curAmount
+//         address tokenAddress,
+//         uint256 amount
 //     ) internal view returns (bool) {
-//         require(IRegistrar(state.config.registrarContract).isTokenAccepted(curTokenAddress));
-//         require(curAmount > 0, "InvalidZeroAmount");
+//         require(IRegistrar(state.config.registrarContract).isTokenAccepted(tokenAddress));
+//         require(amount > 0, "InvalidZeroAmount");
 //         return true;
 //     }
 // }

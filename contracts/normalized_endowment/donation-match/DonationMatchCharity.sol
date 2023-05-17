@@ -20,10 +20,10 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 
 interface SubdaoToken {
     function executeDonorMatch(
-        uint256 curAmount,
-        address curAccountscontract,
-        uint32 curEndowmentid,
-        address curDonor
+        uint256 amount,
+        address accountscontract,
+        uint32 endowmentid,
+        address donor
     ) external;
 }
 
@@ -65,22 +65,22 @@ contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
     );
 
     function initialize(
-        DonationMatchMessages.InstantiateMessage memory curDetails
+        DonationMatchMessages.InstantiateMessage memory details
     ) public initializer {
-        require(curDetails.reserveToken != address(0), "Invalid Address");
-        state.config.reserveToken = curDetails.reserveToken;
+        require(details.reserveToken != address(0), "Invalid Address");
+        state.config.reserveToken = details.reserveToken;
 
-        require(curDetails.uniswapFactory != address(0), "Invalid Address");
-        state.config.uniswapFactory = curDetails.uniswapFactory;
+        require(details.uniswapFactory != address(0), "Invalid Address");
+        state.config.uniswapFactory = details.uniswapFactory;
 
-        require(curDetails.registrarContract != address(0), "Invalid Address");
-        state.config.registrarContract = curDetails.registrarContract;
+        require(details.registrarContract != address(0), "Invalid Address");
+        state.config.registrarContract = details.registrarContract;
 
-        require(curDetails.poolFee > 0, "Invalid Fee");
-        state.config.poolFee = curDetails.poolFee;
+        require(details.poolFee > 0, "Invalid Fee");
+        state.config.poolFee = details.poolFee;
 
-        require(curDetails.usdcAddress != address(0), "Invalid Address");
-        state.config.usdcAddress = curDetails.usdcAddress;
+        require(details.usdcAddress != address(0), "Invalid Address");
+        state.config.usdcAddress = details.usdcAddress;
 
         emit DonationMatchCharityInitialized(address(this), state.config);
     }
@@ -206,7 +206,7 @@ contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
                 burnAmount
             );
         } else {
-            // approve reserve currency to dao token contract [GIvE approval]
+            // approve reserve rency to dao token contract [GIvE approval]
 
             success = IERC20(state.config.reserveToken).approve(
                 token,
@@ -241,16 +241,16 @@ contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
     }
 
     function queryUniswapPrice(
-        address curTokenin,
-        uint256 curAmountin,
-        address curTokenout
+        address tokenin,
+        uint256 amountin,
+        address tokenout
     ) internal view returns (uint256) {
-        if (curTokenin == curTokenout) {
-            return curAmountin;
+        if (tokenin == tokenout) {
+            return amountin;
         }
         address pool = IUniswapV3Factory(state.config.uniswapFactory).getPool(
-            curTokenin,
-            curTokenout,
+            tokenin,
+            tokenout,
             state.config.poolFee
         );
         if (pool == address(0)) {
@@ -259,13 +259,13 @@ contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
 
         (uint160 sqrtPriceX96, , , , , , ) = IUniswapV3PoolState(pool).slot0();
 
-        if (curTokenin < curTokenout) {
+        if (tokenin < tokenout) {
             return
-                (((curAmountin * sqrtPriceX96) / 2 ** 96) * sqrtPriceX96) /
+                (((amountin * sqrtPriceX96) / 2 ** 96) * sqrtPriceX96) /
                 2 ** 96;
         } else {
             return
-                (((curAmountin * 2 ** 96) / sqrtPriceX96) * 2 ** 96) /
+                (((amountin * 2 ** 96) / sqrtPriceX96) * 2 ** 96) /
                 sqrtPriceX96;
         }
     }

@@ -377,11 +377,11 @@ export interface NewERC20 extends BaseContract {
     ): Promise<ContractTransaction>;
 
     initErC20(
-      curName: PromiseOrValue<string>,
-      curSymbol: PromiseOrValue<string>,
-      curMintaddress: PromiseOrValue<string>,
-      curTotalmint: PromiseOrValue<BigNumberish>,
-      curAdmin: PromiseOrValue<string>,
+      name: PromiseOrValue<string>,
+      symbol: PromiseOrValue<string>,
+      mintaddress: PromiseOrValue<string>,
+      totalmint: PromiseOrValue<BigNumberish>,
+      admin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -481,11 +481,11 @@ export interface NewERC20 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   initErC20(
-    curName: PromiseOrValue<string>,
-    curSymbol: PromiseOrValue<string>,
-    curMintaddress: PromiseOrValue<string>,
-    curTotalmint: PromiseOrValue<BigNumberish>,
-    curAdmin: PromiseOrValue<string>,
+    name: PromiseOrValue<string>,
+    symbol: PromiseOrValue<string>,
+    mintaddress: PromiseOrValue<string>,
+    totalmint: PromiseOrValue<BigNumberish>,
+    admin: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -585,11 +585,11 @@ export interface NewERC20 extends BaseContract {
     ): Promise<boolean>;
 
     initErC20(
-      curName: PromiseOrValue<string>,
-      curSymbol: PromiseOrValue<string>,
-      curMintaddress: PromiseOrValue<string>,
-      curTotalmint: PromiseOrValue<BigNumberish>,
-      curAdmin: PromiseOrValue<string>,
+      name: PromiseOrValue<string>,
+      symbol: PromiseOrValue<string>,
+      mintaddress: PromiseOrValue<string>,
+      totalmint: PromiseOrValue<BigNumberish>,
+      admin: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -750,11 +750,11 @@ export interface NewERC20 extends BaseContract {
     ): Promise<BigNumber>;
 
     initErC20(
-      curName: PromiseOrValue<string>,
-      curSymbol: PromiseOrValue<string>,
-      curMintaddress: PromiseOrValue<string>,
-      curTotalmint: PromiseOrValue<BigNumberish>,
-      curAdmin: PromiseOrValue<string>,
+      name: PromiseOrValue<string>,
+      symbol: PromiseOrValue<string>,
+      mintaddress: PromiseOrValue<string>,
+      totalmint: PromiseOrValue<BigNumberish>,
+      admin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -857,11 +857,11 @@ export interface NewERC20 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initErC20(
-      curName: PromiseOrValue<string>,
-      curSymbol: PromiseOrValue<string>,
-      curMintaddress: PromiseOrValue<string>,
-      curTotalmint: PromiseOrValue<BigNumberish>,
-      curAdmin: PromiseOrValue<string>,
+      name: PromiseOrValue<string>,
+      symbol: PromiseOrValue<string>,
+      mintaddress: PromiseOrValue<string>,
+      totalmint: PromiseOrValue<BigNumberish>,
+      admin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

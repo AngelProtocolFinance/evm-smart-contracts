@@ -174,7 +174,7 @@ License. However, in accepting such obligations, You may act only
 on Your own behalf and on Your sole responsibility, not on behalf
 of any other Contributor, and only if You agree to indemnify,
 defend, and hold each Contributor harmless for any liability
-incurred by, or claims asserted against, such Contributor by reason
+inred by, or claims asserted against, such Contributor by reason
 of your accepting any such warranty or additional liability.
 
 END OF TERMS AND CONDITIONS
@@ -381,38 +381,38 @@ contract Power {
   /**
     General Description:
         Determine a value of precision.
-        Calculate an integer approximation of (curBasen / curBased) ^ (curExpn / curExpd) * 2 ^ precision.
+        Calculate an integer approximation of (basen / based) ^ (expn / expd) * 2 ^ precision.
         Return the result along with the precision used.
      Detailed Description:
         Instead of calculating "base ^ exp", we calculate "e ^ (log(base) * exp)".
         The value of "log(base)" is represented with an integer slightly smaller than "log(base) * 2 ^ precision".
-        The larger "precision" is, the more accurately this value represents the real value.
+        The larger "precision" is, the more acately this value represents the real value.
         However, the larger "precision" is, the more bits are required in order to store this value.
         And the exponentiation function, which takes "x" and calculates "e ^ x", is limited to a maximum exponent (maximum value of "x").
         This maximum exponent depends on the "precision" used, and it is given by "maxExpArray[precision] >> (MAX_PRECISION - precision)".
         Hence we need to determine the highest precision which can be used for the given input, before calling the exponentiation function.
-        This allows us to compute "base ^ exp" with maximum accuracy and without exceeding 256 bits in any of the intermediate computations.
-        This functions assumes that "curExpn < 2 ^ 256 / log(MAX_NUM - 1)", otherwise the multiplication should be replaced with a "safeMul".
+        This allows us to compute "base ^ exp" with maximum acacy and without exceeding 256 bits in any of the intermediate computations.
+        This functions assumes that "expn < 2 ^ 256 / log(MAX_NUM - 1)", otherwise the multiplication should be replaced with a "safeMul".
   */
   function power(
-    uint256 curBasen,
-    uint256 curBased,
-    uint32 curExpn,
-    uint32 curExpd
+    uint256 basen,
+    uint256 based,
+    uint32 expn,
+    uint32 expd
   ) internal view returns (uint256, uint8)
   {
-    assert(curBasen < MAX_NUM);
-    require(curBasen >= curBased, "Bases < 1 are not supported.");
+    assert(basen < MAX_NUM);
+    require(basen >= based, "Bases < 1 are not supported.");
 
     uint256 baseLog;
-    uint256 base = curBasen * FIXED_1 / curBased;
+    uint256 base = basen * FIXED_1 / based;
     if (base < OPT_LOG_MAX_VAL) {
       baseLog = optimalLog(base);
     } else {
       baseLog = generalLog(base);
     }
 
-    uint256 baseLogTimesExp = baseLog * curExpn / curExpd;
+    uint256 baseLogTimesExp = baseLog * expn / expd;
     if (baseLogTimesExp < OPT_EXP_MAX_VAL) {
       return (optimalExp(baseLogTimesExp), MAX_PRECISION);
     } else {
@@ -425,9 +425,9 @@ contract Power {
       Compute log(x / FIXED_1) * FIXED_1.
       This functions assumes that "x >= FIXED_1", because the output would be negative otherwise.
   */
-  function generalLog(uint256 curX) internal pure returns (uint256) {
+  function generalLog(uint256 x) internal pure returns (uint256) {
     uint256 res = 0;
-    uint256 x = curX;
+    uint256 x = x;
 
     // If x >= 2, then we compute the integer part of log2(x), which is larger than 0.
     if (x >= FIXED_2) {
@@ -453,9 +453,9 @@ contract Power {
   /**
     Compute the largest integer smaller than or equal to the binary logarithm of the input.
   */
-  function floorLog2(uint256 curN) internal pure returns (uint8) {
+  function floorLog2(uint256 n) internal pure returns (uint8) {
     uint8 res = 0;
-    uint256 n = curN;
+    uint256 n = n;
 
     if (n < 256) {
       // At most 8 iterations
@@ -481,7 +481,7 @@ contract Power {
       - This function finds the position of [the smallest value in "maxExpArray" larger than or equal to "x"]
       - This function finds the highest position of [a value in "maxExpArray" larger than or equal to "x"]
   */
-  function findPositionInMaxExpArray(uint256 curX)
+  function findPositionInMaxExpArray(uint256 x)
   internal view returns (uint8)
   {
     uint8 lo = MIN_PRECISION;
@@ -489,15 +489,15 @@ contract Power {
 
     while (lo + 1 < hi) {
       uint8 mid = (lo + hi) / 2;
-      if (maxExpArray[mid] >= curX)
+      if (maxExpArray[mid] >= x)
         lo = mid;
       else
         hi = mid;
     }
 
-    if (maxExpArray[hi] >= curX)
+    if (maxExpArray[hi] >= x)
       return hi;
-    if (maxExpArray[lo] >= curX)
+    if (maxExpArray[lo] >= x)
       return lo;
 
     assert(false);
@@ -508,48 +508,48 @@ contract Power {
   /**
        This function can be auto-generated by the script 'PrintFunctionGeneralExp.py'.
        It approximates "e ^ x" via maclaurin summation: "(x^0)/0! + (x^1)/1! + ... + (x^n)/n!".
-       It returns "e ^ (x / 2 ^ precision) * 2 ^ precision", that is, the result is upshifted for accuracy.
+       It returns "e ^ (x / 2 ^ precision) * 2 ^ precision", that is, the result is upshifted for acacy.
        The global "maxExpArray" maps each "precision" to "((maximumExponent + 1) << (MAX_PRECISION - precision)) - 1".
        The maximum permitted value for "x" is therefore given by "maxExpArray[precision] >> (MAX_PRECISION - precision)".
    */
-   function generalExp(uint256 curX, uint8 curPrecision) internal pure returns (uint256) {
-       uint256 xi = curX;
+   function generalExp(uint256 x, uint8 precision) internal pure returns (uint256) {
+       uint256 xi = x;
        uint256 res = 0;
 
-       xi = (xi * curX) >> curPrecision; res += xi * 0x3442c4e6074a82f1797f72ac0000000; // add x^02 * (33! / 02!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x116b96f757c380fb287fd0e40000000; // add x^03 * (33! / 03!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x045ae5bdd5f0e03eca1ff4390000000; // add x^04 * (33! / 04!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x00defabf91302cd95b9ffda50000000; // add x^05 * (33! / 05!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x002529ca9832b22439efff9b8000000; // add x^06 * (33! / 06!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x00054f1cf12bd04e516b6da88000000; // add x^07 * (33! / 07!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x0000a9e39e257a09ca2d6db51000000; // add x^08 * (33! / 08!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x000012e066e7b839fa050c309000000; // add x^09 * (33! / 09!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x000001e33d7d926c329a1ad1a800000; // add x^10 * (33! / 10!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x0000002bee513bdb4a6b19b5f800000; // add x^11 * (33! / 11!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x00000003a9316fa79b88eccf2a00000; // add x^12 * (33! / 12!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x0000000048177ebe1fa812375200000; // add x^13 * (33! / 13!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x0000000005263fe90242dcbacf00000; // add x^14 * (33! / 14!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x000000000057e22099c030d94100000; // add x^15 * (33! / 15!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x0000000000057e22099c030d9410000; // add x^16 * (33! / 16!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x00000000000052b6b54569976310000; // add x^17 * (33! / 17!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x00000000000004985f67696bf748000; // add x^18 * (33! / 18!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x000000000000003dea12ea99e498000; // add x^19 * (33! / 19!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x00000000000000031880f2214b6e000; // add x^20 * (33! / 20!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x000000000000000025bcff56eb36000; // add x^21 * (33! / 21!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x000000000000000001b722e10ab1000; // add x^22 * (33! / 22!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x0000000000000000001317c70077000; // add x^23 * (33! / 23!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x00000000000000000000cba84aafa00; // add x^24 * (33! / 24!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x00000000000000000000082573a0a00; // add x^25 * (33! / 25!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x00000000000000000000005035ad900; // add x^26 * (33! / 26!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x000000000000000000000002f881b00; // add x^27 * (33! / 27!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x0000000000000000000000001b29340; // add x^28 * (33! / 28!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x00000000000000000000000000efc40; // add x^29 * (33! / 29!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x0000000000000000000000000007fe0; // add x^30 * (33! / 30!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x0000000000000000000000000000420; // add x^31 * (33! / 31!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x0000000000000000000000000000021; // add x^32 * (33! / 32!)
-       xi = (xi * curX) >> curPrecision; res += xi * 0x0000000000000000000000000000001; // add x^33 * (33! / 33!)
+       xi = (xi * x) >> precision; res += xi * 0x3442c4e6074a82f1797f72ac0000000; // add x^02 * (33! / 02!)
+       xi = (xi * x) >> precision; res += xi * 0x116b96f757c380fb287fd0e40000000; // add x^03 * (33! / 03!)
+       xi = (xi * x) >> precision; res += xi * 0x045ae5bdd5f0e03eca1ff4390000000; // add x^04 * (33! / 04!)
+       xi = (xi * x) >> precision; res += xi * 0x00defabf91302cd95b9ffda50000000; // add x^05 * (33! / 05!)
+       xi = (xi * x) >> precision; res += xi * 0x002529ca9832b22439efff9b8000000; // add x^06 * (33! / 06!)
+       xi = (xi * x) >> precision; res += xi * 0x00054f1cf12bd04e516b6da88000000; // add x^07 * (33! / 07!)
+       xi = (xi * x) >> precision; res += xi * 0x0000a9e39e257a09ca2d6db51000000; // add x^08 * (33! / 08!)
+       xi = (xi * x) >> precision; res += xi * 0x000012e066e7b839fa050c309000000; // add x^09 * (33! / 09!)
+       xi = (xi * x) >> precision; res += xi * 0x000001e33d7d926c329a1ad1a800000; // add x^10 * (33! / 10!)
+       xi = (xi * x) >> precision; res += xi * 0x0000002bee513bdb4a6b19b5f800000; // add x^11 * (33! / 11!)
+       xi = (xi * x) >> precision; res += xi * 0x00000003a9316fa79b88eccf2a00000; // add x^12 * (33! / 12!)
+       xi = (xi * x) >> precision; res += xi * 0x0000000048177ebe1fa812375200000; // add x^13 * (33! / 13!)
+       xi = (xi * x) >> precision; res += xi * 0x0000000005263fe90242dcbacf00000; // add x^14 * (33! / 14!)
+       xi = (xi * x) >> precision; res += xi * 0x000000000057e22099c030d94100000; // add x^15 * (33! / 15!)
+       xi = (xi * x) >> precision; res += xi * 0x0000000000057e22099c030d9410000; // add x^16 * (33! / 16!)
+       xi = (xi * x) >> precision; res += xi * 0x00000000000052b6b54569976310000; // add x^17 * (33! / 17!)
+       xi = (xi * x) >> precision; res += xi * 0x00000000000004985f67696bf748000; // add x^18 * (33! / 18!)
+       xi = (xi * x) >> precision; res += xi * 0x000000000000003dea12ea99e498000; // add x^19 * (33! / 19!)
+       xi = (xi * x) >> precision; res += xi * 0x00000000000000031880f2214b6e000; // add x^20 * (33! / 20!)
+       xi = (xi * x) >> precision; res += xi * 0x000000000000000025bcff56eb36000; // add x^21 * (33! / 21!)
+       xi = (xi * x) >> precision; res += xi * 0x000000000000000001b722e10ab1000; // add x^22 * (33! / 22!)
+       xi = (xi * x) >> precision; res += xi * 0x0000000000000000001317c70077000; // add x^23 * (33! / 23!)
+       xi = (xi * x) >> precision; res += xi * 0x00000000000000000000cba84aafa00; // add x^24 * (33! / 24!)
+       xi = (xi * x) >> precision; res += xi * 0x00000000000000000000082573a0a00; // add x^25 * (33! / 25!)
+       xi = (xi * x) >> precision; res += xi * 0x00000000000000000000005035ad900; // add x^26 * (33! / 26!)
+       xi = (xi * x) >> precision; res += xi * 0x000000000000000000000002f881b00; // add x^27 * (33! / 27!)
+       xi = (xi * x) >> precision; res += xi * 0x0000000000000000000000001b29340; // add x^28 * (33! / 28!)
+       xi = (xi * x) >> precision; res += xi * 0x00000000000000000000000000efc40; // add x^29 * (33! / 29!)
+       xi = (xi * x) >> precision; res += xi * 0x0000000000000000000000000007fe0; // add x^30 * (33! / 30!)
+       xi = (xi * x) >> precision; res += xi * 0x0000000000000000000000000000420; // add x^31 * (33! / 31!)
+       xi = (xi * x) >> precision; res += xi * 0x0000000000000000000000000000021; // add x^32 * (33! / 32!)
+       xi = (xi * x) >> precision; res += xi * 0x0000000000000000000000000000001; // add x^33 * (33! / 33!)
 
-       return res / 0x688589cc0e9505e2f2fee5580000000 + curX + (ONE << curPrecision); // divide by 33! and then add x^1 / 1! + x^0 / 0!
+       return res / 0x688589cc0e9505e2f2fee5580000000 + x + (ONE << precision); // divide by 33! and then add x^1 / 1! + x^0 / 0!
    }
 
    /**

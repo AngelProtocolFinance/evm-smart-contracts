@@ -49,15 +49,15 @@ library SubDaoLib {
     /**
      * @notice function used to validate title
      * @dev validate title
-     * @param curTitle title to be validated
+     * @param title title to be validated
      */
-    function validateTitle(string memory curTitle) public pure returns (bool) {
+    function validateTitle(string memory title) public pure returns (bool) {
         require(
-            utfStringLength(curTitle) > MIN_TITLE_LENGTH,
+            utfStringLength(title) > MIN_TITLE_LENGTH,
             "Title too short"
         );
 
-        require(utfStringLength(curTitle) < MAX_TITLE_LENGTH, "Title too long");
+        require(utfStringLength(title) < MAX_TITLE_LENGTH, "Title too long");
 
         return true;
     }
@@ -65,18 +65,18 @@ library SubDaoLib {
     /**
      * @notice function used to validate description
      * @dev validate description
-     * @param curDescription description to be validated
+     * @param description description to be validated
      */
     function validateDescription(
-        string memory curDescription
+        string memory description
     ) public pure returns (bool) {
         require(
-            utfStringLength(curDescription) > MIN_DESC_LENGTH,
+            utfStringLength(description) > MIN_DESC_LENGTH,
             "Description too short"
         );
 
         require(
-            utfStringLength(curDescription) < MAX_DESC_LENGTH,
+            utfStringLength(description) < MAX_DESC_LENGTH,
             "Description too long"
         );
 
@@ -86,37 +86,37 @@ library SubDaoLib {
     /**
      * @notice function used to validate link
      * @dev validate link
-     * @param curLink link to be validated
+     * @param link link to be validated
      */
 
-    function validateLink(string memory curLink) public pure returns (bool) {
-        require(utfStringLength(curLink) > MIN_LINK_LENGTH, "Link too short");
+    function validateLink(string memory link) public pure returns (bool) {
+        require(utfStringLength(link) > MIN_LINK_LENGTH, "Link too short");
 
-        require(utfStringLength(curLink) < MAX_LINK_LENGTH, "Link too long");
+        require(utfStringLength(link) < MAX_LINK_LENGTH, "Link too long");
 
         return true;
     }
 
     /**
-     * @notice function used to validate curQuorum
-     * @dev validate curQuorum
-     * @param curQuorum curQuorum to be validated
+     * @notice function used to validate quorum
+     * @dev validate quorum
+     * @param quorum quorum to be validated
      */
-    function validateQuorum(uint256 curQuorum) public pure returns (bool) {
-        require(curQuorum < 100, "quorum must be 0 to 100");
+    function validateQuorum(uint256 quorum) public pure returns (bool) {
+        require(quorum < 100, "quorum must be 0 to 100");
 
         return true;
     }
 
     /**
-     * @notice function used to validate curThreshold
-     * @dev validate curThreshold
-     * @param curThreshold curThreshold to be validated
+     * @notice function used to validate threshold
+     * @dev validate threshold
+     * @param threshold threshold to be validated
      */
     function validateThreshold(
-        uint256 curThreshold
+        uint256 threshold
     ) public pure returns (bool) {
-        require(curThreshold < 100, "threshold must be 0 to 100");
+        require(threshold < 100, "threshold must be 0 to 100");
 
         return true;
     }
@@ -124,50 +124,50 @@ library SubDaoLib {
     /**
      * @notice function used to query voting balance of an address
      * @dev query voting balance of an address
-     * @param curVeaddr ve address
-     * @param curAddress address to be queried
-     * @param curBlocknumber block number to be queried
+     * @param veAddr ve address
+     * @param targetAddr address to be queried
+     * @param blocknumber block number to be queried
      */
     function queryAddressVotingBalanceAtBlock(
-        address curVeaddr,
-        address curAddress,
-        uint256 curBlocknumber
+        address veAddr,
+        address targetAddr,
+        uint256 blocknumber
     ) public view returns (uint256) {
-        // return IERC20(curVeaddr).balanceOf(curAddress);
+        // return IERC20(veaddr).balanceOf(addr);
         return
-            QueryIIncentivisedVotingLockup(curVeaddr).balanceOfAt(
-                curAddress,
-                curBlocknumber
+            QueryIIncentivisedVotingLockup(veAddr).balanceOfAt(
+                targetAddr,
+                blocknumber
             );
     }
 
     /**
      * @notice function used to query total voting balance
      * @dev query total voting balance
-     * @param curVeaddr ve address
-     * @param curBlocknumber block number to be queried
+     * @param veaddr ve address
+     * @param blocknumber block number to be queried
      */
     function queryTotalVotingBalanceAtBlock(
-        address curVeaddr,
-        uint256 curBlocknumber
+        address veaddr,
+        uint256 blocknumber
     ) public view returns (uint256) {
         return
-            QueryIIncentivisedVotingLockup(curVeaddr).totalSupplyAt(
-                curBlocknumber
+            QueryIIncentivisedVotingLockup(veaddr).totalSupplyAt(
+                blocknumber
             );
     }
 
     /**
      * @notice function used to build the dao token deployment message
      * @dev Build the dao token deployment message
-     * @param curToken The token used to build the dao token
-     * @param curEndowType The endowment type used to build the dao token
-     * @param curEndowowner The endowment owner used to build the dao token
+     * @param token The token used to build the dao token
+     * @param endowType The endowment type used to build the dao token
+     * @param endowowner The endowment owner used to build the dao token
      */
     function buildDaoTokenMesage(
-        AngelCoreStruct.DaoToken memory curToken,
-        AngelCoreStruct.EndowmentType curEndowType,
-        address curEndowowner,
+        AngelCoreStruct.DaoToken memory token,
+        AngelCoreStruct.EndowmentType endowType,
+        address endowowner,
         subDaoStorage.Config storage config,
         address emitterAddress
     ) public {
@@ -176,24 +176,24 @@ library SubDaoLib {
         ).queryConfig();
 
         if (
-            curToken.token == AngelCoreStruct.TokenType.ExistingCw20 &&
-            curEndowType == AngelCoreStruct.EndowmentType.Normal
+            token.token == AngelCoreStruct.TokenType.ExistingCw20 &&
+            endowType == AngelCoreStruct.EndowmentType.Normal
         ) {
             require(
-                IRegistrar(config.registrarContract).isTokenAccepted(curToken.data.existingCw20Data),
+                IRegistrar(config.registrarContract).isTokenAccepted(token.data.existingCw20Data),
                 "NotInApprovedCoins"
             );
-            config.daoToken = curToken.data.existingCw20Data;
+            config.daoToken = token.data.existingCw20Data;
         } else if (
-            curToken.token == AngelCoreStruct.TokenType.NewCw20 &&
-            curEndowType == AngelCoreStruct.EndowmentType.Normal
+            token.token == AngelCoreStruct.TokenType.NewCw20 &&
+            endowType == AngelCoreStruct.EndowmentType.Normal
         ) {
             bytes memory callData = abi.encodeWithSignature(
                 "initErC20(string,string,address,uint256,address)",
-                curToken.data.newCw20Name,
-                curToken.data.newCw20Symbol,
-                curEndowowner,
-                curToken.data.newCw20InitialSupply,
+                token.data.newCw20Name,
+                token.data.newCw20Symbol,
+                endowowner,
+                token.data.newCw20InitialSupply,
                 address(0)
             );
             config.daoToken = address(
@@ -204,20 +204,20 @@ library SubDaoLib {
                 )
             );
         } else if (
-            curToken.token == AngelCoreStruct.TokenType.BondingCurve &&
-            curEndowType == AngelCoreStruct.EndowmentType.Normal
+            token.token == AngelCoreStruct.TokenType.Bondingve &&
+            endowType == AngelCoreStruct.EndowmentType.Normal
         ) {
             SubDaoTokenMessage.InstantiateMsg
-                memory curTemp = SubDaoTokenMessage.InstantiateMsg({
-                    name: curToken.data.bondingCurveName,
-                    symbol: curToken.data.bondingCurveSymbol,
-                    reserveDenom: curToken.data.bondingCurveReserveDenom,
-                    curve_type: curToken.data.bondingCurveCurveType.curve_type,
-                    unbondingPeriod: curToken.data.bondingCurveUnbondingPeriod
+                memory temp = SubDaoTokenMessage.InstantiateMsg({
+                    name: token.data.bondingveName,
+                    symbol: token.data.bondingveSymbol,
+                    reserveDenom: token.data.bondingveReserveDenom,
+                    ve_type: token.data.bondingveveType.ve_type,
+                    unbondingPeriod: token.data.bondingveUnbondingPeriod
                 });
             bytes memory callData = abi.encodeWithSignature(
                 "continuosToken((string,string,address,uint8,uint256),address)",
-                curTemp,
+                temp,
                 emitterAddress
             );
             config.daoToken = address(
@@ -228,8 +228,8 @@ library SubDaoLib {
                 )
             );
         } else if (
-            curToken.token == AngelCoreStruct.TokenType.BondingCurve &&
-            curEndowType == AngelCoreStruct.EndowmentType.Charity
+            token.token == AngelCoreStruct.TokenType.Bondingve &&
+            endowType == AngelCoreStruct.EndowmentType.Charity
         ) {
             require(
                 registrar_config.haloToken != address(0),
@@ -237,17 +237,17 @@ library SubDaoLib {
             );
 
             SubDaoTokenMessage.InstantiateMsg
-                memory curTemp = SubDaoTokenMessage.InstantiateMsg({
-                    name: curToken.data.bondingCurveName,
-                    symbol: curToken.data.bondingCurveSymbol,
+                memory temp = SubDaoTokenMessage.InstantiateMsg({
+                    name: token.data.bondingveName,
+                    symbol: token.data.bondingveSymbol,
                     reserveDenom: registrar_config.haloToken,
-                    curve_type: curToken.data.bondingCurveCurveType.curve_type,
+                    ve_type: token.data.bondingveveType.ve_type,
                     unbondingPeriod: 21 days
                 });
 
             bytes memory callData = abi.encodeWithSignature(
                 "continuosToken((string,string,address,uint8,uint256),address)",
-                curTemp,
+                temp,
                 emitterAddress
             );
             config.daoToken = address(
@@ -291,31 +291,31 @@ contract SubDao is Storage, ReentrancyGuard {
     /**
      * @notice function used to initialize the contract
      * @dev Initialize the contract
-     * @param curMsg The message used to initialize the contract
+     * @param details The message used to initialize the contract
      */
     function initializeSubDao(
-        subDaoMessage.InstantiateMsg memory curMsg,
-        address curEmitteraddress
+        subDaoMessage.InstantiateMsg memory details,
+        address emitteraddress
     ) public {
-        require(curEmitteraddress != address(0), "InvalidEmitterAddress");
+        require(emitteraddress != address(0), "InvalidEmitterAddress");
         require(!initFlag, "Already initialised");
         initFlag = true;
 
-        emitterAddress = curEmitteraddress;
+        emitterAddress = emitteraddress;
 
         config = subDaoStorage.Config({
-            registrarContract: curMsg.registrarContract,
-            owner: curMsg.owner,
+            registrarContract: details.registrarContract,
+            owner: details.owner,
             daoToken: address(0),
             veToken: address(0),
             swapFactory: address(0),
-            quorum: curMsg.quorum,
-            threshold: curMsg.threshold,
-            votingPeriod: curMsg.votingPeriod,
-            timelockPeriod: curMsg.timelockPeriod,
-            expirationPeriod: curMsg.expirationPeriod,
-            proposalDeposit: curMsg.proposalDeposit,
-            snapshotPeriod: curMsg.snapshotPeriod
+            quorum: details.quorum,
+            threshold: details.threshold,
+            votingPeriod: details.votingPeriod,
+            timelockPeriod: details.timelockPeriod,
+            expirationPeriod: details.expirationPeriod,
+            proposalDeposit: details.proposalDeposit,
+            snapshotPeriod: details.snapshotPeriod
         });
         accountAddress = msg.sender;
 
@@ -329,17 +329,17 @@ contract SubDao is Storage, ReentrancyGuard {
     /**
      * @notice function used to build the dao token message
      * @dev Build the dao token message
-     * @param curMsg The message used to build the dao token message
+     * @param details The message used to build the dao token message
      */
     function buildDaoTokenMesage(
-        subDaoMessage.InstantiateMsg memory curMsg
+        subDaoMessage.InstantiateMsg memory details
     ) public {
         require(msg.sender == accountAddress, "Unauthorized");
 
         SubDaoLib.buildDaoTokenMesage(
-            curMsg.token,
-            curMsg.endow_type,
-            curMsg.endowOwner,
+            details.token,
+            details.endow_type,
+            details.endowOwner,
             config,
             emitterAddress
         );
@@ -348,107 +348,107 @@ contract SubDao is Storage, ReentrancyGuard {
     /**
      * @notice function used to register the contract address
      * @dev Register the contract address
-     * @param curVetoken The address of the ve token contract
-     * @param curSwapfactory The address of the swap factory contract
+     * @param vetoken The address of the ve token contract
+     * @param swapfactory The address of the swap factory contract
      */
     function registerContract(
-        address curVetoken,
-        address curSwapfactory
+        address vetoken,
+        address swapfactory
     ) external {
         require(config.owner == msg.sender, "Unauthorized");
 
-        require(curVetoken != address(0), "Invalid input");
-        require(curSwapfactory != address(0), "Invalid input");
+        require(vetoken != address(0), "Invalid input");
+        require(swapfactory != address(0), "Invalid input");
 
-        config.veToken = curVetoken;
-        config.swapFactory = curSwapfactory;
+        config.veToken = vetoken;
+        config.swapFactory = swapfactory;
         ISubdaoEmitter(emitterAddress).updateSubdaoConfig(config);
     }
 
     /**
      * @notice function used to update the config
      * @dev Update the config
-     * @param curOwner The address of the owner
-     * @param curQuorum The quorum value
-     * @param curThreshold The threshold value
-     * @param curVotingperiod The voting period value
-     * @param curTimelockperiod The timelock period value
-     * @param curExpirationperiod The expiration period value
-     * @param curProposaldeposit The proposal deposit value
-     * @param curSnapshotperiod The snapshot period value
+     * @param owner The address of the owner
+     * @param quorum The quorum value
+     * @param threshold The threshold value
+     * @param votingperiod The voting period value
+     * @param timelockperiod The timelock period value
+     * @param expirationperiod The expiration period value
+     * @param proposaldeposit The proposal deposit value
+     * @param snapshotperiod The snapshot period value
      */
     function updateConfig(
-        address curOwner,
-        uint256 curQuorum,
-        uint256 curThreshold,
-        uint256 curVotingperiod,
-        uint256 curTimelockperiod,
-        uint256 curExpirationperiod,
-        uint256 curProposaldeposit,
-        uint256 curSnapshotperiod
+        address owner,
+        uint256 quorum,
+        uint256 threshold,
+        uint256 votingperiod,
+        uint256 timelockperiod,
+        uint256 expirationperiod,
+        uint256 proposaldeposit,
+        uint256 snapshotperiod
     ) external {
         require(config.owner == msg.sender, "Unauthorized");
 
-        if (curOwner != address(0)) {
-            config.owner = curOwner;
+        if (owner != address(0)) {
+            config.owner = owner;
         }
 
-        require(SubDaoLib.validateQuorum(curQuorum), "InvalidQuorum");
-        require(SubDaoLib.validateThreshold(curThreshold), "InvalidThreshold");
+        require(SubDaoLib.validateQuorum(quorum), "InvalidQuorum");
+        require(SubDaoLib.validateThreshold(threshold), "InvalidThreshold");
 
-        config.quorum = curQuorum;
-        config.threshold = curThreshold;
-        config.votingPeriod = curVotingperiod;
-        config.timelockPeriod = curTimelockperiod;
-        config.expirationPeriod = curExpirationperiod;
-        config.proposalDeposit = curProposaldeposit;
-        config.snapshotPeriod = curSnapshotperiod;
+        config.quorum = quorum;
+        config.threshold = threshold;
+        config.votingPeriod = votingperiod;
+        config.timelockPeriod = timelockperiod;
+        config.expirationPeriod = expirationperiod;
+        config.proposalDeposit = proposaldeposit;
+        config.snapshotPeriod = snapshotperiod;
         ISubdaoEmitter(emitterAddress).updateSubdaoConfig(config);
     }
 
     /**
      * @notice function used to create a poll
      * @dev Create a poll
-     * @param curDepositamount The deposit amount
-     * @param curTitle The title of the poll
-     * @param curDescription The description of the poll
-     * @param curLink The link of the poll
-     * @param curExecuteMsgs The execute data
+     * @param depositamount The deposit amount
+     * @param title The title of the poll
+     * @param description The description of the poll
+     * @param link The link of the poll
+     * @param executeMsgs The execute data
      */
     function createPoll(
-        uint256 curDepositamount,
-        string memory curTitle,
-        string memory curDescription,
-        string memory curLink,
-        subDaoStorage.ExecuteData memory curExecuteMsgs
+        uint256 depositamount,
+        string memory title,
+        string memory description,
+        string memory link,
+        subDaoStorage.ExecuteData memory executeMsgs
     ) external nonReentrant returns (uint256) {
-        require(SubDaoLib.validateDescription(curDescription));
-        require(SubDaoLib.validateTitle(curTitle));
-        require(SubDaoLib.validateLink(curLink));
+        require(SubDaoLib.validateDescription(description));
+        require(SubDaoLib.validateTitle(title));
+        require(SubDaoLib.validateLink(link));
 
         require(
-            curDepositamount >= config.proposalDeposit,
+            depositamount >= config.proposalDeposit,
             "InsufficientProposalDeposit"
         );
 
-        if (curDepositamount > 0) {
+        if (depositamount > 0) {
             IERC20(config.daoToken).transferFrom(
                 msg.sender,
                 address(this),
-                curDepositamount
+                depositamount
             );
             ISubdaoEmitter(emitterAddress).transferFromSubdao(
                 config.daoToken,
                 msg.sender,
                 address(this),
-                curDepositamount
+                depositamount
             );
         }
 
         uint256 pollId = state.pollCount + 1;
 
         state.pollCount += 1;
-        state.totalDeposit += curDepositamount;
+        state.totalDeposit += depositamount;
 
         ISubdaoEmitter(emitterAddress).updateSubdaoState(state);
 
@@ -465,11 +465,11 @@ contract SubDao is Storage, ReentrancyGuard {
             noVotes: 0,
             startTime: block.timestamp,
             endHeight: block.number + config.votingPeriod,
-            title: curTitle,
-            description: curDescription,
-            link: curLink,
-            executeData: curExecuteMsgs,
-            depositAmount: curDepositamount,
+            title: title,
+            description: description,
+            link: link,
+            executeData: executeMsgs,
+            depositAmount: depositamount,
             totalBalanceAtEndPoll: 0,
             stakedAmount: stakedAmount,
             startBlock: block.number
@@ -489,14 +489,14 @@ contract SubDao is Storage, ReentrancyGuard {
     /**
      * @notice function used to end a poll
      * @dev End a poll
-     * @param curPollid The poll id
+     * @param pollid The poll id
      */
-    function endPoll(uint256 curPollid) external nonReentrant {
+    function endPoll(uint256 pollid) external nonReentrant {
         address[] memory target;
         uint256[] memory value;
         bytes[] memory callData;
 
-        subDaoStorage.Poll memory a_poll = poll[curPollid];
+        subDaoStorage.Poll memory a_poll = poll[pollid];
 
         require(
             a_poll.status == subDaoStorage.PollStatus.InProgress,
@@ -565,18 +565,18 @@ contract SubDao is Storage, ReentrancyGuard {
 
         state.totalDeposit -= a_poll.depositAmount;
 
-        poll_status[curPollid] = temp_poll_status;
+        poll_status[pollid] = temp_poll_status;
 
         a_poll.status = temp_poll_status;
 
-        poll[curPollid] = a_poll;
+        poll[pollid] = a_poll;
 
         _execute(target, value, callData);
         ISubdaoEmitter(emitterAddress).updateSubdaoState(state);
         ISubdaoEmitter(emitterAddress).updateSubdaoPollAndStatus(
-            curPollid,
-            poll[curPollid],
-            poll_status[curPollid]
+            pollid,
+            poll[pollid],
+            poll_status[pollid]
         );
     }
 
@@ -584,10 +584,10 @@ contract SubDao is Storage, ReentrancyGuard {
     /**
      * @notice function used to execute a poll
      * @dev Execute a poll
-     * @param curPollid The poll id
+     * @param pollid The poll id
      */
-    function executePoll(uint256 curPollid) external nonReentrant {
-        subDaoStorage.Poll memory a_poll = poll[curPollid];
+    function executePoll(uint256 pollid) external nonReentrant {
+        subDaoStorage.Poll memory a_poll = poll[pollid];
 
         require(
             a_poll.status == subDaoStorage.PollStatus.Passed,
@@ -599,11 +599,11 @@ contract SubDao is Storage, ReentrancyGuard {
             "TimelockNotExpired"
         );
 
-        poll_status[curPollid] = subDaoStorage.PollStatus.Executed;
+        poll_status[pollid] = subDaoStorage.PollStatus.Executed;
 
         a_poll.status = subDaoStorage.PollStatus.Executed;
 
-        poll[curPollid] = a_poll;
+        poll[pollid] = a_poll;
 
         require(a_poll.executeData.order.length > 0, "NoExecuteData");
 
@@ -641,10 +641,10 @@ contract SubDao is Storage, ReentrancyGuard {
     /**
      * @notice function used to expire a poll
      * @dev Expire a poll
-     * @param curPollid The poll id
+     * @param pollid The poll id
      */
-    function expirePoll(uint256 curPollid) external {
-        subDaoStorage.Poll memory a_poll = poll[curPollid];
+    function expirePoll(uint256 pollid) external {
+        subDaoStorage.Poll memory a_poll = poll[pollid];
 
         require(
             a_poll.status == subDaoStorage.PollStatus.Passed,
@@ -657,31 +657,31 @@ contract SubDao is Storage, ReentrancyGuard {
             "PollNotExpired"
         );
 
-        poll_status[curPollid] = subDaoStorage.PollStatus.Expired;
+        poll_status[pollid] = subDaoStorage.PollStatus.Expired;
 
         a_poll.status = subDaoStorage.PollStatus.Expired;
 
-        poll[curPollid] = a_poll;
+        poll[pollid] = a_poll;
         ISubdaoEmitter(emitterAddress).updateSubdaoPollAndStatus(
-            curPollid,
-            poll[curPollid],
-            poll_status[curPollid]
+            pollid,
+            poll[pollid],
+            poll_status[pollid]
         );
     }
 
     /**
      * @notice function used to cast vote
      * @dev cast vote on a poll
-     * @param curPollid The poll id
+     * @param pollid The poll id
      */
     function castVote(
-        uint256 curPollid,
+        uint256 pollid,
         subDaoStorage.VoteOption vote
     ) external {
-        require(curPollid != 0, "PollNotFound");
-        require(state.pollCount >= curPollid, "PollNotFound");
+        require(pollid != 0, "PollNotFound");
+        require(state.pollCount >= pollid, "PollNotFound");
 
-        subDaoStorage.Poll memory a_poll = poll[curPollid];
+        subDaoStorage.Poll memory a_poll = poll[pollid];
 
         require(
             a_poll.status == subDaoStorage.PollStatus.InProgress,
@@ -690,7 +690,7 @@ contract SubDao is Storage, ReentrancyGuard {
 
         require(a_poll.endHeight >= block.number, "PollNotInProgress");
 
-        require(!(voting_status[curPollid][msg.sender].voted), "AlreadyVoted");
+        require(!(voting_status[pollid][msg.sender].voted), "AlreadyVoted");
 
         uint256 amount = SubDaoLib.queryAddressVotingBalanceAtBlock(
             config.veToken,
@@ -704,19 +704,19 @@ contract SubDao is Storage, ReentrancyGuard {
             a_poll.noVotes += amount;
         }
 
-        voting_status[curPollid][msg.sender].voted = true;
-        voting_status[curPollid][msg.sender].balance = amount;
-        voting_status[curPollid][msg.sender].vote = vote;
+        voting_status[pollid][msg.sender].voted = true;
+        voting_status[pollid][msg.sender].balance = amount;
+        voting_status[pollid][msg.sender].vote = vote;
         ISubdaoEmitter(emitterAddress).updateVotingStatus(
-            curPollid,
+            pollid,
             msg.sender,
-            voting_status[curPollid][msg.sender]
+            voting_status[pollid][msg.sender]
         );
 
-        poll[curPollid] = a_poll;
+        poll[pollid] = a_poll;
         ISubdaoEmitter(emitterAddress).updateSubdaoPoll(
-            curPollid,
-            poll[curPollid]
+            pollid,
+            poll[pollid]
         );
     }
 

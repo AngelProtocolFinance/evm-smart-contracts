@@ -9,7 +9,7 @@ interface IStakingRewards {
   /// @notice Indicates which ERC20 is staked
   enum StakedPositionType {
     Fidu,
-    CurveLP
+    veLP
   }
   
   struct StakedPosition {
@@ -43,7 +43,7 @@ interface IStakingRewards {
 
   function stakedBalanceOf(uint256 tokenId) external view returns (uint256);
 
-  function depositToCurveAndStakeFrom(
+  function depositToveAndStakeFrom(
     address nftRecipient,
     uint256 fiduAmount,
     uint256 usdcAmount

@@ -887,12 +887,12 @@ export interface IRegistrar extends BaseContract {
     testQuery(overrides?: CallOverrides): Promise<[string[]]>;
 
     updateConfig(
-      curDetails: RegistrarMessages.UpdateConfigRequestStruct,
+      details: RegistrarMessages.UpdateConfigRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     updateFees(
-      curDetails: RegistrarMessages.UpdateFeeRequestStruct,
+      details: RegistrarMessages.UpdateFeeRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -908,7 +908,7 @@ export interface IRegistrar extends BaseContract {
     ): Promise<ContractTransaction>;
 
     vaultAdd(
-      curDetails: RegistrarMessages.VaultAddRequestStruct,
+      details: RegistrarMessages.VaultAddRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -919,8 +919,8 @@ export interface IRegistrar extends BaseContract {
 
     vaultUpdate(
       _stratagyName: PromiseOrValue<string>,
-      curApproved: PromiseOrValue<boolean>,
-      curRestrictedfrom: PromiseOrValue<BigNumberish>[],
+      approved: PromiseOrValue<boolean>,
+      restrictedfrom: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -1021,12 +1021,12 @@ export interface IRegistrar extends BaseContract {
   testQuery(overrides?: CallOverrides): Promise<string[]>;
 
   updateConfig(
-    curDetails: RegistrarMessages.UpdateConfigRequestStruct,
+    details: RegistrarMessages.UpdateConfigRequestStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   updateFees(
-    curDetails: RegistrarMessages.UpdateFeeRequestStruct,
+    details: RegistrarMessages.UpdateFeeRequestStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1042,7 +1042,7 @@ export interface IRegistrar extends BaseContract {
   ): Promise<ContractTransaction>;
 
   vaultAdd(
-    curDetails: RegistrarMessages.VaultAddRequestStruct,
+    details: RegistrarMessages.VaultAddRequestStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1053,8 +1053,8 @@ export interface IRegistrar extends BaseContract {
 
   vaultUpdate(
     _stratagyName: PromiseOrValue<string>,
-    curApproved: PromiseOrValue<boolean>,
-    curRestrictedfrom: PromiseOrValue<BigNumberish>[],
+    approved: PromiseOrValue<boolean>,
+    restrictedfrom: PromiseOrValue<BigNumberish>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1155,12 +1155,12 @@ export interface IRegistrar extends BaseContract {
     testQuery(overrides?: CallOverrides): Promise<string[]>;
 
     updateConfig(
-      curDetails: RegistrarMessages.UpdateConfigRequestStruct,
+      details: RegistrarMessages.UpdateConfigRequestStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
     updateFees(
-      curDetails: RegistrarMessages.UpdateFeeRequestStruct,
+      details: RegistrarMessages.UpdateFeeRequestStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1176,7 +1176,7 @@ export interface IRegistrar extends BaseContract {
     ): Promise<void>;
 
     vaultAdd(
-      curDetails: RegistrarMessages.VaultAddRequestStruct,
+      details: RegistrarMessages.VaultAddRequestStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1187,8 +1187,8 @@ export interface IRegistrar extends BaseContract {
 
     vaultUpdate(
       _stratagyName: PromiseOrValue<string>,
-      curApproved: PromiseOrValue<boolean>,
-      curRestrictedfrom: PromiseOrValue<BigNumberish>[],
+      approved: PromiseOrValue<boolean>,
+      restrictedfrom: PromiseOrValue<BigNumberish>[],
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -1349,12 +1349,12 @@ export interface IRegistrar extends BaseContract {
     testQuery(overrides?: CallOverrides): Promise<BigNumber>;
 
     updateConfig(
-      curDetails: RegistrarMessages.UpdateConfigRequestStruct,
+      details: RegistrarMessages.UpdateConfigRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     updateFees(
-      curDetails: RegistrarMessages.UpdateFeeRequestStruct,
+      details: RegistrarMessages.UpdateFeeRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1370,7 +1370,7 @@ export interface IRegistrar extends BaseContract {
     ): Promise<BigNumber>;
 
     vaultAdd(
-      curDetails: RegistrarMessages.VaultAddRequestStruct,
+      details: RegistrarMessages.VaultAddRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1381,8 +1381,8 @@ export interface IRegistrar extends BaseContract {
 
     vaultUpdate(
       _stratagyName: PromiseOrValue<string>,
-      curApproved: PromiseOrValue<boolean>,
-      curRestrictedfrom: PromiseOrValue<BigNumberish>[],
+      approved: PromiseOrValue<boolean>,
+      restrictedfrom: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -1484,12 +1484,12 @@ export interface IRegistrar extends BaseContract {
     testQuery(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     updateConfig(
-      curDetails: RegistrarMessages.UpdateConfigRequestStruct,
+      details: RegistrarMessages.UpdateConfigRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     updateFees(
-      curDetails: RegistrarMessages.UpdateFeeRequestStruct,
+      details: RegistrarMessages.UpdateFeeRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1505,7 +1505,7 @@ export interface IRegistrar extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     vaultAdd(
-      curDetails: RegistrarMessages.VaultAddRequestStruct,
+      details: RegistrarMessages.VaultAddRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1516,8 +1516,8 @@ export interface IRegistrar extends BaseContract {
 
     vaultUpdate(
       _stratagyName: PromiseOrValue<string>,
-      curApproved: PromiseOrValue<boolean>,
-      curRestrictedfrom: PromiseOrValue<BigNumberish>[],
+      approved: PromiseOrValue<boolean>,
+      restrictedfrom: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

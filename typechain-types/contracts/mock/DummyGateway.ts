@@ -616,8 +616,8 @@ export interface DummyGateway extends BaseContract {
       arg1: PromiseOrValue<string>,
       arg2: PromiseOrValue<string>,
       arg3: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     validateContractCallAndMint(
       commandId: PromiseOrValue<BytesLike>,
@@ -626,8 +626,8 @@ export interface DummyGateway extends BaseContract {
       arg3: PromiseOrValue<BytesLike>,
       arg4: PromiseOrValue<string>,
       arg5: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
   };
 
   adminEpoch(overrides?: CallOverrides): Promise<BigNumber>;
@@ -752,8 +752,8 @@ export interface DummyGateway extends BaseContract {
     arg1: PromiseOrValue<string>,
     arg2: PromiseOrValue<string>,
     arg3: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   validateContractCallAndMint(
     commandId: PromiseOrValue<BytesLike>,
@@ -762,8 +762,8 @@ export interface DummyGateway extends BaseContract {
     arg3: PromiseOrValue<BytesLike>,
     arg4: PromiseOrValue<string>,
     arg5: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   callStatic: {
     adminEpoch(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1155,7 +1155,7 @@ export interface DummyGateway extends BaseContract {
       arg1: PromiseOrValue<string>,
       arg2: PromiseOrValue<string>,
       arg3: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     validateContractCallAndMint(
@@ -1165,7 +1165,7 @@ export interface DummyGateway extends BaseContract {
       arg3: PromiseOrValue<BytesLike>,
       arg4: PromiseOrValue<string>,
       arg5: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
@@ -1292,7 +1292,7 @@ export interface DummyGateway extends BaseContract {
       arg1: PromiseOrValue<string>,
       arg2: PromiseOrValue<string>,
       arg3: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     validateContractCallAndMint(
@@ -1302,7 +1302,7 @@ export interface DummyGateway extends BaseContract {
       arg3: PromiseOrValue<BytesLike>,
       arg4: PromiseOrValue<string>,
       arg5: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

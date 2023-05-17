@@ -18,21 +18,21 @@ interface IDiamondLoupe {
     }
 
     /// @notice Gets all facet addresses and their four byte function selectors.
-    /// @return curFacets Facet
-    function facets() external view returns (Facet[] memory curFacets);
+    /// @return facets Facet
+    function facets() external view returns (Facet[] memory facets);
 
     /// @notice Gets all the function selectors supported by a specific facet.
-    /// @param curFacet The facet address.
-    /// @return curFacetfunctionselectors
-    function facetFunctionSelectors(address curFacet) external view returns (bytes4[] memory curFacetfunctionselectors);
+    /// @param facet The facet address.
+    /// @return facetfunctionselectors
+    function facetFunctionSelectors(address facet) external view returns (bytes4[] memory facetfunctionselectors);
 
     /// @notice Get all the facet addresses used by a diamond.
-    /// @return curFacetaddresses
-    function facetAddresses() external view returns (address[] memory curFacetaddresses);
+    /// @return facetaddresses
+    function facetAddresses() external view returns (address[] memory facetaddresses);
 
     /// @notice Gets the facet that supports the given selector.
     /// @dev If facet is not found return address(0).
-    /// @param curFunctionselector The function selector.
-    /// @return curFacetaddress The facet address.
-    function facetAddress(bytes4 curFunctionselector) external view returns (address curFacetaddress);
+    /// @param functionselector The function selector.
+    /// @return facetaddress The facet address.
+    function facetAddress(bytes4 functionselector) external view returns (address facetaddress);
 }

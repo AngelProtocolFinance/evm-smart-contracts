@@ -21,10 +21,10 @@ import {ISubDao} from "../../../normalized_endowment/subdao/Isubdao.sol";
 contract AccountDeployContract is ReentrancyGuardFacet, AccountsEvents {
     /**
      * @notice Create a new Dao for endowment
-     * @param curCreatedaomessage Dao creation message with initial configuration
+     * @param createdaomessage Dao creation message with initial configuration
      */
     function createDaoContract(
-        subDaoMessage.InstantiateMsg memory curCreatedaomessage
+        subDaoMessage.InstantiateMsg memory createdaomessage
     ) public nonReentrant returns (address daoAddress) {
         // will be called by self, as this is deployment facet
         require(msg.sender == address(this), "Unauthorized");
@@ -39,7 +39,7 @@ contract AccountDeployContract is ReentrancyGuardFacet, AccountsEvents {
 
         bytes memory subDaoData = abi.encodeWithSignature(
             "initializeSubDao((uint256,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address),address)",
-            curCreatedaomessage,
+            createdaomessage,
             registrar_config.subdaoEmitter
         );
 
@@ -48,10 +48,10 @@ contract AccountDeployContract is ReentrancyGuardFacet, AccountsEvents {
         );
         ISubdaoEmitter(registrar_config.subdaoEmitter).initializeSubdao(
             daoAddress,
-            curCreatedaomessage
+            createdaomessage
         );
 
-        ISubDao(daoAddress).buildDaoTokenMesage(curCreatedaomessage);
-        emit DaoContractCreated(curCreatedaomessage, daoAddress);
+        ISubDao(daoAddress).buildDaoTokenMesage(createdaomessage);
+        emit DaoContractCreated(createdaomessage, daoAddress);
     }
 }

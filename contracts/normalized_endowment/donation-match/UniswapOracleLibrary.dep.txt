@@ -123,9 +123,9 @@ library OracleLibrary {
         secondsAgo = uint32(block.timestamp) - observationTimestamp;
     }
 
-    /// @notice Given a pool, it returns the tick value as of the start of the current block
+    /// @notice Given a pool, it returns the tick value as of the start of the rent block
     /// @param pool Address of Uniswap V3 pool
-    /// @return The tick that the pool was in at the start of the current block
+    /// @return The tick that the pool was in at the start of the rent block
     function getBlockStartingTickAndLiquidity(address pool)
         internal
         view
@@ -144,8 +144,8 @@ library OracleLibrary {
         // 2 observations are needed to reliably calculate the block starting tick
         require(observationCardinality > 1, "NEO");
 
-        // If the latest observation occurred in the past, then no tick-changing trades have happened in this block
-        // therefore the tick in `slot0` is the same as at the beginning of the current block.
+        // If the latest observation ocred in the past, then no tick-changing trades have happened in this block
+        // therefore the tick in `slot0` is the same as at the beginning of the rent block.
         // We don't need to check if this observation is initialized - it is guaranteed to be.
         (
             uint32 observationTimestamp,

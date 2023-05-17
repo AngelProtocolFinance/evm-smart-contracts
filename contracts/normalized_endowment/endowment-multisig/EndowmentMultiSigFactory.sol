@@ -76,21 +76,21 @@ contract MultiSigWalletFactory is Factory, Ownable {
     }
 
     /// @dev Allows verified creation of multisignature wallet.
-    /// @param curOwners List of initial owners.
-    /// @param curRequired Number of required confirmations.
+    /// @param owners List of initial owners.
+    /// @param required Number of required confirmations.
     /// @return wallet Returns wallet address.
     function create(
         uint256 endowmentId,
         address emitterAddress,
-        address[] memory curOwners,
-        uint256 curRequired
+        address[] memory owners,
+        uint256 required
     ) public returns (address wallet) {
         bytes memory EndowmentData = abi.encodeWithSignature(
             "initialize(uint256,address,address[],uint256,bool)",
             endowmentId,
             emitterAddress,
-            curOwners,
-            curRequired,
+            owners,
+            required,
             false
         );
         wallet = address(
@@ -105,8 +105,8 @@ contract MultiSigWalletFactory is Factory, Ownable {
             wallet,
             endowmentId,
             emitterAddress,
-            curOwners,
-            curRequired,
+            owners,
+            required,
             false
         );
         register(wallet);

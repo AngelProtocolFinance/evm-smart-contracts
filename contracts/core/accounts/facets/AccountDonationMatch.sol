@@ -24,18 +24,18 @@ contract AccountDonationMatch is ReentrancyGuardFacet, AccountsEvents {
     /**
      * @notice Deposit DAOToken(or Halo) to the endowment and store its balance
      * @dev Function manages reserve token sent by donation matching contract
-     * @param curId Endowment ID
-     * @param curAmount Amount of DAOToken to deposit
+     * @param id Endowment ID
+     * @param amount Amount of DAOToken to deposit
      */
     function depositDonationMatchErC20(
-        uint32 curId,
-        address curToken,
-        uint256 curAmount
+        uint32 id,
+        address token,
+        uint256 amount
     ) public {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
 
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
-            curId
+            id
         ];
 
         RegistrarStorage.Config memory registrar_config = IRegistrar(
@@ -43,69 +43,69 @@ contract AccountDonationMatch is ReentrancyGuardFacet, AccountsEvents {
         ).queryConfig();
 
         require(
-            (registrar_config.haloToken == curToken ||
-                tempEndowment.daoToken == curToken),
+            (registrar_config.haloToken == token ||
+                tempEndowment.daoToken == token),
             "Invalid Token"
         );
 
         require(
-            IERC20(curToken).transferFrom(msg.sender, address(this), curAmount),
+            IERC20(token).transferFrom(msg.sender, address(this), amount),
             "TransferFrom failed"
         );
 
-        state.DAOTOKENBALANCE[curId] += curAmount;
-        emit DonationDeposited(curId, curAmount);
+        state.DAOTOKENBALANCE[id] += amount;
+        emit DonationDeposited(id, amount);
     }
 
     /**
      * @notice Withdraw DAOToken(or Halo) from the endowment
      * @dev Function manages reserve token sent by donation matching contract
-     * @param curId Endowment ID
-     * @param curRecipient Recipient address
-     * @param curAmount Amount of DAOToken to withdraw
+     * @param id Endowment ID
+     * @param recipient Recipient address
+     * @param amount Amount of DAOToken to withdraw
      */
     function withdrawDonationMatchErC20(
-        uint32 curId,
-        address curRecipient,
-        uint256 curAmount
+        uint32 id,
+        address recipient,
+        uint256 amount
     ) public {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
 
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
-            curId
+            id
         ];
 
-        require(curAmount > 0, "amount should be grater than 0");
+        require(amount > 0, "amount should be grater than 0");
 
         require(msg.sender == tempEndowment.owner, "UnAuthorized");
 
         require(
-            state.DAOTOKENBALANCE[curId] >= curAmount,
+            state.DAOTOKENBALANCE[id] >= amount,
             "Insufficient amount"
         );
 
-        state.DAOTOKENBALANCE[curId] -= curAmount;
+        state.DAOTOKENBALANCE[id] -= amount;
 
         require(
-            IERC20(tempEndowment.daoToken).transfer(curRecipient, curAmount),
+            IERC20(tempEndowment.daoToken).transfer(recipient, amount),
             "Transfer failed"
         );
-        emit DonationWithdrawn(curId, curRecipient, curAmount);
+        emit DonationWithdrawn(id, recipient, amount);
     }
 
     /**
      * @notice This function creates a donation match contract for an endowment
      * @dev creates a donation match contract for an endowment based on parameters (performs donation matching for contract against USDC)
-     * @param curId The id of the endowment
-     * @param curDetails The details of the donation match contract
+     * @param id The id of the endowment
+     * @param details The details of the donation match contract
      */
     function setupDonationMatch(
-        uint32 curId,
-        AccountMessages.DonationMatch memory curDetails
+        uint32 id,
+        AccountMessages.DonationMatch memory details
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
 
-        AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[curId];
+        AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];
         // AccountStorage.Config memory tempConfig = state.config;
 
         require(msg.sender == tempEndowment.owner, "Unauthorized");
@@ -113,8 +113,8 @@ contract AccountDonationMatch is ReentrancyGuardFacet, AccountsEvents {
         require(tempEndowment.owner != address(0), "AD E02"); //A DAO does not exist yet for this Endowment. Please set that up first.
         require(tempEndowment.donationMatchContract == address(0), "AD E03"); // A Donation Match contract already exists for this Endowment
 
-        require(curDetails.data.uniswapFactory != address(0), "Invalid Data");
-        require(curDetails.data.poolFee != 0, "Invalid Data");
+        require(details.data.uniswapFactory != address(0), "Invalid Data");
+        require(details.data.poolFee != 0, "Invalid Data");
 
         RegistrarStorage.Config memory registrar_config = IRegistrar(
             state.config.registrarContract
@@ -123,28 +123,28 @@ contract AccountDonationMatch is ReentrancyGuardFacet, AccountsEvents {
         require(registrar_config.donationMatchCode != address(0), "AD E04"); // No implementation for donation matching contract
         require(registrar_config.usdcAddress != address(0), "AD E05"); // Invalid Registrar Data
 
-        address curInputtoken;
+        address inputtoken;
         if (
-            curDetails.enumData ==
+            details.enumData ==
             AccountMessages.DonationMatchEnum.HaloTokenReserve
         ) {
             require(registrar_config.haloToken != address(0), "AD E05"); // Invalid Registrar Data
 
-            curInputtoken = registrar_config.haloToken;
+            inputtoken = registrar_config.haloToken;
         } else {
             require(
-                curDetails.data.reserveToken != address(0),
+                details.data.reserveToken != address(0),
                 "Invalid  Data"
             );
-            curInputtoken = curDetails.data.reserveToken;
+            inputtoken = details.data.reserveToken;
         }
 
         DonationMatchMessages.InstantiateMessage
             memory _inputParam = DonationMatchMessages.InstantiateMessage({
-                reserveToken: curInputtoken,
-                uniswapFactory: curDetails.data.uniswapFactory,
+                reserveToken: inputtoken,
+                uniswapFactory: details.data.uniswapFactory,
                 registrarContract: state.config.registrarContract,
-                poolFee: curDetails.data.poolFee,
+                poolFee: details.data.poolFee,
                 usdcAddress: registrar_config.usdcAddress
             });
 
@@ -162,23 +162,23 @@ contract AccountDonationMatch is ReentrancyGuardFacet, AccountsEvents {
             )
         );
         // TODO: add donation match address?? :
-        state.ENDOWMENTS[curId].donationMatchContract = donationMatch;
+        state.ENDOWMENTS[id].donationMatchContract = donationMatch;
 
         IDonationMatchEmitter(registrar_config.donationMatchEmitter)
             .initializeDonationMatch(
-                curId,
+                id,
                 donationMatch,
                 DonationMatchStorage.Config({
-                    reserveToken: curInputtoken,
-                    uniswapFactory: curDetails.data.uniswapFactory,
+                    reserveToken: inputtoken,
+                    uniswapFactory: details.data.uniswapFactory,
                     registrarContract: state.config.registrarContract,
-                    poolFee: curDetails.data.poolFee,
+                    poolFee: details.data.poolFee,
                     usdcAddress: registrar_config.usdcAddress
                 })
             );
         emit DonationMatchSetup(
-            curId,
-            state.ENDOWMENTS[curId].donationMatchContract
+            id,
+            state.ENDOWMENTS[id].donationMatchContract
         );
     }
 }

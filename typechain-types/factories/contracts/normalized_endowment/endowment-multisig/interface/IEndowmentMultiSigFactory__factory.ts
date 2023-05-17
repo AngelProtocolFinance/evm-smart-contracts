@@ -24,12 +24,12 @@ const _abi = [
       },
       {
         internalType: "address[]",
-        name: "curOwners",
+        name: "owners",
         type: "address[]",
       },
       {
         internalType: "uint256",
-        name: "curRequired",
+        name: "required",
         type: "uint256",
       },
     ],
