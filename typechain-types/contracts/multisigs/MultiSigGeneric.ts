@@ -478,7 +478,7 @@ export interface MultiSigGeneric extends BaseContract {
     getConfirmations(
       transactionId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<[string[]] & { curConfirmations: string[] }>;
+    ): Promise<[string[]] & { ownerConfirmations: string[] }>;
 
     getOwners(overrides?: CallOverrides): Promise<[string[]]>;
 
@@ -494,7 +494,7 @@ export interface MultiSigGeneric extends BaseContract {
       pending: PromiseOrValue<boolean>,
       executed: PromiseOrValue<boolean>,
       overrides?: CallOverrides
-    ): Promise<[BigNumber[]] & { curTransactionids: BigNumber[] }>;
+    ): Promise<[BigNumber[]] & { transactionIds: BigNumber[] }>;
 
     initialize(
       owners: PromiseOrValue<string>[],
