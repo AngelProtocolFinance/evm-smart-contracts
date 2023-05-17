@@ -352,12 +352,12 @@ contract MultiSigGeneric is
 
     /// @dev Returns array with owner addresses, which confirmed transaction.
     /// @param transactionId Transaction ID.
-    /// @return curConfirmations Returns array of owner addresses.
+    /// @return ownerConfirmations Returns array of owner addresses.
     function getConfirmations(uint256 transactionId)
         public
         view
         override
-        returns (address[] memory curConfirmations)
+        returns (address[] memory ownerConfirmations)
     {
         address[] memory confirmationsTemp = new address[](owners.length);
         uint256 count = 0;
@@ -367,8 +367,8 @@ contract MultiSigGeneric is
                 confirmationsTemp[count] = owners[i];
                 count += 1;
             }
-        curConfirmations = new address[](count);
-        for (i = 0; i < count; i++) curConfirmations[i] = confirmationsTemp[i];
+        ownerConfirmations = new address[](count);
+        for (i = 0; i < count; i++) ownerConfirmations[i] = confirmationsTemp[i];
     }
 
     /// @dev Returns list of transaction IDs in defined range.
@@ -376,13 +376,13 @@ contract MultiSigGeneric is
     /// @param to Index end position of transaction array.
     /// @param pending Include pending transactions.
     /// @param executed Include executed transactions.
-    /// @return curTransactionids Returns array of transaction IDs.
+    /// @return transactionIds Returns array of transaction IDs.
     function getTransactionIds(
         uint256 from,
         uint256 to,
         bool pending,
         bool executed
-    ) public view override returns (uint256[] memory curTransactionids) {
+    ) public view override returns (uint256[] memory transactionIds) {
         uint256[] memory transactionIdsTemp = new uint256[](transactionCount);
         uint256 count = 0;
         uint256 i;
@@ -394,8 +394,8 @@ contract MultiSigGeneric is
                 transactionIdsTemp[count] = i;
                 count += 1;
             }
-        curTransactionids = new uint256[](to - from);
+        transactionIds = new uint256[](to - from);
         for (i = from; i < to; i++)
-            curTransactionids[i - from] = transactionIdsTemp[i];
+            transactionIds[i - from] = transactionIdsTemp[i];
     }
 }
