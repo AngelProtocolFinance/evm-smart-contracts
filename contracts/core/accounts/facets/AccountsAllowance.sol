@@ -48,7 +48,7 @@ contract AccountsAllowance is ReentrancyGuardFacet, AccountsEvents {
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp), "Unauthorized");
-            for (uint8 i = 0; i < tempEndowment.allowlistedBeneficiaries.length; i++) {
+            for (uint256 i = 0; i < tempEndowment.allowlistedBeneficiaries.length; i++) {
                 if (tempEndowment.allowlistedBeneficiaries[i] == spender) {
                     inAllowlist = true;
                     break;
