@@ -1,8 +1,6 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 
-import path from 'path'
-
 import { deployDiamond } from 'contracts/core/accounts/scripts/deploy'
 import { deployRegistrar } from 'contracts/core/registrar/scripts/deploy'
 import { deployImplementation } from 'contracts/normalized_endowment/scripts/deployImplementation'
@@ -112,15 +110,13 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 
 		const registrarData = {
 			treasury: config.REGISTRAR_DATA.treasury,
-			taxRate: config.REGISTRAR_DATA.taxRate,
-			rebalance: config.REGISTRAR_DATA.rebalance,
 			splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
-			acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
 			router: config.REGISTRAR_DATA.router,
-			axelerGateway: config.REGISTRAR_DATA.axelerGateway,
+			axelarGateway: config.REGISTRAR_DATA.axelarGateway,
+			axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv
 		};
 
-		REGISTRAR_ADDRESS = await deployRegistrar(STRING_LIBRARY.address, registrarData,verify_contracts,hre);
+		REGISTRAR_ADDRESS = await deployRegistrar(STRING_LIBRARY.address, registrarData, verify_contracts, hre);
 
 		var APTeamData: Parameters<APTeamMultiSig["initialize"]> = [Admins, config.AP_TEAM_MULTISIG_DATA.threshold, config.AP_TEAM_MULTISIG_DATA.requireExecution];
 		var ApplicationData: Parameters<ApplicationsMultiSig["initialize"]> = [
@@ -356,17 +352,14 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 
 		updateConfig = {
 			accountsContract: ACCOUNT_ADDRESS, //Address
-			taxRate: config.REGISTRAR_DATA.taxRate, //uint256
-			rebalance: config.REGISTRAR_DATA.rebalance,
 			approved_charities: [], //string[]
 			splitMax: 100, //uint256
 			splitMin: 0, //uint256
 			splitDefault: 50, //uint256
 			collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
-			acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
 			subdaoGovCode: implementations.SubDao, //address
 			subdaoCw20TokenCode: implementations.SubDaoERC20, //address
-			subdaoBondingTokenCode: implementations.SubDaoBondingCurve, //address
+			subdaoBondingTokenCode: implementations.SubDaoBondingve, //address
 			subdaoCw900Code: implementations.IncentiisedVoting, //address
 			subdaoDistributorCode: ADDRESS_ZERO,
 			subdaoEmitter: emitters.subDaoEmitter, //TODO:
@@ -397,7 +390,7 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 		let data = await REGISTRAR_CONTRACT.updateConfig(updateConfig);
 		console.log('Successfully updated config:-', data.hash);
 
-		let newOwner = await REGISTRAR_CONTRACT.updateOwner(multisigAddress.APTeamMultiSig);
+		let newOwner = await REGISTRAR_CONTRACT.transferOwnership(multisigAddress.APTeamMultiSig);
 		console.log('Successfully transferred Ownership:-', newOwner.hash);
 
 		let INDEX_FUND_CONTRACT = await ethers.getContractAt('IndexFund', INDEX_FUND_ADDRESS);

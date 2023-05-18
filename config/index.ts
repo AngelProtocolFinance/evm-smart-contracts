@@ -54,7 +54,8 @@ const EXPORT_CONFIG = {
             defaultSplit: 50,
         },
         router: "0xce551C1125BfCdAb88048854522D0B220f41A6Ff",
-        axelerGateway: "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B",
+        axelarGateway: "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B",
+        axelarGasRecv: "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B"
     },
     CHARITY_APPLICATION_DATA: {
         expiry: 0,

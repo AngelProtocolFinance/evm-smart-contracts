@@ -8,7 +8,6 @@ import {
     AccountsCreateEndowment__factory,
     AccountsDAOEndowments__factory,
     AccountsQueryEndowments__factory,
-    AccountsStrategiesCopyEndowments__factory,
     AccountsSwapEndowments__factory,
     AccountsUpdateEndowmentSettingsController__factory,
     AccountsUpdateEndowments__factory,
@@ -68,16 +67,15 @@ async function getFactories(
     const factories = [
         // no lib
         new AccountDeployContract__factory(diamondOwner),
-        new AccountsAllowance__factory(diamondOwner),
         new AccountsDAOEndowments__factory(diamondOwner),
         new AccountDonationMatch__factory(diamondOwner),
-        new AccountsStrategiesCopyEndowments__factory(diamondOwner),
         new AccountsUpdate__factory(diamondOwner),
         new AccountsQueryEndowments__factory(diamondOwner),
         new AccountsVaultFacet__factory(diamondOwner),
         new AxelarExecutionContract__factory(diamondOwner),
         new AccountsUpdateStatusEndowments__factory(diamondOwner),
         // core lib
+        new AccountsAllowance__factory({ "contracts/core/struct.sol:AngelCoreStruct": corestruct }, diamondOwner),
         new AccountsCreateEndowment__factory({ "contracts/core/struct.sol:AngelCoreStruct": corestruct }, diamondOwner),
         new AccountsSwapEndowments__factory({ "contracts/core/struct.sol:AngelCoreStruct": corestruct }, diamondOwner),
         new AccountsUpdateEndowments__factory(
