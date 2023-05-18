@@ -550,7 +550,7 @@ export interface SubDaoToken extends BaseContract {
     ): Promise<ContractTransaction>;
 
     continuosToken(
-      msg: SubDaoTokenMessage.InstantiateMsgStruct,
+      message: SubDaoTokenMessage.InstantiateMsgStruct,
       emitteraddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -714,7 +714,7 @@ export interface SubDaoToken extends BaseContract {
   ): Promise<ContractTransaction>;
 
   continuosToken(
-    msg: SubDaoTokenMessage.InstantiateMsgStruct,
+    message: SubDaoTokenMessage.InstantiateMsgStruct,
     emitteraddress: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -876,7 +876,7 @@ export interface SubDaoToken extends BaseContract {
     claimTokens(overrides?: CallOverrides): Promise<void>;
 
     continuosToken(
-      msg: SubDaoTokenMessage.InstantiateMsgStruct,
+      message: SubDaoTokenMessage.InstantiateMsgStruct,
       emitteraddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -1101,7 +1101,7 @@ export interface SubDaoToken extends BaseContract {
     ): Promise<BigNumber>;
 
     continuosToken(
-      msg: SubDaoTokenMessage.InstantiateMsgStruct,
+      message: SubDaoTokenMessage.InstantiateMsgStruct,
       emitteraddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1270,7 +1270,7 @@ export interface SubDaoToken extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     continuosToken(
-      msg: SubDaoTokenMessage.InstantiateMsgStruct,
+      message: SubDaoTokenMessage.InstantiateMsgStruct,
       emitteraddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

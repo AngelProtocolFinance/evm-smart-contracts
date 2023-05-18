@@ -14,7 +14,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
 import "@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol";
 import {IDonationMatchEmitter} from "./IDonationMatchEmitter.sol";
-import {IAccountsDepositWithdrawEndowments} from "./../../core/accounts/interface/IAccountsDepositWithdrawEndowments.sol";
+import {IAccountDonationMatch} from "./../../core/accounts/interface/IAccountDonationMatch.sol";
 
 interface SubdaoToken {
     function executeDonorMatch(
@@ -171,7 +171,7 @@ contract DonationMatch is Storage, Initializable {
                 "Approve failed"
             );
 
-            IAccountsDepositWithdrawEndowments(
+            IAccountDonationMatch(
                 registrar_config.accountsContract
             ).depositDonationMatchErC20(endowmentId, token, endowmentAmount);
 

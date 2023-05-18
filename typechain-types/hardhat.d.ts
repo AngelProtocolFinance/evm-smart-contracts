@@ -341,10 +341,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AccountsQueryEndowments__factory>;
     getContractFactory(
-      name: "AccountsStrategiesCopyEndowments",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.AccountsStrategiesCopyEndowments__factory>;
-    getContractFactory(
       name: "AccountsSwapEndowments",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AccountsSwapEndowments__factory>;
@@ -380,6 +376,10 @@ declare module "hardhat/types/runtime" {
       name: "IAccountDeployContract",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IAccountDeployContract__factory>;
+    getContractFactory(
+      name: "IAccountDonationMatch",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IAccountDonationMatch__factory>;
     getContractFactory(
       name: "IAccountsCreateEndowment",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -516,10 +516,6 @@ declare module "hardhat/types/runtime" {
       name: "GoldfinchVault",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.GoldfinchVault__factory>;
-    getContractFactory(
-      name: "ICurveLP",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ICurveLP__factory>;
     getContractFactory(
       name: "IveLP",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -1180,11 +1176,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.AccountsQueryEndowments>;
     getContractAt(
-      name: "AccountsStrategiesCopyEndowments",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.AccountsStrategiesCopyEndowments>;
-    getContractAt(
       name: "AccountsSwapEndowments",
       address: string,
       signer?: ethers.Signer
@@ -1229,6 +1220,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.IAccountDeployContract>;
+    getContractAt(
+      name: "IAccountDonationMatch",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IAccountDonationMatch>;
     getContractAt(
       name: "IAccountsCreateEndowment",
       address: string,
@@ -1399,11 +1395,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.GoldfinchVault>;
-    getContractAt(
-      name: "ICurveLP",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ICurveLP>;
     getContractAt(
       name: "IveLP",
       address: string,

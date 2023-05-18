@@ -41,28 +41,15 @@ export declare namespace AccountMessages {
 export interface IAccountsDepositWithdrawEndowmentsInterface
   extends utils.Interface {
   functions: {
-    "depositDonationMatchErC20(uint32,address,uint256)": FunctionFragment;
     "depositERC20((uint32,uint256,uint256),address,uint256)": FunctionFragment;
     "depositMatic((uint32,uint256,uint256))": FunctionFragment;
     "withdraw(uint32,uint8,address,uint32,address,uint256)": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic:
-      | "depositDonationMatchErC20"
-      | "depositERC20"
-      | "depositMatic"
-      | "withdraw"
+    nameOrSignatureOrTopic: "depositERC20" | "depositMatic" | "withdraw"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "depositDonationMatchErC20",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
-  ): string;
   encodeFunctionData(
     functionFragment: "depositERC20",
     values: [
@@ -87,10 +74,6 @@ export interface IAccountsDepositWithdrawEndowmentsInterface
     ]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "depositDonationMatchErC20",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "depositERC20",
     data: BytesLike
@@ -131,13 +114,6 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    depositDonationMatchErC20(
-      id: PromiseOrValue<BigNumberish>,
-      tokenAddress: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     depositERC20(
       details: AccountMessages.DepositRequestStruct,
       tokenAddress: PromiseOrValue<string>,
@@ -160,13 +136,6 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
-
-  depositDonationMatchErC20(
-    id: PromiseOrValue<BigNumberish>,
-    tokenAddress: PromiseOrValue<string>,
-    amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   depositERC20(
     details: AccountMessages.DepositRequestStruct,
@@ -191,13 +160,6 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    depositDonationMatchErC20(
-      id: PromiseOrValue<BigNumberish>,
-      tokenAddress: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     depositERC20(
       details: AccountMessages.DepositRequestStruct,
       tokenAddress: PromiseOrValue<string>,
@@ -224,13 +186,6 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
   filters: {};
 
   estimateGas: {
-    depositDonationMatchErC20(
-      id: PromiseOrValue<BigNumberish>,
-      tokenAddress: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     depositERC20(
       details: AccountMessages.DepositRequestStruct,
       tokenAddress: PromiseOrValue<string>,
@@ -255,13 +210,6 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
   };
 
   populateTransaction: {
-    depositDonationMatchErC20(
-      id: PromiseOrValue<BigNumberish>,
-      tokenAddress: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     depositERC20(
       details: AccountMessages.DepositRequestStruct,
       tokenAddress: PromiseOrValue<string>,

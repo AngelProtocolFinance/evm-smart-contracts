@@ -5,10 +5,17 @@ import type {
   BaseContract,
   BigNumber,
   BigNumberish,
+  BytesLike,
+  CallOverrides,
+  PopulatedTransaction,
   Signer,
   utils,
 } from "ethers";
-import type { EventFragment } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -439,7 +446,25 @@ export declare namespace AccountStorage {
 }
 
 export interface AxelarExecutionContractInterface extends utils.Interface {
-  functions: {};
+  functions: {
+    "validateDepositFund(address,address,uint256)": FunctionFragment;
+  };
+
+  getFunction(nameOrSignatureOrTopic: "validateDepositFund"): FunctionFragment;
+
+  encodeFunctionData(
+    functionFragment: "validateDepositFund",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+
+  decodeFunctionResult(
+    functionFragment: "validateDepositFund",
+    data: BytesLike
+  ): Result;
 
   events: {
     "AllowanceStateUpdatedTo(address,address,address,uint256)": EventFragment;
@@ -629,9 +654,30 @@ export interface AxelarExecutionContract extends BaseContract {
   once: OnEvent<this>;
   removeListener: OnEvent<this>;
 
-  functions: {};
+  functions: {
+    validateDepositFund(
+      registrar: PromiseOrValue<string>,
+      tokenaddress: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+  };
 
-  callStatic: {};
+  validateDepositFund(
+    registrar: PromiseOrValue<string>,
+    tokenaddress: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  callStatic: {
+    validateDepositFund(
+      registrar: PromiseOrValue<string>,
+      tokenaddress: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+  };
 
   filters: {
     "AllowanceStateUpdatedTo(address,address,address,uint256)"(
@@ -735,7 +781,21 @@ export interface AxelarExecutionContract extends BaseContract {
     UpdateEndowment(id?: null, endowment?: null): UpdateEndowmentEventFilter;
   };
 
-  estimateGas: {};
+  estimateGas: {
+    validateDepositFund(
+      registrar: PromiseOrValue<string>,
+      tokenaddress: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+  };
 
-  populateTransaction: {};
+  populateTransaction: {
+    validateDepositFund(
+      registrar: PromiseOrValue<string>,
+      tokenaddress: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+  };
 }

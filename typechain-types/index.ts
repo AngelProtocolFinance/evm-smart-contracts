@@ -188,6 +188,8 @@ export type { IAccounts } from "./contracts/core/accounts/IAccounts";
 export { IAccounts__factory } from "./factories/contracts/core/accounts/IAccounts__factory";
 export type { IAccountDeployContract } from "./contracts/core/accounts/interface/IAccountDeployContract";
 export { IAccountDeployContract__factory } from "./factories/contracts/core/accounts/interface/IAccountDeployContract__factory";
+export type { IAccountDonationMatch } from "./contracts/core/accounts/interface/IAccountDonationMatch";
+export { IAccountDonationMatch__factory } from "./factories/contracts/core/accounts/interface/IAccountDonationMatch__factory";
 export type { IAccountsCreateEndowment } from "./contracts/core/accounts/interface/IAccountsCreateEndowment";
 export { IAccountsCreateEndowment__factory } from "./factories/contracts/core/accounts/interface/IAccountsCreateEndowment__factory";
 export type { IAccountsDepositWithdrawEndowments } from "./contracts/core/accounts/interface/IAccountsDepositWithdrawEndowments";
