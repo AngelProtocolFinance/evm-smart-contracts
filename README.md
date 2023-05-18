@@ -8,13 +8,28 @@ Angel Protocol provides tools to fundraise, coordinate, and invest capital. It c
 
 [Auto-generated Documentation](https://doc-site-angel.vercel.app/)
 
-## INSTALLATION 
+## GETTING STARTED
 
-After cloning the repo, use yarn to install the packages: 
+### Requirements
+- `Node.js` (v18.x) - https://github.com/nvm-sh/nvm#installing-and-updating
+- `pnpm` (v8.x) - https://pnpm.io/installation
 
-`yarn install`
+We recommend using a version manager like `nvm`. Assuming you are using nvm, you can install and use Node v18 with the following two commands:
+```shell
+nvm install v18
+nvm use v18
+```
 
-Then copy the .env.template file and generate/add your relevant API and PKeys.
+We use `pnpm`, a fast and space efficient package manager. After installing pnpm, simply run the package installer:
+```shell
+pnpm install
+```
+
+Lastly, we have provided an example `.env` file as `.env.template`.
+You'll need to copy this file to `.env` and then modify/add your relevant API and Private Keys:
+```shell
+cp .env.template .env
+```
 
 ## INTERACTING WITH HARDHAT
 
