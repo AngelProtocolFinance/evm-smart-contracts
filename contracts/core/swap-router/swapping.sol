@@ -4,18 +4,18 @@ pragma solidity ^0.8.16;
 //Libraries
 import {SwapRouterMessages} from "./message.sol";
 import {AngelCoreStruct} from "../struct.sol";
-import {IRegistrar} from "../registrar/interface/IRegistrar.sol";
+import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../registrar/storage.sol";
-// import {IUniswapV2Router, IUniswapV2Pair, IUniswapV2Factory} from "./Interface/ISwapping.sol";
+// import {IUniswapV2Router, IUniswapV2Pair, IUniswapV2Factory} from "./interfaces/ISwapping.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
-import {IPool} from "./Interface/Ipool.sol";
+import {IPool} from "./interfaces/Ipool.sol";
 
 // Interface
-// import "./Interface/ISwapping.sol";
+// import "./interfaces/ISwapping.sol";
 
 //Storage
 import "./storage.sol";

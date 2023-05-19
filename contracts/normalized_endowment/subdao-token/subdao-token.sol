@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-import {IAccountDonationMatch} from "../../core/accounts/interface/IAccountDonationMatch.sol";
+import {IAccountDonationMatch} from "../../core/accounts/interfaces/IAccountDonationMatch.sol";
 import {SubDaoTokenMessage} from "./message.sol";
 import {subDaoTokenStorage} from "./storage.sol";
 // import {ISubdaoTokenEmitter} from "./ISubdaoTokenEmitter.sol";

@@ -13,7 +13,7 @@ import {AngelCoreStruct} from "../struct.sol";
 import {Array, Array32} from "../../lib/array.sol";
 import {Utils} from "../../lib/utils.sol";
 import {AddressArray} from "../../lib/address/array.sol";
-import {IRegistrar} from "../registrar/interface/IRegistrar.sol";
+import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../registrar/storage.sol";
 import {Validator} from "../registrar/lib/validator.sol";
 import {AccountMessages} from "../accounts/message.sol";

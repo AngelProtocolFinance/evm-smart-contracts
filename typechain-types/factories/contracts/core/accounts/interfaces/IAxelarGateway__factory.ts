@@ -7,7 +7,7 @@ import type { Provider } from "@ethersproject/providers";
 import type {
   IAxelarGateway,
   IAxelarGatewayInterface,
-} from "../../../../../contracts/core/accounts/interface/IAxelarGateway";
+} from "../../../../../contracts/core/accounts/interfaces/IAxelarGateway";
 
 const _abi = [
   {

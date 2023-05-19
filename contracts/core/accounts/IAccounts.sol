@@ -7,7 +7,7 @@ import {Validator} from "./lib/validator.sol";
 import {AccountMessages} from "./message.sol";
 import {AngelCoreStruct} from "../struct.sol";
 import {Array} from "../../lib/array.sol";
-import {IRegistrar} from "../registrar/interface/IRegistrar.sol";
+import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../registrar/storage.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
@@ -15,7 +15,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./storage.sol";
 
 //Interface
-// import "../../interface/swapping.sol";
+// import "../../interfaces/swapping.sol";
 
 interface IAccounts {
     function createEndowment(

@@ -7,7 +7,7 @@ import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
-import {IRegistrar} from "../../registrar/interface/IRegistrar.sol";
+import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
 

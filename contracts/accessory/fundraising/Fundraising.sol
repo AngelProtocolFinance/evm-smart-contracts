@@ -3,10 +3,10 @@
 
 // import "./message.sol";
 // import "./storage.sol";
-// import {IRegistrar} from "../../core/registrar/interface/IRegistrar.sol";
+// import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 // import {RegistrarStorage} from "../../core/registrar/storage.sol";
 // import {AngelCoreStruct} from "../../core/struct.sol";
-// import {IAccountsQuery} from "../../core/accounts/interface/IAccountsQuery.sol";
+// import {IAccountsQuery} from "../../core/accounts/interfaces/IAccountsQuery.sol";
 // import {AccountStorage} from "../../core/accounts/storage.sol";
 // import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 // import {FundraisingLib} from "./FundraisingLib.sol";

@@ -7,7 +7,7 @@ import {AngelCoreStruct} from "../../core/struct.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
 import {Array} from "../../lib/array.sol";
 
-import {IRegistrar} from "../../core/registrar/interface/IRegistrar.sol";
+import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 
 interface ISubDao {
     function registerContracts(
