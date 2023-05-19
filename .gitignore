@@ -3,6 +3,7 @@ node_modules
 .idea
 package-lock.json
 .yarnclean
+yarn-error.log
 .vscode
 .env
 .prettierrc

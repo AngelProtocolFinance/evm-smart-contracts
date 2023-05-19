@@ -1557,6 +1557,10 @@
   resolved "https://registry.yarnpkg.com/@uniswap/v3-core/-/v3-core-1.0.0.tgz#6c24adacc4c25dceee0ba3ca142b35adbd7e359d"
   integrity sha512-kSC4djMGKMHj7sLMYVnn61k9nu+lHjMIxgg9CDQT+s2QYLoA56GbSK9Oxr+qJXzzygbkrmuY6cwgP6cW2JXPFA==
 
+"@uniswap/v3-core@github:AngelProtocolFinance/uniswap-v3-core#fullmath-fix":
+  version "1.0.1"
+  resolved "https://codeload.github.com/AngelProtocolFinance/uniswap-v3-core/tar.gz/8869c4040991e45717009355e0ee295a10c7d560"
+
 "@uniswap/v3-periphery@^1.4.3":
   version "1.4.3"
   resolved "https://registry.yarnpkg.com/@uniswap/v3-periphery/-/v3-periphery-1.4.3.tgz#a6da4632dbd46b139cc13a410e4ec09ad22bd19f"

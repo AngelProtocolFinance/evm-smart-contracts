@@ -37,14 +37,14 @@ library Array {
     }
 
     function max(uint256[] memory data) internal pure returns (uint256) {
-        uint256 max = data[0];
+        uint256 maxVal = data[0];
         for (uint256 i = 1; i < data.length; i++) {
-            if (max < data[i]) {
-                max = data[i];
+            if (maxVal < data[i]) {
+                maxVal = data[i];
             }
         }
 
-        return max;
+        return maxVal;
     }
 
     // function min(uint256[] memory data) internal pure returns (uint256) {
