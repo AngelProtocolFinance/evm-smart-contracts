@@ -7,13 +7,13 @@ import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
-import {IRegistrar} from "../../registrar/interface/IRegistrar.sol";
+import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {IIndexFund} from "../../index-fund/Iindex-fund.sol";
 import {Array} from "../../../lib/array.sol";
 import {Utils} from "../../../lib/utils.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
-import {IAxelarGateway} from "./../interface/IAxelarGateway.sol";
+import {IAxelarGateway} from "./../interfaces/IAxelarGateway.sol";
 import {StringArray} from "./../../../lib/Strings/string.sol";
 import {IVault} from "../../../interfaces/IVault.sol";
 

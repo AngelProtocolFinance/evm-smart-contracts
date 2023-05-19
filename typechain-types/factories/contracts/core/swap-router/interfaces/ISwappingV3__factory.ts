@@ -5,20 +5,35 @@
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
 import type {
-  QueryIIncentivisedVotingLockup,
-  QueryIIncentivisedVotingLockupInterface,
-} from "../../../../../contracts/normalized_endowment/incentivised-voting/interface/QueryIIncentivisedVotingLockup";
+  ISwappingV3,
+  ISwappingV3Interface,
+} from "../../../../../contracts/core/swap-router/interfaces/ISwappingV3";
 
 const _abi = [
   {
     inputs: [
       {
         internalType: "address",
-        name: "owner",
+        name: "tokenIn",
         type: "address",
       },
+      {
+        internalType: "address",
+        name: "tokenOut",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amountIn",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "amountOut",
+        type: "uint256",
+      },
     ],
-    name: "balanceOf",
+    name: "executeSwapOperations",
     outputs: [
       {
         internalType: "uint256",
@@ -26,23 +41,18 @@ const _abi = [
         type: "uint256",
       },
     ],
-    stateMutability: "view",
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
     inputs: [
       {
         internalType: "address",
-        name: "owner",
+        name: "token",
         type: "address",
       },
-      {
-        internalType: "uint256",
-        name: "blocknumber",
-        type: "uint256",
-      },
     ],
-    name: "balanceOfAt",
+    name: "swapEthToAnyToken",
     outputs: [
       {
         internalType: "uint256",
@@ -50,12 +60,12 @@ const _abi = [
         type: "uint256",
       },
     ],
-    stateMutability: "view",
+    stateMutability: "payable",
     type: "function",
   },
   {
     inputs: [],
-    name: "totalSupply",
+    name: "swapEthToToken",
     outputs: [
       {
         internalType: "uint256",
@@ -63,18 +73,23 @@ const _abi = [
         type: "uint256",
       },
     ],
-    stateMutability: "view",
+    stateMutability: "payable",
     type: "function",
   },
   {
     inputs: [
       {
+        internalType: "address",
+        name: "tokena",
+        type: "address",
+      },
+      {
         internalType: "uint256",
-        name: "blocknumber",
+        name: "amountin",
         type: "uint256",
       },
     ],
-    name: "totalSupplyAt",
+    name: "swapTokenToUsdc",
     outputs: [
       {
         internalType: "uint256",
@@ -82,24 +97,20 @@ const _abi = [
         type: "uint256",
       },
     ],
-    stateMutability: "view",
+    stateMutability: "nonpayable",
     type: "function",
   },
 ] as const;
 
-export class QueryIIncentivisedVotingLockup__factory {
+export class ISwappingV3__factory {
   static readonly abi = _abi;
-  static createInterface(): QueryIIncentivisedVotingLockupInterface {
-    return new utils.Interface(_abi) as QueryIIncentivisedVotingLockupInterface;
+  static createInterface(): ISwappingV3Interface {
+    return new utils.Interface(_abi) as ISwappingV3Interface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): QueryIIncentivisedVotingLockup {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as QueryIIncentivisedVotingLockup;
+  ): ISwappingV3 {
+    return new Contract(address, _abi, signerOrProvider) as ISwappingV3;
   }
 }

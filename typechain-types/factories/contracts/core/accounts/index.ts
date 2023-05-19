@@ -3,5 +3,5 @@
 /* eslint-disable */
 export * as diamond from "./diamond";
 export * as facets from "./facets";
-export * as interface from "./interface";
+export * as interfaces from "./interfaces";
 export { IAccounts__factory } from "./IAccounts__factory";

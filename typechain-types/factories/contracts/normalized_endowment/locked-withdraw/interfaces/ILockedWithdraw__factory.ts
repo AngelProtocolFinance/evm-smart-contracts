@@ -7,7 +7,7 @@ import type { Provider } from "@ethersproject/providers";
 import type {
   ILockedWithdraw,
   ILockedWithdrawInterface,
-} from "../../../../../contracts/normalized_endowment/locked-withdraw/interface/ILockedWithdraw";
+} from "../../../../../contracts/normalized_endowment/locked-withdraw/interfaces/ILockedWithdraw";
 
 const _abi = [
   {

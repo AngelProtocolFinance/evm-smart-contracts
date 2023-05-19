@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {ProxyContract} from "../../core/proxy.sol";
-import {IEndowmentMultiSigEmitter} from "./interface/IEndowmentMultiSigEmitter.sol";
+import {IEndowmentMultiSigEmitter} from "./interfaces/IEndowmentMultiSigEmitter.sol";
 
 contract Factory {
     /*

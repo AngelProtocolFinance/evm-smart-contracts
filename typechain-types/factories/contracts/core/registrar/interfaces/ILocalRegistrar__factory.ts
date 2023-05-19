@@ -7,7 +7,7 @@ import type { Provider } from "@ethersproject/providers";
 import type {
   ILocalRegistrar,
   ILocalRegistrarInterface,
-} from "../../../../../contracts/core/registrar/interface/ILocalRegistrar";
+} from "../../../../../contracts/core/registrar/interfaces/ILocalRegistrar";
 
 const _abi = [
   {

@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 import {AccountStorage} from "../storage.sol";
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
-import {IRegistrar} from "../../registrar/interface/IRegistrar.sol";
+import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
@@ -12,7 +12,7 @@ import {IDonationMatchEmitter} from "./../../../normalized_endowment/donation-ma
 import {DonationMatchStorage} from "./../../../normalized_endowment/donation-match/storage.sol";
 import {DonationMatchMessages} from "./../../../normalized_endowment/donation-match/message.sol";
 import {ProxyContract} from "../../proxy.sol";
-import {IAccountDonationMatch} from "../interface/IAccountDonationMatch.sol";
+import {IAccountDonationMatch} from "../interfaces/IAccountDonationMatch.sol";
 
 /**
  * @title AccountDeployContract

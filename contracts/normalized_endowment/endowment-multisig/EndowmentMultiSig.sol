@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 import {MultiSigGeneric} from "../../multisigs/MultiSigGeneric.sol";
-import {IEndowmentMultiSigEmitter} from "./interface/IEndowmentMultiSigEmitter.sol";
+import {IEndowmentMultiSigEmitter} from "./interfaces/IEndowmentMultiSigEmitter.sol";
 import {MultiSigStorage} from "../../multisigs/storage.sol";
 import {Utils} from "../../lib/utils.sol";
 /**

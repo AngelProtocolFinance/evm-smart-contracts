@@ -7,7 +7,7 @@ import type { Provider } from "@ethersproject/providers";
 import type {
   ICharityApplication,
   ICharityApplicationInterface,
-} from "../../../../../contracts/multisigs/charity_applications/interface/ICharityApplication";
+} from "../../../../../contracts/multisigs/charity_applications/interfaces/ICharityApplication";
 
 const _abi = [
   {

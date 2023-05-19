@@ -4,7 +4,7 @@ pragma solidity ^0.8.16;
 import "./storage.sol";
 import {DonationMatchMessages} from "./message.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
-import {IRegistrar} from "../../core/registrar/interface/IRegistrar.sol";
+import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 import {AccountMessages} from "../../core/accounts/message.sol";
 import {AccountStorage} from "../../core/accounts/storage.sol";
 import {IAccounts} from "../../core/accounts/IAccounts.sol";
@@ -15,7 +15,7 @@ import "@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol";
 import "@uniswap/v3-core/contracts/libraries/FullMath.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {IDonationMatchEmitter} from "./IDonationMatchEmitter.sol";
-import {IAccountDonationMatch} from "./../../core/accounts/interface/IAccountDonationMatch.sol";
+import {IAccountDonationMatch} from "./../../core/accounts/interfaces/IAccountDonationMatch.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 interface SubdaoToken {

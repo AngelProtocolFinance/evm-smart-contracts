@@ -7,8 +7,8 @@ import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
-import {IRegistrar} from "../../registrar/interface/IRegistrar.sol";
-import {IAxelarGateway} from "./../interface/IAxelarGateway.sol";
+import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
+import {IAxelarGateway} from "./../interfaces/IAxelarGateway.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 

@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 import "./storage.sol";
-import {ICharityApplication} from "./interface/ICharityApplication.sol";
+import {ICharityApplication} from "./interfaces/ICharityApplication.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {AngelCoreStruct} from "../../core/struct.sol";
-import {IAccountsCreateEndowment} from "../../core/accounts/interface/IAccountsCreateEndowment.sol";
-import {IAccountsQuery} from "../../core/accounts/interface/IAccountsQuery.sol";
-import {IAccountsDepositWithdrawEndowments} from "../../core/accounts/interface/IAccountsDepositWithdrawEndowments.sol";
+import {IAccountsCreateEndowment} from "../../core/accounts/interfaces/IAccountsCreateEndowment.sol";
+import {IAccountsQuery} from "../../core/accounts/interfaces/IAccountsQuery.sol";
+import {IAccountsDepositWithdrawEndowments} from "../../core/accounts/interfaces/IAccountsDepositWithdrawEndowments.sol";
 import {AccountStorage} from "../../core/accounts/storage.sol";
 import {AccountMessages} from "../../core/accounts/message.sol";
 

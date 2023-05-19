@@ -3,7 +3,7 @@ import type { TaskArguments } from "hardhat/types"
 import config from "config"
 import addresses from "contract-address.json"
 import { Registrar } from "typechain-types"
-import { RegistrarMessages } from "typechain-types/contracts/core/registrar/interface/IRegistrar"
+import { RegistrarMessages } from "typechain-types/contracts/core/registrar/interfaces/IRegistrar"
 import { multisigs } from "typechain-types/contracts"
 
 task("manage:updateRegistrar", "Will update the registrar config")

@@ -4,7 +4,7 @@ pragma solidity ^0.8.16;
 import {CollectorMessage} from "./message.sol";
 import "./storage.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import {ISwappingV3} from "../../core/swap-router/Interface/ISwappingV3.sol";
+import {ISwappingV3} from "../../core/swap-router/interfaces/ISwappingV3.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**

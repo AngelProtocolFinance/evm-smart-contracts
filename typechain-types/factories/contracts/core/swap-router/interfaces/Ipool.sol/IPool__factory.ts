@@ -7,7 +7,7 @@ import type { Provider } from "@ethersproject/providers";
 import type {
   IPool,
   IPoolInterface,
-} from "../../../../../../contracts/core/swap-router/Interface/Ipool.sol/IPool";
+} from "../../../../../../contracts/core/swap-router/interfaces/Ipool.sol/IPool";
 
 const _abi = [
   {
