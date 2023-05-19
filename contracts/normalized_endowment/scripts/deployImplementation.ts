@@ -4,6 +4,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import { deployLockedWithdraw } from '../locked-withdraw/scripts/deploy'
 import { saveFrontendFiles } from 'scripts/readWriteFile'
+import { DonationMatchMessages } from "typechain-types/contracts/normalized_endowment/donation-match/DonationMatch.sol/DonationMatch";
 
 const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
 
@@ -58,7 +59,7 @@ const deployCw900lvImplementation = async (verify_contracts: boolean, hre: Hardh
 	}
 };
 
-const deployDonationMatchCharity = async (proxyAdmin: string, deployDonationMatchCharity: Record<string, string | number>, verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
+const deployDonationMatchCharity = async (proxyAdmin: string, deployDonationMatchCharity: DonationMatchMessages.InstantiateMessageStruct, verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
 	try {
 		const {network,run,ethers} = hre;
 		// Getting Proxy contract
@@ -114,11 +115,7 @@ const deployDonationMatchCharity = async (proxyAdmin: string, deployDonationMatc
 const deploySubDao = async (ANGEL_CORE_STRUCT: string, verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
 	try {
 		const {network,run,ethers} = hre;
-		const SubDaoLib = await ethers.getContractFactory('SubDaoLib', {
-			libraries: {
-				AngelCoreStruct: ANGEL_CORE_STRUCT,
-			},
-		});
+		const SubDaoLib = await ethers.getContractFactory('SubDaoLib');
 
 		let SUB_DAO_LIB = await SubDaoLib.deploy();
 		await SUB_DAO_LIB.deployed();
@@ -237,7 +234,7 @@ const deployIncentiisedVoting = async (verify_contracts: boolean, hre: HardhatRu
 	}
 };
 
-export async function deployImplementation(ANGEL_CORE_STRUCT: string, LockedWithdrawData: string[], donationMatchCharityData: Record<string, string | number>,verify_contracts: boolean, hre: HardhatRuntimeEnvironment) {
+export async function deployImplementation(ANGEL_CORE_STRUCT: string, LockedWithdrawData: string[], donationMatchCharityData: DonationMatchMessages.InstantiateMessageStruct,verify_contracts: boolean, hre: HardhatRuntimeEnvironment) {
 	try {
 		const {network,run,ethers} = hre;
 		let [deployer, proxyAdmin] = await ethers.getSigners();

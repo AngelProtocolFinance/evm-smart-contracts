@@ -221,20 +221,6 @@ contract AccountDepositWithdrawEndowments is
         processToken(details, registrar_config.usdcAddress, usdcAmount);
     }
 
-    // @TODO need implementation requirements for this method
-    /**
-     * @notice Donation match deposit
-     * @param id The details of the deposit
-     * @param tokenAddress The address of the token to deposit
-     * @param amount The amount of the token to deposit
-     */
-    function depositDonationMatchErC20(
-        uint32 id,
-        address tokenAddress,
-        uint256 amount
-    ) external {}
-
-
     /**
      * @notice Deposit ERC20 into the account (later swaps into USDC and then deposits into the account)
      * @param details The details of the deposit

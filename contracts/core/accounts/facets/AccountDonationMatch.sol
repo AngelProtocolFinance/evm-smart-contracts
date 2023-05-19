@@ -12,7 +12,7 @@ import {IDonationMatchEmitter} from "./../../../normalized_endowment/donation-ma
 import {DonationMatchStorage} from "./../../../normalized_endowment/donation-match/storage.sol";
 import {DonationMatchMessages} from "./../../../normalized_endowment/donation-match/message.sol";
 import {ProxyContract} from "../../proxy.sol";
-import "hardhat/console.sol";
+import {IAccountDonationMatch} from "../interface/IAccountDonationMatch.sol";
 
 /**
  * @title AccountDeployContract
@@ -20,7 +20,7 @@ import "hardhat/console.sol";
  * @dev Created so that deploying facets (which call this) don't have size conflicts
  * @dev Is always going to be called by address(this)
  */
-contract AccountDonationMatch is ReentrancyGuardFacet, AccountsEvents {
+contract AccountDonationMatch is ReentrancyGuardFacet, AccountsEvents, IAccountDonationMatch {
     /**
      * @notice Deposit DAOToken(or Halo) to the endowment and store its balance
      * @dev Function manages reserve token sent by donation matching contract

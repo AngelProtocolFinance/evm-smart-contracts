@@ -377,6 +377,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IAccountDeployContract__factory>;
     getContractFactory(
+      name: "IAccountDonationMatch",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IAccountDonationMatch__factory>;
+    getContractFactory(
       name: "IAccountsCreateEndowment",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IAccountsCreateEndowment__factory>;
@@ -1216,6 +1220,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.IAccountDeployContract>;
+    getContractAt(
+      name: "IAccountDonationMatch",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IAccountDonationMatch>;
     getContractAt(
       name: "IAccountsCreateEndowment",
       address: string,

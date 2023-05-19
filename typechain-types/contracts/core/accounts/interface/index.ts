@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { IAccountDeployContract } from "./IAccountDeployContract";
+export type { IAccountDonationMatch } from "./IAccountDonationMatch";
 export type { IAccountsCreateEndowment } from "./IAccountsCreateEndowment";
 export type { IAccountsDepositWithdrawEndowments } from "./IAccountsDepositWithdrawEndowments";
 export type { IAccountsQuery } from "./IAccountsQuery";

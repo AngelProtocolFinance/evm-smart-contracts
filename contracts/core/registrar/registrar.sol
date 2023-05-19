@@ -38,7 +38,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
      */
     function initialize(
         RegistrarMessages.InstantiateRequest memory details
-    ) public {
+    ) public initializer {
         __LocalRegistrar_init();
         state.config = RegistrarStorage.Config({
             applicationsReview: msg.sender,

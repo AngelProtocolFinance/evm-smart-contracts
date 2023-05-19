@@ -128,7 +128,7 @@ contract AxelarExecutionContract is ReentrancyGuardFacet, AccountsEvents {
         address registrar,
         address tokenaddress,
         uint256 amount
-    ) internal view returns (bool) {
+    ) public view returns (bool) {
         require(IRegistrar(
             registrar
         ).isTokenAccepted(tokenaddress), "Not accepted token");

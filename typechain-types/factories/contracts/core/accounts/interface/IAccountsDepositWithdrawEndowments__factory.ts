@@ -13,29 +13,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint32",
-        name: "id",
-        type: "uint32",
-      },
-      {
-        internalType: "address",
-        name: "tokenAddress",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "depositDonationMatchErC20",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         components: [
           {
             internalType: "uint32",

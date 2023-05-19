@@ -13,12 +13,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 interface IAccountsDepositWithdrawEndowments {
-    function depositDonationMatchErC20(
-        uint32 id,
-        address tokenAddress,
-        uint256 amount
-    ) external;
-
     function depositMatic(
         AccountMessages.DepositRequest memory details
     ) external payable;

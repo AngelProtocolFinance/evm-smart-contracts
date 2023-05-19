@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-import {IAccountsDepositWithdrawEndowments} from "./../../core/accounts/interface/IAccountsDepositWithdrawEndowments.sol";
+import {IAccountDonationMatch} from "../../core/accounts/interface/IAccountDonationMatch.sol";
 import {SubDaoTokenMessage} from "./message.sol";
 import {subDaoTokenStorage} from "./storage.sol";
 // import {ISubdaoTokenEmitter} from "./ISubdaoTokenEmitter.sol";
@@ -26,38 +26,38 @@ contract SubDaoToken is Storage, ContinuousToken {
 
     /**
      * @dev Initialize contract
-     * @param msg SubDaoTokenMessage.InstantiateMsg used to initialize contract
+     * @param message SubDaoTokenMessage.InstantiateMsg used to initialize contract
      * @param emitteraddress address
      */
     function continuosToken(
-        SubDaoTokenMessage.InstantiateMsg memory msg,
+        SubDaoTokenMessage.InstantiateMsg memory message,
         address emitteraddress
     ) public initializer {
         require(emitteraddress != address(0), "Invalid Address");
         emitterAddress = emitteraddress;
         initveToken(
-            msg.name,
-            msg.symbol,
-            subDaoTokenStorage.getReserveRatio(msg.ve_type),
-            msg.reserveDenom
+            message.name,
+            message.symbol,
+            subDaoTokenStorage.getReserveRatio(message.ve_type),
+            message.reserveDenom
         );
 
-        tokenInfo.name = msg.name;
-        tokenInfo.symbol = msg.symbol;
-        tokenInfo.decimals = 18; //Equivalue to msg.decimals
+        tokenInfo.name = message.name;
+        tokenInfo.symbol = message.symbol;
+        tokenInfo.decimals = 18; //Equivalue to message.decimals
         tokenInfo.mint = subDaoTokenStorage.MinterData({
             minter: address(this),
             cap: 0,
             hasCap: false
         });
 
-        reserveDenom = msg.reserveDenom;
+        reserveDenom = message.reserveDenom;
 
         config.unbondingPeriod = AngelCoreStruct.Duration({
             enumData: AngelCoreStruct.DurationEnum.Time,
             data: AngelCoreStruct.DurationData({
                 height: 0,
-                time: msg.unbondingPeriod
+                time: message.unbondingPeriod
             })
         });
         // ISubdaoTokenEmitter(emitterAddress).initializeSubdaoToken(msg);
@@ -100,7 +100,7 @@ contract SubDaoToken is Storage, ContinuousToken {
             "Approve failed"
         );
 
-        IAccountsDepositWithdrawEndowments(accountscontract)
+        IAccountDonationMatch(accountscontract)
             .depositDonationMatchErC20(
                 endowmentId,
                 address(this),

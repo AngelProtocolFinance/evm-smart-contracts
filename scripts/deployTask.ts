@@ -13,8 +13,8 @@ import { charityApplications } from 'contracts/multisigs/charity_applications/sc
 
 import config from 'config'
 import { deployEmitters } from 'contracts/normalized_endowment/scripts/deployEmitter'
-import { giftCard } from 'contracts/accessory/gift-cards/scripts/deploy'
-import { deployFundraising } from 'contracts/accessory/fundraising/scripts/deploy'
+// import { giftCard } from 'contracts/accessory/gift-cards/scripts/deploy'
+// import { deployFundraising } from 'contracts/accessory/fundraising/scripts/deploy'
 
 var ANGEL_CORE_STRUCT: Contract;
 var STRING_LIBRARY: Contract;
@@ -194,21 +194,21 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 
 		// console.log('implementations deployed at:', implementations);
 
-		let GiftCardDataInput = {
-			keeper: multisigAddress.APTeamMultiSig,
-			registrarContract: REGISTRAR_ADDRESS,
-		};
+		// let GiftCardDataInput = {
+		// 	keeper: multisigAddress.APTeamMultiSig,
+		// 	registrarContract: REGISTRAR_ADDRESS,
+		// };
 
-		let giftCardAddress = await giftCard(GiftCardDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre);
+		// let giftCardAddress = await giftCard(GiftCardDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre);
 
-		let FundraisingDataInput = {
-			registrarContract: REGISTRAR_ADDRESS,
-			nextId: config.FundraisingDataInput.nextId,
-			campaignPeriodSeconds: config.FundraisingDataInput.campaignPeriodSeconds,
-			taxRate: config.FundraisingDataInput.taxRate,
-			acceptedTokens: config.FundraisingDataInput.acceptedTokens,
-		};
-		let fundraisingAddress = await deployFundraising(FundraisingDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre);
+		// let FundraisingDataInput = {
+		// 	registrarContract: REGISTRAR_ADDRESS,
+		// 	nextId: config.FundraisingDataInput.nextId,
+		// 	campaignPeriodSeconds: config.FundraisingDataInput.campaignPeriodSeconds,
+		// 	taxRate: config.FundraisingDataInput.taxRate,
+		// 	acceptedTokens: config.FundraisingDataInput.acceptedTokens,
+		// };
+		// let fundraisingAddress = await deployFundraising(FundraisingDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre);
 
 		var haloAddress = await deployHaloImplementation(
 			SWAP_ROUTER,
@@ -372,7 +372,7 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			haloToken: haloAddress.Halo, //address
 			haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
 			charitySharesContract: ADDRESS_ZERO, //TODO: //address
-			fundraisingContract: fundraisingAddress, //TODO: //address
+			fundraisingContract: ADDRESS_ZERO, //TODO: //address
 			applicationsReview: multisigAddress.ApplicationsMultiSig, //address
 			swapsRouter: SWAP_ROUTER, //address
 			multisigFactory: multisigDat.MultiSigWalletFactory, //address
@@ -413,8 +413,8 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			multisigDat,
 			implementations,
 			haloAddress,
-			giftCardAddress,
-			fundraisingAddress,
+			// giftCardAddress,
+			// fundraisingAddress,
 			haloGovContract: haloAddress.Gov.GovProxy,
 			timelockContract: haloAddress.Gov.TimeLock,
 			votingERC20: haloAddress.Gov.VotingERC20Proxy,

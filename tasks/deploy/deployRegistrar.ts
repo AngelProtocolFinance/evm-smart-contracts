@@ -9,13 +9,11 @@ task("Deploy:deployRegistrar", "Will deploy Registrar contract")
         try {
             const registrarData = {
                 treasury: config.REGISTRAR_DATA.treasury,
-                taxRate: config.REGISTRAR_DATA.taxRate,
-                rebalance: config.REGISTRAR_DATA.rebalance,
                 splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
-                acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
                 router: config.REGISTRAR_DATA.router,
-                axelerGateway: config.REGISTRAR_DATA.axelerGateway,
-            };
+                axelarGateway: config.REGISTRAR_DATA.axelarGateway,
+                axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv
+            }
             var isTrueSet = taskArgs.verify === "true";
             await deployRegistrar(
                 taskArgs.strlib,
