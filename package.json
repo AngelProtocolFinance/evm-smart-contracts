@@ -1,12 +1,17 @@
 {
-  "name": "hardhat-boilerplate",
+  "name": "angel-protocol-evm",
   "version": "1.0.0",
-  "description": "A boilerplate repository to get you started with Hardhat and Ethereum development",
+  "description": "Angel Protocol EVM smart contracts, testing and deployment suite.",
   "scripts": {
+    "preinstall": "npx only-allow yarn",
     "test": "hardhat test",
     "compile": "hardhat compile && solium -d contracts/",
     "deploy": "hardhat compile && hardhat run ./scripts/deploy.ts",
     "abi": "hardhat export-abi"
+  },
+  "engines": {
+    "node": "18.x",
+    "yarn": "1.22.x"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",
@@ -55,6 +60,7 @@
     "@openzeppelin/contracts": "^4.8.3",
     "@openzeppelin/contracts-upgradeable": "^4.8.3",
     "@openzeppelin/hardhat-upgrades": "^1.23.1",
+    "@uniswap/v3-core": "github:AngelProtocolFinance/uniswap-v3-core#fullmath-fix",
     "@uniswap/v3-periphery": "^1.4.3",
     "dotenv": "^16.0.3",
     "hardhat-abi-exporter": "^2.10.1",
