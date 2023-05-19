@@ -38,10 +38,10 @@ export async function deployGiftCard(
       });
     }
 
-    await saveFrontendFiles({{
+    await saveFrontendFiles({
       GiftCardsProxy: GiftCardsProxy.address,
       GiftCardsImplementation: GiftCardsInstance.address
-    }});
+    });
 
     return Promise.resolve(GiftCardsProxy.address);
   } catch (error) {

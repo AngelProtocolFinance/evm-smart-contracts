@@ -116,10 +116,15 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
             IRegistrar(state.config.registrarContract)
                 .isTokenAccepted(tokenAddress),
             "Invalid Token");
-        // transfer fund to this contract
+        
+        // Allowance of some amount of tokens to this contract & transfer
+        require(
+            IERC20(tokenAddress).allowance(msg.sender, address(this)) >= amount,
+            "Insuficient Allowance"
+        );
         require(
             IERC20(tokenAddress).transferFrom(msg.sender, address(this), amount),
-            "TransferFrom failed"
+            "Transfer Failed"
         );
 
         // If a TO address is provided, mark deposit as claimed immediately
