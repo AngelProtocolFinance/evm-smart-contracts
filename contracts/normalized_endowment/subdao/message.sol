@@ -17,7 +17,7 @@ library subDaoMessage {
         uint256 proposalDeposit;
         uint256 snapshotPeriod;
         AngelCoreStruct.DaoToken token;
-        AngelCoreStruct.EndowmentType endow_type;
+        AngelCoreStruct.EndowmentType endowType;
         address endowOwner;
         address registrarContract;
     }

@@ -11,15 +11,15 @@ library AccountMessages {
         uint256 maturityTime; // datetime int of endowment maturity
         uint256 maturityHeight; // block equiv of the maturity_datetime
         string name; // name of the Endowment
-        AngelCoreStruct.Categories categories; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP CW3 Multisig can set/update)
-        uint256 tier; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP CW3 Multisig can set/update)
-        AngelCoreStruct.EndowmentType endow_type;
+        AngelCoreStruct.Categories categories; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP Team Multisig can set/update)
+        uint256 tier; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP Team Multisig can set/update)
+        AngelCoreStruct.EndowmentType endowType;
         string logo;
         string image;
-        address[] cw4_members;
+        address[] members;
         bool kycDonorsOnly;
         uint256 threshold;
-        AngelCoreStruct.Duration cw3MaxVotingPeriod;
+        AngelCoreStruct.Duration maxVotingPeriod;
         address[] allowlistedBeneficiaries;
         address[] allowlistedContributors;
         uint256 splitMax;
@@ -118,7 +118,7 @@ library AccountMessages {
     struct EndowmentEntry {
         uint32 id; // u32,
         address owner; // String,
-        AngelCoreStruct.EndowmentType endow_type; // EndowmentType,
+        AngelCoreStruct.EndowmentType endowType; // EndowmentType,
         string name; // Option<String>,
         string logo; // Option<String>,
         string image; // Option<String>,
@@ -156,7 +156,7 @@ library AccountMessages {
         address daoToken;
         string description;
         AngelCoreStruct.AccountStrategies strategies;
-        AngelCoreStruct.EndowmentType endow_type;
+        AngelCoreStruct.EndowmentType endowType;
         uint256 maturityTime;
         AngelCoreStruct.OneOffVaults oneoffVaults;
         LocalRegistrarLib.RebalanceParams rebalance;

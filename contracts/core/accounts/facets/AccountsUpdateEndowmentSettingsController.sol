@@ -50,7 +50,7 @@ contract AccountsUpdateEndowmentSettingsController is
         require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
         require(!state.STATES[details.id].lockedForever, "Settings are locked forever");
 
-        if (tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity) {
+        if (tempEndowment.endowType != AngelCoreStruct.EndowmentType.Charity) {
             // when maturity time is <= 0 it means it's not set, i.e. the AST is perpetual
             if (tempEndowment.maturityTime <= 0 || tempEndowment.maturityTime > block.timestamp) {
                 if (
@@ -198,7 +198,7 @@ contract AccountsUpdateEndowmentSettingsController is
         ];
 
         require(
-            tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity,
+            tempEndowment.endowType != AngelCoreStruct.EndowmentType.Charity,
             "Charity Endowments may not change endowment fees"
         );
         require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");

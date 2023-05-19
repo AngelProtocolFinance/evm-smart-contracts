@@ -6,9 +6,9 @@ let { main } = require('../../scripts/deployMain');
 const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
 const getCreateEndowmentConfig = async function (
 	owner,
-	cw4_members,
-	endow_type = 1,
-	subdao_flag = false,
+	members,
+	endowType = 1,
+	subdaoFlag = false,
 	bondingCurveReserveDenom = ADDRESS_ZERO,
 	title = 'Test Endowment'
 ) {
@@ -24,11 +24,11 @@ const getCreateEndowmentConfig = async function (
 				general: [],
 			},
 			tier: 3,
-			endow_type: endow_type,
+			endowType: endowType,
 			logo: 'Some fancy logo',
 			image: 'Nice banner image',
-			cw4_members: cw4_members,
-			cw3Threshold: {
+			members: members,
+			threshold: {
 				enumData: 1,
 				data: {
 					weight: 0,
@@ -37,7 +37,7 @@ const getCreateEndowmentConfig = async function (
 					quorum: 0,
 				},
 			},
-			cw3MaxVotingPeriod: {
+			maxVotingPeriod: {
 				enumData: 1,
 				data: {
 					height: 0,
@@ -102,7 +102,7 @@ const getCreateEndowmentConfig = async function (
 					},
 				},
 			},
-			createDao: subdao_flag,
+			createDao: subdaoFlag,
 			proposalLink: 0,
 			settingsController: {
 				endowmentController: {
@@ -269,7 +269,7 @@ const getCreateEndowmentConfig = async function (
 			},
 		};
 
-		if (endow_type === 0) {
+		if (endowType === 0) {
 			endowmentConfig.dao = {
 				quorum: 10,
 				threshold: 10,

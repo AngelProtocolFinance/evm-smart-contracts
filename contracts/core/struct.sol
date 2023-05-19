@@ -759,7 +759,6 @@ library AngelCoreStruct {
         return canTakeAction(delegate, sender, envTime) || sender == owner;
     }
 
-    // None at the start as pending starts at 1 in ap rust contracts (in cw3 core)
     enum Status {
         None,
         Pending,

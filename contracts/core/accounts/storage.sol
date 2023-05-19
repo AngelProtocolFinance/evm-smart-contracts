@@ -20,9 +20,9 @@ library AccountStorage {
     struct Endowment {
         address owner;
         string name; // name of the Endowment
-        AngelCoreStruct.Categories categories; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP CW3 Multisig can set/update)
-        uint256 tier; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP CW3 Multisig can set/update)
-        AngelCoreStruct.EndowmentType endow_type;
+        AngelCoreStruct.Categories categories; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP Team Multisig can set/update)
+        uint256 tier; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP Team Multisig can set/update)
+        AngelCoreStruct.EndowmentType endowType;
         string logo;
         string image;
         uint256 maturityTime; // datetime int of endowment maturity
@@ -33,7 +33,7 @@ library AccountStorage {
         LocalRegistrarLib.RebalanceParams rebalance; // parameters to guide rebalancing & harvesting of gains from locked/liquid accounts
         bool kycDonorsOnly; // allow owner to state a preference for receiving only kyc'd donations (where possible) //TODO:
         uint256 pendingRedemptions; // number of vault redemptions rently pending for this endowment
-        uint256 proposalLink; // link back the CW3 Proposal that created an endowment
+        uint256 proposalLink; // link back the Applications Team Multisig Proposal that created an endowment (if a Charity)
         address multisig;
         address dao;
         address daoToken;

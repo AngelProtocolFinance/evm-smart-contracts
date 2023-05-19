@@ -109,12 +109,12 @@ contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
             registrar_config.accountsContract
         ).queryEndowmentDetails(endowmentId);
 
-        if (endow_detail.endow_type == AngelCoreStruct.EndowmentType.Charity) {
+        if (endow_detail.endowType == AngelCoreStruct.EndowmentType.Charity) {
             require(
                 address(this) == registrar_config.donationMatchCharitesContract,
                 "Unauthorized"
             );
-        } else if (endow_detail.endow_type == AngelCoreStruct.EndowmentType.Normal) {
+        } else if (endow_detail.endowType == AngelCoreStruct.EndowmentType.Normal) {
             require(
                 address(this) == endow_detail.donationMatchContract,
                 "Unauthorized"

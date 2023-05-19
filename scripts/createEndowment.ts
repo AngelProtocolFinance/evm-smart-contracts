@@ -13,9 +13,9 @@ async function deploy() {
 
     //NOTE: USE AP-1 Wallet
     const owner = "0xce551C1125BfCdAb88048854522D0B220f41A6Ff" //AP-TEAM 1
-    const cw4_members = ["0xce551C1125BfCdAb88048854522D0B220f41A6Ff"] //AP-TEAM 1
-    const endow_type = 1
-    const subdao_flag = false
+    const members = ["0xce551C1125BfCdAb88048854522D0B220f41A6Ff"] //AP-TEAM 1
+    const endowType = 1
+    const subdaoFlag = false
     const title = "Test Endowment"
 
     const newEndowment = {
@@ -29,11 +29,11 @@ async function deploy() {
             general: [],
         },
         tier: 3,
-        endow_type: endow_type,
+        endowType: endowType,
         logo: "Some fancy logo",
         image: "Nice banner image",
-        cw4_members: cw4_members,
-        cw3Threshold: {
+        members: members,
+        threshold: {
             enumData: 1,
             data: {
                 weight: 0,
@@ -42,7 +42,7 @@ async function deploy() {
                 quorum: 0,
             },
         },
-        cw3MaxVotingPeriod: {
+        maxVotingPeriod: {
             enumData: 1,
             data: {
                 height: 0,
@@ -108,7 +108,7 @@ async function deploy() {
                 },
             },
         },
-        createDao: subdao_flag,
+        createDao: subdaoFlag,
         proposalLink: 0,
         settingsController: {
             endowmentController: {

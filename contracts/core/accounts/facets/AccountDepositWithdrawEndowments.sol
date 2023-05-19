@@ -331,7 +331,7 @@ contract AccountDepositWithdrawEndowments is
         );
 
         if (msg.sender != registrar_config.indexFundContract) {
-            if (tempEndowment.endow_type == AngelCoreStruct.EndowmentType.Charity) {
+            if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Charity) {
                 // use the Registrar default split for Charities
                 (lockedSplitPercent, liquidSplitPercent) = AngelCoreStruct.checkSplits(
                     registrar_split_configs,
@@ -361,7 +361,7 @@ contract AccountDepositWithdrawEndowments is
         //donation matching flow
         //execute donor match will always be called on an EOA
         if (lockedAmount > 0) {
-            if (tempEndowment.endow_type ==
+            if (tempEndowment.endowType ==
                 AngelCoreStruct.EndowmentType.Charity &&
                 registrar_config.donationMatchCharitesContract != address(0)
             ) {
@@ -374,7 +374,7 @@ contract AccountDepositWithdrawEndowments is
                         registrar_config.haloToken
                     );
             } else if (
-                tempEndowment.endow_type ==
+                tempEndowment.endowType ==
                 AngelCoreStruct.EndowmentType.Normal &&
                 tempEndowment.donationMatchContract != address(0)
             ) {
@@ -468,7 +468,7 @@ contract AccountDepositWithdrawEndowments is
         //      maturity has been reached, only addresses in Maturity Allowlist may withdraw. If the Maturity
         //      Allowlist is not populated, then only the endowment multisig is allowed to withdraw.
         // LIQUID & LOCKED(after Maturity): Only the endowment multisig can withdraw
-        if (tempEndowment.endow_type == AngelCoreStruct.EndowmentType.Normal) {
+        if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Normal) {
             // determine if msg sender is allowed to withdraw based on rules and maturity status
             bool senderAllowed = false;
             if (mature) {
@@ -503,7 +503,7 @@ contract AccountDepositWithdrawEndowments is
         }
 
         uint256 withdrawFeeRateAp;
-        if (tempEndowment.endow_type == AngelCoreStruct.EndowmentType.Charity) {
+        if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Charity) {
             withdrawFeeRateAp = IRegistrar(state.config.registrarContract).queryFee(
                 "accounts_withdraw_charity"
             );

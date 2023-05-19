@@ -120,7 +120,7 @@ contract AccountDonationMatch is ReentrancyGuardFacet, AccountsEvents, IAccountD
             state.config.registrarContract
         ).queryConfig();
 
-        require(registrar_config.donationMatchCode != address(0), "AD E04"); // No implementation for donation matching contract
+        require(registrar_config.donationMatchContract != address(0), "AD E04"); // No implementation for donation matching contract
         require(registrar_config.usdcAddress != address(0), "AD E05"); // Invalid Registrar Data
 
         address inputtoken;
@@ -156,7 +156,7 @@ contract AccountDonationMatch is ReentrancyGuardFacet, AccountsEvents, IAccountD
 
         address donationMatch = address(
             new ProxyContract(
-                registrar_config.donationMatchCode,
+                registrar_config.donationMatchContract,
                 registrar_config.proxyAdmin,
                 data
             )

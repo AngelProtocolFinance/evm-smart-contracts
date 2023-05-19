@@ -50,11 +50,11 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                     general: []
                 },
                 tier: 3,
-                endow_type: 0, // Charity
+                endowType: 0, // Charity
                 logo: "",
                 image: "",
-                cw4_members: [wallet.address, endowState.owner],
-                cw3Threshold: {
+                members: [wallet.address, endowState.owner],
+                threshold: {
                     enumData: 0,
                     data: {
                         weight: 0,
@@ -63,7 +63,7 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                         quorum: 1
                     }
                 },
-                cw3MaxVotingPeriod: {
+                maxVotingPeriod: {
                     enumData: 0,
                     data: {
                         height: 0,

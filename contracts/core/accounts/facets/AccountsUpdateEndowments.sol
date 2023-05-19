@@ -47,7 +47,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
                 tempEndowment.owner = details.owner;
             }
 
-            if (tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity) {
+            if (tempEndowment.endowType != AngelCoreStruct.EndowmentType.Charity) {
                 tempEndowment.rebalance = details.rebalance;
             }
         }
@@ -72,7 +72,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
             )
         ) {
             if (
-                tempEndowment.endow_type ==
+                tempEndowment.endowType ==
                 AngelCoreStruct.EndowmentType.Charity
             ) {
                 if (details.categories.sdgs.length == 0) {

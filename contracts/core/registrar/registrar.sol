@@ -45,13 +45,13 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
             indexFundContract: address(0),
             accountsContract: address(0),
             treasury: details.treasury,
-            subdaoGovCode: address(0), // Sub dao implementation
-            subdaoCw20TokenCode: address(0), // NewERC20 implementation
-            subdaoBondingTokenCode: address(0), // Continous Token implementation
-            subdaoCw900Code: address(0),
-            subdaoDistributorCode: address(0),
+            subdaoGovContract: address(0), // Sub dao implementation
+            subdaoCw20TokenContract: address(0), // NewERC20 implementation
+            subdaoBondingTokenContract: address(0), // Continous Token implementation
+            subdaoCw900Contract: address(0),
+            subdaoDistributorContract: address(0),
             subdaoEmitter: address(0),
-            donationMatchCode: address(0),
+            donationMatchContract: address(0),
             // rebalance: details.rebalance,
             splitToLiquid: details.splitToLiquid,
             haloToken: address(0),
@@ -185,33 +185,33 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
             state.config.govContract = details.govContract;
         }
 
-        if (Validator.addressChecker(details.subdaoGovCode)) {
-            state.config.subdaoGovCode = details.subdaoGovCode;
+        if (Validator.addressChecker(details.subdaoGovContract)) {
+            state.config.subdaoGovContract = details.subdaoGovContract;
         }
 
-        if (Validator.addressChecker(details.subdaoBondingTokenCode)) {
-            state.config.subdaoBondingTokenCode = details
-                .subdaoBondingTokenCode;
+        if (Validator.addressChecker(details.subdaoBondingTokenContract)) {
+            state.config.subdaoBondingTokenContract = details
+                .subdaoBondingTokenContract;
         }
 
-        if (Validator.addressChecker(details.subdaoCw20TokenCode)) {
-            state.config.subdaoCw20TokenCode = details.subdaoCw20TokenCode;
+        if (Validator.addressChecker(details.subdaoCw20TokenContract)) {
+            state.config.subdaoCw20TokenContract = details.subdaoCw20TokenContract;
         }
 
-        if (Validator.addressChecker(details.subdaoCw900Code)) {
-            state.config.subdaoCw900Code = details.subdaoCw900Code;
+        if (Validator.addressChecker(details.subdaoCw900Contract)) {
+            state.config.subdaoCw900Contract = details.subdaoCw900Contract;
         }
 
-        if (Validator.addressChecker(details.subdaoDistributorCode)) {
-            state.config.subdaoDistributorCode = details
-                .subdaoDistributorCode;
+        if (Validator.addressChecker(details.subdaoDistributorContract)) {
+            state.config.subdaoDistributorContract = details
+                .subdaoDistributorContract;
         }
         if (Validator.addressChecker(details.subdaoEmitter)) {
             state.config.subdaoEmitter = details.subdaoEmitter;
         }
 
-        if (Validator.addressChecker(details.donationMatchCode)) {
-            state.config.donationMatchCode = details.donationMatchCode;
+        if (Validator.addressChecker(details.donationMatchContract)) {
+            state.config.donationMatchContract = details.donationMatchContract;
         }
 
         if (Validator.addressChecker(details.haloToken)) {

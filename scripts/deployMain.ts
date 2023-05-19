@@ -370,13 +370,13 @@ export async function main(apTeamAdmins = []) {
             splitDefault: 50, //uint256
             collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
             acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
-            subdaoGovCode: implementations.SubDao, //address
-            subdaoCw20TokenCode: implementations.SubDaoERC20, //address
-            subdaoBondingTokenCode: implementations.SubDaoBondingCurve, //address
-            subdaoCw900Code: implementations.IncentiisedVoting, //address
-            subdaoDistributorCode: ADDRESS_ZERO,
+            subdaoGovContract: implementations.SubDao, //address
+            subdaoCw20TokenContract: implementations.SubDaoERC20, //address
+            subdaoBondingTokenContract: implementations.SubDaoBondingCurve, //address
+            subdaoCw900Contract: implementations.IncentiisedVoting, //address
+            subdaoDistributorContract: ADDRESS_ZERO,
             subdaoEmitter: emitters.subDaoEmitter, //TODO:
-            donationMatchCode: implementations.DonationMatch, //address
+            donationMatchContract: implementations.DonationMatch, //address
             indexFundContract: INDEX_FUND_ADDRESS, //address
             govContract: haloAddress.Gov.GovProxy, //address
             treasury: config.REGISTRAR_DATA.treasury,

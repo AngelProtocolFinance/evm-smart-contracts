@@ -198,7 +198,7 @@ library SubDaoLib {
             );
             config.daoToken = address(
                 new ProxyContract(
-                    registrar_config.subdaoCw20TokenCode,
+                    registrar_config.subdaoCw20TokenContract,
                     registrar_config.proxyAdmin,
                     callData
                 )
@@ -222,7 +222,7 @@ library SubDaoLib {
             );
             config.daoToken = address(
                 new ProxyContract(
-                    registrar_config.subdaoBondingTokenCode,
+                    registrar_config.subdaoBondingTokenContract,
                     registrar_config.proxyAdmin,
                     callData
                 )
@@ -252,7 +252,7 @@ library SubDaoLib {
             );
             config.daoToken = address(
                 new ProxyContract(
-                    registrar_config.subdaoBondingTokenCode,
+                    registrar_config.subdaoBondingTokenContract,
                     registrar_config.proxyAdmin,
                     callData
                 )
@@ -338,7 +338,7 @@ contract SubDao is Storage, ReentrancyGuard {
 
         SubDaoLib.buildDaoTokenMesage(
             details.token,
-            details.endow_type,
+            details.endowType,
             details.endowOwner,
             config,
             emitterAddress

@@ -120,7 +120,7 @@ export declare namespace SubDaoMessage {
     proposalDeposit: PromiseOrValue<BigNumberish>;
     snapshotPeriod: PromiseOrValue<BigNumberish>;
     token: AngelCoreStruct.DaoTokenStruct;
-    endow_type: PromiseOrValue<BigNumberish>;
+    endowType: PromiseOrValue<BigNumberish>;
     endowOwner: PromiseOrValue<string>;
     registrarContract: PromiseOrValue<string>;
   };
@@ -150,7 +150,7 @@ export declare namespace SubDaoMessage {
     proposalDeposit: BigNumber;
     snapshotPeriod: BigNumber;
     token: AngelCoreStruct.DaoTokenStructOutput;
-    endow_type: number;
+    endowType: number;
     endowOwner: string;
     registrarContract: string;
   };
