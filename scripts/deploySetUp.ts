@@ -2,9 +2,13 @@
 // yours, or create new ones.
 
 import path from 'path'
+import hre from 'hardhat'
+import config from 'config'
+import { Contract } from 'ethers'
+import { APTeamMultiSig, ApplicationsMultiSig } from 'typechain-types'
+import { convertCompilerOptionsFromJson } from 'typescript'
 
 import { deployDiamond } from 'contracts/core/accounts/scripts/deploy'
-import hre from 'hardhat'
 import { deployRegistrar } from 'contracts/core/registrar/scripts/deploy'
 import { deployImplementation } from 'contracts/normalized_endowment/scripts/deployImplementation'
 import { deployMultisig } from 'contracts/multisigs/scripts/deploy'
@@ -13,15 +17,11 @@ import { deployIndexFund } from 'contracts/core/index-fund/scripts/deploy'
 import { deployEndowmentMultiSig } from 'contracts/normalized_endowment/endowment-multisig/scripts/deploy'
 import { deployHaloImplementation } from 'contracts/halo/scripts/deploy'
 import { charityApplications } from 'contracts/multisigs/charity_applications/scripts/deploy'
-const ethers = hre.ethers;
-
-import config from 'config'
 import { deployEmitters } from 'contracts/normalized_endowment/scripts/deployEmitter'
-import { giftCard } from 'contracts/accessory/gift-cards/scripts/deploy'
-import { deployFundraising } from 'contracts/accessory/fundraising/scripts/deploy'
-import { convertCompilerOptionsFromJson } from 'typescript'
-import { Contract } from 'ethers'
-import { APTeamMultiSig, ApplicationsMultiSig } from 'typechain-types'
+import { deployGiftCard } from 'contracts/accessory/gift-cards/scripts/deploy'
+// import { deployFundraising } from 'contracts/accessory/fundraising/scripts/deploy'
+
+const ethers = hre.ethers;
 
 //TODO: Deploy and initilize emitters
 //TODO: deploy gift card contract
