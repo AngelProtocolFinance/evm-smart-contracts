@@ -7,7 +7,7 @@ import type { Provider } from "@ethersproject/providers";
 import type {
   IAccountsDepositWithdrawEndowments,
   IAccountsDepositWithdrawEndowmentsInterface,
-} from "../../../../../contracts/core/accounts/interface/IAccountsDepositWithdrawEndowments";
+} from "../../../../../contracts/core/accounts/interfaces/IAccountsDepositWithdrawEndowments";
 
 const _abi = [
   {

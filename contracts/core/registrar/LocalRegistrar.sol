@@ -2,7 +2,7 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.0;
 
-import { ILocalRegistrar } from "./interface/ILocalRegistrar.sol";
+import { ILocalRegistrar } from "./interfaces/ILocalRegistrar.sol";
 import { LocalRegistrarLib } from "./lib/LocalRegistrarLib.sol";
 import { IVault } from "../../interfaces/IVault.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";

@@ -7,7 +7,7 @@ import type { Provider } from "@ethersproject/providers";
 import type {
   IIncentivisedVotingLockup,
   IIncentivisedVotingLockupInterface,
-} from "../../../../../contracts/normalized_endowment/incentivised-voting/interface/IIncentivisedVotingLockup";
+} from "../../../../../contracts/normalized_endowment/incentivised-voting/interfaces/IIncentivisedVotingLockup";
 
 const _abi = [
   {

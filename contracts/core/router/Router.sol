@@ -7,7 +7,7 @@ import {RouterLib} from "./RouterLib.sol";
 import {IVault} from "../../interfaces/IVault.sol";
 import {IVaultLiquid} from "../../interfaces/IVaultLiquid.sol";
 import {IVaultLocked} from "../../interfaces/IVaultLocked.sol";
-import {ILocalRegistrar} from "../registrar/interface/ILocalRegistrar.sol";
+import {ILocalRegistrar} from "../registrar/interfaces/ILocalRegistrar.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 import {StringToAddress} from "../../lib/StringAddressUtils.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";

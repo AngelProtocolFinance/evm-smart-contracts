@@ -7,7 +7,7 @@ import type { Provider } from "@ethersproject/providers";
 import type {
   IEndowmentMultiSigEmitter,
   IEndowmentMultiSigEmitterInterface,
-} from "../../../../../contracts/normalized_endowment/endowment-multisig/interface/IEndowmentMultiSigEmitter";
+} from "../../../../../contracts/normalized_endowment/endowment-multisig/interfaces/IEndowmentMultiSigEmitter";
 
 const _abi = [
   {

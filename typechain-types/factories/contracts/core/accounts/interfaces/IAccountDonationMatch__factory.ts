@@ -7,7 +7,7 @@ import type { Provider } from "@ethersproject/providers";
 import type {
   IAccountDonationMatch,
   IAccountDonationMatchInterface,
-} from "../../../../../contracts/core/accounts/interface/IAccountDonationMatch";
+} from "../../../../../contracts/core/accounts/interfaces/IAccountDonationMatch";
 
 const _abi = [
   {

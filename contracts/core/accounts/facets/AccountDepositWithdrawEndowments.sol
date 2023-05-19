@@ -7,19 +7,19 @@ import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
-import {IRegistrar} from "../../registrar/interface/IRegistrar.sol";
+import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {IRouter} from "../../router/IRouter.sol";
-import {IAxelarGateway} from "./../interface/IAxelarGateway.sol";
+import {IAxelarGateway} from "./../interfaces/IAxelarGateway.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {StringArray} from "./../../../lib/Strings/string.sol";
 import {IDonationMatching} from "./../../../normalized_endowment/donation-match/IDonationMatching.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
-import {ISwappingV3} from "./../../swap-router/Interface/ISwappingV3.sol";
+import {ISwappingV3} from "./../../swap-router/interfaces/ISwappingV3.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
 import {IVault} from "./../../../interfaces/IVault.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
-import {IAccountsDepositWithdrawEndowments} from "../interface/IAccountsDepositWithdrawEndowments.sol";
+import {IAccountsDepositWithdrawEndowments} from "../interfaces/IAccountsDepositWithdrawEndowments.sol";
 
 /**
  * @title AccountDepositWithdrawEndowments

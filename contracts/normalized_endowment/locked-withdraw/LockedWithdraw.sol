@@ -3,13 +3,13 @@ pragma solidity ^0.8.16;
 
 import {AngelCoreStruct} from "../../core/struct.sol";
 import {Storage, LockedWithdrawStorage} from "./storage.sol";
-import {ILockedWithdraw} from "./interface/ILockedWithdraw.sol";
+import {ILockedWithdraw} from "./interfaces/ILockedWithdraw.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Utils} from "../../lib/utils.sol";
-import {IEndowmentMultiSigFactory} from "../endowment-multisig/interface/IEndowmentMultiSigFactory.sol";
-import {IAccountsDepositWithdrawEndowments} from "../../core/accounts/interface/IAccountsDepositWithdrawEndowments.sol";
+import {IEndowmentMultiSigFactory} from "../endowment-multisig/interfaces/IEndowmentMultiSigFactory.sol";
+import {IAccountsDepositWithdrawEndowments} from "../../core/accounts/interfaces/IAccountsDepositWithdrawEndowments.sol";
 
 /**
  * @title LockedWithdraw

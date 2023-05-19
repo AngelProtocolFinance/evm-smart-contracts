@@ -5,13 +5,15 @@
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
 import type {
-  IAccountsCreateEndowment,
-  IAccountsCreateEndowmentInterface,
-} from "../../../../../contracts/core/accounts/interface/IAccountsCreateEndowment";
+  IAccountsQuery,
+  IAccountsQueryInterface,
+} from "../../../../../contracts/core/accounts/interfaces/IAccountsQuery";
 
 const _abi = [
   {
-    inputs: [
+    inputs: [],
+    name: "queryConfig",
+    outputs: [
       {
         components: [
           {
@@ -20,19 +22,65 @@ const _abi = [
             type: "address",
           },
           {
-            internalType: "bool",
-            name: "withdrawBeforeMaturity",
-            type: "bool",
+            internalType: "string",
+            name: "version",
+            type: "string",
+          },
+          {
+            internalType: "address",
+            name: "registrarContract",
+            type: "address",
           },
           {
             internalType: "uint256",
-            name: "maturityTime",
+            name: "nextAccountId",
             type: "uint256",
           },
           {
             internalType: "uint256",
-            name: "maturityHeight",
+            name: "maxGeneralCategoryId",
             type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "subDao",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "gateway",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "gasReceiver",
+            type: "address",
+          },
+        ],
+        internalType: "struct AccountMessages.ConfigResponse",
+        name: "config",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "id",
+        type: "uint256",
+      },
+    ],
+    name: "queryEndowmentDetails",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
           },
           {
             internalType: "string",
@@ -77,9 +125,100 @@ const _abi = [
             type: "string",
           },
           {
-            internalType: "address[]",
-            name: "members",
-            type: "address[]",
+            internalType: "uint256",
+            name: "maturityTime",
+            type: "uint256",
+          },
+          {
+            components: [
+              {
+                internalType: "string[]",
+                name: "locked_vault",
+                type: "string[]",
+              },
+              {
+                internalType: "uint256[]",
+                name: "lockedPercentage",
+                type: "uint256[]",
+              },
+              {
+                internalType: "string[]",
+                name: "liquid_vault",
+                type: "string[]",
+              },
+              {
+                internalType: "uint256[]",
+                name: "liquidPercentage",
+                type: "uint256[]",
+              },
+            ],
+            internalType: "struct AngelCoreStruct.AccountStrategies",
+            name: "strategies",
+            type: "tuple",
+          },
+          {
+            components: [
+              {
+                internalType: "string[]",
+                name: "locked",
+                type: "string[]",
+              },
+              {
+                internalType: "uint256[]",
+                name: "lockedAmount",
+                type: "uint256[]",
+              },
+              {
+                internalType: "string[]",
+                name: "liquid",
+                type: "string[]",
+              },
+              {
+                internalType: "uint256[]",
+                name: "liquidAmount",
+                type: "uint256[]",
+              },
+            ],
+            internalType: "struct AngelCoreStruct.OneOffVaults",
+            name: "oneoffVaults",
+            type: "tuple",
+          },
+          {
+            components: [
+              {
+                internalType: "bool",
+                name: "rebalanceLiquidProfits",
+                type: "bool",
+              },
+              {
+                internalType: "uint32",
+                name: "lockedRebalanceToLiquid",
+                type: "uint32",
+              },
+              {
+                internalType: "uint32",
+                name: "interestDistribution",
+                type: "uint32",
+              },
+              {
+                internalType: "bool",
+                name: "lockedPrincipleToLiquid",
+                type: "bool",
+              },
+              {
+                internalType: "uint32",
+                name: "principleDistribution",
+                type: "uint32",
+              },
+              {
+                internalType: "uint32",
+                name: "basis",
+                type: "uint32",
+              },
+            ],
+            internalType: "struct LocalRegistrarLib.RebalanceParams",
+            name: "rebalance",
+            type: "tuple",
           },
           {
             internalType: "bool",
@@ -88,37 +227,38 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "threshold",
+            name: "pendingRedemptions",
             type: "uint256",
           },
           {
-            components: [
-              {
-                internalType: "enum AngelCoreStruct.DurationEnum",
-                name: "enumData",
-                type: "uint8",
-              },
-              {
-                components: [
-                  {
-                    internalType: "uint256",
-                    name: "height",
-                    type: "uint256",
-                  },
-                  {
-                    internalType: "uint256",
-                    name: "time",
-                    type: "uint256",
-                  },
-                ],
-                internalType: "struct AngelCoreStruct.DurationData",
-                name: "data",
-                type: "tuple",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.Duration",
-            name: "maxVotingPeriod",
-            type: "tuple",
+            internalType: "uint256",
+            name: "proposalLink",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "multisig",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "dao",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "daoToken",
+            type: "address",
+          },
+          {
+            internalType: "bool",
+            name: "donationMatchActive",
+            type: "bool",
+          },
+          {
+            internalType: "address",
+            name: "donationMatchContract",
+            type: "address",
           },
           {
             internalType: "address[]",
@@ -131,41 +271,9 @@ const _abi = [
             type: "address[]",
           },
           {
-            internalType: "uint256",
-            name: "splitMax",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "splitMin",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "splitDefault",
-            type: "uint256",
-          },
-          {
-            components: [
-              {
-                internalType: "address",
-                name: "payoutAddress",
-                type: "address",
-              },
-              {
-                internalType: "uint256",
-                name: "feePercentage",
-                type: "uint256",
-              },
-              {
-                internalType: "bool",
-                name: "active",
-                type: "bool",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.EndowmentFee",
-            name: "earningsFee",
-            type: "tuple",
+            internalType: "address[]",
+            name: "maturityAllowlist",
+            type: "address[]",
           },
           {
             components: [
@@ -232,166 +340,6 @@ const _abi = [
             internalType: "struct AngelCoreStruct.EndowmentFee",
             name: "balanceFee",
             type: "tuple",
-          },
-          {
-            components: [
-              {
-                internalType: "uint256",
-                name: "quorum",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
-                name: "threshold",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
-                name: "votingPeriod",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
-                name: "timelockPeriod",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
-                name: "expirationPeriod",
-                type: "uint256",
-              },
-              {
-                internalType: "uint128",
-                name: "proposalDeposit",
-                type: "uint128",
-              },
-              {
-                internalType: "uint256",
-                name: "snapshotPeriod",
-                type: "uint256",
-              },
-              {
-                components: [
-                  {
-                    internalType: "enum AngelCoreStruct.TokenType",
-                    name: "token",
-                    type: "uint8",
-                  },
-                  {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "existingCw20Data",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "newCw20InitialSupply",
-                        type: "uint256",
-                      },
-                      {
-                        internalType: "string",
-                        name: "newCw20Name",
-                        type: "string",
-                      },
-                      {
-                        internalType: "string",
-                        name: "newCw20Symbol",
-                        type: "string",
-                      },
-                      {
-                        components: [
-                          {
-                            internalType: "enum AngelCoreStruct.veTypeEnum",
-                            name: "ve_type",
-                            type: "uint8",
-                          },
-                          {
-                            components: [
-                              {
-                                internalType: "uint128",
-                                name: "value",
-                                type: "uint128",
-                              },
-                              {
-                                internalType: "uint256",
-                                name: "scale",
-                                type: "uint256",
-                              },
-                              {
-                                internalType: "uint128",
-                                name: "slope",
-                                type: "uint128",
-                              },
-                              {
-                                internalType: "uint128",
-                                name: "power",
-                                type: "uint128",
-                              },
-                            ],
-                            internalType: "struct AngelCoreStruct.veTypeData",
-                            name: "data",
-                            type: "tuple",
-                          },
-                        ],
-                        internalType: "struct AngelCoreStruct.veType",
-                        name: "bondingveveType",
-                        type: "tuple",
-                      },
-                      {
-                        internalType: "string",
-                        name: "bondingveName",
-                        type: "string",
-                      },
-                      {
-                        internalType: "string",
-                        name: "bondingveSymbol",
-                        type: "string",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "bondingveDecimals",
-                        type: "uint256",
-                      },
-                      {
-                        internalType: "address",
-                        name: "bondingveReserveDenom",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "bondingveReserveDecimals",
-                        type: "uint256",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "bondingveUnbondingPeriod",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.DaoTokenData",
-                    name: "data",
-                    type: "tuple",
-                  },
-                ],
-                internalType: "struct AngelCoreStruct.DaoToken",
-                name: "token",
-                type: "tuple",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.DaoSetup",
-            name: "dao",
-            type: "tuple",
-          },
-          {
-            internalType: "bool",
-            name: "createDao",
-            type: "bool",
-          },
-          {
-            internalType: "uint256",
-            name: "proposalLink",
-            type: "uint256",
           },
           {
             components: [
@@ -644,11 +592,6 @@ const _abi = [
             type: "uint32",
           },
           {
-            internalType: "address[]",
-            name: "maturityAllowlist",
-            type: "address[]",
-          },
-          {
             internalType: "bool",
             name: "ignoreUserSplits",
             type: "bool",
@@ -681,37 +624,131 @@ const _abi = [
             type: "uint256",
           },
         ],
-        internalType: "struct AccountMessages.CreateEndowmentRequest",
-        name: "details",
+        internalType: "struct AccountStorage.Endowment",
+        name: "endowment",
         type: "tuple",
       },
     ],
-    name: "createEndowment",
-    outputs: [
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
       {
-        internalType: "uint32",
-        name: "",
-        type: "uint32",
+        internalType: "uint256",
+        name: "id",
+        type: "uint256",
       },
     ],
-    stateMutability: "nonpayable",
+    name: "queryState",
+    outputs: [
+      {
+        components: [
+          {
+            components: [
+              {
+                internalType: "uint256",
+                name: "locked",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "liquid",
+                type: "uint256",
+              },
+            ],
+            internalType: "struct AngelCoreStruct.DonationsReceived",
+            name: "donationsReceived",
+            type: "tuple",
+          },
+          {
+            internalType: "bool",
+            name: "closingEndowment",
+            type: "bool",
+          },
+          {
+            components: [
+              {
+                components: [
+                  {
+                    internalType: "uint32",
+                    name: "endowId",
+                    type: "uint32",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "fundId",
+                    type: "uint256",
+                  },
+                  {
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                ],
+                internalType: "struct AngelCoreStruct.BeneficiaryData",
+                name: "data",
+                type: "tuple",
+              },
+              {
+                internalType: "enum AngelCoreStruct.BeneficiaryEnum",
+                name: "enumData",
+                type: "uint8",
+              },
+            ],
+            internalType: "struct AngelCoreStruct.Beneficiary",
+            name: "closingBeneficiary",
+            type: "tuple",
+          },
+        ],
+        internalType: "struct AccountMessages.StateResponse",
+        name: "stateResponse",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "id",
+        type: "uint256",
+      },
+      {
+        internalType: "enum AngelCoreStruct.AccountType",
+        name: "accountType",
+        type: "uint8",
+      },
+      {
+        internalType: "address",
+        name: "tokenaddress",
+        type: "address",
+      },
+    ],
+    name: "queryTokenAmount",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "tokenAmount",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
 ] as const;
 
-export class IAccountsCreateEndowment__factory {
+export class IAccountsQuery__factory {
   static readonly abi = _abi;
-  static createInterface(): IAccountsCreateEndowmentInterface {
-    return new utils.Interface(_abi) as IAccountsCreateEndowmentInterface;
+  static createInterface(): IAccountsQueryInterface {
+    return new utils.Interface(_abi) as IAccountsQueryInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): IAccountsCreateEndowment {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as IAccountsCreateEndowment;
+  ): IAccountsQuery {
+    return new Contract(address, _abi, signerOrProvider) as IAccountsQuery;
   }
 }

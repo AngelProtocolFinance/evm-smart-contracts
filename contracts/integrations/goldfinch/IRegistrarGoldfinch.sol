@@ -2,7 +2,7 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.0;
 
-import {ILocalRegistrar} from "../../core/registrar/interface/ILocalRegistrar.sol";
+import {ILocalRegistrar} from "../../core/registrar/interfaces/ILocalRegistrar.sol";
 import {APGoldfinchConfigLib} from "./APGoldfinchConfig.sol";
 
 interface IRegistrarGoldfinch is ILocalRegistrar {
