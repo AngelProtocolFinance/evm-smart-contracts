@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Angel Protocol EVM smart contracts, testing and deployment suite.",
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
+    "preinstall": "npx only-allow yarn",
     "test": "hardhat test",
     "compile": "hardhat compile && solium -d contracts/",
     "deploy": "hardhat compile && hardhat run ./scripts/deploy.ts",
@@ -11,7 +11,7 @@
   },
   "engines": {
     "node": "18.x",
-    "pnpm": "8.x"
+    "yarn": "1.22.x"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",

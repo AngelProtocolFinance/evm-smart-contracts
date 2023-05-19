@@ -12,7 +12,7 @@ Angel Protocol provides tools to fundraise, coordinate, and invest capital. It c
 
 ### Requirements
 - `Node.js` (v18.x) - https://github.com/nvm-sh/nvm#installing-and-updating
-- `pnpm` (v8.x) - https://pnpm.io/installation
+- `yarn` (v1.22.x) - https://yarnpkg.com/getting-started/install/
 
 We recommend using a version manager like `nvm`. Assuming you are using nvm, you can install and use Node v18 with the following two commands:
 ```shell
@@ -20,9 +20,9 @@ nvm install v18
 nvm use v18
 ```
 
-We use `pnpm`, a fast and space efficient package manager. After installing pnpm, simply run the package installer:
+We use `yarn` as a package manager. After installing yarn, simply run the package installer:
 ```shell
-pnpm install
+yarn install
 ```
 
 Lastly, we have provided an example `.env` file as `.env.template`.
