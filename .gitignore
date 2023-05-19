@@ -11,13 +11,7 @@ yarn-error.log
 contract-address-local.json
 dist
 
-#Coverage files
-coverage
-
 #Hardhat files
 cache
 artifacts
 .openzeppelin
-
-# Py
-Pipfile.lock
