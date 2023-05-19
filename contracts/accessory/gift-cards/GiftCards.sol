@@ -11,6 +11,9 @@ import {GiftCardsStorage} from "./storage.sol";
 import {AccountMessages} from "../../core/accounts/message.sol";
 import {AngelCoreStruct} from "../../core/struct.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
  * @title GiftCards
@@ -19,10 +22,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * 2) Claim a gift card
  * 3) Spend a gift card
  */
-contract GiftCards is Storage {
-    // init only once
-    bool initFlag = false;
-
+contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuard {
     event GiftCardsUpdateConfig(GiftCardsStorage.Config config);
     event GiftCardsUpdateBalances(
         address addr,
@@ -35,12 +35,19 @@ contract GiftCards is Storage {
         GiftCardsStorage.Deposit deposit
     );
 
-    // Initialise the contract
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor () {
+        _disableInitializers();
+    }
+
+    function __GiftCards_init() internal onlyInitializing {
+        __Ownable_init();
+    }
+
     function initialize(
         GiftCardsMessage.InstantiateMsg memory details
-    ) public {
-        require(!initFlag, "Already initialised");
-        initFlag = true;
+    ) public initializer {
+        __GiftCards_init();
         state.config.owner = msg.sender;
         state.config.registrarContract = details.registrarContract;
         state.config.keeper = details.keeper;
@@ -114,13 +121,17 @@ contract GiftCards is Storage {
             IERC20(tokenAddress).transferFrom(msg.sender, address(this), amount),
             "TransferFrom failed"
         );
+
         // If a TO address is provided, mark deposit as claimed immediately
-        // and add amount to balance for said token
+        // and add amount to the toAddress' balance for said token
+        // When a TO address is NOT provided, this just means deposit.claimed == false
         if (toAddress != address(0)) {
             deposit.claimed = true;
-            state.BALANCES[toAddress][tokenAddress] = state.BALANCES[toAddress][tokenAddress] + amount;
+            state.BALANCES[toAddress][tokenAddress] += amount;
             emit GiftCardsUpdateBalances(toAddress, tokenAddress, amount, AngelCoreStruct.AllowanceAction.Add);
         }
+
+        // save the deposit information
         state.DEPOSITS[state.config.nextDeposit] = deposit;
         emit GiftCardsUpdateDeposit(state.config.nextDeposit, deposit);
         state.config.nextDeposit += 1;
@@ -194,6 +205,8 @@ contract GiftCards is Storage {
             amount
         );
 
+        // deduct balance by amount deposited with Accounts contract
+        state.BALANCES[msg.sender][tokenAddress] -= amount;
         emit GiftCardsUpdateBalances(msg.sender, tokenAddress, amount, AngelCoreStruct.AllowanceAction.Remove);
     }
 
