@@ -201,6 +201,9 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
 
 		console.log('halo token balance: ', await haloToken.balanceOf(deployer.address));
 
+		// TODO:
+		// Either create different .env files for different environments
+		// or check whether network is mainnet instead
 		if (!config.PROD) {
 			let UniswapUtils = await ethers.getContractFactory('UniswapUtils');
 			let uniswap_utils = await UniswapUtils.deploy();
