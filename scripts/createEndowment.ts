@@ -1,5 +1,6 @@
 import { ethers } from "hardhat"
 import { IAccounts__factory } from "typechain-types"
+import { AccountMessages } from "typechain-types/contracts/core/accounts/IAccounts"
 
 async function deploy() {
     const [_deployer, apTeam1] = await ethers.getSigners()
@@ -18,7 +19,7 @@ async function deploy() {
     const subdao_flag = false
     const title = "Test Endowment"
 
-    const newEndowment = {
+    const newEndowment: AccountMessages.CreateEndowmentRequestStruct = {
         owner: owner,
         withdrawBeforeMaturity: true,
         maturityTime: Math.floor(Date.now() / 1000) + 1000,
