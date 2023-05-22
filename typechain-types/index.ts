@@ -134,8 +134,6 @@ export type { IUniswapV3PoolState } from "./@uniswap/v3-core/contracts/interface
 export { IUniswapV3PoolState__factory } from "./factories/@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolState__factory";
 export type { ISwapRouter } from "./@uniswap/v3-periphery/contracts/interfaces/ISwapRouter";
 export { ISwapRouter__factory } from "./factories/@uniswap/v3-periphery/contracts/interfaces/ISwapRouter__factory";
-export type { GiftCards } from "./contracts/accessory/gift-cards/GiftCards";
-export { GiftCards__factory } from "./factories/contracts/accessory/gift-cards/GiftCards__factory";
 export type { AxelarExecutable } from "./contracts/axelar/AxelarExecutable";
 export { AxelarExecutable__factory } from "./factories/contracts/axelar/AxelarExecutable__factory";
 export type { Diamond } from "./contracts/core/accounts/diamond/Diamond";

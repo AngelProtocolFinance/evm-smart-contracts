@@ -51,6 +51,23 @@ contract AccountsUpdateEndowmentSettingsController is
         require(!state.STATES[details.id].lockedForever, "Settings are locked forever");
 
         if (tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity) {
+            // If the maturity time is not perpetual nor has the maturity time occured, then changes can be made.
+            if (tempEndowment.maturityTime > 0 && tempEndowment.maturityTime > block.timestamp) {
+                // Changes must be to a future time OR changing to a perpetual maturity
+                require(details.maturityTime > block.timestamp || details.maturityTime == 0, "Invaild maturity time input");
+                if (
+                    AngelCoreStruct.canChange(
+                        tempEndowment.settingsController.maturityTime,
+                        msg.sender,
+                        tempEndowment.owner,
+                        block.timestamp
+                    )
+                ) {
+                    tempEndowment.maturityTime = details.maturityTime;
+                    emit EndowmentSettingUpdated(details.id, "maturityTime");
+                }
+            }
+
             // when maturity time is <= 0 it means it's not set, i.e. the AST is perpetual
             if (tempEndowment.maturityTime <= 0 || tempEndowment.maturityTime > block.timestamp) {
                 if (
@@ -82,7 +99,6 @@ contract AccountsUpdateEndowmentSettingsController is
                         "allowlistedContributors"
                     );
                 }
-
                 if (
                     AngelCoreStruct.canChange(
                         tempEndowment.settingsController.maturityAllowlist,
@@ -130,19 +146,6 @@ contract AccountsUpdateEndowmentSettingsController is
                     );
                 }
             }
-        }
-
-        if (
-            AngelCoreStruct.canChange(
-                tempEndowment.settingsController.maturityTime,
-                msg.sender,
-                tempEndowment.owner,
-                block.timestamp
-            )
-        ) {
-            require(details.maturityTime == 0 || details.maturityTime > block.timestamp, "Invalid maturity time input");
-            tempEndowment.maturityTime = details.maturityTime;
-            emit EndowmentSettingUpdated(details.id, "maturityTime");
         }
 
         if (
