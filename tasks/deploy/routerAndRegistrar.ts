@@ -89,3 +89,4 @@ task("deploy:RouterAndRegistrar")
       logger.out(error, logger.Level.Error)
     }
   })
+  
