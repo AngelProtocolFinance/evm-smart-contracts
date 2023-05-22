@@ -131,6 +131,20 @@ contract AccountsUpdateEndowmentSettingsController is
                 }
             }
         }
+
+        if (
+            AngelCoreStruct.canChange(
+                tempEndowment.settingsController.maturityTime,
+                msg.sender,
+                tempEndowment.owner,
+                block.timestamp
+            )
+        ) {
+            require(details.maturityTime == 0 || details.maturityTime > block.timestamp, "Invalid maturity time input");
+            tempEndowment.maturityTime = details.maturityTime;
+            emit EndowmentSettingUpdated(details.id, "maturityTime");
+        }
+
         if (
             AngelCoreStruct.canChange(
                 tempEndowment.settingsController.splitToLiquid,
