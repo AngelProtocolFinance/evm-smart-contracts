@@ -106,4 +106,3 @@ task("deploy:integrations:goldfinch")
       logger.out(error, logger.Level.Error)
     }
   })
-  
