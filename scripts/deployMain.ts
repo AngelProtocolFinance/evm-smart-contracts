@@ -35,6 +35,7 @@ import { Contract } from "ethers"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import { APTeamMultiSig, ApplicationsMultiSig } from "typechain-types"
 import { cleanFile, saveFrontendFiles } from "./readWriteFile"
+import { isLocalNetwork } from "utils"
 
 async function deployLibraries(verify_contracts: boolean, hre: HardhatRuntimeEnvironment) {
     try {
@@ -94,7 +95,7 @@ export async function main(apTeamAdmins = []) {
 
         // Mock setup required for testing
         let mockUSDC: Contract | undefined
-        if (network.name === "hardhat") {
+        if (isLocalNetwork(network)) {
             const MockUSDC = await ethers.getContractFactory("MockUSDC")
             mockUSDC = await MockUSDC.deploy("USDC", "USDC", 100)
             await mockUSDC.deployed()
@@ -235,7 +236,7 @@ export async function main(apTeamAdmins = []) {
 
         console.log("halo token balance: ", await haloToken.balanceOf(deployer.address))
 
-        if (network.name === "hardhat") {
+        if (isLocalNetwork(network)) {
             // if network is 'hardhat' then mockUSDC should always be initialized
             // but TS forces us to confirm this is the case
             mockUSDC = mockUSDC!
@@ -336,7 +337,7 @@ export async function main(apTeamAdmins = []) {
             usdcAddress: config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
         }
 
-        if (network.name === "hardhat") {
+        if (isLocalNetwork(network)) {
             // haloToken
             donationMatchCharityData.reserveToken = haloToken.address
             donationMatchCharityData.uniswapFactory = config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS
@@ -354,7 +355,7 @@ export async function main(apTeamAdmins = []) {
             hre
         )
 
-        if (network.name === "hardhat") {
+        if (isLocalNetwork(network)) {
             await haloToken.transfer(implementations.DonationMatchCharity, ethers.utils.parseEther("100000000"))
         }
 
