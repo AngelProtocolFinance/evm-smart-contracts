@@ -4,7 +4,7 @@ import config from "config"
 import addresses from "contract-address.json"
 import { Registrar } from "typechain-types"
 import { RegistrarMessages } from "typechain-types/contracts/core/registrar/interfaces/IRegistrar"
-import { multisigs } from "typechain-types/contracts"
+import { logger } from "utils"
 
 task("manage:updateRegistrar", "Will update the registrar config")
     .setAction(async (taskArguments: TaskArguments, hre) => {
@@ -70,6 +70,6 @@ task("manage:updateRegistrar", "Will update the registrar config")
             console.log(updatedConfig)
             
         } catch (error) {
-            console.log(error)
+            logger.out(error, logger.Level.Error)
         }
     })

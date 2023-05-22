@@ -2,7 +2,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { task } from "hardhat/config"
 import addresses from "contract-address.json"
 import { Registrar } from "typechain-types"
-import { AccountMessages } from "typechain-types/contracts/core/accounts/IAccounts"
+import { logger } from "utils"
 
 task("manage:verifyRegistrar", "Will create a new charity endowment").setAction(
     async (_taskArguments, hre) => {
@@ -27,7 +27,7 @@ task("manage:verifyRegistrar", "Will create a new charity endowment").setAction(
             })
             
         } catch (error) {
-            console.log(error)
+            logger.out(error, logger.Level.Error)
         }
     }
 )

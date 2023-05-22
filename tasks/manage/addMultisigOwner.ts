@@ -2,6 +2,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { task } from "hardhat/config"
 import type { TaskArguments } from "hardhat/types"
 import { MultiSigGeneric } from "typechain-types"
+import { logger } from "utils"
 
 task("manage:addMultisigOwner", "Will add the specified address to the multisig as an owner")
     .addParam("multisig", "Address of multisig")
@@ -38,6 +39,6 @@ task("manage:addMultisigOwner", "Will add the specified address to the multisig 
             currentOwners = await multisig.getOwners()
             console.log(currentOwners)
         } catch (error) {
-            console.log(error)
+            logger.out(error, logger.Level.Error)
         }
     })

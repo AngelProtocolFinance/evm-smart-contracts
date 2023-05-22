@@ -3,6 +3,7 @@ import { task } from "hardhat/config"
 import type { TaskArguments } from "hardhat/types"
 import addresses from "contract-address.json"
 import { IndexFund } from "typechain-types"
+import { logger } from "utils"
 
 task(
     "manage:changeOwner",
@@ -24,6 +25,6 @@ task(
         console.log(addresses.multiSig.APTeamMultiSigProxy)
         // await indexfund.connect(deployer).updateOwner(addresses.multiSig.APTeamMultiSigProxy)
     } catch (error) {
-        console.log(error)
+        logger.out(error, logger.Level.Error)
     }
 })

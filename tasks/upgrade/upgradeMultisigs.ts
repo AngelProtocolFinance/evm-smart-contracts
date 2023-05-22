@@ -97,7 +97,7 @@ task("upgrade:upgradeMultisig", "Will upgrade the implementation of the AP Team 
                 })
             }
         } catch (error) {
-            console.log(error)
+            logger.out(error, logger.Level.Error)
         } finally {
             logger.out("Done.")
         }

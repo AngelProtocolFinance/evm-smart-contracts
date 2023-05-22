@@ -1,9 +1,9 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
-import { task } from "hardhat/config"
 import addresses from "contract-address.json"
-import { AccountsCreateEndowment, AccountsQueryEndowments, MultiSigGeneric, Registrar } from "typechain-types"
+import { task } from "hardhat/config"
+import { AccountsCreateEndowment, AccountsQueryEndowments, MultiSigGeneric } from "typechain-types"
 import { AccountMessages } from "typechain-types/contracts/core/accounts/IAccounts"
-import { genWallet } from "utils"
+import { genWallet, logger } from "utils"
 
 task("manage:createCharityEndowment", "Will create a new charity endowment").setAction(
     async (_taskArguments, hre) => {
@@ -278,13 +278,13 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                     }                    
                 }
                 catch(error) {
-                    console.log(error)
+                    logger.out(error, logger.Level.Error)
                     return
                 }
             }
             
         } catch (error) {
-            console.log(error)
+            logger.out(error, logger.Level.Error)
         }
     }
 )

@@ -1,5 +1,6 @@
 import { task } from "hardhat/config"
 import { saveFrontendFiles } from "scripts/readWriteFile"
+import { logger } from "utils"
 
 task("Deploy:DeployLibraries", "Will deploy Libraries")
     .addParam("verify", "Want to verify contract")
@@ -44,6 +45,6 @@ task("Deploy:DeployLibraries", "Will deploy Libraries")
                 });
             }
         } catch (error) {
-            console.log(error);
+            logger.out(error, logger.Level.Error)
         }
     });

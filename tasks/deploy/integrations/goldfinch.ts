@@ -94,7 +94,7 @@ task("deploy:integrations:goldfinch")
       })
     } catch (error){
       logger.out("Caught the following error while trying to verify locked Vault:", logger.Level.Warn)
-      logger.out(error)
+      logger.out(error, logger.Level.Error)
     }
     try {
       await hre.run("verify:verify", {
@@ -103,6 +103,6 @@ task("deploy:integrations:goldfinch")
       })
     } catch (error){
       logger.out("Caught the following error while trying to verify liquid Vault:", logger.Level.Warn)
-      logger.out(error)
+      logger.out(error, logger.Level.Error)
     }
   })

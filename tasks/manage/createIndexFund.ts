@@ -3,6 +3,7 @@ import { BytesLike } from "ethers"
 import { task } from "hardhat/config"
 import addresses from "contract-address.json"
 import { IndexFund, MultiSigGeneric } from "typechain-types"
+import { logger } from "utils"
 
 task("manage:createIndexFund", "Will create a new index fund").setAction(
     async (_taskArguments, hre) => {
@@ -60,7 +61,7 @@ task("manage:createIndexFund", "Will create a new index fund").setAction(
             let txDetails = await multisig.transactions(txId)
             console.log(txDetails)
         } catch (error) {
-            console.log(error)
+            logger.out(error, logger.Level.Error)
         }
     }
 )
