@@ -44,7 +44,8 @@ task("manage:createIndexFund", "Will create a new index fund").setAction(
                     "create a new index fund",
                     indexfund.address,
                     0,
-                    txData
+                    txData,
+                    "0x"
                 )
             await hre.ethers.provider.waitForTransaction(submission.hash)
 

@@ -31,7 +31,8 @@ task("manage:addMultisigOwner", "Will add the specified address to the multisig 
                 "add ap team 3 as owner", //description
                 multisig.address, //destination,
                 0, //value
-                addOwnerData //data)
+                addOwnerData, //data)
+                "0x"
             )
             await hre.ethers.provider.waitForTransaction(tx.hash)
 
