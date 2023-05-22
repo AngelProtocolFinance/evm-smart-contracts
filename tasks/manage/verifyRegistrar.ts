@@ -19,7 +19,7 @@ task("manage:verifyRegistrar", "Will create a new charity endowment").setAction(
                                         addresses.registrar.registrarProxy) as Registrar
 
             let registrarConfig = await registrar.queryConfig()
-            console.log("Registrar owner:", registrarConfig.owner)
+            logger.out(`Registrar owner: ${registrarConfig.owner}`)
             
             await hre.run("verify:verify", {
                 address: addresses.registrar.registrarImplementation,

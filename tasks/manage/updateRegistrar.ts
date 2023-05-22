@@ -16,9 +16,9 @@ task("manage:updateRegistrar", "Will update the registrar config")
                 addresses.registrar.registrarProxy
             )) as Registrar
 
-            console.log("Current config")
+            logger.out("Current config")
             let currentConfig = await registrar.queryConfig()
-            console.log(currentConfig)
+            logger.out(currentConfig)
 
             let newConfig: RegistrarMessages.UpdateConfigRequestStruct = {
                 accountsContract: addresses.accounts.diamond,
@@ -67,7 +67,7 @@ task("manage:updateRegistrar", "Will update the registrar config")
             await hre.ethers.provider.waitForTransaction(tx.hash)
 
             let updatedConfig = await registrar.queryConfig()
-            console.log(updatedConfig)
+            logger.out(updatedConfig)
             
         } catch (error) {
             logger.out(error, logger.Level.Error)

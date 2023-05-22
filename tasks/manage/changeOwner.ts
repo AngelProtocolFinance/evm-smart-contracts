@@ -17,12 +17,12 @@ task(
             addresses.indexFundAddress.indexFundProxy
         )) as IndexFund
 
-        console.log("Current owner:")
+        logger.out("Current owner:")
         let currentConfig = await indexfund.queryConfig()
-        console.log(currentConfig.owner)
+        logger.out(currentConfig.owner)
 
-        console.log("Changing owner to:")
-        console.log(addresses.multiSig.APTeamMultiSigProxy)
+        logger.out("Changing owner to:")
+        logger.out(addresses.multiSig.APTeamMultiSigProxy)
         // await indexfund.connect(deployer).updateOwner(addresses.multiSig.APTeamMultiSigProxy)
     } catch (error) {
         logger.out(error, logger.Level.Error)

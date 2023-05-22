@@ -29,12 +29,12 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
             //                         .connect(addresses.accounts.diamond, apTeam1)
 
             // let config = await queryEndowmentFacet.queryConfig()
-            // console.log(config)
+            // logger.out(config)
             // let endowmentDetails = await queryEndowmentFacet.queryEndowmentDetails(0)
-            // console.log(endowmentDetails)
+            // logger.out(endowmentDetails)
 
 
-            console.log("Generating new wallet as owner")
+            logger.out("Generating new wallet as owner")
             let wallet = genWallet(true)
 
             let endowState = await queryEndowmentFacet.queryEndowmentDetails(37) // Charity #1
@@ -266,11 +266,11 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
             for (let i=1; i<1000; i++) {
                 try {
                     let endowState = await queryEndowmentFacet.queryEndowmentDetails(i)
-                    console.log(i, endowState.name, endowState.owner)
+                    logger.out(`${i} ${endowState.name} ${endowState.owner}`)
                     let multisig = await hre.ethers.getContractAt("MultiSigGeneric", endowState.owner) as MultiSigGeneric
                     for (let j=0; i<50; j++){
                         try {
-                            console.log(await multisig.owners(j))
+                            logger.out(await multisig.owners(j))
                         }
                         catch(error) {
                             break

@@ -12,7 +12,7 @@ task("manage:changeAdmin", "Will update the admin for all proxy contracts")
         try {
             const isConfirmed = await confirmAction(`You're about to set ${taskArguments.newAdmin} as the new admin`)
             if (!isConfirmed) {
-                return console.log("Aborting...")
+                return logger.out("Aborting...")
             }
 
             const currentAdmin = await hre.ethers.getSigner(taskArguments.currentAdmin)
@@ -23,7 +23,7 @@ task("manage:changeAdmin", "Will update the admin for all proxy contracts")
         } catch (error) {
             logger.out(error, logger.Level.Error)
         } finally {
-            console.log("Done.")
+            logger.out("Done.")
         }
     })
 
@@ -36,14 +36,14 @@ async function transferAccountOwnership(
         const ownershipFacet = OwnershipFacet__factory.connect(addresses.accounts.diamond, currentAdmin)
         const tx = await ownershipFacet.transferOwnership(newAdmin)
         await hre.ethers.provider.waitForTransaction(tx.hash)
-        console.log("Transferred Account diamond ownership.")
+        logger.out("Transferred Account diamond ownership.")
     } catch (error) {
         logger.out(`Failed to change admin for Account diamond, reason: ${error}`, logger.Level.Error)
     }
 }
 
 async function changeProxiesAdmin(currentAdmin: SignerWithAddress, taskArguments: any, hre: HardhatRuntimeEnvironment) {
-    console.log("Reading proxy contract addresses...")
+    logger.out("Reading proxy contract addresses...")
 
     const proxies = extractProxyContractAddresses("", addresses)
 
@@ -52,7 +52,7 @@ async function changeProxiesAdmin(currentAdmin: SignerWithAddress, taskArguments
             const upgradeableProxy = ITransparentUpgradeableProxy__factory.connect(proxy.address, currentAdmin)
             const tx = await upgradeableProxy.changeAdmin(taskArguments.newAdmin)
             await hre.ethers.provider.waitForTransaction(tx.hash)
-            console.log(`Changed admin for ${proxy.name}.`)
+            logger.out(`Changed admin for ${proxy.name}.`)
         } catch (error) {
             logger.out(`Failed to change admin for ${proxy.name}, reason: ${error}`, logger.Level.Error)
         }

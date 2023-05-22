@@ -50,16 +50,16 @@ task("manage:createIndexFund", "Will create a new index fund").setAction(
 
             let txId = (await multisig.transactionCount()).sub(1)
             let confirmations = await multisig.getConfirmations(txId)
-            console.log(confirmations)
+            logger.out(confirmations)
 
             let execution = await multisig
                 .connect(apTeam2)
                 .executeTransaction(txId)
             await hre.ethers.provider.waitForTransaction(execution.hash)
-            console.log(execution)
+            logger.out(execution)
 
             let txDetails = await multisig.transactions(txId)
-            console.log(txDetails)
+            logger.out(txDetails)
         } catch (error) {
             logger.out(error, logger.Level.Error)
         }

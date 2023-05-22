@@ -14,7 +14,7 @@ task("Deploy:deployGiftCard", "Will deploy GiftCardContracts contract")
                 registrarContract: taskArgs.registraraddress,
             };
 
-            console.log(taskArgs.corelibrary);
+            logger.out(taskArgs.corelibrary);
 
             var isTrueSet = taskArgs.verify === "true";
 
