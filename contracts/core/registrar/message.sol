@@ -46,7 +46,7 @@ library RegistrarMessages {
         address usdcAddress;
         address wethAddress;
         address subdaoGovContract;
-        address subdaoCw20TokenContract;
+        address subdaoTokenContract;
         address subdaoBondingTokenContract;
         address subdaoCw900Contract;
         address subdaoDistributorContract;

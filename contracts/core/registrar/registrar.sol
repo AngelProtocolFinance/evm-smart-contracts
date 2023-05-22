@@ -46,7 +46,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
             accountsContract: address(0),
             treasury: details.treasury,
             subdaoGovContract: address(0), // Sub dao implementation
-            subdaoCw20TokenContract: address(0), // NewERC20 implementation
+            subdaoTokenContract: address(0), // NewERC20 implementation
             subdaoBondingTokenContract: address(0), // Continous Token implementation
             subdaoCw900Contract: address(0),
             subdaoDistributorContract: address(0),
@@ -194,8 +194,8 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
                 .subdaoBondingTokenContract;
         }
 
-        if (Validator.addressChecker(details.subdaoCw20TokenContract)) {
-            state.config.subdaoCw20TokenContract = details.subdaoCw20TokenContract;
+        if (Validator.addressChecker(details.subdaoTokenContract)) {
+            state.config.subdaoTokenContract = details.subdaoTokenContract;
         }
 
         if (Validator.addressChecker(details.subdaoCw900Contract)) {

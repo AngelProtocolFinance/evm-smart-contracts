@@ -154,7 +154,7 @@ export declare namespace RegistrarStorage {
     accountsContract: PromiseOrValue<string>;
     treasury: PromiseOrValue<string>;
     subdaoGovContract: PromiseOrValue<string>;
-    subdaoCw20TokenContract: PromiseOrValue<string>;
+    subdaoTokenContract: PromiseOrValue<string>;
     subdaoBondingTokenContract: PromiseOrValue<string>;
     subdaoCw900Contract: PromiseOrValue<string>;
     subdaoDistributorContract: PromiseOrValue<string>;
@@ -216,7 +216,7 @@ export declare namespace RegistrarStorage {
     accountsContract: string;
     treasury: string;
     subdaoGovContract: string;
-    subdaoCw20TokenContract: string;
+    subdaoTokenContract: string;
     subdaoBondingTokenContract: string;
     subdaoCw900Contract: string;
     subdaoDistributorContract: string;
@@ -302,7 +302,7 @@ export declare namespace RegistrarMessages {
     usdcAddress: PromiseOrValue<string>;
     wethAddress: PromiseOrValue<string>;
     subdaoGovContract: PromiseOrValue<string>;
-    subdaoCw20TokenContract: PromiseOrValue<string>;
+    subdaoTokenContract: PromiseOrValue<string>;
     subdaoBondingTokenContract: PromiseOrValue<string>;
     subdaoCw900Contract: PromiseOrValue<string>;
     subdaoDistributorContract: PromiseOrValue<string>;
@@ -370,7 +370,7 @@ export declare namespace RegistrarMessages {
     usdcAddress: string;
     wethAddress: string;
     subdaoGovContract: string;
-    subdaoCw20TokenContract: string;
+    subdaoTokenContract: string;
     subdaoBondingTokenContract: string;
     subdaoCw900Contract: string;
     subdaoDistributorContract: string;

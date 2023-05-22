@@ -80,7 +80,7 @@ const getCreateEndowmentConfig = async function (
 				token: {
 					token: 1,
 					data: {
-						existingCw20Data: ADDRESS_ZERO,
+						existingData: ADDRESS_ZERO,
 						newCw20InitialSupply: '100000',
 						newCw20Name: 'TEST',
 						newCw20Symbol: 'TEST',
@@ -281,7 +281,7 @@ const getCreateEndowmentConfig = async function (
 				token: {
 					token: 2,
 					data: {
-						existingCw20Data: ADDRESS_ZERO,
+						existingData: ADDRESS_ZERO,
 						newCw20InitialSupply: '100000',
 						newCw20Name: 'TEST',
 						newCw20Symbol: 'TEST',

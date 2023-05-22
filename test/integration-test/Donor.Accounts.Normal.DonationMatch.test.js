@@ -32,7 +32,7 @@ describe('Donor donation matching for normal endowments', function () {
 		endowmentConfig.dao.token = {
 			token: 0,
 			data: {
-				existingCw20Data: registrarConfig.haloToken,
+				existingData: registrarConfig.haloToken,
 				newCw20InitialSupply: '100000',
 				newCw20Name: 'TEST',
 				newCw20Symbol: 'TEST',
@@ -183,7 +183,7 @@ describe('Donor donation matching for normal endowments', function () {
 		endowmentConfig.dao.token = {
 			token: 2,
 			data: {
-				existingCw20Data: registrarConfig.haloToken,
+				existingData: registrarConfig.haloToken,
 				newCw20InitialSupply: '100000',
 				newCw20Name: 'TEST',
 				newCw20Symbol: 'TEST',

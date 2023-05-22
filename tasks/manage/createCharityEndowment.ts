@@ -106,7 +106,7 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                     token: {
                         token: 0,
                         data: {
-                            existingCw20Data: apTeam1.address,
+                            existingData: apTeam1.address,
                             newCw20InitialSupply: 0,
                             newCw20Name: "",
                             newCw20Symbol: "",

@@ -116,7 +116,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "subdaoCw20TokenContract",
+            name: "subdaoTokenContract",
             type: "address",
           },
           {
@@ -302,7 +302,7 @@ const _abi = [
 ] as const;
 
 const _bytecode =
-  "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea264697066735822122075d0d1d2c4a65a2de243285378eb9cad94e12a84ff20798517858be019096d7c64736f6c63430008120033";
+  "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea26469706673582212201d34210078dc54e87e8d8aa261a2a5549f56f2ea6e1b36d0a9262eef47c711d964736f6c63430008120033";
 
 type RegistrarEventsLibConstructorParams =
   | [signer?: Signer]

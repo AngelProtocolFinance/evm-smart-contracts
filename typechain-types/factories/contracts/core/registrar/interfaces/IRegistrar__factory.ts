@@ -482,7 +482,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "subdaoCw20TokenContract",
+            name: "subdaoTokenContract",
             type: "address",
           },
           {
@@ -1035,7 +1035,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "subdaoCw20TokenContract",
+            name: "subdaoTokenContract",
             type: "address",
           },
           {

@@ -86,7 +86,7 @@ async function deploy() {
             token: {
                 token: 2,
                 data: {
-                    existingCw20Data: ethers.constants.AddressZero,
+                    existingData: ethers.constants.AddressZero,
                     newCw20InitialSupply: "100000",
                     newCw20Name: "TEST",
                     newCw20Symbol: "TEST",

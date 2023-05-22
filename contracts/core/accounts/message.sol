@@ -131,25 +131,6 @@ library AccountMessages {
         EndowmentEntry[] endowments;
     }
 
-    struct ProfileResponse {
-        string name; // String,
-        string overview; // String,
-        AngelCoreStruct.Categories categories; // Categories,
-        uint256 tier; // Option<u8>,
-        string logo; // Option<String>,
-        string image; // Option<String>,
-        string url; // Option<String>,
-        string registrationNumber; // Option<String>,
-        string countryOfOrigin; // Option<String>,
-        string streetAddress; // Option<String>,
-        string contactEmail; // Option<String>,
-        AngelCoreStruct.SocialMedialUrls socialMediaUrls; // SocialMedialUrls,
-        uint16 numberOfEmployees; // Option<u16>,
-        string averageAnnualBudget; // Option<String>,
-        string annualRevenue; // Option<String>,
-        string charityNavigatorRating; // Option<String>,
-    }
-
     struct EndowmentDetailsResponse {
         address owner; //: Addr,
         address dao;

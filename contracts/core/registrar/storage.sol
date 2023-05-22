@@ -11,7 +11,7 @@ library RegistrarStorage {
         address accountsContract;
         address treasury;
         address subdaoGovContract; // subdao gov wasm code
-        address subdaoCw20TokenContract; // subdao gov cw20 token wasm code
+        address subdaoTokenContract; // subdao gov cw20 token wasm code
         address subdaoBondingTokenContract; // subdao gov bonding ve token wasm code
         address subdaoCw900Contract; // subdao gov ve-vE contract for locked token voting
         address subdaoDistributorContract; // subdao gov fee distributor wasm code

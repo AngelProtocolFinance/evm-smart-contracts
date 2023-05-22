@@ -32,7 +32,7 @@ task("manage:updateRegistrar", "Will update the registrar config")
                 collectorShare: 1,
                 acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
                 subdaoGovContract: apTeam1.address, // subdao gov
-                subdaoCw20TokenContract: apTeam1.address, // subdao gov token (basic CW20)
+                subdaoTokenContract: apTeam1.address, // subdao gov token (basic CW20)
                 subdaoBondingTokenContract: apTeam1.address, // subdao gov token (w/ bonding-curve)
                 subdaoCw900Contract: apTeam1.address, // subdao gov ve-CURVE contract for locked token voting
                 subdaoDistributorContract: apTeam1.address, // subdao gov fee distributor

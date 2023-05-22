@@ -358,8 +358,8 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			splitDefault: 50, //uint256
 			collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
 			subdaoGovContract: implementations.SubDao, //address
-			subdaoCw20TokenContract: implementations.SubDaoERC20, //address
-			subdaoBondingTokenContract: implementations.SubDaoBondingve, //address
+			subdaoTokenContract: implementations.SubDaoERC20, //address
+			subdaoBondingTokenContract: implementations.SubDaoveBonding, //address
 			subdaoCw900Contract: implementations.IncentiisedVoting, //address
 			subdaoDistributorContract: ADDRESS_ZERO,
 			subdaoEmitter: emitters.subDaoEmitter, //TODO:

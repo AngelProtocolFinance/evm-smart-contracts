@@ -207,7 +207,7 @@ library AngelCoreStruct {
         uint128 amount;
     }
 
-    struct Cw20CoinVerified {
+    struct CoinVerified {
         uint128 amount;
         address addr;
     }
@@ -231,33 +231,33 @@ library AngelCoreStruct {
     //     uint256 amount
     // ) public pure returns (GenericBalance memory) {
     //     bool notFound = true;
-    //     for (uint8 i = 0; i < temp.Cw20CoinVerified_addr.length; i++) {
-    //         if (temp.Cw20CoinVerified_addr[i] == tokenaddress) {
+    //     for (uint8 i = 0; i < temp.CoinVerified_addr.length; i++) {
+    //         if (temp.CoinVerified_addr[i] == tokenaddress) {
     //             notFound = false;
-    //             temp.Cw20CoinVerified_amount[i] += amount;
+    //             temp.CoinVerified_amount[i] += amount;
     //         }
     //     }
     //     if (notFound) {
     //         GenericBalance memory new_temp = GenericBalance({
     //             coinNativeAmount: temp.coinNativeAmount,
-    //             Cw20CoinVerified_amount: new uint256[](
-    //                 temp.Cw20CoinVerified_amount.length + 1
+    //             CoinVerified_amount: new uint256[](
+    //                 temp.CoinVerified_amount.length + 1
     //             ),
-    //             Cw20CoinVerified_addr: new address[](
-    //                 temp.Cw20CoinVerified_addr.length + 1
+    //             CoinVerified_addr: new address[](
+    //                 temp.CoinVerified_addr.length + 1
     //             )
     //         });
-    //         for (uint256 i = 0; i < temp.Cw20CoinVerified_addr.length; i++) {
-    //             new_temp.Cw20CoinVerified_addr[i] = temp
-    //                 .Cw20CoinVerified_addr[i];
-    //             new_temp.Cw20CoinVerified_amount[i] = temp
-    //                 .Cw20CoinVerified_amount[i];
+    //         for (uint256 i = 0; i < temp.CoinVerified_addr.length; i++) {
+    //             new_temp.CoinVerified_addr[i] = temp
+    //                 .CoinVerified_addr[i];
+    //             new_temp.CoinVerified_amount[i] = temp
+    //                 .CoinVerified_amount[i];
     //         }
-    //         new_temp.Cw20CoinVerified_addr[
-    //             temp.Cw20CoinVerified_addr.length
+    //         new_temp.CoinVerified_addr[
+    //             temp.CoinVerified_addr.length
     //         ] = tokenaddress;
-    //         new_temp.Cw20CoinVerified_amount[
-    //             temp.Cw20CoinVerified_amount.length
+    //         new_temp.CoinVerified_amount[
+    //             temp.CoinVerified_amount.length
     //         ] = amount;
     //         return new_temp;
     //     } else return temp;
@@ -276,21 +276,21 @@ library AngelCoreStruct {
     //     address tokenaddress,
     //     uint256 amount
     // ) public pure returns (GenericBalance memory) {
-    //     for (uint8 i = 0; i < temp.Cw20CoinVerified_addr.length; i++) {
-    //         if (temp.Cw20CoinVerified_addr[i] == tokenaddress) {
-    //             temp.Cw20CoinVerified_amount[i] -= amount;
+    //     for (uint8 i = 0; i < temp.CoinVerified_addr.length; i++) {
+    //         if (temp.CoinVerified_addr[i] == tokenaddress) {
+    //             temp.CoinVerified_amount[i] -= amount;
     //         }
     //     }
     //     return temp;
     // }
 
     // function splitBalance(
-    //     uint256[] storage cw20Coin,
+    //     uint256[] storage Coin,
     //     uint256 splitFactor
     // ) public view returns (uint256[] memory) {
-    //     uint256[] memory temp = new uint256[](cw20Coin.length);
-    //     for (uint8 i = 0; i < cw20Coin.length; i++) {
-    //         uint256 result = SafeMath.div(cw20Coin[i], splitFactor);
+    //     uint256[] memory temp = new uint256[](Coin.length);
+    //     for (uint8 i = 0; i < Coin.length; i++) {
+    //         uint256 result = SafeMath.div(Coin[i], splitFactor);
     //         temp[i] = result;
     //     }
 
@@ -371,12 +371,6 @@ library AngelCoreStruct {
         return amount;
     }
 
-    struct AllianceMember {
-        string name;
-        string logo;
-        string website;
-    }
-
     // function genericBalanceDefault()
     //     public
     //     pure
@@ -440,26 +434,6 @@ library AngelCoreStruct {
         return temp;
     }
 
-    struct SocialMedialUrls {
-        string facebook;
-        string twitter;
-        string linkedin;
-    }
-
-    struct Profile {
-        string overview;
-        string url;
-        string registrationNumber;
-        string countryOfOrigin;
-        string streetAddress;
-        string contactEmail;
-        SocialMedialUrls socialMediaUrls;
-        uint16 numberOfEmployees;
-        string averageAnnualBudget;
-        string annualRevenue;
-        string charityNavigatorRating;
-    }
-
     struct SplitDetails {
         uint256 max;
         uint256 min;
@@ -488,24 +462,6 @@ library AngelCoreStruct {
             return (userLocked, userLiquid);
         }
     }
-
-    // struct AcceptedTokens {
-    //     address[] cw20;
-    // }
-
-    // function cw20Valid(
-    //     address[] memory cw20,
-    //     address token
-    // ) public pure returns (bool) {
-    //     bool check = false;
-    //     for (uint8 i = 0; i < cw20.length; i++) {
-    //         if (cw20[i] == token) {
-    //             check = true;
-    //         }
-    //     }
-
-    //     return check;
-    // }
 
     struct NetworkInfo {
         string name;
@@ -567,35 +523,6 @@ library AngelCoreStruct {
         DurationData data;
     }
 
-    //TODO: remove if not needed
-    // function durationAfter(Duration memory data)
-    //     public
-    //     view
-    //     returns (Expiration memory)
-    // {
-    //     if (data.enumData == DurationEnum.Height) {
-    //         return
-    //             Expiration({
-    //                 enumData: ExpirationEnum.atHeight,
-    //                 data: ExpirationData({
-    //                     height: block.number + data.data.height,
-    //                     time: 0
-    //                 })
-    //             });
-    //     } else if (data.enumData == DurationEnum.Time) {
-    //         return
-    //             Expiration({
-    //                 enumData: ExpirationEnum.atTime,
-    //                 data: ExpirationData({
-    //                     height: 0,
-    //                     time: block.timestamp + data.data.time
-    //                 })
-    //             });
-    //     } else {
-    //         revert("Duration not configured");
-    //     }
-    // }
-
     enum ExpirationEnum {
         atHeight,
         atTime,
@@ -618,21 +545,6 @@ library AngelCoreStruct {
         SquarRoot
     }
 
-    //TODO: remove if unused
-    // function getReserveRatio(veTypeEnum curveType)
-    //     public
-    //     pure
-    //     returns (uint256)
-    // {
-    //     if (curveType == veTypeEnum.Linear) {
-    //         return 500000;
-    //     } else if (curveType == veTypeEnum.SquarRoot) {
-    //         return 660000;
-    //     } else {
-    //         return 1000000;
-    //     }
-    // }
-
     struct veTypeData {
         uint128 value;
         uint256 scale;
@@ -646,23 +558,23 @@ library AngelCoreStruct {
     }
 
     enum TokenType {
-        ExistingCw20,
-        NewCw20,
-        Bondingve
+        Existing,
+        New,
+        VeBonding
     }
 
     struct DaoTokenData {
-        address existingCw20Data;
-        uint256 newCw20InitialSupply;
-        string newCw20Name;
-        string newCw20Symbol;
-        veType bondingveveType;
-        string bondingveName;
-        string bondingveSymbol;
-        uint256 bondingveDecimals;
-        address bondingveReserveDenom;
-        uint256 bondingveReserveDecimals;
-        uint256 bondingveUnbondingPeriod;
+        address existingData;
+        uint256 newInitialSupply;
+        string newName;
+        string newSymbol;
+        veType veBondingType;
+        string veBondingName;
+        string veBondingSymbol;
+        uint256 veBondingDecimals;
+        address veBondingReserveDenom;
+        uint256 veBondingReserveDecimals;
+        uint256 veBondingPeriod;
     }
 
     struct DaoToken {

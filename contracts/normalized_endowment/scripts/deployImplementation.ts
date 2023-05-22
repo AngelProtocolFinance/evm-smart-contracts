@@ -173,7 +173,7 @@ const deploySubDaoERC20 = async (verify_contracts: boolean, hre: HardhatRuntimeE
 	}
 };
 
-const deploySubDaoBondingve = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
+const deploySubDaoveBonding = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
 	try {
 		const {network,run,ethers} = hre;
 
@@ -243,7 +243,7 @@ export async function deployImplementation(ANGEL_CORE_STRUCT: string, LockedWith
 			DonationMatchCharity: await deployDonationMatchCharity(proxyAdmin.address, donationMatchCharityData,verify_contracts, hre),
 			SubDao: await deploySubDao(ANGEL_CORE_STRUCT,verify_contracts, hre),
 			SubDaoERC20: await deploySubDaoERC20(verify_contracts, hre),
-			SubDaoBondingve: await deploySubDaoBondingve(verify_contracts,hre),
+			SubDaoveBonding: await deploySubDaoveBonding(verify_contracts,hre),
 			FeeDistributor: await deployFeeDistributor(verify_contracts,hre),
 			IncentiisedVoting: await deployIncentiisedVoting(verify_contracts,hre),
 			LockedWithdraw: await deployLockedWithdraw(proxyAdmin.address, LockedWithdrawData,verify_contracts,hre),
