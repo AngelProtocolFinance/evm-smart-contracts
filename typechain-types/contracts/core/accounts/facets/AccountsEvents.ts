@@ -170,6 +170,8 @@ export declare namespace AngelCoreStruct {
 
   export type SettingsControllerStruct = {
     strategies: AngelCoreStruct.DelegateStruct;
+    lockedInvestmentManagement: AngelCoreStruct.DelegateStruct;
+    liquidInvestmentManagement: AngelCoreStruct.DelegateStruct;
     allowlistedBeneficiaries: AngelCoreStruct.DelegateStruct;
     allowlistedContributors: AngelCoreStruct.DelegateStruct;
     maturityAllowlist: AngelCoreStruct.DelegateStruct;
@@ -201,9 +203,13 @@ export declare namespace AngelCoreStruct {
     AngelCoreStruct.DelegateStructOutput,
     AngelCoreStruct.DelegateStructOutput,
     AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
     AngelCoreStruct.DelegateStructOutput
   ] & {
     strategies: AngelCoreStruct.DelegateStructOutput;
+    lockedInvestmentManagement: AngelCoreStruct.DelegateStructOutput;
+    liquidInvestmentManagement: AngelCoreStruct.DelegateStructOutput;
     allowlistedBeneficiaries: AngelCoreStruct.DelegateStructOutput;
     allowlistedContributors: AngelCoreStruct.DelegateStructOutput;
     maturityAllowlist: AngelCoreStruct.DelegateStructOutput;

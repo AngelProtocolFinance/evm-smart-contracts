@@ -50,7 +50,24 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
             id
         ];
 
-        require(tempEndowment.owner == msg.sender, "Unauthorized");
+        // check if the msg sender is either the owner or their delegate address and
+        // that they have the power to manage the investments for an account balance
+        if (lockAmt > 0) {
+            require(AngelCoreStruct.canChange(
+                tempEndowment.settingsController.lockedInvestmentManagement,
+                msg.sender,
+                tempEndowment.owner,
+                block.timestamp
+            ), "Unauthorized");
+        }
+        if (liquidAmt > 0) {
+            require(AngelCoreStruct.canChange(
+                tempEndowment.settingsController.liquidInvestmentManagement,
+                msg.sender,
+                tempEndowment.owner,
+                block.timestamp
+            ), "Unauthorized");
+        }
 
         require(
             IRegistrar(state.config.registrarContract).getStrategyApprovalState(
@@ -130,6 +147,25 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             id
         ];
+
+        // check if the msg sender is either the owner or their delegate address and
+        // that they have the power to manage the investments for an account balance
+        if (lockAmt > 0) {
+            require(AngelCoreStruct.canChange(
+                tempEndowment.settingsController.lockedInvestmentManagement,
+                msg.sender,
+                tempEndowment.owner,
+                block.timestamp
+            ), "Unauthorized");
+        }
+        if (liquidAmt > 0) {
+            require(AngelCoreStruct.canChange(
+                tempEndowment.settingsController.liquidInvestmentManagement,
+                msg.sender,
+                tempEndowment.owner,
+                block.timestamp
+            ), "Unauthorized");
+        }
 
         require(tempEndowment.owner == msg.sender, "Unauthorized");
         require(tempEndowment.pendingRedemptions == 0, "RedemptionInProgress");

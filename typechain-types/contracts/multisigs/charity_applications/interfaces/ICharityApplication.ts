@@ -192,6 +192,8 @@ export declare namespace AngelCoreStruct {
 
   export type SettingsControllerStruct = {
     strategies: AngelCoreStruct.DelegateStruct;
+    lockedInvestmentManagement: AngelCoreStruct.DelegateStruct;
+    liquidInvestmentManagement: AngelCoreStruct.DelegateStruct;
     allowlistedBeneficiaries: AngelCoreStruct.DelegateStruct;
     allowlistedContributors: AngelCoreStruct.DelegateStruct;
     maturityAllowlist: AngelCoreStruct.DelegateStruct;
@@ -223,9 +225,13 @@ export declare namespace AngelCoreStruct {
     AngelCoreStruct.DelegateStructOutput,
     AngelCoreStruct.DelegateStructOutput,
     AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
     AngelCoreStruct.DelegateStructOutput
   ] & {
     strategies: AngelCoreStruct.DelegateStructOutput;
+    lockedInvestmentManagement: AngelCoreStruct.DelegateStructOutput;
+    liquidInvestmentManagement: AngelCoreStruct.DelegateStructOutput;
     allowlistedBeneficiaries: AngelCoreStruct.DelegateStructOutput;
     allowlistedContributors: AngelCoreStruct.DelegateStructOutput;
     maturityAllowlist: AngelCoreStruct.DelegateStructOutput;
@@ -399,7 +405,7 @@ export declare namespace CharityApplicationsStorage {
 export interface ICharityApplicationInterface extends utils.Interface {
   functions: {
     "approveCharity(uint256)": FunctionFragment;
-    "proposeCharity((address,bool,uint256,uint256,string,(uint256[],uint256[]),uint256,uint8,string,string,address[],bool,uint256,(uint8,(uint256,uint256)),address[],address[],uint256,uint256,uint256,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))),bool,uint256,((address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256)),uint32,address[],bool,(uint256,uint256,uint256),uint256),string)": FunctionFragment;
+    "proposeCharity((address,bool,uint256,uint256,string,(uint256[],uint256[]),uint256,uint8,string,string,address[],bool,uint256,(uint8,(uint256,uint256)),address[],address[],uint256,uint256,uint256,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))),bool,uint256,((address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256)),uint32,address[],bool,(uint256,uint256,uint256),uint256),string)": FunctionFragment;
     "rejectCharity(uint256)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "updateConfig(uint256,address,address,uint256,bool,uint256,bool,address,uint256)": FunctionFragment;

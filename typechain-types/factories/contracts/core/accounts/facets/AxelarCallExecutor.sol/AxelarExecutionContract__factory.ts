@@ -628,6 +628,40 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.Delegate",
+                name: "lockedInvestmentManagement",
+                type: "tuple",
+              },
+              {
+                components: [
+                  {
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
+                  },
+                ],
+                internalType: "struct AngelCoreStruct.Delegate",
+                name: "liquidInvestmentManagement",
+                type: "tuple",
+              },
+              {
+                components: [
+                  {
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
+                  },
+                ],
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "allowlistedBeneficiaries",
                 type: "tuple",
               },
@@ -1381,6 +1415,40 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.Delegate",
+                name: "lockedInvestmentManagement",
+                type: "tuple",
+              },
+              {
+                components: [
+                  {
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
+                  },
+                ],
+                internalType: "struct AngelCoreStruct.Delegate",
+                name: "liquidInvestmentManagement",
+                type: "tuple",
+              },
+              {
+                components: [
+                  {
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
+                  },
+                ],
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "allowlistedBeneficiaries",
                 type: "tuple",
               },
@@ -1689,7 +1757,7 @@ const _abi = [
 ] as const;
 
 const _bytecode =
-  "0x60808060405234610016576101bb908161001c8239f35b600080fdfe6080604081815260048036101561001557600080fd5b6000803560e01c631cb8be651461002b57600080fd5b346101545760603660031901126101545781356001600160a01b03818116918290036101815760243590811680910361018157908592916302b05ecb60e11b84528484015282602460209788935afa91821561017557819261010a575b5050156100d4576044351561009f57505160018152f35b82606492519162461bcd60e51b83528201526011602482015270125b9d985b1a5916995c9bd05b5bdd5b9d607a1b6044820152fd5b82606492519162461bcd60e51b835282015260126024820152712737ba1030b1b1b2b83a32b2103a37b5b2b760711b6044820152fd5b909150843d861161016e575b601f8101601f1916820167ffffffffffffffff81118382101761015b5786918391875281010312610157575190811515820361015457503880610088565b80fd5b5080fd5b634e487b7160e01b845260418552602484fd5b503d610116565b508351903d90823e3d90fd5b8280fdfea264697066735822122033f9e13896b858a2a80c4aaf0cbeb5f66b4547dab85fa108ad6af315082f15ee64736f6c63430008120033";
+  "0x60808060405234610016576101bb908161001c8239f35b600080fdfe6080604081815260048036101561001557600080fd5b6000803560e01c631cb8be651461002b57600080fd5b346101545760603660031901126101545781356001600160a01b03818116918290036101815760243590811680910361018157908592916302b05ecb60e11b84528484015282602460209788935afa91821561017557819261010a575b5050156100d4576044351561009f57505160018152f35b82606492519162461bcd60e51b83528201526011602482015270125b9d985b1a5916995c9bd05b5bdd5b9d607a1b6044820152fd5b82606492519162461bcd60e51b835282015260126024820152712737ba1030b1b1b2b83a32b2103a37b5b2b760711b6044820152fd5b909150843d861161016e575b601f8101601f1916820167ffffffffffffffff81118382101761015b5786918391875281010312610157575190811515820361015457503880610088565b80fd5b5080fd5b634e487b7160e01b845260418552602484fd5b503d610116565b508351903d90823e3d90fd5b8280fdfea26469706673582212205456a566c4b9a42ff0608200735e80c604a906417e093f326bd86475a6c5636264736f6c63430008120033";
 
 type AxelarExecutionContractConstructorParams =
   | [signer?: Signer]
