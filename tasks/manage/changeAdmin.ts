@@ -1,9 +1,8 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { task } from "hardhat/config"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
-import addresses from "contract-address.json"
 import { ITransparentUpgradeableProxy__factory, OwnershipFacet__factory } from "typechain-types"
-import { confirmAction, logger } from "utils"
+import { AddressObj, confirmAction, getAddresses, logger } from "utils"
 
 task("manage:changeAdmin", "Will update the admin for all proxy contracts")
     .addParam("currentAdmin", "Current admin address")
@@ -17,9 +16,11 @@ task("manage:changeAdmin", "Will update the admin for all proxy contracts")
 
             const currentAdmin = await hre.ethers.getSigner(taskArguments.currentAdmin)
 
-            await transferAccountOwnership(currentAdmin, taskArguments.newAdmin, hre)
+            const addresses = await getAddresses(hre)
 
-            await changeProxiesAdmin(currentAdmin, taskArguments.newAdmin, hre)
+            await transferAccountOwnership(currentAdmin, taskArguments.newAdmin, addresses, hre)
+
+            await changeProxiesAdmin(currentAdmin, taskArguments.newAdmin, addresses, hre)
         } catch (error) {
             logger.out(error, logger.Level.Error)
         } finally {
@@ -30,10 +31,11 @@ task("manage:changeAdmin", "Will update the admin for all proxy contracts")
 async function transferAccountOwnership(
     currentAdmin: SignerWithAddress,
     newAdmin: string,
+    addresses: AddressObj,
     hre: HardhatRuntimeEnvironment
 ) {
     try {
-        const ownershipFacet = OwnershipFacet__factory.connect(addresses.accounts.diamond, currentAdmin)
+        const ownershipFacet = OwnershipFacet__factory.connect(addresses.accountsDiamond, currentAdmin)
         const tx = await ownershipFacet.transferOwnership(newAdmin)
         await hre.ethers.provider.waitForTransaction(tx.hash)
         logger.out("Transferred Account diamond ownership.")
@@ -42,8 +44,13 @@ async function transferAccountOwnership(
     }
 }
 
-async function changeProxiesAdmin(currentAdmin: SignerWithAddress, taskArguments: any, hre: HardhatRuntimeEnvironment) {
-    logger.out("Reading proxy contract addresses...")
+async function changeProxiesAdmin(
+    currentAdmin: SignerWithAddress,
+    taskArguments: any,
+    addresses: AddressObj,
+    hre: HardhatRuntimeEnvironment
+) {
+    console.log("Reading proxy contract addresses...")
 
     const proxies = extractProxyContractAddresses("", addresses)
 

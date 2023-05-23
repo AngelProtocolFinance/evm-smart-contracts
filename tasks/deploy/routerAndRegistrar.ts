@@ -2,9 +2,7 @@ import { getImplementationAddress } from '@openzeppelin/upgrades-core'
 import { task } from "hardhat/config"
 import type { TaskArguments } from "hardhat/types"
 import { Registrar, Registrar__factory, Router, Router__factory } from "typechain-types"
-import { logger } from "utils"
-import addresses from "contract-address.json"
-import { saveFrontendFiles } from "utils"
+import { getAddresses, logger, saveFrontendFiles } from "utils"
 
 // Goerli addresses
 // Axelar Gateway:      0xe432150cce91c13a887f7D836923d5597adD8E31
@@ -54,15 +52,17 @@ task("deploy:RouterAndRegistrar")
 
     // Write data to address json
     logger.out("Writing to contract-address.json", logger.Level.Info)
-    addresses[network.chainId] = 
-    {
-      "registrar": {
-        "proxy": registrar.address,
-        "impl": registrarImplAddress
-      },
-      "router": {
-        "proxy": router.address,
-        "impl": routerImplAddress
+    const addresses = {
+      [network.chainId]: {
+          ...getAddresses(network.chainId),
+        "registrar": {
+          "proxy": registrar.address,
+          "implementation": registrarImplAddress
+        },
+        "router": {
+          "proxy": router.address,
+          "implementation": routerImplAddress
+        }
       }
     }
     await saveFrontendFiles(addresses)

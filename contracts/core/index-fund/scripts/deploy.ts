@@ -2,7 +2,7 @@ const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
 
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import config from 'config'
-import { saveFrontendFiles } from "utils"
+import { updateAddresses } from "utils"
 import { IndexFundMessage } from "typechain-types/contracts/core/index-fund/IndexFund"
 
 export async function deployIndexFund(initFactoryData: IndexFundMessage.InstantiateMessageStruct, verify_contracts: boolean, hre: HardhatRuntimeEnvironment) {
@@ -35,10 +35,15 @@ export async function deployIndexFund(initFactoryData: IndexFundMessage.Instanti
         );
         await IndexFundContractProxy.deployed();
 
-        let indexFundAddress = {
-            indexFundProxy: IndexFundContractProxy.address,
-            indexFundImplementation: indexContract.address,
-        }
+        await updateAddresses(
+            { 
+                indexFundAddress: {
+                    indexFundProxy: IndexFundContractProxy.address,
+                    indexFundImplementation: indexContract.address,
+                }
+            },
+            hre
+        );
 
         if(verify_contracts){
             await run("verify:verify", {
@@ -50,8 +55,6 @@ export async function deployIndexFund(initFactoryData: IndexFundMessage.Instanti
                 constructorArguments: [indexContract.address,_proxyAdmin.address,IndexFundContractData],
             });
         }
-
-        await saveFrontendFiles({indexFundAddress});
 
         return Promise.resolve(IndexFundContractProxy.address);
     } catch (error) {

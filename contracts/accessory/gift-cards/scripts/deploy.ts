@@ -1,5 +1,4 @@
-import path from "path"
-import { saveFrontendFiles } from "utils"
+import { updateAddresses } from "utils"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import { GiftCardsMessage } from "typechain-types/contracts/accessory/gift-cards/GiftCards"
 
@@ -38,10 +37,15 @@ export async function deployGiftCard(
       });
     }
 
-    await saveFrontendFiles({
-      GiftCardsProxy: GiftCardsProxy.address,
-      GiftCardsImplementation: GiftCardsInstance.address
-    });
+    await updateAddresses(
+      {
+        giftcards: {
+          proxy: GiftCardsProxy.address,
+          implementation: GiftCardsInstance.address
+        }
+      },
+      hre
+    )
 
     return Promise.resolve(GiftCardsProxy.address);
   } catch (error) {

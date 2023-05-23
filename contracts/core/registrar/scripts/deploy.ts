@@ -1,7 +1,7 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 
-import { saveFrontendFiles } from "utils"
+import { updateAddresses } from "utils"
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { RegistrarMessages } from "typechain-types/contracts/core/registrar/registrar.sol/Registrar"
 
@@ -50,12 +50,15 @@ export async function deployRegistrar(STRING_LIBRARY: string,registrarData: Regi
 			});
 		}
 
-		let registrar = {
-			registrarImplementation: registrarImplementation.address,
-			registrarProxy: registrarProxy.address
-		};
-		
-		await saveFrontendFiles({registrar});
+		await updateAddresses(
+			{
+				registrar: {
+					implementation: registrarImplementation.address,
+					proxy: registrarProxy.address
+				}
+			},
+			hre
+		);
 
 		console.log('Registrar Address (Proxy):', registrarProxy.address);
 
