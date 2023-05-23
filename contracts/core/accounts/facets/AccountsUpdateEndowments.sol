@@ -36,7 +36,6 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         ];
 
         require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
-        require(!state.STATES[details.id].lockedForever, "Settings are locked forever");
 
         // there are several fields that are restricted to changing only by the Endowment Owner
         if (msg.sender == tempEndowment.owner) {
@@ -155,7 +154,6 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
 
         require(!state.STATES[id].closingEndowment, "UpdatesAfterClosed");
-        require(!state.STATES[id].lockedForever, "Settings are locked forever");
 
         AngelCoreStruct.Delegate memory newDelegate;
         if (action == AngelCoreStruct.DelegateAction.Set) {

@@ -48,7 +48,6 @@ contract AccountsUpdateEndowmentSettingsController is
         ];
 
         require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
-        require(!state.STATES[details.id].lockedForever, "Settings are locked forever");
 
         if (tempEndowment.endowType != AngelCoreStruct.EndowmentType.Charity) {
             // when maturity time is <= 0 it means it's not set, i.e. the AST is perpetual
@@ -186,7 +185,6 @@ contract AccountsUpdateEndowmentSettingsController is
         ];
 
         require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
-        require(!state.STATES[details.id].lockedForever, "Settings are locked forever");
         require(msg.sender == tempEndowment.owner, "Unauthorized");
 
         tempEndowment.settingsController = details.settingsController;
@@ -215,7 +213,6 @@ contract AccountsUpdateEndowmentSettingsController is
             "Charity Endowments may not change endowment fees"
         );
         require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
-        require(!state.STATES[details.id].lockedForever, "Settings are locked forever");
 
         // Only Normal endowments can change their early locked withdraw fee
         // Charity endowments read from the registrar protocol-wide fee for this
