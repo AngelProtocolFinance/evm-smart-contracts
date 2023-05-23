@@ -9,7 +9,6 @@ import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 import {IAccountsDepositWithdrawEndowments} from "../../core/accounts/interfaces/IAccountsDepositWithdrawEndowments.sol";
 import {GiftCardsStorage} from "./storage.sol";
 import {AccountMessages} from "../../core/accounts/message.sol";
-import {AngelCoreStruct} from "../../core/struct.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
