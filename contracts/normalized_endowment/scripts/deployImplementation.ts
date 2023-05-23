@@ -2,7 +2,6 @@
 // yours, or create new ones.
 
 import { HardhatRuntimeEnvironment } from "hardhat/types"
-import { deployLockedWithdraw } from '../locked-withdraw/scripts/deploy'
 import { saveFrontendFiles } from 'scripts/readWriteFile'
 import { DonationMatchMessages } from "typechain-types/contracts/normalized_endowment/donation-match/DonationMatch.sol/DonationMatch";
 
@@ -234,7 +233,11 @@ const deployIncentiisedVoting = async (verify_contracts: boolean, hre: HardhatRu
 	}
 };
 
-export async function deployImplementation(ANGEL_CORE_STRUCT: string, LockedWithdrawData: string[], donationMatchCharityData: DonationMatchMessages.InstantiateMessageStruct,verify_contracts: boolean, hre: HardhatRuntimeEnvironment) {
+export async function deployImplementation(
+	ANGEL_CORE_STRUCT: string,
+	donationMatchCharityData: DonationMatchMessages.InstantiateMessageStruct,
+	verify_contracts: boolean, hre: HardhatRuntimeEnvironment
+) {
 	try {
 		const {network,run,ethers} = hre;
 		let [deployer, proxyAdmin] = await ethers.getSigners();
@@ -246,7 +249,6 @@ export async function deployImplementation(ANGEL_CORE_STRUCT: string, LockedWith
 			SubDaoveBonding: await deploySubDaoveBonding(verify_contracts,hre),
 			FeeDistributor: await deployFeeDistributor(verify_contracts,hre),
 			IncentiisedVoting: await deployIncentiisedVoting(verify_contracts,hre),
-			LockedWithdraw: await deployLockedWithdraw(proxyAdmin.address, LockedWithdrawData,verify_contracts,hre),
 			cw900lv: await deployCw900lvImplementation(verify_contracts,hre),
 		};
 

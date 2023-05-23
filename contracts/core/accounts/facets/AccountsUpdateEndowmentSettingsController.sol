@@ -221,6 +221,20 @@ contract AccountsUpdateEndowmentSettingsController is
         require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
         require(!state.STATES[details.id].lockedForever, "Settings are locked forever");
 
+        // Only Normal endowments can change their early locked withdraw fee
+        // Charity endowments read from the registrar protocol-wide fee for this
+        if (
+            tempEndowment.endowType == AngelCoreStruct.EndowmentType.Normal && 
+            AngelCoreStruct.canChange(
+                tempEndowment.settingsController.earlyLockedWithdrawFee,
+                msg.sender,
+                tempEndowment.owner,
+                block.timestamp
+            )
+        ) {
+            tempEndowment.earlyLockedWithdrawFee = details.earlyLockedWithdrawFee;
+        }
+
         if (
             AngelCoreStruct.canChange(
                 tempEndowment.settingsController.depositFee,

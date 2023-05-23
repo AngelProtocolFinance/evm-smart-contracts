@@ -246,7 +246,7 @@ const _abi = [
               },
             ],
             internalType: "struct AngelCoreStruct.EndowmentFee",
-            name: "earningsFee",
+            name: "earlyLockedWithdrawFee",
             type: "tuple",
           },
           {
@@ -508,6 +508,40 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.Delegate",
+                name: "lockedInvestmentManagement",
+                type: "tuple",
+              },
+              {
+                components: [
+                  {
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
+                  },
+                ],
+                internalType: "struct AngelCoreStruct.Delegate",
+                name: "liquidInvestmentManagement",
+                type: "tuple",
+              },
+              {
+                components: [
+                  {
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
+                  },
+                ],
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "allowlistedBeneficiaries",
                 type: "tuple",
               },
@@ -560,6 +594,23 @@ const _abi = [
                 ],
                 internalType: "struct AngelCoreStruct.Delegate",
                 name: "maturityTime",
+                type: "tuple",
+              },
+              {
+                components: [
+                  {
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
+                  },
+                ],
+                internalType: "struct AngelCoreStruct.Delegate",
+                name: "earlyLockedWithdrawFee",
                 type: "tuple",
               },
               {
@@ -1114,6 +1165,28 @@ const _abi = [
               },
             ],
             internalType: "struct AngelCoreStruct.EndowmentFee",
+            name: "earlyLockedWithdrawFee",
+            type: "tuple",
+          },
+          {
+            components: [
+              {
+                internalType: "address",
+                name: "payoutAddress",
+                type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "feePercentage",
+                type: "uint256",
+              },
+              {
+                internalType: "bool",
+                name: "active",
+                type: "bool",
+              },
+            ],
+            internalType: "struct AngelCoreStruct.EndowmentFee",
             name: "withdrawFee",
             type: "tuple",
           },
@@ -1194,6 +1267,40 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.Delegate",
+                name: "lockedInvestmentManagement",
+                type: "tuple",
+              },
+              {
+                components: [
+                  {
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
+                  },
+                ],
+                internalType: "struct AngelCoreStruct.Delegate",
+                name: "liquidInvestmentManagement",
+                type: "tuple",
+              },
+              {
+                components: [
+                  {
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
+                  },
+                ],
+                internalType: "struct AngelCoreStruct.Delegate",
                 name: "allowlistedBeneficiaries",
                 type: "tuple",
               },
@@ -1246,6 +1353,23 @@ const _abi = [
                 ],
                 internalType: "struct AngelCoreStruct.Delegate",
                 name: "maturityTime",
+                type: "tuple",
+              },
+              {
+                components: [
+                  {
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
+                  },
+                ],
+                internalType: "struct AngelCoreStruct.Delegate",
+                name: "earlyLockedWithdrawFee",
                 type: "tuple",
               },
               {

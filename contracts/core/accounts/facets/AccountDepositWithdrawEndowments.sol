@@ -443,23 +443,30 @@ contract AccountDepositWithdrawEndowments is
             state.config.registrarContract
         ).queryConfig();
 
-        // ** SHARED LOCKED WITHDRAWAL RULES **
-        // LOCKED: Msg must come from the locked withdraw contract if NOT mature yet
         // Charities never mature & Normal endowments optionally mature
         // Check if maturity has been reached for the endowment (0 == no maturity date)
         bool mature = (
             tempEndowment.maturityTime != 0 &&
             block.timestamp >= tempEndowment.maturityTime
         );
-        // Cannot withdraw from locked before maturity unless via early locked withdraw approval contract
+
+        // ** SHARED LOCKED WITHDRAWAL RULES **
+        // Can withdraw early for a (possible) penalty fee
+        uint256 earlyLockedWithdrawPenalty = 0;
         if (acctType == AngelCoreStruct.AccountType.Locked && !mature) {
-            require(msg.sender == registrar_config.lockedWithdrawal, "Cannot withdraw before maturity time is reached unless via early withdraw approval.");
-            // A/N: We ensure that locked withdraw requests always go to the requesting endowment's
-            // LIQUID account to prevent the AP Multisig from sending Locked withdraws to a random address.
-            beneficiaryAddress = address(0);
-            beneficiaryEndowId = id;
-        } else {
-            require(msg.sender == tempEndowment.owner, "Unauthorized");
+            // Calculate the early withdraw penalty based on the earlyLockedWithdrawFee setting
+            // Normal: Endowment specific setting that owners can (optionally) set
+            // Charity: Registrar based setting for all Charity Endowments
+            if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Normal) {
+                earlyLockedWithdrawPenalty = (amount.mul(tempEndowment.earlyLockedWithdrawFee.feePercentage))
+                    .div(AngelCoreStruct.FEE_BASIS);
+            } else {
+                earlyLockedWithdrawPenalty = (amount.mul(
+                    IRegistrar(state.config.registrarContract).queryFee(
+                        "accounts_early_locked_withdraw"
+                    )
+                )).div(AngelCoreStruct.FEE_BASIS);
+            }
         }
 
         // ** NORMAL TYPE WITHDRAWAL RULES **
@@ -467,7 +474,6 @@ contract AccountDepositWithdrawEndowments is
         //      The endowment multisig OR beneficiaries allowlist addresses [if populated] can withdraw. After 
         //      maturity has been reached, only addresses in Maturity Allowlist may withdraw. If the Maturity
         //      Allowlist is not populated, then only the endowment multisig is allowed to withdraw.
-        // LIQUID & LOCKED(after Maturity): Only the endowment multisig can withdraw
         if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Normal) {
             // determine if msg sender is allowed to withdraw based on rules and maturity status
             bool senderAllowed = false;
@@ -527,23 +533,29 @@ contract AccountDepositWithdrawEndowments is
         uint256 withdrawFeeAp = (amount.mul(withdrawFeeRateAp))
                                 .div(AngelCoreStruct.FEE_BASIS);
 
-        // transfer AP Protocol fee to treasury
+        // Transfer AP Protocol fee to treasury
+        // (ie. standard Withdraw Fee + any early Locked Withdraw Penalty)
         require(
             IERC20(tokenAddress).transfer(
                 registrar_config.treasury,
-                withdrawFeeAp
+                withdrawFeeAp + earlyLockedWithdrawPenalty
             ),
             "Transfer failed"
         );
 
-        // calculate Endowment specific withdraw fee if needed
+        // ** Endowment specific withdraw fee **
+        // Endowment specific withdraw fee needs to be calculated against the amount
+        // leftover after all AP withdraw fees are subtracted. Otherwise we risk having
+        // negative amounts due to collective fees being greater than 100%
+        uint256 amountLeftover = amount - withdrawFeeAp - earlyLockedWithdrawPenalty;
         uint256 withdrawFeeEndow = 0;
         if (
+            amountLeftover > 0 &&
             tempEndowment.withdrawFee.active &&
             tempEndowment.withdrawFee.feePercentage != 0 &&
             tempEndowment.withdrawFee.payoutAddress != address(0)
         ) {
-            withdrawFeeEndow = (amount.mul(tempEndowment.withdrawFee.feePercentage))
+            withdrawFeeEndow = (amountLeftover.mul(tempEndowment.withdrawFee.feePercentage))
                                 .div(AngelCoreStruct.PERCENT_BASIS);
 
             // transfer endowment withdraw fee to beneficiary address
@@ -561,7 +573,7 @@ contract AccountDepositWithdrawEndowments is
             require(
                 IERC20(tokenAddress).transfer(
                     beneficiaryAddress,
-                    (amount - withdrawFeeAp - withdrawFeeEndow)
+                    (amountLeftover - withdrawFeeEndow)
                 ),
                 "Transfer failed"
             );
@@ -572,7 +584,7 @@ contract AccountDepositWithdrawEndowments is
             processToken(
                 AccountMessages.DepositRequest({ id: id, lockedPercentage: 0, liquidPercentage: 100 }),
                 tokenAddress,
-                (amount - withdrawFeeAp - withdrawFeeEndow)
+                (amountLeftover - withdrawFeeEndow)
             );
         }
 
@@ -582,7 +594,5 @@ contract AccountDepositWithdrawEndowments is
         } else {
             state.STATES[id].balances.liquid.balancesByToken[tokenAddress] -= amount;
         }
-        
-        // emit UpdateEndowmentState(id, state.STATES[id]);
     }
 }

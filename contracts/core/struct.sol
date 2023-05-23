@@ -617,10 +617,13 @@ library AngelCoreStruct {
 
     struct SettingsController {
         Delegate strategies;
+        Delegate lockedInvestmentManagement;
+        Delegate liquidInvestmentManagement;
         Delegate allowlistedBeneficiaries;
         Delegate allowlistedContributors;
         Delegate maturityAllowlist;
         Delegate maturityTime;
+        Delegate earlyLockedWithdrawFee;
         Delegate withdrawFee;
         Delegate depositFee;
         Delegate balanceFee;
@@ -634,9 +637,12 @@ library AngelCoreStruct {
 
     enum ControllerSettingOption {
         Strategies,
+        lockedInvestmentManagement,
+        liquidInvestmentManagement,
         AllowlistedBeneficiaries,
         AllowlistedContributors,
         MaturityAllowlist,
+        EarlyLockedWithdrawFee,
         MaturityTime,
         WithdrawFee,
         DepositFee,
