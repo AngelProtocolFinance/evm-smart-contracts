@@ -61,6 +61,15 @@ library LocalRegistrarLib {
         address vaultAddr;
     }
 
+    enum Fees {
+        DEFAULT,
+        HARVEST,
+        WITHDRAW_CHARITY,
+        WITHDRAW_NORMAL,
+        EARLY_LOCKED_WITHDRAW_CHARITY, 
+        EARLY_LOCKED_WITHDRAW_NORMAL
+    }
+
     struct LocalRegistrarStorage {
       RebalanceParams rebalanceParams;
       AngelProtocolParams angelProtocolParams;
@@ -68,6 +77,7 @@ library LocalRegistrarLib {
       mapping(bytes4 => StrategyParams) VaultsByStrategyId;
       mapping(address => bool) AcceptedTokens;
       mapping(address=> uint256) GasFeeByToken;
+      mapping(Fees => uint256) FeeRateByFees;
     }
 
     /*////////////////////////////////////////////////

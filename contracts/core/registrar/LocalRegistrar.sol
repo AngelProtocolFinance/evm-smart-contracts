@@ -123,6 +123,12 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
         return lrs.GasFeeByToken[_tokenAddr];
     }
 
+    function getFeeByFees(LocalRegistrarLib.Fees _fee) external view orverride returns (uint256) {
+        LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
+            LocalRegistrarLib.localRegistrarStorage();
+        return lrs.FeeRateByFees[_fee]; 
+    }
+
     /*////////////////////////////////////////////////
                     RESTRICTED SETTERS
     */////////////////////////////////////////////////
@@ -216,6 +222,13 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
             _liqAddr,
             _approvalState
         );
+    }
+
+    function setFeeByFees(LocalRegistrarLib.Fees _fee, uint256 _value) external view orverride returns (uint256) {
+        LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
+            LocalRegistrarLib.localRegistrarStorage();
+        lrs.FeeRateByFees[_fee] = _value;
+        emit FeeUpdated(_fee, _value);
     }
 
     /*////////////////////////////////////////////////
