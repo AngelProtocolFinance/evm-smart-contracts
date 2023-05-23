@@ -26,7 +26,7 @@ library RegistrarMessages {
         uint256 collectorShare;
         // AngelCoreStruct.AcceptedTokens acceptedTokens;
         
-        // CONTRACT ADSRESSES
+        // CONTRACT ADDRESSES
         address indexFundContract;
         address govContract;
         address treasury;

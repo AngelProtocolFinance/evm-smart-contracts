@@ -621,6 +621,7 @@ library AngelCoreStruct {
         Delegate allowlistedContributors;
         Delegate maturityAllowlist;
         Delegate maturityTime;
+        Delegate earlyLockedWithdrawFee;
         Delegate withdrawFee;
         Delegate depositFee;
         Delegate balanceFee;
@@ -637,6 +638,7 @@ library AngelCoreStruct {
         AllowlistedBeneficiaries,
         AllowlistedContributors,
         MaturityAllowlist,
+        EarlyLockedWithdrawFee,
         MaturityTime,
         WithdrawFee,
         DepositFee,

@@ -183,6 +183,7 @@ export declare namespace AngelCoreStruct {
     allowlistedContributors: AngelCoreStruct.DelegateStruct;
     maturityAllowlist: AngelCoreStruct.DelegateStruct;
     maturityTime: AngelCoreStruct.DelegateStruct;
+    earlyLockedWithdrawFee: AngelCoreStruct.DelegateStruct;
     withdrawFee: AngelCoreStruct.DelegateStruct;
     depositFee: AngelCoreStruct.DelegateStruct;
     balanceFee: AngelCoreStruct.DelegateStruct;
@@ -208,6 +209,7 @@ export declare namespace AngelCoreStruct {
     AngelCoreStruct.DelegateStructOutput,
     AngelCoreStruct.DelegateStructOutput,
     AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
     AngelCoreStruct.DelegateStructOutput
   ] & {
     strategies: AngelCoreStruct.DelegateStructOutput;
@@ -215,6 +217,7 @@ export declare namespace AngelCoreStruct {
     allowlistedContributors: AngelCoreStruct.DelegateStructOutput;
     maturityAllowlist: AngelCoreStruct.DelegateStructOutput;
     maturityTime: AngelCoreStruct.DelegateStructOutput;
+    earlyLockedWithdrawFee: AngelCoreStruct.DelegateStructOutput;
     withdrawFee: AngelCoreStruct.DelegateStructOutput;
     depositFee: AngelCoreStruct.DelegateStructOutput;
     balanceFee: AngelCoreStruct.DelegateStructOutput;
@@ -389,6 +392,7 @@ export declare namespace AccountStorage {
     allowlistedBeneficiaries: PromiseOrValue<string>[];
     allowlistedContributors: PromiseOrValue<string>[];
     maturityAllowlist: PromiseOrValue<string>[];
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStruct;
     withdrawFee: AngelCoreStruct.EndowmentFeeStruct;
     depositFee: AngelCoreStruct.EndowmentFeeStruct;
     balanceFee: AngelCoreStruct.EndowmentFeeStruct;
@@ -425,6 +429,7 @@ export declare namespace AccountStorage {
     AngelCoreStruct.EndowmentFeeStructOutput,
     AngelCoreStruct.EndowmentFeeStructOutput,
     AngelCoreStruct.EndowmentFeeStructOutput,
+    AngelCoreStruct.EndowmentFeeStructOutput,
     AngelCoreStruct.SettingsControllerStructOutput,
     number,
     boolean,
@@ -453,6 +458,7 @@ export declare namespace AccountStorage {
     allowlistedBeneficiaries: string[];
     allowlistedContributors: string[];
     maturityAllowlist: string[];
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
     withdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
     depositFee: AngelCoreStruct.EndowmentFeeStructOutput;
     balanceFee: AngelCoreStruct.EndowmentFeeStructOutput;
@@ -519,7 +525,7 @@ export declare namespace AccountMessages {
     splitMax: PromiseOrValue<BigNumberish>;
     splitMin: PromiseOrValue<BigNumberish>;
     splitDefault: PromiseOrValue<BigNumberish>;
-    earningsFee: AngelCoreStruct.EndowmentFeeStruct;
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStruct;
     withdrawFee: AngelCoreStruct.EndowmentFeeStruct;
     depositFee: AngelCoreStruct.EndowmentFeeStruct;
     balanceFee: AngelCoreStruct.EndowmentFeeStruct;
@@ -587,7 +593,7 @@ export declare namespace AccountMessages {
     splitMax: BigNumber;
     splitMin: BigNumber;
     splitDefault: BigNumber;
-    earningsFee: AngelCoreStruct.EndowmentFeeStructOutput;
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
     withdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
     depositFee: AngelCoreStruct.EndowmentFeeStructOutput;
     balanceFee: AngelCoreStruct.EndowmentFeeStructOutput;
@@ -605,7 +611,7 @@ export declare namespace AccountMessages {
 
 export interface AccountsCreateEndowmentInterface extends utils.Interface {
   functions: {
-    "createEndowment((address,bool,uint256,uint256,string,(uint256[],uint256[]),uint256,uint8,string,string,address[],bool,uint256,(uint8,(uint256,uint256)),address[],address[],uint256,uint256,uint256,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))),bool,uint256,((address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256)),uint32,address[],bool,(uint256,uint256,uint256),uint256))": FunctionFragment;
+    "createEndowment((address,bool,uint256,uint256,string,(uint256[],uint256[]),uint256,uint8,string,string,address[],bool,uint256,(uint8,(uint256,uint256)),address[],address[],uint256,uint256,uint256,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))),bool,uint256,((address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256)),uint32,address[],bool,(uint256,uint256,uint256),uint256))": FunctionFragment;
   };
 
   getFunction(nameOrSignatureOrTopic: "createEndowment"): FunctionFragment;

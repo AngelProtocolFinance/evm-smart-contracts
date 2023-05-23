@@ -37,11 +37,18 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
             registrarAddress
         ).queryConfig();
 
+        AngelCoreStruct.EndowmentFee memory earlyLockedWithdrawFee = AngelCoreStruct.EndowmentFee({
+            payoutAddress: registrar_config.treasury,
+            feePercentage: 0,
+            active: true
+        });
         if (AngelCoreStruct.EndowmentType.Charity == details.endowType) {
             require(
                 msg.sender == registrar_config.charityProposal,
                 "Unauthorized"
             );
+        } else {
+            earlyLockedWithdrawFee=details.earlyLockedWithdrawFee;
         }
 
         if (details.members.length == 0) {
@@ -109,6 +116,7 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                 donationMatchContract: donationMatchContract,
                 allowlistedBeneficiaries: details.allowlistedBeneficiaries,
                 allowlistedContributors: details.allowlistedContributors,
+                earlyLockedWithdrawFee: earlyLockedWithdrawFee,
                 withdrawFee: details.withdrawFee,
                 depositFee: details.depositFee,
                 balanceFee: details.balanceFee,

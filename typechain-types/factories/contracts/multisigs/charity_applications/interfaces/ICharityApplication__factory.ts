@@ -196,7 +196,7 @@ const _abi = [
               },
             ],
             internalType: "struct AngelCoreStruct.EndowmentFee",
-            name: "earningsFee",
+            name: "earlyLockedWithdrawFee",
             type: "tuple",
           },
           {
@@ -510,6 +510,23 @@ const _abi = [
                 ],
                 internalType: "struct AngelCoreStruct.Delegate",
                 name: "maturityTime",
+                type: "tuple",
+              },
+              {
+                components: [
+                  {
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
+                  },
+                ],
+                internalType: "struct AngelCoreStruct.Delegate",
+                name: "earlyLockedWithdrawFee",
                 type: "tuple",
               },
               {
@@ -1041,7 +1058,7 @@ const _abi = [
               },
             ],
             internalType: "struct AngelCoreStruct.EndowmentFee",
-            name: "earningsFee",
+            name: "earlyLockedWithdrawFee",
             type: "tuple",
           },
           {
@@ -1355,6 +1372,23 @@ const _abi = [
                 ],
                 internalType: "struct AngelCoreStruct.Delegate",
                 name: "maturityTime",
+                type: "tuple",
+              },
+              {
+                components: [
+                  {
+                    internalType: "address",
+                    name: "addr",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "expires",
+                    type: "uint256",
+                  },
+                ],
+                internalType: "struct AngelCoreStruct.Delegate",
+                name: "earlyLockedWithdrawFee",
                 type: "tuple",
               },
               {
