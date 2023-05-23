@@ -100,7 +100,7 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
         address toAddress,
         address tokenAddress,
         uint256 amount
-    ) public {
+    ) nonReentrant public {
         GiftCardsStorage.Deposit memory deposit = GiftCardsStorage.Deposit(
             msg.sender,
             tokenAddress,
@@ -146,7 +146,10 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
      * @param depositId the deposit id
      * @param recipient the recipient of the gift card
      */
-    function executeClaim(uint256 depositId, address recipient) public {
+    function executeClaim(
+        uint256 depositId, 
+        address recipient
+    ) nonReentrant public {
         require(msg.sender == state.config.keeper, "Only keeper can claim deposits");
         require(!state.DEPOSITS[depositId].claimed, "Deposit already claimed");
 
@@ -177,7 +180,7 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
         uint256 amount,
         uint256 lockedPercentage,
         uint256 liquidPercentage
-    ) public {
+    ) nonReentrant public {
         require(lockedPercentage + liquidPercentage == 100, "Invalid percentages");
         require(amount > 0, "Invalid zero amount");
         require(state.BALANCES[msg.sender][tokenAddress] >= amount, "Insufficient spendable balance");
