@@ -39,7 +39,7 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
 
         AngelCoreStruct.EndowmentFee memory earlyLockedWithdrawFee = AngelCoreStruct.EndowmentFee({
             payoutAddress: registrar_config.treasury,
-            feePercentage: 0,
+            feePercentage: 100, // 10% fee placeholder. TO DO: change later if needed!
             active: true
         });
         if (AngelCoreStruct.EndowmentType.Charity == details.endowType) {
@@ -48,7 +48,7 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                 "Unauthorized"
             );
         } else {
-            earlyLockedWithdrawFee=details.earlyLockedWithdrawFee;
+            earlyLockedWithdrawFee = details.earlyLockedWithdrawFee;
         }
 
         if (details.members.length == 0) {
