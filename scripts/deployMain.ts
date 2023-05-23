@@ -327,7 +327,7 @@ export async function main(apTeamAdmins = []) {
         }
 
         //  requires setting up of a HALO - MockUSDC pool on forked uniswap in deployment
-        // if PROD flag is false
+        // if on non-production network
 
         let donationMatchCharityData = {
             reserveToken: config.DONATION_MATCH_CHARITY_DATA.reserveToken,

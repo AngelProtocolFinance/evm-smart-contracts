@@ -56,7 +56,12 @@ if (!etherscanAPIKey) {
 
 const polyscanAPIKey: string | undefined = process.env.POLYSCAN_API_KEY
 if (!polyscanAPIKey) {
-  throw new Error("Please add the Etherscan API key to your .env file")
+  throw new Error("Please add the Polyscan API key to your .env file")
+}
+
+const PROD_NETWORK_ID: number = Number(process.env.PROD_NETWORK_ID)
+if (isNaN(PROD_NETWORK_ID)) {
+  throw new Error("Please add PROD_NETWORK_ID key with a number value to your .env file")
 }
 
 export var accounts = [
@@ -78,5 +83,6 @@ export var envConfig = {
   'polygonRPC': polygonRPC,
   'mumbaiRPC': mumbaiRPC,
   'etherscanAPIKey': etherscanAPIKey,
-  'polyscanAPIKey': polyscanAPIKey
+  'polyscanAPIKey': polyscanAPIKey,
+  'PROD_NETWORK_ID': PROD_NETWORK_ID
 }
