@@ -44,7 +44,7 @@ contract AccountsAllowance is ReentrancyGuardFacet, AccountsEvents {
         bool inAllowlist = false;
         if (tempEndowment.maturityTime >= block.timestamp) {
             require(AngelCoreStruct.canChange(
-                tempEndowment.settingsController.allowlistedBeneficiaries.delegate,
+                tempEndowment.settingsController.allowlistedBeneficiaries,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp), "Unauthorized");
@@ -56,7 +56,7 @@ contract AccountsAllowance is ReentrancyGuardFacet, AccountsEvents {
             }
         } else {
             require(AngelCoreStruct.canChange(
-                tempEndowment.settingsController.maturityAllowlist.delegate,
+                tempEndowment.settingsController.maturityAllowlist,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp), "Unauthorized");

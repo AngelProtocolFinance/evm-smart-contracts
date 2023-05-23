@@ -55,7 +55,7 @@ contract AccountsUpdateEndowmentSettingsController is
             if (tempEndowment.maturityTime <= 0 || tempEndowment.maturityTime > block.timestamp) {
                 if (
                     AngelCoreStruct.canChange(
-                        tempEndowment.settingsController.maturityTime.delegate,
+                        tempEndowment.settingsController.maturityTime,
                         msg.sender,
                         tempEndowment.owner,
                         block.timestamp
@@ -68,7 +68,7 @@ contract AccountsUpdateEndowmentSettingsController is
                 }
                 if (
                     AngelCoreStruct.canChange(
-                        tempEndowment.settingsController.allowlistedBeneficiaries.delegate,
+                        tempEndowment.settingsController.allowlistedBeneficiaries,
                         msg.sender,
                         tempEndowment.owner,
                         block.timestamp
@@ -83,7 +83,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
                 if (
                     AngelCoreStruct.canChange(
-                        tempEndowment.settingsController.allowlistedContributors.delegate,
+                        tempEndowment.settingsController.allowlistedContributors,
                         msg.sender,
                         tempEndowment.owner,
                         block.timestamp
@@ -97,7 +97,7 @@ contract AccountsUpdateEndowmentSettingsController is
                 }
                 if (
                     AngelCoreStruct.canChange(
-                        tempEndowment.settingsController.maturityAllowlist.delegate,
+                        tempEndowment.settingsController.maturityAllowlist,
                         msg.sender,
                         tempEndowment.owner,
                         block.timestamp
@@ -146,7 +146,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.splitToLiquid.delegate,
+                tempEndowment.settingsController.splitToLiquid,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -158,7 +158,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.ignoreUserSplits.delegate,
+                tempEndowment.settingsController.ignoreUserSplits,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -222,7 +222,7 @@ contract AccountsUpdateEndowmentSettingsController is
         if (
             tempEndowment.endowType == AngelCoreStruct.EndowmentType.Normal && 
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.earlyLockedWithdrawFee.delegate,
+                tempEndowment.settingsController.earlyLockedWithdrawFee,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -233,7 +233,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.depositFee.delegate,
+                tempEndowment.settingsController.depositFee,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -244,7 +244,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.withdrawFee.delegate,
+                tempEndowment.settingsController.withdrawFee,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -255,7 +255,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.balanceFee.delegate,
+                tempEndowment.settingsController.balanceFee,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp

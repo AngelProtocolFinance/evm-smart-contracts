@@ -54,7 +54,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.name.delegate,
+                tempEndowment.settingsController.name,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -65,7 +65,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.categories.delegate,
+                tempEndowment.settingsController.categories,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -111,7 +111,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.logo.delegate,
+                tempEndowment.settingsController.logo,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -122,7 +122,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.image.delegate,
+                tempEndowment.settingsController.image,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -169,7 +169,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         if (setting == AngelCoreStruct.ControllerSettingOption.Strategies) {
            require(
                 AngelCoreStruct.canChange(
-                    tempEndowment.settingsController.strategies.delegate,
+                    tempEndowment.settingsController.strategies,
                     msg.sender,
                     tempEndowment.owner,
                     block.timestamp
@@ -179,7 +179,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         } else if (setting == AngelCoreStruct.ControllerSettingOption.AllowlistedBeneficiaries) {
            require(
                 AngelCoreStruct.canChange(
-                    tempEndowment.settingsController.allowlistedBeneficiaries.delegate,
+                    tempEndowment.settingsController.allowlistedBeneficiaries,
                     msg.sender,
                     tempEndowment.owner,
                     block.timestamp
@@ -189,7 +189,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         } else if (setting == AngelCoreStruct.ControllerSettingOption.AllowlistedContributors) {
            require(
                 AngelCoreStruct.canChange(
-                    tempEndowment.settingsController.allowlistedContributors.delegate,
+                    tempEndowment.settingsController.allowlistedContributors,
                     msg.sender,
                     tempEndowment.owner,
                     block.timestamp
@@ -199,7 +199,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         } else if (setting == AngelCoreStruct.ControllerSettingOption.MaturityAllowlist) {
            require(
                 AngelCoreStruct.canChange(
-                    tempEndowment.settingsController.maturityAllowlist.delegate,
+                    tempEndowment.settingsController.maturityAllowlist,
                     msg.sender,
                     tempEndowment.owner,
                     block.timestamp
@@ -209,7 +209,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         } else if (setting == AngelCoreStruct.ControllerSettingOption.MaturityTime) {
            require(
                 AngelCoreStruct.canChange(
-                    tempEndowment.settingsController.maturityTime.delegate,
+                    tempEndowment.settingsController.maturityTime,
                     msg.sender,
                     tempEndowment.owner,
                     block.timestamp
@@ -219,7 +219,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         } else if (setting == AngelCoreStruct.ControllerSettingOption.WithdrawFee) {
            require(
                 AngelCoreStruct.canChange(
-                    tempEndowment.settingsController.withdrawFee.delegate,
+                    tempEndowment.settingsController.withdrawFee,
                     msg.sender,
                     tempEndowment.owner,
                     block.timestamp
@@ -229,7 +229,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         } else if (setting == AngelCoreStruct.ControllerSettingOption.DepositFee) {
            require(
                 AngelCoreStruct.canChange(
-                    tempEndowment.settingsController.depositFee.delegate,
+                    tempEndowment.settingsController.depositFee,
                     msg.sender,
                     tempEndowment.owner,
                     block.timestamp
@@ -239,7 +239,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         } else if (setting == AngelCoreStruct.ControllerSettingOption.BalanceFee) {
            require(
                 AngelCoreStruct.canChange(
-                    tempEndowment.settingsController.balanceFee.delegate,
+                    tempEndowment.settingsController.balanceFee,
                     msg.sender,
                     tempEndowment.owner,
                     block.timestamp
@@ -249,7 +249,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         } else if (setting == AngelCoreStruct.ControllerSettingOption.Name) {
            require(
                 AngelCoreStruct.canChange(
-                    tempEndowment.settingsController.name.delegate,
+                    tempEndowment.settingsController.name,
                     msg.sender,
                     tempEndowment.owner,
                     block.timestamp
@@ -259,7 +259,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         } else if (setting == AngelCoreStruct.ControllerSettingOption.Image) {
            require(
                 AngelCoreStruct.canChange(
-                    tempEndowment.settingsController.image.delegate,
+                    tempEndowment.settingsController.image,
                     msg.sender,
                     tempEndowment.owner,
                     block.timestamp
@@ -269,7 +269,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         } else if (setting == AngelCoreStruct.ControllerSettingOption.Logo) {
            require(
                 AngelCoreStruct.canChange(
-                    tempEndowment.settingsController.logo.delegate,
+                    tempEndowment.settingsController.logo,
                     msg.sender,
                     tempEndowment.owner,
                     block.timestamp
@@ -279,7 +279,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         } else if (setting == AngelCoreStruct.ControllerSettingOption.Categories) {
            require(
                 AngelCoreStruct.canChange(
-                    tempEndowment.settingsController.categories.delegate,
+                    tempEndowment.settingsController.categories,
                     msg.sender,
                     tempEndowment.owner,
                     block.timestamp
@@ -289,7 +289,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         } else if (setting == AngelCoreStruct.ControllerSettingOption.SplitToLiquid) {
            require(
                 AngelCoreStruct.canChange(
-                    tempEndowment.settingsController.splitToLiquid.delegate,
+                    tempEndowment.settingsController.splitToLiquid,
                     msg.sender,
                     tempEndowment.owner,
                     block.timestamp
@@ -299,7 +299,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         } else if (setting == AngelCoreStruct.ControllerSettingOption.IgnoreUserSplits) {
            require(
                 AngelCoreStruct.canChange(
-                    tempEndowment.settingsController.ignoreUserSplits.delegate,
+                    tempEndowment.settingsController.ignoreUserSplits,
                     msg.sender,
                     tempEndowment.owner,
                     block.timestamp
