@@ -369,10 +369,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AccountsVaultFacet__factory>;
     getContractFactory(
-      name: "AxelarExecutionContract",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.AxelarExecutionContract__factory>;
-    getContractFactory(
       name: "IAccounts",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IAccounts__factory>;
@@ -1214,11 +1210,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.AccountsVaultFacet>;
-    getContractAt(
-      name: "AxelarExecutionContract",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.AxelarExecutionContract>;
     getContractAt(
       name: "IAccounts",
       address: string,

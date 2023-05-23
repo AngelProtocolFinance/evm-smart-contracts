@@ -6,13 +6,11 @@ import {
     AccountsCreateEndowment__factory,
     AccountsDAOEndowments__factory,
     AccountsQueryEndowments__factory,
-    AccountsStrategiesUpdateEndowments__factory,
     AccountsSwapEndowments__factory,
     AccountsUpdateEndowmentSettingsController__factory,
     AccountsUpdateEndowments__factory,
     AccountsUpdateStatusEndowments__factory,
     AccountsVaultFacet__factory,
-    AxelarExecutionContract__factory,
 } from "typechain-types"
 import { getContractName, logger } from "utils"
 
@@ -40,7 +38,6 @@ const facets: string[] = [
     getContractName(AccountsSwapEndowments__factory),
     getContractName(AccountsUpdateEndowments__factory),
     getContractName(AccountsUpdateEndowmentSettingsController__factory),
-    getContractName(AxelarExecutionContract__factory),
     getContractName(AccountsUpdateStatusEndowments__factory),
     getContractName(AccountDepositWithdrawEndowments__factory),
     getContractName(AccountsVaultFacet__factory),

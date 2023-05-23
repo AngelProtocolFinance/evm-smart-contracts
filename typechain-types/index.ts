@@ -184,8 +184,6 @@ export type { AccountsUpdateStatusEndowments } from "./contracts/core/accounts/f
 export { AccountsUpdateStatusEndowments__factory } from "./factories/contracts/core/accounts/facets/AccountsUpdateStatusEndowments__factory";
 export type { AccountsVaultFacet } from "./contracts/core/accounts/facets/AccountsVaultFacet";
 export { AccountsVaultFacet__factory } from "./factories/contracts/core/accounts/facets/AccountsVaultFacet__factory";
-export type { AxelarExecutionContract } from "./contracts/core/accounts/facets/AxelarCallExecutor.sol/AxelarExecutionContract";
-export { AxelarExecutionContract__factory } from "./factories/contracts/core/accounts/facets/AxelarCallExecutor.sol/AxelarExecutionContract__factory";
 export type { IAccounts } from "./contracts/core/accounts/IAccounts";
 export { IAccounts__factory } from "./factories/contracts/core/accounts/IAccounts__factory";
 export type { IAccountDeployContract } from "./contracts/core/accounts/interfaces/IAccountDeployContract";
