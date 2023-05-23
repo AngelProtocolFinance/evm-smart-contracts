@@ -210,6 +210,8 @@ export declare namespace AngelCoreStruct {
 
   export type SettingsControllerStruct = {
     strategies: AngelCoreStruct.DelegateStruct;
+    lockedInvestmentManagement: AngelCoreStruct.DelegateStruct;
+    liquidInvestmentManagement: AngelCoreStruct.DelegateStruct;
     allowlistedBeneficiaries: AngelCoreStruct.DelegateStruct;
     allowlistedContributors: AngelCoreStruct.DelegateStruct;
     maturityAllowlist: AngelCoreStruct.DelegateStruct;
@@ -239,9 +241,13 @@ export declare namespace AngelCoreStruct {
     AngelCoreStruct.DelegateStructOutput,
     AngelCoreStruct.DelegateStructOutput,
     AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
     AngelCoreStruct.DelegateStructOutput
   ] & {
     strategies: AngelCoreStruct.DelegateStructOutput;
+    lockedInvestmentManagement: AngelCoreStruct.DelegateStructOutput;
+    liquidInvestmentManagement: AngelCoreStruct.DelegateStructOutput;
     allowlistedBeneficiaries: AngelCoreStruct.DelegateStructOutput;
     allowlistedContributors: AngelCoreStruct.DelegateStructOutput;
     maturityAllowlist: AngelCoreStruct.DelegateStructOutput;
@@ -650,7 +656,7 @@ export interface IAccountsInterface extends utils.Interface {
   functions: {
     "closeEndowment(uint32,((uint32,uint256,address),uint8))": FunctionFragment;
     "copycatStrategies(uint32,uint8,uint256)": FunctionFragment;
-    "createEndowment((address,bool,uint256,uint256,string,(uint256[],uint256[]),uint256,uint8,string,string,address[],bool,uint256,(uint8,(uint256,uint256)),address[],address[],uint256,uint256,uint256,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))),bool,uint256,((address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256)),uint32,address[],bool,(uint256,uint256,uint256),uint256))": FunctionFragment;
+    "createEndowment((address,bool,uint256,uint256,string,(uint256[],uint256[]),uint256,uint8,string,string,address[],bool,uint256,(uint8,(uint256,uint256)),address[],address[],uint256,uint256,uint256,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))),bool,uint256,((address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256)),uint32,address[],bool,(uint256,uint256,uint256),uint256))": FunctionFragment;
     "depositERC20(address,(uint32,uint256,uint256),address,uint256)": FunctionFragment;
     "queryConfig()": FunctionFragment;
     "queryEndowmentDetails(uint32)": FunctionFragment;

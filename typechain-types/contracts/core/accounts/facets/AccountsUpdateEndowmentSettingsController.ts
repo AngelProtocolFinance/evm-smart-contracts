@@ -179,6 +179,8 @@ export declare namespace AngelCoreStruct {
 
   export type SettingsControllerStruct = {
     strategies: AngelCoreStruct.DelegateStruct;
+    lockedInvestmentManagement: AngelCoreStruct.DelegateStruct;
+    liquidInvestmentManagement: AngelCoreStruct.DelegateStruct;
     allowlistedBeneficiaries: AngelCoreStruct.DelegateStruct;
     allowlistedContributors: AngelCoreStruct.DelegateStruct;
     maturityAllowlist: AngelCoreStruct.DelegateStruct;
@@ -208,9 +210,13 @@ export declare namespace AngelCoreStruct {
     AngelCoreStruct.DelegateStructOutput,
     AngelCoreStruct.DelegateStructOutput,
     AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
     AngelCoreStruct.DelegateStructOutput
   ] & {
     strategies: AngelCoreStruct.DelegateStructOutput;
+    lockedInvestmentManagement: AngelCoreStruct.DelegateStructOutput;
+    liquidInvestmentManagement: AngelCoreStruct.DelegateStructOutput;
     allowlistedBeneficiaries: AngelCoreStruct.DelegateStructOutput;
     allowlistedContributors: AngelCoreStruct.DelegateStructOutput;
     maturityAllowlist: AngelCoreStruct.DelegateStructOutput;
@@ -521,7 +527,7 @@ export declare namespace AccountMessages {
 export interface AccountsUpdateEndowmentSettingsControllerInterface
   extends utils.Interface {
   functions: {
-    "updateEndowmentController((uint32,((address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256))))": FunctionFragment;
+    "updateEndowmentController((uint32,((address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256))))": FunctionFragment;
     "updateEndowmentFees((uint32,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool)))": FunctionFragment;
     "updateEndowmentSettings((uint32,bool,uint256,address[],address[],address[],address[],(uint256,uint256,uint256),bool))": FunctionFragment;
   };
