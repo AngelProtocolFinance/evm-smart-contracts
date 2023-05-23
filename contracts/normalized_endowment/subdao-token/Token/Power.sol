@@ -427,8 +427,7 @@ contract Power {
   */
   function generalLog(uint256 x) internal pure returns (uint256) {
     uint256 res = 0;
-    uint256 x = x;
-
+    
     // If x >= 2, then we compute the integer part of log2(x), which is larger than 0.
     if (x >= FIXED_2) {
       uint8 count = floorLog2(x / FIXED_1);
@@ -455,8 +454,6 @@ contract Power {
   */
   function floorLog2(uint256 n) internal pure returns (uint8) {
     uint8 res = 0;
-    uint256 n = n;
-
     if (n < 256) {
       // At most 8 iterations
       while (n > 1) {
