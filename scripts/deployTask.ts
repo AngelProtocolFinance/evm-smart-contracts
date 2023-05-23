@@ -10,11 +10,11 @@ import { deployIndexFund } from 'contracts/core/index-fund/scripts/deploy'
 import { deployEndowmentMultiSig } from 'contracts/normalized_endowment/endowment-multisig/scripts/deploy'
 import { deployHaloImplementation } from 'contracts/halo/scripts/deploy'
 import { charityApplications } from 'contracts/multisigs/charity_applications/scripts/deploy'
+import { deployEmitters } from 'contracts/normalized_endowment/scripts/deployEmitter'
+import { deployGiftCard } from 'contracts/accessory/gift-cards/scripts/deploy'
+// import { deployFundraising } from 'contracts/accessory/fundraising/scripts/deploy'
 
 import config from 'config'
-import { deployEmitters } from 'contracts/normalized_endowment/scripts/deployEmitter'
-// import { giftCard } from 'contracts/accessory/gift-cards/scripts/deploy'
-// import { deployFundraising } from 'contracts/accessory/fundraising/scripts/deploy'
 
 var ANGEL_CORE_STRUCT: Contract;
 var STRING_LIBRARY: Contract;

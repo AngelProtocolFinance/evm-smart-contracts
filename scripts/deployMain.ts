@@ -10,12 +10,12 @@ import { charityApplications } from "contracts/multisigs/charity_applications/sc
 import { deployMultisig } from "contracts/multisigs/scripts/deploy"
 import { deployEndowmentMultiSig } from "contracts/normalized_endowment/endowment-multisig/scripts/deploy"
 import { deployImplementation } from "contracts/normalized_endowment/scripts/deployImplementation"
+// import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
+import { deployGiftCard } from "contracts/accessory/gift-cards/scripts/deploy"
+import { deployEmitters } from "contracts/normalized_endowment/scripts/deployEmitter"
 
 import hre from "hardhat"
 import config from "config"
-import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
-import { giftCard } from "contracts/accessory/gift-cards/scripts/deploy"
-import { deployEmitters } from "contracts/normalized_endowment/scripts/deployEmitter"
 
 var ANGEL_CORE_STRUCT: Contract
 var STRING_LIBRARY: Contract
