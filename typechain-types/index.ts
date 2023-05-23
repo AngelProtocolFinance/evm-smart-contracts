@@ -346,10 +346,6 @@ export type { IBasicToken } from "./contracts/normalized_endowment/incentivised-
 export { IBasicToken__factory } from "./factories/contracts/normalized_endowment/incentivised-voting/lib/shared/IBasicToken__factory";
 export type { IERC20WithCheckpointing } from "./contracts/normalized_endowment/incentivised-voting/lib/shared/IERC20WithCheckpointing";
 export { IERC20WithCheckpointing__factory } from "./factories/contracts/normalized_endowment/incentivised-voting/lib/shared/IERC20WithCheckpointing__factory";
-export type { ILockedWithdraw } from "./contracts/normalized_endowment/locked-withdraw/interfaces/ILockedWithdraw";
-export { ILockedWithdraw__factory } from "./factories/contracts/normalized_endowment/locked-withdraw/interfaces/ILockedWithdraw__factory";
-export type { LockedWithdraw } from "./contracts/normalized_endowment/locked-withdraw/LockedWithdraw";
-export { LockedWithdraw__factory } from "./factories/contracts/normalized_endowment/locked-withdraw/LockedWithdraw__factory";
 export type { SubDaoToken } from "./contracts/normalized_endowment/subdao-token/subdao-token.sol/SubDaoToken";
 export { SubDaoToken__factory } from "./factories/contracts/normalized_endowment/subdao-token/subdao-token.sol/SubDaoToken__factory";
 export type { BancorBondingCurve } from "./contracts/normalized_endowment/subdao-token/Token/BancorBondingCurve";

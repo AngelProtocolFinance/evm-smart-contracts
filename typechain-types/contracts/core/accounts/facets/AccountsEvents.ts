@@ -176,6 +176,7 @@ export declare namespace AngelCoreStruct {
     allowlistedContributors: AngelCoreStruct.DelegateStruct;
     maturityAllowlist: AngelCoreStruct.DelegateStruct;
     maturityTime: AngelCoreStruct.DelegateStruct;
+    earlyLockedWithdrawFee: AngelCoreStruct.DelegateStruct;
     withdrawFee: AngelCoreStruct.DelegateStruct;
     depositFee: AngelCoreStruct.DelegateStruct;
     balanceFee: AngelCoreStruct.DelegateStruct;
@@ -203,6 +204,7 @@ export declare namespace AngelCoreStruct {
     AngelCoreStruct.DelegateStructOutput,
     AngelCoreStruct.DelegateStructOutput,
     AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
     AngelCoreStruct.DelegateStructOutput
   ] & {
     strategies: AngelCoreStruct.DelegateStructOutput;
@@ -212,6 +214,7 @@ export declare namespace AngelCoreStruct {
     allowlistedContributors: AngelCoreStruct.DelegateStructOutput;
     maturityAllowlist: AngelCoreStruct.DelegateStructOutput;
     maturityTime: AngelCoreStruct.DelegateStructOutput;
+    earlyLockedWithdrawFee: AngelCoreStruct.DelegateStructOutput;
     withdrawFee: AngelCoreStruct.DelegateStructOutput;
     depositFee: AngelCoreStruct.DelegateStructOutput;
     balanceFee: AngelCoreStruct.DelegateStructOutput;
@@ -335,6 +338,7 @@ export declare namespace AccountStorage {
     allowlistedBeneficiaries: PromiseOrValue<string>[];
     allowlistedContributors: PromiseOrValue<string>[];
     maturityAllowlist: PromiseOrValue<string>[];
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStruct;
     withdrawFee: AngelCoreStruct.EndowmentFeeStruct;
     depositFee: AngelCoreStruct.EndowmentFeeStruct;
     balanceFee: AngelCoreStruct.EndowmentFeeStruct;
@@ -371,6 +375,7 @@ export declare namespace AccountStorage {
     AngelCoreStruct.EndowmentFeeStructOutput,
     AngelCoreStruct.EndowmentFeeStructOutput,
     AngelCoreStruct.EndowmentFeeStructOutput,
+    AngelCoreStruct.EndowmentFeeStructOutput,
     AngelCoreStruct.SettingsControllerStructOutput,
     number,
     boolean,
@@ -399,6 +404,7 @@ export declare namespace AccountStorage {
     allowlistedBeneficiaries: string[];
     allowlistedContributors: string[];
     maturityAllowlist: string[];
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
     withdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
     depositFee: AngelCoreStruct.EndowmentFeeStructOutput;
     balanceFee: AngelCoreStruct.EndowmentFeeStructOutput;

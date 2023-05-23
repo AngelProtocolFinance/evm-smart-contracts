@@ -25,7 +25,7 @@ library AccountMessages {
         uint256 splitMax;
         uint256 splitMin;
         uint256 splitDefault;
-        AngelCoreStruct.EndowmentFee earningsFee;
+        AngelCoreStruct.EndowmentFee earlyLockedWithdrawFee;
         AngelCoreStruct.EndowmentFee withdrawFee;
         AngelCoreStruct.EndowmentFee depositFee;
         AngelCoreStruct.EndowmentFee balanceFee;
@@ -164,7 +164,7 @@ library AccountMessages {
 
     struct UpdateEndowmentFeeRequest {
         uint32 id;
-        AngelCoreStruct.EndowmentFee earningsFee;
+        AngelCoreStruct.EndowmentFee earlyLockedWithdrawFee;
         AngelCoreStruct.EndowmentFee depositFee;
         AngelCoreStruct.EndowmentFee withdrawFee;
         AngelCoreStruct.EndowmentFee balanceFee;

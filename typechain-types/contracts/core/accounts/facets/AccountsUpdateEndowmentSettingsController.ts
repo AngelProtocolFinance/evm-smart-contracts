@@ -185,6 +185,7 @@ export declare namespace AngelCoreStruct {
     allowlistedContributors: AngelCoreStruct.DelegateStruct;
     maturityAllowlist: AngelCoreStruct.DelegateStruct;
     maturityTime: AngelCoreStruct.DelegateStruct;
+    earlyLockedWithdrawFee: AngelCoreStruct.DelegateStruct;
     withdrawFee: AngelCoreStruct.DelegateStruct;
     depositFee: AngelCoreStruct.DelegateStruct;
     balanceFee: AngelCoreStruct.DelegateStruct;
@@ -212,6 +213,7 @@ export declare namespace AngelCoreStruct {
     AngelCoreStruct.DelegateStructOutput,
     AngelCoreStruct.DelegateStructOutput,
     AngelCoreStruct.DelegateStructOutput,
+    AngelCoreStruct.DelegateStructOutput,
     AngelCoreStruct.DelegateStructOutput
   ] & {
     strategies: AngelCoreStruct.DelegateStructOutput;
@@ -221,6 +223,7 @@ export declare namespace AngelCoreStruct {
     allowlistedContributors: AngelCoreStruct.DelegateStructOutput;
     maturityAllowlist: AngelCoreStruct.DelegateStructOutput;
     maturityTime: AngelCoreStruct.DelegateStructOutput;
+    earlyLockedWithdrawFee: AngelCoreStruct.DelegateStructOutput;
     withdrawFee: AngelCoreStruct.DelegateStructOutput;
     depositFee: AngelCoreStruct.DelegateStructOutput;
     balanceFee: AngelCoreStruct.DelegateStructOutput;
@@ -344,6 +347,7 @@ export declare namespace AccountStorage {
     allowlistedBeneficiaries: PromiseOrValue<string>[];
     allowlistedContributors: PromiseOrValue<string>[];
     maturityAllowlist: PromiseOrValue<string>[];
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStruct;
     withdrawFee: AngelCoreStruct.EndowmentFeeStruct;
     depositFee: AngelCoreStruct.EndowmentFeeStruct;
     balanceFee: AngelCoreStruct.EndowmentFeeStruct;
@@ -380,6 +384,7 @@ export declare namespace AccountStorage {
     AngelCoreStruct.EndowmentFeeStructOutput,
     AngelCoreStruct.EndowmentFeeStructOutput,
     AngelCoreStruct.EndowmentFeeStructOutput,
+    AngelCoreStruct.EndowmentFeeStructOutput,
     AngelCoreStruct.SettingsControllerStructOutput,
     number,
     boolean,
@@ -408,6 +413,7 @@ export declare namespace AccountStorage {
     allowlistedBeneficiaries: string[];
     allowlistedContributors: string[];
     maturityAllowlist: string[];
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
     withdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
     depositFee: AngelCoreStruct.EndowmentFeeStructOutput;
     balanceFee: AngelCoreStruct.EndowmentFeeStructOutput;
@@ -469,7 +475,7 @@ export declare namespace AccountMessages {
 
   export type UpdateEndowmentFeeRequestStruct = {
     id: PromiseOrValue<BigNumberish>;
-    earningsFee: AngelCoreStruct.EndowmentFeeStruct;
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStruct;
     depositFee: AngelCoreStruct.EndowmentFeeStruct;
     withdrawFee: AngelCoreStruct.EndowmentFeeStruct;
     balanceFee: AngelCoreStruct.EndowmentFeeStruct;
@@ -483,7 +489,7 @@ export declare namespace AccountMessages {
     AngelCoreStruct.EndowmentFeeStructOutput
   ] & {
     id: number;
-    earningsFee: AngelCoreStruct.EndowmentFeeStructOutput;
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
     depositFee: AngelCoreStruct.EndowmentFeeStructOutput;
     withdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
     balanceFee: AngelCoreStruct.EndowmentFeeStructOutput;
@@ -527,7 +533,7 @@ export declare namespace AccountMessages {
 export interface AccountsUpdateEndowmentSettingsControllerInterface
   extends utils.Interface {
   functions: {
-    "updateEndowmentController((uint32,((address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256))))": FunctionFragment;
+    "updateEndowmentController((uint32,((address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256))))": FunctionFragment;
     "updateEndowmentFees((uint32,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool)))": FunctionFragment;
     "updateEndowmentSettings((uint32,bool,uint256,address[],address[],address[],address[],(uint256,uint256,uint256),bool))": FunctionFragment;
   };
