@@ -1,7 +1,7 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 
-import { saveFrontendFiles } from 'scripts/readWriteFile'
+import { saveFrontendFiles } from "utils"
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { RegistrarMessages } from "typechain-types/contracts/core/registrar/registrar.sol/Registrar"
 

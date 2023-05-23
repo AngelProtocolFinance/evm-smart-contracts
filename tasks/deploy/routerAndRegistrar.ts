@@ -4,7 +4,7 @@ import type { TaskArguments } from "hardhat/types"
 import { Registrar, Registrar__factory, Router, Router__factory } from "typechain-types"
 import { logger } from "utils"
 import addresses from "contract-address.json"
-import { saveFrontendFiles } from 'scripts/readWriteFile'
+import { saveFrontendFiles } from "utils"
 
 // Goerli addresses
 // Axelar Gateway:      0xe432150cce91c13a887f7D836923d5597adD8E31

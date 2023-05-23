@@ -11,11 +11,10 @@ import { deployMultisig } from "contracts/multisigs/scripts/deploy"
 import { deployEndowmentMultiSig } from "contracts/normalized_endowment/endowment-multisig/scripts/deploy"
 import { deployImplementation } from "contracts/normalized_endowment/scripts/deployImplementation"
 // import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
-import { deployGiftCard } from "contracts/accessory/gift-cards/scripts/deploy"
 import { deployEmitters } from "contracts/normalized_endowment/scripts/deployEmitter"
 
-import hre from "hardhat"
 import config from "config"
+import hre from "hardhat"
 
 var ANGEL_CORE_STRUCT: Contract
 var STRING_LIBRARY: Contract
@@ -32,8 +31,7 @@ let addressWriter: AddressWriter = {}
 import { Contract } from "ethers"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import { APTeamMultiSig, ApplicationsMultiSig } from "typechain-types"
-import { cleanFile, saveFrontendFiles } from "./readWriteFile"
-import { isLocalNetwork } from "utils"
+import { cleanFile, isLocalNetwork, saveFrontendFiles } from "utils"
 
 async function deployLibraries(verify_contracts: boolean, hre: HardhatRuntimeEnvironment) {
     try {
@@ -425,7 +423,7 @@ export async function main(apTeamAdmins = []) {
             haloAddress,
             haloGovContract: haloAddress.Gov.GovProxy,
             timelockContract: haloAddress.Gov.TimeLock,
-            votingERC20: haloAddress.Gov.VotingERC20Proxy
+            votingERC20: haloAddress.Gov.VotingERC20Proxy,
         }
 
         await saveFrontendFiles({ addressWriter })

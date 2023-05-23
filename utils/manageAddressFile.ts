@@ -12,11 +12,7 @@ export const cleanFile = () => {
 
             fs.writeFileSync(
                 path.join(contractsDir, "contract-address.json"),
-                JSON.stringify(
-                    { INFO: "ALL ADDRESS ARE MENTIONED INTO THIS FILE" },
-                    undefined,
-                    2
-                )
+                JSON.stringify({ INFO: "ALL ADDRESS ARE MENTIONED INTO THIS FILE" }, undefined, 2)
             )
             resolve(true)
         } catch (e) {
@@ -34,19 +30,13 @@ export const saveFrontendFiles = (addressesObj: object) => {
                 fs.mkdirSync(contractsDir)
             }
 
-            const jsonData = fs.readFileSync(
-                path.join(contractsDir, "contract-address.json"),
-                "utf-8"
-            )
+            const jsonData = fs.readFileSync(path.join(contractsDir, "contract-address.json"), "utf-8")
 
             const data = JSON.parse(jsonData)
 
             Object.assign(data, addressesObj)
 
-            fs.writeFileSync(
-                path.join(contractsDir, "contract-address.json"),
-                JSON.stringify(data, undefined, 2)
-            )
+            fs.writeFileSync(path.join(contractsDir, "contract-address.json"), JSON.stringify(data, undefined, 2))
             resolve(true)
         } catch (e) {
             reject(e)

@@ -1,5 +1,5 @@
 import path from "path"
-import { saveFrontendFiles } from "scripts/readWriteFile"
+import { saveFrontendFiles } from "utils"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import { GiftCardsMessage } from "typechain-types/contracts/accessory/gift-cards/GiftCards"
 

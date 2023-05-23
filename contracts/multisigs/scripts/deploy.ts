@@ -4,7 +4,7 @@
 import path from 'path'
 import { charityApplications } from '../charity_applications/scripts/deploy'
 import config from 'config'
-import { saveFrontendFiles } from 'scripts/readWriteFile'
+import { saveFrontendFiles } from "utils"
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { ApplicationsMultiSig, APTeamMultiSig } from 'typechain-types'
 // import { IndexFundMessage } from "typechain-types/contracts/core/index-fund/IndexFund"

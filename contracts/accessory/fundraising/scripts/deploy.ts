@@ -2,7 +2,7 @@
 // yours, or create new ones.
 
 import path from "path"
-import { saveFrontendFiles } from "scripts/readWriteFile"
+import { saveFrontendFiles } from "utils"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import { FundraisingMessage } from "typechain-types/contracts/accessory/fundraising/Fundraising"
 

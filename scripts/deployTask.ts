@@ -28,7 +28,7 @@ let updateConfig;
 interface AddressWriter { [key: string]: string | AddressWriter }
 let addressWriter: AddressWriter = {}; 
 
-import { saveFrontendFiles, cleanFile } from './readWriteFile'
+import { saveFrontendFiles, cleanFile } from 'utils'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { Contract } from 'ethers'
 import { APTeamMultiSig, ApplicationsMultiSig } from 'typechain-types'

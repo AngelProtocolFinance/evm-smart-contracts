@@ -2,7 +2,7 @@
 // yours, or create new ones.
 
 import { HardhatRuntimeEnvironment } from "hardhat/types"
-import { saveFrontendFiles } from 'scripts/readWriteFile'
+import { saveFrontendFiles } from "utils"
 import { DonationMatchMessages } from "typechain-types/contracts/normalized_endowment/donation-match/DonationMatch.sol/DonationMatch";
 
 const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';

@@ -1,6 +1,5 @@
 import { task } from "hardhat/config"
-import { saveFrontendFiles } from "scripts/readWriteFile"
-import { logger } from "utils"
+import { saveFrontendFiles, logger} from "utils"
 
 task("Deploy:DeployLibraries", "Will deploy Libraries")
     .addParam("verify", "Want to verify contract")

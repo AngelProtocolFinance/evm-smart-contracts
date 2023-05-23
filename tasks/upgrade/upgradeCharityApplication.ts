@@ -1,6 +1,6 @@
 import addresses from "contract-address.json"
 import { task } from "hardhat/config"
-import { saveFrontendFiles } from "scripts/readWriteFile"
+import { saveFrontendFiles } from "utils"
 import { CharityApplication__factory } from "typechain-types"
 import { logger, shouldVerify } from "utils"
 

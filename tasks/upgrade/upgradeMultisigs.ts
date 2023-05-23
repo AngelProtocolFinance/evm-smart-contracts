@@ -1,7 +1,7 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import addresses from "contract-address.json"
 import { task } from "hardhat/config"
-import { saveFrontendFiles } from "scripts/readWriteFile"
+import { saveFrontendFiles } from "utils"
 import {
     APTeamMultiSig__factory,
     ApplicationsMultiSig__factory,

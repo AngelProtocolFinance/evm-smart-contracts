@@ -2,7 +2,7 @@ const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
 
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import config from 'config'
-import { saveFrontendFiles } from 'scripts/readWriteFile'
+import { saveFrontendFiles } from "utils"
 import { IndexFundMessage } from "typechain-types/contracts/core/index-fund/IndexFund"
 
 export async function deployIndexFund(initFactoryData: IndexFundMessage.InstantiateMessageStruct, verify_contracts: boolean, hre: HardhatRuntimeEnvironment) {

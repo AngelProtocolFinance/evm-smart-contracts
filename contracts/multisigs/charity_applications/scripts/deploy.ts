@@ -5,7 +5,7 @@ import { BigNumberish } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { CharityApplication__factory } from "typechain-types"
 import { PromiseOrValue } from 'typechain-types/common'
-import { saveFrontendFiles } from 'scripts/readWriteFile'
+import { saveFrontendFiles } from "utils"
 
 type InitializeParamsType = [
     PromiseOrValue<BigNumberish>,
