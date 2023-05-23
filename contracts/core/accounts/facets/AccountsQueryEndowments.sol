@@ -71,7 +71,8 @@ contract AccountsQueryEndowments {
             maxGeneralCategoryId: state.config.maxGeneralCategoryId,
             subDao: state.config.subDao,
             gateway: state.config.gateway,
-            gasReceiver: state.config.gasReceiver
+            gasReceiver: state.config.gasReceiver,
+            earlyLockedWithdrawFee: state.config.earlyLockedWithdrawFee
         });
     }
 

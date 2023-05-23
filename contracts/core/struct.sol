@@ -615,24 +615,41 @@ library AngelCoreStruct {
         );
     }
 
+    function canChange(
+        SettingsPermission storage permissions,
+        address sender,
+        address owner,
+        uint256 envTime
+    ) public view returns (bool) {
+        // can be changed if:
+        // 1. sender is a valid delegate address and their powers have not expired
+        // 2. sender is the endow owner && (no set delegate || an expired delegate) (ie. owner must first revoke their delegation)
+        return !permissions.locked || canTakeAction(permissions.delegate, sender, envTime) || sender == owner;
+    }
+
+    struct SettingsPermission {
+        bool locked;
+        Delegate delegate;
+    }
+
     struct SettingsController {
-        Delegate strategies;
-        Delegate lockedInvestmentManagement;
-        Delegate liquidInvestmentManagement;
-        Delegate allowlistedBeneficiaries;
-        Delegate allowlistedContributors;
-        Delegate maturityAllowlist;
-        Delegate maturityTime;
-        Delegate earlyLockedWithdrawFee;
-        Delegate withdrawFee;
-        Delegate depositFee;
-        Delegate balanceFee;
-        Delegate name;
-        Delegate image;
-        Delegate logo;
-        Delegate categories;
-        Delegate splitToLiquid;
-        Delegate ignoreUserSplits;
+        SettingsPermission strategies;
+        SettingsPermission lockedInvestmentManagement;
+        SettingsPermission liquidInvestmentManagement;
+        SettingsPermission allowlistedBeneficiaries;
+        SettingsPermission allowlistedContributors;
+        SettingsPermission maturityAllowlist;
+        SettingsPermission maturityTime;
+        SettingsPermission earlyLockedWithdrawFee;
+        SettingsPermission withdrawFee;
+        SettingsPermission depositFee;
+        SettingsPermission balanceFee;
+        SettingsPermission name;
+        SettingsPermission image;
+        SettingsPermission logo;
+        SettingsPermission categories;
+        SettingsPermission splitToLiquid;
+        SettingsPermission ignoreUserSplits;
     }
 
     enum ControllerSettingOption {
@@ -664,18 +681,6 @@ library AngelCoreStruct {
 
     uint256 constant FEE_BASIS = 1000;      // gives 0.1% precision for fees
     uint256 constant PERCENT_BASIS = 100;   // gives 1% precision for declared percentages
-
-    function canChange(
-        Delegate storage delegate,
-        address sender,
-        address owner,
-        uint256 envTime
-    ) public view returns (bool) {
-        // can be changed if:
-        // 1. sender is a valid delegate address and their powers have not expired
-        // 2. sender is the endow owner && (no set delegate || an expired delegate) (ie. owner must first revoke their delegation)
-        return canTakeAction(delegate, sender, envTime) || sender == owner;
-    }
 
     enum Status {
         None,

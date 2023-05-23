@@ -37,11 +37,7 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
             registrarAddress
         ).queryConfig();
 
-        AngelCoreStruct.EndowmentFee memory earlyLockedWithdrawFee = AngelCoreStruct.EndowmentFee({
-            payoutAddress: registrar_config.treasury,
-            feePercentage: 100, // 10% fee placeholder. TO DO: change later if needed!
-            active: true
-        });
+        AngelCoreStruct.EndowmentFee memory earlyLockedWithdrawFee = state.config.earlyLockedWithdrawFee;
         if (AngelCoreStruct.EndowmentType.Charity == details.endowType) {
             require(
                 msg.sender == registrar_config.charityProposal,
@@ -132,24 +128,7 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                 referralId: details.referralId
             });
 
-        // state.STATES[state.config.nextAccountId] = AccountStorage
-        //     .EndowmentState({
-        //         donationsReceived: AngelCoreStruct.donationsReceivedDefault(),
-        //         closingEndowment: false,
-        //         closingBeneficiary: AngelCoreStruct.beneficiaryDefault(),
-        //         balances: AngelCoreStruct.BalanceInfo({
-        //             locked: AngelCoreStruct.GenericBalance,
-        //             liquid: AngelCoreStruct.GenericBalance
-        //         }),
-        //         lockedForever: false
-        //     });
         state.STATES[state.config.nextAccountId].closingEndowment = false;
-        state.STATES[state.config.nextAccountId].lockedForever = false;
-
-        // emit UpdateEndowmentState(
-        //     state.config.nextAccountId,
-        //     state.STATES[state.config.nextAccountId]
-        // );
 
         state.ENDOWMENTS[state.config.nextAccountId].owner = IEndowmentMultiSigFactory(registrar_config.multisigFactory)
             .create(

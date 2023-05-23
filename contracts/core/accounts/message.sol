@@ -100,6 +100,7 @@ library AccountMessages {
         address subDao;
         address gateway;
         address gasReceiver;
+        AngelCoreStruct.EndowmentFee earlyLockedWithdrawFee;
     }
 
     struct StateResponse {
