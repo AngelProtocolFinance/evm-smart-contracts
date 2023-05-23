@@ -12,7 +12,7 @@ async function deploy() {
 
   const network = await ethers.provider.getNetwork()
 
-  let rawdata = fs.readFileSync('address.json', "utf8")
+  let rawdata = fs.readFileSync("contract-address.json", "utf8")
   let address: any = JSON.parse(rawdata)
 
   logger.divider()
@@ -34,11 +34,11 @@ async function deploy() {
   logger.pad(30, "Deployed to:", router.address);
 
   logger.divider()
-  logger.out("Writing to address.json", logger.Level.Info)
+  logger.out("Writing to contract-address.json", logger.Level.Info)
 
   address[network.chainId] = router.address
   const json = JSON.stringify(address, null, 2)
-  fs.writeFileSync('address.json', json, "utf8")
+  fs.writeFileSync("contract-address.json", json, "utf8")
 }
 
 deploy().catch((error) => {

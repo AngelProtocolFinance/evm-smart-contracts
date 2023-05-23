@@ -12,7 +12,7 @@ task("manage:registrar:setStratApproval")
     logger.divider()
     logger.out("Connecting to registrar on specified network...")
     const network = await hre.ethers.provider.getNetwork()
-    let rawdata = fs.readFileSync('address.json', "utf8")
+    let rawdata = fs.readFileSync("contract-address.json", "utf8")
     let addresses: any = JSON.parse(rawdata)
     const registrarAddress = addresses[network.chainId]["registrar"]["proxy"]
     const registrar = await hre.ethers.getContractAt("Registrar",registrarAddress) as Registrar

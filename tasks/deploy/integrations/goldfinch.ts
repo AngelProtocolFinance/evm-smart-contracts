@@ -21,7 +21,7 @@ task("deploy:integrations:goldfinch")
   .addParam("usdc", "address of the USDC token", "", types.string)
   .addParam("fidu", "address of the FIDU token", "", types.string)
   .addParam("gfi", "address of the GFI token", "", types.string)
-  .addOptionalParam("registrar", "address of the registrar. Will do a local lookup from address.json if none is provided", "", types.string)
+  .addOptionalParam("registrar", "address of the registrar. Will do a local lookup from contract-address.json if none is provided", "", types.string)
   .setAction(async function (taskArguments: TaskArguments, hre) {
 
     logger.divider()
@@ -29,7 +29,7 @@ task("deploy:integrations:goldfinch")
     if(taskArguments.registrar == "") {
       logger.out("Connecting to registrar on specified network...")
       const network = await hre.ethers.provider.getNetwork()
-      let rawdata = fs.readFileSync('address.json', "utf8")
+      let rawdata = fs.readFileSync("contract-address.json", "utf8")
       let addresses: any = JSON.parse(rawdata)
       registrarAddress = addresses[network.chainId]["registrar"]["proxy"]
     } else {
@@ -74,15 +74,15 @@ task("deploy:integrations:goldfinch")
 
     // Write data to address json
     logger.divider()
-    logger.out("Writing to address.json", logger.Level.Info)
-    let rawdata = fs.readFileSync('address.json', "utf8")
+    logger.out("Writing to contract-address.json", logger.Level.Info)
+    let rawdata = fs.readFileSync("contract-address.json", "utf8")
     let address: any = JSON.parse(rawdata)
     address[network.chainId]["goldfinch"] = {
         "lockedVault": lockedVault.address,
         "liquidVault": liquidVault.address
     }
     const json = JSON.stringify(address, null, 2)
-    fs.writeFileSync('address.json', json, "utf8")
+    fs.writeFileSync("contract-address.json", json, "utf8")
 
     // Verify contracts on etherscan
     logger.divider()

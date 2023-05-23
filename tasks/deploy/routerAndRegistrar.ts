@@ -53,7 +53,7 @@ task("deploy:RouterAndRegistrar")
     logger.divider()
 
     // Write data to address json
-    logger.out("Writing to address.json", logger.Level.Info)
+    logger.out("Writing to contract-address.json", logger.Level.Info)
     addresses[network.chainId] = 
     {
       "registrar": {

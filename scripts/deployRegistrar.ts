@@ -26,13 +26,13 @@ async function deploy() {
 
 
   logger.divider()
-  logger.out("Writing to address.json", logger.Level.Info)
+  logger.out("Writing to contract-address.json", logger.Level.Info)
 
-  let rawdata = fs.readFileSync('address.json', "utf8")
+  let rawdata = fs.readFileSync("contract-address.json", "utf8")
   let address: any = JSON.parse(rawdata)
   address[network.chainId] = {"registrar": registrar.address}
   const json = JSON.stringify(address, null, 2)
-  fs.writeFileSync('address.json', json, "utf8")
+  fs.writeFileSync("contract-address.json", json, "utf8")
 }
 
 deploy().catch((error) => {
