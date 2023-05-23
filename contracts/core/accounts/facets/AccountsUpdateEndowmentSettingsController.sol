@@ -51,28 +51,24 @@ contract AccountsUpdateEndowmentSettingsController is
         require(!state.STATES[details.id].lockedForever, "Settings are locked forever");
 
         if (tempEndowment.endowType != AngelCoreStruct.EndowmentType.Charity) {
-            // If the maturity time is not perpetual nor has the maturity time occured, then changes can be made.
-            if (tempEndowment.maturityTime > block.timestamp) {
-                // Changes must be to a future time OR changing to a perpetual maturity
-                require(details.maturityTime > block.timestamp || details.maturityTime == 0, "Invalid maturity time input");
+            // when maturity time is <= 0 it means it's not set, i.e. the AST is perpetual
+            if (tempEndowment.maturityTime <= 0 || tempEndowment.maturityTime > block.timestamp) {
                 if (
                     AngelCoreStruct.canChange(
-                        tempEndowment.settingsController.maturityTime,
+                        tempEndowment.settingsController.maturityTime.delegate,
                         msg.sender,
                         tempEndowment.owner,
                         block.timestamp
                     )
                 ) {
+                    // Changes must be to a future time OR changing to a perpetual maturity
+                    require(details.maturityTime > block.timestamp || details.maturityTime == 0, "Invalid maturity time input");
                     tempEndowment.maturityTime = details.maturityTime;
                     emit EndowmentSettingUpdated(details.id, "maturityTime");
                 }
-            }
-
-            // when maturity time is <= 0 it means it's not set, i.e. the AST is perpetual
-            if (tempEndowment.maturityTime <= 0 || tempEndowment.maturityTime > block.timestamp) {
                 if (
                     AngelCoreStruct.canChange(
-                        tempEndowment.settingsController.allowlistedBeneficiaries,
+                        tempEndowment.settingsController.allowlistedBeneficiaries.delegate,
                         msg.sender,
                         tempEndowment.owner,
                         block.timestamp
@@ -87,7 +83,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
                 if (
                     AngelCoreStruct.canChange(
-                        tempEndowment.settingsController.allowlistedContributors,
+                        tempEndowment.settingsController.allowlistedContributors.delegate,
                         msg.sender,
                         tempEndowment.owner,
                         block.timestamp
@@ -101,7 +97,7 @@ contract AccountsUpdateEndowmentSettingsController is
                 }
                 if (
                     AngelCoreStruct.canChange(
-                        tempEndowment.settingsController.maturityAllowlist,
+                        tempEndowment.settingsController.maturityAllowlist.delegate,
                         msg.sender,
                         tempEndowment.owner,
                         block.timestamp
@@ -150,7 +146,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.splitToLiquid,
+                tempEndowment.settingsController.splitToLiquid.delegate,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -162,7 +158,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.ignoreUserSplits,
+                tempEndowment.settingsController.ignoreUserSplits.delegate,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -226,7 +222,7 @@ contract AccountsUpdateEndowmentSettingsController is
         if (
             tempEndowment.endowType == AngelCoreStruct.EndowmentType.Normal && 
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.earlyLockedWithdrawFee,
+                tempEndowment.settingsController.earlyLockedWithdrawFee.delegate,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -237,7 +233,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.depositFee,
+                tempEndowment.settingsController.depositFee.delegate,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -248,7 +244,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.withdrawFee,
+                tempEndowment.settingsController.withdrawFee.delegate,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -259,7 +255,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.balanceFee,
+                tempEndowment.settingsController.balanceFee.delegate,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp

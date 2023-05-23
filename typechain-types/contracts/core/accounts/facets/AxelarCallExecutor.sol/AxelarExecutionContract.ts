@@ -175,62 +175,72 @@ export declare namespace AngelCoreStruct {
     expires: BigNumber;
   };
 
+  export type SettingsPermissionStruct = {
+    locked: PromiseOrValue<boolean>;
+    delegate: AngelCoreStruct.DelegateStruct;
+  };
+
+  export type SettingsPermissionStructOutput = [
+    boolean,
+    AngelCoreStruct.DelegateStructOutput
+  ] & { locked: boolean; delegate: AngelCoreStruct.DelegateStructOutput };
+
   export type SettingsControllerStruct = {
-    strategies: AngelCoreStruct.DelegateStruct;
-    lockedInvestmentManagement: AngelCoreStruct.DelegateStruct;
-    liquidInvestmentManagement: AngelCoreStruct.DelegateStruct;
-    allowlistedBeneficiaries: AngelCoreStruct.DelegateStruct;
-    allowlistedContributors: AngelCoreStruct.DelegateStruct;
-    maturityAllowlist: AngelCoreStruct.DelegateStruct;
-    maturityTime: AngelCoreStruct.DelegateStruct;
-    earlyLockedWithdrawFee: AngelCoreStruct.DelegateStruct;
-    withdrawFee: AngelCoreStruct.DelegateStruct;
-    depositFee: AngelCoreStruct.DelegateStruct;
-    balanceFee: AngelCoreStruct.DelegateStruct;
-    name: AngelCoreStruct.DelegateStruct;
-    image: AngelCoreStruct.DelegateStruct;
-    logo: AngelCoreStruct.DelegateStruct;
-    categories: AngelCoreStruct.DelegateStruct;
-    splitToLiquid: AngelCoreStruct.DelegateStruct;
-    ignoreUserSplits: AngelCoreStruct.DelegateStruct;
+    strategies: AngelCoreStruct.SettingsPermissionStruct;
+    lockedInvestmentManagement: AngelCoreStruct.SettingsPermissionStruct;
+    liquidInvestmentManagement: AngelCoreStruct.SettingsPermissionStruct;
+    allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStruct;
+    allowlistedContributors: AngelCoreStruct.SettingsPermissionStruct;
+    maturityAllowlist: AngelCoreStruct.SettingsPermissionStruct;
+    maturityTime: AngelCoreStruct.SettingsPermissionStruct;
+    earlyLockedWithdrawFee: AngelCoreStruct.SettingsPermissionStruct;
+    withdrawFee: AngelCoreStruct.SettingsPermissionStruct;
+    depositFee: AngelCoreStruct.SettingsPermissionStruct;
+    balanceFee: AngelCoreStruct.SettingsPermissionStruct;
+    name: AngelCoreStruct.SettingsPermissionStruct;
+    image: AngelCoreStruct.SettingsPermissionStruct;
+    logo: AngelCoreStruct.SettingsPermissionStruct;
+    categories: AngelCoreStruct.SettingsPermissionStruct;
+    splitToLiquid: AngelCoreStruct.SettingsPermissionStruct;
+    ignoreUserSplits: AngelCoreStruct.SettingsPermissionStruct;
   };
 
   export type SettingsControllerStructOutput = [
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput
   ] & {
-    strategies: AngelCoreStruct.DelegateStructOutput;
-    lockedInvestmentManagement: AngelCoreStruct.DelegateStructOutput;
-    liquidInvestmentManagement: AngelCoreStruct.DelegateStructOutput;
-    allowlistedBeneficiaries: AngelCoreStruct.DelegateStructOutput;
-    allowlistedContributors: AngelCoreStruct.DelegateStructOutput;
-    maturityAllowlist: AngelCoreStruct.DelegateStructOutput;
-    maturityTime: AngelCoreStruct.DelegateStructOutput;
-    earlyLockedWithdrawFee: AngelCoreStruct.DelegateStructOutput;
-    withdrawFee: AngelCoreStruct.DelegateStructOutput;
-    depositFee: AngelCoreStruct.DelegateStructOutput;
-    balanceFee: AngelCoreStruct.DelegateStructOutput;
-    name: AngelCoreStruct.DelegateStructOutput;
-    image: AngelCoreStruct.DelegateStructOutput;
-    logo: AngelCoreStruct.DelegateStructOutput;
-    categories: AngelCoreStruct.DelegateStructOutput;
-    splitToLiquid: AngelCoreStruct.DelegateStructOutput;
-    ignoreUserSplits: AngelCoreStruct.DelegateStructOutput;
+    strategies: AngelCoreStruct.SettingsPermissionStructOutput;
+    lockedInvestmentManagement: AngelCoreStruct.SettingsPermissionStructOutput;
+    liquidInvestmentManagement: AngelCoreStruct.SettingsPermissionStructOutput;
+    allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStructOutput;
+    allowlistedContributors: AngelCoreStruct.SettingsPermissionStructOutput;
+    maturityAllowlist: AngelCoreStruct.SettingsPermissionStructOutput;
+    maturityTime: AngelCoreStruct.SettingsPermissionStructOutput;
+    earlyLockedWithdrawFee: AngelCoreStruct.SettingsPermissionStructOutput;
+    withdrawFee: AngelCoreStruct.SettingsPermissionStructOutput;
+    depositFee: AngelCoreStruct.SettingsPermissionStructOutput;
+    balanceFee: AngelCoreStruct.SettingsPermissionStructOutput;
+    name: AngelCoreStruct.SettingsPermissionStructOutput;
+    image: AngelCoreStruct.SettingsPermissionStructOutput;
+    logo: AngelCoreStruct.SettingsPermissionStructOutput;
+    categories: AngelCoreStruct.SettingsPermissionStructOutput;
+    splitToLiquid: AngelCoreStruct.SettingsPermissionStructOutput;
+    ignoreUserSplits: AngelCoreStruct.SettingsPermissionStructOutput;
   };
 
   export type SplitDetailsStruct = {

@@ -54,7 +54,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
         // that they have the power to manage the investments for an account balance
         if (lockAmt > 0) {
             require(AngelCoreStruct.canChange(
-                tempEndowment.settingsController.lockedInvestmentManagement,
+                tempEndowment.settingsController.lockedInvestmentManagement.delegate,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -62,7 +62,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
         }
         if (liquidAmt > 0) {
             require(AngelCoreStruct.canChange(
-                tempEndowment.settingsController.liquidInvestmentManagement,
+                tempEndowment.settingsController.liquidInvestmentManagement.delegate,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -152,7 +152,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
         // that they have the power to manage the investments for an account balance
         if (lockAmt > 0) {
             require(AngelCoreStruct.canChange(
-                tempEndowment.settingsController.lockedInvestmentManagement,
+                tempEndowment.settingsController.lockedInvestmentManagement.delegate,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -160,7 +160,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
         }
         if (liquidAmt > 0) {
             require(AngelCoreStruct.canChange(
-                tempEndowment.settingsController.liquidInvestmentManagement,
+                tempEndowment.settingsController.liquidInvestmentManagement.delegate,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp

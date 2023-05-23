@@ -54,7 +54,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.name,
+                tempEndowment.settingsController.name.delegate,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -65,7 +65,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.categories,
+                tempEndowment.settingsController.categories.delegate,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -111,7 +111,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.logo,
+                tempEndowment.settingsController.logo.delegate,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -122,7 +122,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.image,
+                tempEndowment.settingsController.image.delegate,
                 msg.sender,
                 tempEndowment.owner,
                 block.timestamp
@@ -167,47 +167,145 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         }
 
         if (setting == AngelCoreStruct.ControllerSettingOption.Strategies) {
-           require(AngelCoreStruct.canChange(tempEndowment.settingsController.strategies, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
-           tempEndowment.settingsController.strategies = newDelegate;
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.strategies.delegate,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.strategies.delegate = newDelegate;
         } else if (setting == AngelCoreStruct.ControllerSettingOption.AllowlistedBeneficiaries) {
-           require(AngelCoreStruct.canChange(tempEndowment.settingsController.allowlistedBeneficiaries, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
-           tempEndowment.settingsController.allowlistedBeneficiaries = newDelegate;
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.allowlistedBeneficiaries.delegate,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.allowlistedBeneficiaries.delegate = newDelegate;
         } else if (setting == AngelCoreStruct.ControllerSettingOption.AllowlistedContributors) {
-           require(AngelCoreStruct.canChange(tempEndowment.settingsController.allowlistedContributors, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
-           tempEndowment.settingsController.allowlistedContributors = newDelegate;
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.allowlistedContributors.delegate,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.allowlistedContributors.delegate = newDelegate;
         } else if (setting == AngelCoreStruct.ControllerSettingOption.MaturityAllowlist) {
-           require(AngelCoreStruct.canChange(tempEndowment.settingsController.maturityAllowlist, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
-           tempEndowment.settingsController.maturityAllowlist = newDelegate;
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.maturityAllowlist.delegate,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.maturityAllowlist.delegate = newDelegate;
         } else if (setting == AngelCoreStruct.ControllerSettingOption.MaturityTime) {
-           require(AngelCoreStruct.canChange(tempEndowment.settingsController.maturityTime, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
-           tempEndowment.settingsController.maturityTime = newDelegate;
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.maturityTime.delegate,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.maturityTime.delegate = newDelegate;
         } else if (setting == AngelCoreStruct.ControllerSettingOption.WithdrawFee) {
-           require(AngelCoreStruct.canChange(tempEndowment.settingsController.withdrawFee, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
-           tempEndowment.settingsController.withdrawFee = newDelegate;
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.withdrawFee.delegate,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.withdrawFee.delegate = newDelegate;
         } else if (setting == AngelCoreStruct.ControllerSettingOption.DepositFee) {
-           require(AngelCoreStruct.canChange(tempEndowment.settingsController.depositFee, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
-           tempEndowment.settingsController.depositFee = newDelegate;
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.depositFee.delegate,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.depositFee.delegate = newDelegate;
         } else if (setting == AngelCoreStruct.ControllerSettingOption.BalanceFee) {
-           require(AngelCoreStruct.canChange(tempEndowment.settingsController.balanceFee, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
-           tempEndowment.settingsController.balanceFee = newDelegate;
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.balanceFee.delegate,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.balanceFee.delegate = newDelegate;
         } else if (setting == AngelCoreStruct.ControllerSettingOption.Name) {
-           require(AngelCoreStruct.canChange(tempEndowment.settingsController.name, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
-           tempEndowment.settingsController.name = newDelegate;
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.name.delegate,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.name.delegate = newDelegate;
         } else if (setting == AngelCoreStruct.ControllerSettingOption.Image) {
-           require(AngelCoreStruct.canChange(tempEndowment.settingsController.image, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
-           tempEndowment.settingsController.image = newDelegate;
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.image.delegate,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.image.delegate = newDelegate;
         } else if (setting == AngelCoreStruct.ControllerSettingOption.Logo) {
-           require(AngelCoreStruct.canChange(tempEndowment.settingsController.logo, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
-           tempEndowment.settingsController.logo = newDelegate;
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.logo.delegate,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.logo.delegate = newDelegate;
         } else if (setting == AngelCoreStruct.ControllerSettingOption.Categories) {
-           require(AngelCoreStruct.canChange(tempEndowment.settingsController.categories, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
-           tempEndowment.settingsController.categories = newDelegate;
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.categories.delegate,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.categories.delegate = newDelegate;
         } else if (setting == AngelCoreStruct.ControllerSettingOption.SplitToLiquid) {
-           require(AngelCoreStruct.canChange(tempEndowment.settingsController.splitToLiquid, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
-           tempEndowment.settingsController.splitToLiquid = newDelegate;
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.splitToLiquid.delegate,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.splitToLiquid.delegate = newDelegate;
         } else if (setting == AngelCoreStruct.ControllerSettingOption.IgnoreUserSplits) {
-           require(AngelCoreStruct.canChange(tempEndowment.settingsController.ignoreUserSplits, msg.sender, tempEndowment.owner, block.timestamp), "Unauthorized");
-           tempEndowment.settingsController.ignoreUserSplits = newDelegate;
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.ignoreUserSplits.delegate,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.ignoreUserSplits.delegate = newDelegate;
         } else {
             revert("Invalid setting input");
         }
