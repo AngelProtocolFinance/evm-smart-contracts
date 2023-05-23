@@ -14,7 +14,6 @@ import {
     AccountsUpdateStatusEndowments__factory,
     AccountsUpdate__factory,
     AccountsVaultFacet__factory,
-    AxelarExecutionContract__factory,
     DiamondLoupeFacet__factory,
     OwnershipFacet__factory,
 } from "typechain-types"
@@ -72,7 +71,6 @@ async function getFactories(
         new AccountsUpdate__factory(diamondOwner),
         new AccountsQueryEndowments__factory(diamondOwner),
         new AccountsVaultFacet__factory(diamondOwner),
-        new AxelarExecutionContract__factory(diamondOwner),
         new AccountsUpdateStatusEndowments__factory(diamondOwner),
         // core lib
         new AccountsAllowance__factory({ "contracts/core/struct.sol:AngelCoreStruct": corestruct }, diamondOwner),
