@@ -1,6 +1,7 @@
 import { task } from "hardhat/config"
 import config from "config"
 import { deployLockedWithdraw } from "contracts/normalized_endowment/locked-withdraw/scripts/deploy"
+import { logger } from "utils"
 
 task(
     "Deploy:deployLockedWithdraw",
@@ -23,6 +24,6 @@ task(
             var isTrueSet = taskArgs.verify === "true";
             await deployLockedWithdraw(config.PROXY_ADMIN_ADDRESS, LockedWithdrawDataInput, isTrueSet, hre);
         } catch (error) {
-            console.log(error);
+            logger.out(error, logger.Level.Error)
         }
     });

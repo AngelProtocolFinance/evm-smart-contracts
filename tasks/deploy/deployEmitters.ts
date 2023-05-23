@@ -1,5 +1,6 @@
 import { task } from "hardhat/config"
 import { deployEmitters } from "contracts/normalized_endowment/scripts/deployEmitter"
+import { logger } from "utils"
 
 task("Deploy:deployEmitters", "Will deploy Emitters contract")
     .addParam("verify", "Want to verify contract")
@@ -10,6 +11,6 @@ task("Deploy:deployEmitters", "Will deploy Emitters contract")
 
             await deployEmitters(taskArgs.accountaddress, isTrueSet, hre);
         } catch (error) {
-            console.log(error);
+            logger.out(error, logger.Level.Error)
         }
     });

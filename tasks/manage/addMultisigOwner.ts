@@ -2,6 +2,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { task } from "hardhat/config"
 import type { TaskArguments } from "hardhat/types"
 import { MultiSigGeneric } from "typechain-types"
+import { logger } from "utils"
 
 task("manage:addMultisigOwner", "Will add the specified address to the multisig as an owner")
     .addParam("multisig", "Address of multisig")
@@ -16,12 +17,12 @@ task("manage:addMultisigOwner", "Will add the specified address to the multisig 
 
             const multisig = (await hre.ethers.getContractAt("MultiSigGeneric", taskArguments.multisig)) as MultiSigGeneric
 
-            console.log("Current owners")
+            logger.out("Current owners")
             let currentOwners = await multisig.getOwners()
-            console.log(currentOwners)
+            logger.out(currentOwners)
 
-            console.log("Adding new owner:")
-            console.log(taskArguments.owner)
+            logger.out("Adding new owner:")
+            logger.out(taskArguments.owner)
             const { data } = await multisig.populateTransaction.addOwner(taskArguments.owner)
             const addOwnerData = hre.ethers.utils.toUtf8Bytes(data!)
 
@@ -30,14 +31,15 @@ task("manage:addMultisigOwner", "Will add the specified address to the multisig 
                 "add ap team 3 as owner", //description
                 multisig.address, //destination,
                 0, //value
-                addOwnerData //data)
+                addOwnerData, //data)
+                "0x"
             )
             await hre.ethers.provider.waitForTransaction(tx.hash)
 
-            console.log("Owner addition successful. New owner list:")
+            logger.out("Owner addition successful. New owner list:")
             currentOwners = await multisig.getOwners()
-            console.log(currentOwners)
+            logger.out(currentOwners)
         } catch (error) {
-            console.log(error)
+            logger.out(error, logger.Level.Error)
         }
     })

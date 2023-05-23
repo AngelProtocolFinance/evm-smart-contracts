@@ -77,7 +77,7 @@ task("deploy:RouterAndRegistrar")
       })
     } catch (error){
       logger.out("Caught the following error while trying to verify registrar:", logger.Level.Warn)
-      logger.out(error)
+      logger.out(error, logger.Level.Error)
     }
     try {
       await hre.run("verify:verify", {
@@ -86,6 +86,6 @@ task("deploy:RouterAndRegistrar")
       })
     } catch (error){
       logger.out("Caught the following error while trying to verify router:", logger.Level.Warn)
-      logger.out(error)
+      logger.out(error, logger.Level.Error)
     }
   })
