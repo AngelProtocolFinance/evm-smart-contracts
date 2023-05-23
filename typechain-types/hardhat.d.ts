@@ -705,6 +705,14 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20WithCheckpointing__factory>;
     getContractFactory(
+      name: "ILockedWithdraw",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ILockedWithdraw__factory>;
+    getContractFactory(
+      name: "LockedWithdraw",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.LockedWithdraw__factory>;
+    getContractFactory(
       name: "SubDaoToken",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.SubDaoToken__factory>;
@@ -1626,6 +1634,16 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.IERC20WithCheckpointing>;
+    getContractAt(
+      name: "ILockedWithdraw",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ILockedWithdraw>;
+    getContractAt(
+      name: "LockedWithdraw",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.LockedWithdraw>;
     getContractAt(
       name: "SubDaoToken",
       address: string,

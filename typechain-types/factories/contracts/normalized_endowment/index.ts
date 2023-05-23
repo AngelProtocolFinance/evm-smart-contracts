@@ -4,5 +4,6 @@
 export * as donationMatch from "./donation-match";
 export * as endowmentMultisig from "./endowment-multisig";
 export * as incentivisedVoting from "./incentivised-voting";
+export * as lockedWithdraw from "./locked-withdraw";
 export * as subdao from "./subdao";
 export * as subdaoToken from "./subdao-token";
