@@ -23,13 +23,13 @@ contract MultiSigGeneric is
         _;
     }
 
-    modifier ownerDoesNotExist(address owner) {
-        require(!isOwner[owner]);
+    modifier ownerDoesNotExist(address _owner) {
+        require(!isOwner[_owner]);
         _;
     }
 
-    modifier ownerExists(address owner) {
-        require(isOwner[owner]);
+    modifier ownerExists(address _owner) {
+        require(isOwner[_owner]);
         _;
     }
 
@@ -38,13 +38,13 @@ contract MultiSigGeneric is
         _;
     }
 
-    modifier confirmed(uint256 transactionId, address owner) {
-        require(confirmations[transactionId][owner]);
+    modifier confirmed(uint256 transactionId, address _owner) {
+        require(confirmations[transactionId][_owner]);
         _;
     }
 
-    modifier notConfirmed(uint256 transactionId, address owner) {
-        require(!confirmations[transactionId][owner]);
+    modifier notConfirmed(uint256 transactionId, address _owner) {
+        require(!confirmations[transactionId][_owner]);
         _;
     }
 
@@ -58,12 +58,12 @@ contract MultiSigGeneric is
         _;
     }
 
-    modifier validRequirement(uint256 ownerCount, uint256 required) {
+    modifier validRequirement(uint256 _ownerCount, uint256 _required) {
         require(
-            ownerCount <= MAX_OWNER_COUNT &&
-                required <= ownerCount &&
-                required != 0 &&
-                ownerCount != 0
+            _ownerCount <= MAX_OWNER_COUNT &&
+                _required <= _ownerCount &&
+                _required != 0 &&
+                _ownerCount != 0
         );
         _;
     }
@@ -82,92 +82,93 @@ contract MultiSigGeneric is
      * Public functions
      */
     /// @dev Contract constructor sets initial owners and required number of confirmations.
-    /// @param owners List of initial owners.
-    /// @param required Number of required confirmations.
+    /// @param _owners List of initial owners.
+    /// @param _required Number of required confirmations.
+    /// @param _requireExecution setting for if an explicit execution call is required 
     function initialize(
-        address[] memory owners,
-        uint256 required,
-        bool requireexecution
-    ) public virtual initializer validRequirement(owners.length, required) {
-        for (uint256 i = 0; i < owners.length; i++) {
-            require(!isOwner[owners[i]] && owners[i] != address(0));
-            isOwner[owners[i]] = true;
+        address[] memory _owners,
+        uint256 _required,
+        bool _requireExecution
+    ) public virtual initializer validRequirement(_owners.length, _required) {
+        for (uint256 i = 0; i < _owners.length; i++) {
+            require(!isOwner[_owners[i]] && _owners[i] != address(0));
+            isOwner[_owners[i]] = true;
         }
-        owners = owners;
-        required = required;
-        requireExecution = requireexecution;
+        owners = _owners;
+        required = _required;
+        requireExecution = _requireExecution;
     }
 
     /// @dev Allows to add a new owner. Transaction has to be sent by wallet.
-    /// @param owner Address of new owner.
-    function addOwner(address owner)
+    /// @param _owner Address of new owner.
+    function addOwner(address _owner)
         public
         virtual
         override
         onlyWallet
-        ownerDoesNotExist(owner)
-        notNull(owner)
+        ownerDoesNotExist(_owner)
+        notNull(_owner)
         validRequirement(owners.length + 1, required)
     {
-        isOwner[owner] = true;
-        owners.push(owner);
-        emit OwnerAddition(owner);
+        isOwner[_owner] = true;
+        owners.push(_owner);
+        emit OwnerAddition(_owner);
     }
 
     /// @dev Allows to remove an owner. Transaction has to be sent by wallet.
-    /// @param owner Address of owner.
-    function removeOwner(address owner)
+    /// @param _owner Address of owner.
+    function removeOwner(address _owner)
         public
         virtual
         override
         onlyWallet
-        ownerExists(owner)
+        ownerExists(_owner)
     {
-        isOwner[owner] = false;
+        isOwner[_owner] = false;
         for (uint256 i = 0; i < owners.length - 1; i++)
-            if (owners[i] == owner) {
+            if (owners[i] == _owner) {
                 owners[i] = owners[owners.length - 1];
                 break;
             }
         // TODO check if pops from back
         owners.pop();
         if (required > owners.length) changeRequirement(owners.length);
-        emit OwnerRemoval(owner);
+        emit OwnerRemoval(_owner);
     }
 
     /// @dev Allows to replace an owner with a new owner. Transaction has to be sent by wallet.
-    /// @param owner Address of owner to be replaced.
-    /// @param newOwner Address of new owner.
-    function replaceOwner(address owner, address newOwner)
+    /// @param _owner Address of owner to be replaced.
+    /// @param _newOwner Address of new owner.
+    function replaceOwner(address _owner, address _newOwner)
         public
         virtual
         override
         onlyWallet
-        ownerExists(owner)
-        ownerDoesNotExist(newOwner)
+        ownerExists(_owner)
+        ownerDoesNotExist(_newOwner)
     {
         for (uint256 i = 0; i < owners.length; i++)
-            if (owners[i] == owner) {
-                owners[i] = newOwner;
+            if (owners[i] == _owner) {
+                owners[i] = _newOwner;
                 break;
             }
-        isOwner[owner] = false;
-        isOwner[newOwner] = true;
-        emit OwnerRemoval(owner);
-        emit OwnerAddition(newOwner);
+        isOwner[_owner] = false;
+        isOwner[_newOwner] = true;
+        emit OwnerRemoval(_owner);
+        emit OwnerAddition(_newOwner);
     }
 
     /// @dev Allows to change the number of required confirmations. Transaction has to be sent by wallet.
-    /// @param required Number of required confirmations.
-    function changeRequirement(uint256 required)
+    /// @param _required Number of required confirmations.
+    function changeRequirement(uint256 _required)
         public
         virtual
         override
         onlyWallet
-        validRequirement(owners.length, required)
+        validRequirement(owners.length, _required)
     {
-        required = required;
-        emit RequirementChange(required);
+        required = _required;
+        emit RequirementChange(_required);
     }
 
     /// @dev Allows an owner to submit and confirm a transaction.
