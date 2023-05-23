@@ -444,6 +444,7 @@ export declare namespace AccountStorage {
     gateway: PromiseOrValue<string>;
     gasReceiver: PromiseOrValue<string>;
     reentrancyGuardLocked: PromiseOrValue<boolean>;
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStruct;
   };
 
   export type ConfigStructOutput = [
@@ -455,7 +456,8 @@ export declare namespace AccountStorage {
     string,
     string,
     string,
-    boolean
+    boolean,
+    AngelCoreStruct.EndowmentFeeStructOutput
   ] & {
     owner: string;
     version: string;
@@ -466,6 +468,7 @@ export declare namespace AccountStorage {
     gateway: string;
     gasReceiver: string;
     reentrancyGuardLocked: boolean;
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
   };
 }
 

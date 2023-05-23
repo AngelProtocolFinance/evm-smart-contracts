@@ -37,18 +37,14 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
             registrarAddress
         ).queryConfig();
 
-        AngelCoreStruct.EndowmentFee memory earlyLockedWithdrawFee = AngelCoreStruct.EndowmentFee({
-            payoutAddress: registrar_config.treasury,
-            feePercentage: 0,
-            active: true
-        });
+        AngelCoreStruct.EndowmentFee memory earlyLockedWithdrawFee = state.config.earlyLockedWithdrawFee;
         if (AngelCoreStruct.EndowmentType.Charity == details.endowType) {
             require(
                 msg.sender == registrar_config.charityProposal,
                 "Unauthorized"
             );
         } else {
-            earlyLockedWithdrawFee=details.earlyLockedWithdrawFee;
+            earlyLockedWithdrawFee = details.earlyLockedWithdrawFee;
         }
 
         if (details.members.length == 0) {

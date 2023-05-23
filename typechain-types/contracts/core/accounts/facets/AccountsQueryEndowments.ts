@@ -21,56 +21,19 @@ import type {
   PromiseOrValue,
 } from "../../../../common";
 
-export declare namespace AccountMessages {
-  export type ConfigResponseStruct = {
-    owner: PromiseOrValue<string>;
-    version: PromiseOrValue<string>;
-    registrarContract: PromiseOrValue<string>;
-    nextAccountId: PromiseOrValue<BigNumberish>;
-    maxGeneralCategoryId: PromiseOrValue<BigNumberish>;
-    subDao: PromiseOrValue<string>;
-    gateway: PromiseOrValue<string>;
-    gasReceiver: PromiseOrValue<string>;
-  };
-
-  export type ConfigResponseStructOutput = [
-    string,
-    string,
-    string,
-    BigNumber,
-    BigNumber,
-    string,
-    string,
-    string
-  ] & {
-    owner: string;
-    version: string;
-    registrarContract: string;
-    nextAccountId: BigNumber;
-    maxGeneralCategoryId: BigNumber;
-    subDao: string;
-    gateway: string;
-    gasReceiver: string;
-  };
-
-  export type StateResponseStruct = {
-    donationsReceived: AngelCoreStruct.DonationsReceivedStruct;
-    closingEndowment: PromiseOrValue<boolean>;
-    closingBeneficiary: AngelCoreStruct.BeneficiaryStruct;
-  };
-
-  export type StateResponseStructOutput = [
-    AngelCoreStruct.DonationsReceivedStructOutput,
-    boolean,
-    AngelCoreStruct.BeneficiaryStructOutput
-  ] & {
-    donationsReceived: AngelCoreStruct.DonationsReceivedStructOutput;
-    closingEndowment: boolean;
-    closingBeneficiary: AngelCoreStruct.BeneficiaryStructOutput;
-  };
-}
-
 export declare namespace AngelCoreStruct {
+  export type EndowmentFeeStruct = {
+    payoutAddress: PromiseOrValue<string>;
+    feePercentage: PromiseOrValue<BigNumberish>;
+    active: PromiseOrValue<boolean>;
+  };
+
+  export type EndowmentFeeStructOutput = [string, BigNumber, boolean] & {
+    payoutAddress: string;
+    feePercentage: BigNumber;
+    active: boolean;
+  };
+
   export type CategoriesStruct = {
     sdgs: PromiseOrValue<BigNumberish>[];
     general: PromiseOrValue<BigNumberish>[];
@@ -117,18 +80,6 @@ export declare namespace AngelCoreStruct {
     lockedAmount: BigNumber[];
     liquid: string[];
     liquidAmount: BigNumber[];
-  };
-
-  export type EndowmentFeeStruct = {
-    payoutAddress: PromiseOrValue<string>;
-    feePercentage: PromiseOrValue<BigNumberish>;
-    active: PromiseOrValue<boolean>;
-  };
-
-  export type EndowmentFeeStructOutput = [string, BigNumber, boolean] & {
-    payoutAddress: string;
-    feePercentage: BigNumber;
-    active: boolean;
   };
 
   export type DelegateStruct = {
@@ -252,6 +203,58 @@ export declare namespace AngelCoreStruct {
     AngelCoreStruct.BeneficiaryDataStructOutput,
     number
   ] & { data: AngelCoreStruct.BeneficiaryDataStructOutput; enumData: number };
+}
+
+export declare namespace AccountMessages {
+  export type ConfigResponseStruct = {
+    owner: PromiseOrValue<string>;
+    version: PromiseOrValue<string>;
+    registrarContract: PromiseOrValue<string>;
+    nextAccountId: PromiseOrValue<BigNumberish>;
+    maxGeneralCategoryId: PromiseOrValue<BigNumberish>;
+    subDao: PromiseOrValue<string>;
+    gateway: PromiseOrValue<string>;
+    gasReceiver: PromiseOrValue<string>;
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStruct;
+  };
+
+  export type ConfigResponseStructOutput = [
+    string,
+    string,
+    string,
+    BigNumber,
+    BigNumber,
+    string,
+    string,
+    string,
+    AngelCoreStruct.EndowmentFeeStructOutput
+  ] & {
+    owner: string;
+    version: string;
+    registrarContract: string;
+    nextAccountId: BigNumber;
+    maxGeneralCategoryId: BigNumber;
+    subDao: string;
+    gateway: string;
+    gasReceiver: string;
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
+  };
+
+  export type StateResponseStruct = {
+    donationsReceived: AngelCoreStruct.DonationsReceivedStruct;
+    closingEndowment: PromiseOrValue<boolean>;
+    closingBeneficiary: AngelCoreStruct.BeneficiaryStruct;
+  };
+
+  export type StateResponseStructOutput = [
+    AngelCoreStruct.DonationsReceivedStructOutput,
+    boolean,
+    AngelCoreStruct.BeneficiaryStructOutput
+  ] & {
+    donationsReceived: AngelCoreStruct.DonationsReceivedStructOutput;
+    closingEndowment: boolean;
+    closingBeneficiary: AngelCoreStruct.BeneficiaryStructOutput;
+  };
 }
 
 export declare namespace LocalRegistrarLib {

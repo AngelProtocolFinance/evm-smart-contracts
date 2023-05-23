@@ -15,6 +15,7 @@ library AccountStorage {
         address gateway;
         address gasReceiver;
         bool reentrancyGuardLocked;
+        AngelCoreStruct.EndowmentFee earlyLockedWithdrawFee;
     }
 
     struct Endowment {

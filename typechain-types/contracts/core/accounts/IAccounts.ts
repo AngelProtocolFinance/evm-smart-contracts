@@ -462,6 +462,7 @@ export declare namespace AccountMessages {
     subDao: PromiseOrValue<string>;
     gateway: PromiseOrValue<string>;
     gasReceiver: PromiseOrValue<string>;
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStruct;
   };
 
   export type ConfigResponseStructOutput = [
@@ -472,7 +473,8 @@ export declare namespace AccountMessages {
     BigNumber,
     string,
     string,
-    string
+    string,
+    AngelCoreStruct.EndowmentFeeStructOutput
   ] & {
     owner: string;
     version: string;
@@ -482,6 +484,7 @@ export declare namespace AccountMessages {
     subDao: string;
     gateway: string;
     gasReceiver: string;
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
   };
 
   export type StateResponseStruct = {
