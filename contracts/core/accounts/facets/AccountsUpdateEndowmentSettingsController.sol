@@ -52,9 +52,9 @@ contract AccountsUpdateEndowmentSettingsController is
 
         if (tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity) {
             // If the maturity time is not perpetual nor has the maturity time occured, then changes can be made.
-            if (tempEndowment.maturityTime > 0 && tempEndowment.maturityTime > block.timestamp) {
+            if (tempEndowment.maturityTime > block.timestamp) {
                 // Changes must be to a future time OR changing to a perpetual maturity
-                require(details.maturityTime > block.timestamp || details.maturityTime == 0, "Invaild maturity time input");
+                require(details.maturityTime > block.timestamp || details.maturityTime == 0, "Invalid maturity time input");
                 if (
                     AngelCoreStruct.canChange(
                         tempEndowment.settingsController.maturityTime,
