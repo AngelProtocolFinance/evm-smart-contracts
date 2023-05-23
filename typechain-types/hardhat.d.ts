@@ -265,6 +265,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ISwapRouter__factory>;
     getContractFactory(
+      name: "GiftCards",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.GiftCards__factory>;
+    getContractFactory(
       name: "AxelarExecutable",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AxelarExecutable__factory>;
@@ -1080,6 +1084,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ISwapRouter>;
+    getContractAt(
+      name: "GiftCards",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.GiftCards>;
     getContractAt(
       name: "AxelarExecutable",
       address: string,
