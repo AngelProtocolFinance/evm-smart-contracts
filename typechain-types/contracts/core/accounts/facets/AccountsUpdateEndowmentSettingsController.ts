@@ -486,6 +486,7 @@ export declare namespace AccountMessages {
   export type UpdateEndowmentSettingsRequestStruct = {
     id: PromiseOrValue<BigNumberish>;
     donationMatchActive: PromiseOrValue<boolean>;
+    maturityTime: PromiseOrValue<BigNumberish>;
     allowlistedBeneficiaries: PromiseOrValue<string>[];
     allowlistedContributors: PromiseOrValue<string>[];
     maturity_allowlist_add: PromiseOrValue<string>[];
@@ -497,6 +498,7 @@ export declare namespace AccountMessages {
   export type UpdateEndowmentSettingsRequestStructOutput = [
     number,
     boolean,
+    BigNumber,
     string[],
     string[],
     string[],
@@ -506,6 +508,7 @@ export declare namespace AccountMessages {
   ] & {
     id: number;
     donationMatchActive: boolean;
+    maturityTime: BigNumber;
     allowlistedBeneficiaries: string[];
     allowlistedContributors: string[];
     maturity_allowlist_add: string[];
@@ -520,7 +523,7 @@ export interface AccountsUpdateEndowmentSettingsControllerInterface
   functions: {
     "updateEndowmentController((uint32,((address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256))))": FunctionFragment;
     "updateEndowmentFees((uint32,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool)))": FunctionFragment;
-    "updateEndowmentSettings((uint32,bool,address[],address[],address[],address[],(uint256,uint256,uint256),bool))": FunctionFragment;
+    "updateEndowmentSettings((uint32,bool,uint256,address[],address[],address[],address[],(uint256,uint256,uint256),bool))": FunctionFragment;
   };
 
   getFunction(

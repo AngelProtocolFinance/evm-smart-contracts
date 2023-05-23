@@ -43,6 +43,7 @@ library AccountMessages {
     struct UpdateEndowmentSettingsRequest {
         uint32 id;
         bool donationMatchActive;
+        uint256 maturityTime;
         address[] allowlistedBeneficiaries;
         address[] allowlistedContributors;
         address[] maturity_allowlist_add;
