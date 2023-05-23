@@ -10,7 +10,7 @@ const EXPORT_CONFIG = {
     NETWORK: process.env.NETWORK,
     OPTIMIZER_FLAG: process.env.OPTIMIZER_FLAG,
     OPTIMIZER_RUNS: process.env.OPTIMIZER_RUNS,
-    PROD: process.env.PROD,
+    PROD_NETWORK_ID: process.env.PROD_NETWORK_ID,
     PROXY_ADMIN_KEY: process.env.PROXY_ADMIN_KEY,
     ROUTER_ADDRESS: process.env.ROUTER_ADDRESS,
     SCAN_API_KEY: process.env.ETHERSCAN_API_KEY,

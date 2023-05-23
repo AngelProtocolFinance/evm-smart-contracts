@@ -14,6 +14,7 @@ import { Collector } from '../collector/scripts/deploy'
 // const ethers = hre.ethers;
 import config from 'config'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import { envConfig } from 'utils'
 
 const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
 
@@ -79,7 +80,7 @@ export async function deployHaloImplementation(
 
 		let halo_code = await ethers.getContractAt('ERC20Upgrade', halo);
 
-		if (!config.PROD) {
+		if (network.config.chainId !== envConfig.PROD_NETWORK_ID) {
 			await halo_code.mint(deployer.address, ethers.utils.parseEther('100000000000000000000000000'));
 		}
 
