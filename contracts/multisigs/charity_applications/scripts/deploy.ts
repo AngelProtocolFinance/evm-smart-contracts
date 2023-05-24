@@ -54,8 +54,8 @@ export async function charityApplications(CharityApplicationDataInput: Initializ
 		await updateAddresses(
 			{
 				charityApplication: {
-					CharityApplicationProxy: CharityApplicationProxy.address,
-                    CharityApplicationImplementation: CharityApplicationInstance.address,
+					proxy: CharityApplicationProxy.address,
+                    implementation: CharityApplicationInstance.address,
 				}
 			},
 			hre

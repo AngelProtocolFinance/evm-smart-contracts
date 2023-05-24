@@ -37,20 +37,20 @@ export type AddressObj = {
         APTeamMultisigImplementation: string
     }
     subDaoEmitter: {
-        SubdaoEmitterProxyAddress: string
-        SubdaoEmitterImplementationAddress: string
+        proxy: string
+        implementation: string
     }
     charityApplication: {
-        CharityApplicationProxy: string
-        CharityApplicationImplementation: string
+        proxy: string
+        implementation: string
     }
     swapRouterAddress2: {
-        swapRouterProxy: string
-        swapRouterImplementation: string
+        proxy: string
+        implementation: string
     }
     indexFundAddress: {
-        indexFundProxy: string
-        indexFundImplementation: string
+        proxy: string
+        implementation: string
     }
     EndowmentMultiSigAddress: {
         EndowmentMultiSigEmitterProxy: string
@@ -59,14 +59,14 @@ export type AddressObj = {
         MultiSigWalletImplementation: string
     }
     lockedWithdraw: {
-        LockedWithdrawImplementation: string
-        LockedWithdrawProxy: string
+        implementation: string
+        proxy: string
     }
     HaloImplementations: {
         DonationMatchImplementation: string
         DonationMatchAddress: {
-            DonationMatchProxy: string
-            DonationMatchImplementation: string
+            proxy: string
+            implementation: string
         }
         SubDaoImplementation: string
         subDaoERC20Implementation: string

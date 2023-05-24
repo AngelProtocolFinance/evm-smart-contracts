@@ -26,8 +26,8 @@ const deploySubDaoEmitter = async (proxyAdmin: string,accountAddress: string,ver
 		await updateAddresses(
 			{
 				subDaoEmitter: {
-					SubdaoEmitterProxyAddress: SubdaoEmitterProxy.address,
-          SubdaoEmitterImplementationAddress: SubdaoEmitterImplementation.address
+					proxy: SubdaoEmitterProxy.address,
+          implementation: SubdaoEmitterImplementation.address
 				}
 			},
 			hre

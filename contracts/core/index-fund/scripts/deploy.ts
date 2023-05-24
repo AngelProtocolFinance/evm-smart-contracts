@@ -38,8 +38,8 @@ export async function deployIndexFund(initFactoryData: IndexFundMessage.Instanti
         await updateAddresses(
             { 
                 indexFundAddress: {
-                    indexFundProxy: IndexFundContractProxy.address,
-                    indexFundImplementation: indexContract.address,
+                    proxy: IndexFundContractProxy.address,
+                    implementation: indexContract.address,
                 }
             },
             hre

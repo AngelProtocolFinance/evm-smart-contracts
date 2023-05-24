@@ -41,10 +41,10 @@ task("manage:updateRegistrar", "Will update the registrar config")
                 donationMatchContract: apTeam1.address, // donation matching contract
 
                 // CONTRACT ADSRESSES
-                indexFundContract: addresses.indexFundAddress.indexFundProxy,
+                indexFundContract: addresses.indexFundAddress.proxy,
                 govContract: apTeam1.address,
                 treasury: apTeam1.address,
-                donationMatchCharitesContract: addresses.HaloImplementations.DonationMatchAddress.DonationMatchProxy,
+                donationMatchCharitesContract: addresses.HaloImplementations.DonationMatchAddress.proxy,
                 donationMatchEmitter: apTeam1.address,
                 haloToken: apTeam1.address,
                 haloTokenLpContract: apTeam1.address,
@@ -57,8 +57,8 @@ task("manage:updateRegistrar", "Will update the registrar config")
                 multisigEmitter:
                     addresses.EndowmentMultiSigAddress
                         .EndowmentMultiSigEmitterProxy,
-                charityProposal: addresses.charityApplication.CharityApplicationProxy,
-                lockedWithdrawal: addresses.lockedWithdraw.LockedWithdrawProxy,
+                charityProposal: addresses.charityApplication.proxy,
+                lockedWithdrawal: addresses.lockedWithdraw.proxy,
                 proxyAdmin: deployer.address,
                 usdcAddress: addresses.tokens.usdc,
                 wethAddress: addresses.tokens.weth,

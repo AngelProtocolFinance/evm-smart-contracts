@@ -35,7 +35,7 @@ task(
             { 
                 charityApplication: {
                     ...addresses.charityApplication,
-                    CharityApplicationImplementation: charityApplicationImpl.address
+                    implementation: charityApplicationImpl.address
                 }
             },
             hre

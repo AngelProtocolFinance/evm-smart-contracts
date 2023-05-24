@@ -85,20 +85,20 @@ const emptyAddressObj: AddressObj = {
         APTeamMultisigImplementation: "",
     },
     subDaoEmitter: {
-        SubdaoEmitterProxyAddress: "",
-        SubdaoEmitterImplementationAddress: "",
+        proxy: "",
+        implementation: "",
     },
     charityApplication: {
-        CharityApplicationProxy: "",
-        CharityApplicationImplementation: "",
+        proxy: "",
+        implementation: "",
     },
     swapRouterAddress2: {
-        swapRouterProxy: "",
-        swapRouterImplementation: "",
+        proxy: "",
+        implementation: "",
     },
     indexFundAddress: {
-        indexFundProxy: "",
-        indexFundImplementation: "",
+        proxy: "",
+        implementation: "",
     },
     EndowmentMultiSigAddress: {
         EndowmentMultiSigEmitterProxy: "",
@@ -107,14 +107,14 @@ const emptyAddressObj: AddressObj = {
         MultiSigWalletImplementation: "",
     },
     lockedWithdraw: {
-        LockedWithdrawImplementation: "",
-        LockedWithdrawProxy: "",
+        implementation: "",
+        proxy: "",
     },
     HaloImplementations: {
         DonationMatchImplementation: "",
         DonationMatchAddress: {
-            DonationMatchProxy: "",
-            DonationMatchImplementation: "",
+            proxy: "",
+            implementation: "",
         },
         SubDaoImplementation: "",
         subDaoERC20Implementation: "",
