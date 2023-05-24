@@ -3,6 +3,32 @@ import path from "path"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import { AddressObj } from "./types"
 
+export async function getAddresses(hre: HardhatRuntimeEnvironment) {
+    const chainId = (await hre.ethers.provider.getNetwork()).chainId
+    return getAddressesByNetworkId(chainId)
+}
+
+export function getAddressesByNetworkId(networkId: string | symbol | number): AddressObj {
+    const addresses = readAllAddresses()
+
+    const key = String(networkId)
+
+    if (!hasKey(addresses, key)) {
+        return createEmpty()
+    }
+
+    return new Proxy(addresses[key], {
+        get: (target, prop) => {
+            const contractKey = String(prop)
+            if (hasKey(target, contractKey) && !!target[contractKey]) {
+                return target[contractKey]
+            } else {
+                throw new Error(`Contract ${contractKey} not deployed on ${key}`)
+            }
+        },
+    })
+}
+
 const readAllAddresses = () => {
     const rootDir = path.join(__dirname, "../")
 
@@ -17,112 +43,89 @@ const readAllAddresses = () => {
     return data
 }
 
-export const getAddressesByNetworkId = (networkId: string | symbol | number) => {
-    const addresses = readAllAddresses()
-
-    const key = String(networkId)
-    
-    if (hasKey(addresses, key)) {
-        return new Proxy(addresses[key], {
-            get: (target, prop) => {
-                const contractKey = String(prop)
-                if (hasKey(target, contractKey) && !!target[contractKey]) {
-                    return target[contractKey]
-                } else {
-                    throw new Error(`Contract ${contractKey} not deployed on ${key}`)
-                }
-            }
-        })
-    } else {
-        // throw new Error(`No contracts deployed to network ID: ${key}`)
-        return structuredClone(emptyAddressObj)
-    }
+function hasKey<T extends object>(obj: T, k: keyof any): k is keyof T {
+    return k in obj
 }
 
-export const getAddresses = async (hre: HardhatRuntimeEnvironment) => {
-    const chainId = (await hre.ethers.provider.getNetwork()).chainId
-    return getAddressesByNetworkId(chainId)
-}
-
-const hasKey = <T extends object>(obj: T, k: keyof any): k is keyof T => k in obj
-
-const emptyAddressObj: AddressObj = {
-    libraries: {
-        STRING_LIBRARY: "",
-        ANGEL_CORE_STRUCT_LIBRARY: "",
-    },
-    accounts: {
-        diamond: ""
-    },
-    fundraising: {
-        implementation: "",
-        library: "",
-        proxy: "",
-    },
-    giftcards: {
-        implementation: "",
-        proxy: "",
-    },
-    goldfinch: {
-        liquidVault: "",
-        lockedVault: ""
-    },
-    registrar: {
-        implementation: "",
-        proxy: "",
-    },
-    router: {
-        implementation: "",
-        proxy: "",
-    },
-    tokens: {
-        halo: "",
-        usdc: "",
-        weth: ""
-    },
-    multiSig: {
-        ApplicationsMultiSigProxy: "",
-        APTeamMultiSigProxy: "",
-        ApplicationMultisigImplementation: "",
-        APTeamMultisigImplementation: "",
-    },
-    subDaoEmitter: {
-        proxy: "",
-        implementation: "",
-    },
-    charityApplication: {
-        proxy: "",
-        implementation: "",
-    },
-    swapRouter: {
-        proxy: "",
-        implementation: "",
-    },
-    indexFund: {
-        proxy: "",
-        implementation: "",
-    },
-    endowmentMultiSig: {
-        emitter: {
-            implementation: "",
-            proxy: ""
+function createEmpty(): AddressObj {
+    return {
+        accounts: {
+            diamond: "",
         },
-        factory: "",
-        implementation: "",
-    },
-    lockedWithdraw: {
-        implementation: "",
-        proxy: "",
-    },
-    HaloImplementations: {
-        DonationMatchImplementation: "",
-        DonationMatchAddress: {
+        charityApplication: {
+            implementation: "",
             proxy: "",
+        },
+        endowmentMultiSig: {
+            emitter: {
+                implementation: "",
+                proxy: "",
+            },
+            factory: "",
             implementation: "",
         },
-        SubDaoImplementation: "",
-        subDaoERC20Implementation: "",
-        subDaoveTokenImplementation: "",
-        IncentivisedVotingLockupImplementation: "",
-    },
+        fundraising: {
+            implementation: "",
+            library: "",
+            proxy: "",
+        },
+        giftcards: {
+            implementation: "",
+            proxy: "",
+        },
+        goldfinch: {
+            liquidVault: "",
+            lockedVault: "",
+        },
+        HaloImplementations: {
+            DonationMatchImplementation: "",
+            DonationMatchAddress: {
+                proxy: "",
+                implementation: "",
+            },
+            SubDaoImplementation: "",
+            subDaoERC20Implementation: "",
+            subDaoveTokenImplementation: "",
+            IncentivisedVotingLockupImplementation: "",
+        },
+        indexFund: {
+            implementation: "",
+            proxy: "",
+        },
+        libraries: {
+            ANGEL_CORE_STRUCT_LIBRARY: "",
+            STRING_LIBRARY: "",
+        },
+        lockedWithdraw: {
+            implementation: "",
+            proxy: "",
+        },
+        multiSig: {
+            ApplicationsMultiSigProxy: "",
+            APTeamMultiSigProxy: "",
+            ApplicationMultisigImplementation: "",
+            APTeamMultisigImplementation: "",
+        },
+        registrar: {
+            implementation: "",
+            proxy: "",
+        },
+        router: {
+            implementation: "",
+            proxy: "",
+        },
+        subDaoEmitter: {
+            implementation: "",
+            proxy: "",
+        },
+        swapRouter: {
+            implementation: "",
+            proxy: "",
+        },
+        tokens: {
+            halo: "",
+            usdc: "",
+            weth: "",
+        },
+    }
 }
