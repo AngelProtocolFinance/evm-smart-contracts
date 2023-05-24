@@ -672,11 +672,9 @@ library AngelCoreStruct {
         IgnoreUserSplits
     }
 
-
     struct EndowmentFee {
         address payoutAddress;
-        uint256 feePercentage;
-        bool active;
+        uint256 percentage;
     }
 
     uint256 constant FEE_BASIS = 1000;      // gives 0.1% precision for fees
@@ -696,4 +694,4 @@ library AngelCoreStruct {
         Abstain,
         Veto
     }
-}
+}   

@@ -140,13 +140,9 @@ contract AccountDepositWithdrawEndowments is
             state.config.registrarContract
         ).queryConfig();
 
-        if (
-            tempEndowment.depositFee.active &&
-            tempEndowment.depositFee.feePercentage != 0 &&
-            tempEndowment.depositFee.payoutAddress != address(0)
-        ) {
+        if (tempEndowment.depositFee.percentage != 0) {
             uint256 depositFeeAmount = (amount
-                .mul(tempEndowment.depositFee.feePercentage))
+                .mul(tempEndowment.depositFee.percentage))
                 .div(AngelCoreStruct.FEE_BASIS);
             amount = amount.sub(depositFeeAmount);
 
@@ -298,7 +294,7 @@ contract AccountDepositWithdrawEndowments is
             // Normal: Endowment specific setting that owners can (optionally) set
             // Charity: Registrar based setting for all Charity Endowments
             if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Normal) {
-                earlyLockedWithdrawPenalty = (amount.mul(tempEndowment.earlyLockedWithdrawFee.feePercentage))
+                earlyLockedWithdrawPenalty = (amount.mul(tempEndowment.earlyLockedWithdrawFee.percentage))
                     .div(AngelCoreStruct.FEE_BASIS);
             } else {
                 earlyLockedWithdrawPenalty = (amount.mul(
@@ -391,11 +387,9 @@ contract AccountDepositWithdrawEndowments is
         uint256 withdrawFeeEndow = 0;
         if (
             amountLeftover > 0 &&
-            tempEndowment.withdrawFee.active &&
-            tempEndowment.withdrawFee.feePercentage != 0 &&
-            tempEndowment.withdrawFee.payoutAddress != address(0)
+            tempEndowment.withdrawFee.percentage != 0
         ) {
-            withdrawFeeEndow = (amountLeftover.mul(tempEndowment.withdrawFee.feePercentage))
+            withdrawFeeEndow = (amountLeftover.mul(tempEndowment.withdrawFee.percentage))
                                 .div(AngelCoreStruct.PERCENT_BASIS);
 
             // transfer endowment withdraw fee to beneficiary address

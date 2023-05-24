@@ -24,14 +24,12 @@ import type {
 export declare namespace AngelCoreStruct {
   export type EndowmentFeeStruct = {
     payoutAddress: PromiseOrValue<string>;
-    feePercentage: PromiseOrValue<BigNumberish>;
-    active: PromiseOrValue<boolean>;
+    percentage: PromiseOrValue<BigNumberish>;
   };
 
-  export type EndowmentFeeStructOutput = [string, BigNumber, boolean] & {
+  export type EndowmentFeeStructOutput = [string, BigNumber] & {
     payoutAddress: string;
-    feePercentage: BigNumber;
-    active: boolean;
+    percentage: BigNumber;
   };
 
   export type CategoriesStruct = {

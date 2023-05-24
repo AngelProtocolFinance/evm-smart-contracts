@@ -214,10 +214,7 @@ contract AccountsUpdateEndowmentSettingsController is
         );
         require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
 
-        // Only Normal endowments can change their early locked withdraw fee
-        // Charity endowments read from the registrar protocol-wide fee for this
         if (
-            tempEndowment.endowType == AngelCoreStruct.EndowmentType.Normal && 
             AngelCoreStruct.canChange(
                 tempEndowment.settingsController.earlyLockedWithdrawFee,
                 msg.sender,
@@ -225,6 +222,11 @@ contract AccountsUpdateEndowmentSettingsController is
                 block.timestamp
             )
         ) {
+            require(
+                details.earlyLockedWithdrawFee.payoutAddress != address(0) || details.earlyLockedWithdrawFee.percentage == 0,
+                "Invalid payout address given"
+            );
+            require(details.earlyLockedWithdrawFee.percentage < 1000, "Fee Percentage cannot be greater than 100%");
             tempEndowment.earlyLockedWithdrawFee = details.earlyLockedWithdrawFee;
         }
 
@@ -236,6 +238,11 @@ contract AccountsUpdateEndowmentSettingsController is
                 block.timestamp
             )
         ) {
+            require(
+                details.depositFee.payoutAddress != address(0) || details.depositFee.percentage == 0,
+                "Invalid payout address given"
+            );
+            require(details.depositFee.percentage < 1000, "Fee Percentage cannot be greater than 100%");
             tempEndowment.depositFee = details.depositFee;
         }
 
@@ -247,6 +254,11 @@ contract AccountsUpdateEndowmentSettingsController is
                 block.timestamp
             )
         ) {
+            require(
+                details.withdrawFee.payoutAddress != address(0) || details.withdrawFee.percentage == 0,
+                "Invalid payout address given"
+            );
+            require(details.withdrawFee.percentage < 1000, "Fee Percentage cannot be greater than 100%");
             tempEndowment.withdrawFee = details.withdrawFee;
         }
 
@@ -258,6 +270,11 @@ contract AccountsUpdateEndowmentSettingsController is
                 block.timestamp
             )
         ) {
+            require(
+                details.balanceFee.payoutAddress != address(0) || details.balanceFee.percentage == 0,
+                "Invalid payout address given"
+            );
+            require(details.balanceFee.percentage < 1000, "Fee Percentage cannot be greater than 100%");
             tempEndowment.balanceFee = details.balanceFee;
         }
 

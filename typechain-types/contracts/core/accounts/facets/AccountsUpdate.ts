@@ -157,14 +157,12 @@ export declare namespace AngelCoreStruct {
 
   export type EndowmentFeeStruct = {
     payoutAddress: PromiseOrValue<string>;
-    feePercentage: PromiseOrValue<BigNumberish>;
-    active: PromiseOrValue<boolean>;
+    percentage: PromiseOrValue<BigNumberish>;
   };
 
-  export type EndowmentFeeStructOutput = [string, BigNumber, boolean] & {
+  export type EndowmentFeeStructOutput = [string, BigNumber] & {
     payoutAddress: string;
-    feePercentage: BigNumber;
-    active: boolean;
+    percentage: BigNumber;
   };
 
   export type DelegateStruct = {
@@ -474,7 +472,7 @@ export declare namespace AccountStorage {
 
 export interface AccountsUpdateInterface extends utils.Interface {
   functions: {
-    "updateConfig(address,uint256,(address,uint256,bool))": FunctionFragment;
+    "updateConfig(address,uint256,(address,uint256))": FunctionFragment;
     "updateOwner(address)": FunctionFragment;
   };
 
