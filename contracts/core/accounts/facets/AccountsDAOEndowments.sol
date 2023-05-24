@@ -53,7 +53,7 @@ contract AccountsDAOEndowments is ReentrancyGuardFacet, AccountsEvents {
                 proposalDeposit: details.proposalDeposit,
                 snapshotPeriod: details.snapshotPeriod,
                 token: details.token,
-                endow_type: tempEndowment.endow_type,
+                endowType: tempEndowment.endowType,
                 endowOwner: tempEndowment.owner,
                 registrarContract: state.config.registrarContract
             });

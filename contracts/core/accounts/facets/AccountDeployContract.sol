@@ -34,7 +34,7 @@ contract AccountDeployContract is ReentrancyGuardFacet, AccountsEvents {
             state.config.registrarContract
         ).queryConfig();
 
-        address implementation = registrar_config.subdaoGovCode;
+        address implementation = registrar_config.subdaoGovContract;
         address admin = registrar_config.proxyAdmin;
 
         bytes memory subDaoData = abi.encodeWithSignature(

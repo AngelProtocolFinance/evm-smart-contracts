@@ -337,13 +337,13 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
 			splitDefault: 50, //uint256
 			collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
 			acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
-			subdaoGovCode: implementations.SubDao, //address
-			subdaoCw20TokenCode: implementations.SubDaoERC20, //address
-			subdaoBondingTokenCode: implementations.SubDaoBondingCurve, //address
-			subdaoCw900Code: implementations.IncentiisedVoting, //address
-			subdaoDistributorCode: implementations.FeeDistributor,
+			subdaoGovContract: implementations.SubDao, //address
+			subdaoTokenContract: implementations.SubDaoERC20, //address
+			subdaoBondingTokenContract: implementations.SubDaoBondingCurve, //address
+			subdaoCw900Contract: implementations.IncentiisedVoting, //address
+			subdaoDistributorContract: implementations.FeeDistributor,
 			subdaoEmitter: emitters.subDaoEmitter, //TODO:
-			donationMatchCode: implementations.DonationMatch, //address
+			donationMatchContract: implementations.DonationMatch, //address
 			indexFundContract: INDEX_FUND_ADDRESS, //address
 			govContract: haloAddress.Gov.GovProxy, //address
 			treasury: config.REGISTRAR_DATA.treasury,

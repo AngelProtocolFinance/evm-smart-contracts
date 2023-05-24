@@ -11,21 +11,21 @@ library AccountMessages {
         uint256 maturityTime; // datetime int of endowment maturity
         uint256 maturityHeight; // block equiv of the maturity_datetime
         string name; // name of the Endowment
-        AngelCoreStruct.Categories categories; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP CW3 Multisig can set/update)
-        uint256 tier; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP CW3 Multisig can set/update)
-        AngelCoreStruct.EndowmentType endow_type;
+        AngelCoreStruct.Categories categories; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP Team Multisig can set/update)
+        uint256 tier; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP Team Multisig can set/update)
+        AngelCoreStruct.EndowmentType endowType;
         string logo;
         string image;
-        address[] cw4_members;
+        address[] members;
         bool kycDonorsOnly;
         uint256 threshold;
-        AngelCoreStruct.Duration cw3MaxVotingPeriod;
+        AngelCoreStruct.Duration maxVotingPeriod;
         address[] allowlistedBeneficiaries;
         address[] allowlistedContributors;
         uint256 splitMax;
         uint256 splitMin;
         uint256 splitDefault;
-        AngelCoreStruct.EndowmentFee earningsFee;
+        AngelCoreStruct.EndowmentFee earlyLockedWithdrawFee;
         AngelCoreStruct.EndowmentFee withdrawFee;
         AngelCoreStruct.EndowmentFee depositFee;
         AngelCoreStruct.EndowmentFee balanceFee;
@@ -100,6 +100,7 @@ library AccountMessages {
         address subDao;
         address gateway;
         address gasReceiver;
+        AngelCoreStruct.EndowmentFee earlyLockedWithdrawFee;
     }
 
     struct StateResponse {
@@ -119,7 +120,7 @@ library AccountMessages {
     struct EndowmentEntry {
         uint32 id; // u32,
         address owner; // String,
-        AngelCoreStruct.EndowmentType endow_type; // EndowmentType,
+        AngelCoreStruct.EndowmentType endowType; // EndowmentType,
         string name; // Option<String>,
         string logo; // Option<String>,
         string image; // Option<String>,
@@ -132,32 +133,13 @@ library AccountMessages {
         EndowmentEntry[] endowments;
     }
 
-    struct ProfileResponse {
-        string name; // String,
-        string overview; // String,
-        AngelCoreStruct.Categories categories; // Categories,
-        uint256 tier; // Option<u8>,
-        string logo; // Option<String>,
-        string image; // Option<String>,
-        string url; // Option<String>,
-        string registrationNumber; // Option<String>,
-        string countryOfOrigin; // Option<String>,
-        string streetAddress; // Option<String>,
-        string contactEmail; // Option<String>,
-        AngelCoreStruct.SocialMedialUrls socialMediaUrls; // SocialMedialUrls,
-        uint16 numberOfEmployees; // Option<u16>,
-        string averageAnnualBudget; // Option<String>,
-        string annualRevenue; // Option<String>,
-        string charityNavigatorRating; // Option<String>,
-    }
-
     struct EndowmentDetailsResponse {
         address owner; //: Addr,
         address dao;
         address daoToken;
         string description;
         AngelCoreStruct.AccountStrategies strategies;
-        AngelCoreStruct.EndowmentType endow_type;
+        AngelCoreStruct.EndowmentType endowType;
         uint256 maturityTime;
         AngelCoreStruct.OneOffVaults oneoffVaults;
         LocalRegistrarLib.RebalanceParams rebalance;
@@ -183,7 +165,7 @@ library AccountMessages {
 
     struct UpdateEndowmentFeeRequest {
         uint32 id;
-        AngelCoreStruct.EndowmentFee earningsFee;
+        AngelCoreStruct.EndowmentFee earlyLockedWithdrawFee;
         AngelCoreStruct.EndowmentFee depositFee;
         AngelCoreStruct.EndowmentFee withdrawFee;
         AngelCoreStruct.EndowmentFee balanceFee;

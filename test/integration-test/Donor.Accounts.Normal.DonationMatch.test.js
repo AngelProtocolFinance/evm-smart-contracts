@@ -32,7 +32,7 @@ describe('Donor donation matching for normal endowments', function () {
 		endowmentConfig.dao.token = {
 			token: 0,
 			data: {
-				existingCw20Data: registrarConfig.haloToken,
+				existingData: registrarConfig.haloToken,
 				newCw20InitialSupply: '100000',
 				newCw20Name: 'TEST',
 				newCw20Symbol: 'TEST',
@@ -65,7 +65,7 @@ describe('Donor donation matching for normal endowments', function () {
 		const accountQuery = await ethers.getContractAt('AccountsQueryEndowments', deployRes.addresses.account);
 		let endowment = await accountQuery.queryEndowmentDetails(1);
 
-		expect(endowment.endow_type, 'Endowment type is normal').to.equal(1);
+		expect(endowment.endowType, 'Endowment type is normal').to.equal(1);
 
 		const endowmentMultisig = await ethers.getContractAt('EndowmentMultiSig', endowment.owner);
 
@@ -183,7 +183,7 @@ describe('Donor donation matching for normal endowments', function () {
 		endowmentConfig.dao.token = {
 			token: 2,
 			data: {
-				existingCw20Data: registrarConfig.haloToken,
+				existingData: registrarConfig.haloToken,
 				newCw20InitialSupply: '100000',
 				newCw20Name: 'TEST',
 				newCw20Symbol: 'TEST',
@@ -216,7 +216,7 @@ describe('Donor donation matching for normal endowments', function () {
 		const accountQuery = await ethers.getContractAt('AccountsQueryEndowments', deployRes.addresses.account);
 		let endowment = await accountQuery.queryEndowmentDetails(2);
 
-		expect(endowment.endow_type, 'Endowment type is normal').to.equal(1);
+		expect(endowment.endowType, 'Endowment type is normal').to.equal(1);
 
 		const endowmentMultisig = await ethers.getContractAt('EndowmentMultiSig', endowment.owner);
 

@@ -31,13 +31,13 @@ task("manage:updateRegistrar", "Will update the registrar config")
                     config.REGISTRAR_DATA.splitToLiquid.defaultSplit,
                 collectorShare: 1,
                 acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
-                subdaoGovCode: apTeam1.address, // subdao gov wasm code
-                subdaoCw20TokenCode: apTeam1.address, // subdao gov token (basic CW20) wasm code
-                subdaoBondingTokenCode: apTeam1.address, // subdao gov token (w/ bonding-curve) wasm code
-                subdaoCw900Code: apTeam1.address, // subdao gov ve-CURVE contract for locked token voting
-                subdaoDistributorCode: apTeam1.address, // subdao gov fee distributor wasm code
+                subdaoGovContract: apTeam1.address, // subdao gov
+                subdaoTokenContract: apTeam1.address, // subdao gov token (basic CW20)
+                subdaoBondingTokenContract: apTeam1.address, // subdao gov token (w/ bonding-curve)
+                subdaoCw900Contract: apTeam1.address, // subdao gov ve-CURVE contract for locked token voting
+                subdaoDistributorContract: apTeam1.address, // subdao gov fee distributor
                 subdaoEmitter: apTeam1.address,
-                donationMatchCode: apTeam1.address, // donation matching contract wasm code
+                donationMatchContract: apTeam1.address, // donation matching contract
 
                 // CONTRACT ADSRESSES
                 indexFundContract: addresses.indexFundAddress.indexFundProxy,

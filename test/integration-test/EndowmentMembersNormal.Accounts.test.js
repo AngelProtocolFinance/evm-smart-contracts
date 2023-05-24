@@ -35,7 +35,7 @@ describe('Endowment Members', function () {
 
 	it('Should create a endowment of type normal', async function () {
 		// console.log('Endowment', endowment);
-		expect(endowment.endow_type, 'Endowment type is normal').to.equal(1);
+		expect(endowment.endowType, 'Endowment type is normal').to.equal(1);
 	});
 
 	it('Should have created a new endowment multisig and set owner of endowment to multisig', async function () {

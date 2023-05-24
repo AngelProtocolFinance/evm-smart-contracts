@@ -118,17 +118,17 @@ export declare namespace AngelCoreStruct {
   ] & { ve_type: number; data: AngelCoreStruct.VeTypeDataStructOutput };
 
   export type DaoTokenDataStruct = {
-    existingCw20Data: PromiseOrValue<string>;
-    newCw20InitialSupply: PromiseOrValue<BigNumberish>;
-    newCw20Name: PromiseOrValue<string>;
-    newCw20Symbol: PromiseOrValue<string>;
-    bondingveveType: AngelCoreStruct.VeTypeStruct;
-    bondingveName: PromiseOrValue<string>;
-    bondingveSymbol: PromiseOrValue<string>;
-    bondingveDecimals: PromiseOrValue<BigNumberish>;
-    bondingveReserveDenom: PromiseOrValue<string>;
-    bondingveReserveDecimals: PromiseOrValue<BigNumberish>;
-    bondingveUnbondingPeriod: PromiseOrValue<BigNumberish>;
+    existingData: PromiseOrValue<string>;
+    newInitialSupply: PromiseOrValue<BigNumberish>;
+    newName: PromiseOrValue<string>;
+    newSymbol: PromiseOrValue<string>;
+    veBondingType: AngelCoreStruct.VeTypeStruct;
+    veBondingName: PromiseOrValue<string>;
+    veBondingSymbol: PromiseOrValue<string>;
+    veBondingDecimals: PromiseOrValue<BigNumberish>;
+    veBondingReserveDenom: PromiseOrValue<string>;
+    veBondingReserveDecimals: PromiseOrValue<BigNumberish>;
+    veBondingPeriod: PromiseOrValue<BigNumberish>;
   };
 
   export type DaoTokenDataStructOutput = [
@@ -144,17 +144,17 @@ export declare namespace AngelCoreStruct {
     BigNumber,
     BigNumber
   ] & {
-    existingCw20Data: string;
-    newCw20InitialSupply: BigNumber;
-    newCw20Name: string;
-    newCw20Symbol: string;
-    bondingveveType: AngelCoreStruct.VeTypeStructOutput;
-    bondingveName: string;
-    bondingveSymbol: string;
-    bondingveDecimals: BigNumber;
-    bondingveReserveDenom: string;
-    bondingveReserveDecimals: BigNumber;
-    bondingveUnbondingPeriod: BigNumber;
+    existingData: string;
+    newInitialSupply: BigNumber;
+    newName: string;
+    newSymbol: string;
+    veBondingType: AngelCoreStruct.VeTypeStructOutput;
+    veBondingName: string;
+    veBondingSymbol: string;
+    veBondingDecimals: BigNumber;
+    veBondingReserveDenom: string;
+    veBondingReserveDecimals: BigNumber;
+    veBondingPeriod: BigNumber;
   };
 
   export type DaoTokenStruct = {
@@ -208,53 +208,72 @@ export declare namespace AngelCoreStruct {
     expires: BigNumber;
   };
 
+  export type SettingsPermissionStruct = {
+    locked: PromiseOrValue<boolean>;
+    delegate: AngelCoreStruct.DelegateStruct;
+  };
+
+  export type SettingsPermissionStructOutput = [
+    boolean,
+    AngelCoreStruct.DelegateStructOutput
+  ] & { locked: boolean; delegate: AngelCoreStruct.DelegateStructOutput };
+
   export type SettingsControllerStruct = {
-    strategies: AngelCoreStruct.DelegateStruct;
-    allowlistedBeneficiaries: AngelCoreStruct.DelegateStruct;
-    allowlistedContributors: AngelCoreStruct.DelegateStruct;
-    maturityAllowlist: AngelCoreStruct.DelegateStruct;
-    maturityTime: AngelCoreStruct.DelegateStruct;
-    withdrawFee: AngelCoreStruct.DelegateStruct;
-    depositFee: AngelCoreStruct.DelegateStruct;
-    balanceFee: AngelCoreStruct.DelegateStruct;
-    name: AngelCoreStruct.DelegateStruct;
-    image: AngelCoreStruct.DelegateStruct;
-    logo: AngelCoreStruct.DelegateStruct;
-    categories: AngelCoreStruct.DelegateStruct;
-    splitToLiquid: AngelCoreStruct.DelegateStruct;
-    ignoreUserSplits: AngelCoreStruct.DelegateStruct;
+    strategies: AngelCoreStruct.SettingsPermissionStruct;
+    lockedInvestmentManagement: AngelCoreStruct.SettingsPermissionStruct;
+    liquidInvestmentManagement: AngelCoreStruct.SettingsPermissionStruct;
+    allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStruct;
+    allowlistedContributors: AngelCoreStruct.SettingsPermissionStruct;
+    maturityAllowlist: AngelCoreStruct.SettingsPermissionStruct;
+    maturityTime: AngelCoreStruct.SettingsPermissionStruct;
+    earlyLockedWithdrawFee: AngelCoreStruct.SettingsPermissionStruct;
+    withdrawFee: AngelCoreStruct.SettingsPermissionStruct;
+    depositFee: AngelCoreStruct.SettingsPermissionStruct;
+    balanceFee: AngelCoreStruct.SettingsPermissionStruct;
+    name: AngelCoreStruct.SettingsPermissionStruct;
+    image: AngelCoreStruct.SettingsPermissionStruct;
+    logo: AngelCoreStruct.SettingsPermissionStruct;
+    categories: AngelCoreStruct.SettingsPermissionStruct;
+    splitToLiquid: AngelCoreStruct.SettingsPermissionStruct;
+    ignoreUserSplits: AngelCoreStruct.SettingsPermissionStruct;
   };
 
   export type SettingsControllerStructOutput = [
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput,
-    AngelCoreStruct.DelegateStructOutput
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput,
+    AngelCoreStruct.SettingsPermissionStructOutput
   ] & {
-    strategies: AngelCoreStruct.DelegateStructOutput;
-    allowlistedBeneficiaries: AngelCoreStruct.DelegateStructOutput;
-    allowlistedContributors: AngelCoreStruct.DelegateStructOutput;
-    maturityAllowlist: AngelCoreStruct.DelegateStructOutput;
-    maturityTime: AngelCoreStruct.DelegateStructOutput;
-    withdrawFee: AngelCoreStruct.DelegateStructOutput;
-    depositFee: AngelCoreStruct.DelegateStructOutput;
-    balanceFee: AngelCoreStruct.DelegateStructOutput;
-    name: AngelCoreStruct.DelegateStructOutput;
-    image: AngelCoreStruct.DelegateStructOutput;
-    logo: AngelCoreStruct.DelegateStructOutput;
-    categories: AngelCoreStruct.DelegateStructOutput;
-    splitToLiquid: AngelCoreStruct.DelegateStructOutput;
-    ignoreUserSplits: AngelCoreStruct.DelegateStructOutput;
+    strategies: AngelCoreStruct.SettingsPermissionStructOutput;
+    lockedInvestmentManagement: AngelCoreStruct.SettingsPermissionStructOutput;
+    liquidInvestmentManagement: AngelCoreStruct.SettingsPermissionStructOutput;
+    allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStructOutput;
+    allowlistedContributors: AngelCoreStruct.SettingsPermissionStructOutput;
+    maturityAllowlist: AngelCoreStruct.SettingsPermissionStructOutput;
+    maturityTime: AngelCoreStruct.SettingsPermissionStructOutput;
+    earlyLockedWithdrawFee: AngelCoreStruct.SettingsPermissionStructOutput;
+    withdrawFee: AngelCoreStruct.SettingsPermissionStructOutput;
+    depositFee: AngelCoreStruct.SettingsPermissionStructOutput;
+    balanceFee: AngelCoreStruct.SettingsPermissionStructOutput;
+    name: AngelCoreStruct.SettingsPermissionStructOutput;
+    image: AngelCoreStruct.SettingsPermissionStructOutput;
+    logo: AngelCoreStruct.SettingsPermissionStructOutput;
+    categories: AngelCoreStruct.SettingsPermissionStructOutput;
+    splitToLiquid: AngelCoreStruct.SettingsPermissionStructOutput;
+    ignoreUserSplits: AngelCoreStruct.SettingsPermissionStructOutput;
   };
 
   export type SplitDetailsStruct = {
@@ -327,19 +346,19 @@ export declare namespace AccountMessages {
     name: PromiseOrValue<string>;
     categories: AngelCoreStruct.CategoriesStruct;
     tier: PromiseOrValue<BigNumberish>;
-    endow_type: PromiseOrValue<BigNumberish>;
+    endowType: PromiseOrValue<BigNumberish>;
     logo: PromiseOrValue<string>;
     image: PromiseOrValue<string>;
-    cw4_members: PromiseOrValue<string>[];
+    members: PromiseOrValue<string>[];
     kycDonorsOnly: PromiseOrValue<boolean>;
     threshold: PromiseOrValue<BigNumberish>;
-    cw3MaxVotingPeriod: AngelCoreStruct.DurationStruct;
+    maxVotingPeriod: AngelCoreStruct.DurationStruct;
     allowlistedBeneficiaries: PromiseOrValue<string>[];
     allowlistedContributors: PromiseOrValue<string>[];
     splitMax: PromiseOrValue<BigNumberish>;
     splitMin: PromiseOrValue<BigNumberish>;
     splitDefault: PromiseOrValue<BigNumberish>;
-    earningsFee: AngelCoreStruct.EndowmentFeeStruct;
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStruct;
     withdrawFee: AngelCoreStruct.EndowmentFeeStruct;
     depositFee: AngelCoreStruct.EndowmentFeeStruct;
     balanceFee: AngelCoreStruct.EndowmentFeeStruct;
@@ -395,19 +414,19 @@ export declare namespace AccountMessages {
     name: string;
     categories: AngelCoreStruct.CategoriesStructOutput;
     tier: BigNumber;
-    endow_type: number;
+    endowType: number;
     logo: string;
     image: string;
-    cw4_members: string[];
+    members: string[];
     kycDonorsOnly: boolean;
     threshold: BigNumber;
-    cw3MaxVotingPeriod: AngelCoreStruct.DurationStructOutput;
+    maxVotingPeriod: AngelCoreStruct.DurationStructOutput;
     allowlistedBeneficiaries: string[];
     allowlistedContributors: string[];
     splitMax: BigNumber;
     splitMin: BigNumber;
     splitDefault: BigNumber;
-    earningsFee: AngelCoreStruct.EndowmentFeeStructOutput;
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
     withdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
     depositFee: AngelCoreStruct.EndowmentFeeStructOutput;
     balanceFee: AngelCoreStruct.EndowmentFeeStructOutput;
@@ -443,6 +462,7 @@ export declare namespace AccountMessages {
     subDao: PromiseOrValue<string>;
     gateway: PromiseOrValue<string>;
     gasReceiver: PromiseOrValue<string>;
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStruct;
   };
 
   export type ConfigResponseStructOutput = [
@@ -453,7 +473,8 @@ export declare namespace AccountMessages {
     BigNumber,
     string,
     string,
-    string
+    string,
+    AngelCoreStruct.EndowmentFeeStructOutput
   ] & {
     owner: string;
     version: string;
@@ -463,6 +484,7 @@ export declare namespace AccountMessages {
     subDao: string;
     gateway: string;
     gasReceiver: string;
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
   };
 
   export type StateResponseStruct = {
@@ -553,7 +575,7 @@ export declare namespace AccountStorage {
     name: PromiseOrValue<string>;
     categories: AngelCoreStruct.CategoriesStruct;
     tier: PromiseOrValue<BigNumberish>;
-    endow_type: PromiseOrValue<BigNumberish>;
+    endowType: PromiseOrValue<BigNumberish>;
     logo: PromiseOrValue<string>;
     image: PromiseOrValue<string>;
     maturityTime: PromiseOrValue<BigNumberish>;
@@ -571,6 +593,7 @@ export declare namespace AccountStorage {
     allowlistedBeneficiaries: PromiseOrValue<string>[];
     allowlistedContributors: PromiseOrValue<string>[];
     maturityAllowlist: PromiseOrValue<string>[];
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStruct;
     withdrawFee: AngelCoreStruct.EndowmentFeeStruct;
     depositFee: AngelCoreStruct.EndowmentFeeStruct;
     balanceFee: AngelCoreStruct.EndowmentFeeStruct;
@@ -607,6 +630,7 @@ export declare namespace AccountStorage {
     AngelCoreStruct.EndowmentFeeStructOutput,
     AngelCoreStruct.EndowmentFeeStructOutput,
     AngelCoreStruct.EndowmentFeeStructOutput,
+    AngelCoreStruct.EndowmentFeeStructOutput,
     AngelCoreStruct.SettingsControllerStructOutput,
     number,
     boolean,
@@ -617,7 +641,7 @@ export declare namespace AccountStorage {
     name: string;
     categories: AngelCoreStruct.CategoriesStructOutput;
     tier: BigNumber;
-    endow_type: number;
+    endowType: number;
     logo: string;
     image: string;
     maturityTime: BigNumber;
@@ -635,6 +659,7 @@ export declare namespace AccountStorage {
     allowlistedBeneficiaries: string[];
     allowlistedContributors: string[];
     maturityAllowlist: string[];
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
     withdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
     depositFee: AngelCoreStruct.EndowmentFeeStructOutput;
     balanceFee: AngelCoreStruct.EndowmentFeeStructOutput;
@@ -650,7 +675,7 @@ export interface IAccountsInterface extends utils.Interface {
   functions: {
     "closeEndowment(uint32,((uint32,uint256,address),uint8))": FunctionFragment;
     "copycatStrategies(uint32,uint8,uint256)": FunctionFragment;
-    "createEndowment((address,bool,uint256,uint256,string,(uint256[],uint256[]),uint256,uint8,string,string,address[],bool,uint256,(uint8,(uint256,uint256)),address[],address[],uint256,uint256,uint256,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))),bool,uint256,((address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256),(address,uint256)),uint32,address[],bool,(uint256,uint256,uint256),uint256))": FunctionFragment;
+    "createEndowment((address,bool,uint256,uint256,string,(uint256[],uint256[]),uint256,uint8,string,string,address[],bool,uint256,(uint8,(uint256,uint256)),address[],address[],uint256,uint256,uint256,(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(address,uint256,bool),(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))),bool,uint256,((bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256))),uint32,address[],bool,(uint256,uint256,uint256),uint256))": FunctionFragment;
     "depositERC20(address,(uint32,uint256,uint256),address,uint256)": FunctionFragment;
     "queryConfig()": FunctionFragment;
     "queryEndowmentDetails(uint32)": FunctionFragment;

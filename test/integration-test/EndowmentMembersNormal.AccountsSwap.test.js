@@ -35,14 +35,14 @@ describe('Endowment Members', function () {
 
 	it('Should create a endowment of type normal', async function () {
 		// console.log('Endowment', endowment);
-		expect(endowment.endow_type, 'Endowment type is normal').to.equal(1);
+		expect(endowment.endowType, 'Endowment type is normal').to.equal(1);
 	});
 
 	it('Should create a endowment of type normal and deposit to it', async function () {
 		const accountQuery = await ethers.getContractAt('AccountsQueryEndowments', deployRes.addresses.account);
 		endowment = await accountQuery.queryEndowmentDetails(1);
 
-		expect(endowment.endow_type, 'Endowment type is normal').to.equal(1);
+		expect(endowment.endowType, 'Endowment type is normal').to.equal(1);
 
 		let donor = addrs[0];
 

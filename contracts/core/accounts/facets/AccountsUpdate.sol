@@ -43,10 +43,10 @@ contract AccountsUpdate is ReentrancyGuardFacet, AccountsEvents {
      */
     function updateConfig(
         address newRegistrar,
-        uint256 maxGeneralCategoryId
+        uint256 maxGeneralCategoryId,
+        AngelCoreStruct.EndowmentFee memory earlyLockedWithdrawFee
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.Config memory _tempConfig = state.config;
 
         require(msg.sender == state.config.owner, "Unauthorized");
         require(
@@ -54,10 +54,8 @@ contract AccountsUpdate is ReentrancyGuardFacet, AccountsEvents {
             "invalid registrar address"
         );
 
-        _tempConfig.registrarContract = newRegistrar;
-        _tempConfig.maxGeneralCategoryId = maxGeneralCategoryId;
-
-        state.config = _tempConfig;
-        emit UpdateConfig(state.config);
+        state.config.registrarContract = newRegistrar;
+        state.config.maxGeneralCategoryId = maxGeneralCategoryId;
+        state.config.earlyLockedWithdrawFee = earlyLockedWithdrawFee;
     }
 }
