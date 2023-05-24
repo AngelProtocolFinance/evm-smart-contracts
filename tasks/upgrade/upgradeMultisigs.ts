@@ -34,7 +34,7 @@ task("upgrade:upgradeMultisig", "Will upgrade the implementation of the AP Team 
                 proxyAdmin
             )
             const ApplicationsProxy = ITransparentUpgradeableProxy__factory.connect(
-                addresses.multiSig.ApplicationsMultiSigProxy,
+                addresses.multiSig.applications.proxy,
                 proxyAdmin
             )
 
@@ -76,7 +76,10 @@ task("upgrade:upgradeMultisig", "Will upgrade the implementation of the AP Team 
                 { 
                     multiSig: {
                         ...addresses.multiSig,
-                        ApplicationMultisigImplementation: appsMultisigImpl.address,
+                        applications: {
+                            ...addresses.multiSig.applications,
+                            implementation: appsMultisigImpl.address
+                        },
                         APTeamMultisigImplementation: apMultisigImpl.address,
                     }
                 },

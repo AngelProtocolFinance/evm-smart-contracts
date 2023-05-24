@@ -93,9 +93,11 @@ function createEmpty(): AddressObj {
             proxy: "",
         },
         multiSig: {
-            ApplicationsMultiSigProxy: "",
+            applications: {
+                implementation: "",
+                proxy: ""
+            },
             APTeamMultiSigProxy: "",
-            ApplicationMultisigImplementation: "",
             APTeamMultisigImplementation: "",
             endowment: {
                 emitter: {

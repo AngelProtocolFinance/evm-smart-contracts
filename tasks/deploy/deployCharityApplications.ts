@@ -12,7 +12,7 @@ task("Deploy:deployCharityApplications", "Will deploy CharityApplications contra
             const addresses = await getAddresses(hre)
             const charityApplicationsData: Parameters<typeof charityApplications>[0] = [
                 config.CHARITY_APPLICATION_DATA.expiry,
-                addresses.multiSig.ApplicationsMultiSigProxy,
+                addresses.multiSig.applications.proxy,
                 addresses.accounts.diamond,
                 config.CHARITY_APPLICATION_DATA.seedSplitToLiquid,
                 config.CHARITY_APPLICATION_DATA.newEndowGasMoney,

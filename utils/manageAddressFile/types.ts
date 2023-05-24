@@ -43,9 +43,11 @@ export type AddressObj = {
         proxy: string
     }
     multiSig: {
-        ApplicationsMultiSigProxy: string
+        applications: {
+            implementation: string
+            proxy: string
+        }
         APTeamMultiSigProxy: string
-        ApplicationMultisigImplementation: string
         APTeamMultisigImplementation: string
         endowment: {
             emitter: {
