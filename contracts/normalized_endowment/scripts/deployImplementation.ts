@@ -2,14 +2,10 @@
 // yours, or create new ones.
 
 import { HardhatRuntimeEnvironment } from "hardhat/types"
-import { saveFrontendFiles } from "utils"
-import { DonationMatchMessages } from "typechain-types/contracts/normalized_endowment/donation-match/DonationMatch.sol/DonationMatch";
+import { DonationMatchMessages } from "typechain-types/contracts/normalized_endowment/donation-match/DonationMatch.sol/DonationMatch"
+import { logger, updateAddresses } from "utils"
 
 const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
-
-const HaloImplementations: Record<string, string | Record<string, string>> = {
-
-}
 
 const deployDonationMatch = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
 	try {
@@ -17,8 +13,6 @@ const deployDonationMatch = async (verify_contracts: boolean, hre: HardhatRuntim
 		const DonationMatch = await ethers.getContractFactory('DonationMatch');
 		const donationMatchImplementation = await DonationMatch.deploy();
 		await donationMatchImplementation.deployed();
-
-		HaloImplementations.DonationMatchImplementation = donationMatchImplementation.address;
 
 		if (verify_contracts) {
 			await run('verify:verify', {
@@ -40,9 +34,6 @@ const deployCw900lvImplementation = async (verify_contracts: boolean, hre: Hardh
 		const IncentivisedVotingLockup = await ethers.getContractFactory('IncentivisedVotingLockup');
 		const IncentivisedVotingLockupImplementation = await IncentivisedVotingLockup.deploy();
 		await IncentivisedVotingLockupImplementation.deployed();
-
-		HaloImplementations.IncentivisedVotingLockupImplementation = IncentivisedVotingLockupImplementation.address;
-
 
 		if (verify_contracts) {
 			await run('verify:verify', {
@@ -103,9 +94,7 @@ const deployDonationMatchCharity = async (proxyAdmin: string, deployDonationMatc
 			});
 		}
 
-		HaloImplementations.DonationMatchAddress = DonationMatchAddress;
-
-		return Promise.resolve(DonationMatchProxy.address);
+		return Promise.resolve(DonationMatchAddress);
 	} catch (error) {
 		return Promise.reject(error);
 	}
@@ -126,8 +115,6 @@ const deploySubDao = async (ANGEL_CORE_STRUCT: string, verify_contracts: boolean
 		});
 		const SubDaoImplementation = await SubDao.deploy();
 		await SubDaoImplementation.deployed();
-
-		HaloImplementations.SubDaoImplementation = SubDaoImplementation.address;
 
 		if (verify_contracts) {
 
@@ -156,8 +143,6 @@ const deploySubDaoERC20 = async (verify_contracts: boolean, hre: HardhatRuntimeE
 		const subDaoERC20Implementation = await subDaoERC20.deploy();
 		await subDaoERC20Implementation.deployed();
 
-		HaloImplementations.subDaoERC20Implementation = subDaoERC20Implementation.address;
-
 		if (verify_contracts) {
 			await run('verify:verify', {
 				address: subDaoERC20Implementation.address,
@@ -179,8 +164,6 @@ const deploySubDaoveBonding = async (verify_contracts: boolean, hre: HardhatRunt
 		const subDaoveToken = await ethers.getContractFactory('SubDaoToken');
 		const subDaoveTokenImplementation = await subDaoveToken.deploy();
 		await subDaoveTokenImplementation.deployed();
-
-		HaloImplementations.subDaoveTokenImplementation = subDaoveTokenImplementation.address;
 
 		if (verify_contracts) {
 			await run('verify:verify', {
@@ -217,8 +200,6 @@ const deployIncentiisedVoting = async (verify_contracts: boolean, hre: HardhatRu
 		const IncentivisedVotingLockupImplementation = await IncentivisedVotingLockup.deploy();
 		await IncentivisedVotingLockupImplementation.deployed();
 
-		HaloImplementations.IncentivisedVotingLockupImplementation = IncentivisedVotingLockupImplementation.address;
-
 		if(verify_contracts){
 			await run('verify:verify', {
 				address: IncentivisedVotingLockupImplementation.address,
@@ -241,9 +222,12 @@ export async function deployImplementation(
 	try {
 		const {network,run,ethers} = hre;
 		let [deployer, proxyAdmin] = await ethers.getSigners();
+		
+		const DonationMatchCharity = await deployDonationMatchCharity(proxyAdmin.address, donationMatchCharityData,verify_contracts, hre)
+
 		const Implementation = {
 			DonationMatch: await deployDonationMatch(verify_contracts, hre),
-			DonationMatchCharity: await deployDonationMatchCharity(proxyAdmin.address, donationMatchCharityData,verify_contracts, hre),
+			DonationMatchCharity,
 			SubDao: await deploySubDao(ANGEL_CORE_STRUCT,verify_contracts, hre),
 			SubDaoERC20: await deploySubDaoERC20(verify_contracts, hre),
 			SubDaoveBonding: await deploySubDaoveBonding(verify_contracts,hre),
@@ -252,7 +236,20 @@ export async function deployImplementation(
 			cw900lv: await deployCw900lvImplementation(verify_contracts,hre),
 		};
 
-		await saveFrontendFiles({HaloImplementations});
+		logger.out("Saving addresses to contract-address.json...")
+		await updateAddresses(
+			{
+				HaloImplementations: {
+					DonationMatchImplementation: Implementation.DonationMatch,
+					DonationMatchAddress: { ...DonationMatchCharity },
+					IncentivisedVotingLockupImplementation: Implementation.IncentiisedVoting,
+					subDaoERC20Implementation: Implementation.SubDaoERC20,
+					SubDaoImplementation: Implementation.SubDao,
+					subDaoveTokenImplementation: Implementation.SubDaoBondingve
+				}
+			},
+			hre
+		);
 
 		return Promise.resolve(Implementation);
 	} catch (error) {

@@ -31,7 +31,7 @@ let addressWriter: AddressWriter = {}
 import { Contract } from "ethers"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import { APTeamMultiSig, ApplicationsMultiSig } from "typechain-types"
-import { cleanFile, isLocalNetwork, saveFrontendFiles } from "utils"
+import { cleanFile, isLocalNetwork, saveFrontendFiles, updateAddresses } from "utils"
 
 async function deployLibraries(verify_contracts: boolean, hre: HardhatRuntimeEnvironment) {
     try {
@@ -52,12 +52,15 @@ async function deployLibraries(verify_contracts: boolean, hre: HardhatRuntimeEnv
             "ANGEL_CORE_STRUCT_LIBRARY Deployed at ": ANGEL_CORE_STRUCT.address,
         })
 
-        let libraries = {
-            STRING_LIBRARY: STRING_LIBRARY.address,
-            ANGEL_CORE_STRUCT_LIBRARY: ANGEL_CORE_STRUCT.address,
-        }
-
-        await saveFrontendFiles({ libraries })
+		await updateAddresses(
+			{
+				libraries: {
+                    STRING_LIBRARY: STRING_LIBRARY.address,
+                    ANGEL_CORE_STRUCT_LIBRARY: ANGEL_CORE_STRUCT.address,
+                }
+			},
+			hre
+		);
 
         if (network.name !== "hardhat" && verify_contracts) {
             await run(`verify:verify`, {

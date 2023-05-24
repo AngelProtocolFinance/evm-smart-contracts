@@ -1,12 +1,11 @@
-import { ethers, upgrades } from "hardhat";
-import { logger } from "utils"
-import * as fs from "fs";
+import hre from "hardhat";
+import { getAddresses, logger, updateAddresses } from "utils"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Registrar, Registrar__factory } from "typechain-types"
-import { BigNumber } from "ethers";
 
 async function deploy() {
-
+  const { ethers, upgrades } = hre
+  
   let deployer: SignerWithAddress
   [deployer] = await ethers.getSigners()
   
@@ -28,11 +27,16 @@ async function deploy() {
   logger.divider()
   logger.out("Writing to contract-address.json", logger.Level.Info)
 
-  let rawdata = fs.readFileSync("contract-address.json", "utf8")
-  let address: any = JSON.parse(rawdata)
-  address[network.chainId] = {"registrar": registrar.address}
-  const json = JSON.stringify(address, null, 2)
-  fs.writeFileSync("contract-address.json", json, "utf8")
+  const addresses = await getAddresses(hre)
+  await updateAddresses(
+    { 
+      registrar: { 
+        ...addresses.registrar, 
+        implementation: registrar.address 
+      }
+    }, 
+    hre
+  )
 }
 
 deploy().catch((error) => {

@@ -28,7 +28,7 @@ let updateConfig;
 interface AddressWriter { [key: string]: string | AddressWriter }
 let addressWriter: AddressWriter = {}; 
 
-import { saveFrontendFiles, cleanFile } from 'utils'
+import { saveFrontendFiles, cleanFile, updateAddresses } from 'utils'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { Contract } from 'ethers'
 import { APTeamMultiSig, ApplicationsMultiSig } from 'typechain-types'
@@ -53,12 +53,15 @@ async function deployLibraries(verify_contracts: boolean,hre: HardhatRuntimeEnvi
 			'ANGEL_CORE_STRUCT_LIBRARY Deployed at ': ANGEL_CORE_STRUCT.address,
 		});
 
-		let libraries = {
-			"STRING_LIBRARY" : STRING_LIBRARY.address,
-			"ANGEL_CORE_STRUCT_LIBRARY" : ANGEL_CORE_STRUCT.address
-		}
-
-		await saveFrontendFiles({libraries});
+		await updateAddresses(
+			{
+				libraries: {
+					STRING_LIBRARY : STRING_LIBRARY.address,
+					ANGEL_CORE_STRUCT_LIBRARY : ANGEL_CORE_STRUCT.address
+				}
+			},
+			hre
+		);
 
 		if(network.name !== 'hardhat' && verify_contracts){
 			await run(`verify:verify`, {

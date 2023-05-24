@@ -37,6 +37,10 @@ export type AddressObj = {
         implementation: string
         proxy: string
     }
+    goldfinch: {
+        liquidVault: string
+        lockedVault: string
+    }
     registrar: {
         implementation: string
         proxy: string
@@ -46,6 +50,7 @@ export type AddressObj = {
         proxy: string
     }
     tokens: {
+        halo: string
         usdc: string
         weth: string
     }
@@ -109,6 +114,10 @@ const emptyAddressObj: AddressObj = {
         implementation: "",
         proxy: "",
     },
+    goldfinch: {
+        liquidVault: "",
+        lockedVault: ""
+    },
     registrar: {
         implementation: "",
         proxy: "",
@@ -118,6 +127,7 @@ const emptyAddressObj: AddressObj = {
         proxy: "",
     },
     tokens: {
+        halo: "",
         usdc: "",
         weth: ""
     },

@@ -1,8 +1,6 @@
-import addresses from "contract-address.json"
 import { task } from "hardhat/config"
-import { saveFrontendFiles } from "utils"
 import { CharityApplication__factory } from "typechain-types"
-import { logger, shouldVerify } from "utils"
+import { getAddresses, logger, updateAddresses, shouldVerify } from "utils"
 
 task(
     "upgrade:upgradeCharityApplication",
@@ -32,9 +30,16 @@ task(
         logger.out(`Deployed CharityApplication at: ${charityApplicationImpl.address}`)
 
         logger.out("Saving the new implementation address to JSON file...")
-        const { charityApplication } = addresses
-        charityApplication.CharityApplicationImplementation = charityApplicationImpl.address
-        await saveFrontendFiles({ charityApplication })
+        const addresses = await getAddresses(hre)
+        await updateAddresses(
+            { 
+                charityApplication: {
+                    ...addresses.charityApplication,
+                    CharityApplicationImplementation: charityApplicationImpl.address
+                }
+            },
+            hre
+        )
 
         if (shouldVerify(hre.network)) {
             logger.out("Verifying CharityApplication implementation...")

@@ -75,8 +75,7 @@ task("upgrade:upgradeMultisig", "Will upgrade the implementation of the AP Team 
             await updateAddresses(
                 { 
                     multiSig: {
-                        ApplicationsMultiSigProxy: ApplicationsProxy.address,
-                        APTeamMultiSigProxy: APTeamProxy.address,
+                        ...addresses.multiSig,
                         ApplicationMultisigImplementation: appsMultisigImpl.address,
                         APTeamMultisigImplementation: apMultisigImpl.address,
                     }

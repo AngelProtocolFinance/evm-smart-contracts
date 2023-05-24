@@ -2,7 +2,7 @@
 // yours, or create new ones.
 
 import { HardhatRuntimeEnvironment } from "hardhat/types"
-import { saveFrontendFiles } from "utils"
+import { logger, updateAddresses } from "utils"
 
 const deploySubDaoEmitter = async (proxyAdmin: string,accountAddress: string,verify_contracts: boolean, hre: HardhatRuntimeEnvironment) =>{
   try {
@@ -20,6 +20,19 @@ const deploySubDaoEmitter = async (proxyAdmin: string,accountAddress: string,ver
 
     await SubdaoEmitterProxy.deployed();
 
+    console.log('SubdaoEmitterProxy Address (Proxy):', SubdaoEmitterProxy.address);
+
+		logger.out("Saving addresses to contract-address.json...")
+		await updateAddresses(
+			{
+				subDaoEmitter: {
+					SubdaoEmitterProxyAddress: SubdaoEmitterProxy.address,
+          SubdaoEmitterImplementationAddress: SubdaoEmitterImplementation.address
+				}
+			},
+			hre
+		);
+
     if(verify_contracts){
       await run(`verify:verify`, {
         address: SubdaoEmitterImplementation.address,
@@ -30,15 +43,6 @@ const deploySubDaoEmitter = async (proxyAdmin: string,accountAddress: string,ver
         constructorArguments: [SubdaoEmitterImplementation.address, proxyAdmin, SubdaoEmitterData],
       });
     }
-
-    console.log('SubdaoEmitterProxy Address (Proxy):', SubdaoEmitterProxy.address);
-
-    let subDaoEmitter = {
-      SubdaoEmitterProxyAddress: SubdaoEmitterProxy.address,
-      SubdaoEmitterImplementationAddress: SubdaoEmitterImplementation.address
-    }
-
-    await saveFrontendFiles({subDaoEmitter});
 
     return Promise.resolve(SubdaoEmitterProxy.address);
   } catch (error) {

@@ -1,5 +1,5 @@
 import { task } from "hardhat/config"
-import { saveFrontendFiles, logger} from "utils"
+import { logger, updateAddresses } from "utils"
 
 task("Deploy:DeployLibraries", "Will deploy Libraries")
     .addParam("verify", "Want to verify contract")
@@ -29,12 +29,15 @@ task("Deploy:DeployLibraries", "Will deploy Libraries")
                 )}`
             )
 
-            let libraries = {
-                STRING_LIBRARY: STRING_LIBRARY.address,
-                ANGEL_CORE_STRUCT_LIBRARY: ANGEL_CORE_STRUCT.address,
-            };
-
-            await saveFrontendFiles({ libraries });
+            await updateAddresses(
+                {
+                    libraries: {
+                        STRING_LIBRARY: STRING_LIBRARY.address,
+                        ANGEL_CORE_STRUCT_LIBRARY: ANGEL_CORE_STRUCT.address,
+                    }
+                },
+                hre
+            );
 
             var isTrueSet = taskArgs.verify === "true";
 
