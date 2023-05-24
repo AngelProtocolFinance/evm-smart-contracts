@@ -10,7 +10,7 @@ task(
     "Will update the owner of the specified contract"
 ).setAction(async (_taskArguments: TaskArguments, hre) => {
     try {
-        const addresses = getAddresses(hre.network.config.chainId)
+        const addresses = await getAddresses(hre)
         let deployer: SignerWithAddress
         ;[deployer] = await hre.ethers.getSigners()
         const indexfund = (await hre.ethers.getContractAt(

@@ -1,9 +1,8 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
-import addresses from "contract-address.json"
 import { task } from "hardhat/config"
 import { AccountsCreateEndowment, AccountsQueryEndowments, MultiSigGeneric } from "typechain-types"
 import { AccountMessages } from "typechain-types/contracts/core/accounts/IAccounts"
-import { genWallet, logger } from "utils"
+import { genWallet, getAddresses, logger } from "utils"
 
 task("manage:createCharityEndowment", "Will create a new charity endowment").setAction(
     async (_taskArguments, hre) => {
@@ -15,18 +14,18 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
             [deployer, apTeam1, apTeam2, apTeam3] =
                 await hre.ethers.getSigners()
 
-
+            const addresses = await getAddresses(hre)
 
             let createEndowmentFacet = await hre.ethers.getContractAt(
                                         "AccountsCreateEndowment",
-                                        addresses.accounts.diamond) as AccountsCreateEndowment
+                                        addresses.accountsDiamond) as AccountsCreateEndowment
             let queryEndowmentFacet = await hre.ethers.getContractAt(
                                         "AccountsQueryEndowments",
-                                        addresses.accounts.diamond) as AccountsQueryEndowments
+                                        addresses.accountsDiamond) as AccountsQueryEndowments
 
                  
             // let createEndowmentFacet = await AccountsCreateEndowment__factory
-            //                         .connect(addresses.accounts.diamond, apTeam1)
+            //                         .connect(addresses.accountsDiamond, apTeam1)
 
             // let config = await queryEndowmentFacet.queryConfig()
             // logger.out(config)

@@ -45,6 +45,10 @@ export type AddressObj = {
         implementation: string
         proxy: string
     }
+    tokens: {
+        usdc: string
+        weth: string
+    }
     multiSig: {
         ApplicationsMultiSigProxy: string
         APTeamMultiSigProxy: string
@@ -112,6 +116,10 @@ const emptyAddressObj: AddressObj = {
     router: {
         implementation: "",
         proxy: "",
+    },
+    tokens: {
+        usdc: "",
+        weth: ""
     },
     multiSig: {
         ApplicationsMultiSigProxy: "",

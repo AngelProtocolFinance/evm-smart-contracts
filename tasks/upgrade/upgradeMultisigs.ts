@@ -1,7 +1,6 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
-import addresses from "contract-address.json"
 import { task } from "hardhat/config"
-import { saveFrontendFiles } from "utils"
+import { getAddresses, updateAddresses } from "utils"
 import {
     APTeamMultiSig__factory,
     ApplicationsMultiSig__factory,
@@ -15,6 +14,8 @@ task("upgrade:upgradeMultisig", "Will upgrade the implementation of the AP Team 
             let deployer: SignerWithAddress
             let proxyAdmin: SignerWithAddress
             ;[deployer, proxyAdmin] = await hre.ethers.getSigners()
+
+            const addresses = await getAddresses(hre)
 
             let IMPLEMENTATION_ADDRESS_SLOT = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
 
@@ -71,13 +72,17 @@ task("upgrade:upgradeMultisig", "Will upgrade the implementation of the AP Team 
             logger.out(`New Apps impl: ${newAppsImpl}`)
 
             logger.out("Saving the new implementation address to JSON file...")
-            let multiSig = {
-                ApplicationsMultiSigProxy: ApplicationsProxy.address,
-                APTeamMultiSigProxy: APTeamProxy.address,
-                ApplicationMultisigImplementation: appsMultisigImpl.address,
-                APTeamMultisigImplementation: apMultisigImpl.address,
-            }
-            await saveFrontendFiles({ multiSig })
+            await updateAddresses(
+                { 
+                    multiSig: {
+                        ApplicationsMultiSigProxy: ApplicationsProxy.address,
+                        APTeamMultiSigProxy: APTeamProxy.address,
+                        ApplicationMultisigImplementation: appsMultisigImpl.address,
+                        APTeamMultisigImplementation: apMultisigImpl.address,
+                    }
+                },
+                hre
+            )
 
             if (shouldVerify(hre.network)) {
                 logger.out("Verifying APTeamMultiSig...")

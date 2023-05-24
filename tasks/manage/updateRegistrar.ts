@@ -1,19 +1,20 @@
+import config from "config"
 import { task } from "hardhat/config"
 import type { TaskArguments } from "hardhat/types"
-import config from "config"
-import addresses from "contract-address.json"
 import { Registrar } from "typechain-types"
 import { RegistrarMessages } from "typechain-types/contracts/core/registrar/interfaces/IRegistrar"
-import { logger } from "utils"
+import { getAddresses, logger } from "utils"
 
 task("manage:updateRegistrar", "Will update the registrar config")
     .setAction(async (taskArguments: TaskArguments, hre) => {
         try {
             let [deployer, apTeam1] = await hre.ethers.getSigners()
 
+            const addresses = await getAddresses(hre)
+
             const registrar = (await hre.ethers.getContractAt(
                 "Registrar",
-                addresses.registrar.registrarProxy
+                addresses.registrar.proxy
             )) as Registrar
 
             logger.out("Current config")
@@ -21,7 +22,7 @@ task("manage:updateRegistrar", "Will update the registrar config")
             logger.out(currentConfig)
 
             let newConfig: RegistrarMessages.UpdateConfigRequestStruct = {
-                accountsContract: addresses.accounts.diamond,
+                accountsContract: addresses.accountsDiamond,
                 taxRate: config.REGISTRAR_DATA.taxRate,
                 rebalance: config.REGISTRAR_DATA.rebalance,
                 approved_charities: [],
@@ -59,8 +60,8 @@ task("manage:updateRegistrar", "Will update the registrar config")
                 charityProposal: addresses.charityApplication.CharityApplicationProxy,
                 lockedWithdrawal: addresses.lockedWithdraw.LockedWithdrawProxy,
                 proxyAdmin: deployer.address,
-                usdcAddress: addresses.Tokens.usdc,
-                wethAddress: addresses.Tokens.weth,
+                usdcAddress: addresses.tokens.usdc,
+                wethAddress: addresses.tokens.weth,
                 cw900lvAddress: apTeam1.address,
             }
             let tx = await registrar.updateConfig(newConfig)
