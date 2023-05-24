@@ -77,11 +77,6 @@ const deployDonationMatchCharity = async (proxyAdmin: string, deployDonationMatc
 
 		console.log('DonationMatchCharityProxy Address (Proxy):', DonationMatchProxy.address);
 
-		let DonationMatchAddress = {
-			DonationMatchProxy: DonationMatchProxy.address,
-			DonationMatchImplementation: DonationMatchImplementation.address,
-		}
-
 		if (verify_contracts) {
 			await run('verify:verify', {
 				address: DonationMatchImplementation.address,
@@ -94,7 +89,10 @@ const deployDonationMatchCharity = async (proxyAdmin: string, deployDonationMatc
 			});
 		}
 
-		return Promise.resolve(DonationMatchAddress);
+		return Promise.resolve({
+			implementation: DonationMatchImplementation.address,
+			proxy: DonationMatchProxy.address,
+		});
 	} catch (error) {
 		return Promise.reject(error);
 	}
@@ -193,7 +191,7 @@ const deployFeeDistributor = async (verify_contracts: boolean, hre: HardhatRunti
 	}
 };
 
-const deployIncentiisedVoting = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
+const deployIncentivisedVoting = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
 	try {
 		const {network,run,ethers} = hre;
 		const IncentivisedVotingLockup = await ethers.getContractFactory('IncentivisedVotingLockup');
@@ -232,7 +230,7 @@ export async function deployImplementation(
 			SubDaoERC20: await deploySubDaoERC20(verify_contracts, hre),
 			SubDaoveBonding: await deploySubDaoveBonding(verify_contracts,hre),
 			FeeDistributor: await deployFeeDistributor(verify_contracts,hre),
-			IncentiisedVoting: await deployIncentiisedVoting(verify_contracts,hre),
+			IncentiisedVoting: await deployIncentivisedVoting(verify_contracts,hre),
 			cw900lv: await deployCw900lvImplementation(verify_contracts,hre),
 		};
 
