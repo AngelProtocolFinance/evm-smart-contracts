@@ -22,7 +22,7 @@ task("manage:updateRegistrar", "Will update the registrar config")
             logger.out(currentConfig)
 
             let newConfig: RegistrarMessages.UpdateConfigRequestStruct = {
-                accountsContract: addresses.accountsDiamond,
+                accountsContract: addresses.accounts.diamond,
                 taxRate: config.REGISTRAR_DATA.taxRate,
                 rebalance: config.REGISTRAR_DATA.rebalance,
                 approved_charities: [],

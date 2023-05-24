@@ -13,7 +13,7 @@ task("Deploy:deployCharityApplications", "Will deploy CharityApplications contra
             const charityApplicationsData: Parameters<typeof charityApplications>[0] = [
                 config.CHARITY_APPLICATION_DATA.expiry,
                 addresses.multiSig.ApplicationsMultiSigProxy,
-                addresses.accountsDiamond,
+                addresses.accounts.diamond,
                 config.CHARITY_APPLICATION_DATA.seedSplitToLiquid,
                 config.CHARITY_APPLICATION_DATA.newEndowGasMoney,
                 config.CHARITY_APPLICATION_DATA.gasAmount,

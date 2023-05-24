@@ -29,9 +29,9 @@ task("upgrade:upgradeFacets", "Will redeploy and upgrade all facets that use Acc
                 addresses.libraries.STRING_LIBRARY
             )
 
-            const facetCuts = await createFacetCuts(facets, addresses.accountsDiamond, proxyAdmin)
+            const facetCuts = await createFacetCuts(facets, addresses.accounts.diamond, proxyAdmin)
 
-            await cutDiamond(addresses.accountsDiamond, proxyAdmin, facetCuts, hre)
+            await cutDiamond(addresses.accounts.diamond, proxyAdmin, facetCuts, hre)
 
             if (shouldVerify(hre.network)) {
                 await verify(facetCuts, hre)

@@ -18,14 +18,14 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
 
             let createEndowmentFacet = await hre.ethers.getContractAt(
                                         "AccountsCreateEndowment",
-                                        addresses.accountsDiamond) as AccountsCreateEndowment
+                                        addresses.accounts.diamond) as AccountsCreateEndowment
             let queryEndowmentFacet = await hre.ethers.getContractAt(
                                         "AccountsQueryEndowments",
-                                        addresses.accountsDiamond) as AccountsQueryEndowments
+                                        addresses.accounts.diamond) as AccountsQueryEndowments
 
                  
             // let createEndowmentFacet = await AccountsCreateEndowment__factory
-            //                         .connect(addresses.accountsDiamond, apTeam1)
+            //                         .connect(addresses.accounts.diamond, apTeam1)
 
             // let config = await queryEndowmentFacet.queryConfig()
             // logger.out(config)

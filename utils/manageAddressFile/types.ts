@@ -1,5 +1,7 @@
 export type AddressObj = {
-    accountsDiamond: string
+    accounts: {
+        diamond: string
+    }
     charityApplication: {
         implementation: string
         proxy: string

@@ -51,7 +51,9 @@ const emptyAddressObj: AddressObj = {
         STRING_LIBRARY: "",
         ANGEL_CORE_STRUCT_LIBRARY: "",
     },
-    accountsDiamond: "",
+    accounts: {
+        diamond: ""
+    },
     fundraising: {
         implementation: "",
         library: "",

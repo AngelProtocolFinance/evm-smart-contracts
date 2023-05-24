@@ -35,7 +35,7 @@ async function transferAccountOwnership(
     hre: HardhatRuntimeEnvironment
 ) {
     try {
-        const ownershipFacet = OwnershipFacet__factory.connect(addresses.accountsDiamond, currentAdmin)
+        const ownershipFacet = OwnershipFacet__factory.connect(addresses.accounts.diamond, currentAdmin)
         const tx = await ownershipFacet.transferOwnership(newAdmin)
         await hre.ethers.provider.waitForTransaction(tx.hash)
         logger.out("Transferred Account diamond ownership.")
