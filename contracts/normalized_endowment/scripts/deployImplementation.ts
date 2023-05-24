@@ -3,7 +3,7 @@
 
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import { DonationMatchMessages } from "typechain-types/contracts/normalized_endowment/donation-match/DonationMatch.sol/DonationMatch"
-import { logger, updateAddresses } from "utils"
+import { getAddresses, logger, updateAddresses } from "utils"
 
 const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
 
@@ -155,7 +155,7 @@ const deploySubDaoERC20 = async (verify_contracts: boolean, hre: HardhatRuntimeE
 	}
 };
 
-const deploySubDaoveBonding = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
+const deploySubDaoVeToken = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
 	try {
 		const {network,run,ethers} = hre;
 
@@ -191,7 +191,7 @@ const deployFeeDistributor = async (verify_contracts: boolean, hre: HardhatRunti
 	}
 };
 
-const deployIncentivisedVoting = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
+const deployIncentivisedVotingLockup = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
 	try {
 		const {network,run,ethers} = hre;
 		const IncentivisedVotingLockup = await ethers.getContractFactory('IncentivisedVotingLockup');
@@ -215,41 +215,39 @@ const deployIncentivisedVoting = async (verify_contracts: boolean, hre: HardhatR
 export async function deployImplementation(
 	ANGEL_CORE_STRUCT: string,
 	donationMatchCharityData: DonationMatchMessages.InstantiateMessageStruct,
-	verify_contracts: boolean, hre: HardhatRuntimeEnvironment
+	verify_contracts: boolean, 
+	hre: HardhatRuntimeEnvironment
 ) {
 	try {
 		const {network,run,ethers} = hre;
 		let [deployer, proxyAdmin] = await ethers.getSigners();
 		
-		const DonationMatchCharity = await deployDonationMatchCharity(proxyAdmin.address, donationMatchCharityData,verify_contracts, hre)
+		const addresses = await getAddresses(hre)
 
-		const Implementation = {
-			DonationMatch: await deployDonationMatch(verify_contracts, hre),
-			DonationMatchCharity,
-			SubDao: await deploySubDao(ANGEL_CORE_STRUCT,verify_contracts, hre),
-			SubDaoERC20: await deploySubDaoERC20(verify_contracts, hre),
-			SubDaoveBonding: await deploySubDaoveBonding(verify_contracts,hre),
-			FeeDistributor: await deployFeeDistributor(verify_contracts,hre),
-			IncentiisedVoting: await deployIncentivisedVoting(verify_contracts,hre),
-			cw900lv: await deployCw900lvImplementation(verify_contracts,hre),
+		const implementations = {
+			cw900lv: await deployCw900lvImplementation(verify_contracts, hre),
+			donationMatch: {
+				implementation: await deployDonationMatch(verify_contracts, hre)
+			},
+			donationMatchCharity: await deployDonationMatchCharity(proxyAdmin.address, donationMatchCharityData,verify_contracts, hre),
+			feeDistributor: await deployFeeDistributor(verify_contracts, hre),
+			incentivisedVotingLockup: {
+				implementation: await deployIncentivisedVotingLockup(verify_contracts,hre)
+			},
+			subDao: {
+				...addresses.subDao,
+				implementation: await deploySubDao(ANGEL_CORE_STRUCT,verify_contracts, hre),
+				token: await deploySubDaoERC20(verify_contracts, hre),
+				veToken: await deploySubDaoVeToken(verify_contracts,hre),
+			},
 		};
 
-		logger.out("Saving addresses to contract-address.json...")
-		await updateAddresses(
-			{
-				HaloImplementations: {
-					DonationMatchImplementation: Implementation.DonationMatch,
-					DonationMatchAddress: { ...DonationMatchCharity },
-					IncentivisedVotingLockupImplementation: Implementation.IncentiisedVoting,
-					subDaoERC20Implementation: Implementation.SubDaoERC20,
-					SubDaoImplementation: Implementation.SubDao,
-					subDaoveTokenImplementation: Implementation.SubDaoBondingve
-				}
-			},
-			hre
-		);
+		const {cw900lv, feeDistributor, ...toUpdate} = implementations
 
-		return Promise.resolve(Implementation);
+		logger.out("Saving addresses to contract-address.json...")
+		await updateAddresses(toUpdate, hre);
+
+		return Promise.resolve(implementations)
 	} catch (error) {
 		return Promise.reject(error);
 	}

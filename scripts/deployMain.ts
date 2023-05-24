@@ -197,13 +197,6 @@ export async function main(apTeamAdmins = []) {
 
         console.log("multisigDat contract deployed at:-", multisigDat)
 
-        const lockedWithdrawalData = [
-            REGISTRAR_ADDRESS,
-            ACCOUNT_ADDRESS,
-            multisigAddress.APTeamMultiSig,
-            multisigDat.MultiSigWalletFactory,
-        ]
-
         // console.log('implementations deployed at:', implementations);
 
         // let GiftCardDataInput = {
@@ -356,7 +349,7 @@ export async function main(apTeamAdmins = []) {
         )
 
         if (isLocalNetwork(network)) {
-            await haloToken.transfer(implementations.DonationMatchCharity, ethers.utils.parseEther("100000000"))
+            await haloToken.transfer(implementations.donationMatchCharity.proxy, ethers.utils.parseEther("100000000"))
         }
 
         config.REGISTRAR_DATA.acceptedTokens.cw20.push(haloToken.address)
@@ -368,17 +361,17 @@ export async function main(apTeamAdmins = []) {
 			splitMin: 0, //uint256
 			splitDefault: 50, //uint256
 			collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
-			subdaoGovContract: implementations.SubDao, //address
-			subdaoTokenContract: implementations.SubDaoERC20, //address
-			subdaoBondingTokenContract: implementations.SubDaoveBonding, //address
-			subdaoCw900Contract: implementations.IncentiisedVoting, //address
+			subdaoGovContract: implementations.subDao.implementation, //address
+			subdaoTokenContract: implementations.subDao.token, //address
+			subdaoBondingTokenContract: implementations.subDao.veToken, //address
+			subdaoCw900Contract: implementations.incentivisedVotingLockup.implementation, //address
 			subdaoDistributorContract: ADDRESS_ZERO,
 			subdaoEmitter: emitters.subDaoEmitter, //TODO:
-			donationMatchContract: implementations.DonationMatch, //address
+			donationMatchContract: implementations.donationMatch.implementation, //address
 			indexFundContract: INDEX_FUND_ADDRESS, //address
 			govContract: haloAddress.Gov.GovProxy, //address
 			treasury: config.REGISTRAR_DATA.treasury,
-			donationMatchCharitesContract: implementations.DonationMatchCharity, // once uniswap is setup //address
+			donationMatchCharitesContract: implementations.donationMatchCharity.proxy, // once uniswap is setup //address
 			donationMatchEmitter: emitters.DonationMatchEmitter,
 			haloToken: haloAddress.Halo, //address
 			haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address

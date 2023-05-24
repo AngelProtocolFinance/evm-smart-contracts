@@ -6,6 +6,13 @@ export type AddressObj = {
         implementation: string
         proxy: string
     }
+    donationMatch: {
+        implementation: string
+    }
+    donationMatchCharity: {
+        implementation: string
+        proxy: string
+    }
     fundraising: {
         implementation: string
         library: string
@@ -19,16 +26,8 @@ export type AddressObj = {
         liquidVault: string
         lockedVault: string
     }
-    HaloImplementations: {
-        DonationMatchImplementation: string
-        DonationMatchAddress: {
-            proxy: string
-            implementation: string
-        }
-        SubDaoImplementation: string
-        subDaoERC20Implementation: string
-        subDaoveTokenImplementation: string
-        IncentivisedVotingLockupImplementation: string
+    incentivisedVotingLockup: {
+        implementation: string
     }
     indexFund: {
         implementation: string
@@ -37,10 +36,6 @@ export type AddressObj = {
     libraries: {
         ANGEL_CORE_STRUCT_LIBRARY: string
         STRING_LIBRARY: string
-    }
-    lockedWithdraw: {
-        implementation: string
-        proxy: string
     }
     multiSig: {
         applications: {
@@ -68,9 +63,14 @@ export type AddressObj = {
         implementation: string
         proxy: string
     }
-    subDaoEmitter: {
+    subDao: {
+        emitter: {
+            implementation: string
+            proxy: string
+        }
         implementation: string
-        proxy: string
+        token: string
+        veToken: string
     }
     swapRouter: {
         implementation: string

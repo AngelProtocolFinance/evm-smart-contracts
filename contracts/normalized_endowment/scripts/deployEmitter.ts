@@ -2,7 +2,7 @@
 // yours, or create new ones.
 
 import { HardhatRuntimeEnvironment } from "hardhat/types"
-import { logger, updateAddresses } from "utils"
+import { getAddresses, logger, updateAddresses } from "utils"
 
 const deploySubDaoEmitter = async (proxyAdmin: string,accountAddress: string,verify_contracts: boolean, hre: HardhatRuntimeEnvironment) =>{
   try {
@@ -23,12 +23,16 @@ const deploySubDaoEmitter = async (proxyAdmin: string,accountAddress: string,ver
     console.log('SubdaoEmitterProxy Address (Proxy):', SubdaoEmitterProxy.address);
 
 		logger.out("Saving addresses to contract-address.json...")
+    const addresses = await getAddresses(hre)
 		await updateAddresses(
 			{
-				subDaoEmitter: {
-					proxy: SubdaoEmitterProxy.address,
-          implementation: SubdaoEmitterImplementation.address
-				}
+				subDao: {
+          ...addresses.subDao,
+          emitter: {
+            implementation: SubdaoEmitterImplementation.address,
+            proxy: SubdaoEmitterProxy.address,
+          }
+        }
 			},
 			hre
 		);

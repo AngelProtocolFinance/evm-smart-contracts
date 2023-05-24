@@ -56,8 +56,8 @@ async function deployLibraries(verify_contracts: boolean,hre: HardhatRuntimeEnvi
 		await updateAddresses(
 			{
 				libraries: {
+					ANGEL_CORE_STRUCT_LIBRARY : ANGEL_CORE_STRUCT.address,
 					STRING_LIBRARY : STRING_LIBRARY.address,
-					ANGEL_CORE_STRUCT_LIBRARY : ANGEL_CORE_STRUCT.address
 				}
 			},
 			hre
@@ -188,13 +188,6 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 		let multisigDat = await deployEndowmentMultiSig(verify_contracts, hre);
 
 		console.log('multisigDat contract deployed at:-', multisigDat);
-
-		const lockedWithdrawalData = [
-			REGISTRAR_ADDRESS,
-			ACCOUNT_ADDRESS,
-			multisigAddress.APTeamMultiSig,
-			multisigDat.MultiSigWalletFactory,
-		];
 
 		// console.log('implementations deployed at:', implementations);
 
@@ -342,14 +335,13 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 
 		let implementations = await deployImplementation(
 			ANGEL_CORE_STRUCT.address,
-			lockedWithdrawalData,
 			donationMatchCharityData,
 			verify_contracts,
 			hre
 		);
 
 		if (isLocalNetwork(network)) {
-			await haloToken.transfer(implementations.DonationMatchCharity, ethers.utils.parseEther('100000000'));
+			await haloToken.transfer(implementations.donationMatchCharity.proxy, ethers.utils.parseEther('100000000'));
 		}
 
 		config.REGISTRAR_DATA.acceptedTokens.cw20.push(haloToken.address);
@@ -361,17 +353,17 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			splitMin: 0, //uint256
 			splitDefault: 50, //uint256
 			collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
-			subdaoGovContract: implementations.SubDao, //address
-			subdaoTokenContract: implementations.SubDaoERC20, //address
-			subdaoBondingTokenContract: implementations.SubDaoveBonding, //address
-			subdaoCw900Contract: implementations.IncentiisedVoting, //address
+			subdaoGovContract: implementations.subDao.implementation, //address
+			subdaoTokenContract: implementations.subDao.token, //address
+			subdaoBondingTokenContract: implementations.subDao.veToken, //address
+			subdaoCw900Contract: implementations.incentivisedVotingLockup, //address
 			subdaoDistributorContract: ADDRESS_ZERO,
 			subdaoEmitter: emitters.subDaoEmitter, //TODO:
-			donationMatchContract: implementations.DonationMatch, //address
+			donationMatchContract: implementations.donationMatch, //address
 			indexFundContract: INDEX_FUND_ADDRESS, //address
 			govContract: haloAddress.Gov.GovProxy, //address
 			treasury: config.REGISTRAR_DATA.treasury,
-			donationMatchCharitesContract: implementations.DonationMatchCharity, // once uniswap is setup //address
+			donationMatchCharitesContract: implementations.donationMatchCharity, // once uniswap is setup //address
 			donationMatchEmitter: emitters.DonationMatchEmitter,
 			haloToken: haloAddress.Halo, //address
 			haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
@@ -382,7 +374,6 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			multisigFactory: multisigDat.MultiSigWalletFactory, //address
 			multisigEmitter: multisigDat.EndowmentMultiSigEmitter, //address
 			charityProposal: charityApplicationsAddress, //address
-			lockedWithdrawal: implementations.LockedWithdraw, //address
 			proxyAdmin: proxyAdmin.address, //address
 			usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
 			wethAddress: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
@@ -422,7 +413,6 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			haloGovContract: haloAddress.Gov.GovProxy,
 			timelockContract: haloAddress.Gov.TimeLock,
 			votingERC20: haloAddress.Gov.VotingERC20Proxy,
-			lockedWithdraw: implementations.LockedWithdraw,
 		};
 
 		await saveFrontendFiles({addressWriter});

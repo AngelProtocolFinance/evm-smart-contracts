@@ -56,6 +56,13 @@ function createEmpty(): AddressObj {
             implementation: "",
             proxy: "",
         },
+        donationMatch: {
+            implementation: "",
+        },
+        donationMatchCharity: {
+            implementation: "",
+            proxy: "",
+        },
         fundraising: {
             implementation: "",
             library: "",
@@ -69,16 +76,8 @@ function createEmpty(): AddressObj {
             liquidVault: "",
             lockedVault: "",
         },
-        HaloImplementations: {
-            DonationMatchImplementation: "",
-            DonationMatchAddress: {
-                proxy: "",
-                implementation: "",
-            },
-            SubDaoImplementation: "",
-            subDaoERC20Implementation: "",
-            subDaoveTokenImplementation: "",
-            IncentivisedVotingLockupImplementation: "",
+        incentivisedVotingLockup: {
+            implementation: "",
         },
         indexFund: {
             implementation: "",
@@ -88,18 +87,14 @@ function createEmpty(): AddressObj {
             ANGEL_CORE_STRUCT_LIBRARY: "",
             STRING_LIBRARY: "",
         },
-        lockedWithdraw: {
-            implementation: "",
-            proxy: "",
-        },
         multiSig: {
             applications: {
                 implementation: "",
-                proxy: ""
+                proxy: "",
             },
             apTeam: {
                 implementation: "",
-                proxy: ""
+                proxy: "",
             },
             endowment: {
                 emitter: {
@@ -118,9 +113,14 @@ function createEmpty(): AddressObj {
             implementation: "",
             proxy: "",
         },
-        subDaoEmitter: {
+        subDao: {
+            emitter: {
+                implementation: "",
+                proxy: "",
+            },
             implementation: "",
-            proxy: "",
+            token: "",
+            veToken: "",
         },
         swapRouter: {
             implementation: "",

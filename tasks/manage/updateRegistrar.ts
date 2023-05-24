@@ -44,7 +44,7 @@ task("manage:updateRegistrar", "Will update the registrar config")
                 indexFundContract: addresses.indexFund.proxy,
                 govContract: apTeam1.address,
                 treasury: apTeam1.address,
-                donationMatchCharitesContract: addresses.HaloImplementations.DonationMatchAddress.proxy,
+                donationMatchCharitesContract: addresses.donationMatchCharity.proxy,
                 donationMatchEmitter: apTeam1.address,
                 haloToken: apTeam1.address,
                 haloTokenLpContract: apTeam1.address,
