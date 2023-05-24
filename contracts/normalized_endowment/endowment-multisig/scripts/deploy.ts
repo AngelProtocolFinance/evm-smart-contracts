@@ -64,9 +64,9 @@ export async function deployEndowmentMultiSig(verify_contracts: boolean, hre: Ha
 
     logger.out("Saving addresses to contract-address.json...")
     const addresses = await getAddresses(hre)
-		await updateAddresses(
-			{
-				multiSig: {
+    await updateAddresses(
+      {
+        multiSig: {
           ...addresses.multiSig,
           endowment: {
             emitter: { ...EndowmentMultiSigEmitterAddresses },
@@ -74,9 +74,9 @@ export async function deployEndowmentMultiSig(verify_contracts: boolean, hre: Ha
             implementation: EndowmentMultiSigInstance.address
           }
         }
-			},
-			hre
-		);
+      },
+      hre
+    );
 
     if(verify_contracts){
       await run("verify:verify", {

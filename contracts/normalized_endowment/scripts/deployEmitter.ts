@@ -22,20 +22,20 @@ const deploySubDaoEmitter = async (proxyAdmin: string,accountAddress: string,ver
 
     console.log('SubdaoEmitterProxy Address (Proxy):', SubdaoEmitterProxy.address);
 
-		logger.out("Saving addresses to contract-address.json...")
+    logger.out("Saving addresses to contract-address.json...")
     const addresses = await getAddresses(hre)
-		await updateAddresses(
-			{
-				subDao: {
+    await updateAddresses(
+      {
+        subDao: {
           ...addresses.subDao,
           emitter: {
             implementation: SubdaoEmitterImplementation.address,
             proxy: SubdaoEmitterProxy.address,
           }
         }
-			},
-			hre
-		);
+      },
+      hre
+    );
 
     if(verify_contracts){
       await run(`verify:verify`, {

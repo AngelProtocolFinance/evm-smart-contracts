@@ -45,22 +45,22 @@ export async function deployMultisig(ApplicationMultisigData: Parameters<Applica
 
     logger.out("Saving addresses to contract-address.json...")
     const addresses = await getAddresses(hre)
-		await updateAddresses(
-			{
-				multiSig: {
+    await updateAddresses(
+      {
+        multiSig: {
           ...addresses.multiSig,
-					applications: {
+          applications: {
             implementation: ApplicationsMultiSigInstance.address,
             proxy: ApplicationsMultiSigProxy.address
           },
-					apTeam: {
+          apTeam: {
             implementation: APTeamMultiSigInstance.address,
             proxy: APTeamMultiSigProxy.address
           },
-				}
-			},
-			hre
-		);
+        }
+      },
+      hre
+    );
 
     if(verify_contracts){
       await run(`verify:verify`, {

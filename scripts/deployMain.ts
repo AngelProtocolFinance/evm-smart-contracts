@@ -52,15 +52,15 @@ async function deployLibraries(verify_contracts: boolean, hre: HardhatRuntimeEnv
             "ANGEL_CORE_STRUCT_LIBRARY Deployed at ": ANGEL_CORE_STRUCT.address,
         })
 
-		await updateAddresses(
-			{
-				libraries: {
+        await updateAddresses(
+            {
+                libraries: {
                     STRING_LIBRARY: STRING_LIBRARY.address,
                     ANGEL_CORE_STRUCT_LIBRARY: ANGEL_CORE_STRUCT.address,
                 }
-			},
-			hre
-		);
+            },
+            hre
+        );
 
         if (network.name !== "hardhat" && verify_contracts) {
             await run(`verify:verify`, {

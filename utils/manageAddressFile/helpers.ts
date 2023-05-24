@@ -22,9 +22,9 @@ export function getAddressesByNetworkId(networkId: string | symbol | number): Ad
             const contractKey = String(prop)
             if (hasKey(target, contractKey) && !!target[contractKey]) {
                 return target[contractKey]
-            } else {
-                throw new Error(`Contract ${contractKey} not deployed on ${key}`)
             }
+
+            throw new Error(`Contract ${contractKey} not deployed on ${key}`)
         },
     })
 }

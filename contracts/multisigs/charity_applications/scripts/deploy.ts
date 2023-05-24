@@ -51,15 +51,15 @@ export async function charityApplications(CharityApplicationDataInput: Initializ
         console.log('CharityApplication Address (Proxy):', CharityApplicationProxy.address);
   
         logger.out("Saving addresses to contract-address.json...")
-		await updateAddresses(
-			{
-				charityApplication: {
-					proxy: CharityApplicationProxy.address,
+        await updateAddresses(
+            {
+                charityApplication: {
+                    proxy: CharityApplicationProxy.address,
                     implementation: CharityApplicationInstance.address,
-				}
-			},
-			hre
-		);
+                }
+            },
+            hre
+        );
 
         if(verify_contracts){
             await run(`verify:verify`, {

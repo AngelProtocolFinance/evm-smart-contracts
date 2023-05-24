@@ -50,10 +50,10 @@ task("deploy:RouterAndRegistrar")
     logger.pad(50, "with the current implementation at: ", routerImplAddress)
     logger.divider()
 
-		logger.out("Saving addresses to contract-address.json...")
-		await updateAddresses(
-			{
-				registrar: {
+    logger.out("Saving addresses to contract-address.json...")
+    await updateAddresses(
+      {
+        registrar: {
           proxy: registrar.address,
           implementation: registrarImplAddress
         },
@@ -61,9 +61,9 @@ task("deploy:RouterAndRegistrar")
           proxy: router.address,
           implementation: routerImplAddress
         }
-			},
-			hre
-		);
+      },
+      hre
+    );
 
     // Verify contracts on etherscan
     try {
