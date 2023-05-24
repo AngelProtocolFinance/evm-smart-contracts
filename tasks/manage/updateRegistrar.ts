@@ -58,7 +58,6 @@ task("manage:updateRegistrar", "Will update the registrar config")
                     addresses.multiSig.endowment
                         .emitter.proxy,
                 charityProposal: addresses.charityApplication.proxy,
-                lockedWithdrawal: addresses.lockedWithdraw.proxy,
                 proxyAdmin: deployer.address,
                 usdcAddress: addresses.tokens.usdc,
                 wethAddress: addresses.tokens.weth,
