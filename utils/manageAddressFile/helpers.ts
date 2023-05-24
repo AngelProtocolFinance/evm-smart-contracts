@@ -56,14 +56,6 @@ function createEmpty(): AddressObj {
             implementation: "",
             proxy: "",
         },
-        endowmentMultiSig: {
-            emitter: {
-                implementation: "",
-                proxy: "",
-            },
-            factory: "",
-            implementation: "",
-        },
         fundraising: {
             implementation: "",
             library: "",
@@ -105,6 +97,14 @@ function createEmpty(): AddressObj {
             APTeamMultiSigProxy: "",
             ApplicationMultisigImplementation: "",
             APTeamMultisigImplementation: "",
+            endowment: {
+                emitter: {
+                    implementation: "",
+                    proxy: "",
+                },
+                factory: "",
+                implementation: "",
+            },
         },
         registrar: {
             implementation: "",

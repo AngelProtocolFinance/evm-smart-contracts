@@ -6,14 +6,6 @@ export type AddressObj = {
         implementation: string
         proxy: string
     }
-    endowmentMultiSig: {
-        emitter: {
-            implementation: string
-            proxy: string
-        }
-        factory: string
-        implementation: string
-    }
     fundraising: {
         implementation: string
         library: string
@@ -55,6 +47,14 @@ export type AddressObj = {
         APTeamMultiSigProxy: string
         ApplicationMultisigImplementation: string
         APTeamMultisigImplementation: string
+        endowment: {
+            emitter: {
+                implementation: string
+                proxy: string
+            }
+            factory: string
+            implementation: string
+        }
     }
     registrar: {
         implementation: string

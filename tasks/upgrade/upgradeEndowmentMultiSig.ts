@@ -23,7 +23,7 @@ task(
         logger.out(`Upgrading EndowmentMultiSig implementation address inside MultiSigWalletFactory...`)
 
         const multisigWalletFactory = MultiSigWalletFactory__factory.connect(
-            addresses.endowmentMultiSig.factory,
+            addresses.multiSig.endowment.factory,
             proxyAdmin
         )
         const tx = await multisigWalletFactory.updateImplementation(contract.address)
@@ -38,9 +38,12 @@ task(
 
         await updateAddresses(
             { 
-                endowmentMultiSig: {
-                    ...addresses.endowmentMultiSig,
-                    implementation: contract.address
+                multiSig: {
+                    ...addresses.multiSig,
+                    endowment: {
+                        ...addresses.multiSig.endowment,
+                        implementation: contract.address
+                    }
                 }
             }, 
             hre
