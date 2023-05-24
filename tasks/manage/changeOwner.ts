@@ -23,8 +23,8 @@ task(
         logger.out(currentConfig.owner)
 
         logger.out("Changing owner to:")
-        logger.out(addresses.multiSig.APTeamMultiSigProxy)
-        // await indexfund.connect(deployer).updateOwner(addresses.multiSig.APTeamMultiSigProxy)
+        logger.out(addresses.multiSig.apTeam.proxy)
+        // await indexfund.connect(deployer).updateOwner(addresses.multiSig.apTeam.proxy)
     } catch (error) {
         logger.out(error, logger.Level.Error)
     }

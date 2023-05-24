@@ -47,8 +47,10 @@ export type AddressObj = {
             implementation: string
             proxy: string
         }
-        APTeamMultiSigProxy: string
-        APTeamMultisigImplementation: string
+        apTeam: {
+            implementation: string
+            proxy: string
+        }
         endowment: {
             emitter: {
                 implementation: string

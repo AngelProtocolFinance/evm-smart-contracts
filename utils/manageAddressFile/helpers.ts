@@ -97,8 +97,10 @@ function createEmpty(): AddressObj {
                 implementation: "",
                 proxy: ""
             },
-            APTeamMultiSigProxy: "",
-            APTeamMultisigImplementation: "",
+            apTeam: {
+                implementation: "",
+                proxy: ""
+            },
             endowment: {
                 emitter: {
                     implementation: "",

@@ -18,7 +18,7 @@ task("manage:createIndexFund", "Will create a new index fund").setAction(
 
             const multisig = (await hre.ethers.getContractAt(
                 "MultiSigGeneric",
-                addresses.multiSig.APTeamMultiSigProxy
+                addresses.multiSig.apTeam.proxy
             )) as MultiSigGeneric
 
             const indexfund = (await hre.ethers.getContractAt(

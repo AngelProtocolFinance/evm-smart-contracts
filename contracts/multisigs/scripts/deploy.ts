@@ -53,8 +53,10 @@ export async function deployMultisig(ApplicationMultisigData: Parameters<Applica
             implementation: ApplicationsMultiSigInstance.address,
             proxy: ApplicationsMultiSigProxy.address
           },
-          APTeamMultiSigProxy: APTeamMultiSigProxy.address,
-          APTeamMultisigImplementation: APTeamMultiSigInstance.address
+					apTeam: {
+            implementation: APTeamMultiSigInstance.address,
+            proxy: APTeamMultiSigProxy.address
+          },
 				}
 			},
 			hre
