@@ -12,15 +12,15 @@ contract EndowmentMultiSigEmitter {
      * Events
      */
 
-    bool isInitialized = false;
+    bool isInitialized;
     address multisigFactory;
     mapping(address => bool) isMultisig;
 
-    function initEndowmentMultiSigEmitter(address multisigfactory) public {
-        require(multisigfactory != address(0), "Invalid Address");
+    function initEndowmentMultiSigEmitter(address _multisigFactory) public {
+        require(_multisigFactory != address(0), "Invalid Address");
         require(!isInitialized, "Already initialized");
         isInitialized = true;
-        multisigFactory = multisigfactory;
+        multisigFactory = _multisigFactory;
     }
 
     modifier isEmitter() {

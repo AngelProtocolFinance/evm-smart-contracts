@@ -654,19 +654,19 @@ export interface AccountDeployContract extends BaseContract {
 
   functions: {
     createDaoContract(
-      createdaomessage: SubDaoMessage.InstantiateMsgStruct,
+      createDaoMessage: SubDaoMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
   createDaoContract(
-    createdaomessage: SubDaoMessage.InstantiateMsgStruct,
+    createDaoMessage: SubDaoMessage.InstantiateMsgStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     createDaoContract(
-      createdaomessage: SubDaoMessage.InstantiateMsgStruct,
+      createDaoMessage: SubDaoMessage.InstantiateMsgStruct,
       overrides?: CallOverrides
     ): Promise<string>;
   };
@@ -775,14 +775,14 @@ export interface AccountDeployContract extends BaseContract {
 
   estimateGas: {
     createDaoContract(
-      createdaomessage: SubDaoMessage.InstantiateMsgStruct,
+      createDaoMessage: SubDaoMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     createDaoContract(
-      createdaomessage: SubDaoMessage.InstantiateMsgStruct,
+      createDaoMessage: SubDaoMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

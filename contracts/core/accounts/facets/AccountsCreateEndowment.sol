@@ -9,7 +9,6 @@ import {RegistrarStorage} from "../../registrar/storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {LocalRegistrarLib} from "../../registrar/lib/LocalRegistrarLib.sol";
-// import {Cw3EndowmentMessages, CW3Endowment} from "./../../../normalized_endowment/cw3-endowment/CW3Endowment.sol";
 import {SubDao, subDaoMessage} from "./../../../normalized_endowment/subdao/subdao.sol";
 import {ISubDao} from "./../../../normalized_endowment/subdao/Isubdao.sol";
 import {IAccountDeployContract} from "./../interfaces/IAccountDeployContract.sol";
@@ -125,24 +124,8 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                 referralId: details.referralId
             });
 
-        // state.STATES[state.config.nextAccountId] = AccountStorage
-        //     .EndowmentState({
-        //         donationsReceived: AngelCoreStruct.donationsReceivedDefault(),
-        //         closingEndowment: false,
-        //         closingBeneficiary: AngelCoreStruct.beneficiaryDefault(),
-        //         balances: AngelCoreStruct.BalanceInfo({
-        //             locked: AngelCoreStruct.GenericBalance,
-        //             liquid: AngelCoreStruct.GenericBalance
-        //         }),
-        //         lockedForever: false
-        //     });
         state.STATES[state.config.nextAccountId].closingEndowment = false;
         state.STATES[state.config.nextAccountId].lockedForever = false;
-
-        // emit UpdateEndowmentState(
-        //     state.config.nextAccountId,
-        //     state.STATES[state.config.nextAccountId]
-        // );
 
         state.ENDOWMENTS[state.config.nextAccountId].owner = IEndowmentMultiSigFactory(registrar_config.multisigFactory)
             .create(
