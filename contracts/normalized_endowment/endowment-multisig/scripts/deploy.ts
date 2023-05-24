@@ -70,7 +70,7 @@ export async function deployEndowmentMultiSig(verify_contracts: boolean, hre: Ha
     logger.out("Saving addresses to contract-address.json...")
 		await updateAddresses(
 			{
-				EndowmentMultiSigAddress: {
+				endowmentMultiSig: {
           ...EndowmentMultiSigEmitterAddresses,
           MultiSigWalletFactory: MultiSigWalletFactoryInstance.address,
           MultiSigWalletImplementation: EndowmentMultiSigInstance.address

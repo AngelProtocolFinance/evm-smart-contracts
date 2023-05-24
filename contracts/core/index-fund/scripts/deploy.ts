@@ -37,7 +37,7 @@ export async function deployIndexFund(initFactoryData: IndexFundMessage.Instanti
 
         await updateAddresses(
             { 
-                indexFundAddress: {
+                indexFund: {
                     proxy: IndexFundContractProxy.address,
                     implementation: indexContract.address,
                 }

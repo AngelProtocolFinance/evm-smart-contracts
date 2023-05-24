@@ -15,7 +15,7 @@ task(
         ;[deployer] = await hre.ethers.getSigners()
         const indexfund = (await hre.ethers.getContractAt(
             "IndexFund",
-            addresses.indexFundAddress.proxy
+            addresses.indexFund.proxy
         )) as IndexFund
 
         logger.out("Current owner:")

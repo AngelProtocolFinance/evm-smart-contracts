@@ -23,7 +23,7 @@ task("manage:createIndexFund", "Will create a new index fund").setAction(
 
             const indexfund = (await hre.ethers.getContractAt(
                 "IndexFund",
-                addresses.indexFundAddress.proxy
+                addresses.indexFund.proxy
             )) as IndexFund
 
             const { data } =

@@ -92,15 +92,15 @@ const emptyAddressObj: AddressObj = {
         proxy: "",
         implementation: "",
     },
-    swapRouterAddress2: {
+    swapRouter: {
         proxy: "",
         implementation: "",
     },
-    indexFundAddress: {
+    indexFund: {
         proxy: "",
         implementation: "",
     },
-    EndowmentMultiSigAddress: {
+    endowmentMultiSig: {
         EndowmentMultiSigEmitterProxy: "",
         EndowmentMultiSigEmitterImplementation: "",
         MultiSigWalletFactory: "",

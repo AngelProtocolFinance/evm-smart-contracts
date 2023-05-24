@@ -45,7 +45,7 @@ export async function deploySwapRouter(
 		logger.out("Saving addresses to contract-address.json...")
 		await updateAddresses(
 			{
-				swapRouterAddress: {
+				swapRouter: {
 					proxy: swapRouterProxy.address,
 					implementation: swapRouterInstance.address,
 				}

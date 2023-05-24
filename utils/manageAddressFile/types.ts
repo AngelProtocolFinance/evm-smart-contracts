@@ -4,7 +4,7 @@ export type AddressObj = {
         proxy: string
         implementation: string
     }
-    EndowmentMultiSigAddress: {
+    endowmentMultiSig: {
         EndowmentMultiSigEmitterProxy: string
         EndowmentMultiSigEmitterImplementation: string
         MultiSigWalletFactory: string
@@ -34,7 +34,7 @@ export type AddressObj = {
         subDaoveTokenImplementation: string
         IncentivisedVotingLockupImplementation: string
     }
-    indexFundAddress: {
+    indexFund: {
         proxy: string
         implementation: string
     }
@@ -64,7 +64,7 @@ export type AddressObj = {
         proxy: string
         implementation: string
     }
-    swapRouterAddress2: {
+    swapRouter: {
         proxy: string
         implementation: string
     }

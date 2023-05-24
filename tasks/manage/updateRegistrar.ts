@@ -41,7 +41,7 @@ task("manage:updateRegistrar", "Will update the registrar config")
                 donationMatchContract: apTeam1.address, // donation matching contract
 
                 // CONTRACT ADSRESSES
-                indexFundContract: addresses.indexFundAddress.proxy,
+                indexFundContract: addresses.indexFund.proxy,
                 govContract: apTeam1.address,
                 treasury: apTeam1.address,
                 donationMatchCharitesContract: addresses.HaloImplementations.DonationMatchAddress.proxy,
@@ -53,9 +53,9 @@ task("manage:updateRegistrar", "Will update the registrar config")
                 applicationsReview: apTeam1.address,
                 swapsRouter: apTeam1.address,
                 multisigFactory:
-                    addresses.EndowmentMultiSigAddress.MultiSigWalletFactory,
+                    addresses.endowmentMultiSig.MultiSigWalletFactory,
                 multisigEmitter:
-                    addresses.EndowmentMultiSigAddress
+                    addresses.endowmentMultiSig
                         .EndowmentMultiSigEmitterProxy,
                 charityProposal: addresses.charityApplication.proxy,
                 lockedWithdrawal: addresses.lockedWithdraw.proxy,
