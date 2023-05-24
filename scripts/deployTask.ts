@@ -32,6 +32,7 @@ import { saveFrontendFiles, cleanFile } from './readWriteFile'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { Contract } from 'ethers'
 import { APTeamMultiSig, ApplicationsMultiSig } from 'typechain-types'
+import { isLocalNetwork } from 'utils'
 
 async function deployLibraries(verify_contracts: boolean,hre: HardhatRuntimeEnvironment) {
 	try {
@@ -90,7 +91,7 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 
 		// Mock setup required for testing
 		let mockUSDC: Contract | undefined;
-		if (network.name === 'hardhat') {
+		if (isLocalNetwork(network)) {
 			const MockUSDC = await ethers.getContractFactory('MockUSDC');
 			mockUSDC = await MockUSDC.deploy('USDC', 'USDC', 100);
 			await mockUSDC.deployed();
@@ -225,7 +226,7 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 		console.log('halo token balance: ', await haloToken.balanceOf(deployer.address));
 
 		// 
-		if (network.name === 'hardhat') {
+		if (isLocalNetwork(network)) {
 			// if network is 'hardhat' then mockUSDC should always be initialized
 			// but TS forces us to confirm this is the case
 			mockUSDC = mockUSDC!
@@ -316,7 +317,7 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 		}
 
 		//  requires setting up of a HALO - MockUSDC pool on forked uniswap in deployment
-		// if PROD flag is false
+		// if on non-production network
 
 		let donationMatchCharityData = {
 			reserveToken: config.DONATION_MATCH_CHARITY_DATA.reserveToken,
@@ -326,7 +327,7 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			usdcAddress: config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
 		};
 
-		if (network.name === 'hardhat') {
+		if (isLocalNetwork(network)) {
 			// haloToken
 			donationMatchCharityData.reserveToken = haloToken.address;
 			donationMatchCharityData.uniswapFactory = config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS;
@@ -344,7 +345,7 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			hre
 		);
 
-		if (network.name === 'hardhat') {
+		if (isLocalNetwork(network)) {
 			await haloToken.transfer(implementations.DonationMatchCharity, ethers.utils.parseEther('100000000'));
 		}
 

@@ -1,6 +1,7 @@
 import { task } from "hardhat/config"
 import config from "config"
 import { deployIndexFund } from "contracts/core/index-fund/scripts/deploy"
+import { logger } from "utils"
 
 task("Deploy:deployIndexFund", "Will deploy IndexFund contract")
     .addParam("verify", "Want to verify contract")
@@ -17,6 +18,6 @@ task("Deploy:deployIndexFund", "Will deploy IndexFund contract")
 
             await deployIndexFund(indexFundData, isTrueSet, hre);
         } catch (error) {
-            console.log(error);
+            logger.out(error, logger.Level.Error)
         }
     });

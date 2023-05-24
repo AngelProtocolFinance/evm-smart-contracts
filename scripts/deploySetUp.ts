@@ -22,6 +22,8 @@ import { deployGiftCard } from 'contracts/accessory/gift-cards/scripts/deploy'
 // import { deployFundraising } from 'contracts/accessory/fundraising/scripts/deploy'
 
 const ethers = hre.ethers;
+import { deployFundraising } from 'contracts/accessory/fundraising/scripts/deploy'
+import { envConfig } from 'utils'
 
 //TODO: Deploy and initilize emitters
 //TODO: deploy gift card contract
@@ -70,7 +72,7 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
 		// Mock setup required for testing
 		let mockUSDC = await ethers.getContractAt('MockUSDC', USDC);
 		console.log("walla walla",await mockUSDC.balanceOf(deployer.address));
-		// if (!config.PROD) {
+		// if (network.config.chainId !== envConfig.PROD_NETWORK_ID) {
 		// 	const MockUSDC = await ethers.getContractFactory('MockUSDC');
 		// 	mockUSDC = await MockUSDC.deploy('USDC', 'USDC', 100);
 		// 	await mockUSDC.deployed();
@@ -178,7 +180,7 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
 			registrarContract: REGISTRAR_ADDRESS,
 		};
 
-		let giftCardAddress = await giftCard(GiftCardDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre);
+		let giftCardAddress = await deployGiftCard(GiftCardDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre);
 
 		let FundraisingDataInput = {
 			registrarContract: REGISTRAR_ADDRESS,
@@ -201,7 +203,10 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
 
 		console.log('halo token balance: ', await haloToken.balanceOf(deployer.address));
 
-		if (!config.PROD) {
+		// TODO:
+		// Either create different .env files for different environments
+		// or check whether network is mainnet instead
+		if (ethers.provider.network.chainId !== envConfig.PROD_NETWORK_ID) {
 			let UniswapUtils = await ethers.getContractFactory('UniswapUtils');
 			let uniswap_utils = await UniswapUtils.deploy();
 			await uniswap_utils.deployed();
@@ -288,7 +293,7 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
 		}
 
 		//  requires setting up of a HALO - MockUSDC pool on forked uniswap in deployment
-		// if PROD flag is false
+		// if on non-production network
 
 		let donationMatchCharityData = {
 			reserveToken: config.DONATION_MATCH_CHARITY_DATA.reserveToken,
@@ -298,7 +303,7 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
 			usdcAddress: config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
 		};
 
-		if (!config.PROD) {
+		if (ethers.provider.network.chainId !== envConfig.PROD_NETWORK_ID) {
 			// haloToken
 			donationMatchCharityData.reserveToken = haloToken.address;
 			donationMatchCharityData.uniswapFactory = config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS;
@@ -316,7 +321,7 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
 			hre
 		);
 
-		if (!config.PROD) {
+		if (ethers.provider.network.chainId !== envConfig.PROD_NETWORK_ID) {
 			await haloToken.transfer(implementations.DonationMatchCharity, ethers.utils.parseEther('100000000'));
 		}
 

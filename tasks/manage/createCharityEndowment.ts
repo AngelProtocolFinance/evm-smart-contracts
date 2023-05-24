@@ -1,9 +1,9 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
-import { task } from "hardhat/config"
 import addresses from "contract-address.json"
-import { AccountsCreateEndowment, AccountsQueryEndowments, MultiSigGeneric, Registrar } from "typechain-types"
+import { task } from "hardhat/config"
+import { AccountsCreateEndowment, AccountsQueryEndowments, MultiSigGeneric } from "typechain-types"
 import { AccountMessages } from "typechain-types/contracts/core/accounts/IAccounts"
-import { genWallet } from "utils"
+import { genWallet, logger } from "utils"
 
 task("manage:createCharityEndowment", "Will create a new charity endowment").setAction(
     async (_taskArguments, hre) => {
@@ -29,12 +29,12 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
             //                         .connect(addresses.accounts.diamond, apTeam1)
 
             // let config = await queryEndowmentFacet.queryConfig()
-            // console.log(config)
+            // logger.out(config)
             // let endowmentDetails = await queryEndowmentFacet.queryEndowmentDetails(0)
-            // console.log(endowmentDetails)
+            // logger.out(endowmentDetails)
 
 
-            console.log("Generating new wallet as owner")
+            logger.out("Generating new wallet as owner")
             let wallet = genWallet(true)
 
             let endowState = await queryEndowmentFacet.queryEndowmentDetails(37) // Charity #1
@@ -266,11 +266,11 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
             for (let i=1; i<1000; i++) {
                 try {
                     let endowState = await queryEndowmentFacet.queryEndowmentDetails(i)
-                    console.log(i, endowState.name, endowState.owner)
+                    logger.out(`${i} ${endowState.name} ${endowState.owner}`)
                     let multisig = await hre.ethers.getContractAt("MultiSigGeneric", endowState.owner) as MultiSigGeneric
                     for (let j=0; i<50; j++){
                         try {
-                            console.log(await multisig.owners(j))
+                            logger.out(await multisig.owners(j))
                         }
                         catch(error) {
                             break
@@ -278,13 +278,13 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                     }                    
                 }
                 catch(error) {
-                    console.log(error)
+                    logger.out(error, logger.Level.Error)
                     return
                 }
             }
             
         } catch (error) {
-            console.log(error)
+            logger.out(error, logger.Level.Error)
         }
     }
 )

@@ -1,5 +1,6 @@
 import { task } from "hardhat/config"
 import { saveFrontendFiles } from "scripts/readWriteFile"
+import { logger } from "utils"
 
 task("Deploy:DeployLibraries", "Will deploy Libraries")
     .addParam("verify", "Want to verify contract")
@@ -18,11 +19,16 @@ task("Deploy:DeployLibraries", "Will deploy Libraries")
             let STRING_LIBRARY = await string_library.deploy();
             await STRING_LIBRARY.deployed();
 
-            console.log("Libraries Deployed as", {
-                "STRING_LIBRARY Deployed at ": STRING_LIBRARY.address,
-                "ANGEL_CORE_STRUCT_LIBRARY Deployed at ":
-                    ANGEL_CORE_STRUCT.address,
-            });
+            logger.out(
+                `Libraries Deployed as ${JSON.stringify(
+                    {
+                        "STRING_LIBRARY Deployed at ": STRING_LIBRARY.address,
+                        "ANGEL_CORE_STRUCT_LIBRARY Deployed at ": ANGEL_CORE_STRUCT.address,
+                    },
+                    undefined,
+                    4
+                )}`
+            )
 
             let libraries = {
                 STRING_LIBRARY: STRING_LIBRARY.address,
@@ -44,6 +50,6 @@ task("Deploy:DeployLibraries", "Will deploy Libraries")
                 });
             }
         } catch (error) {
-            console.log(error);
+            logger.out(error, logger.Level.Error)
         }
     });

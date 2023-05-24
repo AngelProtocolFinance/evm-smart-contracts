@@ -14,7 +14,6 @@ import {
     AccountsUpdateStatusEndowments__factory,
     AccountsUpdate__factory,
     AccountsVaultFacet__factory,
-    AxelarExecutionContract__factory,
     DiamondLoupeFacet__factory,
     OwnershipFacet__factory,
 } from "typechain-types"

@@ -1,12 +1,10 @@
-import { task } from "hardhat/config"
 import config from "config"
-import { charityApplications } from "contracts/multisigs/charity_applications/scripts/deploy"
 import addresses from "contract-address.json"
+import { charityApplications } from "contracts/multisigs/charity_applications/scripts/deploy"
+import { task } from "hardhat/config"
+import { logger } from "utils"
 
-task(
-    "Deploy:deployCharityApplications",
-    "Will deploy CharityApplications contract"
-)
+task("Deploy:deployCharityApplications", "Will deploy CharityApplications contract")
     .addParam("verify", "Want to verify contract")
     .setAction(async (taskArgs, hre) => {
         try {
@@ -20,11 +18,11 @@ task(
                 config.CHARITY_APPLICATION_DATA.fundSeedAsset,
                 config.CHARITY_APPLICATION_DATA.seedAsset,
                 config.CHARITY_APPLICATION_DATA.seedAssetAmount,
-            ];
-            const isTrueSet = taskArgs.verify === "true";
+            ]
+            const isTrueSet = taskArgs.verify === "true"
 
-            await charityApplications(charityApplicationsData, isTrueSet, hre);
+            await charityApplications(charityApplicationsData, isTrueSet, hre)
         } catch (error) {
-            console.log(error);
+            logger.out(error, logger.Level.Error)
         }
-    });
+    })

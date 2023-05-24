@@ -1,6 +1,7 @@
 import { task } from "hardhat/config"
 import config from "config"
 import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
+import { logger } from "utils"
 
 task("Deploy:deployFundraising", "Will deploy Fundraising contract")
     .addParam("verify", "Want to verify contract")
@@ -25,6 +26,6 @@ task("Deploy:deployFundraising", "Will deploy Fundraising contract")
                 hre
             );
         } catch (error) {
-            console.log(error);
+            logger.out(error, logger.Level.Error)
         }
     });

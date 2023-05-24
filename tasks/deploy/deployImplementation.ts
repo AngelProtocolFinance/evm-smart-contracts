@@ -1,6 +1,7 @@
 import { task } from "hardhat/config"
 import config from "config"
 import { deployImplementation } from "contracts/normalized_endowment/scripts/deployImplementation"
+import { logger } from "utils"
 
 task("Deploy:deployImplementation", "Will deploy Implementation")
     .addParam("verify", "Want to verify contract")
@@ -36,6 +37,6 @@ task("Deploy:deployImplementation", "Will deploy Implementation")
                 hre
             );
         } catch (error) {
-            console.log(error);
+            logger.out(error, logger.Level.Error)
         }
     });

@@ -1,6 +1,7 @@
 import { task } from "hardhat/config"
 import config from "config"
 import { deploySwapRouter } from "contracts/core/swap-router/scripts/deploy"
+import { logger } from "utils"
 
 task("Deploy:deploySwapRouter", "Will deploy SwapRouter contract")
     .addParam("verify", "Want to verify contract")
@@ -19,6 +20,6 @@ task("Deploy:deploySwapRouter", "Will deploy SwapRouter contract")
                 hre
             );
         } catch (error) {
-            console.log(error);
+            logger.out(error, logger.Level.Error)
         }
     });

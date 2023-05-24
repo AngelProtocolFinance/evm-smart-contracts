@@ -92,6 +92,7 @@ contract AccountsAllowance is ReentrancyGuardFacet, AccountsEvents {
      * @param endowId The id of the endowment
      * @param token The address of the token
      * @param amount The amount to be spent
+     * @param recipient The recipient of the spend
      */
     function spendAllowance(
         uint32 endowId,

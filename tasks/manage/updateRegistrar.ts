@@ -4,7 +4,7 @@ import config from "config"
 import addresses from "contract-address.json"
 import { Registrar } from "typechain-types"
 import { RegistrarMessages } from "typechain-types/contracts/core/registrar/interfaces/IRegistrar"
-import { multisigs } from "typechain-types/contracts"
+import { logger } from "utils"
 
 task("manage:updateRegistrar", "Will update the registrar config")
     .setAction(async (taskArguments: TaskArguments, hre) => {
@@ -16,9 +16,9 @@ task("manage:updateRegistrar", "Will update the registrar config")
                 addresses.registrar.registrarProxy
             )) as Registrar
 
-            console.log("Current config")
+            logger.out("Current config")
             let currentConfig = await registrar.queryConfig()
-            console.log(currentConfig)
+            logger.out(currentConfig)
 
             let newConfig: RegistrarMessages.UpdateConfigRequestStruct = {
                 accountsContract: addresses.accounts.diamond,
@@ -67,9 +67,9 @@ task("manage:updateRegistrar", "Will update the registrar config")
             await hre.ethers.provider.waitForTransaction(tx.hash)
 
             let updatedConfig = await registrar.queryConfig()
-            console.log(updatedConfig)
+            logger.out(updatedConfig)
             
         } catch (error) {
-            console.log(error)
+            logger.out(error, logger.Level.Error)
         }
     })

@@ -39,15 +39,15 @@ task("upgrade:upgradeMultisig", "Will upgrade the implementation of the AP Team 
 
             // Confirm that the proxy is pointed to the new implementation
             let currentAPImpl = await hre.ethers.provider.getStorageAt(APTeamProxy.address, IMPLEMENTATION_ADDRESS_SLOT)
-            console.log("Current AP Team Impl: ", currentAPImpl)
-            console.log("For proxy at: ", APTeamProxy.address)
+            logger.out(`Current AP Team Impl: ${currentAPImpl}`)
+            logger.out(`For proxy at: ${APTeamProxy.address}`)
 
             let currentAppsImpl = await hre.ethers.provider.getStorageAt(
                 ApplicationsProxy.address,
                 IMPLEMENTATION_ADDRESS_SLOT
             )
-            console.log("Current Apps impl: ", currentAppsImpl)
-            console.log("For proxy at: ", ApplicationsProxy.address)
+            logger.out(`Current Apps impl: ${currentAppsImpl}`)
+            logger.out(`For proxy at: ${ApplicationsProxy.address}`)
             
             // Send the upgrade call and wait for the tx to be finalized 
             logger.out("Upgrading APTeamMultiSig proxy implementation...")
@@ -62,13 +62,13 @@ task("upgrade:upgradeMultisig", "Will upgrade the implementation of the AP Team 
 
             // Confirm that the proxy is pointed to the new implementation
             let newAPImpl = await hre.ethers.provider.getStorageAt(APTeamProxy.address, IMPLEMENTATION_ADDRESS_SLOT)
-            console.log("New AP Team Impl: ", newAPImpl)
+            logger.out(`New AP Team Impl: ${newAPImpl}`)
 
             let newAppsImpl = await hre.ethers.provider.getStorageAt(
                 ApplicationsProxy.address,
                 IMPLEMENTATION_ADDRESS_SLOT
             )
-            console.log("New Apps impl: ", newAppsImpl)
+            logger.out(`New Apps impl: ${newAppsImpl}`)
 
             logger.out("Saving the new implementation address to JSON file...")
             let multiSig = {
@@ -97,7 +97,7 @@ task("upgrade:upgradeMultisig", "Will upgrade the implementation of the AP Team 
                 })
             }
         } catch (error) {
-            console.log(error)
+            logger.out(error, logger.Level.Error)
         } finally {
             logger.out("Done.")
         }

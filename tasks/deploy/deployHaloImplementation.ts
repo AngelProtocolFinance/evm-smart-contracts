@@ -1,5 +1,6 @@
 import { task } from "hardhat/config"
 import { deployHaloImplementation } from "contracts/halo/scripts/deploy"
+import { logger } from "utils"
 
 task(
     "Deploy:deployHaloImplementation",
@@ -13,6 +14,6 @@ task(
 
             await deployHaloImplementation(taskArgs.swaprouter, isTrueSet, hre);
         } catch (error) {
-            console.log(error);
+            logger.out(error, logger.Level.Error)
         }
     });

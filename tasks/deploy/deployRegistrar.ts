@@ -1,6 +1,7 @@
 import { task } from "hardhat/config"
 import config from "config"
 import { deployRegistrar } from "contracts/core/registrar/scripts/deploy"
+import { logger } from "utils"
 
 task("Deploy:deployRegistrar", "Will deploy Registrar contract")
     .addParam("verify", "Want to verify contract")
@@ -22,6 +23,6 @@ task("Deploy:deployRegistrar", "Will deploy Registrar contract")
                 hre
             );
         } catch (error) {
-            console.log(error);
+            logger.out(error, logger.Level.Error)
         }
     });
