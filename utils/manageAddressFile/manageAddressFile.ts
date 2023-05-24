@@ -2,7 +2,7 @@ import fs from "fs"
 import path from "path"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import { AddressObj } from "./types"
-import { getAddressesByNetworkId } from "./getAddresses"
+import { getAddressesByNetworkId } from "./helpers"
 
 export const cleanFile = () => {
     return new Promise(async (resolve, reject) => {
