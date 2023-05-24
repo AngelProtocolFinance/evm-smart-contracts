@@ -34,8 +34,8 @@ const deployEndowmentMultiSigEmitter = async(proxyAdmin: string,factoryAddress: 
     }
 
     return Promise.resolve({
-      EndowmentMultiSigEmitterProxy: EndowmentMultiSigEmitterProxy.address,
-      EndowmentMultiSigEmitterImplementation: EndowmentMultiSigEmitterImplementation.address,
+      implementation: EndowmentMultiSigEmitterImplementation.address,
+      proxy: EndowmentMultiSigEmitterProxy.address,
     });
   } catch (error) {
     return Promise.reject(error);
@@ -62,18 +62,13 @@ export async function deployEndowmentMultiSig(verify_contracts: boolean, hre: Ha
 
     const EndowmentMultiSigEmitterAddresses = await deployEndowmentMultiSigEmitter(proxyAdmin.address, MultiSigWalletFactoryInstance.address, verify_contracts, hre)
 
-    let response = {
-      MultiSigWalletFactory: MultiSigWalletFactoryInstance.address,
-      EndowmentMultiSigEmitter: EndowmentMultiSigEmitterAddresses.EndowmentMultiSigEmitterProxy
-    }
-
     logger.out("Saving addresses to contract-address.json...")
 		await updateAddresses(
 			{
 				endowmentMultiSig: {
-          ...EndowmentMultiSigEmitterAddresses,
-          MultiSigWalletFactory: MultiSigWalletFactoryInstance.address,
-          MultiSigWalletImplementation: EndowmentMultiSigInstance.address
+          emitter: { ...EndowmentMultiSigEmitterAddresses },
+          factory: MultiSigWalletFactoryInstance.address,
+          implementation: EndowmentMultiSigInstance.address
         }
 			},
 			hre
@@ -90,7 +85,10 @@ export async function deployEndowmentMultiSig(verify_contracts: boolean, hre: Ha
       });
     }
 
-    return Promise.resolve(response);
+    return Promise.resolve({
+      MultiSigWalletFactory: MultiSigWalletFactoryInstance.address,
+      EndowmentMultiSigEmitter: EndowmentMultiSigEmitterAddresses.proxy
+    });
   } catch (error) {
     return Promise.reject(error);
   }

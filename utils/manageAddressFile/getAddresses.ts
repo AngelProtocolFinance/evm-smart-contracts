@@ -101,10 +101,12 @@ const emptyAddressObj: AddressObj = {
         implementation: "",
     },
     endowmentMultiSig: {
-        EndowmentMultiSigEmitterProxy: "",
-        EndowmentMultiSigEmitterImplementation: "",
-        MultiSigWalletFactory: "",
-        MultiSigWalletImplementation: "",
+        emitter: {
+            implementation: "",
+            proxy: ""
+        },
+        factory: "",
+        implementation: "",
     },
     lockedWithdraw: {
         implementation: "",

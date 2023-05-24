@@ -53,10 +53,10 @@ task("manage:updateRegistrar", "Will update the registrar config")
                 applicationsReview: apTeam1.address,
                 swapsRouter: apTeam1.address,
                 multisigFactory:
-                    addresses.endowmentMultiSig.MultiSigWalletFactory,
+                    addresses.endowmentMultiSig.factory,
                 multisigEmitter:
                     addresses.endowmentMultiSig
-                        .EndowmentMultiSigEmitterProxy,
+                        .emitter.proxy,
                 charityProposal: addresses.charityApplication.proxy,
                 lockedWithdrawal: addresses.lockedWithdraw.proxy,
                 proxyAdmin: deployer.address,

@@ -1,14 +1,16 @@
 export type AddressObj = {
     accountsDiamond: string
     charityApplication: {
-        proxy: string
         implementation: string
+        proxy: string
     }
     endowmentMultiSig: {
-        EndowmentMultiSigEmitterProxy: string
-        EndowmentMultiSigEmitterImplementation: string
-        MultiSigWalletFactory: string
-        MultiSigWalletImplementation: string
+        emitter: {
+            implementation: string
+            proxy: string
+        }
+        factory: string
+        implementation: string
     }
     fundraising: {
         implementation: string
@@ -35,12 +37,12 @@ export type AddressObj = {
         IncentivisedVotingLockupImplementation: string
     }
     indexFund: {
-        proxy: string
         implementation: string
+        proxy: string
     }
     libraries: {
-        STRING_LIBRARY: string
         ANGEL_CORE_STRUCT_LIBRARY: string
+        STRING_LIBRARY: string
     }
     lockedWithdraw: {
         implementation: string
@@ -61,12 +63,12 @@ export type AddressObj = {
         proxy: string
     }
     subDaoEmitter: {
-        proxy: string
         implementation: string
+        proxy: string
     }
     swapRouter: {
-        proxy: string
         implementation: string
+        proxy: string
     }
     tokens: {
         halo: string
