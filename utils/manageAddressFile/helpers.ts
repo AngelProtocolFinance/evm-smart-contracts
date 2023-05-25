@@ -1,11 +1,23 @@
 import fs from "fs"
 import path from "path"
-import { HardhatRuntimeEnvironment } from "hardhat/types"
 import { AddressObj } from "./types"
 
-export async function getAddresses(hre: HardhatRuntimeEnvironment) {
-    const chainId = (await hre.ethers.provider.getNetwork()).chainId
-    return getAddressesByNetworkId(chainId)
+const rootDir = path.join(__dirname, "../../")
+
+export const saveFrontendFiles = (addresses: Record<string, AddressObj>) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const data = readAllAddresses()
+
+            Object.assign(data, addresses)
+
+            fs.writeFileSync(path.join(rootDir, "contract-address.json"), JSON.stringify(data, undefined, 2))
+
+            resolve(true)
+        } catch (e) {
+            reject(e)
+        }
+    })
 }
 
 export function getAddressesByNetworkId(networkId: string | symbol | number): AddressObj {
@@ -30,8 +42,6 @@ export function getAddressesByNetworkId(networkId: string | symbol | number): Ad
 }
 
 const readAllAddresses = () => {
-    const rootDir = path.join(__dirname, "../../")
-
     if (!fs.existsSync(rootDir)) {
         throw new Error("No root directory.")
     }
