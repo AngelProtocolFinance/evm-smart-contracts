@@ -1,11 +1,9 @@
 import fs from "fs"
-import path from "path"
+import { EMPTY_JSON } from ".."
 import { AddressObj } from "./types"
 
-const defaultFilePath = path.join(__dirname, "../../contract-address.json")
-
-export function getAddressesByNetworkId(networkId: string | symbol | number): AddressObj {
-    const addresses = readAllAddresses()
+export function getAddressesByNetworkId(networkId: string | symbol | number, filePath: string): AddressObj {
+    const addresses = readAllAddresses(filePath)
 
     const key = String(networkId)
 
@@ -25,32 +23,40 @@ export function getAddressesByNetworkId(networkId: string | symbol | number): Ad
     })
 }
 
-export function readAllAddresses() {
-    if (!fs.existsSync(defaultFilePath)) {
-        throw new Error("No root directory.")
+export function readAllAddresses(filePath: string) {
+    if (!fs.existsSync(filePath)) {
+        throw new Error(`No such file, path: '${filePath}'.`)
     }
 
-    const jsonData = fs.readFileSync(defaultFilePath, "utf-8")
+    const jsonData = fs.readFileSync(filePath, "utf-8")
 
     const data: Record<string, AddressObj> = JSON.parse(jsonData)
 
     return data
 }
 
-export function saveFrontendFiles(addresses: Record<string, AddressObj>) {
+export function saveFrontendFiles(addresses: Record<string, AddressObj>, filePath: string) {
     return new Promise(async (resolve, reject) => {
         try {
-            const data = readAllAddresses()
+            createFileIfMissing(filePath)
+
+            const data = readAllAddresses(filePath)
 
             Object.assign(data, addresses)
 
-            fs.writeFileSync(defaultFilePath, JSON.stringify(data, undefined, 2))
+            fs.writeFileSync(filePath, JSON.stringify(data, undefined, 2))
 
             resolve(true)
         } catch (e) {
             reject(e)
         }
     })
+}
+
+function createFileIfMissing(filePath: string) {
+    if (!fs.existsSync(filePath)) {
+        fs.writeFileSync(filePath, EMPTY_JSON)
+    }
 }
 
 function hasKey<T extends object>(obj: T, k: keyof any): k is keyof T {
