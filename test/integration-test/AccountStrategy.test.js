@@ -71,7 +71,7 @@
 //     const accountQuery = await ethers.getContractAt('AccountsQueryEndowments', deployRes.addresses.account);
 //     let endowment = await accountQuery.queryEndowmentDetails(1);
 
-//     expect(endowment.endow_type, 'Endowment type is normal').to.equal(1);
+//     expect(endowment.endowType, 'Endowment type is normal').to.equal(1);
 //     let donor = addrs[0];
 
 //     let registrar = await ethers.getContractAt('Registrar', deployRes.addresses.registrar);

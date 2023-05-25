@@ -9,7 +9,6 @@ import {RegistrarStorage} from "../../registrar/storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {IAccountDeployContract} from "./../interfaces/IAccountDeployContract.sol";
-// import {Cw3EndowmentMessages, CW3Endowment} from "./../../../normalized_endowment/cw3-endowment/CW3Endowment.sol";
 import {SubDao, subDaoMessage} from "./../../../normalized_endowment/subdao/subdao.sol";
 import {ISubDao} from "./../../../normalized_endowment/subdao/Isubdao.sol";
 import {ProxyContract} from "../../proxy.sol";
@@ -54,7 +53,7 @@ contract AccountsDAOEndowments is ReentrancyGuardFacet, AccountsEvents {
                 proposalDeposit: details.proposalDeposit,
                 snapshotPeriod: details.snapshotPeriod,
                 token: details.token,
-                endow_type: tempEndowment.endow_type,
+                endowType: tempEndowment.endowType,
                 endowOwner: tempEndowment.owner,
                 registrarContract: state.config.registrarContract
             });

@@ -94,10 +94,10 @@ export interface OwnershipFacet extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    owner(overrides?: CallOverrides): Promise<[string] & { owner: string }>;
+    owner(overrides?: CallOverrides): Promise<[string] & { owner_: string }>;
 
     transferOwnership(
-      newowner: PromiseOrValue<string>,
+      newOwner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -105,7 +105,7 @@ export interface OwnershipFacet extends BaseContract {
   owner(overrides?: CallOverrides): Promise<string>;
 
   transferOwnership(
-    newowner: PromiseOrValue<string>,
+    newOwner: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -113,7 +113,7 @@ export interface OwnershipFacet extends BaseContract {
     owner(overrides?: CallOverrides): Promise<string>;
 
     transferOwnership(
-      newowner: PromiseOrValue<string>,
+      newOwner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -133,7 +133,7 @@ export interface OwnershipFacet extends BaseContract {
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferOwnership(
-      newowner: PromiseOrValue<string>,
+      newOwner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -142,7 +142,7 @@ export interface OwnershipFacet extends BaseContract {
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     transferOwnership(
-      newowner: PromiseOrValue<string>,
+      newOwner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

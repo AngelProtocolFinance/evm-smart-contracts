@@ -94,13 +94,13 @@ contract AccountsSwapEndowments is ReentrancyGuardFacet, AccountsEvents {
      * @notice This function updates the state balance of the endowment
      * @dev updates the state balance of the endowment based on account type
      * @param id The id of the endowment
-     * @param tokenaddress The address of the token
+     * @param tokenAddress The address of the token
      * @param amount The amount of tokens
      * @param accountType The type of the account
      */
     function updateStateBalance(
         uint32 id,
-        address tokenaddress,
+        address tokenAddress,
         uint256 amount,
         AngelCoreStruct.AccountType accountType
     ) internal {
@@ -109,13 +109,13 @@ contract AccountsSwapEndowments is ReentrancyGuardFacet, AccountsEvents {
         if (accountType == AngelCoreStruct.AccountType.Locked) {
             AngelCoreStruct.addToken(
                 state.STATES[id].balances.locked,
-                tokenaddress,
+                tokenAddress,
                 amount
             );
         } else {
             AngelCoreStruct.addToken(
                 state.STATES[id].balances.liquid,
-                tokenaddress,
+                tokenAddress,
                 amount
             );
         }

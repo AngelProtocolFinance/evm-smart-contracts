@@ -176,44 +176,44 @@ library SubDaoLib {
         ).queryConfig();
 
         if (
-            token.token == AngelCoreStruct.TokenType.ExistingCw20 &&
+            token.token == AngelCoreStruct.TokenType.Existing &&
             endowType == AngelCoreStruct.EndowmentType.Normal
         ) {
             require(
-                IRegistrar(config.registrarContract).isTokenAccepted(token.data.existingCw20Data),
+                IRegistrar(config.registrarContract).isTokenAccepted(token.data.existingData),
                 "NotInApprovedCoins"
             );
-            config.daoToken = token.data.existingCw20Data;
+            config.daoToken = token.data.existingData;
         } else if (
-            token.token == AngelCoreStruct.TokenType.NewCw20 &&
+            token.token == AngelCoreStruct.TokenType.New &&
             endowType == AngelCoreStruct.EndowmentType.Normal
         ) {
             bytes memory callData = abi.encodeWithSignature(
                 "initErC20(string,string,address,uint256,address)",
-                token.data.newCw20Name,
-                token.data.newCw20Symbol,
+                token.data.newName,
+                token.data.newSymbol,
                 endowowner,
-                token.data.newCw20InitialSupply,
+                token.data.newInitialSupply,
                 address(0)
             );
             config.daoToken = address(
                 new ProxyContract(
-                    registrar_config.subdaoCw20TokenCode,
+                    registrar_config.subdaoTokenContract,
                     registrar_config.proxyAdmin,
                     callData
                 )
             );
         } else if (
-            token.token == AngelCoreStruct.TokenType.Bondingve &&
+            token.token == AngelCoreStruct.TokenType.VeBonding &&
             endowType == AngelCoreStruct.EndowmentType.Normal
         ) {
             SubDaoTokenMessage.InstantiateMsg
                 memory temp = SubDaoTokenMessage.InstantiateMsg({
-                    name: token.data.bondingveName,
-                    symbol: token.data.bondingveSymbol,
-                    reserveDenom: token.data.bondingveReserveDenom,
-                    ve_type: token.data.bondingveveType.ve_type,
-                    unbondingPeriod: token.data.bondingveUnbondingPeriod
+                    name: token.data.veBondingName,
+                    symbol: token.data.veBondingSymbol,
+                    reserveDenom: token.data.veBondingReserveDenom,
+                    ve_type: token.data.veBondingType.ve_type,
+                    unbondingPeriod: token.data.veBondingPeriod
                 });
             bytes memory callData = abi.encodeWithSignature(
                 "continuosToken((string,string,address,uint8,uint256),address)",
@@ -222,13 +222,13 @@ library SubDaoLib {
             );
             config.daoToken = address(
                 new ProxyContract(
-                    registrar_config.subdaoBondingTokenCode,
+                    registrar_config.subdaoBondingTokenContract,
                     registrar_config.proxyAdmin,
                     callData
                 )
             );
         } else if (
-            token.token == AngelCoreStruct.TokenType.Bondingve &&
+            token.token == AngelCoreStruct.TokenType.VeBonding &&
             endowType == AngelCoreStruct.EndowmentType.Charity
         ) {
             require(
@@ -238,10 +238,10 @@ library SubDaoLib {
 
             SubDaoTokenMessage.InstantiateMsg
                 memory temp = SubDaoTokenMessage.InstantiateMsg({
-                    name: token.data.bondingveName,
-                    symbol: token.data.bondingveSymbol,
+                    name: token.data.veBondingName,
+                    symbol: token.data.veBondingSymbol,
                     reserveDenom: registrar_config.haloToken,
-                    ve_type: token.data.bondingveveType.ve_type,
+                    ve_type: token.data.veBondingType.ve_type,
                     unbondingPeriod: 21 days
                 });
 
@@ -252,7 +252,7 @@ library SubDaoLib {
             );
             config.daoToken = address(
                 new ProxyContract(
-                    registrar_config.subdaoBondingTokenCode,
+                    registrar_config.subdaoBondingTokenContract,
                     registrar_config.proxyAdmin,
                     callData
                 )
@@ -338,7 +338,7 @@ contract SubDao is Storage, ReentrancyGuard {
 
         SubDaoLib.buildDaoTokenMesage(
             details.token,
-            details.endow_type,
+            details.endowType,
             details.endowOwner,
             config,
             emitterAddress

@@ -23,15 +23,15 @@ contract DiamondLoupeFacet is IDiamondLoupe, IERC165 {
     // }
 
     /// @notice Gets all facets and their selectors.
-    /// @return facets Facet
-    function facets() external view override returns (Facet[] memory facets) {
+    /// @return facets_ Facet
+    function facets() external view override returns (Facet[] memory facets_) {
         LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
         uint256 numFacets = ds.facetAddresses.length;
-        facets = new Facet[](numFacets);
+        facets_ = new Facet[](numFacets);
         for (uint256 i = 0; i < numFacets; i++) {
             address facetaddress = ds.facetAddresses[i];
-            facets[i].facetAddress = facetaddress;
-            facets[i].functionSelectors = ds
+            facets_[i].facetAddress = facetaddress;
+            facets_[i].functionSelectors = ds
                 .facetFunctionSelectors[facetaddress]
                 .functionSelectors;
         }
@@ -53,41 +53,41 @@ contract DiamondLoupeFacet is IDiamondLoupe, IERC165 {
     }
 
     /// @notice Get all the facet addresses used by a diamond.
-    /// @return facetaddresses
+    /// @return facetAddresses_
     function facetAddresses()
         external
         view
         override
-        returns (address[] memory facetaddresses)
+        returns (address[] memory facetAddresses_)
     {
         LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
-        facetaddresses = ds.facetAddresses;
+        facetAddresses_ = ds.facetAddresses;
     }
 
     /// @notice Gets the facet that supports the given selector.
     /// @dev If facet is not found return address(0).
-    /// @param functionselector The function selector.
-    /// @return facetaddress The facet address.
-    function facetAddress(bytes4 functionselector)
+    /// @param functionSelector The function selector.
+    /// @return facetAddress_ The facet address.
+    function facetAddress(bytes4 functionSelector)
         external
         view
         override
-        returns (address facetaddress)
+        returns (address facetAddress_)
     {
         LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
-        facetaddress = ds
-            .selectorToFacetAndPosition[functionselector]
+        facetAddress_ = ds
+            .selectorToFacetAndPosition[functionSelector]
             .facetAddress;
     }
 
     // This implements ERC-165.
-    function supportsInterface(bytes4 interfaceid)
+    function supportsInterface(bytes4 interfaceId)
         external
         view
         override
         returns (bool)
     {
         LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
-        return ds.supportedInterfaces[interfaceid];
+        return ds.supportedInterfaces[interfaceId];
     }
 }

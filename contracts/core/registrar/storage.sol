@@ -6,17 +6,17 @@ import {AngelCoreStruct} from "../struct.sol";
 library RegistrarStorage {
     struct Config {
         //Application review multisig
-        address applicationsReview; // Endowment application review team's CW3 (set as owner to start). Owner can set and change/revoke.
+        address applicationsReview; // Endowment application review team's multisig (set as owner to start). Owner can set and change/revoke.
         address indexFundContract;
         address accountsContract;
         address treasury;
-        address subdaoGovCode; // subdao gov wasm code
-        address subdaoCw20TokenCode; // subdao gov cw20 token wasm code
-        address subdaoBondingTokenCode; // subdao gov bonding ve token wasm code
-        address subdaoCw900Code; // subdao gov ve-vE contract for locked token voting
-        address subdaoDistributorCode; // subdao gov fee distributor wasm code
+        address subdaoGovContract; // subdao gov wasm code
+        address subdaoTokenContract; // subdao gov cw20 token wasm code
+        address subdaoBondingTokenContract; // subdao gov bonding ve token wasm code
+        address subdaoCw900Contract; // subdao gov ve-vE contract for locked token voting
+        address subdaoDistributorContract; // subdao gov fee distributor wasm code
         address subdaoEmitter;
-        address donationMatchCode; // donation matching contract wasm code
+        address donationMatchContract; // donation matching contract wasm code
         address donationMatchCharitesContract; // donation matching contract address for "Charities" endowments
         address donationMatchEmitter;
         AngelCoreStruct.SplitDetails splitToLiquid; // set of max, min, and default Split paramenters to check user defined split input against

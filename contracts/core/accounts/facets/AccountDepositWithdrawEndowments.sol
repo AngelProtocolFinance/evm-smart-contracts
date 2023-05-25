@@ -35,166 +35,6 @@ contract AccountDepositWithdrawEndowments is
     using SafeMath for uint256;
     event SwappedToken(uint256 amountOut);
 
-    // /**
-    //  * @dev Processes liquid vault investment for an endowment account.
-    //  * @param id ID of the rent endowment account.
-    //  * @param tempEndowment Storage reference of the rent endowment account.
-    //  * @param liquidAmount Amount of tokens to invest in liquid vaults.
-    //  * @param registrarContract Address of the registrar contract.
-    //  * @return uint256 Amount of leftover tokens after investing in liquid vaults.
-    //  * @return AccountStorage.Endowment Storage reference of the updated endowment account.
-    //  */
-    // function processLiquidVault(
-    //     uint256 id,
-    //     AccountStorage.Endowment storage tempEndowment,
-    //     uint256 liquidAmount,
-    //     address registrarContract
-    // ) internal returns (uint256, AccountStorage.Endowment storage) {
-    //     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    //     // string[] memory liquidStratageAddress = tempEndowment.strategies.liquid_vault;
-    //     // uint256[] memory tempEndowment.strategies.liquidPercentage = tempEndowment.strategies.liquidPercentage;
-
-    //     AngelCoreStruct.accountStratagyLiquidCheck(
-    //         tempEndowment.strategies,
-    //         tempEndowment.oneoffVaults
-    //     );
-
-    //     uint256 leftoversLiquid = liquidAmount;
-
-    //     for (
-    //         uint256 i = 0;
-    //         i < tempEndowment.strategies.liquidPercentage.length;
-    //         i++
-    //     ) {
-    //         if (
-    //             liquidAmount.mul(tempEndowment.strategies.liquidPercentage[i]) <
-    //             100
-    //         ) {
-    //             continue;
-    //         }
-    //         leftoversLiquid -= liquidAmount
-    //             .mul(tempEndowment.strategies.liquidPercentage[i])
-    //             .div(100);
-
-    //         AngelCoreStruct.YieldVault memory vault_config = IRegistrar(
-    //             registrarContract
-    //         ).queryVaultDetails(tempEndowment.strategies.liquid_vault[i]);
-
-    //         require(
-    //             vault_config.approved,
-    //             "Vault is not approved to accept deposits"
-    //         );
-
-    //         uint32[] memory ids = new uint32[](1);
-    //         ids[0] = uint32(id);
-
-    //         uint256 tempAmount = liquidAmount
-    //             .mul(tempEndowment.strategies.liquidPercentage[i])
-    //             .div(100);
-
-    //         //Updating balance of vault
-    //         state.vaultBalance[id][AngelCoreStruct.AccountType.Liquid][
-    //             vault_config.addr
-    //         ] += tempAmount;
-    //         state.stratagyId[bytes4(keccak256(bytes(vault_config.addr)))] = vault_config.addr;
-    //         IAxelarGateway.VaultActionData memory payloadObject = IAxelarGateway
-    //             .VaultActionData({
-    //                 strategyId: bytes4(keccak256(bytes(vault_config.addr))),
-    //                 selector: IVault.deposit.selector,
-    //                 accountIds: ids,
-    //                 token: vault_config.inputDenom,
-    //                 lockAmt: 0,
-    //                 liqAmt: tempAmount
-    //             });
-    //         executeCallsWithToken(
-    //             payloadObject,
-    //             registrarContract,
-    //             tempAmount,
-    //             vault_config.network
-    //         );
-    //     }
-    //     emit UpdateEndowment(id, tempEndowment);
-    //     return (leftoversLiquid, tempEndowment);
-    // }
-
-    // /**
-    //  * @dev Processes locked vault investment for an endowment account.
-    //  * @param id ID of the rent endowment account.
-    //  * @param tempEndowment Storage reference of the rent endowment account.
-    //  * @param lockedAmount Amount of tokens to invest in locked vaults.
-    //  * @param registrarContract Address of the registrar contract.
-    //  * @return uint256 Amount of leftover tokens after investing in locked vaults.
-    //  * @return AccountStorage.Endowment Storage reference of the updated endowment account.
-    //  */
-    // function processLockedVault(
-    //     uint256 id,
-    //     AccountStorage.Endowment storage tempEndowment,
-    //     uint256 lockedAmount,
-    //     address registrarContract
-    // ) internal returns (uint256, AccountStorage.Endowment storage) {
-    //     AccountStorage.State storage state = LibAccounts.diamondStorage();
-
-    //     AngelCoreStruct.accountStratagyLockedCheck(
-    //         tempEndowment.strategies,
-    //         tempEndowment.oneoffVaults
-    //     );
-
-    //     uint256 leftoversLocked = lockedAmount;
-
-    //     for (
-    //         uint256 i = 0;
-    //         i < tempEndowment.strategies.lockedPercentage.length;
-    //         i++
-    //     ) {
-    //         if (
-    //             lockedAmount.mul(tempEndowment.strategies.lockedPercentage[i]) <
-    //             100
-    //         ) {
-    //             continue;
-    //         }
-    //         leftoversLocked -= lockedAmount
-    //             .mul(tempEndowment.strategies.lockedPercentage[i])
-    //             .div(100);
-
-    //         AngelCoreStruct.YieldVault memory vault_config = IRegistrar(
-    //             registrarContract
-    //         ).queryVaultDetails(tempEndowment.strategies.locked_vault[i]);
-
-    //         require(
-    //             vault_config.approved,
-    //             "Vault is not approved to accept deposits"
-    //         );
-
-    //         uint32[] memory ids = new uint32[](1);
-    //         ids[0] = uint32(id);
-    //         uint256 tempAmount = lockedAmount
-    //             .mul(tempEndowment.strategies.lockedPercentage[i])
-    //             .div(100);
-    //         //Updating balance of vault
-    //         state.vaultBalance[id][AngelCoreStruct.AccountType.Locked][
-    //             vault_config.addr
-    //         ] += tempAmount;
-    //         state.stratagyId[bytes4(keccak256(bytes(vault_config.addr)))] = vault_config.addr;
-    //         IRouter.VaultActionData memory payloadObject = IRouter
-    //             .VaultActionData({
-    //                 strategyId: bytes4(keccak256(bytes(vault_config.addr))),
-    //                 selector: IVault.deposit.selector,
-    //                 accountIds: ids,
-    //                 token: vault_config.inputDenom,
-    //                 lockAmt: tempAmount,
-    //                 liqAmt: 0
-    //             });
-    //         executeCallsWithToken(
-    //             payloadObject,
-    //             registrarContract,
-    //             tempAmount,
-    //             vault_config.network
-    //         );
-    //     }
-    //     emit UpdateEndowment(id, tempEndowment);
-    //     return (leftoversLocked, tempEndowment);
-    // }
-
     /**
      * @notice Deposit MATIC into the account (later swaps into USDC and then deposits into the account)
      * @param details The details of the deposit
@@ -300,13 +140,9 @@ contract AccountDepositWithdrawEndowments is
             state.config.registrarContract
         ).queryConfig();
 
-        if (
-            tempEndowment.depositFee.active &&
-            tempEndowment.depositFee.feePercentage != 0 &&
-            tempEndowment.depositFee.payoutAddress != address(0)
-        ) {
+        if (tempEndowment.depositFee.percentage != 0) {
             uint256 depositFeeAmount = (amount
-                .mul(tempEndowment.depositFee.feePercentage))
+                .mul(tempEndowment.depositFee.percentage))
                 .div(AngelCoreStruct.FEE_BASIS);
             amount = amount.sub(depositFeeAmount);
 
@@ -331,7 +167,7 @@ contract AccountDepositWithdrawEndowments is
         );
 
         if (msg.sender != registrar_config.indexFundContract) {
-            if (tempEndowment.endow_type == AngelCoreStruct.EndowmentType.Charity) {
+            if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Charity) {
                 // use the Registrar default split for Charities
                 (lockedSplitPercent, liquidSplitPercent) = AngelCoreStruct.checkSplits(
                     registrar_split_configs,
@@ -361,7 +197,7 @@ contract AccountDepositWithdrawEndowments is
         //donation matching flow
         //execute donor match will always be called on an EOA
         if (lockedAmount > 0) {
-            if (tempEndowment.endow_type ==
+            if (tempEndowment.endowType ==
                 AngelCoreStruct.EndowmentType.Charity &&
                 registrar_config.donationMatchCharitesContract != address(0)
             ) {
@@ -374,7 +210,7 @@ contract AccountDepositWithdrawEndowments is
                         registrar_config.haloToken
                     );
             } else if (
-                tempEndowment.endow_type ==
+                tempEndowment.endowType ==
                 AngelCoreStruct.EndowmentType.Normal &&
                 tempEndowment.donationMatchContract != address(0)
             ) {
@@ -443,23 +279,30 @@ contract AccountDepositWithdrawEndowments is
             state.config.registrarContract
         ).queryConfig();
 
-        // ** SHARED LOCKED WITHDRAWAL RULES **
-        // LOCKED: Msg must come from the locked withdraw contract if NOT mature yet
         // Charities never mature & Normal endowments optionally mature
         // Check if maturity has been reached for the endowment (0 == no maturity date)
         bool mature = (
             tempEndowment.maturityTime != 0 &&
             block.timestamp >= tempEndowment.maturityTime
         );
-        // Cannot withdraw from locked before maturity unless via early locked withdraw approval contract
+
+        // ** SHARED LOCKED WITHDRAWAL RULES **
+        // Can withdraw early for a (possible) penalty fee
+        uint256 earlyLockedWithdrawPenalty = 0;
         if (acctType == AngelCoreStruct.AccountType.Locked && !mature) {
-            require(msg.sender == registrar_config.lockedWithdrawal, "Cannot withdraw before maturity time is reached unless via early withdraw approval.");
-            // A/N: We ensure that locked withdraw requests always go to the requesting endowment's
-            // LIQUID account to prevent the AP Multisig from sending Locked withdraws to a random address.
-            beneficiaryAddress = address(0);
-            beneficiaryEndowId = id;
-        } else {
-            require(msg.sender == tempEndowment.owner, "Unauthorized");
+            // Calculate the early withdraw penalty based on the earlyLockedWithdrawFee setting
+            // Normal: Endowment specific setting that owners can (optionally) set
+            // Charity: Registrar based setting for all Charity Endowments
+            if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Normal) {
+                earlyLockedWithdrawPenalty = (amount.mul(tempEndowment.earlyLockedWithdrawFee.percentage))
+                    .div(AngelCoreStruct.FEE_BASIS);
+            } else {
+                earlyLockedWithdrawPenalty = (amount.mul(
+                    IRegistrar(state.config.registrarContract).queryFee(
+                        "accounts_early_locked_withdraw"
+                    )
+                )).div(AngelCoreStruct.FEE_BASIS);
+            }
         }
 
         // ** NORMAL TYPE WITHDRAWAL RULES **
@@ -467,8 +310,7 @@ contract AccountDepositWithdrawEndowments is
         //      The endowment multisig OR beneficiaries allowlist addresses [if populated] can withdraw. After 
         //      maturity has been reached, only addresses in Maturity Allowlist may withdraw. If the Maturity
         //      Allowlist is not populated, then only the endowment multisig is allowed to withdraw.
-        // LIQUID & LOCKED(after Maturity): Only the endowment multisig can withdraw
-        if (tempEndowment.endow_type == AngelCoreStruct.EndowmentType.Normal) {
+        if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Normal) {
             // determine if msg sender is allowed to withdraw based on rules and maturity status
             bool senderAllowed = false;
             if (mature) {
@@ -503,7 +345,7 @@ contract AccountDepositWithdrawEndowments is
         }
 
         uint256 withdrawFeeRateAp;
-        if (tempEndowment.endow_type == AngelCoreStruct.EndowmentType.Charity) {
+        if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Charity) {
             withdrawFeeRateAp = IRegistrar(state.config.registrarContract).queryFee(
                 "accounts_withdraw_charity"
             );
@@ -527,23 +369,27 @@ contract AccountDepositWithdrawEndowments is
         uint256 withdrawFeeAp = (amount.mul(withdrawFeeRateAp))
                                 .div(AngelCoreStruct.FEE_BASIS);
 
-        // transfer AP Protocol fee to treasury
+        // Transfer AP Protocol fee to treasury
+        // (ie. standard Withdraw Fee + any early Locked Withdraw Penalty)
         require(
             IERC20(tokenAddress).transfer(
                 registrar_config.treasury,
-                withdrawFeeAp
+                withdrawFeeAp + earlyLockedWithdrawPenalty
             ),
             "Transfer failed"
         );
 
-        // calculate Endowment specific withdraw fee if needed
+        // ** Endowment specific withdraw fee **
+        // Endowment specific withdraw fee needs to be calculated against the amount
+        // leftover after all AP withdraw fees are subtracted. Otherwise we risk having
+        // negative amounts due to collective fees being greater than 100%
+        uint256 amountLeftover = amount - withdrawFeeAp - earlyLockedWithdrawPenalty;
         uint256 withdrawFeeEndow = 0;
         if (
-            tempEndowment.withdrawFee.active &&
-            tempEndowment.withdrawFee.feePercentage != 0 &&
-            tempEndowment.withdrawFee.payoutAddress != address(0)
+            amountLeftover > 0 &&
+            tempEndowment.withdrawFee.percentage != 0
         ) {
-            withdrawFeeEndow = (amount.mul(tempEndowment.withdrawFee.feePercentage))
+            withdrawFeeEndow = (amountLeftover.mul(tempEndowment.withdrawFee.percentage))
                                 .div(AngelCoreStruct.PERCENT_BASIS);
 
             // transfer endowment withdraw fee to beneficiary address
@@ -561,7 +407,7 @@ contract AccountDepositWithdrawEndowments is
             require(
                 IERC20(tokenAddress).transfer(
                     beneficiaryAddress,
-                    (amount - withdrawFeeAp - withdrawFeeEndow)
+                    (amountLeftover - withdrawFeeEndow)
                 ),
                 "Transfer failed"
             );
@@ -572,7 +418,7 @@ contract AccountDepositWithdrawEndowments is
             processToken(
                 AccountMessages.DepositRequest({ id: id, lockedPercentage: 0, liquidPercentage: 100 }),
                 tokenAddress,
-                (amount - withdrawFeeAp - withdrawFeeEndow)
+                (amountLeftover - withdrawFeeEndow)
             );
         }
 
@@ -582,7 +428,5 @@ contract AccountDepositWithdrawEndowments is
         } else {
             state.STATES[id].balances.liquid.balancesByToken[tokenAddress] -= amount;
         }
-        
-        // emit UpdateEndowmentState(id, state.STATES[id]);
     }
 }

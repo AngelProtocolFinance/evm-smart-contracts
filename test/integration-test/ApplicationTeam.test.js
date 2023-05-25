@@ -98,7 +98,7 @@ describe('Charity Endowment Creation and Approval from Application Team', functi
 		const accountQuery = await ethers.getContractAt('AccountsQueryEndowments', deployRes.addresses.account);
 		endowment = await accountQuery.queryEndowmentDetails(1);
 		// console.log(endowment);
-		expect(endowment.endow_type, 'Endowment is of type charity').to.equal(0);
+		expect(endowment.endowType, 'Endowment is of type charity').to.equal(0);
 	});
 
 	it('Application team should be able to reject a charity proposal', async function () {

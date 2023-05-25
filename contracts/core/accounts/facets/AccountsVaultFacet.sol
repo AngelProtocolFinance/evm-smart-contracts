@@ -50,7 +50,24 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
             id
         ];
 
-        require(tempEndowment.owner == msg.sender, "Unauthorized");
+        // check if the msg sender is either the owner or their delegate address and
+        // that they have the power to manage the investments for an account balance
+        if (lockAmt > 0) {
+            require(AngelCoreStruct.canChange(
+                tempEndowment.settingsController.lockedInvestmentManagement,
+                msg.sender,
+                tempEndowment.owner,
+                block.timestamp
+            ), "Unauthorized");
+        }
+        if (liquidAmt > 0) {
+            require(AngelCoreStruct.canChange(
+                tempEndowment.settingsController.liquidInvestmentManagement,
+                msg.sender,
+                tempEndowment.owner,
+                block.timestamp
+            ), "Unauthorized");
+        }
 
         require(
             IRegistrar(state.config.registrarContract).getStrategyApprovalState(
@@ -130,6 +147,25 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
             id
         ];
+
+        // check if the msg sender is either the owner or their delegate address and
+        // that they have the power to manage the investments for an account balance
+        if (lockAmt > 0) {
+            require(AngelCoreStruct.canChange(
+                tempEndowment.settingsController.lockedInvestmentManagement,
+                msg.sender,
+                tempEndowment.owner,
+                block.timestamp
+            ), "Unauthorized");
+        }
+        if (liquidAmt > 0) {
+            require(AngelCoreStruct.canChange(
+                tempEndowment.settingsController.liquidInvestmentManagement,
+                msg.sender,
+                tempEndowment.owner,
+                block.timestamp
+            ), "Unauthorized");
+        }
 
         require(tempEndowment.owner == msg.sender, "Unauthorized");
         require(tempEndowment.pendingRedemptions == 0, "RedemptionInProgress");
@@ -242,199 +278,4 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
             state.STATES[id].activeStrategies[strategy] == false;
         }
     }
-
-    // function processDeduct(
-    //     address rentToken,
-    //     AngelCoreStruct.GenericBalance memory rentBalance,
-    //     uint256 rentInputAmount
-    // ) internal pure returns (AngelCoreStruct.GenericBalance memory) {
-    //     uint256 rentAmount = 0;
-    //     uint8 atIndex = 0;
-    //     for (
-    //         uint8 j = 0;
-    //         j < rentBalance.Cw20CoinVerified_addr.length;
-    //         j++
-    //     ) {
-    //         if (rentBalance.Cw20CoinVerified_addr[j] == rentToken) {
-    //             rentAmount = rentBalance.Cw20CoinVerified_amount[j];
-    //             atIndex = j;
-    //             break;
-    //         }
-    //     }
-    //     require(rentInputAmount < rentAmount, "InsufficientFunds");
-    //     rentBalance.Cw20CoinVerified_amount[atIndex] -= rentInputAmount;
-
-    //     return rentBalance;
-    // }
-
-    // function processCheck(
-    //     uint256 rentId,
-    //     string memory rentVault,
-    //     uint256 rentAmount,
-    //     AngelCoreStruct.AccountType rentAccountType,
-    //     AngelCoreStruct.OneOffVaults storage rentObject
-    // ) internal returns (uint256, uint256) {
-    //     AccountStorage.State storage state = LibAccounts.diamondStorage();
-
-    //     uint256 lockedAmount = 0;
-    //     uint256 liquidAmount = 0;
-
-    //     if (rentAccountType == AngelCoreStruct.AccountType.Locked) {
-    //         AngelCoreStruct.checkTokenInOffVault(
-    //             rentObject.locked,
-    //             rentObject.lockedAmount,
-    //             rentVault
-    //         );
-    //         lockedAmount = rentAmount;
-
-    //         state.vaultBalance[rentId][AngelCoreStruct.AccountType.Locked][
-    //             rentVault
-    //         ] += lockedAmount;
-    //     } else if (rentAccountType == AngelCoreStruct.AccountType.Liquid) {
-    //         AngelCoreStruct.checkTokenInOffVault(
-    //             rentObject.liquid,
-    //             rentObject.liquidAmount,
-    //             rentVault
-    //         );
-    //         liquidAmount = rentAmount;
-
-    //         state.vaultBalance[rentId][AngelCoreStruct.AccountType.Liquid][
-    //             rentVault
-    //         ] += liquidAmount;
-    //     }
-
-    //     return (lockedAmount, liquidAmount);
-    // }
-
-    // /**
-    //  * @notice This function allows to process an investment
-    //  * @dev Processes an investment in a specified token by swapping it for USDC using a specified swaps router.
-    //  * @param registrarContract The registrar contract
-    //  * @param token The token to invest
-    //  * @param amount The amount to invest
-    //  * @return The token and amount to invest
-    //  */
-    // function _processInvest(
-    //     address registrarContract,
-    //     address token,
-    //     uint256 amount
-    // ) internal returns (address, uint256) {
-    //     RegistrarStorage.Config memory registrar_config = IRegistrar(
-    //         registrarContract
-    //     ).queryConfig();
-
-    //     if (token == registrar_config.usdcAddress) {
-    //         return (token, amount);
-    //     }
-
-    //     bool isValid = AngelCoreStruct.cw20Valid(
-    //         registrar_config.acceptedTokens.cw20,
-    //         token
-    //     );
-
-    //     require(isValid, "Invalid Token");
-    //     IERC20(token).approve(registrar_config.swapsRouter, amount);
-
-    //     uint256 usdcAmount = ISwappingV3(registrar_config.swapsRouter)
-    //         .swapTokenToUsdc(token, amount);
-
-    //     token = registrar_config.usdcAddress;
-    //     amount = usdcAmount;
-
-    //     return (token, amount);
-    // }
-    // /**
-    //  * @notice Sends token to the different chain with the message
-    //  * @param payloadObject message object
-    //  * @param registrarContract registrar contract address
-    //  * @param amount Amount of funds to be transfered
-    //  * @param network The network you want to transfer token
-    //  */
-    // function executeCallsWithToken(
-    //     IRouter.VaultActionData memory payloadObject,
-    //     address registrarContract,
-    //     uint256 amount,
-    //     uint256 network
-    // ) internal {
-    //     // TODO: check if event has to be emitted
-    //     // AccountStorage.State storage state = LibAccounts.diamondStorage();
-
-    //     // Encode Valts action Data
-    //     bytes memory Encodedpayload = abi.encode(payloadObject);
-
-    //     AngelCoreStruct.NetworkInfo memory senderInfo = IRegistrar(
-    //         registrarContract
-    //     ).queryNetworkConnection(block.chainid);
-
-    //     AngelCoreStruct.NetworkInfo memory recieverInfo = IRegistrar(
-    //         registrarContract
-    //     ).queryNetworkConnection(network);
-    //     uint256 eth = recieverInfo.gasLimit;
-    //     if (eth > 0) {
-    //         IAxelarGateway(senderInfo.gasReceiver)
-    //             .payNativeGasForContractCallWithToken{value: eth}(
-    //             address(this),
-    //             recieverInfo.name,
-    //             StringArray.addressToString(recieverInfo.router),
-    //             Encodedpayload,
-    //             IERC20Metadata(payloadObject.token).symbol(),
-    //             amount,
-    //             msg.sender
-    //         );
-    //     }
-
-    //     IERC20(payloadObject.token).approve(senderInfo.axelerGateway, amount);
-    //     //Call the contract
-    //     IAxelarGateway(senderInfo.axelerGateway).callContractWithToken({
-    //         destinationChain: recieverInfo.name,
-    //         contractAddress: StringArray.addressToString(recieverInfo.router),
-    //         payload: Encodedpayload,
-    //         symbol: IERC20Metadata(payloadObject.token).symbol(),
-    //         amount: amount
-    //     });
-    // }
-
-    // /**
-    //  * @notice Sends token to the different chain with the message
-    //  * @param payloadObject message object
-    //  * @param registrarContract registrar contract address
-    //  * @param network The network you want to transfer token
-    //  */
-    // function executeCalls(
-    //     IRouter.VaultActionData memory payloadObject,
-    //     address registrarContract,
-    //     uint256 network
-    // ) internal {
-    //     // TODO: check if event has to be emitted
-    //     // AccountStorage.State storage state = LibAccounts.diamondStorage();
-
-    //     // Encode Valts action Data
-    //     bytes memory Encodedpayload = abi.encode(payloadObject);
-
-    //     AngelCoreStruct.NetworkInfo memory senderInfo = IRegistrar(
-    //         registrarContract
-    //     ).queryNetworkConnection(block.chainid);
-
-    //     AngelCoreStruct.NetworkInfo memory recieverInfo = IRegistrar(
-    //         registrarContract
-    //     ).queryNetworkConnection(network);
-    //     uint256 eth = recieverInfo.gasLimit;
-    //     if (eth > 0) {
-    //         IAxelarGateway(senderInfo.gasReceiver).payNativeGasForContractCall{
-    //             value: eth
-    //         }(
-    //             address(this),
-    //             recieverInfo.name,
-    //             StringArray.addressToString(recieverInfo.router),
-    //             Encodedpayload,
-    //             msg.sender
-    //         );
-    //     }
-    //     //Call the contract
-    //     IAxelarGateway(senderInfo.axelerGateway).callContract({
-    //         destinationChain: recieverInfo.name,
-    //         contractAddress: StringArray.addressToString(recieverInfo.router),
-    //         payload: Encodedpayload
-    //     });
-    // }
 }

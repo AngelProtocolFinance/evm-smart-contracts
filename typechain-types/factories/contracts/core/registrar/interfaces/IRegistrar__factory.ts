@@ -477,27 +477,27 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "subdaoGovCode",
+            name: "subdaoGovContract",
             type: "address",
           },
           {
             internalType: "address",
-            name: "subdaoCw20TokenCode",
+            name: "subdaoTokenContract",
             type: "address",
           },
           {
             internalType: "address",
-            name: "subdaoBondingTokenCode",
+            name: "subdaoBondingTokenContract",
             type: "address",
           },
           {
             internalType: "address",
-            name: "subdaoCw900Code",
+            name: "subdaoCw900Contract",
             type: "address",
           },
           {
             internalType: "address",
-            name: "subdaoDistributorCode",
+            name: "subdaoDistributorContract",
             type: "address",
           },
           {
@@ -507,7 +507,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "donationMatchCode",
+            name: "donationMatchContract",
             type: "address",
           },
           {
@@ -940,41 +940,6 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "subdaoGovCode",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "subdaoCw20TokenCode",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "subdaoBondingTokenCode",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "subdaoCw900Code",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "subdaoDistributorCode",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "subdaoEmitter",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "donationMatchCode",
-            type: "address",
-          },
-          {
-            internalType: "address",
             name: "indexFundContract",
             type: "address",
           },
@@ -1061,6 +1026,41 @@ const _abi = [
           {
             internalType: "address",
             name: "wethAddress",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "subdaoGovContract",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "subdaoTokenContract",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "subdaoBondingTokenContract",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "subdaoCw900Contract",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "subdaoDistributorContract",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "subdaoEmitter",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "donationMatchContract",
             type: "address",
           },
           {

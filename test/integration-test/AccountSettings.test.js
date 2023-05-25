@@ -57,7 +57,7 @@ describe('Account Settings Controller', function () {
 		let endowmentUpdateData = {
 			id: 1,
 			owner: deployer.address,
-			endow_type: endowmentConfig.endow_type,
+			endowType: endowmentConfig.endowType,
 			name: "testing name",
 			categories: endowmentConfig.categories,
 			tier: endowmentConfig.tier,
@@ -158,7 +158,7 @@ describe('Account Settings Controller', function () {
 		let endowmentUpdateData = {
 			id: 1,
 			owner: deployer.address,
-			endow_type: endowmentConfig.endow_type,
+			endowType: endowmentConfig.endowType,
 			name: "testing name",
 			categories: endowmentConfig.categories,
 			tier: endowmentConfig.tier,

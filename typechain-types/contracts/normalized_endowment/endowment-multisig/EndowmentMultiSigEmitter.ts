@@ -422,7 +422,7 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
     ): Promise<ContractTransaction>;
 
     initEndowmentMultiSigEmitter(
-      multisigfactory: PromiseOrValue<string>,
+      _multisigFactory: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -496,7 +496,7 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
   ): Promise<ContractTransaction>;
 
   initEndowmentMultiSigEmitter(
-    multisigfactory: PromiseOrValue<string>,
+    _multisigFactory: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -570,7 +570,7 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
     ): Promise<void>;
 
     initEndowmentMultiSigEmitter(
-      multisigfactory: PromiseOrValue<string>,
+      _multisigFactory: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -753,7 +753,7 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
     ): Promise<BigNumber>;
 
     initEndowmentMultiSigEmitter(
-      multisigfactory: PromiseOrValue<string>,
+      _multisigFactory: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -828,7 +828,7 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initEndowmentMultiSigEmitter(
-      multisigfactory: PromiseOrValue<string>,
+      _multisigFactory: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

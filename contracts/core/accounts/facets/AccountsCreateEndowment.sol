@@ -9,7 +9,6 @@ import {RegistrarStorage} from "../../registrar/storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {LocalRegistrarLib} from "../../registrar/lib/LocalRegistrarLib.sol";
-// import {Cw3EndowmentMessages, CW3Endowment} from "./../../../normalized_endowment/cw3-endowment/CW3Endowment.sol";
 import {SubDao, subDaoMessage} from "./../../../normalized_endowment/subdao/subdao.sol";
 import {ISubDao} from "./../../../normalized_endowment/subdao/Isubdao.sol";
 import {IAccountDeployContract} from "./../interfaces/IAccountDeployContract.sol";
@@ -38,23 +37,26 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
             registrarAddress
         ).queryConfig();
 
-        if (AngelCoreStruct.EndowmentType.Charity == details.endow_type) {
+        AngelCoreStruct.EndowmentFee memory earlyLockedWithdrawFee = state.config.earlyLockedWithdrawFee;
+        if (AngelCoreStruct.EndowmentType.Charity == details.endowType) {
             require(
                 msg.sender == registrar_config.charityProposal,
                 "Unauthorized"
             );
+        } else {
+            earlyLockedWithdrawFee = details.earlyLockedWithdrawFee;
         }
 
-        if (details.cw4_members.length == 0) {
-            details.cw4_members = new address[](1);
-            details.cw4_members[0] = details.owner;
+        if (details.members.length == 0) {
+            details.members = new address[](1);
+            details.members[0] = details.owner;
         }
 
         require(details.threshold > 0, "Threshold must be a positive number");
 
-        if (AngelCoreStruct.EndowmentType.Normal == details.endow_type) {
+        if (AngelCoreStruct.EndowmentType.Normal == details.endowType) {
             require(
-                details.threshold <= details.cw4_members.length,
+                details.threshold <= details.members.length,
                 "Threshold greater than member count"
             );
         }
@@ -62,7 +64,7 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
         AngelCoreStruct.SplitDetails memory splitSettings;
         bool ignoreUserSplit;
 
-        if (AngelCoreStruct.EndowmentType.Charity == details.endow_type) {
+        if (AngelCoreStruct.EndowmentType.Charity == details.endowType) {
             ignoreUserSplit = false;
         } else {
             splitSettings = details.splitToLiquid;
@@ -70,7 +72,7 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
         }
 
         address donationMatchContract = address(0);
-        if (AngelCoreStruct.EndowmentType.Charity == details.endow_type) {
+        if (AngelCoreStruct.EndowmentType.Charity == details.endowType) {
             donationMatchContract = registrar_config
                 .donationMatchCharitesContract;
         }
@@ -96,7 +98,7 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                 owner: details.owner,
                 name: details.name,
                 categories: details.categories,
-                endow_type: details.endow_type,
+                endowType: details.endowType,
                 maturityTime: details.maturityTime,
                 strategies: AngelCoreStruct.accountStrategiesDefaut(),
                 oneoffVaults: AngelCoreStruct.oneOffVaultsDefault(),
@@ -110,6 +112,7 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                 donationMatchContract: donationMatchContract,
                 allowlistedBeneficiaries: details.allowlistedBeneficiaries,
                 allowlistedContributors: details.allowlistedContributors,
+                earlyLockedWithdrawFee: earlyLockedWithdrawFee,
                 withdrawFee: details.withdrawFee,
                 depositFee: details.depositFee,
                 balanceFee: details.balanceFee,
@@ -125,30 +128,13 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                 referralId: details.referralId
             });
 
-        // state.STATES[state.config.nextAccountId] = AccountStorage
-        //     .EndowmentState({
-        //         donationsReceived: AngelCoreStruct.donationsReceivedDefault(),
-        //         closingEndowment: false,
-        //         closingBeneficiary: AngelCoreStruct.beneficiaryDefault(),
-        //         balances: AngelCoreStruct.BalanceInfo({
-        //             locked: AngelCoreStruct.GenericBalance,
-        //             liquid: AngelCoreStruct.GenericBalance
-        //         }),
-        //         lockedForever: false
-        //     });
         state.STATES[state.config.nextAccountId].closingEndowment = false;
-        state.STATES[state.config.nextAccountId].lockedForever = false;
-
-        // emit UpdateEndowmentState(
-        //     state.config.nextAccountId,
-        //     state.STATES[state.config.nextAccountId]
-        // );
 
         state.ENDOWMENTS[state.config.nextAccountId].owner = IEndowmentMultiSigFactory(registrar_config.multisigFactory)
             .create(
                 state.config.nextAccountId,
                 registrar_config.multisigEmitter,
-                details.cw4_members,
+                details.members,
                 details.threshold
             );
         state.ENDOWMENTS[state.config.nextAccountId].multisig = state.ENDOWMENTS[state.config.nextAccountId].owner;
@@ -166,9 +152,9 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
                     proposalDeposit: details.dao.proposalDeposit,
                     snapshotPeriod: details.dao.snapshotPeriod,
                     token: details.dao.token,
-                    endow_type: state
+                    endowType: state
                         .ENDOWMENTS[state.config.nextAccountId]
-                        .endow_type,
+                        .endowType,
                     endowOwner: state
                         .ENDOWMENTS[state.config.nextAccountId]
                         .owner,

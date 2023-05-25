@@ -21,10 +21,10 @@ import {ISubDao} from "../../../normalized_endowment/subdao/Isubdao.sol";
 contract AccountDeployContract is ReentrancyGuardFacet, AccountsEvents {
     /**
      * @notice Create a new Dao for endowment
-     * @param createdaomessage Dao creation message with initial configuration
+     * @param createDaoMessage Dao creation message with initial configuration
      */
     function createDaoContract(
-        subDaoMessage.InstantiateMsg memory createdaomessage
+        subDaoMessage.InstantiateMsg memory createDaoMessage
     ) public nonReentrant returns (address daoAddress) {
         // will be called by self, as this is deployment facet
         require(msg.sender == address(this), "Unauthorized");
@@ -34,12 +34,12 @@ contract AccountDeployContract is ReentrancyGuardFacet, AccountsEvents {
             state.config.registrarContract
         ).queryConfig();
 
-        address implementation = registrar_config.subdaoGovCode;
+        address implementation = registrar_config.subdaoGovContract;
         address admin = registrar_config.proxyAdmin;
 
         bytes memory subDaoData = abi.encodeWithSignature(
             "initializeSubDao((uint256,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address),address)",
-            createdaomessage,
+            createDaoMessage,
             registrar_config.subdaoEmitter
         );
 
@@ -48,10 +48,10 @@ contract AccountDeployContract is ReentrancyGuardFacet, AccountsEvents {
         );
         ISubdaoEmitter(registrar_config.subdaoEmitter).initializeSubdao(
             daoAddress,
-            createdaomessage
+            createDaoMessage
         );
 
-        ISubDao(daoAddress).buildDaoTokenMesage(createdaomessage);
-        emit DaoContractCreated(createdaomessage, daoAddress);
+        ISubDao(daoAddress).buildDaoTokenMesage(createDaoMessage);
+        emit DaoContractCreated(createDaoMessage, daoAddress);
     }
 }

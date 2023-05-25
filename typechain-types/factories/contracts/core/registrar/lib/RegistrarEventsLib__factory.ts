@@ -111,27 +111,27 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "subdaoGovCode",
+            name: "subdaoGovContract",
             type: "address",
           },
           {
             internalType: "address",
-            name: "subdaoCw20TokenCode",
+            name: "subdaoTokenContract",
             type: "address",
           },
           {
             internalType: "address",
-            name: "subdaoBondingTokenCode",
+            name: "subdaoBondingTokenContract",
             type: "address",
           },
           {
             internalType: "address",
-            name: "subdaoCw900Code",
+            name: "subdaoCw900Contract",
             type: "address",
           },
           {
             internalType: "address",
-            name: "subdaoDistributorCode",
+            name: "subdaoDistributorContract",
             type: "address",
           },
           {
@@ -141,7 +141,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "donationMatchCode",
+            name: "donationMatchContract",
             type: "address",
           },
           {
@@ -302,7 +302,7 @@ const _abi = [
 ] as const;
 
 const _bytecode =
-  "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea264697066735822122006b1be8c904af247d6670bc38fc3f5d725267d53e99c48b025b5f13fb8214b0164736f6c63430008120033";
+  "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea2646970667358221220899bd3ae5c11ff5a57fb02c33ba4b8fef84d3d04ab39d33399919ef596c1c69864736f6c63430008120033";
 
 type RegistrarEventsLibConstructorParams =
   | [signer?: Signer]

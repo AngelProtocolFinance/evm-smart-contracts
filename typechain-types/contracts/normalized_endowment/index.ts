@@ -7,8 +7,6 @@ import type * as endowmentMultisig from "./endowment-multisig";
 export type { endowmentMultisig };
 import type * as incentivisedVoting from "./incentivised-voting";
 export type { incentivisedVoting };
-import type * as lockedWithdraw from "./locked-withdraw";
-export type { lockedWithdraw };
 import type * as subdao from "./subdao";
 export type { subdao };
 import type * as subdaoToken from "./subdao-token";

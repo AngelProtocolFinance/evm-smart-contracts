@@ -71,7 +71,8 @@ contract AccountsQueryEndowments {
             maxGeneralCategoryId: state.config.maxGeneralCategoryId,
             subDao: state.config.subDao,
             gateway: state.config.gateway,
-            gasReceiver: state.config.gasReceiver
+            gasReceiver: state.config.gasReceiver,
+            earlyLockedWithdrawFee: state.config.earlyLockedWithdrawFee
         });
     }
 
@@ -91,21 +92,4 @@ contract AccountsQueryEndowments {
             closingBeneficiary: state.STATES[id].closingBeneficiary
         });
     }
-
-    // /**
-    //  * @dev Queries the balance of a specific vault for an endowment account.
-    //  * @param id ID of the endowment account.
-    //  * @param vaultType Type of the vault account.
-    //  * @param vault Address of the vault contract.
-    //  * @return vaultBalance Balance of the specified vault.
-    //  */
-    // function queryVaultBalance(
-    //     uint32 id,
-    //     AngelCoreStruct.AccountType vaultType,
-    //     string memory vault
-    // ) public view returns (uint256 vaultBalance) {
-    //     AccountStorage.State storage state = LibAccounts.diamondStorage();
-
-    //     vaultBalance = state.vaultBalance[id][vaultType][vault];
-    // }
 }

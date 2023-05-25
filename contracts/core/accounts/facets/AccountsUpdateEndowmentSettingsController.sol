@@ -48,13 +48,10 @@ contract AccountsUpdateEndowmentSettingsController is
         ];
 
         require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
-        require(!state.STATES[details.id].lockedForever, "Settings are locked forever");
 
-        if (tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity) {
-            // If the maturity time is not perpetual nor has the maturity time occured, then changes can be made.
-            if (tempEndowment.maturityTime > block.timestamp) {
-                // Changes must be to a future time OR changing to a perpetual maturity
-                require(details.maturityTime > block.timestamp || details.maturityTime == 0, "Invalid maturity time input");
+        if (tempEndowment.endowType != AngelCoreStruct.EndowmentType.Charity) {
+            // when maturity time is <= 0 it means it's not set, i.e. the AST is perpetual
+            if (tempEndowment.maturityTime <= 0 || tempEndowment.maturityTime > block.timestamp) {
                 if (
                     AngelCoreStruct.canChange(
                         tempEndowment.settingsController.maturityTime,
@@ -63,13 +60,11 @@ contract AccountsUpdateEndowmentSettingsController is
                         block.timestamp
                     )
                 ) {
+                    // Changes must be to a future time OR changing to a perpetual maturity
+                    require(details.maturityTime > block.timestamp || details.maturityTime == 0, "Invalid maturity time input");
                     tempEndowment.maturityTime = details.maturityTime;
                     emit EndowmentSettingUpdated(details.id, "maturityTime");
                 }
-            }
-
-            // when maturity time is <= 0 it means it's not set, i.e. the AST is perpetual
-            if (tempEndowment.maturityTime <= 0 || tempEndowment.maturityTime > block.timestamp) {
                 if (
                     AngelCoreStruct.canChange(
                         tempEndowment.settingsController.allowlistedBeneficiaries,
@@ -190,7 +185,6 @@ contract AccountsUpdateEndowmentSettingsController is
         ];
 
         require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
-        require(!state.STATES[details.id].lockedForever, "Settings are locked forever");
         require(msg.sender == tempEndowment.owner, "Unauthorized");
 
         tempEndowment.settingsController = details.settingsController;
@@ -215,11 +209,26 @@ contract AccountsUpdateEndowmentSettingsController is
         ];
 
         require(
-            tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity,
+            tempEndowment.endowType != AngelCoreStruct.EndowmentType.Charity,
             "Charity Endowments may not change endowment fees"
         );
         require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
-        require(!state.STATES[details.id].lockedForever, "Settings are locked forever");
+
+        if (
+            AngelCoreStruct.canChange(
+                tempEndowment.settingsController.earlyLockedWithdrawFee,
+                msg.sender,
+                tempEndowment.owner,
+                block.timestamp
+            )
+        ) {
+            require(
+                details.earlyLockedWithdrawFee.payoutAddress != address(0) || details.earlyLockedWithdrawFee.percentage == 0,
+                "Invalid payout address given"
+            );
+            require(details.earlyLockedWithdrawFee.percentage < 1000, "Fee Percentage cannot be greater than 100%");
+            tempEndowment.earlyLockedWithdrawFee = details.earlyLockedWithdrawFee;
+        }
 
         if (
             AngelCoreStruct.canChange(
@@ -229,6 +238,11 @@ contract AccountsUpdateEndowmentSettingsController is
                 block.timestamp
             )
         ) {
+            require(
+                details.depositFee.payoutAddress != address(0) || details.depositFee.percentage == 0,
+                "Invalid payout address given"
+            );
+            require(details.depositFee.percentage < 1000, "Fee Percentage cannot be greater than 100%");
             tempEndowment.depositFee = details.depositFee;
         }
 
@@ -240,6 +254,11 @@ contract AccountsUpdateEndowmentSettingsController is
                 block.timestamp
             )
         ) {
+            require(
+                details.withdrawFee.payoutAddress != address(0) || details.withdrawFee.percentage == 0,
+                "Invalid payout address given"
+            );
+            require(details.withdrawFee.percentage < 1000, "Fee Percentage cannot be greater than 100%");
             tempEndowment.withdrawFee = details.withdrawFee;
         }
 
@@ -251,6 +270,11 @@ contract AccountsUpdateEndowmentSettingsController is
                 block.timestamp
             )
         ) {
+            require(
+                details.balanceFee.payoutAddress != address(0) || details.balanceFee.percentage == 0,
+                "Invalid payout address given"
+            );
+            require(details.balanceFee.percentage < 1000, "Fee Percentage cannot be greater than 100%");
             tempEndowment.balanceFee = details.balanceFee;
         }
 
