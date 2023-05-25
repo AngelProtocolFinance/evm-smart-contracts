@@ -21,8 +21,6 @@ var ANGEL_CORE_STRUCT: Contract
 var STRING_LIBRARY: Contract
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000"
 var REGISTRAR_ADDRESS
-var deployer
-var proxyAdmin
 
 let updateConfig
 
@@ -91,8 +89,8 @@ export async function main(apTeamAdmins = []) {
         var Admins = config.AP_TEAM_MULTISIG_DATA.admins
         if (apTeamAdmins.length != 0) Admins = apTeamAdmins
 
-        ;[deployer, proxyAdmin] = await ethers.getSigners()
-        console.log("Deploying the contracts with the account:", await deployer.getAddress())
+        const [_, proxyAdmin] = await ethers.getSigners()
+        console.log("Deploying the contracts with the account:", await proxyAdmin.getAddress())
 
         // Mock setup required for testing
         let mockUSDC: Contract | undefined
@@ -104,10 +102,10 @@ export async function main(apTeamAdmins = []) {
             config.REGISTRAR_UPDATE_CONFIG.usdcAddress = mockUSDC.address
             config.DONATION_MATCH_CHARITY_DATA.usdcAddress = mockUSDC.address
 
-            let tx = await mockUSDC.mint(deployer.address, ethers.utils.parseEther("10000000000000000000000"))
+            let tx = await mockUSDC.mint(proxyAdmin.address, ethers.utils.parseEther("10000000000000000000000"))
             await tx.wait()
 
-            console.log("given deployer USDC")
+            console.log("given proxyAdmin USDC")
 
             console.log("USDC Mock Address", mockUSDC.address)
         }
@@ -236,7 +234,7 @@ export async function main(apTeamAdmins = []) {
 
         console.log("halo token deployed at: ", haloToken.address)
 
-        console.log("halo token balance: ", await haloToken.balanceOf(deployer.address))
+        console.log("halo token balance: ", await haloToken.balanceOf(proxyAdmin.address))
 
         if (isLocalNetwork(network)) {
             // if network is 'hardhat' then mockUSDC should always be initialized
@@ -303,7 +301,7 @@ export async function main(apTeamAdmins = []) {
             config.REGISTRAR_DATA.acceptedTokens.cw20.push(dai.address)
 
             // mint DAI
-            await dai.mint(deployer.address, ethers.utils.parseEther("100000000"))
+            await dai.mint(proxyAdmin.address, ethers.utils.parseEther("100000000"))
 
             console.log(dai.address)
 

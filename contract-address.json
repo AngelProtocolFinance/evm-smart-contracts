@@ -1,122 +1,17 @@
 {
   "INFO": "ALL ADDRESS ARE MENTIONED INTO THIS FILE",
   "libraries": {
-    "STRING_LIBRARY": "0x5F349EB2b67Ece807aCa8DE701B1F0954f8AB44e",
-    "ANGEL_CORE_STRUCT_LIBRARY": "0x877592B10a9cCBc698763de9C79E11784361eEcC"
+    "STRING_LIBRARY": "0xC0B03E0E3032a98585c5D884a7Ccc8433B198f30",
+    "ANGEL_CORE_STRUCT_LIBRARY": "0x3a81Ec8676b7E23194BFdBa49454b2115168b963"
   },
   "registrar": {
-    "registrarImplementation": "0x8D93c96b4CCB26e6713B4BccA9D57Ad0Eb5f3BC4",
-    "registrarProxy": "0x5602bAF3002df39FbAA568C0657bBBBB8e84527a"
+    "registrarImplementation": "0x60896e63A0E3dcaA618F87481f1918af30f547BC",
+    "registrarProxy": "0x457aE2D8d8B5d77F708Ddc185450762858cE8E39"
   },
   "multiSig": {
-    "ApplicationsMultiSigProxy": "0xB2BD05A652973f567aD6472b9FEa29FE293f6cD9",
-    "APTeamMultiSigProxy": "0xD3d0B4fFF90c36e1a31d478e35d699f432428Ae5",
-    "ApplicationMultisigImplementation": "0x7E891709346B193ff9f37Eb739C8a294B2395Ba6",
-    "APTeamMultisigImplementation": "0xfC8caFA21dc76a1065494E213dE9F94E788DaAC9"
-  },
-  "subDaoEmitter": {
-    "SubdaoEmitterProxyAddress": "0x8450D449D5Cc73EBf35970d9723e8d214151e702",
-    "SubdaoEmitterImplementationAddress": "0x9B1a72BD9efC089935766f7Ebc8779B67C0F7495"
-  },
-  "charityApplication": {
-    "CharityApplicationProxy": "0xbF6b148a440acAb936796ad40947C0C33C78639A",
-    "CharityApplicationImplementation": "0x45CCb6251F3500c7EE3219eE47C213fB239346cB"
-  },
-  "swapRouterAddress2": {
-    "swapRouterProxy": "0x22a1B036322472baC663A4d741d87829c30b8E4e",
-    "swapRouterImplementation": "0x03Bb663AccB9FD14aD3c37B2D66B025bbd4Fc533"
-  },
-  "indexFundAddress": {
-    "indexFundProxy": "0x486b1C056AC365dD969056C717ab8E7AEd59a178",
-    "indexFundImplementation": "0x658E94B5FfBDe68b99203BBbBAef618D36862766"
-  },
-  "EndowmentMultiSigAddress": {
-    "EndowmentMultiSigEmitterProxy": "0x33F76554d1474061482Bfa858f35AFD9BAb4D1C5",
-    "EndowmentMultiSigEmitterImplementation": "0xacE2a31e8B8d66C24DAea008d1eDaf571369A728",
-    "MultiSigWalletFactory": "0xb463AFC0b3A499a2D826155fc6E6E73061BEF826",
-    "MultiSigWalletImplementation": "0xAb3aa8BCEA9832CB18153Aa9731E989A289277f7"
-  },
-  "lockedWithdraw": {
-    "LockedWithdrawImplementation": "0x33936aF12923725cEc788e2AC5beBa03c7a5BD79",
-    "LockedWithdrawProxy": "0x84efD60753f006DE6878C7139675b110Da654459"
-  },
-  "HaloImplementations": {
-    "DonationMatchImplementation": "0x6eB34f65AcC0dd09C3AA72C3C4bA08578a4A3F96",
-    "DonationMatchAddress": {
-      "DonationMatchProxy": "0xC4Af9B066983f55852a2796A7485ccE748392566",
-      "DonationMatchImplementation": "0x675017e864CB39CEbe4A0CDBA639750f6ee0BDE2"
-    },
-    "SubDaoImplementation": "0xBfA2d241f8f2ecaeA58A7D60E2a358f851D5c1b1",
-    "subDaoERC20Implementation": "0x6843cd0Ccc776EA0FE7E26e6527C925F06dDD76C",
-    "subDaoveTokenImplementation": "0x4F4d5EABF5A8fDaeE5794DEFff4eE88e6e2c5f51",
-    "IncentivisedVotingLockupImplementation": "0x38f05a857a1D4FE6eB712A794a63C61D2b282b30"
-  },
-  "addressWriter": {
-    "accountDiamond": "0x6d8778e0C742e0f0c31d85d271089C0668a95738",
-    "haloAddress": {
-      "Halo": "0xA8b73E610095A61de646eD06334c61b94318df52",
-      "Gov": {
-        "GovProxy": "0x2811747E3336Aa28caf71c51454766E1B95F56E8",
-        "VotingERC20Proxy": "0xbc6Fe0a018266F9F02C0E21cb21388cf1D09a560",
-        "TimeLock": "0x74C615649f260850c0702ca2aDAEDC0eb3F312a6"
-      },
-      "GovHodler": "0x3Bfc59C12e4f838419C483B4CCb86D5798f29DFF",
-      "Airdrop": "0xd9Ee17555a04f2E34ea43528628582AC45A6E984",
-      "Community": "0x7Eb691CaD47e698642Ac507aC0383d8Ef1A20C7D",
-      "distributor": "0x562EcE7daE572a5352D50562C472CBd41402F310",
-      "vesting": "0x0d60924d99B5C75Ce8A6698b44Fa864fdC84A2C9",
-      "collector": "0x79AF01164e25B9c6Ff828A5f795CFA62A635CFC3",
-      "staking": "0xd62A19ffb64C3f00271Dd7BBf455824aa799d074"
-    }
-  },
-  "composedAddress": {
-    "libraries": {
-      "stringLibrary": "0x5F349EB2b67Ece807aCa8DE701B1F0954f8AB44e",
-      "AngelCoreStruct": "0x877592B10a9cCBc698763de9C79E11784361eEcC"
-    },
-    "dai": "",
-    "registrar": "0x5602bAF3002df39FbAA568C0657bBBBB8e84527a",
-    "account": "0x6d8778e0C742e0f0c31d85d271089C0668a95738",
-    "multisigAddress": {
-      "APTeamMultiSig": "0xD3d0B4fFF90c36e1a31d478e35d699f432428Ae5",
-      "ApplicationsMultiSig": "0xB2BD05A652973f567aD6472b9FEa29FE293f6cD9"
-    },
-    "charityApplicationsAddress": "0xbF6b148a440acAb936796ad40947C0C33C78639A",
-    "swapRouter": "0x22a1B036322472baC663A4d741d87829c30b8E4e",
-    "indexFund": "0x486b1C056AC365dD969056C717ab8E7AEd59a178",
-    "multisigDat": {
-      "MultiSigWalletFactory": "0xb463AFC0b3A499a2D826155fc6E6E73061BEF826",
-      "EndowmentMultiSigEmitter": "0x33F76554d1474061482Bfa858f35AFD9BAb4D1C5"
-    },
-    "implementations": {
-      "DonationMatch": "0x6eB34f65AcC0dd09C3AA72C3C4bA08578a4A3F96",
-      "DonationMatchCharity": "0xC4Af9B066983f55852a2796A7485ccE748392566",
-      "SubDao": "0xBfA2d241f8f2ecaeA58A7D60E2a358f851D5c1b1",
-      "SubDaoERC20": "0x6843cd0Ccc776EA0FE7E26e6527C925F06dDD76C",
-      "SubDaoVeBonding": "0x4F4d5EABF5A8fDaeE5794DEFff4eE88e6e2c5f51",
-      "FeeDistributor": "0x0000000000000000000000000000000000000000",
-      "IncentiisedVoting": "0x243f0Fd94F12dEB0a8B73deEA25138479ee7E4aA",
-      "LockedWithdraw": "0x84efD60753f006DE6878C7139675b110Da654459",
-      "cw900lv": "0x38f05a857a1D4FE6eB712A794a63C61D2b282b30"
-    },
-    "haloAddress": {
-      "Halo": "0xA8b73E610095A61de646eD06334c61b94318df52",
-      "Gov": {
-        "GovProxy": "0x2811747E3336Aa28caf71c51454766E1B95F56E8",
-        "VotingERC20Proxy": "0xbc6Fe0a018266F9F02C0E21cb21388cf1D09a560",
-        "TimeLock": "0x74C615649f260850c0702ca2aDAEDC0eb3F312a6"
-      },
-      "GovHodler": "0x3Bfc59C12e4f838419C483B4CCb86D5798f29DFF",
-      "Airdrop": "0xd9Ee17555a04f2E34ea43528628582AC45A6E984",
-      "Community": "0x7Eb691CaD47e698642Ac507aC0383d8Ef1A20C7D",
-      "distributor": "0x562EcE7daE572a5352D50562C472CBd41402F310",
-      "vesting": "0x0d60924d99B5C75Ce8A6698b44Fa864fdC84A2C9",
-      "collector": "0x79AF01164e25B9c6Ff828A5f795CFA62A635CFC3",
-      "staking": "0xd62A19ffb64C3f00271Dd7BBf455824aa799d074"
-    },
-    "haloGovContract": "0x2811747E3336Aa28caf71c51454766E1B95F56E8",
-    "timelockContract": "0x74C615649f260850c0702ca2aDAEDC0eb3F312a6",
-    "votingERC20": "0xbc6Fe0a018266F9F02C0E21cb21388cf1D09a560",
-    "lockedWithdraw": "0x84efD60753f006DE6878C7139675b110Da654459"
+    "ApplicationsMultiSigProxy": "0xa44f2D3f2AC79FA27b4e7cd87E057a599A1ff1e3",
+    "APTeamMultiSigProxy": "0x28d72EB755157999230F53f93A189b2cA447b8D4",
+    "ApplicationMultisigImplementation": "0x1AA5824B43e0D69f01bA4416d59B7aca6ce5f3bD",
+    "APTeamMultisigImplementation": "0x989046688023C832a1cc58fA91Fb052978506096"
   }
 }
