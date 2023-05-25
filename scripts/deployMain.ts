@@ -423,8 +423,8 @@ export async function main(apTeamAdmins = []) {
             votingERC20: haloAddress.Gov.VotingERC20Proxy,
         }
 
-        await saveFrontendFiles({ addressWriter })
-        await saveFrontendFiles({ composedAddress })
+        // await saveFrontendFiles({ addressWriter })
+        // await saveFrontendFiles({ composedAddress })
         return {
             addresses: composedAddress,
             registrarConfig: updateConfig,
