@@ -13,10 +13,7 @@ export const cleanFile = () => {
                 throw new Error("No root directory.")
             }
 
-            fs.writeFileSync(
-                path.join(contractsDir, "contract-address.json"),
-                JSON.stringify({ INFO: "ALL ADDRESS ARE MENTIONED INTO THIS FILE" }, undefined, 2)
-            )
+            fs.writeFileSync(path.join(contractsDir, "contract-address.json"), "{}")
             resolve(true)
         } catch (e) {
             reject(e)
