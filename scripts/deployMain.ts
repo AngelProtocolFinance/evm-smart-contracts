@@ -21,7 +21,7 @@ var STRING_LIBRARY: Contract
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000"
 var REGISTRAR_ADDRESS
 
-let updateConfig
+let updateConfig: RegistrarMessages.UpdateConfigRequestStruct
 
 interface AddressWriter {
     [key: string]: string | AddressWriter
@@ -31,7 +31,8 @@ let addressWriter: AddressWriter = {}
 import { Contract } from "ethers"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import { APTeamMultiSig, ApplicationsMultiSig } from "typechain-types"
-import { cleanFile, isLocalNetwork, saveFrontendFiles, updateAddresses } from "utils"
+import { cleanFile, isLocalNetwork, updateAddresses } from "utils"
+import { RegistrarMessages } from "typechain-types/contracts/core/registrar/interfaces/IRegistrar"
 
 async function deployLibraries(verify_contracts: boolean, hre: HardhatRuntimeEnvironment) {
     try {

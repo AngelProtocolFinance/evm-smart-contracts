@@ -23,16 +23,17 @@ var REGISTRAR_ADDRESS;
 var deployer;
 var proxyAdmin;
 
-let updateConfig;
+let updateConfig: RegistrarMessages.UpdateConfigRequestStruct
 
 interface AddressWriter { [key: string]: string | AddressWriter }
 let addressWriter: AddressWriter = {}; 
 
-import { saveFrontendFiles, cleanFile, updateAddresses } from 'utils'
+import { cleanFile, updateAddresses } from 'utils'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { Contract } from 'ethers'
 import { APTeamMultiSig, ApplicationsMultiSig } from 'typechain-types'
 import { isLocalNetwork } from 'utils'
+import { RegistrarMessages } from 'typechain-types/contracts/core/registrar/interfaces/IRegistrar'
 
 async function deployLibraries(verify_contracts: boolean,hre: HardhatRuntimeEnvironment) {
 	try {
@@ -356,14 +357,14 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			subdaoGovContract: implementations.subDao.implementation, //address
 			subdaoTokenContract: implementations.subDao.token, //address
 			subdaoBondingTokenContract: implementations.subDao.veBondingToken, //address
-			subdaoCw900Contract: implementations.incentivisedVotingLockup, //address
+			subdaoCw900Contract: implementations.incentivisedVotingLockup.implementation, //address
 			subdaoDistributorContract: ADDRESS_ZERO,
 			subdaoEmitter: emitters.subDaoEmitter, //TODO:
-			donationMatchContract: implementations.donationMatch, //address
+			donationMatchContract: implementations.donationMatch.implementation, //address
 			indexFundContract: INDEX_FUND_ADDRESS, //address
 			govContract: haloAddress.Gov.GovProxy, //address
 			treasury: config.REGISTRAR_DATA.treasury,
-			donationMatchCharitesContract: implementations.donationMatchCharity, // once uniswap is setup //address
+			donationMatchCharitesContract: implementations.donationMatchCharity.proxy, // once uniswap is setup //address
 			donationMatchEmitter: emitters.DonationMatchEmitter,
 			haloToken: haloAddress.Halo, //address
 			haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
@@ -415,8 +416,8 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			votingERC20: haloAddress.Gov.VotingERC20Proxy,
 		};
 
-		await saveFrontendFiles({addressWriter});
-		await saveFrontendFiles({composedAddress});
+		// await saveFrontendFiles({addressWriter});
+		// await saveFrontendFiles({composedAddress});
 		return {
 			addresses: composedAddress,
 			registrarConfig: updateConfig,
