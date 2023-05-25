@@ -87,6 +87,7 @@ function createEmpty(): AddressObj {
             proxy: "",
         },
         donationMatch: {
+            emitter: "",
             implementation: "",
         },
         donationMatchCharity: {
@@ -105,6 +106,53 @@ function createEmpty(): AddressObj {
         goldfinch: {
             liquidVault: "",
             lockedVault: "",
+        },
+        halo: {
+            airdrop: {
+                implementation: "",
+                proxy: "",
+            },
+            collector: {
+                implementation: "",
+                proxy: "",
+            },
+            community: {
+                implementation: "",
+                proxy: "",
+            },
+            distributor: {
+                implementation: "",
+                proxy: "",
+            },
+            erc20Upgrade: {
+                implementation: "",
+                proxy: "",
+            },
+            gov: {
+                implementation: "",
+                proxy: "",
+            },
+            govHodler: {
+                implementation: "",
+                proxy: "",
+            },
+            staking: {
+                implementation: "",
+                proxy: "",
+            },
+            timelock: {
+                implementation: "",
+                proxy: "",
+            },
+            token: "",
+            vesting: {
+                implementation: "",
+                proxy: "",
+            },
+            votingERC20: {
+                implementation: "",
+                proxy: "",
+            },
         },
         incentivisedVotingLockup: {
             implementation: "",

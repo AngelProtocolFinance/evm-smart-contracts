@@ -27,6 +27,7 @@ export type AddressObj = {
         proxy: string
     }
     donationMatch: {
+        emitter: string
         implementation: string
     }
     donationMatchCharity: {
@@ -45,6 +46,53 @@ export type AddressObj = {
     goldfinch: {
         liquidVault: string
         lockedVault: string
+    }
+    halo: {
+        airdrop: {
+            implementation: string
+            proxy: string
+        }
+        collector: {
+            implementation: string
+            proxy: string
+        }
+        community: {
+            implementation: string
+            proxy: string
+        }
+        distributor: {
+            implementation: string
+            proxy: string
+        }
+        erc20Upgrade: {
+            implementation: string
+            proxy: string
+        }
+        gov: {
+            implementation: string
+            proxy: string
+        }
+        govHodler: {
+            implementation: string
+            proxy: string
+        }
+        staking: {
+            implementation: string
+            proxy: string
+        }
+        timelock: {
+            implementation: string
+            proxy: string
+        }
+        token: string
+        vesting: {
+            implementation: string
+            proxy: string
+        }
+        votingERC20: {
+            implementation: string
+            proxy: string
+        }
     }
     incentivisedVotingLockup: {
         implementation: string
