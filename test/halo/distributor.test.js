@@ -32,7 +32,7 @@ describe("Distributor", function () {
         //initialize distributor contract
         distributor.initialize({
             haloToken: haloToken.address,
-            whitelist: [owner.address],
+            allowlist: [owner.address],
             timelockContract: tempGov.address,
             spendLimit: ethers.utils.parseEther("100")
         });
@@ -45,7 +45,7 @@ describe("Distributor", function () {
             distributor.addDistributor(addrs[0].address)
         ).to.be.revertedWith("Unauthorized");
     });
-    it("should not allow non-whitelisted address to spend", async function(){
+    it("should not allow non-allowlisted address to spend", async function(){
         await expect(
             distributor.connect(addrs[0]).spend(addrs[0].address, ethers.utils.parseEther("1"))
         ).to.be.revertedWith("Unauthorized");

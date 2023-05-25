@@ -1,12 +1,9 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 
-import path from 'path'
-import { charityApplications } from '../charity_applications/scripts/deploy'
-import config from 'config'
-import { saveFrontendFiles } from 'scripts/readWriteFile'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { ApplicationsMultiSig, APTeamMultiSig } from 'typechain-types'
+import { APTeamMultiSig, ApplicationsMultiSig } from 'typechain-types'
+import { logger, updateAddresses } from "utils"
 // import { IndexFundMessage } from "typechain-types/contracts/core/index-fund/IndexFund"
 
 const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
@@ -32,7 +29,7 @@ export async function deployMultisig(ApplicationMultisigData: Parameters<Applica
 
     console.log('APTeamMultiSig implementation address:', APTeamMultiSigInstance.address);
 
-    const ApplicationsMultiSigData = ApplicationsMultiSigInstance.interface.encodeFunctionData('initialize', [...ApplicationMultisigData]);
+    const ApplicationsMultiSigData = ApplicationsMultiSigInstance.interface.encodeFunctionData("initialize", [...ApplicationMultisigData]);
 
     const ApplicationsMultiSigProxy = await ProxyContract.deploy(ApplicationsMultiSigInstance.address, proxyAdmin.address, ApplicationsMultiSigData);
 
@@ -45,6 +42,23 @@ export async function deployMultisig(ApplicationMultisigData: Parameters<Applica
     const APTeamMultiSigProxy = await ProxyContract.deploy(APTeamMultiSigInstance.address, proxyAdmin.address, APTeamMultiSigData);
 
     await APTeamMultiSigProxy.deployed();
+
+    logger.out("Saving addresses to contract-address.json...")
+    await updateAddresses(
+      {
+        multiSig: {
+          applications: {
+            implementation: ApplicationsMultiSigInstance.address,
+            proxy: ApplicationsMultiSigProxy.address
+          },
+          apTeam: {
+            implementation: APTeamMultiSigInstance.address,
+            proxy: APTeamMultiSigProxy.address
+          },
+        }
+      },
+      hre
+    );
 
     if(verify_contracts){
       await run(`verify:verify`, {
@@ -67,15 +81,6 @@ export async function deployMultisig(ApplicationMultisigData: Parameters<Applica
       });
     }
 
-    let multiSig = {
-      ApplicationsMultiSigProxy: ApplicationsMultiSigProxy.address,
-      APTeamMultiSigProxy: APTeamMultiSigProxy.address,
-      ApplicationMultisigImplementation: ApplicationsMultiSigInstance.address,
-      APTeamMultisigImplementation: APTeamMultiSigInstance.address
-    };
-
-    await saveFrontendFiles({multiSig});
-    
     console.log('APTeamMultiSig Address (Proxy):', APTeamMultiSigProxy.address);
 
     let response = {

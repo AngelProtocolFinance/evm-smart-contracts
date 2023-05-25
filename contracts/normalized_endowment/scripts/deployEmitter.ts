@@ -2,7 +2,7 @@
 // yours, or create new ones.
 
 import { HardhatRuntimeEnvironment } from "hardhat/types"
-import { saveFrontendFiles } from "scripts/readWriteFile"
+import { logger, updateAddresses } from "utils"
 
 const deploySubDaoEmitter = async (proxyAdmin: string,accountAddress: string,verify_contracts: boolean, hre: HardhatRuntimeEnvironment) =>{
   try {
@@ -14,11 +14,28 @@ const deploySubDaoEmitter = async (proxyAdmin: string,accountAddress: string,ver
     const SubdaoEmitterImplementation = await SubdaoEmitter.deploy();
     await SubdaoEmitterImplementation.deployed();
 
+    console.log('SubdaoEmitterAddress (Implementation):', SubdaoEmitterImplementation.address);
+
     const SubdaoEmitterData = SubdaoEmitterImplementation.interface.encodeFunctionData('initEmitter', [accountAddress]);
 
     const SubdaoEmitterProxy = await ProxyContract.deploy(SubdaoEmitterImplementation.address, proxyAdmin, SubdaoEmitterData);
 
     await SubdaoEmitterProxy.deployed();
+
+    console.log('SubdaoEmitterProxy Address (Proxy):', SubdaoEmitterProxy.address);
+
+    logger.out("Saving addresses to contract-address.json...")
+    await updateAddresses(
+      {
+        subDao: {
+          emitter: {
+            implementation: SubdaoEmitterImplementation.address,
+            proxy: SubdaoEmitterProxy.address,
+          }
+        }
+      },
+      hre
+    );
 
     if(verify_contracts){
       await run(`verify:verify`, {
@@ -30,15 +47,6 @@ const deploySubDaoEmitter = async (proxyAdmin: string,accountAddress: string,ver
         constructorArguments: [SubdaoEmitterImplementation.address, proxyAdmin, SubdaoEmitterData],
       });
     }
-
-    console.log('SubdaoEmitterProxy Address (Proxy):', SubdaoEmitterProxy.address);
-
-    let subDaoEmitter = {
-      SubdaoEmitterProxyAddress: SubdaoEmitterProxy.address,
-      SubdaoEmitterImplementationAddress: SubdaoEmitterImplementation.address
-    }
-
-    await saveFrontendFiles({subDaoEmitter});
 
     return Promise.resolve(SubdaoEmitterProxy.address);
   } catch (error) {

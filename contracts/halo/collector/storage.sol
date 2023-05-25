@@ -16,12 +16,12 @@ library CollectorStorage {
         string demo;
         address contractAddr;
     }
-    enum CurAssetInfo {
+    enum assetInfo {
         Token,
         NativeToken
     }
     struct PairInfo {
-        CurAssetInfo enumType;
+        assetInfo enumType;
         AssetInfo enumData;
         address contractAddr;
         string liquidyToken;

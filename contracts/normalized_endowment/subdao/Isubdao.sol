@@ -7,42 +7,42 @@ import {AngelCoreStruct} from "../../core/struct.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
 import {Array} from "../../lib/array.sol";
 
-import {IRegistrar} from "../../core/registrar/interface/IRegistrar.sol";
+import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 
 interface ISubDao {
     function registerContracts(
-        address curVetoken,
-        address curSwapfactory
+        address vetoken,
+        address swapfactory
     ) external;
 
     function updateConfig(
-        address curOwner,
-        uint256 curQuorum,
-        uint256 curThreshold,
-        uint256 curVotingperiod,
-        uint256 curTimelockperiod,
-        uint256 curExpirationperiod,
-        uint256 curProposaldeposit,
-        uint256 curSnapshotperiod
+        address owner,
+        uint256 quorum,
+        uint256 threshold,
+        uint256 votingperiod,
+        uint256 timelockperiod,
+        uint256 expirationperiod,
+        uint256 proposaldeposit,
+        uint256 snapshotperiod
     ) external;
 
     function createPoll(
-        address curProposer,
-        uint256 curDepositamount,
-        string memory curTitle,
-        string memory curDescription,
-        string memory curLink,
-        subDaoStorage.ExecuteData memory curExecuteMsgs
+        address proposer,
+        uint256 depositamount,
+        string memory title,
+        string memory description,
+        string memory link,
+        subDaoStorage.ExecuteData memory executeMsgs
     ) external;
 
-    function endPoll(uint256 curPollid) external;
+    function endPoll(uint256 pollid) external;
 
-    function executePoll(uint256 curPollid) external;
+    function executePoll(uint256 pollid) external;
 
-    function expirePoll(uint256 curPollid) external;
+    function expirePoll(uint256 pollid) external;
 
     function castVote(
-        uint256 curPollid,
+        uint256 pollid,
         subDaoStorage.VoteOption vote
     ) external;
 
@@ -54,6 +54,6 @@ interface ISubDao {
     function queryState() external view returns (subDaoStorage.State memory);
 
     function buildDaoTokenMesage(
-        subDaoMessage.InstantiateMsg memory curMsg
+        subDaoMessage.InstantiateMsg memory msg
     ) external;
 }

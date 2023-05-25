@@ -24,14 +24,14 @@ import type {
 } from "../../../common";
 
 export declare namespace AngelCoreStruct {
-  export type CurveTypeDataStruct = {
+  export type VeTypeDataStruct = {
     value: PromiseOrValue<BigNumberish>;
     scale: PromiseOrValue<BigNumberish>;
     slope: PromiseOrValue<BigNumberish>;
     power: PromiseOrValue<BigNumberish>;
   };
 
-  export type CurveTypeDataStructOutput = [
+  export type VeTypeDataStructOutput = [
     BigNumber,
     BigNumber,
     BigNumber,
@@ -43,28 +43,28 @@ export declare namespace AngelCoreStruct {
     power: BigNumber;
   };
 
-  export type CurveTypeStruct = {
-    curve_type: PromiseOrValue<BigNumberish>;
-    data: AngelCoreStruct.CurveTypeDataStruct;
+  export type VeTypeStruct = {
+    ve_type: PromiseOrValue<BigNumberish>;
+    data: AngelCoreStruct.VeTypeDataStruct;
   };
 
-  export type CurveTypeStructOutput = [
+  export type VeTypeStructOutput = [
     number,
-    AngelCoreStruct.CurveTypeDataStructOutput
-  ] & { curve_type: number; data: AngelCoreStruct.CurveTypeDataStructOutput };
+    AngelCoreStruct.VeTypeDataStructOutput
+  ] & { ve_type: number; data: AngelCoreStruct.VeTypeDataStructOutput };
 
   export type DaoTokenDataStruct = {
-    existingCw20Data: PromiseOrValue<string>;
-    newCw20InitialSupply: PromiseOrValue<BigNumberish>;
-    newCw20Name: PromiseOrValue<string>;
-    newCw20Symbol: PromiseOrValue<string>;
-    bondingCurveCurveType: AngelCoreStruct.CurveTypeStruct;
-    bondingCurveName: PromiseOrValue<string>;
-    bondingCurveSymbol: PromiseOrValue<string>;
-    bondingCurveDecimals: PromiseOrValue<BigNumberish>;
-    bondingCurveReserveDenom: PromiseOrValue<string>;
-    bondingCurveReserveDecimals: PromiseOrValue<BigNumberish>;
-    bondingCurveUnbondingPeriod: PromiseOrValue<BigNumberish>;
+    existingData: PromiseOrValue<string>;
+    newInitialSupply: PromiseOrValue<BigNumberish>;
+    newName: PromiseOrValue<string>;
+    newSymbol: PromiseOrValue<string>;
+    veBondingType: AngelCoreStruct.VeTypeStruct;
+    veBondingName: PromiseOrValue<string>;
+    veBondingSymbol: PromiseOrValue<string>;
+    veBondingDecimals: PromiseOrValue<BigNumberish>;
+    veBondingReserveDenom: PromiseOrValue<string>;
+    veBondingReserveDecimals: PromiseOrValue<BigNumberish>;
+    veBondingPeriod: PromiseOrValue<BigNumberish>;
   };
 
   export type DaoTokenDataStructOutput = [
@@ -72,7 +72,7 @@ export declare namespace AngelCoreStruct {
     BigNumber,
     string,
     string,
-    AngelCoreStruct.CurveTypeStructOutput,
+    AngelCoreStruct.VeTypeStructOutput,
     string,
     string,
     BigNumber,
@@ -80,17 +80,17 @@ export declare namespace AngelCoreStruct {
     BigNumber,
     BigNumber
   ] & {
-    existingCw20Data: string;
-    newCw20InitialSupply: BigNumber;
-    newCw20Name: string;
-    newCw20Symbol: string;
-    bondingCurveCurveType: AngelCoreStruct.CurveTypeStructOutput;
-    bondingCurveName: string;
-    bondingCurveSymbol: string;
-    bondingCurveDecimals: BigNumber;
-    bondingCurveReserveDenom: string;
-    bondingCurveReserveDecimals: BigNumber;
-    bondingCurveUnbondingPeriod: BigNumber;
+    existingData: string;
+    newInitialSupply: BigNumber;
+    newName: string;
+    newSymbol: string;
+    veBondingType: AngelCoreStruct.VeTypeStructOutput;
+    veBondingName: string;
+    veBondingSymbol: string;
+    veBondingDecimals: BigNumber;
+    veBondingReserveDenom: string;
+    veBondingReserveDecimals: BigNumber;
+    veBondingPeriod: BigNumber;
   };
 
   export type DaoTokenStruct = {
@@ -116,13 +116,13 @@ export declare namespace SubDaoMessage {
     proposalDeposit: PromiseOrValue<BigNumberish>;
     snapshotPeriod: PromiseOrValue<BigNumberish>;
     token: AngelCoreStruct.DaoTokenStruct;
-    endow_type: PromiseOrValue<BigNumberish>;
+    endowType: PromiseOrValue<BigNumberish>;
     endowOwner: PromiseOrValue<string>;
     registrarContract: PromiseOrValue<string>;
   };
 
   export type InstantiateMsgStructOutput = [
-    BigNumber,
+    number,
     string,
     BigNumber,
     BigNumber,
@@ -136,7 +136,7 @@ export declare namespace SubDaoMessage {
     string,
     string
   ] & {
-    id: BigNumber;
+    id: number;
     owner: string;
     quorum: BigNumber;
     threshold: BigNumber;
@@ -146,7 +146,7 @@ export declare namespace SubDaoMessage {
     proposalDeposit: BigNumber;
     snapshotPeriod: BigNumber;
     token: AngelCoreStruct.DaoTokenStructOutput;
-    endow_type: number;
+    endowType: number;
     endowOwner: string;
     registrarContract: string;
   };
@@ -287,7 +287,7 @@ export declare namespace SubDaoStorage {
 
 export interface ISubdaoEmitterInterface extends utils.Interface {
   functions: {
-    "initializeSubdao(address,(uint256,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address))": FunctionFragment;
+    "initializeSubdao(address,(uint32,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address))": FunctionFragment;
     "transferFromSubdao(address,address,address,uint256)": FunctionFragment;
     "transferSubdao(address,address,uint256)": FunctionFragment;
     "updateSubdaoConfig((address,address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256))": FunctionFragment;

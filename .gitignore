@@ -3,6 +3,7 @@ node_modules
 .idea
 package-lock.json
 .yarnclean
+yarn-error.log
 .vscode
 .env
 .prettierrc
@@ -10,13 +11,7 @@ package-lock.json
 contract-address-local.json
 dist
 
-#Coverage files
-coverage
-
 #Hardhat files
 cache
 artifacts
 .openzeppelin
-
-# Py
-Pipfile.lock

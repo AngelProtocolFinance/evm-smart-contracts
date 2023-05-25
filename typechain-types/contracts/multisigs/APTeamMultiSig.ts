@@ -445,12 +445,12 @@ export interface APTeamMultiSig extends BaseContract {
     MAX_OWNER_COUNT(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     addOwner(
-      owner: PromiseOrValue<string>,
+      _owner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     changeRequirement(
-      curRequired: PromiseOrValue<BigNumberish>,
+      _required: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -478,7 +478,7 @@ export interface APTeamMultiSig extends BaseContract {
     getConfirmations(
       transactionId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<[string[]] & { curConfirmations: string[] }>;
+    ): Promise<[string[]] & { ownerConfirmations: string[] }>;
 
     getOwners(overrides?: CallOverrides): Promise<[string[]]>;
 
@@ -494,12 +494,12 @@ export interface APTeamMultiSig extends BaseContract {
       pending: PromiseOrValue<boolean>,
       executed: PromiseOrValue<boolean>,
       overrides?: CallOverrides
-    ): Promise<[BigNumber[]] & { curTransactionids: BigNumber[] }>;
+    ): Promise<[BigNumber[]] & { transactionIds: BigNumber[] }>;
 
     initialize(
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
-      curRequireexecution: PromiseOrValue<boolean>,
+      _owners: PromiseOrValue<string>[],
+      _required: PromiseOrValue<BigNumberish>,
+      _requireExecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -519,13 +519,13 @@ export interface APTeamMultiSig extends BaseContract {
     ): Promise<[string]>;
 
     removeOwner(
-      owner: PromiseOrValue<string>,
+      _owner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     replaceOwner(
-      owner: PromiseOrValue<string>,
-      newOwner: PromiseOrValue<string>,
+      _owner: PromiseOrValue<string>,
+      _newOwner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -574,12 +574,12 @@ export interface APTeamMultiSig extends BaseContract {
   MAX_OWNER_COUNT(overrides?: CallOverrides): Promise<BigNumber>;
 
   addOwner(
-    owner: PromiseOrValue<string>,
+    _owner: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   changeRequirement(
-    curRequired: PromiseOrValue<BigNumberish>,
+    _required: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -626,9 +626,9 @@ export interface APTeamMultiSig extends BaseContract {
   ): Promise<BigNumber[]>;
 
   initialize(
-    curOwners: PromiseOrValue<string>[],
-    curRequired: PromiseOrValue<BigNumberish>,
-    curRequireexecution: PromiseOrValue<boolean>,
+    _owners: PromiseOrValue<string>[],
+    _required: PromiseOrValue<BigNumberish>,
+    _requireExecution: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -648,13 +648,13 @@ export interface APTeamMultiSig extends BaseContract {
   ): Promise<string>;
 
   removeOwner(
-    owner: PromiseOrValue<string>,
+    _owner: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   replaceOwner(
-    owner: PromiseOrValue<string>,
-    newOwner: PromiseOrValue<string>,
+    _owner: PromiseOrValue<string>,
+    _newOwner: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -703,12 +703,12 @@ export interface APTeamMultiSig extends BaseContract {
     MAX_OWNER_COUNT(overrides?: CallOverrides): Promise<BigNumber>;
 
     addOwner(
-      owner: PromiseOrValue<string>,
+      _owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     changeRequirement(
-      curRequired: PromiseOrValue<BigNumberish>,
+      _required: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -755,9 +755,9 @@ export interface APTeamMultiSig extends BaseContract {
     ): Promise<BigNumber[]>;
 
     initialize(
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
-      curRequireexecution: PromiseOrValue<boolean>,
+      _owners: PromiseOrValue<string>[],
+      _required: PromiseOrValue<BigNumberish>,
+      _requireExecution: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -777,13 +777,13 @@ export interface APTeamMultiSig extends BaseContract {
     ): Promise<string>;
 
     removeOwner(
-      owner: PromiseOrValue<string>,
+      _owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     replaceOwner(
-      owner: PromiseOrValue<string>,
-      newOwner: PromiseOrValue<string>,
+      _owner: PromiseOrValue<string>,
+      _newOwner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -905,12 +905,12 @@ export interface APTeamMultiSig extends BaseContract {
     MAX_OWNER_COUNT(overrides?: CallOverrides): Promise<BigNumber>;
 
     addOwner(
-      owner: PromiseOrValue<string>,
+      _owner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     changeRequirement(
-      curRequired: PromiseOrValue<BigNumberish>,
+      _required: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -957,9 +957,9 @@ export interface APTeamMultiSig extends BaseContract {
     ): Promise<BigNumber>;
 
     initialize(
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
-      curRequireexecution: PromiseOrValue<boolean>,
+      _owners: PromiseOrValue<string>[],
+      _required: PromiseOrValue<BigNumberish>,
+      _requireExecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -979,13 +979,13 @@ export interface APTeamMultiSig extends BaseContract {
     ): Promise<BigNumber>;
 
     removeOwner(
-      owner: PromiseOrValue<string>,
+      _owner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     replaceOwner(
-      owner: PromiseOrValue<string>,
-      newOwner: PromiseOrValue<string>,
+      _owner: PromiseOrValue<string>,
+      _newOwner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1025,12 +1025,12 @@ export interface APTeamMultiSig extends BaseContract {
     MAX_OWNER_COUNT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     addOwner(
-      owner: PromiseOrValue<string>,
+      _owner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     changeRequirement(
-      curRequired: PromiseOrValue<BigNumberish>,
+      _required: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1077,9 +1077,9 @@ export interface APTeamMultiSig extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initialize(
-      curOwners: PromiseOrValue<string>[],
-      curRequired: PromiseOrValue<BigNumberish>,
-      curRequireexecution: PromiseOrValue<boolean>,
+      _owners: PromiseOrValue<string>[],
+      _required: PromiseOrValue<BigNumberish>,
+      _requireExecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1099,13 +1099,13 @@ export interface APTeamMultiSig extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     removeOwner(
-      owner: PromiseOrValue<string>,
+      _owner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     replaceOwner(
-      owner: PromiseOrValue<string>,
-      newOwner: PromiseOrValue<string>,
+      _owner: PromiseOrValue<string>,
+      _newOwner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

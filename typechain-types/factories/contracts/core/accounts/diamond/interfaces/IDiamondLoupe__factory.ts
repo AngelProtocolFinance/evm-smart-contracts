@@ -14,7 +14,7 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes4",
-        name: "curFunctionselector",
+        name: "functionselector",
         type: "bytes4",
       },
     ],
@@ -22,7 +22,7 @@ const _abi = [
     outputs: [
       {
         internalType: "address",
-        name: "curFacetaddress",
+        name: "facetaddress",
         type: "address",
       },
     ],
@@ -35,7 +35,7 @@ const _abi = [
     outputs: [
       {
         internalType: "address[]",
-        name: "curFacetaddresses",
+        name: "facetaddresses",
         type: "address[]",
       },
     ],
@@ -46,7 +46,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "curFacet",
+        name: "facet",
         type: "address",
       },
     ],
@@ -54,7 +54,7 @@ const _abi = [
     outputs: [
       {
         internalType: "bytes4[]",
-        name: "curFacetfunctionselectors",
+        name: "facetfunctionselectors",
         type: "bytes4[]",
       },
     ],
@@ -79,7 +79,7 @@ const _abi = [
           },
         ],
         internalType: "struct IDiamondLoupe.Facet[]",
-        name: "curFacets",
+        name: "facets",
         type: "tuple[]",
       },
     ],

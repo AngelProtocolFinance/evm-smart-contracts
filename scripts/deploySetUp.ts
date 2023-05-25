@@ -2,9 +2,13 @@
 // yours, or create new ones.
 
 import path from 'path'
+import hre from 'hardhat'
+import config from 'config'
+import { Contract } from 'ethers'
+import { APTeamMultiSig, ApplicationsMultiSig } from 'typechain-types'
+import { convertCompilerOptionsFromJson } from 'typescript'
 
 import { deployDiamond } from 'contracts/core/accounts/scripts/deploy'
-import hre from 'hardhat'
 import { deployRegistrar } from 'contracts/core/registrar/scripts/deploy'
 import { deployImplementation } from 'contracts/normalized_endowment/scripts/deployImplementation'
 import { deployMultisig } from 'contracts/multisigs/scripts/deploy'
@@ -13,15 +17,13 @@ import { deployIndexFund } from 'contracts/core/index-fund/scripts/deploy'
 import { deployEndowmentMultiSig } from 'contracts/normalized_endowment/endowment-multisig/scripts/deploy'
 import { deployHaloImplementation } from 'contracts/halo/scripts/deploy'
 import { charityApplications } from 'contracts/multisigs/charity_applications/scripts/deploy'
-const ethers = hre.ethers;
-
-import config from 'config'
 import { deployEmitters } from 'contracts/normalized_endowment/scripts/deployEmitter'
-import { giftCard } from 'contracts/accessory/gift-cards/scripts/deploy'
+import { deployGiftCard } from 'contracts/accessory/gift-cards/scripts/deploy'
+// import { deployFundraising } from 'contracts/accessory/fundraising/scripts/deploy'
+
+const ethers = hre.ethers;
 import { deployFundraising } from 'contracts/accessory/fundraising/scripts/deploy'
-import { convertCompilerOptionsFromJson } from 'typescript'
-import { Contract } from 'ethers'
-import { APTeamMultiSig, ApplicationsMultiSig } from 'typechain-types'
+import { envConfig } from 'utils'
 
 //TODO: Deploy and initilize emitters
 //TODO: deploy gift card contract
@@ -70,7 +72,7 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
 		// Mock setup required for testing
 		let mockUSDC = await ethers.getContractAt('MockUSDC', USDC);
 		console.log("walla walla",await mockUSDC.balanceOf(deployer.address));
-		// if (!config.PROD) {
+		// if (network.config.chainId !== envConfig.PROD_NETWORK_ID) {
 		// 	const MockUSDC = await ethers.getContractFactory('MockUSDC');
 		// 	mockUSDC = await MockUSDC.deploy('USDC', 'USDC', 100);
 		// 	await mockUSDC.deployed();
@@ -164,13 +166,6 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
 
 		console.log('multisigDat contract deployed at:-', multisigDat);
 
-		const lockedWithdrawalData = [
-			REGISTRAR_ADDRESS,
-			ACCOUNT_ADDRESS,
-			multisigAddress.APTeamMultiSig,
-			multisigDat.MultiSigWalletFactory,
-		];
-
 		// console.log('implementations deployed at:', implementations);
 
 		let GiftCardDataInput = {
@@ -178,7 +173,7 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
 			registrarContract: REGISTRAR_ADDRESS,
 		};
 
-		let giftCardAddress = await giftCard(GiftCardDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre);
+		let giftCardAddress = await deployGiftCard(GiftCardDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre);
 
 		let FundraisingDataInput = {
 			registrarContract: REGISTRAR_ADDRESS,
@@ -201,7 +196,10 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
 
 		console.log('halo token balance: ', await haloToken.balanceOf(deployer.address));
 
-		if (!config.PROD) {
+		// TODO:
+		// Either create different .env files for different environments
+		// or check whether network is mainnet instead
+		if (ethers.provider.network.chainId !== envConfig.PROD_NETWORK_ID) {
 			let UniswapUtils = await ethers.getContractFactory('UniswapUtils');
 			let uniswap_utils = await UniswapUtils.deploy();
 			await uniswap_utils.deployed();
@@ -288,7 +286,7 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
 		}
 
 		//  requires setting up of a HALO - MockUSDC pool on forked uniswap in deployment
-		// if PROD flag is false
+		// if on non-production network
 
 		let donationMatchCharityData = {
 			reserveToken: config.DONATION_MATCH_CHARITY_DATA.reserveToken,
@@ -298,7 +296,7 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
 			usdcAddress: config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
 		};
 
-		if (!config.PROD) {
+		if (ethers.provider.network.chainId !== envConfig.PROD_NETWORK_ID) {
 			// haloToken
 			donationMatchCharityData.reserveToken = haloToken.address;
 			donationMatchCharityData.uniswapFactory = config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS;
@@ -310,14 +308,13 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
 
 		let implementations = await deployImplementation(
 			ANGEL_CORE_STRUCT.address,
-			lockedWithdrawalData,
 			donationMatchCharityData,
 			verify_contracts,
 			hre
 		);
 
-		if (!config.PROD) {
-			await haloToken.transfer(implementations.DonationMatchCharity, ethers.utils.parseEther('100000000'));
+		if (ethers.provider.network.chainId !== envConfig.PROD_NETWORK_ID) {
+			await haloToken.transfer(implementations.donationMatchCharity.proxy, ethers.utils.parseEther('100000000'));
 		}
 
 		config.REGISTRAR_DATA.acceptedTokens.cw20.push(haloToken.address);
@@ -332,17 +329,17 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
 			splitDefault: 50, //uint256
 			collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
 			acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
-			subdaoGovCode: implementations.SubDao, //address
-			subdaoCw20TokenCode: implementations.SubDaoERC20, //address
-			subdaoBondingTokenCode: implementations.SubDaoBondingCurve, //address
-			subdaoCw900Code: implementations.IncentiisedVoting, //address
-			subdaoDistributorCode: implementations.FeeDistributor,
+			subdaoGovContract: implementations.subDao.implementation, //address
+			subdaoTokenContract: implementations.subDao.token, //address
+			subdaoBondingTokenContract: implementations.subDao.veBondingToken, //address
+			subdaoCw900Contract: implementations.incentivisedVotingLockup, //address
+			subdaoDistributorContract: implementations.feeDistributor,
 			subdaoEmitter: emitters.subDaoEmitter, //TODO:
-			donationMatchCode: implementations.DonationMatch, //address
+			donationMatchContract: implementations.donationMatch, //address
 			indexFundContract: INDEX_FUND_ADDRESS, //address
 			govContract: haloAddress.Gov.GovProxy, //address
 			treasury: config.REGISTRAR_DATA.treasury,
-			donationMatchCharitesContract: implementations.DonationMatchCharity, // once uniswap is setup //address
+			donationMatchCharitesContract: implementations.donationMatchCharity, // once uniswap is setup //address
 			donationMatchEmitter: emitters.DonationMatchEmitter,
 			haloToken: haloAddress.Halo, //address
 			haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
@@ -353,7 +350,6 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
 			multisigFactory: multisigDat.MultiSigWalletFactory, //address
 			multisigEmitter: multisigDat.EndowmentMultiSigEmitter, //address
 			charityProposal: charityApplicationsAddress, //address
-			lockedWithdrawal: implementations.LockedWithdraw, //address
 			proxyAdmin: proxyAdmin.address, //address
 			usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
 			wethAddress: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
@@ -393,7 +389,6 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
 			haloGovContract: haloAddress.Gov.GovProxy,
 			timelockContract: haloAddress.Gov.TimeLock,
 			votingERC20: haloAddress.Gov.VotingERC20Proxy,
-			lockedWithdraw: implementations.LockedWithdraw,
 		};
 
 		await saveFrontendFiles(address);

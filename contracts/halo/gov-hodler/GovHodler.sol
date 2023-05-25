@@ -21,15 +21,15 @@ contract GovHodler is Storage, Initializable, ReentrancyGuard {
 
     /**
      * @dev Initialize contract
-     * @param curDetails GovHodlerMessage.InstantiateMsg used to initialize contract
+     * @param details GovHodlerMessage.InstantiateMsg used to initialize contract
      */
     function initialiaze(
-        GovHodlerMessage.InstantiateMsg memory curDetails
+        GovHodlerMessage.InstantiateMsg memory details
     ) public initializer {
         state.config = GovHodlerStorage.Config({
-            owner: curDetails.owner,
-            timelockContract: curDetails.timelockContract,
-            haloToken: curDetails.haloToken
+            owner: details.owner,
+            timelockContract: details.timelockContract,
+            haloToken: details.haloToken
         });
         emit GovHolderConfigUpdated(state.config);
     }
@@ -50,7 +50,7 @@ contract GovHodler is Storage, Initializable, ReentrancyGuard {
     }
 
     /**
-     * @dev Claims `amount` of Halo tokens and transfers them to `recipient`. The caller of this function must be the current government contract.
+     * @dev Claims `amount` of Halo tokens and transfers them to `recipient`. The caller of this function must be the rent government contract.
      * @param amount uint
      * @param recipient address
      */

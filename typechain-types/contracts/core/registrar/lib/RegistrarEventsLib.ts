@@ -19,42 +19,11 @@ import type {
 } from "../../../../common";
 
 export declare namespace AngelCoreStruct {
-  export type YieldVaultStruct = {
-    addr: PromiseOrValue<string>;
-    network: PromiseOrValue<BigNumberish>;
-    inputDenom: PromiseOrValue<string>;
-    yieldToken: PromiseOrValue<string>;
-    approved: PromiseOrValue<boolean>;
-    restrictedFrom: PromiseOrValue<BigNumberish>[];
-    acctType: PromiseOrValue<BigNumberish>;
-    vaultType: PromiseOrValue<BigNumberish>;
-  };
-
-  export type YieldVaultStructOutput = [
-    string,
-    BigNumber,
-    string,
-    string,
-    boolean,
-    number[],
-    number,
-    number
-  ] & {
-    addr: string;
-    network: BigNumber;
-    inputDenom: string;
-    yieldToken: string;
-    approved: boolean;
-    restrictedFrom: number[];
-    acctType: number;
-    vaultType: number;
-  };
-
   export type NetworkInfoStruct = {
     name: PromiseOrValue<string>;
     chainId: PromiseOrValue<BigNumberish>;
     router: PromiseOrValue<string>;
-    axelerGateway: PromiseOrValue<string>;
+    axelarGateway: PromiseOrValue<string>;
     ibcChannel: PromiseOrValue<string>;
     transferChannel: PromiseOrValue<string>;
     gasReceiver: PromiseOrValue<string>;
@@ -74,7 +43,7 @@ export declare namespace AngelCoreStruct {
     name: string;
     chainId: BigNumber;
     router: string;
-    axelerGateway: string;
+    axelarGateway: string;
     ibcChannel: string;
     transferChannel: string;
     gasReceiver: string;
@@ -92,60 +61,30 @@ export declare namespace AngelCoreStruct {
     min: BigNumber;
     defaultSplit: BigNumber;
   };
-
-  export type AcceptedTokensStruct = { cw20: PromiseOrValue<string>[] };
-
-  export type AcceptedTokensStructOutput = [string[]] & { cw20: string[] };
-
-  export type RebalanceDetailsStruct = {
-    rebalanceLiquidInvestedProfits: PromiseOrValue<boolean>;
-    lockedInterestsToLiquid: PromiseOrValue<boolean>;
-    interest_distribution: PromiseOrValue<BigNumberish>;
-    lockedPrincipleToLiquid: PromiseOrValue<boolean>;
-    principle_distribution: PromiseOrValue<BigNumberish>;
-  };
-
-  export type RebalanceDetailsStructOutput = [
-    boolean,
-    boolean,
-    BigNumber,
-    boolean,
-    BigNumber
-  ] & {
-    rebalanceLiquidInvestedProfits: boolean;
-    lockedInterestsToLiquid: boolean;
-    interest_distribution: BigNumber;
-    lockedPrincipleToLiquid: boolean;
-    principle_distribution: BigNumber;
-  };
 }
 
 export declare namespace RegistrarStorage {
   export type ConfigStruct = {
-    owner: PromiseOrValue<string>;
     applicationsReview: PromiseOrValue<string>;
     indexFundContract: PromiseOrValue<string>;
     accountsContract: PromiseOrValue<string>;
     treasury: PromiseOrValue<string>;
-    subdaoGovCode: PromiseOrValue<string>;
-    subdaoCw20TokenCode: PromiseOrValue<string>;
-    subdaoBondingTokenCode: PromiseOrValue<string>;
-    subdaoCw900Code: PromiseOrValue<string>;
-    subdaoDistributorCode: PromiseOrValue<string>;
+    subdaoGovContract: PromiseOrValue<string>;
+    subdaoTokenContract: PromiseOrValue<string>;
+    subdaoBondingTokenContract: PromiseOrValue<string>;
+    subdaoCw900Contract: PromiseOrValue<string>;
+    subdaoDistributorContract: PromiseOrValue<string>;
     subdaoEmitter: PromiseOrValue<string>;
-    donationMatchCode: PromiseOrValue<string>;
+    donationMatchContract: PromiseOrValue<string>;
     donationMatchCharitesContract: PromiseOrValue<string>;
     donationMatchEmitter: PromiseOrValue<string>;
     splitToLiquid: AngelCoreStruct.SplitDetailsStruct;
     haloToken: PromiseOrValue<string>;
     haloTokenLpContract: PromiseOrValue<string>;
     govContract: PromiseOrValue<string>;
-    collectorAddr: PromiseOrValue<string>;
     collectorShare: PromiseOrValue<BigNumberish>;
     charitySharesContract: PromiseOrValue<string>;
-    acceptedTokens: AngelCoreStruct.AcceptedTokensStruct;
     fundraisingContract: PromiseOrValue<string>;
-    rebalance: AngelCoreStruct.RebalanceDetailsStruct;
     swapsRouter: PromiseOrValue<string>;
     multisigFactory: PromiseOrValue<string>;
     multisigEmitter: PromiseOrValue<string>;
@@ -171,17 +110,13 @@ export declare namespace RegistrarStorage {
     string,
     string,
     string,
-    string,
     AngelCoreStruct.SplitDetailsStructOutput,
-    string,
     string,
     string,
     string,
     BigNumber,
     string,
-    AngelCoreStruct.AcceptedTokensStructOutput,
     string,
-    AngelCoreStruct.RebalanceDetailsStructOutput,
     string,
     string,
     string,
@@ -192,30 +127,26 @@ export declare namespace RegistrarStorage {
     string,
     string
   ] & {
-    owner: string;
     applicationsReview: string;
     indexFundContract: string;
     accountsContract: string;
     treasury: string;
-    subdaoGovCode: string;
-    subdaoCw20TokenCode: string;
-    subdaoBondingTokenCode: string;
-    subdaoCw900Code: string;
-    subdaoDistributorCode: string;
+    subdaoGovContract: string;
+    subdaoTokenContract: string;
+    subdaoBondingTokenContract: string;
+    subdaoCw900Contract: string;
+    subdaoDistributorContract: string;
     subdaoEmitter: string;
-    donationMatchCode: string;
+    donationMatchContract: string;
     donationMatchCharitesContract: string;
     donationMatchEmitter: string;
     splitToLiquid: AngelCoreStruct.SplitDetailsStructOutput;
     haloToken: string;
     haloTokenLpContract: string;
     govContract: string;
-    collectorAddr: string;
     collectorShare: BigNumber;
     charitySharesContract: string;
-    acceptedTokens: AngelCoreStruct.AcceptedTokensStructOutput;
     fundraisingContract: string;
-    rebalance: AngelCoreStruct.RebalanceDetailsStructOutput;
     swapsRouter: string;
     multisigFactory: string;
     multisigEmitter: string;
@@ -244,36 +175,19 @@ export interface RegistrarEventsLibInterface extends utils.Interface {
   functions: {};
 
   events: {
-    "AddVault(string,tuple)": EventFragment;
     "DeleteNetworkConnection(uint256)": EventFragment;
     "PostNetworkConnection(uint256,tuple)": EventFragment;
-    "RemoveVault(string)": EventFragment;
     "UpdateRegistrarConfig(tuple)": EventFragment;
     "UpdateRegistrarFees(tuple)": EventFragment;
     "UpdateRegistrarOwner(address)": EventFragment;
-    "UpdateVault(string,bool,uint8[])": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "AddVault"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DeleteNetworkConnection"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PostNetworkConnection"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RemoveVault"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdateRegistrarConfig"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdateRegistrarFees"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdateRegistrarOwner"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "UpdateVault"): EventFragment;
 }
-
-export interface AddVaultEventObject {
-  strategyName: string;
-  vault: AngelCoreStruct.YieldVaultStructOutput;
-}
-export type AddVaultEvent = TypedEvent<
-  [string, AngelCoreStruct.YieldVaultStructOutput],
-  AddVaultEventObject
->;
-
-export type AddVaultEventFilter = TypedEventFilter<AddVaultEvent>;
 
 export interface DeleteNetworkConnectionEventObject {
   chainId: BigNumber;
@@ -297,13 +211,6 @@ export type PostNetworkConnectionEvent = TypedEvent<
 
 export type PostNetworkConnectionEventFilter =
   TypedEventFilter<PostNetworkConnectionEvent>;
-
-export interface RemoveVaultEventObject {
-  strategyName: string;
-}
-export type RemoveVaultEvent = TypedEvent<[string], RemoveVaultEventObject>;
-
-export type RemoveVaultEventFilter = TypedEventFilter<RemoveVaultEvent>;
 
 export interface UpdateRegistrarConfigEventObject {
   details: RegistrarStorage.ConfigStructOutput;
@@ -338,18 +245,6 @@ export type UpdateRegistrarOwnerEvent = TypedEvent<
 export type UpdateRegistrarOwnerEventFilter =
   TypedEventFilter<UpdateRegistrarOwnerEvent>;
 
-export interface UpdateVaultEventObject {
-  strategyName: string;
-  approved: boolean;
-  endowmentTypes: number[];
-}
-export type UpdateVaultEvent = TypedEvent<
-  [string, boolean, number[]],
-  UpdateVaultEventObject
->;
-
-export type UpdateVaultEventFilter = TypedEventFilter<UpdateVaultEvent>;
-
 export interface RegistrarEventsLib extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
@@ -381,12 +276,6 @@ export interface RegistrarEventsLib extends BaseContract {
   callStatic: {};
 
   filters: {
-    "AddVault(string,tuple)"(
-      strategyName?: null,
-      vault?: null
-    ): AddVaultEventFilter;
-    AddVault(strategyName?: null, vault?: null): AddVaultEventFilter;
-
     "DeleteNetworkConnection(uint256)"(
       chainId?: null
     ): DeleteNetworkConnectionEventFilter;
@@ -400,9 +289,6 @@ export interface RegistrarEventsLib extends BaseContract {
       chainId?: null,
       networkInfo?: null
     ): PostNetworkConnectionEventFilter;
-
-    "RemoveVault(string)"(strategyName?: null): RemoveVaultEventFilter;
-    RemoveVault(strategyName?: null): RemoveVaultEventFilter;
 
     "UpdateRegistrarConfig(tuple)"(
       details?: null
@@ -418,17 +304,6 @@ export interface RegistrarEventsLib extends BaseContract {
       newOwner?: null
     ): UpdateRegistrarOwnerEventFilter;
     UpdateRegistrarOwner(newOwner?: null): UpdateRegistrarOwnerEventFilter;
-
-    "UpdateVault(string,bool,uint8[])"(
-      strategyName?: null,
-      approved?: null,
-      endowmentTypes?: null
-    ): UpdateVaultEventFilter;
-    UpdateVault(
-      strategyName?: null,
-      approved?: null,
-      endowmentTypes?: null
-    ): UpdateVaultEventFilter;
   };
 
   estimateGas: {};

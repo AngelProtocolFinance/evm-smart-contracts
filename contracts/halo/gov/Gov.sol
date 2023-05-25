@@ -27,8 +27,8 @@ contract Gov is
 
     // bool initialized = false;
     function initialize(
-        IVotesUpgradeable curToken,
-        TimelockControllerUpgradeable curTimelock,
+        IVotesUpgradeable token,
+        TimelockControllerUpgradeable timelock,
         uint256 initialVotingDelay,
         uint256 initialVotingPeriod,
         uint256 initialProposalThreshold,
@@ -43,9 +43,9 @@ contract Gov is
             initialProposalThreshold
         );
         __GovernorCountingSimple_init();
-        __GovernorVotes_init(curToken);
+        __GovernorVotes_init(token);
         __GovernorVotesQuorumFraction_init(quorumNumeratorValue); // this is the % of people's approval required to pass the proposal
-        __GovernorTimelockControl_init(curTimelock);
+        __GovernorTimelockControl_init(timelock);
     }
 
     // The following functions are overrides required by Solidity.

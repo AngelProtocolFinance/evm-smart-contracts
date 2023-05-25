@@ -23,16 +23,16 @@ contract Distributor is Storage, Initializable, ReentrancyGuard {
 
     /**
      * @dev Initialize contract
-     * @param curDetails DistributorMessage.InstantiateMsg used to initialize contract
+     * @param details DistributorMessage.InstantiateMsg used to initialize contract
      */
     function initialize(
-        DistributorMessage.InstantiateMsg memory curDetails
+        DistributorMessage.InstantiateMsg memory details
     ) public initializer {
         state.config = DistributorStorage.Config({
-            timelockContract: curDetails.timelockContract,
-            whitelist: curDetails.whitelist,
-            spendLimit: curDetails.spendLimit,
-            haloToken: curDetails.haloToken
+            timelockContract: details.timelockContract,
+            allowlist: details.allowlist,
+            spendLimit: details.spendLimit,
+            haloToken: details.haloToken
         });
         emit DistributorConfigUpdated(state.config);
     }
@@ -53,38 +53,38 @@ contract Distributor is Storage, Initializable, ReentrancyGuard {
     }
 
     /**
-     * @dev Adds a distributor to the whitelist. Only the government contract is authorized to perform this action.
+     * @dev Adds a distributor to the allowlist. Only the government contract is authorized to perform this action.
      * @param distributor address
      */
     function addDistributor(address distributor) public nonReentrant {
         require(state.config.timelockContract == msg.sender, "Unauthorized");
 
-        // require(state.config.whitelist.length > 0 && state.config.whitelist.indexOf(distributor) != -1, "Distributor already registered");
+        // require(state.config.allowlist.length > 0 && state.config.allowlist.indexOf(distributor) != -1, "Distributor already registered");
 
         (, bool found) = AddressArray.indexOf(
-            state.config.whitelist,
+            state.config.allowlist,
             distributor
         );
 
         if (!found) {
-            state.config.whitelist.push(distributor);
+            state.config.allowlist.push(distributor);
             emit DistributorAdded(distributor);
         }
     }
 
     /**
-     * @dev Removes a distributor to the whitelist. Only the government contract is authorized to perform this action.
+     * @dev Removes a distributor to the allowlist. Only the government contract is authorized to perform this action.
      * @param distributor address
      */
     function removeDistributor(address distributor) public nonReentrant {
         require(state.config.timelockContract == msg.sender, "Unauthorized");
         (uint256 index, bool found) = AddressArray.indexOf(
-            state.config.whitelist,
+            state.config.allowlist,
             distributor
         );
         if (found) {
-            state.config.whitelist = AddressArray.remove(
-                state.config.whitelist,
+            state.config.allowlist = AddressArray.remove(
+                state.config.allowlist,
                 index
             );
             emit DistributorRemoved(distributor);
@@ -98,7 +98,7 @@ contract Distributor is Storage, Initializable, ReentrancyGuard {
      */
     function spend(address recipient, uint256 amount) public nonReentrant {
         (, bool found) = AddressArray.indexOf(
-            state.config.whitelist,
+            state.config.allowlist,
             msg.sender
         );
         require(found, "Unauthorized");
@@ -127,7 +127,7 @@ contract Distributor is Storage, Initializable, ReentrancyGuard {
         return
             DistributorMessage.ConfigResponse({
                 timelockContract: state.config.timelockContract,
-                whitelist: state.config.whitelist,
+                allowlist: state.config.allowlist,
                 spendLimit: state.config.spendLimit,
                 haloToken: state.config.haloToken
             });

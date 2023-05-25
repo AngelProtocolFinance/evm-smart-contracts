@@ -4,7 +4,7 @@ pragma solidity ^0.8.16;
 import "./storage.sol";
 import {DonationMatchMessages} from "./message.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
-import {IRegistrar} from "../../core/registrar/interface/IRegistrar.sol";
+import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 import {AccountMessages} from "../../core/accounts/message.sol";
 import {AccountStorage} from "../../core/accounts/storage.sol";
 import {IAccounts} from "../../core/accounts/IAccounts.sol";
@@ -14,14 +14,14 @@ import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
 import "@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol";
 import {IDonationMatchEmitter} from "./IDonationMatchEmitter.sol";
-import {IAccountsDepositWithdrawEndowments} from "./../../core/accounts/interface/IAccountsDepositWithdrawEndowments.sol";
+import {IAccountDonationMatch} from "./../../core/accounts/interfaces/IAccountDonationMatch.sol";
 
 interface SubdaoToken {
     function executeDonorMatch(
-        uint256 curAmount,
-        address curAccountscontract,
-        uint256 curEndowmentid,
-        address curDonor
+        uint256 amount,
+        address accountscontract,
+        uint32 endowmentid,
+        address donor
     ) external;
 }
 
@@ -41,29 +41,29 @@ contract DonationMatch is Storage, Initializable {
 
     /**
      * @dev Initialize contract
-     * @param curDetails DonationMatchMessages.InstantiateMsg used to initialize contract
-     * @param curEmitteraddress address
+     * @param details DonationMatchMessages.InstantiateMsg used to initialize contract
+     * @param emitteraddress address
      */
     function initialize(
-        DonationMatchMessages.InstantiateMessage memory curDetails,
-        address curEmitteraddress
+        DonationMatchMessages.InstantiateMessage memory details,
+        address emitteraddress
     ) public initializer {
-        require(curEmitteraddress != address(0), "Invalid Address");
-        emitterAddress = curEmitteraddress;
-        require(curDetails.reserveToken != address(0), "Invalid Address");
-        state.config.reserveToken = curDetails.reserveToken;
+        require(emitteraddress != address(0), "Invalid Address");
+        emitterAddress = emitteraddress;
+        require(details.reserveToken != address(0), "Invalid Address");
+        state.config.reserveToken = details.reserveToken;
 
-        require(curDetails.uniswapFactory != address(0), "Invalid Address");
-        state.config.uniswapFactory = curDetails.uniswapFactory;
+        require(details.uniswapFactory != address(0), "Invalid Address");
+        state.config.uniswapFactory = details.uniswapFactory;
 
-        require(curDetails.registrarContract != address(0), "Invalid Address");
-        state.config.registrarContract = curDetails.registrarContract;
+        require(details.registrarContract != address(0), "Invalid Address");
+        state.config.registrarContract = details.registrarContract;
 
-        require(curDetails.poolFee > 0, "Invalid Fee");
-        state.config.poolFee = curDetails.poolFee;
+        require(details.poolFee > 0, "Invalid Fee");
+        state.config.poolFee = details.poolFee;
 
-        require(curDetails.usdcAddress != address(0), "Invalid Address");
-        state.config.usdcAddress = curDetails.usdcAddress;
+        require(details.usdcAddress != address(0), "Invalid Address");
+        state.config.usdcAddress = details.usdcAddress;
     }
 
     /**
@@ -74,7 +74,7 @@ contract DonationMatch is Storage, Initializable {
      * @param token address
      */
     function executeDonorMatch(
-        uint256 endowmentId,
+        uint32 endowmentId,
         uint256 amount,
         address donor,
         address token
@@ -97,19 +97,12 @@ contract DonationMatch is Storage, Initializable {
             registrar_config.accountsContract
         ).queryEndowmentDetails(endowmentId);
 
-        require(
-            endow_detail.status == AngelCoreStruct.EndowmentStatus.Approved,
-            "Unauthorized"
-        );
-
-        if (endow_detail.endow_type == AngelCoreStruct.EndowmentType.Charity) {
+        if (endow_detail.endowType == AngelCoreStruct.EndowmentType.Charity) {
             require(
                 address(this) == registrar_config.donationMatchCharitesContract,
                 "Unauthorized"
             );
-        }
-
-        if (endow_detail.endow_type == AngelCoreStruct.EndowmentType.Normal) {
+        } else if (endow_detail.endowType == AngelCoreStruct.EndowmentType.Normal) {
             require(
                 address(this) == endow_detail.donationMatchContract,
                 "Unauthorized"
@@ -131,12 +124,14 @@ contract DonationMatch is Storage, Initializable {
 
         // give allowance to dao token contract
 
-        bool success = IERC20(token).approve(
-            state.config.reserveToken,
-            reserveTokenAmount
+        require(
+            IERC20(token)
+            .approve(
+                state.config.reserveToken,
+                reserveTokenAmount
+            ), 
+            "Token transfer failed"
         );
-
-        require(success, "Token transfer failed");
 
         IDonationMatchEmitter(emitterAddress).giveApprovalErC20(
             endowmentId,
@@ -176,7 +171,7 @@ contract DonationMatch is Storage, Initializable {
                 "Approve failed"
             );
 
-            IAccountsDepositWithdrawEndowments(
+            IAccountDonationMatch(
                 registrar_config.accountsContract
             ).depositDonationMatchErC20(endowmentId, token, endowmentAmount);
 
@@ -195,7 +190,7 @@ contract DonationMatch is Storage, Initializable {
         } else {
             // call execute donor match on dao token contract
 
-            // approve reserve currency to dao token contract [GIVE approval]
+            // approve reserve rency to dao token contract [GIVE approval]
 
             require(
                 IERC20(state.config.reserveToken).approve(
@@ -233,17 +228,17 @@ contract DonationMatch is Storage, Initializable {
     }
 
     function queryUniswapPrice(
-        address curTokenin,
-        uint256 curAmountin,
-        address curTokenout
+        address tokenin,
+        uint256 amountin,
+        address tokenout
     ) internal view returns (uint256) {
-        if (curTokenin == curTokenout) {
-            return curAmountin;
+        if (tokenin == tokenout) {
+            return amountin;
         }
 
         address pool = IUniswapV3Factory(state.config.uniswapFactory).getPool(
-            curTokenin,
-            curTokenout,
+            tokenin,
+            tokenout,
             state.config.poolFee
         );
         if (pool == address(0)) {
@@ -252,13 +247,13 @@ contract DonationMatch is Storage, Initializable {
 
         (uint160 sqrtPriceX96, , , , , , ) = IUniswapV3PoolState(pool).slot0();
 
-        if (curTokenin < curTokenout) {
+        if (tokenin < tokenout) {
             return
-                (((curAmountin * sqrtPriceX96) / 2 ** 96) * sqrtPriceX96) /
+                (((amountin * sqrtPriceX96) / 2 ** 96) * sqrtPriceX96) /
                 2 ** 96;
         } else {
             return
-                (((curAmountin * 2 ** 96) / sqrtPriceX96) * 2 ** 96) /
+                (((amountin * 2 ** 96) / sqrtPriceX96) * 2 ** 96) /
                 sqrtPriceX96;
         }
     }

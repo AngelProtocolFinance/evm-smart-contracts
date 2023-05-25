@@ -41,29 +41,15 @@ export declare namespace AngelCoreStruct {
     liquidPercentage: BigNumber[];
   };
 
-  export type GenericBalanceStruct = {
-    coinNativeAmount: PromiseOrValue<BigNumberish>;
-    Cw20CoinVerified_amount: PromiseOrValue<BigNumberish>[];
-    Cw20CoinVerified_addr: PromiseOrValue<string>[];
-  };
-
-  export type GenericBalanceStructOutput = [
-    BigNumber,
-    BigNumber[],
-    string[]
-  ] & {
-    coinNativeAmount: BigNumber;
-    Cw20CoinVerified_amount: BigNumber[];
-    Cw20CoinVerified_addr: string[];
-  };
-
   export type BeneficiaryDataStruct = {
-    id: PromiseOrValue<BigNumberish>;
+    endowId: PromiseOrValue<BigNumberish>;
+    fundId: PromiseOrValue<BigNumberish>;
     addr: PromiseOrValue<string>;
   };
 
-  export type BeneficiaryDataStructOutput = [BigNumber, string] & {
-    id: BigNumber;
+  export type BeneficiaryDataStructOutput = [number, BigNumber, string] & {
+    endowId: number;
+    fundId: BigNumber;
     addr: string;
   };
 
@@ -117,73 +103,33 @@ export declare namespace AngelCoreStruct {
     liquid: string[];
     liquidAmount: BigNumber[];
   };
-
-  export type RebalanceDetailsStruct = {
-    rebalanceLiquidInvestedProfits: PromiseOrValue<boolean>;
-    lockedInterestsToLiquid: PromiseOrValue<boolean>;
-    interest_distribution: PromiseOrValue<BigNumberish>;
-    lockedPrincipleToLiquid: PromiseOrValue<boolean>;
-    principle_distribution: PromiseOrValue<BigNumberish>;
-  };
-
-  export type RebalanceDetailsStructOutput = [
-    boolean,
-    boolean,
-    BigNumber,
-    boolean,
-    BigNumber
-  ] & {
-    rebalanceLiquidInvestedProfits: boolean;
-    lockedInterestsToLiquid: boolean;
-    interest_distribution: BigNumber;
-    lockedPrincipleToLiquid: boolean;
-    principle_distribution: BigNumber;
-  };
 }
 
 export interface AngelCoreStructInterface extends utils.Interface {
   functions: {
     "accountStrategiesDefaut()": FunctionFragment;
-    "addTokenMem((uint256,uint256[],address[]),address,uint256)": FunctionFragment;
     "beneficiaryDefault()": FunctionFragment;
     "checkSplits((uint256,uint256,uint256),uint256,uint256,bool)": FunctionFragment;
-    "cw20Valid(address[],address)": FunctionFragment;
-    "deductTokens(address[],uint256[],address,uint256)": FunctionFragment;
+    "deductTokens(uint256,uint256)": FunctionFragment;
     "donationsReceivedDefault()": FunctionFragment;
-    "genericBalanceDefault()": FunctionFragment;
     "getTokenAmount(address[],uint256[],address)": FunctionFragment;
     "oneOffVaultsDefault()": FunctionFragment;
-    "rebalanceDetailsDefaut()": FunctionFragment;
-    "subTokenMem((uint256,uint256[],address[]),address,uint256)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "accountStrategiesDefaut"
-      | "addTokenMem"
       | "beneficiaryDefault"
       | "checkSplits"
-      | "cw20Valid"
       | "deductTokens"
       | "donationsReceivedDefault"
-      | "genericBalanceDefault"
       | "getTokenAmount"
       | "oneOffVaultsDefault"
-      | "rebalanceDetailsDefaut"
-      | "subTokenMem"
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "accountStrategiesDefaut",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addTokenMem",
-    values: [
-      AngelCoreStruct.GenericBalanceStruct,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
   ): string;
   encodeFunctionData(
     functionFragment: "beneficiaryDefault",
@@ -199,24 +145,11 @@ export interface AngelCoreStructInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "cw20Valid",
-    values: [PromiseOrValue<string>[], PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "deductTokens",
-    values: [
-      PromiseOrValue<string>[],
-      PromiseOrValue<BigNumberish>[],
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "donationsReceivedDefault",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "genericBalanceDefault",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -231,25 +164,9 @@ export interface AngelCoreStructInterface extends utils.Interface {
     functionFragment: "oneOffVaultsDefault",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "rebalanceDetailsDefaut",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "subTokenMem",
-    values: [
-      AngelCoreStruct.GenericBalanceStruct,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
-  ): string;
 
   decodeFunctionResult(
     functionFragment: "accountStrategiesDefaut",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "addTokenMem",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -260,7 +177,6 @@ export interface AngelCoreStructInterface extends utils.Interface {
     functionFragment: "checkSplits",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "cw20Valid", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "deductTokens",
     data: BytesLike
@@ -270,23 +186,11 @@ export interface AngelCoreStructInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "genericBalanceDefault",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "getTokenAmount",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "oneOffVaultsDefault",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "rebalanceDetailsDefaut",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "subTokenMem",
     data: BytesLike
   ): Result;
 
@@ -324,119 +228,70 @@ export interface AngelCoreStruct extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[AngelCoreStruct.AccountStrategiesStructOutput]>;
 
-    addTokenMem(
-      curTemp: AngelCoreStruct.GenericBalanceStruct,
-      curTokenaddress: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[AngelCoreStruct.GenericBalanceStructOutput]>;
-
     beneficiaryDefault(
       overrides?: CallOverrides
     ): Promise<[AngelCoreStruct.BeneficiaryStructOutput]>;
 
     checkSplits(
-      registrarSplits: AngelCoreStruct.SplitDetailsStruct,
+      splits: AngelCoreStruct.SplitDetailsStruct,
       userLocked: PromiseOrValue<BigNumberish>,
       userLiquid: PromiseOrValue<BigNumberish>,
       userOverride: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber]>;
 
-    cw20Valid(
-      cw20: PromiseOrValue<string>[],
-      token: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
     deductTokens(
-      curAddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
-      curDeducttokenfor: PromiseOrValue<string>,
-      curDeductamount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
+      deductamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<[BigNumber[]]>;
+    ): Promise<[BigNumber]>;
 
     donationsReceivedDefault(
       overrides?: CallOverrides
     ): Promise<[AngelCoreStruct.DonationsReceivedStructOutput]>;
 
-    genericBalanceDefault(
-      overrides?: CallOverrides
-    ): Promise<[AngelCoreStruct.GenericBalanceStructOutput]>;
-
     getTokenAmount(
-      curAddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
-      curTokenaddress: PromiseOrValue<string>,
+      addresses: PromiseOrValue<string>[],
+      amounts: PromiseOrValue<BigNumberish>[],
+      token: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
     oneOffVaultsDefault(
       overrides?: CallOverrides
     ): Promise<[AngelCoreStruct.OneOffVaultsStructOutput]>;
-
-    rebalanceDetailsDefaut(
-      overrides?: CallOverrides
-    ): Promise<[AngelCoreStruct.RebalanceDetailsStructOutput]>;
-
-    subTokenMem(
-      curTemp: AngelCoreStruct.GenericBalanceStruct,
-      curTokenaddress: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[AngelCoreStruct.GenericBalanceStructOutput]>;
   };
 
   accountStrategiesDefaut(
     overrides?: CallOverrides
   ): Promise<AngelCoreStruct.AccountStrategiesStructOutput>;
 
-  addTokenMem(
-    curTemp: AngelCoreStruct.GenericBalanceStruct,
-    curTokenaddress: PromiseOrValue<string>,
-    curAmount: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<AngelCoreStruct.GenericBalanceStructOutput>;
-
   beneficiaryDefault(
     overrides?: CallOverrides
   ): Promise<AngelCoreStruct.BeneficiaryStructOutput>;
 
   checkSplits(
-    registrarSplits: AngelCoreStruct.SplitDetailsStruct,
+    splits: AngelCoreStruct.SplitDetailsStruct,
     userLocked: PromiseOrValue<BigNumberish>,
     userLiquid: PromiseOrValue<BigNumberish>,
     userOverride: PromiseOrValue<boolean>,
     overrides?: CallOverrides
   ): Promise<[BigNumber, BigNumber]>;
 
-  cw20Valid(
-    cw20: PromiseOrValue<string>[],
-    token: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   deductTokens(
-    curAddress: PromiseOrValue<string>[],
-    curAmount: PromiseOrValue<BigNumberish>[],
-    curDeducttokenfor: PromiseOrValue<string>,
-    curDeductamount: PromiseOrValue<BigNumberish>,
+    amount: PromiseOrValue<BigNumberish>,
+    deductamount: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
-  ): Promise<BigNumber[]>;
+  ): Promise<BigNumber>;
 
   donationsReceivedDefault(
     overrides?: CallOverrides
   ): Promise<AngelCoreStruct.DonationsReceivedStructOutput>;
 
-  genericBalanceDefault(
-    overrides?: CallOverrides
-  ): Promise<AngelCoreStruct.GenericBalanceStructOutput>;
-
   getTokenAmount(
-    curAddress: PromiseOrValue<string>[],
-    curAmount: PromiseOrValue<BigNumberish>[],
-    curTokenaddress: PromiseOrValue<string>,
+    addresses: PromiseOrValue<string>[],
+    amounts: PromiseOrValue<BigNumberish>[],
+    token: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -444,84 +299,43 @@ export interface AngelCoreStruct extends BaseContract {
     overrides?: CallOverrides
   ): Promise<AngelCoreStruct.OneOffVaultsStructOutput>;
 
-  rebalanceDetailsDefaut(
-    overrides?: CallOverrides
-  ): Promise<AngelCoreStruct.RebalanceDetailsStructOutput>;
-
-  subTokenMem(
-    curTemp: AngelCoreStruct.GenericBalanceStruct,
-    curTokenaddress: PromiseOrValue<string>,
-    curAmount: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<AngelCoreStruct.GenericBalanceStructOutput>;
-
   callStatic: {
     accountStrategiesDefaut(
       overrides?: CallOverrides
     ): Promise<AngelCoreStruct.AccountStrategiesStructOutput>;
-
-    addTokenMem(
-      curTemp: AngelCoreStruct.GenericBalanceStruct,
-      curTokenaddress: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<AngelCoreStruct.GenericBalanceStructOutput>;
 
     beneficiaryDefault(
       overrides?: CallOverrides
     ): Promise<AngelCoreStruct.BeneficiaryStructOutput>;
 
     checkSplits(
-      registrarSplits: AngelCoreStruct.SplitDetailsStruct,
+      splits: AngelCoreStruct.SplitDetailsStruct,
       userLocked: PromiseOrValue<BigNumberish>,
       userLiquid: PromiseOrValue<BigNumberish>,
       userOverride: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber]>;
 
-    cw20Valid(
-      cw20: PromiseOrValue<string>[],
-      token: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     deductTokens(
-      curAddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
-      curDeducttokenfor: PromiseOrValue<string>,
-      curDeductamount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
+      deductamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<BigNumber[]>;
+    ): Promise<BigNumber>;
 
     donationsReceivedDefault(
       overrides?: CallOverrides
     ): Promise<AngelCoreStruct.DonationsReceivedStructOutput>;
 
-    genericBalanceDefault(
-      overrides?: CallOverrides
-    ): Promise<AngelCoreStruct.GenericBalanceStructOutput>;
-
     getTokenAmount(
-      curAddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
-      curTokenaddress: PromiseOrValue<string>,
+      addresses: PromiseOrValue<string>[],
+      amounts: PromiseOrValue<BigNumberish>[],
+      token: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     oneOffVaultsDefault(
       overrides?: CallOverrides
     ): Promise<AngelCoreStruct.OneOffVaultsStructOutput>;
-
-    rebalanceDetailsDefaut(
-      overrides?: CallOverrides
-    ): Promise<AngelCoreStruct.RebalanceDetailsStructOutput>;
-
-    subTokenMem(
-      curTemp: AngelCoreStruct.GenericBalanceStruct,
-      curTokenaddress: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<AngelCoreStruct.GenericBalanceStructOutput>;
   };
 
   filters: {};
@@ -529,69 +343,36 @@ export interface AngelCoreStruct extends BaseContract {
   estimateGas: {
     accountStrategiesDefaut(overrides?: CallOverrides): Promise<BigNumber>;
 
-    addTokenMem(
-      curTemp: AngelCoreStruct.GenericBalanceStruct,
-      curTokenaddress: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     beneficiaryDefault(overrides?: CallOverrides): Promise<BigNumber>;
 
     checkSplits(
-      registrarSplits: AngelCoreStruct.SplitDetailsStruct,
+      splits: AngelCoreStruct.SplitDetailsStruct,
       userLocked: PromiseOrValue<BigNumberish>,
       userLiquid: PromiseOrValue<BigNumberish>,
       userOverride: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    cw20Valid(
-      cw20: PromiseOrValue<string>[],
-      token: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     deductTokens(
-      curAddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
-      curDeducttokenfor: PromiseOrValue<string>,
-      curDeductamount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
+      deductamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     donationsReceivedDefault(overrides?: CallOverrides): Promise<BigNumber>;
 
-    genericBalanceDefault(overrides?: CallOverrides): Promise<BigNumber>;
-
     getTokenAmount(
-      curAddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
-      curTokenaddress: PromiseOrValue<string>,
+      addresses: PromiseOrValue<string>[],
+      amounts: PromiseOrValue<BigNumberish>[],
+      token: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     oneOffVaultsDefault(overrides?: CallOverrides): Promise<BigNumber>;
-
-    rebalanceDetailsDefaut(overrides?: CallOverrides): Promise<BigNumber>;
-
-    subTokenMem(
-      curTemp: AngelCoreStruct.GenericBalanceStruct,
-      curTokenaddress: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     accountStrategiesDefaut(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    addTokenMem(
-      curTemp: AngelCoreStruct.GenericBalanceStruct,
-      curTokenaddress: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -600,24 +381,16 @@ export interface AngelCoreStruct extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     checkSplits(
-      registrarSplits: AngelCoreStruct.SplitDetailsStruct,
+      splits: AngelCoreStruct.SplitDetailsStruct,
       userLocked: PromiseOrValue<BigNumberish>,
       userLiquid: PromiseOrValue<BigNumberish>,
       userOverride: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    cw20Valid(
-      cw20: PromiseOrValue<string>[],
-      token: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     deductTokens(
-      curAddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
-      curDeducttokenfor: PromiseOrValue<string>,
-      curDeductamount: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
+      deductamount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -625,29 +398,14 @@ export interface AngelCoreStruct extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    genericBalanceDefault(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     getTokenAmount(
-      curAddress: PromiseOrValue<string>[],
-      curAmount: PromiseOrValue<BigNumberish>[],
-      curTokenaddress: PromiseOrValue<string>,
+      addresses: PromiseOrValue<string>[],
+      amounts: PromiseOrValue<BigNumberish>[],
+      token: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     oneOffVaultsDefault(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    rebalanceDetailsDefaut(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    subTokenMem(
-      curTemp: AngelCoreStruct.GenericBalanceStruct,
-      curTokenaddress: PromiseOrValue<string>,
-      curAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

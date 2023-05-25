@@ -7,9 +7,8 @@ import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
-import {IRegistrar} from "../../registrar/interface/IRegistrar.sol";
-import {IAccountDeployContract} from "./../interface/IAccountDeployContract.sol";
-// import {Cw3EndowmentMessages, CW3Endowment} from "./../../../normalized_endowment/cw3-endowment/CW3Endowment.sol";
+import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
+import {IAccountDeployContract} from "./../interfaces/IAccountDeployContract.sol";
 import {SubDao, subDaoMessage} from "./../../../normalized_endowment/subdao/subdao.sol";
 import {ISubDao} from "./../../../normalized_endowment/subdao/Isubdao.sol";
 import {ProxyContract} from "../../proxy.sol";
@@ -27,16 +26,16 @@ contract AccountsDAOEndowments is ReentrancyGuardFacet, AccountsEvents {
     /**
      * @notice This function creates a DAO for an endowment
      * @dev creates a DAO for an endowment based on parameters
-     * @param curId The id of the endowment
-     * @param curDetails The details of the DAO
+     * @param id The id of the endowment
+     * @param details The details of the DAO
      */
     function setupDao(
-        uint256 curId,
-        AngelCoreStruct.DaoSetup memory curDetails
+        uint32 id,
+        AngelCoreStruct.DaoSetup memory details
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
 
-        AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[curId];
+        AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];
         // AccountStorage.Config memory tempConfig = state.config;
 
         require(tempEndowment.owner == msg.sender, "Unauthorized");
@@ -44,17 +43,17 @@ contract AccountsDAOEndowments is ReentrancyGuardFacet, AccountsEvents {
 
         subDaoMessage.InstantiateMsg memory createDaoMessage = subDaoMessage
             .InstantiateMsg({
-                id: curId,
-                quorum: curDetails.quorum,
+                id: id,
+                quorum: details.quorum,
                 owner: tempEndowment.owner,
-                threshold: curDetails.threshold,
-                votingPeriod: curDetails.votingPeriod,
-                timelockPeriod: curDetails.timelockPeriod,
-                expirationPeriod: curDetails.expirationPeriod,
-                proposalDeposit: curDetails.proposalDeposit,
-                snapshotPeriod: curDetails.snapshotPeriod,
-                token: curDetails.token,
-                endow_type: tempEndowment.endow_type,
+                threshold: details.threshold,
+                votingPeriod: details.votingPeriod,
+                timelockPeriod: details.timelockPeriod,
+                expirationPeriod: details.expirationPeriod,
+                proposalDeposit: details.proposalDeposit,
+                snapshotPeriod: details.snapshotPeriod,
+                token: details.token,
+                endowType: tempEndowment.endowType,
                 endowOwner: tempEndowment.owner,
                 registrarContract: state.config.registrarContract
             });
@@ -70,7 +69,7 @@ contract AccountsDAOEndowments is ReentrancyGuardFacet, AccountsEvents {
 
         tempEndowment.daoToken = subDaoConfid.daoToken;
 
-        state.ENDOWMENTS[curId] = tempEndowment;
-        emit UpdateEndowment(curId, tempEndowment);
+        state.ENDOWMENTS[id] = tempEndowment;
+        emit UpdateEndowment(id, tempEndowment);
     }
 }

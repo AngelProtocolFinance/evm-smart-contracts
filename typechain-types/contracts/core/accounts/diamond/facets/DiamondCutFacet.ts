@@ -67,9 +67,9 @@ export interface DiamondCutFacetInterface extends utils.Interface {
 }
 
 export interface DiamondCutEventObject {
-  curDiamondcut: IDiamondCut.FacetCutStructOutput[];
-  curInit: string;
-  curCalldata: string;
+  diamondcut: IDiamondCut.FacetCutStructOutput[];
+  init: string;
+  data: string;
 }
 export type DiamondCutEvent = TypedEvent<
   [IDiamondCut.FacetCutStructOutput[], string, string],
@@ -106,56 +106,56 @@ export interface DiamondCutFacet extends BaseContract {
 
   functions: {
     diamondCut(
-      curDiamondcut: IDiamondCut.FacetCutStruct[],
-      curInit: PromiseOrValue<string>,
-      curCalldata: PromiseOrValue<BytesLike>,
+      diamondcut: IDiamondCut.FacetCutStruct[],
+      init: PromiseOrValue<string>,
+      data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
   diamondCut(
-    curDiamondcut: IDiamondCut.FacetCutStruct[],
-    curInit: PromiseOrValue<string>,
-    curCalldata: PromiseOrValue<BytesLike>,
+    diamondcut: IDiamondCut.FacetCutStruct[],
+    init: PromiseOrValue<string>,
+    data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     diamondCut(
-      curDiamondcut: IDiamondCut.FacetCutStruct[],
-      curInit: PromiseOrValue<string>,
-      curCalldata: PromiseOrValue<BytesLike>,
+      diamondcut: IDiamondCut.FacetCutStruct[],
+      init: PromiseOrValue<string>,
+      data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
 
   filters: {
     "DiamondCut(tuple[],address,bytes)"(
-      curDiamondcut?: null,
-      curInit?: null,
-      curCalldata?: null
+      diamondcut?: null,
+      init?: null,
+      data?: null
     ): DiamondCutEventFilter;
     DiamondCut(
-      curDiamondcut?: null,
-      curInit?: null,
-      curCalldata?: null
+      diamondcut?: null,
+      init?: null,
+      data?: null
     ): DiamondCutEventFilter;
   };
 
   estimateGas: {
     diamondCut(
-      curDiamondcut: IDiamondCut.FacetCutStruct[],
-      curInit: PromiseOrValue<string>,
-      curCalldata: PromiseOrValue<BytesLike>,
+      diamondcut: IDiamondCut.FacetCutStruct[],
+      init: PromiseOrValue<string>,
+      data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     diamondCut(
-      curDiamondcut: IDiamondCut.FacetCutStruct[],
-      curInit: PromiseOrValue<string>,
-      curCalldata: PromiseOrValue<BytesLike>,
+      diamondcut: IDiamondCut.FacetCutStruct[],
+      init: PromiseOrValue<string>,
+      data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

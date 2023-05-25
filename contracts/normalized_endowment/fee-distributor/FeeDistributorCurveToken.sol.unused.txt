@@ -12,7 +12,7 @@ struct Point {
     uint256 blk;
 }
 
-interface IcurIncentivisedVotingLockup {
+interface IincentivisedVotingLockup {
     function checkpoint() external;
 
     function globalEpoch() external view returns (uint256);
@@ -28,16 +28,16 @@ interface IcurIncentivisedVotingLockup {
 }
 
 /**
- * @title Curve Fee Distribution Contract
+ * @title ve Fee Distribution Contract
  */
-contract FeeDistributorCurveToken is Initializable, ReentrancyGuard {
+contract FeeDistributorveToken is Initializable, ReentrancyGuard {
     uint256 constant WEEK = 7 * 86400;
     uint256 constant TOKEN_CHECKPOINT_DEADLINE = 86400;
 
     struct data {
         uint256 startTime;
-        uint256 timeCursor;
-        mapping(address => uint256) timeCursorOf;
+        uint256 timesor;
+        mapping(address => uint256) timesorOf;
         mapping(address => uint256) userEpochOf;
         uint256 lastTokenTime;
         mapping(uint256 => uint256) tokensPerWeek;
@@ -56,28 +56,28 @@ contract FeeDistributorCurveToken is Initializable, ReentrancyGuard {
 
     /**
      * @notice Contract constructor
-     * @param curVotingEscrow VotingEscrow contract address
-     * @param curStartTime Epoch time for fee distribution to start
-     * @param curToken Fee token address (3CRV)
-     * @param curAdmin Admin address
-     * @param curEmergencyReturn Address to transfer `curToken` balance to
+     * @param votingEscrow VotingEscrow contract address
+     * @param startTime Epoch time for fee distribution to start
+     * @param token Fee token address (3CRV)
+     * @param admin Admin address
+     * @param emergencyReturn Address to transfer `token` balance to
      *                          if this contract is killed
      */
     function initFeeDistributor(
-        address curVotingEscrow,
-        uint256 curStartTime,
-        address curToken,
-        address curAdmin,
-        address curEmergencyReturn
+        address votingEscrow,
+        uint256 startTime,
+        address token,
+        address admin,
+        address emergencyReturn
     ) external initializer {
-        uint256 t = (curStartTime / WEEK) * WEEK;
+        uint256 t = (startTime / WEEK) * WEEK;
         state.startTime = t;
         state.lastTokenTime = t;
-        state.timeCursor = t;
-        state.token = curToken;
-        state.votingEscrow = curVotingEscrow;
-        state.admin = curAdmin;
-        state.emergencyReturn = curEmergencyReturn;
+        state.timesor = t;
+        state.token = token;
+        state.votingEscrow = votingEscrow;
+        state.admin = admin;
+        state.emergencyReturn = emergencyReturn;
     }
 
     /**
@@ -139,13 +139,13 @@ contract FeeDistributorCurveToken is Initializable, ReentrancyGuard {
         returns (uint256)
     {
         uint256 mini = 0;
-        uint256 maxi = IcurIncentivisedVotingLockup(ve).globalEpoch();
+        uint256 maxi = IincentivisedVotingLockup(ve).globalEpoch();
         for (uint256 i = 0; i < 128; i++) {
             if (mini >= maxi) {
                 break;
             }
             uint256 mid = (mini + maxi + 2) / 2;
-            Point memory pt = IcurIncentivisedVotingLockup(ve).pointHistory(
+            Point memory pt = IincentivisedVotingLockup(ve).pointHistory(
                 mid
             );
             if (pt.ts <= timestamp) {
@@ -170,7 +170,7 @@ contract FeeDistributorCurveToken is Initializable, ReentrancyGuard {
                 break;
             }
             uint256 mid = (mini + maxi + 2) / 2;
-            Point memory pt = IcurIncentivisedVotingLockup(ve).userPointHistory(
+            Point memory pt = IincentivisedVotingLockup(ve).userPointHistory(
                 user,
                 mid
             );
@@ -184,7 +184,7 @@ contract FeeDistributorCurveToken is Initializable, ReentrancyGuard {
     }
 
     /**
-     * @notice Get the veCRV balance for `curUser` at `_timestamp`
+     * @notice Get the veCRV balance for `user` at `_timestamp`
      * @param user Address to query balance for
      * @param timestamp Epoch time
      * @return uint256 veCRV balance
@@ -195,7 +195,7 @@ contract FeeDistributorCurveToken is Initializable, ReentrancyGuard {
         returns (uint256)
     {
         address ve = state.votingEscrow;
-        uint256 maxUserEpoch = IcurIncentivisedVotingLockup(ve).userPointEpoch(
+        uint256 maxUserEpoch = IincentivisedVotingLockup(ve).userPointEpoch(
             user
         );
         uint256 epoch = findTimestampUserEpoch(
@@ -204,7 +204,7 @@ contract FeeDistributorCurveToken is Initializable, ReentrancyGuard {
             timestamp,
             maxUserEpoch
         );
-        Point memory pt = IcurIncentivisedVotingLockup(ve).userPointHistory(
+        Point memory pt = IincentivisedVotingLockup(ve).userPointHistory(
             user,
             epoch
         );
@@ -225,15 +225,15 @@ contract FeeDistributorCurveToken is Initializable, ReentrancyGuard {
      *      of a claim, to reduce claiming gas costs.
      */
     function checkpointTotalSupply() public nonReentrant {
-        IcurIncentivisedVotingLockup(state.votingEscrow).checkpoint();
-        uint256 t = state.timeCursor;
+        IincentivisedVotingLockup(state.votingEscrow).checkpoint();
+        uint256 t = state.timesor;
         uint256 roundedTimestamp = (block.timestamp / WEEK) * WEEK;
         for (uint256 i = 0; i < 20; i++) {
             if (t > roundedTimestamp) {
                 break;
             } else {
                 uint256 epoch = findTimestampEpoch(state.votingEscrow, t);
-                Point memory pt = IcurIncentivisedVotingLockup(
+                Point memory pt = IincentivisedVotingLockup(
                     state.votingEscrow
                 ).pointHistory(epoch);
                 int128 dt = 0;
@@ -246,18 +246,18 @@ contract FeeDistributorCurveToken is Initializable, ReentrancyGuard {
             }
             t += WEEK;
         }
-        state.timeCursor = t;
+        state.timesor = t;
     }
 
     function _claim(
         address addr,
         address ve,
-        uint256 curLastTokenTime
+        uint256 lastTokenTime
     ) internal returns (uint256) {
         uint256 userEpoch = 0;
         uint256 toDistribute = 0;
 
-        uint256 maxUserEpoch = IcurIncentivisedVotingLockup(ve).userPointEpoch(
+        uint256 maxUserEpoch = IincentivisedVotingLockup(ve).userPointEpoch(
             addr
         );
         uint256 startTime = state.startTime;
@@ -266,8 +266,8 @@ contract FeeDistributorCurveToken is Initializable, ReentrancyGuard {
             return 0;
         }
 
-        uint256 weekCursor = state.timeCursorOf[addr];
-        if (weekCursor == 0) {
+        uint256 weeksor = state.timesorOf[addr];
+        if (weeksor == 0) {
             userEpoch = findTimestampUserEpoch(
                 ve,
                 addr,
@@ -282,38 +282,38 @@ contract FeeDistributorCurveToken is Initializable, ReentrancyGuard {
             userEpoch = 1;
         }
 
-        Point memory userPoint = IcurIncentivisedVotingLockup(ve)
+        Point memory userPoint = IincentivisedVotingLockup(ve)
             .userPointHistory(addr, userEpoch);
 
-        if (weekCursor == 0) {
-            weekCursor = ((userPoint.ts + WEEK - 1) / WEEK) * WEEK;
+        if (weeksor == 0) {
+            weeksor = ((userPoint.ts + WEEK - 1) / WEEK) * WEEK;
         }
 
-        if (weekCursor >= curLastTokenTime) {
+        if (weeksor >= lastTokenTime) {
             return 0;
         }
 
-        if (weekCursor < startTime) {
-            weekCursor = startTime;
+        if (weeksor < startTime) {
+            weeksor = startTime;
         }
         Point memory oldUserPoint;
 
         for (uint256 i = 0; i < 50; i++) {
-            if (weekCursor >= curLastTokenTime) {
+            if (weeksor >= lastTokenTime) {
                 break;
             }
 
-            if (weekCursor >= userPoint.ts && userEpoch <= maxUserEpoch) {
+            if (weeksor >= userPoint.ts && userEpoch <= maxUserEpoch) {
                 userEpoch += 1;
                 oldUserPoint = userPoint;
                 if (userEpoch > maxUserEpoch) {
                     userPoint = Point(0, 0, 0, 0);
                 } else {
-                    userPoint = IcurIncentivisedVotingLockup(ve)
+                    userPoint = IincentivisedVotingLockup(ve)
                         .userPointHistory(addr, userEpoch);
                 }
             } else {
-                int128 dt = int128(uint128(weekCursor - oldUserPoint.ts));
+                int128 dt = int128(uint128(weeksor - oldUserPoint.ts));
                 uint256 balanceOf = oldUserPoint.bias -
                     dt *
                     oldUserPoint.slope <
@@ -327,23 +327,23 @@ contract FeeDistributorCurveToken is Initializable, ReentrancyGuard {
                 }
                 if (balanceOf > 0) {
                     toDistribute +=
-                        (balanceOf * state.tokensPerWeek[weekCursor]) /
-                        state.veSupply[weekCursor];
+                        (balanceOf * state.tokensPerWeek[weeksor]) /
+                        state.veSupply[weeksor];
                 }
-                weekCursor += WEEK;
+                weeksor += WEEK;
             }
         }
 
         userEpoch = userEpoch - 1 > maxUserEpoch ? maxUserEpoch : userEpoch - 1;
         state.userEpochOf[addr] = userEpoch;
-        state.timeCursorOf[addr] = weekCursor;
+        state.timesorOf[addr] = weeksor;
 
         // emit Claimed(addr, toDistribute, userEpoch, maxUserEpoch);
         return toDistribute;
     }
 
     /**
-     * @notice Claim fees for `curAddr`
+     * @notice Claim fees for `addr`
      * @dev Each call to claim look at a maximum of 50 user veCRV points.
      *      For accounts with many veCRV related actions, this function
      *      may need to be called more than once to claim all available
@@ -358,7 +358,7 @@ contract FeeDistributorCurveToken is Initializable, ReentrancyGuard {
         }
         require(!state.isKilled, "Contract is killed");
 
-        if (block.timestamp >= state.timeCursor) {
+        if (block.timestamp >= state.timesor) {
             checkpointTotalSupply();
         }
 
@@ -397,7 +397,7 @@ contract FeeDistributorCurveToken is Initializable, ReentrancyGuard {
     {
         require(!state.isKilled, "Contract is killed");
 
-        if (block.timestamp >= state.timeCursor) {
+        if (block.timestamp >= state.timesor) {
             checkpointTotalSupply();
         }
 
@@ -424,15 +424,15 @@ contract FeeDistributorCurveToken is Initializable, ReentrancyGuard {
 
     /**
      * @notice Receive 3CRV into the contract and trigger a token checkpoint
-     * @param curCoin Address of the coin being received (must be 3CRV)
+     * @param coin Address of the coin being received (must be 3CRV)
      * @return bool success
      */
-    function burn(address curCoin) external nonReentrant returns (bool) {
-        require(curCoin == state.token, "Invalid coin");
+    function burn(address coin) external nonReentrant returns (bool) {
+        require(coin == state.token, "Invalid coin");
         require(!state.isKilled, "Contract is killed");
-        uint256 amount = IERC20(curCoin).balanceOf(msg.sender);
+        uint256 amount = IERC20(coin).balanceOf(msg.sender);
         if (amount != 0) {
-            require(IERC20(curCoin).transferFrom(msg.sender, address(this), amount), "TransferFrom failed");
+            require(IERC20(coin).transferFrom(msg.sender, address(this), amount), "TransferFrom failed");
             if (
                 state.canCheckpointToken &&
                 block.timestamp >
@@ -490,18 +490,18 @@ contract FeeDistributorCurveToken is Initializable, ReentrancyGuard {
     /**
      * @notice Recover ERC20 tokens from this contract
      * @dev Tokens are sent to the emergency return address.
-     * @param curCoin Token address
+     * @param coin Token address
      * @return bool success
      */
-    function recoverBalance(address curCoin)
+    function recoverBalance(address coin)
         external
         nonReentrant
         returns (bool)
     {
         require(msg.sender == state.admin, "Access denied");
-        require(curCoin != state.token, "Invalid coin");
-        uint256 amount = IERC20(curCoin).balanceOf(address(this));
-        bool success = IERC20(curCoin).transfer(state.emergencyReturn, amount);
+        require(coin != state.token, "Invalid coin");
+        uint256 amount = IERC20(coin).balanceOf(address(this));
+        bool success = IERC20(coin).transfer(state.emergencyReturn, amount);
         require(success, "Transfer failed");
         return true;
     }

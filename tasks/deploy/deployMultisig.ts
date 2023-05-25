@@ -2,6 +2,7 @@ import { task } from "hardhat/config"
 import config from "config"
 import { ApplicationsMultiSig, APTeamMultiSig } from "typechain-types"
 import { deployMultisig } from "contracts/multisigs/scripts/deploy"
+import { logger } from "utils"
 
 task("Deploy:deployMultisig", "Will deploy Multisig contract")
     .addParam("verify", "Want to verify contract")
@@ -21,6 +22,6 @@ task("Deploy:deployMultisig", "Will deploy Multisig contract")
             const isTrueSet = taskArgs.verify === "true"
             await deployMultisig(ApplicationData, APTeamData, isTrueSet, hre)
         } catch (error) {
-            console.log(error)
+            logger.out(error, logger.Level.Error)
         }
     })

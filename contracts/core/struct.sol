@@ -6,8 +6,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 library AngelCoreStruct {
     enum AccountType {
         Locked,
-        Liquid,
-        None
+        Liquid
     }
 
     enum Tier {
@@ -47,18 +46,14 @@ library AngelCoreStruct {
         uint256[] general;
     }
 
-    ///TODO: by default are not internal need to create a custom internal function for this refer :- https://ethereum.stackexchange.com/questions/21155/how-to-expose-enum-in-solidity-contract
     enum EndowmentType {
         Charity,
-        Normal,
-        None
+        Normal
     }
 
-    enum EndowmentStatus {
-        Inactive,
-        Approved,
-        Frozen,
-        Closed
+    enum AllowanceAction {
+        Add,
+        Remove
     }
 
     struct AccountStrategies {
@@ -147,51 +142,51 @@ library AngelCoreStruct {
     }
 
     function checkTokenInOffVault(
-        string[] storage curAvailible,
+        string[] storage availible,
         uint256[] storage cerAvailibleAmount, 
-        string memory curToken
+        string memory token
     ) public {
         bool check = true;
-        for (uint8 j = 0; j < curAvailible.length; j++) {
+        for (uint8 j = 0; j < availible.length; j++) {
             if (
-                keccak256(abi.encodePacked(curAvailible[j])) ==
-                keccak256(abi.encodePacked(curToken))
+                keccak256(abi.encodePacked(availible[j])) ==
+                keccak256(abi.encodePacked(token))
             ) {
                 check = false;
             }
         }
         if (check) {
-            curAvailible.push(curToken);
+            availible.push(token);
             cerAvailibleAmount.push(0);
         }
     }
 
-    // SHARED
-    struct RebalanceDetails {
-        bool rebalanceLiquidInvestedProfits; // should invested portions of the liquid account be rebalanced?
-        bool lockedInterestsToLiquid; // should Locked acct interest earned be distributed to the Liquid Acct?
-        ///TODO: Should be decimal type insted of uint256
-        uint256 interest_distribution; // % of Locked acct interest earned to be distributed to the Liquid Acct
-        bool lockedPrincipleToLiquid; // should Locked acct principle be distributed to the Liquid Acct?
-        ///TODO: Should be decimal type insted of uint256
-        uint256 principle_distribution; // % of Locked acct principle to be distributed to the Liquid Acct
-    }
+    // SHARED -- now defined by LocalRegistrar 
+    // struct RebalanceDetails {
+    //     bool rebalanceLiquidInvestedProfits; // should invested portions of the liquid account be rebalanced?
+    //     bool lockedInterestsToLiquid; // should Locked acct interest earned be distributed to the Liquid Acct?
+    //     ///TODO: Should be decimal type insted of uint256
+    //     uint256 interest_distribution; // % of Locked acct interest earned to be distributed to the Liquid Acct
+    //     bool lockedPrincipleToLiquid; // should Locked acct principle be distributed to the Liquid Acct?
+    //     ///TODO: Should be decimal type insted of uint256
+    //     uint256 principle_distribution; // % of Locked acct principle to be distributed to the Liquid Acct
+    // }
 
-    function rebalanceDetailsDefaut()
-        public
-        pure
-        returns (RebalanceDetails memory)
-    {
-        RebalanceDetails memory _tempRebalanceDetails = RebalanceDetails({
-            rebalanceLiquidInvestedProfits: false,
-            lockedInterestsToLiquid: false,
-            interest_distribution: 20,
-            lockedPrincipleToLiquid: false,
-            principle_distribution: 0
-        });
+    // function rebalanceDetailsDefaut()
+    //     public
+    //     pure
+    //     returns (RebalanceDetails memory)
+    // {
+    //     RebalanceDetails memory _tempRebalanceDetails = RebalanceDetails({
+    //         rebalanceLiquidInvestedProfits: false,
+    //         lockedInterestsToLiquid: false,
+    //         interest_distribution: 20,
+    //         lockedPrincipleToLiquid: false,
+    //         principle_distribution: 0
+    //     });
 
-        return _tempRebalanceDetails;
-    }
+    //     return _tempRebalanceDetails;
+    // }
 
     struct DonationsReceived {
         uint256 locked;
@@ -212,208 +207,178 @@ library AngelCoreStruct {
         uint128 amount;
     }
 
-    struct Cw20CoinVerified {
+    struct CoinVerified {
         uint128 amount;
         address addr;
     }
 
     struct GenericBalance {
         uint256 coinNativeAmount;
-        // Coin[] native;
-        uint256[] Cw20CoinVerified_amount;
-        address[] Cw20CoinVerified_addr;
-        // Cw20CoinVerified[] cw20;
+        mapping(address => uint256) balancesByToken;
     }
 
     function addToken(
-        GenericBalance storage curTemp,
-        address curTokenaddress,
-        uint256 curAmount
+        GenericBalance storage temp,
+        address tokenAddress,
+        uint256 amount
     ) public {
-        bool notFound = true;
-        for (uint8 i = 0; i < curTemp.Cw20CoinVerified_addr.length; i++) {
-            if (curTemp.Cw20CoinVerified_addr[i] == curTokenaddress) {
-                notFound = false;
-                curTemp.Cw20CoinVerified_amount[i] += curAmount;
-            }
-        }
-        if (notFound) {
-            curTemp.Cw20CoinVerified_addr.push(curTokenaddress);
-            curTemp.Cw20CoinVerified_amount.push(curAmount);
-        }
+        temp.balancesByToken[tokenAddress] += amount;
     }
 
-    function addTokenMem(
-        GenericBalance memory curTemp,
-        address curTokenaddress,
-        uint256 curAmount
-    ) public pure returns (GenericBalance memory) {
-        bool notFound = true;
-        for (uint8 i = 0; i < curTemp.Cw20CoinVerified_addr.length; i++) {
-            if (curTemp.Cw20CoinVerified_addr[i] == curTokenaddress) {
-                notFound = false;
-                curTemp.Cw20CoinVerified_amount[i] += curAmount;
-            }
-        }
-        if (notFound) {
-            GenericBalance memory new_temp = GenericBalance({
-                coinNativeAmount: curTemp.coinNativeAmount,
-                Cw20CoinVerified_amount: new uint256[](
-                    curTemp.Cw20CoinVerified_amount.length + 1
-                ),
-                Cw20CoinVerified_addr: new address[](
-                    curTemp.Cw20CoinVerified_addr.length + 1
-                )
-            });
-            for (uint256 i = 0; i < curTemp.Cw20CoinVerified_addr.length; i++) {
-                new_temp.Cw20CoinVerified_addr[i] = curTemp
-                    .Cw20CoinVerified_addr[i];
-                new_temp.Cw20CoinVerified_amount[i] = curTemp
-                    .Cw20CoinVerified_amount[i];
-            }
-            new_temp.Cw20CoinVerified_addr[
-                curTemp.Cw20CoinVerified_addr.length
-            ] = curTokenaddress;
-            new_temp.Cw20CoinVerified_amount[
-                curTemp.Cw20CoinVerified_amount.length
-            ] = curAmount;
-            return new_temp;
-        } else return curTemp;
-    }
+    // function addTokenMem(
+    //     GenericBalance memory temp,
+    //     address tokenaddress,
+    //     uint256 amount
+    // ) public pure returns (GenericBalance memory) {
+    //     bool notFound = true;
+    //     for (uint8 i = 0; i < temp.CoinVerified_addr.length; i++) {
+    //         if (temp.CoinVerified_addr[i] == tokenaddress) {
+    //             notFound = false;
+    //             temp.CoinVerified_amount[i] += amount;
+    //         }
+    //     }
+    //     if (notFound) {
+    //         GenericBalance memory new_temp = GenericBalance({
+    //             coinNativeAmount: temp.coinNativeAmount,
+    //             CoinVerified_amount: new uint256[](
+    //                 temp.CoinVerified_amount.length + 1
+    //             ),
+    //             CoinVerified_addr: new address[](
+    //                 temp.CoinVerified_addr.length + 1
+    //             )
+    //         });
+    //         for (uint256 i = 0; i < temp.CoinVerified_addr.length; i++) {
+    //             new_temp.CoinVerified_addr[i] = temp
+    //                 .CoinVerified_addr[i];
+    //             new_temp.CoinVerified_amount[i] = temp
+    //                 .CoinVerified_amount[i];
+    //         }
+    //         new_temp.CoinVerified_addr[
+    //             temp.CoinVerified_addr.length
+    //         ] = tokenaddress;
+    //         new_temp.CoinVerified_amount[
+    //             temp.CoinVerified_amount.length
+    //         ] = amount;
+    //         return new_temp;
+    //     } else return temp;
+    // }
 
     function subToken(
-        GenericBalance storage curTemp,
-        address curTokenaddress,
-        uint256 curAmount
+        GenericBalance storage temp,
+        address tokenAddress,
+        uint256 amount
     ) public {
-        for (uint8 i = 0; i < curTemp.Cw20CoinVerified_addr.length; i++) {
-            if (curTemp.Cw20CoinVerified_addr[i] == curTokenaddress) {
-                curTemp.Cw20CoinVerified_amount[i] -= curAmount;
-            }
-        }
+        temp.balancesByToken[tokenAddress] -= amount;
     }
 
-    function subTokenMem(
-        GenericBalance memory curTemp,
-        address curTokenaddress,
-        uint256 curAmount
-    ) public pure returns (GenericBalance memory) {
-        for (uint8 i = 0; i < curTemp.Cw20CoinVerified_addr.length; i++) {
-            if (curTemp.Cw20CoinVerified_addr[i] == curTokenaddress) {
-                curTemp.Cw20CoinVerified_amount[i] -= curAmount;
-            }
-        }
-        return curTemp;
-    }
+    // function subTokenMem(
+    //     GenericBalance memory temp,
+    //     address tokenaddress,
+    //     uint256 amount
+    // ) public pure returns (GenericBalance memory) {
+    //     for (uint8 i = 0; i < temp.CoinVerified_addr.length; i++) {
+    //         if (temp.CoinVerified_addr[i] == tokenaddress) {
+    //             temp.CoinVerified_amount[i] -= amount;
+    //         }
+    //     }
+    //     return temp;
+    // }
 
-    function splitBalance(
-        uint256[] storage cw20Coin,
-        uint256 splitFactor
-    ) public view returns (uint256[] memory) {
-        uint256[] memory curTemp = new uint256[](cw20Coin.length);
-        for (uint8 i = 0; i < cw20Coin.length; i++) {
-            uint256 result = SafeMath.div(cw20Coin[i], splitFactor);
-            curTemp[i] = result;
-        }
+    // function splitBalance(
+    //     uint256[] storage Coin,
+    //     uint256 splitFactor
+    // ) public view returns (uint256[] memory) {
+    //     uint256[] memory temp = new uint256[](Coin.length);
+    //     for (uint8 i = 0; i < Coin.length; i++) {
+    //         uint256 result = SafeMath.div(Coin[i], splitFactor);
+    //         temp[i] = result;
+    //     }
 
-        return curTemp;
-    }
+    //     return temp;
+    // }
 
     function receiveGenericBalance(
-        address[] storage curReceiveaddr,
-        uint256[] storage curReceiveamount,
-        address[] storage curSenderaddr,
-        uint256[] storage curSenderamount
+        address[] storage receiveaddr,
+        uint256[] storage receiveamount,
+        address[] storage senderaddr,
+        uint256[] storage senderamount
     ) public {
-        uint256 a = curSenderaddr.length;
-        uint256 b = curReceiveaddr.length;
+        uint256 a = senderaddr.length;
+        uint256 b = receiveaddr.length;
 
         for (uint8 i = 0; i < a; i++) {
             bool flag = true;
             for (uint8 j = 0; j < b; j++) {
-                if (curSenderaddr[i] == curReceiveaddr[j]) {
+                if (senderaddr[i] == receiveaddr[j]) {
                     flag = false;
-                    curReceiveamount[j] += curSenderamount[i];
+                    receiveamount[j] += senderamount[i];
                 }
             }
 
             if (flag) {
-                curReceiveaddr.push(curSenderaddr[i]);
-                curReceiveamount.push(curSenderamount[i]);
+                receiveaddr.push(senderaddr[i]);
+                receiveamount.push(senderamount[i]);
             }
         }
     }
 
     function receiveGenericBalanceModified(
-        address[] storage curReceiveaddr,
-        uint256[] storage curReceiveamount,
-        address[] storage curSenderaddr,
-        uint256[] memory curSenderamount
+        address[] storage receiveaddr,
+        uint256[] storage receiveamount,
+        address[] storage senderaddr,
+        uint256[] memory senderamount
     ) public {
-        uint256 a = curSenderaddr.length;
-        uint256 b = curReceiveaddr.length;
+        uint256 a = senderaddr.length;
+        uint256 b = receiveaddr.length;
 
         for (uint8 i = 0; i < a; i++) {
             bool flag = true;
             for (uint8 j = 0; j < b; j++) {
-                if (curSenderaddr[i] == curReceiveaddr[j]) {
+                if (senderaddr[i] == receiveaddr[j]) {
                     flag = false;
-                    curReceiveamount[j] += curSenderamount[i];
+                    receiveamount[j] += senderamount[i];
                 }
             }
 
             if (flag) {
-                curReceiveaddr.push(curSenderaddr[i]);
-                curReceiveamount.push(curSenderamount[i]);
+                receiveaddr.push(senderaddr[i]);
+                receiveamount.push(senderamount[i]);
             }
         }
     }
 
     function deductTokens(
-        address[] memory curAddress,
-        uint256[] memory curAmount,
-        address curDeducttokenfor,
-        uint256 curDeductamount
-    ) public pure returns (uint256[] memory) {
-        for (uint8 i = 0; i < curAddress.length; i++) {
-            if (curAddress[i] == curDeducttokenfor) {
-                require(curAmount[i] > curDeductamount, "Insufficient Funds");
-                curAmount[i] -= curDeductamount;
-            }
-        }
-
-        return curAmount;
+        uint256 amount,
+        uint256 deductamount
+    ) public pure returns (uint256) {
+        require(amount > deductamount, "Insufficient Funds");
+        amount -= deductamount;
+        return amount;
     }
 
     function getTokenAmount(
-        address[] memory curAddress,
-        uint256[] memory curAmount,
-        address curTokenaddress
+        address[] memory addresses,
+        uint256[] memory amounts,
+        address token
     ) public pure returns (uint256) {
         uint256 amount = 0;
-        for (uint8 i = 0; i < curAddress.length; i++) {
-            if (curAddress[i] == curTokenaddress) {
-                amount = curAmount[i];
+        for (uint8 i = 0; i < addresses.length; i++) {
+            if (addresses[i] == token) {
+                amount = amounts[i];
             }
         }
 
         return amount;
     }
 
-    struct AllianceMember {
-        string name;
-        string logo;
-        string website;
-    }
-
-    function genericBalanceDefault()
-        public
-        pure
-        returns (GenericBalance memory)
-    {
-        GenericBalance memory empty;
-        return empty;
-    }
+    // function genericBalanceDefault()
+    //     public
+    //     pure
+    //     returns (GenericBalance memory)
+    // {
+    //     GenericBalance memory empty;
+    //     return empty;
+    // }
 
     struct BalanceInfo {
         GenericBalance locked;
@@ -422,15 +387,14 @@ library AngelCoreStruct {
 
     ///TODO: need to test this same names already declared in other libraries
     struct EndowmentId {
-        uint256 id;
+        uint32 id;
     }
 
     struct IndexFund {
         uint256 id;
         string name;
         string description;
-        uint256[] members;
-        bool rotatingFund; // set a fund as a rotating fund
+        uint32[] members;
         //Fund Specific: over-riding SC level setting to handle a fixed split value
         // Defines the % to split off into liquid account, and if defined overrides all other splits
         uint256 splitToLiquid;
@@ -444,7 +408,8 @@ library AngelCoreStruct {
     }
 
     struct BeneficiaryData {
-        uint256 id;
+        uint32 endowId;
+        uint256 fundId;
         address addr;
     }
 
@@ -461,87 +426,48 @@ library AngelCoreStruct {
     }
 
     function beneficiaryDefault() public pure returns (Beneficiary memory) {
-        Beneficiary memory curTemp = Beneficiary({
+        Beneficiary memory temp = Beneficiary({
             enumData: BeneficiaryEnum.None,
-            data: BeneficiaryData({id: 0, addr: address(0)})
+            data: BeneficiaryData({endowId: 0, fundId: 0, addr: address(0)})
         });
 
-        return curTemp;
+        return temp;
     }
-
-    struct SocialMedialUrls {
-        string facebook;
-        string twitter;
-        string linkedin;
-    }
-
-    struct Profile {
-        string overview;
-        string url;
-        string registrationNumber;
-        string countryOfOrigin;
-        string streetAddress;
-        string contactEmail;
-        SocialMedialUrls socialMediaUrls;
-        uint16 numberOfEmployees;
-        string averageAnnualBudget;
-        string annualRevenue;
-        string charityNavigatorRating;
-    }
-
-    ///CHanges made for registrar contract
 
     struct SplitDetails {
         uint256 max;
         uint256 min;
-        uint256 defaultSplit; // for when a split parameter is not provided
+        uint256 defaultSplit; // for when a user splits are not used
     }
 
     function checkSplits(
-        SplitDetails memory registrarSplits,
+        SplitDetails memory splits,
         uint256 userLocked,
         uint256 userLiquid,
         bool userOverride
     ) public pure returns (uint256, uint256) {
-        // check that the split provided by a non-TCA address meets the default
-        // requirements for splits that is set in the Registrar contract
-        if (
-            userLiquid > registrarSplits.max ||
-            userLiquid < registrarSplits.min ||
-            userOverride == true
-        ) {
-            return (
-                100 - registrarSplits.defaultSplit,
-                registrarSplits.defaultSplit
-            );
+        // check that the split provided by a user meets the endowment's
+        // requirements for splits (set per Endowment)
+        if (userOverride) {
+            // ignore user splits and use the endowment's default split
+            return (100 - splits.defaultSplit, splits.defaultSplit);
+        } else if (userLiquid > splits.max) {
+            // adjust upper range up within the max split threshold
+            return (splits.max, 100 - splits.max);
+        } else if (userLiquid < splits.min) {
+            // adjust lower range up within the min split threshold
+            return (100 - splits.min, splits.min);
         } else {
+            // use the user entered split as is
             return (userLocked, userLiquid);
         }
-    }
-
-    struct AcceptedTokens {
-        address[] cw20;
-    }
-
-    function cw20Valid(
-        address[] memory cw20,
-        address token
-    ) public pure returns (bool) {
-        bool check = false;
-        for (uint8 i = 0; i < cw20.length; i++) {
-            if (cw20[i] == token) {
-                check = true;
-            }
-        }
-
-        return check;
     }
 
     struct NetworkInfo {
         string name;
         uint256 chainId;
         address router; //SHARED
-        address axelerGateway;
+        address axelarGateway;
         string ibcChannel; // Should be removed
         string transferChannel;
         address gasReceiver; // Should be removed
@@ -566,16 +492,16 @@ library AngelCoreStruct {
         None
     }
 
-    struct YieldVault {
-        string addr; // vault's contract address on chain where the Registrar lives/??
-        uint256 network; // Points to key in NetworkConnections storage map
-        address inputDenom; //?
-        address yieldToken; //?
-        bool approved;
-        EndowmentType[] restrictedFrom;
-        AccountType acctType;
-        VaultType vaultType;
-    }
+    // struct YieldVault {
+    //     string addr; // vault's contract address on chain where the Registrar lives/??
+    //     uint256 network; // Points to key in NetworkConnections storage map
+    //     address inputDenom; //?
+    //     address yieldToken; //?
+    //     bool approved;
+    //     EndowmentType[] restrictedFrom;
+    //     AccountType acctType;
+    //     VaultType vaultType;
+    // }
 
     struct Member {
         address addr;
@@ -597,35 +523,6 @@ library AngelCoreStruct {
         DurationData data;
     }
 
-    //TODO: remove if not needed
-    // function durationAfter(Duration memory data)
-    //     public
-    //     view
-    //     returns (Expiration memory)
-    // {
-    //     if (data.enumData == DurationEnum.Height) {
-    //         return
-    //             Expiration({
-    //                 enumData: ExpirationEnum.atHeight,
-    //                 data: ExpirationData({
-    //                     height: block.number + data.data.height,
-    //                     time: 0
-    //                 })
-    //             });
-    //     } else if (data.enumData == DurationEnum.Time) {
-    //         return
-    //             Expiration({
-    //                 enumData: ExpirationEnum.atTime,
-    //                 data: ExpirationData({
-    //                     height: 0,
-    //                     time: block.timestamp + data.data.time
-    //                 })
-    //             });
-    //     } else {
-    //         revert("Duration not configured");
-    //     }
-    // }
-
     enum ExpirationEnum {
         atHeight,
         atTime,
@@ -642,57 +539,42 @@ library AngelCoreStruct {
         ExpirationData data;
     }
 
-    enum CurveTypeEnum {
+    enum veTypeEnum {
         Constant,
         Linear,
         SquarRoot
     }
 
-    //TODO: remove if unused
-    // function getReserveRatio(CurveTypeEnum curCurveType)
-    //     public
-    //     pure
-    //     returns (uint256)
-    // {
-    //     if (curCurveType == CurveTypeEnum.Linear) {
-    //         return 500000;
-    //     } else if (curCurveType == CurveTypeEnum.SquarRoot) {
-    //         return 660000;
-    //     } else {
-    //         return 1000000;
-    //     }
-    // }
-
-    struct CurveTypeData {
+    struct veTypeData {
         uint128 value;
         uint256 scale;
         uint128 slope;
         uint128 power;
     }
 
-    struct CurveType {
-        CurveTypeEnum curve_type;
-        CurveTypeData data;
+    struct veType {
+        veTypeEnum ve_type;
+        veTypeData data;
     }
 
     enum TokenType {
-        ExistingCw20,
-        NewCw20,
-        BondingCurve
+        Existing,
+        New,
+        VeBonding
     }
 
     struct DaoTokenData {
-        address existingCw20Data;
-        uint256 newCw20InitialSupply;
-        string newCw20Name;
-        string newCw20Symbol;
-        CurveType bondingCurveCurveType;
-        string bondingCurveName;
-        string bondingCurveSymbol;
-        uint256 bondingCurveDecimals;
-        address bondingCurveReserveDenom;
-        uint256 bondingCurveReserveDecimals;
-        uint256 bondingCurveUnbondingPeriod;
+        address existingData;
+        uint256 newInitialSupply;
+        string newName;
+        string newSymbol;
+        veType veBondingType;
+        string veBondingName;
+        string veBondingSymbol;
+        uint256 veBondingDecimals;
+        address veBondingReserveDenom;
+        uint256 veBondingReserveDecimals;
+        uint256 veBondingPeriod;
     }
 
     struct DaoToken {
@@ -712,105 +594,56 @@ library AngelCoreStruct {
     }
 
     struct Delegate {
-        address Addr;
+        address addr;
         uint256 expires; // datetime int of delegation expiry
+    }
+    
+    enum DelegateAction {
+        Set,
+        Revoke
     }
 
     function canTakeAction(
-        Delegate storage self,
+        Delegate storage delegate,
         address sender,
         uint256 envTime
     ) public view returns (bool) {
-        if (
-            sender == self.Addr &&
-            (self.expires == 0 || envTime <= self.expires)
-        ) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    struct EndowmentFee {
-        address payoutAddress;
-        uint256 feePercentage;
-        bool active;
-    }
-
-    struct SettingsPermission {
-        bool ownerControlled;
-        bool govControlled;
-        bool modifiableAfterInit;
-        Delegate delegate;
-    }
-
-    function setDelegate(
-        SettingsPermission storage self,
-        address sender,
-        address owner,
-        address gov,
-        address delegateAddr,
-        uint256 delegateExpiry
-    ) public {
-        if (
-            (sender == owner && self.ownerControlled) ||
-            (gov != address(0) && self.govControlled && sender == gov)
-        ) {
-            self.delegate = Delegate({
-                Addr: delegateAddr,
-                expires: delegateExpiry
-            });
-        }
-    }
-
-    function revokeDelegate(
-        SettingsPermission storage self,
-        address sender,
-        address owner,
-        address gov,
-        uint256 envTime
-    ) public {
-        if (
-            (sender == owner && self.ownerControlled) ||
-            (gov != address(0) && self.govControlled && sender == gov) ||
-            (self.delegate.Addr != address(0) &&
-                canTakeAction(self.delegate, sender, envTime))
-        ) {
-            self.delegate = Delegate({Addr: address(0), expires: 0});
-        }
+        return (
+            delegate.addr != address(0) &&
+            sender == delegate.addr &&
+            (delegate.expires == 0 || envTime <= delegate.expires)
+        );
     }
 
     function canChange(
-        SettingsPermission storage self,
+        SettingsPermission storage permissions,
         address sender,
         address owner,
-        address gov,
         uint256 envTime
     ) public view returns (bool) {
-        if (
-            (sender == owner && self.ownerControlled) ||
-            (gov != address(0) && self.govControlled && sender == gov) ||
-            (self.delegate.Addr != address(0) &&
-                canTakeAction(self.delegate, sender, envTime))
-        ) {
-            return self.modifiableAfterInit;
-        }
-        return false;
+        // can be changed if:
+        // 1. sender is a valid delegate address and their powers have not expired
+        // 2. sender is the endow owner && (no set delegate || an expired delegate) (ie. owner must first revoke their delegation)
+        return !permissions.locked || canTakeAction(permissions.delegate, sender, envTime) || sender == owner;
+    }
+
+    struct SettingsPermission {
+        bool locked;
+        Delegate delegate;
     }
 
     struct SettingsController {
-        SettingsPermission endowmentController;
         SettingsPermission strategies;
-        SettingsPermission whitelistedBeneficiaries;
-        SettingsPermission whitelistedContributors;
-        SettingsPermission maturityWhitelist;
+        SettingsPermission lockedInvestmentManagement;
+        SettingsPermission liquidInvestmentManagement;
+        SettingsPermission allowlistedBeneficiaries;
+        SettingsPermission allowlistedContributors;
+        SettingsPermission maturityAllowlist;
         SettingsPermission maturityTime;
-        SettingsPermission profile;
-        SettingsPermission earningsFee;
+        SettingsPermission earlyLockedWithdrawFee;
         SettingsPermission withdrawFee;
         SettingsPermission depositFee;
-        SettingsPermission aumFee;
-        SettingsPermission kycDonorsOnly;
+        SettingsPermission balanceFee;
         SettingsPermission name;
         SettingsPermission image;
         SettingsPermission logo;
@@ -819,106 +652,34 @@ library AngelCoreStruct {
         SettingsPermission ignoreUserSplits;
     }
 
-    function getPermissions(
-        SettingsController storage _tempObject,
-        string memory name
-    ) public view returns (SettingsPermission storage) {
-        if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("endowmentController"))
-        ) {
-            return _tempObject.endowmentController;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("maturityWhitelist"))
-        ) {
-            return _tempObject.maturityWhitelist;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("splitToLiquid"))
-        ) {
-            return _tempObject.splitToLiquid;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("ignoreUserSplits"))
-        ) {
-            return _tempObject.ignoreUserSplits;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("strategies"))
-        ) {
-            return _tempObject.strategies;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("whitelistedBeneficiaries"))
-        ) {
-            return _tempObject.whitelistedBeneficiaries;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("whitelistedContributors"))
-        ) {
-            return _tempObject.whitelistedContributors;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("maturityTime"))
-        ) {
-            return _tempObject.maturityTime;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("profile"))
-        ) {
-            return _tempObject.profile;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("earningsFee"))
-        ) {
-            return _tempObject.earningsFee;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("withdrawFee"))
-        ) {
-            return _tempObject.withdrawFee;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("depositFee"))
-        ) {
-            return _tempObject.depositFee;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("aumFee"))
-        ) {
-            return _tempObject.aumFee;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("kycDonorsOnly"))
-        ) {
-            return _tempObject.kycDonorsOnly;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("name"))
-        ) {
-            return _tempObject.name;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("image"))
-        ) {
-            return _tempObject.image;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("logo"))
-        ) {
-            return _tempObject.logo;
-        } else if (
-            keccak256(abi.encodePacked(name)) ==
-            keccak256(abi.encodePacked("categories"))
-        ) {
-            return _tempObject.categories;
-        } else {
-            revert("InvalidInputs");
-        }
+    enum ControllerSettingOption {
+        Strategies,
+        lockedInvestmentManagement,
+        liquidInvestmentManagement,
+        AllowlistedBeneficiaries,
+        AllowlistedContributors,
+        MaturityAllowlist,
+        EarlyLockedWithdrawFee,
+        MaturityTime,
+        WithdrawFee,
+        DepositFee,
+        BalanceFee,
+        Name,
+        Image,
+        Logo,
+        Categories,
+        SplitToLiquid,
+        IgnoreUserSplits
     }
 
-    // None at the start as pending starts at 1 in ap rust contracts (in cw3 core)
+    struct EndowmentFee {
+        address payoutAddress;
+        uint256 percentage;
+    }
+
+    uint256 constant FEE_BASIS = 1000;      // gives 0.1% precision for fees
+    uint256 constant PERCENT_BASIS = 100;   // gives 1% precision for declared percentages
+
     enum Status {
         None,
         Pending,
@@ -933,4 +694,4 @@ library AngelCoreStruct {
         Abstain,
         Veto
     }
-}
+}   

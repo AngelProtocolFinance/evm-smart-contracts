@@ -1,4 +1,4 @@
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
+
 import { expect } from "chai"
 import { ethers, upgrades } from "hardhat"
 import {
@@ -10,61 +10,62 @@ import {
     DummyGateway__factory,
     DummyVault,
     DummyVault__factory,
-    Registrar,
-    Registrar__factory,
+    LocalRegistrar,
+    LocalRegistrar__factory,
     Router,
     Router__factory,
 } from "typechain-types"
+import { LocalRegistrarLib } from "../typechain-types/contracts/core/registrar/LocalRegistrar";
 import { ArrayToVaultActionStruct, IRouter, StrategyApprovalState, VaultActionStructToArray } from "utils"
 
 describe("Router", function () {
-    let owner: SignerWithAddress
-    let user: SignerWithAddress
-    let collector: SignerWithAddress
-    let Router: Router__factory
-    let Registrar: Registrar__factory
-    let defaultApParams = {
-        protocolTaxRate: 2,
-        protocolTaxBasis: 100,
-        protocolTaxCollector: ethers.constants.AddressZero,
-        routerAddr: ethers.constants.AddressZero,
-        refundAddr: ethers.constants.AddressZero,
-    } as IRegistrar.AngelProtocolParamsStruct
-    let deadAddr = "0x000000000000000000000000000000000000dead"
-    const originatingChain = "polygon"
-    const localChain = "ethereum"
-    const accountsContract = deadAddr
-    let localAccountsContract
+  let owner: SignerWithAddress
+  let user: SignerWithAddress
+  let collector: SignerWithAddress
+  let Router: Router__factory
+  let Registrar: LocalRegistrar__factory
+  let defaultApParams = {
+    "protocolTaxRate" :2,
+    "protocolTaxBasis" : 100,
+    "protocolTaxCollector" : ethers.constants.AddressZero,
+    "routerAddr" : ethers.constants.AddressZero,
+    "refundAddr" : ethers.constants.AddressZero
+  } as LocalRegistrarLib.AngelProtocolParamsStruct
+  let deadAddr = "0x000000000000000000000000000000000000dead"
+  const originatingChain = "polygon"
+  const localChain = "ethereum" 
+  const accountsContract = deadAddr
+  let localAccountsContract
 
-    async function deployRouterAsProxy(
-        gatewayAddress: string = "0xe432150cce91c13a887f7D836923d5597adD8E31",
-        gasRecvAddress: string = "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
-        registrar?: Registrar
-    ): Promise<Router> {
-        ;[owner, user, collector] = await ethers.getSigners()
-        let apParams = defaultApParams
-        apParams.refundAddr = collector.address
-        if (!registrar) {
-            registrar = await deployRegistrarAsProxy()
-        }
-        await registrar.setAngelProtocolParams(apParams)
-        Router = (await ethers.getContractFactory("Router")) as Router__factory
-        const router = (await upgrades.deployProxy(Router, [
-            localChain,
-            gatewayAddress,
-            gasRecvAddress,
-            registrar.address,
-        ])) as Router
-        await router.deployed()
-        return router
+  async function deployRouterAsProxy(
+    gatewayAddress: string = "0xe432150cce91c13a887f7D836923d5597adD8E31", 
+    gasRecvAddress: string = "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
+    registrar?: LocalRegistrar): 
+  Promise<Router> {
+    [owner, user, collector] = await ethers.getSigners();
+    let apParams = defaultApParams
+    apParams.refundAddr = collector.address
+    if (!registrar) {
+      registrar = await deployRegistrarAsProxy()
     }
+    await registrar.setAngelProtocolParams(apParams)
+    Router = await ethers.getContractFactory("Router") as Router__factory
+    const router = await upgrades.deployProxy(Router, [
+      localChain,
+      gatewayAddress,
+      gasRecvAddress,
+      registrar.address
+    ]) as Router
+    await router.deployed()
+    return router 
+  }
 
-    async function deployRegistrarAsProxy(): Promise<Registrar> {
-        Registrar = (await ethers.getContractFactory("Registrar")) as Registrar__factory
-        const registrar = (await upgrades.deployProxy(Registrar)) as Registrar
-        await registrar.deployed()
-        return registrar
-    }
+  async function deployRegistrarAsProxy(): Promise<LocalRegistrar> {
+    Registrar = await ethers.getContractFactory("LocalRegistrar") as LocalRegistrar__factory
+    const registrar = await upgrades.deployProxy(Registrar) as LocalRegistrar
+    await registrar.deployed();
+    return registrar
+  }
 
     async function deployDummyVault(vaultType: number = 1): Promise<DummyVault> {
         let Vault = (await ethers.getContractFactory("DummyVault")) as DummyVault__factory
@@ -143,29 +144,29 @@ describe("Router", function () {
         })
     })
 
-    describe("Protected methods", function () {
-        let lockedVault: DummyVault
-        let liquidVault: DummyVault
-        let registrar: Registrar
-        let gateway: DummyGateway
-        let token: DummyERC20
-        let router: Router
-        let gasService: DummyGasService
-        before(async function () {
-            gateway = await deployDummyGateway()
-            lockedVault = await deployDummyVault(0)
-            liquidVault = await deployDummyVault(1)
-            gasService = await deployDummyGasService()
-            token = await deployDummyERC20()
-            registrar = await deployRegistrarAsProxy()
-            await gateway.setTestTokenAddress(token.address)
-            await registrar.setTokenAccepted(token.address, true)
-            await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract)
-            await registrar.setAccountsContractAddressByChain(localChain, owner.address)
-        })
-        beforeEach(async function () {
-            router = await deployRouterAsProxy(gateway.address, gasService.address, registrar)
-        })
+  describe("Protected methods", function () {
+    let lockedVault: DummyVault
+    let liquidVault: DummyVault
+    let registrar: LocalRegistrar
+    let gateway: DummyGateway
+    let token: DummyERC20
+    let router: Router
+    let gasService: DummyGasService
+    before(async function () {
+      gateway = await deployDummyGateway() 
+      lockedVault = await deployDummyVault(0)
+      liquidVault = await deployDummyVault(1)
+      gasService = await deployDummyGasService()
+      token = await deployDummyERC20()
+      registrar = await deployRegistrarAsProxy()
+      await gateway.setTestTokenAddress(token.address)
+      await registrar.setTokenAccepted(token.address, true)
+      await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract)
+      await registrar.setAccountsContractAddressByChain(localChain, owner.address) 
+    })
+    beforeEach(async function () {
+      router = await deployRouterAsProxy(gateway.address, gasService.address, registrar)
+    })
 
         it("Does not allow a non-accounts contract address on another chain to call executeWithToken via GMP", async function () {
             await expect(
@@ -236,24 +237,23 @@ describe("Router", function () {
         })
     })
 
-    describe("Correctly triggers the refund process on failed Deposit", function () {
-        let lockedVault: DummyVault
-        let liquidVault: DummyVault
-        let registrar: Registrar
-        let gateway: DummyGateway
-        let token: DummyERC20
-        let router: Router
-        let gasService: DummyGasService
-        const getDefaultActionData = () =>
-            ({
-                destinationChain: originatingChain,
-                strategyId: "0xffffffff",
-                selector: "",
-                accountIds: [1],
-                token: "",
-                lockAmt: 111,
-                liqAmt: 222,
-            } as IRouter.VaultActionDataStruct)
+  describe("Correctly triggers the refund process on failed Deposit", function () {
+    let lockedVault: DummyVault
+    let liquidVault: DummyVault
+    let registrar: LocalRegistrar
+    let gateway: DummyGateway
+    let token: DummyERC20
+    let router: Router
+    let gasService: DummyGasService
+    const getDefaultActionData = () => ({
+      destinationChain: originatingChain,
+      strategyId: "0xffffffff",
+      selector: "",
+      accountIds: [1],
+      token: "",
+      lockAmt: 111,
+      liqAmt: 222
+    }) as IRouter.VaultActionDataStruct
 
         describe("and the refund call is successful back through axelar", function () {
             before(async function () {
@@ -643,23 +643,23 @@ describe("Router", function () {
         })
     })
 
-    describe("Routes messages according to payload instructions", function () {
-        let lockedVault: DummyVault
-        let liquidVault: DummyVault
-        let registrar: Registrar
-        let gateway: DummyGateway
-        let gasService: DummyGasService
-        let token: DummyERC20
-        let router: Router
-        let actionData = {
-            destinationChain: originatingChain,
-            strategyId: "0xffffffff",
-            selector: "",
-            accountIds: [1],
-            token: "",
-            lockAmt: 111,
-            liqAmt: 222,
-        } as IRouter.VaultActionDataStruct
+  describe("Routes messages according to payload instructions", function () {
+    let lockedVault: DummyVault
+    let liquidVault: DummyVault
+    let registrar: LocalRegistrar
+    let gateway: DummyGateway
+    let gasService: DummyGasService
+    let token: DummyERC20
+    let router: Router
+    let actionData = {
+      destinationChain: originatingChain,
+      strategyId: "0xffffffff",
+      selector: "",
+      accountIds: [1],
+      token: "",
+      lockAmt: 111,
+      liqAmt: 222
+    } as IRouter.VaultActionDataStruct
 
         before(async function () {
             lockedVault = await deployDummyVault(0)
@@ -764,23 +764,23 @@ describe("Router", function () {
         })
     })
 
-    describe("Deposit", function () {
-        let lockedVault: DummyVault
-        let liquidVault: DummyVault
-        let registrar: Registrar
-        let gateway: DummyGateway
-        let gasService: DummyGasService
-        let token: DummyERC20
-        let router: Router
-        let actionData = {
-            destinationChain: originatingChain,
-            strategyId: "0xffffffff",
-            selector: "",
-            accountIds: [1],
-            token: "",
-            lockAmt: 111,
-            liqAmt: 222,
-        } as IRouter.VaultActionDataStruct
+  describe("Deposit", function () {
+    let lockedVault: DummyVault
+    let liquidVault: DummyVault
+    let registrar: LocalRegistrar
+    let gateway: DummyGateway
+    let gasService: DummyGasService
+    let token: DummyERC20
+    let router: Router
+    let actionData = {
+      destinationChain: originatingChain,
+      strategyId: "0xffffffff",
+      selector: "",
+      accountIds: [1],
+      token: "",
+      lockAmt: 111,
+      liqAmt: 222
+    } as IRouter.VaultActionDataStruct
 
         before(async function () {
             lockedVault = await deployDummyVault(0)
@@ -825,23 +825,23 @@ describe("Router", function () {
         })
     })
 
-    describe("Redeem", function () {
-        let lockedVault: DummyVault
-        let liquidVault: DummyVault
-        let registrar: Registrar
-        let gateway: DummyGateway
-        let gasService: DummyGasService
-        let token: DummyERC20
-        let router: Router
-        let actionData = {
-            destinationChain: originatingChain,
-            strategyId: "0xffffffff",
-            selector: "",
-            accountIds: [1],
-            token: "",
-            lockAmt: 111,
-            liqAmt: 222,
-        } as IRouter.VaultActionDataStruct
+  describe("Redeem", function () {
+    let lockedVault: DummyVault
+    let liquidVault: DummyVault
+    let registrar: LocalRegistrar
+    let gateway: DummyGateway
+    let gasService: DummyGasService
+    let token: DummyERC20
+    let router: Router
+    let actionData = {
+      destinationChain: originatingChain,
+      strategyId: "0xffffffff",
+      selector: "",
+      accountIds: [1],
+      token: "",
+      lockAmt: 111,
+      liqAmt: 222
+    } as IRouter.VaultActionDataStruct
 
         before(async function () {
             lockedVault = await deployDummyVault(0)
@@ -960,23 +960,23 @@ describe("Router", function () {
         // })
     })
 
-    describe("RedeemAll", function () {
-        let lockedVault: DummyVault
-        let liquidVault: DummyVault
-        let registrar: Registrar
-        let gateway: DummyGateway
-        let gasService: DummyGasService
-        let token: DummyERC20
-        let router: Router
-        let actionData = {
-            destinationChain: originatingChain,
-            strategyId: "0xffffffff",
-            selector: "",
-            accountIds: [1],
-            token: "",
-            lockAmt: 111,
-            liqAmt: 222,
-        } as IRouter.VaultActionDataStruct
+  describe("RedeemAll", function () {
+    let lockedVault: DummyVault
+    let liquidVault: DummyVault
+    let registrar: LocalRegistrar
+    let gateway: DummyGateway
+    let gasService: DummyGasService
+    let token: DummyERC20
+    let router: Router
+    let actionData = {
+      destinationChain: originatingChain,
+      strategyId: "0xffffffff",
+      selector: "",
+      accountIds: [1],
+      token: "",
+      lockAmt: 111,
+      liqAmt: 222
+    } as IRouter.VaultActionDataStruct
 
         before(async function () {
             lockedVault = await deployDummyVault(0)

@@ -27,7 +27,6 @@ export declare namespace AngelCoreStruct {
     name: PromiseOrValue<string>;
     description: PromiseOrValue<string>;
     members: PromiseOrValue<BigNumberish>[];
-    rotatingFund: PromiseOrValue<boolean>;
     splitToLiquid: PromiseOrValue<BigNumberish>;
     expiryTime: PromiseOrValue<BigNumberish>;
     expiryHeight: PromiseOrValue<BigNumberish>;
@@ -37,8 +36,7 @@ export declare namespace AngelCoreStruct {
     BigNumber,
     string,
     string,
-    BigNumber[],
-    boolean,
+    number[],
     BigNumber,
     BigNumber,
     BigNumber
@@ -46,8 +44,7 @@ export declare namespace AngelCoreStruct {
     id: BigNumber;
     name: string;
     description: string;
-    members: BigNumber[];
-    rotatingFund: boolean;
+    members: number[];
     splitToLiquid: BigNumber;
     expiryTime: BigNumber;
     expiryHeight: BigNumber;

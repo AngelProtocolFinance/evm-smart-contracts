@@ -210,7 +210,7 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "curInterestRate",
+        name: "interestRate",
         type: "uint256",
       },
     ],

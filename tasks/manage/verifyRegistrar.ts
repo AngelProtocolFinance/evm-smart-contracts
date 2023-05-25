@@ -1,8 +1,7 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { task } from "hardhat/config"
-import addresses from "contract-address.json"
 import { Registrar } from "typechain-types"
-import { AccountMessages } from "typechain-types/contracts/core/accounts/IAccounts"
+import { getAddresses, logger } from "utils"
 
 task("manage:verifyRegistrar", "Will create a new charity endowment").setAction(
     async (_taskArguments, hre) => {
@@ -14,20 +13,22 @@ task("manage:verifyRegistrar", "Will create a new charity endowment").setAction(
             [deployer, apTeam1, apTeam2, apTeam3] =
                 await hre.ethers.getSigners()
 
+            const addresses = await getAddresses(hre)
+
             let registrar = await hre.ethers.getContractAt(
                                         "Registrar",
-                                        addresses.registrar.registrarProxy) as Registrar
+                                        addresses.registrar.proxy) as Registrar
 
             let registrarConfig = await registrar.queryConfig()
-            console.log("Registrar owner:", registrarConfig.owner)
+            logger.out(`Registrar owner: ${registrarConfig.owner}`)
             
             await hre.run("verify:verify", {
-                address: addresses.registrar.registrarImplementation,
+                address: addresses.registrar.implementation,
                 constructorArguments: [],
             })
             
         } catch (error) {
-            console.log(error)
+            logger.out(error, logger.Level.Error)
         }
     }
 )

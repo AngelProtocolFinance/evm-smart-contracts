@@ -1,8 +1,8 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { BytesLike } from "ethers"
 import { task } from "hardhat/config"
-import addresses from "contract-address.json"
 import { IndexFund, MultiSigGeneric } from "typechain-types"
+import { getAddresses, logger } from "utils"
 
 task("manage:createIndexFund", "Will create a new index fund").setAction(
     async (_taskArguments, hre) => {
@@ -14,14 +14,16 @@ task("manage:createIndexFund", "Will create a new index fund").setAction(
             ;[deployer, apTeam1, apTeam2, apTeam3] =
                 await hre.ethers.getSigners()
 
+            const addresses = await getAddresses(hre)
+
             const multisig = (await hre.ethers.getContractAt(
                 "MultiSigGeneric",
-                addresses.multiSig.APTeamMultiSigProxy
+                addresses.multiSig.apTeam.proxy
             )) as MultiSigGeneric
 
             const indexfund = (await hre.ethers.getContractAt(
                 "IndexFund",
-                addresses.indexFundAddress.indexFundProxy
+                addresses.indexFund.proxy
             )) as IndexFund
 
             const { data } =
@@ -43,24 +45,25 @@ task("manage:createIndexFund", "Will create a new index fund").setAction(
                     "create a new index fund",
                     indexfund.address,
                     0,
-                    txData
+                    txData,
+                    "0x"
                 )
             await hre.ethers.provider.waitForTransaction(submission.hash)
 
             let txId = (await multisig.transactionCount()).sub(1)
             let confirmations = await multisig.getConfirmations(txId)
-            console.log(confirmations)
+            logger.out(confirmations)
 
             let execution = await multisig
                 .connect(apTeam2)
                 .executeTransaction(txId)
             await hre.ethers.provider.waitForTransaction(execution.hash)
-            console.log(execution)
+            logger.out(execution)
 
             let txDetails = await multisig.transactions(txId)
-            console.log(txDetails)
+            logger.out(txDetails)
         } catch (error) {
-            console.log(error)
+            logger.out(error, logger.Level.Error)
         }
     }
 )

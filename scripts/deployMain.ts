@@ -5,26 +5,23 @@ import { deployDiamond } from "contracts/core/accounts/scripts/deploy"
 import { deployIndexFund } from "contracts/core/index-fund/scripts/deploy"
 import { deployRegistrar } from "contracts/core/registrar/scripts/deploy"
 import { deploySwapRouter } from "contracts/core/swap-router/scripts/deploy"
-import { deployHaloImplementation } from "contracts/halo/scripts/deploy"
+// import { deployHaloImplementation } from "contracts/halo/scripts/deploy"
 import { charityApplications } from "contracts/multisigs/charity_applications/scripts/deploy"
 import { deployMultisig } from "contracts/multisigs/scripts/deploy"
 import { deployEndowmentMultiSig } from "contracts/normalized_endowment/endowment-multisig/scripts/deploy"
 import { deployImplementation } from "contracts/normalized_endowment/scripts/deployImplementation"
-
-import hre from "hardhat"
-import config from "config"
-import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
-import { giftCard } from "contracts/accessory/gift-cards/scripts/deploy"
+// import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
 import { deployEmitters } from "contracts/normalized_endowment/scripts/deployEmitter"
+
+import config from "config"
+import hre from "hardhat"
 
 var ANGEL_CORE_STRUCT: Contract
 var STRING_LIBRARY: Contract
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000"
 var REGISTRAR_ADDRESS
-var deployer
-var proxyAdmin
 
-let updateConfig
+let updateConfig: RegistrarMessages.UpdateConfigRequestStruct
 
 interface AddressWriter {
     [key: string]: string | AddressWriter
@@ -34,19 +31,19 @@ let addressWriter: AddressWriter = {}
 import { Contract } from "ethers"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import { APTeamMultiSig, ApplicationsMultiSig } from "typechain-types"
-import { cleanFile, saveFrontendFiles } from "./readWriteFile"
+import { cleanAddresses, isLocalNetwork, updateAddresses } from "utils"
+import { RegistrarMessages } from "typechain-types/contracts/core/registrar/interfaces/IRegistrar"
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 
-async function deployLibraries(verify_contracts: boolean, hre: HardhatRuntimeEnvironment) {
+async function deployLibraries(verify_contracts: boolean, signer: SignerWithAddress, hre: HardhatRuntimeEnvironment) {
     try {
-        await cleanFile()
-
         const { ethers, run, network } = hre
 
-        const angel_core_struct = await ethers.getContractFactory("AngelCoreStruct")
+        const angel_core_struct = await ethers.getContractFactory("AngelCoreStruct", signer)
         ANGEL_CORE_STRUCT = await angel_core_struct.deploy()
         await ANGEL_CORE_STRUCT.deployed()
 
-        const string_library = await ethers.getContractFactory("StringArray")
+        const string_library = await ethers.getContractFactory("StringArray", signer)
         STRING_LIBRARY = await string_library.deploy()
         await STRING_LIBRARY.deployed()
 
@@ -55,12 +52,15 @@ async function deployLibraries(verify_contracts: boolean, hre: HardhatRuntimeEnv
             "ANGEL_CORE_STRUCT_LIBRARY Deployed at ": ANGEL_CORE_STRUCT.address,
         })
 
-        let libraries = {
-            STRING_LIBRARY: STRING_LIBRARY.address,
-            ANGEL_CORE_STRUCT_LIBRARY: ANGEL_CORE_STRUCT.address,
-        }
-
-        await saveFrontendFiles({ libraries })
+        await updateAddresses(
+            {
+                libraries: {
+                    STRING_LIBRARY: STRING_LIBRARY.address,
+                    ANGEL_CORE_STRUCT_LIBRARY: ANGEL_CORE_STRUCT.address,
+                }
+            },
+            hre
+        );
 
         if (network.name !== "hardhat" && verify_contracts) {
             await run(`verify:verify`, {
@@ -84,33 +84,36 @@ export async function main(apTeamAdmins = []) {
     try {
         const { run, network, ethers } = hre
 
-        const verify_contracts = network.name !== "hardhat" && network.name !== "localhost"
+		await cleanAddresses(hre);
+
+        // const verify_contracts = network.name !== "hardhat" && network.name !== "localhost"
+        const verify_contracts = false 
 
         var Admins = config.AP_TEAM_MULTISIG_DATA.admins
         if (apTeamAdmins.length != 0) Admins = apTeamAdmins
 
-        ;[deployer, proxyAdmin] = await ethers.getSigners()
-        console.log("Deploying the contracts with the account:", await deployer.getAddress())
+        const [_, proxyAdmin] = await ethers.getSigners()
+        console.log("Deploying the contracts with the account:", await proxyAdmin.getAddress())
 
         // Mock setup required for testing
         let mockUSDC: Contract | undefined
-        if (network.name === "hardhat") {
-            const MockUSDC = await ethers.getContractFactory("MockUSDC")
+        if (isLocalNetwork(network)) {
+            const MockUSDC = await ethers.getContractFactory("MockUSDC", proxyAdmin)
             mockUSDC = await MockUSDC.deploy("USDC", "USDC", 100)
             await mockUSDC.deployed()
             config.REGISTRAR_DATA.acceptedTokens.cw20 = [mockUSDC.address]
             config.REGISTRAR_UPDATE_CONFIG.usdcAddress = mockUSDC.address
             config.DONATION_MATCH_CHARITY_DATA.usdcAddress = mockUSDC.address
 
-            let tx = await mockUSDC.mint(deployer.address, ethers.utils.parseEther("10000000000000000000000"))
+            let tx = await mockUSDC.mint(proxyAdmin.address, ethers.utils.parseEther("10000000000000000000000"))
             await tx.wait()
 
-            console.log("given deployer USDC")
+            console.log("given proxyAdmin USDC")
 
             console.log("USDC Mock Address", mockUSDC.address)
         }
 
-        await deployLibraries(verify_contracts, hre)
+        await deployLibraries(verify_contracts, proxyAdmin, hre)
 
         const registrarData = {
             treasury: config.REGISTRAR_DATA.treasury,
@@ -119,7 +122,8 @@ export async function main(apTeamAdmins = []) {
             splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
             acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
             router: config.REGISTRAR_DATA.router,
-            axelerGateway: config.REGISTRAR_DATA.axelerGateway,
+            axelarGateway: config.REGISTRAR_DATA.axelarGateway,
+            axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv
         }
 
         REGISTRAR_ADDRESS = await deployRegistrar(STRING_LIBRARY.address, registrarData, verify_contracts, hre)
@@ -141,7 +145,7 @@ export async function main(apTeamAdmins = []) {
             multisigAddress.APTeamMultiSig,
             REGISTRAR_ADDRESS,
             ANGEL_CORE_STRUCT.address,
-            STRING_LIBRARY.address,
+            STRING_LIBRARY.address, 
             hre,
             verify_contracts
         )
@@ -195,138 +199,134 @@ export async function main(apTeamAdmins = []) {
 
         console.log("multisigDat contract deployed at:-", multisigDat)
 
-        const lockedWithdrawalData = [
-            REGISTRAR_ADDRESS,
-            ACCOUNT_ADDRESS,
-            multisigAddress.APTeamMultiSig,
-            multisigDat.MultiSigWalletFactory,
-        ]
-
         // console.log('implementations deployed at:', implementations);
 
-        let GiftCardDataInput = {
-            keeper: multisigAddress.APTeamMultiSig,
-            registrarContract: REGISTRAR_ADDRESS,
-        }
+        // let GiftCardDataInput = {
+        //     keeper: multisigAddress.APTeamMultiSig,
+        //     registrarContract: REGISTRAR_ADDRESS,
+        // }
 
-        let giftCardAddress = await giftCard(GiftCardDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre)
+        // let giftCardAddress = await giftCard(GiftCardDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre)
 
-        let FundraisingDataInput = {
-            registrarContract: REGISTRAR_ADDRESS,
-            nextId: config.FundraisingDataInput.nextId,
-            campaignPeriodSeconds: config.FundraisingDataInput.campaignPeriodSeconds,
-            taxRate: config.FundraisingDataInput.taxRate,
-            acceptedTokens: config.FundraisingDataInput.acceptedTokens,
-        }
-        let fundraisingAddress = await deployFundraising(
-            FundraisingDataInput,
-            ANGEL_CORE_STRUCT.address,
-            verify_contracts,
-            hre
-        )
+        // let FundraisingDataInput = {
+        //     registrarContract: REGISTRAR_ADDRESS,
+        //     nextId: config.FundraisingDataInput.nextId,
+        //     campaignPeriodSeconds: config.FundraisingDataInput.campaignPeriodSeconds,
+        //     taxRate: config.FundraisingDataInput.taxRate,
+        //     acceptedTokens: config.FundraisingDataInput.acceptedTokens,
+        // }
+        // let fundraisingAddress = await deployFundraising(
+        //     FundraisingDataInput,
+        //     ANGEL_CORE_STRUCT.address,
+        //     verify_contracts,
+        //     hre
+        // )
 
-        var haloAddress = await deployHaloImplementation(SWAP_ROUTER, verify_contracts, hre)
+        // TODO: 
+        // UNCOMMENT WHEN HALO CONTRACTS ARE READY FOR DEPLOYMENT
+        //
+        // var haloAddress = await deployHaloImplementation(SWAP_ROUTER, verify_contracts, hre)
 
-        addressWriter.haloAddress = haloAddress
+        // addressWriter.haloAddress = haloAddress
 
-        const haloToken = await ethers.getContractAt("ERC20", haloAddress.Halo)
+        // const haloToken = await ethers.getContractAt("ERC20", haloAddress.Halo)
 
-        console.log("halo token deployed at: ", haloToken.address)
+        // console.log("halo token deployed at: ", haloToken.address)
 
-        console.log("halo token balance: ", await haloToken.balanceOf(deployer.address))
+        // console.log("halo token balance: ", await haloToken.balanceOf(proxyAdmin.address))
 
-        if (network.name === "hardhat") {
-            // if network is 'hardhat' then mockUSDC should always be initialized
-            // but TS forces us to confirm this is the case
-            mockUSDC = mockUSDC!
+        // if (isLocalNetwork(network)) {
+        //     // if network is 'hardhat' then mockUSDC should always be initialized
+        //     // but TS forces us to confirm this is the case
+        //     mockUSDC = mockUSDC!
 
-            let UniswapUtils = await ethers.getContractFactory("UniswapUtils")
-            let uniswap_utils = await UniswapUtils.deploy()
-            await uniswap_utils.deployed()
+        //     let UniswapUtils = await ethers.getContractFactory("UniswapUtils")
+        //     let uniswap_utils = await UniswapUtils.deploy()
+        //     await uniswap_utils.deployed()
 
-            // create a uniswap pool for HALO and USDC
-            console.log("halo", haloToken.address.toString())
-            console.log("usdc", mockUSDC.address.toString())
-            let sqrtPrice = "79228162514264334008320"
-            if (mockUSDC.address < haloToken.address.toString()) {
-                sqrtPrice = "79228162514264337593543950336000000"
-            }
-            const createUniswapPoolParams = {
-                projectToken: haloToken.address,
-                usdcToken: mockUSDC.address,
-                uniswapFee: 3000,
-                amountA: ethers.utils.parseEther("100000000"),
-                amountB: ethers.utils.parseUnits("100000000", 6),
-                sqrtPriceX96: sqrtPrice,
-                tickLower: "-598680",
-                tickUpper: "506580",
-            }
-            haloToken.approve(uniswap_utils.address, ethers.utils.parseEther("100000000"))
-            mockUSDC.approve(uniswap_utils.address, ethers.utils.parseUnits("100000000", 6))
-            await uniswap_utils.createPoolAndMintPositionErC20(createUniswapPoolParams)
+        //     // create a uniswap pool for HALO and USDC
+        //     console.log("halo", haloToken.address.toString())
+        //     console.log("usdc", mockUSDC.address.toString())
+        //     let sqrtPrice = "79228162514264334008320"
+        //     if (mockUSDC.address < haloToken.address.toString()) {
+        //         sqrtPrice = "79228162514264337593543950336000000"
+        //     }
+        //     const createUniswapPoolParams = {
+        //         projectToken: haloToken.address,
+        //         usdcToken: mockUSDC.address,
+        //         uniswapFee: 3000,
+        //         amountA: ethers.utils.parseEther("100000000"),
+        //         amountB: ethers.utils.parseUnits("100000000", 6),
+        //         sqrtPriceX96: sqrtPrice,
+        //         tickLower: "-598680",
+        //         tickUpper: "506580",
+        //     }
+        //     haloToken.approve(uniswap_utils.address, ethers.utils.parseEther("100000000"))
+        //     mockUSDC.approve(uniswap_utils.address, ethers.utils.parseUnits("100000000", 6))
+        //     await uniswap_utils.createPoolAndMintPositionErC20(createUniswapPoolParams)
 
-            console.log("Created HALO pool")
+        //     console.log("Created HALO pool")
 
-            // create a uniswap pool for WETH and USDC
-            console.log("WETH address: ", config.REGISTRAR_UPDATE_CONFIG.wethAddress)
-            console.log("USDC address: ", mockUSDC.address.toString())
+        //     // create a uniswap pool for WETH and USDC
+        //     console.log("WETH address: ", config.REGISTRAR_UPDATE_CONFIG.wethAddress)
+        //     console.log("USDC address: ", mockUSDC.address.toString())
 
-            sqrtPrice = "79228162514264334008320"
-            if (mockUSDC.address < config.REGISTRAR_UPDATE_CONFIG.wethAddress) {
-                sqrtPrice = "79228162514264337593543950336000000"
-            }
-            const createUniswapPoolParams2 = {
-                tokenA: mockUSDC.address,
-                tokenB: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
-                uniswapFee: 3000,
-                amountA: ethers.utils.parseUnits("1000", 6),
-                sqrtPriceX96: sqrtPrice,
-                tickLower: "-598680",
-                tickUpper: "506580",
-            }
-            mockUSDC.approve(uniswap_utils.address, ethers.utils.parseUnits("1000", 6))
-            await uniswap_utils.createPoolAndMintPosition(createUniswapPoolParams2, {
-                value: ethers.utils.parseEther("1000"),
-            })
+        //     sqrtPrice = "79228162514264334008320"
+        //     if (mockUSDC.address < config.REGISTRAR_UPDATE_CONFIG.wethAddress) {
+        //         sqrtPrice = "79228162514264337593543950336000000"
+        //     }
+        //     const createUniswapPoolParams2 = {
+        //         tokenA: mockUSDC.address,
+        //         tokenB: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
+        //         uniswapFee: 3000,
+        //         amountA: ethers.utils.parseUnits("1000", 6),
+        //         sqrtPriceX96: sqrtPrice,
+        //         tickLower: "-598680",
+        //         tickUpper: "506580",
+        //     }
+        //     mockUSDC.approve(uniswap_utils.address, ethers.utils.parseUnits("1000", 6))
+        //     await uniswap_utils.createPoolAndMintPosition(createUniswapPoolParams2, {
+        //         value: ethers.utils.parseEther("1000"),
+        //     })
 
-            console.log("Created WETH pool")
+        //     console.log("Created WETH pool")
 
-            // deploy DAI
-            const DAI = await ethers.getContractFactory("MockERC20")
-            const dai = await DAI.deploy("DAI", "DAI", "1000000000")
-            await dai.deployed()
-            config.REGISTRAR_UPDATE_CONFIG.DAI_address = dai.address
-            config.DONATION_MATCH_CHARITY_DATA.DAI_address = dai.address
-            config.REGISTRAR_DATA.acceptedTokens.cw20.push(dai.address)
+        //     // deploy DAI
+        //     const DAI = await ethers.getContractFactory("MockERC20")
+        //     const dai = await DAI.deploy("DAI", "DAI", "1000000000")
+        //     await dai.deployed()
+        //     config.REGISTRAR_UPDATE_CONFIG.DAI_address = dai.address
+        //     config.DONATION_MATCH_CHARITY_DATA.DAI_address = dai.address
+        //     config.REGISTRAR_DATA.acceptedTokens.cw20.push(dai.address)
 
-            // mint DAI
-            await dai.mint(deployer.address, ethers.utils.parseEther("100000000"))
+        //     // mint DAI
+        //     await dai.mint(proxyAdmin.address, ethers.utils.parseEther("100000000"))
 
-            console.log(dai.address)
+        //     console.log(dai.address)
 
-            // create a uniswap pool for DAI and USDC
-            sqrtPrice = "79228162514264334008320"
-            if (mockUSDC.address < dai.address.toString()) {
-                sqrtPrice = "79228162514264337593543950336000000"
-            }
-            const createUniswapPoolParams3 = {
-                projectToken: dai.address,
-                usdcToken: mockUSDC.address,
-                uniswapFee: 3000,
-                amountA: ethers.utils.parseEther("100000000"),
-                amountB: ethers.utils.parseUnits("100000000", 6),
-                sqrtPriceX96: sqrtPrice,
-                tickLower: "-598680",
-                tickUpper: "506580",
-            }
-            dai.approve(uniswap_utils.address, ethers.utils.parseEther("100000000"))
-            mockUSDC.approve(uniswap_utils.address, ethers.utils.parseUnits("100000000", 6))
-            await uniswap_utils.createPoolAndMintPositionErC20(createUniswapPoolParams3)
-            console.log("Created DAI pool")
-        }
+        //     // create a uniswap pool for DAI and USDC
+        //     sqrtPrice = "79228162514264334008320"
+        //     if (mockUSDC.address < dai.address.toString()) {
+        //         sqrtPrice = "79228162514264337593543950336000000"
+        //     }
+        //     const createUniswapPoolParams3 = {
+        //         projectToken: dai.address,
+        //         usdcToken: mockUSDC.address,
+        //         uniswapFee: 3000,
+        //         amountA: ethers.utils.parseEther("100000000"),
+        //         amountB: ethers.utils.parseUnits("100000000", 6),
+        //         sqrtPriceX96: sqrtPrice,
+        //         tickLower: "-598680",
+        //         tickUpper: "506580",
+        //     }
+        //     dai.approve(uniswap_utils.address, ethers.utils.parseEther("100000000"))
+        //     mockUSDC.approve(uniswap_utils.address, ethers.utils.parseUnits("100000000", 6))
+        //     await uniswap_utils.createPoolAndMintPositionErC20(createUniswapPoolParams3)
+        //     console.log("Created DAI pool")
+        // }
 
         //  requires setting up of a HALO - MockUSDC pool on forked uniswap in deployment
-        // if PROD flag is false
+        // if on non-production network
 
         let donationMatchCharityData = {
             reserveToken: config.DONATION_MATCH_CHARITY_DATA.reserveToken,
@@ -336,9 +336,9 @@ export async function main(apTeamAdmins = []) {
             usdcAddress: config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
         }
 
-        if (network.name === "hardhat") {
+        if (isLocalNetwork(network)) {
             // haloToken
-            donationMatchCharityData.reserveToken = haloToken.address
+            // donationMatchCharityData.reserveToken = haloToken.address
             donationMatchCharityData.uniswapFactory = config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS
             donationMatchCharityData.poolFee = 3000
             donationMatchCharityData.usdcAddress = mockUSDC!.address
@@ -348,62 +348,58 @@ export async function main(apTeamAdmins = []) {
 
         let implementations = await deployImplementation(
             ANGEL_CORE_STRUCT.address,
-            lockedWithdrawalData,
             donationMatchCharityData,
             verify_contracts,
             hre
         )
 
-        if (network.name === "hardhat") {
-            await haloToken.transfer(implementations.DonationMatchCharity, ethers.utils.parseEther("100000000"))
-        }
+        // if (isLocalNetwork(network)) {
+        //     await haloToken.transfer(implementations.donationMatchCharity.proxy, ethers.utils.parseEther("100000000"))
+        // }
 
-        config.REGISTRAR_DATA.acceptedTokens.cw20.push(haloToken.address)
+        // config.REGISTRAR_DATA.acceptedTokens.cw20.push(haloToken.address)
 
-        updateConfig = {
-            accountsContract: ACCOUNT_ADDRESS, //Address
-            taxRate: config.REGISTRAR_DATA.taxRate, //uint256
-            rebalance: config.REGISTRAR_DATA.rebalance,
-            approved_charities: [], //string[]
-            splitMax: 100, //uint256
-            splitMin: 0, //uint256
-            splitDefault: 50, //uint256
-            collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
-            acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
-            subdaoGovCode: implementations.SubDao, //address
-            subdaoCw20TokenCode: implementations.SubDaoERC20, //address
-            subdaoBondingTokenCode: implementations.SubDaoBondingCurve, //address
-            subdaoCw900Code: implementations.IncentiisedVoting, //address
-            subdaoDistributorCode: ADDRESS_ZERO,
-            subdaoEmitter: emitters.subDaoEmitter, //TODO:
-            donationMatchCode: implementations.DonationMatch, //address
-            indexFundContract: INDEX_FUND_ADDRESS, //address
-            govContract: haloAddress.Gov.GovProxy, //address
-            treasury: config.REGISTRAR_DATA.treasury,
-            donationMatchCharitesContract: implementations.DonationMatchCharity, // once uniswap is setup //address
-            donationMatchEmitter: emitters.DonationMatchEmitter,
-            haloToken: haloAddress.Halo, //address
-            haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
-            charitySharesContract: ADDRESS_ZERO, //TODO: //address
-            fundraisingContract: fundraisingAddress, //TODO: //address
-            applicationsReview: multisigAddress.ApplicationsMultiSig, //address
-            swapsRouter: SWAP_ROUTER, //address
-            multisigFactory: multisigDat.MultiSigWalletFactory, //address
-            multisigEmitter: multisigDat.EndowmentMultiSigEmitter, //address
-            charityProposal: charityApplicationsAddress, //address
-            lockedWithdrawal: implementations.LockedWithdraw, //address
-            proxyAdmin: proxyAdmin.address, //address
-            usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
-            wethAddress: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
-            cw900lvAddress: implementations.cw900lv,
-        }
+		updateConfig = {
+			accountsContract: ACCOUNT_ADDRESS, //Address
+			approved_charities: [], //string[]
+			splitMax: 100, //uint256
+			splitMin: 0, //uint256
+			splitDefault: 50, //uint256
+			collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
+			subdaoGovContract: implementations.subDao.implementation, //address
+			subdaoTokenContract: implementations.subDao.token, //address
+			subdaoBondingTokenContract: implementations.subDao.veBondingToken, //address
+			subdaoCw900Contract: implementations.incentivisedVotingLockup.implementation, //address
+			subdaoDistributorContract: ADDRESS_ZERO,
+			subdaoEmitter: emitters.subDaoEmitter, //TODO:
+			donationMatchContract: implementations.donationMatch.implementation, //address
+			indexFundContract: INDEX_FUND_ADDRESS, //address
+			govContract: ADDRESS_ZERO, //address
+			treasury: config.REGISTRAR_DATA.treasury,
+			donationMatchCharitesContract: implementations.donationMatchCharity.proxy, // once uniswap is setup //address
+			donationMatchEmitter: emitters.DonationMatchEmitter,
+			haloToken: ADDRESS_ZERO, //address
+			haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
+			charitySharesContract: ADDRESS_ZERO, //TODO: //address
+			fundraisingContract: ADDRESS_ZERO, //TODO: //address
+			applicationsReview: multisigAddress.ApplicationsMultiSig, //address
+			swapsRouter: SWAP_ROUTER, //address
+			multisigFactory: multisigDat.MultiSigWalletFactory, //address
+			multisigEmitter: multisigDat.EndowmentMultiSigEmitter, //address
+			charityProposal: charityApplicationsAddress, //address
+            lockedWithdrawal: ADDRESS_ZERO,
+			proxyAdmin: proxyAdmin.address, //address
+			usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
+			wethAddress: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
+			cw900lvAddress: implementations.cw900lv,
+		}
 
         let REGISTRAR_CONTRACT = await ethers.getContractAt("Registrar", REGISTRAR_ADDRESS)
 
         let data = await REGISTRAR_CONTRACT.updateConfig(updateConfig)
         console.log("Successfully updated config:-", data.hash)
 
-        let newOwner = await REGISTRAR_CONTRACT.updateOwner(multisigAddress.APTeamMultiSig)
+        let newOwner = await REGISTRAR_CONTRACT.transferOwnership(multisigAddress.APTeamMultiSig)
         console.log("Successfully transferred Ownership:-", newOwner.hash)
 
         let INDEX_FUND_CONTRACT = await ethers.getContractAt("IndexFund", INDEX_FUND_ADDRESS)
@@ -411,35 +407,8 @@ export async function main(apTeamAdmins = []) {
         let new_owner_index = await INDEX_FUND_CONTRACT.updateOwner(multisigAddress.APTeamMultiSig)
         console.log("Successfully transferred Ownership:-", new_owner_index.hash)
 
-        var composedAddress = {
-            libraries: {
-                stringLibrary: STRING_LIBRARY.address,
-                AngelCoreStruct: ANGEL_CORE_STRUCT.address,
-            },
-            dai: config.REGISTRAR_UPDATE_CONFIG.DAI_address,
-            registrar: REGISTRAR_ADDRESS,
-            account: ACCOUNT_ADDRESS,
-            multisigAddress,
-            charityApplicationsAddress,
-            swapRouter: SWAP_ROUTER,
-            indexFund: INDEX_FUND_ADDRESS,
-            multisigDat,
-            implementations,
-            haloAddress,
-            giftCardAddress,
-            fundraisingAddress,
-            haloGovContract: haloAddress.Gov.GovProxy,
-            timelockContract: haloAddress.Gov.TimeLock,
-            votingERC20: haloAddress.Gov.VotingERC20Proxy,
-            lockedWithdraw: implementations.LockedWithdraw,
-        }
-
-        await saveFrontendFiles({ addressWriter })
-        await saveFrontendFiles({ composedAddress })
-        return {
-            addresses: composedAddress,
-            registrarConfig: updateConfig,
-        }
+        // await saveFrontendFiles({ addressWriter })
+        // await saveFrontendFiles({ composedAddress })
     } catch (e) {
         console.error("Failed deploying Contracts:-", e)
         return Promise.reject(false)

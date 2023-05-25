@@ -24,7 +24,7 @@ library subDaoTokenStorage {
         AngelCoreStruct.Duration unbondingPeriod;
     }
 
-    enum CurveTypeEnum {
+    enum veTypeEnum {
         Constant,
         Linear,
         SquareRoot
@@ -41,11 +41,11 @@ library subDaoTokenStorage {
     }
 
     function getReserveRatio(
-        AngelCoreStruct.CurveTypeEnum curCurveType
+        AngelCoreStruct.veTypeEnum curveType
     ) internal pure returns (uint256) {
-        if (curCurveType == AngelCoreStruct.CurveTypeEnum.Linear) {
+        if (curveType == AngelCoreStruct.veTypeEnum.Linear) {
             return 500000;
-        } else if (curCurveType == AngelCoreStruct.CurveTypeEnum.SquarRoot) {
+        } else if (curveType == AngelCoreStruct.veTypeEnum.SquarRoot) {
             return 660000;
         } else {
             return 1000000;

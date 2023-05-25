@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 import "./storage.sol";
-import {ICharityApplication} from "./interface/ICharityApplication.sol";
+import {ICharityApplication} from "./interfaces/ICharityApplication.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {AngelCoreStruct} from "../../core/struct.sol";
-import {IAccountsCreateEndowment} from "../../core/accounts/interface/IAccountsCreateEndowment.sol";
-import {IAccountsQuery} from "../../core/accounts/interface/IAccountsQuery.sol";
-import {IAccountsDepositWithdrawEndowments} from "../../core/accounts/interface/IAccountsDepositWithdrawEndowments.sol";
+import {IAccountsCreateEndowment} from "../../core/accounts/interfaces/IAccountsCreateEndowment.sol";
+import {IAccountsQuery} from "../../core/accounts/interfaces/IAccountsQuery.sol";
+import {IAccountsDepositWithdrawEndowments} from "../../core/accounts/interfaces/IAccountsDepositWithdrawEndowments.sol";
 import {AccountStorage} from "../../core/accounts/storage.sol";
 import {AccountMessages} from "../../core/accounts/message.sol";
 
@@ -31,7 +31,7 @@ library CharityApplicationLib {
         CharityApplicationsStorage.Config storage config
     ) public {
         require(proposals[proposalCounter].proposer == address(0), "Proposal already exists");
-        require(charityApplication.endow_type == AngelCoreStruct.EndowmentType.Charity, "Unauthorized");
+        require(charityApplication.endowType == AngelCoreStruct.EndowmentType.Charity, "Unauthorized");
         require(charityApplication.categories.sdgs.length > 0, "No UN SDGs given");
 
         // check all sdgs id
@@ -130,41 +130,41 @@ contract CharityApplication is
      * where people can send applications to open a charity endowment on AP
      * @dev seed asset will always be USDC
      * @dev Initialize the contract
-     * @param curExpiry Proposal expiry time in seconds
-     * @param curApplicationmultisig AP Team multisig address
-     * @param curAccountscontract Accounts contract address
-     * @param curSeedsplittoliquid Seed split to liquid
-     * @param curNewendowgasmoney New endow gas money
-     * @param curGasamount Gas amount
-     * @param curFundseedasset Fund seed asset
-     * @param curSeedasset Seed asset
-     * @param curSeedassetamount Seed asset amount
+     * @param expiry Proposal expiry time in seconds
+     * @param applicationmultisig AP Team multisig address
+     * @param accountscontract Accounts contract address
+     * @param seedsplittoliquid Seed split to liquid
+     * @param newendowgasmoney New endow gas money
+     * @param gasamount Gas amount
+     * @param fundseedasset Fund seed asset
+     * @param seedasset Seed asset
+     * @param seedassetamount Seed asset amount
      */
     function initialize(
-        uint256 curExpiry,
-        address curApplicationmultisig,
-        address curAccountscontract,
-        uint256 curSeedsplittoliquid,
-        bool curNewendowgasmoney,
-        uint256 curGasamount,
-        bool curFundseedasset,
-        address curSeedasset,
-        uint256 curSeedassetamount
+        uint256 expiry,
+        address applicationmultisig,
+        address accountscontract,
+        uint256 seedsplittoliquid,
+        bool newendowgasmoney,
+        uint256 gasamount,
+        bool fundseedasset,
+        address seedasset,
+        uint256 seedassetamount
     ) public {
         require(!initialized, "already initialized");
         initialized = true;
         proposalCounter = 1;
-        config.applicationMultisig = curApplicationmultisig;
-        config.accountsContract = curAccountscontract;
-        config.seedSplitToLiquid = curSeedsplittoliquid;
-        config.newEndowGasMoney = curNewendowgasmoney;
-        config.gasAmount = curGasamount;
-        config.fundSeedAsset = curFundseedasset;
-        config.seedAsset = curSeedasset;
-        config.seedAssetAmount = curSeedassetamount;
-        if (curExpiry == 0)
+        config.applicationMultisig = applicationmultisig;
+        config.accountsContract = accountscontract;
+        config.seedSplitToLiquid = seedsplittoliquid;
+        config.newEndowGasMoney = newendowgasmoney;
+        config.gasAmount = gasamount;
+        config.fundSeedAsset = fundseedasset;
+        config.seedAsset = seedasset;
+        config.seedAssetAmount = seedassetamount;
+        if (expiry == 0)
             config.proposalExpiry = 4 * 24 * 60 * 60; // 4 days in seconds
-        else config.proposalExpiry = curExpiry;
+        else config.proposalExpiry = expiry;
 
         emit InitilizedCharityApplication(config);
     }
@@ -215,7 +215,7 @@ contract CharityApplication is
             .Status
             .Approved;
 
-        uint256 endowmentId = _executeCharity(proposalId);
+        uint32 endowmentId = _executeCharity(proposalId);
 
         emit CharityApproved(proposalId, endowmentId);
     }
@@ -250,8 +250,8 @@ contract CharityApplication is
      */
     function _executeCharity(
         uint256 proposalId
-    ) internal isApproved(proposalId) notExpired(proposalId) returns (uint256) {
-        uint256 endowmentId = IAccountsCreateEndowment(config.accountsContract)
+    ) internal isApproved(proposalId) notExpired(proposalId) returns (uint32) {
+        uint32 endowmentId = IAccountsCreateEndowment(config.accountsContract)
             .createEndowment(proposals[proposalId].charityApplication);
 
         if (config.newEndowGasMoney) {
@@ -327,43 +327,43 @@ contract CharityApplication is
     /**
      * @notice update config function which updates config if the supplied input parameter is not null or 0
      * @dev update config function which updates config if the supplied input parameter is not null or 0
-     * @param curExpiry expiry time for proposals
-     * @param curApplicationmultisig address of AP Team multisig
-     * @param curAccountscontract address of accounts contract
-     * @param curSeedsplittoliquid percentage of seed asset to be sent to liquid
-     * @param curNewendowgasmoney boolean to check if gas money is to be sent
-     * @param curGasamount amount of gas to be sent
-     * @param curFundseedasset boolean to check if seed asset is to be sent
-     * @param curSeedasset address of seed asset
-     * @param curSeedassetamount amount of seed asset to be sent
+     * @param expiry expiry time for proposals
+     * @param applicationmultisig address of AP Team multisig
+     * @param accountscontract address of accounts contract
+     * @param seedsplittoliquid percentage of seed asset to be sent to liquid
+     * @param newendowgasmoney boolean to check if gas money is to be sent
+     * @param gasamount amount of gas to be sent
+     * @param fundseedasset boolean to check if seed asset is to be sent
+     * @param seedasset address of seed asset
+     * @param seedassetamount amount of seed asset to be sent
      */
     function updateConfig(
-        uint256 curExpiry,
-        address curApplicationmultisig,
-        address curAccountscontract,
-        uint256 curSeedsplittoliquid,
-        bool curNewendowgasmoney,
-        uint256 curGasamount,
-        bool curFundseedasset,
-        address curSeedasset,
-        uint256 curSeedassetamount
+        uint256 expiry,
+        address applicationmultisig,
+        address accountscontract,
+        uint256 seedsplittoliquid,
+        bool newendowgasmoney,
+        uint256 gasamount,
+        bool fundseedasset,
+        address seedasset,
+        uint256 seedassetamount
     ) public override nonReentrant onlyApplicationsMultisig {
-        if (curExpiry != 0) config.proposalExpiry = curExpiry;
-        if (curApplicationmultisig != address(0))
-            config.applicationMultisig = curApplicationmultisig;
-        if (curAccountscontract != address(0))
-            config.accountsContract = curAccountscontract;
-        if (curSeedsplittoliquid != 0 && curSeedsplittoliquid <= 100)
-            config.seedSplitToLiquid = curSeedsplittoliquid;
+        if (expiry != 0) config.proposalExpiry = expiry;
+        if (applicationmultisig != address(0))
+            config.applicationMultisig = applicationmultisig;
+        if (accountscontract != address(0))
+            config.accountsContract = accountscontract;
+        if (seedsplittoliquid != 0 && seedsplittoliquid <= 100)
+            config.seedSplitToLiquid = seedsplittoliquid;
         if (
-            curNewendowgasmoney ||
-            (curNewendowgasmoney == false && config.newEndowGasMoney == true)
-        ) config.newEndowGasMoney = curNewendowgasmoney;
-        if (curGasamount != 0) config.gasAmount = curGasamount;
-        if (curFundseedasset) config.fundSeedAsset = curFundseedasset;
-        if (curSeedasset != address(0)) config.seedAsset = curSeedasset;
-        if (curSeedassetamount != 0)
-            config.seedAssetAmount = curSeedassetamount;
+            newendowgasmoney ||
+            (newendowgasmoney == false && config.newEndowGasMoney == true)
+        ) config.newEndowGasMoney = newendowgasmoney;
+        if (gasamount != 0) config.gasAmount = gasamount;
+        if (fundseedasset) config.fundSeedAsset = fundseedasset;
+        if (seedasset != address(0)) config.seedAsset = seedasset;
+        if (seedassetamount != 0)
+            config.seedAssetAmount = seedassetamount;
     }
 
     function queryConfig()

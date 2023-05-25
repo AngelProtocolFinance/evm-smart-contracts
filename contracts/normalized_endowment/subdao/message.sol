@@ -7,7 +7,7 @@ import {subDaoStorage} from "./storage.sol";
 
 library subDaoMessage {
     struct InstantiateMsg {
-        uint256 id;
+        uint32 id;
         address owner;
         uint256 quorum;
         uint256 threshold;
@@ -17,7 +17,7 @@ library subDaoMessage {
         uint256 proposalDeposit;
         uint256 snapshotPeriod;
         AngelCoreStruct.DaoToken token;
-        AngelCoreStruct.EndowmentType endow_type;
+        AngelCoreStruct.EndowmentType endowType;
         address endowOwner;
         address registrarContract;
     }

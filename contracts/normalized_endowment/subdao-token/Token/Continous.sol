@@ -29,60 +29,60 @@ contract ContinuousToken is
 
     address public denomTokenAddress;
 
-    function initCurveToken(
-        string memory curName,
-        string memory curSymbol,
-        uint256 curReserveratio,
-        address curDenomtokenaddress
+    function initveToken(
+        string memory name,
+        string memory symbol,
+        uint256 reserveratio,
+        address denomtokenaddress
     ) public initializer {
-        require(curDenomtokenaddress != address(0), "Invalid denom token address");
+        require(denomtokenaddress != address(0), "Invalid denom token address");
         scale = 10**18;
         reserveBalance = 10 * scale;
         // FLOATING_POINTS = 1;
 
         _grantRole(DEFAULT_ADMIN_ROLE, address(0));
         _grantRole(MINTER_ROLE, msg.sender);
-        __ERC20_init(curName, curSymbol);
+        __ERC20_init(name, symbol);
 
         require(
-            curReserveratio > 0 && curReserveratio <= 1000000,
+            reserveratio > 0 && reserveratio <= 1000000,
             "Invalid Reserve Ratio"
         );
 
-        uint256 curDenomtokendecimals = ERC20(curDenomtokenaddress).decimals();
+        uint256 denomtokendecimals = ERC20(denomtokenaddress).decimals();
 
-        require(curDenomtokendecimals <= 18, "Token not supported");
+        require(denomtokendecimals <= 18, "Token not supported");
 
-        FLOATING_POINTS = 10**(18 - curDenomtokendecimals);
+        FLOATING_POINTS = 10**(18 - denomtokendecimals);
 
-        reserveRatio = curReserveratio;
+        reserveRatio = reserveratio;
         _mint(msg.sender, 1 * scale);
-        denomTokenAddress = curDenomtokenaddress;
+        denomTokenAddress = denomtokenaddress;
     }
 
     function decimals() public view virtual override returns (uint8) {
         return 18;
     }
 
-    function mint(uint256 curTokenamount, address curReciever)
+    function mint(uint256 tokenamount, address reciever)
         internal
         returns (uint256 ret)
     {
-        ret = _continuousMint(curTokenamount.mul(FLOATING_POINTS), curReciever);
+        ret = _continuousMint(tokenamount.mul(FLOATING_POINTS), reciever);
     }
 
-    function burn(uint256 curAmount, address curBurnedfrom)
+    function burn(uint256 amount, address burnedfrom)
         internal
         returns (uint256 returnAmount)
     {
         returnAmount = _continuousBurn(
-            curAmount.mul(FLOATING_POINTS),
-            curBurnedfrom
+            amount.mul(FLOATING_POINTS),
+            burnedfrom
         );
         returnAmount = returnAmount.div(FLOATING_POINTS);
     }
 
-    function calculateContinuousMintReturn(uint256 curAmount)
+    function calculateContinuousMintReturn(uint256 amount)
         public
         view
         returns (uint256 mintAmount)
@@ -92,11 +92,11 @@ contract ContinuousToken is
                 totalSupply(),
                 reserveBalance,
                 uint32(reserveRatio),
-                curAmount.mul(FLOATING_POINTS)
+                amount.mul(FLOATING_POINTS)
             );
     }
 
-    function calculateContinuousBurnReturn(uint256 curAmount)
+    function calculateContinuousBurnReturn(uint256 amount)
         public
         view
         returns (uint256 burnAmount)
@@ -105,37 +105,37 @@ contract ContinuousToken is
             totalSupply(),
             reserveBalance,
             uint32(reserveRatio),
-            curAmount.mul(FLOATING_POINTS)
+            amount.mul(FLOATING_POINTS)
         );
 
         burnAmount = burnAmount.div(FLOATING_POINTS);
     }
 
-    function _continuousMint(uint256 curDeposit, address curReciever)
+    function _continuousMint(uint256 deposit, address reciever)
         internal
         returns (uint256)
     {
-        require(curDeposit > 0, "Deposit must be non-zero.");
+        require(deposit > 0, "Deposit must be non-zero.");
 
-        uint256 amount = calculateContinuousMintReturn(curDeposit);
-        _mint(curReciever, amount);
-        reserveBalance = reserveBalance.add(curDeposit);
+        uint256 amount = calculateContinuousMintReturn(deposit);
+        _mint(reciever, amount);
+        reserveBalance = reserveBalance.add(deposit);
         return amount;
     }
 
-    function _continuousBurn(uint256 curAmount, address curBurnedfrom)
+    function _continuousBurn(uint256 amount, address burnedfrom)
         internal
         returns (uint256)
     {
-        require(curAmount > 0, "Amount must be non-zero.");
+        require(amount > 0, "Amount must be non-zero.");
         require(
-            balanceOf(curBurnedfrom) >= curAmount,
+            balanceOf(burnedfrom) >= amount,
             "Insufficient tokens to burn."
         );
 
-        uint256 reimburseAmount = calculateContinuousBurnReturn(curAmount);
+        uint256 reimburseAmount = calculateContinuousBurnReturn(amount);
         reserveBalance = reserveBalance.sub(reimburseAmount);
-        _burn(curBurnedfrom, curAmount);
+        _burn(burnedfrom, amount);
         return reimburseAmount;
     }
 

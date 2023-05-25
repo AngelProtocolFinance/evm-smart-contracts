@@ -15,7 +15,7 @@ import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20
  * @dev Community contract
  * The `Community` contract serves as a management system for a community of token holders.
  * It provides functions to initialize the contract, update its configuration, transfer tokens,
- * and retrieve the current configuration.
+ * and retrieve the rent configuration.
  */
 contract Community is Storage, Initializable, ReentrancyGuard {
     event CommunityConfigUpdated(CommunityStorage.Config config);
@@ -23,15 +23,15 @@ contract Community is Storage, Initializable, ReentrancyGuard {
 
     /**
      * @dev Initialize contract
-     * @param curDetails CommunityMessage.InstantiateMsg used to initialize contract
+     * @param details CommunityMessage.InstantiateMsg used to initialize contract
      */
     function initialize(
-        CommunityMessage.InstantiateMsg memory curDetails
+        CommunityMessage.InstantiateMsg memory details
     ) public initializer {
         state.config = CommunityStorage.Config({
-            timelockContract: curDetails.timelockContract,
-            spendLimit: curDetails.spendLimit,
-            haloToken: curDetails.haloToken
+            timelockContract: details.timelockContract,
+            spendLimit: details.spendLimit,
+            haloToken: details.haloToken
         });
         emit CommunityConfigUpdated(state.config);
     }

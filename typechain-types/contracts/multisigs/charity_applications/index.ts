@@ -3,7 +3,7 @@
 /* eslint-disable */
 import type * as charityApplicationSol from "./CharityApplication.sol";
 export type { charityApplicationSol };
-import type * as interface from "./interface";
-export type { interface };
+import type * as interfaces from "./interfaces";
+export type { interfaces };
 import type * as storageSol from "./storage.sol";
 export type { storageSol };

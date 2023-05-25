@@ -1,6 +1,7 @@
 import { task } from "hardhat/config"
 import config from "config"
 import { deployImplementation } from "contracts/normalized_endowment/scripts/deployImplementation"
+import { logger } from "utils"
 
 task("Deploy:deployImplementation", "Will deploy Implementation")
     .addParam("verify", "Want to verify contract")
@@ -12,12 +13,6 @@ task("Deploy:deployImplementation", "Will deploy Implementation")
     .setAction(async (taskArgs, hre) => {
         try {
             var isTrueSet = taskArgs.verify === "true";
-            const lockedWithdrawalData = [
-                taskArgs.registraraddress,
-                taskArgs.accountaddress,
-                taskArgs.apteammultisigaddress,
-                taskArgs.endowmentmultisigaddress,
-            ];
 
             let donationMatchCharityData = {
                 reserveToken: config.DONATION_MATCH_CHARITY_DATA.reserveToken,
@@ -30,12 +25,11 @@ task("Deploy:deployImplementation", "Will deploy Implementation")
 
             await deployImplementation(
                 taskArgs.angelcorestruct,
-                lockedWithdrawalData,
                 donationMatchCharityData,
                 isTrueSet,
                 hre
             );
         } catch (error) {
-            console.log(error);
+            logger.out(error, logger.Level.Error)
         }
     });

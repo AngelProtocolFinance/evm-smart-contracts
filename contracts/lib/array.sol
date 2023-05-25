@@ -37,25 +37,25 @@ library Array {
     }
 
     function max(uint256[] memory data) internal pure returns (uint256) {
-        uint256 curMax = data[0];
+        uint256 maxVal = data[0];
         for (uint256 i = 1; i < data.length; i++) {
-            if (curMax < data[i]) {
-                curMax = data[i];
+            if (maxVal < data[i]) {
+                maxVal = data[i];
             }
         }
 
-        return curMax;
+        return maxVal;
     }
 
     // function min(uint256[] memory data) internal pure returns (uint256) {
-    //     uint256 curMin = data[0];
+    //     uint256 min = data[0];
     //     for (uint256 i = 1; i < data.length; i++) {
-    //         if (curMin > data[i]) {
-    //             curMin = data[i];
+    //         if (min > data[i]) {
+    //             min = data[i];
     //         }
     //     }
 
-    //     return curMin;
+    //     return min;
     // }
 
     function indexOf(uint256[] memory arr, uint256 searchFor)
@@ -81,6 +81,38 @@ library Array {
         }
 
         for (uint256 i = index; i < data.length - 1; i++) {
+            data[i] = data[i + 1];
+        }
+        data.pop();
+        return data;
+    }
+}
+
+
+library Array32 {
+    function indexOf(uint32[] memory arr, uint32 searchFor)
+        internal
+        pure
+        returns (uint32, bool)
+    {
+        for (uint32 i = 0; i < arr.length; i++) {
+            if (arr[i] == searchFor) {
+                return (i, true);
+            }
+        }
+        // not found
+        return (0, false);
+    }
+
+    function remove(uint32[] storage data, uint32 index)
+        internal
+        returns (uint32[] memory)
+    {
+        if (index >= data.length) {
+            revert("Error in remove: internal");
+        }
+
+        for (uint32 i = index; i < data.length - 1; i++) {
             data[i] = data[i + 1];
         }
         data.pop();

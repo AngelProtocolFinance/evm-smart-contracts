@@ -15,16 +15,16 @@ import { LibDiamond } from "../libraries/LibDiamond.sol";
 contract DiamondCutFacet is IDiamondCut {
     /// @notice Add/replace/remove any number of functions and optionally execute
     ///         a function with delegatecall
-    /// @param curDiamondcut Contains the facet addresses and function selectors
-    /// @param curInit The address of the contract or facet to execute curCalldata
-    /// @param curCalldata A function call, including function selector and arguments
-    ///                  curCalldata is executed with delegatecall on curInit
+    /// @param diamondcut Contains the facet addresses and function selectors
+    /// @param init The address of the contract or facet to execute calldata
+    /// @param data A function call, including function selector and arguments
+    ///                  data is executed with delegatecall on init
     function diamondCut(
-        FacetCut[] calldata curDiamondcut,
-        address curInit,
-        bytes calldata curCalldata
+        FacetCut[] calldata diamondcut,
+        address init,
+        bytes calldata data
     ) external override {
         LibDiamond.enforceIsContractOwner();
-        LibDiamond.diamondCut(curDiamondcut, curInit, curCalldata);
+        LibDiamond.diamondCut(diamondcut, init, data);
     }
 }

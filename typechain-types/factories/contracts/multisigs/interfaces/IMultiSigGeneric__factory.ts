@@ -209,7 +209,7 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "curRequired",
+        name: "required",
         type: "uint256",
       },
     ],
@@ -275,7 +275,7 @@ const _abi = [
     outputs: [
       {
         internalType: "address[]",
-        name: "curConfirmations",
+        name: "confirmations",
         type: "address[]",
       },
     ],
@@ -346,7 +346,7 @@ const _abi = [
     outputs: [
       {
         internalType: "uint256[]",
-        name: "curTransactionids",
+        name: "transactionids",
         type: "uint256[]",
       },
     ],

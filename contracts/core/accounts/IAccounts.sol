@@ -7,7 +7,7 @@ import {Validator} from "./lib/validator.sol";
 import {AccountMessages} from "./message.sol";
 import {AngelCoreStruct} from "../struct.sol";
 import {Array} from "../../lib/array.sol";
-import {IRegistrar} from "../registrar/interface/IRegistrar.sol";
+import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../registrar/storage.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
@@ -15,11 +15,11 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./storage.sol";
 
 //Interface
-// import "../../interface/swapping.sol";
+// import "../../interfaces/swapping.sol";
 
 interface IAccounts {
     function createEndowment(
-        AccountMessages.CreateEndowmentRequest memory curDetails
+        AccountMessages.CreateEndowmentRequest memory details
     ) external returns (bool response);
 
     function updateOwner(address newOwner) external returns (bool);
@@ -29,16 +29,17 @@ interface IAccounts {
         uint256 maxGeneralCategoryId
     ) external returns (bool);
 
-    function updateEndowmentStatusMsg(
-        AccountMessages.UpdateEndowmentStatusRequest memory curDetails
+    function closeEndowment(
+        uint32 id,
+        AngelCoreStruct.Beneficiary memory beneficiary
     ) external returns (bool response);
 
     function updateEndowmentDetails(
-        AccountMessages.UpdateEndowmentDetailsRequest memory curDetails
+        AccountMessages.UpdateEndowmentDetailsRequest memory details
     ) external returns (bool);
 
     function updateDelegate(
-        uint256 id,
+        uint32 id,
         string memory setting,
         string memory action,
         address delegateAddress,
@@ -46,24 +47,24 @@ interface IAccounts {
     ) external returns (bool);
 
     function updateStrategies(
-        uint256 id,
+        uint32 id,
         AngelCoreStruct.AccountType acctType,
         AccountMessages.Strategy[] memory strategies
     ) external returns (bool);
 
     function copycatStrategies(
-        uint256 id,
+        uint32 id,
         AngelCoreStruct.AccountType acctType,
         uint256 idToCopy
     ) external returns (bool);
 
     //TODO: Complete This contract once swap-router is completed.
     function swapToken(
-        uint256 curId,
+        uint32 id,
         AngelCoreStruct.AccountType,
-        uint128 curAmount,
-        address curTokenin,
-        address curTokenout
+        uint128 amount,
+        address tokenin,
+        address tokenout
     ) external returns (bool);
 
     // function swapReceipt(){
@@ -84,16 +85,16 @@ interface IAccounts {
 
     function depositERC20(
         address senderAddr,
-        AccountMessages.DepositRequest memory curDetails,
-        address curTokenaddress,
-        uint256 curAmount
+        AccountMessages.DepositRequest memory details,
+        address tokenaddress,
+        uint256 amount
     ) external returns (bool);
 
     function vaultsInvest(
-        uint32 curId,
-        AngelCoreStruct.AccountType curAccountType,
-        address[] memory curTokens,
-        uint256[] memory curAmount
+        uint32 id,
+        AngelCoreStruct.AccountType accountType,
+        address[] memory tokens,
+        uint256[] memory amount
     ) external returns (bool);
 
     // function vaultsRedeem(){
@@ -138,12 +139,12 @@ interface IAccounts {
         view
         returns (AccountMessages.ConfigResponse memory);
 
-    function queryState(uint256 curId)
+    function queryState(uint32 id)
         external
         view
         returns (AccountMessages.StateResponse memory);
 
-    function queryEndowmentDetails(uint256 curId)
+    function queryEndowmentDetails(uint32 id)
         external
         view
         returns (AccountStorage.Endowment memory);

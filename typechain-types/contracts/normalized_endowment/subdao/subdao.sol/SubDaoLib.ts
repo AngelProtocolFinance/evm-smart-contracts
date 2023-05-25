@@ -146,15 +146,15 @@ export interface SubDaoLib extends BaseContract {
 
   functions: {
     queryAddressVotingBalanceAtBlock(
-      curVeaddr: PromiseOrValue<string>,
-      curAddress: PromiseOrValue<string>,
-      curBlocknumber: PromiseOrValue<BigNumberish>,
+      veAddr: PromiseOrValue<string>,
+      targetAddr: PromiseOrValue<string>,
+      blocknumber: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
     queryTotalVotingBalanceAtBlock(
-      curVeaddr: PromiseOrValue<string>,
-      curBlocknumber: PromiseOrValue<BigNumberish>,
+      veaddr: PromiseOrValue<string>,
+      blocknumber: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -164,41 +164,41 @@ export interface SubDaoLib extends BaseContract {
     ): Promise<[BigNumber] & { length: BigNumber }>;
 
     validateDescription(
-      curDescription: PromiseOrValue<string>,
+      description: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
     validateLink(
-      curLink: PromiseOrValue<string>,
+      link: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
     validateQuorum(
-      curQuorum: PromiseOrValue<BigNumberish>,
+      quorum: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
     validateThreshold(
-      curThreshold: PromiseOrValue<BigNumberish>,
+      threshold: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
     validateTitle(
-      curTitle: PromiseOrValue<string>,
+      title: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
   };
 
   queryAddressVotingBalanceAtBlock(
-    curVeaddr: PromiseOrValue<string>,
-    curAddress: PromiseOrValue<string>,
-    curBlocknumber: PromiseOrValue<BigNumberish>,
+    veAddr: PromiseOrValue<string>,
+    targetAddr: PromiseOrValue<string>,
+    blocknumber: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   queryTotalVotingBalanceAtBlock(
-    curVeaddr: PromiseOrValue<string>,
-    curBlocknumber: PromiseOrValue<BigNumberish>,
+    veaddr: PromiseOrValue<string>,
+    blocknumber: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -208,41 +208,41 @@ export interface SubDaoLib extends BaseContract {
   ): Promise<BigNumber>;
 
   validateDescription(
-    curDescription: PromiseOrValue<string>,
+    description: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
   validateLink(
-    curLink: PromiseOrValue<string>,
+    link: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
   validateQuorum(
-    curQuorum: PromiseOrValue<BigNumberish>,
+    quorum: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
   validateThreshold(
-    curThreshold: PromiseOrValue<BigNumberish>,
+    threshold: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
   validateTitle(
-    curTitle: PromiseOrValue<string>,
+    title: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
   callStatic: {
     queryAddressVotingBalanceAtBlock(
-      curVeaddr: PromiseOrValue<string>,
-      curAddress: PromiseOrValue<string>,
-      curBlocknumber: PromiseOrValue<BigNumberish>,
+      veAddr: PromiseOrValue<string>,
+      targetAddr: PromiseOrValue<string>,
+      blocknumber: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     queryTotalVotingBalanceAtBlock(
-      curVeaddr: PromiseOrValue<string>,
-      curBlocknumber: PromiseOrValue<BigNumberish>,
+      veaddr: PromiseOrValue<string>,
+      blocknumber: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -252,27 +252,27 @@ export interface SubDaoLib extends BaseContract {
     ): Promise<BigNumber>;
 
     validateDescription(
-      curDescription: PromiseOrValue<string>,
+      description: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     validateLink(
-      curLink: PromiseOrValue<string>,
+      link: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     validateQuorum(
-      curQuorum: PromiseOrValue<BigNumberish>,
+      quorum: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     validateThreshold(
-      curThreshold: PromiseOrValue<BigNumberish>,
+      threshold: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     validateTitle(
-      curTitle: PromiseOrValue<string>,
+      title: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
   };
@@ -281,15 +281,15 @@ export interface SubDaoLib extends BaseContract {
 
   estimateGas: {
     queryAddressVotingBalanceAtBlock(
-      curVeaddr: PromiseOrValue<string>,
-      curAddress: PromiseOrValue<string>,
-      curBlocknumber: PromiseOrValue<BigNumberish>,
+      veAddr: PromiseOrValue<string>,
+      targetAddr: PromiseOrValue<string>,
+      blocknumber: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     queryTotalVotingBalanceAtBlock(
-      curVeaddr: PromiseOrValue<string>,
-      curBlocknumber: PromiseOrValue<BigNumberish>,
+      veaddr: PromiseOrValue<string>,
+      blocknumber: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -299,42 +299,42 @@ export interface SubDaoLib extends BaseContract {
     ): Promise<BigNumber>;
 
     validateDescription(
-      curDescription: PromiseOrValue<string>,
+      description: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     validateLink(
-      curLink: PromiseOrValue<string>,
+      link: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     validateQuorum(
-      curQuorum: PromiseOrValue<BigNumberish>,
+      quorum: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     validateThreshold(
-      curThreshold: PromiseOrValue<BigNumberish>,
+      threshold: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     validateTitle(
-      curTitle: PromiseOrValue<string>,
+      title: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     queryAddressVotingBalanceAtBlock(
-      curVeaddr: PromiseOrValue<string>,
-      curAddress: PromiseOrValue<string>,
-      curBlocknumber: PromiseOrValue<BigNumberish>,
+      veAddr: PromiseOrValue<string>,
+      targetAddr: PromiseOrValue<string>,
+      blocknumber: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     queryTotalVotingBalanceAtBlock(
-      curVeaddr: PromiseOrValue<string>,
-      curBlocknumber: PromiseOrValue<BigNumberish>,
+      veaddr: PromiseOrValue<string>,
+      blocknumber: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -344,27 +344,27 @@ export interface SubDaoLib extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     validateDescription(
-      curDescription: PromiseOrValue<string>,
+      description: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     validateLink(
-      curLink: PromiseOrValue<string>,
+      link: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     validateQuorum(
-      curQuorum: PromiseOrValue<BigNumberish>,
+      quorum: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     validateThreshold(
-      curThreshold: PromiseOrValue<BigNumberish>,
+      threshold: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     validateTitle(
-      curTitle: PromiseOrValue<string>,
+      title: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

@@ -91,7 +91,7 @@ export interface StringArray extends BaseContract {
 
   functions: {
     addressToString(
-      curAddr: PromiseOrValue<string>,
+      addr: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
@@ -109,7 +109,7 @@ export interface StringArray extends BaseContract {
   };
 
   addressToString(
-    curAddr: PromiseOrValue<string>,
+    addr: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<string>;
 
@@ -127,7 +127,7 @@ export interface StringArray extends BaseContract {
 
   callStatic: {
     addressToString(
-      curAddr: PromiseOrValue<string>,
+      addr: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -148,7 +148,7 @@ export interface StringArray extends BaseContract {
 
   estimateGas: {
     addressToString(
-      curAddr: PromiseOrValue<string>,
+      addr: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -167,7 +167,7 @@ export interface StringArray extends BaseContract {
 
   populateTransaction: {
     addressToString(
-      curAddr: PromiseOrValue<string>,
+      addr: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

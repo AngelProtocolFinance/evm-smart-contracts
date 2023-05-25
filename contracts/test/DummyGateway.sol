@@ -49,7 +49,7 @@ contract DummyGateway is IAxelarGateway {
         string calldata,
         address,
         bytes32
-    ) external view returns (bool){
+    ) external pure returns (bool){
         return _testParser(commandId);
     }
 
@@ -61,7 +61,7 @@ contract DummyGateway is IAxelarGateway {
         bytes32,
         string calldata,
         uint256
-    ) external view returns (bool){
+    ) external pure returns (bool){
         return _testParser(commandId);
     }
 
@@ -70,7 +70,7 @@ contract DummyGateway is IAxelarGateway {
         string calldata,
         string calldata,
         bytes32
-    ) external returns (bool){
+    ) external pure returns (bool){
         return _testParser(commandId);
     }
 
@@ -81,7 +81,7 @@ contract DummyGateway is IAxelarGateway {
         bytes32,
         string calldata,
         uint256
-    ) external returns (bool){
+    ) external pure returns (bool){
         return _testParser(commandId);
     }
 

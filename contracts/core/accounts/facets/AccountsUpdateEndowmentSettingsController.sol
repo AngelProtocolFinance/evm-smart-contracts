@@ -8,13 +8,13 @@ import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
-import {IRegistrar} from "../../registrar/interface/IRegistrar.sol";
+import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {IIndexFund} from "../../index-fund/Iindex-fund.sol";
 import {Array} from "../../../lib/array.sol";
 import {Utils} from "../../../lib/utils.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
-import {IAccountsQuery} from "../interface/IAccountsQuery.sol";
+import {IAccountsQuery} from "../interfaces/IAccountsQuery.sol";
 
 /**
  * @title AccountsUpdateEndowmentSettingsController
@@ -27,134 +27,132 @@ contract AccountsUpdateEndowmentSettingsController is
 {
     /**
     @dev Updates the settings of an endowment.
-    @param curDetails Object containing the updated details of the endowment settings.
-    @param curDetails.id The ID of the endowment to update.
-    @param curDetails.whitelistedBeneficiaries The updated list of whitelisted beneficiaries.
-    @param curDetails.whitelistedContributors The updated list of whitelisted contributors.
-    @param curDetails.maturity_whitelist_add The addresses to add to the maturity whitelist.
-    @param curDetails.maturity_whitelist_remove The addresses to remove from the maturity whitelist.
-    @param curDetails.splitToLiquid The updated split to liquid ratio.
-    @param curDetails.ignoreUserSplits Whether or not to ignore user splits.
+    @param details Object containing the updated details of the endowment settings.
+    @param details.id The ID of the endowment to update.
+    @param details.allowlistedBeneficiaries The updated list of allowlisted beneficiaries.
+    @param details.allowlistedContributors The updated list of allowlisted contributors.
+    @param details.maturity_allowlist_add The addresses to add to the maturity allowlist.
+    @param details.maturity_allowlist_remove The addresses to remove from the maturity allowlist.
+    @param details.splitToLiquid The updated split to liquid ratio.
+    @param details.ignoreUserSplits Whether or not to ignore user splits.
     Emits a EndowmentSettingUpdated event for each setting that has been updated.
     Emits an UpdateEndowment event after the endowment has been updated.
     Throws an error if the endowment is closing.
     */
     function updateEndowmentSettings(
-        AccountMessages.UpdateEndowmentSettingsRequest memory curDetails
+        AccountMessages.UpdateEndowmentSettingsRequest memory details
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[
-            curDetails.id
-        ];
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
-            curDetails.id
+            details.id
         ];
 
-        if (tempEndowmentState.closingEndowment) {
-            revert("UpdatesAfterClosed");
-        }
+        require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
 
-        if (tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity) {
+        if (tempEndowment.endowType != AngelCoreStruct.EndowmentType.Charity) {
             // when maturity time is <= 0 it means it's not set, i.e. the AST is perpetual
             if (tempEndowment.maturityTime <= 0 || tempEndowment.maturityTime > block.timestamp) {
                 if (
                     AngelCoreStruct.canChange(
-                        tempEndowment
-                            .settingsController
-                            .whitelistedBeneficiaries,
+                        tempEndowment.settingsController.maturityTime,
                         msg.sender,
                         tempEndowment.owner,
-                        tempEndowment.dao,
                         block.timestamp
                     )
                 ) {
-                    tempEndowment.whitelistedBeneficiaries = curDetails
-                        .whitelistedBeneficiaries;
+                    // Changes must be to a future time OR changing to a perpetual maturity
+                    require(details.maturityTime > block.timestamp || details.maturityTime == 0, "Invalid maturity time input");
+                    tempEndowment.maturityTime = details.maturityTime;
+                    emit EndowmentSettingUpdated(details.id, "maturityTime");
+                }
+                if (
+                    AngelCoreStruct.canChange(
+                        tempEndowment.settingsController.allowlistedBeneficiaries,
+                        msg.sender,
+                        tempEndowment.owner,
+                        block.timestamp
+                    )
+                ) {
+                    tempEndowment.allowlistedBeneficiaries = details.allowlistedBeneficiaries;
                     emit EndowmentSettingUpdated(
-                        curDetails.id,
-                        "whitelistedBeneficiaries"
+                        details.id,
+                        "allowlistedBeneficiaries"
                     );
                 }
 
                 if (
                     AngelCoreStruct.canChange(
-                        tempEndowment
-                            .settingsController
-                            .whitelistedContributors,
+                        tempEndowment.settingsController.allowlistedContributors,
                         msg.sender,
                         tempEndowment.owner,
-                        tempEndowment.dao,
                         block.timestamp
                     )
                 ) {
-                    tempEndowment.whitelistedContributors = curDetails
-                        .whitelistedContributors;
+                    tempEndowment.allowlistedContributors = details.allowlistedContributors;
                     emit EndowmentSettingUpdated(
-                        curDetails.id,
-                        "whitelistedContributors"
+                        details.id,
+                        "allowlistedContributors"
                     );
                 }
-
                 if (
                     AngelCoreStruct.canChange(
-                        tempEndowment.settingsController.maturityWhitelist,
+                        tempEndowment.settingsController.maturityAllowlist,
                         msg.sender,
                         tempEndowment.owner,
-                        tempEndowment.dao,
                         block.timestamp
                     )
                 ) {
                     for (
                         uint256 i = 0;
-                        i < curDetails.maturity_whitelist_add.length;
+                        i < details.maturity_allowlist_add.length;
                         i++
                     ) {
                         require(
                             Validator.addressChecker(
-                                curDetails.maturity_whitelist_add[i]
+                                details.maturity_allowlist_add[i]
                             ),
                             "InvalidAddress"
                         );
                         (, bool found) = AddressArray.indexOf(
-                            tempEndowment.maturityWhitelist,
-                            curDetails.maturity_whitelist_add[i]
+                            tempEndowment.maturityAllowlist,
+                            details.maturity_allowlist_add[i]
                         );
                         if (!found)
-                            tempEndowment.maturityWhitelist.push(
-                                curDetails.maturity_whitelist_add[i]
+                            tempEndowment.maturityAllowlist.push(
+                                details.maturity_allowlist_add[i]
                             );
                     }
                     for (
                         uint256 i = 0;
-                        i < curDetails.maturity_whitelist_remove.length;
+                        i < details.maturity_allowlist_remove.length;
                         i++
                     ) {
                         (uint256 index, bool found) = AddressArray.indexOf(
-                            tempEndowment.maturityWhitelist,
-                            curDetails.maturity_whitelist_remove[i]
+                            tempEndowment.maturityAllowlist,
+                            details.maturity_allowlist_remove[i]
                         );
                         if (found)
-                            tempEndowment.maturityWhitelist = AddressArray
-                                .remove(tempEndowment.maturityWhitelist, index);
+                            tempEndowment.maturityAllowlist = AddressArray
+                                .remove(tempEndowment.maturityAllowlist, index);
                     }
                     emit EndowmentSettingUpdated(
-                        curDetails.id,
-                        "maturityWhitelist"
+                        details.id,
+                        "maturityAllowlist"
                     );
                 }
             }
         }
+
         if (
             AngelCoreStruct.canChange(
                 tempEndowment.settingsController.splitToLiquid,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
-            tempEndowment.splitToLiquid = curDetails.splitToLiquid;
-            emit EndowmentSettingUpdated(curDetails.id, "splitToLiquid");
+            tempEndowment.splitToLiquid = details.splitToLiquid;
+            emit EndowmentSettingUpdated(details.id, "splitToLiquid");
         }
 
         if (
@@ -162,107 +160,74 @@ contract AccountsUpdateEndowmentSettingsController is
                 tempEndowment.settingsController.ignoreUserSplits,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
-            tempEndowment.ignoreUserSplits = curDetails.ignoreUserSplits;
-            emit EndowmentSettingUpdated(curDetails.id, "ignoreUserSplits");
+            tempEndowment.ignoreUserSplits = details.ignoreUserSplits;
+            emit EndowmentSettingUpdated(details.id, "ignoreUserSplits");
         }
-        state.ENDOWMENTS[curDetails.id] = tempEndowment;
-        emit UpdateEndowment(curDetails.id, tempEndowment);
+        state.ENDOWMENTS[details.id] = tempEndowment;
+        emit UpdateEndowment(details.id, tempEndowment);
     }
 
     /**
     @notice Updates the controller of the specified endowment
-    @dev Only the current controller of the endowment or the owner or DAO can call this function
-    @param curDetails The updated details of the endowment controller
-    @param curDetails.id The ID of the endowment
+    @dev Only the endowment owner can call this function
+    @param details The updated details of the endowment controller
+    @param details.id The ID of the endowment
     */
     function updateEndowmentController(
-        AccountMessages.UpdateEndowmentControllerRequest memory curDetails
+        AccountMessages.UpdateEndowmentControllerRequest memory details
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
-            curDetails.id
-        ];
-        AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[
-            curDetails.id
+            details.id
         ];
 
-        if (tempEndowmentState.closingEndowment) {
-            revert("UpdatesAfterClosed");
-        }
+        require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
+        require(msg.sender == tempEndowment.owner, "Unauthorized");
 
-        if (
-            !AngelCoreStruct.canChange(
-                tempEndowment.settingsController.endowmentController,
-                msg.sender,
-                tempEndowment.owner,
-                tempEndowment.dao,
-                block.timestamp
-            )
-        ) {
-            revert("Unauthorized");
-        }
-        tempEndowment.settingsController.endowmentController = curDetails
-            .endowmentController;
-        tempEndowment.settingsController.name = curDetails.name;
-        tempEndowment.settingsController.image = curDetails.image;
-        tempEndowment.settingsController.logo = curDetails.logo;
-        tempEndowment.settingsController.categories = curDetails.categories;
-        tempEndowment.settingsController.kycDonorsOnly = curDetails
-            .kycDonorsOnly;
-        tempEndowment.settingsController.splitToLiquid = curDetails
-            .splitToLiquid;
-        tempEndowment.settingsController.ignoreUserSplits = curDetails
-            .ignoreUserSplits;
-        tempEndowment.settingsController.whitelistedBeneficiaries = curDetails
-            .whitelistedBeneficiaries;
-        tempEndowment.settingsController.whitelistedContributors = curDetails
-            .whitelistedContributors;
-        tempEndowment.settingsController.maturityWhitelist = curDetails
-            .maturityWhitelist;
-        tempEndowment.settingsController.earningsFee = curDetails.earningsFee;
-        tempEndowment.settingsController.depositFee = curDetails.depositFee;
-        tempEndowment.settingsController.withdrawFee = curDetails.withdrawFee;
-        tempEndowment.settingsController.aumFee = curDetails.aumFee;
+        tempEndowment.settingsController = details.settingsController;
 
-        state.ENDOWMENTS[curDetails.id] = tempEndowment;
-        emit EndowmentSettingUpdated(curDetails.id, "endowmentController");
-        emit UpdateEndowment(curDetails.id, tempEndowment);
+        emit EndowmentSettingUpdated(details.id, "endowmentController");
+        emit UpdateEndowment(details.id, tempEndowment);
     }
 
     /**
     @notice Allows the owner or DAO to update the fees for a given endowment.
     @dev Only the fees that the caller is authorized to update will be updated.
-    @param curDetails The details of the fee update request, including the endowment ID, new fees, and the caller's signature.
+    @param details The details of the fee update request, including the endowment ID, new fees, and the caller's signature.
     @dev Emits an UpdateEndowment event containing the updated endowment details.
     @dev Reverts if the endowment is of type Charity, as charity endowments may not change fees.
     */
     function updateEndowmentFees(
-        AccountMessages.UpdateEndowmentFeeRequest memory curDetails
+        AccountMessages.UpdateEndowmentFeeRequest memory details
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
-            curDetails.id
+            details.id
         ];
 
         require(
-            tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity,
+            tempEndowment.endowType != AngelCoreStruct.EndowmentType.Charity,
             "Charity Endowments may not change endowment fees"
         );
+        require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.earningsFee,
+                tempEndowment.settingsController.earlyLockedWithdrawFee,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
-            tempEndowment.earningsFee = curDetails.earningsFee;
+            require(
+                details.earlyLockedWithdrawFee.payoutAddress != address(0) || details.earlyLockedWithdrawFee.percentage == 0,
+                "Invalid payout address given"
+            );
+            require(details.earlyLockedWithdrawFee.percentage < 1000, "Fee Percentage cannot be greater than 100%");
+            tempEndowment.earlyLockedWithdrawFee = details.earlyLockedWithdrawFee;
         }
 
         if (
@@ -270,11 +235,15 @@ contract AccountsUpdateEndowmentSettingsController is
                 tempEndowment.settingsController.depositFee,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
-            tempEndowment.depositFee = curDetails.depositFee;
+            require(
+                details.depositFee.payoutAddress != address(0) || details.depositFee.percentage == 0,
+                "Invalid payout address given"
+            );
+            require(details.depositFee.percentage < 1000, "Fee Percentage cannot be greater than 100%");
+            tempEndowment.depositFee = details.depositFee;
         }
 
         if (
@@ -282,26 +251,34 @@ contract AccountsUpdateEndowmentSettingsController is
                 tempEndowment.settingsController.withdrawFee,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
-            tempEndowment.withdrawFee = curDetails.withdrawFee;
+            require(
+                details.withdrawFee.payoutAddress != address(0) || details.withdrawFee.percentage == 0,
+                "Invalid payout address given"
+            );
+            require(details.withdrawFee.percentage < 1000, "Fee Percentage cannot be greater than 100%");
+            tempEndowment.withdrawFee = details.withdrawFee;
         }
 
         if (
             AngelCoreStruct.canChange(
-                tempEndowment.settingsController.aumFee,
+                tempEndowment.settingsController.balanceFee,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
-            tempEndowment.aumFee = curDetails.aumFee;
+            require(
+                details.balanceFee.payoutAddress != address(0) || details.balanceFee.percentage == 0,
+                "Invalid payout address given"
+            );
+            require(details.balanceFee.percentage < 1000, "Fee Percentage cannot be greater than 100%");
+            tempEndowment.balanceFee = details.balanceFee;
         }
 
-        state.ENDOWMENTS[curDetails.id] = tempEndowment;
-        emit UpdateEndowment(curDetails.id, tempEndowment);
+        state.ENDOWMENTS[details.id] = tempEndowment;
+        emit UpdateEndowment(details.id, tempEndowment);
     }
 }

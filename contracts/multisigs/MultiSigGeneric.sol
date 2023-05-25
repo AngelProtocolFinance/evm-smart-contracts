@@ -23,13 +23,13 @@ contract MultiSigGeneric is
         _;
     }
 
-    modifier ownerDoesNotExist(address owner) {
-        require(!isOwner[owner]);
+    modifier ownerDoesNotExist(address _owner) {
+        require(!isOwner[_owner]);
         _;
     }
 
-    modifier ownerExists(address owner) {
-        require(isOwner[owner]);
+    modifier ownerExists(address _owner) {
+        require(isOwner[_owner]);
         _;
     }
 
@@ -38,13 +38,13 @@ contract MultiSigGeneric is
         _;
     }
 
-    modifier confirmed(uint256 transactionId, address owner) {
-        require(confirmations[transactionId][owner]);
+    modifier confirmed(uint256 transactionId, address _owner) {
+        require(confirmations[transactionId][_owner]);
         _;
     }
 
-    modifier notConfirmed(uint256 transactionId, address owner) {
-        require(!confirmations[transactionId][owner]);
+    modifier notConfirmed(uint256 transactionId, address _owner) {
+        require(!confirmations[transactionId][_owner]);
         _;
     }
 
@@ -53,17 +53,17 @@ contract MultiSigGeneric is
         _;
     }
 
-    modifier notNull(address curAddress) {
-        require(curAddress != address(0));
+    modifier notNull(address addr) {
+        require(addr != address(0));
         _;
     }
 
-    modifier validRequirement(uint256 ownerCount, uint256 curRequired) {
+    modifier validRequirement(uint256 _ownerCount, uint256 _required) {
         require(
-            ownerCount <= MAX_OWNER_COUNT &&
-                curRequired <= ownerCount &&
-                curRequired != 0 &&
-                ownerCount != 0
+            _ownerCount <= MAX_OWNER_COUNT &&
+                _required <= _ownerCount &&
+                _required != 0 &&
+                _ownerCount != 0
         );
         _;
     }
@@ -82,92 +82,93 @@ contract MultiSigGeneric is
      * Public functions
      */
     /// @dev Contract constructor sets initial owners and required number of confirmations.
-    /// @param curOwners List of initial owners.
-    /// @param curRequired Number of required confirmations.
+    /// @param _owners List of initial owners.
+    /// @param _required Number of required confirmations.
+    /// @param _requireExecution setting for if an explicit execution call is required 
     function initialize(
-        address[] memory curOwners,
-        uint256 curRequired,
-        bool curRequireexecution
-    ) public virtual initializer validRequirement(curOwners.length, curRequired) {
-        for (uint256 i = 0; i < curOwners.length; i++) {
-            require(!isOwner[curOwners[i]] && curOwners[i] != address(0));
-            isOwner[curOwners[i]] = true;
+        address[] memory _owners,
+        uint256 _required,
+        bool _requireExecution
+    ) public virtual initializer validRequirement(_owners.length, _required) {
+        for (uint256 i = 0; i < _owners.length; i++) {
+            require(!isOwner[_owners[i]] && _owners[i] != address(0));
+            isOwner[_owners[i]] = true;
         }
-        owners = curOwners;
-        required = curRequired;
-        requireExecution = curRequireexecution;
+        owners = _owners;
+        required = _required;
+        requireExecution = _requireExecution;
     }
 
     /// @dev Allows to add a new owner. Transaction has to be sent by wallet.
-    /// @param owner Address of new owner.
-    function addOwner(address owner)
+    /// @param _owner Address of new owner.
+    function addOwner(address _owner)
         public
         virtual
         override
         onlyWallet
-        ownerDoesNotExist(owner)
-        notNull(owner)
+        ownerDoesNotExist(_owner)
+        notNull(_owner)
         validRequirement(owners.length + 1, required)
     {
-        isOwner[owner] = true;
-        owners.push(owner);
-        emit OwnerAddition(owner);
+        isOwner[_owner] = true;
+        owners.push(_owner);
+        emit OwnerAddition(_owner);
     }
 
     /// @dev Allows to remove an owner. Transaction has to be sent by wallet.
-    /// @param owner Address of owner.
-    function removeOwner(address owner)
+    /// @param _owner Address of owner.
+    function removeOwner(address _owner)
         public
         virtual
         override
         onlyWallet
-        ownerExists(owner)
+        ownerExists(_owner)
     {
-        isOwner[owner] = false;
+        isOwner[_owner] = false;
         for (uint256 i = 0; i < owners.length - 1; i++)
-            if (owners[i] == owner) {
+            if (owners[i] == _owner) {
                 owners[i] = owners[owners.length - 1];
                 break;
             }
         // TODO check if pops from back
         owners.pop();
         if (required > owners.length) changeRequirement(owners.length);
-        emit OwnerRemoval(owner);
+        emit OwnerRemoval(_owner);
     }
 
     /// @dev Allows to replace an owner with a new owner. Transaction has to be sent by wallet.
-    /// @param owner Address of owner to be replaced.
-    /// @param newOwner Address of new owner.
-    function replaceOwner(address owner, address newOwner)
+    /// @param _owner Address of owner to be replaced.
+    /// @param _newOwner Address of new owner.
+    function replaceOwner(address _owner, address _newOwner)
         public
         virtual
         override
         onlyWallet
-        ownerExists(owner)
-        ownerDoesNotExist(newOwner)
+        ownerExists(_owner)
+        ownerDoesNotExist(_newOwner)
     {
         for (uint256 i = 0; i < owners.length; i++)
-            if (owners[i] == owner) {
-                owners[i] = newOwner;
+            if (owners[i] == _owner) {
+                owners[i] = _newOwner;
                 break;
             }
-        isOwner[owner] = false;
-        isOwner[newOwner] = true;
-        emit OwnerRemoval(owner);
-        emit OwnerAddition(newOwner);
+        isOwner[_owner] = false;
+        isOwner[_newOwner] = true;
+        emit OwnerRemoval(_owner);
+        emit OwnerAddition(_newOwner);
     }
 
     /// @dev Allows to change the number of required confirmations. Transaction has to be sent by wallet.
-    /// @param curRequired Number of required confirmations.
-    function changeRequirement(uint256 curRequired)
+    /// @param _required Number of required confirmations.
+    function changeRequirement(uint256 _required)
         public
         virtual
         override
         onlyWallet
-        validRequirement(owners.length, curRequired)
+        validRequirement(owners.length, _required)
     {
-        required = curRequired;
-        emit RequirementChange(curRequired);
+        required = _required;
+        emit RequirementChange(_required);
     }
 
     /// @dev Allows an owner to submit and confirm a transaction.
@@ -352,12 +353,12 @@ contract MultiSigGeneric is
 
     /// @dev Returns array with owner addresses, which confirmed transaction.
     /// @param transactionId Transaction ID.
-    /// @return curConfirmations Returns array of owner addresses.
+    /// @return ownerConfirmations Returns array of owner addresses.
     function getConfirmations(uint256 transactionId)
         public
         view
         override
-        returns (address[] memory curConfirmations)
+        returns (address[] memory ownerConfirmations)
     {
         address[] memory confirmationsTemp = new address[](owners.length);
         uint256 count = 0;
@@ -367,8 +368,8 @@ contract MultiSigGeneric is
                 confirmationsTemp[count] = owners[i];
                 count += 1;
             }
-        curConfirmations = new address[](count);
-        for (i = 0; i < count; i++) curConfirmations[i] = confirmationsTemp[i];
+        ownerConfirmations = new address[](count);
+        for (i = 0; i < count; i++) ownerConfirmations[i] = confirmationsTemp[i];
     }
 
     /// @dev Returns list of transaction IDs in defined range.
@@ -376,13 +377,13 @@ contract MultiSigGeneric is
     /// @param to Index end position of transaction array.
     /// @param pending Include pending transactions.
     /// @param executed Include executed transactions.
-    /// @return curTransactionids Returns array of transaction IDs.
+    /// @return transactionIds Returns array of transaction IDs.
     function getTransactionIds(
         uint256 from,
         uint256 to,
         bool pending,
         bool executed
-    ) public view override returns (uint256[] memory curTransactionids) {
+    ) public view override returns (uint256[] memory transactionIds) {
         uint256[] memory transactionIdsTemp = new uint256[](transactionCount);
         uint256 count = 0;
         uint256 i;
@@ -394,8 +395,8 @@ contract MultiSigGeneric is
                 transactionIdsTemp[count] = i;
                 count += 1;
             }
-        curTransactionids = new uint256[](to - from);
+        transactionIds = new uint256[](to - from);
         for (i = from; i < to; i++)
-            curTransactionids[i - from] = transactionIdsTemp[i];
+            transactionIds[i - from] = transactionIdsTemp[i];
     }
 }

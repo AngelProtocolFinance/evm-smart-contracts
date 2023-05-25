@@ -15,67 +15,6 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: "string",
-        name: "strategyName",
-        type: "string",
-      },
-      {
-        components: [
-          {
-            internalType: "string",
-            name: "addr",
-            type: "string",
-          },
-          {
-            internalType: "uint256",
-            name: "network",
-            type: "uint256",
-          },
-          {
-            internalType: "address",
-            name: "inputDenom",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "yieldToken",
-            type: "address",
-          },
-          {
-            internalType: "bool",
-            name: "approved",
-            type: "bool",
-          },
-          {
-            internalType: "enum AngelCoreStruct.EndowmentType[]",
-            name: "restrictedFrom",
-            type: "uint8[]",
-          },
-          {
-            internalType: "enum AngelCoreStruct.AccountType",
-            name: "acctType",
-            type: "uint8",
-          },
-          {
-            internalType: "enum AngelCoreStruct.VaultType",
-            name: "vaultType",
-            type: "uint8",
-          },
-        ],
-        indexed: false,
-        internalType: "struct AngelCoreStruct.YieldVault",
-        name: "vault",
-        type: "tuple",
-      },
-    ],
-    name: "AddVault",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
         internalType: "uint256",
         name: "chainId",
         type: "uint256",
@@ -112,7 +51,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "axelerGateway",
+            name: "axelarGateway",
             type: "address",
           },
           {
@@ -149,25 +88,7 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: false,
-        internalType: "string",
-        name: "strategyName",
-        type: "string",
-      },
-    ],
-    name: "RemoveVault",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
         components: [
-          {
-            internalType: "address",
-            name: "owner",
-            type: "address",
-          },
           {
             internalType: "address",
             name: "applicationsReview",
@@ -190,27 +111,27 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "subdaoGovCode",
+            name: "subdaoGovContract",
             type: "address",
           },
           {
             internalType: "address",
-            name: "subdaoCw20TokenCode",
+            name: "subdaoTokenContract",
             type: "address",
           },
           {
             internalType: "address",
-            name: "subdaoBondingTokenCode",
+            name: "subdaoBondingTokenContract",
             type: "address",
           },
           {
             internalType: "address",
-            name: "subdaoCw900Code",
+            name: "subdaoCw900Contract",
             type: "address",
           },
           {
             internalType: "address",
-            name: "subdaoDistributorCode",
+            name: "subdaoDistributorContract",
             type: "address",
           },
           {
@@ -220,7 +141,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "donationMatchCode",
+            name: "donationMatchContract",
             type: "address",
           },
           {
@@ -271,11 +192,6 @@ const _abi = [
             type: "address",
           },
           {
-            internalType: "address",
-            name: "collectorAddr",
-            type: "address",
-          },
-          {
             internalType: "uint256",
             name: "collectorShare",
             type: "uint256",
@@ -286,53 +202,9 @@ const _abi = [
             type: "address",
           },
           {
-            components: [
-              {
-                internalType: "address[]",
-                name: "cw20",
-                type: "address[]",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.AcceptedTokens",
-            name: "acceptedTokens",
-            type: "tuple",
-          },
-          {
             internalType: "address",
             name: "fundraisingContract",
             type: "address",
-          },
-          {
-            components: [
-              {
-                internalType: "bool",
-                name: "rebalanceLiquidInvestedProfits",
-                type: "bool",
-              },
-              {
-                internalType: "bool",
-                name: "lockedInterestsToLiquid",
-                type: "bool",
-              },
-              {
-                internalType: "uint256",
-                name: "interest_distribution",
-                type: "uint256",
-              },
-              {
-                internalType: "bool",
-                name: "lockedPrincipleToLiquid",
-                type: "bool",
-              },
-              {
-                internalType: "uint256",
-                name: "principle_distribution",
-                type: "uint256",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.RebalanceDetails",
-            name: "rebalance",
-            type: "tuple",
           },
           {
             internalType: "address",
@@ -427,35 +299,10 @@ const _abi = [
     name: "UpdateRegistrarOwner",
     type: "event",
   },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "string",
-        name: "strategyName",
-        type: "string",
-      },
-      {
-        indexed: false,
-        internalType: "bool",
-        name: "approved",
-        type: "bool",
-      },
-      {
-        indexed: false,
-        internalType: "enum AngelCoreStruct.EndowmentType[]",
-        name: "endowmentTypes",
-        type: "uint8[]",
-      },
-    ],
-    name: "UpdateVault",
-    type: "event",
-  },
 ] as const;
 
 const _bytecode =
-  "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea2646970667358221220313523e9500fb12ec9669abb77856c87f7f1bbe77da8db83a348b1c7a9ac4f7f64736f6c63430008120033";
+  "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea2646970667358221220899bd3ae5c11ff5a57fb02c33ba4b8fef84d3d04ab39d33399919ef596c1c69864736f6c63430008120033";
 
 type RegistrarEventsLibConstructorParams =
   | [signer?: Signer]

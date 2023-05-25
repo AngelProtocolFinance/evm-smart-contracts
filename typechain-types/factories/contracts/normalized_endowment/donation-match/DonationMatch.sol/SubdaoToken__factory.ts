@@ -14,22 +14,22 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "curAmount",
+        name: "amount",
         type: "uint256",
       },
       {
         internalType: "address",
-        name: "curAccountscontract",
+        name: "accountscontract",
         type: "address",
       },
       {
-        internalType: "uint256",
-        name: "curEndowmentid",
-        type: "uint256",
+        internalType: "uint32",
+        name: "endowmentid",
+        type: "uint32",
       },
       {
         internalType: "address",
-        name: "curDonor",
+        name: "donor",
         type: "address",
       },
     ],

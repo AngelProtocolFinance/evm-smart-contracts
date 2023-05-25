@@ -8,13 +8,13 @@ import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
-import {IRegistrar} from "../../registrar/interface/IRegistrar.sol";
+import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {IIndexFund} from "../../index-fund/Iindex-fund.sol";
 import {Array} from "../../../lib/array.sol";
 import {Utils} from "../../../lib/utils.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
-import {IAccountsQuery} from "../interface/IAccountsQuery.sol";
+import {IAccountsQuery} from "../interfaces/IAccountsQuery.sol";
 
 /**
  * @title AccountsUpdateEndowments
@@ -24,75 +24,42 @@ import {IAccountsQuery} from "../interface/IAccountsQuery.sol";
 contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
     /**
     @notice Updates the endowment details.
-    @dev This function allows authorized users to update the endowment details like owner, tier, endowment type, rebalance, kycDonorsOnly, name, categories, logo, and image.
-    @param curDetails UpdateEndowmentDetailsRequest struct containing the updated endowment details.
+    @dev This function allows the Endowment owner to update the endowment details like owner & rebalance and allows them or their Delegate(s) to update name, categories, logo, and image.
+    @param details UpdateEndowmentDetailsRequest struct containing the updated endowment details.
     */
     function updateEndowmentDetails(
-        AccountMessages.UpdateEndowmentDetailsRequest memory curDetails
+        AccountMessages.UpdateEndowmentDetailsRequest memory details
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
-            curDetails.id
-        ];
-        // AccountStorage.Config memory tempConfig = state.config;
-        AccountStorage.EndowmentState memory tempEndowmentState = state.STATES[
-            curDetails.id
+            details.id
         ];
 
-        require(!tempEndowmentState.closingEndowment, "UpdatesAfterClosed");
+        require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
 
-        if (
-            !(msg.sender == state.config.owner ||
-                msg.sender == tempEndowment.owner)
-        ) {
-            if (
-                tempEndowment.dao == address(0) ||
-                msg.sender != tempEndowment.dao
+        // there are several fields that are restricted to changing only by the Endowment Owner
+        if (msg.sender == tempEndowment.owner) {
+            // An Endowment's owner can be set as the gov dao OR the endowment multisig contract
+            if (details.owner != address(0) &&
+                (details.owner == tempEndowment.dao || details.owner == tempEndowment.multisig)
             ) {
-                revert("Unauthorized");
+                tempEndowment.owner = details.owner;
+            }
+
+            if (tempEndowment.endowType != AngelCoreStruct.EndowmentType.Charity) {
+                tempEndowment.rebalance = details.rebalance;
             }
         }
 
-        // only config owner can update owner, tier and endowment type fields
-        if (msg.sender == state.config.owner) {
-            tempEndowment.tier = curDetails.tier;
-            if (curDetails.owner != address(0)) {
-                tempEndowment.owner = curDetails.owner;
-            }
-            tempEndowment.endow_type = curDetails.endow_type;
-            require(
-                curDetails.endow_type != AngelCoreStruct.EndowmentType.None,
-                "InvalidInputs"
-            );
-        }
-
-        if (tempEndowment.endow_type != AngelCoreStruct.EndowmentType.Charity) {
-            tempEndowment.rebalance = curDetails.rebalance;
-        }
-
-        // if(tempEndowment.settingsController.kycDonorsOnly)
-        if (
-            AngelCoreStruct.canChange(
-                tempEndowment.settingsController.kycDonorsOnly,
-                msg.sender,
-                tempEndowment.owner,
-                tempEndowment.dao,
-                block.timestamp
-            )
-        ) {
-            tempEndowment.kycDonorsOnly = curDetails.kycDonorsOnly;
-        }
         if (
             AngelCoreStruct.canChange(
                 tempEndowment.settingsController.name,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
-            tempEndowment.name = curDetails.name;
+            tempEndowment.name = details.name;
         }
 
         if (
@@ -100,46 +67,45 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
                 tempEndowment.settingsController.categories,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
             if (
-                tempEndowment.endow_type ==
+                tempEndowment.endowType ==
                 AngelCoreStruct.EndowmentType.Charity
             ) {
-                if (curDetails.categories.sdgs.length == 0) {
+                if (details.categories.sdgs.length == 0) {
                     revert("InvalidInputs");
                 }
-                curDetails.categories.sdgs = Array.sort(
-                    curDetails.categories.sdgs
+                details.categories.sdgs = Array.sort(
+                    details.categories.sdgs
                 );
                 for (
                     uint256 i = 0;
-                    i < curDetails.categories.sdgs.length;
+                    i < details.categories.sdgs.length;
                     i++
                 ) {
                     if (
-                        curDetails.categories.sdgs[i] > 17 ||
-                        curDetails.categories.sdgs[i] == 0
+                        details.categories.sdgs[i] > 17 ||
+                        details.categories.sdgs[i] == 0
                     ) {
                         revert("InvalidInputs");
                     }
                 }
             }
-            if (curDetails.categories.general.length > 0) {
-                curDetails.categories.general = Array.sort(
-                    curDetails.categories.general
+            if (details.categories.general.length > 0) {
+                details.categories.general = Array.sort(
+                    details.categories.general
                 );
-                uint256 length = curDetails.categories.general.length;
+                uint256 length = details.categories.general.length;
                 if (
-                    curDetails.categories.general[length - 1] >
+                    details.categories.general[length - 1] >
                     state.config.maxGeneralCategoryId
                 ) {
                     revert("InvalidInputs");
                 }
             }
-            tempEndowment.categories = curDetails.categories;
+            tempEndowment.categories = details.categories;
         }
 
         if (
@@ -147,11 +113,10 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
                 tempEndowment.settingsController.logo,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
-            tempEndowment.logo = curDetails.logo;
+            tempEndowment.logo = details.logo;
         }
 
         if (
@@ -159,15 +124,14 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
                 tempEndowment.settingsController.image,
                 msg.sender,
                 tempEndowment.owner,
-                tempEndowment.dao,
                 block.timestamp
             )
         ) {
-            tempEndowment.image = curDetails.image;
+            tempEndowment.image = details.image;
         }
 
-        state.ENDOWMENTS[curDetails.id] = tempEndowment;
-        emit UpdateEndowment(curDetails.id, tempEndowment);
+        state.ENDOWMENTS[details.id] = tempEndowment;
+        emit UpdateEndowment(details.id, tempEndowment);
     }
 
     /**
@@ -180,50 +144,168 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
     @param delegateExpiry The timestamp at which the delegate's permission expires
     */
     function updateDelegate(
-        uint256 id,
-        string memory setting,
-        string memory action,
+        uint32 id,
+        AngelCoreStruct.ControllerSettingOption setting,
+        AngelCoreStruct.DelegateAction action,
         address delegateAddress,
         uint256 delegateExpiry
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
+        AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
 
-        AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];
-        // AngelCoreStruct.SettingsPermission memory tempSettings = AngelCoreStruct.getPermissions(state.ENDOWMENTS[id].settingsController,setting);
+        require(!state.STATES[id].closingEndowment, "UpdatesAfterClosed");
 
-        require(msg.sender == tempEndowment.owner, "Unauthorized");
-
-        if (
-            keccak256(abi.encodePacked(action)) ==
-            keccak256(abi.encodePacked("set"))
-        ) {
-            AngelCoreStruct.setDelegate(
-                AngelCoreStruct.getPermissions(
-                    state.ENDOWMENTS[id].settingsController,
-                    setting
-                ),
-                msg.sender,
-                tempEndowment.owner,
-                tempEndowment.dao,
-                delegateAddress,
-                delegateExpiry
-            );
-        } else if (
-            keccak256(abi.encodePacked(action)) ==
-            keccak256(abi.encodePacked("revoke"))
-        ) {
-            AngelCoreStruct.revokeDelegate(
-                AngelCoreStruct.getPermissions(
-                    state.ENDOWMENTS[id].settingsController,
-                    setting
-                ),
-                msg.sender,
-                tempEndowment.owner,
-                tempEndowment.dao,
-                block.timestamp
-            );
+        AngelCoreStruct.Delegate memory newDelegate;
+        if (action == AngelCoreStruct.DelegateAction.Set) {
+            newDelegate = AngelCoreStruct.Delegate({addr: delegateAddress, expires: delegateExpiry});
+        } else if (action == AngelCoreStruct.DelegateAction.Revoke) {
+            newDelegate = AngelCoreStruct.Delegate({addr: address(0), expires: 0});
         } else {
-            revert("Invalid Input");
+            revert("Invalid action passed");
+        }
+
+        if (setting == AngelCoreStruct.ControllerSettingOption.Strategies) {
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.strategies,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.strategies.delegate = newDelegate;
+        } else if (setting == AngelCoreStruct.ControllerSettingOption.AllowlistedBeneficiaries) {
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.allowlistedBeneficiaries,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.allowlistedBeneficiaries.delegate = newDelegate;
+        } else if (setting == AngelCoreStruct.ControllerSettingOption.AllowlistedContributors) {
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.allowlistedContributors,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.allowlistedContributors.delegate = newDelegate;
+        } else if (setting == AngelCoreStruct.ControllerSettingOption.MaturityAllowlist) {
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.maturityAllowlist,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.maturityAllowlist.delegate = newDelegate;
+        } else if (setting == AngelCoreStruct.ControllerSettingOption.MaturityTime) {
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.maturityTime,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.maturityTime.delegate = newDelegate;
+        } else if (setting == AngelCoreStruct.ControllerSettingOption.WithdrawFee) {
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.withdrawFee,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.withdrawFee.delegate = newDelegate;
+        } else if (setting == AngelCoreStruct.ControllerSettingOption.DepositFee) {
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.depositFee,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.depositFee.delegate = newDelegate;
+        } else if (setting == AngelCoreStruct.ControllerSettingOption.BalanceFee) {
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.balanceFee,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.balanceFee.delegate = newDelegate;
+        } else if (setting == AngelCoreStruct.ControllerSettingOption.Name) {
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.name,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.name.delegate = newDelegate;
+        } else if (setting == AngelCoreStruct.ControllerSettingOption.Image) {
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.image,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.image.delegate = newDelegate;
+        } else if (setting == AngelCoreStruct.ControllerSettingOption.Logo) {
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.logo,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.logo.delegate = newDelegate;
+        } else if (setting == AngelCoreStruct.ControllerSettingOption.Categories) {
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.categories,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.categories.delegate = newDelegate;
+        } else if (setting == AngelCoreStruct.ControllerSettingOption.SplitToLiquid) {
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.splitToLiquid,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.splitToLiquid.delegate = newDelegate;
+        } else if (setting == AngelCoreStruct.ControllerSettingOption.IgnoreUserSplits) {
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.ignoreUserSplits,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.ignoreUserSplits.delegate = newDelegate;
+        } else {
+            revert("Invalid setting input");
         }
 
         emit UpdateEndowment(id, tempEndowment);

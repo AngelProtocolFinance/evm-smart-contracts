@@ -54,24 +54,22 @@ export declare namespace AngelCoreStruct {
 
   export type EndowmentFeeStruct = {
     payoutAddress: PromiseOrValue<string>;
-    feePercentage: PromiseOrValue<BigNumberish>;
-    active: PromiseOrValue<boolean>;
+    percentage: PromiseOrValue<BigNumberish>;
   };
 
-  export type EndowmentFeeStructOutput = [string, BigNumber, boolean] & {
+  export type EndowmentFeeStructOutput = [string, BigNumber] & {
     payoutAddress: string;
-    feePercentage: BigNumber;
-    active: boolean;
+    percentage: BigNumber;
   };
 
-  export type CurveTypeDataStruct = {
+  export type VeTypeDataStruct = {
     value: PromiseOrValue<BigNumberish>;
     scale: PromiseOrValue<BigNumberish>;
     slope: PromiseOrValue<BigNumberish>;
     power: PromiseOrValue<BigNumberish>;
   };
 
-  export type CurveTypeDataStructOutput = [
+  export type VeTypeDataStructOutput = [
     BigNumber,
     BigNumber,
     BigNumber,
@@ -83,28 +81,28 @@ export declare namespace AngelCoreStruct {
     power: BigNumber;
   };
 
-  export type CurveTypeStruct = {
-    curve_type: PromiseOrValue<BigNumberish>;
-    data: AngelCoreStruct.CurveTypeDataStruct;
+  export type VeTypeStruct = {
+    ve_type: PromiseOrValue<BigNumberish>;
+    data: AngelCoreStruct.VeTypeDataStruct;
   };
 
-  export type CurveTypeStructOutput = [
+  export type VeTypeStructOutput = [
     number,
-    AngelCoreStruct.CurveTypeDataStructOutput
-  ] & { curve_type: number; data: AngelCoreStruct.CurveTypeDataStructOutput };
+    AngelCoreStruct.VeTypeDataStructOutput
+  ] & { ve_type: number; data: AngelCoreStruct.VeTypeDataStructOutput };
 
   export type DaoTokenDataStruct = {
-    existingCw20Data: PromiseOrValue<string>;
-    newCw20InitialSupply: PromiseOrValue<BigNumberish>;
-    newCw20Name: PromiseOrValue<string>;
-    newCw20Symbol: PromiseOrValue<string>;
-    bondingCurveCurveType: AngelCoreStruct.CurveTypeStruct;
-    bondingCurveName: PromiseOrValue<string>;
-    bondingCurveSymbol: PromiseOrValue<string>;
-    bondingCurveDecimals: PromiseOrValue<BigNumberish>;
-    bondingCurveReserveDenom: PromiseOrValue<string>;
-    bondingCurveReserveDecimals: PromiseOrValue<BigNumberish>;
-    bondingCurveUnbondingPeriod: PromiseOrValue<BigNumberish>;
+    existingData: PromiseOrValue<string>;
+    newInitialSupply: PromiseOrValue<BigNumberish>;
+    newName: PromiseOrValue<string>;
+    newSymbol: PromiseOrValue<string>;
+    veBondingType: AngelCoreStruct.VeTypeStruct;
+    veBondingName: PromiseOrValue<string>;
+    veBondingSymbol: PromiseOrValue<string>;
+    veBondingDecimals: PromiseOrValue<BigNumberish>;
+    veBondingReserveDenom: PromiseOrValue<string>;
+    veBondingReserveDecimals: PromiseOrValue<BigNumberish>;
+    veBondingPeriod: PromiseOrValue<BigNumberish>;
   };
 
   export type DaoTokenDataStructOutput = [
@@ -112,7 +110,7 @@ export declare namespace AngelCoreStruct {
     BigNumber,
     string,
     string,
-    AngelCoreStruct.CurveTypeStructOutput,
+    AngelCoreStruct.VeTypeStructOutput,
     string,
     string,
     BigNumber,
@@ -120,17 +118,17 @@ export declare namespace AngelCoreStruct {
     BigNumber,
     BigNumber
   ] & {
-    existingCw20Data: string;
-    newCw20InitialSupply: BigNumber;
-    newCw20Name: string;
-    newCw20Symbol: string;
-    bondingCurveCurveType: AngelCoreStruct.CurveTypeStructOutput;
-    bondingCurveName: string;
-    bondingCurveSymbol: string;
-    bondingCurveDecimals: BigNumber;
-    bondingCurveReserveDenom: string;
-    bondingCurveReserveDecimals: BigNumber;
-    bondingCurveUnbondingPeriod: BigNumber;
+    existingData: string;
+    newInitialSupply: BigNumber;
+    newName: string;
+    newSymbol: string;
+    veBondingType: AngelCoreStruct.VeTypeStructOutput;
+    veBondingName: string;
+    veBondingSymbol: string;
+    veBondingDecimals: BigNumber;
+    veBondingReserveDenom: string;
+    veBondingReserveDecimals: BigNumber;
+    veBondingPeriod: BigNumber;
   };
 
   export type DaoTokenStruct = {
@@ -175,47 +173,37 @@ export declare namespace AngelCoreStruct {
   };
 
   export type DelegateStruct = {
-    Addr: PromiseOrValue<string>;
+    addr: PromiseOrValue<string>;
     expires: PromiseOrValue<BigNumberish>;
   };
 
   export type DelegateStructOutput = [string, BigNumber] & {
-    Addr: string;
+    addr: string;
     expires: BigNumber;
   };
 
   export type SettingsPermissionStruct = {
-    ownerControlled: PromiseOrValue<boolean>;
-    govControlled: PromiseOrValue<boolean>;
-    modifiableAfterInit: PromiseOrValue<boolean>;
+    locked: PromiseOrValue<boolean>;
     delegate: AngelCoreStruct.DelegateStruct;
   };
 
   export type SettingsPermissionStructOutput = [
     boolean,
-    boolean,
-    boolean,
     AngelCoreStruct.DelegateStructOutput
-  ] & {
-    ownerControlled: boolean;
-    govControlled: boolean;
-    modifiableAfterInit: boolean;
-    delegate: AngelCoreStruct.DelegateStructOutput;
-  };
+  ] & { locked: boolean; delegate: AngelCoreStruct.DelegateStructOutput };
 
   export type SettingsControllerStruct = {
-    endowmentController: AngelCoreStruct.SettingsPermissionStruct;
     strategies: AngelCoreStruct.SettingsPermissionStruct;
-    whitelistedBeneficiaries: AngelCoreStruct.SettingsPermissionStruct;
-    whitelistedContributors: AngelCoreStruct.SettingsPermissionStruct;
-    maturityWhitelist: AngelCoreStruct.SettingsPermissionStruct;
+    lockedInvestmentManagement: AngelCoreStruct.SettingsPermissionStruct;
+    liquidInvestmentManagement: AngelCoreStruct.SettingsPermissionStruct;
+    allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStruct;
+    allowlistedContributors: AngelCoreStruct.SettingsPermissionStruct;
+    maturityAllowlist: AngelCoreStruct.SettingsPermissionStruct;
     maturityTime: AngelCoreStruct.SettingsPermissionStruct;
-    profile: AngelCoreStruct.SettingsPermissionStruct;
-    earningsFee: AngelCoreStruct.SettingsPermissionStruct;
+    earlyLockedWithdrawFee: AngelCoreStruct.SettingsPermissionStruct;
     withdrawFee: AngelCoreStruct.SettingsPermissionStruct;
     depositFee: AngelCoreStruct.SettingsPermissionStruct;
-    aumFee: AngelCoreStruct.SettingsPermissionStruct;
-    kycDonorsOnly: AngelCoreStruct.SettingsPermissionStruct;
+    balanceFee: AngelCoreStruct.SettingsPermissionStruct;
     name: AngelCoreStruct.SettingsPermissionStruct;
     image: AngelCoreStruct.SettingsPermissionStruct;
     logo: AngelCoreStruct.SettingsPermissionStruct;
@@ -241,21 +229,19 @@ export declare namespace AngelCoreStruct {
     AngelCoreStruct.SettingsPermissionStructOutput,
     AngelCoreStruct.SettingsPermissionStructOutput,
     AngelCoreStruct.SettingsPermissionStructOutput,
-    AngelCoreStruct.SettingsPermissionStructOutput,
     AngelCoreStruct.SettingsPermissionStructOutput
   ] & {
-    endowmentController: AngelCoreStruct.SettingsPermissionStructOutput;
     strategies: AngelCoreStruct.SettingsPermissionStructOutput;
-    whitelistedBeneficiaries: AngelCoreStruct.SettingsPermissionStructOutput;
-    whitelistedContributors: AngelCoreStruct.SettingsPermissionStructOutput;
-    maturityWhitelist: AngelCoreStruct.SettingsPermissionStructOutput;
+    lockedInvestmentManagement: AngelCoreStruct.SettingsPermissionStructOutput;
+    liquidInvestmentManagement: AngelCoreStruct.SettingsPermissionStructOutput;
+    allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStructOutput;
+    allowlistedContributors: AngelCoreStruct.SettingsPermissionStructOutput;
+    maturityAllowlist: AngelCoreStruct.SettingsPermissionStructOutput;
     maturityTime: AngelCoreStruct.SettingsPermissionStructOutput;
-    profile: AngelCoreStruct.SettingsPermissionStructOutput;
-    earningsFee: AngelCoreStruct.SettingsPermissionStructOutput;
+    earlyLockedWithdrawFee: AngelCoreStruct.SettingsPermissionStructOutput;
     withdrawFee: AngelCoreStruct.SettingsPermissionStructOutput;
     depositFee: AngelCoreStruct.SettingsPermissionStructOutput;
-    aumFee: AngelCoreStruct.SettingsPermissionStructOutput;
-    kycDonorsOnly: AngelCoreStruct.SettingsPermissionStructOutput;
+    balanceFee: AngelCoreStruct.SettingsPermissionStructOutput;
     name: AngelCoreStruct.SettingsPermissionStructOutput;
     image: AngelCoreStruct.SettingsPermissionStructOutput;
     logo: AngelCoreStruct.SettingsPermissionStructOutput;
@@ -286,28 +272,28 @@ export declare namespace AccountMessages {
     name: PromiseOrValue<string>;
     categories: AngelCoreStruct.CategoriesStruct;
     tier: PromiseOrValue<BigNumberish>;
-    endow_type: PromiseOrValue<BigNumberish>;
+    endowType: PromiseOrValue<BigNumberish>;
     logo: PromiseOrValue<string>;
     image: PromiseOrValue<string>;
-    cw4_members: PromiseOrValue<string>[];
+    members: PromiseOrValue<string>[];
     kycDonorsOnly: PromiseOrValue<boolean>;
     threshold: PromiseOrValue<BigNumberish>;
-    cw3MaxVotingPeriod: AngelCoreStruct.DurationStruct;
-    whitelistedBeneficiaries: PromiseOrValue<string>[];
-    whitelistedContributors: PromiseOrValue<string>[];
+    maxVotingPeriod: AngelCoreStruct.DurationStruct;
+    allowlistedBeneficiaries: PromiseOrValue<string>[];
+    allowlistedContributors: PromiseOrValue<string>[];
     splitMax: PromiseOrValue<BigNumberish>;
     splitMin: PromiseOrValue<BigNumberish>;
     splitDefault: PromiseOrValue<BigNumberish>;
-    earningsFee: AngelCoreStruct.EndowmentFeeStruct;
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStruct;
     withdrawFee: AngelCoreStruct.EndowmentFeeStruct;
     depositFee: AngelCoreStruct.EndowmentFeeStruct;
-    aumFee: AngelCoreStruct.EndowmentFeeStruct;
+    balanceFee: AngelCoreStruct.EndowmentFeeStruct;
     dao: AngelCoreStruct.DaoSetupStruct;
     createDao: PromiseOrValue<boolean>;
     proposalLink: PromiseOrValue<BigNumberish>;
     settingsController: AngelCoreStruct.SettingsControllerStruct;
     parent: PromiseOrValue<BigNumberish>;
-    maturityWhitelist: PromiseOrValue<string>[];
+    maturityAllowlist: PromiseOrValue<string>[];
     ignoreUserSplits: PromiseOrValue<boolean>;
     splitToLiquid: AngelCoreStruct.SplitDetailsStruct;
     referralId: PromiseOrValue<BigNumberish>;
@@ -341,7 +327,7 @@ export declare namespace AccountMessages {
     boolean,
     BigNumber,
     AngelCoreStruct.SettingsControllerStructOutput,
-    BigNumber,
+    number,
     string[],
     boolean,
     AngelCoreStruct.SplitDetailsStructOutput,
@@ -354,28 +340,28 @@ export declare namespace AccountMessages {
     name: string;
     categories: AngelCoreStruct.CategoriesStructOutput;
     tier: BigNumber;
-    endow_type: number;
+    endowType: number;
     logo: string;
     image: string;
-    cw4_members: string[];
+    members: string[];
     kycDonorsOnly: boolean;
     threshold: BigNumber;
-    cw3MaxVotingPeriod: AngelCoreStruct.DurationStructOutput;
-    whitelistedBeneficiaries: string[];
-    whitelistedContributors: string[];
+    maxVotingPeriod: AngelCoreStruct.DurationStructOutput;
+    allowlistedBeneficiaries: string[];
+    allowlistedContributors: string[];
     splitMax: BigNumber;
     splitMin: BigNumber;
     splitDefault: BigNumber;
-    earningsFee: AngelCoreStruct.EndowmentFeeStructOutput;
+    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
     withdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
     depositFee: AngelCoreStruct.EndowmentFeeStructOutput;
-    aumFee: AngelCoreStruct.EndowmentFeeStructOutput;
+    balanceFee: AngelCoreStruct.EndowmentFeeStructOutput;
     dao: AngelCoreStruct.DaoSetupStructOutput;
     createDao: boolean;
     proposalLink: BigNumber;
     settingsController: AngelCoreStruct.SettingsControllerStructOutput;
-    parent: BigNumber;
-    maturityWhitelist: string[];
+    parent: number;
+    maturityAllowlist: string[];
     ignoreUserSplits: boolean;
     splitToLiquid: AngelCoreStruct.SplitDetailsStructOutput;
     referralId: BigNumber;

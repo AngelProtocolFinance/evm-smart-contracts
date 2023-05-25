@@ -4,13 +4,14 @@ pragma solidity >=0.8.0;
 
 // Angel Protocol
 import {IVault} from "../../interfaces/IVault.sol";
+import {IRouter} from "../../core/router/IRouter.sol";
 import {IRegistrarGoldfinch} from "./IRegistrarGoldfinch.sol";
 import {APGoldfinchConfigLib} from "./APGoldfinchConfig.sol";
 import {LocalRegistrarLib} from "../../core/registrar/lib/LocalRegistrarLib.sol";
 
 // Integrations
 import {IStakingRewards} from "./IStakingRewards.sol";
-import {ICurveLP} from "./ICurveLP.sol";
+import {IveLP} from "./ICurveLP.sol";
 
 // Token
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
@@ -28,7 +29,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
     address public GFI;     // 0xdab396cCF3d84Cf2D07C4454e10C8A6F5b008D2b
 
     IRegistrarGoldfinch registrar;
-    ICurveLP crvPool;
+    IveLP crvPool;
     IStakingRewards stakingPool;
 
     mapping(uint32 => uint256) public tokenIdByAccountId;
@@ -46,7 +47,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
         vaultType = _vaultType;
         registrar = IRegistrarGoldfinch(_registrar);
         stakingPool = IStakingRewards(_stakingPool);
-        crvPool = ICurveLP(_crvPool);
+        crvPool = IveLP(_crvPool);
         USDC = _usdc;
         FIDU = _fidu;
         GFI = _gfi;
@@ -153,7 +154,14 @@ contract GoldfinchVault is IVault, IERC721Receiver {
         uint32 accountId,
         address token,
         uint256 amt
-    ) external payable override approvedRouterOnly onlyUSDC(token) nonzeroPositionOnly(accountId) returns (uint256)  {
+    ) 
+    external 
+    payable 
+    override 
+    approvedRouterOnly 
+    onlyUSDC(token) 
+    nonzeroPositionOnly(accountId) 
+    returns (IRouter.RedemptionResponse memory)  {
         LocalRegistrarLib.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
         IStakingRewards.StakedPosition memory position = stakingPool.getPosition(tokenIdByAccountId[accountId]);
 
@@ -167,7 +175,15 @@ contract GoldfinchVault is IVault, IERC721Receiver {
 
         _updatePrinciples(accountId, redeemedFIDU);
         IERC20(USDC).approve(apParams.routerAddr, redeemedUSDC);
-        return redeemedUSDC;
+        IRouter.RedemptionResponse memory response = IRouter.RedemptionResponse({
+            amount: redeemedUSDC,
+            status: IRouter.VaultActionStatus.SUCCESS 
+        });
+        
+        if (principleByAccountId[accountId].usdcP == 0) {
+            response.status = IRouter.VaultActionStatus.POSITION_EXITED;
+        } 
+        return response;
     }
 
     /// @notice redeem all of the value from the vault contract
@@ -344,7 +360,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
     }
 
     function _getExchageRate_withPrecision(uint256 i, uint256 j, uint256 amt) internal view returns (uint256) {
-        uint256 dy = crvPool.get_dy(i, j, amt); // get current expected dy
+        uint256 dy = crvPool.get_dy(i, j, amt); // get rent expected dy
         require(dy > 0, "Invalid exchange rate");
         return (dy  * PRECISION / amt); 
     }

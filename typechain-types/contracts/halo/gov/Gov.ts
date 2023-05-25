@@ -773,8 +773,8 @@ export interface Gov extends BaseContract {
     ): Promise<[BigNumber]>;
 
     initialize(
-      curToken: PromiseOrValue<string>,
-      curTimelock: PromiseOrValue<string>,
+      token: PromiseOrValue<string>,
+      timelock: PromiseOrValue<string>,
       initialVotingDelay: PromiseOrValue<BigNumberish>,
       initialVotingPeriod: PromiseOrValue<BigNumberish>,
       initialProposalThreshold: PromiseOrValue<BigNumberish>,
@@ -1004,8 +1004,8 @@ export interface Gov extends BaseContract {
   ): Promise<BigNumber>;
 
   initialize(
-    curToken: PromiseOrValue<string>,
-    curTimelock: PromiseOrValue<string>,
+    token: PromiseOrValue<string>,
+    timelock: PromiseOrValue<string>,
     initialVotingDelay: PromiseOrValue<BigNumberish>,
     initialVotingPeriod: PromiseOrValue<BigNumberish>,
     initialProposalThreshold: PromiseOrValue<BigNumberish>,
@@ -1235,8 +1235,8 @@ export interface Gov extends BaseContract {
     ): Promise<BigNumber>;
 
     initialize(
-      curToken: PromiseOrValue<string>,
-      curTimelock: PromiseOrValue<string>,
+      token: PromiseOrValue<string>,
+      timelock: PromiseOrValue<string>,
       initialVotingDelay: PromiseOrValue<BigNumberish>,
       initialVotingPeriod: PromiseOrValue<BigNumberish>,
       initialProposalThreshold: PromiseOrValue<BigNumberish>,
@@ -1584,8 +1584,8 @@ export interface Gov extends BaseContract {
     ): Promise<BigNumber>;
 
     initialize(
-      curToken: PromiseOrValue<string>,
-      curTimelock: PromiseOrValue<string>,
+      token: PromiseOrValue<string>,
+      timelock: PromiseOrValue<string>,
       initialVotingDelay: PromiseOrValue<BigNumberish>,
       initialVotingPeriod: PromiseOrValue<BigNumberish>,
       initialProposalThreshold: PromiseOrValue<BigNumberish>,
@@ -1812,8 +1812,8 @@ export interface Gov extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initialize(
-      curToken: PromiseOrValue<string>,
-      curTimelock: PromiseOrValue<string>,
+      token: PromiseOrValue<string>,
+      timelock: PromiseOrValue<string>,
       initialVotingDelay: PromiseOrValue<BigNumberish>,
       initialVotingPeriod: PromiseOrValue<BigNumberish>,
       initialProposalThreshold: PromiseOrValue<BigNumberish>,

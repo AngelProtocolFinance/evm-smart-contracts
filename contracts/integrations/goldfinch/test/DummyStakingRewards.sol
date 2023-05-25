@@ -58,7 +58,7 @@ contract DummyStakingRewards is ERC721, IStakingRewards {
     return balanceByTokenId[tokenId]; 
   }
 
-  function depositToCurveAndStakeFrom(
+  function depositToveAndStakeFrom(
     address nftRecipient,
     uint256 fiduAmount,
     uint256 usdcAmount

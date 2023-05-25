@@ -5,12 +5,14 @@ import "./message.sol";
 import "./storage.sol";
 import {AngelCoreStruct} from "../../core/struct.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
-import {IRegistrar} from "../../core/registrar/interface/IRegistrar.sol";
-import {IAccountsDepositWithdrawEndowments} from "../../core/accounts/interface/IAccountsDepositWithdrawEndowments.sol";
-import {AccountMessages} from "../../core/accounts/message.sol";
+import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
+import {IAccountsDepositWithdrawEndowments} from "../../core/accounts/interfaces/IAccountsDepositWithdrawEndowments.sol";
 import {GiftCardsStorage} from "./storage.sol";
-import {AngelCoreStruct} from "../../core/struct.sol";
+import {AccountMessages} from "../../core/accounts/message.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
  * @title GiftCards
@@ -19,29 +21,35 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * 2) Claim a gift card
  * 3) Spend a gift card
  */
-contract GiftCards is Storage {
-    // init only once
-    bool initFlag = false;
-
+contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuard {
     event GiftCardsUpdateConfig(GiftCardsStorage.Config config);
     event GiftCardsUpdateBalances(
         address addr,
-        AngelCoreStruct.GenericBalance balance
+        address token,
+        uint256 amt,
+        AngelCoreStruct.AllowanceAction action
     );
     event GiftCardsUpdateDeposit(
         uint256 depositId,
         GiftCardsStorage.Deposit deposit
     );
 
-    // Initialise the contract
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor () {
+        _disableInitializers();
+    }
+
+    function __GiftCards_init() internal onlyInitializing {
+        __Ownable_init();
+    }
+
     function initialize(
-        GiftCardsMessage.InstantiateMsg memory curDetails
-    ) public {
-        require(!initFlag, "Already initialised");
-        initFlag = true;
+        GiftCardsMessage.InstantiateMsg memory details
+    ) public initializer {
+        __GiftCards_init();
         state.config.owner = msg.sender;
-        state.config.registrarContract = curDetails.registrarContract;
-        state.config.keeper = curDetails.keeper;
+        state.config.registrarContract = details.registrarContract;
+        state.config.keeper = details.keeper;
         state.config.nextDeposit = 1;
         emit GiftCardsUpdateConfig(state.config);
     }
@@ -51,92 +59,86 @@ contract GiftCards is Storage {
      * @param sender the sender of the deposit
      * @param toAddress the address to send the gift card to
      */
-    function executeDeposit(address sender, address toAddress) public payable {
-        require(msg.value > 0, "Invalid amount");
-        uint256 depositId = state.config.nextDeposit;
-        GiftCardsStorage.Deposit memory deposit = GiftCardsStorage.Deposit(
-            sender,
-            AngelCoreStruct.AssetBase({
-                info: AngelCoreStruct.AssetInfoBase.Native,
-                amount: msg.value,
-                addr: address(0),
-                name: "Mattic"
-            }),
-            false
-        );
-        // auto claim if toAddress is not zero
-        if (toAddress != address(0)) {
-            deposit.claimed = true;
-            state.BALANCES[toAddress].coinNativeAmount += deposit.token.amount;
+    // function executeDeposit(address toAddress, uint256 amount) public payable {
+    //     require(msg.value > 0, "Invalid amount");
+    //     uint256 depositId = state.config.nextDeposit;
+    //     GiftCardsStorage.Deposit memory deposit = GiftCardsStorage.Deposit(
+    //         sender,
+    //         AngelCoreStruct.AssetBase({
+    //             info: AngelCoreStruct.AssetInfoBase.Native,
+    //             amount: msg.value,
+    //             addr: address(0),
+    //             name: "Mattic"
+    //         }),
+    //         false
+    //     );
+    //     // auto claim if toAddress is not zero
+    //     if (toAddress != address(0)) {
+    //         deposit.claimed = true;
+    //         state.BALANCES[toAddress].coinNativeAmount += deposit.token.amount;
 
-            emit GiftCardsUpdateBalances(toAddress, state.BALANCES[toAddress]);
+    //         emit GiftCardsUpdateBalances(toAddress, state.BALANCES[toAddress]);
 
-            state.DEPOSITS[depositId] = deposit;
-        } else {
-            state.DEPOSITS[depositId] = deposit;
-        }
+    //         state.DEPOSITS[depositId] = deposit;
+    //     } else {
+    //         state.DEPOSITS[depositId] = deposit;
+    //     }
 
-        emit GiftCardsUpdateDeposit(depositId, deposit);
+    //     state.config.nextDeposit += 1;
 
-        state.config.nextDeposit += 1;
-        emit GiftCardsUpdateConfig(state.config);
-    }
+    //     emit GiftCardsUpdateDeposit(depositId, deposit);
+    //     emit GiftCardsUpdateConfig(state.config);
+    // }
 
     /**
      * @dev deposit ERC20 token to create a gift card (deposit)
-     * @param sender the sender of the deposit
      * @param toAddress the address to send the gift card to
-     * @param fund the fund to deposit
+     * @param tokenAddress the ERC20 token address to deposit
+     * @param amount the qty of ERC20 token to deposit
      */
     function executeDepositERC20(
-        address sender,
         address toAddress,
-        AngelCoreStruct.AssetBase memory fund
-    ) public {
-        uint256 depositId = state.config.nextDeposit;
-
-        validateDepositFund(
-            state.config.registrarContract,
-            fund.addr,
-            fund.amount
-        );
-
+        address tokenAddress,
+        uint256 amount
+    ) nonReentrant public {
         GiftCardsStorage.Deposit memory deposit = GiftCardsStorage.Deposit(
-            sender,
-            fund,
+            msg.sender,
+            tokenAddress,
+            amount,
             false
         );
 
+        // fund amount cannot be zero
+        require(amount > 0, "Invalid zero amount");
+        // must be an accepted token by the registrar
         require(
-            fund.info != AngelCoreStruct.AssetInfoBase.Native,
-            "Cannot add native"
+            IRegistrar(state.config.registrarContract)
+                .isTokenAccepted(tokenAddress),
+            "Invalid Token");
+        
+        // Allowance of some amount of tokens to this contract & transfer
+        require(
+            IERC20(tokenAddress).allowance(msg.sender, address(this)) >= amount,
+            "Insuficient Allowance"
+        );
+        require(
+            IERC20(tokenAddress).transferFrom(msg.sender, address(this), amount),
+            "Transfer Failed"
         );
 
-        // fund amount cannot be zero
-        require(fund.amount != 0, "Invalid amount");
-
+        // If a TO address is provided, mark deposit as claimed immediately
+        // and add amount to the toAddress' balance for said token
+        // When a TO address is NOT provided, this just means deposit.claimed == false
         if (toAddress != address(0)) {
             deposit.claimed = true;
-            AngelCoreStruct.addToken(
-                state.BALANCES[toAddress],
-                deposit.token.addr,
-                deposit.token.amount
-            );
-            emit GiftCardsUpdateBalances(toAddress, state.BALANCES[toAddress]);
-
-            state.DEPOSITS[depositId] = deposit;
-        } else {
-            state.DEPOSITS[depositId] = deposit;
+            state.BALANCES[toAddress][tokenAddress] += amount;
+            emit GiftCardsUpdateBalances(toAddress, tokenAddress, amount, AngelCoreStruct.AllowanceAction.Add);
         }
 
+        // save the deposit information
+        state.DEPOSITS[state.config.nextDeposit] = deposit;
+        emit GiftCardsUpdateDeposit(state.config.nextDeposit, deposit);
         state.config.nextDeposit += 1;
-        emit GiftCardsUpdateDeposit(depositId, deposit);
-        emit GiftCardsUpdateConfig(state.config);
-        // transfer fund to this contract
-        require(
-            IERC20(fund.addr).transferFrom(sender, address(this), fund.amount),
-            "TransferFrom failed"
-        );
     }
 
     /**
@@ -144,124 +146,75 @@ contract GiftCards is Storage {
      * @param depositId the deposit id
      * @param recipient the recipient of the gift card
      */
-    function executeClaim(uint256 depositId, address recipient) public {
-        require(
-            msg.sender == state.config.keeper,
-            "Only keeper can execute claim"
-        );
+    function executeClaim(
+        uint256 depositId, 
+        address recipient
+    ) nonReentrant public {
+        require(msg.sender == state.config.keeper, "Only keeper can claim deposits");
+        require(!state.DEPOSITS[depositId].claimed, "Deposit already claimed");
 
-        if (state.DEPOSITS[depositId].claimed) {
-            revert("Deposit already claimed");
-        }
-
+        // mark deposit as claimed
         state.DEPOSITS[depositId].claimed = true;
-
-        if (
-            state.DEPOSITS[depositId].token.info ==
-            AngelCoreStruct.AssetInfoBase.Native
-        ) {
-            state.BALANCES[recipient].coinNativeAmount += state
-                .DEPOSITS[depositId]
-                .token
-                .amount;
-        } else {
-            AngelCoreStruct.addToken(
-                state.BALANCES[recipient],
-                state.DEPOSITS[depositId].token.addr,
-                state.DEPOSITS[depositId].token.amount
-            );
-        }
-        emit GiftCardsUpdateBalances(recipient, state.BALANCES[recipient]);
         emit GiftCardsUpdateDeposit(depositId, state.DEPOSITS[depositId]);
+
+        // add the claimed amount for the target token to the recipient's balance
+        state.BALANCES[recipient][state.DEPOSITS[depositId].tokenAddress] += state.DEPOSITS[depositId].amount;
+        emit GiftCardsUpdateBalances(
+            recipient,
+            state.DEPOSITS[depositId].tokenAddress,
+            state.DEPOSITS[depositId].amount,
+            AngelCoreStruct.AllowanceAction.Add);
     }
 
     /**
      * @dev spend a gift card
-     * @param fund the fund to spend
      * @param endowmentId the endowment id
+     * @param tokenAddress the token address to spend from user's balance
+     * @param amount the amount to spend from user's token balance
      * @param lockedPercentage the locked percentage
      * @param liquidPercentage the liquid percentage
      */
     function executeSpend(
-        AngelCoreStruct.AssetBase memory fund,
-        uint256 endowmentId,
+        uint32 endowmentId,
+        address tokenAddress,
+        uint256 amount,
         uint256 lockedPercentage,
         uint256 liquidPercentage
-    ) public {
-        require(
-            lockedPercentage + liquidPercentage == 100,
-            "Invalid percentages"
-        );
+    ) nonReentrant public {
+        require(lockedPercentage + liquidPercentage == 100, "Invalid percentages");
+        require(amount > 0, "Invalid zero amount");
+        require(state.BALANCES[msg.sender][tokenAddress] >= amount, "Insufficient spendable balance");
 
-        AngelCoreStruct.AssetInfoBase info = fund.info;
-
-        uint256 spendableAmount = 0;
-
-        // check if spending native or erc20 (ported from cw20)
-        if (info == AngelCoreStruct.AssetInfoBase.Native) {
-            spendableAmount = state.BALANCES[msg.sender].coinNativeAmount;
-        } else {
-            spendableAmount = AngelCoreStruct.getTokenAmount(
-                state.BALANCES[msg.sender].Cw20CoinVerified_addr,
-                state.BALANCES[msg.sender].Cw20CoinVerified_amount,
-                fund.addr
-            );
-        }
-
-        require(spendableAmount != 0, "No spendable amount in balance");
-        require(
-            spendableAmount >= fund.amount,
-            "Not enough spendable amount in balance"
-        );
-
-        if (info == AngelCoreStruct.AssetInfoBase.Native) {
-            state.BALANCES[msg.sender].coinNativeAmount -= fund.amount;
-        } else {
-            AngelCoreStruct.subToken(
-                state.BALANCES[msg.sender],
-                fund.addr,
-                fund.amount
-            );
-        }
-
-        RegistrarStorage.Config memory registrar_config = IRegistrar(
+        // query the Registrar config
+        RegistrarStorage.Config memory registrarConfig = IRegistrar(
             state.config.registrarContract
         ).queryConfig();
 
-        // call proper function on accounts contract
-        if (info == AngelCoreStruct.AssetInfoBase.Native) {
-            IAccountsDepositWithdrawEndowments(
-                registrar_config.accountsContract
-            ).depositEth{value: fund.amount}(
-                AccountMessages.DepositRequest({
-                    id: endowmentId,
-                    lockedPercentage: lockedPercentage,
-                    liquidPercentage: liquidPercentage
-                })
-            );
-        } else {
-            // give allowance
-            require(
-                IERC20(fund.addr).approve(
-                    registrar_config.accountsContract,
-                    fund.amount
-                ),
-                "Approve failed"
-            );
+        // give allowance for the ERC20 to be spent from this contract
+        require(
+            IERC20(tokenAddress).approve(
+                registrarConfig.accountsContract,
+                amount
+            ),
+            "Approve failed"
+        );
 
-            IAccountsDepositWithdrawEndowments(
-                registrar_config.accountsContract
-            ).depositERC20(
-                    AccountMessages.DepositRequest({
-                        id: endowmentId,
-                        lockedPercentage: lockedPercentage,
-                        liquidPercentage: liquidPercentage
-                    }),
-                    fund.addr,
-                    fund.amount
-                );
-        }
-        emit GiftCardsUpdateBalances(msg.sender, state.BALANCES[msg.sender]);
+        // call deposit endpoint on the Accounts contract for ERC20s
+        IAccountsDepositWithdrawEndowments(
+            registrarConfig.accountsContract
+        ).depositERC20(
+            AccountMessages.DepositRequest({
+                id: endowmentId,
+                lockedPercentage: lockedPercentage,
+                liquidPercentage: liquidPercentage
+            }),
+            tokenAddress,
+            amount
+        );
+
+        // deduct balance by amount deposited with Accounts contract
+        state.BALANCES[msg.sender][tokenAddress] -= amount;
+        emit GiftCardsUpdateBalances(msg.sender, tokenAddress, amount, AngelCoreStruct.AllowanceAction.Remove);
     }
 
     /**
@@ -275,15 +228,10 @@ contract GiftCards is Storage {
         address keeper,
         address registrarContract
     ) public {
-        require(
-            msg.sender == state.config.owner,
-            "Only owner can update config"
-        );
-
+        require(msg.sender == state.config.owner, "Only owner can update config");
         if (owner != address(0)) {
             state.config.owner = owner;
         }
-
         if (keeper != address(0)) {
             state.config.keeper = keeper;
         }
@@ -293,57 +241,15 @@ contract GiftCards is Storage {
         emit GiftCardsUpdateConfig(state.config);
     }
 
-    function queryConfig()
-        public
-        view
-        returns (GiftCardsStorage.Config memory)
-    {
+    function queryConfig() public view returns (GiftCardsStorage.Config memory) {
         return state.config;
     }
 
-    function queryDeposit(
-        uint256 depositId
-    ) public view returns (GiftCardsStorage.Deposit memory) {
+    function queryDeposit(uint256 depositId) public view returns (GiftCardsStorage.Deposit memory) {
         return state.DEPOSITS[depositId];
     }
 
-    function queryBalance(
-        address addr
-    ) public view returns (AngelCoreStruct.GenericBalance memory) {
-        return state.BALANCES[addr];
-    }
-
-    /**
-     * @dev Validate deposit fund: checks if the fund is accepted by querying registrar contract
-     * @param curRegistrar the registrar contract
-     * @param curTokenaddress the token address
-     * @param curAmount the amount
-     */
-    function validateDepositFund(
-        address curRegistrar,
-        address curTokenaddress,
-        uint256 curAmount
-    ) internal view returns (bool) {
-        // AccountStorage.State storage state = LibAccounts.diamondStorage();
-        RegistrarStorage.Config memory registrar_config = IRegistrar(
-            curRegistrar
-        ).queryConfig();
-
-        bool flag = false;
-        for (
-            uint8 i = 0;
-            i < registrar_config.acceptedTokens.cw20.length;
-            i++
-        ) {
-            if (curTokenaddress == registrar_config.acceptedTokens.cw20[i]) {
-                flag = true;
-            }
-        }
-
-        require(flag, "Not accepted token");
-
-        require(curAmount > 0, "InvalidZeroAmount");
-
-        return true;
+    function queryBalance(address userAddr, address tokenAddr) public view returns (uint256) {
+        return state.BALANCES[userAddr][tokenAddr];
     }
 }

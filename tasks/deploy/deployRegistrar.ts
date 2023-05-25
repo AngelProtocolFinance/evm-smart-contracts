@@ -1,6 +1,7 @@
 import { task } from "hardhat/config"
 import config from "config"
 import { deployRegistrar } from "contracts/core/registrar/scripts/deploy"
+import { logger } from "utils"
 
 task("Deploy:deployRegistrar", "Will deploy Registrar contract")
     .addParam("verify", "Want to verify contract")
@@ -9,13 +10,11 @@ task("Deploy:deployRegistrar", "Will deploy Registrar contract")
         try {
             const registrarData = {
                 treasury: config.REGISTRAR_DATA.treasury,
-                taxRate: config.REGISTRAR_DATA.taxRate,
-                rebalance: config.REGISTRAR_DATA.rebalance,
                 splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
-                acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
                 router: config.REGISTRAR_DATA.router,
-                axelerGateway: config.REGISTRAR_DATA.axelerGateway,
-            };
+                axelarGateway: config.REGISTRAR_DATA.axelarGateway,
+                axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv
+            }
             var isTrueSet = taskArgs.verify === "true";
             await deployRegistrar(
                 taskArgs.strlib,
@@ -24,6 +23,6 @@ task("Deploy:deployRegistrar", "Will deploy Registrar contract")
                 hre
             );
         } catch (error) {
-            console.log(error);
+            logger.out(error, logger.Level.Error)
         }
     });

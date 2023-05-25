@@ -3,9 +3,9 @@ pragma solidity ^0.8.16;
 pragma abicoder v2;
 
 import {RegistrarStorage} from "../core/registrar/storage.sol";
-import {IRegistrar} from "../core/registrar/interface/IRegistrar.sol";
+import {IRegistrar} from "../core/registrar/interfaces/IRegistrar.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IPool} from "../core/swap-router/Interface/Ipool.sol";
+import {IPool} from "../core/swap-router/interfaces/Ipool.sol";
 import "./INonfungiblePositionManager.sol";
 import "hardhat/console.sol";
 

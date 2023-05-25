@@ -27,7 +27,7 @@ abstract contract IMultiSigGeneric is IERC165 {
     /// @dev Fallback function allows to deposit ether.
     fallback() external payable virtual;
 
-    // function initialize(address[] memory curOwners, uint256 curRequired)
+    // function initialize(address[] memory owners, uint256 required)
     //     public
     //     virtual;
 
@@ -45,8 +45,8 @@ abstract contract IMultiSigGeneric is IERC165 {
     function replaceOwner(address owner, address newOwner) public virtual;
 
     /// @dev Allows to change the number of required confirmations. Transaction has to be sent by wallet.
-    /// @param curRequired Number of required confirmations.
-    function changeRequirement(uint256 curRequired) public virtual;
+    /// @param required Number of required confirmations.
+    function changeRequirement(uint256 required) public virtual;
 
     /// @dev Allows an owner to submit and confirm a transaction.
     /// @param destination Transaction target address.
@@ -130,23 +130,23 @@ abstract contract IMultiSigGeneric is IERC165 {
 
     /// @dev Returns array with owner addresses, which confirmed transaction.
     /// @param transactionId Transaction ID.
-    /// @return curConfirmations Returns array of owner addresses.
+    /// @return confirmations Returns array of owner addresses.
     function getConfirmations(uint256 transactionId)
         public
         view
         virtual
-        returns (address[] memory curConfirmations);
+        returns (address[] memory confirmations);
 
     /// @dev Returns list of transaction IDs in defined range.
     /// @param from Index start position of transaction array.
     /// @param to Index end position of transaction array.
     /// @param pending Include pending transactions.
     /// @param executed Include executed transactions.
-    /// @return curTransactionids Returns array of transaction IDs.
+    /// @return transactionids Returns array of transaction IDs.
     function getTransactionIds(
         uint256 from,
         uint256 to,
         bool pending,
         bool executed
-    ) public view virtual returns (uint256[] memory curTransactionids);
+    ) public view virtual returns (uint256[] memory transactionids);
 }

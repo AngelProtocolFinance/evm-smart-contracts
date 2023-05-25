@@ -2,7 +2,7 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.0;
 
-import { ILocalRegistrar } from "./interface/ILocalRegistrar.sol";
+import { ILocalRegistrar } from "./interfaces/ILocalRegistrar.sol";
 import { LocalRegistrarLib } from "./lib/LocalRegistrarLib.sol";
 import { IVault } from "../../interfaces/IVault.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -22,8 +22,12 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
         _disableInitializers();
     }
 
-    function initialize() public initializer {
-        __Ownable_init_unchained();
+    function __LocalRegistrar_init() internal onlyInitializing {
+        __Ownable_init();
+        __LocalRegistrar_init_unchained();
+    }
+
+    function __LocalRegistrar_init_unchained() internal onlyInitializing {
         LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
             LocalRegistrarLib.localRegistrarStorage();
 
@@ -43,6 +47,11 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
             LocalRegistrarLib.ROUTER_ADDRESS,
             LocalRegistrarLib.REFUND_ADDRESS
         );
+    }
+
+    function initialize() public initializer {
+        __LocalRegistrar_init();
+        
     }
 
     /*////////////////////////////////////////////////
@@ -170,10 +179,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     }
 
     function setStrategyApprovalState(bytes4 _strategyId, LocalRegistrarLib.StrategyApprovalState _approvalState)
-        external
-        override
-        onlyOwner
-    {
+        public virtual override onlyOwner {
         LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
             LocalRegistrarLib.localRegistrarStorage();
 
@@ -186,7 +192,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
         address _lockAddr,
         address _liqAddr,
         LocalRegistrarLib.StrategyApprovalState _approvalState
-    ) external override onlyOwner {
+    ) public virtual onlyOwner {
         LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
             LocalRegistrarLib.localRegistrarStorage();
 
@@ -215,7 +221,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     /*////////////////////////////////////////////////
                         GOLDFINCH
     */////////////////////////////////////////////////
-    function getAPGoldfinchParams() external view returns (APGoldfinchConfigLib.APGoldfinchConfig memory) {
+    function getAPGoldfinchParams() external pure returns (APGoldfinchConfigLib.APGoldfinchConfig memory) {
         APGoldfinchConfigLib.APGoldfinchConfig storage grs = 
             APGoldfinchConfigLib.goldfinchRegistrarStorage();
         return grs;

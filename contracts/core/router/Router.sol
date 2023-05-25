@@ -3,10 +3,11 @@
 pragma solidity >=0.8.8;
 
 import {IRouter} from "./IRouter.sol";
+import {RouterLib} from "./RouterLib.sol";
 import {IVault} from "../../interfaces/IVault.sol";
 import {IVaultLiquid} from "../../interfaces/IVaultLiquid.sol";
 import {IVaultLocked} from "../../interfaces/IVaultLocked.sol";
-import {ILocalRegistrar} from "../registrar/interface/ILocalRegistrar.sol";
+import {ILocalRegistrar} from "../registrar/interfaces/ILocalRegistrar.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 import {StringToAddress} from "../../lib/StringAddressUtils.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
@@ -177,7 +178,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         IVaultLiquid liquidVault = IVaultLiquid(_params.Liquid.vaultAddr);
 
         // Redeem tokens from vaults which sends them from the vault to this contract
-        uint256 _redeemedLockAmt = lockedVault.redeem(
+        RedemptionResponse memory _redemptionLock = lockedVault.redeem(
             _action.accountIds[0],
             _action.token,
             _action.lockAmt
@@ -186,11 +187,11 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
             IERC20Metadata(_action.token).transferFrom(
                 _params.Locked.vaultAddr,
                 address(this),
-                _redeemedLockAmt
+                _redemptionLock.amount
             )
         );
 
-        uint256 _redeemedLiqAmt = liquidVault.redeem(
+        RedemptionResponse memory _redemptionLiquid = liquidVault.redeem(
             _action.accountIds[0],
             _action.token,
             _action.liqAmt
@@ -199,16 +200,23 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
             IERC20Metadata(_action.token).transferFrom(
                 _params.Liquid.vaultAddr,
                 address(this),
-                _redeemedLiqAmt
+                _redemptionLiquid.amount
             )
         );
 
-        // Pack and send the tokens back through GMP
-        uint256 _redeemedAmt = _redeemedLockAmt + _redeemedLiqAmt;
-        _action.lockAmt = _redeemedLockAmt;
-        _action.liqAmt = _redeemedLiqAmt;
+        // Pack and send the tokens back to Accounts contract
+        uint256 _redeemedAmt = _redemptionLock.amount + _redemptionLiquid.amount;
+        _action.lockAmt = _redemptionLock.amount;
+        _action.liqAmt = _redemptionLiquid.amount;
         _action = _prepareToSendTokens(_action, _redeemedAmt);
         emit Redemption(_action, _redeemedAmt);
+        if ((_redemptionLock.status == VaultActionStatus.POSITION_EXITED) &&
+            (_redemptionLiquid.status == VaultActionStatus.POSITION_EXITED)) {
+                _action.status = VaultActionStatus.POSITION_EXITED;
+            }
+        else {
+            _action.status = VaultActionStatus.SUCCESS;
+            }
         return _action;
     }
 
@@ -252,6 +260,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         uint256 _redeemedAmt = _redeemedLockAmt + _redeemedLiqAmt;
         _action = _prepareToSendTokens(_action, _redeemedAmt);
         emit Redemption(_action, _redeemedAmt);
+        _action.status = VaultActionStatus.POSITION_EXITED;
         return _action;
     }
 
@@ -378,7 +387,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         _action.liqAmt -= liqGas;
         _action.lockAmt -= lockGas;
 
-        bytes memory payload = _packCallData(_action);
+        bytes memory payload = RouterLib.packCallData(_action);
         try
             this.sendTokens(
                 _action.destinationChain,
@@ -400,6 +409,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
                 _sendAmt
             );
             emit FallbackRefund(_action, _sendAmt);
+            _action.status = VaultActionStatus.FAIL_TOKENS_FALLBACK;
         } catch (bytes memory data) {
             emit LogErrorBytes(_action, data);
             IERC20Metadata(_action.token).transfer(
@@ -407,6 +417,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
                 _sendAmt
             );
             emit FallbackRefund(_action, _sendAmt);
+            _action.status = VaultActionStatus.FAIL_TOKENS_FALLBACK;
         }
         return _action;
     }
@@ -464,17 +475,20 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         returns (VaultActionData memory)
     {
         // decode payload
-        VaultActionData memory action = _unpackCalldata(payload);
+        VaultActionData memory action = RouterLib.unpackCalldata(payload);
 
         // Leverage this.call() to enable try/catch logic
         try this.deposit(action, tokenSymbol, amount) {
             emit Deposit(action);
+            action.status = VaultActionStatus.SUCCESS;
             return action;
         } catch Error(string memory reason) {
             emit LogError(action, reason);
+            action.status = VaultActionStatus.FAIL_TOKENS_RETURNED; // Optimistically set to RETURN status, FALLBACK changes if necessary 
             return _prepareToSendTokens(action, amount);
         } catch (bytes memory data) {
             emit LogErrorBytes(action, data);
+            action.status = VaultActionStatus.FAIL_TOKENS_RETURNED;
             return _prepareToSendTokens(action, amount);
         }
     }
@@ -491,7 +505,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         returns (VaultActionData memory)
     {
         // decode payload
-        VaultActionData memory action = _unpackCalldata(payload);
+        VaultActionData memory action = RouterLib.unpackCalldata(payload);
         LocalRegistrarLib.StrategyParams memory params = registrar
             .getStrategyParamsById(action.strategyId);
 

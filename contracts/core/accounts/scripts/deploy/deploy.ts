@@ -11,6 +11,7 @@ import {
 import deployFacets from "./deployFacets"
 import updateDiamond from "./updateDiamond"
 import verify from "./verify"
+import { logger, updateAddresses } from "utils"
 
 export async function deployDiamond(
     owner: string,
@@ -24,14 +25,14 @@ export async function deployDiamond(
         const [_deployer, diamondAdmin] = await hre.ethers.getSigners()
         const diamondCut = await deployDiamondCutFacet(diamondAdmin)
 
-        const diamond = await _deployDiamond(diamondAdmin, diamondCut.address)
+        const diamond = await _deployDiamond(diamondAdmin, diamondCut.address, hre)
 
         const diamondInit = await deployDiamondInit(diamondAdmin)
 
         const cuts = await deployFacets(diamondAdmin, ANGEL_CORE_STRUCT, STRING_LIBRARY)
 
         await updateDiamond(diamond.address, diamondInit, diamondAdmin, owner, registrar, cuts, hre)
-
+        
         if (verify_contracts) {
             await verify(diamond.address, diamondCut.address, cuts, diamondAdmin, hre)
         }
@@ -50,11 +51,15 @@ async function deployDiamondCutFacet(admin: SignerWithAddress): Promise<DiamondC
     return diamondCutFacet
 }
 
-async function _deployDiamond(admin: SignerWithAddress, diamondCut: string): Promise<Diamond> {
+async function _deployDiamond(admin: SignerWithAddress, diamondCut: string, hre: HardhatRuntimeEnvironment): Promise<Diamond> {
     const Diamond = new Diamond__factory(admin)
     const diamond = await Diamond.deploy(admin.address, diamondCut)
     await diamond.deployed()
     console.log("Diamond deployed:", diamond.address)
+
+    logger.out("Saving address to contract-address.json...")
+    await updateAddresses({ accounts: { diamond: diamond.address } }, hre)
+
     return diamond
 }
 

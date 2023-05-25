@@ -2,6 +2,8 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.0;
 
+import "../core/router/IRouter.sol";
+
 abstract contract IVault {
     
     /// @notice Angel Protocol Vault Type 
@@ -61,7 +63,7 @@ abstract contract IVault {
     /// @param amt the amount of the deposited token 
     /// @return redemptionAmt returns the number of tokens redeemed by the call; this may differ from 
     /// the called `amt` due to slippage/trading/fees
-    function redeem(uint32 accountId, address token, uint256 amt) payable external virtual returns (uint256);
+    function redeem(uint32 accountId, address token, uint256 amt) payable external virtual returns (IRouter.RedemptionResponse memory);
 
     /// @notice redeem all of the value from the vault contract
     /// @dev allows an Account to redeem all of its staked value. Good for rebasing tokens wherein the value isn't

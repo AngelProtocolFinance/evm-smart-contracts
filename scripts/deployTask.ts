@@ -1,8 +1,6 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 
-import path from 'path'
-
 import { deployDiamond } from 'contracts/core/accounts/scripts/deploy'
 import { deployRegistrar } from 'contracts/core/registrar/scripts/deploy'
 import { deployImplementation } from 'contracts/normalized_endowment/scripts/deployImplementation'
@@ -12,11 +10,11 @@ import { deployIndexFund } from 'contracts/core/index-fund/scripts/deploy'
 import { deployEndowmentMultiSig } from 'contracts/normalized_endowment/endowment-multisig/scripts/deploy'
 import { deployHaloImplementation } from 'contracts/halo/scripts/deploy'
 import { charityApplications } from 'contracts/multisigs/charity_applications/scripts/deploy'
+import { deployEmitters } from 'contracts/normalized_endowment/scripts/deployEmitter'
+import { deployGiftCard } from 'contracts/accessory/gift-cards/scripts/deploy'
+// import { deployFundraising } from 'contracts/accessory/fundraising/scripts/deploy'
 
 import config from 'config'
-import { deployEmitters } from 'contracts/normalized_endowment/scripts/deployEmitter'
-import { giftCard } from 'contracts/accessory/gift-cards/scripts/deploy'
-import { deployFundraising } from 'contracts/accessory/fundraising/scripts/deploy'
 
 var ANGEL_CORE_STRUCT: Contract;
 var STRING_LIBRARY: Contract;
@@ -25,20 +23,20 @@ var REGISTRAR_ADDRESS;
 var deployer;
 var proxyAdmin;
 
-let updateConfig;
+let updateConfig: RegistrarMessages.UpdateConfigRequestStruct
 
 interface AddressWriter { [key: string]: string | AddressWriter }
 let addressWriter: AddressWriter = {}; 
 
-import { saveFrontendFiles, cleanFile } from './readWriteFile'
+import { cleanAddresses, updateAddresses } from 'utils'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { Contract } from 'ethers'
 import { APTeamMultiSig, ApplicationsMultiSig } from 'typechain-types'
+import { isLocalNetwork } from 'utils'
+import { RegistrarMessages } from 'typechain-types/contracts/core/registrar/interfaces/IRegistrar'
 
 async function deployLibraries(verify_contracts: boolean,hre: HardhatRuntimeEnvironment) {
 	try {
-		await cleanFile();
-
 		const { ethers, run, network } = hre;
 
 		const angel_core_struct = await ethers.getContractFactory('AngelCoreStruct');
@@ -54,12 +52,15 @@ async function deployLibraries(verify_contracts: boolean,hre: HardhatRuntimeEnvi
 			'ANGEL_CORE_STRUCT_LIBRARY Deployed at ': ANGEL_CORE_STRUCT.address,
 		});
 
-		let libraries = {
-			"STRING_LIBRARY" : STRING_LIBRARY.address,
-			"ANGEL_CORE_STRUCT_LIBRARY" : ANGEL_CORE_STRUCT.address
-		}
-
-		await saveFrontendFiles({libraries});
+		await updateAddresses(
+			{
+				libraries: {
+					ANGEL_CORE_STRUCT_LIBRARY : ANGEL_CORE_STRUCT.address,
+					STRING_LIBRARY : STRING_LIBRARY.address,
+				}
+			},
+			hre
+		);
 
 		if(network.name !== 'hardhat' && verify_contracts){
 			await run(`verify:verify`, {
@@ -83,6 +84,7 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 	try {
 		const { run, network, ethers } = hre;
 
+		await cleanAddresses(hre);
 
 		var Admins = config.AP_TEAM_MULTISIG_DATA.admins;
 		if (apTeamAdmins.length != 0) Admins = apTeamAdmins;
@@ -92,7 +94,7 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 
 		// Mock setup required for testing
 		let mockUSDC: Contract | undefined;
-		if (network.name === 'hardhat') {
+		if (isLocalNetwork(network)) {
 			const MockUSDC = await ethers.getContractFactory('MockUSDC');
 			mockUSDC = await MockUSDC.deploy('USDC', 'USDC', 100);
 			await mockUSDC.deployed();
@@ -112,15 +114,13 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 
 		const registrarData = {
 			treasury: config.REGISTRAR_DATA.treasury,
-			taxRate: config.REGISTRAR_DATA.taxRate,
-			rebalance: config.REGISTRAR_DATA.rebalance,
 			splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
-			acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
 			router: config.REGISTRAR_DATA.router,
-			axelerGateway: config.REGISTRAR_DATA.axelerGateway,
+			axelarGateway: config.REGISTRAR_DATA.axelarGateway,
+			axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv
 		};
 
-		REGISTRAR_ADDRESS = await deployRegistrar(STRING_LIBRARY.address, registrarData,verify_contracts,hre);
+		REGISTRAR_ADDRESS = await deployRegistrar(STRING_LIBRARY.address, registrarData, verify_contracts, hre);
 
 		var APTeamData: Parameters<APTeamMultiSig["initialize"]> = [Admins, config.AP_TEAM_MULTISIG_DATA.threshold, config.AP_TEAM_MULTISIG_DATA.requireExecution];
 		var ApplicationData: Parameters<ApplicationsMultiSig["initialize"]> = [
@@ -189,30 +189,23 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 
 		console.log('multisigDat contract deployed at:-', multisigDat);
 
-		const lockedWithdrawalData = [
-			REGISTRAR_ADDRESS,
-			ACCOUNT_ADDRESS,
-			multisigAddress.APTeamMultiSig,
-			multisigDat.MultiSigWalletFactory,
-		];
-
 		// console.log('implementations deployed at:', implementations);
 
-		let GiftCardDataInput = {
-			keeper: multisigAddress.APTeamMultiSig,
-			registrarContract: REGISTRAR_ADDRESS,
-		};
+		// let GiftCardDataInput = {
+		// 	keeper: multisigAddress.APTeamMultiSig,
+		// 	registrarContract: REGISTRAR_ADDRESS,
+		// };
 
-		let giftCardAddress = await giftCard(GiftCardDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre);
+		// let giftCardAddress = await giftCard(GiftCardDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre);
 
-		let FundraisingDataInput = {
-			registrarContract: REGISTRAR_ADDRESS,
-			nextId: config.FundraisingDataInput.nextId,
-			campaignPeriodSeconds: config.FundraisingDataInput.campaignPeriodSeconds,
-			taxRate: config.FundraisingDataInput.taxRate,
-			acceptedTokens: config.FundraisingDataInput.acceptedTokens,
-		};
-		let fundraisingAddress = await deployFundraising(FundraisingDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre);
+		// let FundraisingDataInput = {
+		// 	registrarContract: REGISTRAR_ADDRESS,
+		// 	nextId: config.FundraisingDataInput.nextId,
+		// 	campaignPeriodSeconds: config.FundraisingDataInput.campaignPeriodSeconds,
+		// 	taxRate: config.FundraisingDataInput.taxRate,
+		// 	acceptedTokens: config.FundraisingDataInput.acceptedTokens,
+		// };
+		// let fundraisingAddress = await deployFundraising(FundraisingDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre);
 
 		var haloAddress = await deployHaloImplementation(
 			SWAP_ROUTER,
@@ -229,7 +222,7 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 		console.log('halo token balance: ', await haloToken.balanceOf(deployer.address));
 
 		// 
-		if (network.name === 'hardhat') {
+		if (isLocalNetwork(network)) {
 			// if network is 'hardhat' then mockUSDC should always be initialized
 			// but TS forces us to confirm this is the case
 			mockUSDC = mockUSDC!
@@ -320,7 +313,7 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 		}
 
 		//  requires setting up of a HALO - MockUSDC pool on forked uniswap in deployment
-		// if PROD flag is false
+		// if on non-production network
 
 		let donationMatchCharityData = {
 			reserveToken: config.DONATION_MATCH_CHARITY_DATA.reserveToken,
@@ -330,7 +323,7 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			usdcAddress: config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
 		};
 
-		if (network.name === 'hardhat') {
+		if (isLocalNetwork(network)) {
 			// haloToken
 			donationMatchCharityData.reserveToken = haloToken.address;
 			donationMatchCharityData.uniswapFactory = config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS;
@@ -342,54 +335,50 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 
 		let implementations = await deployImplementation(
 			ANGEL_CORE_STRUCT.address,
-			lockedWithdrawalData,
 			donationMatchCharityData,
 			verify_contracts,
 			hre
 		);
 
-		if (network.name === 'hardhat') {
-			await haloToken.transfer(implementations.DonationMatchCharity, ethers.utils.parseEther('100000000'));
+		if (isLocalNetwork(network)) {
+			await haloToken.transfer(implementations.donationMatchCharity.proxy, ethers.utils.parseEther('100000000'));
 		}
 
 		config.REGISTRAR_DATA.acceptedTokens.cw20.push(haloToken.address);
 
 		updateConfig = {
 			accountsContract: ACCOUNT_ADDRESS, //Address
-			taxRate: config.REGISTRAR_DATA.taxRate, //uint256
-			rebalance: config.REGISTRAR_DATA.rebalance,
 			approved_charities: [], //string[]
 			splitMax: 100, //uint256
 			splitMin: 0, //uint256
 			splitDefault: 50, //uint256
 			collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
-			acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
-			subdaoGovCode: implementations.SubDao, //address
-			subdaoCw20TokenCode: implementations.SubDaoERC20, //address
-			subdaoBondingTokenCode: implementations.SubDaoBondingCurve, //address
-			subdaoCw900Code: implementations.IncentiisedVoting, //address
-			subdaoDistributorCode: ADDRESS_ZERO,
+			subdaoGovContract: implementations.subDao.implementation, //address
+			subdaoTokenContract: implementations.subDao.token, //address
+			subdaoBondingTokenContract: implementations.subDao.veBondingToken, //address
+			subdaoCw900Contract: implementations.incentivisedVotingLockup.implementation, //address
+			subdaoDistributorContract: ADDRESS_ZERO,
 			subdaoEmitter: emitters.subDaoEmitter, //TODO:
-			donationMatchCode: implementations.DonationMatch, //address
+			donationMatchContract: implementations.donationMatch.implementation, //address
 			indexFundContract: INDEX_FUND_ADDRESS, //address
 			govContract: haloAddress.Gov.GovProxy, //address
 			treasury: config.REGISTRAR_DATA.treasury,
-			donationMatchCharitesContract: implementations.DonationMatchCharity, // once uniswap is setup //address
+			donationMatchCharitesContract: implementations.donationMatchCharity.proxy, // once uniswap is setup //address
 			donationMatchEmitter: emitters.DonationMatchEmitter,
 			haloToken: haloAddress.Halo, //address
 			haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
 			charitySharesContract: ADDRESS_ZERO, //TODO: //address
-			fundraisingContract: fundraisingAddress, //TODO: //address
+			fundraisingContract: ADDRESS_ZERO, //TODO: //address
 			applicationsReview: multisigAddress.ApplicationsMultiSig, //address
 			swapsRouter: SWAP_ROUTER, //address
 			multisigFactory: multisigDat.MultiSigWalletFactory, //address
 			multisigEmitter: multisigDat.EndowmentMultiSigEmitter, //address
 			charityProposal: charityApplicationsAddress, //address
-			lockedWithdrawal: implementations.LockedWithdraw, //address
 			proxyAdmin: proxyAdmin.address, //address
 			usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
 			wethAddress: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
 			cw900lvAddress: implementations.cw900lv,
+            lockedWithdrawal: ADDRESS_ZERO,
 		};
 
 		let REGISTRAR_CONTRACT = await ethers.getContractAt('Registrar', REGISTRAR_ADDRESS);
@@ -397,7 +386,7 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 		let data = await REGISTRAR_CONTRACT.updateConfig(updateConfig);
 		console.log('Successfully updated config:-', data.hash);
 
-		let newOwner = await REGISTRAR_CONTRACT.updateOwner(multisigAddress.APTeamMultiSig);
+		let newOwner = await REGISTRAR_CONTRACT.transferOwnership(multisigAddress.APTeamMultiSig);
 		console.log('Successfully transferred Ownership:-', newOwner.hash);
 
 		let INDEX_FUND_CONTRACT = await ethers.getContractAt('IndexFund', INDEX_FUND_ADDRESS);
@@ -420,16 +409,15 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			multisigDat,
 			implementations,
 			haloAddress,
-			giftCardAddress,
-			fundraisingAddress,
+			// giftCardAddress,
+			// fundraisingAddress,
 			haloGovContract: haloAddress.Gov.GovProxy,
 			timelockContract: haloAddress.Gov.TimeLock,
 			votingERC20: haloAddress.Gov.VotingERC20Proxy,
-			lockedWithdraw: implementations.LockedWithdraw,
 		};
 
-		await saveFrontendFiles({addressWriter});
-		await saveFrontendFiles({composedAddress});
+		// await saveFrontendFiles({addressWriter});
+		// await saveFrontendFiles({composedAddress});
 		return {
 			addresses: composedAddress,
 			registrarConfig: updateConfig,

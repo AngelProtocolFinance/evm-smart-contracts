@@ -25,7 +25,7 @@ import type {
 
 export interface SubdaoTokenInterface extends utils.Interface {
   functions: {
-    "executeDonorMatch(uint256,address,uint256,address)": FunctionFragment;
+    "executeDonorMatch(uint256,address,uint32,address)": FunctionFragment;
   };
 
   getFunction(nameOrSignatureOrTopic: "executeDonorMatch"): FunctionFragment;
@@ -76,28 +76,28 @@ export interface SubdaoToken extends BaseContract {
 
   functions: {
     executeDonorMatch(
-      curAmount: PromiseOrValue<BigNumberish>,
-      curAccountscontract: PromiseOrValue<string>,
-      curEndowmentid: PromiseOrValue<BigNumberish>,
-      curDonor: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      accountscontract: PromiseOrValue<string>,
+      endowmentid: PromiseOrValue<BigNumberish>,
+      donor: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
   executeDonorMatch(
-    curAmount: PromiseOrValue<BigNumberish>,
-    curAccountscontract: PromiseOrValue<string>,
-    curEndowmentid: PromiseOrValue<BigNumberish>,
-    curDonor: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
+    accountscontract: PromiseOrValue<string>,
+    endowmentid: PromiseOrValue<BigNumberish>,
+    donor: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     executeDonorMatch(
-      curAmount: PromiseOrValue<BigNumberish>,
-      curAccountscontract: PromiseOrValue<string>,
-      curEndowmentid: PromiseOrValue<BigNumberish>,
-      curDonor: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      accountscontract: PromiseOrValue<string>,
+      endowmentid: PromiseOrValue<BigNumberish>,
+      donor: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -106,20 +106,20 @@ export interface SubdaoToken extends BaseContract {
 
   estimateGas: {
     executeDonorMatch(
-      curAmount: PromiseOrValue<BigNumberish>,
-      curAccountscontract: PromiseOrValue<string>,
-      curEndowmentid: PromiseOrValue<BigNumberish>,
-      curDonor: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      accountscontract: PromiseOrValue<string>,
+      endowmentid: PromiseOrValue<BigNumberish>,
+      donor: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     executeDonorMatch(
-      curAmount: PromiseOrValue<BigNumberish>,
-      curAccountscontract: PromiseOrValue<string>,
-      curEndowmentid: PromiseOrValue<BigNumberish>,
-      curDonor: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      accountscontract: PromiseOrValue<string>,
+      endowmentid: PromiseOrValue<BigNumberish>,
+      donor: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

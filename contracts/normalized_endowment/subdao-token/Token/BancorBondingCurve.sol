@@ -21,82 +21,82 @@ contract BancorBondingCurve is Power {
    * calculates the return for a given conversion (in the continuous token)
    *
    * Formula:
-   * Return = curSupply * ((1 + curDepositamount / curReservebalance) ^ (curReserveratio / MAX_RESERVE_RATIO) - 1)
+   * Return = supply * ((1 + depositamount / reservebalance) ^ (reserveratio / MAX_RESERVE_RATIO) - 1)
    *
-   * @param curSupply              continuous token total supply
-   * @param curReservebalance    total reserve token balance
-   * @param curReserveratio     reserve ratio, represented in ppm, 1-1000000
-   * @param curDepositamount       deposit amount, in reserve token
+   * @param supply              continuous token total supply
+   * @param reservebalance    total reserve token balance
+   * @param reserveratio     reserve ratio, represented in ppm, 1-1000000
+   * @param depositamount       deposit amount, in reserve token
    *
    *  @return purchase return amount
   */
   function calculatePurchaseReturn(
-    uint256 curSupply,
-    uint256 curReservebalance,
-    uint32 curReserveratio,
-    uint256 curDepositamount) view public returns (uint256)
+    uint256 supply,
+    uint256 reservebalance,
+    uint32 reserveratio,
+    uint256 depositamount) view public returns (uint256)
   {
     // validate input
-    require(curSupply > 0 && curReservebalance > 0 && curReserveratio > 0 && curReserveratio <= MAX_RESERVE_RATIO);
+    require(supply > 0 && reservebalance > 0 && reserveratio > 0 && reserveratio <= MAX_RESERVE_RATIO);
      // special case for 0 deposit amount
-    if (curDepositamount == 0) {
+    if (depositamount == 0) {
       return 0;
     }
      // special case if the ratio = 100%
-    if (curReserveratio == MAX_RESERVE_RATIO) {
-      return curSupply.mul(curDepositamount).div(curReservebalance);
+    if (reserveratio == MAX_RESERVE_RATIO) {
+      return supply.mul(depositamount).div(reservebalance);
     }
      uint256 result;
     uint8 precision;
-    uint256 baseN = curDepositamount.add(curReservebalance);
+    uint256 baseN = depositamount.add(reservebalance);
     (result, precision) = power(
-      baseN, curReservebalance, curReserveratio, MAX_RESERVE_RATIO
+      baseN, reservebalance, reserveratio, MAX_RESERVE_RATIO
     );
-    uint256 newTokenSupply = curSupply.mul(result) >> precision;
-    return newTokenSupply - curSupply;
+    uint256 newTokenSupply = supply.mul(result) >> precision;
+    return newTokenSupply - supply;
   }
    /**
    * @dev given a continuous token supply, reserve token balance, reserve ratio and a sell amount (in the continuous token),
    * calculates the return for a given conversion (in the reserve token)
    *
    * Formula:
-   * Return = curReservebalance * (1 - (1 - curSellamount / curSupply) ^ (1 / (curReserveratio / MAX_RESERVE_RATIO)))
+   * Return = reservebalance * (1 - (1 - sellamount / supply) ^ (1 / (reserveratio / MAX_RESERVE_RATIO)))
    *
-   * @param curSupply              continuous token total supply
-   * @param curReservebalance    total reserve token balance
-   * @param curReserveratio     constant reserve ratio, represented in ppm, 1-1000000
-   * @param curSellamount          sell amount, in the continuous token itself
+   * @param supply              continuous token total supply
+   * @param reservebalance    total reserve token balance
+   * @param reserveratio     constant reserve ratio, represented in ppm, 1-1000000
+   * @param sellamount          sell amount, in the continuous token itself
    *
    * @return sale return amount
   */
   function calculateSaleReturn(
-    uint256 curSupply,
-    uint256 curReservebalance,
-    uint32 curReserveratio,
-    uint256 curSellamount) view public returns (uint256)
+    uint256 supply,
+    uint256 reservebalance,
+    uint32 reserveratio,
+    uint256 sellamount) view public returns (uint256)
   {
     // validate input
-    require(curSupply > 0 && curReservebalance > 0 && curReserveratio > 0 && curReserveratio <= MAX_RESERVE_RATIO && curSellamount <= curSupply);
+    require(supply > 0 && reservebalance > 0 && reserveratio > 0 && reserveratio <= MAX_RESERVE_RATIO && sellamount <= supply);
      // special case for 0 sell amount
-    if (curSellamount == 0) {
+    if (sellamount == 0) {
       return 0;
     }
      // special case for selling the entire supply
-    if (curSellamount == curSupply) {
-      return curReservebalance;
+    if (sellamount == supply) {
+      return reservebalance;
     }
      // special case if the ratio = 100%
-    if (curReserveratio == MAX_RESERVE_RATIO) {
-      return curReservebalance.mul(curSellamount).div(curSupply);
+    if (reserveratio == MAX_RESERVE_RATIO) {
+      return reservebalance.mul(sellamount).div(supply);
     }
      uint256 result;
     uint8 precision;
-    uint256 baseD = curSupply - curSellamount;
+    uint256 baseD = supply - sellamount;
     (result, precision) = power(
-      curSupply, baseD, MAX_RESERVE_RATIO, curReserveratio
+      supply, baseD, MAX_RESERVE_RATIO, reserveratio
     );
-    uint256 oldBalance = curReservebalance.mul(result);
-    uint256 newBalance = curReservebalance << precision;
+    uint256 oldBalance = reservebalance.mul(result);
+    uint256 newBalance = reservebalance << precision;
     return oldBalance.sub(newBalance).div(result);
   }
 }

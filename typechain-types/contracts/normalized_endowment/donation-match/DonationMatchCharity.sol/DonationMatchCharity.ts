@@ -71,7 +71,7 @@ export declare namespace DonationMatchMessages {
 
 export interface DonationMatchCharityInterface extends utils.Interface {
   functions: {
-    "executeDonorMatch(uint256,uint256,address,address)": FunctionFragment;
+    "executeDonorMatch(uint32,uint256,address,address)": FunctionFragment;
     "initialize((address,address,address,uint24,address))": FunctionFragment;
     "queryConfig()": FunctionFragment;
   };
@@ -109,10 +109,10 @@ export interface DonationMatchCharityInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "DonationMatchCharityErc20ApprovalGiven(uint256,address,address,uint256)": EventFragment;
-    "DonationMatchCharityErc20Burned(uint256,address,uint256)": EventFragment;
-    "DonationMatchCharityErc20Transfer(uint256,address,address,uint256)": EventFragment;
-    "DonationMatchCharityExecuted(address,address,uint256,address,uint256,address)": EventFragment;
+    "DonationMatchCharityErc20ApprovalGiven(uint32,address,address,uint256)": EventFragment;
+    "DonationMatchCharityErc20Burned(uint32,address,uint256)": EventFragment;
+    "DonationMatchCharityErc20Transfer(uint32,address,address,uint256)": EventFragment;
+    "DonationMatchCharityExecuted(address,address,uint256,address,uint32,address)": EventFragment;
     "DonationMatchCharityInitialized(address,tuple)": EventFragment;
     "Initialized(uint8)": EventFragment;
   };
@@ -136,13 +136,13 @@ export interface DonationMatchCharityInterface extends utils.Interface {
 }
 
 export interface DonationMatchCharityErc20ApprovalGivenEventObject {
-  endowmentId: BigNumber;
+  endowmentId: number;
   tokenAddress: string;
   spender: string;
   amount: BigNumber;
 }
 export type DonationMatchCharityErc20ApprovalGivenEvent = TypedEvent<
-  [BigNumber, string, string, BigNumber],
+  [number, string, string, BigNumber],
   DonationMatchCharityErc20ApprovalGivenEventObject
 >;
 
@@ -150,12 +150,12 @@ export type DonationMatchCharityErc20ApprovalGivenEventFilter =
   TypedEventFilter<DonationMatchCharityErc20ApprovalGivenEvent>;
 
 export interface DonationMatchCharityErc20BurnedEventObject {
-  endowmentId: BigNumber;
+  endowmentId: number;
   tokenAddress: string;
   amount: BigNumber;
 }
 export type DonationMatchCharityErc20BurnedEvent = TypedEvent<
-  [BigNumber, string, BigNumber],
+  [number, string, BigNumber],
   DonationMatchCharityErc20BurnedEventObject
 >;
 
@@ -163,13 +163,13 @@ export type DonationMatchCharityErc20BurnedEventFilter =
   TypedEventFilter<DonationMatchCharityErc20BurnedEvent>;
 
 export interface DonationMatchCharityErc20TransferEventObject {
-  endowmentId: BigNumber;
+  endowmentId: number;
   tokenAddress: string;
   recipient: string;
   amount: BigNumber;
 }
 export type DonationMatchCharityErc20TransferEvent = TypedEvent<
-  [BigNumber, string, string, BigNumber],
+  [number, string, string, BigNumber],
   DonationMatchCharityErc20TransferEventObject
 >;
 
@@ -181,11 +181,11 @@ export interface DonationMatchCharityExecutedEventObject {
   tokenAddress: string;
   amount: BigNumber;
   accountsContract: string;
-  endowmentId: BigNumber;
+  endowmentId: number;
   donor: string;
 }
 export type DonationMatchCharityExecutedEvent = TypedEvent<
-  [string, string, BigNumber, string, BigNumber, string],
+  [string, string, BigNumber, string, number, string],
   DonationMatchCharityExecutedEventObject
 >;
 
@@ -247,7 +247,7 @@ export interface DonationMatchCharity extends BaseContract {
     ): Promise<ContractTransaction>;
 
     initialize(
-      curDetails: DonationMatchMessages.InstantiateMessageStruct,
+      details: DonationMatchMessages.InstantiateMessageStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -265,7 +265,7 @@ export interface DonationMatchCharity extends BaseContract {
   ): Promise<ContractTransaction>;
 
   initialize(
-    curDetails: DonationMatchMessages.InstantiateMessageStruct,
+    details: DonationMatchMessages.InstantiateMessageStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -283,7 +283,7 @@ export interface DonationMatchCharity extends BaseContract {
     ): Promise<void>;
 
     initialize(
-      curDetails: DonationMatchMessages.InstantiateMessageStruct,
+      details: DonationMatchMessages.InstantiateMessageStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -293,7 +293,7 @@ export interface DonationMatchCharity extends BaseContract {
   };
 
   filters: {
-    "DonationMatchCharityErc20ApprovalGiven(uint256,address,address,uint256)"(
+    "DonationMatchCharityErc20ApprovalGiven(uint32,address,address,uint256)"(
       endowmentId?: null,
       tokenAddress?: null,
       spender?: null,
@@ -306,7 +306,7 @@ export interface DonationMatchCharity extends BaseContract {
       amount?: null
     ): DonationMatchCharityErc20ApprovalGivenEventFilter;
 
-    "DonationMatchCharityErc20Burned(uint256,address,uint256)"(
+    "DonationMatchCharityErc20Burned(uint32,address,uint256)"(
       endowmentId?: null,
       tokenAddress?: null,
       amount?: null
@@ -317,7 +317,7 @@ export interface DonationMatchCharity extends BaseContract {
       amount?: null
     ): DonationMatchCharityErc20BurnedEventFilter;
 
-    "DonationMatchCharityErc20Transfer(uint256,address,address,uint256)"(
+    "DonationMatchCharityErc20Transfer(uint32,address,address,uint256)"(
       endowmentId?: null,
       tokenAddress?: null,
       recipient?: null,
@@ -330,7 +330,7 @@ export interface DonationMatchCharity extends BaseContract {
       amount?: null
     ): DonationMatchCharityErc20TransferEventFilter;
 
-    "DonationMatchCharityExecuted(address,address,uint256,address,uint256,address)"(
+    "DonationMatchCharityExecuted(address,address,uint256,address,uint32,address)"(
       donationMatch?: null,
       tokenAddress?: null,
       amount?: null,
@@ -370,7 +370,7 @@ export interface DonationMatchCharity extends BaseContract {
     ): Promise<BigNumber>;
 
     initialize(
-      curDetails: DonationMatchMessages.InstantiateMessageStruct,
+      details: DonationMatchMessages.InstantiateMessageStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -387,7 +387,7 @@ export interface DonationMatchCharity extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initialize(
-      curDetails: DonationMatchMessages.InstantiateMessageStruct,
+      details: DonationMatchMessages.InstantiateMessageStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

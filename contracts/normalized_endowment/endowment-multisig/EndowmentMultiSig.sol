@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 import {MultiSigGeneric} from "../../multisigs/MultiSigGeneric.sol";
-import {IEndowmentMultiSigEmitter} from "./interface/IEndowmentMultiSigEmitter.sol";
+import {IEndowmentMultiSigEmitter} from "./interfaces/IEndowmentMultiSigEmitter.sol";
 import {MultiSigStorage} from "../../multisigs/storage.sol";
 import {Utils} from "../../lib/utils.sol";
 /**
@@ -24,78 +24,78 @@ contract EndowmentMultiSig is MultiSigGeneric {
     /**
      * @notice initialize the multisig with the endowment id and the endowment multisig emitter address
      * @dev special initialize function for endowment multisig
-     * @param endowmentId the endowment id
-     * @param curEmitter the endowment multisig emitter address
-     * @param curOwners the owners of the multisig
-     * @param curRequired the required number of signatures
-     * @param curRequireexecution the require execution flag
+     * @param _endowmentId the endowment id
+     * @param _emitter the endowment multisig emitter address
+     * @param _owners the owners of the multisig
+     * @param _required the required number of signatures
+     * @param _requireExecution the require execution flag
      */
     function initialize(
-        uint256 endowmentId,
-        address curEmitter,
-        address[] memory curOwners,
-        uint256 curRequired,
-        bool curRequireexecution
+        uint256 _endowmentId,
+        address _emitter,
+        address[] memory _owners,
+        uint256 _required,
+        bool _requireExecution
     ) public initializer {
-        require(curEmitter != address(0), "Invalid Address");
-        ENDOWMENT_ID = endowmentId;
-        EMITTER_ADDRESS = curEmitter;
-        super.initialize(curOwners, curRequired, curRequireexecution);
+        require(_emitter != address(0), "Invalid Address");
+        ENDOWMENT_ID = _endowmentId;
+        EMITTER_ADDRESS = _emitter;
+        super.initialize(_owners, _required, _requireExecution);
     }
 
     /**
      * @notice overriden the generic multisig addOwner function
      * @dev emits the addOwnerEndowment event
-     * @param owner the owner to be added
+     * @param _owner the owner to be added
      */
-    function addOwner(address owner) public override {
-        super.addOwner(owner);
+    function addOwner(address _owner) public override {
+        super.addOwner(_owner);
         IEndowmentMultiSigEmitter(EMITTER_ADDRESS).addOwnerEndowment(
             ENDOWMENT_ID,
-            owner
+            _owner
         );
     }
 
     /**
      * @notice overriden the generic multisig removeOwner function
      * @dev emits the removeOwnerEndowment event
-     * @param owner the owner to be removed
+     * @param _owner the owner to be removed
      */
-    function removeOwner(address owner) public override {
-        super.removeOwner(owner);
+    function removeOwner(address _owner) public override {
+        super.removeOwner(_owner);
         IEndowmentMultiSigEmitter(EMITTER_ADDRESS).removeOwnerEndowment(
             ENDOWMENT_ID,
-            owner
+            _owner
         );
     }
 
     /**
      * @notice overriden the generic multisig replaceOwner function
      * @dev emits the removeOwnerEndowment and addOwnerEndowment events
-     * @param owner the owner to be replaced
+     * @param _owner the owner to be replaced
      */
-    function replaceOwner(address owner, address newOwner) public override {
-        super.replaceOwner(owner, newOwner);
+    function replaceOwner(address _owner, address _newOwner) public override {
+        super.replaceOwner(_owner, _newOwner);
         IEndowmentMultiSigEmitter(EMITTER_ADDRESS).removeOwnerEndowment(
             ENDOWMENT_ID,
-            owner
+            _owner
         );
         IEndowmentMultiSigEmitter(EMITTER_ADDRESS).addOwnerEndowment(
             ENDOWMENT_ID,
-            owner
+            _newOwner
         );
     }
 
     /**
      * @notice overriden the generic multisig changeRequirement function
      * @dev emits the requirementChangeEndowment event
-     * @param curRequired the new required number of signatures
+     * @param _required the new required number of signatures
      */
-    function changeRequirement(uint256 curRequired) public override {
-        super.changeRequirement(curRequired);
+    function changeRequirement(uint256 _required) public override {
+        super.changeRequirement(_required);
         IEndowmentMultiSigEmitter(EMITTER_ADDRESS).requirementChangeEndowment(
             ENDOWMENT_ID,
-            curRequired
+            _required
         );
     }
 

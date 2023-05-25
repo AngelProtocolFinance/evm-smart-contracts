@@ -1,8 +1,7 @@
 import { task, types } from "hardhat/config"
-import type { TaskArguments } from "hardhat/types";
-import { Registrar, Registrar__factory } from "typechain-types"
-import { logger } from "utils"
-import * as fs from "fs"
+import type { TaskArguments } from "hardhat/types"
+import { Registrar } from "typechain-types"
+import { getAddresses, logger } from "utils"
 
 const NULL_NUMBER = 0
 const NULL_STRING = ""
@@ -19,10 +18,8 @@ task("manage:registrar:setRebalParams")
   
   logger.divider()
   logger.out("Connecting to registrar on specified network...")
-  const network = await hre.ethers.provider.getNetwork()
-  let rawdata = fs.readFileSync('address.json', "utf8")
-  let addresses: any = JSON.parse(rawdata)
-  const registrarAddress = addresses[network.chainId]["registrar"]["proxy"]
+  const addresses = await getAddresses(hre)
+  const registrarAddress = addresses["registrar"]["proxy"]
   const registrar = await hre.ethers.getContractAt("Registrar",registrarAddress) as Registrar
   logger.pad(50, "Connected to Registrar at: ", registrar.address)
 

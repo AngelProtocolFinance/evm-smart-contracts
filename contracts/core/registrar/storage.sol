@@ -5,19 +5,18 @@ import {AngelCoreStruct} from "../struct.sol";
 
 library RegistrarStorage {
     struct Config {
-        address owner; // AP TEAM MULTISIG
         //Application review multisig
-        address applicationsReview; // Endowment application review team's CW3 (set as owner to start). Owner can set and change/revoke.
+        address applicationsReview; // Endowment application review team's multisig (set as owner to start). Owner can set and change/revoke.
         address indexFundContract;
         address accountsContract;
         address treasury;
-        address subdaoGovCode; // subdao gov wasm code
-        address subdaoCw20TokenCode; // subdao gov cw20 token wasm code
-        address subdaoBondingTokenCode; // subdao gov bonding curve token wasm code
-        address subdaoCw900Code; // subdao gov ve-CURVE contract for locked token voting
-        address subdaoDistributorCode; // subdao gov fee distributor wasm code
+        address subdaoGovContract; // subdao gov wasm code
+        address subdaoTokenContract; // subdao gov cw20 token wasm code
+        address subdaoBondingTokenContract; // subdao gov bonding ve token wasm code
+        address subdaoCw900Contract; // subdao gov ve-vE contract for locked token voting
+        address subdaoDistributorContract; // subdao gov fee distributor wasm code
         address subdaoEmitter;
-        address donationMatchCode; // donation matching contract wasm code
+        address donationMatchContract; // donation matching contract wasm code
         address donationMatchCharitesContract; // donation matching contract address for "Charities" endowments
         address donationMatchEmitter;
         AngelCoreStruct.SplitDetails splitToLiquid; // set of max, min, and default Split paramenters to check user defined split input against
@@ -25,13 +24,12 @@ library RegistrarStorage {
         address haloToken; // TerraSwap HALO token addr
         address haloTokenLpContract;
         address govContract; // AP governance contract
-        address collectorAddr; // Collector address for new fee //SHARED
         uint256 collectorShare;
         address charitySharesContract;
-        AngelCoreStruct.AcceptedTokens acceptedTokens; // list of approved native and CW20 coins can accept inward
+        // AngelCoreStruct.AcceptedTokens acceptedTokens; // list of approved native and CW20 coins can accept inward
         //PROTOCOL LEVEL
         address fundraisingContract;
-        AngelCoreStruct.RebalanceDetails rebalance;
+        // AngelCoreStruct.RebalanceDetails rebalance;
         address swapsRouter;
         address multisigFactory;
         address multisigEmitter;
@@ -45,14 +43,12 @@ library RegistrarStorage {
 
     struct State {
         Config config;
-        mapping(string => AngelCoreStruct.YieldVault) VAULTS;
-        string[] VAULT_POINTERS;
+        bytes4[] STRATEGIES;
+        mapping(string => uint256) FEES;
         mapping(uint256 => AngelCoreStruct.NetworkInfo) NETWORK_CONNECTIONS;
-        mapping(string => uint256) FEES; // SHARED
     }
 }
 
 contract Storage {
     RegistrarStorage.State state;
-    bool initilized = false;
 }

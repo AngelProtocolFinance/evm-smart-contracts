@@ -71,7 +71,7 @@ export declare namespace DonationMatchStorage {
 
 export interface DonationMatchInterface extends utils.Interface {
   functions: {
-    "executeDonorMatch(uint256,uint256,address,address)": FunctionFragment;
+    "executeDonorMatch(uint32,uint256,address,address)": FunctionFragment;
     "initialize((address,address,address,uint24,address),address)": FunctionFragment;
     "queryConfig()": FunctionFragment;
   };
@@ -161,8 +161,8 @@ export interface DonationMatch extends BaseContract {
     ): Promise<ContractTransaction>;
 
     initialize(
-      curDetails: DonationMatchMessages.InstantiateMessageStruct,
-      curEmitteraddress: PromiseOrValue<string>,
+      details: DonationMatchMessages.InstantiateMessageStruct,
+      emitteraddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -180,8 +180,8 @@ export interface DonationMatch extends BaseContract {
   ): Promise<ContractTransaction>;
 
   initialize(
-    curDetails: DonationMatchMessages.InstantiateMessageStruct,
-    curEmitteraddress: PromiseOrValue<string>,
+    details: DonationMatchMessages.InstantiateMessageStruct,
+    emitteraddress: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -199,8 +199,8 @@ export interface DonationMatch extends BaseContract {
     ): Promise<void>;
 
     initialize(
-      curDetails: DonationMatchMessages.InstantiateMessageStruct,
-      curEmitteraddress: PromiseOrValue<string>,
+      details: DonationMatchMessages.InstantiateMessageStruct,
+      emitteraddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -224,8 +224,8 @@ export interface DonationMatch extends BaseContract {
     ): Promise<BigNumber>;
 
     initialize(
-      curDetails: DonationMatchMessages.InstantiateMessageStruct,
-      curEmitteraddress: PromiseOrValue<string>,
+      details: DonationMatchMessages.InstantiateMessageStruct,
+      emitteraddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -242,8 +242,8 @@ export interface DonationMatch extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initialize(
-      curDetails: DonationMatchMessages.InstantiateMessageStruct,
-      curEmitteraddress: PromiseOrValue<string>,
+      details: DonationMatchMessages.InstantiateMessageStruct,
+      emitteraddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -1,5 +1,6 @@
 import { task } from "hardhat/config"
 import { deployEndowmentMultiSig } from "contracts/normalized_endowment/endowment-multisig/scripts/deploy"
+import { logger } from "utils"
 
 task("Deploy:deployEndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
     .addParam("verify", "Want to verify contract")
@@ -9,6 +10,6 @@ task("Deploy:deployEndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
 
             await deployEndowmentMultiSig(isTrueSet, hre);
         } catch (error) {
-            console.log(error);
+            logger.out(error, logger.Level.Error)
         }
     });

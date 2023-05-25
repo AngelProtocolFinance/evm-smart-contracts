@@ -114,7 +114,7 @@ contract DummyGasService is IAxelarGasService {
         uint256 amount
     ) external {}
 
-    function gasCollector() external returns (address) {
+    function gasCollector() external view returns (address) {
         return address(this);
     }
 }

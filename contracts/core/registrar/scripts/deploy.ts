@@ -1,13 +1,9 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 
-import path from 'path'
-import config from 'config'
-import { saveFrontendFiles } from 'scripts/readWriteFile'
+import { updateAddresses } from "utils"
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { RegistrarMessages } from "typechain-types/contracts/core/registrar/registrar.sol/Registrar"
-
-const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
 
 export async function deployRegistrar(STRING_LIBRARY: string,registrarData: RegistrarMessages.InstantiateRequestStruct,verify_contracts: boolean, hre: HardhatRuntimeEnvironment) {
 	try {
@@ -19,17 +15,11 @@ export async function deployRegistrar(STRING_LIBRARY: string,registrarData: Regi
 		// const [deployer] = await ethers.getSigners();
 		// Deploy registrar implementation first
 
-		const registrarLib = await ethers.getContractFactory('RegistrarLib');
-		const registrarLibInstance = await registrarLib.deploy();
-		await registrarLibInstance.deployed();
+		// const registrarLib = await ethers.getContractFactory('RegistrarLib');
+		// const registrarLibInstance = await registrarLib.deploy();
+		// await registrarLibInstance.deployed();
 
-		const Registrar = await ethers.getContractFactory('Registrar',
-			{
-				libraries: {
-					StringArray: STRING_LIBRARY,
-					RegistrarLib: registrarLibInstance.address
-				}
-			});
+		const Registrar = await ethers.getContractFactory('Registrar')
 		const registrarImplementation = await Registrar.deploy();
 		await registrarImplementation.deployed();
 
@@ -40,7 +30,10 @@ export async function deployRegistrar(STRING_LIBRARY: string,registrarData: Regi
 
 		// Initialise registrar
 
-		const registrarProxyData = registrarImplementation.interface.encodeFunctionData('initialize', [registrarData]);
+		const registrarProxyData = registrarImplementation.interface.encodeFunctionData(
+			"initialize((address,(uint256,uint256,uint256),address,address,address))", 
+			[registrarData]
+		);
 
 		const registrarProxy = await ProxyContract.deploy(registrarImplementation.address, proxyAdmin.address, registrarProxyData);
 
@@ -57,12 +50,15 @@ export async function deployRegistrar(STRING_LIBRARY: string,registrarData: Regi
 			});
 		}
 
-		let registrar = {
-			registrarImplementation: registrarImplementation.address,
-			registrarProxy: registrarProxy.address
-		};
-		
-		await saveFrontendFiles({registrar});
+		await updateAddresses(
+			{
+				registrar: {
+					implementation: registrarImplementation.address,
+					proxy: registrarProxy.address
+				}
+			},
+			hre
+		);
 
 		console.log('Registrar Address (Proxy):', registrarProxy.address);
 

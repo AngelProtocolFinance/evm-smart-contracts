@@ -14,7 +14,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "curOwner",
+        name: "owner",
         type: "address",
       },
     ],
@@ -33,12 +33,12 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "curOwner",
+        name: "owner",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "curBlocknumber",
+        name: "blocknumber",
         type: "uint256",
       },
     ],
@@ -70,7 +70,7 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "curBlocknumber",
+        name: "blocknumber",
         type: "uint256",
       },
     ],

@@ -18,7 +18,6 @@ export default async function updateDiamond(
     const calldata = diamondInit.interface.encodeFunctionData("init", [owner, registrar])
 
     const cuts = facetCuts.map((x) => x.cut)
-
     const tx = await diamondCut.diamondCut(cuts, diamondInit.address, calldata)
     console.log("Cutting diamond tx: ", tx.hash)
 

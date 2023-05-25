@@ -1,9 +1,8 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { task } from "hardhat/config"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
-import addresses from "contract-address.json"
 import { ITransparentUpgradeableProxy__factory, OwnershipFacet__factory } from "typechain-types"
-import { confirmAction, logger } from "utils"
+import { AddressObj, confirmAction, getAddresses, logger } from "utils"
 
 task("manage:changeAdmin", "Will update the admin for all proxy contracts")
     .addParam("currentAdmin", "Current admin address")
@@ -12,37 +11,45 @@ task("manage:changeAdmin", "Will update the admin for all proxy contracts")
         try {
             const isConfirmed = await confirmAction(`You're about to set ${taskArguments.newAdmin} as the new admin`)
             if (!isConfirmed) {
-                return console.log("Aborting...")
+                return logger.out("Aborting...")
             }
 
             const currentAdmin = await hre.ethers.getSigner(taskArguments.currentAdmin)
 
-            await transferAccountOwnership(currentAdmin, taskArguments.newAdmin, hre)
+            const addresses = await getAddresses(hre)
 
-            await changeProxiesAdmin(currentAdmin, taskArguments.newAdmin, hre)
+            await transferAccountOwnership(currentAdmin, taskArguments.newAdmin, addresses, hre)
+
+            await changeProxiesAdmin(currentAdmin, taskArguments.newAdmin, addresses, hre)
         } catch (error) {
             logger.out(error, logger.Level.Error)
         } finally {
-            console.log("Done.")
+            logger.out("Done.")
         }
     })
 
 async function transferAccountOwnership(
     currentAdmin: SignerWithAddress,
     newAdmin: string,
+    addresses: AddressObj,
     hre: HardhatRuntimeEnvironment
 ) {
     try {
         const ownershipFacet = OwnershipFacet__factory.connect(addresses.accounts.diamond, currentAdmin)
         const tx = await ownershipFacet.transferOwnership(newAdmin)
         await hre.ethers.provider.waitForTransaction(tx.hash)
-        console.log("Transferred Account diamond ownership.")
+        logger.out("Transferred Account diamond ownership.")
     } catch (error) {
         logger.out(`Failed to change admin for Account diamond, reason: ${error}`, logger.Level.Error)
     }
 }
 
-async function changeProxiesAdmin(currentAdmin: SignerWithAddress, taskArguments: any, hre: HardhatRuntimeEnvironment) {
+async function changeProxiesAdmin(
+    currentAdmin: SignerWithAddress,
+    taskArguments: any,
+    addresses: AddressObj,
+    hre: HardhatRuntimeEnvironment
+) {
     console.log("Reading proxy contract addresses...")
 
     const proxies = extractProxyContractAddresses("", addresses)
@@ -52,7 +59,7 @@ async function changeProxiesAdmin(currentAdmin: SignerWithAddress, taskArguments
             const upgradeableProxy = ITransparentUpgradeableProxy__factory.connect(proxy.address, currentAdmin)
             const tx = await upgradeableProxy.changeAdmin(taskArguments.newAdmin)
             await hre.ethers.provider.waitForTransaction(tx.hash)
-            console.log(`Changed admin for ${proxy.name}.`)
+            logger.out(`Changed admin for ${proxy.name}.`)
         } catch (error) {
             logger.out(`Failed to change admin for ${proxy.name}, reason: ${error}`, logger.Level.Error)
         }

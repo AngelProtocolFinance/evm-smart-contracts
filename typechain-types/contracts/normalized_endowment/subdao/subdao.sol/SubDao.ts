@@ -24,14 +24,14 @@ import type {
 } from "../../../../common";
 
 export declare namespace AngelCoreStruct {
-  export type CurveTypeDataStruct = {
+  export type VeTypeDataStruct = {
     value: PromiseOrValue<BigNumberish>;
     scale: PromiseOrValue<BigNumberish>;
     slope: PromiseOrValue<BigNumberish>;
     power: PromiseOrValue<BigNumberish>;
   };
 
-  export type CurveTypeDataStructOutput = [
+  export type VeTypeDataStructOutput = [
     BigNumber,
     BigNumber,
     BigNumber,
@@ -43,28 +43,28 @@ export declare namespace AngelCoreStruct {
     power: BigNumber;
   };
 
-  export type CurveTypeStruct = {
-    curve_type: PromiseOrValue<BigNumberish>;
-    data: AngelCoreStruct.CurveTypeDataStruct;
+  export type VeTypeStruct = {
+    ve_type: PromiseOrValue<BigNumberish>;
+    data: AngelCoreStruct.VeTypeDataStruct;
   };
 
-  export type CurveTypeStructOutput = [
+  export type VeTypeStructOutput = [
     number,
-    AngelCoreStruct.CurveTypeDataStructOutput
-  ] & { curve_type: number; data: AngelCoreStruct.CurveTypeDataStructOutput };
+    AngelCoreStruct.VeTypeDataStructOutput
+  ] & { ve_type: number; data: AngelCoreStruct.VeTypeDataStructOutput };
 
   export type DaoTokenDataStruct = {
-    existingCw20Data: PromiseOrValue<string>;
-    newCw20InitialSupply: PromiseOrValue<BigNumberish>;
-    newCw20Name: PromiseOrValue<string>;
-    newCw20Symbol: PromiseOrValue<string>;
-    bondingCurveCurveType: AngelCoreStruct.CurveTypeStruct;
-    bondingCurveName: PromiseOrValue<string>;
-    bondingCurveSymbol: PromiseOrValue<string>;
-    bondingCurveDecimals: PromiseOrValue<BigNumberish>;
-    bondingCurveReserveDenom: PromiseOrValue<string>;
-    bondingCurveReserveDecimals: PromiseOrValue<BigNumberish>;
-    bondingCurveUnbondingPeriod: PromiseOrValue<BigNumberish>;
+    existingData: PromiseOrValue<string>;
+    newInitialSupply: PromiseOrValue<BigNumberish>;
+    newName: PromiseOrValue<string>;
+    newSymbol: PromiseOrValue<string>;
+    veBondingType: AngelCoreStruct.VeTypeStruct;
+    veBondingName: PromiseOrValue<string>;
+    veBondingSymbol: PromiseOrValue<string>;
+    veBondingDecimals: PromiseOrValue<BigNumberish>;
+    veBondingReserveDenom: PromiseOrValue<string>;
+    veBondingReserveDecimals: PromiseOrValue<BigNumberish>;
+    veBondingPeriod: PromiseOrValue<BigNumberish>;
   };
 
   export type DaoTokenDataStructOutput = [
@@ -72,7 +72,7 @@ export declare namespace AngelCoreStruct {
     BigNumber,
     string,
     string,
-    AngelCoreStruct.CurveTypeStructOutput,
+    AngelCoreStruct.VeTypeStructOutput,
     string,
     string,
     BigNumber,
@@ -80,17 +80,17 @@ export declare namespace AngelCoreStruct {
     BigNumber,
     BigNumber
   ] & {
-    existingCw20Data: string;
-    newCw20InitialSupply: BigNumber;
-    newCw20Name: string;
-    newCw20Symbol: string;
-    bondingCurveCurveType: AngelCoreStruct.CurveTypeStructOutput;
-    bondingCurveName: string;
-    bondingCurveSymbol: string;
-    bondingCurveDecimals: BigNumber;
-    bondingCurveReserveDenom: string;
-    bondingCurveReserveDecimals: BigNumber;
-    bondingCurveUnbondingPeriod: BigNumber;
+    existingData: string;
+    newInitialSupply: BigNumber;
+    newName: string;
+    newSymbol: string;
+    veBondingType: AngelCoreStruct.VeTypeStructOutput;
+    veBondingName: string;
+    veBondingSymbol: string;
+    veBondingDecimals: BigNumber;
+    veBondingReserveDenom: string;
+    veBondingReserveDecimals: BigNumber;
+    veBondingPeriod: BigNumber;
   };
 
   export type DaoTokenStruct = {
@@ -116,13 +116,13 @@ export declare namespace SubDaoMessage {
     proposalDeposit: PromiseOrValue<BigNumberish>;
     snapshotPeriod: PromiseOrValue<BigNumberish>;
     token: AngelCoreStruct.DaoTokenStruct;
-    endow_type: PromiseOrValue<BigNumberish>;
+    endowType: PromiseOrValue<BigNumberish>;
     endowOwner: PromiseOrValue<string>;
     registrarContract: PromiseOrValue<string>;
   };
 
   export type InstantiateMsgStructOutput = [
-    BigNumber,
+    number,
     string,
     BigNumber,
     BigNumber,
@@ -136,7 +136,7 @@ export declare namespace SubDaoMessage {
     string,
     string
   ] & {
-    id: BigNumber;
+    id: number;
     owner: string;
     quorum: BigNumber;
     threshold: BigNumber;
@@ -146,7 +146,7 @@ export declare namespace SubDaoMessage {
     proposalDeposit: BigNumber;
     snapshotPeriod: BigNumber;
     token: AngelCoreStruct.DaoTokenStructOutput;
-    endow_type: number;
+    endowType: number;
     endowOwner: string;
     registrarContract: string;
   };
@@ -220,13 +220,13 @@ export declare namespace SubDaoStorage {
 
 export interface SubDaoInterface extends utils.Interface {
   functions: {
-    "buildDaoTokenMesage((uint256,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address))": FunctionFragment;
+    "buildDaoTokenMesage((uint32,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address))": FunctionFragment;
     "castVote(uint256,uint8)": FunctionFragment;
     "createPoll(uint256,string,string,string,(uint256[],address[],bytes[]))": FunctionFragment;
     "endPoll(uint256)": FunctionFragment;
     "executePoll(uint256)": FunctionFragment;
     "expirePoll(uint256)": FunctionFragment;
-    "initializeSubDao((uint256,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address),address)": FunctionFragment;
+    "initializeSubDao((uint32,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address),address)": FunctionFragment;
     "queryConfig()": FunctionFragment;
     "queryState()": FunctionFragment;
     "registerContract(address,address)": FunctionFragment;
@@ -369,43 +369,43 @@ export interface SubDao extends BaseContract {
 
   functions: {
     buildDaoTokenMesage(
-      curMsg: SubDaoMessage.InstantiateMsgStruct,
+      details: SubDaoMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     castVote(
-      curPollid: PromiseOrValue<BigNumberish>,
+      pollid: PromiseOrValue<BigNumberish>,
       vote: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     createPoll(
-      curDepositamount: PromiseOrValue<BigNumberish>,
-      curTitle: PromiseOrValue<string>,
-      curDescription: PromiseOrValue<string>,
-      curLink: PromiseOrValue<string>,
-      curExecuteMsgs: SubDaoStorage.ExecuteDataStruct,
+      depositamount: PromiseOrValue<BigNumberish>,
+      title: PromiseOrValue<string>,
+      description: PromiseOrValue<string>,
+      link: PromiseOrValue<string>,
+      executeMsgs: SubDaoStorage.ExecuteDataStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     endPoll(
-      curPollid: PromiseOrValue<BigNumberish>,
+      pollid: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     executePoll(
-      curPollid: PromiseOrValue<BigNumberish>,
+      pollid: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     expirePoll(
-      curPollid: PromiseOrValue<BigNumberish>,
+      pollid: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     initializeSubDao(
-      curMsg: SubDaoMessage.InstantiateMsgStruct,
-      curEmitteraddress: PromiseOrValue<string>,
+      details: SubDaoMessage.InstantiateMsgStruct,
+      emitteraddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -418,62 +418,62 @@ export interface SubDao extends BaseContract {
     ): Promise<[SubDaoStorage.StateStructOutput]>;
 
     registerContract(
-      curVetoken: PromiseOrValue<string>,
-      curSwapfactory: PromiseOrValue<string>,
+      vetoken: PromiseOrValue<string>,
+      swapfactory: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     updateConfig(
-      curOwner: PromiseOrValue<string>,
-      curQuorum: PromiseOrValue<BigNumberish>,
-      curThreshold: PromiseOrValue<BigNumberish>,
-      curVotingperiod: PromiseOrValue<BigNumberish>,
-      curTimelockperiod: PromiseOrValue<BigNumberish>,
-      curExpirationperiod: PromiseOrValue<BigNumberish>,
-      curProposaldeposit: PromiseOrValue<BigNumberish>,
-      curSnapshotperiod: PromiseOrValue<BigNumberish>,
+      owner: PromiseOrValue<string>,
+      quorum: PromiseOrValue<BigNumberish>,
+      threshold: PromiseOrValue<BigNumberish>,
+      votingperiod: PromiseOrValue<BigNumberish>,
+      timelockperiod: PromiseOrValue<BigNumberish>,
+      expirationperiod: PromiseOrValue<BigNumberish>,
+      proposaldeposit: PromiseOrValue<BigNumberish>,
+      snapshotperiod: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
   buildDaoTokenMesage(
-    curMsg: SubDaoMessage.InstantiateMsgStruct,
+    details: SubDaoMessage.InstantiateMsgStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   castVote(
-    curPollid: PromiseOrValue<BigNumberish>,
+    pollid: PromiseOrValue<BigNumberish>,
     vote: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   createPoll(
-    curDepositamount: PromiseOrValue<BigNumberish>,
-    curTitle: PromiseOrValue<string>,
-    curDescription: PromiseOrValue<string>,
-    curLink: PromiseOrValue<string>,
-    curExecuteMsgs: SubDaoStorage.ExecuteDataStruct,
+    depositamount: PromiseOrValue<BigNumberish>,
+    title: PromiseOrValue<string>,
+    description: PromiseOrValue<string>,
+    link: PromiseOrValue<string>,
+    executeMsgs: SubDaoStorage.ExecuteDataStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   endPoll(
-    curPollid: PromiseOrValue<BigNumberish>,
+    pollid: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   executePoll(
-    curPollid: PromiseOrValue<BigNumberish>,
+    pollid: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   expirePoll(
-    curPollid: PromiseOrValue<BigNumberish>,
+    pollid: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   initializeSubDao(
-    curMsg: SubDaoMessage.InstantiateMsgStruct,
-    curEmitteraddress: PromiseOrValue<string>,
+    details: SubDaoMessage.InstantiateMsgStruct,
+    emitteraddress: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -486,62 +486,62 @@ export interface SubDao extends BaseContract {
   ): Promise<SubDaoStorage.StateStructOutput>;
 
   registerContract(
-    curVetoken: PromiseOrValue<string>,
-    curSwapfactory: PromiseOrValue<string>,
+    vetoken: PromiseOrValue<string>,
+    swapfactory: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   updateConfig(
-    curOwner: PromiseOrValue<string>,
-    curQuorum: PromiseOrValue<BigNumberish>,
-    curThreshold: PromiseOrValue<BigNumberish>,
-    curVotingperiod: PromiseOrValue<BigNumberish>,
-    curTimelockperiod: PromiseOrValue<BigNumberish>,
-    curExpirationperiod: PromiseOrValue<BigNumberish>,
-    curProposaldeposit: PromiseOrValue<BigNumberish>,
-    curSnapshotperiod: PromiseOrValue<BigNumberish>,
+    owner: PromiseOrValue<string>,
+    quorum: PromiseOrValue<BigNumberish>,
+    threshold: PromiseOrValue<BigNumberish>,
+    votingperiod: PromiseOrValue<BigNumberish>,
+    timelockperiod: PromiseOrValue<BigNumberish>,
+    expirationperiod: PromiseOrValue<BigNumberish>,
+    proposaldeposit: PromiseOrValue<BigNumberish>,
+    snapshotperiod: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     buildDaoTokenMesage(
-      curMsg: SubDaoMessage.InstantiateMsgStruct,
+      details: SubDaoMessage.InstantiateMsgStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
     castVote(
-      curPollid: PromiseOrValue<BigNumberish>,
+      pollid: PromiseOrValue<BigNumberish>,
       vote: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     createPoll(
-      curDepositamount: PromiseOrValue<BigNumberish>,
-      curTitle: PromiseOrValue<string>,
-      curDescription: PromiseOrValue<string>,
-      curLink: PromiseOrValue<string>,
-      curExecuteMsgs: SubDaoStorage.ExecuteDataStruct,
+      depositamount: PromiseOrValue<BigNumberish>,
+      title: PromiseOrValue<string>,
+      description: PromiseOrValue<string>,
+      link: PromiseOrValue<string>,
+      executeMsgs: SubDaoStorage.ExecuteDataStruct,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     endPoll(
-      curPollid: PromiseOrValue<BigNumberish>,
+      pollid: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     executePoll(
-      curPollid: PromiseOrValue<BigNumberish>,
+      pollid: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     expirePoll(
-      curPollid: PromiseOrValue<BigNumberish>,
+      pollid: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     initializeSubDao(
-      curMsg: SubDaoMessage.InstantiateMsgStruct,
-      curEmitteraddress: PromiseOrValue<string>,
+      details: SubDaoMessage.InstantiateMsgStruct,
+      emitteraddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -554,20 +554,20 @@ export interface SubDao extends BaseContract {
     ): Promise<SubDaoStorage.StateStructOutput>;
 
     registerContract(
-      curVetoken: PromiseOrValue<string>,
-      curSwapfactory: PromiseOrValue<string>,
+      vetoken: PromiseOrValue<string>,
+      swapfactory: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     updateConfig(
-      curOwner: PromiseOrValue<string>,
-      curQuorum: PromiseOrValue<BigNumberish>,
-      curThreshold: PromiseOrValue<BigNumberish>,
-      curVotingperiod: PromiseOrValue<BigNumberish>,
-      curTimelockperiod: PromiseOrValue<BigNumberish>,
-      curExpirationperiod: PromiseOrValue<BigNumberish>,
-      curProposaldeposit: PromiseOrValue<BigNumberish>,
-      curSnapshotperiod: PromiseOrValue<BigNumberish>,
+      owner: PromiseOrValue<string>,
+      quorum: PromiseOrValue<BigNumberish>,
+      threshold: PromiseOrValue<BigNumberish>,
+      votingperiod: PromiseOrValue<BigNumberish>,
+      timelockperiod: PromiseOrValue<BigNumberish>,
+      expirationperiod: PromiseOrValue<BigNumberish>,
+      proposaldeposit: PromiseOrValue<BigNumberish>,
+      snapshotperiod: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -576,43 +576,43 @@ export interface SubDao extends BaseContract {
 
   estimateGas: {
     buildDaoTokenMesage(
-      curMsg: SubDaoMessage.InstantiateMsgStruct,
+      details: SubDaoMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     castVote(
-      curPollid: PromiseOrValue<BigNumberish>,
+      pollid: PromiseOrValue<BigNumberish>,
       vote: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     createPoll(
-      curDepositamount: PromiseOrValue<BigNumberish>,
-      curTitle: PromiseOrValue<string>,
-      curDescription: PromiseOrValue<string>,
-      curLink: PromiseOrValue<string>,
-      curExecuteMsgs: SubDaoStorage.ExecuteDataStruct,
+      depositamount: PromiseOrValue<BigNumberish>,
+      title: PromiseOrValue<string>,
+      description: PromiseOrValue<string>,
+      link: PromiseOrValue<string>,
+      executeMsgs: SubDaoStorage.ExecuteDataStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     endPoll(
-      curPollid: PromiseOrValue<BigNumberish>,
+      pollid: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     executePoll(
-      curPollid: PromiseOrValue<BigNumberish>,
+      pollid: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     expirePoll(
-      curPollid: PromiseOrValue<BigNumberish>,
+      pollid: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     initializeSubDao(
-      curMsg: SubDaoMessage.InstantiateMsgStruct,
-      curEmitteraddress: PromiseOrValue<string>,
+      details: SubDaoMessage.InstantiateMsgStruct,
+      emitteraddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -621,63 +621,63 @@ export interface SubDao extends BaseContract {
     queryState(overrides?: CallOverrides): Promise<BigNumber>;
 
     registerContract(
-      curVetoken: PromiseOrValue<string>,
-      curSwapfactory: PromiseOrValue<string>,
+      vetoken: PromiseOrValue<string>,
+      swapfactory: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     updateConfig(
-      curOwner: PromiseOrValue<string>,
-      curQuorum: PromiseOrValue<BigNumberish>,
-      curThreshold: PromiseOrValue<BigNumberish>,
-      curVotingperiod: PromiseOrValue<BigNumberish>,
-      curTimelockperiod: PromiseOrValue<BigNumberish>,
-      curExpirationperiod: PromiseOrValue<BigNumberish>,
-      curProposaldeposit: PromiseOrValue<BigNumberish>,
-      curSnapshotperiod: PromiseOrValue<BigNumberish>,
+      owner: PromiseOrValue<string>,
+      quorum: PromiseOrValue<BigNumberish>,
+      threshold: PromiseOrValue<BigNumberish>,
+      votingperiod: PromiseOrValue<BigNumberish>,
+      timelockperiod: PromiseOrValue<BigNumberish>,
+      expirationperiod: PromiseOrValue<BigNumberish>,
+      proposaldeposit: PromiseOrValue<BigNumberish>,
+      snapshotperiod: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     buildDaoTokenMesage(
-      curMsg: SubDaoMessage.InstantiateMsgStruct,
+      details: SubDaoMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     castVote(
-      curPollid: PromiseOrValue<BigNumberish>,
+      pollid: PromiseOrValue<BigNumberish>,
       vote: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     createPoll(
-      curDepositamount: PromiseOrValue<BigNumberish>,
-      curTitle: PromiseOrValue<string>,
-      curDescription: PromiseOrValue<string>,
-      curLink: PromiseOrValue<string>,
-      curExecuteMsgs: SubDaoStorage.ExecuteDataStruct,
+      depositamount: PromiseOrValue<BigNumberish>,
+      title: PromiseOrValue<string>,
+      description: PromiseOrValue<string>,
+      link: PromiseOrValue<string>,
+      executeMsgs: SubDaoStorage.ExecuteDataStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     endPoll(
-      curPollid: PromiseOrValue<BigNumberish>,
+      pollid: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     executePoll(
-      curPollid: PromiseOrValue<BigNumberish>,
+      pollid: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     expirePoll(
-      curPollid: PromiseOrValue<BigNumberish>,
+      pollid: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     initializeSubDao(
-      curMsg: SubDaoMessage.InstantiateMsgStruct,
-      curEmitteraddress: PromiseOrValue<string>,
+      details: SubDaoMessage.InstantiateMsgStruct,
+      emitteraddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -686,20 +686,20 @@ export interface SubDao extends BaseContract {
     queryState(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     registerContract(
-      curVetoken: PromiseOrValue<string>,
-      curSwapfactory: PromiseOrValue<string>,
+      vetoken: PromiseOrValue<string>,
+      swapfactory: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     updateConfig(
-      curOwner: PromiseOrValue<string>,
-      curQuorum: PromiseOrValue<BigNumberish>,
-      curThreshold: PromiseOrValue<BigNumberish>,
-      curVotingperiod: PromiseOrValue<BigNumberish>,
-      curTimelockperiod: PromiseOrValue<BigNumberish>,
-      curExpirationperiod: PromiseOrValue<BigNumberish>,
-      curProposaldeposit: PromiseOrValue<BigNumberish>,
-      curSnapshotperiod: PromiseOrValue<BigNumberish>,
+      owner: PromiseOrValue<string>,
+      quorum: PromiseOrValue<BigNumberish>,
+      threshold: PromiseOrValue<BigNumberish>,
+      votingperiod: PromiseOrValue<BigNumberish>,
+      timelockperiod: PromiseOrValue<BigNumberish>,
+      expirationperiod: PromiseOrValue<BigNumberish>,
+      proposaldeposit: PromiseOrValue<BigNumberish>,
+      snapshotperiod: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

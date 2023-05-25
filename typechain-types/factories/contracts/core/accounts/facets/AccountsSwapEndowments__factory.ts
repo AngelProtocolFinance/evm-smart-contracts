@@ -32,37 +32,10 @@ const _abi = [
         type: "address",
       },
       {
-        components: [
-          {
-            internalType: "uint256",
-            name: "height",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "timestamp",
-            type: "uint256",
-          },
-          {
-            internalType: "bool",
-            name: "expires",
-            type: "bool",
-          },
-          {
-            internalType: "uint256",
-            name: "allowanceAmount",
-            type: "uint256",
-          },
-          {
-            internalType: "bool",
-            name: "configured",
-            type: "bool",
-          },
-        ],
         indexed: false,
-        internalType: "struct AccountStorage.AllowanceData",
+        internalType: "uint256",
         name: "allowance",
-        type: "tuple",
+        type: "uint256",
       },
     ],
     name: "AllowanceStateUpdatedTo",
@@ -74,9 +47,9 @@ const _abi = [
       {
         components: [
           {
-            internalType: "uint256",
+            internalType: "uint32",
             name: "id",
-            type: "uint256",
+            type: "uint32",
           },
           {
             internalType: "address",
@@ -129,29 +102,29 @@ const _abi = [
                 components: [
                   {
                     internalType: "address",
-                    name: "existingCw20Data",
+                    name: "existingData",
                     type: "address",
                   },
                   {
                     internalType: "uint256",
-                    name: "newCw20InitialSupply",
+                    name: "newInitialSupply",
                     type: "uint256",
                   },
                   {
                     internalType: "string",
-                    name: "newCw20Name",
+                    name: "newName",
                     type: "string",
                   },
                   {
                     internalType: "string",
-                    name: "newCw20Symbol",
+                    name: "newSymbol",
                     type: "string",
                   },
                   {
                     components: [
                       {
-                        internalType: "enum AngelCoreStruct.CurveTypeEnum",
-                        name: "curve_type",
+                        internalType: "enum AngelCoreStruct.veTypeEnum",
+                        name: "ve_type",
                         type: "uint8",
                       },
                       {
@@ -177,43 +150,43 @@ const _abi = [
                             type: "uint128",
                           },
                         ],
-                        internalType: "struct AngelCoreStruct.CurveTypeData",
+                        internalType: "struct AngelCoreStruct.veTypeData",
                         name: "data",
                         type: "tuple",
                       },
                     ],
-                    internalType: "struct AngelCoreStruct.CurveType",
-                    name: "bondingCurveCurveType",
+                    internalType: "struct AngelCoreStruct.veType",
+                    name: "veBondingType",
                     type: "tuple",
                   },
                   {
                     internalType: "string",
-                    name: "bondingCurveName",
+                    name: "veBondingName",
                     type: "string",
                   },
                   {
                     internalType: "string",
-                    name: "bondingCurveSymbol",
+                    name: "veBondingSymbol",
                     type: "string",
                   },
                   {
                     internalType: "uint256",
-                    name: "bondingCurveDecimals",
+                    name: "veBondingDecimals",
                     type: "uint256",
                   },
                   {
                     internalType: "address",
-                    name: "bondingCurveReserveDenom",
+                    name: "veBondingReserveDenom",
                     type: "address",
                   },
                   {
                     internalType: "uint256",
-                    name: "bondingCurveReserveDecimals",
+                    name: "veBondingReserveDecimals",
                     type: "uint256",
                   },
                   {
                     internalType: "uint256",
-                    name: "bondingCurveUnbondingPeriod",
+                    name: "veBondingPeriod",
                     type: "uint256",
                   },
                 ],
@@ -228,7 +201,7 @@ const _abi = [
           },
           {
             internalType: "enum AngelCoreStruct.EndowmentType",
-            name: "endow_type",
+            name: "endowType",
             type: "uint8",
           },
           {
@@ -244,7 +217,7 @@ const _abi = [
         ],
         indexed: false,
         internalType: "struct subDaoMessage.InstantiateMsg",
-        name: "curCreatedaomessage",
+        name: "createdaomessage",
         type: "tuple",
       },
       {
@@ -263,13 +236,13 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "curId",
+        name: "id",
         type: "uint256",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "curAmount",
+        name: "amount",
         type: "uint256",
       },
     ],
@@ -365,7 +338,7 @@ const _abi = [
           },
           {
             internalType: "enum AngelCoreStruct.EndowmentType",
-            name: "endow_type",
+            name: "endowType",
             type: "uint8",
           },
           {
@@ -377,21 +350,6 @@ const _abi = [
             internalType: "string",
             name: "image",
             type: "string",
-          },
-          {
-            internalType: "enum AngelCoreStruct.EndowmentStatus",
-            name: "status",
-            type: "uint8",
-          },
-          {
-            internalType: "bool",
-            name: "depositApproved",
-            type: "bool",
-          },
-          {
-            internalType: "bool",
-            name: "withdrawApproved",
-            type: "bool",
           },
           {
             internalType: "uint256",
@@ -456,18 +414,18 @@ const _abi = [
             components: [
               {
                 internalType: "bool",
-                name: "rebalanceLiquidInvestedProfits",
+                name: "rebalanceLiquidProfits",
                 type: "bool",
               },
               {
-                internalType: "bool",
-                name: "lockedInterestsToLiquid",
-                type: "bool",
+                internalType: "uint32",
+                name: "lockedRebalanceToLiquid",
+                type: "uint32",
               },
               {
-                internalType: "uint256",
-                name: "interest_distribution",
-                type: "uint256",
+                internalType: "uint32",
+                name: "interestDistribution",
+                type: "uint32",
               },
               {
                 internalType: "bool",
@@ -475,12 +433,17 @@ const _abi = [
                 type: "bool",
               },
               {
-                internalType: "uint256",
-                name: "principle_distribution",
-                type: "uint256",
+                internalType: "uint32",
+                name: "principleDistribution",
+                type: "uint32",
+              },
+              {
+                internalType: "uint32",
+                name: "basis",
+                type: "uint32",
               },
             ],
-            internalType: "struct AngelCoreStruct.RebalanceDetails",
+            internalType: "struct LocalRegistrarLib.RebalanceParams",
             name: "rebalance",
             type: "tuple",
           },
@@ -496,13 +459,13 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "copycatStrategy",
+            name: "proposalLink",
             type: "uint256",
           },
           {
-            internalType: "uint256",
-            name: "proposalLink",
-            type: "uint256",
+            internalType: "address",
+            name: "multisig",
+            type: "address",
           },
           {
             internalType: "address",
@@ -526,17 +489,17 @@ const _abi = [
           },
           {
             internalType: "address[]",
-            name: "whitelistedBeneficiaries",
+            name: "allowlistedBeneficiaries",
             type: "address[]",
           },
           {
             internalType: "address[]",
-            name: "whitelistedContributors",
+            name: "allowlistedContributors",
             type: "address[]",
           },
           {
             internalType: "address[]",
-            name: "maturityWhitelist",
+            name: "maturityAllowlist",
             type: "address[]",
           },
           {
@@ -548,17 +511,12 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "feePercentage",
+                name: "percentage",
                 type: "uint256",
-              },
-              {
-                internalType: "bool",
-                name: "active",
-                type: "bool",
               },
             ],
             internalType: "struct AngelCoreStruct.EndowmentFee",
-            name: "earningsFee",
+            name: "earlyLockedWithdrawFee",
             type: "tuple",
           },
           {
@@ -570,13 +528,8 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "feePercentage",
+                name: "percentage",
                 type: "uint256",
-              },
-              {
-                internalType: "bool",
-                name: "active",
-                type: "bool",
               },
             ],
             internalType: "struct AngelCoreStruct.EndowmentFee",
@@ -592,13 +545,8 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "feePercentage",
+                name: "percentage",
                 type: "uint256",
-              },
-              {
-                internalType: "bool",
-                name: "active",
-                type: "bool",
               },
             ],
             internalType: "struct AngelCoreStruct.EndowmentFee",
@@ -614,17 +562,12 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "feePercentage",
+                name: "percentage",
                 type: "uint256",
-              },
-              {
-                internalType: "bool",
-                name: "active",
-                type: "bool",
               },
             ],
             internalType: "struct AngelCoreStruct.EndowmentFee",
-            name: "aumFee",
+            name: "balanceFee",
             type: "tuple",
           },
           {
@@ -633,63 +576,14 @@ const _abi = [
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
-                  },
-                ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "endowmentController",
-                type: "tuple",
-              },
-              {
-                components: [
-                  {
-                    internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -711,24 +605,14 @@ const _abi = [
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -743,31 +627,21 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "whitelistedBeneficiaries",
+                name: "lockedInvestmentManagement",
                 type: "tuple",
               },
               {
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -782,31 +656,21 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "whitelistedContributors",
+                name: "liquidInvestmentManagement",
                 type: "tuple",
               },
               {
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -821,31 +685,79 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "maturityWhitelist",
+                name: "allowlistedBeneficiaries",
                 type: "tuple",
               },
               {
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
+                        type: "address",
+                      },
+                      {
+                        internalType: "uint256",
+                        name: "expires",
+                        type: "uint256",
+                      },
+                    ],
+                    internalType: "struct AngelCoreStruct.Delegate",
+                    name: "delegate",
+                    type: "tuple",
+                  },
+                ],
+                internalType: "struct AngelCoreStruct.SettingsPermission",
+                name: "allowlistedContributors",
+                type: "tuple",
+              },
+              {
+                components: [
+                  {
+                    internalType: "bool",
+                    name: "locked",
+                    type: "bool",
+                  },
+                  {
+                    components: [
+                      {
+                        internalType: "address",
+                        name: "addr",
+                        type: "address",
+                      },
+                      {
+                        internalType: "uint256",
+                        name: "expires",
+                        type: "uint256",
+                      },
+                    ],
+                    internalType: "struct AngelCoreStruct.Delegate",
+                    name: "delegate",
+                    type: "tuple",
+                  },
+                ],
+                internalType: "struct AngelCoreStruct.SettingsPermission",
+                name: "maturityAllowlist",
+                type: "tuple",
+              },
+              {
+                components: [
+                  {
+                    internalType: "bool",
+                    name: "locked",
+                    type: "bool",
+                  },
+                  {
+                    components: [
+                      {
+                        internalType: "address",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -867,24 +779,14 @@ const _abi = [
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -899,70 +801,21 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "profile",
+                name: "earlyLockedWithdrawFee",
                 type: "tuple",
               },
               {
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
-                  },
-                ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "earningsFee",
-                type: "tuple",
-              },
-              {
-                components: [
-                  {
-                    internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -984,24 +837,14 @@ const _abi = [
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -1023,24 +866,14 @@ const _abi = [
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -1055,70 +888,21 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "aumFee",
+                name: "balanceFee",
                 type: "tuple",
               },
               {
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
-                  },
-                ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "kycDonorsOnly",
-                type: "tuple",
-              },
-              {
-                components: [
-                  {
-                    internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -1140,24 +924,14 @@ const _abi = [
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -1179,24 +953,14 @@ const _abi = [
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -1218,24 +982,14 @@ const _abi = [
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -1257,24 +1011,14 @@ const _abi = [
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -1296,24 +1040,14 @@ const _abi = [
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -1337,9 +1071,9 @@ const _abi = [
             type: "tuple",
           },
           {
-            internalType: "uint256",
+            internalType: "uint32",
             name: "parent",
-            type: "uint256",
+            type: "uint32",
           },
           {
             internalType: "bool",
@@ -1433,37 +1167,37 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "curId",
+        name: "id",
         type: "uint256",
       },
       {
         indexed: false,
         internalType: "enum AngelCoreStruct.AccountType",
-        name: "curAccountType",
+        name: "accountType",
         type: "uint8",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "curAmount",
+        name: "amount",
         type: "uint256",
       },
       {
         indexed: false,
         internalType: "address",
-        name: "curTokenin",
+        name: "tokenin",
         type: "address",
       },
       {
         indexed: false,
         internalType: "address",
-        name: "curTokenout",
+        name: "tokenout",
         type: "address",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "curAmountout",
+        name: "amountout",
         type: "uint256",
       },
     ],
@@ -1481,19 +1215,61 @@ const _abi = [
             type: "address",
           },
           {
+            internalType: "string",
+            name: "version",
+            type: "string",
+          },
+          {
             internalType: "address",
             name: "registrarContract",
             type: "address",
           },
           {
-            internalType: "uint256",
+            internalType: "uint32",
             name: "nextAccountId",
-            type: "uint256",
+            type: "uint32",
           },
           {
             internalType: "uint256",
             name: "maxGeneralCategoryId",
             type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "subDao",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "gateway",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "gasReceiver",
+            type: "address",
+          },
+          {
+            internalType: "bool",
+            name: "reentrancyGuardLocked",
+            type: "bool",
+          },
+          {
+            components: [
+              {
+                internalType: "address",
+                name: "payoutAddress",
+                type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "percentage",
+                type: "uint256",
+              },
+            ],
+            internalType: "struct AngelCoreStruct.EndowmentFee",
+            name: "earlyLockedWithdrawFee",
+            type: "tuple",
           },
         ],
         indexed: false,
@@ -1550,7 +1326,7 @@ const _abi = [
           },
           {
             internalType: "enum AngelCoreStruct.EndowmentType",
-            name: "endow_type",
+            name: "endowType",
             type: "uint8",
           },
           {
@@ -1562,21 +1338,6 @@ const _abi = [
             internalType: "string",
             name: "image",
             type: "string",
-          },
-          {
-            internalType: "enum AngelCoreStruct.EndowmentStatus",
-            name: "status",
-            type: "uint8",
-          },
-          {
-            internalType: "bool",
-            name: "depositApproved",
-            type: "bool",
-          },
-          {
-            internalType: "bool",
-            name: "withdrawApproved",
-            type: "bool",
           },
           {
             internalType: "uint256",
@@ -1641,18 +1402,18 @@ const _abi = [
             components: [
               {
                 internalType: "bool",
-                name: "rebalanceLiquidInvestedProfits",
+                name: "rebalanceLiquidProfits",
                 type: "bool",
               },
               {
-                internalType: "bool",
-                name: "lockedInterestsToLiquid",
-                type: "bool",
+                internalType: "uint32",
+                name: "lockedRebalanceToLiquid",
+                type: "uint32",
               },
               {
-                internalType: "uint256",
-                name: "interest_distribution",
-                type: "uint256",
+                internalType: "uint32",
+                name: "interestDistribution",
+                type: "uint32",
               },
               {
                 internalType: "bool",
@@ -1660,12 +1421,17 @@ const _abi = [
                 type: "bool",
               },
               {
-                internalType: "uint256",
-                name: "principle_distribution",
-                type: "uint256",
+                internalType: "uint32",
+                name: "principleDistribution",
+                type: "uint32",
+              },
+              {
+                internalType: "uint32",
+                name: "basis",
+                type: "uint32",
               },
             ],
-            internalType: "struct AngelCoreStruct.RebalanceDetails",
+            internalType: "struct LocalRegistrarLib.RebalanceParams",
             name: "rebalance",
             type: "tuple",
           },
@@ -1681,13 +1447,13 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "copycatStrategy",
+            name: "proposalLink",
             type: "uint256",
           },
           {
-            internalType: "uint256",
-            name: "proposalLink",
-            type: "uint256",
+            internalType: "address",
+            name: "multisig",
+            type: "address",
           },
           {
             internalType: "address",
@@ -1711,17 +1477,17 @@ const _abi = [
           },
           {
             internalType: "address[]",
-            name: "whitelistedBeneficiaries",
+            name: "allowlistedBeneficiaries",
             type: "address[]",
           },
           {
             internalType: "address[]",
-            name: "whitelistedContributors",
+            name: "allowlistedContributors",
             type: "address[]",
           },
           {
             internalType: "address[]",
-            name: "maturityWhitelist",
+            name: "maturityAllowlist",
             type: "address[]",
           },
           {
@@ -1733,17 +1499,12 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "feePercentage",
+                name: "percentage",
                 type: "uint256",
-              },
-              {
-                internalType: "bool",
-                name: "active",
-                type: "bool",
               },
             ],
             internalType: "struct AngelCoreStruct.EndowmentFee",
-            name: "earningsFee",
+            name: "earlyLockedWithdrawFee",
             type: "tuple",
           },
           {
@@ -1755,13 +1516,8 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "feePercentage",
+                name: "percentage",
                 type: "uint256",
-              },
-              {
-                internalType: "bool",
-                name: "active",
-                type: "bool",
               },
             ],
             internalType: "struct AngelCoreStruct.EndowmentFee",
@@ -1777,13 +1533,8 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "feePercentage",
+                name: "percentage",
                 type: "uint256",
-              },
-              {
-                internalType: "bool",
-                name: "active",
-                type: "bool",
               },
             ],
             internalType: "struct AngelCoreStruct.EndowmentFee",
@@ -1799,17 +1550,12 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "feePercentage",
+                name: "percentage",
                 type: "uint256",
-              },
-              {
-                internalType: "bool",
-                name: "active",
-                type: "bool",
               },
             ],
             internalType: "struct AngelCoreStruct.EndowmentFee",
-            name: "aumFee",
+            name: "balanceFee",
             type: "tuple",
           },
           {
@@ -1818,63 +1564,14 @@ const _abi = [
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
-                  },
-                ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "endowmentController",
-                type: "tuple",
-              },
-              {
-                components: [
-                  {
-                    internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -1896,24 +1593,14 @@ const _abi = [
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -1928,31 +1615,21 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "whitelistedBeneficiaries",
+                name: "lockedInvestmentManagement",
                 type: "tuple",
               },
               {
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -1967,31 +1644,21 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "whitelistedContributors",
+                name: "liquidInvestmentManagement",
                 type: "tuple",
               },
               {
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -2006,31 +1673,79 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "maturityWhitelist",
+                name: "allowlistedBeneficiaries",
                 type: "tuple",
               },
               {
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
+                        type: "address",
+                      },
+                      {
+                        internalType: "uint256",
+                        name: "expires",
+                        type: "uint256",
+                      },
+                    ],
+                    internalType: "struct AngelCoreStruct.Delegate",
+                    name: "delegate",
+                    type: "tuple",
+                  },
+                ],
+                internalType: "struct AngelCoreStruct.SettingsPermission",
+                name: "allowlistedContributors",
+                type: "tuple",
+              },
+              {
+                components: [
+                  {
+                    internalType: "bool",
+                    name: "locked",
+                    type: "bool",
+                  },
+                  {
+                    components: [
+                      {
+                        internalType: "address",
+                        name: "addr",
+                        type: "address",
+                      },
+                      {
+                        internalType: "uint256",
+                        name: "expires",
+                        type: "uint256",
+                      },
+                    ],
+                    internalType: "struct AngelCoreStruct.Delegate",
+                    name: "delegate",
+                    type: "tuple",
+                  },
+                ],
+                internalType: "struct AngelCoreStruct.SettingsPermission",
+                name: "maturityAllowlist",
+                type: "tuple",
+              },
+              {
+                components: [
+                  {
+                    internalType: "bool",
+                    name: "locked",
+                    type: "bool",
+                  },
+                  {
+                    components: [
+                      {
+                        internalType: "address",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -2052,24 +1767,14 @@ const _abi = [
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -2084,70 +1789,21 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "profile",
+                name: "earlyLockedWithdrawFee",
                 type: "tuple",
               },
               {
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
-                  },
-                ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "earningsFee",
-                type: "tuple",
-              },
-              {
-                components: [
-                  {
-                    internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -2169,24 +1825,14 @@ const _abi = [
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -2208,24 +1854,14 @@ const _abi = [
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -2240,70 +1876,21 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "aumFee",
+                name: "balanceFee",
                 type: "tuple",
               },
               {
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
-                        type: "address",
-                      },
-                      {
-                        internalType: "uint256",
-                        name: "expires",
-                        type: "uint256",
-                      },
-                    ],
-                    internalType: "struct AngelCoreStruct.Delegate",
-                    name: "delegate",
-                    type: "tuple",
-                  },
-                ],
-                internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "kycDonorsOnly",
-                type: "tuple",
-              },
-              {
-                components: [
-                  {
-                    internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
-                    type: "bool",
-                  },
-                  {
-                    components: [
-                      {
-                        internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -2325,24 +1912,14 @@ const _abi = [
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -2364,24 +1941,14 @@ const _abi = [
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -2403,24 +1970,14 @@ const _abi = [
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -2442,24 +1999,14 @@ const _abi = [
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -2481,24 +2028,14 @@ const _abi = [
                 components: [
                   {
                     internalType: "bool",
-                    name: "ownerControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "govControlled",
-                    type: "bool",
-                  },
-                  {
-                    internalType: "bool",
-                    name: "modifiableAfterInit",
+                    name: "locked",
                     type: "bool",
                   },
                   {
                     components: [
                       {
                         internalType: "address",
-                        name: "Addr",
+                        name: "addr",
                         type: "address",
                       },
                       {
@@ -2522,9 +2059,9 @@ const _abi = [
             type: "tuple",
           },
           {
-            internalType: "uint256",
+            internalType: "uint32",
             name: "parent",
-            type: "uint256",
+            type: "uint32",
           },
           {
             internalType: "bool",
@@ -2569,153 +2106,30 @@ const _abi = [
     type: "event",
   },
   {
-    anonymous: false,
     inputs: [
       {
-        indexed: false,
-        internalType: "uint256",
+        internalType: "uint32",
         name: "id",
-        type: "uint256",
-      },
-      {
-        components: [
-          {
-            components: [
-              {
-                internalType: "uint256",
-                name: "locked",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
-                name: "liquid",
-                type: "uint256",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.DonationsReceived",
-            name: "donationsReceived",
-            type: "tuple",
-          },
-          {
-            components: [
-              {
-                components: [
-                  {
-                    internalType: "uint256",
-                    name: "coinNativeAmount",
-                    type: "uint256",
-                  },
-                  {
-                    internalType: "uint256[]",
-                    name: "Cw20CoinVerified_amount",
-                    type: "uint256[]",
-                  },
-                  {
-                    internalType: "address[]",
-                    name: "Cw20CoinVerified_addr",
-                    type: "address[]",
-                  },
-                ],
-                internalType: "struct AngelCoreStruct.GenericBalance",
-                name: "locked",
-                type: "tuple",
-              },
-              {
-                components: [
-                  {
-                    internalType: "uint256",
-                    name: "coinNativeAmount",
-                    type: "uint256",
-                  },
-                  {
-                    internalType: "uint256[]",
-                    name: "Cw20CoinVerified_amount",
-                    type: "uint256[]",
-                  },
-                  {
-                    internalType: "address[]",
-                    name: "Cw20CoinVerified_addr",
-                    type: "address[]",
-                  },
-                ],
-                internalType: "struct AngelCoreStruct.GenericBalance",
-                name: "liquid",
-                type: "tuple",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.BalanceInfo",
-            name: "balances",
-            type: "tuple",
-          },
-          {
-            internalType: "bool",
-            name: "closingEndowment",
-            type: "bool",
-          },
-          {
-            components: [
-              {
-                components: [
-                  {
-                    internalType: "uint256",
-                    name: "id",
-                    type: "uint256",
-                  },
-                  {
-                    internalType: "address",
-                    name: "addr",
-                    type: "address",
-                  },
-                ],
-                internalType: "struct AngelCoreStruct.BeneficiaryData",
-                name: "data",
-                type: "tuple",
-              },
-              {
-                internalType: "enum AngelCoreStruct.BeneficiaryEnum",
-                name: "enumData",
-                type: "uint8",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.Beneficiary",
-            name: "closingBeneficiary",
-            type: "tuple",
-          },
-        ],
-        indexed: false,
-        internalType: "struct AccountStorage.EndowmentState",
-        name: "state",
-        type: "tuple",
-      },
-    ],
-    name: "UpdateEndowmentState",
-    type: "event",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "curId",
-        type: "uint256",
+        type: "uint32",
       },
       {
         internalType: "enum AngelCoreStruct.AccountType",
-        name: "curAccountType",
+        name: "accountType",
         type: "uint8",
       },
       {
         internalType: "uint256",
-        name: "curAmount",
+        name: "amount",
         type: "uint256",
       },
       {
         internalType: "address",
-        name: "curTokenin",
+        name: "tokenIn",
         type: "address",
       },
       {
         internalType: "address",
-        name: "curTokenout",
+        name: "tokenOut",
         type: "address",
       },
     ],
@@ -2727,7 +2141,7 @@ const _abi = [
 ] as const;
 
 const _bytecode =
-  "0x6080806040523461001657611ba2908161001c8239f35b600080fdfe608080604052600436101561001357600080fd5b600090813560e01c6377baed191461002a57600080fd5b34610c2b5760a0366003190112610c2b5760036024351015610c2b576064356001600160a01b0381169003610c2b576084356001600160a01b0381169003610c2b577ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4b549060ff8260a01c161580156114ff575b156114bd5750333003611488575b5060043581527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d426020526040812060405190816104408101106001600160401b036104408401111761147457610440820160405280546001600160a01b03168252610119600182016115be565b602083015260405161012a81611508565b6101366002830161168f565b81526101446003830161168f565b602082015260408301526004810154606083015260ff600582015416610169816116de565b608083015261017a600682016115be565b60a083015261018b600782016115be565b60c083015260ff60088201548181166101a3816116fe565b60e0850152818160081c16151561010085015260101c16151561012083015260098101546101408301526101d9600a8201611774565b6101608301526101eb600e8201611774565b6101808301526040516101fd81611539565b601282015460ff8181161515835260089190911c811615156020830152601383015460408301526014830154811615156060830152601583015460808301526101a08401919091526016820154811615156101c084015260178201546101e084015260188201546102008401526019820154610220840152601a8201546001600160a01b03908116610240850152601b83015480821661026086015260a01c9091161515610280840152601c820154166102a08301526102bf601d82016117c2565b6102c08301526102d1601e82016117c2565b6102e08301526102e3601f82016117c2565b6103008301526102f56020820161181a565b6103208301526103076023820161181a565b6103408301526103196026820161181a565b61036083015261032b6029820161181a565b610380830152604051806102408101106001600160401b036102408301111761146057908161024060679301604052610366602c8301611850565b8152610374602f8301611850565b602082015261038560328301611850565b604082015261039660358301611850565b60608201526103a760388301611850565b60808201526103b8603b8301611850565b60a08201526103c9603e8301611850565b60c08201526103da60418301611850565b60e08201526103eb60448301611850565b6101008201526103fd60478301611850565b61012082015261040f604a8301611850565b610140820152610421604d8301611850565b61016082015261043360508301611850565b61018082015261044560538301611850565b6101a082015261045760568301611850565b6101c082015261046960598301611850565b6101e082015261047b605c8301611850565b61020082015261048d605f8301611850565b6102208201526103a084015260628101546103c084015260ff60638201541615156103e08401526040516104c081611554565b60648201548152606582015460208201526066820154604082015261040084015201546104208201526004358252600080516020611b4d8339815191526020526040822090604051916105128361156f565b60405161051e81611508565b8154815260018201546020820152835260405161053a81611508565b610546600283016118ae565b8152610554600583016118ae565b6020820152602084015260ff6008820154161515604084015260ff600b6040519261057e84611508565b60405161058a81611508565b60098201548152600a8201546001600160a01b0316602082015284520154166105b2816116fe565b6020820152606083015251336001600160a01b039091160361142c576105db60443515156118df565b6105f16064356001600160a01b031615156118df565b6106076084356001600160a01b031615156118df565b7ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d465460405163e68f909d60e01b8152908390829060049082906001600160a01b03165afa908115610d27578391610f9b575b506040516370a0823160e01b81523060048201526020816024816064356001600160a01b03165afa908115610e79578491610f69575b5060443511610f32576106a36024356116de565b602435610ea6576106e283602084015151602060408201519101519060405193849283926340b185af60e01b84526044359160643591600486016119ba565b038173__$2e6ee47b30d794e0597b4af30f16ddb84c$__5af4908115610e79578491610e84575b506020808401515101525b61030081015160405163095ea7b360e01b81526001600160a01b0391821660048201526044803560248301529091602091839182908890606435165af1908115610e79578491610e3f575b5015610e0957602061081a916040519061077882611508565b6001825282368184013760443561078e83611a4d565b526107f786604051926107a084611508565b600184528536818601376064356001600160a01b03166107bf85611a4d565b526103000151604051630486bc6d60e31b8152608060048201529687956001600160a01b039092169486948593916084850190611a70565b6084356001600160a01b0316602485015283810360031901604485015290611aad565b82606483015203925af1908115610d27578391610dd3575b506004358352600080516020611b4d83398151915260205260408320602083518051835501516001820155602083015180518051600284015560208101518051906001600160401b038211610dbf57600160401b8211610dbf57602060038601916108a284845481865585611ae1565b0190885260208820885b838110610dab5750505050604001518051906001600160401b038211610d7a57600160401b8211610d7a57602060048501916108ed84845481865585611ae1565b0190875260208720875b838110610d8e5750505050602001518051600583015560208101518051906001600160401b038211610d7a57600160401b8211610d7a576020600685019161094484845481865585611ae1565b0190875260208720875b838110610d665750505050604001518051906001600160401b038211610d5257600160401b8211610d525790829160206007889695019161099484845481865585611ae1565b0190855260208520855b838110610d32575050505060088101604085015115159060ff199160ff83835416911617905560ff6020600b606088015194855180516009830155600a8201908460018060a01b03910151166bffffffffffffffffffffffff60a01b8254161790550193015191610a0e836116fe565b610a17836116fe565b8354169116179055610a2a6024356116de565b602435610c3e5773__$2e6ee47b30d794e0597b4af30f16ddb84c$__906004358352600080516020611b4d8339815191526020526002604084200190823b15610c3a57604051631bccc68560e21b815260048101929092526084356001600160a01b031660248301526044820152908290829060649082905af48015610c2f57610c17575b50507f758243dab8e0b86a43e2f0b0d6e842211dc46a791072e017f73e274b81ad1e52905b604051809160043582526040602083015260208151805160408501520151606083015260206060610b388284015160e0608087015283610b22825160406101208a0152610160890190611b15565b91015186820361011f1901610140880152611b15565b6040840151151560a08601529201518051805160c08601528201516001600160a01b031660e08501520151610b6c816116fe565b6101008301520390a17f3245730c95bd329396487002159bccb62ff0ce57ceb510cc8376a2b737fcd01d60c06040516004358152610bab6024356116de565b602435602082015260443560408201526001600160a01b036064358116606083015260843516608082015260a08101849052a1333003610be85780f35b7ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4b805460ff60a01b1916905580f35b610c209061158a565b610c2b578138610aaf565b5080fd5b6040513d84823e3d90fd5b8380fd5b90506004358352600080516020611b4d83398151915260205282600560408220019173__$2e6ee47b30d794e0597b4af30f16ddb84c$__3b15610c2b57604051631bccc68560e21b815260048101939093526084356001600160a01b0316602484015260448301528160648173__$2e6ee47b30d794e0597b4af30f16ddb84c$__5af48015610d2757610cf4575b507f758243dab8e0b86a43e2f0b0d6e842211dc46a791072e017f73e274b81ad1e5290610ad4565b91610d207f758243dab8e0b86a43e2f0b0d6e842211dc46a791072e017f73e274b81ad1e52929361158a565b9190610ccc565b6040513d85823e3d90fd5b82516001600160a01b03168183015588965060209092019160010161099e565b634e487b7160e01b86526041600452602486fd5b60019060208451940193818401550161094e565b634e487b7160e01b87526041600452602487fd5b82516001600160a01b0316818301556020909201916001016108f7565b6001906020845194019381840155016108ac565b634e487b7160e01b88526041600452602488fd5b90506020813d602011610e01575b81610dee6020938361159d565b81010312610dfd575138610832565b8280fd5b3d9150610de1565b60405162461bcd60e51b815260206004820152600e60248201526d105c1c1c9bdd994819985a5b195960921b6044820152606490fd5b90506020813d602011610e71575b81610e5a6020938361159d565b81010312610c3a57610e6b90611934565b3861075f565b3d9150610e4d565b6040513d86823e3d90fd5b610ea091503d8086833e610e98818361159d565b810190611941565b38610709565b610ee0836020808501510151602060408201519101519060405193849283926340b185af60e01b84526044359160643591600486016119ba565b038173__$2e6ee47b30d794e0597b4af30f16ddb84c$__5af4908115610e79578491610f18575b506020808085015101510152610714565b610f2c91503d8086833e610e98818361159d565b38610f07565b60405162461bcd60e51b815260206004820152600f60248201526e10985b185b98d9551bdbd4db585b1b608a1b6044820152606490fd5b90506020813d602011610f93575b81610f846020938361159d565b81010312610c3a57513861068f565b3d9150610f77565b3d91508184823e610fac828261159d565b6020818381010312610c3a578051906001600160401b0382116113f9576104e082820184830103126113f95760405192836104208101106001600160401b0361042086011117610d5257610420840160405261100983830161191b565b845261101960208484010161191b565b602085015261102c60408484010161191b565b604085015261103f60608484010161191b565b606085015261105260808484010161191b565b608085015261106560a08484010161191b565b60a085015261107860c08484010161191b565b60c085015261108b60e08484010161191b565b60e085015261109f6101008484010161191b565b6101008501526110b46101208484010161191b565b6101208501526110c96101408484010161191b565b6101408501526110de6101608484010161191b565b6101608501526110f36101808484010161191b565b6101808501526111086101a08484010161191b565b6101a08501526060828401828401036101bf1901126114285760405161112d81611554565b8284016101c08181015183526101e082015160208401526102008201516040840152860191909152611162906102200161191b565b6101e08501526111776102408484010161191b565b61020085015261118c6102608484010161191b565b6102208501526111a16102808484010161191b565b6102408501528183016102a08101516102608601526111c3906102c00161191b565b6102808501526102e083830101516001600160401b0381116114245760208185850101838501031261142457604051908160208101106001600160401b03602084011117610dbf5760208201604052808585010151906001600160401b03821161142057838501601f838389890101010112156114205781818787010101519061124c82611708565b9261125a604051948561159d565b828452602084019186880160208560051b84848d8d01010101011161141c5790602081838b8b01010101925b60208560051b83858d8d010101010184106113fd5750505091835250506102a085015260a0906112bb8385016103000161191b565b6102c08601528284019083010361031f1901126113f9576113ed916104c0916040516112e681611539565b6112f561032084840101611934565b815261130661034084840101611934565b602082015281830161036081015160408301526113269061038001611934565b60608201526103a0838301015160808201526102e086015261134d6103c08383010161191b565b6103008601526113626103e08383010161191b565b6103208601526113776104008383010161191b565b61034086015261138c6104208383010161191b565b6103608601526113a16104408383010161191b565b6103808601526113b66104608383010161191b565b6103a08601526113cb6104808383010161191b565b6103c08601526113e06104a08383010161191b565b6103e0860152010161191b565b61040082015238610659565b8480fd5b9060208080949361140d8761191b565b81520194019390919250611286565b8b80fd5b8880fd5b8680fd5b8580fd5b60405162461bcd60e51b815260206004820152600c60248201526b155b985d5d1a1bdc9a5e995960a21b6044820152606490fd5b634e487b7160e01b84526041600452602484fd5b634e487b7160e01b83526041600452602483fd5b60ff60a01b1916600160a01b177ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4b55386100ac565b62461bcd60e51b815260206004820152601f60248201527f5265656e7472616e637947756172643a207265656e7472616e742063616c6c006044820152606490fd5b5033301461009e565b604081019081106001600160401b0382111761152357604052565b634e487b7160e01b600052604160045260246000fd5b60a081019081106001600160401b0382111761152357604052565b606081019081106001600160401b0382111761152357604052565b608081019081106001600160401b0382111761152357604052565b6001600160401b03811161152357604052565b90601f801991011681019081106001600160401b0382111761152357604052565b90604051906000835490600182811c90808416968715611685575b6020948584108914611671578798848997989952908160001461164f5750600114611610575b50505061160e9250038361159d565b565b600090815285812095935091905b81831061163757505061160e93508201013880806115ff565b8554888401850152948501948794509183019161161e565b9250505061160e94925060ff191682840152151560051b8201013880806115ff565b634e487b7160e01b85526022600452602485fd5b91607f16916115d9565b9060405191828154918282526020928383019160005283600020936000905b8282106116c45750505061160e9250038361159d565b8554845260019586019588955093810193909101906116ae565b600311156116e857565b634e487b7160e01b600052602160045260246000fd5b600411156116e857565b6001600160401b0381116115235760051b60200190565b90815461172b81611708565b92611739604051948561159d565b818452600090815260208082208186015b848410611758575050505050565b6001838192611766856115be565b81520192019301929061174a565b906040516117818161156f565b60606117bd600383956117938161171f565b85526117a16001820161168f565b60208601526117b26002820161171f565b60408601520161168f565b910152565b9060405191828154918282526020928383019160005283600020936000905b8282106117f75750505061160e9250038361159d565b85546001600160a01b0316845260019586019588955093810193909101906117e1565b9060405161182781611554565b82546001600160a01b031681526001830154602082015260029092015460ff1615156040830152565b906040519161185e8361156f565b60608360ff835481811615158352818160081c161515602084015260101c161515604082015260026040519361189385611508565b60018101546001600160a01b03168552015460208401520152565b906040516118bb81611554565b60406117bd60028395805485526118d46001820161168f565b6020860152016117c2565b156118e657565b60405162461bcd60e51b815260206004820152600d60248201526c496e76616c6964496e7075747360981b6044820152606490fd5b51906001600160a01b038216820361192f57565b600080fd5b5190811515820361192f57565b602090818184031261192f578051906001600160401b03821161192f57019180601f8401121561192f57825161197681611708565b93611984604051958661159d565b818552838086019260051b82010192831161192f578301905b8282106119ab575050505090565b8151815290830190830161199d565b9190949392946080830160808452815180915260a084019060208093019060005b818110611a30575050508381038285015281808451928381520193019160005b828110611a1c5750505050906060919460018060a01b031660408201520152565b8351855293810193928101926001016119fb565b82516001600160a01b0316845292840192918401916001016119db565b805115611a5a5760200190565b634e487b7160e01b600052603260045260246000fd5b90815180825260208080930193019160005b828110611a90575050505090565b83516001600160a01b031685529381019392810192600101611a82565b90815180825260208080930193019160005b828110611acd575050505090565b835185529381019392810192600101611abf565b9091828110611aef57505050565b60009182526020822092830192015b828110611b0a57505050565b818155600101611afe565b611b4991815181526040611b386020840151606060208501526060840190611aad565b920151906040818403910152611a70565b9056fef42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d41a2646970667358221220c7f044c503cd25a43a4a62d11c8804a71547fb478f0c38fb49fd7801d7bd0b3c64736f6c63430008120033";
+  "0x60808060405234610016576112a1908161001c8239f35b600080fdfe608080604052600436101561001357600080fd5b600090813560e01c63e957e9b31461002a57600080fd5b346108545760a03660031901126108545763ffffffff6004351660043503610854576002602435101561085457606435906001600160a01b0382168203610940576084356001600160a01b0381169003610940577ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4a549060ff8260a01c16158015610eb1575b15610e6f5750333003610e3a575b5063ffffffff6004351682527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d426020526040822060405190816103e081011067ffffffffffffffff6103e084011117610e26576103e0820160405280546001600160a01b0316825261013260018201610f73565b602083015260405161014381610eef565b61014f60028301611044565b815261015d60038301611044565b602082015260408301526004810154606083015260ff60058201541661018281611093565b608083015261019360068201610f73565b60a08301526101a460078201610f73565b60c0830152600881015460e08301526101bf60098201611113565b6101008301526101d1600d8201611113565b6101208301526040518060c081011067ffffffffffffffff60c083011117610dd65760c0810160405263ffffffff601183015460ff811615158352818160081c166020840152818160281c16604084015260ff8160481c1615156060840152818160501c16608084015260701c1660a082015261014083015260ff6012820154161515610160830152601381015461018083015260148101546101a083015260018060a01b036015820154166101c083015260018060a01b036016820154166101e083015260ff601782015460018060a01b03811661020085015260a01c16151561022083015260018060a01b036018820154166102408301526102d760198201611172565b6102608301526102e9601a8201611172565b6102808301526102fb601b8201611172565b6102a083015261030d601c82016111ca565b6102c083015261031f601e82016111ca565b6102e0830152610331602082016111ca565b610300830152610343602282016111ca565b6103208301526040518061022081011067ffffffffffffffff61022083011117610dd6579081610220605b930160405261037f602483016111f1565b815261038d602783016111f1565b602082015261039e602a83016111f1565b60408201526103af602d83016111f1565b60608201526103c0603083016111f1565b60808201526103d1603383016111f1565b60a08201526103e2603683016111f1565b60c08201526103f3603983016111f1565b60e0820152610404603c83016111f1565b610100820152610416603f83016111f1565b610120820152610428604283016111f1565b61014082015261043a604583016111f1565b61016082015261044c604883016111f1565b61018082015261045e604b83016111f1565b6101a0820152610470604e83016111f1565b6101c0820152610482605183016111f1565b6101e0820152610494605483016111f1565b61020082015261034084015260ff605782015463ffffffff811661036086015260201c1615156103808401526040516104cc81610f21565b6058820154815260598201546020820152605a82015460408201526103a084015201546103c082015251336001600160a01b0390911603610df2576105146044351515611216565b6105286001600160a01b0382161515611216565b61053e6084356001600160a01b03161515611216565b7ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d465460405163e68f909d60e01b8152906103e090829060049082906001600160a01b03165afa908115610935578391610b4e575b506040516370a0823160e01b81523060048201526020816024816001600160a01b0387165afa9081156109e7578491610b1c575b5060443511610ae5576105da602435611093565b602435610a245760036105ee600435610eba565b0160018060a01b0383168452602052604083205460405190631a06a59d60e31b82526004820152604435602482015260208160448173__$2e6ee47b30d794e0597b4af30f16ddb84c$__5af49081156109e75784916109f2575b506003610656600435610eba565b6001600160a01b03851686520160205260408420555b61028081015160405163095ea7b360e01b81526001600160a01b039182166004820152604480356024830152909160209183918290889088165af19081156109e75784916109ac575b5015610976576102800151604051632df8991560e11b81526001600160a01b0383811660048301526084803582166024840152604480359084015260648301869052859360209284929183918791165af1908115610858578291610944575b50610720602435611093565b6024356108675773__$2e6ee47b30d794e0597b4af30f16ddb84c$__90600261074a600435610eba565b0190823b1561086357604051631bccc68560e21b815260048101929092526084356001600160a01b031660248301526044820152908290829060649082905af4801561085857610840575b505060c07f3245730c95bd329396487002159bccb62ff0ce57ceb510cc8376a2b737fcd01d915b6040519063ffffffff6004351682526107d6602435611093565b602435602083015260443560408301526001600160a01b03908116606083015260843516608082015260a08101849052a13330036108115780f35b7ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4a805460ff60a01b1916905580f35b61084990610f3d565b610854578138610795565b5080fd5b6040513d84823e3d90fd5b8380fd5b9073__$2e6ee47b30d794e0597b4af30f16ddb84c$__91600461088a8135610eba565b0192803b1561094057604051631bccc68560e21b815260048101949094526084356001600160a01b031660248501526044840191909152829060649082905af48015610935576108ff575b5060c07f3245730c95bd329396487002159bccb62ff0ce57ceb510cc8376a2b737fcd01d916107bc565b7f3245730c95bd329396487002159bccb62ff0ce57ceb510cc8376a2b737fcd01d919261092d60c092610f3d565b9291506108d5565b6040513d85823e3d90fd5b8280fd5b90506020813d60201161096e575b8161095f60209383610f51565b81010312610854575138610714565b3d9150610952565b60405162461bcd60e51b815260206004820152600e60248201526d105c1c1c9bdd994819985a5b195960921b6044820152606490fd5b90506020813d6020116109df575b816109c760209383610f51565b810103126108635751801515810361086357386106b5565b3d91506109ba565b6040513d86823e3d90fd5b90506020813d602011610a1c575b81610a0d60209383610f51565b81010312610863575138610648565b3d9150610a00565b6005610a31600435610eba565b0160018060a01b0383168452602052604083205460405190631a06a59d60e31b82526004820152604435602482015260208160448173__$2e6ee47b30d794e0597b4af30f16ddb84c$__5af49081156109e7578491610ab3575b506005610a99600435610eba565b6001600160a01b038516865201602052604084205561066c565b90506020813d602011610add575b81610ace60209383610f51565b81010312610863575138610a8b565b3d9150610ac1565b60405162461bcd60e51b815260206004820152600f60248201526e10985b185b98d9551bdbd4db585b1b608a1b6044820152606490fd5b90506020813d602011610b46575b81610b3760209383610f51565b810103126108635751386105c6565b3d9150610b2a565b6103e091503d8211610dea575b610b658282610f51565b6103e08183810103126108635760405191826103a081011067ffffffffffffffff6103a085011117610dd6576060906103a08401604052610ba583611252565b8452610bb360208401611252565b6020850152610bc460408401611252565b6040850152610bd4828401611252565b82850152610be460808401611252565b6080850152610bf560a08401611252565b60a0850152610c0660c08401611252565b60c0850152610c1760e08401611252565b60e0850152610c296101008401611252565b610100850152610c3c6101208401611252565b610120850152610c4f6101408401611252565b610140850152610c626101608401611252565b610160850152610c756101808401611252565b610180850152820182900361019f190112610863576103c0610dca91604051610c9d81610f21565b6101a082015181526101c082015160208201526101e082015160408201526101a0850152610cce6102008201611252565b6101c0850152610ce16102208201611252565b6101e0850152610cf46102408201611252565b610200850152610260810151610220850152610d136102808201611252565b610240850152610d266102a08201611252565b610260850152610d396102c08201611252565b610280850152610d4c6102e08201611252565b6102a0850152610d5f6103008201611252565b6102c0850152610d726103208201611252565b6102e0850152610d856103408201611252565b610300850152610d986103608201611252565b610320850152610dab6103808201611252565b610340850152610dbe6103a08201611252565b61036085015201611252565b61038082015238610592565b634e487b7160e01b85526041600452602485fd5b3d9150610b5b565b60405162461bcd60e51b815260206004820152600c60248201526b155b985d5d1a1bdc9a5e995960a21b6044820152606490fd5b634e487b7160e01b84526041600452602484fd5b60ff60a01b1916600160a01b177ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d4a55386100be565b62461bcd60e51b815260206004820152601f60248201527f5265656e7472616e637947756172643a207265656e7472616e742063616c6c006044820152606490fd5b503330146100b0565b63ffffffff166000527ff42c870234ce1595c214fdf331f4ac5d8ba4c010e9f64d466736c93812624d41602052604060002090565b6040810190811067ffffffffffffffff821117610f0b57604052565b634e487b7160e01b600052604160045260246000fd5b6060810190811067ffffffffffffffff821117610f0b57604052565b67ffffffffffffffff8111610f0b57604052565b90601f8019910116810190811067ffffffffffffffff821117610f0b57604052565b90604051906000835490600182811c9080841696871561103a575b602094858410891461102657879884899798995290816000146110045750600114610fc5575b505050610fc392500383610f51565b565b600090815285812095935091905b818310610fec575050610fc39350820101388080610fb4565b85548884018501529485019487945091830191610fd3565b92505050610fc394925060ff191682840152151560051b820101388080610fb4565b634e487b7160e01b85526022600452602485fd5b91607f1691610f8e565b9060405191828154918282526020928383019160005283600020936000905b82821061107957505050610fc392500383610f51565b855484526001958601958895509381019390910190611063565b6002111561109d57565b634e487b7160e01b600052602160045260246000fd5b90815467ffffffffffffffff8111610f0b576040519260206110da818460051b0186610f51565b82855260009182528082208186015b8484106110f7575050505050565b600183819261110585610f73565b8152019201930192906110e9565b906040516080810181811067ffffffffffffffff821117610f0b57604052606061116d60038395611143816110b3565b855261115160018201611044565b6020860152611162600282016110b3565b604086015201611044565b910152565b9060405191828154918282526020928383019160005283600020936000905b8282106111a757505050610fc392500383610f51565b85546001600160a01b031684526001958601958895509381019390910190611191565b906040516111d781610eef565b82546001600160a01b031681526001909201546020830152565b906040516111fe81610eef565b602061116d6001839560ff81541615158552016111ca565b1561121d57565b60405162461bcd60e51b815260206004820152600d60248201526c496e76616c6964496e7075747360981b6044820152606490fd5b51906001600160a01b038216820361126657565b600080fdfea2646970667358221220c0c4d15ecec44b377ae8648e35dee1a77ea741c79d853ef1030828a2a9af434564736f6c63430008120033";
 
 type AccountsSwapEndowmentsConstructorParams =
   | [

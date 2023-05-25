@@ -31,14 +31,14 @@ export declare namespace DistributorStorage {
   export type ConfigStruct = {
     timelockContract: PromiseOrValue<string>;
     haloToken: PromiseOrValue<string>;
-    whitelist: PromiseOrValue<string>[];
+    allowlist: PromiseOrValue<string>[];
     spendLimit: PromiseOrValue<BigNumberish>;
   };
 
   export type ConfigStructOutput = [string, string, string[], BigNumber] & {
     timelockContract: string;
     haloToken: string;
-    whitelist: string[];
+    allowlist: string[];
     spendLimit: BigNumber;
   };
 }
@@ -47,7 +47,7 @@ export declare namespace DistributorMessage {
   export type InstantiateMsgStruct = {
     timelockContract: PromiseOrValue<string>;
     haloToken: PromiseOrValue<string>;
-    whitelist: PromiseOrValue<string>[];
+    allowlist: PromiseOrValue<string>[];
     spendLimit: PromiseOrValue<BigNumberish>;
   };
 
@@ -59,14 +59,14 @@ export declare namespace DistributorMessage {
   ] & {
     timelockContract: string;
     haloToken: string;
-    whitelist: string[];
+    allowlist: string[];
     spendLimit: BigNumber;
   };
 
   export type ConfigResponseStruct = {
     timelockContract: PromiseOrValue<string>;
     haloToken: PromiseOrValue<string>;
-    whitelist: PromiseOrValue<string>[];
+    allowlist: PromiseOrValue<string>[];
     spendLimit: PromiseOrValue<BigNumberish>;
   };
 
@@ -78,7 +78,7 @@ export declare namespace DistributorMessage {
   ] & {
     timelockContract: string;
     haloToken: string;
-    whitelist: string[];
+    allowlist: string[];
     spendLimit: BigNumber;
   };
 }
@@ -247,7 +247,7 @@ export interface Distributor extends BaseContract {
     ): Promise<ContractTransaction>;
 
     initialize(
-      curDetails: DistributorMessage.InstantiateMsgStruct,
+      details: DistributorMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -279,7 +279,7 @@ export interface Distributor extends BaseContract {
   ): Promise<ContractTransaction>;
 
   initialize(
-    curDetails: DistributorMessage.InstantiateMsgStruct,
+    details: DistributorMessage.InstantiateMsgStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -311,7 +311,7 @@ export interface Distributor extends BaseContract {
     ): Promise<void>;
 
     initialize(
-      curDetails: DistributorMessage.InstantiateMsgStruct,
+      details: DistributorMessage.InstantiateMsgStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -375,7 +375,7 @@ export interface Distributor extends BaseContract {
     ): Promise<BigNumber>;
 
     initialize(
-      curDetails: DistributorMessage.InstantiateMsgStruct,
+      details: DistributorMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -406,7 +406,7 @@ export interface Distributor extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initialize(
-      curDetails: DistributorMessage.InstantiateMsgStruct,
+      details: DistributorMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

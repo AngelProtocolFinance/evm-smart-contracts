@@ -1,5 +1,6 @@
 import { task } from "hardhat/config"
 import { giftCard } from "contracts/accessory/gift-cards/scripts/deploy"
+import { logger } from "utils"
 
 task("Deploy:deployGiftCard", "Will deploy GiftCardContracts contract")
     .addParam("verify", "Want to verify contract")
@@ -13,7 +14,7 @@ task("Deploy:deployGiftCard", "Will deploy GiftCardContracts contract")
                 registrarContract: taskArgs.registraraddress,
             };
 
-            console.log(taskArgs.corelibrary);
+            logger.out(taskArgs.corelibrary);
 
             var isTrueSet = taskArgs.verify === "true";
 
@@ -24,6 +25,6 @@ task("Deploy:deployGiftCard", "Will deploy GiftCardContracts contract")
                 hre
             );
         } catch (error) {
-            console.log(error);
+            logger.out(error, logger.Level.Error)
         }
     });

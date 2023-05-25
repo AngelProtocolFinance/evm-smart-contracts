@@ -4,18 +4,18 @@ pragma solidity ^0.8.16;
 //Libraries
 import {SwapRouterMessages} from "./message.sol";
 import {AngelCoreStruct} from "../struct.sol";
-import {IRegistrar} from "../registrar/interface/IRegistrar.sol";
+import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../registrar/storage.sol";
-// import {IUniswapV2Router, IUniswapV2Pair, IUniswapV2Factory} from "./Interface/ISwapping.sol";
+// import {IUniswapV2Router, IUniswapV2Pair, IUniswapV2Factory} from "./interfaces/ISwapping.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
-import {IPool} from "./Interface/Ipool.sol";
+import {IPool} from "./interfaces/Ipool.sol";
 
 // Interface
-// import "./Interface/ISwapping.sol";
+// import "./interfaces/ISwapping.sol";
 
 //Storage
 import "./storage.sol";
@@ -30,18 +30,18 @@ contract SwapRouter is Storage {
 
     /**
      * @dev Initialize contract
-     * @param curDetails SwapRouterMessages.InstantiateMsg used to initialize contract
+     * @param details SwapRouterMessages.InstantiateMsg used to initialize contract
      */
     function intiSwapRouter(
-        SwapRouterMessages.InstantiateMsg memory curDetails
+        SwapRouterMessages.InstantiateMsg memory details
     ) public {
         require(!initSwapRouterFlag, "Already Initilized");
 
         initSwapRouterFlag = true;
-        config.registrarContract = curDetails.registrarContract;
-        config.accountsContract = curDetails.accountsContract;
-        swapRouter = curDetails.swapRouter;
-        swapFactory = curDetails.swapFactory;
+        config.registrarContract = details.registrarContract;
+        config.accountsContract = details.accountsContract;
+        swapRouter = details.swapRouter;
+        swapFactory = details.swapFactory;
 
         swappingFees.push(500);
         swappingFees.push(3000);
@@ -66,26 +66,26 @@ contract SwapRouter is Storage {
 
     /**
      * @dev This function checks the pool and returns the fee for a swap between the two given tokens.
-     * @param curTokena address
-     * @param curTokenb address
+     * @param tokena address
+     * @param tokenb address
      * @return fees Retruns the fee for swapping
      */
     function checkPoolAndReturFee(
-        address curTokena,
-        address curTokenb
+        address tokena,
+        address tokenb
     ) internal view returns (uint24) {
-        require(curTokena != address(0), "Invalid Token A");
-        require(curTokenb != address(0), "Invalid Token B");
+        require(tokena != address(0), "Invalid Token A");
+        require(tokenb != address(0), "Invalid Token B");
 
         //sort Token
-        (curTokena, curTokenb) = sortTokens(curTokena, curTokenb);
+        (tokena, tokenb) = sortTokens(tokena, tokenb);
 
         uint24 fees = 0;
         address tempAddress = address(0);
         for (uint256 i = 0; i < 3; i++) {
             tempAddress = IPool(swapFactory).getPool(
-                curTokena,
-                curTokenb,
+                tokena,
+                tokenb,
                 swappingFees[i]
             );
             if (tempAddress != address(0)) {
@@ -99,34 +99,34 @@ contract SwapRouter is Storage {
 
     /**
      * @dev This function swaps the given amount of tokenA for tokenB and transfers it to the specified recipient address.
-     * @param curTokena address
-     * @param curTokenb address
-     * @param curAmount uint256
-     * @param curTo address
+     * @param tokena address
+     * @param tokenb address
+     * @param amount uint256
+     * @param to address
      * @return amountOut Returns the amount of token received fom pool after swapping to specific address
      */
     function swap(
-        address curTokena,
-        address curTokenb,
-        uint256 curAmount,
-        address curTo
+        address tokena,
+        address tokenb,
+        uint256 amount,
+        address to
     ) internal returns (uint256) {
         //Get pool
-        uint24 fees = checkPoolAndReturFee(curTokena, curTokenb);
+        uint24 fees = checkPoolAndReturFee(tokena, tokenb);
 
         require(fees > 0, "Invalid Token Send to swap");
 
         require(
-            IERC20(curTokena).transferFrom(
+            IERC20(tokena).transferFrom(
                 msg.sender,
                 address(this),
-                curAmount
+                amount
             ),
             "TransferFrom failed"
         );
 
         require(
-            IERC20(curTokena).approve(swapRouter, curAmount),
+            IERC20(tokena).approve(swapRouter, amount),
             "Approve failed"
         );
 
@@ -134,12 +134,12 @@ contract SwapRouter is Storage {
         // We also set the sqrtPriceLimitx96 to be 0 to ensure we swap our exact input amount.
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
             .ExactInputSingleParams({
-                tokenIn: curTokena,
-                tokenOut: curTokenb,
+                tokenIn: tokena,
+                tokenOut: tokenb,
                 fee: fees,
-                recipient: curTo,
+                recipient: to,
                 deadline: block.timestamp + 600,
-                amountIn: curAmount,
+                amountIn: amount,
                 amountOutMinimum: 0,
                 sqrtPriceLimitX96: 0
             });
@@ -151,41 +151,37 @@ contract SwapRouter is Storage {
     }
 
     /**
-     * @dev This function swaps multiple tokens for the specified output token and returns the amount obtained.
-     * @param curTokenin address[]
-     * @param curTokenout address[]
-     * @param curAmountin uint256
-     * @param curAmountout uint256[]
+     * @dev This function swaps a token for the specified output token and returns the amount obtained.
+     * @param tokenIn address
+     * @param tokenOut address
+     * @param amountIn uint256
+     * @param amountOut uint256
      * @return amountPossible Returns the amount of token obtained after swapping the tokens.
      */
     function executeSwapOperations(
-        address[] memory curTokenin,
-        address curTokenout,
-        uint256[] memory curAmountin,
-        uint256 curAmountout
+        address tokenIn,
+        address tokenOut,
+        uint256 amountIn,
+        uint256 amountOut
     ) public returns (uint256) {
-        uint256 callLength = curTokenin.length;
 
-        require(callLength > 0, "Invalid callToken length");
+        uint256 amountPossible;
+        
+        amountPossible += swap(
+            tokenIn,
+            tokenOut,
+            amountIn,
+            address(this)
+        );
 
-        uint256 amountPossible = 0;
-
-        for (uint8 i = 0; i < callLength; i++) {
-            amountPossible += swap(
-                curTokenin[i],
-                curTokenout,
-                curAmountin[i],
-                address(this)
-            );
-        }
 
         require(
-            amountPossible >= curAmountout,
+            amountPossible >= amountOut,
             "Output funds less than the minimum funds"
         );
 
         require(
-            IERC20(curTokenout).transfer(msg.sender, amountPossible),
+            IERC20(tokenOut).transfer(msg.sender, amountPossible),
             "Transfer failed"
         );
 
@@ -194,13 +190,13 @@ contract SwapRouter is Storage {
 
     /**
      * @dev This function swaps the given amount of the specified token for USDC. This function can only be called by the registrar contract or the accounts contract.
-     * @param curTokena address
-     * @param curAmountin uint256
+     * @param tokena address
+     * @param amountin uint256
      * @return account Returns the amount of token after swapping specified USDC token.
      */
     function swapTokenToUsdc(
-        address curTokena,
-        uint256 curAmountin
+        address tokena,
+        uint256 amountin
     ) public returns (uint256) {
         require(
             msg.sender == config.registrarContract ||
@@ -213,9 +209,9 @@ contract SwapRouter is Storage {
         ).queryConfig();
 
         uint256 account = swap(
-            curTokena,
+            tokena,
             registrar_config.usdcAddress,
-            curAmountin,
+            amountin,
             msg.sender
         );
 

@@ -360,7 +360,7 @@ export interface IMultiSigGeneric extends BaseContract {
     ): Promise<ContractTransaction>;
 
     changeRequirement(
-      curRequired: PromiseOrValue<BigNumberish>,
+      required: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -382,7 +382,7 @@ export interface IMultiSigGeneric extends BaseContract {
     getConfirmations(
       transactionId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<[string[]] & { curConfirmations: string[] }>;
+    ): Promise<[string[]] & { confirmations: string[] }>;
 
     getOwners(overrides?: CallOverrides): Promise<[string[]]>;
 
@@ -398,7 +398,7 @@ export interface IMultiSigGeneric extends BaseContract {
       pending: PromiseOrValue<boolean>,
       executed: PromiseOrValue<boolean>,
       overrides?: CallOverrides
-    ): Promise<[BigNumber[]] & { curTransactionids: BigNumber[] }>;
+    ): Promise<[BigNumber[]] & { transactionids: BigNumber[] }>;
 
     isConfirmed(
       transactionId: PromiseOrValue<BigNumberish>,
@@ -443,7 +443,7 @@ export interface IMultiSigGeneric extends BaseContract {
   ): Promise<ContractTransaction>;
 
   changeRequirement(
-    curRequired: PromiseOrValue<BigNumberish>,
+    required: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -526,7 +526,7 @@ export interface IMultiSigGeneric extends BaseContract {
     ): Promise<void>;
 
     changeRequirement(
-      curRequired: PromiseOrValue<BigNumberish>,
+      required: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -679,7 +679,7 @@ export interface IMultiSigGeneric extends BaseContract {
     ): Promise<BigNumber>;
 
     changeRequirement(
-      curRequired: PromiseOrValue<BigNumberish>,
+      required: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -763,7 +763,7 @@ export interface IMultiSigGeneric extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     changeRequirement(
-      curRequired: PromiseOrValue<BigNumberish>,
+      required: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

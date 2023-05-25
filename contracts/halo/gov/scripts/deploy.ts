@@ -7,7 +7,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types"
 
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
-export async function deployGov(proxyAdmin = ADDRESS_ZERO, haloTokenAddress: string, curTimelock: string, verify_contracts: boolean, hre: HardhatRuntimeEnvironment) { // TODO: remove param curTimelock
+export async function deployGov(proxyAdmin = ADDRESS_ZERO, haloTokenAddress: string, verify_contracts: boolean, hre: HardhatRuntimeEnvironment) { // TODO: remove param timelock
     try {
 
       const { ethers, run, network } = hre;
@@ -15,6 +15,8 @@ export async function deployGov(proxyAdmin = ADDRESS_ZERO, haloTokenAddress: str
       const TimeLock = await ethers.getContractFactory("TimeLock");
       const TimeLockInstance = await TimeLock.deploy();
       await TimeLockInstance.deployed();
+
+      console.log('TimeLock Address (Implementation):', TimeLockInstance.address);
 
       const VotingERC20 = await ethers.getContractFactory('VotingERC20');
       const VotingERC20Instance = await VotingERC20.deploy();

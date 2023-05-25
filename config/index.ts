@@ -10,7 +10,7 @@ const EXPORT_CONFIG = {
     NETWORK: process.env.NETWORK,
     OPTIMIZER_FLAG: process.env.OPTIMIZER_FLAG,
     OPTIMIZER_RUNS: process.env.OPTIMIZER_RUNS,
-    PROD: process.env.PROD,
+    PROD_NETWORK_ID: process.env.PROD_NETWORK_ID,
     PROXY_ADMIN_KEY: process.env.PROXY_ADMIN_KEY,
     ROUTER_ADDRESS: process.env.ROUTER_ADDRESS,
     SCAN_API_KEY: process.env.ETHERSCAN_API_KEY,
@@ -54,7 +54,8 @@ const EXPORT_CONFIG = {
             defaultSplit: 50,
         },
         router: "0xce551C1125BfCdAb88048854522D0B220f41A6Ff",
-        axelerGateway: "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B",
+        axelarGateway: "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B",
+        axelarGasRecv: "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B"
     },
     CHARITY_APPLICATION_DATA: {
         expiry: 0,
@@ -104,7 +105,7 @@ const EXPORT_CONFIG = {
         GovHodlerOwner: "0x8B1386F6fE42995Db5F7f7018af90496103CD39e",
         airdropOwner: "0xce551C1125BfCdAb88048854522D0B220f41A6Ff",
         CommunitySpendLimit: 5000,
-        distributorWhitelist: [
+        distributorAllowlist: [
             "0x51d0e5cffb5748dD17f1E133C72E48fa94685bEc",
             "0x06eB8fcC1E02e06c0b6A47c396f14C5761C47433",
         ],

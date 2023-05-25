@@ -12,14 +12,15 @@ library GiftCardsStorage {
 
     struct Deposit {
         address sender;
-        AngelCoreStruct.AssetBase token;
+        address tokenAddress;
+        uint256 amount;
         bool claimed;
     }
 
     struct State {
         Config config;
         mapping(uint256 => Deposit) DEPOSITS;
-        mapping(address => AngelCoreStruct.GenericBalance) BALANCES;
+        mapping(address => mapping(address => uint256)) BALANCES;
     }
 }
 

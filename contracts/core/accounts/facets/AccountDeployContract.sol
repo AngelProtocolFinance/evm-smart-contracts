@@ -5,7 +5,7 @@ import {AccountStorage} from "../storage.sol";
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {ProxyContract} from "./../../proxy.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
-import {IRegistrar} from "../../registrar/interface/IRegistrar.sol";
+import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
@@ -21,10 +21,10 @@ import {ISubDao} from "../../../normalized_endowment/subdao/Isubdao.sol";
 contract AccountDeployContract is ReentrancyGuardFacet, AccountsEvents {
     /**
      * @notice Create a new Dao for endowment
-     * @param curCreatedaomessage Dao creation message with initial configuration
+     * @param createDaoMessage Dao creation message with initial configuration
      */
     function createDaoContract(
-        subDaoMessage.InstantiateMsg memory curCreatedaomessage
+        subDaoMessage.InstantiateMsg memory createDaoMessage
     ) public nonReentrant returns (address daoAddress) {
         // will be called by self, as this is deployment facet
         require(msg.sender == address(this), "Unauthorized");
@@ -34,12 +34,12 @@ contract AccountDeployContract is ReentrancyGuardFacet, AccountsEvents {
             state.config.registrarContract
         ).queryConfig();
 
-        address implementation = registrar_config.subdaoGovCode;
+        address implementation = registrar_config.subdaoGovContract;
         address admin = registrar_config.proxyAdmin;
 
         bytes memory subDaoData = abi.encodeWithSignature(
             "initializeSubDao((uint256,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address),address)",
-            curCreatedaomessage,
+            createDaoMessage,
             registrar_config.subdaoEmitter
         );
 
@@ -48,10 +48,10 @@ contract AccountDeployContract is ReentrancyGuardFacet, AccountsEvents {
         );
         ISubdaoEmitter(registrar_config.subdaoEmitter).initializeSubdao(
             daoAddress,
-            curCreatedaomessage
+            createDaoMessage
         );
 
-        ISubDao(daoAddress).buildDaoTokenMesage(curCreatedaomessage);
-        emit DaoContractCreated(curCreatedaomessage, daoAddress);
+        ISubDao(daoAddress).buildDaoTokenMesage(createDaoMessage);
+        emit DaoContractCreated(createDaoMessage, daoAddress);
     }
 }
