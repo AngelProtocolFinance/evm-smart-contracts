@@ -1,5 +1,5 @@
 import hre from "hardhat";
-import { getAddresses, logger, updateAddresses } from "utils"
+import { logger, updateAddresses } from "utils"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Halo__factory } from "typechain-types"
 import { BigNumber } from "ethers";
@@ -27,8 +27,7 @@ async function deploy() {
   logger.divider()
   logger.out("Writing to contract-address.json", logger.Level.Info)
 
-  const addresses = await getAddresses(hre)
-  await updateAddresses({ tokens: { ...addresses.tokens, halo: halo.address } }, hre)
+  await updateAddresses({ tokens: { halo: halo.address } }, hre)
 }
 
 deploy().catch((error) => {

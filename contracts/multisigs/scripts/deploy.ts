@@ -3,7 +3,7 @@
 
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { APTeamMultiSig, ApplicationsMultiSig } from 'typechain-types'
-import { getAddresses, logger, updateAddresses } from "utils"
+import { logger, updateAddresses } from "utils"
 // import { IndexFundMessage } from "typechain-types/contracts/core/index-fund/IndexFund"
 
 const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
@@ -44,11 +44,9 @@ export async function deployMultisig(ApplicationMultisigData: Parameters<Applica
     await APTeamMultiSigProxy.deployed();
 
     logger.out("Saving addresses to contract-address.json...")
-    const addresses = await getAddresses(hre)
     await updateAddresses(
       {
         multiSig: {
-          ...addresses.multiSig,
           applications: {
             implementation: ApplicationsMultiSigInstance.address,
             proxy: ApplicationsMultiSigProxy.address

@@ -15,21 +15,38 @@ export async function cleanAddresses(hre: HardhatRuntimeEnvironment) {
     await saveFrontendFiles(toRemain)
 }
 
-export async function getAddresses(hre: HardhatRuntimeEnvironment) {
+export async function getAddresses(hre: HardhatRuntimeEnvironment): Promise<AddressObj> {
     const chainId = await getChainId(hre)
     return getAddressesByNetworkId(chainId)
 }
 
-export async function updateAddresses(addressObj: Partial<AddressObj>, hre: HardhatRuntimeEnvironment) {
+type DeepPartial<T> = {
+    [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K]
+}
+
+export async function updateAddresses(partial: DeepPartial<AddressObj>, hre: HardhatRuntimeEnvironment) {
     const chainId = await getChainId(hre)
 
-    const addresses = {
-        [chainId]: {
-            ...getAddressesByNetworkId(chainId),
-            ...addressObj,
-        },
+    const currentAddressObj = getAddressesByNetworkId(chainId)
+
+    const updated = updateInternal(currentAddressObj, partial)
+
+    await saveFrontendFiles({ [chainId]: updated })
+}
+
+function updateInternal<T>(original: T, partial: DeepPartial<T>): T {
+    // if value to update is not an object, no need to go deeper
+    if (typeof partial !== "object") {
+        return partial
     }
-    await saveFrontendFiles(addresses)
+
+    const updated: T = { ...original }
+
+    for (const key in partial) {
+        updated[key] = updateInternal(original[key], partial[key]!)
+    }
+
+    return updated
 }
 
 async function getChainId(hre: HardhatRuntimeEnvironment): Promise<number> {

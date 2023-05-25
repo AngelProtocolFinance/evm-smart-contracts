@@ -1,5 +1,5 @@
 import hre from "hardhat";
-import { getAddresses, logger, updateAddresses } from "utils"
+import { logger, updateAddresses } from "utils"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Registrar, Registrar__factory } from "typechain-types"
 
@@ -27,16 +27,7 @@ async function deploy() {
   logger.divider()
   logger.out("Writing to contract-address.json", logger.Level.Info)
 
-  const addresses = await getAddresses(hre)
-  await updateAddresses(
-    { 
-      registrar: { 
-        ...addresses.registrar, 
-        implementation: registrar.address 
-      }
-    }, 
-    hre
-  )
+  await updateAddresses({ registrar: { implementation: registrar.address } }, hre)
 }
 
 deploy().catch((error) => {

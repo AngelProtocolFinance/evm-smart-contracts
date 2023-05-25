@@ -36,18 +36,7 @@ task(
 
         logger.out("Saving the new implementation address to JSON file...")
 
-        await updateAddresses(
-            { 
-                multiSig: {
-                    ...addresses.multiSig,
-                    endowment: {
-                        ...addresses.multiSig.endowment,
-                        implementation: contract.address
-                    }
-                }
-            }, 
-            hre
-        )
+        await updateAddresses({ multiSig: { endowment: { implementation: contract.address } } }, hre)
 
         if (shouldVerify(hre.network)) {
             logger.out("Verifying the contract...")

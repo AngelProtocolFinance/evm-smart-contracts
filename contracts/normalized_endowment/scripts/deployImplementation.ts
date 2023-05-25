@@ -3,7 +3,7 @@
 
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import { DonationMatchMessages } from "typechain-types/contracts/normalized_endowment/donation-match/DonationMatch.sol/DonationMatch"
-import { getAddresses, logger, updateAddresses } from "utils"
+import { logger, updateAddresses } from "utils"
 
 const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
 
@@ -222,8 +222,6 @@ export async function deployImplementation(
 		const {network,run,ethers} = hre;
 		let [deployer, proxyAdmin] = await ethers.getSigners();
 		
-		const addresses = await getAddresses(hre)
-
 		const implementations = {
 			cw900lv: await deployCw900lvImplementation(verify_contracts, hre),
 			donationMatch: {
@@ -235,7 +233,6 @@ export async function deployImplementation(
 				implementation: await deployIncentivisedVotingLockup(verify_contracts,hre)
 			},
 			subDao: {
-				...addresses.subDao,
 				implementation: await deploySubDao(ANGEL_CORE_STRUCT,verify_contracts, hre),
 				token: await deploySubDaoERC20(verify_contracts, hre),
 				veBondingToken: await deploySubDaoVeBondingToken(verify_contracts,hre),

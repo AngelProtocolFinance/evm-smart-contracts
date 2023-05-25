@@ -2,7 +2,7 @@
 // yours, or create new ones.
 
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { getAddresses, logger, updateAddresses } from "utils"
+import { logger, updateAddresses } from "utils"
 
 const deployEndowmentMultiSigEmitter = async(proxyAdmin: string,factoryAddress: string,verify_contracts: boolean, hre: HardhatRuntimeEnvironment) =>{
   try {
@@ -63,11 +63,9 @@ export async function deployEndowmentMultiSig(verify_contracts: boolean, hre: Ha
     const EndowmentMultiSigEmitterAddresses = await deployEndowmentMultiSigEmitter(proxyAdmin.address, MultiSigWalletFactoryInstance.address, verify_contracts, hre)
 
     logger.out("Saving addresses to contract-address.json...")
-    const addresses = await getAddresses(hre)
     await updateAddresses(
       {
         multiSig: {
-          ...addresses.multiSig,
           endowment: {
             emitter: { ...EndowmentMultiSigEmitterAddresses },
             factory: MultiSigWalletFactoryInstance.address,

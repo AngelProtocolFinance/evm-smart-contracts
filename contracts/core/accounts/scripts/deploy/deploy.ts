@@ -11,7 +11,7 @@ import {
 import deployFacets from "./deployFacets"
 import updateDiamond from "./updateDiamond"
 import verify from "./verify"
-import { getAddresses, logger, updateAddresses } from "utils"
+import { logger, updateAddresses } from "utils"
 
 export async function deployDiamond(
     owner: string,
@@ -58,8 +58,7 @@ async function _deployDiamond(admin: SignerWithAddress, diamondCut: string, hre:
     console.log("Diamond deployed:", diamond.address)
 
     logger.out("Saving address to contract-address.json...")
-    const addresses = await getAddresses(hre)
-    await updateAddresses({ accounts: { ...addresses.accounts, diamond: diamond.address } }, hre)
+    await updateAddresses({ accounts: { diamond: diamond.address } }, hre)
 
     return diamond
 }

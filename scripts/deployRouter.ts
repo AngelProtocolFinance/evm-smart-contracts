@@ -34,15 +34,7 @@ async function deploy() {
   logger.divider()
   logger.out("Writing to contract-address.json", logger.Level.Info)
 
-  await updateAddresses(
-    { 
-      router: { 
-        ...addresses.router, 
-        implementation: router.address 
-      }
-    }, 
-    hre
-  )
+  await updateAddresses({ router: { implementation: router.address } }, hre)
 }
 
 deploy().catch((error) => {
