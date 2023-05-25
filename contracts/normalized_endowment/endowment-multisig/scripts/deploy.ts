@@ -14,6 +14,8 @@ const deployEndowmentMultiSigEmitter = async(proxyAdmin: string,factoryAddress: 
     const EndowmentMultiSigEmitterImplementation = await EndowmentMultiSigEmitter.deploy();
     await EndowmentMultiSigEmitterImplementation.deployed();
 
+    console.log('EndowmentMultiSigEmitter Address (Implementation):', EndowmentMultiSigEmitterImplementation.address);
+
     const EndowmentMultiSigEmitterData = EndowmentMultiSigEmitterImplementation.interface.encodeFunctionData('initEndowmentMultiSigEmitter', [factoryAddress]);
 
     const EndowmentMultiSigEmitterProxy = await ProxyContract.deploy(EndowmentMultiSigEmitterImplementation.address, proxyAdmin, EndowmentMultiSigEmitterData);

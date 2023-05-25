@@ -16,6 +16,8 @@ export async function deployGov(proxyAdmin = ADDRESS_ZERO, haloTokenAddress: str
       const TimeLockInstance = await TimeLock.deploy();
       await TimeLockInstance.deployed();
 
+      console.log('TimeLock Address (Implementation):', TimeLockInstance.address);
+
       const VotingERC20 = await ethers.getContractFactory('VotingERC20');
       const VotingERC20Instance = await VotingERC20.deploy();
       await VotingERC20Instance.deployed();

@@ -14,6 +14,8 @@ const deploySubDaoEmitter = async (proxyAdmin: string,accountAddress: string,ver
     const SubdaoEmitterImplementation = await SubdaoEmitter.deploy();
     await SubdaoEmitterImplementation.deployed();
 
+    console.log('SubdaoEmitterAddress (Implementation):', SubdaoEmitterImplementation.address);
+
     const SubdaoEmitterData = SubdaoEmitterImplementation.interface.encodeFunctionData('initEmitter', [accountAddress]);
 
     const SubdaoEmitterProxy = await ProxyContract.deploy(SubdaoEmitterImplementation.address, proxyAdmin, SubdaoEmitterData);
