@@ -7,10 +7,10 @@ import { getAddressesByNetworkId } from "./helpers"
 export const cleanFile = () => {
     return new Promise(async (resolve, reject) => {
         try {
-            const contractsDir = path.join(__dirname, "../")
+            const contractsDir = path.join(__dirname, "../../")
 
             if (!fs.existsSync(contractsDir)) {
-                fs.mkdirSync(contractsDir)
+                throw new Error("No root directory.")
             }
 
             fs.writeFileSync(
@@ -39,10 +39,10 @@ export const updateAddresses = async (addressObj: Partial<AddressObj>, hre: Hard
 export const saveFrontendFiles = (addresses: Record<string, Partial<AddressObj>>) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const rootDir = path.join(__dirname, "../")
+            const rootDir = path.join(__dirname, "../../")
 
             if (!fs.existsSync(rootDir)) {
-                fs.mkdirSync(rootDir)
+                throw new Error("No root directory.")
             }
 
             const jsonData = fs.readFileSync(path.join(rootDir, "contract-address.json"), "utf-8")
@@ -52,6 +52,7 @@ export const saveFrontendFiles = (addresses: Record<string, Partial<AddressObj>>
             Object.assign(data, addresses)
 
             fs.writeFileSync(path.join(rootDir, "contract-address.json"), JSON.stringify(data, undefined, 2))
+
             resolve(true)
         } catch (e) {
             reject(e)

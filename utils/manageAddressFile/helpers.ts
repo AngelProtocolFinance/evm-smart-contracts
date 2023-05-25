@@ -30,7 +30,7 @@ export function getAddressesByNetworkId(networkId: string | symbol | number): Ad
 }
 
 const readAllAddresses = () => {
-    const rootDir = path.join(__dirname, "../")
+    const rootDir = path.join(__dirname, "../../")
 
     if (!fs.existsSync(rootDir)) {
         throw new Error("No root directory.")
