@@ -70,7 +70,6 @@ async function getFactories(
         new AccountDonationMatch__factory(diamondOwner),
         new AccountsUpdate__factory(diamondOwner),
         new AccountsQueryEndowments__factory(diamondOwner),
-        new AxelarExecutionContract__factory(diamondOwner),
         new AccountsUpdateStatusEndowments__factory(diamondOwner),
         // core lib
         new AccountsVaultFacet__factory({ "contracts/core/struct.sol:AngelCoreStruct": corestruct },diamondOwner),

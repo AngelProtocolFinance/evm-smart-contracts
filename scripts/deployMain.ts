@@ -85,7 +85,8 @@ export async function main(apTeamAdmins = []) {
     try {
         const { run, network, ethers } = hre
 
-        const verify_contracts = network.name !== "hardhat" && network.name !== "localhost"
+        // const verify_contracts = network.name !== "hardhat" && network.name !== "localhost"
+        const verify_contracts = false 
 
         var Admins = config.AP_TEAM_MULTISIG_DATA.admins
         if (apTeamAdmins.length != 0) Admins = apTeamAdmins
@@ -120,7 +121,8 @@ export async function main(apTeamAdmins = []) {
             splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
             acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
             router: config.REGISTRAR_DATA.router,
-            axelerGateway: config.REGISTRAR_DATA.axelerGateway,
+            axelarGateway: config.REGISTRAR_DATA.axelarGateway,
+            axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv
         }
 
         REGISTRAR_ADDRESS = await deployRegistrar(STRING_LIBRARY.address, registrarData, verify_contracts, hre)
@@ -205,26 +207,26 @@ export async function main(apTeamAdmins = []) {
 
         // console.log('implementations deployed at:', implementations);
 
-        let GiftCardDataInput = {
-            keeper: multisigAddress.APTeamMultiSig,
-            registrarContract: REGISTRAR_ADDRESS,
-        }
+        // let GiftCardDataInput = {
+        //     keeper: multisigAddress.APTeamMultiSig,
+        //     registrarContract: REGISTRAR_ADDRESS,
+        // }
 
-        let giftCardAddress = await giftCard(GiftCardDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre)
+        // let giftCardAddress = await giftCard(GiftCardDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre)
 
-        let FundraisingDataInput = {
-            registrarContract: REGISTRAR_ADDRESS,
-            nextId: config.FundraisingDataInput.nextId,
-            campaignPeriodSeconds: config.FundraisingDataInput.campaignPeriodSeconds,
-            taxRate: config.FundraisingDataInput.taxRate,
-            acceptedTokens: config.FundraisingDataInput.acceptedTokens,
-        }
-        let fundraisingAddress = await deployFundraising(
-            FundraisingDataInput,
-            ANGEL_CORE_STRUCT.address,
-            verify_contracts,
-            hre
-        )
+        // let FundraisingDataInput = {
+        //     registrarContract: REGISTRAR_ADDRESS,
+        //     nextId: config.FundraisingDataInput.nextId,
+        //     campaignPeriodSeconds: config.FundraisingDataInput.campaignPeriodSeconds,
+        //     taxRate: config.FundraisingDataInput.taxRate,
+        //     acceptedTokens: config.FundraisingDataInput.acceptedTokens,
+        // }
+        // let fundraisingAddress = await deployFundraising(
+        //     FundraisingDataInput,
+        //     ANGEL_CORE_STRUCT.address,
+        //     verify_contracts,
+        //     hre
+        // )
 
         var haloAddress = await deployHaloImplementation(SWAP_ROUTER, verify_contracts, hre)
 
@@ -349,7 +351,6 @@ export async function main(apTeamAdmins = []) {
 
         let implementations = await deployImplementation(
             ANGEL_CORE_STRUCT.address,
-            lockedWithdrawalData,
             donationMatchCharityData,
             verify_contracts,
             hre
@@ -361,50 +362,47 @@ export async function main(apTeamAdmins = []) {
 
         config.REGISTRAR_DATA.acceptedTokens.cw20.push(haloToken.address)
 
-        updateConfig = {
-            accountsContract: ACCOUNT_ADDRESS, //Address
-            taxRate: config.REGISTRAR_DATA.taxRate, //uint256
-            rebalance: config.REGISTRAR_DATA.rebalance,
-            approved_charities: [], //string[]
-            splitMax: 100, //uint256
-            splitMin: 0, //uint256
-            splitDefault: 50, //uint256
-            collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
-            acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
-            subdaoGovContract: implementations.SubDao, //address
-            subdaoTokenContract: implementations.SubDaoERC20, //address
-            subdaoBondingTokenContract: implementations.SubDaoBondingCurve, //address
-            subdaoCw900Contract: implementations.IncentiisedVoting, //address
-            subdaoDistributorContract: ADDRESS_ZERO,
-            subdaoEmitter: emitters.subDaoEmitter, //TODO:
-            donationMatchContract: implementations.DonationMatch, //address
-            indexFundContract: INDEX_FUND_ADDRESS, //address
-            govContract: haloAddress.Gov.GovProxy, //address
-            treasury: config.REGISTRAR_DATA.treasury,
-            donationMatchCharitesContract: implementations.DonationMatchCharity, // once uniswap is setup //address
-            donationMatchEmitter: emitters.DonationMatchEmitter,
-            haloToken: haloAddress.Halo, //address
-            haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
-            charitySharesContract: ADDRESS_ZERO, //TODO: //address
-            fundraisingContract: fundraisingAddress, //TODO: //address
-            applicationsReview: multisigAddress.ApplicationsMultiSig, //address
-            swapsRouter: SWAP_ROUTER, //address
-            multisigFactory: multisigDat.MultiSigWalletFactory, //address
-            multisigEmitter: multisigDat.EndowmentMultiSigEmitter, //address
-            charityProposal: charityApplicationsAddress, //address
-            lockedWithdrawal: implementations.LockedWithdraw, //address
-            proxyAdmin: proxyAdmin.address, //address
-            usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
-            wethAddress: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
-            cw900lvAddress: implementations.cw900lv,
-        }
+		updateConfig = {
+			accountsContract: ACCOUNT_ADDRESS, //Address
+			approved_charities: [], //string[]
+			splitMax: 100, //uint256
+			splitMin: 0, //uint256
+			splitDefault: 50, //uint256
+			collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
+			subdaoGovContract: implementations.SubDao, //address
+			subdaoTokenContract: implementations.SubDaoERC20, //address
+			subdaoBondingTokenContract: implementations.SubDaoveBonding, //address
+			subdaoCw900Contract: implementations.IncentiisedVoting, //address
+			subdaoDistributorContract: ADDRESS_ZERO,
+			subdaoEmitter: emitters.subDaoEmitter, //TODO:
+			donationMatchContract: implementations.DonationMatch, //address
+			indexFundContract: INDEX_FUND_ADDRESS, //address
+			govContract: haloAddress.Gov.GovProxy, //address
+			treasury: config.REGISTRAR_DATA.treasury,
+			donationMatchCharitesContract: implementations.DonationMatchCharity, // once uniswap is setup //address
+			donationMatchEmitter: emitters.DonationMatchEmitter,
+			haloToken: haloAddress.Halo, //address
+			haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
+			charitySharesContract: ADDRESS_ZERO, //TODO: //address
+			fundraisingContract: ADDRESS_ZERO, //TODO: //address
+			applicationsReview: multisigAddress.ApplicationsMultiSig, //address
+			swapsRouter: SWAP_ROUTER, //address
+			multisigFactory: multisigDat.MultiSigWalletFactory, //address
+			multisigEmitter: multisigDat.EndowmentMultiSigEmitter, //address
+			charityProposal: charityApplicationsAddress, //address
+            lockedWithdrawal: ADDRESS_ZERO,
+			proxyAdmin: proxyAdmin.address, //address
+			usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
+			wethAddress: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
+			cw900lvAddress: implementations.cw900lv,
+		}
 
         let REGISTRAR_CONTRACT = await ethers.getContractAt("Registrar", REGISTRAR_ADDRESS)
 
         let data = await REGISTRAR_CONTRACT.updateConfig(updateConfig)
         console.log("Successfully updated config:-", data.hash)
 
-        let newOwner = await REGISTRAR_CONTRACT.updateOwner(multisigAddress.APTeamMultiSig)
+        let newOwner = await REGISTRAR_CONTRACT.transferOwnership(multisigAddress.APTeamMultiSig)
         console.log("Successfully transferred Ownership:-", newOwner.hash)
 
         let INDEX_FUND_CONTRACT = await ethers.getContractAt("IndexFund", INDEX_FUND_ADDRESS)
@@ -427,12 +425,9 @@ export async function main(apTeamAdmins = []) {
             multisigDat,
             implementations,
             haloAddress,
-            giftCardAddress,
-            fundraisingAddress,
             haloGovContract: haloAddress.Gov.GovProxy,
             timelockContract: haloAddress.Gov.TimeLock,
-            votingERC20: haloAddress.Gov.VotingERC20Proxy,
-            lockedWithdraw: implementations.LockedWithdraw,
+            votingERC20: haloAddress.Gov.VotingERC20Proxy
         }
 
         await saveFrontendFiles({ addressWriter })
