@@ -1,6 +1,5 @@
-import addresses from "contract-address.json"
 import { task } from "hardhat/config"
-import { saveFrontendFiles } from "scripts/readWriteFile"
+import { getAddresses, updateAddresses } from "utils"
 import { EndowmentMultiSig__factory, MultiSigWalletFactory__factory } from "typechain-types"
 import { logger, shouldVerify } from "utils"
 
@@ -9,9 +8,11 @@ task(
     "Will upgrade the implementation of the EndowmentMultiSig contracts"
 ).setAction(async (_taskArguments, hre) => {
     try {
+        logger.out("Deploying a new EndowmentMultiSig contract...")
+
         const [_deployer, proxyAdmin] = await hre.ethers.getSigners()
 
-        logger.out("Deploying a new EndowmentMultiSig contract...")
+        const addresses = await getAddresses(hre)
 
         const factory = new EndowmentMultiSig__factory(proxyAdmin)
         const contract = await factory.deploy()
@@ -22,7 +23,7 @@ task(
         logger.out(`Upgrading EndowmentMultiSig implementation address inside MultiSigWalletFactory...`)
 
         const multisigWalletFactory = MultiSigWalletFactory__factory.connect(
-            addresses.EndowmentMultiSigAddress.MultiSigWalletFactory,
+            addresses.multiSig.endowment.factory,
             proxyAdmin
         )
         const tx = await multisigWalletFactory.updateImplementation(contract.address)
@@ -35,9 +36,7 @@ task(
 
         logger.out("Saving the new implementation address to JSON file...")
 
-        const EndowmentMultiSigAddress = { ...addresses.EndowmentMultiSigAddress }
-        EndowmentMultiSigAddress.MultiSigWalletImplementation = contract.address
-        await saveFrontendFiles({ EndowmentMultiSigAddress })
+        await updateAddresses({ multiSig: { endowment: { implementation: contract.address } } }, hre)
 
         if (shouldVerify(hre.network)) {
             logger.out("Verifying the contract...")

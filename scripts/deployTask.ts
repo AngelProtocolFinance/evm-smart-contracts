@@ -23,21 +23,20 @@ var REGISTRAR_ADDRESS;
 var deployer;
 var proxyAdmin;
 
-let updateConfig;
+let updateConfig: RegistrarMessages.UpdateConfigRequestStruct
 
 interface AddressWriter { [key: string]: string | AddressWriter }
 let addressWriter: AddressWriter = {}; 
 
-import { saveFrontendFiles, cleanFile } from './readWriteFile'
+import { cleanAddresses, updateAddresses } from 'utils'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { Contract } from 'ethers'
 import { APTeamMultiSig, ApplicationsMultiSig } from 'typechain-types'
 import { isLocalNetwork } from 'utils'
+import { RegistrarMessages } from 'typechain-types/contracts/core/registrar/interfaces/IRegistrar'
 
 async function deployLibraries(verify_contracts: boolean,hre: HardhatRuntimeEnvironment) {
 	try {
-		await cleanFile();
-
 		const { ethers, run, network } = hre;
 
 		const angel_core_struct = await ethers.getContractFactory('AngelCoreStruct');
@@ -53,12 +52,15 @@ async function deployLibraries(verify_contracts: boolean,hre: HardhatRuntimeEnvi
 			'ANGEL_CORE_STRUCT_LIBRARY Deployed at ': ANGEL_CORE_STRUCT.address,
 		});
 
-		let libraries = {
-			"STRING_LIBRARY" : STRING_LIBRARY.address,
-			"ANGEL_CORE_STRUCT_LIBRARY" : ANGEL_CORE_STRUCT.address
-		}
-
-		await saveFrontendFiles({libraries});
+		await updateAddresses(
+			{
+				libraries: {
+					ANGEL_CORE_STRUCT_LIBRARY : ANGEL_CORE_STRUCT.address,
+					STRING_LIBRARY : STRING_LIBRARY.address,
+				}
+			},
+			hre
+		);
 
 		if(network.name !== 'hardhat' && verify_contracts){
 			await run(`verify:verify`, {
@@ -82,6 +84,7 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 	try {
 		const { run, network, ethers } = hre;
 
+		await cleanAddresses(hre);
 
 		var Admins = config.AP_TEAM_MULTISIG_DATA.admins;
 		if (apTeamAdmins.length != 0) Admins = apTeamAdmins;
@@ -185,13 +188,6 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 		let multisigDat = await deployEndowmentMultiSig(verify_contracts, hre);
 
 		console.log('multisigDat contract deployed at:-', multisigDat);
-
-		const lockedWithdrawalData = [
-			REGISTRAR_ADDRESS,
-			ACCOUNT_ADDRESS,
-			multisigAddress.APTeamMultiSig,
-			multisigDat.MultiSigWalletFactory,
-		];
 
 		// console.log('implementations deployed at:', implementations);
 
@@ -339,14 +335,13 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 
 		let implementations = await deployImplementation(
 			ANGEL_CORE_STRUCT.address,
-			lockedWithdrawalData,
 			donationMatchCharityData,
 			verify_contracts,
 			hre
 		);
 
 		if (isLocalNetwork(network)) {
-			await haloToken.transfer(implementations.DonationMatchCharity, ethers.utils.parseEther('100000000'));
+			await haloToken.transfer(implementations.donationMatchCharity.proxy, ethers.utils.parseEther('100000000'));
 		}
 
 		config.REGISTRAR_DATA.acceptedTokens.cw20.push(haloToken.address);
@@ -358,17 +353,17 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			splitMin: 0, //uint256
 			splitDefault: 50, //uint256
 			collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
-			subdaoGovContract: implementations.SubDao, //address
-			subdaoTokenContract: implementations.SubDaoERC20, //address
-			subdaoBondingTokenContract: implementations.SubDaoveBonding, //address
-			subdaoCw900Contract: implementations.IncentiisedVoting, //address
+			subdaoGovContract: implementations.subDao.implementation, //address
+			subdaoTokenContract: implementations.subDao.token, //address
+			subdaoBondingTokenContract: implementations.subDao.veBondingToken, //address
+			subdaoCw900Contract: implementations.incentivisedVotingLockup.implementation, //address
 			subdaoDistributorContract: ADDRESS_ZERO,
 			subdaoEmitter: emitters.subDaoEmitter, //TODO:
-			donationMatchContract: implementations.DonationMatch, //address
+			donationMatchContract: implementations.donationMatch.implementation, //address
 			indexFundContract: INDEX_FUND_ADDRESS, //address
 			govContract: haloAddress.Gov.GovProxy, //address
 			treasury: config.REGISTRAR_DATA.treasury,
-			donationMatchCharitesContract: implementations.DonationMatchCharity, // once uniswap is setup //address
+			donationMatchCharitesContract: implementations.donationMatchCharity.proxy, // once uniswap is setup //address
 			donationMatchEmitter: emitters.DonationMatchEmitter,
 			haloToken: haloAddress.Halo, //address
 			haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
@@ -379,11 +374,11 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			multisigFactory: multisigDat.MultiSigWalletFactory, //address
 			multisigEmitter: multisigDat.EndowmentMultiSigEmitter, //address
 			charityProposal: charityApplicationsAddress, //address
-			lockedWithdrawal: implementations.LockedWithdraw, //address
 			proxyAdmin: proxyAdmin.address, //address
 			usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
 			wethAddress: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
 			cw900lvAddress: implementations.cw900lv,
+            lockedWithdrawal: ADDRESS_ZERO,
 		};
 
 		let REGISTRAR_CONTRACT = await ethers.getContractAt('Registrar', REGISTRAR_ADDRESS);
@@ -419,11 +414,10 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			haloGovContract: haloAddress.Gov.GovProxy,
 			timelockContract: haloAddress.Gov.TimeLock,
 			votingERC20: haloAddress.Gov.VotingERC20Proxy,
-			lockedWithdraw: implementations.LockedWithdraw,
 		};
 
-		await saveFrontendFiles({addressWriter});
-		await saveFrontendFiles({composedAddress});
+		// await saveFrontendFiles({addressWriter});
+		// await saveFrontendFiles({composedAddress});
 		return {
 			addresses: composedAddress,
 			registrarConfig: updateConfig,

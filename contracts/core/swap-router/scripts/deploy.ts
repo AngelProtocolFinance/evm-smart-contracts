@@ -1,10 +1,8 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 
-import path from 'path'
-import config from 'config'
-import { saveFrontendFiles } from 'scripts/readWriteFile'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import { logger, updateAddresses } from "utils"
 
 const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
 
@@ -44,10 +42,16 @@ export async function deploySwapRouter(
 
 		await swapRouterProxy.deployed();
 
-		let swapRouterAddress2 = {
-			swapRouterProxy: swapRouterProxy.address,
-			swapRouterImplementation: swapRouterInstance.address,
-		}
+		logger.out("Saving addresses to contract-address.json...")
+		await updateAddresses(
+			{
+				swapRouter: {
+					proxy: swapRouterProxy.address,
+					implementation: swapRouterInstance.address,
+				}
+			},
+			hre
+		);
 
 		if(verify_contracts){
 			await run(`verify:verify`, {
@@ -59,8 +63,6 @@ export async function deploySwapRouter(
 				constructorArguments: [swapRouterInstance.address, proxyAdmin.address, swapRouterProxyData],
 			});
 		}
-
-		await saveFrontendFiles({swapRouterAddress2});
 
 		console.log('Swap Router Address (Proxy):', swapRouterProxy.address);
 

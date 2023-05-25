@@ -5,7 +5,7 @@ import { BigNumberish } from 'ethers'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { CharityApplication__factory } from "typechain-types"
 import { PromiseOrValue } from 'typechain-types/common'
-import { saveFrontendFiles } from 'scripts/readWriteFile'
+import { logger, updateAddresses } from "utils"
 
 type InitializeParamsType = [
     PromiseOrValue<BigNumberish>,
@@ -50,6 +50,17 @@ export async function charityApplications(CharityApplicationDataInput: Initializ
     
         console.log('CharityApplication Address (Proxy):', CharityApplicationProxy.address);
   
+        logger.out("Saving addresses to contract-address.json...")
+        await updateAddresses(
+            {
+                charityApplication: {
+                    proxy: CharityApplicationProxy.address,
+                    implementation: CharityApplicationInstance.address,
+                }
+            },
+            hre
+        );
+
         if(verify_contracts){
             await run(`verify:verify`, {
                 address: CharityApplicationInstance.address,
@@ -61,13 +72,6 @@ export async function charityApplications(CharityApplicationDataInput: Initializ
             });
         }
 
-        let charityApplication = {
-            CharityApplicationProxy: CharityApplicationProxy.address,
-            CharityApplicationImplementation: CharityApplicationInstance.address
-        }
-
-        await saveFrontendFiles({charityApplication});
-        
         return Promise.resolve(CharityApplicationProxy.address);
     } catch (error) {
         return Promise.reject(error)

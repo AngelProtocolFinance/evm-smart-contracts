@@ -2,11 +2,7 @@
 // yours, or create new ones.
 
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { saveFrontendFiles } from 'scripts/readWriteFile'
-
-const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
-
-let EndowmentMultiSigAddress: Record<string, string> = {}
+import { logger, updateAddresses } from "utils"
 
 const deployEndowmentMultiSigEmitter = async(proxyAdmin: string,factoryAddress: string,verify_contracts: boolean, hre: HardhatRuntimeEnvironment) =>{
   try {
@@ -17,6 +13,8 @@ const deployEndowmentMultiSigEmitter = async(proxyAdmin: string,factoryAddress: 
     const EndowmentMultiSigEmitter = await ethers.getContractFactory('EndowmentMultiSigEmitter');
     const EndowmentMultiSigEmitterImplementation = await EndowmentMultiSigEmitter.deploy();
     await EndowmentMultiSigEmitterImplementation.deployed();
+
+    console.log('EndowmentMultiSigEmitter Address (Implementation):', EndowmentMultiSigEmitterImplementation.address);
 
     const EndowmentMultiSigEmitterData = EndowmentMultiSigEmitterImplementation.interface.encodeFunctionData('initEndowmentMultiSigEmitter', [factoryAddress]);
 
@@ -37,10 +35,10 @@ const deployEndowmentMultiSigEmitter = async(proxyAdmin: string,factoryAddress: 
       });
     }
 
-    EndowmentMultiSigAddress.EndowmentMultiSigEmitterProxy = EndowmentMultiSigEmitterProxy.address;
-    EndowmentMultiSigAddress.EndowmentMultiSigEmitterImplementation = EndowmentMultiSigEmitterImplementation.address;
-
-    return Promise.resolve(EndowmentMultiSigEmitterProxy.address);
+    return Promise.resolve({
+      implementation: EndowmentMultiSigEmitterImplementation.address,
+      proxy: EndowmentMultiSigEmitterProxy.address,
+    });
   } catch (error) {
     return Promise.reject(error);
   }
@@ -64,12 +62,21 @@ export async function deployEndowmentMultiSig(verify_contracts: boolean, hre: Ha
 
     console.log('MultiSigWalletFactory address:', MultiSigWalletFactoryInstance.address);
 
+    const EndowmentMultiSigEmitterAddresses = await deployEndowmentMultiSigEmitter(proxyAdmin.address, MultiSigWalletFactoryInstance.address, verify_contracts, hre)
 
-
-    let response = {
-      MultiSigWalletFactory: MultiSigWalletFactoryInstance.address,
-      EndowmentMultiSigEmitter: await deployEndowmentMultiSigEmitter(proxyAdmin.address, MultiSigWalletFactoryInstance.address, verify_contracts, hre)
-    }
+    logger.out("Saving addresses to contract-address.json...")
+    await updateAddresses(
+      {
+        multiSig: {
+          endowment: {
+            emitter: { ...EndowmentMultiSigEmitterAddresses },
+            factory: MultiSigWalletFactoryInstance.address,
+            implementation: EndowmentMultiSigInstance.address
+          }
+        }
+      },
+      hre
+    );
 
     if(verify_contracts){
       await run("verify:verify", {
@@ -82,12 +89,10 @@ export async function deployEndowmentMultiSig(verify_contracts: boolean, hre: Ha
       });
     }
 
-    EndowmentMultiSigAddress.MultiSigWalletFactory = MultiSigWalletFactoryInstance.address;
-    EndowmentMultiSigAddress.MultiSigWalletImplementation = EndowmentMultiSigInstance.address;
-
-    await saveFrontendFiles({EndowmentMultiSigAddress});
-
-    return Promise.resolve(response);
+    return Promise.resolve({
+      MultiSigWalletFactory: MultiSigWalletFactoryInstance.address,
+      EndowmentMultiSigEmitter: EndowmentMultiSigEmitterAddresses.proxy
+    });
   } catch (error) {
     return Promise.reject(error);
   }

@@ -1,19 +1,20 @@
+import config from "config"
 import { task } from "hardhat/config"
 import type { TaskArguments } from "hardhat/types"
-import config from "config"
-import addresses from "contract-address.json"
 import { Registrar } from "typechain-types"
 import { RegistrarMessages } from "typechain-types/contracts/core/registrar/interfaces/IRegistrar"
-import { logger } from "utils"
+import { ADDRESS_ZERO, getAddresses, logger } from "utils"
 
 task("manage:updateRegistrar", "Will update the registrar config")
     .setAction(async (taskArguments: TaskArguments, hre) => {
         try {
             let [deployer, apTeam1] = await hre.ethers.getSigners()
 
+            const addresses = await getAddresses(hre)
+
             const registrar = (await hre.ethers.getContractAt(
                 "Registrar",
-                addresses.registrar.registrarProxy
+                addresses.registrar.proxy
             )) as Registrar
 
             logger.out("Current config")
@@ -22,15 +23,12 @@ task("manage:updateRegistrar", "Will update the registrar config")
 
             let newConfig: RegistrarMessages.UpdateConfigRequestStruct = {
                 accountsContract: addresses.accounts.diamond,
-                taxRate: config.REGISTRAR_DATA.taxRate,
-                rebalance: config.REGISTRAR_DATA.rebalance,
                 approved_charities: [],
                 splitMax: config.REGISTRAR_DATA.splitToLiquid.max,
                 splitMin: config.REGISTRAR_DATA.splitToLiquid.min,
                 splitDefault:
                     config.REGISTRAR_DATA.splitToLiquid.defaultSplit,
                 collectorShare: 1,
-                acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
                 subdaoGovContract: apTeam1.address, // subdao gov
                 subdaoTokenContract: apTeam1.address, // subdao gov token (basic CW20)
                 subdaoBondingTokenContract: apTeam1.address, // subdao gov token (w/ bonding-curve)
@@ -40,10 +38,10 @@ task("manage:updateRegistrar", "Will update the registrar config")
                 donationMatchContract: apTeam1.address, // donation matching contract
 
                 // CONTRACT ADSRESSES
-                indexFundContract: addresses.indexFundAddress.indexFundProxy,
+                indexFundContract: addresses.indexFund.proxy,
                 govContract: apTeam1.address,
                 treasury: apTeam1.address,
-                donationMatchCharitesContract: addresses.HaloImplementations.DonationMatchAddress.DonationMatchProxy,
+                donationMatchCharitesContract: addresses.donationMatchCharity.proxy,
                 donationMatchEmitter: apTeam1.address,
                 haloToken: apTeam1.address,
                 haloTokenLpContract: apTeam1.address,
@@ -52,17 +50,17 @@ task("manage:updateRegistrar", "Will update the registrar config")
                 applicationsReview: apTeam1.address,
                 swapsRouter: apTeam1.address,
                 multisigFactory:
-                    addresses.EndowmentMultiSigAddress.MultiSigWalletFactory,
+                    addresses.multiSig.endowment.factory,
                 multisigEmitter:
-                    addresses.EndowmentMultiSigAddress
-                        .EndowmentMultiSigEmitterProxy,
-                charityProposal: addresses.charityApplication.CharityApplicationProxy,
-                lockedWithdrawal: addresses.lockedWithdraw.LockedWithdrawProxy,
+                    addresses.multiSig.endowment
+                        .emitter.proxy,
+                charityProposal: addresses.charityApplication.proxy,
                 proxyAdmin: deployer.address,
-                usdcAddress: addresses.Tokens.usdc,
-                wethAddress: addresses.Tokens.weth,
+                usdcAddress: addresses.tokens.usdc,
+                wethAddress: addresses.tokens.weth,
                 cw900lvAddress: apTeam1.address,
-            }
+                lockedWithdrawal: ADDRESS_ZERO,
+        }
             let tx = await registrar.updateConfig(newConfig)
             await hre.ethers.provider.waitForTransaction(tx.hash)
 

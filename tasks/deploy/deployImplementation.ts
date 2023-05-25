@@ -13,12 +13,6 @@ task("Deploy:deployImplementation", "Will deploy Implementation")
     .setAction(async (taskArgs, hre) => {
         try {
             var isTrueSet = taskArgs.verify === "true";
-            const lockedWithdrawalData = [
-                taskArgs.registraraddress,
-                taskArgs.accountaddress,
-                taskArgs.apteammultisigaddress,
-                taskArgs.endowmentmultisigaddress,
-            ];
 
             let donationMatchCharityData = {
                 reserveToken: config.DONATION_MATCH_CHARITY_DATA.reserveToken,
@@ -31,7 +25,6 @@ task("Deploy:deployImplementation", "Will deploy Implementation")
 
             await deployImplementation(
                 taskArgs.angelcorestruct,
-                lockedWithdrawalData,
                 donationMatchCharityData,
                 isTrueSet,
                 hre

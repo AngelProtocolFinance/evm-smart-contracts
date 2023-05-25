@@ -1,9 +1,8 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { BytesLike } from "ethers"
 import { task } from "hardhat/config"
-import addresses from "contract-address.json"
 import { IndexFund, MultiSigGeneric } from "typechain-types"
-import { logger } from "utils"
+import { getAddresses, logger } from "utils"
 
 task("manage:createIndexFund", "Will create a new index fund").setAction(
     async (_taskArguments, hre) => {
@@ -15,14 +14,16 @@ task("manage:createIndexFund", "Will create a new index fund").setAction(
             ;[deployer, apTeam1, apTeam2, apTeam3] =
                 await hre.ethers.getSigners()
 
+            const addresses = await getAddresses(hre)
+
             const multisig = (await hre.ethers.getContractAt(
                 "MultiSigGeneric",
-                addresses.multiSig.APTeamMultiSigProxy
+                addresses.multiSig.apTeam.proxy
             )) as MultiSigGeneric
 
             const indexfund = (await hre.ethers.getContractAt(
                 "IndexFund",
-                addresses.indexFundAddress.indexFundProxy
+                addresses.indexFund.proxy
             )) as IndexFund
 
             const { data } =

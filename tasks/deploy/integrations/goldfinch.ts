@@ -1,9 +1,7 @@
 import { task,types } from "hardhat/config"
 import type { TaskArguments } from "hardhat/types"
-import { logger } from "utils"
-import * as fs from "fs"
+import { getAddresses, logger, updateAddresses } from "utils"
 import { GoldfinchVault, GoldfinchVault__factory, Registrar} from "typechain-types"
-import { getImplementationAddress } from '@openzeppelin/upgrades-core'
 
 // Goerli addresses
 
@@ -21,17 +19,15 @@ task("deploy:integrations:goldfinch")
   .addParam("usdc", "address of the USDC token", "", types.string)
   .addParam("fidu", "address of the FIDU token", "", types.string)
   .addParam("gfi", "address of the GFI token", "", types.string)
-  .addOptionalParam("registrar", "address of the registrar. Will do a local lookup from address.json if none is provided", "", types.string)
+  .addOptionalParam("registrar", "address of the registrar. Will do a local lookup from contract-address.json if none is provided", "", types.string)
   .setAction(async function (taskArguments: TaskArguments, hre) {
 
     logger.divider()
     let registrarAddress
     if(taskArguments.registrar == "") {
       logger.out("Connecting to registrar on specified network...")
-      const network = await hre.ethers.provider.getNetwork()
-      let rawdata = fs.readFileSync('address.json', "utf8")
-      let addresses: any = JSON.parse(rawdata)
-      registrarAddress = addresses[network.chainId]["registrar"]["proxy"]
+      const addresses = await getAddresses(hre)
+      registrarAddress = addresses["registrar"]["proxy"]
     } else {
       registrarAddress = taskArguments.registrar
     }
@@ -74,16 +70,17 @@ task("deploy:integrations:goldfinch")
 
     // Write data to address json
     logger.divider()
-    logger.out("Writing to address.json", logger.Level.Info)
-    let rawdata = fs.readFileSync('address.json', "utf8")
-    let address: any = JSON.parse(rawdata)
-    address[network.chainId]["goldfinch"] = {
-        "lockedVault": lockedVault.address,
-        "liquidVault": liquidVault.address
-    }
-    const json = JSON.stringify(address, null, 2)
-    fs.writeFileSync('address.json', json, "utf8")
+    logger.out("Writing to contract-address.json", logger.Level.Info)
 
+    await updateAddresses(
+      { 
+        goldfinch: { 
+          lockedVault: lockedVault.address,
+          liquidVault: liquidVault.address
+        }
+      }, 
+      hre
+    )
     // Verify contracts on etherscan
     logger.divider()
     logger.out("Verifying contracts on etherscan")

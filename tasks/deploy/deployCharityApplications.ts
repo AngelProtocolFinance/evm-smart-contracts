@@ -1,16 +1,17 @@
 import config from "config"
-import addresses from "contract-address.json"
 import { charityApplications } from "contracts/multisigs/charity_applications/scripts/deploy"
 import { task } from "hardhat/config"
 import { logger } from "utils"
+import { getAddresses } from "utils"
 
 task("Deploy:deployCharityApplications", "Will deploy CharityApplications contract")
     .addParam("verify", "Want to verify contract")
     .setAction(async (taskArgs, hre) => {
         try {
+            const addresses = await getAddresses(hre)
             const charityApplicationsData: Parameters<typeof charityApplications>[0] = [
                 config.CHARITY_APPLICATION_DATA.expiry,
-                addresses.multiSig.ApplicationsMultiSigProxy,
+                addresses.multiSig.applications.proxy,
                 addresses.accounts.diamond,
                 config.CHARITY_APPLICATION_DATA.seedSplitToLiquid,
                 config.CHARITY_APPLICATION_DATA.newEndowGasMoney,
