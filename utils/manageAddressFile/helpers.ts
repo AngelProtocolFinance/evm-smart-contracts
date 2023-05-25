@@ -20,7 +20,7 @@ export function getAddressesByNetworkId(networkId: string | symbol | number): Ad
                 return target[contractKey]
             }
 
-            throw new Error(`Contract ${contractKey} not deployed on ${key}`)
+            throw new Error(`Contract '${contractKey}' not deployed on network '${key}'`)
         },
     })
 }
