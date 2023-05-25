@@ -1,33 +1,27 @@
-import fs from "fs"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
-import path from "path"
-import { getAddressesByNetworkId, saveFrontendFiles } from "./helpers"
+import { getAddressesByNetworkId, readAllAddresses, saveFrontendFiles } from "./helpers"
 import { AddressObj } from "./types"
 
-export const cleanFile = () => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const contractsDir = path.join(__dirname, "../../")
+/**
+ * Removes contract address for the current network from the appropriate file.
+ */
+export async function cleanAddresses(hre: HardhatRuntimeEnvironment) {
+    const chainId = await getChainId(hre)
 
-            if (!fs.existsSync(contractsDir)) {
-                throw new Error("No root directory.")
-            }
+    const allAddresses = readAllAddresses()
 
-            fs.writeFileSync(path.join(contractsDir, "contract-address.json"), "{}")
-            resolve(true)
-        } catch (e) {
-            reject(e)
-        }
-    })
+    const { [chainId]: toRemove, ...toRemain } = allAddresses
+
+    await saveFrontendFiles(toRemain)
 }
 
 export async function getAddresses(hre: HardhatRuntimeEnvironment) {
-    const chainId = (await hre.ethers.provider.getNetwork()).chainId
+    const chainId = await getChainId(hre)
     return getAddressesByNetworkId(chainId)
 }
 
-export const updateAddresses = async (addressObj: Partial<AddressObj>, hre: HardhatRuntimeEnvironment) => {
-    const chainId = (await hre.ethers.provider.getNetwork()).chainId
+export async function updateAddresses(addressObj: Partial<AddressObj>, hre: HardhatRuntimeEnvironment) {
+    const chainId = await getChainId(hre)
 
     const addresses = {
         [chainId]: {
@@ -36,4 +30,9 @@ export const updateAddresses = async (addressObj: Partial<AddressObj>, hre: Hard
         },
     }
     await saveFrontendFiles(addresses)
+}
+
+async function getChainId(hre: HardhatRuntimeEnvironment): Promise<number> {
+    const chainId = (await hre.ethers.provider.getNetwork()).chainId
+    return chainId
 }

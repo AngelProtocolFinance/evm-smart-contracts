@@ -31,13 +31,11 @@ let addressWriter: AddressWriter = {}
 import { Contract } from "ethers"
 import { HardhatRuntimeEnvironment } from "hardhat/types"
 import { APTeamMultiSig, ApplicationsMultiSig } from "typechain-types"
-import { cleanFile, isLocalNetwork, updateAddresses } from "utils"
+import { cleanAddresses, isLocalNetwork, updateAddresses } from "utils"
 import { RegistrarMessages } from "typechain-types/contracts/core/registrar/interfaces/IRegistrar"
 
 async function deployLibraries(verify_contracts: boolean, hre: HardhatRuntimeEnvironment) {
     try {
-        await cleanFile()
-
         const { ethers, run, network } = hre
 
         const angel_core_struct = await ethers.getContractFactory("AngelCoreStruct")
@@ -84,6 +82,8 @@ async function deployLibraries(verify_contracts: boolean, hre: HardhatRuntimeEnv
 export async function main(apTeamAdmins = []) {
     try {
         const { run, network, ethers } = hre
+
+		await cleanAddresses(hre);
 
         // const verify_contracts = network.name !== "hardhat" && network.name !== "localhost"
         const verify_contracts = false 

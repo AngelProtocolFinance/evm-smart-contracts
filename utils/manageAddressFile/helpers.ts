@@ -4,22 +4,6 @@ import { AddressObj } from "./types"
 
 const rootDir = path.join(__dirname, "../../")
 
-export const saveFrontendFiles = (addresses: Record<string, AddressObj>) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const data = readAllAddresses()
-
-            Object.assign(data, addresses)
-
-            fs.writeFileSync(path.join(rootDir, "contract-address.json"), JSON.stringify(data, undefined, 2))
-
-            resolve(true)
-        } catch (e) {
-            reject(e)
-        }
-    })
-}
-
 export function getAddressesByNetworkId(networkId: string | symbol | number): AddressObj {
     const addresses = readAllAddresses()
 
@@ -41,7 +25,7 @@ export function getAddressesByNetworkId(networkId: string | symbol | number): Ad
     })
 }
 
-const readAllAddresses = () => {
+export function readAllAddresses() {
     if (!fs.existsSync(rootDir)) {
         throw new Error("No root directory.")
     }
@@ -51,6 +35,22 @@ const readAllAddresses = () => {
     const data: Record<string, AddressObj> = JSON.parse(jsonData)
 
     return data
+}
+
+export function saveFrontendFiles(addresses: Record<string, AddressObj>) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const data = readAllAddresses()
+
+            Object.assign(data, addresses)
+
+            fs.writeFileSync(path.join(rootDir, "contract-address.json"), JSON.stringify(data, undefined, 2))
+
+            resolve(true)
+        } catch (e) {
+            reject(e)
+        }
+    })
 }
 
 function hasKey<T extends object>(obj: T, k: keyof any): k is keyof T {

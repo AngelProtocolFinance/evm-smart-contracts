@@ -29,7 +29,7 @@ export async function deployMultisig(ApplicationMultisigData: Parameters<Applica
 
     console.log('APTeamMultiSig implementation address:', APTeamMultiSigInstance.address);
 
-    const ApplicationsMultiSigData = ApplicationsMultiSigInstance.interface.encodeFunctionData('initialize', [...ApplicationMultisigData]);
+    const ApplicationsMultiSigData = ApplicationsMultiSigInstance.interface.encodeFunctionData("initialize", [...ApplicationMultisigData]);
 
     const ApplicationsMultiSigProxy = await ProxyContract.deploy(ApplicationsMultiSigInstance.address, proxyAdmin.address, ApplicationsMultiSigData);
 

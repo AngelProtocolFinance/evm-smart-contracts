@@ -28,7 +28,7 @@ let updateConfig: RegistrarMessages.UpdateConfigRequestStruct
 interface AddressWriter { [key: string]: string | AddressWriter }
 let addressWriter: AddressWriter = {}; 
 
-import { cleanFile, updateAddresses } from 'utils'
+import { cleanAddresses, updateAddresses } from 'utils'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { Contract } from 'ethers'
 import { APTeamMultiSig, ApplicationsMultiSig } from 'typechain-types'
@@ -37,8 +37,6 @@ import { RegistrarMessages } from 'typechain-types/contracts/core/registrar/inte
 
 async function deployLibraries(verify_contracts: boolean,hre: HardhatRuntimeEnvironment) {
 	try {
-		await cleanFile();
-
 		const { ethers, run, network } = hre;
 
 		const angel_core_struct = await ethers.getContractFactory('AngelCoreStruct');
@@ -86,6 +84,7 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 	try {
 		const { run, network, ethers } = hre;
 
+		await cleanAddresses(hre);
 
 		var Admins = config.AP_TEAM_MULTISIG_DATA.admins;
 		if (apTeamAdmins.length != 0) Admins = apTeamAdmins;
