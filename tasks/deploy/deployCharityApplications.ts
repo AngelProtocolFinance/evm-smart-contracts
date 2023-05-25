@@ -1,5 +1,4 @@
 import config from "config"
-import addresses from "contract-address.json"
 import { charityApplications } from "contracts/multisigs/charity_applications/scripts/deploy"
 import { task } from "hardhat/config"
 import { logger } from "utils"

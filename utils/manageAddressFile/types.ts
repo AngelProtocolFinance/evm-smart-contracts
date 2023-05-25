@@ -1,6 +1,26 @@
 export type AddressObj = {
     accounts: {
         diamond: string
+        facets: {
+            accountDeployContract: string
+            accountDepositWithdrawEndowments: string
+            accountDonationMatch: string
+            accountsAllowance: string
+            accountsCreateEndowment: string
+            accountsDAOEndowments: string
+            accountsQueryEndowments: string
+            accountsSwapEndowments: string
+            accountsUpdate: string
+            accountsUpdateEndowments: string
+            accountsUpdateEndowmentSettingsController: string
+            accountsUpdateStatusEndowments: string
+            accountsVaultFacet: string
+            diamondCutFacet: string
+            diamondInitFacet: string
+            diamondLoupeFacet: string
+            ownershipFacet: string
+            reentrancyGuardFacet: string
+        }
     }
     charityApplication: {
         implementation: string

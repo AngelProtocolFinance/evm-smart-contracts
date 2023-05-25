@@ -61,6 +61,26 @@ function createEmpty(): AddressObj {
     return {
         accounts: {
             diamond: "",
+            facets: {
+                accountDeployContract: "",
+                accountDepositWithdrawEndowments: "",
+                accountDonationMatch: "",
+                accountsAllowance: "",
+                accountsCreateEndowment: "",
+                accountsDAOEndowments: "",
+                accountsQueryEndowments: "",
+                accountsSwapEndowments: "",
+                accountsUpdate: "",
+                accountsUpdateEndowments: "",
+                accountsUpdateEndowmentSettingsController: "",
+                accountsUpdateStatusEndowments: "",
+                accountsVaultFacet: "",
+                diamondCutFacet: "",
+                diamondInitFacet: "",
+                diamondLoupeFacet: "",
+                ownershipFacet: "",
+                reentrancyGuardFacet: "",
+            },
         },
         charityApplication: {
             implementation: "",
