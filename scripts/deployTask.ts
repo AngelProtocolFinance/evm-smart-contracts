@@ -379,6 +379,7 @@ export async function mainTask(apTeamAdmins = [], verify_contracts = false, hre:
 			usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
 			wethAddress: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
 			cw900lvAddress: implementations.cw900lv,
+            lockedWithdrawal: ADDRESS_ZERO,
 		};
 
 		let REGISTRAR_CONTRACT = await ethers.getContractAt('Registrar', REGISTRAR_ADDRESS);
