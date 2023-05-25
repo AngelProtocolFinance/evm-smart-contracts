@@ -13,7 +13,7 @@ interface IRegistrar is ILocalRegistrar {
 
     function updateOwner(address newOwner) external;
 
-    function updateFees(
+    function updateFee(
         RegistrarMessages.UpdateFeeRequest memory details
     ) external;
 

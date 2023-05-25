@@ -267,14 +267,19 @@ const _abi = [
       {
         components: [
           {
-            internalType: "string[]",
-            name: "keys",
-            type: "string[]",
+            internalType: "enum AngelCoreStruct.FeeTypes",
+            name: "feeType",
+            type: "uint8",
           },
           {
-            internalType: "uint256[]",
-            name: "values",
-            type: "uint256[]",
+            internalType: "address",
+            name: "payout",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "rate",
+            type: "uint256",
           },
         ],
         indexed: false,
@@ -302,7 +307,7 @@ const _abi = [
 ] as const;
 
 const _bytecode =
-  "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea2646970667358221220899bd3ae5c11ff5a57fb02c33ba4b8fef84d3d04ab39d33399919ef596c1c69864736f6c63430008120033";
+  "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea2646970667358221220a84f3b87e045dd6266691916778aa63f2bfc29fab8060c441658261bd7f7568a64736f6c63430008120033";
 
 type RegistrarEventsLibConstructorParams =
   | [signer?: Signer]

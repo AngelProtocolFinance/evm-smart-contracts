@@ -7,6 +7,7 @@ import { LocalRegistrarLib } from "./lib/LocalRegistrarLib.sol";
 import { IVault } from "../../interfaces/IVault.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {AngelCoreStruct} from "../struct.sol";
 
 // Import integrations here
 import {APGoldfinchConfigLib} from "../../integrations/goldfinch/APGoldfinchConfig.sol";
@@ -100,7 +101,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
         return lrs.VaultsByStrategyId[_strategyId];
     }
 
-    function isTokenAccepted(address _tokenAddr) external view override returns (bool) {
+    function isTokenAccepted(address _tokenAddr) external view returns (bool) {
         LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
             LocalRegistrarLib.localRegistrarStorage();
         return lrs.AcceptedTokens[_tokenAddr];
@@ -117,16 +118,16 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
         return lrs.VaultsByStrategyId[_strategyId].approvalState;
     }
 
-    function getGasByToken(address _tokenAddr) external view override returns (uint256) {
+    function getGasByToken(address _tokenAddr) external view returns (uint256) {
         LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
             LocalRegistrarLib.localRegistrarStorage();
         return lrs.GasFeeByToken[_tokenAddr];
     }
 
-    function getFeeByFees(LocalRegistrarLib.Fees _fee) external view orverride returns (uint256) {
+    function getFeeByFees(AngelCoreStruct.FeeTypes _feeType) external view returns (AngelCoreStruct.FeeSetting memory) {
         LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
             LocalRegistrarLib.localRegistrarStorage();
-        return lrs.FeeRateByFees[_fee]; 
+        return lrs.FeeSettingsByFeeType[_feeType];
     }
 
     /*////////////////////////////////////////////////
@@ -224,11 +225,15 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
         );
     }
 
-    function setFeeByFees(LocalRegistrarLib.Fees _fee, uint256 _value) external view orverride returns (uint256) {
+    function setFeeSettingsByFeesType(AngelCoreStruct.FeeTypes feeType, uint256 rate, address payout) external returns (AngelCoreStruct.FeeSetting memory) {
         LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
             LocalRegistrarLib.localRegistrarStorage();
-        lrs.FeeRateByFees[_fee] = _value;
-        emit FeeUpdated(_fee, _value);
+        lrs.FeeSettingsByFeeType[feeType] = AngelCoreStruct.FeeSetting({
+            payoutAddress: payout,
+            feeRate: rate
+        });
+        emit FeeUpdated(feeType, rate, payout);
+        return lrs.FeeSettingsByFeeType[feeType];
     }
 
     /*////////////////////////////////////////////////

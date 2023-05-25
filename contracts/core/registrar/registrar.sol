@@ -75,23 +75,6 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
         });
         emit UpdateRegistrarConfig(state.config);
 
-        // TODO everything about FEEs is rently broken. The rates are wrong and they arent unified with
-        // the way we can track basis points for clean division. Rework needed 
-        // state.FEES["accounts_withdraw"] = 2;
-        // string[] memory feeKeys = new string[](2);
-        // feeKeys[0] = "vault_harvest";
-        // feeKeys[1] = "accounts_withdraw";
-
-        // uint256[] memory feeValues = new uint256[](2);
-        // feeValues[0] = details.taxRate;
-        // feeValues[1] = 2;
-        // emit UpdateRegistrarFees(
-        //     RegistrarMessages.UpdateFeeRequest({
-        //         keys: feeKeys,
-        //         values: feeValues
-        //     })
-        // );
-
         state.NETWORK_CONNECTIONS[block.chainid] = AngelCoreStruct.NetworkInfo({
             name: "Polygon",
             chainId: block.chainid,
@@ -306,30 +289,26 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
         return state.config;
     }
     
-    function updateFees(
+    function updateFee(
         RegistrarMessages.UpdateFeeRequest memory details
     ) public nonReentrant onlyOwner {
-        require(
-            details.keys.length == details.values.length,
-            "Invalid input"
-        );
-
-        for (uint256 i = 0; i < details.keys.length; i++) {
-            require(details.values[i] < AngelCoreStruct.FEE_BASIS, "invalid fee value");
-            state.FEES[details.keys[i]] = details.values[i];
-        }
+        require(details.rate < AngelCoreStruct.FEE_BASIS, "invalid fee value");
+        state.FeeSettingsByFeeType[details.feeType] = AngelCoreStruct.FeeSetting({
+            payoutAddress: details.payout,
+            feeRate: details.rate
+        });
         emit UpdateRegistrarFees(details);
     }
     
     /**
      * @dev Query the fee in registrar
-     * @param name The name of the fee to query
+     * @param feeType The name of the fee to query
      * @return response The fee
      */
     function queryFee(
-        string memory name
-    ) public view returns (uint256 response) {
-        response = state.FEES[name];
+        AngelCoreStruct.FeeTypes feeType
+    ) public view returns (AngelCoreStruct.FeeSetting memory) {
+        return state.FeeSettingsByFeeType[feeType];
     }
 
     // STRATEGY ARRAY HANDLING

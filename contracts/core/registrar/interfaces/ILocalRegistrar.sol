@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 
 import { IVault } from "../../../interfaces/IVault.sol";
 import {LocalRegistrarLib} from "../lib/LocalRegistrarLib.sol";
+import {AngelCoreStruct} from "../../struct.sol";
  
 interface ILocalRegistrar {
 
@@ -25,7 +26,7 @@ interface ILocalRegistrar {
         LocalRegistrarLib.StrategyApprovalState _approvalState
     );
     event GasFeeUpdated(address indexed _tokenAddr, uint256 _gasFee); 
-    event FeeUpdated(LocalRegistrarLib.Fees _fee, uint256 _value);
+    event FeeUpdated(AngelCoreStruct.FeeTypes _fee, uint256 _rate, address _payout);
 
     /*////////////////////////////////////////////////
                     EXTERNAL METHODS

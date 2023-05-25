@@ -200,8 +200,8 @@ contract AccountsUpdateEndowmentSettingsController is
     @dev Emits an UpdateEndowment event containing the updated endowment details.
     @dev Reverts if the endowment is of type Charity, as charity endowments may not change fees.
     */
-    function updateEndowmentFees(
-        AccountMessages.UpdateEndowmentFeeRequest memory details
+    function updateFeeSettings(
+        AccountMessages.UpdateFeeSettingRequest memory details
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
@@ -223,10 +223,10 @@ contract AccountsUpdateEndowmentSettingsController is
             )
         ) {
             require(
-                details.earlyLockedWithdrawFee.payoutAddress != address(0) || details.earlyLockedWithdrawFee.percentage == 0,
+                details.earlyLockedWithdrawFee.payoutAddress != address(0) || details.earlyLockedWithdrawFee.feeRate == 0,
                 "Invalid payout address given"
             );
-            require(details.earlyLockedWithdrawFee.percentage < 1000, "Fee Percentage cannot be greater than 100%");
+            require(details.earlyLockedWithdrawFee.feeRate < 1000, "Fee Percentage cannot be greater than 100%");
             tempEndowment.earlyLockedWithdrawFee = details.earlyLockedWithdrawFee;
         }
 
@@ -239,10 +239,10 @@ contract AccountsUpdateEndowmentSettingsController is
             )
         ) {
             require(
-                details.depositFee.payoutAddress != address(0) || details.depositFee.percentage == 0,
+                details.depositFee.payoutAddress != address(0) || details.depositFee.feeRate == 0,
                 "Invalid payout address given"
             );
-            require(details.depositFee.percentage < 1000, "Fee Percentage cannot be greater than 100%");
+            require(details.depositFee.feeRate < 1000, "Fee Percentage cannot be greater than 100%");
             tempEndowment.depositFee = details.depositFee;
         }
 
@@ -255,10 +255,10 @@ contract AccountsUpdateEndowmentSettingsController is
             )
         ) {
             require(
-                details.withdrawFee.payoutAddress != address(0) || details.withdrawFee.percentage == 0,
+                details.withdrawFee.payoutAddress != address(0) || details.withdrawFee.feeRate == 0,
                 "Invalid payout address given"
             );
-            require(details.withdrawFee.percentage < 1000, "Fee Percentage cannot be greater than 100%");
+            require(details.withdrawFee.feeRate < 1000, "Fee Percentage cannot be greater than 100%");
             tempEndowment.withdrawFee = details.withdrawFee;
         }
 
@@ -271,10 +271,10 @@ contract AccountsUpdateEndowmentSettingsController is
             )
         ) {
             require(
-                details.balanceFee.payoutAddress != address(0) || details.balanceFee.percentage == 0,
+                details.balanceFee.payoutAddress != address(0) || details.balanceFee.feeRate == 0,
                 "Invalid payout address given"
             );
-            require(details.balanceFee.percentage < 1000, "Fee Percentage cannot be greater than 100%");
+            require(details.balanceFee.feeRate < 1000, "Fee Percentage cannot be greater than 100%");
             tempEndowment.balanceFee = details.balanceFee;
         }
 

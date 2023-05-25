@@ -288,6 +288,7 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
   events: {
     "AccountsContractStorageChanged(string,string)": EventFragment;
     "AngelProtocolParamsChanged(tuple)": EventFragment;
+    "FeeUpdated(uint8,uint256,address)": EventFragment;
     "GasFeeUpdated(address,uint256)": EventFragment;
     "RebalanceParamsChanged(tuple)": EventFragment;
     "StrategyApprovalChanged(bytes4,uint8)": EventFragment;
@@ -299,6 +300,7 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
     nameOrSignatureOrTopic: "AccountsContractStorageChanged"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AngelProtocolParamsChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FeeUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GasFeeUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RebalanceParamsChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StrategyApprovalChanged"): EventFragment;
@@ -328,6 +330,18 @@ export type AngelProtocolParamsChangedEvent = TypedEvent<
 
 export type AngelProtocolParamsChangedEventFilter =
   TypedEventFilter<AngelProtocolParamsChangedEvent>;
+
+export interface FeeUpdatedEventObject {
+  _fee: number;
+  _rate: BigNumber;
+  _payout: string;
+}
+export type FeeUpdatedEvent = TypedEvent<
+  [number, BigNumber, string],
+  FeeUpdatedEventObject
+>;
+
+export type FeeUpdatedEventFilter = TypedEventFilter<FeeUpdatedEvent>;
 
 export interface GasFeeUpdatedEventObject {
   _tokenAddr: string;
@@ -672,6 +686,17 @@ export interface IRegistrarGoldfinch extends BaseContract {
     AngelProtocolParamsChanged(
       newAngelProtocolParams?: null
     ): AngelProtocolParamsChangedEventFilter;
+
+    "FeeUpdated(uint8,uint256,address)"(
+      _fee?: null,
+      _rate?: null,
+      _payout?: null
+    ): FeeUpdatedEventFilter;
+    FeeUpdated(
+      _fee?: null,
+      _rate?: null,
+      _payout?: null
+    ): FeeUpdatedEventFilter;
 
     "GasFeeUpdated(address,uint256)"(
       _tokenAddr?: PromiseOrValue<string> | null,

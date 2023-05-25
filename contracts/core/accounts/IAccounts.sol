@@ -109,7 +109,7 @@ interface IAccounts {
 
     // }
 
-    // function updateEndowmentFees(){
+    // function updateFeeSettings(){
 
     // }
 

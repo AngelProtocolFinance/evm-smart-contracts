@@ -161,13 +161,15 @@ export declare namespace RegistrarStorage {
 
 export declare namespace RegistrarMessages {
   export type UpdateFeeRequestStruct = {
-    keys: PromiseOrValue<string>[];
-    values: PromiseOrValue<BigNumberish>[];
+    feeType: PromiseOrValue<BigNumberish>;
+    payout: PromiseOrValue<string>;
+    rate: PromiseOrValue<BigNumberish>;
   };
 
-  export type UpdateFeeRequestStructOutput = [string[], BigNumber[]] & {
-    keys: string[];
-    values: BigNumber[];
+  export type UpdateFeeRequestStructOutput = [number, string, BigNumber] & {
+    feeType: number;
+    payout: string;
+    rate: BigNumber;
   };
 }
 

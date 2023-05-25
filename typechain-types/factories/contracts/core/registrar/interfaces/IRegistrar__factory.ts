@@ -73,6 +73,31 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "enum AngelCoreStruct.FeeTypes",
+        name: "_fee",
+        type: "uint8",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "_rate",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "_payout",
+        type: "address",
+      },
+    ],
+    name: "FeeUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "address",
         name: "_tokenAddr",
@@ -1084,14 +1109,19 @@ const _abi = [
       {
         components: [
           {
-            internalType: "string[]",
-            name: "keys",
-            type: "string[]",
+            internalType: "enum AngelCoreStruct.FeeTypes",
+            name: "feeType",
+            type: "uint8",
           },
           {
-            internalType: "uint256[]",
-            name: "values",
-            type: "uint256[]",
+            internalType: "address",
+            name: "payout",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "rate",
+            type: "uint256",
           },
         ],
         internalType: "struct RegistrarMessages.UpdateFeeRequest",
@@ -1099,7 +1129,7 @@ const _abi = [
         type: "tuple",
       },
     ],
-    name: "updateFees",
+    name: "updateFee",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

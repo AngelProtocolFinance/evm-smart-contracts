@@ -25,10 +25,10 @@ library AccountMessages {
         uint256 splitMax;
         uint256 splitMin;
         uint256 splitDefault;
-        AngelCoreStruct.EndowmentFee earlyLockedWithdrawFee;
-        AngelCoreStruct.EndowmentFee withdrawFee;
-        AngelCoreStruct.EndowmentFee depositFee;
-        AngelCoreStruct.EndowmentFee balanceFee;
+        AngelCoreStruct.FeeSetting earlyLockedWithdrawFee;
+        AngelCoreStruct.FeeSetting withdrawFee;
+        AngelCoreStruct.FeeSetting depositFee;
+        AngelCoreStruct.FeeSetting balanceFee;
         AngelCoreStruct.DaoSetup dao;
         bool createDao;
         uint256 proposalLink;
@@ -100,7 +100,7 @@ library AccountMessages {
         address subDao;
         address gateway;
         address gasReceiver;
-        AngelCoreStruct.EndowmentFee earlyLockedWithdrawFee;
+        AngelCoreStruct.FeeSetting earlyLockedWithdrawFee;
     }
 
     struct StateResponse {
@@ -163,12 +163,12 @@ library AccountMessages {
         uint256 liquidPercentage;
     }
 
-    struct UpdateEndowmentFeeRequest {
+    struct UpdateFeeSettingRequest {
         uint32 id;
-        AngelCoreStruct.EndowmentFee earlyLockedWithdrawFee;
-        AngelCoreStruct.EndowmentFee depositFee;
-        AngelCoreStruct.EndowmentFee withdrawFee;
-        AngelCoreStruct.EndowmentFee balanceFee;
+        AngelCoreStruct.FeeSetting earlyLockedWithdrawFee;
+        AngelCoreStruct.FeeSetting depositFee;
+        AngelCoreStruct.FeeSetting withdrawFee;
+        AngelCoreStruct.FeeSetting balanceFee;
     }
 
     enum DonationMatchEnum {

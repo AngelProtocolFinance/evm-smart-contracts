@@ -348,13 +348,15 @@ export declare namespace RegistrarMessages {
   };
 
   export type UpdateFeeRequestStruct = {
-    keys: PromiseOrValue<string>[];
-    values: PromiseOrValue<BigNumberish>[];
+    feeType: PromiseOrValue<BigNumberish>;
+    payout: PromiseOrValue<string>;
+    rate: PromiseOrValue<BigNumberish>;
   };
 
-  export type UpdateFeeRequestStructOutput = [string[], BigNumber[]] & {
-    keys: string[];
-    values: BigNumber[];
+  export type UpdateFeeRequestStructOutput = [number, string, BigNumber] & {
+    feeType: number;
+    payout: string;
+    rate: BigNumber;
   };
 
   export type VaultAddRequestStruct = {
@@ -409,7 +411,7 @@ export interface IRegistrarInterface extends utils.Interface {
     "setTokenAccepted(address,bool)": FunctionFragment;
     "testQuery()": FunctionFragment;
     "updateConfig((address,string[],uint256,uint256,uint256,uint256,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address))": FunctionFragment;
-    "updateFees((string[],uint256[]))": FunctionFragment;
+    "updateFee((uint8,address,uint256))": FunctionFragment;
     "updateNetworkConnections((string,uint256,address,address,string,string,address,uint256),string)": FunctionFragment;
     "updateOwner(address)": FunctionFragment;
     "vaultAdd((uint256,string,address,address,uint8[],uint8,uint8))": FunctionFragment;
@@ -440,7 +442,7 @@ export interface IRegistrarInterface extends utils.Interface {
       | "setTokenAccepted"
       | "testQuery"
       | "updateConfig"
-      | "updateFees"
+      | "updateFee"
       | "updateNetworkConnections"
       | "updateOwner"
       | "vaultAdd"
@@ -532,7 +534,7 @@ export interface IRegistrarInterface extends utils.Interface {
     values: [RegistrarMessages.UpdateConfigRequestStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "updateFees",
+    functionFragment: "updateFee",
     values: [RegistrarMessages.UpdateFeeRequestStruct]
   ): string;
   encodeFunctionData(
@@ -635,7 +637,7 @@ export interface IRegistrarInterface extends utils.Interface {
     functionFragment: "updateConfig",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "updateFees", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "updateFee", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "updateNetworkConnections",
     data: BytesLike
@@ -657,6 +659,7 @@ export interface IRegistrarInterface extends utils.Interface {
   events: {
     "AccountsContractStorageChanged(string,string)": EventFragment;
     "AngelProtocolParamsChanged(tuple)": EventFragment;
+    "FeeUpdated(uint8,uint256,address)": EventFragment;
     "GasFeeUpdated(address,uint256)": EventFragment;
     "RebalanceParamsChanged(tuple)": EventFragment;
     "StrategyApprovalChanged(bytes4,uint8)": EventFragment;
@@ -668,6 +671,7 @@ export interface IRegistrarInterface extends utils.Interface {
     nameOrSignatureOrTopic: "AccountsContractStorageChanged"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AngelProtocolParamsChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FeeUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GasFeeUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RebalanceParamsChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StrategyApprovalChanged"): EventFragment;
@@ -697,6 +701,18 @@ export type AngelProtocolParamsChangedEvent = TypedEvent<
 
 export type AngelProtocolParamsChangedEventFilter =
   TypedEventFilter<AngelProtocolParamsChangedEvent>;
+
+export interface FeeUpdatedEventObject {
+  _fee: number;
+  _rate: BigNumber;
+  _payout: string;
+}
+export type FeeUpdatedEvent = TypedEvent<
+  [number, BigNumber, string],
+  FeeUpdatedEventObject
+>;
+
+export type FeeUpdatedEventFilter = TypedEventFilter<FeeUpdatedEvent>;
 
 export interface GasFeeUpdatedEventObject {
   _tokenAddr: string;
@@ -891,7 +907,7 @@ export interface IRegistrar extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    updateFees(
+    updateFee(
       details: RegistrarMessages.UpdateFeeRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -1025,7 +1041,7 @@ export interface IRegistrar extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  updateFees(
+  updateFee(
     details: RegistrarMessages.UpdateFeeRequestStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -1159,7 +1175,7 @@ export interface IRegistrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    updateFees(
+    updateFee(
       details: RegistrarMessages.UpdateFeeRequestStruct,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -1209,6 +1225,17 @@ export interface IRegistrar extends BaseContract {
     AngelProtocolParamsChanged(
       newAngelProtocolParams?: null
     ): AngelProtocolParamsChangedEventFilter;
+
+    "FeeUpdated(uint8,uint256,address)"(
+      _fee?: null,
+      _rate?: null,
+      _payout?: null
+    ): FeeUpdatedEventFilter;
+    FeeUpdated(
+      _fee?: null,
+      _rate?: null,
+      _payout?: null
+    ): FeeUpdatedEventFilter;
 
     "GasFeeUpdated(address,uint256)"(
       _tokenAddr?: PromiseOrValue<string> | null,
@@ -1353,7 +1380,7 @@ export interface IRegistrar extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    updateFees(
+    updateFee(
       details: RegistrarMessages.UpdateFeeRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1488,7 +1515,7 @@ export interface IRegistrar extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    updateFees(
+    updateFee(
       details: RegistrarMessages.UpdateFeeRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
