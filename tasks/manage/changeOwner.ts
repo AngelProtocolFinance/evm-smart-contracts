@@ -2,7 +2,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { task } from "hardhat/config"
 import type { TaskArguments } from "hardhat/types"
 import { getAddresses } from "utils"
-import { IndexFund } from "typechain-types"
+import { IndexFund, IndexFund__factory } from "typechain-types"
 import { logger } from "utils"
 
 task(
@@ -12,11 +12,8 @@ task(
     try {
         const addresses = await getAddresses(hre)
         let deployer: SignerWithAddress
-        ;[deployer] = await hre.ethers.getSigners()
-        const indexfund = (await hre.ethers.getContractAt(
-            "IndexFund",
-            addresses.indexFund.proxy
-        )) as IndexFund
+        [deployer] = await hre.ethers.getSigners()
+        const indexfund = IndexFund__factory.connect(addresses.indexFund.proxy, deployer)
 
         logger.out("Current owner:")
         let currentConfig = await indexfund.queryConfig()
@@ -24,7 +21,7 @@ task(
 
         logger.out("Changing owner to:")
         logger.out(addresses.multiSig.apTeam.proxy)
-        // await indexfund.connect(deployer).updateOwner(addresses.multiSig.apTeam.proxy)
+        await indexfund.updateOwner(addresses.multiSig.apTeam.proxy)
     } catch (error) {
         logger.out(error, logger.Level.Error)
     }

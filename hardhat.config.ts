@@ -33,7 +33,7 @@ const config: HardhatUserConfig = {
     "mumbai": {
       url: envConfig.mumbaiRPC,
       accounts: accounts,
-      gasPrice: 50_000_000_000 //50Gwei
+      // gasPrice: 50_000_000_000 //50Gwei
     },
     "polygon": {
       url: envConfig.polygonRPC,
