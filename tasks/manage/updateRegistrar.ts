@@ -3,7 +3,7 @@ import { task } from "hardhat/config"
 import type { TaskArguments } from "hardhat/types"
 import { Registrar } from "typechain-types"
 import { RegistrarMessages } from "typechain-types/contracts/core/registrar/interfaces/IRegistrar"
-import { getAddresses, logger } from "utils"
+import { ADDRESS_ZERO, getAddresses, logger } from "utils"
 
 task("manage:updateRegistrar", "Will update the registrar config")
     .setAction(async (taskArguments: TaskArguments, hre) => {
@@ -23,15 +23,12 @@ task("manage:updateRegistrar", "Will update the registrar config")
 
             let newConfig: RegistrarMessages.UpdateConfigRequestStruct = {
                 accountsContract: addresses.accounts.diamond,
-                taxRate: config.REGISTRAR_DATA.taxRate,
-                rebalance: config.REGISTRAR_DATA.rebalance,
                 approved_charities: [],
                 splitMax: config.REGISTRAR_DATA.splitToLiquid.max,
                 splitMin: config.REGISTRAR_DATA.splitToLiquid.min,
                 splitDefault:
                     config.REGISTRAR_DATA.splitToLiquid.defaultSplit,
                 collectorShare: 1,
-                acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
                 subdaoGovContract: apTeam1.address, // subdao gov
                 subdaoTokenContract: apTeam1.address, // subdao gov token (basic CW20)
                 subdaoBondingTokenContract: apTeam1.address, // subdao gov token (w/ bonding-curve)
@@ -62,7 +59,8 @@ task("manage:updateRegistrar", "Will update the registrar config")
                 usdcAddress: addresses.tokens.usdc,
                 wethAddress: addresses.tokens.weth,
                 cw900lvAddress: apTeam1.address,
-            }
+                lockedWithdrawal: ADDRESS_ZERO,
+        }
             let tx = await registrar.updateConfig(newConfig)
             await hre.ethers.provider.waitForTransaction(tx.hash)
 
