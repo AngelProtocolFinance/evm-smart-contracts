@@ -363,7 +363,7 @@ export async function main(apTeamAdmins = []) {
 			collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
 			subdaoGovContract: implementations.subDao.implementation, //address
 			subdaoTokenContract: implementations.subDao.token, //address
-			subdaoBondingTokenContract: implementations.subDao.veToken, //address
+			subdaoBondingTokenContract: implementations.subDao.veBondingToken, //address
 			subdaoCw900Contract: implementations.incentivisedVotingLockup.implementation, //address
 			subdaoDistributorContract: ADDRESS_ZERO,
 			subdaoEmitter: emitters.subDaoEmitter, //TODO:

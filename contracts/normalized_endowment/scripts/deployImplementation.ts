@@ -155,22 +155,22 @@ const deploySubDaoERC20 = async (verify_contracts: boolean, hre: HardhatRuntimeE
 	}
 };
 
-const deploySubDaoVeToken = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
+const deploySubDaoVeBondingToken = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
 	try {
 		const {network,run,ethers} = hre;
 
-		const subDaoveToken = await ethers.getContractFactory('SubDaoToken');
-		const subDaoveTokenImplementation = await subDaoveToken.deploy();
-		await subDaoveTokenImplementation.deployed();
+		const subDaoVeBondingToken = await ethers.getContractFactory('SubDaoToken');
+		const subDaoVeBondingTokenImpl = await subDaoVeBondingToken.deploy();
+		await subDaoVeBondingTokenImpl.deployed();
 
 		if (verify_contracts) {
 			await run('verify:verify', {
-				address: subDaoveTokenImplementation.address,
+				address: subDaoVeBondingTokenImpl.address,
 				constructorArguments: [],
 			});
 		}
 
-		return Promise.resolve(subDaoveTokenImplementation.address);
+		return Promise.resolve(subDaoVeBondingTokenImpl.address);
 	} catch (e) {
 		console.error(e);
 		return Promise.reject(e);
@@ -238,7 +238,7 @@ export async function deployImplementation(
 				...addresses.subDao,
 				implementation: await deploySubDao(ANGEL_CORE_STRUCT,verify_contracts, hre),
 				token: await deploySubDaoERC20(verify_contracts, hre),
-				veToken: await deploySubDaoVeToken(verify_contracts,hre),
+				veBondingToken: await deploySubDaoVeBondingToken(verify_contracts,hre),
 			},
 		};
 

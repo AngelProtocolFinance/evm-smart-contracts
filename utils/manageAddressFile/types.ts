@@ -70,7 +70,7 @@ export type AddressObj = {
         }
         implementation: string
         token: string
-        veToken: string
+        veBondingToken: string
     }
     swapRouter: {
         implementation: string

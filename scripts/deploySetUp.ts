@@ -331,7 +331,7 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
 			acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
 			subdaoGovContract: implementations.subDao.implementation, //address
 			subdaoTokenContract: implementations.subDao.token, //address
-			subdaoBondingTokenContract: implementations.subDao.veToken, //address
+			subdaoBondingTokenContract: implementations.subDao.veBondingToken, //address
 			subdaoCw900Contract: implementations.incentivisedVotingLockup, //address
 			subdaoDistributorContract: implementations.feeDistributor,
 			subdaoEmitter: emitters.subDaoEmitter, //TODO:

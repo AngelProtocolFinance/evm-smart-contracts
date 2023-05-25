@@ -120,7 +120,7 @@ function createEmpty(): AddressObj {
             },
             implementation: "",
             token: "",
-            veToken: "",
+            veBondingToken: "",
         },
         swapRouter: {
             implementation: "",
