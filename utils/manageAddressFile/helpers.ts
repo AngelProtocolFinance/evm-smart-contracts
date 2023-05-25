@@ -1,5 +1,4 @@
 import fs from "fs"
-import { EMPTY_JSON } from ".."
 import { AddressObj } from "./types"
 
 export function getAddressesByNetworkId(networkId: string | symbol | number, filePath: string): AddressObj {
@@ -24,9 +23,7 @@ export function getAddressesByNetworkId(networkId: string | symbol | number, fil
 }
 
 export function readAllAddresses(filePath: string) {
-    if (!fs.existsSync(filePath)) {
-        throw new Error(`No such file, path: '${filePath}'.`)
-    }
+    checkExistence(filePath)
 
     const jsonData = fs.readFileSync(filePath, "utf-8")
 
@@ -38,7 +35,7 @@ export function readAllAddresses(filePath: string) {
 export function saveFrontendFiles(addresses: Record<string, AddressObj>, filePath: string) {
     return new Promise(async (resolve, reject) => {
         try {
-            createFileIfMissing(filePath)
+            checkExistence(filePath)
 
             const data = readAllAddresses(filePath)
 
@@ -53,9 +50,9 @@ export function saveFrontendFiles(addresses: Record<string, AddressObj>, filePat
     })
 }
 
-function createFileIfMissing(filePath: string) {
+function checkExistence(filePath: string) {
     if (!fs.existsSync(filePath)) {
-        fs.writeFileSync(filePath, EMPTY_JSON)
+        throw new Error(`No such file, path: '${filePath}'.`)
     }
 }
 
