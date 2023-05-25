@@ -1,7 +1,7 @@
 {
   "31337": {
     "accounts": {
-      "diamond": "0x59F2f1fCfE2474fD5F0b9BA1E73ca90b143Eb8d0",
+      "diamond": "0x677df0cb865368207999F2862Ece576dC56D8dF6",
       "facets": {
         "accountDeployContract": "",
         "accountDepositWithdrawEndowments": "",
@@ -24,16 +24,16 @@
       }
     },
     "charityApplication": {
-      "implementation": "0x59b670e9fA9D0A427751Af201D676719a970857b",
-      "proxy": "0x4ed7c70F96B99c776995fB64377f0d4aB3B0e1C1"
+      "implementation": "0x82e01223d51Eb87e16A03E24687EDF0F294da6f1",
+      "proxy": "0x2bdCC0de6bE1f7D2ee689a0342D76F52E8EFABa3"
     },
     "donationMatch": {
       "emitter": "",
-      "implementation": "0x84eA74d481Ee0A5332c457a4d796187F6Ba67fEB"
+      "implementation": "0x5081a39b8A5f0E35a8D959395a630b68B74Dd30f"
     },
     "donationMatchCharity": {
-      "implementation": "0x9E545E3C0baAB3E08CdfD552C960A1050f373042",
-      "proxy": "0xa82fF9aFd8f496c3d6ac40E2a0F282E47488CFc9"
+      "implementation": "0x1fA02b2d6A771842690194Cf62D91bdd92BfE28d",
+      "proxy": "0xdbC43Ba45381e02825b14322cDdd15eC4B3164E6"
     },
     "fundraising": {
       "implementation": "",
@@ -96,37 +96,37 @@
       }
     },
     "incentivisedVotingLockup": {
-      "implementation": "0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8"
+      "implementation": "0x04C89607413713Ec9775E14b954286519d836FEf"
     },
     "indexFund": {
-      "implementation": "0x4A679253410272dd5232B3Ff7cF5dbB88f295319",
-      "proxy": "0x7a2088a1bFc9d81c55368AE168C2C02570cB814F"
+      "implementation": "0xc351628EB244ec633d5f21fBD6621e1a683B1181",
+      "proxy": "0xFD471836031dc5108809D173A067e8486B9047A3"
     },
     "libraries": {
-      "ANGEL_CORE_STRUCT_LIBRARY": "0x948B3c65b89DF0B4894ABE91E6D02FE579834F8F",
-      "STRING_LIBRARY": "0x712516e61C8B383dF4A63CFe83d7701Bce54B03e"
+      "ANGEL_CORE_STRUCT_LIBRARY": "0x446e7636a5Fa9af46c3718719e465B547248bF62",
+      "STRING_LIBRARY": "0x505d59ffFd312983Cc0eD114d7F117B91520d742"
     },
     "multiSig": {
       "applications": {
-        "implementation": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
-        "proxy": "0x9A676e781A523b5d0C0e43731313A708CB607508"
+        "implementation": "0x9d4454B023096f34B160D6B654540c56A1F81688",
+        "proxy": "0x36C02dA8a0983159322a80FFE9F24b1acfF8B570"
       },
       "apTeam": {
-        "implementation": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
-        "proxy": "0x0B306BF915C4d645ff596e518fAf3F9669b97016"
+        "implementation": "0x5eb3Bc0a489C5A8288765d2336659EbCA68FCd00",
+        "proxy": "0x809d550fca64d94Bd9F66E60752A544199cfAC3D"
       },
       "endowment": {
         "emitter": {
-          "implementation": "0x67d269191c92Caf3cD7723F116c85e6E9bf55933",
-          "proxy": "0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E"
+          "implementation": "0xB0D4afd8879eD9F52b28595d31B441D079B2Ca07",
+          "proxy": "0x162A433068F51e18b7d13932F27e66a3f99E6890"
         },
-        "factory": "0xc5a5C42992dECbae36851359345FE25997F5C42d",
-        "implementation": "0x09635F643e140090A9A8Dcd712eD6285858ceBef"
+        "factory": "0x1429859428C0aBc9C2C47C8Ee9FBaf82cFA0F20f",
+        "implementation": "0xcbEAF3BDe82155F56486Fb5a1072cb8baAf547cc"
       }
     },
     "registrar": {
-      "implementation": "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
-      "proxy": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e"
+      "implementation": "0x0E801D84Fa97b50751Dbf25036d067dCf18858bF",
+      "proxy": "0x8f86403A4DE0BB5791fa46B8e795C547942fE4Cf"
     },
     "router": {
       "implementation": "",
@@ -134,16 +134,16 @@
     },
     "subDao": {
       "emitter": {
-        "implementation": "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
-        "proxy": "0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE"
+        "implementation": "0x4c5859f0F772848b2D91F1D83E2Fe57935348029",
+        "proxy": "0x1291Be112d480055DaFd8a610b7d1e203891C274"
       },
-      "implementation": "0xf5059a5D33d5853360D16C683c16e67980206f36",
-      "token": "0x95401dc811bb5740090279Ba06cfA8fcF6113778",
-      "veBondingToken": "0x998abeb3E57409262aE5b751f60747921B33613E"
+      "implementation": "0x21dF544947ba3E8b3c32561399E88B52Dc8b2823",
+      "token": "0x2E2Ed0Cfd3AD2f1d34481277b3204d807Ca2F8c2",
+      "veBondingToken": "0xD8a5a9b31c3C0232E196d518E89Fd8bF83AcAd43"
     },
     "swapRouter": {
-      "implementation": "0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44",
-      "proxy": "0xa85233C63b9Ee964Add6F2cffe00Fd84eb32338f"
+      "implementation": "0x7969c5eD335650692Bc04293B07F5BF2e7A673C0",
+      "proxy": "0x7bc06c482DEAd17c0e297aFbC32f6e63d3846650"
     },
     "tokens": {
       "halo": "",

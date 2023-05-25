@@ -2,7 +2,7 @@ import fs from "fs"
 import path from "path"
 import { AddressObj } from "./types"
 
-const rootDir = path.join(__dirname, "../../")
+const defaultFilePath = path.join(__dirname, "../../contract-address.json")
 
 export function getAddressesByNetworkId(networkId: string | symbol | number): AddressObj {
     const addresses = readAllAddresses()
@@ -26,11 +26,11 @@ export function getAddressesByNetworkId(networkId: string | symbol | number): Ad
 }
 
 export function readAllAddresses() {
-    if (!fs.existsSync(rootDir)) {
+    if (!fs.existsSync(defaultFilePath)) {
         throw new Error("No root directory.")
     }
 
-    const jsonData = fs.readFileSync(path.join(rootDir, "contract-address.json"), "utf-8")
+    const jsonData = fs.readFileSync(defaultFilePath, "utf-8")
 
     const data: Record<string, AddressObj> = JSON.parse(jsonData)
 
@@ -44,7 +44,7 @@ export function saveFrontendFiles(addresses: Record<string, AddressObj>) {
 
             Object.assign(data, addresses)
 
-            fs.writeFileSync(path.join(rootDir, "contract-address.json"), JSON.stringify(data, undefined, 2))
+            fs.writeFileSync(defaultFilePath, JSON.stringify(data, undefined, 2))
 
             resolve(true)
         } catch (e) {
