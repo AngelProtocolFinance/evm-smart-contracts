@@ -26,23 +26,23 @@ import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.so
  */
 
 contract ProxyContract is TransparentUpgradeableProxy {
-    constructor(
-        address implementation,
-        address admin,
-        bytes memory _data
-    ) TransparentUpgradeableProxy(implementation, admin, _data) {}
+  constructor(
+    address implementation,
+    address admin,
+    bytes memory _data
+  ) TransparentUpgradeableProxy(implementation, admin, _data) {}
 
-    function getAdmin() external view returns (address adm) {
-        bytes32 slot = _ADMIN_SLOT;
-        assembly {
-            adm := sload(slot)
-        }
+  function getAdmin() external view returns (address adm) {
+    bytes32 slot = _ADMIN_SLOT;
+    assembly {
+      adm := sload(slot)
     }
+  }
 
-    function getImplementation() external view returns (address impl) {
-        bytes32 slot = _IMPLEMENTATION_SLOT;
-        assembly {
-            impl := sload(slot)
-        }
+  function getImplementation() external view returns (address impl) {
+    bytes32 slot = _IMPLEMENTATION_SLOT;
+    assembly {
+      impl := sload(slot)
     }
+  }
 }

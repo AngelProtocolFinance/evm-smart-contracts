@@ -2,10 +2,10 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as iCurveLpSol from "./ICurveLP.sol";
-export type { iCurveLpSol };
+export type {iCurveLpSol};
 import type * as test from "./test";
-export type { test };
-export type { GFITrader } from "./GFITrader";
-export type { GoldfinchVault } from "./GoldfinchVault";
-export type { IRegistrarGoldfinch } from "./IRegistrarGoldfinch";
-export type { IStakingRewards } from "./IStakingRewards";
+export type {test};
+export type {GFITrader} from "./GFITrader";
+export type {GoldfinchVault} from "./GoldfinchVault";
+export type {IRegistrarGoldfinch} from "./IRegistrarGoldfinch";
+export type {IStakingRewards} from "./IStakingRewards";

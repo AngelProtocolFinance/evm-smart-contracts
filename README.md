@@ -87,15 +87,3 @@ To run coverage
 ```sh
 npx hardhat coverage
 ```
-
-### Slither Analysis
-
-Slither: `slither . --json static_audit.json --checklist` or use the extension in vscode to run the analysis.
-
-
-### Directory Information
-
-- config: Contains all the configuration files for the protocol deployments. Basically key-value pairs for the addresses of the contracts that are required to be present on a network for the protocol to work. Also contains contract's initial configuration.
-- contracts: Contains all the contracts for the protocol 
-- tasks: Contains deployment, upgrade and manaagement tools
-- test: Contains all the tests for the protocol

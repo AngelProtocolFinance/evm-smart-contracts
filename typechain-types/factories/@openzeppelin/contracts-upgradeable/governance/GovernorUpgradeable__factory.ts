@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
 import type {
   GovernorUpgradeable,
   GovernorUpgradeableInterface,
@@ -894,10 +894,7 @@ export class GovernorUpgradeable__factory {
   static createInterface(): GovernorUpgradeableInterface {
     return new utils.Interface(_abi) as GovernorUpgradeableInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): GovernorUpgradeable {
+  static connect(address: string, signerOrProvider: Signer | Provider): GovernorUpgradeable {
     return new Contract(address, _abi, signerOrProvider) as GovernorUpgradeable;
   }
 }

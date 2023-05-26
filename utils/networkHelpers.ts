@@ -1,5 +1,5 @@
-import { Network } from "hardhat/types"
+import {Network} from "hardhat/types";
 
 export function isLocalNetwork(network: Network) {
-    return network.name === "hardhat" || network.name === "localhost"
+  return network.name === "hardhat" || network.name === "localhost";
 }

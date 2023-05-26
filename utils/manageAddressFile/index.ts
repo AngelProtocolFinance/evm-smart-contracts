@@ -1,2 +1,2 @@
-export * from "./manageAddressFile"
-export * from "./types"
+export * from "./manageAddressFile";
+export * from "./types";

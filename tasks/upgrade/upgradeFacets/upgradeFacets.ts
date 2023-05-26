@@ -1,44 +1,44 @@
-import { task } from "hardhat/config"
-import { confirmAction, getAddresses, logger, shouldVerify } from "utils"
-import createFacetCuts from "./createFacetCuts"
-import cutDiamond from "./cutDiamond"
-import deployFacets from "./deployFacets"
-import verify from "./verify"
+import {task} from "hardhat/config";
+import {confirmAction, getAddresses, logger, shouldVerify} from "utils";
+import createFacetCuts from "./createFacetCuts";
+import cutDiamond from "./cutDiamond";
+import deployFacets from "./deployFacets";
+import verify from "./verify";
 
-type TaskArguments = { facets: string[] }
+type TaskArguments = {facets: string[]};
 
 task("upgrade:upgradeFacets", "Will redeploy and upgrade all facets that use AccountStorage struct")
-    .addVariadicPositionalParam("facets", "List of facets to upgrade")
-    .setAction(async (taskArguments: TaskArguments, hre) => {
-        try {
-            const isConfirmed = await confirmAction(
-                `You're about to upgrade the following facets:\n- ${taskArguments.facets.join("\n- ")}`
-            )
-            if (!isConfirmed) {
-                return logger.out("Aborting...")
-            }
+  .addVariadicPositionalParam("facets", "List of facets to upgrade")
+  .setAction(async (taskArguments: TaskArguments, hre) => {
+    try {
+      const isConfirmed = await confirmAction(
+        `You're about to upgrade the following facets:\n- ${taskArguments.facets.join("\n- ")}`
+      );
+      if (!isConfirmed) {
+        return logger.out("Aborting...");
+      }
 
-            const [_deployer, proxyAdmin] = await hre.ethers.getSigners()
+      const [_deployer, proxyAdmin] = await hre.ethers.getSigners();
 
-            const addresses = await getAddresses(hre)
+      const addresses = await getAddresses(hre);
 
-            const facets = await deployFacets(
-                taskArguments.facets,
-                proxyAdmin,
-                addresses.libraries.ANGEL_CORE_STRUCT_LIBRARY,
-                addresses.libraries.STRING_LIBRARY
-            )
+      const facets = await deployFacets(
+        taskArguments.facets,
+        proxyAdmin,
+        addresses.libraries.ANGEL_CORE_STRUCT_LIBRARY,
+        addresses.libraries.STRING_LIBRARY
+      );
 
-            const facetCuts = await createFacetCuts(facets, addresses.accounts.diamond, proxyAdmin)
+      const facetCuts = await createFacetCuts(facets, addresses.accounts.diamond, proxyAdmin);
 
-            await cutDiamond(addresses.accounts.diamond, proxyAdmin, facetCuts, hre)
+      await cutDiamond(addresses.accounts.diamond, proxyAdmin, facetCuts, hre);
 
-            if (shouldVerify(hre.network)) {
-                await verify(facetCuts, hre)
-            }
-        } catch (error) {
-            logger.out(`Upgrade facets failed, reason: ${error}`, logger.Level.Error)
-        } finally {
-            logger.out("Done.")
-        }
-    })
+      if (shouldVerify(hre.network)) {
+        await verify(facetCuts, hre);
+      }
+    } catch (error) {
+      logger.out(`Upgrade facets failed, reason: ${error}`, logger.Level.Error);
+    } finally {
+      logger.out("Done.");
+    }
+  });

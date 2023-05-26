@@ -39,7 +39,7 @@
 //     buyer1 = addrs[0];
 //     buyer2 = addrs[1];
 //     buyer3 = addrs[2];
-//     buyer4 = addrs[3];  
+//     buyer4 = addrs[3];
 
 //     registrar = await ethers.getContractAt('Registrar', deployRes.addresses.registrar);
 //     registrarConfig = await registrar.queryConfig();
@@ -59,7 +59,6 @@
 //     // bonding curve reserve token is DAI. i.e subdao token can be bought with DAI or donation matched.
 //     // curve type is 1, i.e linear bonding curve
 //     // token type is 2 i.e bonding curve token
-
 
 //     // dao should use halo token
 //     account = await ethers.getContractAt('AccountsCreateEndowment', deployRes.addresses.account);
@@ -113,7 +112,7 @@
 //     let account = await ethers.getContractAt('AccountsStrategiesUpdateEndowments', deployRes.addresses.account);
 
 //     let data = account.interface.encodeFunctionData('updateStrategies', [1,1,[{vault : '0xd37a3c47f66b826705b20593b1e0be090eec9ff46a2604cc7ec8a2cfd92e28bd',percentage : 20},{vault : '0xab58686e26eeaa187c92ba5c5357ab7bcb2ab6aeb8bfd307852ccdbfaf645854',percentage : 30}]]);
-    
+
 //     let tx = await endowmentMultisig.connect(admin1).submitTransaction('Add strategy', 'Add strategy description', deployRes.addresses.account, 0, data);
 
 //     let txnReceipt = await tx.wait();
@@ -132,6 +131,6 @@
 //       }
 //     }
 //     console.log(flag);
-//     expect(flag === 1, 'Transaction executed successfully').to.equal(true);    
+//     expect(flag === 1, 'Transaction executed successfully').to.equal(true);
 //   });
 // });

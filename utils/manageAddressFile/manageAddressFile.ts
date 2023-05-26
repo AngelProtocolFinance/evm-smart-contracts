@@ -1,63 +1,66 @@
-import { HardhatRuntimeEnvironment } from "hardhat/types"
-import { DEFAULT_CONTRACT_ADDRESS_FILE_PATH } from ".."
-import { getAddressesByNetworkId, readAllAddresses, saveFrontendFiles } from "./helpers"
-import { AddressObj } from "./types"
+import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {DEFAULT_CONTRACT_ADDRESS_FILE_PATH} from "..";
+import {getAddressesByNetworkId, readAllAddresses, saveFrontendFiles} from "./helpers";
+import {AddressObj} from "./types";
 
 /**
  * Removes contract address for the current network from the appropriate file.
  */
-export async function cleanAddresses(hre: HardhatRuntimeEnvironment, filePath = DEFAULT_CONTRACT_ADDRESS_FILE_PATH) {
-    const chainId = await getChainId(hre)
+export async function cleanAddresses(
+  hre: HardhatRuntimeEnvironment,
+  filePath = DEFAULT_CONTRACT_ADDRESS_FILE_PATH
+) {
+  const chainId = await getChainId(hre);
 
-    const allAddresses = readAllAddresses(filePath)
+  const allAddresses = readAllAddresses(filePath);
 
-    const { [chainId]: toRemove, ...toRemain } = allAddresses
+  const {[chainId]: toRemove, ...toRemain} = allAddresses;
 
-    await saveFrontendFiles(toRemain, filePath)
+  await saveFrontendFiles(toRemain, filePath);
 }
 
 export async function getAddresses(
-    hre: HardhatRuntimeEnvironment,
-    filePath = DEFAULT_CONTRACT_ADDRESS_FILE_PATH
+  hre: HardhatRuntimeEnvironment,
+  filePath = DEFAULT_CONTRACT_ADDRESS_FILE_PATH
 ): Promise<AddressObj> {
-    const chainId = await getChainId(hre)
-    return getAddressesByNetworkId(chainId, filePath)
+  const chainId = await getChainId(hre);
+  return getAddressesByNetworkId(chainId, filePath);
 }
 
 type DeepPartial<T> = {
-    [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K]
-}
+  [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
+};
 
 export async function updateAddresses(
-    partial: DeepPartial<AddressObj>,
-    hre: HardhatRuntimeEnvironment,
-    filePath = DEFAULT_CONTRACT_ADDRESS_FILE_PATH
+  partial: DeepPartial<AddressObj>,
+  hre: HardhatRuntimeEnvironment,
+  filePath = DEFAULT_CONTRACT_ADDRESS_FILE_PATH
 ) {
-    const chainId = await getChainId(hre)
+  const chainId = await getChainId(hre);
 
-    const currentAddressObj = getAddressesByNetworkId(chainId, filePath)
+  const currentAddressObj = getAddressesByNetworkId(chainId, filePath);
 
-    const updated = updateInternal(currentAddressObj, partial)
+  const updated = updateInternal(currentAddressObj, partial);
 
-    await saveFrontendFiles({ [chainId]: updated }, filePath)
+  await saveFrontendFiles({[chainId]: updated}, filePath);
 }
 
 function updateInternal<T>(original: T, partial: DeepPartial<T>): T {
-    // if value to update is not an object, no need to go deeper
-    if (typeof partial !== "object") {
-        return partial
-    }
+  // if value to update is not an object, no need to go deeper
+  if (typeof partial !== "object") {
+    return partial;
+  }
 
-    const updated: T = { ...original }
+  const updated: T = {...original};
 
-    for (const key in partial) {
-        updated[key] = updateInternal(original[key], partial[key]!)
-    }
+  for (const key in partial) {
+    updated[key] = updateInternal(original[key], partial[key]!);
+  }
 
-    return updated
+  return updated;
 }
 
 async function getChainId(hre: HardhatRuntimeEnvironment): Promise<number> {
-    const chainId = (await hre.ethers.provider.getNetwork()).chainId
-    return chainId
+  const chainId = (await hre.ethers.provider.getNetwork()).chainId;
+  return chainId;
 }

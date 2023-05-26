@@ -1,10 +1,9 @@
-import { task,types } from "hardhat/config"
-import type { TaskArguments } from "hardhat/types"
-import { getAddresses, logger, updateAddresses } from "utils"
-import { GoldfinchVault, GoldfinchVault__factory, Registrar} from "typechain-types"
+import {task, types} from "hardhat/config";
+import type {TaskArguments} from "hardhat/types";
+import {getAddresses, logger, updateAddresses} from "utils";
+import {GoldfinchVault, GoldfinchVault__factory, Registrar} from "typechain-types";
 
 // Goerli addresses
-
 
 // Mainnet addresses
 // Staking Pool         0xFD6FF39DA508d281C2d255e9bBBfAb34B6be60c3
@@ -19,27 +18,33 @@ task("deploy:integrations:goldfinch")
   .addParam("usdc", "address of the USDC token", "", types.string)
   .addParam("fidu", "address of the FIDU token", "", types.string)
   .addParam("gfi", "address of the GFI token", "", types.string)
-  .addOptionalParam("registrar", "address of the registrar. Will do a local lookup from contract-address.json if none is provided", "", types.string)
+  .addOptionalParam(
+    "registrar",
+    "address of the registrar. Will do a local lookup from contract-address.json if none is provided",
+    "",
+    types.string
+  )
   .setAction(async function (taskArguments: TaskArguments, hre) {
-
-    logger.divider()
-    let registrarAddress
-    if(taskArguments.registrar == "") {
-      logger.out("Connecting to registrar on specified network...")
-      const addresses = await getAddresses(hre)
-      registrarAddress = addresses["registrar"]["proxy"]
+    logger.divider();
+    let registrarAddress;
+    if (taskArguments.registrar == "") {
+      logger.out("Connecting to registrar on specified network...");
+      const addresses = await getAddresses(hre);
+      registrarAddress = addresses["registrar"]["proxy"];
     } else {
-      registrarAddress = taskArguments.registrar
+      registrarAddress = taskArguments.registrar;
     }
-    const registrar = await hre.ethers.getContractAt("Registrar",registrarAddress) as Registrar
-    logger.pad(50, "Connected to Registrar at: ", registrar.address)
+    const registrar = (await hre.ethers.getContractAt("Registrar", registrarAddress)) as Registrar;
+    logger.pad(50, "Connected to Registrar at: ", registrar.address);
 
-    logger.divider()
-    const network = await hre.ethers.provider.getNetwork()
-    logger.out("Deploying Goldfinch vaults to: " + network.name, logger.Level.Info)
-    logger.out("With chain id: " + network.chainId, logger.Level.Info)
+    logger.divider();
+    const network = await hre.ethers.provider.getNetwork();
+    logger.out("Deploying Goldfinch vaults to: " + network.name, logger.Level.Info);
+    logger.out("With chain id: " + network.chainId, logger.Level.Info);
 
-    const Vault = await hre.ethers.getContractFactory("GoldfinchVault") as GoldfinchVault__factory
+    const Vault = (await hre.ethers.getContractFactory(
+      "GoldfinchVault"
+    )) as GoldfinchVault__factory;
 
     // Deploy locked vault
     const lockedVaultArgs = [
@@ -49,11 +54,11 @@ task("deploy:integrations:goldfinch")
       taskArguments.crvPool,
       taskArguments.usdc,
       taskArguments.fidu,
-      taskArguments.gfi
-    ] as const
-    let lockedVault = await Vault.deploy(...lockedVaultArgs) as GoldfinchVault
-    await lockedVault.deployed()
-    logger.pad(50, "Locked vault deployed to:", lockedVault.address)
+      taskArguments.gfi,
+    ] as const;
+    let lockedVault = (await Vault.deploy(...lockedVaultArgs)) as GoldfinchVault;
+    await lockedVault.deployed();
+    logger.pad(50, "Locked vault deployed to:", lockedVault.address);
 
     const liquidVaultArgs = [
       1,
@@ -62,44 +67,50 @@ task("deploy:integrations:goldfinch")
       taskArguments.crvPool,
       taskArguments.usdc,
       taskArguments.fidu,
-      taskArguments.gfi
-    ] as const
-    let liquidVault = await Vault.deploy(...liquidVaultArgs) as GoldfinchVault
-    await liquidVault.deployed()
-    logger.pad(50, "Liquid vault deployed to:", liquidVault.address)
+      taskArguments.gfi,
+    ] as const;
+    let liquidVault = (await Vault.deploy(...liquidVaultArgs)) as GoldfinchVault;
+    await liquidVault.deployed();
+    logger.pad(50, "Liquid vault deployed to:", liquidVault.address);
 
     // Write data to address json
-    logger.divider()
-    logger.out("Writing to contract-address.json", logger.Level.Info)
+    logger.divider();
+    logger.out("Writing to contract-address.json", logger.Level.Info);
 
     await updateAddresses(
-      { 
-        goldfinch: { 
+      {
+        goldfinch: {
           lockedVault: lockedVault.address,
-          liquidVault: liquidVault.address
-        }
-      }, 
+          liquidVault: liquidVault.address,
+        },
+      },
       hre
-    )
+    );
     // Verify contracts on etherscan
-    logger.divider()
-    logger.out("Verifying contracts on etherscan")
+    logger.divider();
+    logger.out("Verifying contracts on etherscan");
     try {
       await hre.run("verify:verify", {
         address: lockedVault.address,
-        constructorArguments: lockedVaultArgs
-      })
-    } catch (error){
-      logger.out("Caught the following error while trying to verify locked Vault:", logger.Level.Warn)
-      logger.out(error, logger.Level.Error)
+        constructorArguments: lockedVaultArgs,
+      });
+    } catch (error) {
+      logger.out(
+        "Caught the following error while trying to verify locked Vault:",
+        logger.Level.Warn
+      );
+      logger.out(error, logger.Level.Error);
     }
     try {
       await hre.run("verify:verify", {
         address: liquidVault.address,
-        constructorArguments: liquidVaultArgs
-      })
-    } catch (error){
-      logger.out("Caught the following error while trying to verify liquid Vault:", logger.Level.Warn)
-      logger.out(error, logger.Level.Error)
+        constructorArguments: liquidVaultArgs,
+      });
+    } catch (error) {
+      logger.out(
+        "Caught the following error while trying to verify liquid Vault:",
+        logger.Level.Warn
+      );
+      logger.out(error, logger.Level.Error);
     }
-  })
+  });

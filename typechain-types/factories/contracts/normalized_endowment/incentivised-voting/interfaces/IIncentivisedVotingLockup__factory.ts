@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
 import type {
   IIncentivisedVotingLockup,
   IIncentivisedVotingLockupInterface,
@@ -199,14 +199,7 @@ export class IIncentivisedVotingLockup__factory {
   static createInterface(): IIncentivisedVotingLockupInterface {
     return new utils.Interface(_abi) as IIncentivisedVotingLockupInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IIncentivisedVotingLockup {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as IIncentivisedVotingLockup;
+  static connect(address: string, signerOrProvider: Signer | Provider): IIncentivisedVotingLockup {
+    return new Contract(address, _abi, signerOrProvider) as IIncentivisedVotingLockup;
   }
 }
