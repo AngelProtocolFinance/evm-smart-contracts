@@ -14,8 +14,15 @@ export function getAddressesByNetworkId(
   }
 
   return new Proxy(addresses[key], {
-    get: (target, prop) => {
+    get: (target, prop, receiver) => {
       const contractKey = String(prop);
+
+      if (contractKey === "then") {
+        // The Proxy was probably awaited, so return the original object's "then" property
+        // @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await#description
+        return Reflect.get(target, prop, receiver);
+      }
+
       if (hasKey(target, contractKey) && !!target[contractKey]) {
         return target[contractKey];
       }
@@ -25,7 +32,7 @@ export function getAddressesByNetworkId(
   });
 }
 
-export function readAllAddresses(filePath: string) {
+export function readAllAddresses(filePath: string): Record<string, AddressObj> {
   checkExistence(filePath);
 
   const jsonData = fs.readFileSync(filePath, "utf-8");

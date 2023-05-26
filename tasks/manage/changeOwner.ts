@@ -17,9 +17,9 @@ task("manage:changeOwner", "Will update the owner of the specified contract").se
       let currentConfig = await indexfund.queryConfig();
       logger.out(currentConfig.owner);
 
-      logger.out("Changing owner to:");
-      logger.out(addresses.multiSig.apTeam.proxy);
-      await indexfund.updateOwner(addresses.multiSig.apTeam.proxy);
+      // logger.out("Changing owner to:");
+      // logger.out(addresses.multiSig.apTeam.proxy);
+      // await indexfund.updateOwner(addresses.multiSig.apTeam.proxy);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
