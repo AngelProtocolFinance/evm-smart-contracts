@@ -36,21 +36,13 @@ export function readAllAddresses(filePath: string) {
 }
 
 export function saveFrontendFiles(addresses: Record<string, AddressObj>, filePath: string) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      checkExistence(filePath);
+  checkExistence(filePath);
 
-      const data = readAllAddresses(filePath);
+  const data = readAllAddresses(filePath);
 
-      Object.assign(data, addresses);
+  Object.assign(data, addresses);
 
-      fs.writeFileSync(filePath, JSON.stringify(data, undefined, 2));
-
-      resolve(true);
-    } catch (e) {
-      reject(e);
-    }
-  });
+  fs.writeFileSync(filePath, JSON.stringify(data, undefined, 2));
 }
 
 function checkExistence(filePath: string) {
