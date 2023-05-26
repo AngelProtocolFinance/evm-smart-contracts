@@ -365,7 +365,7 @@ contract AccountDepositWithdrawEndowments is
         require(rent_bal > amount, "InsufficientFunds");
         
         // calculate AP Protocol fee owed on withdrawn token amount
-        uint256 withdrawFee = (amount.mul(withdrawFeeSettings.payoutAddress))
+        uint256 withdrawFee = (amount.mul(withdrawFeeSettings.feeRate))
                                 .div(AngelCoreStruct.FEE_BASIS);
 
         // Transfer AP Protocol fee to treasury
