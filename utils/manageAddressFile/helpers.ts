@@ -17,9 +17,11 @@ export function getAddressesByNetworkId(
     get: (target, prop, receiver) => {
       const contractKey = String(prop);
 
+      // If the Proxy was awaited, it was converted into a "thenable" object, so return the original object's "then" property
+      // Useful links:
+      // - Official docs: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await#description
+      // - Issue on SO: https://stackoverflow.com/questions/48318843/why-does-await-trigger-then-on-a-proxy-returned-by-an-async-function?rq=3
       if (contractKey === "then") {
-        // The Proxy was probably awaited, so return the original object's "then" property
-        // @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await#description
         return Reflect.get(target, prop, receiver);
       }
 
