@@ -42,9 +42,6 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
         );
 
         lrs.angelProtocolParams = LocalRegistrarLib.AngelProtocolParams(
-            LocalRegistrarLib.PROTOCOL_TAX_RATE,
-            LocalRegistrarLib.PROTOCOL_TAX_BASIS,
-            LocalRegistrarLib.PROTOCOL_TAX_COLLECTOR,
             LocalRegistrarLib.ROUTER_ADDRESS,
             LocalRegistrarLib.REFUND_ADDRESS
         );
@@ -87,7 +84,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     {
         LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
             LocalRegistrarLib.localRegistrarStorage();
-        return lrs.accountsContractByChain[keccak256(bytes(_targetChain))];
+        return lrs.AccountsContractByChain[keccak256(bytes(_targetChain))];
     }
  
     function getStrategyParamsById(bytes4 _strategyId)
@@ -124,7 +121,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
         return lrs.GasFeeByToken[_tokenAddr];
     }
 
-    function getFeeByFees(AngelCoreStruct.FeeTypes _feeType) external view returns (AngelCoreStruct.FeeSetting memory) {
+    function getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes _feeType) external view returns (AngelCoreStruct.FeeSetting memory) {
         LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
             LocalRegistrarLib.localRegistrarStorage();
         return lrs.FeeSettingsByFeeType[_feeType];
@@ -162,7 +159,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
         LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
             LocalRegistrarLib.localRegistrarStorage();
 
-        lrs.accountsContractByChain[keccak256(bytes(_chainName))] = _accountsContractAddress;
+        lrs.AccountsContractByChain[keccak256(bytes(_chainName))] = _accountsContractAddress;
         emit AccountsContractStorageChanged(_chainName, _accountsContractAddress);
     }
 
@@ -225,15 +222,15 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
         );
     }
 
-    function setFeeSettingsByFeesType(AngelCoreStruct.FeeTypes feeType, uint256 rate, address payout) external returns (AngelCoreStruct.FeeSetting memory) {
+    function setFeeSettingsByFeesType(AngelCoreStruct.FeeTypes _feeType, uint256 _rate, address _payout) external returns (AngelCoreStruct.FeeSetting memory) {
         LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
             LocalRegistrarLib.localRegistrarStorage();
-        lrs.FeeSettingsByFeeType[feeType] = AngelCoreStruct.FeeSetting({
-            payoutAddress: payout,
-            feeRate: rate
+        lrs.FeeSettingsByFeeType[_feeType] = AngelCoreStruct.FeeSetting({
+            payoutAddress: _payout,
+            feeRate: _rate
         });
-        emit FeeUpdated(feeType, rate, payout);
-        return lrs.FeeSettingsByFeeType[feeType];
+        emit FeeUpdated(_feeType, _rate, _payout);
+        return lrs.FeeSettingsByFeeType[_feeType];
     }
 
     /*////////////////////////////////////////////////

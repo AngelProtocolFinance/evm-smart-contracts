@@ -298,9 +298,10 @@ contract AccountDepositWithdrawEndowments is
                     .div(AngelCoreStruct.FEE_BASIS);
             } else {
                 earlyLockedWithdrawPenalty = (amount.mul(
-                    IRegistrar(state.config.registrarContract).queryFee(
-                        "accounts_early_locked_withdraw"
-                    )
+                    IRegistrar(state.config.registrarContract)
+                        .getFeeSettingsByFeeType(
+                            AngelCoreStruct.FeeTypes.EarlyLockedWithdrawNormal
+                    ).feeRate
                 )).div(AngelCoreStruct.FEE_BASIS);
             }
         }
@@ -344,15 +345,13 @@ contract AccountDepositWithdrawEndowments is
             }
         }
 
-        uint256 withdrawFeeRateAp;
+        AngelCoreStruct.FeeSetting memory withdrawFeeSettings;
         if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Charity) {
-            withdrawFeeRateAp = IRegistrar(state.config.registrarContract).queryFee(
-                "accounts_withdraw_charity"
-            );
+            withdrawFeeSettings = IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(
+                AngelCoreStruct.FeeTypes.WithdrawCharity);
         } else {
-            withdrawFeeRateAp = IRegistrar(state.config.registrarContract).queryFee(
-                "accounts_withdraw_normal"
-            );
+            withdrawFeeSettings = IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(
+                AngelCoreStruct.FeeTypes.WithdrawNormal);
         }
 
         uint256 rent_bal;
@@ -366,7 +365,7 @@ contract AccountDepositWithdrawEndowments is
         require(rent_bal > amount, "InsufficientFunds");
         
         // calculate AP Protocol fee owed on withdrawn token amount
-        uint256 withdrawFeeAp = (amount.mul(withdrawFeeRateAp))
+        uint256 withdrawFee = (amount.mul(withdrawFeeSettings.payoutAddress))
                                 .div(AngelCoreStruct.FEE_BASIS);
 
         // Transfer AP Protocol fee to treasury
@@ -374,7 +373,7 @@ contract AccountDepositWithdrawEndowments is
         require(
             IERC20(tokenAddress).transfer(
                 registrar_config.treasury,
-                withdrawFeeAp + earlyLockedWithdrawPenalty
+                withdrawFee + earlyLockedWithdrawPenalty
             ),
             "Transfer failed"
         );
@@ -383,7 +382,7 @@ contract AccountDepositWithdrawEndowments is
         // Endowment specific withdraw fee needs to be calculated against the amount
         // leftover after all AP withdraw fees are subtracted. Otherwise we risk having
         // negative amounts due to collective fees being greater than 100%
-        uint256 amountLeftover = amount - withdrawFeeAp - earlyLockedWithdrawPenalty;
+        uint256 amountLeftover = amount - withdrawFee - earlyLockedWithdrawPenalty;
         uint256 withdrawFeeEndow = 0;
         if (
             amountLeftover > 0 &&

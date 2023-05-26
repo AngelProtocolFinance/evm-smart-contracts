@@ -11,13 +11,13 @@ interface ILocalRegistrar {
     /*////////////////////////////////////////////////
                         EVENTS
     */////////////////////////////////////////////////
-    event RebalanceParamsChanged(LocalRegistrarLib.RebalanceParams newRebalanceParams);
-    event AngelProtocolParamsChanged(LocalRegistrarLib.AngelProtocolParams newAngelProtocolParams);
+    event RebalanceParamsChanged(LocalRegistrarLib.RebalanceParams _newRebalanceParams);
+    event AngelProtocolParamsChanged(LocalRegistrarLib.AngelProtocolParams _newAngelProtocolParams);
     event AccountsContractStorageChanged(
-        string indexed chainName,
-        string indexed accountsContractAddress
+        string indexed _chainName,
+        string indexed _accountsContractAddress
     );
-    event TokenAcceptanceChanged(address indexed tokenAddr, bool isAccepted);
+    event TokenAcceptanceChanged(address indexed _tokenAddr, bool _isAccepted);
     event StrategyApprovalChanged(bytes4 indexed _strategyId, LocalRegistrarLib.StrategyApprovalState _approvalState);
     event StrategyParamsChanged(
         bytes4 indexed _strategyId,
@@ -61,6 +61,8 @@ interface ILocalRegistrar {
         external
         view
         returns (LocalRegistrarLib.StrategyApprovalState);
+
+    function getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes _feeType) external view returns (AngelCoreStruct.FeeSetting memory);
     
     // Setter meothods for granular changes to specific params
     function setRebalanceParams(LocalRegistrarLib.RebalanceParams calldata _rebalanceParams)
@@ -98,4 +100,10 @@ interface ILocalRegistrar {
     function setTokenAccepted(address _tokenAddr, bool _isAccepted) external;
 
     function setGasByToken(address _tokenAddr, uint256 _gasFee) external;
+
+    function setFeeSettingsByFeesType(
+        AngelCoreStruct.FeeTypes _feeType, 
+        uint256 _rate, 
+        address _payout
+    ) external returns (AngelCoreStruct.FeeSetting memory);
 }

@@ -19,7 +19,6 @@ import {LocalRegistrarLib} from "./lib/LocalRegistrarLib.sol";
  */
 contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     event UpdateRegistrarConfig(RegistrarStorage.Config details);
-    event UpdateRegistrarFees(RegistrarMessages.UpdateFeeRequest details);
     event PostNetworkConnection(
         uint256 chainId,
         AngelCoreStruct.NetworkInfo networkInfo
@@ -78,12 +77,12 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
         state.NETWORK_CONNECTIONS[block.chainid] = AngelCoreStruct.NetworkInfo({
             name: "Polygon",
             chainId: block.chainid,
+            router: details.router,
+            axelarGateway: details.axelarGateway,
             ibcChannel: "",
             transferChannel: "",
             gasReceiver: details.axelarGasRecv,
-            gasLimit: 0,
-            router: details.router,
-            axelarGateway: details.axelarGateway
+            gasLimit: 0
         });
         emit PostNetworkConnection(
             block.chainid,
@@ -287,28 +286,6 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
         returns (RegistrarStorage.Config memory)
     {
         return state.config;
-    }
-    
-    function updateFee(
-        RegistrarMessages.UpdateFeeRequest memory details
-    ) public nonReentrant onlyOwner {
-        require(details.rate < AngelCoreStruct.FEE_BASIS, "invalid fee value");
-        state.FeeSettingsByFeeType[details.feeType] = AngelCoreStruct.FeeSetting({
-            payoutAddress: details.payout,
-            feeRate: details.rate
-        });
-        emit UpdateRegistrarFees(details);
-    }
-    
-    /**
-     * @dev Query the fee in registrar
-     * @param feeType The name of the fee to query
-     * @return response The fee
-     */
-    function queryFee(
-        AngelCoreStruct.FeeTypes feeType
-    ) public view returns (AngelCoreStruct.FeeSetting memory) {
-        return state.FeeSettingsByFeeType[feeType];
     }
 
     // STRATEGY ARRAY HANDLING
