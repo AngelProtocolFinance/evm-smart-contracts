@@ -2,9 +2,13 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.0;
 
-import "../core/router/IRouter.sol";
+import "../../../core/router/IRouter.sol";
 
 abstract contract IVault {
+  /*////////////////////////////////////////////////
+                    CUSTOM TYPES
+  */ ////////////////////////////////////////////////
+  
   /// @notice Angel Protocol Vault Type
   /// @dev Vaults have different behavior depending on type. Specifically access to redemptions and
   /// principle balance
@@ -12,6 +16,11 @@ abstract contract IVault {
     LOCKED,
     LIQUID
   }
+
+
+  /*////////////////////////////////////////////////
+                        EVENTS
+  */ ////////////////////////////////////////////////
 
   /// @notice Event emited on each Deposit call
   /// @dev Upon deposit, emit this event. Index the account and staking contract for analytics
@@ -38,9 +47,10 @@ abstract contract IVault {
   /// @param accountIds a list of the Accounts harvested for
   event Harvest(uint32[] indexed accountIds);
 
+
   /*////////////////////////////////////////////////
                     EXTERNAL METHODS
-    */ ////////////////////////////////////////////////
+  */ ////////////////////////////////////////////////
 
   /// @notice returns the vault type
   /// @dev a vault must declare its Type upon initialization/construction
