@@ -578,7 +578,7 @@ library AngelCoreStruct {
     Revoke
   }
 
-  function canTakeAction(
+  function delegateIsValid(
     Delegate storage delegate,
     address sender,
     uint256 envTime
@@ -594,13 +594,12 @@ library AngelCoreStruct {
     address owner,
     uint256 envTime
   ) public view returns (bool) {
-    // can be changed if:
-    // 1. sender is a valid delegate address and their powers have not expired
-    // 2. sender is the endow owner && (no set delegate || an expired delegate) (ie. owner must first revoke their delegation)
-    return
-      !permissions.locked ||
-      canTakeAction(permissions.delegate, sender, envTime) ||
-      sender == owner;
+    // Can be changed if both critera are satisfied:
+    // 1. permission is not locked forever (read: `locked` == true)
+    // 2. sender is a valid delegate address and their powers have not expired OR
+    //    sender is the endow owner (ie. owner must first revoke their delegation)
+    return (!permissions.locked &&
+      (delegateIsValid(permissions.delegate, sender, envTime) || sender == owner));
   }
 
   struct SettingsPermission {
