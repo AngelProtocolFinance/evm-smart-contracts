@@ -11,8 +11,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -49,12 +49,7 @@ export declare namespace AngelCoreStruct {
     liquidPercentage: PromiseOrValue<BigNumberish>[];
   };
 
-  export type AccountStrategiesStructOutput = [
-    string[],
-    BigNumber[],
-    string[],
-    BigNumber[]
-  ] & {
+  export type AccountStrategiesStructOutput = [string[], BigNumber[], string[], BigNumber[]] & {
     locked_vault: string[];
     lockedPercentage: BigNumber[];
     liquid_vault: string[];
@@ -68,12 +63,7 @@ export declare namespace AngelCoreStruct {
     liquidAmount: PromiseOrValue<BigNumberish>[];
   };
 
-  export type OneOffVaultsStructOutput = [
-    string[],
-    BigNumber[],
-    string[],
-    BigNumber[]
-  ] & {
+  export type OneOffVaultsStructOutput = [string[], BigNumber[], string[], BigNumber[]] & {
     locked: string[];
     lockedAmount: BigNumber[];
     liquid: string[];
@@ -95,10 +85,10 @@ export declare namespace AngelCoreStruct {
     delegate: AngelCoreStruct.DelegateStruct;
   };
 
-  export type SettingsPermissionStructOutput = [
-    boolean,
-    AngelCoreStruct.DelegateStructOutput
-  ] & { locked: boolean; delegate: AngelCoreStruct.DelegateStructOutput };
+  export type SettingsPermissionStructOutput = [boolean, AngelCoreStruct.DelegateStructOutput] & {
+    locked: boolean;
+    delegate: AngelCoreStruct.DelegateStructOutput;
+  };
 
   export type SettingsControllerStruct = {
     strategies: AngelCoreStruct.SettingsPermissionStruct;
@@ -197,10 +187,10 @@ export declare namespace AngelCoreStruct {
     enumData: PromiseOrValue<BigNumberish>;
   };
 
-  export type BeneficiaryStructOutput = [
-    AngelCoreStruct.BeneficiaryDataStructOutput,
-    number
-  ] & { data: AngelCoreStruct.BeneficiaryDataStructOutput; enumData: number };
+  export type BeneficiaryStructOutput = [AngelCoreStruct.BeneficiaryDataStructOutput, number] & {
+    data: AngelCoreStruct.BeneficiaryDataStructOutput;
+    enumData: number;
+  };
 }
 
 export declare namespace AccountMessages {
@@ -265,14 +255,7 @@ export declare namespace LocalRegistrarLib {
     basis: PromiseOrValue<BigNumberish>;
   };
 
-  export type RebalanceParamsStructOutput = [
-    boolean,
-    number,
-    number,
-    boolean,
-    number,
-    number
-  ] & {
+  export type RebalanceParamsStructOutput = [boolean, number, number, boolean, number, number] & {
     rebalanceLiquidProfits: boolean;
     lockedRebalanceToLiquid: number;
     interestDistribution: number;
@@ -400,10 +383,7 @@ export interface IAccountsQueryInterface extends utils.Interface {
       | "queryTokenAmount"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "queryConfig",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "queryConfig", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "queryEndowmentDetails",
     values: [PromiseOrValue<BigNumberish>]
@@ -414,26 +394,13 @@ export interface IAccountsQueryInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "queryTokenAmount",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
-    ]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "queryConfig",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "queryEndowmentDetails",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "queryConfig", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "queryEndowmentDetails", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "queryState", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "queryTokenAmount",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "queryTokenAmount", data: BytesLike): Result;
 
   events: {};
 }
@@ -455,9 +422,7 @@ export interface IAccountsQuery extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -465,9 +430,7 @@ export interface IAccountsQuery extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    queryConfig(
-      overrides?: CallOverrides
-    ): Promise<
+    queryConfig(overrides?: CallOverrides): Promise<
       [AccountMessages.ConfigResponseStructOutput] & {
         config: AccountMessages.ConfigResponseStructOutput;
       }
@@ -496,12 +459,10 @@ export interface IAccountsQuery extends BaseContract {
       accountType: PromiseOrValue<BigNumberish>,
       tokenaddress: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<[BigNumber] & { tokenAmount: BigNumber }>;
+    ): Promise<[BigNumber] & {tokenAmount: BigNumber}>;
   };
 
-  queryConfig(
-    overrides?: CallOverrides
-  ): Promise<AccountMessages.ConfigResponseStructOutput>;
+  queryConfig(overrides?: CallOverrides): Promise<AccountMessages.ConfigResponseStructOutput>;
 
   queryEndowmentDetails(
     id: PromiseOrValue<BigNumberish>,
@@ -521,9 +482,7 @@ export interface IAccountsQuery extends BaseContract {
   ): Promise<BigNumber>;
 
   callStatic: {
-    queryConfig(
-      overrides?: CallOverrides
-    ): Promise<AccountMessages.ConfigResponseStructOutput>;
+    queryConfig(overrides?: CallOverrides): Promise<AccountMessages.ConfigResponseStructOutput>;
 
     queryEndowmentDetails(
       id: PromiseOrValue<BigNumberish>,
@@ -553,10 +512,7 @@ export interface IAccountsQuery extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    queryState(
-      id: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    queryState(id: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<BigNumber>;
 
     queryTokenAmount(
       id: PromiseOrValue<BigNumberish>,

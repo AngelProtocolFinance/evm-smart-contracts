@@ -2,8 +2,6 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.0;
 
-import { IVault } from "./IVault.sol";
+import {IVault} from "./IVault.sol";
 
-abstract contract IVaultLocked is IVault {
-
-}
+abstract contract IVaultLocked is IVault {}

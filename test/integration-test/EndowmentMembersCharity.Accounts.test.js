@@ -1,690 +1,774 @@
-const { expect } = require('chai');
-const { ethers, artifacts } = require('hardhat');
-const Web3 = require('web3');
+const {expect} = require("chai");
+const {ethers, artifacts} = require("hardhat");
+const Web3 = require("web3");
 const web3 = new Web3();
-let { main } = require('../../scripts/deployMain');
-const endowmentData = require('../data/endowment.js');
-const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
-const MockDate = require('mockdate');
+let {main} = require("../../scripts/deployMain");
+const endowmentData = require("../data/endowment.js");
+const {loadFixture} = require("@nomicfoundation/hardhat-network-helpers");
+const MockDate = require("mockdate");
 
 // Create a charity endowment using the charity proposal contract
-describe('Charity Endowment Creation and Approval from Application Team', function () {
-	let deployer, addrs, proxyAdmin;
-	let deployRes;
-	let endowmentConfig;
-
-	// let endowmentTxnReceipt;
-	let endowment;
-
-	let charityApplications;
-	let charityProposal;
-
-	MockDate.set(new Date(Date.now() + 1 * 24 * 60 * 60 * 1000));
-
-	this.beforeAll(async function () {
-		[deployer, proxyAdmin, admin1, admin2, admin3, ...addrs] = await ethers.getSigners();
-		deployRes = await main([admin1.address, admin2.address, admin3.address]); // runs the deploy script
-
-		// Fetch the USDC address from registrart config
-
-		let registrar = await ethers.getContractAt('Registrar', deployRes.addresses.registrar);
-		let registrarConfig = await registrar.queryConfig();
-
-		// console.log('Fetched USDC address', registrarConfig.usdcAddress);
+describe("Charity Endowment Creation and Approval from Application Team", function () {
+  let deployer, addrs, proxyAdmin;
+  let deployRes;
+  let endowmentConfig;
+
+  // let endowmentTxnReceipt;
+  let endowment;
+
+  let charityApplications;
+  let charityProposal;
+
+  MockDate.set(new Date(Date.now() + 1 * 24 * 60 * 60 * 1000));
+
+  this.beforeAll(async function () {
+    [deployer, proxyAdmin, admin1, admin2, admin3, ...addrs] = await ethers.getSigners();
+    deployRes = await main([admin1.address, admin2.address, admin3.address]); // runs the deploy script
+
+    // Fetch the USDC address from registrart config
+
+    let registrar = await ethers.getContractAt("Registrar", deployRes.addresses.registrar);
+    let registrarConfig = await registrar.queryConfig();
+
+    // console.log('Fetched USDC address', registrarConfig.usdcAddress);
+
+    endowmentConfig = await endowmentData.getCreateEndowmentConfig(
+      deployer.address,
+      [admin1.address, admin2.address, admin3.address],
+      0,
+      true,
+      (bondingCurveReserveDenom = registrarConfig.usdcAddress)
+    );
+    endowmentConfig.owner = deployer.address;
+
+    // Send proposal to charity applications contract
+    charityApplications = await ethers.getContractAt(
+      "CharityApplication",
+      deployRes.addresses.charityApplicationsAddress
+    );
+    let tx = await charityApplications
+      .connect(addrs[1])
+      .proposeCharity(endowmentConfig, "Charity Proposal Testing");
+
+    let charityProposalTxnReceipt = await tx.wait();
+
+    // console.log(charityProposalTxnReceipt.events);
+
+    charityProposal = await charityApplications.proposals(1);
+    // console.log(charityProposal);
+
+    expect(charityProposal[0], "Proposal ID is 1").to.equal(1);
+    expect(charityProposal[1], "Proposal is proposed by proper proposer").to.equal(
+      addrs[1].address
+    );
+    expect(charityProposal[2].name, "Proposal is for proper charity").to.equal("Test Endowment");
+  });
+  it("Applications Team should be able to approve creation of charity", async function () {
+    // create a proposal on Applications Multisig to send approval for proposal with ID 1
+
+    const applicationsMultisig = await ethers.getContractAt(
+      "ApplicationsMultiSig",
+      deployRes.addresses.multisigAddress.ApplicationsMultiSig
+    );
+
+    let tx = await applicationsMultisig
+      .connect(admin1)
+      .submitTransaction(
+        "Approve Charity Proposal",
+        "Approve Charity Proposal Testing ",
+        deployRes.addresses.charityApplicationsAddress,
+        0,
+        charityApplications.interface.encodeFunctionData("approveCharity", [1])
+      );
+
+    let applicationsMultisigTxnReceipt = await tx.wait();
+
+    let txId = applicationsMultisigTxnReceipt.events[0].args[0];
+
+    // approve from admin 2
+
+    tx = await applicationsMultisig.connect(admin2).confirmTransaction(txId);
+
+    applicationsMultisigTxnReceipt = await tx.wait();
+
+    // check for execution success event
+
+    // console.log(applicationsMultisigTxnReceipt.events);
+    let flag = 1;
+    for (let i = 0; i < applicationsMultisigTxnReceipt.events.length; i++) {
+      if (applicationsMultisigTxnReceipt.events[i].event == "ExecutionFailure") {
+        flag = 0;
+        break;
+      }
+    }
+    expect(flag === 1, "Transaction executed successfully").to.equal(true);
+  });
+  it("Should have created a charity endowments on the accounts contract with id 1", async function () {
+    const accountQuery = await ethers.getContractAt(
+      "AccountsQueryEndowments",
+      deployRes.addresses.account
+    );
+    endowment = await accountQuery.queryEndowmentDetails(1);
+    // console.log(endowment);
+    expect(endowment.endowType, "Endowment is of type charity").to.equal(0);
+  });
+
+  it("Should have created a new endowment multisig and set owner of endowment to multisig", async function () {
+    const endowmentMultisig = await ethers.getContractAt("EndowmentMultiSig", endowment.owner);
+
+    let endowmentMultisigID = await endowmentMultisig.ENDOWMENT_ID();
+    // console.log('Endowment Multisig Id', endowmentMultisigID.toString());
+    expect(endowmentMultisigID.toString(), "Owner for endowment is multisig").to.equal("1");
+
+    let endowmentOwners = await endowmentMultisig.getOwners();
+    // console.log('Endowment Owners', endowmentOwners);
+    expect(endowmentOwners, "Charity endowment owners are multisig owners").to.deep.equal([
+      admin1.address,
+      admin2.address,
+      admin3.address,
+    ]);
+
+    expect(endowment.owner, "Endowment owner is not deployer, new owner is multisig").not.equal(
+      deployer.address
+    );
+  });
+
+  it("Should be able to accept deposits and withdraw liquid deposits via txn from the endowment multisg ", async function () {
+    const accountQuery = await ethers.getContractAt(
+      "AccountsQueryEndowments",
+      deployRes.addresses.account
+    );
+
+    let donor = addrs[0];
+
+    let registrar = await ethers.getContractAt("Registrar", deployRes.addresses.registrar);
+    let registrarConfig = await registrar.queryConfig();
+
+    // console.log('Fetched USDC address', registrarConfig.usdcAddress);
+
+    const MockERC20 = await ethers.getContractAt("MockUSDC", registrarConfig.usdcAddress);
+
+    await MockERC20.connect(deployer).transfer(donor.address, ethers.utils.parseUnits("10000", 6));
+
+    // Deposit to accounts
+
+    const accountDeposit = await ethers.getContractAt(
+      "AccountDepositWithdrawEndowments",
+      deployRes.addresses.account
+    );
+
+    MockERC20.connect(donor).approve(accountDeposit.address, ethers.utils.parseUnits("10000", 6));
+
+    let depositTxn = await accountDeposit
+      .connect(donor)
+      .depositERC20(
+        {id: 1, lockedPercentage: 50, liquidPercentage: 50},
+        registrarConfig.usdcAddress,
+        ethers.utils.parseUnits("1000", 6)
+      );
+
+    await depositTxn.wait();
+
+    let liquid_balance = await accountQuery.queryTokenAmount(1, 1, registrarConfig.usdcAddress);
+    let lockedBalance = await accountQuery.queryTokenAmount(1, 0, registrarConfig.usdcAddress);
+    // console.log(depositTxnReceipt.events);
 
-		endowmentConfig = await endowmentData.getCreateEndowmentConfig(
-			deployer.address,
-			[admin1.address, admin2.address, admin3.address],
-			0,
-			true,
-			(bondingCurveReserveDenom = registrarConfig.usdcAddress)
-		);
-		endowmentConfig.owner = deployer.address;
+    console.log("Locked balance", lockedBalance.toString());
+    console.log("Liquid balance", liquid_balance.toString());
+    expect(lockedBalance.toString(), "Locked balance is 500").to.equal(
+      ethers.utils.parseUnits("500", 6).toString()
+    );
+    expect(liquid_balance.toString(), "Liquid balance is 500").to.equal(
+      ethers.utils.parseUnits("500", 6).toString()
+    );
 
-		// Send proposal to charity applications contract
-		charityApplications = await ethers.getContractAt('CharityApplication', deployRes.addresses.charityApplicationsAddress);
-		let tx = await charityApplications.connect(addrs[1]).proposeCharity(endowmentConfig, 'Charity Proposal Testing');
+    const endowmentMultisig = await ethers.getContractAt("EndowmentMultiSig", endowment.owner);
 
-		let charityProposalTxnReceipt = await tx.wait();
+    let endowmentMultisigID = await endowmentMultisig.ENDOWMENT_ID();
+    // console.log('Endowment Multisig Id', endowmentMultisigID.toString());
+    expect(endowmentMultisigID.toString(), "Multisig for ID 1 deployed").to.equal("1");
+
+    let endowmentOwners = await endowmentMultisig.getOwners();
+    // console.log('Endowment Owners', endowmentOwners);
+    expect(endowmentOwners, "Endowment owners are multisig owners").to.deep.equal([
+      admin1.address,
+      admin2.address,
+      admin3.address,
+    ]);
 
-		// console.log(charityProposalTxnReceipt.events);
+    expect(endowment.owner, "Endowment owner is not deployer, new owner is multisig").not.equal(
+      deployer.address
+    );
+
+    const data = accountDeposit.interface.encodeFunctionData("withdraw", [
+      1,
+      1,
+      admin2.address,
+      [registrarConfig.usdcAddress],
+      [ethers.utils.parseUnits("100", 6)],
+    ]);
+
+    let tx = await endowmentMultisig
+      .connect(admin1)
+      .submitTransaction(
+        "Withdraw",
+        "withdraw liquid in hand cash",
+        deployRes.addresses.account,
+        0,
+        data
+      );
+
+    let txnReceipt = await tx.wait();
+
+    let txId = txnReceipt.events[0].args.transactionId;
+
+    // approve the transaction for admin2
+
+    tx = await endowmentMultisig.connect(admin2).confirmTransaction(txId);
+
+    let endowmentMultisigReceipt = await tx.wait();
+    // console.log(endowmentMultisigReceipt.events);
+    let flag = 1;
+    for (let i = 0; i < endowmentMultisigReceipt.events.length; i++) {
+      if (endowmentMultisigReceipt.events[i].event == "ExecutionFailure") {
+        flag = 0;
+        break;
+      }
+    }
+
+    expect(flag === 1, "Transaction executed successfully").to.equal(true);
+
+    let balance = await MockERC20.balanceOf(admin2.address);
+
+    expect(balance.toString(), "Balance is 100").to.equal(
+      ethers.utils.parseUnits("100", 6).toString()
+    );
+
+    liquid_balance = await accountQuery.queryTokenAmount(1, 1, registrarConfig.usdcAddress);
+
+    expect(liquid_balance.toString(), "Liquid balance is 400").to.equal(
+      ethers.utils.parseUnits("400", 6).toString()
+    );
+
+    expect(await MockERC20.balanceOf(deployRes.addresses.account), "Total Balance is 900").to.equal(
+      ethers.utils.parseUnits("900", 6).toString()
+    );
+  });
+
+  it("Should be able to accept deposits and withdraw locked deposits via txn from the endowment multisig, AP team multisig and Locked withdraw contract ", async function () {
+    const accountQuery = await ethers.getContractAt(
+      "AccountsQueryEndowments",
+      deployRes.addresses.account
+    );
 
-		charityProposal = await charityApplications.proposals(1);
-		// console.log(charityProposal);
+    let donor = addrs[0];
 
-		expect(charityProposal[0], 'Proposal ID is 1').to.equal(1);
-		expect(charityProposal[1], 'Proposal is proposed by proper proposer').to.equal(addrs[1].address);
-		expect(charityProposal[2].name, 'Proposal is for proper charity').to.equal('Test Endowment');
-	});
-	it('Applications Team should be able to approve creation of charity', async function () {
-		// create a proposal on Applications Multisig to send approval for proposal with ID 1
+    let registrar = await ethers.getContractAt("Registrar", deployRes.addresses.registrar);
+    let registrarConfig = await registrar.queryConfig();
 
-		const applicationsMultisig = await ethers.getContractAt(
-			'ApplicationsMultiSig',
-			deployRes.addresses.multisigAddress.ApplicationsMultiSig
-		);
+    // console.log('Fetched USDC address', registrarConfig.usdcAddress);
 
-		let tx = await applicationsMultisig
-			.connect(admin1)
-			.submitTransaction(
-				'Approve Charity Proposal',
-				'Approve Charity Proposal Testing ',
-				deployRes.addresses.charityApplicationsAddress,
-				0,
-				charityApplications.interface.encodeFunctionData('approveCharity', [1])
-			);
+    const MockERC20 = await ethers.getContractAt("MockUSDC", registrarConfig.usdcAddress);
 
-		let applicationsMultisigTxnReceipt = await tx.wait();
+    await MockERC20.connect(deployer).transfer(donor.address, ethers.utils.parseUnits("10000", 6));
 
-		let txId = applicationsMultisigTxnReceipt.events[0].args[0];
+    // Deposit to accounts
+
+    const accountDeposit = await ethers.getContractAt(
+      "AccountDepositWithdrawEndowments",
+      deployRes.addresses.account
+    );
 
-		// approve from admin 2
+    MockERC20.connect(donor).approve(accountDeposit.address, ethers.utils.parseUnits("10000", 6));
 
-		tx = await applicationsMultisig.connect(admin2).confirmTransaction(txId);
+    let depositTxn = await accountDeposit
+      .connect(donor)
+      .depositERC20(
+        {id: 1, lockedPercentage: 50, liquidPercentage: 50},
+        registrarConfig.usdcAddress,
+        ethers.utils.parseUnits("1000", 6)
+      );
 
-		applicationsMultisigTxnReceipt = await tx.wait();
+    await depositTxn.wait();
 
-		// check for execution success event
+    let liquid_balance = await accountQuery.queryTokenAmount(1, 1, registrarConfig.usdcAddress);
+    let lockedBalance = await accountQuery.queryTokenAmount(1, 0, registrarConfig.usdcAddress);
+    // console.log(depositTxnReceipt.events);
 
-		// console.log(applicationsMultisigTxnReceipt.events);
-		let flag = 1;
-		for (let i = 0; i < applicationsMultisigTxnReceipt.events.length; i++) {
-			if (applicationsMultisigTxnReceipt.events[i].event == 'ExecutionFailure') {
-				flag = 0;
-				break;
-			}
-		}
-		expect(flag === 1, 'Transaction executed successfully').to.equal(true);
-	});
-	it('Should have created a charity endowments on the accounts contract with id 1', async function () {
-		const accountQuery = await ethers.getContractAt('AccountsQueryEndowments', deployRes.addresses.account);
-		endowment = await accountQuery.queryEndowmentDetails(1);
-		// console.log(endowment);
-		expect(endowment.endowType, 'Endowment is of type charity').to.equal(0);
-	});
+    // console.log('Locked balance', lockedBalance.toString());
+    // console.log('Liquid balance', liquid_balance.toString());
+    expect(lockedBalance.toString(), "Locked balance is 1000").to.equal(
+      ethers.utils.parseUnits("1000", 6).toString()
+    );
+    expect(liquid_balance.toString(), "Liquid balance is 900").to.equal(
+      ethers.utils.parseUnits("900", 6).toString()
+    );
 
-	it('Should have created a new endowment multisig and set owner of endowment to multisig', async function () {
-		const endowmentMultisig = await ethers.getContractAt('EndowmentMultiSig', endowment.owner);
+    const endowmentMultisig = await ethers.getContractAt("EndowmentMultiSig", endowment.owner);
 
-		let endowmentMultisigID = await endowmentMultisig.ENDOWMENT_ID();
-		// console.log('Endowment Multisig Id', endowmentMultisigID.toString());
-		expect(endowmentMultisigID.toString(), 'Owner for endowment is multisig').to.equal('1');
+    let endowmentMultisigID = await endowmentMultisig.ENDOWMENT_ID();
+    // console.log('Endowment Multisig Id', endowmentMultisigID.toString());
+    expect(endowmentMultisigID.toString(), "Multisig for ID 1 deployed").to.equal("1");
 
-		let endowmentOwners = await endowmentMultisig.getOwners();
-		// console.log('Endowment Owners', endowmentOwners);
-		expect(endowmentOwners, 'Charity endowment owners are multisig owners').to.deep.equal([
-			admin1.address,
-			admin2.address,
-			admin3.address,
-		]);
+    let endowmentOwners = await endowmentMultisig.getOwners();
+    // console.log('Endowment Owners', endowmentOwners);
+    expect(endowmentOwners, "Endowment owners are multisig owners").to.deep.equal([
+      admin1.address,
+      admin2.address,
+      admin3.address,
+    ]);
 
-		expect(endowment.owner, 'Endowment owner is not deployer, new owner is multisig').not.equal(deployer.address);
-	});
+    expect(endowment.owner, "Endowment owner is not deployer, new owner is multisig").not.equal(
+      deployer.address
+    );
 
-	it('Should be able to accept deposits and withdraw liquid deposits via txn from the endowment multisg ', async function () {
-		const accountQuery = await ethers.getContractAt('AccountsQueryEndowments', deployRes.addresses.account);
+    const lockedWithdraw = await ethers.getContractAt(
+      "LockedWithdraw",
+      deployRes.addresses.lockedWithdraw
+    );
 
-		let donor = addrs[0];
+    const data = lockedWithdraw.interface.encodeFunctionData("propose", [
+      1,
+      admin2.address,
+      [registrarConfig.usdcAddress],
+      [ethers.utils.parseUnits("100", 6)],
+    ]);
 
-		let registrar = await ethers.getContractAt('Registrar', deployRes.addresses.registrar);
-		let registrarConfig = await registrar.queryConfig();
+    let tx = await endowmentMultisig
+      .connect(admin1)
+      .submitTransaction("Locked Withdraw", "withdraw locked", lockedWithdraw.address, 0, data);
 
-		// console.log('Fetched USDC address', registrarConfig.usdcAddress);
+    let txnReceipt = await tx.wait();
 
-		const MockERC20 = await ethers.getContractAt('MockUSDC', registrarConfig.usdcAddress);
+    let txId = txnReceipt.events[0].args.transactionId;
 
-		await MockERC20.connect(deployer).transfer(donor.address, ethers.utils.parseUnits('10000', 6));
+    // approve the transaction for admin2
 
-		// Deposit to accounts
+    tx = await endowmentMultisig.connect(admin2).confirmTransaction(txId);
 
-		const accountDeposit = await ethers.getContractAt('AccountDepositWithdrawEndowments', deployRes.addresses.account);
+    let endowmentMultisigReceipt = await tx.wait();
 
-		MockERC20.connect(donor).approve(accountDeposit.address, ethers.utils.parseUnits('10000', 6));
+    let flag = 1;
+    for (let i = 0; i < endowmentMultisigReceipt.events.length; i++) {
+      if (endowmentMultisigReceipt.events[i].event == "ExecutionFailure") {
+        flag = 0;
+        break;
+      }
+    }
 
-		let depositTxn = await accountDeposit
-			.connect(donor)
-			.depositERC20(
-				{ id: 1, lockedPercentage: 50, liquidPercentage: 50 },
-				registrarConfig.usdcAddress,
-				ethers.utils.parseUnits('1000', 6)
-			);
+    // console.log(endowmentMultisigReceipt.events);
 
-		await depositTxn.wait();
+    expect(flag === 1, "Transaction executed successfully").to.equal(true);
 
-		let liquid_balance = await accountQuery.queryTokenAmount(1, 1, registrarConfig.usdcAddress);
-		let lockedBalance = await accountQuery.queryTokenAmount(1, 0, registrarConfig.usdcAddress);
-		// console.log(depositTxnReceipt.events);
+    // approve from ap team multisig
 
-		console.log('Locked balance', lockedBalance.toString());
-		console.log('Liquid balance', liquid_balance.toString());
-		expect(lockedBalance.toString(), 'Locked balance is 500').to.equal(ethers.utils.parseUnits('500', 6).toString());
-		expect(liquid_balance.toString(), 'Liquid balance is 500').to.equal(ethers.utils.parseUnits('500', 6).toString());
+    const apMultisigAddress = deployRes.addresses.multisigAddress.APTeamMultiSig;
+    APMultisig = await ethers.getContractAt("APTeamMultiSig", apMultisigAddress);
 
-		const endowmentMultisig = await ethers.getContractAt('EndowmentMultiSig', endowment.owner);
+    let apdata = lockedWithdraw.interface.encodeFunctionData("approve", [1]);
 
-		let endowmentMultisigID = await endowmentMultisig.ENDOWMENT_ID();
-		// console.log('Endowment Multisig Id', endowmentMultisigID.toString());
-		expect(endowmentMultisigID.toString(), 'Multisig for ID 1 deployed').to.equal('1');
+    tx = await APMultisig.connect(admin1).submitTransaction(
+      "Locked Withdraw",
+      "charity approval for withdraw locked",
+      lockedWithdraw.address,
+      0,
+      apdata
+    );
 
-		let endowmentOwners = await endowmentMultisig.getOwners();
-		// console.log('Endowment Owners', endowmentOwners);
-		expect(endowmentOwners, 'Endowment owners are multisig owners').to.deep.equal([
-			admin1.address,
-			admin2.address,
-			admin3.address,
-		]);
+    txnReceipt = await tx.wait();
 
-		expect(endowment.owner, 'Endowment owner is not deployer, new owner is multisig').not.equal(deployer.address);
+    // console.log(txnReceipt.events);
 
-		const data = accountDeposit.interface.encodeFunctionData('withdraw', [
-			1,
-			1,
-			admin2.address,
-			[registrarConfig.usdcAddress],
-			[ethers.utils.parseUnits('100', 6)],
-		]);
+    txId = txnReceipt.events[0].args.transactionId;
 
-		let tx = await endowmentMultisig
-			.connect(admin1)
-			.submitTransaction('Withdraw', 'withdraw liquid in hand cash', deployRes.addresses.account, 0, data);
+    // approve the transaction for admin2
 
-		let txnReceipt = await tx.wait();
+    console.log("Accounts", deployRes.addresses.account);
 
-		let txId = txnReceipt.events[0].args.transactionId;
+    tx = await APMultisig.connect(admin2).confirmTransaction(txId);
 
-		// approve the transaction for admin2
+    apTeamMultisigReceipt = await tx.wait();
 
-		tx = await endowmentMultisig.connect(admin2).confirmTransaction(txId);
+    flag = 1;
+    for (let i = 0; i < apTeamMultisigReceipt.events.length; i++) {
+      if (apTeamMultisigReceipt.events[i].event == "ExecutionFailure") {
+        flag = 0;
+        break;
+      }
+    }
 
-		let endowmentMultisigReceipt = await tx.wait();
-		// console.log(endowmentMultisigReceipt.events);
-		let flag = 1;
-		for (let i = 0; i < endowmentMultisigReceipt.events.length; i++) {
-			if (endowmentMultisigReceipt.events[i].event == 'ExecutionFailure') {
-				flag = 0;
-				break;
-			}
-		}
+    expect(flag === 1, "Transaction executed successfully").to.equal(true);
 
-		expect(flag === 1, 'Transaction executed successfully').to.equal(true);
+    expect(await MockERC20.balanceOf(admin2.address), "Balance of address 2 is 200").to.equal(
+      ethers.utils.parseUnits("200", 6).toString()
+    );
 
-		let balance = await MockERC20.balanceOf(admin2.address);
+    liquid_balance = await accountQuery.queryTokenAmount(1, 1, registrarConfig.usdcAddress);
+    lockedBalance = await accountQuery.queryTokenAmount(1, 0, registrarConfig.usdcAddress);
 
-		expect(balance.toString(), 'Balance is 100').to.equal(ethers.utils.parseUnits('100', 6).toString());
+    // expect locked balance is 900
+    expect(lockedBalance.toString(), "Locked balance is 900").to.equal(
+      ethers.utils.parseUnits("900", 6).toString()
+    );
 
-		liquid_balance = await accountQuery.queryTokenAmount(1, 1, registrarConfig.usdcAddress);
+    // expect liquid balance is 900
+    expect(liquid_balance.toString(), "Liquid balance is 900").to.equal(
+      ethers.utils.parseUnits("900", 6).toString()
+    );
 
-		expect(liquid_balance.toString(), 'Liquid balance is 400').to.equal(ethers.utils.parseUnits('400', 6).toString());
+    // expect total balance is 1800
+    expect(
+      await MockERC20.balanceOf(deployRes.addresses.account),
+      "Total balance is 1800"
+    ).to.equal(ethers.utils.parseUnits("1800", 6).toString());
 
-		expect(await MockERC20.balanceOf(deployRes.addresses.account), 'Total Balance is 900').to.equal(
-			ethers.utils.parseUnits('900', 6).toString()
-		);
-	});
+    // second locked withdraw to check if it works fine
 
-	it('Should be able to accept deposits and withdraw locked deposits via txn from the endowment multisig, AP team multisig and Locked withdraw contract ', async function () {
-		const accountQuery = await ethers.getContractAt('AccountsQueryEndowments', deployRes.addresses.account);
+    tx = await endowmentMultisig
+      .connect(admin1)
+      .submitTransaction("Locked Withdraw", "withdraw locked", lockedWithdraw.address, 0, data);
 
-		let donor = addrs[0];
+    txnReceipt = await tx.wait();
 
-		let registrar = await ethers.getContractAt('Registrar', deployRes.addresses.registrar);
-		let registrarConfig = await registrar.queryConfig();
+    txId = txnReceipt.events[0].args.transactionId;
 
-		// console.log('Fetched USDC address', registrarConfig.usdcAddress);
+    // approve the transaction for admin2
 
-		const MockERC20 = await ethers.getContractAt('MockUSDC', registrarConfig.usdcAddress);
+    tx = await endowmentMultisig.connect(admin2).confirmTransaction(txId);
 
-		await MockERC20.connect(deployer).transfer(donor.address, ethers.utils.parseUnits('10000', 6));
+    endowmentMultisigReceipt = await tx.wait();
 
-		// Deposit to accounts
+    flag = 1;
+    for (let i = 0; i < endowmentMultisigReceipt.events.length; i++) {
+      if (endowmentMultisigReceipt.events[i].event == "ExecutionFailure") {
+        flag = 0;
+        break;
+      }
+    }
 
-		const accountDeposit = await ethers.getContractAt('AccountDepositWithdrawEndowments', deployRes.addresses.account);
+    // console.log(endowmentMultisigReceipt.events);
 
-		MockERC20.connect(donor).approve(accountDeposit.address, ethers.utils.parseUnits('10000', 6));
+    expect(flag === 1, "Transaction executed successfully").to.equal(true);
 
-		let depositTxn = await accountDeposit
-			.connect(donor)
-			.depositERC20(
-				{ id: 1, lockedPercentage: 50, liquidPercentage: 50 },
-				registrarConfig.usdcAddress,
-				ethers.utils.parseUnits('1000', 6)
-			);
+    // approve from ap team multisig
 
-		await depositTxn.wait();
+    tx = await APMultisig.connect(admin1).submitTransaction(
+      "Locked Withdraw",
+      "charity approval for withdraw locked",
+      lockedWithdraw.address,
+      0,
+      apdata
+    );
 
-		let liquid_balance = await accountQuery.queryTokenAmount(1, 1, registrarConfig.usdcAddress);
-		let lockedBalance = await accountQuery.queryTokenAmount(1, 0, registrarConfig.usdcAddress);
-		// console.log(depositTxnReceipt.events);
+    txnReceipt = await tx.wait();
 
-		// console.log('Locked balance', lockedBalance.toString());
-		// console.log('Liquid balance', liquid_balance.toString());
-		expect(lockedBalance.toString(), 'Locked balance is 1000').to.equal(ethers.utils.parseUnits('1000', 6).toString());
-		expect(liquid_balance.toString(), 'Liquid balance is 900').to.equal(ethers.utils.parseUnits('900', 6).toString());
+    // console.log(txnReceipt.events);
 
-		const endowmentMultisig = await ethers.getContractAt('EndowmentMultiSig', endowment.owner);
+    txId = txnReceipt.events[0].args.transactionId;
 
-		let endowmentMultisigID = await endowmentMultisig.ENDOWMENT_ID();
-		// console.log('Endowment Multisig Id', endowmentMultisigID.toString());
-		expect(endowmentMultisigID.toString(), 'Multisig for ID 1 deployed').to.equal('1');
+    // approve the transaction for admin2
 
-		let endowmentOwners = await endowmentMultisig.getOwners();
-		// console.log('Endowment Owners', endowmentOwners);
-		expect(endowmentOwners, 'Endowment owners are multisig owners').to.deep.equal([
-			admin1.address,
-			admin2.address,
-			admin3.address,
-		]);
+    console.log("Accounts", deployRes.addresses.account);
 
-		expect(endowment.owner, 'Endowment owner is not deployer, new owner is multisig').not.equal(deployer.address);
+    tx = await APMultisig.connect(admin2).confirmTransaction(txId);
 
-		const lockedWithdraw = await ethers.getContractAt('LockedWithdraw', deployRes.addresses.lockedWithdraw);
+    apTeamMultisigReceipt = await tx.wait();
 
-		const data = lockedWithdraw.interface.encodeFunctionData('propose', [
-			1,
-			admin2.address,
-			[registrarConfig.usdcAddress],
-			[ethers.utils.parseUnits('100', 6)],
-		]);
+    flag = 1;
+    for (let i = 0; i < apTeamMultisigReceipt.events.length; i++) {
+      if (apTeamMultisigReceipt.events[i].event == "ExecutionFailure") {
+        flag = 0;
+        break;
+      }
+    }
 
-		let tx = await endowmentMultisig
-			.connect(admin1)
-			.submitTransaction('Locked Withdraw', 'withdraw locked', lockedWithdraw.address, 0, data);
+    expect(flag === 1, "Transaction executed successfully").to.equal(true);
 
-		let txnReceipt = await tx.wait();
+    liquid_balance = await accountQuery.queryTokenAmount(1, 1, registrarConfig.usdcAddress);
+    lockedBalance = await accountQuery.queryTokenAmount(1, 0, registrarConfig.usdcAddress);
 
-		let txId = txnReceipt.events[0].args.transactionId;
+    expect(await MockERC20.balanceOf(admin2.address), "Balance of address 2 is 300").to.equal(
+      ethers.utils.parseUnits("300", 6).toString()
+    );
 
-		// approve the transaction for admin2
+    // expect locked balance is 800
+    expect(lockedBalance.toString(), "Locked balance is 800").to.equal(
+      ethers.utils.parseUnits("800", 6).toString()
+    );
 
-		tx = await endowmentMultisig.connect(admin2).confirmTransaction(txId);
+    // expect liquid balance is 900
+    expect(liquid_balance.toString(), "Liquid balance is 900").to.equal(
+      ethers.utils.parseUnits("900", 6).toString()
+    );
 
-		let endowmentMultisigReceipt = await tx.wait();
+    // expect total balance is 1700
+    expect(
+      await MockERC20.balanceOf(deployRes.addresses.account),
+      "Total balance is 1700"
+    ).to.equal(ethers.utils.parseUnits("1700", 6).toString());
+  });
 
-		let flag = 1;
-		for (let i = 0; i < endowmentMultisigReceipt.events.length; i++) {
-			if (endowmentMultisigReceipt.events[i].event == 'ExecutionFailure') {
-				flag = 0;
-				break;
-			}
-		}
+  it("Should be able to accept deposits, add another request after a locked withdraw is rejected ", async function () {
+    const accountQuery = await ethers.getContractAt(
+      "AccountsQueryEndowments",
+      deployRes.addresses.account
+    );
 
-		// console.log(endowmentMultisigReceipt.events);
+    let donor = addrs[0];
 
-		expect(flag === 1, 'Transaction executed successfully').to.equal(true);
+    let registrar = await ethers.getContractAt("Registrar", deployRes.addresses.registrar);
+    let registrarConfig = await registrar.queryConfig();
 
-		// approve from ap team multisig
+    // console.log('Fetched USDC address', registrarConfig.usdcAddress);
 
-		const apMultisigAddress = deployRes.addresses.multisigAddress.APTeamMultiSig;
-		APMultisig = await ethers.getContractAt('APTeamMultiSig', apMultisigAddress);
+    const MockERC20 = await ethers.getContractAt("MockUSDC", registrarConfig.usdcAddress);
 
-		let apdata = lockedWithdraw.interface.encodeFunctionData('approve', [1]);
+    await MockERC20.connect(deployer).transfer(donor.address, ethers.utils.parseUnits("10000", 6));
 
-		tx = await APMultisig.connect(admin1).submitTransaction(
-			'Locked Withdraw',
-			'charity approval for withdraw locked',
-			lockedWithdraw.address,
-			0,
-			apdata
-		);
+    // Deposit to accounts
 
-		txnReceipt = await tx.wait();
+    const accountDeposit = await ethers.getContractAt(
+      "AccountDepositWithdrawEndowments",
+      deployRes.addresses.account
+    );
 
-		// console.log(txnReceipt.events);
+    MockERC20.connect(donor).approve(accountDeposit.address, ethers.utils.parseUnits("10000", 6));
 
-		txId = txnReceipt.events[0].args.transactionId;
+    let depositTxn = await accountDeposit
+      .connect(donor)
+      .depositERC20(
+        {id: 1, lockedPercentage: 50, liquidPercentage: 50},
+        registrarConfig.usdcAddress,
+        ethers.utils.parseUnits("1000", 6)
+      );
 
-		// approve the transaction for admin2
+    await depositTxn.wait();
 
-		console.log('Accounts', deployRes.addresses.account);
+    let liquid_balance = await accountQuery.queryTokenAmount(1, 1, registrarConfig.usdcAddress);
+    let lockedBalance = await accountQuery.queryTokenAmount(1, 0, registrarConfig.usdcAddress);
+    // console.log(depositTxnReceipt.events);
 
-		tx = await APMultisig.connect(admin2).confirmTransaction(txId);
+    // console.log('Locked balance', lockedBalance.toString());
+    // console.log('Liquid balance', liquid_balance.toString());
+    expect(lockedBalance.toString(), "Locked balance is 1300").to.equal(
+      ethers.utils.parseUnits("1300", 6).toString()
+    );
+    expect(liquid_balance.toString(), "Liquid balance is 1400").to.equal(
+      ethers.utils.parseUnits("1400", 6).toString()
+    );
 
-		apTeamMultisigReceipt = await tx.wait();
+    const endowmentMultisig = await ethers.getContractAt("EndowmentMultiSig", endowment.owner);
 
-		flag = 1;
-		for (let i = 0; i < apTeamMultisigReceipt.events.length; i++) {
-			if (apTeamMultisigReceipt.events[i].event == 'ExecutionFailure') {
-				flag = 0;
-				break;
-			}
-		}
+    let endowmentMultisigID = await endowmentMultisig.ENDOWMENT_ID();
+    // console.log('Endowment Multisig Id', endowmentMultisigID.toString());
+    expect(endowmentMultisigID.toString(), "Multisig for ID 1 deployed").to.equal("1");
 
-		expect(flag === 1, 'Transaction executed successfully').to.equal(true);
+    let endowmentOwners = await endowmentMultisig.getOwners();
+    // console.log('Endowment Owners', endowmentOwners);
+    expect(endowmentOwners, "Endowment owners are multisig owners").to.deep.equal([
+      admin1.address,
+      admin2.address,
+      admin3.address,
+    ]);
 
-		expect(await MockERC20.balanceOf(admin2.address), 'Balance of address 2 is 200').to.equal(
-			ethers.utils.parseUnits('200', 6).toString()
-		);
+    expect(endowment.owner, "Endowment owner is not deployer, new owner is multisig").not.equal(
+      deployer.address
+    );
 
-		liquid_balance = await accountQuery.queryTokenAmount(1, 1, registrarConfig.usdcAddress);
-		lockedBalance = await accountQuery.queryTokenAmount(1, 0, registrarConfig.usdcAddress);
+    const lockedWithdraw = await ethers.getContractAt(
+      "LockedWithdraw",
+      deployRes.addresses.lockedWithdraw
+    );
 
-		// expect locked balance is 900
-		expect(lockedBalance.toString(), 'Locked balance is 900').to.equal(ethers.utils.parseUnits('900', 6).toString());
+    const data = lockedWithdraw.interface.encodeFunctionData("propose", [
+      1,
+      admin2.address,
+      [registrarConfig.usdcAddress],
+      [ethers.utils.parseUnits("100", 6)],
+    ]);
 
-		// expect liquid balance is 900
-		expect(liquid_balance.toString(), 'Liquid balance is 900').to.equal(ethers.utils.parseUnits('900', 6).toString());
+    let tx = await endowmentMultisig
+      .connect(admin1)
+      .submitTransaction("Locked Withdraw", "withdraw locked", lockedWithdraw.address, 0, data);
 
-		// expect total balance is 1800
-		expect(await MockERC20.balanceOf(deployRes.addresses.account), 'Total balance is 1800').to.equal(
-			ethers.utils.parseUnits('1800', 6).toString()
-		);
+    let txnReceipt = await tx.wait();
 
-		// second locked withdraw to check if it works fine
+    let txId = txnReceipt.events[0].args.transactionId;
 
-		tx = await endowmentMultisig
-			.connect(admin1)
-			.submitTransaction('Locked Withdraw', 'withdraw locked', lockedWithdraw.address, 0, data);
+    // approve the transaction for admin2
 
-		txnReceipt = await tx.wait();
+    tx = await endowmentMultisig.connect(admin2).confirmTransaction(txId);
 
-		txId = txnReceipt.events[0].args.transactionId;
+    let endowmentMultisigReceipt = await tx.wait();
 
-		// approve the transaction for admin2
+    let flag = 1;
+    for (let i = 0; i < endowmentMultisigReceipt.events.length; i++) {
+      if (endowmentMultisigReceipt.events[i].event == "ExecutionFailure") {
+        flag = 0;
+        break;
+      }
+    }
 
-		tx = await endowmentMultisig.connect(admin2).confirmTransaction(txId);
+    // console.log(endowmentMultisigReceipt.events);
 
-		endowmentMultisigReceipt = await tx.wait();
+    expect(flag === 1, "Transaction executed successfully").to.equal(true);
 
-		flag = 1;
-		for (let i = 0; i < endowmentMultisigReceipt.events.length; i++) {
-			if (endowmentMultisigReceipt.events[i].event == 'ExecutionFailure') {
-				flag = 0;
-				break;
-			}
-		}
+    // approve from ap team multisig
 
-		// console.log(endowmentMultisigReceipt.events);
+    const apMultisigAddress = deployRes.addresses.multisigAddress.APTeamMultiSig;
+    APMultisig = await ethers.getContractAt("APTeamMultiSig", apMultisigAddress);
 
-		expect(flag === 1, 'Transaction executed successfully').to.equal(true);
+    let apdata = lockedWithdraw.interface.encodeFunctionData("reject", [1]);
 
-		// approve from ap team multisig
+    tx = await APMultisig.connect(admin1).submitTransaction(
+      "Locked Withdraw",
+      "charity approval for withdraw locked",
+      lockedWithdraw.address,
+      0,
+      apdata
+    );
 
-		tx = await APMultisig.connect(admin1).submitTransaction(
-			'Locked Withdraw',
-			'charity approval for withdraw locked',
-			lockedWithdraw.address,
-			0,
-			apdata
-		);
+    txnReceipt = await tx.wait();
 
-		txnReceipt = await tx.wait();
+    // console.log(txnReceipt.events);
 
-		// console.log(txnReceipt.events);
+    txId = txnReceipt.events[0].args.transactionId;
 
-		txId = txnReceipt.events[0].args.transactionId;
+    // approve the transaction for admin2
 
-		// approve the transaction for admin2
+    console.log("Accounts", deployRes.addresses.account);
 
-		console.log('Accounts', deployRes.addresses.account);
+    tx = await APMultisig.connect(admin2).confirmTransaction(txId);
 
-		tx = await APMultisig.connect(admin2).confirmTransaction(txId);
+    apTeamMultisigReceipt = await tx.wait();
 
-		apTeamMultisigReceipt = await tx.wait();
+    flag = 1;
+    for (let i = 0; i < apTeamMultisigReceipt.events.length; i++) {
+      if (apTeamMultisigReceipt.events[i].event == "ExecutionFailure") {
+        flag = 0;
+        break;
+      }
+    }
 
-		flag = 1;
-		for (let i = 0; i < apTeamMultisigReceipt.events.length; i++) {
-			if (apTeamMultisigReceipt.events[i].event == 'ExecutionFailure') {
-				flag = 0;
-				break;
-			}
-		}
+    expect(flag === 1, "Transaction executed successfully").to.equal(true);
 
-		expect(flag === 1, 'Transaction executed successfully').to.equal(true);
+    expect(await MockERC20.balanceOf(admin2.address), "Balance of address 2 is 300").to.equal(
+      ethers.utils.parseUnits("300", 6).toString()
+    );
 
-		liquid_balance = await accountQuery.queryTokenAmount(1, 1, registrarConfig.usdcAddress);
-		lockedBalance = await accountQuery.queryTokenAmount(1, 0, registrarConfig.usdcAddress);
+    liquid_balance = await accountQuery.queryTokenAmount(1, 1, registrarConfig.usdcAddress);
+    lockedBalance = await accountQuery.queryTokenAmount(1, 0, registrarConfig.usdcAddress);
 
-		expect(await MockERC20.balanceOf(admin2.address), 'Balance of address 2 is 300').to.equal(
-			ethers.utils.parseUnits('300', 6).toString()
-		);
+    expect(lockedBalance.toString(), "Locked balance is 1300").to.equal(
+      ethers.utils.parseUnits("1300", 6).toString()
+    );
 
-		// expect locked balance is 800
-		expect(lockedBalance.toString(), 'Locked balance is 800').to.equal(ethers.utils.parseUnits('800', 6).toString());
+    expect(liquid_balance.toString(), "Liquid balance is 1400").to.equal(
+      ethers.utils.parseUnits("1400", 6).toString()
+    );
 
-		// expect liquid balance is 900
-		expect(liquid_balance.toString(), 'Liquid balance is 900').to.equal(ethers.utils.parseUnits('900', 6).toString());
+    expect(
+      await MockERC20.balanceOf(deployRes.addresses.account),
+      "Total balance is 2700"
+    ).to.equal(ethers.utils.parseUnits("2700", 6).toString());
 
-		// expect total balance is 1700
-		expect(await MockERC20.balanceOf(deployRes.addresses.account), 'Total balance is 1700').to.equal(
-			ethers.utils.parseUnits('1700', 6).toString()
-		);
-	});
+    // second locked withdraw after reject to check if it works fine
 
-	it('Should be able to accept deposits, add another request after a locked withdraw is rejected ', async function () {
-		const accountQuery = await ethers.getContractAt('AccountsQueryEndowments', deployRes.addresses.account);
+    tx = await endowmentMultisig
+      .connect(admin1)
+      .submitTransaction("Locked Withdraw", "withdraw locked", lockedWithdraw.address, 0, data);
 
-		let donor = addrs[0];
+    txnReceipt = await tx.wait();
 
-		let registrar = await ethers.getContractAt('Registrar', deployRes.addresses.registrar);
-		let registrarConfig = await registrar.queryConfig();
+    txId = txnReceipt.events[0].args.transactionId;
 
-		// console.log('Fetched USDC address', registrarConfig.usdcAddress);
+    // approve the transaction for admin2
 
-		const MockERC20 = await ethers.getContractAt('MockUSDC', registrarConfig.usdcAddress);
+    tx = await endowmentMultisig.connect(admin2).confirmTransaction(txId);
 
-		await MockERC20.connect(deployer).transfer(donor.address, ethers.utils.parseUnits('10000', 6));
+    endowmentMultisigReceipt = await tx.wait();
 
-		// Deposit to accounts
+    flag = 1;
+    for (let i = 0; i < endowmentMultisigReceipt.events.length; i++) {
+      if (endowmentMultisigReceipt.events[i].event == "ExecutionFailure") {
+        flag = 0;
+        break;
+      }
+    }
 
-		const accountDeposit = await ethers.getContractAt('AccountDepositWithdrawEndowments', deployRes.addresses.account);
+    expect(flag === 1, "Transaction executed successfully").to.equal(true);
 
-		MockERC20.connect(donor).approve(accountDeposit.address, ethers.utils.parseUnits('10000', 6));
+    apdata = lockedWithdraw.interface.encodeFunctionData("approve", [1]);
+    // approve from ap team multisig
 
-		let depositTxn = await accountDeposit
-			.connect(donor)
-			.depositERC20(
-				{ id: 1, lockedPercentage: 50, liquidPercentage: 50 },
-				registrarConfig.usdcAddress,
-				ethers.utils.parseUnits('1000', 6)
-			);
+    tx = await APMultisig.connect(admin1).submitTransaction(
+      "Locked Withdraw",
+      "charity approval for withdraw locked",
+      lockedWithdraw.address,
+      0,
+      apdata
+    );
 
-		await depositTxn.wait();
+    txnReceipt = await tx.wait();
 
-		let liquid_balance = await accountQuery.queryTokenAmount(1, 1, registrarConfig.usdcAddress);
-		let lockedBalance = await accountQuery.queryTokenAmount(1, 0, registrarConfig.usdcAddress);
-		// console.log(depositTxnReceipt.events);
+    txId = txnReceipt.events[0].args.transactionId;
 
-		// console.log('Locked balance', lockedBalance.toString());
-		// console.log('Liquid balance', liquid_balance.toString());
-		expect(lockedBalance.toString(), 'Locked balance is 1300').to.equal(ethers.utils.parseUnits('1300', 6).toString());
-		expect(liquid_balance.toString(), 'Liquid balance is 1400').to.equal(ethers.utils.parseUnits('1400', 6).toString());
+    // approve the transaction for admin2
 
-		const endowmentMultisig = await ethers.getContractAt('EndowmentMultiSig', endowment.owner);
+    console.log("Accounts", deployRes.addresses.account);
 
-		let endowmentMultisigID = await endowmentMultisig.ENDOWMENT_ID();
-		// console.log('Endowment Multisig Id', endowmentMultisigID.toString());
-		expect(endowmentMultisigID.toString(), 'Multisig for ID 1 deployed').to.equal('1');
+    tx = await APMultisig.connect(admin2).confirmTransaction(txId);
 
-		let endowmentOwners = await endowmentMultisig.getOwners();
-		// console.log('Endowment Owners', endowmentOwners);
-		expect(endowmentOwners, 'Endowment owners are multisig owners').to.deep.equal([
-			admin1.address,
-			admin2.address,
-			admin3.address,
-		]);
+    apTeamMultisigReceipt = await tx.wait();
 
-		expect(endowment.owner, 'Endowment owner is not deployer, new owner is multisig').not.equal(deployer.address);
+    flag = 1;
+    for (let i = 0; i < apTeamMultisigReceipt.events.length; i++) {
+      if (apTeamMultisigReceipt.events[i].event == "ExecutionFailure") {
+        flag = 0;
+        break;
+      }
+    }
 
-		const lockedWithdraw = await ethers.getContractAt('LockedWithdraw', deployRes.addresses.lockedWithdraw);
+    expect(flag === 1, "Transaction executed successfully").to.equal(true);
 
-		const data = lockedWithdraw.interface.encodeFunctionData('propose', [
-			1,
-			admin2.address,
-			[registrarConfig.usdcAddress],
-			[ethers.utils.parseUnits('100', 6)],
-		]);
+    liquid_balance = await accountQuery.queryTokenAmount(1, 1, registrarConfig.usdcAddress);
+    lockedBalance = await accountQuery.queryTokenAmount(1, 0, registrarConfig.usdcAddress);
 
-		let tx = await endowmentMultisig
-			.connect(admin1)
-			.submitTransaction('Locked Withdraw', 'withdraw locked', lockedWithdraw.address, 0, data);
+    // expect(await MockERC20.balanceOf(admin2.address), 'Balance of address 2 is 400').to.equal(
+    // 	ethers.utils.parseUnits('400', 6).toString()
+    // );
 
-		let txnReceipt = await tx.wait();
+    expect(lockedBalance.toString(), "Locked balance is 1200").to.equal(
+      ethers.utils.parseUnits("1200", 6).toString()
+    );
 
-		let txId = txnReceipt.events[0].args.transactionId;
+    expect(liquid_balance.toString(), "Liquid balance is 1400").to.equal(
+      ethers.utils.parseUnits("1400", 6).toString()
+    );
 
-		// approve the transaction for admin2
+    expect(
+      await MockERC20.balanceOf(deployRes.addresses.account),
+      "Total balance is 2600"
+    ).to.equal(ethers.utils.parseUnits("2600", 6).toString());
+  });
 
-		tx = await endowmentMultisig.connect(admin2).confirmTransaction(txId);
+  it("Should check if proper donation match is performed for all above donations", async () => {
+    donor = addrs[0];
+    let registrar = await ethers.getContractAt("Registrar", deployRes.addresses.registrar);
+    let registrarConfig = await registrar.queryConfig();
 
-		let endowmentMultisigReceipt = await tx.wait();
+    // console.log(registrarConfig);
 
-		let flag = 1;
-		for (let i = 0; i < endowmentMultisigReceipt.events.length; i++) {
-			if (endowmentMultisigReceipt.events[i].event == 'ExecutionFailure') {
-				flag = 0;
-				break;
-			}
-		}
+    let haloToken = await ethers.getContractAt("ERC20", registrarConfig.haloToken);
 
-		// console.log(endowmentMultisigReceipt.events);
+    // up until now we have donated 1500 USDC (6 decimals) (500*3) to locked, for this we should have 40% match
+    // 1500 * 40% = 600 Halo (18 decimals)
 
-		expect(flag === 1, 'Transaction executed successfully').to.equal(true);
+    console.log("Halo Balance for donor", await haloToken.balanceOf(donor.address));
 
-		// approve from ap team multisig
-
-		const apMultisigAddress = deployRes.addresses.multisigAddress.APTeamMultiSig;
-		APMultisig = await ethers.getContractAt('APTeamMultiSig', apMultisigAddress);
-
-		let apdata = lockedWithdraw.interface.encodeFunctionData('reject', [1]);
-
-		tx = await APMultisig.connect(admin1).submitTransaction(
-			'Locked Withdraw',
-			'charity approval for withdraw locked',
-			lockedWithdraw.address,
-			0,
-			apdata
-		);
-
-		txnReceipt = await tx.wait();
-
-		// console.log(txnReceipt.events);
-
-		txId = txnReceipt.events[0].args.transactionId;
-
-		// approve the transaction for admin2
-
-		console.log('Accounts', deployRes.addresses.account);
-
-		tx = await APMultisig.connect(admin2).confirmTransaction(txId);
-
-		apTeamMultisigReceipt = await tx.wait();
-
-		flag = 1;
-		for (let i = 0; i < apTeamMultisigReceipt.events.length; i++) {
-			if (apTeamMultisigReceipt.events[i].event == 'ExecutionFailure') {
-				flag = 0;
-				break;
-			}
-		}
-
-		expect(flag === 1, 'Transaction executed successfully').to.equal(true);
-
-		expect(await MockERC20.balanceOf(admin2.address), 'Balance of address 2 is 300').to.equal(
-			ethers.utils.parseUnits('300', 6).toString()
-		);
-
-		liquid_balance = await accountQuery.queryTokenAmount(1, 1, registrarConfig.usdcAddress);
-		lockedBalance = await accountQuery.queryTokenAmount(1, 0, registrarConfig.usdcAddress);
-
-		expect(lockedBalance.toString(), 'Locked balance is 1300').to.equal(ethers.utils.parseUnits('1300', 6).toString());
-
-		expect(liquid_balance.toString(), 'Liquid balance is 1400').to.equal(ethers.utils.parseUnits('1400', 6).toString());
-
-		expect(await MockERC20.balanceOf(deployRes.addresses.account), 'Total balance is 2700').to.equal(
-			ethers.utils.parseUnits('2700', 6).toString()
-		);
-
-		// second locked withdraw after reject to check if it works fine
-
-		tx = await endowmentMultisig
-			.connect(admin1)
-			.submitTransaction('Locked Withdraw', 'withdraw locked', lockedWithdraw.address, 0, data);
-
-		txnReceipt = await tx.wait();
-
-		txId = txnReceipt.events[0].args.transactionId;
-
-		// approve the transaction for admin2
-
-		tx = await endowmentMultisig.connect(admin2).confirmTransaction(txId);
-
-		endowmentMultisigReceipt = await tx.wait();
-
-		flag = 1;
-		for (let i = 0; i < endowmentMultisigReceipt.events.length; i++) {
-			if (endowmentMultisigReceipt.events[i].event == 'ExecutionFailure') {
-				flag = 0;
-				break;
-			}
-		}
-
-		expect(flag === 1, 'Transaction executed successfully').to.equal(true);
-
-		apdata = lockedWithdraw.interface.encodeFunctionData('approve', [1]);
-		// approve from ap team multisig
-
-		tx = await APMultisig.connect(admin1).submitTransaction(
-			'Locked Withdraw',
-			'charity approval for withdraw locked',
-			lockedWithdraw.address,
-			0,
-			apdata
-		);
-
-		txnReceipt = await tx.wait();
-
-		txId = txnReceipt.events[0].args.transactionId;
-
-		// approve the transaction for admin2
-
-		console.log('Accounts', deployRes.addresses.account);
-
-		tx = await APMultisig.connect(admin2).confirmTransaction(txId);
-
-		apTeamMultisigReceipt = await tx.wait();
-
-		flag = 1;
-		for (let i = 0; i < apTeamMultisigReceipt.events.length; i++) {
-			if (apTeamMultisigReceipt.events[i].event == 'ExecutionFailure') {
-				flag = 0;
-				break;
-			}
-		}
-
-		expect(flag === 1, 'Transaction executed successfully').to.equal(true);
-
-		liquid_balance = await accountQuery.queryTokenAmount(1, 1, registrarConfig.usdcAddress);
-		lockedBalance = await accountQuery.queryTokenAmount(1, 0, registrarConfig.usdcAddress);
-
-		// expect(await MockERC20.balanceOf(admin2.address), 'Balance of address 2 is 400').to.equal(
-		// 	ethers.utils.parseUnits('400', 6).toString()
-		// );
-
-		expect(lockedBalance.toString(), 'Locked balance is 1200').to.equal(ethers.utils.parseUnits('1200', 6).toString());
-
-		expect(liquid_balance.toString(), 'Liquid balance is 1400').to.equal(ethers.utils.parseUnits('1400', 6).toString());
-
-		expect(await MockERC20.balanceOf(deployRes.addresses.account), 'Total balance is 2600').to.equal(
-			ethers.utils.parseUnits('2600', 6).toString()
-		);
-	});
-
-	it('Should check if proper donation match is performed for all above donations', async () => {
-		donor = addrs[0];
-		let registrar = await ethers.getContractAt('Registrar', deployRes.addresses.registrar);
-		let registrarConfig = await registrar.queryConfig();
-
-		// console.log(registrarConfig);
-
-		let haloToken = await ethers.getContractAt('ERC20', registrarConfig.haloToken);
-
-		// up until now we have donated 1500 USDC (6 decimals) (500*3) to locked, for this we should have 40% match
-		// 1500 * 40% = 600 Halo (18 decimals)
-
-		console.log('Halo Balance for donor', await haloToken.balanceOf(donor.address));
-
-		// This should be parseEthers after Xsqrt price change in uniswap pool creator
-		expect(await haloToken.balanceOf(donor.address), 'Halo balance of donor is 600').to.be.above(
-			ethers.utils.parseUnits('590', 18)
-		);
-	});
+    // This should be parseEthers after Xsqrt price change in uniswap pool creator
+    expect(await haloToken.balanceOf(donor.address), "Halo balance of donor is 600").to.be.above(
+      ethers.utils.parseUnits("590", 18)
+    );
+  });
 });

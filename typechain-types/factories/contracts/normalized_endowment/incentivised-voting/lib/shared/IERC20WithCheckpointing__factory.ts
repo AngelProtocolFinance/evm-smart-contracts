@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
 import type {
   IERC20WithCheckpointing,
   IERC20WithCheckpointingInterface,
@@ -92,14 +92,7 @@ export class IERC20WithCheckpointing__factory {
   static createInterface(): IERC20WithCheckpointingInterface {
     return new utils.Interface(_abi) as IERC20WithCheckpointingInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IERC20WithCheckpointing {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as IERC20WithCheckpointing;
+  static connect(address: string, signerOrProvider: Signer | Provider): IERC20WithCheckpointing {
+    return new Contract(address, _abi, signerOrProvider) as IERC20WithCheckpointing;
   }
 }

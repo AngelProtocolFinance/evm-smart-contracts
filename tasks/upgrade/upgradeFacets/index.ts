@@ -1,1 +1,1 @@
-import "./upgradeFacets"
+import "./upgradeFacets";

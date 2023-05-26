@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
 import type {
   AccessControlUpgradeable,
   AccessControlUpgradeableInterface,
@@ -234,14 +234,7 @@ export class AccessControlUpgradeable__factory {
   static createInterface(): AccessControlUpgradeableInterface {
     return new utils.Interface(_abi) as AccessControlUpgradeableInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): AccessControlUpgradeable {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as AccessControlUpgradeable;
+  static connect(address: string, signerOrProvider: Signer | Provider): AccessControlUpgradeable {
+    return new Contract(address, _abi, signerOrProvider) as AccessControlUpgradeable;
   }
 }

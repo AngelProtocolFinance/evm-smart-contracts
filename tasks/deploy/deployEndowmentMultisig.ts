@@ -1,15 +1,15 @@
-import { task } from "hardhat/config"
-import { deployEndowmentMultiSig } from "contracts/normalized_endowment/endowment-multisig/scripts/deploy"
-import { logger } from "utils"
+import {task} from "hardhat/config";
+import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
+import {logger} from "utils";
 
 task("Deploy:deployEndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
-    .addParam("verify", "Want to verify contract")
-    .setAction(async (taskArgs, hre) => {
-        try {
-            var isTrueSet = taskArgs.verify === "true";
+  .addParam("verify", "Want to verify contract")
+  .setAction(async (taskArgs, hre) => {
+    try {
+      var isTrueSet = taskArgs.verify === "true";
 
-            await deployEndowmentMultiSig(isTrueSet, hre);
-        } catch (error) {
-            logger.out(error, logger.Level.Error)
-        }
-    });
+      await deployEndowmentMultiSig(isTrueSet, hre);
+    } catch (error) {
+      logger.out(error, logger.Level.Error);
+    }
+  });

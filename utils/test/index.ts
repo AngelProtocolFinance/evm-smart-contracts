@@ -1,2 +1,2 @@
-export * from "./ILocalRegistrarHelpers"
-export * from "./IRouterHelpers"
+export * from "./ILocalRegistrarHelpers";
+export * from "./IRouterHelpers";
