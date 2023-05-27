@@ -17,6 +17,48 @@ abstract contract IVault {
     LIQUID
   }
 
+  struct VaultConfig {
+    VaultType vaultType;
+    bytes4 strategySelector;
+    address strategy;
+    address registrar;
+    address yieldAsset;
+    string apTokenName;
+    string apTokenSymbol;
+  }
+
+    /// @notice Gerneric AP Vault action data 
+    /// @param destinationChain The Axelar string name of the blockchain that will receive redemptions/refunds
+    /// @param strategyId The 4 byte truncated keccak256 hash of the strategy name, i.e. bytes4(keccak256("Goldfinch"))
+    /// @param selector The Vault method that should be called
+    /// @param accountId The endowment uid
+    /// @param token The token (if any) that was forwarded along with the calldata packet by GMP
+    /// @param lockAmt The amount of said token that is intended to interact with the locked vault
+    /// @param liqAmt The amount of said token that is intended to interact with the liquid vault
+    struct VaultActionData {
+        string destinationChain;
+        bytes4 strategyId;
+        bytes4 selector;
+        uint32[] accountIds;
+        address token;
+        uint256 lockAmt;
+        uint256 liqAmt;
+        VaultActionStatus status;
+    }
+
+    enum VaultActionStatus {
+        UNPROCESSED,                // INIT state
+        SUCCESS,                    // Ack 
+        POSITION_EXITED,             // Position fully exited 
+        FAIL_TOKENS_RETURNED,       // Tokens returned to accounts contract
+        FAIL_TOKENS_FALLBACK       // Tokens failed to be returned to accounts contract
+    }
+
+    struct RedemptionResponse {
+        uint256 amount; 
+        VaultActionStatus status;
+    }
+
 
   /*////////////////////////////////////////////////
                         EVENTS
@@ -52,9 +94,8 @@ abstract contract IVault {
                     EXTERNAL METHODS
   */ ////////////////////////////////////////////////
 
-  /// @notice returns the vault type
-  /// @dev a vault must declare its Type upon initialization/construction
-  function getVaultType() external view virtual returns (VaultType);
+  /// @notice returns the vault config
+  function getVaultConfig() external view virtual returns (VaultConfig memory);
 
   /// @notice deposit tokens into vault position of specified Account
   /// @dev the deposit method allows the Vault contract to create or add to an existing
@@ -78,7 +119,7 @@ abstract contract IVault {
     uint32 accountId,
     address token,
     uint256 amt
-  ) external payable virtual returns (IRouter.RedemptionResponse memory);
+  ) external payable virtual returns (RedemptionResponse memory);
 
   /// @notice redeem all of the value from the vault contract
   /// @dev allows an Account to redeem all of its staked value. Good for rebasing tokens wherein the value isn't

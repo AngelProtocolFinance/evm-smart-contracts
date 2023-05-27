@@ -56,7 +56,7 @@ abstract contract ERC4626AP is ERC20AP {
 
         emit Deposit(_msgSender(), receiver, assets, shares);
 
-        afterDeposit(assets, shares);
+        _afterDeposit(assets, shares);
     }
 
     function mint(uint256 shares, uint32 receiver) public virtual operatorOnly returns (uint256 assets) {
@@ -69,7 +69,7 @@ abstract contract ERC4626AP is ERC20AP {
 
         emit Deposit(_msgSender(), receiver, assets, shares);
 
-        afterDeposit(assets, shares);
+        _afterDeposit(assets, shares);
     }
 
     function withdraw(
@@ -85,7 +85,7 @@ abstract contract ERC4626AP is ERC20AP {
             if (allowed != type(uint256).max) allowances[owner][_msgSender()] = allowed - shares;
         }
 
-        beforeWithdraw(assets, shares);
+        _beforeWithdraw(assets, shares);
 
         _burn(owner, shares);
 
@@ -103,7 +103,7 @@ abstract contract ERC4626AP is ERC20AP {
         // Check for rounding error since we round down in previewRedeem.
         require((assets = previewRedeem(shares)) != 0, "ZERO_ASSETS");
 
-        beforeWithdraw(assets, shares);
+        _beforeWithdraw(assets, shares);
 
         _burn(owner, shares);
 
@@ -116,7 +116,7 @@ abstract contract ERC4626AP is ERC20AP {
                             ACCOUNTING LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function totalAssets() public view virtual returns (uint256);
+    function totalAssets() public view virtual returns (uint256) {}
 
     function convertToShares(uint256 assets) public view virtual returns (uint256) {
         uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply is non-zero.
@@ -174,7 +174,7 @@ abstract contract ERC4626AP is ERC20AP {
                           INTERNAL HOOKS LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function beforeWithdraw(uint256 assets, uint256 shares) internal virtual {}
+    function _beforeWithdraw(uint256 assets, uint256 shares) internal virtual {}
 
-    function afterDeposit(uint256 assets, uint256 shares) internal virtual {}
+    function _afterDeposit(uint256 assets, uint256 shares) internal virtual {}
 }

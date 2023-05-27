@@ -2,7 +2,7 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.0;
 
-import { IVault } from "../../../interfaces/IVault.sol";
+import {IVault} from "../../vault/interfaces/IVault.sol";
 import {LocalRegistrarLib} from "../lib/LocalRegistrarLib.sol";
  
 interface ILocalRegistrar {
@@ -60,6 +60,8 @@ interface ILocalRegistrar {
         view
         returns (LocalRegistrarLib.StrategyApprovalState);
     
+    function getVaultOperatorApproved(address _operator) external view returns (bool);
+    
     // Setter meothods for granular changes to specific params
     function setRebalanceParams(LocalRegistrarLib.RebalanceParams calldata _rebalanceParams)
         external;
@@ -96,4 +98,6 @@ interface ILocalRegistrar {
     function setTokenAccepted(address _tokenAddr, bool _isAccepted) external;
 
     function setGasByToken(address _tokenAddr, uint256 _gasFee) external;
+
+    function setVaultOperatorApproved(address _operator, bool _isApproved) external;
 }

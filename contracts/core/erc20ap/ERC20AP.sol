@@ -256,5 +256,5 @@ abstract contract ERC20AP is Context, IERC20AP {
         _;
     }
 
-    function _isOperator(address operator) internal virtual returns (bool) {}
+    function _isOperator(address _operator) internal virtual returns (bool) {}
 }

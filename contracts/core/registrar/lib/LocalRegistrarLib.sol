@@ -2,7 +2,7 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.0;
 
-import { IVault } from "../../../interfaces/IVault.sol";
+import { IVault } from "../../vault/interfaces/IVault.sol";
 
 library LocalRegistrarLib {
 
@@ -68,6 +68,7 @@ library LocalRegistrarLib {
       mapping(bytes4 => StrategyParams) VaultsByStrategyId;
       mapping(address => bool) AcceptedTokens;
       mapping(address=> uint256) GasFeeByToken;
+      mapping(address => bool) ApprovedVaultOperators;
     }
 
     /*////////////////////////////////////////////////

@@ -4,9 +4,7 @@ pragma solidity >=0.8.8;
 
 import {IRouter} from "./IRouter.sol";
 import {RouterLib} from "./RouterLib.sol";
-import {IVault} from "../../interfaces/IVault.sol";
-import {IVaultLiquid} from "../../interfaces/IVaultLiquid.sol";
-import {IVaultLocked} from "../../interfaces/IVaultLocked.sol";
+import {IVault} from "../vault/interfaces/IVault.sol";
 import {ILocalRegistrar} from "../registrar/interfaces/ILocalRegistrar.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 import {StringToAddress} from "../../lib/StringAddressUtils.sol";
@@ -45,7 +43,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
                     MODIFIERS
     */ ///////////////////////////////////////////////
 
-    modifier onlyOneAccount(VaultActionData memory _action) {
+    modifier onlyOneAccount(IVault.VaultActionData memory _action) {
         require(_action.accountIds.length == 1, "Only one account allowed");
         _;
     }
@@ -56,7 +54,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     }
 
     modifier validateDeposit(
-        VaultActionData memory action,
+        IVault.VaultActionData memory action,
         string calldata tokenSymbol,
         uint256 amount
     ) {
@@ -88,7 +86,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         _;
     }
 
-    modifier validateCall(VaultActionData memory action) {
+    modifier validateCall(IVault.VaultActionData memory action) {
         require(
             (registrar.getStrategyApprovalState(action.strategyId) ==
                 LocalRegistrarLib.StrategyApprovalState.APPROVED) ||
@@ -105,8 +103,8 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
 
     function _callSwitch(
         LocalRegistrarLib.StrategyParams memory _params,
-        VaultActionData memory _action
-    ) internal validateCall(_action) returns (VaultActionData memory) {
+        IVault.VaultActionData memory _action
+    ) internal validateCall(_action) returns (IVault.VaultActionData memory) {
         // REDEEM
         if (_action.selector == IVault.redeem.selector) {
             return _redeem(_params, _action);
@@ -129,7 +127,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     /// @notice Deposit into the associated liquid or locked vaults
     /// @dev onlySelf restricted public method to enable try/catch in caller
     function deposit(
-        VaultActionData memory action,
+        IVault.VaultActionData memory action,
         string calldata tokenSymbol,
         uint256 amount
     ) public onlySelf validateDeposit(action, tokenSymbol, amount) {
@@ -144,7 +142,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
                     action.lockAmt
                 )
             );
-            IVaultLocked lockedVault = IVaultLocked(params.Locked.vaultAddr);
+            IVault lockedVault = IVault(params.Locked.vaultAddr);
             lockedVault.deposit(
                 action.accountIds[0],
                 action.token,
@@ -160,7 +158,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
                     action.liqAmt
                 )
             );
-            IVaultLiquid liquidVault = IVaultLiquid(params.Liquid.vaultAddr);
+            IVault liquidVault = IVault(params.Liquid.vaultAddr);
             liquidVault.deposit(
                 action.accountIds[0],
                 action.token,
@@ -172,13 +170,13 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     // Vault action::Redeem
     function _redeem(
         LocalRegistrarLib.StrategyParams memory _params,
-        VaultActionData memory _action
-    ) internal onlyOneAccount(_action) returns (VaultActionData memory) {
-        IVaultLocked lockedVault = IVaultLocked(_params.Locked.vaultAddr);
-        IVaultLiquid liquidVault = IVaultLiquid(_params.Liquid.vaultAddr);
+        IVault.VaultActionData memory _action
+    ) internal onlyOneAccount(_action) returns (IVault.VaultActionData memory) {
+        IVault lockedVault = IVault(_params.Locked.vaultAddr);
+        IVault liquidVault = IVault(_params.Liquid.vaultAddr);
 
         // Redeem tokens from vaults which sends them from the vault to this contract
-        RedemptionResponse memory _redemptionLock = lockedVault.redeem(
+        IVault.RedemptionResponse memory _redemptionLock = lockedVault.redeem(
             _action.accountIds[0],
             _action.token,
             _action.lockAmt
@@ -191,7 +189,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
             )
         );
 
-        RedemptionResponse memory _redemptionLiquid = liquidVault.redeem(
+        IVault.RedemptionResponse memory _redemptionLiquid = liquidVault.redeem(
             _action.accountIds[0],
             _action.token,
             _action.liqAmt
@@ -210,12 +208,12 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         _action.liqAmt = _redemptionLiquid.amount;
         _action = _prepareToSendTokens(_action, _redeemedAmt);
         emit Redemption(_action, _redeemedAmt);
-        if ((_redemptionLock.status == VaultActionStatus.POSITION_EXITED) &&
-            (_redemptionLiquid.status == VaultActionStatus.POSITION_EXITED)) {
-                _action.status = VaultActionStatus.POSITION_EXITED;
+        if ((_redemptionLock.status == IVault.VaultActionStatus.POSITION_EXITED) &&
+            (_redemptionLiquid.status == IVault.VaultActionStatus.POSITION_EXITED)) {
+                _action.status = IVault.VaultActionStatus.POSITION_EXITED;
             }
         else {
-            _action.status = VaultActionStatus.SUCCESS;
+            _action.status = IVault.VaultActionStatus.SUCCESS;
             }
         return _action;
     }
@@ -224,10 +222,10 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     // @todo redemption amts need to affect _action data
     function _redeemAll(
         LocalRegistrarLib.StrategyParams memory _params,
-        VaultActionData memory _action
-    ) internal onlyOneAccount(_action) returns (VaultActionData memory) {
-        IVaultLocked lockedVault = IVaultLocked(_params.Locked.vaultAddr);
-        IVaultLiquid liquidVault = IVaultLiquid(_params.Liquid.vaultAddr);
+        IVault.VaultActionData memory _action
+    ) internal onlyOneAccount(_action) returns (IVault.VaultActionData memory) {
+        IVault lockedVault = IVault(_params.Locked.vaultAddr);
+        IVault liquidVault = IVault(_params.Liquid.vaultAddr);
 
         // Redeem tokens from vaults and txfer them to the Router
         uint256 _redeemedLockAmt;
@@ -260,7 +258,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         uint256 _redeemedAmt = _redeemedLockAmt + _redeemedLiqAmt;
         _action = _prepareToSendTokens(_action, _redeemedAmt);
         emit Redemption(_action, _redeemedAmt);
-        _action.status = VaultActionStatus.POSITION_EXITED;
+        _action.status = IVault.VaultActionStatus.POSITION_EXITED;
         return _action;
     }
 
@@ -268,10 +266,10 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     // @todo redemption amts need to affect _action data
     function _harvest(
         LocalRegistrarLib.StrategyParams memory _params,
-        VaultActionData memory _action
-    ) internal returns (VaultActionData memory) {
-        IVaultLiquid liquidVault = IVaultLiquid(_params.Liquid.vaultAddr);
-        IVaultLocked lockedVault = IVaultLocked(_params.Locked.vaultAddr);
+        IVault.VaultActionData memory _action
+    ) internal returns (IVault.VaultActionData memory) {
+        IVault liquidVault = IVault(_params.Liquid.vaultAddr);
+        IVault lockedVault = IVault(_params.Locked.vaultAddr);
         liquidVault.harvest(_action.accountIds);
         lockedVault.harvest(_action.accountIds);
         emit Harvest(_action);
@@ -286,7 +284,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         string calldata sourceChain,
         string calldata sourceAddress,
         bytes calldata payload
-    ) external override onlyLocalAccountsContract returns (VaultActionData memory) {
+    ) external override onlyLocalAccountsContract returns (IVault.VaultActionData memory) {
         return _execute(sourceChain, sourceAddress, payload);
     }
 
@@ -296,7 +294,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         bytes calldata payload,
         string calldata tokenSymbol,
         uint256 amount
-    ) external override onlyLocalAccountsContract returns (VaultActionData memory) {
+    ) external override onlyLocalAccountsContract returns (IVault.VaultActionData memory) {
         return
             _executeWithToken(
                 sourceChain,
@@ -340,9 +338,9 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     }
 
     function _prepareToSendTokens(
-        VaultActionData memory _action,
+        IVault.VaultActionData memory _action,
         uint256 _sendAmt
-    ) internal returns (VaultActionData memory) {
+    ) internal returns (IVault.VaultActionData memory) {
         if (
             keccak256(bytes(_action.destinationChain)) ==
             keccak256(bytes(chain))
@@ -354,9 +352,9 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     }
 
     function _prepareAndSendTokensLocal(
-        VaultActionData memory _action,
+        IVault.VaultActionData memory _action,
         uint256 _sendAmt
-    ) internal returns (VaultActionData memory) {
+    ) internal returns (IVault.VaultActionData memory) {
         string memory accountsContractAddress = registrar
             .getAccountsContractAddressByChain((_action.destinationChain));
         IERC20Metadata(_action.token).transfer(
@@ -368,9 +366,9 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     }
 
     function _prepareAndSendTokensGMP(
-        VaultActionData memory _action,
+        IVault.VaultActionData memory _action,
         uint256 _sendAmt
-    ) internal returns (VaultActionData memory) {
+    ) internal returns (IVault.VaultActionData memory) {
         // Pack the tokens and calldata for bridging back out over GMP
         LocalRegistrarLib.AngelProtocolParams memory apParams = registrar
             .getAngelProtocolParams();
@@ -409,7 +407,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
                 _sendAmt
             );
             emit FallbackRefund(_action, _sendAmt);
-            _action.status = VaultActionStatus.FAIL_TOKENS_FALLBACK;
+            _action.status = IVault.VaultActionStatus.FAIL_TOKENS_FALLBACK;
         } catch (bytes memory data) {
             emit LogErrorBytes(_action, data);
             IERC20Metadata(_action.token).transfer(
@@ -417,7 +415,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
                 _sendAmt
             );
             emit FallbackRefund(_action, _sendAmt);
-            _action.status = VaultActionStatus.FAIL_TOKENS_FALLBACK;
+            _action.status = IVault.VaultActionStatus.FAIL_TOKENS_FALLBACK;
         }
         return _action;
     }
@@ -472,23 +470,23 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         override
         onlyAccountsContract(sourceChain, sourceAddress)
         notZeroAddress(sourceAddress)
-        returns (VaultActionData memory)
+        returns (IVault.VaultActionData memory)
     {
         // decode payload
-        VaultActionData memory action = RouterLib.unpackCalldata(payload);
+        IVault.VaultActionData memory action = RouterLib.unpackCalldata(payload);
 
         // Leverage this.call() to enable try/catch logic
         try this.deposit(action, tokenSymbol, amount) {
             emit Deposit(action);
-            action.status = VaultActionStatus.SUCCESS;
+            action.status = IVault.VaultActionStatus.SUCCESS;
             return action;
         } catch Error(string memory reason) {
             emit LogError(action, reason);
-            action.status = VaultActionStatus.FAIL_TOKENS_RETURNED; // Optimistically set to RETURN status, FALLBACK changes if necessary 
+            action.status = IVault.VaultActionStatus.FAIL_TOKENS_RETURNED; // Optimistically set to RETURN status, FALLBACK changes if necessary 
             return _prepareToSendTokens(action, amount);
         } catch (bytes memory data) {
             emit LogErrorBytes(action, data);
-            action.status = VaultActionStatus.FAIL_TOKENS_RETURNED;
+            action.status = IVault.VaultActionStatus.FAIL_TOKENS_RETURNED;
             return _prepareToSendTokens(action, amount);
         }
     }
@@ -502,10 +500,10 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         override
         onlyAccountsContract(sourceChain, sourceAddress)
         notZeroAddress(sourceAddress)
-        returns (VaultActionData memory)
+        returns (IVault.VaultActionData memory)
     {
         // decode payload
-        VaultActionData memory action = RouterLib.unpackCalldata(payload);
+        IVault.VaultActionData memory action = RouterLib.unpackCalldata(payload);
         LocalRegistrarLib.StrategyParams memory params = registrar
             .getStrategyParamsById(action.strategyId);
 

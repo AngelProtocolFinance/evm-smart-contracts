@@ -3,64 +3,30 @@
 pragma solidity >=0.8.0;
 
 import {IAxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarExecutable.sol";
-import {IVault} from "../../interfaces/IVault.sol";
+import {IVault} from "../vault/interfaces/IVault.sol";
 
 interface IRouter is IAxelarExecutable {
     /*////////////////////////////////////////////////
                         EVENTS
     */////////////////////////////////////////////////
 
-    event TokensSent(VaultActionData action, uint256 amount);
-    event FallbackRefund(VaultActionData action, uint256 amount);
-    event Deposit(VaultActionData action);
-    event Redemption(VaultActionData action, uint256 amount);
-    event Harvest(VaultActionData action);
-    event LogError(VaultActionData action, string message);
-    event LogErrorBytes(VaultActionData action, bytes data);
+    event TokensSent(IVault.VaultActionData action, uint256 amount);
+    event FallbackRefund(IVault.VaultActionData action, uint256 amount);
+    event Deposit(IVault.VaultActionData action);
+    event Redemption(IVault.VaultActionData action, uint256 amount);
+    event Harvest(IVault.VaultActionData action);
+    event LogError(IVault.VaultActionData action, string message);
+    event LogErrorBytes(IVault.VaultActionData action, bytes data);
 
     /*////////////////////////////////////////////////
                     CUSTOM TYPES
     */////////////////////////////////////////////////
 
-    /// @notice Gerneric AP Vault action data that can be packed and sent through the GMP
-    /// @dev Data will arrive from the GMP encoded as a string of bytes. For internal methods/processing,
-    /// we can restructure it to look like VaultActionData to improve readability.
-    /// @param destinationChain The Axelar string name of the blockchain that will receive redemptions/refunds
-    /// @param strategyId The 4 byte truncated keccak256 hash of the strategy name, i.e. bytes4(keccak256("Goldfinch"))
-    /// @param selector The Vault method that should be called
-    /// @param accountId The endowment uid
-    /// @param token The token (if any) that was forwarded along with the calldata packet by GMP
-    /// @param lockAmt The amount of said token that is intended to interact with the locked vault
-    /// @param liqAmt The amount of said token that is intended to interact with the liquid vault
-    struct VaultActionData {
-        string destinationChain;
-        bytes4 strategyId;
-        bytes4 selector;
-        uint32[] accountIds;
-        address token;
-        uint256 lockAmt;
-        uint256 liqAmt;
-        VaultActionStatus status;
-    }
-
-    enum VaultActionStatus {
-        UNPROCESSED,                // INIT state
-        SUCCESS,                    // Ack 
-        POSITION_EXITED,             // Position fully exited 
-        FAIL_TOKENS_RETURNED,       // Tokens returned to accounts contract
-        FAIL_TOKENS_FALLBACK       // Tokens failed to be returned to accounts contract
-    }
-
-    struct RedemptionResponse {
-        uint256 amount; 
-        VaultActionStatus status;
-    }
-
     function executeLocal(
         string calldata sourceChain,
         string calldata sourceAddress,
         bytes calldata payload
-    ) external returns (VaultActionData memory);
+    ) external returns (IVault.VaultActionData memory);
 
     function executeWithTokenLocal(
         string calldata sourceChain,
@@ -68,5 +34,5 @@ interface IRouter is IAxelarExecutable {
         bytes calldata payload,
         string calldata tokenSymbol,
         uint256 amount
-    ) external returns (VaultActionData memory);
+    ) external returns (IVault.VaultActionData memory);
 }

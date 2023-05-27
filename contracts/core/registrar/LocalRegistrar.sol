@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 
 import { ILocalRegistrar } from "./interfaces/ILocalRegistrar.sol";
 import { LocalRegistrarLib } from "./lib/LocalRegistrarLib.sol";
-import { IVault } from "../../interfaces/IVault.sol";
+import {IVault} from "../vault/interfaces/IVault.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
@@ -123,6 +123,12 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
         return lrs.GasFeeByToken[_tokenAddr];
     }
 
+    function getVaultOperatorApproved(address _operator) external view override returns (bool) {
+        LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
+            LocalRegistrarLib.localRegistrarStorage();
+        return lrs.ApprovedVaultOperators[_operator];
+    }
+
     /*////////////////////////////////////////////////
                     RESTRICTED SETTERS
     */////////////////////////////////////////////////
@@ -216,6 +222,12 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
             _liqAddr,
             _approvalState
         );
+    }
+
+    function setVaultOperatorApproved(address _operator, bool _isApproved) external override {
+        LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
+            LocalRegistrarLib.localRegistrarStorage();
+        lrs.ApprovedVaultOperators[_operator] = _isApproved;
     }
 
     /*////////////////////////////////////////////////
