@@ -23,7 +23,7 @@ import {
   Registrar__factory,
 } from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-import {cleanAddresses, isLocalNetwork} from "utils";
+import {cleanAddresses, isLocalNetwork, updateAddresses} from "utils";
 import {deployLibraries} from "./deployLibraries";
 
 export default async function deploy() {
@@ -64,6 +64,8 @@ export default async function deploy() {
       console.log("given proxyAdmin USDC");
 
       console.log("USDC Mock Address", mockUSDC.address);
+
+      await updateAddresses({tokens: {usdc: mockUSDC.address}}, hre);
     }
 
     const {angelCoreStruct, stringLib} = await deployLibraries(verify_contracts, proxyAdmin, hre);
