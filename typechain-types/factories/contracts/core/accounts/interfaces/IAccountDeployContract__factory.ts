@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   IAccountDeployContract,
   IAccountDeployContractInterface,
@@ -206,7 +206,14 @@ export class IAccountDeployContract__factory {
   static createInterface(): IAccountDeployContractInterface {
     return new utils.Interface(_abi) as IAccountDeployContractInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): IAccountDeployContract {
-    return new Contract(address, _abi, signerOrProvider) as IAccountDeployContract;
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IAccountDeployContract {
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as IAccountDeployContract;
   }
 }

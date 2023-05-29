@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   IEndowmentMultiSigEmitter,
   IEndowmentMultiSigEmitterInterface,
@@ -274,7 +274,14 @@ export class IEndowmentMultiSigEmitter__factory {
   static createInterface(): IEndowmentMultiSigEmitterInterface {
     return new utils.Interface(_abi) as IEndowmentMultiSigEmitterInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): IEndowmentMultiSigEmitter {
-    return new Contract(address, _abi, signerOrProvider) as IEndowmentMultiSigEmitter;
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IEndowmentMultiSigEmitter {
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as IEndowmentMultiSigEmitter;
   }
 }

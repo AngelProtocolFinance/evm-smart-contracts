@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as interfaces from "./interfaces";
-export type {interfaces};
+export type { interfaces };
