@@ -2,9 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
-import type {IVaultLiquid, IVaultLiquidInterface} from "../../../contracts/interfaces/IVaultLiquid";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
+import type {
+  IVaultLiquid,
+  IVaultLiquidInterface,
+} from "../../../contracts/interfaces/IVaultLiquid";
 
 const _abi = [
   {
@@ -198,7 +201,10 @@ export class IVaultLiquid__factory {
   static createInterface(): IVaultLiquidInterface {
     return new utils.Interface(_abi) as IVaultLiquidInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): IVaultLiquid {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IVaultLiquid {
     return new Contract(address, _abi, signerOrProvider) as IVaultLiquid;
   }
 }

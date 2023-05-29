@@ -2,5 +2,5 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as eventsSol from "./events.sol";
-export type {eventsSol};
-export type {GovHodler} from "./GovHodler";
+export type { eventsSol };
+export type { GovHodler } from "./GovHodler";

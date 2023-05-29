@@ -3,6 +3,6 @@
 /* eslint-disable */
 export * as extensions from "./extensions";
 export * as utils from "./utils";
-export {GovernorUpgradeable__factory} from "./GovernorUpgradeable__factory";
-export {IGovernorUpgradeable__factory} from "./IGovernorUpgradeable__factory";
-export {TimelockControllerUpgradeable__factory} from "./TimelockControllerUpgradeable__factory";
+export { GovernorUpgradeable__factory } from "./GovernorUpgradeable__factory";
+export { IGovernorUpgradeable__factory } from "./IGovernorUpgradeable__factory";
+export { TimelockControllerUpgradeable__factory } from "./TimelockControllerUpgradeable__factory";
