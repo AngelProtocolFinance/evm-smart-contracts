@@ -29,7 +29,12 @@ let addressWriter: AddressWriter = {};
 
 import {Contract} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {APTeamMultiSig, ApplicationsMultiSig} from "typechain-types";
+import {
+  APTeamMultiSig,
+  AngelCoreStruct__factory,
+  ApplicationsMultiSig,
+  StringArray__factory,
+} from "typechain-types";
 import {cleanAddresses, isLocalNetwork, updateAddresses} from "utils";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
@@ -39,47 +44,38 @@ async function deployLibraries(
   signer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ) {
-  try {
-    const {ethers, run, network} = hre;
+  const angel_core_struct = new AngelCoreStruct__factory(signer);
+  ANGEL_CORE_STRUCT = await angel_core_struct.deploy();
+  await ANGEL_CORE_STRUCT.deployed();
 
-    const angel_core_struct = await ethers.getContractFactory("AngelCoreStruct", signer);
-    ANGEL_CORE_STRUCT = await angel_core_struct.deploy();
-    await ANGEL_CORE_STRUCT.deployed();
+  const string_library = new StringArray__factory(signer);
+  STRING_LIBRARY = await string_library.deploy();
+  await STRING_LIBRARY.deployed();
 
-    const string_library = await ethers.getContractFactory("StringArray", signer);
-    STRING_LIBRARY = await string_library.deploy();
-    await STRING_LIBRARY.deployed();
+  console.log("Libraries Deployed as", {
+    "STRING_LIBRARY Deployed at ": STRING_LIBRARY.address,
+    "ANGEL_CORE_STRUCT_LIBRARY Deployed at ": ANGEL_CORE_STRUCT.address,
+  });
 
-    console.log("Libraries Deployed as", {
-      "STRING_LIBRARY Deployed at ": STRING_LIBRARY.address,
-      "ANGEL_CORE_STRUCT_LIBRARY Deployed at ": ANGEL_CORE_STRUCT.address,
-    });
-
-    await updateAddresses(
-      {
-        libraries: {
-          STRING_LIBRARY: STRING_LIBRARY.address,
-          ANGEL_CORE_STRUCT_LIBRARY: ANGEL_CORE_STRUCT.address,
-        },
+  await updateAddresses(
+    {
+      libraries: {
+        STRING_LIBRARY: STRING_LIBRARY.address,
+        ANGEL_CORE_STRUCT_LIBRARY: ANGEL_CORE_STRUCT.address,
       },
-      hre
-    );
+    },
+    hre
+  );
 
-    if (network.name !== "hardhat" && verify_contracts) {
-      await run(`verify:verify`, {
-        address: ANGEL_CORE_STRUCT.address,
-        constructorArguments: [],
-      });
-      await run(`verify:verify`, {
-        address: STRING_LIBRARY.address,
-        constructorArguments: [],
-      });
-    }
-
-    return Promise.resolve(true);
-  } catch (e) {
-    console.error("Failed deploying libraries:-", e);
-    return Promise.reject(false);
+  if (!isLocalNetwork(hre.network) && verify_contracts) {
+    await hre.run(`verify:verify`, {
+      address: ANGEL_CORE_STRUCT.address,
+      constructorArguments: [],
+    });
+    await hre.run(`verify:verify`, {
+      address: STRING_LIBRARY.address,
+      constructorArguments: [],
+    });
   }
 }
 
