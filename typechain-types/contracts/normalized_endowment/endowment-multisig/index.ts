@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as endowmentMultiSigFactorySol from "./EndowmentMultiSigFactory.sol";
-export type {endowmentMultiSigFactorySol};
+export type { endowmentMultiSigFactorySol };
 import type * as interfaces from "./interfaces";
-export type {interfaces};
-export type {EndowmentMultiSig} from "./EndowmentMultiSig";
-export type {EndowmentMultiSigEmitter} from "./EndowmentMultiSigEmitter";
+export type { interfaces };
+export type { EndowmentMultiSig } from "./EndowmentMultiSig";
+export type { EndowmentMultiSigEmitter } from "./EndowmentMultiSigEmitter";

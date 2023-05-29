@@ -2,6 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as interfaces from "./interfaces";
-export type {interfaces};
+export type { interfaces };
 import type * as swappingSol from "./swapping.sol";
-export type {swappingSol};
+export type { swappingSol };
