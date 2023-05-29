@@ -14,8 +14,17 @@ export function getAddressesByNetworkId(
   }
 
   return new Proxy(addresses[key], {
-    get: (target, prop) => {
+    get: (target, prop, receiver) => {
       const contractKey = String(prop);
+
+      // If the Proxy is awaited, it's converted into a "thenable" object, so we need return the now-thenable object's "then" property
+      // Useful links:
+      // - Official docs: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await#description
+      // - Issue on SO: https://stackoverflow.com/questions/48318843/why-does-await-trigger-then-on-a-proxy-returned-by-an-async-function?rq=3
+      if (contractKey === "then") {
+        return Reflect.get(target, prop, receiver);
+      }
+
       if (hasKey(target, contractKey) && !!target[contractKey]) {
         return target[contractKey];
       }
@@ -25,7 +34,7 @@ export function getAddressesByNetworkId(
   });
 }
 
-export function readAllAddresses(filePath: string) {
+export function readAllAddresses(filePath: string): Record<string, AddressObj> {
   checkExistence(filePath);
 
   const jsonData = fs.readFileSync(filePath, "utf-8");
@@ -36,21 +45,13 @@ export function readAllAddresses(filePath: string) {
 }
 
 export function saveFrontendFiles(addresses: Record<string, AddressObj>, filePath: string) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      checkExistence(filePath);
+  checkExistence(filePath);
 
-      const data = readAllAddresses(filePath);
+  const data = readAllAddresses(filePath);
 
-      Object.assign(data, addresses);
+  Object.assign(data, addresses);
 
-      fs.writeFileSync(filePath, JSON.stringify(data, undefined, 2));
-
-      resolve(true);
-    } catch (e) {
-      reject(e);
-    }
-  });
+  fs.writeFileSync(filePath, JSON.stringify(data, undefined, 2));
 }
 
 function checkExistence(filePath: string) {

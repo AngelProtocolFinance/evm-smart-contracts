@@ -1,9 +1,8 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {task} from "hardhat/config";
 import type {TaskArguments} from "hardhat/types";
-import {getAddresses} from "utils";
-import {IndexFund, IndexFund__factory} from "typechain-types";
-import {logger} from "utils";
+import {IndexFund__factory} from "typechain-types";
+import {getAddresses, logger} from "utils";
 
 task("manage:changeOwner", "Will update the owner of the specified contract").setAction(
   async (_taskArguments: TaskArguments, hre) => {
