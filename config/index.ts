@@ -1,40 +1,34 @@
 import dotenv from "dotenv";
 import {ethers} from "ethers";
+import {envConfig} from "utils";
 
 dotenv.config({path: __dirname + "/./../.env"});
 
 const EXPORT_CONFIG = {
-  ACCOUNT_PRIVATE_KEY: process.env.ACCOUNT_PRIVATE_KEY,
-  GANACHE_PRIVATE_KEY: process.env.GANACHE_PRIVATE_KEY,
-  GANACHE_RPC_URL: process.env.GANACHE_RPC_URL,
-  NETWORK: process.env.NETWORK,
-  OPTIMIZER_FLAG: process.env.OPTIMIZER_FLAG,
-  OPTIMIZER_RUNS: process.env.OPTIMIZER_RUNS,
-  PROD_NETWORK_ID: process.env.PROD_NETWORK_ID,
-  PROXY_ADMIN_KEY: process.env.PROXY_ADMIN_KEY,
-  ROUTER_ADDRESS: process.env.ROUTER_ADDRESS,
-  SCAN_API_KEY: process.env.ETHERSCAN_API_KEY,
-  VERIFY_CONTRACTS: process.env.VERIFY_CONTRACTS,
-  PROXY_ADMIN_ADDRESS: "0x3304eD6a8D90Ab57bb7b797aF9f66447CDf09C3E", // AP Deployer
+  GANACHE_PRIVATE_KEY: envConfig.GANACHE_PRIVATE_KEY,
+  GANACHE_RPC_URL: envConfig.GANACHE_RPC_URL,
+  NETWORK: envConfig.NETWORK,
+  OPTIMIZER_FLAG: envConfig.OPTIMIZER_FLAG,
+  OPTIMIZER_RUNS: envConfig.OPTIMIZER_RUNS,
+  PROD_NETWORK_ID: envConfig.PROD_NETWORK_ID,
+  PROXY_ADMIN_KEY: envConfig.PROXY_ADMIN.key,
+  ROUTER_ADDRESS: envConfig.ROUTER_ADDRESS,
+  SCAN_API_KEY: envConfig.ETHERSCAN_API_KEY,
+  VERIFY_CONTRACTS: envConfig.VERIFY_CONTRACTS,
+  PROXY_ADMIN_ADDRESS: envConfig.PROXY_ADMIN.address,
   AP_TEAM_MULTISIG_DATA: {
-    admins: [
-      "0xce551C1125BfCdAb88048854522D0B220f41A6Ff",
-      "0x51d0e5cffb5748dD17f1E133C72E48fa94685bEc",
-    ], // AP Team 1 and 2
+    admins: [envConfig.AP_TEAM_1.address, envConfig.AP_TEAM_2.address],
     threshold: 1,
     requireExecution: false,
   },
-  TIME_LOCK_ADMIN: "0xce551C1125BfCdAb88048854522D0B220f41A6Ff", // AP Team 1
+  TIME_LOCK_ADMIN: envConfig.AP_TEAM_1.address,
   APPLICATION_MULTISIG_DATA: {
-    admins: [
-      "0x51d0e5cffb5748dD17f1E133C72E48fa94685bEc",
-      "0x06eB8fcC1E02e06c0b6A47c396f14C5761C47433",
-    ], // AP Team 2 and 3
+    admins: [envConfig.AP_TEAM_2.address, envConfig.AP_TEAM_3.address], // AP Team 2 and 3
     threshold: 1,
     requireExecution: false,
   },
   REGISTRAR_DATA: {
-    treasury: "0xce551C1125BfCdAb88048854522D0B220f41A6Ff", // AP team 1
+    treasury: envConfig.AP_TEAM_1.address,
     taxRate: 1,
     acceptedTokens: {
       cw20: [
@@ -54,7 +48,7 @@ const EXPORT_CONFIG = {
       min: 0,
       defaultSplit: 50,
     },
-    router: "0xce551C1125BfCdAb88048854522D0B220f41A6Ff",
+    router: envConfig.AP_TEAM_1.address,
     axelarGateway: "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B",
     axelarGasRecv: "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B",
   },
@@ -104,12 +98,9 @@ const EXPORT_CONFIG = {
   HALO_IMPLEMENTATION_DATA: {
     curTimelock: "0x8747cF2bd9BB0F46ced4adA1b472E995d1A3174A",
     GovHodlerOwner: "0x8B1386F6fE42995Db5F7f7018af90496103CD39e",
-    airdropOwner: "0xce551C1125BfCdAb88048854522D0B220f41A6Ff",
+    airdropOwner: envConfig.AP_TEAM_1.address,
     CommunitySpendLimit: 5000,
-    distributorAllowlist: [
-      "0x51d0e5cffb5748dD17f1E133C72E48fa94685bEc",
-      "0x06eB8fcC1E02e06c0b6A47c396f14C5761C47433",
-    ],
+    distributorAllowlist: [envConfig.AP_TEAM_2.address, envConfig.AP_TEAM_3.address],
     distributorSpendLimit: 5000,
     // vestingOwner : "0x1F98431c8aD98523631AE4a59f267346ea31F984",
     // vestingGenesisTime : 50000
