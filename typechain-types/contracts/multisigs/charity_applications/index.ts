@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as charityApplicationSol from "./CharityApplication.sol";
-export type {charityApplicationSol};
+export type { charityApplicationSol };
 import type * as interfaces from "./interfaces";
-export type {interfaces};
+export type { interfaces };
 import type * as storageSol from "./storage.sol";
-export type {storageSol};
+export type { storageSol };

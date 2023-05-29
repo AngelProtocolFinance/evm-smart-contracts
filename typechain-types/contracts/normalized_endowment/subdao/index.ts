@@ -2,10 +2,10 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as isubdaoSol from "./Isubdao.sol";
-export type {isubdaoSol};
+export type { isubdaoSol };
 import type * as token from "./Token";
-export type {token};
+export type { token };
 import type * as subdaoSol from "./subdao.sol";
-export type {subdaoSol};
-export type {ISubdaoEmitter} from "./ISubdaoEmitter";
-export type {SubdaoEmitter} from "./SubdaoEmitter";
+export type { subdaoSol };
+export type { ISubdaoEmitter } from "./ISubdaoEmitter";
+export type { SubdaoEmitter } from "./SubdaoEmitter";

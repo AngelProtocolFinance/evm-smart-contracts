@@ -13,8 +13,12 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -91,7 +95,10 @@ export interface IMultiSigGenericInterface extends utils.Interface {
       | "supportsInterface"
   ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "addOwner", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(
+    functionFragment: "addOwner",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
     functionFragment: "changeRequirement",
     values: [PromiseOrValue<BigNumberish>]
@@ -130,7 +137,10 @@ export interface IMultiSigGenericInterface extends utils.Interface {
     functionFragment: "isConfirmed",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(functionFragment: "removeOwner", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(
+    functionFragment: "removeOwner",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
     functionFragment: "replaceOwner",
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
@@ -156,20 +166,59 @@ export interface IMultiSigGenericInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "addOwner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "changeRequirement", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "confirmTransaction", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "executeTransaction", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getConfirmationCount", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getConfirmations", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "changeRequirement",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "confirmTransaction",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "executeTransaction",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getConfirmationCount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getConfirmations",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "getOwners", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getTransactionCount", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getTransactionIds", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "isConfirmed", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "removeOwner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "replaceOwner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "revokeConfirmation", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "submitTransaction", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "supportsInterface", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getTransactionCount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getTransactionIds",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isConfirmed",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removeOwner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "replaceOwner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "revokeConfirmation",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "submitTransaction",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "supportsInterface",
+    data: BytesLike
+  ): Result;
 
   events: {
     "Confirmation(address,uint256)": EventFragment;
@@ -198,7 +247,10 @@ export interface ConfirmationEventObject {
   sender: string;
   transactionId: BigNumber;
 }
-export type ConfirmationEvent = TypedEvent<[string, BigNumber], ConfirmationEventObject>;
+export type ConfirmationEvent = TypedEvent<
+  [string, BigNumber],
+  ConfirmationEventObject
+>;
 
 export type ConfirmationEventFilter = TypedEventFilter<ConfirmationEvent>;
 
@@ -220,9 +272,13 @@ export type ExecutionEventFilter = TypedEventFilter<ExecutionEvent>;
 export interface ExecutionFailureEventObject {
   transactionId: BigNumber;
 }
-export type ExecutionFailureEvent = TypedEvent<[BigNumber], ExecutionFailureEventObject>;
+export type ExecutionFailureEvent = TypedEvent<
+  [BigNumber],
+  ExecutionFailureEventObject
+>;
 
-export type ExecutionFailureEventFilter = TypedEventFilter<ExecutionFailureEvent>;
+export type ExecutionFailureEventFilter =
+  TypedEventFilter<ExecutionFailureEvent>;
 
 export interface OwnerAdditionEventObject {
   owner: string;
@@ -241,15 +297,22 @@ export type OwnerRemovalEventFilter = TypedEventFilter<OwnerRemovalEvent>;
 export interface RequirementChangeEventObject {
   required: BigNumber;
 }
-export type RequirementChangeEvent = TypedEvent<[BigNumber], RequirementChangeEventObject>;
+export type RequirementChangeEvent = TypedEvent<
+  [BigNumber],
+  RequirementChangeEventObject
+>;
 
-export type RequirementChangeEventFilter = TypedEventFilter<RequirementChangeEvent>;
+export type RequirementChangeEventFilter =
+  TypedEventFilter<RequirementChangeEvent>;
 
 export interface RevocationEventObject {
   sender: string;
   transactionId: BigNumber;
 }
-export type RevocationEvent = TypedEvent<[string, BigNumber], RevocationEventObject>;
+export type RevocationEvent = TypedEvent<
+  [string, BigNumber],
+  RevocationEventObject
+>;
 
 export type RevocationEventFilter = TypedEventFilter<RevocationEvent>;
 
@@ -281,7 +344,9 @@ export interface IMultiSigGeneric extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -291,33 +356,33 @@ export interface IMultiSigGeneric extends BaseContract {
   functions: {
     addOwner(
       owner: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     changeRequirement(
       required: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     confirmTransaction(
       transactionId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     executeTransaction(
       transactionId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     getConfirmationCount(
       transactionId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<[BigNumber] & {count: BigNumber}>;
+    ): Promise<[BigNumber] & { count: BigNumber }>;
 
     getConfirmations(
       transactionId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<[string[]] & {confirmations: string[]}>;
+    ): Promise<[string[]] & { confirmations: string[] }>;
 
     getOwners(overrides?: CallOverrides): Promise<[string[]]>;
 
@@ -325,7 +390,7 @@ export interface IMultiSigGeneric extends BaseContract {
       pending: PromiseOrValue<boolean>,
       executed: PromiseOrValue<boolean>,
       overrides?: CallOverrides
-    ): Promise<[BigNumber] & {count: BigNumber}>;
+    ): Promise<[BigNumber] & { count: BigNumber }>;
 
     getTransactionIds(
       from: PromiseOrValue<BigNumberish>,
@@ -333,7 +398,7 @@ export interface IMultiSigGeneric extends BaseContract {
       pending: PromiseOrValue<boolean>,
       executed: PromiseOrValue<boolean>,
       overrides?: CallOverrides
-    ): Promise<[BigNumber[]] & {transactionids: BigNumber[]}>;
+    ): Promise<[BigNumber[]] & { transactionids: BigNumber[] }>;
 
     isConfirmed(
       transactionId: PromiseOrValue<BigNumberish>,
@@ -342,18 +407,18 @@ export interface IMultiSigGeneric extends BaseContract {
 
     removeOwner(
       owner: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     replaceOwner(
       owner: PromiseOrValue<string>,
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     revokeConfirmation(
       transactionId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     submitTransaction(
@@ -363,7 +428,7 @@ export interface IMultiSigGeneric extends BaseContract {
       value: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       metadata: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     supportsInterface(
@@ -374,22 +439,22 @@ export interface IMultiSigGeneric extends BaseContract {
 
   addOwner(
     owner: PromiseOrValue<string>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   changeRequirement(
     required: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   confirmTransaction(
     transactionId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   executeTransaction(
     transactionId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   getConfirmationCount(
@@ -425,18 +490,18 @@ export interface IMultiSigGeneric extends BaseContract {
 
   removeOwner(
     owner: PromiseOrValue<string>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   replaceOwner(
     owner: PromiseOrValue<string>,
     newOwner: PromiseOrValue<string>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   revokeConfirmation(
     transactionId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   submitTransaction(
@@ -446,7 +511,7 @@ export interface IMultiSigGeneric extends BaseContract {
     value: PromiseOrValue<BigNumberish>,
     data: PromiseOrValue<BytesLike>,
     metadata: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   supportsInterface(
@@ -455,7 +520,10 @@ export interface IMultiSigGeneric extends BaseContract {
   ): Promise<boolean>;
 
   callStatic: {
-    addOwner(owner: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
+    addOwner(
+      owner: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     changeRequirement(
       required: PromiseOrValue<BigNumberish>,
@@ -503,7 +571,10 @@ export interface IMultiSigGeneric extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    removeOwner(owner: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
+    removeOwner(
+      owner: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     replaceOwner(
       owner: PromiseOrValue<string>,
@@ -546,10 +617,17 @@ export interface IMultiSigGeneric extends BaseContract {
       sender?: PromiseOrValue<string> | null,
       value?: null
     ): DepositEventFilter;
-    Deposit(sender?: PromiseOrValue<string> | null, value?: null): DepositEventFilter;
+    Deposit(
+      sender?: PromiseOrValue<string> | null,
+      value?: null
+    ): DepositEventFilter;
 
-    "Execution(uint256)"(transactionId?: PromiseOrValue<BigNumberish> | null): ExecutionEventFilter;
-    Execution(transactionId?: PromiseOrValue<BigNumberish> | null): ExecutionEventFilter;
+    "Execution(uint256)"(
+      transactionId?: PromiseOrValue<BigNumberish> | null
+    ): ExecutionEventFilter;
+    Execution(
+      transactionId?: PromiseOrValue<BigNumberish> | null
+    ): ExecutionEventFilter;
 
     "ExecutionFailure(uint256)"(
       transactionId?: PromiseOrValue<BigNumberish> | null
@@ -558,11 +636,19 @@ export interface IMultiSigGeneric extends BaseContract {
       transactionId?: PromiseOrValue<BigNumberish> | null
     ): ExecutionFailureEventFilter;
 
-    "OwnerAddition(address)"(owner?: PromiseOrValue<string> | null): OwnerAdditionEventFilter;
-    OwnerAddition(owner?: PromiseOrValue<string> | null): OwnerAdditionEventFilter;
+    "OwnerAddition(address)"(
+      owner?: PromiseOrValue<string> | null
+    ): OwnerAdditionEventFilter;
+    OwnerAddition(
+      owner?: PromiseOrValue<string> | null
+    ): OwnerAdditionEventFilter;
 
-    "OwnerRemoval(address)"(owner?: PromiseOrValue<string> | null): OwnerRemovalEventFilter;
-    OwnerRemoval(owner?: PromiseOrValue<string> | null): OwnerRemovalEventFilter;
+    "OwnerRemoval(address)"(
+      owner?: PromiseOrValue<string> | null
+    ): OwnerRemovalEventFilter;
+    OwnerRemoval(
+      owner?: PromiseOrValue<string> | null
+    ): OwnerRemovalEventFilter;
 
     "RequirementChange(uint256)"(required?: null): RequirementChangeEventFilter;
     RequirementChange(required?: null): RequirementChangeEventFilter;
@@ -589,22 +675,22 @@ export interface IMultiSigGeneric extends BaseContract {
   estimateGas: {
     addOwner(
       owner: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     changeRequirement(
       required: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     confirmTransaction(
       transactionId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     executeTransaction(
       transactionId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     getConfirmationCount(
@@ -640,18 +726,18 @@ export interface IMultiSigGeneric extends BaseContract {
 
     removeOwner(
       owner: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     replaceOwner(
       owner: PromiseOrValue<string>,
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     revokeConfirmation(
       transactionId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     submitTransaction(
@@ -661,7 +747,7 @@ export interface IMultiSigGeneric extends BaseContract {
       value: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       metadata: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     supportsInterface(
@@ -673,22 +759,22 @@ export interface IMultiSigGeneric extends BaseContract {
   populateTransaction: {
     addOwner(
       owner: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     changeRequirement(
       required: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     confirmTransaction(
       transactionId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     executeTransaction(
       transactionId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     getConfirmationCount(
@@ -724,18 +810,18 @@ export interface IMultiSigGeneric extends BaseContract {
 
     removeOwner(
       owner: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     replaceOwner(
       owner: PromiseOrValue<string>,
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     revokeConfirmation(
       transactionId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     submitTransaction(
@@ -745,7 +831,7 @@ export interface IMultiSigGeneric extends BaseContract {
       value: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       metadata: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     supportsInterface(

@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   IIndexFund,
   IIndexFundInterface,
@@ -148,7 +148,10 @@ export class IIndexFund__factory {
   static createInterface(): IIndexFundInterface {
     return new utils.Interface(_abi) as IIndexFundInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): IIndexFund {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IIndexFund {
     return new Contract(address, _abi, signerOrProvider) as IIndexFund;
   }
 }
