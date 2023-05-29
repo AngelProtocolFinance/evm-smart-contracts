@@ -87,7 +87,6 @@ contract AccountsQueryEndowments {
     ) public view returns (AccountMessages.StateResponse memory stateResponse) {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         stateResponse = AccountMessages.StateResponse({
-            donationsReceived: state.STATES[id].donationsReceived,
             closingEndowment: state.STATES[id].closingEndowment,
             closingBeneficiary: state.STATES[id].closingBeneficiary
         });
