@@ -11,69 +11,22 @@ import {deployMultisig} from "contracts/multisigs/scripts/deploy";
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
 import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
 // import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
-import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
-
 import config from "config";
-import hre from "hardhat";
-
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
 import {Contract} from "ethers";
-import {HardhatRuntimeEnvironment} from "hardhat/types";
+import hre from "hardhat";
 import {
   APTeamMultiSig,
-  AngelCoreStruct__factory,
   ApplicationsMultiSig,
   IndexFund__factory,
   MockUSDC__factory,
   Registrar__factory,
-  StringArray__factory,
 } from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-import {cleanAddresses, isLocalNetwork, updateAddresses} from "utils";
+import {cleanAddresses, isLocalNetwork} from "utils";
+import {deployLibraries} from "./deployLibraries";
 
-async function deployLibraries(
-  verify_contracts: boolean,
-  signer: SignerWithAddress,
-  hre: HardhatRuntimeEnvironment
-) {
-  const angelCoreStructFactory = new AngelCoreStruct__factory(signer);
-  const angelCoreStruct = await angelCoreStructFactory.deploy();
-  await angelCoreStruct.deployed();
-
-  const stringLibFactory = new StringArray__factory(signer);
-  const stringLib = await stringLibFactory.deploy();
-  await stringLib.deployed();
-
-  console.log("Libraries Deployed as", {
-    "STRING_LIBRARY Deployed at ": stringLib.address,
-    "ANGEL_CORE_STRUCT_LIBRARY Deployed at ": angelCoreStruct.address,
-  });
-
-  await updateAddresses(
-    {
-      libraries: {
-        STRING_LIBRARY: stringLib.address,
-        ANGEL_CORE_STRUCT_LIBRARY: angelCoreStruct.address,
-      },
-    },
-    hre
-  );
-
-  if (!isLocalNetwork(hre.network) && verify_contracts) {
-    await hre.run(`verify:verify`, {
-      address: angelCoreStruct.address,
-      constructorArguments: [],
-    });
-    await hre.run(`verify:verify`, {
-      address: stringLib.address,
-      constructorArguments: [],
-    });
-  }
-
-  return {angelCoreStruct, stringLib};
-}
-
-export async function main() {
+export default async function deploy() {
   try {
     const {network, ethers} = hre;
 

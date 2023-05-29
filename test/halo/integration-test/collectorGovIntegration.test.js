@@ -2,7 +2,7 @@ const {assert, expect} = require("chai");
 const {keccak256} = require("ethers/lib/utils");
 const {run, ethers, artifacts, network} = require("hardhat");
 const MockDate = require("mockdate");
-const {main} = require("../../../scripts/deployMain");
+const {main} = require("../../../scripts/deployAngelProtocol");
 
 async function moveBlocks(amount) {
   console.log("Moving blocks...");
