@@ -100,17 +100,7 @@ contract AccountDepositWithdrawEndowments is
             amount),
             "Approval failed");
 
-        if (tokenAddress == registrar_config.usdcAddress) {
-            processToken(details, tokenAddress, amount);
-            return;
-        } 
-        else {
-            uint256 usdcAmount = ISwappingV3(registrar_config.swapsRouter)
-                .swapTokenToUsdc(tokenAddress, amount);
-
-            processToken(details, registrar_config.usdcAddress, usdcAmount);
-            emit SwappedToken(usdcAmount);
-        }
+        processToken(details, tokenAddress, amount);
     }
 
     /**
