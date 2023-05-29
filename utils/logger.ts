@@ -19,7 +19,7 @@ export enum Level {
   Warn = "warn",
 }
 
-export function out(value: any, level: Level = Level.Log) {
+export function out(value: any = "", level: Level = Level.Log) {
   switch (level) {
     case Level.Log: {
       console.log(value);
