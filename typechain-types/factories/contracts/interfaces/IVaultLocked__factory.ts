@@ -2,9 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
-import type {IVaultLocked, IVaultLockedInterface} from "../../../contracts/interfaces/IVaultLocked";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
+import type {
+  IVaultLocked,
+  IVaultLockedInterface,
+} from "../../../contracts/interfaces/IVaultLocked";
 
 const _abi = [
   {
@@ -198,7 +201,10 @@ export class IVaultLocked__factory {
   static createInterface(): IVaultLockedInterface {
     return new utils.Interface(_abi) as IVaultLockedInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): IVaultLocked {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IVaultLocked {
     return new Contract(address, _abi, signerOrProvider) as IVaultLocked;
   }
 }
