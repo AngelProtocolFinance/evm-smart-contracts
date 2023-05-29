@@ -34,8 +34,7 @@ export default async function deploy() {
 
     await cleanAddresses(hre);
 
-    // const verify_contracts = network.name !== "hardhat" && network.name !== "localhost"
-    const verify_contracts = false;
+    const verify_contracts = isLocalNetwork(hre.network);
 
     // When deploying to a local network, we lose access to outside wallets in .env, like
     // the ones contained in `config.AP_TEAM_MULTISIG_DATA` array. We therefore set appropriate
