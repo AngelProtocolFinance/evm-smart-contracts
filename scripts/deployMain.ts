@@ -16,15 +16,6 @@ import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitt
 import config from "config";
 import hre from "hardhat";
 
-var REGISTRAR_ADDRESS;
-
-let updateConfig: RegistrarMessages.UpdateConfigRequestStruct;
-
-interface AddressWriter {
-  [key: string]: string | AddressWriter;
-}
-let addressWriter: AddressWriter = {};
-
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {Contract} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
@@ -112,7 +103,7 @@ export async function main() {
       config.REGISTRAR_UPDATE_CONFIG.usdcAddress = mockUSDC.address;
       config.DONATION_MATCH_CHARITY_DATA.usdcAddress = mockUSDC.address;
 
-      let tx = await mockUSDC.mint(
+      const tx = await mockUSDC.mint(
         proxyAdmin.address,
         ethers.utils.parseEther("10000000000000000000000")
       );
@@ -136,7 +127,7 @@ export async function main() {
       axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
     };
 
-    REGISTRAR_ADDRESS = await deployRegistrar(
+    const registrarAddress = await deployRegistrar(
       stringLib.address,
       registrarData,
       verify_contracts,
@@ -163,22 +154,20 @@ export async function main() {
 
     const ACCOUNT_ADDRESS = await deployDiamond(
       multisigAddress.APTeamMultiSig,
-      REGISTRAR_ADDRESS,
+      registrarAddress,
       angelCoreStruct.address,
       stringLib.address,
       hre,
       verify_contracts
     );
 
-    addressWriter.accountDiamond = ACCOUNT_ADDRESS;
-
     console.log("Account contract deployed at:-", ACCOUNT_ADDRESS);
 
-    let emitters = await deployEmitters(ACCOUNT_ADDRESS, verify_contracts, hre);
+    const emitters = await deployEmitters(ACCOUNT_ADDRESS, verify_contracts, hre);
 
     console.log("emitters Contract deployed at:-", emitters);
 
-    let charityApplicationsData: Parameters<typeof charityApplications>[0] = [
+    const charityApplicationsData: Parameters<typeof charityApplications>[0] = [
       config.CHARITY_APPLICATION_DATA.expiry,
       multisigAddress.ApplicationsMultiSig,
       ACCOUNT_ADDRESS,
@@ -190,7 +179,7 @@ export async function main() {
       config.CHARITY_APPLICATION_DATA.seedAssetAmount,
     ];
 
-    let charityApplicationsAddress = await charityApplications(
+    const charityApplicationsAddress = await charityApplications(
       charityApplicationsData,
       verify_contracts,
       hre
@@ -198,7 +187,7 @@ export async function main() {
     console.log("charityApplicationsAddress deployed at:-", charityApplicationsAddress);
 
     const SWAP_ROUTER = await deploySwapRouter(
-      REGISTRAR_ADDRESS,
+      registrarAddress,
       ACCOUNT_ADDRESS,
       config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS,
       config.SWAP_ROUTER_DATA.SWAP_ROUTER_ADDRESS,
@@ -209,36 +198,36 @@ export async function main() {
     console.log("SWAP_ROUTER contract deployed at:-", SWAP_ROUTER);
 
     const indexFundData = {
-      registrarContract: REGISTRAR_ADDRESS,
+      registrarContract: registrarAddress,
       fundRotation: config.INDEX_FUND_DATA.fundRotation,
       fundMemberLimit: config.INDEX_FUND_DATA.fundMemberLimit,
       fundingGoal: config.INDEX_FUND_DATA.fundingGoal,
     };
 
-    let INDEX_FUND_ADDRESS = await deployIndexFund(indexFundData, verify_contracts, hre);
+    const INDEX_FUND_ADDRESS = await deployIndexFund(indexFundData, verify_contracts, hre);
 
     console.log("INDEX_FUND_ADDRESS contract deployed at:-", INDEX_FUND_ADDRESS);
 
-    let multisigDat = await deployEndowmentMultiSig(verify_contracts, hre);
+    const multisigDat = await deployEndowmentMultiSig(verify_contracts, hre);
 
     console.log("multisigDat contract deployed at:-", multisigDat);
     // console.log('implementations deployed at:', implementations);
 
-    // let GiftCardDataInput = {
+    // const GiftCardDataInput = {
     //     keeper: multisigAddress.APTeamMultiSig,
     //     registrarContract: REGISTRAR_ADDRESS,
     // }
 
-    // let giftCardAddress = await giftCard(GiftCardDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre)
+    // const giftCardAddress = await giftCard(GiftCardDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre)
 
-    // let FundraisingDataInput = {
+    // const FundraisingDataInput = {
     //     registrarContract: REGISTRAR_ADDRESS,
     //     nextId: config.FundraisingDataInput.nextId,
     //     campaignPeriodSeconds: config.FundraisingDataInput.campaignPeriodSeconds,
     //     taxRate: config.FundraisingDataInput.taxRate,
     //     acceptedTokens: config.FundraisingDataInput.acceptedTokens,
     // }
-    // let fundraisingAddress = await deployFundraising(
+    // const fundraisingAddress = await deployFundraising(
     //     FundraisingDataInput,
     //     ANGEL_CORE_STRUCT.address,
     //     verify_contracts,
@@ -263,14 +252,14 @@ export async function main() {
     //     // but TS forces us to confirm this is the case
     //     mockUSDC = mockUSDC!
 
-    //     let UniswapUtils = new UniswapUtils__factory(proxyAdmin)
-    //     let uniswap_utils = await UniswapUtils.deploy()
+    //     const UniswapUtils = new UniswapUtils__factory(proxyAdmin)
+    //     const uniswap_utils = await UniswapUtils.deploy()
     //     await uniswap_utils.deployed()
 
     //     // create a uniswap pool for HALO and USDC
     //     console.log("halo", haloToken.address.toString())
     //     console.log("usdc", mockUSDC.address.toString())
-    //     let sqrtPrice = "79228162514264334008320"
+    //     const sqrtPrice = "79228162514264334008320"
     //     if (mockUSDC.address < haloToken.address.toString()) {
     //         sqrtPrice = "79228162514264337593543950336000000"
     //     }
@@ -351,10 +340,10 @@ export async function main() {
     //  requires setting up of a HALO - MockUSDC pool on forked uniswap in deployment
     // if on non-production network
 
-    let donationMatchCharityData = {
+    const donationMatchCharityData = {
       reserveToken: config.DONATION_MATCH_CHARITY_DATA.reserveToken,
       uniswapFactory: config.DONATION_MATCH_CHARITY_DATA.uniswapFactory,
-      registrarContract: REGISTRAR_ADDRESS,
+      registrarContract: registrarAddress,
       poolFee: config.DONATION_MATCH_CHARITY_DATA.poolFee,
       usdcAddress: config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
     };
@@ -369,7 +358,7 @@ export async function main() {
 
     // transfer 100000000 HALO to donation match charities
 
-    let implementations = await deployImplementation(
+    const implementations = await deployImplementation(
       angelCoreStruct.address,
       donationMatchCharityData,
       verify_contracts,
@@ -382,7 +371,7 @@ export async function main() {
 
     // config.REGISTRAR_DATA.acceptedTokens.cw20.push(haloToken.address)
 
-    updateConfig = {
+    const updateConfig: RegistrarMessages.UpdateConfigRequestStruct = {
       accountsContract: ACCOUNT_ADDRESS, //Address
       approved_charities: [], //string[]
       splitMax: config.REGISTRAR_DATA.splitToLiquid.max, //uint256
@@ -417,21 +406,18 @@ export async function main() {
       cw900lvAddress: implementations.cw900lv,
     };
 
-    let REGISTRAR_CONTRACT = Registrar__factory.connect(REGISTRAR_ADDRESS, proxyAdmin);
+    const REGISTRAR_CONTRACT = Registrar__factory.connect(registrarAddress, proxyAdmin);
 
-    let data = await REGISTRAR_CONTRACT.updateConfig(updateConfig);
+    const data = await REGISTRAR_CONTRACT.updateConfig(updateConfig);
     console.log("Successfully updated config:-", data.hash);
 
-    let newOwner = await REGISTRAR_CONTRACT.transferOwnership(multisigAddress.APTeamMultiSig);
+    const newOwner = await REGISTRAR_CONTRACT.transferOwnership(multisigAddress.APTeamMultiSig);
     console.log("Successfully transferred Ownership:-", newOwner.hash);
 
-    let INDEX_FUND_CONTRACT = IndexFund__factory.connect(INDEX_FUND_ADDRESS, proxyAdmin);
+    const INDEX_FUND_CONTRACT = IndexFund__factory.connect(INDEX_FUND_ADDRESS, proxyAdmin);
 
-    let new_owner_index = await INDEX_FUND_CONTRACT.updateOwner(multisigAddress.APTeamMultiSig);
+    const new_owner_index = await INDEX_FUND_CONTRACT.updateOwner(multisigAddress.APTeamMultiSig);
     console.log("Successfully transferred Ownership:-", new_owner_index.hash);
-
-    // await saveFrontendFiles({ addressWriter })
-    // await saveFrontendFiles({ composedAddress })
   } catch (e) {
     console.error("Failed deploying Contracts:-", e);
     return Promise.reject(false);
