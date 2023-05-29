@@ -27,17 +27,20 @@ interface AddressWriter {
 }
 let addressWriter: AddressWriter = {};
 
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {Contract} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {
   APTeamMultiSig,
   AngelCoreStruct__factory,
   ApplicationsMultiSig,
+  IndexFund__factory,
+  MockUSDC__factory,
+  Registrar__factory,
   StringArray__factory,
 } from "typechain-types";
-import {cleanAddresses, isLocalNetwork, updateAddresses} from "utils";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {cleanAddresses, isLocalNetwork, updateAddresses} from "utils";
 
 async function deployLibraries(
   verify_contracts: boolean,
@@ -81,7 +84,7 @@ async function deployLibraries(
 
 export async function main() {
   try {
-    const {run, network, ethers} = hre;
+    const {network, ethers} = hre;
 
     const [_, proxyAdmin, apTeam1, apTeam2] = await ethers.getSigners();
 
@@ -102,7 +105,7 @@ export async function main() {
     // Mock setup required for testing
     let mockUSDC: Contract | undefined;
     if (isLocalNetwork(network)) {
-      const MockUSDC = await ethers.getContractFactory("MockUSDC", proxyAdmin);
+      const MockUSDC = new MockUSDC__factory(proxyAdmin);
       mockUSDC = await MockUSDC.deploy("USDC", "USDC", 100);
       await mockUSDC.deployed();
       config.REGISTRAR_DATA.acceptedTokens.cw20 = [mockUSDC.address];
@@ -219,7 +222,6 @@ export async function main() {
     let multisigDat = await deployEndowmentMultiSig(verify_contracts, hre);
 
     console.log("multisigDat contract deployed at:-", multisigDat);
-
     // console.log('implementations deployed at:', implementations);
 
     // let GiftCardDataInput = {
@@ -250,7 +252,7 @@ export async function main() {
 
     // addressWriter.haloAddress = haloAddress
 
-    // const haloToken = await ethers.getContractAt("ERC20", haloAddress.Halo)
+    // const haloToken = ERC20__factory.connect(haloAddress.Halo, proxyAdmin)
 
     // console.log("halo token deployed at: ", haloToken.address)
 
@@ -261,7 +263,7 @@ export async function main() {
     //     // but TS forces us to confirm this is the case
     //     mockUSDC = mockUSDC!
 
-    //     let UniswapUtils = await ethers.getContractFactory("UniswapUtils")
+    //     let UniswapUtils = new UniswapUtils__factory(proxyAdmin)
     //     let uniswap_utils = await UniswapUtils.deploy()
     //     await uniswap_utils.deployed()
 
@@ -313,7 +315,7 @@ export async function main() {
     //     console.log("Created WETH pool")
 
     //     // deploy DAI
-    //     const DAI = await ethers.getContractFactory("MockERC20")
+    //     const DAI = new MockERC20__factory(proxyAdmin)
     //     const dai = await DAI.deploy("DAI", "DAI", "1000000000")
     //     await dai.deployed()
     //     config.REGISTRAR_UPDATE_CONFIG.DAI_address = dai.address
@@ -415,7 +417,7 @@ export async function main() {
       cw900lvAddress: implementations.cw900lv,
     };
 
-    let REGISTRAR_CONTRACT = await ethers.getContractAt("Registrar", REGISTRAR_ADDRESS);
+    let REGISTRAR_CONTRACT = Registrar__factory.connect(REGISTRAR_ADDRESS, proxyAdmin);
 
     let data = await REGISTRAR_CONTRACT.updateConfig(updateConfig);
     console.log("Successfully updated config:-", data.hash);
@@ -423,7 +425,7 @@ export async function main() {
     let newOwner = await REGISTRAR_CONTRACT.transferOwnership(multisigAddress.APTeamMultiSig);
     console.log("Successfully transferred Ownership:-", newOwner.hash);
 
-    let INDEX_FUND_CONTRACT = await ethers.getContractAt("IndexFund", INDEX_FUND_ADDRESS);
+    let INDEX_FUND_CONTRACT = IndexFund__factory.connect(INDEX_FUND_ADDRESS, proxyAdmin);
 
     let new_owner_index = await INDEX_FUND_CONTRACT.updateOwner(multisigAddress.APTeamMultiSig);
     console.log("Successfully transferred Ownership:-", new_owner_index.hash);
