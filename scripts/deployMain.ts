@@ -18,7 +18,6 @@ import hre from "hardhat";
 
 var ANGEL_CORE_STRUCT: Contract;
 var STRING_LIBRARY: Contract;
-const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 var REGISTRAR_ADDRESS;
 
 let updateConfig: RegistrarMessages.UpdateConfigRequestStruct;
@@ -84,19 +83,24 @@ async function deployLibraries(
   }
 }
 
-export async function main(apTeamAdmins = []) {
+export async function main() {
   try {
     const {run, network, ethers} = hre;
+
+    const [_, proxyAdmin, apTeam1, apTeam2] = await ethers.getSigners();
 
     await cleanAddresses(hre);
 
     // const verify_contracts = network.name !== "hardhat" && network.name !== "localhost"
     const verify_contracts = false;
 
-    var Admins = config.AP_TEAM_MULTISIG_DATA.admins;
-    if (apTeamAdmins.length != 0) Admins = apTeamAdmins;
+    // When deploying to a local network, we lose access to outside wallets in .env, like
+    // the ones contained in `config.AP_TEAM_MULTISIG_DATA` array. We therefore set appropriate
+    // local wallets as admins using the already established convention.
+    const Admins = isLocalNetwork(network)
+      ? [apTeam1.address, apTeam2.address]
+      : config.AP_TEAM_MULTISIG_DATA.admins;
 
-    const [_, proxyAdmin] = await ethers.getSigners();
     console.log("Deploying the contracts with the account:", await proxyAdmin.getAddress());
 
     // Mock setup required for testing
@@ -383,32 +387,32 @@ export async function main(apTeamAdmins = []) {
     updateConfig = {
       accountsContract: ACCOUNT_ADDRESS, //Address
       approved_charities: [], //string[]
-      splitMax: 100, //uint256
-      splitMin: 0, //uint256
-      splitDefault: 50, //uint256
+      splitMax: config.REGISTRAR_DATA.splitToLiquid.max, //uint256
+      splitMin: config.REGISTRAR_DATA.splitToLiquid.min, //uint256
+      splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit, //uint256
       collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
       subdaoGovContract: implementations.subDao.implementation, //address
       subdaoTokenContract: implementations.subDao.token, //address
       subdaoBondingTokenContract: implementations.subDao.veBondingToken, //address
       subdaoCw900Contract: implementations.incentivisedVotingLockup.implementation, //address
-      subdaoDistributorContract: ADDRESS_ZERO,
+      subdaoDistributorContract: ethers.constants.AddressZero,
       subdaoEmitter: emitters.subDaoEmitter, //TODO:
       donationMatchContract: implementations.donationMatch.implementation, //address
       indexFundContract: INDEX_FUND_ADDRESS, //address
-      govContract: ADDRESS_ZERO, //address
+      govContract: ethers.constants.AddressZero, //address
       treasury: config.REGISTRAR_DATA.treasury,
       donationMatchCharitesContract: implementations.donationMatchCharity.proxy, // once uniswap is setup //address
       donationMatchEmitter: emitters.DonationMatchEmitter,
-      haloToken: ADDRESS_ZERO, //address
+      haloToken: ethers.constants.AddressZero, //address
       haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
-      charitySharesContract: ADDRESS_ZERO, //TODO: //address
-      fundraisingContract: ADDRESS_ZERO, //TODO: //address
+      charitySharesContract: ethers.constants.AddressZero, //TODO: //address
+      fundraisingContract: ethers.constants.AddressZero, //TODO: //address
       applicationsReview: multisigAddress.ApplicationsMultiSig, //address
       swapsRouter: SWAP_ROUTER, //address
       multisigFactory: multisigDat.MultiSigWalletFactory, //address
       multisigEmitter: multisigDat.EndowmentMultiSigEmitter, //address
       charityProposal: charityApplicationsAddress, //address
-      lockedWithdrawal: ADDRESS_ZERO,
+      lockedWithdrawal: ethers.constants.AddressZero,
       proxyAdmin: proxyAdmin.address, //address
       usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
       wethAddress: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
