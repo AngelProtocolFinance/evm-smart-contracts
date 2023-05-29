@@ -8,3 +8,4 @@ export * from "./manageAddressFile";
 export * from "./networkHelpers";
 export * from "./shouldVerify";
 export * from "./test";
+export * from "./types";

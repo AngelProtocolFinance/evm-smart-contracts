@@ -30,7 +30,7 @@ interface AddressWriter {
 }
 let addressWriter: AddressWriter = {};
 
-import {cleanAddresses, updateAddresses} from "utils";
+import {ParametersExceptLast, cleanAddresses, updateAddresses} from "utils";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {Contract} from "ethers";
 import {APTeamMultiSig, ApplicationsMultiSig} from "typechain-types";
@@ -136,12 +136,12 @@ export async function mainTask(
       hre
     );
 
-    var APTeamData: Parameters<APTeamMultiSig["initialize"]> = [
+    var APTeamData: ParametersExceptLast<APTeamMultiSig["initialize"]> = [
       Admins,
       config.AP_TEAM_MULTISIG_DATA.threshold,
       config.AP_TEAM_MULTISIG_DATA.requireExecution,
     ];
-    var ApplicationData: Parameters<ApplicationsMultiSig["initialize"]> = [
+    var ApplicationData: ParametersExceptLast<ApplicationsMultiSig["initialize"]> = [
       Admins,
       config.APPLICATION_MULTISIG_DATA.threshold,
       config.APPLICATION_MULTISIG_DATA.requireExecution,

@@ -1,26 +1,12 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 
-import {BigNumberish} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {CharityApplication__factory} from "typechain-types";
-import {PromiseOrValue} from "typechain-types/common";
-import {logger, updateAddresses} from "utils";
-
-type InitializeParamsType = [
-  PromiseOrValue<BigNumberish>,
-  PromiseOrValue<string>,
-  PromiseOrValue<string>,
-  PromiseOrValue<BigNumberish>,
-  PromiseOrValue<boolean>,
-  PromiseOrValue<BigNumberish>,
-  PromiseOrValue<boolean>,
-  PromiseOrValue<string>,
-  PromiseOrValue<BigNumberish>
-];
+import {CharityApplication, CharityApplication__factory} from "typechain-types";
+import {ParametersExceptLast, logger, updateAddresses} from "utils";
 
 export async function charityApplications(
-  CharityApplicationDataInput: InitializeParamsType,
+  CharityApplicationDataInput: ParametersExceptLast<CharityApplication["initialize"]>,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {

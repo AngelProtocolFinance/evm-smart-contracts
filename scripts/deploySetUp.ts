@@ -23,7 +23,7 @@ import {deployGiftCard} from "contracts/accessory/gift-cards/scripts/deploy";
 
 const ethers = hre.ethers;
 import {deployFundraising} from "contracts/accessory/fundraising/scripts/deploy";
-import {envConfig} from "utils";
+import {ParametersExceptLast, envConfig} from "utils";
 
 //TODO: Deploy and initilize emitters
 //TODO: deploy gift card contract
@@ -107,12 +107,12 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
       hre
     );
 
-    var APTeamData: Parameters<APTeamMultiSig["initialize"]> = [
+    var APTeamData: ParametersExceptLast<APTeamMultiSig["initialize"]> = [
       Admins,
       config.AP_TEAM_MULTISIG_DATA.threshold,
       config.AP_TEAM_MULTISIG_DATA.requireExecution,
     ];
-    var ApplicationData: Parameters<ApplicationsMultiSig["initialize"]> = [
+    var ApplicationData: ParametersExceptLast<ApplicationsMultiSig["initialize"]> = [
       Admins,
       config.APPLICATION_MULTISIG_DATA.threshold,
       config.APPLICATION_MULTISIG_DATA.requireExecution,

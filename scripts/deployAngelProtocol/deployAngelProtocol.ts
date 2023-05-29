@@ -23,7 +23,7 @@ import {
   Registrar__factory,
 } from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-import {cleanAddresses, isLocalNetwork, updateAddresses} from "utils";
+import {ParametersExceptLast, cleanAddresses, isLocalNetwork, updateAddresses} from "utils";
 import {deployLibraries} from "./deployLibraries";
 
 export default async function deploy() {
@@ -88,12 +88,12 @@ export default async function deploy() {
       hre
     );
 
-    var APTeamData: Parameters<APTeamMultiSig["initialize"]> = [
+    var APTeamData: ParametersExceptLast<APTeamMultiSig["initialize"]> = [
       Admins,
       config.AP_TEAM_MULTISIG_DATA.threshold,
       config.AP_TEAM_MULTISIG_DATA.requireExecution,
     ];
-    var ApplicationData: Parameters<ApplicationsMultiSig["initialize"]> = [
+    var ApplicationData: ParametersExceptLast<ApplicationsMultiSig["initialize"]> = [
       Admins,
       config.APPLICATION_MULTISIG_DATA.threshold,
       config.APPLICATION_MULTISIG_DATA.requireExecution,
