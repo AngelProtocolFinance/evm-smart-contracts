@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   INonfungiblePositionManager,
   INonfungiblePositionManagerInterface,
@@ -226,7 +226,8 @@ const _abi = [
             type: "uint256",
           },
         ],
-        internalType: "struct INonfungiblePositionManager.DecreaseLiquidityParams",
+        internalType:
+          "struct INonfungiblePositionManager.DecreaseLiquidityParams",
         name: "params",
         type: "tuple",
       },
@@ -282,7 +283,8 @@ const _abi = [
             type: "uint256",
           },
         ],
-        internalType: "struct INonfungiblePositionManager.IncreaseLiquidityParams",
+        internalType:
+          "struct INonfungiblePositionManager.IncreaseLiquidityParams",
         name: "params",
         type: "tuple",
       },
@@ -503,6 +505,10 @@ export class INonfungiblePositionManager__factory {
     address: string,
     signerOrProvider: Signer | Provider
   ): INonfungiblePositionManager {
-    return new Contract(address, _abi, signerOrProvider) as INonfungiblePositionManager;
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as INonfungiblePositionManager;
   }
 }
