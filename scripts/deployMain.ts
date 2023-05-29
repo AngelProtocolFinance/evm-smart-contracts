@@ -16,8 +16,6 @@ import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitt
 import config from "config";
 import hre from "hardhat";
 
-var ANGEL_CORE_STRUCT: Contract;
-var STRING_LIBRARY: Contract;
 var REGISTRAR_ADDRESS;
 
 let updateConfig: RegistrarMessages.UpdateConfigRequestStruct;
@@ -47,24 +45,24 @@ async function deployLibraries(
   signer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ) {
-  const angel_core_struct = new AngelCoreStruct__factory(signer);
-  ANGEL_CORE_STRUCT = await angel_core_struct.deploy();
-  await ANGEL_CORE_STRUCT.deployed();
+  const angelCoreStructFactory = new AngelCoreStruct__factory(signer);
+  const angelCoreStruct = await angelCoreStructFactory.deploy();
+  await angelCoreStruct.deployed();
 
-  const string_library = new StringArray__factory(signer);
-  STRING_LIBRARY = await string_library.deploy();
-  await STRING_LIBRARY.deployed();
+  const stringLibFactory = new StringArray__factory(signer);
+  const stringLib = await stringLibFactory.deploy();
+  await stringLib.deployed();
 
   console.log("Libraries Deployed as", {
-    "STRING_LIBRARY Deployed at ": STRING_LIBRARY.address,
-    "ANGEL_CORE_STRUCT_LIBRARY Deployed at ": ANGEL_CORE_STRUCT.address,
+    "STRING_LIBRARY Deployed at ": stringLib.address,
+    "ANGEL_CORE_STRUCT_LIBRARY Deployed at ": angelCoreStruct.address,
   });
 
   await updateAddresses(
     {
       libraries: {
-        STRING_LIBRARY: STRING_LIBRARY.address,
-        ANGEL_CORE_STRUCT_LIBRARY: ANGEL_CORE_STRUCT.address,
+        STRING_LIBRARY: stringLib.address,
+        ANGEL_CORE_STRUCT_LIBRARY: angelCoreStruct.address,
       },
     },
     hre
@@ -72,14 +70,16 @@ async function deployLibraries(
 
   if (!isLocalNetwork(hre.network) && verify_contracts) {
     await hre.run(`verify:verify`, {
-      address: ANGEL_CORE_STRUCT.address,
+      address: angelCoreStruct.address,
       constructorArguments: [],
     });
     await hre.run(`verify:verify`, {
-      address: STRING_LIBRARY.address,
+      address: stringLib.address,
       constructorArguments: [],
     });
   }
+
+  return {angelCoreStruct, stringLib};
 }
 
 export async function main() {
@@ -123,7 +123,7 @@ export async function main() {
       console.log("USDC Mock Address", mockUSDC.address);
     }
 
-    await deployLibraries(verify_contracts, proxyAdmin, hre);
+    const {angelCoreStruct, stringLib} = await deployLibraries(verify_contracts, proxyAdmin, hre);
 
     const registrarData = {
       treasury: config.REGISTRAR_DATA.treasury,
@@ -137,7 +137,7 @@ export async function main() {
     };
 
     REGISTRAR_ADDRESS = await deployRegistrar(
-      STRING_LIBRARY.address,
+      stringLib.address,
       registrarData,
       verify_contracts,
       hre
@@ -164,8 +164,8 @@ export async function main() {
     const ACCOUNT_ADDRESS = await deployDiamond(
       multisigAddress.APTeamMultiSig,
       REGISTRAR_ADDRESS,
-      ANGEL_CORE_STRUCT.address,
-      STRING_LIBRARY.address,
+      angelCoreStruct.address,
+      stringLib.address,
       hre,
       verify_contracts
     );
@@ -370,7 +370,7 @@ export async function main() {
     // transfer 100000000 HALO to donation match charities
 
     let implementations = await deployImplementation(
-      ANGEL_CORE_STRUCT.address,
+      angelCoreStruct.address,
       donationMatchCharityData,
       verify_contracts,
       hre
