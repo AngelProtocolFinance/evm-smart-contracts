@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   IAccountsQuery,
   IAccountsQueryInterface,
@@ -919,23 +919,6 @@ const _abi = [
       {
         components: [
           {
-            components: [
-              {
-                internalType: "uint256",
-                name: "locked",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
-                name: "liquid",
-                type: "uint256",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.DonationsReceived",
-            name: "donationsReceived",
-            type: "tuple",
-          },
-          {
             internalType: "bool",
             name: "closingEndowment",
             type: "bool",
@@ -1019,7 +1002,10 @@ export class IAccountsQuery__factory {
   static createInterface(): IAccountsQueryInterface {
     return new utils.Interface(_abi) as IAccountsQueryInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): IAccountsQuery {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IAccountsQuery {
     return new Contract(address, _abi, signerOrProvider) as IAccountsQuery;
   }
 }

@@ -13,8 +13,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -49,10 +49,10 @@ export declare namespace AngelCoreStruct {
     data: AngelCoreStruct.DurationDataStruct;
   };
 
-  export type DurationStructOutput = [number, AngelCoreStruct.DurationDataStructOutput] & {
-    enumData: number;
-    data: AngelCoreStruct.DurationDataStructOutput;
-  };
+  export type DurationStructOutput = [
+    number,
+    AngelCoreStruct.DurationDataStructOutput
+  ] & { enumData: number; data: AngelCoreStruct.DurationDataStructOutput };
 
   export type EndowmentFeeStruct = {
     payoutAddress: PromiseOrValue<string>;
@@ -71,7 +71,12 @@ export declare namespace AngelCoreStruct {
     power: PromiseOrValue<BigNumberish>;
   };
 
-  export type VeTypeDataStructOutput = [BigNumber, BigNumber, BigNumber, BigNumber] & {
+  export type VeTypeDataStructOutput = [
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber
+  ] & {
     value: BigNumber;
     scale: BigNumber;
     slope: BigNumber;
@@ -83,10 +88,10 @@ export declare namespace AngelCoreStruct {
     data: AngelCoreStruct.VeTypeDataStruct;
   };
 
-  export type VeTypeStructOutput = [number, AngelCoreStruct.VeTypeDataStructOutput] & {
-    ve_type: number;
-    data: AngelCoreStruct.VeTypeDataStructOutput;
-  };
+  export type VeTypeStructOutput = [
+    number,
+    AngelCoreStruct.VeTypeDataStructOutput
+  ] & { ve_type: number; data: AngelCoreStruct.VeTypeDataStructOutput };
 
   export type DaoTokenDataStruct = {
     existingData: PromiseOrValue<string>;
@@ -133,10 +138,10 @@ export declare namespace AngelCoreStruct {
     data: AngelCoreStruct.DaoTokenDataStruct;
   };
 
-  export type DaoTokenStructOutput = [number, AngelCoreStruct.DaoTokenDataStructOutput] & {
-    token: number;
-    data: AngelCoreStruct.DaoTokenDataStructOutput;
-  };
+  export type DaoTokenStructOutput = [
+    number,
+    AngelCoreStruct.DaoTokenDataStructOutput
+  ] & { token: number; data: AngelCoreStruct.DaoTokenDataStructOutput };
 
   export type DaoSetupStruct = {
     quorum: PromiseOrValue<BigNumberish>;
@@ -184,10 +189,10 @@ export declare namespace AngelCoreStruct {
     delegate: AngelCoreStruct.DelegateStruct;
   };
 
-  export type SettingsPermissionStructOutput = [boolean, AngelCoreStruct.DelegateStructOutput] & {
-    locked: boolean;
-    delegate: AngelCoreStruct.DelegateStructOutput;
-  };
+  export type SettingsPermissionStructOutput = [
+    boolean,
+    AngelCoreStruct.DelegateStructOutput
+  ] & { locked: boolean; delegate: AngelCoreStruct.DelegateStructOutput };
 
   export type SettingsControllerStruct = {
     strategies: AngelCoreStruct.SettingsPermissionStruct;
@@ -377,7 +382,10 @@ export interface IAccountsCreateEndowmentInterface extends utils.Interface {
     values: [AccountMessages.CreateEndowmentRequestStruct]
   ): string;
 
-  decodeFunctionResult(functionFragment: "createEndowment", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "createEndowment",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -399,7 +407,9 @@ export interface IAccountsCreateEndowment extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -409,13 +419,13 @@ export interface IAccountsCreateEndowment extends BaseContract {
   functions: {
     createEndowment(
       details: AccountMessages.CreateEndowmentRequestStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
   createEndowment(
     details: AccountMessages.CreateEndowmentRequestStruct,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -430,14 +440,14 @@ export interface IAccountsCreateEndowment extends BaseContract {
   estimateGas: {
     createEndowment(
       details: AccountMessages.CreateEndowmentRequestStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     createEndowment(
       details: AccountMessages.CreateEndowmentRequestStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

@@ -2,12 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as donationMatch from "./donation-match";
-export type {donationMatch};
+export type { donationMatch };
 import type * as endowmentMultisig from "./endowment-multisig";
-export type {endowmentMultisig};
+export type { endowmentMultisig };
 import type * as incentivisedVoting from "./incentivised-voting";
-export type {incentivisedVoting};
+export type { incentivisedVoting };
 import type * as subdao from "./subdao";
-export type {subdao};
+export type { subdao };
 import type * as subdaoToken from "./subdao-token";
-export type {subdaoToken};
+export type { subdaoToken };

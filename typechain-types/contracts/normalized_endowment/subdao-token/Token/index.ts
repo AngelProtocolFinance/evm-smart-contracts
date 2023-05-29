@@ -2,6 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as continousSol from "./Continous.sol";
-export type {continousSol};
-export type {BancorBondingCurve} from "./BancorBondingCurve";
-export type {Power} from "./Power";
+export type { continousSol };
+export type { BancorBondingCurve } from "./BancorBondingCurve";
+export type { Power } from "./Power";
