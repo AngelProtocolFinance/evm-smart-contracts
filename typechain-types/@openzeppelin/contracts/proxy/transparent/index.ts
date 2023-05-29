@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as transparentUpgradeableProxySol from "./TransparentUpgradeableProxy.sol";
-export type {transparentUpgradeableProxySol};
+export type { transparentUpgradeableProxySol };
