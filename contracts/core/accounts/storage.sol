@@ -55,7 +55,6 @@ library AccountStorage {
     }
 
     struct EndowmentState {
-        AngelCoreStruct.DonationsReceived donationsReceived;
         AngelCoreStruct.BalanceInfo balances;
         bool closingEndowment;
         AngelCoreStruct.Beneficiary closingBeneficiary;

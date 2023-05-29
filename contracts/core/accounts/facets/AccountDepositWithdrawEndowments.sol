@@ -181,9 +181,6 @@ contract AccountDepositWithdrawEndowments is
         uint256 liquidAmount = (amount.mul(liquidSplitPercent))
                                 .div(AngelCoreStruct.PERCENT_BASIS);
 
-        state.STATES[details.id].donationsReceived.locked += lockedAmount;
-        state.STATES[details.id].donationsReceived.liquid += liquidAmount;
-
         //donation matching flow
         //execute donor match will always be called on an EOA
         if (lockedAmount > 0) {
