@@ -6,7 +6,6 @@ import hre from "hardhat";
 import config from "config";
 import {Contract} from "ethers";
 import {APTeamMultiSig, ApplicationsMultiSig} from "typechain-types";
-import {convertCompilerOptionsFromJson} from "typescript";
 
 import {deployDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
@@ -32,7 +31,6 @@ import {ContractFunctionParams, envConfig, getSigners} from "utils";
 var ANGEL_CORE_STRUCT: Contract;
 var STRING_LIBRARY: Contract;
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
-var REGISTRAR_ADDRESS;
 
 let updateConfig;
 
@@ -115,8 +113,7 @@ export async function mainRouter(USDC: string, verify_contracts: boolean) {
       axelerGateway: config.REGISTRAR_DATA.axelerGateway,
     };
 
-    REGISTRAR_ADDRESS = await deployRegistrar(
-      STRING_LIBRARY.address,
+    const registrar = await deployRegistrar(
       registrarData,
       multisigAddress.APTeamMultiSig,
       verify_contracts,
@@ -125,7 +122,7 @@ export async function mainRouter(USDC: string, verify_contracts: boolean) {
 
     const ACCOUNT_ADDRESS = await deployDiamond(
       multisigAddress.APTeamMultiSig,
-      REGISTRAR_ADDRESS,
+      registrar.proxy.address,
       ANGEL_CORE_STRUCT.address,
       STRING_LIBRARY.address,
       hre,
@@ -157,7 +154,7 @@ export async function mainRouter(USDC: string, verify_contracts: boolean) {
     console.log("charityApplicationsAddress deployed at:-", charityApplicationsAddress);
 
     const SWAP_ROUTER = await deploySwapRouter(
-      REGISTRAR_ADDRESS,
+      registrar.proxy.address,
       ACCOUNT_ADDRESS,
       config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS,
       config.SWAP_ROUTER_DATA.SWAP_ROUTER_ADDRESS,
@@ -168,7 +165,7 @@ export async function mainRouter(USDC: string, verify_contracts: boolean) {
     console.log("SWAP_ROUTER contract deployed at:-", SWAP_ROUTER);
 
     const indexFundData = {
-      registrarContract: REGISTRAR_ADDRESS,
+      registrarContract: registrar.proxy.address,
       fundRotation: config.INDEX_FUND_DATA.fundRotation,
       fundMemberLimit: config.INDEX_FUND_DATA.fundMemberLimit,
       fundingGoal: config.INDEX_FUND_DATA.fundingGoal,
@@ -191,7 +188,7 @@ export async function mainRouter(USDC: string, verify_contracts: boolean) {
 
     let GiftCardDataInput = {
       keeper: multisigAddress.APTeamMultiSig,
-      registrarContract: REGISTRAR_ADDRESS,
+      registrarContract: registrar.proxy.address,
     };
 
     let giftCardAddress = await deployGiftCard(
@@ -202,7 +199,7 @@ export async function mainRouter(USDC: string, verify_contracts: boolean) {
     );
 
     let FundraisingDataInput = {
-      registrarContract: REGISTRAR_ADDRESS,
+      registrarContract: registrar.proxy.address,
       nextId: 0,
       campaignPeriodSeconds: 10 * 24 * 60 * 60,
       taxRate: 10,
@@ -322,7 +319,7 @@ export async function mainRouter(USDC: string, verify_contracts: boolean) {
     let donationMatchCharityData = {
       reserveToken: config.DONATION_MATCH_CHARITY_DATA.reserveToken,
       uniswapFactory: config.DONATION_MATCH_CHARITY_DATA.uniswapFactory,
-      registrarContract: REGISTRAR_ADDRESS,
+      registrarContract: registrar.proxy.address,
       poolFee: config.DONATION_MATCH_CHARITY_DATA.poolFee,
       usdcAddress: config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
     };
@@ -390,7 +387,7 @@ export async function mainRouter(USDC: string, verify_contracts: boolean) {
       cw900lvAddress: implementations.cw900lv,
     };
 
-    let REGISTRAR_CONTRACT = await ethers.getContractAt("Registrar", REGISTRAR_ADDRESS);
+    let REGISTRAR_CONTRACT = await ethers.getContractAt("Registrar", registrar.proxy.address);
 
     let data = await REGISTRAR_CONTRACT.updateConfig(updateConfig);
     console.log("Successfully updated config:-", data.hash);
@@ -409,7 +406,7 @@ export async function mainRouter(USDC: string, verify_contracts: boolean) {
         AngelCoreStruct: ANGEL_CORE_STRUCT.address,
       },
       dai: config.REGISTRAR_UPDATE_CONFIG.DAI_address,
-      registrar: REGISTRAR_ADDRESS,
+      registrar: registrar.proxy.address,
       account: ACCOUNT_ADDRESS,
       multisigAddress,
       charityApplicationsAddress,
