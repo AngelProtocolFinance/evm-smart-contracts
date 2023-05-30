@@ -139,12 +139,12 @@ export declare namespace AngelCoreStruct {
 
   export type EndowmentFeeStruct = {
     payoutAddress: PromiseOrValue<string>;
-    percentage: PromiseOrValue<BigNumberish>;
+    bps: PromiseOrValue<BigNumberish>;
   };
 
   export type EndowmentFeeStructOutput = [string, BigNumber] & {
     payoutAddress: string;
-    percentage: BigNumber;
+    bps: BigNumber;
   };
 
   export type DelegateStruct = {

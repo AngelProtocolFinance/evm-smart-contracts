@@ -120,9 +120,9 @@ contract AccountDepositWithdrawEndowments is
             state.config.registrarContract
         ).queryConfig();
 
-        if (tempEndowment.depositFee.percentage != 0) {
+        if (tempEndowment.depositFee.bps != 0) {
             uint256 depositFeeAmount = (amount
-                .mul(tempEndowment.depositFee.percentage))
+                .mul(tempEndowment.depositFee.bps))
                 .div(AngelCoreStruct.FEE_BASIS);
             amount = amount.sub(depositFeeAmount);
 
@@ -276,7 +276,7 @@ contract AccountDepositWithdrawEndowments is
                 // Normal: Endowment specific setting that owners can (optionally) set
                 // Charity: Registrar based setting for all Charity Endowments
                 if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Normal) {
-                    earlyLockedWithdrawPenalty = (tokens[tii].amnt.mul(tempEndowment.earlyLockedWithdrawFee.percentage))
+                    earlyLockedWithdrawPenalty = (tokens[tii].amnt.mul(tempEndowment.earlyLockedWithdrawFee.bps))
                         .div(AngelCoreStruct.FEE_BASIS);
                 } else {
                     earlyLockedWithdrawPenalty = (tokens[tii].amnt.mul(
@@ -369,9 +369,9 @@ contract AccountDepositWithdrawEndowments is
             uint256 withdrawFeeEndow = 0;
             if (
                 amountLeftover > 0 &&
-                tempEndowment.withdrawFee.percentage != 0
+                tempEndowment.withdrawFee.bps != 0
             ) {
-                withdrawFeeEndow = (amountLeftover.mul(tempEndowment.withdrawFee.percentage))
+                withdrawFeeEndow = (amountLeftover.mul(tempEndowment.withdrawFee.bps))
                                     .div(AngelCoreStruct.FEE_BASIS);
 
                 // transfer endowment withdraw fee to beneficiary address

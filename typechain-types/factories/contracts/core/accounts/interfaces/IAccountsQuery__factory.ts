@@ -65,7 +65,7 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "percentage",
+                name: "bps",
                 type: "uint256",
               },
             ],
@@ -301,7 +301,7 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "percentage",
+                name: "bps",
                 type: "uint256",
               },
             ],
@@ -318,7 +318,7 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "percentage",
+                name: "bps",
                 type: "uint256",
               },
             ],
@@ -335,7 +335,7 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "percentage",
+                name: "bps",
                 type: "uint256",
               },
             ],
@@ -352,7 +352,7 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "percentage",
+                name: "bps",
                 type: "uint256",
               },
             ],
