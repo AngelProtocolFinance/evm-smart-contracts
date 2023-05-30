@@ -6,7 +6,7 @@
     "preinstall": "npx only-allow yarn",
     "format": "prettier --write './**/*.{ts,tsx,js}' --write contracts/**/*.sol",
     "test": "hardhat test",
-    "compile": "hardhat compile",
+    "compile": "hardhat compile && yarn format",
     "deploy": "hardhat compile && hardhat run ./scripts/deploy.ts",
     "abi": "hardhat export-abi"
   },

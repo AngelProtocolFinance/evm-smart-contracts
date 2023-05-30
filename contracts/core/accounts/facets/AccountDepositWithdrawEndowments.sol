@@ -336,15 +336,15 @@ contract AccountDepositWithdrawEndowments is
                 );
             }
 
-            uint256 rent_bal;
+            uint256 current_bal;
             if (acctType == AngelCoreStruct.AccountType.Locked) {
-                rent_bal = state.STATES[id].balances.locked.balancesByToken[tokenAddress];
+                current_bal = state.STATES[id].balances.locked.balancesByToken[tokenAddress];
             } else {
-                rent_bal = state.STATES[id].balances.liquid.balancesByToken[tokenAddress];
+                current_bal = state.STATES[id].balances.liquid.balancesByToken[tokenAddress];
             }
 
             // ensure balance of tokens can cover the requested withdraw amount
-            require(rent_bal > amount, "InsufficientFunds");
+            require(current_bal > amount, "InsufficientFunds");
             
             // calculate AP Protocol fee owed on withdrawn token amount
             uint256 withdrawFeeAp = (amount.mul(withdrawFeeRateAp))
