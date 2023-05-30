@@ -1,6 +1,6 @@
 import {task} from "hardhat/config";
 import {CharityApplication__factory} from "typechain-types";
-import {logger, updateAddresses, shouldVerify} from "utils";
+import {logger, updateAddresses, shouldVerify, getSigners} from "utils";
 
 task(
   "upgrade:upgradeCharityApplication",

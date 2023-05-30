@@ -12,7 +12,7 @@ task(
   "Will upgrade the implementation of the AP Team and Applications multisigs"
 ).setAction(async (_taskArguments, hre) => {
   try {
-    const {deployer, proxyAdmin} = await getSigners(hre.ethers);
+    const {proxyAdmin} = await getSigners(hre.ethers);
 
     const addresses = await getAddresses(hre);
 
