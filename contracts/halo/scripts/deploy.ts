@@ -112,7 +112,7 @@ export async function deployHaloImplementation(
       Airdrop: await Airdrop(
         proxyAdmin.address,
         {
-          owner: airdropOwner,
+          owner: airdropOwner.address,
           haloToken: halo,
         },
         hre

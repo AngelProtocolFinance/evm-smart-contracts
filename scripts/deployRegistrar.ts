@@ -1,13 +1,11 @@
 import hre from "hardhat";
-import {logger, updateAddresses} from "utils";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {getSigners, logger, updateAddresses} from "utils";
 import {Registrar, Registrar__factory} from "typechain-types";
 
 async function deploy() {
   const {ethers, upgrades} = hre;
 
-  let deployer: SignerWithAddress;
-  {deployer} = await getSigners(ethers);
+  const {apTeam1} = await getSigners(ethers);
 
   const network = await ethers.provider.getNetwork();
 
@@ -15,7 +13,7 @@ async function deploy() {
   logger.out("Deploying to: " + network.name, logger.Level.Info);
   logger.out("With chain id: " + network.chainId, logger.Level.Info);
 
-  const Registrar = (await ethers.getContractFactory("Registrar")) as Registrar__factory;
+  const Registrar = (await ethers.getContractFactory("Registrar", apTeam1)) as Registrar__factory;
   const registrar = (await upgrades.deployProxy(Registrar)) as Registrar;
 
   await registrar.deployed();

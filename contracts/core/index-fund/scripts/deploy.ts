@@ -1,7 +1,6 @@
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import config from "config";
 import {getSigners, updateAddresses} from "utils";
 import {IndexFundMessage} from "typechain-types/contracts/core/index-fund/IndexFund";
 
@@ -13,15 +12,15 @@ export async function deployIndexFund(
   try {
     const {network, run, ethers} = hre;
 
-    const {proxyAdmin} = await getSigners(ethers);
-    const IndexContract = await ethers.getContractFactory("IndexFund");
+    const {apTeam1, proxyAdmin} = await getSigners(ethers);
+    const IndexContract = await ethers.getContractFactory("IndexFund", proxyAdmin);
 
     const indexContract = await IndexContract.deploy();
     await indexContract.deployed();
 
     console.log("Index fund implementation address:", indexContract.address);
 
-    const ProxyContract = await ethers.getContractFactory("ProxyContract");
+    const ProxyContract = await ethers.getContractFactory("ProxyContract", apTeam1);
 
     const IndexFundContractData = indexContract.interface.encodeFunctionData("initIndexFund", [
       initFactoryData,
@@ -51,7 +50,7 @@ export async function deployIndexFund(
       });
       await run("verify:verify", {
         address: IndexFundContractProxy.address,
-        constructorArguments: [indexContract.address, proxyAdmin.address, IndexFundContractData],
+        constructorArguments: [indexContract.address, apTeam1.address, IndexFundContractData],
       });
     }
 
