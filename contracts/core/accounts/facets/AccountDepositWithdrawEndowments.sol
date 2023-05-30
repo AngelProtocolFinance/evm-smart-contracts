@@ -247,7 +247,15 @@ contract AccountDepositWithdrawEndowments is
             "Must provide Beneficiary Address xor Endowment ID"
         );
 
-        // fetch regisrar config
+        // place an arbitrary cap on the qty of different tokens per withdraw to limit gas use
+        require(tokens.length <= 10, "Upper-limit is ten(10) unique ERC20 tokens per withdraw");
+        // check all passed tokens address values are not zero address first to avoid gas waste
+        for (uint256 ti = 0; ti < tokens.length; ti++) {
+            require(tokens[ti].amnt > 0, "InvalidZeroAmount");
+            require(state.AcceptedTokens[id][tokens[ti].addr], "Not in the Accepted Tokens List");
+        }
+
+        // fetch registrar config
         RegistrarStorage.Config memory registrar_config = IRegistrar(
             state.config.registrarContract
         ).queryConfig();
@@ -259,14 +267,7 @@ contract AccountDepositWithdrawEndowments is
             block.timestamp >= tempEndowment.maturityTime
         );
 
-        // place an arbitrary cap on the qty of different tokens per withdraw to limit gas use
-        require(tokens.length <= 10, "Upper-limit is ten(10) unique ERC20 tokens per withdraw");
-        for (uint256 t = 0; t < tokens.length; t++) {
-            uint256 amount = tokens[t].amnt;
-            address tokenAddress = tokens[t].addr;
-            require(amount > 0, "InvalidZeroAmount");
-            require(state.AcceptedTokens[id][tokenAddress], "Not in the Accepted Tokens List");
-
+        for (uint256 tii = 0; tii < tokens.length; tii++) {
             // ** SHARED LOCKED WITHDRAWAL RULES **
             // Can withdraw early for a (possible) penalty fee
             uint256 earlyLockedWithdrawPenalty = 0;
@@ -275,10 +276,10 @@ contract AccountDepositWithdrawEndowments is
                 // Normal: Endowment specific setting that owners can (optionally) set
                 // Charity: Registrar based setting for all Charity Endowments
                 if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Normal) {
-                    earlyLockedWithdrawPenalty = (amount.mul(tempEndowment.earlyLockedWithdrawFee.percentage))
+                    earlyLockedWithdrawPenalty = (tokens[tii].amnt.mul(tempEndowment.earlyLockedWithdrawFee.percentage))
                         .div(AngelCoreStruct.FEE_BASIS);
                 } else {
-                    earlyLockedWithdrawPenalty = (amount.mul(
+                    earlyLockedWithdrawPenalty = (tokens[tii].amnt.mul(
                         IRegistrar(state.config.registrarContract).queryFee(
                             "accounts_early_locked_withdraw"
                         )
@@ -338,22 +339,22 @@ contract AccountDepositWithdrawEndowments is
 
             uint256 current_bal;
             if (acctType == AngelCoreStruct.AccountType.Locked) {
-                current_bal = state.STATES[id].balances.locked.balancesByToken[tokenAddress];
+                current_bal = state.STATES[id].balances.locked.balancesByToken[tokens[tii].addr];
             } else {
-                current_bal = state.STATES[id].balances.liquid.balancesByToken[tokenAddress];
+                current_bal = state.STATES[id].balances.liquid.balancesByToken[tokens[tii].addr];
             }
 
             // ensure balance of tokens can cover the requested withdraw amount
-            require(current_bal > amount, "InsufficientFunds");
+            require(current_bal > tokens[tii].amnt, "InsufficientFunds");
             
             // calculate AP Protocol fee owed on withdrawn token amount
-            uint256 withdrawFeeAp = (amount.mul(withdrawFeeRateAp))
+            uint256 withdrawFeeAp = (tokens[tii].amnt.mul(withdrawFeeRateAp))
                                     .div(AngelCoreStruct.FEE_BASIS);
 
             // Transfer AP Protocol fee to treasury
             // (ie. standard Withdraw Fee + any early Locked Withdraw Penalty)
             require(
-                IERC20(tokenAddress).transfer(
+                IERC20(tokens[tii].addr).transfer(
                     registrar_config.treasury,
                     withdrawFeeAp + earlyLockedWithdrawPenalty
                 ),
@@ -364,7 +365,7 @@ contract AccountDepositWithdrawEndowments is
             // Endowment specific withdraw fee needs to be calculated against the amount
             // leftover after all AP withdraw fees are subtracted. Otherwise we risk having
             // negative amounts due to collective fees being greater than 100%
-            uint256 amountLeftover = amount - withdrawFeeAp - earlyLockedWithdrawPenalty;
+            uint256 amountLeftover = tokens[tii].amnt - withdrawFeeAp - earlyLockedWithdrawPenalty;
             uint256 withdrawFeeEndow = 0;
             if (
                 amountLeftover > 0 &&
@@ -375,7 +376,7 @@ contract AccountDepositWithdrawEndowments is
 
                 // transfer endowment withdraw fee to beneficiary address
                 require(
-                    IERC20(tokenAddress).transfer(
+                    IERC20(tokens[tii].addr).transfer(
                         tempEndowment.withdrawFee.payoutAddress,
                         withdrawFeeEndow
                     ),
@@ -386,7 +387,7 @@ contract AccountDepositWithdrawEndowments is
             // send all tokens (less fees) to the ultimate beneficiary address/endowment
             if (beneficiaryAddress != address(0)) {
                 require(
-                    IERC20(tokenAddress).transfer(
+                    IERC20(tokens[tii].addr).transfer(
                         beneficiaryAddress,
                         (amountLeftover - withdrawFeeEndow)
                     ),
@@ -398,16 +399,16 @@ contract AccountDepositWithdrawEndowments is
                 // Send deposit message to 100% Liquid account of an endowment
                 processToken(
                     AccountMessages.DepositRequest({ id: id, lockedPercentage: 0, liquidPercentage: 100 }),
-                    tokenAddress,
+                    tokens[tii].addr,
                     (amountLeftover - withdrawFeeEndow)
                 );
             }
 
             // reduce the orgs balance by the withdrawn token amount
             if (acctType == AngelCoreStruct.AccountType.Locked) {
-                state.STATES[id].balances.locked.balancesByToken[tokenAddress] -= amount;
+                state.STATES[id].balances.locked.balancesByToken[tokens[tii].addr] -= tokens[tii].amnt;
             } else {
-                state.STATES[id].balances.liquid.balancesByToken[tokenAddress] -= amount;
+                state.STATES[id].balances.liquid.balancesByToken[tokens[tii].addr] -= tokens[tii].amnt;
             }
         }
     }
