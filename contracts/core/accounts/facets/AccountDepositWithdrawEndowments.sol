@@ -248,6 +248,7 @@ contract AccountDepositWithdrawEndowments is
         );
 
         // place an arbitrary cap on the qty of different tokens per withdraw to limit gas use
+        require(tokens.length > 0, "No tokens provided");
         require(tokens.length <= 10, "Upper-limit is ten(10) unique ERC20 tokens per withdraw");
         // check all passed tokens address & amount values are non-zero to avoid gas waste
         for (uint256 ti = 0; ti < tokens.length; ti++) {
