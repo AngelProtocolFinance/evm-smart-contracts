@@ -14,8 +14,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -50,8 +50,7 @@ export declare namespace AngelCoreStruct {
   };
 }
 
-export interface IAccountsDepositWithdrawEndowmentsInterface
-  extends utils.Interface {
+export interface IAccountsDepositWithdrawEndowmentsInterface extends utils.Interface {
   functions: {
     "depositERC20((uint32,uint256,uint256),address,uint256)": FunctionFragment;
     "depositMatic((uint32,uint256,uint256))": FunctionFragment;
@@ -85,14 +84,8 @@ export interface IAccountsDepositWithdrawEndowmentsInterface
     ]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "depositERC20",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "depositMatic",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "depositERC20", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "depositMatic", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
   events: {};
@@ -115,9 +108,7 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -129,12 +120,12 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
       details: AccountMessages.DepositRequestStruct,
       tokenAddress: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     depositMatic(
       details: AccountMessages.DepositRequestStruct,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     withdraw(
@@ -143,7 +134,7 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
       beneficiaryAddress: PromiseOrValue<string>,
       beneficiaryEndowId: PromiseOrValue<BigNumberish>,
       tokens: AngelCoreStruct.TokenInfoStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
 
@@ -151,12 +142,12 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
     details: AccountMessages.DepositRequestStruct,
     tokenAddress: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   depositMatic(
     details: AccountMessages.DepositRequestStruct,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   withdraw(
@@ -165,7 +156,7 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
     beneficiaryAddress: PromiseOrValue<string>,
     beneficiaryEndowId: PromiseOrValue<BigNumberish>,
     tokens: AngelCoreStruct.TokenInfoStruct[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -198,12 +189,12 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
       details: AccountMessages.DepositRequestStruct,
       tokenAddress: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     depositMatic(
       details: AccountMessages.DepositRequestStruct,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     withdraw(
@@ -212,7 +203,7 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
       beneficiaryAddress: PromiseOrValue<string>,
       beneficiaryEndowId: PromiseOrValue<BigNumberish>,
       tokens: AngelCoreStruct.TokenInfoStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
 
@@ -221,12 +212,12 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
       details: AccountMessages.DepositRequestStruct,
       tokenAddress: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     depositMatic(
       details: AccountMessages.DepositRequestStruct,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     withdraw(
@@ -235,7 +226,7 @@ export interface IAccountsDepositWithdrawEndowments extends BaseContract {
       beneficiaryAddress: PromiseOrValue<string>,
       beneficiaryEndowId: PromiseOrValue<BigNumberish>,
       tokens: AngelCoreStruct.TokenInfoStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };
 }

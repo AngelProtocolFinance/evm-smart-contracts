@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
 import type {
   ISubdaoEmitter,
   ISubdaoEmitterInterface,
@@ -630,10 +630,7 @@ export class ISubdaoEmitter__factory {
   static createInterface(): ISubdaoEmitterInterface {
     return new utils.Interface(_abi) as ISubdaoEmitterInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): ISubdaoEmitter {
+  static connect(address: string, signerOrProvider: Signer | Provider): ISubdaoEmitter {
     return new Contract(address, _abi, signerOrProvider) as ISubdaoEmitter;
   }
 }

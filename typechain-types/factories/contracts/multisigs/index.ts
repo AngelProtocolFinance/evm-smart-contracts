@@ -4,6 +4,6 @@
 export * as charityApplications from "./charity_applications";
 export * as interfaces from "./interfaces";
 export * as storageSol from "./storage.sol";
-export { APTeamMultiSig__factory } from "./APTeamMultiSig__factory";
-export { ApplicationsMultiSig__factory } from "./ApplicationsMultiSig__factory";
-export { MultiSigGeneric__factory } from "./MultiSigGeneric__factory";
+export {APTeamMultiSig__factory} from "./APTeamMultiSig__factory";
+export {ApplicationsMultiSig__factory} from "./ApplicationsMultiSig__factory";
+export {MultiSigGeneric__factory} from "./MultiSigGeneric__factory";

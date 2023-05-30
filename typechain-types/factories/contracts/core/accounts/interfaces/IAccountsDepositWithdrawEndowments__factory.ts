@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
 import type {
   IAccountsDepositWithdrawEndowments,
   IAccountsDepositWithdrawEndowmentsInterface,
@@ -130,18 +130,12 @@ const _abi = [
 export class IAccountsDepositWithdrawEndowments__factory {
   static readonly abi = _abi;
   static createInterface(): IAccountsDepositWithdrawEndowmentsInterface {
-    return new utils.Interface(
-      _abi
-    ) as IAccountsDepositWithdrawEndowmentsInterface;
+    return new utils.Interface(_abi) as IAccountsDepositWithdrawEndowmentsInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
   ): IAccountsDepositWithdrawEndowments {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as IAccountsDepositWithdrawEndowments;
+    return new Contract(address, _abi, signerOrProvider) as IAccountsDepositWithdrawEndowments;
   }
 }
