@@ -195,6 +195,11 @@ library AngelCoreStruct {
     return amount;
   }
 
+  struct TokenInfo {
+    address addr;
+    uint256 amnt;
+  }
+
   struct BalanceInfo {
     GenericBalance locked;
     GenericBalance liquid;
