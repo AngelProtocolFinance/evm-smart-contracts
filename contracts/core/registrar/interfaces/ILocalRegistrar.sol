@@ -105,5 +105,5 @@ interface ILocalRegistrar {
         AngelCoreStruct.FeeTypes _feeType, 
         uint256 _rate, 
         address _payout
-    ) external returns (AngelCoreStruct.FeeSetting memory);
+    ) external;
 }

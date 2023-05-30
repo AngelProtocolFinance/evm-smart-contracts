@@ -222,7 +222,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
         );
     }
 
-    function setFeeSettingsByFeesType(AngelCoreStruct.FeeTypes _feeType, uint256 _rate, address _payout) external returns (AngelCoreStruct.FeeSetting memory) {
+    function setFeeSettingsByFeesType(AngelCoreStruct.FeeTypes _feeType, uint256 _rate, address _payout) external {
         LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
             LocalRegistrarLib.localRegistrarStorage();
         lrs.FeeSettingsByFeeType[_feeType] = AngelCoreStruct.FeeSetting({
@@ -230,7 +230,6 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
             feeRate: _rate
         });
         emit FeeUpdated(_feeType, _rate, _payout);
-        return lrs.FeeSettingsByFeeType[_feeType];
     }
 
     /*////////////////////////////////////////////////
