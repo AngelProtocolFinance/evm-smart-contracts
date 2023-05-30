@@ -8,6 +8,7 @@ import {RegistrarMessages} from "typechain-types/contracts/core/registrar/regist
 export async function deployRegistrar(
   STRING_LIBRARY: string,
   registrarData: RegistrarMessages.InstantiateRequestStruct,
+  owner: string,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
@@ -25,6 +26,11 @@ export async function deployRegistrar(
     await registrarImplementation.deployed();
 
     console.log("registrarImplementation implementation address:", registrarImplementation.address);
+
+    console.log("Updating Registrar owner to: ", owner, "...");
+    const tx = await registrarImplementation.transferOwnership(owner);
+    await tx.wait();
+
     // Deploy proxy contract
 
     const ProxyContract = await ethers.getContractFactory("ProxyContract");

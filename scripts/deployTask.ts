@@ -116,21 +116,6 @@ export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvi
 
     await deployLibraries(verify_contracts, hre);
 
-    const registrarData = {
-      treasury: treasuryAdmin.address,
-      splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
-      router: routerAdmin.address,
-      axelarGateway: config.REGISTRAR_DATA.axelarGateway,
-      axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
-    };
-
-    REGISTRAR_ADDRESS = await deployRegistrar(
-      STRING_LIBRARY.address,
-      registrarData,
-      verify_contracts,
-      hre
-    );
-
     var APTeamData: ParametersExceptLast<APTeamMultiSig["initialize"]> = [
       [apTeam1.address, apTeam2.address],
       config.AP_TEAM_MULTISIG_DATA.threshold,
@@ -145,6 +130,22 @@ export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvi
     const multisigAddress = await deployMultisig(
       ApplicationData,
       APTeamData,
+      verify_contracts,
+      hre
+    );
+
+    const registrarData = {
+      treasury: treasuryAdmin.address,
+      splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
+      router: routerAdmin.address,
+      axelarGateway: config.REGISTRAR_DATA.axelarGateway,
+      axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
+    };
+
+    REGISTRAR_ADDRESS = await deployRegistrar(
+      STRING_LIBRARY.address,
+      registrarData,
+      multisigAddress.APTeamMultiSig,
       verify_contracts,
       hre
     );

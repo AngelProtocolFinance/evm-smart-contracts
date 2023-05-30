@@ -70,24 +70,6 @@ export default async function deploy() {
 
     const {angelCoreStruct, stringLib} = await deployLibraries(verify_contracts, proxyAdmin, hre);
 
-    const registrarData = {
-      treasury: treasuryAdmin.address,
-      taxRate: config.REGISTRAR_DATA.taxRate,
-      rebalance: config.REGISTRAR_DATA.rebalance,
-      splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
-      acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
-      router: routerAdmin.address,
-      axelarGateway: config.REGISTRAR_DATA.axelarGateway,
-      axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
-    };
-
-    const registrarAddress = await deployRegistrar(
-      stringLib.address,
-      registrarData,
-      verify_contracts,
-      hre
-    );
-
     var APTeamData: ParametersExceptLast<APTeamMultiSig["initialize"]> = [
       apTeamMultisigOwners.map((x) => x.address),
       config.AP_TEAM_MULTISIG_DATA.threshold,
@@ -102,6 +84,25 @@ export default async function deploy() {
     const multisigAddress = await deployMultisig(
       ApplicationData,
       APTeamData,
+      verify_contracts,
+      hre
+    );
+
+    const registrarData = {
+      treasury: treasuryAdmin.address,
+      taxRate: config.REGISTRAR_DATA.taxRate,
+      rebalance: config.REGISTRAR_DATA.rebalance,
+      splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
+      acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
+      router: routerAdmin.address,
+      axelarGateway: config.REGISTRAR_DATA.axelarGateway,
+      axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
+    };
+
+    const registrarAddress = await deployRegistrar(
+      stringLib.address,
+      registrarData,
+      multisigAddress.APTeamMultiSig,
       verify_contracts,
       hre
     );

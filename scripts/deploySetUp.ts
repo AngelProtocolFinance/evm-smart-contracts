@@ -93,23 +93,6 @@ export async function mainRouter(USDC: string, verify_contracts: boolean) {
 
     await deployLibraries();
 
-    const registrarData = {
-      treasury: treasuryAdmin.address,
-      taxRate: config.REGISTRAR_DATA.taxRate,
-      rebalance: config.REGISTRAR_DATA.rebalance,
-      splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
-      acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
-      router: routerAdmin.address,
-      axelerGateway: config.REGISTRAR_DATA.axelerGateway,
-    };
-
-    REGISTRAR_ADDRESS = await deployRegistrar(
-      STRING_LIBRARY.address,
-      registrarData,
-      verify_contracts,
-      hre
-    );
-
     var APTeamData: ParametersExceptLast<APTeamMultiSig["initialize"]> = [
       apTeamMultisigOwners.map((x) => x.address),
       config.AP_TEAM_MULTISIG_DATA.threshold,
@@ -124,6 +107,24 @@ export async function mainRouter(USDC: string, verify_contracts: boolean) {
     const multisigAddress = await deployMultisig(
       ApplicationData,
       APTeamData,
+      verify_contracts,
+      hre
+    );
+
+    const registrarData = {
+      treasury: treasuryAdmin.address,
+      taxRate: config.REGISTRAR_DATA.taxRate,
+      rebalance: config.REGISTRAR_DATA.rebalance,
+      splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
+      acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
+      router: routerAdmin.address,
+      axelerGateway: config.REGISTRAR_DATA.axelerGateway,
+    };
+
+    REGISTRAR_ADDRESS = await deployRegistrar(
+      STRING_LIBRARY.address,
+      registrarData,
+      multisigAddress.APTeamMultiSig,
       verify_contracts,
       hre
     );
