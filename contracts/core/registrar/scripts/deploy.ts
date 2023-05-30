@@ -1,84 +1,60 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 
-import {getSigners, updateAddresses} from "utils";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {ProxyContract__factory, Registrar__factory} from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/registrar.sol/Registrar";
+import {getSigners, updateAddresses} from "utils";
 
 export async function deployRegistrar(
-  STRING_LIBRARY: string,
   registrarData: RegistrarMessages.InstantiateRequestStruct,
   owner: string,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
-  try {
-    const {network, run, ethers} = hre;
+  const {run, ethers} = hre;
 
-    const {proxyAdmin} = await getSigners(ethers);
+  const {proxyAdmin} = await getSigners(ethers);
 
-    // const registrarLib = await ethers.getContractFactory('RegistrarLib');
-    // const registrarLibInstance = await registrarLib.deploy();
-    // await registrarLibInstance.deployed();
+  const factory = new Registrar__factory(proxyAdmin);
+  const registrar = await factory.deploy();
+  await registrar.deployed();
+  console.log("Registrar implementation deployed at: ", registrar.address);
 
-    const Registrar = await ethers.getContractFactory("Registrar");
-    const registrarImplementation = await Registrar.deploy();
-    await registrarImplementation.deployed();
+  console.log("Updating Registrar owner to: ", owner, "...");
+  const tx = await registrar.transferOwnership(owner);
+  await tx.wait();
 
-    console.log("registrarImplementation implementation address:", registrarImplementation.address);
+  // Deploy proxy contract
+  const data = registrar.interface.encodeFunctionData(
+    "initialize((address,(uint256,uint256,uint256),address,address,address))",
+    [registrarData]
+  );
+  const proxyFactory = new ProxyContract__factory(proxyAdmin);
+  const proxy = await proxyFactory.deploy(registrar.address, proxyAdmin.address, data);
+  await proxy.deployed();
+  console.log("Registrar Proxy deployed at: ", proxy.address);
 
-    console.log("Updating Registrar owner to: ", owner, "...");
-    const tx = await registrarImplementation.transferOwnership(owner);
-    await tx.wait();
-
-    // Deploy proxy contract
-
-    const ProxyContract = await ethers.getContractFactory("ProxyContract");
-
-    // Initialise registrar
-
-    const registrarProxyData = registrarImplementation.interface.encodeFunctionData(
-      "initialize((address,(uint256,uint256,uint256),address,address,address))",
-      [registrarData]
-    );
-
-    const registrarProxy = await ProxyContract.deploy(
-      registrarImplementation.address,
-      proxyAdmin.address,
-      registrarProxyData
-    );
-
-    await registrarProxy.deployed();
-
-    if (verify_contracts) {
-      await run(`verify:verify`, {
-        address: registrarImplementation.address,
-        constructorArguments: [],
-      });
-      await run(`verify:verify`, {
-        address: registrarProxy.address,
-        constructorArguments: [
-          registrarImplementation.address,
-          proxyAdmin.address,
-          registrarProxyData,
-        ],
-      });
-    }
-
-    await updateAddresses(
-      {
-        registrar: {
-          implementation: registrarImplementation.address,
-          proxy: registrarProxy.address,
-        },
+  await updateAddresses(
+    {
+      registrar: {
+        implementation: registrar.address,
+        proxy: proxy.address,
       },
-      hre
-    );
+    },
+    hre
+  );
 
-    console.log("Registrar Address (Proxy):", registrarProxy.address);
-
-    return Promise.resolve(registrarProxy.address);
-  } catch (error) {
-    return Promise.reject(error);
+  if (verify_contracts) {
+    await run(`verify:verify`, {
+      address: registrar.address,
+      constructorArguments: [],
+    });
+    await run(`verify:verify`, {
+      address: proxy.address,
+      constructorArguments: [registrar.address, proxyAdmin.address, data],
+    });
   }
+
+  return {implementation: registrar, proxy};
 }
