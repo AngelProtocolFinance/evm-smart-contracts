@@ -54,11 +54,11 @@ contract AccountDepositWithdrawEndowments is
             tempConfig.registrarContract
         ).queryConfig();
 
-        // Swap ETH to USDC
-        uint256 usdcAmount = ISwappingV3(registrar_config.swapsRouter)
-            .swapEthToToken{value: msg.value}();
-        emit SwappedToken(usdcAmount);
-        processToken(details, registrar_config.usdcAddress, usdcAmount);
+        // Swap MATIC >> ERC20 wMATIC
+        uint256 wMaticAmount = ISwappingV3(registrar_config.swapsRouter)
+            .swapMaticToWrappedMatic{value: msg.value}();
+        emit SwappedToken(wMaticAmount);
+        processToken(details, registrar_config.usdcAddress, wMaticAmount);
     }
 
     /**

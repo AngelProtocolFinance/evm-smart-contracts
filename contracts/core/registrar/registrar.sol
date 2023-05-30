@@ -70,7 +70,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
             lockedWithdrawal: address(0),
             proxyAdmin: address(0),
             usdcAddress: address(0),
-            wethAddress: address(0),
+            wMaticAddress: address(0),
             cw900lvAddress: address(0)
         });
         emit UpdateRegistrarConfig(state.config);
@@ -246,8 +246,8 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
             state.config.usdcAddress = details.usdcAddress;
         }
 
-        if (Validator.addressChecker(details.wethAddress)) {
-            state.config.wethAddress = details.wethAddress;
+        if (Validator.addressChecker(details.wMaticAddress)) {
+            state.config.wMaticAddress = details.wMaticAddress;
         }
 
         if (Validator.addressChecker(details.cw900lvAddress)) {

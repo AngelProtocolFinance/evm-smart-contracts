@@ -18,7 +18,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 contract Collector is Storage {
     event CollecterInitialized(CollectorMessage.InstantiateMsg details);
     event CollectedConfigUpdated(CollectorStorage.Config config);
-    event CollectorSweeped(uint256 amount);
+    event CollectorSweeped(address tokenSwept, uint256 amountSwept, uint256 haloOut);
     IERC20Upgradeable token;
     bool initialized = false;
     uint256 constant SWEEP_REPLY_ID = 1;
@@ -34,6 +34,7 @@ contract Collector is Storage {
         initialized = true;
         state.config = CollectorStorage.Config({
             owner: msg.sender,
+            registrarContract: details.registrarContract,
             rewardFactor: details.rewardFactor,
             timelockContract: details.timelockContract,
             govContract: details.govContract,
@@ -56,7 +57,8 @@ contract Collector is Storage {
         uint256 rewardFactor,
         address timelockContract,
         address govContract,
-        address swapFactory
+        address swapFactory,
+        address registrarContract
     ) public returns (bool) {
         require(
             timelockContract != address(0),
@@ -64,17 +66,12 @@ contract Collector is Storage {
         );
         require(swapFactory != address(0), "Invalid swapFactory address given");
         require(govContract != address(0), "Invalid govContract address given");
-        require(
-            msg.sender == state.config.timelockContract ||
-                msg.sender == state.config.owner,
-            "Unauthorized"
-        );
-
+        require(msg.sender == state.config.owner, "Unauthorized");
         require(
             state.config.rewardFactor <= 100,
             "Invalid reward factor input given"
         );
-
+        state.config.registrarContract = registrarContract;
         state.config.rewardFactor = rewardFactor;
         state.config.timelockContract = timelockContract;
         state.config.swapFactory = swapFactory;
@@ -84,35 +81,42 @@ contract Collector is Storage {
     }
 
     /**
-     * @dev swaps asset tokens to HALO tokens and distributes the result HALO tokens to the gov contract.
+     * @dev swaps asset tokens to HALO tokens and distributes the result HALO tokens to the Governance contract.
+     * @param sweepToken address of the token to be swept
      */
-
-    function sweep() public payable {
-        require(msg.value > 0, "Invalid amount given");
-        // swap native token to HALO token
+    function sweep(
+        address sweepToken
+    ) public {
+        uint256 sweepAmount = 0;
+        // swap token to HALO token
         uint256 amountOut = ISwappingV3(state.config.swapFactory)
-            .swapEthToAnyToken{value: msg.value}(state.config.haloToken);
-        // distribute HALO token to gov contract
-        uint256 distributeAmount = (amountOut * state.config.rewardFactor) /
-            100;
-        uint256 remainingAmount = amountOut - distributeAmount;
+            .executeSwaps(
+                sweepToken,
+                sweepAmount,
+                state.config.haloToken,
+                0
+            );
 
-        if (distributeAmount != 0) {
+        // distribute HALO token to gov contract
+        uint256 distributeAmount = (amountOut * state.config.rewardFactor) / 100;
+        if (distributeAmount > 0) {
             require(
                 token.transfer(state.config.govContract, distributeAmount),
                 "Transfer failed"
             );
+            if ((amountOut - distributeAmount) > 0) {
+                require(
+                    token.transfer(
+                        state.config.distributorContract,
+                        amountOut - distributeAmount
+                    ),
+                    "Transfer failed"
+                );
+            }
+            emit CollectorSweeped(sweepToken, sweepAmount, amountOut);
+        } else {
+            revert("No HALO available to distribute after sweep");
         }
-        if (remainingAmount != 0) {
-            require(
-                token.transfer(
-                    state.config.distributorContract,
-                    remainingAmount
-                ),
-                "Transfer failed"
-            );
-        }
-        emit CollectorSweeped(msg.value);
     }
 
     /**
@@ -123,15 +127,15 @@ contract Collector is Storage {
         view
         returns (CollectorMessage.ConfigResponse memory)
     {
-        return
-            CollectorMessage.ConfigResponse({
-                owner: state.config.owner,
-                rewardFactor: state.config.rewardFactor,
-                timelockContract: state.config.timelockContract,
-                govContract: state.config.govContract,
-                swapFactory: state.config.swapFactory,
-                distributorContract: state.config.distributorContract,
-                haloToken: state.config.haloToken
-            });
+        return CollectorMessage.ConfigResponse({
+            owner: state.config.owner,
+            registrarContract: state.config.registrarContract,
+            rewardFactor: state.config.rewardFactor,
+            timelockContract: state.config.timelockContract,
+            govContract: state.config.govContract,
+            swapFactory: state.config.swapFactory,
+            distributorContract: state.config.distributorContract,
+            haloToken: state.config.haloToken
+        });
     }
 }

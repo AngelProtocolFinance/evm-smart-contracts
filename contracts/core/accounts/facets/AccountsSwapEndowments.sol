@@ -23,20 +23,20 @@ contract AccountsSwapEndowments is ReentrancyGuardFacet, AccountsEvents {
      * @dev This function swaps tokens for an endowment
      * @param id The id of the endowment
      * @param accountType The type of the account
-     * @param amount The amount of tokens to be swapped
      * @param tokenIn The address of the token to be swapped
-     * @param tokenOut The address of the token to be received
+     * @param amountIn The amount of tokens to be swapped in
+     * @param tokenOut The address of the token to be received out
      */
     function swapToken(
         uint32 id,
         AngelCoreStruct.AccountType accountType,
-        uint256 amount,
         address tokenIn,
+        uint256 amountIn,
         address tokenOut
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
 
-        require(amount > 0, "InvalidInputs");
+        require(amountIn > 0, "InvalidInputs");
         require(tokenIn != address(0), "InvalidInputs");
         require(tokenOut != address(0), "InvalidInputs");
 
@@ -63,7 +63,7 @@ contract AccountsSwapEndowments is ReentrancyGuardFacet, AccountsEvents {
         ).queryConfig();
 
         require(
-            IERC20(tokenIn).balanceOf(address(this)) >= amount,
+            IERC20(tokenIn).balanceOf(address(this)) >= amountIn,
             "BalanceTooSmall"
         );
 
@@ -71,38 +71,37 @@ contract AccountsSwapEndowments is ReentrancyGuardFacet, AccountsEvents {
             state.STATES[id].balances.locked.balancesByToken[tokenIn] = 
                 AngelCoreStruct.deductTokens(
                     state.STATES[id].balances.locked.balancesByToken[tokenIn],
-                    amount
+                    amountIn
                 );
         } else {
             state.STATES[id].balances.liquid.balancesByToken[tokenIn] = 
                 AngelCoreStruct.deductTokens(
                     state.STATES[id].balances.liquid.balancesByToken[tokenIn],
-                    amount
+                    amountIn
                 );
         }
 
         require(
-            IERC20(tokenIn).approve(registrar_config.swapsRouter, amount),
+            IERC20(tokenIn).approve(registrar_config.swapsRouter, amountIn),
             "Approve failed"
         );
 
-        uint256 output = ISwappingV3(registrar_config.swapsRouter)
-            .executeSwapOperations(
+        uint256 amountOut = ISwappingV3(registrar_config.swapsRouter)
+            .executeSwaps(
                 tokenIn,
+                amountIn,
                 tokenOut,
-                amount,
                 0 // TODO: this will revert whenever swap_amount > 0
             );
 
-        updateStateBalance(id, tokenOut, output, accountType);
-        // emit UpdateEndowmentState(id, tempState);
+        updateStateBalance(id, tokenOut, amountOut, accountType);
         emit SwapToken(
             id,
             accountType,
-            amount,
             tokenIn,
+            amountIn,
             tokenOut,
-            0
+            amountOut
         );
     }
 

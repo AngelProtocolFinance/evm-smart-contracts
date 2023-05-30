@@ -37,7 +37,7 @@ library RegistrarStorage {
         address lockedWithdrawal;
         address proxyAdmin;
         address usdcAddress;
-        address wethAddress;
+        address wMaticAddress;
         address cw900lvAddress;
     }
 

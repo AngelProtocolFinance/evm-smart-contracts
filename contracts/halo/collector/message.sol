@@ -3,6 +3,7 @@ pragma solidity ^0.8.16;
 
 library CollectorMessage {
     struct InstantiateMsg {
+        address registrarContract;
         address timelockContract;
         address govContract;
         address swapFactory;
@@ -12,6 +13,7 @@ library CollectorMessage {
     }
     struct ConfigResponse {
         address owner;
+        address registrarContract;
         address haloToken;
         address govContract;
         address timelockContract;

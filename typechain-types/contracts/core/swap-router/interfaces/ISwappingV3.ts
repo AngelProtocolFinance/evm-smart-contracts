@@ -26,43 +26,25 @@ import type {
 
 export interface ISwappingV3Interface extends utils.Interface {
   functions: {
-    "executeSwapOperations(address,address,uint256,uint256)": FunctionFragment;
-    "swapEthToAnyToken(address)": FunctionFragment;
-    "swapEthToToken()": FunctionFragment;
-    "swapTokenToUsdc(address,uint256)": FunctionFragment;
+    "executeSwaps(address,uint256,address,uint256)": FunctionFragment;
+    "swapMaticToWrappedMatic()": FunctionFragment;
   };
 
-  getFunction(
-    nameOrSignatureOrTopic:
-      | "executeSwapOperations"
-      | "swapEthToAnyToken"
-      | "swapEthToToken"
-      | "swapTokenToUsdc"
-  ): FunctionFragment;
+  getFunction(nameOrSignatureOrTopic: "executeSwaps" | "swapMaticToWrappedMatic"): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "executeSwapOperations",
+    functionFragment: "executeSwaps",
     values: [
       PromiseOrValue<string>,
-      PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>
     ]
   ): string;
-  encodeFunctionData(
-    functionFragment: "swapEthToAnyToken",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(functionFragment: "swapEthToToken", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "swapTokenToUsdc",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
-  ): string;
+  encodeFunctionData(functionFragment: "swapMaticToWrappedMatic", values?: undefined): string;
 
-  decodeFunctionResult(functionFragment: "executeSwapOperations", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "swapEthToAnyToken", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "swapEthToToken", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "swapTokenToUsdc", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "executeSwaps", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "swapMaticToWrappedMatic", data: BytesLike): Result;
 
   events: {};
 }
@@ -92,122 +74,70 @@ export interface ISwappingV3 extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    executeSwapOperations(
+    executeSwaps(
       tokenIn: PromiseOrValue<string>,
-      tokenOut: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
-      amountOut: PromiseOrValue<BigNumberish>,
+      tokenOut: PromiseOrValue<string>,
+      minAmountOut: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
-    swapEthToAnyToken(
-      token: PromiseOrValue<string>,
+    swapMaticToWrappedMatic(
       overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
-    ): Promise<ContractTransaction>;
-
-    swapEthToToken(
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
-    ): Promise<ContractTransaction>;
-
-    swapTokenToUsdc(
-      tokena: PromiseOrValue<string>,
-      amountin: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
 
-  executeSwapOperations(
+  executeSwaps(
     tokenIn: PromiseOrValue<string>,
-    tokenOut: PromiseOrValue<string>,
     amountIn: PromiseOrValue<BigNumberish>,
-    amountOut: PromiseOrValue<BigNumberish>,
+    tokenOut: PromiseOrValue<string>,
+    minAmountOut: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
-  swapEthToAnyToken(
-    token: PromiseOrValue<string>,
+  swapMaticToWrappedMatic(
     overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
-  ): Promise<ContractTransaction>;
-
-  swapEthToToken(
-    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
-  ): Promise<ContractTransaction>;
-
-  swapTokenToUsdc(
-    tokena: PromiseOrValue<string>,
-    amountin: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    executeSwapOperations(
+    executeSwaps(
       tokenIn: PromiseOrValue<string>,
-      tokenOut: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
-      amountOut: PromiseOrValue<BigNumberish>,
+      tokenOut: PromiseOrValue<string>,
+      minAmountOut: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    swapEthToAnyToken(token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
-
-    swapEthToToken(overrides?: CallOverrides): Promise<BigNumber>;
-
-    swapTokenToUsdc(
-      tokena: PromiseOrValue<string>,
-      amountin: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    swapMaticToWrappedMatic(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {};
 
   estimateGas: {
-    executeSwapOperations(
+    executeSwaps(
       tokenIn: PromiseOrValue<string>,
-      tokenOut: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
-      amountOut: PromiseOrValue<BigNumberish>,
+      tokenOut: PromiseOrValue<string>,
+      minAmountOut: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
-    swapEthToAnyToken(
-      token: PromiseOrValue<string>,
+    swapMaticToWrappedMatic(
       overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
-    ): Promise<BigNumber>;
-
-    swapEthToToken(
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
-    ): Promise<BigNumber>;
-
-    swapTokenToUsdc(
-      tokena: PromiseOrValue<string>,
-      amountin: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    executeSwapOperations(
+    executeSwaps(
       tokenIn: PromiseOrValue<string>,
-      tokenOut: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
-      amountOut: PromiseOrValue<BigNumberish>,
+      tokenOut: PromiseOrValue<string>,
+      minAmountOut: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
-    swapEthToAnyToken(
-      token: PromiseOrValue<string>,
+    swapMaticToWrappedMatic(
       overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
-    ): Promise<PopulatedTransaction>;
-
-    swapEthToToken(
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
-    ): Promise<PopulatedTransaction>;
-
-    swapTokenToUsdc(
-      tokena: PromiseOrValue<string>,
-      amountin: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };
 }

@@ -5,21 +5,12 @@ pragma solidity ^0.8.16;
 import {AngelCoreStruct} from "./../../struct.sol";
 
 interface ISwappingV3 {
-    function swapTokenToUsdc(
-        address tokena,
-        uint256 amountin
-    ) external returns (uint256);
-
-    function swapEthToToken() external payable returns (uint256);
-
-    function swapEthToAnyToken(
-        address token
-    ) external payable returns (uint256);
-
-    function executeSwapOperations(
+    function executeSwaps(
         address tokenIn,
-        address tokenOut,
         uint256 amountIn,
-        uint256 amountOut
+        address tokenOut,
+        uint256 minAmountOut
     ) external returns (uint256);
+
+    function swapMaticToWrappedMatic() external payable returns (uint256);
 }

@@ -18,22 +18,22 @@ const _abi = [
         type: "address",
       },
       {
+        internalType: "uint256",
+        name: "amountIn",
+        type: "uint256",
+      },
+      {
         internalType: "address",
         name: "tokenOut",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "amountIn",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "amountOut",
+        name: "minAmountOut",
         type: "uint256",
       },
     ],
-    name: "executeSwapOperations",
+    name: "executeSwaps",
     outputs: [
       {
         internalType: "uint256",
@@ -42,30 +42,11 @@ const _abi = [
       },
     ],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "token",
-        type: "address",
-      },
-    ],
-    name: "swapEthToAnyToken",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "payable",
     type: "function",
   },
   {
     inputs: [],
-    name: "swapEthToToken",
+    name: "swapMaticToWrappedMatic",
     outputs: [
       {
         internalType: "uint256",
@@ -74,30 +55,6 @@ const _abi = [
       },
     ],
     stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "tokena",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "amountin",
-        type: "uint256",
-      },
-    ],
-    name: "swapTokenToUsdc",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "nonpayable",
     type: "function",
   },
 ] as const;

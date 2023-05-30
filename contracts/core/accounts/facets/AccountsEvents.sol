@@ -31,10 +31,10 @@ abstract contract AccountsEvents {
     event SwapToken(
         uint256 id,
         AngelCoreStruct.AccountType accountType,
-        uint256 amount,
-        address tokenin,
-        address tokenout,
-        uint256 amountout
+        address tokenIn,
+        uint256 amountIn,
+        address tokenOut,
+        uint256 amountOut
     );
     event EndowmentSettingUpdated(uint256 id, string setting);
     // event UpdateEndowmentState(uint256 id, AccountStorage.EndowmentState state);

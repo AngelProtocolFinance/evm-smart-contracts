@@ -609,7 +609,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "wethAddress",
+            name: "wMaticAddress",
             type: "address",
           },
           {
@@ -1025,7 +1025,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "wethAddress",
+            name: "wMaticAddress",
             type: "address",
           },
           {
