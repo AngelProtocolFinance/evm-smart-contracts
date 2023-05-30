@@ -4,5 +4,5 @@
 export * as isubdaoSol from "./Isubdao.sol";
 export * as token from "./Token";
 export * as subdaoSol from "./subdao.sol";
-export { ISubdaoEmitter__factory } from "./ISubdaoEmitter__factory";
-export { SubdaoEmitter__factory } from "./SubdaoEmitter__factory";
+export {ISubdaoEmitter__factory} from "./ISubdaoEmitter__factory";
+export {SubdaoEmitter__factory} from "./SubdaoEmitter__factory";

@@ -2,12 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
-import type {
-  IAccounts,
-  IAccountsInterface,
-} from "../../../../contracts/core/accounts/IAccounts";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
+import type {IAccounts, IAccountsInterface} from "../../../../contracts/core/accounts/IAccounts";
 
 const _abi = [
   {
@@ -57,35 +54,6 @@ const _abi = [
       {
         internalType: "bool",
         name: "response",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "id",
-        type: "uint32",
-      },
-      {
-        internalType: "enum AngelCoreStruct.AccountType",
-        name: "acctType",
-        type: "uint8",
-      },
-      {
-        internalType: "uint256",
-        name: "idToCopy",
-        type: "uint256",
-      },
-    ],
-    name: "copycatStrategies",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
         type: "bool",
       },
     ],
@@ -483,7 +451,7 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "strategies",
+                name: "acceptedTokens",
                 type: "tuple",
               },
               {
@@ -1443,7 +1411,7 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "strategies",
+                name: "acceptedTokens",
                 type: "tuple",
               },
               {
@@ -2063,6 +2031,35 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint32",
+        name: "endowId",
+        type: "uint32",
+      },
+      {
+        internalType: "address",
+        name: "tokenAddr",
+        type: "address",
+      },
+      {
+        internalType: "bool",
+        name: "tokenStatus",
+        type: "bool",
+      },
+    ],
+    name: "updateAcceptedToken",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "newRegistrar",
         type: "address",
@@ -2251,47 +2248,6 @@ const _abi = [
       },
       {
         internalType: "enum AngelCoreStruct.AccountType",
-        name: "acctType",
-        type: "uint8",
-      },
-      {
-        components: [
-          {
-            internalType: "string",
-            name: "vault",
-            type: "string",
-          },
-          {
-            internalType: "uint256",
-            name: "percentage",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct AccountMessages.Strategy[]",
-        name: "strategies",
-        type: "tuple[]",
-      },
-    ],
-    name: "updateStrategies",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "id",
-        type: "uint32",
-      },
-      {
-        internalType: "enum AngelCoreStruct.AccountType",
         name: "accountType",
         type: "uint8",
       },
@@ -2324,10 +2280,7 @@ export class IAccounts__factory {
   static createInterface(): IAccountsInterface {
     return new utils.Interface(_abi) as IAccountsInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IAccounts {
+  static connect(address: string, signerOrProvider: Signer | Provider): IAccounts {
     return new Contract(address, _abi, signerOrProvider) as IAccounts;
   }
 }

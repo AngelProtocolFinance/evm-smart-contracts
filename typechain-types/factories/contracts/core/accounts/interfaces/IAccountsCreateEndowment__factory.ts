@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
 import type {
   IAccountsCreateEndowment,
   IAccountsCreateEndowmentInterface,
@@ -401,7 +401,7 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "strategies",
+                name: "acceptedTokens",
                 type: "tuple",
               },
               {
@@ -939,14 +939,7 @@ export class IAccountsCreateEndowment__factory {
   static createInterface(): IAccountsCreateEndowmentInterface {
     return new utils.Interface(_abi) as IAccountsCreateEndowmentInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IAccountsCreateEndowment {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as IAccountsCreateEndowment;
+  static connect(address: string, signerOrProvider: Signer | Provider): IAccountsCreateEndowment {
+    return new Contract(address, _abi, signerOrProvider) as IAccountsCreateEndowment;
   }
 }

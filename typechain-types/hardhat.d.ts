@@ -2,7 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { ethers } from "ethers";
+import {ethers} from "ethers";
 import {
   FactoryOptions,
   HardhatEthersHelpers as HardhatEthersHelpersBase,
@@ -967,11 +967,7 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ERC1967Upgrade>;
-    getContractAt(
-      name: "Proxy",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Proxy>;
+    getContractAt(name: "Proxy", address: string, signer?: ethers.Signer): Promise<Contracts.Proxy>;
     getContractAt(
       name: "ITransparentUpgradeableProxy",
       address: string,
@@ -992,11 +988,7 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Pausable>;
-    getContractAt(
-      name: "ERC20",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ERC20>;
+    getContractAt(name: "ERC20", address: string, signer?: ethers.Signer): Promise<Contracts.ERC20>;
     getContractAt(
       name: "IERC20Permit",
       address: string,
@@ -1292,11 +1284,7 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.AngelCoreStruct>;
-    getContractAt(
-      name: "IPool",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IPool>;
+    getContractAt(name: "IPool", address: string, signer?: ethers.Signer): Promise<Contracts.IPool>;
     getContractAt(
       name: "ISwappingV3",
       address: string,
@@ -1307,11 +1295,7 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.SwapRouter>;
-    getContractAt(
-      name: "Halo",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Halo>;
+    getContractAt(name: "Halo", address: string, signer?: ethers.Signer): Promise<Contracts.Halo>;
     getContractAt(
       name: "Airdrop",
       address: string,
@@ -1352,11 +1336,7 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.VotingERC20>;
-    getContractAt(
-      name: "Gov",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Gov>;
+    getContractAt(name: "Gov", address: string, signer?: ethers.Signer): Promise<Contracts.Gov>;
     getContractAt(
       name: "TimeLock",
       address: string,
@@ -1387,11 +1367,7 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.GoldfinchVault>;
-    getContractAt(
-      name: "IveLP",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IveLP>;
+    getContractAt(name: "IveLP", address: string, signer?: ethers.Signer): Promise<Contracts.IveLP>;
     getContractAt(
       name: "IRegistrarGoldfinch",
       address: string,
@@ -1632,11 +1608,7 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ContinuousToken>;
-    getContractAt(
-      name: "Power",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Power>;
+    getContractAt(name: "Power", address: string, signer?: ethers.Signer): Promise<Contracts.Power>;
     getContractAt(
       name: "ISubDao",
       address: string,
