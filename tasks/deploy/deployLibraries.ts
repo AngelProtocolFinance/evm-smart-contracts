@@ -1,53 +1,54 @@
 import {task} from "hardhat/config";
-import {logger, updateAddresses} from "utils";
+import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {AngelCoreStruct__factory, StringArray__factory} from "typechain-types";
+import {getSigners, isLocalNetwork, logger, updateAddresses} from "utils";
 
-task("Deploy:DeployLibraries", "Will deploy Libraries")
-  .addParam("verify", "Want to verify contract")
-  .setAction(async (taskArgs, hre) => {
-    try {
-      const {network, run, ethers} = hre;
-      const angel_core_struct = await ethers.getContractFactory("AngelCoreStruct");
-      let ANGEL_CORE_STRUCT = await angel_core_struct.deploy();
-      await ANGEL_CORE_STRUCT.deployed();
+task("Deploy:DeployLibraries", "Will deploy Libraries").setAction(async (_, hre) => {
+  try {
+    await deployLibraries(hre);
 
-      const string_library = await ethers.getContractFactory("StringArray");
-      let STRING_LIBRARY = await string_library.deploy();
-      await STRING_LIBRARY.deployed();
+    // TODO: should also update all contracts that depend on the updated libraries
+  } catch (error) {
+    logger.out(error, logger.Level.Error);
+  }
+});
 
-      logger.out(
-        `Libraries Deployed as ${JSON.stringify(
-          {
-            "STRING_LIBRARY Deployed at ": STRING_LIBRARY.address,
-            "ANGEL_CORE_STRUCT_LIBRARY Deployed at ": ANGEL_CORE_STRUCT.address,
-          },
-          undefined,
-          4
-        )}`
-      );
+export async function deployLibraries(hre: HardhatRuntimeEnvironment) {
+  const {proxyAdmin} = await getSigners(hre.ethers);
 
-      await updateAddresses(
-        {
-          libraries: {
-            ANGEL_CORE_STRUCT_LIBRARY: ANGEL_CORE_STRUCT.address,
-            STRING_LIBRARY: STRING_LIBRARY.address,
-          },
-        },
-        hre
-      );
+  const angelCoreStructFactory = new AngelCoreStruct__factory(proxyAdmin);
+  const angelCoreStruct = await angelCoreStructFactory.deploy();
+  await angelCoreStruct.deployed();
 
-      var isTrueSet = taskArgs.verify === "true";
+  const stringLibFactory = new StringArray__factory(proxyAdmin);
+  const stringLib = await stringLibFactory.deploy();
+  await stringLib.deployed();
 
-      if (network.name !== "hardhat" && isTrueSet) {
-        await run(`verify:verify`, {
-          address: ANGEL_CORE_STRUCT.address,
-          constructorArguments: [],
-        });
-        await run(`verify:verify`, {
-          address: STRING_LIBRARY.address,
-          constructorArguments: [],
-        });
-      }
-    } catch (error) {
-      logger.out(error, logger.Level.Error);
-    }
+  console.log("Libraries Deployed as", {
+    "STRING_LIBRARY Deployed at ": stringLib.address,
+    "ANGEL_CORE_STRUCT_LIBRARY Deployed at ": angelCoreStruct.address,
   });
+
+  await updateAddresses(
+    {
+      libraries: {
+        STRING_LIBRARY: stringLib.address,
+        ANGEL_CORE_STRUCT_LIBRARY: angelCoreStruct.address,
+      },
+    },
+    hre
+  );
+
+  if (!isLocalNetwork(hre.network)) {
+    await hre.run(`verify:verify`, {
+      address: angelCoreStruct.address,
+      constructorArguments: [],
+    });
+    await hre.run(`verify:verify`, {
+      address: stringLib.address,
+      constructorArguments: [],
+    });
+  }
+
+  return {angelCoreStruct, stringLib};
+}
