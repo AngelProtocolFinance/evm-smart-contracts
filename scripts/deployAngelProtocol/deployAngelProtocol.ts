@@ -31,8 +31,13 @@ export default async function deploy() {
   try {
     const {network, ethers} = hre;
 
-    const {proxyAdmin, applicationsMultisigOwners, apTeamMultisigOwners, treasuryAdmin} =
-      await getSigners(ethers);
+    const {
+      applicationsMultisigOwners,
+      apTeamMultisigOwners,
+      proxyAdmin,
+      routerAdmin,
+      treasuryAdmin,
+    } = await getSigners(ethers);
 
     await cleanAddresses(hre);
 
@@ -71,7 +76,7 @@ export default async function deploy() {
       rebalance: config.REGISTRAR_DATA.rebalance,
       splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
       acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
-      router: config.REGISTRAR_DATA.router,
+      router: routerAdmin.address,
       axelarGateway: config.REGISTRAR_DATA.axelarGateway,
       axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
     };
