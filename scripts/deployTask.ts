@@ -203,7 +203,12 @@ export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvi
       fundingGoal: config.INDEX_FUND_DATA.fundingGoal,
     };
 
-    let INDEX_FUND_ADDRESS = await deployIndexFund(indexFundData, verify_contracts, hre);
+    let INDEX_FUND_ADDRESS = await deployIndexFund(
+      indexFundData,
+      multisigAddress.APTeamMultiSig,
+      verify_contracts,
+      hre
+    );
 
     console.log("INDEX_FUND_ADDRESS contract deployed at:-", INDEX_FUND_ADDRESS);
 

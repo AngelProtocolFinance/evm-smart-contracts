@@ -158,7 +158,12 @@ export default async function deploy() {
       fundingGoal: config.INDEX_FUND_DATA.fundingGoal,
     };
 
-    const INDEX_FUND_ADDRESS = await deployIndexFund(indexFundData, verify_contracts, hre);
+    const INDEX_FUND_ADDRESS = await deployIndexFund(
+      indexFundData,
+      multisigAddress.APTeamMultiSig,
+      verify_contracts,
+      hre
+    );
 
     console.log("INDEX_FUND_ADDRESS contract deployed at:-", INDEX_FUND_ADDRESS);
 

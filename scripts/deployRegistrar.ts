@@ -5,7 +5,7 @@ import {Registrar, Registrar__factory} from "typechain-types";
 async function deploy() {
   const {ethers, upgrades} = hre;
 
-  const {apTeam1} = await getSigners(ethers);
+  const {proxyAdmin} = await getSigners(ethers);
 
   const network = await ethers.provider.getNetwork();
 
@@ -13,7 +13,10 @@ async function deploy() {
   logger.out("Deploying to: " + network.name, logger.Level.Info);
   logger.out("With chain id: " + network.chainId, logger.Level.Info);
 
-  const Registrar = (await ethers.getContractFactory("Registrar", apTeam1)) as Registrar__factory;
+  const Registrar = (await ethers.getContractFactory(
+    "Registrar",
+    proxyAdmin
+  )) as Registrar__factory;
   const registrar = (await upgrades.deployProxy(Registrar)) as Registrar;
 
   await registrar.deployed();
