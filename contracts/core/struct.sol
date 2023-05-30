@@ -486,8 +486,16 @@ library AngelCoreStruct {
     uint256 percentage;
   }
 
-  uint256 constant FEE_BASIS = 1000; // gives 0.1% precision for fees
-  uint256 constant PERCENT_BASIS = 100; // gives 1% precision for declared percentages
+  function validateFee(EndowmentFee memory fee) public view {
+    if (fee.payoutAddress == address(0)) {
+      revert("Invalid fee payout zero address given");
+    } else if (fee.percentage >= FEE_BASIS || fee.percentage < FEE_MAXIMUM) {
+      revert("Invalid fee percentage given. Should be between 10000 to 100000000 (basis points).");
+    }
+  }
+
+  uint256 constant FEE_BASIS = 10000; // gives 0.01% precision for fees in Basis Points)
+  uint256 constant FEE_MAXIMUM = 100000000; // 100.00% fee in basis points
 
   enum Status {
     None,

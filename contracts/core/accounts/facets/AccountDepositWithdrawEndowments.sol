@@ -167,9 +167,9 @@ contract AccountDepositWithdrawEndowments is
         }
 
         uint256 lockedAmount = (amount.mul(lockedSplitPercent))
-                                .div(AngelCoreStruct.PERCENT_BASIS);
+                                .div(AngelCoreStruct.FEE_BASIS);
         uint256 liquidAmount = (amount.mul(liquidSplitPercent))
-                                .div(AngelCoreStruct.PERCENT_BASIS);
+                                .div(AngelCoreStruct.FEE_BASIS);
 
         //donation matching flow
         //execute donor match will always be called on an EOA
@@ -249,7 +249,7 @@ contract AccountDepositWithdrawEndowments is
 
         // place an arbitrary cap on the qty of different tokens per withdraw to limit gas use
         require(tokens.length <= 10, "Upper-limit is ten(10) unique ERC20 tokens per withdraw");
-        // check all passed tokens address values are not zero address first to avoid gas waste
+        // check all passed tokens address & amount values are non-zero to avoid gas waste
         for (uint256 ti = 0; ti < tokens.length; ti++) {
             require(tokens[ti].amnt > 0, "InvalidZeroAmount");
             require(state.AcceptedTokens[id][tokens[ti].addr], "Not in the Accepted Tokens List");
@@ -372,7 +372,7 @@ contract AccountDepositWithdrawEndowments is
                 tempEndowment.withdrawFee.percentage != 0
             ) {
                 withdrawFeeEndow = (amountLeftover.mul(tempEndowment.withdrawFee.percentage))
-                                    .div(AngelCoreStruct.PERCENT_BASIS);
+                                    .div(AngelCoreStruct.FEE_BASIS);
 
                 // transfer endowment withdraw fee to beneficiary address
                 require(
