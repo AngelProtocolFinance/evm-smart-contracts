@@ -1,6 +1,5 @@
 import dotenv from "dotenv";
 import {ethers} from "ethers";
-import {envConfig} from "utils";
 
 dotenv.config({path: __dirname + "/./../.env"});
 
@@ -33,7 +32,7 @@ const EXPORT_CONFIG = {
       min: 0,
       defaultSplit: 50,
     },
-    router: envConfig.AP_TEAM_1.address,
+    // router: envConfig.AP_TEAM_1.address,
     axelarGateway: "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B",
     axelarGasRecv: "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B",
   },
@@ -83,9 +82,7 @@ const EXPORT_CONFIG = {
   HALO_IMPLEMENTATION_DATA: {
     curTimelock: "0x8747cF2bd9BB0F46ced4adA1b472E995d1A3174A",
     GovHodlerOwner: "0x8B1386F6fE42995Db5F7f7018af90496103CD39e",
-    airdropOwner: envConfig.AP_TEAM_1.address,
     CommunitySpendLimit: 5000,
-    distributorAllowlist: [envConfig.AP_TEAM_2.address, envConfig.AP_TEAM_3.address],
     distributorSpendLimit: 5000,
     // vestingOwner : "0x1F98431c8aD98523631AE4a59f267346ea31F984",
     // vestingGenesisTime : 50000

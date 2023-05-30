@@ -65,17 +65,12 @@ export async function deployHaloImplementation(
   hre: HardhatRuntimeEnvironment
 ) {
   try {
-    const {
-      GovHodlerOwner,
-      airdropOwner,
-      CommunitySpendLimit,
-      distributorAllowlist,
-      distributorSpendLimit,
-    } = config.HALO_IMPLEMENTATION_DATA;
+    const {GovHodlerOwner, CommunitySpendLimit, distributorSpendLimit} =
+      config.HALO_IMPLEMENTATION_DATA;
 
     const {ethers, run, network} = hre;
 
-    const {proxyAdmin} = await getSigners(ethers);
+    const {proxyAdmin, airdropOwner, apTeam2, apTeam3} = await getSigners(ethers);
 
     let halo = await deployERC20(verify_contracts, hre);
 
@@ -97,7 +92,7 @@ export async function deployHaloImplementation(
       {
         timelockContract: gov.TimeLock,
         haloToken: halo,
-        allowlist: [...distributorAllowlist],
+        allowlist: [apTeam2.address, apTeam3.address],
         spendLimit: distributorSpendLimit,
       },
       hre
