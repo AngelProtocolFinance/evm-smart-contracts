@@ -1,7 +1,6 @@
-import path from "path"
-import { saveFrontendFiles } from "scripts/readWriteFile"
-import { HardhatRuntimeEnvironment } from "hardhat/types"
-import { GiftCardsMessage } from "typechain-types/contracts/accessory/gift-cards/GiftCards"
+import {updateAddresses} from "utils";
+import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {GiftCardsMessage} from "typechain-types/contracts/accessory/gift-cards/GiftCards";
 
 export async function deployGiftCard(
   GiftCardsDataInput: GiftCardsMessage.InstantiateMsgStruct,
@@ -12,22 +11,28 @@ export async function deployGiftCard(
   try {
     const {ethers, run, network} = hre;
     let [deployer, proxyAdmin] = await ethers.getSigners();
-    const GiftCards = await ethers.getContractFactory('GiftCards',{
-      libraries:{
-          AngelCoreStruct: ANGEL_CORE_STRUCT
-      }
+    const GiftCards = await ethers.getContractFactory("GiftCards", {
+      libraries: {
+        AngelCoreStruct: ANGEL_CORE_STRUCT,
+      },
     });
     const GiftCardsInstance = await GiftCards.deploy();
     await GiftCardsInstance.deployed();
-    console.log('GiftCards implementation address:', GiftCardsInstance.address);
+    console.log("GiftCards implementation address:", GiftCardsInstance.address);
 
-    const ProxyContract = await ethers.getContractFactory('ProxyContract');
-    const GiftCardsData = GiftCardsInstance.interface.encodeFunctionData('initialize',[GiftCardsDataInput]);
-    const GiftCardsProxy = await ProxyContract.deploy(GiftCardsInstance.address, proxyAdmin.address, GiftCardsData);
+    const ProxyContract = await ethers.getContractFactory("ProxyContract");
+    const GiftCardsData = GiftCardsInstance.interface.encodeFunctionData("initialize", [
+      GiftCardsDataInput,
+    ]);
+    const GiftCardsProxy = await ProxyContract.deploy(
+      GiftCardsInstance.address,
+      proxyAdmin.address,
+      GiftCardsData
+    );
     await GiftCardsProxy.deployed();
-    console.log('GiftCards Address (Proxy):', GiftCardsProxy.address);
+    console.log("GiftCards Address (Proxy):", GiftCardsProxy.address);
 
-    if(verify_contracts){
+    if (verify_contracts) {
       await run("verify:verify", {
         address: GiftCardsInstance.address,
         constructorArguments: [],
@@ -38,10 +43,15 @@ export async function deployGiftCard(
       });
     }
 
-    await saveFrontendFiles({
-      GiftCardsProxy: GiftCardsProxy.address,
-      GiftCardsImplementation: GiftCardsInstance.address
-    });
+    await updateAddresses(
+      {
+        giftcards: {
+          proxy: GiftCardsProxy.address,
+          implementation: GiftCardsInstance.address,
+        },
+      },
+      hre
+    );
 
     return Promise.resolve(GiftCardsProxy.address);
   } catch (error) {

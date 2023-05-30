@@ -1,44 +1,40 @@
-import { ethers, upgrades } from "hardhat";
-import { logger } from "utils"
-import * as fs from "fs";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { Router, Router__factory } from "typechain-types"
-import { BigNumber } from "ethers";
+import hre from "hardhat";
+import {getAddresses, logger, updateAddresses} from "utils";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Router, Router__factory} from "typechain-types";
 
 async function deploy() {
+  const {ethers, upgrades} = hre;
 
-  let deployer: SignerWithAddress
-  [deployer] = await ethers.getSigners()
+  let deployer: SignerWithAddress;
+  [deployer] = await ethers.getSigners();
 
-  const network = await ethers.provider.getNetwork()
+  const network = await ethers.provider.getNetwork();
 
-  let rawdata = fs.readFileSync('address.json', "utf8")
-  let address: any = JSON.parse(rawdata)
+  const addresses = await getAddresses(hre);
 
-  logger.divider()
-  logger.out("Deploying to: " + network.name, logger.Level.Info)
-  logger.out("With chain id: " + network.chainId, logger.Level.Info)
+  logger.divider();
+  logger.out("Deploying to: " + network.name, logger.Level.Info);
+  logger.out("With chain id: " + network.chainId, logger.Level.Info);
 
-  const gatewayAddress = ""
-  const gasReceiverAddress = ""
-  const registrarAddress = address[network.chainId]["registrar"]
+  const gatewayAddress = "";
+  const gasReceiverAddress = "";
+  const registrarAddress = addresses.registrar.proxy;
 
-  const Router = await ethers.getContractFactory("Router__factory") as Router__factory;
-  const router = await upgrades.deployProxy(
-    Router,
-    [gatewayAddress,
-      gasReceiverAddress,
-      registrarAddress]) as Router
+  const Router = (await ethers.getContractFactory("Router__factory")) as Router__factory;
+  const router = (await upgrades.deployProxy(Router, [
+    gatewayAddress,
+    gasReceiverAddress,
+    registrarAddress,
+  ])) as Router;
 
   await router.deployed();
   logger.pad(30, "Deployed to:", router.address);
 
-  logger.divider()
-  logger.out("Writing to address.json", logger.Level.Info)
+  logger.divider();
+  logger.out("Writing to contract-address.json", logger.Level.Info);
 
-  address[network.chainId] = router.address
-  const json = JSON.stringify(address, null, 2)
-  fs.writeFileSync('address.json', json, "utf8")
+  await updateAddresses({router: {implementation: router.address}}, hre);
 }
 
 deploy().catch((error) => {

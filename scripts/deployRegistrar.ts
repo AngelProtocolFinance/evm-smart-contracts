@@ -1,38 +1,32 @@
-import { ethers, upgrades } from "hardhat";
-import { logger } from "utils"
-import * as fs from "fs";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { Registrar, Registrar__factory } from "typechain-types"
-import { BigNumber } from "ethers";
+import hre from "hardhat";
+import {logger, updateAddresses} from "utils";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {Registrar, Registrar__factory} from "typechain-types";
 
 async function deploy() {
+  const {ethers, upgrades} = hre;
 
-  let deployer: SignerWithAddress
-  [deployer] = await ethers.getSigners()
-  
-  const network = await ethers.provider.getNetwork()
+  let deployer: SignerWithAddress;
+  [deployer] = await ethers.getSigners();
 
-  logger.divider()
-  logger.out("Deploying to: " + network.name, logger.Level.Info)
-  logger.out("With chain id: " + network.chainId, logger.Level.Info)
+  const network = await ethers.provider.getNetwork();
 
-  const Registrar = await ethers.getContractFactory("Registrar") as Registrar__factory;
-  const registrar = await upgrades.deployProxy(Registrar) as Registrar
+  logger.divider();
+  logger.out("Deploying to: " + network.name, logger.Level.Info);
+  logger.out("With chain id: " + network.chainId, logger.Level.Info);
+
+  const Registrar = (await ethers.getContractFactory("Registrar")) as Registrar__factory;
+  const registrar = (await upgrades.deployProxy(Registrar)) as Registrar;
 
   await registrar.deployed();
   logger.pad(30, "Deployed to:", registrar.address);
-  logger.out(await registrar.getRebalanceParams())
-  logger.out(await registrar.getAngelProtocolParams())
+  logger.out(await registrar.getRebalanceParams());
+  logger.out(await registrar.getAngelProtocolParams());
 
+  logger.divider();
+  logger.out("Writing to contract-address.json", logger.Level.Info);
 
-  logger.divider()
-  logger.out("Writing to address.json", logger.Level.Info)
-
-  let rawdata = fs.readFileSync('address.json', "utf8")
-  let address: any = JSON.parse(rawdata)
-  address[network.chainId] = {"registrar": registrar.address}
-  const json = JSON.stringify(address, null, 2)
-  fs.writeFileSync('address.json', json, "utf8")
+  await updateAddresses({registrar: {implementation: registrar.address}}, hre);
 }
 
 deploy().catch((error) => {

@@ -13,12 +13,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -91,18 +87,12 @@ export interface AirdropInterface extends utils.Interface {
     functionFragment: "initialize",
     values: [AirdropMessage.InstantiateMsgStruct]
   ): string;
-  encodeFunctionData(
-    functionFragment: "queryConfig",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "queryConfig", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "queryIsClaimed",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "queryLatestStage",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "queryLatestStage", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "queryMerkleRoot",
     values: [PromiseOrValue<BigNumberish>]
@@ -111,37 +101,16 @@ export interface AirdropInterface extends utils.Interface {
     functionFragment: "registerMerkleRoot",
     values: [PromiseOrValue<BytesLike>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "updateConfig",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "updateConfig", values: [PromiseOrValue<string>]): string;
 
   decodeFunctionResult(functionFragment: "claim", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "queryConfig",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "queryIsClaimed",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "queryLatestStage",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "queryMerkleRoot",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "registerMerkleRoot",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateConfig",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "queryConfig", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "queryIsClaimed", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "queryLatestStage", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "queryMerkleRoot", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "registerMerkleRoot", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "updateConfig", data: BytesLike): Result;
 
   events: {
     "AirdropClaim(uint256,address,uint256)": EventFragment;
@@ -163,10 +132,7 @@ export interface AirdropClaimEventObject {
   sender: string;
   amount: BigNumber;
 }
-export type AirdropClaimEvent = TypedEvent<
-  [BigNumber, string, BigNumber],
-  AirdropClaimEventObject
->;
+export type AirdropClaimEvent = TypedEvent<[BigNumber, string, BigNumber], AirdropClaimEventObject>;
 
 export type AirdropClaimEventFilter = TypedEventFilter<AirdropClaimEvent>;
 
@@ -174,13 +140,9 @@ export interface AirdropInitializedEventObject {
   owner: string;
   haloToken: string;
 }
-export type AirdropInitializedEvent = TypedEvent<
-  [string, string],
-  AirdropInitializedEventObject
->;
+export type AirdropInitializedEvent = TypedEvent<[string, string], AirdropInitializedEventObject>;
 
-export type AirdropInitializedEventFilter =
-  TypedEventFilter<AirdropInitializedEvent>;
+export type AirdropInitializedEventFilter = TypedEventFilter<AirdropInitializedEvent>;
 
 export interface AirdropRegisterMerkleRootEventObject {
   stage: BigNumber;
@@ -191,19 +153,14 @@ export type AirdropRegisterMerkleRootEvent = TypedEvent<
   AirdropRegisterMerkleRootEventObject
 >;
 
-export type AirdropRegisterMerkleRootEventFilter =
-  TypedEventFilter<AirdropRegisterMerkleRootEvent>;
+export type AirdropRegisterMerkleRootEventFilter = TypedEventFilter<AirdropRegisterMerkleRootEvent>;
 
 export interface AirdropUpdateConfigEventObject {
   owner: string;
 }
-export type AirdropUpdateConfigEvent = TypedEvent<
-  [string],
-  AirdropUpdateConfigEventObject
->;
+export type AirdropUpdateConfigEvent = TypedEvent<[string], AirdropUpdateConfigEventObject>;
 
-export type AirdropUpdateConfigEventFilter =
-  TypedEventFilter<AirdropUpdateConfigEvent>;
+export type AirdropUpdateConfigEventFilter = TypedEventFilter<AirdropUpdateConfigEvent>;
 
 export interface InitializedEventObject {
   version: number;
@@ -229,9 +186,7 @@ export interface Airdrop extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -242,17 +197,15 @@ export interface Airdrop extends BaseContract {
     claim(
       amount: PromiseOrValue<BigNumberish>,
       merkleProof: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     initialize(
       details: AirdropMessage.InstantiateMsgStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
-    queryConfig(
-      overrides?: CallOverrides
-    ): Promise<[AirdropMessage.ConfigResponseStructOutput]>;
+    queryConfig(overrides?: CallOverrides): Promise<[AirdropMessage.ConfigResponseStructOutput]>;
 
     queryIsClaimed(
       stage: PromiseOrValue<BigNumberish>,
@@ -269,29 +222,27 @@ export interface Airdrop extends BaseContract {
 
     registerMerkleRoot(
       merkleRoot: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     updateConfig(
       owner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
 
   claim(
     amount: PromiseOrValue<BigNumberish>,
     merkleProof: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   initialize(
     details: AirdropMessage.InstantiateMsgStruct,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
-  queryConfig(
-    overrides?: CallOverrides
-  ): Promise<AirdropMessage.ConfigResponseStructOutput>;
+  queryConfig(overrides?: CallOverrides): Promise<AirdropMessage.ConfigResponseStructOutput>;
 
   queryIsClaimed(
     stage: PromiseOrValue<BigNumberish>,
@@ -308,12 +259,12 @@ export interface Airdrop extends BaseContract {
 
   registerMerkleRoot(
     merkleRoot: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   updateConfig(
     owner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -328,9 +279,7 @@ export interface Airdrop extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    queryConfig(
-      overrides?: CallOverrides
-    ): Promise<AirdropMessage.ConfigResponseStructOutput>;
+    queryConfig(overrides?: CallOverrides): Promise<AirdropMessage.ConfigResponseStructOutput>;
 
     queryIsClaimed(
       stage: PromiseOrValue<BigNumberish>,
@@ -350,10 +299,7 @@ export interface Airdrop extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    updateConfig(
-      owner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    updateConfig(owner: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
@@ -362,20 +308,13 @@ export interface Airdrop extends BaseContract {
       sender?: null,
       amount?: null
     ): AirdropClaimEventFilter;
-    AirdropClaim(
-      stage?: null,
-      sender?: null,
-      amount?: null
-    ): AirdropClaimEventFilter;
+    AirdropClaim(stage?: null, sender?: null, amount?: null): AirdropClaimEventFilter;
 
     "AirdropInitialized(address,address)"(
       owner?: null,
       haloToken?: null
     ): AirdropInitializedEventFilter;
-    AirdropInitialized(
-      owner?: null,
-      haloToken?: null
-    ): AirdropInitializedEventFilter;
+    AirdropInitialized(owner?: null, haloToken?: null): AirdropInitializedEventFilter;
 
     "AirdropRegisterMerkleRoot(uint256,bytes32)"(
       stage?: null,
@@ -386,9 +325,7 @@ export interface Airdrop extends BaseContract {
       merkleRoot?: null
     ): AirdropRegisterMerkleRootEventFilter;
 
-    "AirdropUpdateConfig(address)"(
-      owner?: null
-    ): AirdropUpdateConfigEventFilter;
+    "AirdropUpdateConfig(address)"(owner?: null): AirdropUpdateConfigEventFilter;
     AirdropUpdateConfig(owner?: null): AirdropUpdateConfigEventFilter;
 
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
@@ -399,12 +336,12 @@ export interface Airdrop extends BaseContract {
     claim(
       amount: PromiseOrValue<BigNumberish>,
       merkleProof: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     initialize(
       details: AirdropMessage.InstantiateMsgStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     queryConfig(overrides?: CallOverrides): Promise<BigNumber>;
@@ -424,12 +361,12 @@ export interface Airdrop extends BaseContract {
 
     registerMerkleRoot(
       merkleRoot: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     updateConfig(
       owner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
 
@@ -437,12 +374,12 @@ export interface Airdrop extends BaseContract {
     claim(
       amount: PromiseOrValue<BigNumberish>,
       merkleProof: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     initialize(
       details: AirdropMessage.InstantiateMsgStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     queryConfig(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -462,12 +399,12 @@ export interface Airdrop extends BaseContract {
 
     registerMerkleRoot(
       merkleRoot: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     updateConfig(
       owner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };
 }

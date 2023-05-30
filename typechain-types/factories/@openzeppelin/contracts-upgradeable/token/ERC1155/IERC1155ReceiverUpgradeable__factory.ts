@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
 import type {
   IERC1155ReceiverUpgradeable,
   IERC1155ReceiverUpgradeableInterface,
@@ -118,10 +118,6 @@ export class IERC1155ReceiverUpgradeable__factory {
     address: string,
     signerOrProvider: Signer | Provider
   ): IERC1155ReceiverUpgradeable {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as IERC1155ReceiverUpgradeable;
+    return new Contract(address, _abi, signerOrProvider) as IERC1155ReceiverUpgradeable;
   }
 }

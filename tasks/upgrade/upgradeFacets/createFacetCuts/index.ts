@@ -1,1 +1,1 @@
-export { default } from "./createFacetCuts"
+export {default} from "./createFacetCuts";

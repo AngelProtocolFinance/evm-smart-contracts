@@ -4,8 +4,9 @@
   "description": "Angel Protocol EVM smart contracts, testing and deployment suite.",
   "scripts": {
     "preinstall": "npx only-allow yarn",
+    "format": "prettier --write './**/*.{ts,tsx,js}' --write contracts/**/*.sol",
     "test": "hardhat test",
-    "compile": "hardhat compile && solium -d contracts/",
+    "compile": "hardhat compile",
     "deploy": "hardhat compile && hardhat run ./scripts/deploy.ts",
     "abi": "hardhat export-abi"
   },
@@ -45,9 +46,8 @@
     "hardhat-docgen": "^1.3.0",
     "hardhat-gas-reporter": "^1.0.8",
     "hardhat-storage-layout": "^0.1.7",
-    "prettier": "^2.6.2",
-    "prettier-plugin-solidity": "^1.0.0-beta.19",
-    "solhint": "^3.3.7",
+    "prettier": "^2.8.8",
+    "prettier-plugin-solidity": "^1.1.3",
     "ts-generator": "^0.1.1",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",

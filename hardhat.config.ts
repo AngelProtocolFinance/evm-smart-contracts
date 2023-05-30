@@ -1,44 +1,44 @@
-import { HardhatUserConfig } from "hardhat/config";
-import { envConfig, accounts } from "./utils" 
+import {HardhatUserConfig} from "hardhat/config";
+import {envConfig, accounts} from "./utils";
 import "@nomiclabs/hardhat-etherscan";
-import "@nomicfoundation/hardhat-chai-matchers"
-import '@openzeppelin/hardhat-upgrades';
+import "@nomicfoundation/hardhat-chai-matchers";
+import "@openzeppelin/hardhat-upgrades";
 import "@nomiclabs/hardhat-ethers";
 import "@typechain/hardhat";
-require("tsconfig-paths/register") // must use `require`, otherwise TS complains about missing declaration files
+require("tsconfig-paths/register"); // must use `require`, otherwise TS complains about missing declaration files
 // import "hardhat-abi-exporter"
-import "./tasks"
+import "./tasks";
 
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   solidity: {
     version: "0.8.18",
     settings: {
-        optimizer: {
-            enabled: true,
-            runs: 200,
-        },
-        viaIR: true
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+      viaIR: true,
     },
   },
   networks: {
-    "mainnet": {
+    mainnet: {
       url: envConfig.mainnetRPC,
-      accounts: accounts
+      accounts: accounts,
     },
-    "goerli": {
+    goerli: {
       url: envConfig.goerliRPC,
-      accounts: accounts
+      accounts: accounts,
     },
-    "mumbai": {
+    mumbai: {
       url: envConfig.mumbaiRPC,
       accounts: accounts,
-      gasPrice: 50_000_000_000 //50Gwei
+      // gasPrice: 50_000_000_000 //50Gwei
     },
-    "polygon": {
+    polygon: {
       url: envConfig.polygonRPC,
-      accounts: accounts
-    }
+      accounts: accounts,
+    },
   },
   mocha: {
     timeout: 400000,
@@ -48,8 +48,8 @@ const config: HardhatUserConfig = {
       etherscan: envConfig.etherscanAPIKey,
       goerli: envConfig.etherscanAPIKey,
       polygon: envConfig.polyscanAPIKey,
-      polygonMumbai: envConfig.polyscanAPIKey
-    }
+      polygonMumbai: envConfig.polyscanAPIKey,
+    },
   },
   // abiExporter: [
   //   {
@@ -71,6 +71,6 @@ const config: HardhatUserConfig = {
   //       except: ["IAxelarGateway"],
   //   },
   // ]
-}
+};
 
 export default config;

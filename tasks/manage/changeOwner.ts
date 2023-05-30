@@ -1,30 +1,27 @@
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
-import { task } from "hardhat/config"
-import type { TaskArguments } from "hardhat/types"
-import addresses from "contract-address.json"
-import { IndexFund } from "typechain-types"
-import { logger } from "utils"
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {task} from "hardhat/config";
+import type {TaskArguments} from "hardhat/types";
+import {getAddresses} from "utils";
+import {IndexFund, IndexFund__factory} from "typechain-types";
+import {logger} from "utils";
 
-task(
-    "manage:changeOwner",
-    "Will update the owner of the specified contract"
-).setAction(async (_taskArguments: TaskArguments, hre) => {
+task("manage:changeOwner", "Will update the owner of the specified contract").setAction(
+  async (_taskArguments: TaskArguments, hre) => {
     try {
-        let deployer: SignerWithAddress
-        ;[deployer] = await hre.ethers.getSigners()
-        const indexfund = (await hre.ethers.getContractAt(
-            "IndexFund",
-            addresses.indexFundAddress.indexFundProxy
-        )) as IndexFund
+      const addresses = await getAddresses(hre);
+      let deployer: SignerWithAddress;
+      [deployer] = await hre.ethers.getSigners();
+      const indexfund = IndexFund__factory.connect(addresses.indexFund.proxy, deployer);
 
-        logger.out("Current owner:")
-        let currentConfig = await indexfund.queryConfig()
-        logger.out(currentConfig.owner)
+      logger.out("Current owner:");
+      let currentConfig = await indexfund.queryConfig();
+      logger.out(currentConfig.owner);
 
-        logger.out("Changing owner to:")
-        logger.out(addresses.multiSig.APTeamMultiSigProxy)
-        // await indexfund.connect(deployer).updateOwner(addresses.multiSig.APTeamMultiSigProxy)
+      logger.out("Changing owner to:");
+      logger.out(addresses.multiSig.apTeam.proxy);
+      await indexfund.updateOwner(addresses.multiSig.apTeam.proxy);
     } catch (error) {
-        logger.out(error, logger.Level.Error)
+      logger.out(error, logger.Level.Error);
     }
-})
+  }
+);

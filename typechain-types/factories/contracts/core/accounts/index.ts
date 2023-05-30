@@ -4,4 +4,4 @@
 export * as diamond from "./diamond";
 export * as facets from "./facets";
 export * as interfaces from "./interfaces";
-export { IAccounts__factory } from "./IAccounts__factory";
+export {IAccounts__factory} from "./IAccounts__factory";

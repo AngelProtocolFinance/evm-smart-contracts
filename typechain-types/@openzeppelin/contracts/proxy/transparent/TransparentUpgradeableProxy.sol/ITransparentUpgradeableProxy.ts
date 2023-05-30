@@ -13,12 +13,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -46,37 +42,19 @@ export interface ITransparentUpgradeableProxyInterface extends utils.Interface {
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "admin", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "changeAdmin",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "implementation",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "upgradeTo",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "changeAdmin", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "implementation", values?: undefined): string;
+  encodeFunctionData(functionFragment: "upgradeTo", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(
     functionFragment: "upgradeToAndCall",
     values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
   ): string;
 
   decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "changeAdmin",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "implementation",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "changeAdmin", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "implementation", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "upgradeTo", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "upgradeToAndCall",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "upgradeToAndCall", data: BytesLike): Result;
 
   events: {
     "AdminChanged(address,address)": EventFragment;
@@ -93,20 +71,14 @@ export interface AdminChangedEventObject {
   previousAdmin: string;
   newAdmin: string;
 }
-export type AdminChangedEvent = TypedEvent<
-  [string, string],
-  AdminChangedEventObject
->;
+export type AdminChangedEvent = TypedEvent<[string, string], AdminChangedEventObject>;
 
 export type AdminChangedEventFilter = TypedEventFilter<AdminChangedEvent>;
 
 export interface BeaconUpgradedEventObject {
   beacon: string;
 }
-export type BeaconUpgradedEvent = TypedEvent<
-  [string],
-  BeaconUpgradedEventObject
->;
+export type BeaconUpgradedEvent = TypedEvent<[string], BeaconUpgradedEventObject>;
 
 export type BeaconUpgradedEventFilter = TypedEventFilter<BeaconUpgradedEvent>;
 
@@ -134,9 +106,7 @@ export interface ITransparentUpgradeableProxy extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -148,20 +118,20 @@ export interface ITransparentUpgradeableProxy extends BaseContract {
 
     changeAdmin(
       arg0: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     implementation(overrides?: CallOverrides): Promise<[string]>;
 
     upgradeTo(
       arg0: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     upgradeToAndCall(
       arg0: PromiseOrValue<string>,
       arg1: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
 
@@ -169,36 +139,30 @@ export interface ITransparentUpgradeableProxy extends BaseContract {
 
   changeAdmin(
     arg0: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   implementation(overrides?: CallOverrides): Promise<string>;
 
   upgradeTo(
     arg0: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   upgradeToAndCall(
     arg0: PromiseOrValue<string>,
     arg1: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   callStatic: {
     admin(overrides?: CallOverrides): Promise<string>;
 
-    changeAdmin(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    changeAdmin(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
     implementation(overrides?: CallOverrides): Promise<string>;
 
-    upgradeTo(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    upgradeTo(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
     upgradeToAndCall(
       arg0: PromiseOrValue<string>,
@@ -208,28 +172,14 @@ export interface ITransparentUpgradeableProxy extends BaseContract {
   };
 
   filters: {
-    "AdminChanged(address,address)"(
-      previousAdmin?: null,
-      newAdmin?: null
-    ): AdminChangedEventFilter;
-    AdminChanged(
-      previousAdmin?: null,
-      newAdmin?: null
-    ): AdminChangedEventFilter;
+    "AdminChanged(address,address)"(previousAdmin?: null, newAdmin?: null): AdminChangedEventFilter;
+    AdminChanged(previousAdmin?: null, newAdmin?: null): AdminChangedEventFilter;
 
-    "BeaconUpgraded(address)"(
-      beacon?: PromiseOrValue<string> | null
-    ): BeaconUpgradedEventFilter;
-    BeaconUpgraded(
-      beacon?: PromiseOrValue<string> | null
-    ): BeaconUpgradedEventFilter;
+    "BeaconUpgraded(address)"(beacon?: PromiseOrValue<string> | null): BeaconUpgradedEventFilter;
+    BeaconUpgraded(beacon?: PromiseOrValue<string> | null): BeaconUpgradedEventFilter;
 
-    "Upgraded(address)"(
-      implementation?: PromiseOrValue<string> | null
-    ): UpgradedEventFilter;
-    Upgraded(
-      implementation?: PromiseOrValue<string> | null
-    ): UpgradedEventFilter;
+    "Upgraded(address)"(implementation?: PromiseOrValue<string> | null): UpgradedEventFilter;
+    Upgraded(implementation?: PromiseOrValue<string> | null): UpgradedEventFilter;
   };
 
   estimateGas: {
@@ -237,20 +187,20 @@ export interface ITransparentUpgradeableProxy extends BaseContract {
 
     changeAdmin(
       arg0: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     implementation(overrides?: CallOverrides): Promise<BigNumber>;
 
     upgradeTo(
       arg0: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     upgradeToAndCall(
       arg0: PromiseOrValue<string>,
       arg1: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
 
@@ -259,20 +209,20 @@ export interface ITransparentUpgradeableProxy extends BaseContract {
 
     changeAdmin(
       arg0: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     implementation(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     upgradeTo(
       arg0: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     upgradeToAndCall(
       arg0: PromiseOrValue<string>,
       arg1: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };
 }

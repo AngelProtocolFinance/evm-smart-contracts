@@ -1,75 +1,69 @@
-import { task } from "hardhat/config"
-import type { TaskArguments } from "hardhat/types"
-import config from "config"
-import addresses from "contract-address.json"
-import { Registrar } from "typechain-types"
-import { RegistrarMessages } from "typechain-types/contracts/core/registrar/interfaces/IRegistrar"
-import { logger } from "utils"
+import config from "config";
+import {task} from "hardhat/config";
+import type {TaskArguments} from "hardhat/types";
+import {Registrar} from "typechain-types";
+import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
+import {ADDRESS_ZERO, getAddresses, logger} from "utils";
 
-task("manage:updateRegistrar", "Will update the registrar config")
-    .setAction(async (taskArguments: TaskArguments, hre) => {
-        try {
-            let [deployer, apTeam1] = await hre.ethers.getSigners()
+task("manage:updateRegistrar", "Will update the registrar config").setAction(
+  async (taskArguments: TaskArguments, hre) => {
+    try {
+      let [deployer, proxyAdmin, apTeam1] = await hre.ethers.getSigners();
 
-            const registrar = (await hre.ethers.getContractAt(
-                "Registrar",
-                addresses.registrar.registrarProxy
-            )) as Registrar
+      const addresses = await getAddresses(hre);
 
-            logger.out("Current config")
-            let currentConfig = await registrar.queryConfig()
-            logger.out(currentConfig)
+      const registrar = (await hre.ethers.getContractAt(
+        "Registrar",
+        addresses.registrar.proxy
+      )) as Registrar;
 
-            let newConfig: RegistrarMessages.UpdateConfigRequestStruct = {
-                accountsContract: addresses.accounts.diamond,
-                taxRate: config.REGISTRAR_DATA.taxRate,
-                rebalance: config.REGISTRAR_DATA.rebalance,
-                approved_charities: [],
-                splitMax: config.REGISTRAR_DATA.splitToLiquid.max,
-                splitMin: config.REGISTRAR_DATA.splitToLiquid.min,
-                splitDefault:
-                    config.REGISTRAR_DATA.splitToLiquid.defaultSplit,
-                collectorShare: 1,
-                acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
-                subdaoGovContract: apTeam1.address, // subdao gov
-                subdaoTokenContract: apTeam1.address, // subdao gov token (basic CW20)
-                subdaoBondingTokenContract: apTeam1.address, // subdao gov token (w/ bonding-curve)
-                subdaoCw900Contract: apTeam1.address, // subdao gov ve-CURVE contract for locked token voting
-                subdaoDistributorContract: apTeam1.address, // subdao gov fee distributor
-                subdaoEmitter: apTeam1.address,
-                donationMatchContract: apTeam1.address, // donation matching contract
+      logger.out("Current config");
+      let currentConfig = await registrar.queryConfig();
+      logger.out(currentConfig);
 
-                // CONTRACT ADSRESSES
-                indexFundContract: addresses.indexFundAddress.indexFundProxy,
-                govContract: apTeam1.address,
-                treasury: apTeam1.address,
-                donationMatchCharitesContract: addresses.HaloImplementations.DonationMatchAddress.DonationMatchProxy,
-                donationMatchEmitter: apTeam1.address,
-                haloToken: apTeam1.address,
-                haloTokenLpContract: apTeam1.address,
-                charitySharesContract: apTeam1.address,
-                fundraisingContract: apTeam1.address,
-                applicationsReview: apTeam1.address,
-                swapsRouter: apTeam1.address,
-                multisigFactory:
-                    addresses.EndowmentMultiSigAddress.MultiSigWalletFactory,
-                multisigEmitter:
-                    addresses.EndowmentMultiSigAddress
-                        .EndowmentMultiSigEmitterProxy,
-                charityProposal: addresses.charityApplication.CharityApplicationProxy,
-                lockedWithdrawal: addresses.lockedWithdraw.LockedWithdrawProxy,
-                proxyAdmin: deployer.address,
-                usdcAddress: addresses.Tokens.usdc,
-                wethAddress: addresses.Tokens.weth,
-                cw900lvAddress: apTeam1.address,
-            }
-            let tx = await registrar.updateConfig(newConfig)
-            await hre.ethers.provider.waitForTransaction(tx.hash)
+      let newConfig: RegistrarMessages.UpdateConfigRequestStruct = {
+        accountsContract: addresses.accounts.diamond,
+        approved_charities: [],
+        splitMax: config.REGISTRAR_DATA.splitToLiquid.max,
+        splitMin: config.REGISTRAR_DATA.splitToLiquid.min,
+        splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit,
+        collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare,
+        subdaoGovContract: addresses.subDao.implementation, // subdao gov
+        subdaoTokenContract: addresses.subDao.token, // subdao gov token (basic CW20)
+        subdaoBondingTokenContract: addresses.subDao.veBondingToken, // subdao gov token (w/ bonding-curve)
+        subdaoCw900Contract: addresses.incentivisedVotingLockup.implementation, // subdao gov ve-CURVE contract for locked token voting
+        subdaoDistributorContract: apTeam1.address, // subdao gov fee distributor
+        subdaoEmitter: addresses.subDao.emitter.proxy,
+        donationMatchContract: addresses.donationMatch.implementation, // donation matching contract
 
-            let updatedConfig = await registrar.queryConfig()
-            logger.out(updatedConfig)
-            
-        } catch (error) {
-            logger.out(error, logger.Level.Error)
-        }
-    })
+        // CONTRACT ADSRESSES
+        indexFundContract: addresses.indexFund.proxy,
+        govContract: apTeam1.address,
+        treasury: config.REGISTRAR_DATA.treasury,
+        donationMatchCharitesContract: addresses.donationMatchCharity.proxy,
+        donationMatchEmitter: ADDRESS_ZERO,
+        haloToken: apTeam1.address,
+        haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract,
+        charitySharesContract: apTeam1.address,
+        fundraisingContract: apTeam1.address,
+        applicationsReview: addresses.multiSig.applications.proxy,
+        swapsRouter: addresses.swapRouter.proxy,
+        multisigFactory: addresses.multiSig.endowment.factory,
+        multisigEmitter: addresses.multiSig.endowment.emitter.proxy,
+        charityProposal: ADDRESS_ZERO,
+        proxyAdmin: proxyAdmin.address,
+        usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress,
+        wethAddress: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
+        cw900lvAddress: apTeam1.address,
+        lockedWithdrawal: ADDRESS_ZERO,
+      };
+      let tx = await registrar.updateConfig(newConfig);
+      await hre.ethers.provider.waitForTransaction(tx.hash);
+
+      let updatedConfig = await registrar.queryConfig();
+      logger.out(updatedConfig);
+    } catch (error) {
+      logger.out(error, logger.Level.Error);
+    }
+  }
+);

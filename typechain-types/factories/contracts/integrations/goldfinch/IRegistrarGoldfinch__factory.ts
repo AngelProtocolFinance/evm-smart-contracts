@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
 import type {
   IRegistrarGoldfinch,
   IRegistrarGoldfinchInterface,
@@ -667,10 +667,7 @@ export class IRegistrarGoldfinch__factory {
   static createInterface(): IRegistrarGoldfinchInterface {
     return new utils.Interface(_abi) as IRegistrarGoldfinchInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IRegistrarGoldfinch {
+  static connect(address: string, signerOrProvider: Signer | Provider): IRegistrarGoldfinch {
     return new Contract(address, _abi, signerOrProvider) as IRegistrarGoldfinch;
   }
 }

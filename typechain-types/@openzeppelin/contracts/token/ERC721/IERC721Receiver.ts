@@ -13,8 +13,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -40,10 +40,7 @@ export interface IERC721ReceiverInterface extends utils.Interface {
     ]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "onERC721Received",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "onERC721Received", data: BytesLike): Result;
 
   events: {};
 }
@@ -65,9 +62,7 @@ export interface IERC721Receiver extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -80,7 +75,7 @@ export interface IERC721Receiver extends BaseContract {
       from: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
 
@@ -89,7 +84,7 @@ export interface IERC721Receiver extends BaseContract {
     from: PromiseOrValue<string>,
     tokenId: PromiseOrValue<BigNumberish>,
     data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -110,7 +105,7 @@ export interface IERC721Receiver extends BaseContract {
       from: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
 
@@ -120,7 +115,7 @@ export interface IERC721Receiver extends BaseContract {
       from: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };
 }

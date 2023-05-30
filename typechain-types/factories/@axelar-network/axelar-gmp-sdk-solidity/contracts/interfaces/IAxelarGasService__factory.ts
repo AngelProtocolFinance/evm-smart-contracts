@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
 import type {
   IAxelarGasService,
   IAxelarGasServiceInterface,
@@ -936,10 +936,7 @@ export class IAxelarGasService__factory {
   static createInterface(): IAxelarGasServiceInterface {
     return new utils.Interface(_abi) as IAxelarGasServiceInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IAxelarGasService {
+  static connect(address: string, signerOrProvider: Signer | Provider): IAxelarGasService {
     return new Contract(address, _abi, signerOrProvider) as IAxelarGasService;
   }
 }

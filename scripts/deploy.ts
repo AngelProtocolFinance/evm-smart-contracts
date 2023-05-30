@@ -1,4 +1,4 @@
-import { main } from "./deployMain"
+import {main} from "./deployMain";
 
 main()
   .then(() => process.exit(0))
