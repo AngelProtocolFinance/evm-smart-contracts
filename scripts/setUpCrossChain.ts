@@ -3,19 +3,12 @@ import {setupNetwork} from "@axelar-network/axelar-local-dev";
 import fs from "fs";
 
 import {Wallet} from "ethers";
-import config from "config";
+import {envConfig} from "utils";
 
 async function setUp() {
   try {
-    if (!config.GANACHE_RPC_URL) {
-      return Promise.reject("Missing environment variable: GANACHE_RPC_URL");
-    }
-    if (!config.GANACHE_PRIVATE_KEY) {
-      return Promise.reject("Missing environment variable: GANACHE_PRIVATE_KEY");
-    }
-
-    const ethereum = await setupNetwork(config.GANACHE_RPC_URL, {
-      ownerKey: new Wallet(config.GANACHE_PRIVATE_KEY),
+    const ethereum = await setupNetwork(envConfig.GANACHE_RPC_URL, {
+      ownerKey: new Wallet(envConfig.GANACHE_PRIVATE_KEY),
       chainId: 8454,
     });
 

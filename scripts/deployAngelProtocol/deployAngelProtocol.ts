@@ -30,18 +30,11 @@ export default async function deploy() {
   try {
     const {network, ethers} = hre;
 
-    const [_, proxyAdmin, apTeam1, apTeam2] = await ethers.getSigners();
+    const [_, proxyAdmin, apTeam1, apTeam2, apTeam3] = await ethers.getSigners();
 
     await cleanAddresses(hre);
 
     const verify_contracts = isLocalNetwork(hre.network);
-
-    // When deploying to a local network, we lose access to outside wallets in .env, like
-    // the ones contained in `config.AP_TEAM_MULTISIG_DATA` array. We therefore set appropriate
-    // local wallets as admins using the already established convention.
-    const Admins = isLocalNetwork(network)
-      ? [apTeam1.address, apTeam2.address]
-      : config.AP_TEAM_MULTISIG_DATA.admins;
 
     console.log("Deploying the contracts with the account:", await proxyAdmin.getAddress());
 
@@ -89,12 +82,12 @@ export default async function deploy() {
     );
 
     var APTeamData: ParametersExceptLast<APTeamMultiSig["initialize"]> = [
-      Admins,
+      [apTeam1.address, apTeam2.address],
       config.AP_TEAM_MULTISIG_DATA.threshold,
       config.AP_TEAM_MULTISIG_DATA.requireExecution,
     ];
     var ApplicationData: ParametersExceptLast<ApplicationsMultiSig["initialize"]> = [
-      Admins,
+      [apTeam2.address, apTeam3.address],
       config.APPLICATION_MULTISIG_DATA.threshold,
       config.APPLICATION_MULTISIG_DATA.requireExecution,
     ];

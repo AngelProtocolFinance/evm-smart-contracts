@@ -20,8 +20,6 @@ var ANGEL_CORE_STRUCT: Contract;
 var STRING_LIBRARY: Contract;
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 var REGISTRAR_ADDRESS;
-var deployer;
-var proxyAdmin;
 
 let updateConfig: RegistrarMessages.UpdateConfigRequestStruct;
 
@@ -92,10 +90,9 @@ export async function mainTask(
 
     await cleanAddresses(hre);
 
-    var Admins = config.AP_TEAM_MULTISIG_DATA.admins;
-    if (apTeamAdmins.length != 0) Admins = apTeamAdmins;
+    const [deployer, proxyAdmin, apTeam1, apTeam2] = await ethers.getSigners();
+    const Admins = apTeamAdmins.length > 0 ? apTeamAdmins : [apTeam1.address, apTeam2.address];
 
-    [deployer, proxyAdmin] = await ethers.getSigners();
     console.log("Deploying the contracts with the account:", await deployer.getAddress());
 
     // Mock setup required for testing

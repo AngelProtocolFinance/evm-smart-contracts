@@ -5,19 +5,7 @@ import {envConfig} from "utils";
 dotenv.config({path: __dirname + "/./../.env"});
 
 const EXPORT_CONFIG = {
-  GANACHE_PRIVATE_KEY: envConfig.GANACHE_PRIVATE_KEY,
-  GANACHE_RPC_URL: envConfig.GANACHE_RPC_URL,
-  NETWORK: envConfig.NETWORK,
-  OPTIMIZER_FLAG: envConfig.OPTIMIZER_FLAG,
-  OPTIMIZER_RUNS: envConfig.OPTIMIZER_RUNS,
-  PROD_NETWORK_ID: envConfig.PROD_NETWORK_ID,
-  PROXY_ADMIN_KEY: envConfig.PROXY_ADMIN.key,
-  ROUTER_ADDRESS: envConfig.ROUTER_ADDRESS,
-  SCAN_API_KEY: envConfig.ETHERSCAN_API_KEY,
-  VERIFY_CONTRACTS: envConfig.VERIFY_CONTRACTS,
-  PROXY_ADMIN_ADDRESS: envConfig.PROXY_ADMIN.address,
   AP_TEAM_MULTISIG_DATA: {
-    admins: [envConfig.AP_TEAM_1.address, envConfig.AP_TEAM_2.address],
     threshold: 1,
     requireExecution: false,
   },
