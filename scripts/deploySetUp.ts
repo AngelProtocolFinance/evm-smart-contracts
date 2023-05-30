@@ -60,8 +60,14 @@ async function deployLibraries() {
 
 export async function mainRouter(USDC: string, verify_contracts: boolean) {
   try {
-    const {applicationsMultisigOwners, apTeamMultisigOwners, deployer, proxyAdmin, treasuryAdmin} =
-      await getSigners(ethers);
+    const {
+      applicationsMultisigOwners,
+      apTeamMultisigOwners,
+      deployer,
+      proxyAdmin,
+      routerAdmin,
+      treasuryAdmin,
+    } = await getSigners(ethers);
     // deployer = deployerObj
     console.log(deployer.address);
     console.log("Deploying the contracts with the account:", await deployer.getAddress());
@@ -93,7 +99,7 @@ export async function mainRouter(USDC: string, verify_contracts: boolean) {
       rebalance: config.REGISTRAR_DATA.rebalance,
       splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
       acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
-      router: config.REGISTRAR_DATA.router,
+      router: routerAdmin.address,
       axelerGateway: config.REGISTRAR_DATA.axelerGateway,
     };
 
