@@ -3,10 +3,10 @@
 
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {CharityApplication, CharityApplication__factory} from "typechain-types";
-import {ParametersExceptLast, getSigners, logger, updateAddresses} from "utils";
+import {ContractFunctionParams, getSigners, logger, updateAddresses} from "utils";
 
 export async function charityApplications(
-  CharityApplicationDataInput: ParametersExceptLast<CharityApplication["initialize"]>,
+  CharityApplicationDataInput: ContractFunctionParams<CharityApplication["initialize"]>,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {

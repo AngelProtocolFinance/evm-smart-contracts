@@ -28,7 +28,7 @@ interface AddressWriter {
 }
 let addressWriter: AddressWriter = {};
 
-import {ParametersExceptLast, cleanAddresses, updateAddresses} from "utils";
+import {ContractFunctionParams, cleanAddresses, updateAddresses} from "utils";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {Contract} from "ethers";
 import {APTeamMultiSig, ApplicationsMultiSig} from "typechain-types";
@@ -116,12 +116,12 @@ export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvi
 
     await deployLibraries(verify_contracts, hre);
 
-    var APTeamData: ParametersExceptLast<APTeamMultiSig["initialize"]> = [
+    var APTeamData: ContractFunctionParams<APTeamMultiSig["initialize"]> = [
       [apTeam1.address, apTeam2.address],
       config.AP_TEAM_MULTISIG_DATA.threshold,
       config.AP_TEAM_MULTISIG_DATA.requireExecution,
     ];
-    var ApplicationData: ParametersExceptLast<ApplicationsMultiSig["initialize"]> = [
+    var ApplicationData: ContractFunctionParams<ApplicationsMultiSig["initialize"]> = [
       [apTeam2.address, apTeam3.address],
       config.APPLICATION_MULTISIG_DATA.threshold,
       config.APPLICATION_MULTISIG_DATA.requireExecution,

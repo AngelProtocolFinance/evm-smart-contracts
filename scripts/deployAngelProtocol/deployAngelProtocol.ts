@@ -23,7 +23,7 @@ import {
   Registrar__factory,
 } from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-import {ParametersExceptLast, cleanAddresses, isLocalNetwork, updateAddresses} from "utils";
+import {ContractFunctionParams, cleanAddresses, isLocalNetwork, updateAddresses} from "utils";
 import {deployLibraries} from "./deployLibraries";
 import {getSigners} from "utils/getSigners";
 
@@ -70,12 +70,12 @@ export default async function deploy() {
 
     const {angelCoreStruct, stringLib} = await deployLibraries(verify_contracts, proxyAdmin, hre);
 
-    var APTeamData: ParametersExceptLast<APTeamMultiSig["initialize"]> = [
+    var APTeamData: ContractFunctionParams<APTeamMultiSig["initialize"]> = [
       apTeamMultisigOwners.map((x) => x.address),
       config.AP_TEAM_MULTISIG_DATA.threshold,
       config.AP_TEAM_MULTISIG_DATA.requireExecution,
     ];
-    var ApplicationData: ParametersExceptLast<ApplicationsMultiSig["initialize"]> = [
+    var ApplicationData: ContractFunctionParams<ApplicationsMultiSig["initialize"]> = [
       applicationsMultisigOwners.map((x) => x.address),
       config.APPLICATION_MULTISIG_DATA.threshold,
       config.APPLICATION_MULTISIG_DATA.requireExecution,

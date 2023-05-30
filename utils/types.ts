@@ -1,3 +1,11 @@
-type Head<T extends any[]> = Required<T> extends [...infer Head, any] ? Head : never;
+import {Overrides} from "ethers";
+import {PromiseOrValue} from "typechain-types/common";
 
-export type ParametersExceptLast<F extends (...args: any) => any> = Head<Parameters<F>>;
+type Head<T extends any[]> = Required<T> extends [
+  ...infer Head,
+  Overrides & {from?: PromiseOrValue<string>}
+]
+  ? Head
+  : never;
+
+export type ContractFunctionParams<F extends (...args: any) => any> = Head<Parameters<F>>;

@@ -3,12 +3,12 @@
 
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {APTeamMultiSig, ApplicationsMultiSig} from "typechain-types";
-import {ParametersExceptLast, getSigners, logger, updateAddresses} from "utils";
+import {ContractFunctionParams, getSigners, logger, updateAddresses} from "utils";
 // import { IndexFundMessage } from "typechain-types/contracts/core/index-fund/IndexFund"
 
 export async function deployMultisig(
-  ApplicationMultisigData: ParametersExceptLast<ApplicationsMultiSig["initialize"]>,
-  APTeamMultisigData: ParametersExceptLast<APTeamMultiSig["initialize"]>,
+  ApplicationMultisigData: ContractFunctionParams<ApplicationsMultiSig["initialize"]>,
+  APTeamMultisigData: ContractFunctionParams<APTeamMultiSig["initialize"]>,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
