@@ -1,14 +1,8 @@
 import {task} from "hardhat/config";
-import {mainTask} from "scripts/deployTask";
-import {logger} from "utils";
+import deployAngelProtocol from "scripts/deployAngelProtocol";
 
-task("Deploy:deployAngelProtocol", "Will deploy CompleteAngel protocol")
-  .addParam("verify", "Want to verify contract")
-  .setAction(async (taskArgs, hre) => {
-    try {
-      var isTrueSet = taskArgs.verify === "true";
-      await mainTask(isTrueSet, hre);
-    } catch (error) {
-      logger.out(error, logger.Level.Error);
-    }
-  });
+task("Deploy:deployAngelProtocol", "Will deploy CompleteAngel protocol").setAction(
+  async (_, hre) => {
+    await deployAngelProtocol(hre);
+  }
+);
