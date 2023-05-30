@@ -19,7 +19,6 @@ import config from "config";
 var ANGEL_CORE_STRUCT: Contract;
 var STRING_LIBRARY: Contract;
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
-var REGISTRAR_ADDRESS;
 
 let updateConfig: RegistrarMessages.UpdateConfigRequestStruct;
 
@@ -140,8 +139,7 @@ export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvi
       axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
     };
 
-    REGISTRAR_ADDRESS = await deployRegistrar(
-      STRING_LIBRARY.address,
+    const registrar = await deployRegistrar(
       registrarData,
       multisigAddress.APTeamMultiSig,
       verify_contracts,
@@ -150,7 +148,7 @@ export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvi
 
     const accountsDiamond = await deployAccountsDiamond(
       multisigAddress.APTeamMultiSig,
-      REGISTRAR_ADDRESS,
+      registrar.proxy.address,
       ANGEL_CORE_STRUCT.address,
       verify_contracts,
       hre
@@ -182,7 +180,7 @@ export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvi
     console.log("charityApplicationsAddress deployed at:-", charityApplicationsAddress);
 
     const SWAP_ROUTER = await deploySwapRouter(
-      REGISTRAR_ADDRESS,
+      registrar.proxy.address,
       accountsDiamond.address,
       config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS,
       config.SWAP_ROUTER_DATA.SWAP_ROUTER_ADDRESS,
@@ -193,7 +191,7 @@ export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvi
     console.log("SWAP_ROUTER contract deployed at:-", SWAP_ROUTER);
 
     const indexFundData = {
-      registrarContract: REGISTRAR_ADDRESS,
+      registrarContract: registrar.proxy.address,
       fundRotation: config.INDEX_FUND_DATA.fundRotation,
       fundMemberLimit: config.INDEX_FUND_DATA.fundMemberLimit,
       fundingGoal: config.INDEX_FUND_DATA.fundingGoal,
@@ -216,13 +214,13 @@ export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvi
 
     // let GiftCardDataInput = {
     // 	keeper: multisigAddress.APTeamMultiSig,
-    // 	registrarContract: REGISTRAR_ADDRESS,
+    // 	registrarContract: registrar.proxy.address,
     // };
 
     // let giftCardAddress = await giftCard(GiftCardDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre);
 
     // let FundraisingDataInput = {
-    // 	registrarContract: REGISTRAR_ADDRESS,
+    // 	registrarContract: registrar.proxy.address,
     // 	nextId: config.FundraisingDataInput.nextId,
     // 	campaignPeriodSeconds: config.FundraisingDataInput.campaignPeriodSeconds,
     // 	taxRate: config.FundraisingDataInput.taxRate,
@@ -337,7 +335,7 @@ export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvi
     let donationMatchCharityData = {
       reserveToken: config.DONATION_MATCH_CHARITY_DATA.reserveToken,
       uniswapFactory: config.DONATION_MATCH_CHARITY_DATA.uniswapFactory,
-      registrarContract: REGISTRAR_ADDRESS,
+      registrarContract: registrar.proxy.address,
       poolFee: config.DONATION_MATCH_CHARITY_DATA.poolFee,
       usdcAddress: config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
     };
@@ -403,7 +401,7 @@ export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvi
       lockedWithdrawal: ADDRESS_ZERO,
     };
 
-    let REGISTRAR_CONTRACT = await ethers.getContractAt("Registrar", REGISTRAR_ADDRESS);
+    let REGISTRAR_CONTRACT = await ethers.getContractAt("Registrar", registrar.proxy.address);
 
     let data = await REGISTRAR_CONTRACT.updateConfig(updateConfig);
     console.log("Successfully updated config:-", data.hash);
@@ -422,8 +420,8 @@ export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvi
         AngelCoreStruct: ANGEL_CORE_STRUCT.address,
       },
       dai: config.REGISTRAR_UPDATE_CONFIG.DAI_address,
-      registrar: REGISTRAR_ADDRESS,
-      account: accountsDiamond,
+      registrar: registrar.proxy.address,
+      account: accountsDiamond.address,
       multisigAddress,
       charityApplicationsAddress,
       swapRouter: SWAP_ROUTER,
