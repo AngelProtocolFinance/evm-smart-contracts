@@ -14,7 +14,6 @@ import {deployImplementation} from "contracts/normalized_endowment/scripts/deplo
 import config from "config";
 import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
 import {Contract} from "ethers";
-import hre from "hardhat";
 import {
   APTeamMultiSig,
   ApplicationsMultiSig,
@@ -26,8 +25,9 @@ import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interf
 import {ContractFunctionParams, cleanAddresses, isLocalNetwork, updateAddresses} from "utils";
 import {deployLibraries} from "./deployLibraries";
 import {getSigners} from "utils/getSigners";
+import {HardhatRuntimeEnvironment} from "hardhat/types";
 
-export default async function deploy() {
+export default async function deploy(hre: HardhatRuntimeEnvironment) {
   try {
     const {network, ethers} = hre;
 
