@@ -184,6 +184,16 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
                 ), "Unauthorized"
             );
            tempEndowment.settingsController.lockedInvestmentManagement.delegate = newDelegate;
+        } else if (setting == AngelCoreStruct.ControllerSettingOption.AcceptedTokens) {
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.acceptedTokens,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.acceptedTokens.delegate = newDelegate;
         } else if (setting == AngelCoreStruct.ControllerSettingOption.AllowlistedBeneficiaries) {
            require(
                 AngelCoreStruct.canChange(
@@ -320,4 +330,32 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
 
         emit UpdateEndowment(id, tempEndowment);
     }
+
+    /**
+    @notice Updates the endowment-level list of accepted tokens with a status for the given token address.
+    @dev This function allows the Endowment owner, or a valid delegate, to add/update accepted tokens for an Endowment's Deposits & Withdrawals.
+    * @param endowId Endowment ID
+    * @param tokenAddr Token address to add/update in AcceptedTokens
+    * @param tokenStatus Boolean status to set for the token Address in AcceptedTokens
+    */
+    function updateAcceptedToken(
+        uint32 endowId,
+        address tokenAddr,
+        bool tokenStatus
+    ) public nonReentrant {
+        require(tokenAddr != address(0), "Zero address passed");
+
+        AccountStorage.State storage state = LibAccounts.diamondStorage();
+        AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[endowId];
+        require(!state.STATES[endowId].closingEndowment, "UpdatesAfterClosed");
+        require(AngelCoreStruct.canChange(
+                tempEndowment.settingsController.acceptedTokens,
+                msg.sender,
+                tempEndowment.owner,
+                block.timestamp
+            ), "Unauthorized"
+        );
+        state.AcceptedTokens[endowId][tokenAddr] = tokenStatus;
+    }
+
 }

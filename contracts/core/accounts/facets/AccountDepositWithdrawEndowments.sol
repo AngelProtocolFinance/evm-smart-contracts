@@ -74,16 +74,11 @@ contract AccountDepositWithdrawEndowments is
     ) public nonReentrant {
         require(tokenAddress != address(0), "Invalid Token Address");
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        // AccountStorage.Config memory tempConfig = state.config;
-
         AccountStorage.EndowmentState storage tempEndowmentState = state.STATES[
             details.id
         ];
         require(!tempEndowmentState.closingEndowment, "Endowment is closed");
-        require(
-            IRegistrar(state.config.registrarContract)
-                .isTokenAccepted(tokenAddress), 
-            "Invalid Token");
+        require(state.AcceptedTokens[details.id][tokenAddress], "Not in the Accepted Tokens List");
 
         RegistrarStorage.Config memory registrar_config = 
             IRegistrar(state.config.registrarContract)
@@ -255,6 +250,7 @@ contract AccountDepositWithdrawEndowments is
             id
         ];
         require(!tempEndowmentState.closingEndowment, "Endowment is closed");
+        require(state.AcceptedTokens[id][tokenAddress], "Not in the Accepted Tokens List");
 
         // fetch regisrar config
         RegistrarStorage.Config memory registrar_config = IRegistrar(

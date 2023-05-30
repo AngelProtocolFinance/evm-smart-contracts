@@ -35,12 +35,28 @@ contract AccountsSwapEndowments is ReentrancyGuardFacet, AccountsEvents {
         address tokenOut
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];
 
-        require(tempEndowment.owner == msg.sender, "Unauthorized");
         require(amount > 0, "InvalidInputs");
         require(tokenIn != address(0), "InvalidInputs");
         require(tokenOut != address(0), "InvalidInputs");
+
+        // check if the msg sender is either the owner or their delegate address and
+        // that they have the power to manage the investments for an account balance
+        if (accountType == AngelCoreStruct.AccountType.Locked) {
+            require(AngelCoreStruct.canChange(
+                state.ENDOWMENTS[id].settingsController.lockedInvestmentManagement,
+                msg.sender,
+                state.ENDOWMENTS[id].owner,
+                block.timestamp
+            ), "Unauthorized");
+        } else if (accountType == AngelCoreStruct.AccountType.Locked) {
+            require(AngelCoreStruct.canChange(
+                state.ENDOWMENTS[id].settingsController.liquidInvestmentManagement,
+                msg.sender,
+                state.ENDOWMENTS[id].owner,
+                block.timestamp
+            ), "Unauthorized");
+        }
 
         RegistrarStorage.Config memory registrar_config = IRegistrar(
             state.config.registrarContract

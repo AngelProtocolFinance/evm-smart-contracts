@@ -67,9 +67,9 @@ library AccountStorage {
         mapping(uint32 => Endowment) ENDOWMENTS;
         // endow ID -> spender Addr -> token Addr -> amount
         mapping(uint32 => mapping(address => mapping(address => uint256))) ALLOWANCES;
+        // endow ID -> token Addr -> bool
+        mapping(uint32 => mapping(address => bool)) AcceptedTokens;
         Config config;
-        // mapping(bytes4 => string) stratagyId;
-        // mapping(uint32 => mapping(AngelCoreStruct.AccountType => mapping(string => uint256))) vaultBalance;
     }
 }
 

@@ -46,16 +46,10 @@ interface IAccounts {
         uint256 delegateExpiry
     ) external returns (bool);
 
-    function updateStrategies(
-        uint32 id,
-        AngelCoreStruct.AccountType acctType,
-        AccountMessages.Strategy[] memory strategies
-    ) external returns (bool);
-
-    function copycatStrategies(
-        uint32 id,
-        AngelCoreStruct.AccountType acctType,
-        uint256 idToCopy
+    function updateAcceptedToken(
+        uint32 endowId,
+        address tokenAddr,
+        bool tokenStatus
     ) external returns (bool);
 
     //TODO: Complete This contract once swap-router is completed.
