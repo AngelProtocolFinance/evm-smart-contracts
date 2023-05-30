@@ -13,8 +13,12 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -25,17 +29,11 @@ import type {
 
 export declare namespace LocalRegistrarLib {
   export type AngelProtocolParamsStruct = {
-    protocolTaxRate: PromiseOrValue<BigNumberish>;
-    protocolTaxBasis: PromiseOrValue<BigNumberish>;
-    protocolTaxCollector: PromiseOrValue<string>;
     routerAddr: PromiseOrValue<string>;
     refundAddr: PromiseOrValue<string>;
   };
 
-  export type AngelProtocolParamsStructOutput = [number, number, string, string, string] & {
-    protocolTaxRate: number;
-    protocolTaxBasis: number;
-    protocolTaxCollector: string;
+  export type AngelProtocolParamsStructOutput = [string, string] & {
     routerAddr: string;
     refundAddr: string;
   };
@@ -49,7 +47,14 @@ export declare namespace LocalRegistrarLib {
     basis: PromiseOrValue<BigNumberish>;
   };
 
-  export type RebalanceParamsStructOutput = [boolean, number, number, boolean, number, number] & {
+  export type RebalanceParamsStructOutput = [
+    boolean,
+    number,
+    number,
+    boolean,
+    number,
+    number
+  ] & {
     rebalanceLiquidProfits: boolean;
     lockedRebalanceToLiquid: number;
     interestDistribution: number;
@@ -236,19 +241,25 @@ export declare namespace RegistrarStorage {
   };
 }
 
+export declare namespace APGoldfinchConfigLib {
+  export type CRVParamsStruct = {
+    allowedSlippage: PromiseOrValue<BigNumberish>;
+  };
+
+  export type CRVParamsStructOutput = [BigNumber] & {
+    allowedSlippage: BigNumber;
+  };
+
+  export type APGoldfinchConfigStruct = {
+    crvParams: APGoldfinchConfigLib.CRVParamsStruct;
+  };
+
+  export type APGoldfinchConfigStructOutput = [
+    APGoldfinchConfigLib.CRVParamsStructOutput
+  ] & { crvParams: APGoldfinchConfigLib.CRVParamsStructOutput };
+}
+
 export declare namespace RegistrarMessages {
-  export type UpdateFeeRequestStruct = {
-    feeType: PromiseOrValue<BigNumberish>;
-    payout: PromiseOrValue<string>;
-    rate: PromiseOrValue<BigNumberish>;
-  };
-
-  export type UpdateFeeRequestStructOutput = [number, string, BigNumber] & {
-    feeType: number;
-    payout: string;
-    rate: BigNumber;
-  };
-
   export type InstantiateRequestStruct = {
     treasury: PromiseOrValue<string>;
     splitToLiquid: AngelCoreStruct.SplitDetailsStruct;
@@ -375,30 +386,12 @@ export declare namespace RegistrarMessages {
   };
 }
 
-export declare namespace APGoldfinchConfigLib {
-  export type CRVParamsStruct = {
-    allowedSlippage: PromiseOrValue<BigNumberish>;
-  };
-
-  export type CRVParamsStructOutput = [BigNumber] & {
-    allowedSlippage: BigNumber;
-  };
-
-  export type APGoldfinchConfigStruct = {
-    crvParams: APGoldfinchConfigLib.CRVParamsStruct;
-  };
-
-  export type APGoldfinchConfigStructOutput = [APGoldfinchConfigLib.CRVParamsStructOutput] & {
-    crvParams: APGoldfinchConfigLib.CRVParamsStructOutput;
-  };
-}
-
 export interface RegistrarInterface extends utils.Interface {
   functions: {
     "getAPGoldfinchParams()": FunctionFragment;
     "getAccountsContractAddressByChain(string)": FunctionFragment;
     "getAngelProtocolParams()": FunctionFragment;
-    "getFeeByFees(uint8)": FunctionFragment;
+    "getFeeSettingsByFeeType(uint8)": FunctionFragment;
     "getGasByToken(address)": FunctionFragment;
     "getRebalanceParams()": FunctionFragment;
     "getStrategyApprovalState(bytes4)": FunctionFragment;
@@ -409,12 +402,11 @@ export interface RegistrarInterface extends utils.Interface {
     "owner()": FunctionFragment;
     "queryAllStrategies()": FunctionFragment;
     "queryConfig()": FunctionFragment;
-    "queryFee(uint8)": FunctionFragment;
     "queryNetworkConnection(uint256)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "setAPGoldfinchParams(((uint256)))": FunctionFragment;
     "setAccountsContractAddressByChain(string,string)": FunctionFragment;
-    "setAngelProtocolParams((uint32,uint32,address,address,address))": FunctionFragment;
+    "setAngelProtocolParams((address,address))": FunctionFragment;
     "setFeeSettingsByFeesType(uint8,uint256,address)": FunctionFragment;
     "setGasByToken(address,uint256)": FunctionFragment;
     "setRebalanceParams((bool,uint32,uint32,bool,uint32,uint32))": FunctionFragment;
@@ -423,7 +415,6 @@ export interface RegistrarInterface extends utils.Interface {
     "setTokenAccepted(address,bool)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "updateConfig((address,string[],uint256,uint256,uint256,uint256,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address))": FunctionFragment;
-    "updateFee((uint8,address,uint256))": FunctionFragment;
     "updateNetworkConnections((string,uint256,address,address,string,string,address,uint256),string)": FunctionFragment;
   };
 
@@ -432,7 +423,7 @@ export interface RegistrarInterface extends utils.Interface {
       | "getAPGoldfinchParams"
       | "getAccountsContractAddressByChain"
       | "getAngelProtocolParams"
-      | "getFeeByFees"
+      | "getFeeSettingsByFeeType"
       | "getGasByToken"
       | "getRebalanceParams"
       | "getStrategyApprovalState"
@@ -443,7 +434,6 @@ export interface RegistrarInterface extends utils.Interface {
       | "owner"
       | "queryAllStrategies"
       | "queryConfig"
-      | "queryFee"
       | "queryNetworkConnection"
       | "renounceOwnership"
       | "setAPGoldfinchParams"
@@ -457,22 +447,23 @@ export interface RegistrarInterface extends utils.Interface {
       | "setTokenAccepted"
       | "transferOwnership"
       | "updateConfig"
-      | "updateFee"
       | "updateNetworkConnections"
   ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "getAPGoldfinchParams", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getAPGoldfinchParams",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "getAccountsContractAddressByChain",
     values: [PromiseOrValue<string>]
   ): string;
-<<<<<<< HEAD
   encodeFunctionData(
     functionFragment: "getAngelProtocolParams",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getFeeByFees",
+    functionFragment: "getFeeSettingsByFeeType",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
@@ -483,11 +474,6 @@ export interface RegistrarInterface extends utils.Interface {
     functionFragment: "getRebalanceParams",
     values?: undefined
   ): string;
-=======
-  encodeFunctionData(functionFragment: "getAngelProtocolParams", values?: undefined): string;
-  encodeFunctionData(functionFragment: "getGasByToken", values: [PromiseOrValue<string>]): string;
-  encodeFunctionData(functionFragment: "getRebalanceParams", values?: undefined): string;
->>>>>>> master
   encodeFunctionData(
     functionFragment: "getStrategyApprovalState",
     values: [PromiseOrValue<BytesLike>]
@@ -500,10 +486,15 @@ export interface RegistrarInterface extends utils.Interface {
     functionFragment: "initialize((address,(uint256,uint256,uint256),address,address,address))",
     values: [RegistrarMessages.InstantiateRequestStruct]
   ): string;
-  encodeFunctionData(functionFragment: "initialize()", values?: undefined): string;
-  encodeFunctionData(functionFragment: "isTokenAccepted", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(
+    functionFragment: "initialize()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isTokenAccepted",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-<<<<<<< HEAD
   encodeFunctionData(
     functionFragment: "queryAllStrategies",
     values?: undefined
@@ -513,19 +504,13 @@ export interface RegistrarInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "queryFee",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-=======
-  encodeFunctionData(functionFragment: "queryAllStrategies", values?: undefined): string;
-  encodeFunctionData(functionFragment: "queryConfig", values?: undefined): string;
-  encodeFunctionData(functionFragment: "queryFee", values: [PromiseOrValue<string>]): string;
->>>>>>> master
-  encodeFunctionData(
     functionFragment: "queryNetworkConnection",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(functionFragment: "renounceOwnership", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "setAPGoldfinchParams",
     values: [APGoldfinchConfigLib.APGoldfinchConfigStruct]
@@ -580,26 +565,24 @@ export interface RegistrarInterface extends utils.Interface {
     values: [RegistrarMessages.UpdateConfigRequestStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "updateFee",
-    values: [RegistrarMessages.UpdateFeeRequestStruct]
-  ): string;
-  encodeFunctionData(
     functionFragment: "updateNetworkConnections",
     values: [AngelCoreStruct.NetworkInfoStruct, PromiseOrValue<string>]
   ): string;
 
-  decodeFunctionResult(functionFragment: "getAPGoldfinchParams", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getAPGoldfinchParams",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "getAccountsContractAddressByChain",
     data: BytesLike
   ): Result;
-<<<<<<< HEAD
   decodeFunctionResult(
     functionFragment: "getAngelProtocolParams",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getFeeByFees",
+    functionFragment: "getFeeSettingsByFeeType",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -618,31 +601,43 @@ export interface RegistrarInterface extends utils.Interface {
     functionFragment: "getStrategyParamsById",
     data: BytesLike
   ): Result;
-=======
-  decodeFunctionResult(functionFragment: "getAngelProtocolParams", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getGasByToken", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getRebalanceParams", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getStrategyApprovalState", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getStrategyParamsById", data: BytesLike): Result;
->>>>>>> master
   decodeFunctionResult(
     functionFragment: "initialize((address,(uint256,uint256,uint256),address,address,address))",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "initialize()", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "isTokenAccepted", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "initialize()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isTokenAccepted",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "queryAllStrategies", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "queryConfig", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "queryFee", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "queryNetworkConnection", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "renounceOwnership", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setAPGoldfinchParams", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "queryAllStrategies",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "queryConfig",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "queryNetworkConnection",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setAPGoldfinchParams",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "setAccountsContractAddressByChain",
     data: BytesLike
   ): Result;
-<<<<<<< HEAD
   decodeFunctionResult(
     functionFragment: "setAngelProtocolParams",
     data: BytesLike
@@ -679,23 +674,10 @@ export interface RegistrarInterface extends utils.Interface {
     functionFragment: "updateConfig",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "updateFee", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "updateNetworkConnections",
     data: BytesLike
   ): Result;
-=======
-  decodeFunctionResult(functionFragment: "setAngelProtocolParams", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setGasByToken", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setRebalanceParams", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setStrategyApprovalState", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setStrategyParams", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setTokenAccepted", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "transferOwnership", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "updateConfig", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "updateFees", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "updateNetworkConnections", data: BytesLike): Result;
->>>>>>> master
 
   events: {
     "AccountsContractStorageChanged(string,string)": EventFragment;
@@ -711,10 +693,11 @@ export interface RegistrarInterface extends utils.Interface {
     "StrategyParamsChanged(bytes4,address,address,uint8)": EventFragment;
     "TokenAcceptanceChanged(address,bool)": EventFragment;
     "UpdateRegistrarConfig(tuple)": EventFragment;
-    "UpdateRegistrarFees(tuple)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "AccountsContractStorageChanged"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "AccountsContractStorageChanged"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AngelProtocolParamsChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DeleteNetworkConnection"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FeeUpdated"): EventFragment;
@@ -727,12 +710,11 @@ export interface RegistrarInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "StrategyParamsChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenAcceptanceChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdateRegistrarConfig"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "UpdateRegistrarFees"): EventFragment;
 }
 
 export interface AccountsContractStorageChangedEventObject {
-  chainName: string;
-  accountsContractAddress: string;
+  _chainName: string;
+  _accountsContractAddress: string;
 }
 export type AccountsContractStorageChangedEvent = TypedEvent<
   [string, string],
@@ -743,7 +725,7 @@ export type AccountsContractStorageChangedEventFilter =
   TypedEventFilter<AccountsContractStorageChangedEvent>;
 
 export interface AngelProtocolParamsChangedEventObject {
-  newAngelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStructOutput;
+  _newAngelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStructOutput;
 }
 export type AngelProtocolParamsChangedEvent = TypedEvent<
   [LocalRegistrarLib.AngelProtocolParamsStructOutput],
@@ -761,7 +743,8 @@ export type DeleteNetworkConnectionEvent = TypedEvent<
   DeleteNetworkConnectionEventObject
 >;
 
-export type DeleteNetworkConnectionEventFilter = TypedEventFilter<DeleteNetworkConnectionEvent>;
+export type DeleteNetworkConnectionEventFilter =
+  TypedEventFilter<DeleteNetworkConnectionEvent>;
 
 export interface FeeUpdatedEventObject {
   _fee: number;
@@ -779,7 +762,10 @@ export interface GasFeeUpdatedEventObject {
   _tokenAddr: string;
   _gasFee: BigNumber;
 }
-export type GasFeeUpdatedEvent = TypedEvent<[string, BigNumber], GasFeeUpdatedEventObject>;
+export type GasFeeUpdatedEvent = TypedEvent<
+  [string, BigNumber],
+  GasFeeUpdatedEventObject
+>;
 
 export type GasFeeUpdatedEventFilter = TypedEventFilter<GasFeeUpdatedEvent>;
 
@@ -799,7 +785,8 @@ export type OwnershipTransferredEvent = TypedEvent<
   OwnershipTransferredEventObject
 >;
 
-export type OwnershipTransferredEventFilter = TypedEventFilter<OwnershipTransferredEvent>;
+export type OwnershipTransferredEventFilter =
+  TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface PostNetworkConnectionEventObject {
   chainId: BigNumber;
@@ -810,17 +797,19 @@ export type PostNetworkConnectionEvent = TypedEvent<
   PostNetworkConnectionEventObject
 >;
 
-export type PostNetworkConnectionEventFilter = TypedEventFilter<PostNetworkConnectionEvent>;
+export type PostNetworkConnectionEventFilter =
+  TypedEventFilter<PostNetworkConnectionEvent>;
 
 export interface RebalanceParamsChangedEventObject {
-  newRebalanceParams: LocalRegistrarLib.RebalanceParamsStructOutput;
+  _newRebalanceParams: LocalRegistrarLib.RebalanceParamsStructOutput;
 }
 export type RebalanceParamsChangedEvent = TypedEvent<
   [LocalRegistrarLib.RebalanceParamsStructOutput],
   RebalanceParamsChangedEventObject
 >;
 
-export type RebalanceParamsChangedEventFilter = TypedEventFilter<RebalanceParamsChangedEvent>;
+export type RebalanceParamsChangedEventFilter =
+  TypedEventFilter<RebalanceParamsChangedEvent>;
 
 export interface StrategyApprovalChangedEventObject {
   _strategyId: string;
@@ -831,7 +820,8 @@ export type StrategyApprovalChangedEvent = TypedEvent<
   StrategyApprovalChangedEventObject
 >;
 
-export type StrategyApprovalChangedEventFilter = TypedEventFilter<StrategyApprovalChangedEvent>;
+export type StrategyApprovalChangedEventFilter =
+  TypedEventFilter<StrategyApprovalChangedEvent>;
 
 export interface StrategyParamsChangedEventObject {
   _strategyId: string;
@@ -844,18 +834,20 @@ export type StrategyParamsChangedEvent = TypedEvent<
   StrategyParamsChangedEventObject
 >;
 
-export type StrategyParamsChangedEventFilter = TypedEventFilter<StrategyParamsChangedEvent>;
+export type StrategyParamsChangedEventFilter =
+  TypedEventFilter<StrategyParamsChangedEvent>;
 
 export interface TokenAcceptanceChangedEventObject {
-  tokenAddr: string;
-  isAccepted: boolean;
+  _tokenAddr: string;
+  _isAccepted: boolean;
 }
 export type TokenAcceptanceChangedEvent = TypedEvent<
   [string, boolean],
   TokenAcceptanceChangedEventObject
 >;
 
-export type TokenAcceptanceChangedEventFilter = TypedEventFilter<TokenAcceptanceChangedEvent>;
+export type TokenAcceptanceChangedEventFilter =
+  TypedEventFilter<TokenAcceptanceChangedEvent>;
 
 export interface UpdateRegistrarConfigEventObject {
   details: RegistrarStorage.ConfigStructOutput;
@@ -865,17 +857,8 @@ export type UpdateRegistrarConfigEvent = TypedEvent<
   UpdateRegistrarConfigEventObject
 >;
 
-export type UpdateRegistrarConfigEventFilter = TypedEventFilter<UpdateRegistrarConfigEvent>;
-
-export interface UpdateRegistrarFeesEventObject {
-  details: RegistrarMessages.UpdateFeeRequestStructOutput;
-}
-export type UpdateRegistrarFeesEvent = TypedEvent<
-  [RegistrarMessages.UpdateFeeRequestStructOutput],
-  UpdateRegistrarFeesEventObject
->;
-
-export type UpdateRegistrarFeesEventFilter = TypedEventFilter<UpdateRegistrarFeesEvent>;
+export type UpdateRegistrarConfigEventFilter =
+  TypedEventFilter<UpdateRegistrarConfigEvent>;
 
 export interface Registrar extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -894,7 +877,9 @@ export interface Registrar extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -915,7 +900,7 @@ export interface Registrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[LocalRegistrarLib.AngelProtocolParamsStructOutput]>;
 
-    getFeeByFees(
+    getFeeSettingsByFeeType(
       _feeType: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[AngelCoreStruct.FeeSettingStructOutput]>;
@@ -941,11 +926,11 @@ export interface Registrar extends BaseContract {
 
     "initialize((address,(uint256,uint256,uint256),address,address,address))"(
       details: RegistrarMessages.InstantiateRequestStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "initialize()"(
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     isTokenAccepted(
@@ -955,18 +940,13 @@ export interface Registrar extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
-    queryAllStrategies(overrides?: CallOverrides): Promise<[string[]] & {allStrategies: string[]}>;
-
-    queryConfig(overrides?: CallOverrides): Promise<[RegistrarStorage.ConfigStructOutput]>;
-
-    queryFee(
-      feeType: PromiseOrValue<BigNumberish>,
+    queryAllStrategies(
       overrides?: CallOverrides
-<<<<<<< HEAD
-    ): Promise<[AngelCoreStruct.FeeSettingStructOutput]>;
-=======
-    ): Promise<[BigNumber] & {response: BigNumber}>;
->>>>>>> master
+    ): Promise<[string[]] & { allStrategies: string[] }>;
+
+    queryConfig(
+      overrides?: CallOverrides
+    ): Promise<[RegistrarStorage.ConfigStructOutput]>;
 
     queryNetworkConnection(
       chainId: PromiseOrValue<BigNumberish>,
@@ -978,47 +958,47 @@ export interface Registrar extends BaseContract {
     >;
 
     renounceOwnership(
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setAPGoldfinchParams(
       _apGoldfinch: APGoldfinchConfigLib.APGoldfinchConfigStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setAccountsContractAddressByChain(
       _chainName: PromiseOrValue<string>,
       _accountsContractAddress: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setAngelProtocolParams(
       _angelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setFeeSettingsByFeesType(
-      feeType: PromiseOrValue<BigNumberish>,
-      rate: PromiseOrValue<BigNumberish>,
-      payout: PromiseOrValue<string>,
+      _feeType: PromiseOrValue<BigNumberish>,
+      _rate: PromiseOrValue<BigNumberish>,
+      _payout: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setGasByToken(
       _tokenAddr: PromiseOrValue<string>,
       _gasFee: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setRebalanceParams(
       _rebalanceParams: LocalRegistrarLib.RebalanceParamsStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setStrategyApprovalState(
       _strategyId: PromiseOrValue<BytesLike>,
       _approvalState: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setStrategyParams(
@@ -1026,34 +1006,29 @@ export interface Registrar extends BaseContract {
       _lockAddr: PromiseOrValue<string>,
       _liqAddr: PromiseOrValue<string>,
       _approvalState: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       _isAccepted: PromiseOrValue<boolean>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     updateConfig(
       details: RegistrarMessages.UpdateConfigRequestStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
-    ): Promise<ContractTransaction>;
-
-    updateFee(
-      details: RegistrarMessages.UpdateFeeRequestStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     updateNetworkConnections(
       networkInfo: AngelCoreStruct.NetworkInfoStruct,
       action: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
@@ -1070,8 +1045,7 @@ export interface Registrar extends BaseContract {
     overrides?: CallOverrides
   ): Promise<LocalRegistrarLib.AngelProtocolParamsStructOutput>;
 
-<<<<<<< HEAD
-  getFeeByFees(
+  getFeeSettingsByFeeType(
     _feeType: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<AngelCoreStruct.FeeSettingStructOutput>;
@@ -1080,9 +1054,6 @@ export interface Registrar extends BaseContract {
     _tokenAddr: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
-=======
-  getGasByToken(_tokenAddr: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
->>>>>>> master
 
   getRebalanceParams(
     overrides?: CallOverrides
@@ -1100,29 +1071,25 @@ export interface Registrar extends BaseContract {
 
   "initialize((address,(uint256,uint256,uint256),address,address,address))"(
     details: RegistrarMessages.InstantiateRequestStruct,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "initialize()"(
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  isTokenAccepted(_tokenAddr: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
+  isTokenAccepted(
+    _tokenAddr: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
   queryAllStrategies(overrides?: CallOverrides): Promise<string[]>;
 
-  queryConfig(overrides?: CallOverrides): Promise<RegistrarStorage.ConfigStructOutput>;
-
-<<<<<<< HEAD
-  queryFee(
-    feeType: PromiseOrValue<BigNumberish>,
+  queryConfig(
     overrides?: CallOverrides
-  ): Promise<AngelCoreStruct.FeeSettingStructOutput>;
-=======
-  queryFee(name: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
->>>>>>> master
+  ): Promise<RegistrarStorage.ConfigStructOutput>;
 
   queryNetworkConnection(
     chainId: PromiseOrValue<BigNumberish>,
@@ -1130,47 +1097,47 @@ export interface Registrar extends BaseContract {
   ): Promise<AngelCoreStruct.NetworkInfoStructOutput>;
 
   renounceOwnership(
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setAPGoldfinchParams(
     _apGoldfinch: APGoldfinchConfigLib.APGoldfinchConfigStruct,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setAccountsContractAddressByChain(
     _chainName: PromiseOrValue<string>,
     _accountsContractAddress: PromiseOrValue<string>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setAngelProtocolParams(
     _angelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStruct,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setFeeSettingsByFeesType(
-    feeType: PromiseOrValue<BigNumberish>,
-    rate: PromiseOrValue<BigNumberish>,
-    payout: PromiseOrValue<string>,
+    _feeType: PromiseOrValue<BigNumberish>,
+    _rate: PromiseOrValue<BigNumberish>,
+    _payout: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setGasByToken(
     _tokenAddr: PromiseOrValue<string>,
     _gasFee: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setRebalanceParams(
     _rebalanceParams: LocalRegistrarLib.RebalanceParamsStruct,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setStrategyApprovalState(
     _strategyId: PromiseOrValue<BytesLike>,
     _approvalState: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setStrategyParams(
@@ -1178,34 +1145,29 @@ export interface Registrar extends BaseContract {
     _lockAddr: PromiseOrValue<string>,
     _liqAddr: PromiseOrValue<string>,
     _approvalState: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setTokenAccepted(
     _tokenAddr: PromiseOrValue<string>,
     _isAccepted: PromiseOrValue<boolean>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   transferOwnership(
     newOwner: PromiseOrValue<string>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   updateConfig(
     details: RegistrarMessages.UpdateConfigRequestStruct,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
-  ): Promise<ContractTransaction>;
-
-  updateFee(
-    details: RegistrarMessages.UpdateFeeRequestStruct,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   updateNetworkConnections(
     networkInfo: AngelCoreStruct.NetworkInfoStruct,
     action: PromiseOrValue<string>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -1222,7 +1184,7 @@ export interface Registrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<LocalRegistrarLib.AngelProtocolParamsStructOutput>;
 
-    getFeeByFees(
+    getFeeSettingsByFeeType(
       _feeType: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<AngelCoreStruct.FeeSettingStructOutput>;
@@ -1262,16 +1224,9 @@ export interface Registrar extends BaseContract {
 
     queryAllStrategies(overrides?: CallOverrides): Promise<string[]>;
 
-    queryConfig(overrides?: CallOverrides): Promise<RegistrarStorage.ConfigStructOutput>;
-
-<<<<<<< HEAD
-    queryFee(
-      feeType: PromiseOrValue<BigNumberish>,
+    queryConfig(
       overrides?: CallOverrides
-    ): Promise<AngelCoreStruct.FeeSettingStructOutput>;
-=======
-    queryFee(name: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
->>>>>>> master
+    ): Promise<RegistrarStorage.ConfigStructOutput>;
 
     queryNetworkConnection(
       chainId: PromiseOrValue<BigNumberish>,
@@ -1297,11 +1252,11 @@ export interface Registrar extends BaseContract {
     ): Promise<void>;
 
     setFeeSettingsByFeesType(
-      feeType: PromiseOrValue<BigNumberish>,
-      rate: PromiseOrValue<BigNumberish>,
-      payout: PromiseOrValue<string>,
+      _feeType: PromiseOrValue<BigNumberish>,
+      _rate: PromiseOrValue<BigNumberish>,
+      _payout: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<AngelCoreStruct.FeeSettingStructOutput>;
+    ): Promise<void>;
 
     setGasByToken(
       _tokenAddr: PromiseOrValue<string>,
@@ -1334,15 +1289,13 @@ export interface Registrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    transferOwnership(newOwner: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
-
-    updateConfig(
-      details: RegistrarMessages.UpdateConfigRequestStruct,
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    updateFee(
-      details: RegistrarMessages.UpdateFeeRequestStruct,
+    updateConfig(
+      details: RegistrarMessages.UpdateConfigRequestStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1355,22 +1308,24 @@ export interface Registrar extends BaseContract {
 
   filters: {
     "AccountsContractStorageChanged(string,string)"(
-      chainName?: PromiseOrValue<string> | null,
-      accountsContractAddress?: PromiseOrValue<string> | null
+      _chainName?: PromiseOrValue<string> | null,
+      _accountsContractAddress?: PromiseOrValue<string> | null
     ): AccountsContractStorageChangedEventFilter;
     AccountsContractStorageChanged(
-      chainName?: PromiseOrValue<string> | null,
-      accountsContractAddress?: PromiseOrValue<string> | null
+      _chainName?: PromiseOrValue<string> | null,
+      _accountsContractAddress?: PromiseOrValue<string> | null
     ): AccountsContractStorageChangedEventFilter;
 
     "AngelProtocolParamsChanged(tuple)"(
-      newAngelProtocolParams?: null
+      _newAngelProtocolParams?: null
     ): AngelProtocolParamsChangedEventFilter;
     AngelProtocolParamsChanged(
-      newAngelProtocolParams?: null
+      _newAngelProtocolParams?: null
     ): AngelProtocolParamsChangedEventFilter;
 
-    "DeleteNetworkConnection(uint256)"(chainId?: null): DeleteNetworkConnectionEventFilter;
+    "DeleteNetworkConnection(uint256)"(
+      chainId?: null
+    ): DeleteNetworkConnectionEventFilter;
     DeleteNetworkConnection(chainId?: null): DeleteNetworkConnectionEventFilter;
 
     "FeeUpdated(uint8,uint256,address)"(
@@ -1409,10 +1364,17 @@ export interface Registrar extends BaseContract {
       chainId?: null,
       networkInfo?: null
     ): PostNetworkConnectionEventFilter;
-    PostNetworkConnection(chainId?: null, networkInfo?: null): PostNetworkConnectionEventFilter;
+    PostNetworkConnection(
+      chainId?: null,
+      networkInfo?: null
+    ): PostNetworkConnectionEventFilter;
 
-    "RebalanceParamsChanged(tuple)"(newRebalanceParams?: null): RebalanceParamsChangedEventFilter;
-    RebalanceParamsChanged(newRebalanceParams?: null): RebalanceParamsChangedEventFilter;
+    "RebalanceParamsChanged(tuple)"(
+      _newRebalanceParams?: null
+    ): RebalanceParamsChangedEventFilter;
+    RebalanceParamsChanged(
+      _newRebalanceParams?: null
+    ): RebalanceParamsChangedEventFilter;
 
     "StrategyApprovalChanged(bytes4,uint8)"(
       _strategyId?: PromiseOrValue<BytesLike> | null,
@@ -1437,19 +1399,18 @@ export interface Registrar extends BaseContract {
     ): StrategyParamsChangedEventFilter;
 
     "TokenAcceptanceChanged(address,bool)"(
-      tokenAddr?: PromiseOrValue<string> | null,
-      isAccepted?: null
+      _tokenAddr?: PromiseOrValue<string> | null,
+      _isAccepted?: null
     ): TokenAcceptanceChangedEventFilter;
     TokenAcceptanceChanged(
-      tokenAddr?: PromiseOrValue<string> | null,
-      isAccepted?: null
+      _tokenAddr?: PromiseOrValue<string> | null,
+      _isAccepted?: null
     ): TokenAcceptanceChangedEventFilter;
 
-    "UpdateRegistrarConfig(tuple)"(details?: null): UpdateRegistrarConfigEventFilter;
+    "UpdateRegistrarConfig(tuple)"(
+      details?: null
+    ): UpdateRegistrarConfigEventFilter;
     UpdateRegistrarConfig(details?: null): UpdateRegistrarConfigEventFilter;
-
-    "UpdateRegistrarFees(tuple)"(details?: null): UpdateRegistrarFeesEventFilter;
-    UpdateRegistrarFees(details?: null): UpdateRegistrarFeesEventFilter;
   };
 
   estimateGas: {
@@ -1462,7 +1423,7 @@ export interface Registrar extends BaseContract {
 
     getAngelProtocolParams(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getFeeByFees(
+    getFeeSettingsByFeeType(
       _feeType: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1486,10 +1447,12 @@ export interface Registrar extends BaseContract {
 
     "initialize((address,(uint256,uint256,uint256),address,address,address))"(
       details: RegistrarMessages.InstantiateRequestStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "initialize()"(overrides?: Overrides & {from?: PromiseOrValue<string>}): Promise<BigNumber>;
+    "initialize()"(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     isTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
@@ -1502,60 +1465,53 @@ export interface Registrar extends BaseContract {
 
     queryConfig(overrides?: CallOverrides): Promise<BigNumber>;
 
-<<<<<<< HEAD
-    queryFee(
-      feeType: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-=======
-    queryFee(name: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
->>>>>>> master
-
     queryNetworkConnection(
       chainId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    renounceOwnership(overrides?: Overrides & {from?: PromiseOrValue<string>}): Promise<BigNumber>;
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     setAPGoldfinchParams(
       _apGoldfinch: APGoldfinchConfigLib.APGoldfinchConfigStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setAccountsContractAddressByChain(
       _chainName: PromiseOrValue<string>,
       _accountsContractAddress: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setAngelProtocolParams(
       _angelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setFeeSettingsByFeesType(
-      feeType: PromiseOrValue<BigNumberish>,
-      rate: PromiseOrValue<BigNumberish>,
-      payout: PromiseOrValue<string>,
+      _feeType: PromiseOrValue<BigNumberish>,
+      _rate: PromiseOrValue<BigNumberish>,
+      _payout: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setGasByToken(
       _tokenAddr: PromiseOrValue<string>,
       _gasFee: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setRebalanceParams(
       _rebalanceParams: LocalRegistrarLib.RebalanceParamsStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setStrategyApprovalState(
       _strategyId: PromiseOrValue<BytesLike>,
       _approvalState: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setStrategyParams(
@@ -1563,48 +1519,47 @@ export interface Registrar extends BaseContract {
       _lockAddr: PromiseOrValue<string>,
       _liqAddr: PromiseOrValue<string>,
       _approvalState: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       _isAccepted: PromiseOrValue<boolean>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     updateConfig(
       details: RegistrarMessages.UpdateConfigRequestStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
-    ): Promise<BigNumber>;
-
-    updateFee(
-      details: RegistrarMessages.UpdateFeeRequestStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     updateNetworkConnections(
       networkInfo: AngelCoreStruct.NetworkInfoStruct,
       action: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    getAPGoldfinchParams(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getAPGoldfinchParams(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     getAccountsContractAddressByChain(
       _targetChain: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getAngelProtocolParams(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getAngelProtocolParams(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    getFeeByFees(
+    getFeeSettingsByFeeType(
       _feeType: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1614,7 +1569,9 @@ export interface Registrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getRebalanceParams(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getRebalanceParams(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     getStrategyApprovalState(
       _strategyId: PromiseOrValue<BytesLike>,
@@ -1628,11 +1585,11 @@ export interface Registrar extends BaseContract {
 
     "initialize((address,(uint256,uint256,uint256),address,address,address))"(
       details: RegistrarMessages.InstantiateRequestStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "initialize()"(
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     isTokenAccepted(
@@ -1642,14 +1599,11 @@ export interface Registrar extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    queryAllStrategies(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    queryConfig(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    queryFee(
-      feeType: PromiseOrValue<BigNumberish>,
+    queryAllStrategies(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    queryConfig(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     queryNetworkConnection(
       chainId: PromiseOrValue<BigNumberish>,
@@ -1657,47 +1611,47 @@ export interface Registrar extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     renounceOwnership(
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setAPGoldfinchParams(
       _apGoldfinch: APGoldfinchConfigLib.APGoldfinchConfigStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setAccountsContractAddressByChain(
       _chainName: PromiseOrValue<string>,
       _accountsContractAddress: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setAngelProtocolParams(
       _angelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setFeeSettingsByFeesType(
-      feeType: PromiseOrValue<BigNumberish>,
-      rate: PromiseOrValue<BigNumberish>,
-      payout: PromiseOrValue<string>,
+      _feeType: PromiseOrValue<BigNumberish>,
+      _rate: PromiseOrValue<BigNumberish>,
+      _payout: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setGasByToken(
       _tokenAddr: PromiseOrValue<string>,
       _gasFee: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setRebalanceParams(
       _rebalanceParams: LocalRegistrarLib.RebalanceParamsStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setStrategyApprovalState(
       _strategyId: PromiseOrValue<BytesLike>,
       _approvalState: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setStrategyParams(
@@ -1705,34 +1659,29 @@ export interface Registrar extends BaseContract {
       _lockAddr: PromiseOrValue<string>,
       _liqAddr: PromiseOrValue<string>,
       _approvalState: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       _isAccepted: PromiseOrValue<boolean>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     updateConfig(
       details: RegistrarMessages.UpdateConfigRequestStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
-    ): Promise<PopulatedTransaction>;
-
-    updateFee(
-      details: RegistrarMessages.UpdateFeeRequestStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     updateNetworkConnections(
       networkInfo: AngelCoreStruct.NetworkInfoStruct,
       action: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

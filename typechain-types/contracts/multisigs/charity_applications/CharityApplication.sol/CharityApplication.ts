@@ -13,8 +13,12 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -49,10 +53,10 @@ export declare namespace AngelCoreStruct {
     data: AngelCoreStruct.DurationDataStruct;
   };
 
-  export type DurationStructOutput = [number, AngelCoreStruct.DurationDataStructOutput] & {
-    enumData: number;
-    data: AngelCoreStruct.DurationDataStructOutput;
-  };
+  export type DurationStructOutput = [
+    number,
+    AngelCoreStruct.DurationDataStructOutput
+  ] & { enumData: number; data: AngelCoreStruct.DurationDataStructOutput };
 
   export type FeeSettingStruct = {
     payoutAddress: PromiseOrValue<string>;
@@ -71,7 +75,12 @@ export declare namespace AngelCoreStruct {
     power: PromiseOrValue<BigNumberish>;
   };
 
-  export type VeTypeDataStructOutput = [BigNumber, BigNumber, BigNumber, BigNumber] & {
+  export type VeTypeDataStructOutput = [
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber
+  ] & {
     value: BigNumber;
     scale: BigNumber;
     slope: BigNumber;
@@ -83,10 +92,10 @@ export declare namespace AngelCoreStruct {
     data: AngelCoreStruct.VeTypeDataStruct;
   };
 
-  export type VeTypeStructOutput = [number, AngelCoreStruct.VeTypeDataStructOutput] & {
-    ve_type: number;
-    data: AngelCoreStruct.VeTypeDataStructOutput;
-  };
+  export type VeTypeStructOutput = [
+    number,
+    AngelCoreStruct.VeTypeDataStructOutput
+  ] & { ve_type: number; data: AngelCoreStruct.VeTypeDataStructOutput };
 
   export type DaoTokenDataStruct = {
     existingData: PromiseOrValue<string>;
@@ -133,10 +142,10 @@ export declare namespace AngelCoreStruct {
     data: AngelCoreStruct.DaoTokenDataStruct;
   };
 
-  export type DaoTokenStructOutput = [number, AngelCoreStruct.DaoTokenDataStructOutput] & {
-    token: number;
-    data: AngelCoreStruct.DaoTokenDataStructOutput;
-  };
+  export type DaoTokenStructOutput = [
+    number,
+    AngelCoreStruct.DaoTokenDataStructOutput
+  ] & { token: number; data: AngelCoreStruct.DaoTokenDataStructOutput };
 
   export type DaoSetupStruct = {
     quorum: PromiseOrValue<BigNumberish>;
@@ -184,10 +193,10 @@ export declare namespace AngelCoreStruct {
     delegate: AngelCoreStruct.DelegateStruct;
   };
 
-  export type SettingsPermissionStructOutput = [boolean, AngelCoreStruct.DelegateStructOutput] & {
-    locked: boolean;
-    delegate: AngelCoreStruct.DelegateStructOutput;
-  };
+  export type SettingsPermissionStructOutput = [
+    boolean,
+    AngelCoreStruct.DelegateStructOutput
+  ] & { locked: boolean; delegate: AngelCoreStruct.DelegateStructOutput };
 
   export type SettingsControllerStruct = {
     strategies: AngelCoreStruct.SettingsPermissionStruct;
@@ -446,12 +455,21 @@ export interface CharityApplicationInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>
     ]
   ): string;
-  encodeFunctionData(functionFragment: "proposals", values: [PromiseOrValue<BigNumberish>]): string;
+  encodeFunctionData(
+    functionFragment: "proposals",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(
     functionFragment: "proposeCharity",
-    values: [AccountMessages.CreateEndowmentRequestStruct, PromiseOrValue<string>]
+    values: [
+      AccountMessages.CreateEndowmentRequestStruct,
+      PromiseOrValue<string>
+    ]
   ): string;
-  encodeFunctionData(functionFragment: "queryConfig", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "queryConfig",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "rejectCharity",
     values: [PromiseOrValue<BigNumberish>]
@@ -475,15 +493,33 @@ export interface CharityApplicationInterface extends utils.Interface {
     ]
   ): string;
 
-  decodeFunctionResult(functionFragment: "approveCharity", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "approveCharity",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "config", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "proposals", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "proposeCharity", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "queryConfig", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "rejectCharity", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "supportsInterface", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "updateConfig", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "proposeCharity",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "queryConfig",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "rejectCharity",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "supportsInterface",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateConfig",
+    data: BytesLike
+  ): Result;
 
   events: {
     "CharityApproved(uint256,uint256)": EventFragment;
@@ -500,7 +536,9 @@ export interface CharityApplicationInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "CharityRejected"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Deposit"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GasSent"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "InitilizedCharityApplication"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "InitilizedCharityApplication"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SeedAssetSent"): EventFragment;
 }
 
@@ -508,7 +546,10 @@ export interface CharityApprovedEventObject {
   proposalId: BigNumber;
   endowmentId: BigNumber;
 }
-export type CharityApprovedEvent = TypedEvent<[BigNumber, BigNumber], CharityApprovedEventObject>;
+export type CharityApprovedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  CharityApprovedEventObject
+>;
 
 export type CharityApprovedEventFilter = TypedEventFilter<CharityApprovedEvent>;
 
@@ -519,7 +560,12 @@ export interface CharityProposedEventObject {
   meta: string;
 }
 export type CharityProposedEvent = TypedEvent<
-  [string, BigNumber, AccountMessages.CreateEndowmentRequestStructOutput, string],
+  [
+    string,
+    BigNumber,
+    AccountMessages.CreateEndowmentRequestStructOutput,
+    string
+  ],
   CharityProposedEventObject
 >;
 
@@ -528,7 +574,10 @@ export type CharityProposedEventFilter = TypedEventFilter<CharityProposedEvent>;
 export interface CharityRejectedEventObject {
   proposalId: BigNumber;
 }
-export type CharityRejectedEvent = TypedEvent<[BigNumber], CharityRejectedEventObject>;
+export type CharityRejectedEvent = TypedEvent<
+  [BigNumber],
+  CharityRejectedEventObject
+>;
 
 export type CharityRejectedEventFilter = TypedEventFilter<CharityRejectedEvent>;
 
@@ -545,7 +594,10 @@ export interface GasSentEventObject {
   member: string;
   amount: BigNumber;
 }
-export type GasSentEvent = TypedEvent<[BigNumber, string, BigNumber], GasSentEventObject>;
+export type GasSentEvent = TypedEvent<
+  [BigNumber, string, BigNumber],
+  GasSentEventObject
+>;
 
 export type GasSentEventFilter = TypedEventFilter<GasSentEvent>;
 
@@ -589,7 +641,9 @@ export interface CharityApplication extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -599,11 +653,23 @@ export interface CharityApplication extends BaseContract {
   functions: {
     approveCharity(
       proposalId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    config(overrides?: CallOverrides): Promise<
-      [BigNumber, string, string, BigNumber, boolean, BigNumber, boolean, string, BigNumber] & {
+    config(
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        BigNumber,
+        string,
+        string,
+        BigNumber,
+        boolean,
+        BigNumber,
+        boolean,
+        string,
+        BigNumber
+      ] & {
         proposalExpiry: BigNumber;
         applicationMultisig: string;
         accountsContract: string;
@@ -626,7 +692,7 @@ export interface CharityApplication extends BaseContract {
       fundseedasset: PromiseOrValue<boolean>,
       seedasset: PromiseOrValue<string>,
       seedassetamount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     proposals(
@@ -653,7 +719,7 @@ export interface CharityApplication extends BaseContract {
     proposeCharity(
       charityApplication: AccountMessages.CreateEndowmentRequestStruct,
       meta: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     queryConfig(
@@ -662,7 +728,7 @@ export interface CharityApplication extends BaseContract {
 
     rejectCharity(
       proposalId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     supportsInterface(
@@ -680,17 +746,29 @@ export interface CharityApplication extends BaseContract {
       fundseedasset: PromiseOrValue<boolean>,
       seedasset: PromiseOrValue<string>,
       seedassetamount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
   approveCharity(
     proposalId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  config(overrides?: CallOverrides): Promise<
-    [BigNumber, string, string, BigNumber, boolean, BigNumber, boolean, string, BigNumber] & {
+  config(
+    overrides?: CallOverrides
+  ): Promise<
+    [
+      BigNumber,
+      string,
+      string,
+      BigNumber,
+      boolean,
+      BigNumber,
+      boolean,
+      string,
+      BigNumber
+    ] & {
       proposalExpiry: BigNumber;
       applicationMultisig: string;
       accountsContract: string;
@@ -713,7 +791,7 @@ export interface CharityApplication extends BaseContract {
     fundseedasset: PromiseOrValue<boolean>,
     seedasset: PromiseOrValue<string>,
     seedassetamount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   proposals(
@@ -740,14 +818,16 @@ export interface CharityApplication extends BaseContract {
   proposeCharity(
     charityApplication: AccountMessages.CreateEndowmentRequestStruct,
     meta: PromiseOrValue<string>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  queryConfig(overrides?: CallOverrides): Promise<CharityApplicationsStorage.ConfigStructOutput>;
+  queryConfig(
+    overrides?: CallOverrides
+  ): Promise<CharityApplicationsStorage.ConfigStructOutput>;
 
   rejectCharity(
     proposalId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   supportsInterface(
@@ -765,7 +845,7 @@ export interface CharityApplication extends BaseContract {
     fundseedasset: PromiseOrValue<boolean>,
     seedasset: PromiseOrValue<string>,
     seedassetamount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -774,8 +854,20 @@ export interface CharityApplication extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    config(overrides?: CallOverrides): Promise<
-      [BigNumber, string, string, BigNumber, boolean, BigNumber, boolean, string, BigNumber] & {
+    config(
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        BigNumber,
+        string,
+        string,
+        BigNumber,
+        boolean,
+        BigNumber,
+        boolean,
+        string,
+        BigNumber
+      ] & {
         proposalExpiry: BigNumber;
         applicationMultisig: string;
         accountsContract: string;
@@ -828,7 +920,9 @@ export interface CharityApplication extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    queryConfig(overrides?: CallOverrides): Promise<CharityApplicationsStorage.ConfigStructOutput>;
+    queryConfig(
+      overrides?: CallOverrides
+    ): Promise<CharityApplicationsStorage.ConfigStructOutput>;
 
     rejectCharity(
       proposalId: PromiseOrValue<BigNumberish>,
@@ -880,13 +974,18 @@ export interface CharityApplication extends BaseContract {
     "CharityRejected(uint256)"(
       proposalId?: PromiseOrValue<BigNumberish> | null
     ): CharityRejectedEventFilter;
-    CharityRejected(proposalId?: PromiseOrValue<BigNumberish> | null): CharityRejectedEventFilter;
+    CharityRejected(
+      proposalId?: PromiseOrValue<BigNumberish> | null
+    ): CharityRejectedEventFilter;
 
     "Deposit(address,uint256)"(
       sender?: PromiseOrValue<string> | null,
       value?: null
     ): DepositEventFilter;
-    Deposit(sender?: PromiseOrValue<string> | null, value?: null): DepositEventFilter;
+    Deposit(
+      sender?: PromiseOrValue<string> | null,
+      value?: null
+    ): DepositEventFilter;
 
     "GasSent(uint256,address,uint256)"(
       endowmentId?: PromiseOrValue<BigNumberish> | null,
@@ -902,7 +1001,9 @@ export interface CharityApplication extends BaseContract {
     "InitilizedCharityApplication(tuple)"(
       updatedConfig?: null
     ): InitilizedCharityApplicationEventFilter;
-    InitilizedCharityApplication(updatedConfig?: null): InitilizedCharityApplicationEventFilter;
+    InitilizedCharityApplication(
+      updatedConfig?: null
+    ): InitilizedCharityApplicationEventFilter;
 
     "SeedAssetSent(uint256,address,uint256)"(
       endowmentId?: PromiseOrValue<BigNumberish> | null,
@@ -919,7 +1020,7 @@ export interface CharityApplication extends BaseContract {
   estimateGas: {
     approveCharity(
       proposalId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     config(overrides?: CallOverrides): Promise<BigNumber>;
@@ -934,22 +1035,25 @@ export interface CharityApplication extends BaseContract {
       fundseedasset: PromiseOrValue<boolean>,
       seedasset: PromiseOrValue<string>,
       seedassetamount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    proposals(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<BigNumber>;
+    proposals(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     proposeCharity(
       charityApplication: AccountMessages.CreateEndowmentRequestStruct,
       meta: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     queryConfig(overrides?: CallOverrides): Promise<BigNumber>;
 
     rejectCharity(
       proposalId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     supportsInterface(
@@ -967,14 +1071,14 @@ export interface CharityApplication extends BaseContract {
       fundseedasset: PromiseOrValue<boolean>,
       seedasset: PromiseOrValue<string>,
       seedassetamount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     approveCharity(
       proposalId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     config(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -989,7 +1093,7 @@ export interface CharityApplication extends BaseContract {
       fundseedasset: PromiseOrValue<boolean>,
       seedasset: PromiseOrValue<string>,
       seedassetamount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     proposals(
@@ -1000,14 +1104,14 @@ export interface CharityApplication extends BaseContract {
     proposeCharity(
       charityApplication: AccountMessages.CreateEndowmentRequestStruct,
       meta: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     queryConfig(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     rejectCharity(
       proposalId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     supportsInterface(
@@ -1025,7 +1129,7 @@ export interface CharityApplication extends BaseContract {
       fundseedasset: PromiseOrValue<boolean>,
       seedasset: PromiseOrValue<string>,
       seedassetamount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

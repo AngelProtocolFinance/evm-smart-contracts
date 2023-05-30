@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as iindexFundSol from "./Iindex-fund.sol";
-export {IndexFund__factory} from "./IndexFund__factory";
+export { IndexFund__factory } from "./IndexFund__factory";
