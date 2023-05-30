@@ -32,7 +32,6 @@ const EXPORT_CONFIG = {
       min: 0,
       defaultSplit: 50,
     },
-    // router: envConfig.AP_TEAM_1.address,
     axelarGateway: "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B",
     axelarGasRecv: "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B",
   },
