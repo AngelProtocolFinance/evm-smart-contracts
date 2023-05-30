@@ -93,12 +93,7 @@ contract AccountDepositWithdrawEndowments is
             msg.sender,
             address(this),
             amount),
-        "Transfer failed"); 
-
-        require(IERC20(tokenAddress).approve(
-            registrar_config.swapsRouter,
-            amount),
-            "Approval failed");
+        "Transfer failed");
 
         processToken(details, tokenAddress, amount);
     }
