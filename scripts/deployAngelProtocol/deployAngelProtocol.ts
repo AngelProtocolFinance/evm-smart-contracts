@@ -38,7 +38,7 @@ export default async function deploy() {
 
     const verify_contracts = isLocalNetwork(hre.network);
 
-    console.log("Deploying the contracts with the account:", await proxyAdmin.getAddress());
+    console.log("Deploying the contracts with the account:", proxyAdmin.address);
 
     // Mock setup required for testing
     let mockUSDC: Contract | undefined;
@@ -94,8 +94,7 @@ export default async function deploy() {
       axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
     };
 
-    const registrarAddress = await deployRegistrar(
-      stringLib.address,
+    const registrar = await deployRegistrar(
       registrarData,
       multisigAddress.APTeamMultiSig,
       verify_contracts,
@@ -104,7 +103,7 @@ export default async function deploy() {
 
     const ACCOUNT_ADDRESS = await deployDiamond(
       multisigAddress.APTeamMultiSig,
-      registrarAddress,
+      registrar.proxy.address,
       angelCoreStruct.address,
       stringLib.address,
       hre,
@@ -137,7 +136,7 @@ export default async function deploy() {
     console.log("charityApplicationsAddress deployed at:-", charityApplicationsAddress);
 
     const SWAP_ROUTER = await deploySwapRouter(
-      registrarAddress,
+      registrar.proxy.address,
       ACCOUNT_ADDRESS,
       config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS,
       config.SWAP_ROUTER_DATA.SWAP_ROUTER_ADDRESS,
@@ -148,7 +147,7 @@ export default async function deploy() {
     console.log("SWAP_ROUTER contract deployed at:-", SWAP_ROUTER);
 
     const indexFundData = {
-      registrarContract: registrarAddress,
+      registrarContract: registrar.proxy.address,
       fundRotation: config.INDEX_FUND_DATA.fundRotation,
       fundMemberLimit: config.INDEX_FUND_DATA.fundMemberLimit,
       fundingGoal: config.INDEX_FUND_DATA.fundingGoal,
@@ -298,7 +297,7 @@ export default async function deploy() {
     const donationMatchCharityData = {
       reserveToken: config.DONATION_MATCH_CHARITY_DATA.reserveToken,
       uniswapFactory: config.DONATION_MATCH_CHARITY_DATA.uniswapFactory,
-      registrarContract: registrarAddress,
+      registrarContract: registrar.proxy.address,
       poolFee: config.DONATION_MATCH_CHARITY_DATA.poolFee,
       usdcAddress: config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
     };
@@ -361,7 +360,7 @@ export default async function deploy() {
       cw900lvAddress: implementations.cw900lv,
     };
 
-    const REGISTRAR_CONTRACT = Registrar__factory.connect(registrarAddress, proxyAdmin);
+    const REGISTRAR_CONTRACT = Registrar__factory.connect(registrar.proxy.address, proxyAdmin);
 
     const data = await REGISTRAR_CONTRACT.updateConfig(updateConfig);
     console.log("Successfully updated config:-", data.hash);
