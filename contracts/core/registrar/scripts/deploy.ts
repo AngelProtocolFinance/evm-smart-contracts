@@ -1,7 +1,7 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 
-import {updateAddresses} from "utils";
+import {getSigners, updateAddresses} from "utils";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/registrar.sol/Registrar";
 
@@ -14,10 +14,7 @@ export async function deployRegistrar(
   try {
     const {network, run, ethers} = hre;
 
-    let [deployer, proxyAdmin] = await ethers.getSigners();
-
-    // const [deployer] = await ethers.getSigners();
-    // Deploy registrar implementation first
+    const {proxyAdmin} = await getSigners(ethers);
 
     // const registrarLib = await ethers.getContractFactory('RegistrarLib');
     // const registrarLibInstance = await registrarLib.deploy();

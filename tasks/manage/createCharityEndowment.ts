@@ -6,12 +6,12 @@ import {
   MultiSigGeneric__factory,
 } from "typechain-types";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/IAccounts";
-import {genWallet, getAddresses, logger} from "utils";
+import {genWallet, getAddresses, getSigners, logger} from "utils";
 
 task("manage:createCharityEndowment", "Will create a new charity endowment").setAction(
   async (_taskArguments, hre) => {
     try {
-      const [_deployer, _proxyAdmin, apTeam1, apTeam2] = await hre.ethers.getSigners();
+      const {apTeam1, apTeam2} = await getSigners(hre.ethers);
 
       const addresses = await getAddresses(hre);
 

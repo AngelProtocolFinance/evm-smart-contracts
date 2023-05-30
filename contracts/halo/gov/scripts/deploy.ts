@@ -4,11 +4,11 @@
 import path from "path";
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {getSigners} from "utils";
 
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
 export async function deployGov(
-  proxyAdmin = ADDRESS_ZERO,
   haloTokenAddress: string,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
@@ -16,7 +16,7 @@ export async function deployGov(
   // TODO: remove param timelock
   try {
     const {ethers, run, network} = hre;
-    const deployer = await ethers.getSigners();
+    const {proxyAdmin, timeLockAdmin} = await getSigners(ethers);
     const TimeLock = await ethers.getContractFactory("TimeLock");
     const TimeLockInstance = await TimeLock.deploy();
     await TimeLockInstance.deployed();
@@ -35,12 +35,12 @@ export async function deployGov(
       3600,
       [],
       [],
-      deployer[0].address,
+      timeLockAdmin.address,
     ]);
 
     const TimeLockProxy = await ProxyContract.deploy(
       TimeLockInstance.address,
-      proxyAdmin,
+      proxyAdmin.address,
       TimeLockData
     );
 
@@ -54,7 +54,7 @@ export async function deployGov(
 
     const VotingERC20Proxy = await ProxyContract.deploy(
       VotingERC20Instance.address,
-      proxyAdmin,
+      proxyAdmin.address,
       VotingERC20Data
     );
 
@@ -77,29 +77,29 @@ export async function deployGov(
       4,
     ]);
 
-    const GovProxy = await ProxyContract.deploy(GovInstance.address, proxyAdmin, GovData);
+    const GovProxy = await ProxyContract.deploy(GovInstance.address, proxyAdmin.address, GovData);
 
     await GovProxy.deployed();
 
     // Setting up contracts for roles
     const TimeLockImplementation = await ethers.getContractAt("TimeLock", TimeLockProxy.address);
     const GovImplementation = await ethers.getContractAt("Gov", GovProxy.address);
-    const proposerRole = await TimeLockImplementation.connect(deployer[0]).PROPOSER_ROLE();
-    const executorRole = await TimeLockImplementation.connect(deployer[0]).EXECUTOR_ROLE();
-    const adminRole = await TimeLockImplementation.connect(deployer[0]).TIMELOCK_ADMIN_ROLE();
-    const proposerTx = await TimeLockImplementation.connect(deployer[0]).grantRole(
+    const proposerRole = await TimeLockImplementation.connect(timeLockAdmin).PROPOSER_ROLE();
+    const executorRole = await TimeLockImplementation.connect(timeLockAdmin).EXECUTOR_ROLE();
+    const adminRole = await TimeLockImplementation.connect(timeLockAdmin).TIMELOCK_ADMIN_ROLE();
+    const proposerTx = await TimeLockImplementation.connect(timeLockAdmin).grantRole(
       proposerRole,
       GovImplementation.address
     );
     const proposerole = await proposerTx.wait();
-    const executorTx = await TimeLockImplementation.connect(deployer[0]).grantRole(
+    const executorTx = await TimeLockImplementation.connect(timeLockAdmin).grantRole(
       executorRole,
       GovImplementation.address
     ); // TODO: give role to gov contract
     const executorole = await executorTx.wait(1);
-    const revokeTx = await TimeLockImplementation.connect(deployer[0]).revokeRole(
+    const revokeTx = await TimeLockImplementation.connect(timeLockAdmin).revokeRole(
       adminRole,
-      deployer[0].address
+      timeLockAdmin.address
     );
     const revokerole = await revokeTx.wait(1);
 

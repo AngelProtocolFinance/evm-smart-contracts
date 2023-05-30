@@ -3,7 +3,7 @@
 
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {DonationMatchMessages} from "typechain-types/contracts/normalized_endowment/donation-match/DonationMatch.sol/DonationMatch";
-import {logger, updateAddresses} from "utils";
+import {getSigners, logger, updateAddresses} from "utils";
 
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
@@ -237,8 +237,7 @@ export async function deployImplementation(
   hre: HardhatRuntimeEnvironment
 ) {
   try {
-    const {network, run, ethers} = hre;
-    let [deployer, proxyAdmin] = await ethers.getSigners();
+    const {proxyAdmin} = await getSigners(hre.ethers);
 
     const implementations = {
       cw900lv: await deployCw900lvImplementation(verify_contracts, hre),

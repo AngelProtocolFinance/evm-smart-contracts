@@ -7,7 +7,7 @@ async function deploy() {
   const {ethers, upgrades} = hre;
 
   let deployer: SignerWithAddress;
-  [deployer] = await ethers.getSigners();
+  {deployer} = await getSigners(ethers);
 
   const network = await ethers.provider.getNetwork();
 

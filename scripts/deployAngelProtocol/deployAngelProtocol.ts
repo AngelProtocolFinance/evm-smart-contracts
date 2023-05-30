@@ -25,12 +25,14 @@ import {
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 import {ParametersExceptLast, cleanAddresses, isLocalNetwork, updateAddresses} from "utils";
 import {deployLibraries} from "./deployLibraries";
+import {getSigners} from "utils/getSigners";
 
 export default async function deploy() {
   try {
     const {network, ethers} = hre;
 
-    const [_, proxyAdmin, apTeam1, apTeam2, apTeam3] = await ethers.getSigners();
+    const {proxyAdmin, applicationsMultisigOwners, apTeamMultisigOwners, treasuryAdmin} =
+      await getSigners(ethers);
 
     await cleanAddresses(hre);
 
@@ -64,7 +66,7 @@ export default async function deploy() {
     const {angelCoreStruct, stringLib} = await deployLibraries(verify_contracts, proxyAdmin, hre);
 
     const registrarData = {
-      treasury: config.REGISTRAR_DATA.treasury,
+      treasury: treasuryAdmin.address,
       taxRate: config.REGISTRAR_DATA.taxRate,
       rebalance: config.REGISTRAR_DATA.rebalance,
       splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
@@ -82,12 +84,12 @@ export default async function deploy() {
     );
 
     var APTeamData: ParametersExceptLast<APTeamMultiSig["initialize"]> = [
-      [apTeam1.address, apTeam2.address],
+      apTeamMultisigOwners.map((x) => x.address),
       config.AP_TEAM_MULTISIG_DATA.threshold,
       config.AP_TEAM_MULTISIG_DATA.requireExecution,
     ];
     var ApplicationData: ParametersExceptLast<ApplicationsMultiSig["initialize"]> = [
-      [apTeam2.address, apTeam3.address],
+      applicationsMultisigOwners.map((x) => x.address),
       config.APPLICATION_MULTISIG_DATA.threshold,
       config.APPLICATION_MULTISIG_DATA.requireExecution,
     ];
@@ -334,7 +336,7 @@ export default async function deploy() {
       donationMatchContract: implementations.donationMatch.implementation, //address
       indexFundContract: INDEX_FUND_ADDRESS, //address
       govContract: ethers.constants.AddressZero, //address
-      treasury: config.REGISTRAR_DATA.treasury,
+      treasury: treasuryAdmin.address,
       donationMatchCharitesContract: implementations.donationMatchCharity.proxy, // once uniswap is setup //address
       donationMatchEmitter: emitters.DonationMatchEmitter,
       haloToken: ethers.constants.AddressZero, //address

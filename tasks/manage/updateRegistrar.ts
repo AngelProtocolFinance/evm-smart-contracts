@@ -3,12 +3,12 @@ import {task} from "hardhat/config";
 import type {TaskArguments} from "hardhat/types";
 import {Registrar} from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-import {ADDRESS_ZERO, getAddresses, logger} from "utils";
+import {ADDRESS_ZERO, getAddresses, getSigners, logger} from "utils";
 
 task("manage:updateRegistrar", "Will update the registrar config").setAction(
   async (taskArguments: TaskArguments, hre) => {
     try {
-      let [deployer, proxyAdmin, apTeam1] = await hre.ethers.getSigners();
+      const {proxyAdmin, apTeam1, treasuryAdmin} = await getSigners(hre.ethers);
 
       const addresses = await getAddresses(hre);
 
@@ -39,7 +39,7 @@ task("manage:updateRegistrar", "Will update the registrar config").setAction(
         // CONTRACT ADSRESSES
         indexFundContract: addresses.indexFund.proxy,
         govContract: apTeam1.address,
-        treasury: config.REGISTRAR_DATA.treasury,
+        treasury: treasuryAdmin.address,
         donationMatchCharitesContract: addresses.donationMatchCharity.proxy,
         donationMatchEmitter: ADDRESS_ZERO,
         haloToken: apTeam1.address,

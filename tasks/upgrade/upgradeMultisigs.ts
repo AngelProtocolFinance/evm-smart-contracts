@@ -1,6 +1,5 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {task} from "hardhat/config";
-import {getAddresses, updateAddresses} from "utils";
+import {getAddresses, getSigners, updateAddresses} from "utils";
 import {
   APTeamMultiSig__factory,
   ApplicationsMultiSig__factory,
@@ -13,9 +12,7 @@ task(
   "Will upgrade the implementation of the AP Team and Applications multisigs"
 ).setAction(async (_taskArguments, hre) => {
   try {
-    let deployer: SignerWithAddress;
-    let proxyAdmin: SignerWithAddress;
-    [deployer, proxyAdmin] = await hre.ethers.getSigners();
+    const {deployer, proxyAdmin} = await getSigners(hre.ethers);
 
     const addresses = await getAddresses(hre);
 

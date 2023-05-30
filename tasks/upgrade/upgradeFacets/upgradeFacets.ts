@@ -1,5 +1,5 @@
 import {task} from "hardhat/config";
-import {confirmAction, getAddresses, logger, shouldVerify} from "utils";
+import {confirmAction, getAddresses, getSigners, logger, shouldVerify} from "utils";
 import createFacetCuts from "./createFacetCuts";
 import cutDiamond from "./cutDiamond";
 import deployFacets from "./deployFacets";
@@ -18,7 +18,7 @@ task("upgrade:upgradeFacets", "Will redeploy and upgrade all facets that use Acc
         return logger.out("Aborting...");
       }
 
-      const [_deployer, proxyAdmin] = await hre.ethers.getSigners();
+      const {proxyAdmin} = await getSigners(hre.ethers);
 
       const addresses = await getAddresses(hre);
 

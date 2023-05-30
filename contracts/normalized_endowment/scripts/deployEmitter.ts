@@ -2,7 +2,7 @@
 // yours, or create new ones.
 
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {logger, updateAddresses} from "utils";
+import {getSigners, logger, updateAddresses} from "utils";
 
 const deploySubDaoEmitter = async (
   proxyAdmin: string,
@@ -125,7 +125,7 @@ export async function deployEmitters(
   try {
     const {ethers} = hre;
 
-    let [_deployer, proxyAdmin] = await ethers.getSigners();
+    const {proxyAdmin} = await getSigners(ethers);
     const Emitters = {
       subDaoEmitter: await deploySubDaoEmitter(
         proxyAdmin.address,

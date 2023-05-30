@@ -23,7 +23,7 @@ import {deployGiftCard} from "contracts/accessory/gift-cards/scripts/deploy";
 
 const ethers = hre.ethers;
 import {deployFundraising} from "contracts/accessory/fundraising/scripts/deploy";
-import {ParametersExceptLast, envConfig} from "utils";
+import {ParametersExceptLast, envConfig, getSigners} from "utils";
 
 //TODO: Deploy and initilize emitters
 //TODO: deploy gift card contract
@@ -58,10 +58,10 @@ async function deployLibraries() {
   }
 }
 
-export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contracts: boolean) {
+export async function mainRouter(USDC: string, verify_contracts: boolean) {
   try {
-    const [deployer, proxyAdmin, apTeam1, apTeam2] = await ethers.getSigners();
-    const Admins = apTeamAdmins.length > 0 ? apTeamAdmins : [apTeam1.address, apTeam2.address];
+    const {applicationsMultisigOwners, apTeamMultisigOwners, deployer, proxyAdmin, treasuryAdmin} =
+      await getSigners(ethers);
     // deployer = deployerObj
     console.log(deployer.address);
     console.log("Deploying the contracts with the account:", await deployer.getAddress());
@@ -88,7 +88,7 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
     await deployLibraries();
 
     const registrarData = {
-      treasury: config.REGISTRAR_DATA.treasury,
+      treasury: treasuryAdmin.address,
       taxRate: config.REGISTRAR_DATA.taxRate,
       rebalance: config.REGISTRAR_DATA.rebalance,
       splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
@@ -105,12 +105,12 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
     );
 
     var APTeamData: ParametersExceptLast<APTeamMultiSig["initialize"]> = [
-      Admins,
+      apTeamMultisigOwners.map((x) => x.address),
       config.AP_TEAM_MULTISIG_DATA.threshold,
       config.AP_TEAM_MULTISIG_DATA.requireExecution,
     ];
     var ApplicationData: ParametersExceptLast<ApplicationsMultiSig["initialize"]> = [
-      Admins,
+      applicationsMultisigOwners.map((x) => x.address),
       config.APPLICATION_MULTISIG_DATA.threshold,
       config.APPLICATION_MULTISIG_DATA.requireExecution,
     ];
@@ -366,7 +366,7 @@ export async function mainRouter(apTeamAdmins = [], USDC: string, verify_contrac
       donationMatchContract: implementations.donationMatch, //address
       indexFundContract: INDEX_FUND_ADDRESS, //address
       govContract: haloAddress.Gov.GovProxy, //address
-      treasury: config.REGISTRAR_DATA.treasury,
+      treasury: treasuryAdmin.address,
       donationMatchCharitesContract: implementations.donationMatchCharity, // once uniswap is setup //address
       donationMatchEmitter: emitters.DonationMatchEmitter,
       haloToken: haloAddress.Halo, //address

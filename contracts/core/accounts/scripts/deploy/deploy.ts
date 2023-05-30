@@ -11,7 +11,7 @@ import {
 import deployFacets from "./deployFacets";
 import updateDiamond from "./updateDiamond";
 import verify from "./verify";
-import {logger, updateAddresses} from "utils";
+import {getSigners, logger, updateAddresses} from "utils";
 
 export async function deployDiamond(
   owner: string,
@@ -22,19 +22,19 @@ export async function deployDiamond(
   verify_contracts = false
 ) {
   try {
-    const [_deployer, diamondAdmin] = await hre.ethers.getSigners();
-    const diamondCut = await deployDiamondCutFacet(diamondAdmin);
+    const {proxyAdmin} = await getSigners(hre.ethers);
+    const diamondCut = await deployDiamondCutFacet(proxyAdmin);
 
-    const diamond = await _deployDiamond(diamondAdmin, diamondCut.address, hre);
+    const diamond = await _deployDiamond(proxyAdmin, diamondCut.address, hre);
 
-    const diamondInit = await deployDiamondInit(diamondAdmin);
+    const diamondInit = await deployDiamondInit(proxyAdmin);
 
-    const cuts = await deployFacets(diamondAdmin, ANGEL_CORE_STRUCT, STRING_LIBRARY);
+    const cuts = await deployFacets(proxyAdmin, ANGEL_CORE_STRUCT, STRING_LIBRARY);
 
-    await updateDiamond(diamond.address, diamondInit, diamondAdmin, owner, registrar, cuts, hre);
+    await updateDiamond(diamond.address, diamondInit, proxyAdmin, owner, registrar, cuts, hre);
 
     if (verify_contracts) {
-      await verify(diamond.address, diamondCut.address, cuts, diamondAdmin, hre);
+      await verify(diamond.address, diamondCut.address, cuts, proxyAdmin, hre);
     }
 
     return Promise.resolve(diamond.address);

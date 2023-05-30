@@ -3,7 +3,7 @@
 
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {CharityApplication, CharityApplication__factory} from "typechain-types";
-import {ParametersExceptLast, logger, updateAddresses} from "utils";
+import {ParametersExceptLast, getSigners, logger, updateAddresses} from "utils";
 
 export async function charityApplications(
   CharityApplicationDataInput: ParametersExceptLast<CharityApplication["initialize"]>,
@@ -13,7 +13,7 @@ export async function charityApplications(
   try {
     const {run, ethers} = hre;
 
-    let [_deployer, proxyAdmin] = await ethers.getSigners();
+    const {proxyAdmin} = await getSigners(ethers);
     const CharityApplicationLib = await ethers.getContractFactory("CharityApplicationLib");
     const CharityApplicationLibInstance = await CharityApplicationLib.deploy();
     await CharityApplicationLibInstance.deployed();

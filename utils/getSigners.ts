@@ -14,7 +14,7 @@ type Result = {
 };
 
 export async function getSigners(ethers: HardhatRuntimeEnvironment["ethers"]): Promise<Result> {
-  const [deployer, proxyAdmin, apTeam1, apTeam2, apTeam3] = await ethers.getSigners();
+  const {deployer, proxyAdmin, apTeam1, apTeam2, apTeam3} = await getSigners(ethers);
 
   return {
     deployer,

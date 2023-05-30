@@ -9,14 +9,11 @@ const EXPORT_CONFIG = {
     threshold: 1,
     requireExecution: false,
   },
-  TIME_LOCK_ADMIN: envConfig.AP_TEAM_1.address,
   APPLICATION_MULTISIG_DATA: {
-    admins: [envConfig.AP_TEAM_2.address, envConfig.AP_TEAM_3.address], // AP Team 2 and 3
     threshold: 1,
     requireExecution: false,
   },
   REGISTRAR_DATA: {
-    treasury: envConfig.AP_TEAM_1.address,
     taxRate: 1,
     acceptedTokens: {
       cw20: [
