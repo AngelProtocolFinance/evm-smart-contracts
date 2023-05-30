@@ -1,6 +1,6 @@
-import {task} from "hardhat/config";
-import {deployAngelProtocol} from "scripts";
-import {isLocalNetwork, logger} from "utils";
+import { task } from "hardhat/config"
+import { deployAngelProtocol } from "scripts"
+import { isLocalNetwork, logger } from "utils"
 
 task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
   .addParam("verify", "Want to verify contract")
