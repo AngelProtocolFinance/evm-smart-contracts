@@ -164,16 +164,26 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
             revert("Invalid action passed");
         }
 
-        if (setting == AngelCoreStruct.ControllerSettingOption.Strategies) {
+        if (setting == AngelCoreStruct.ControllerSettingOption.LockedInvestmentManagement) {
            require(
                 AngelCoreStruct.canChange(
-                    tempEndowment.settingsController.strategies,
+                    tempEndowment.settingsController.lockedInvestmentManagement,
                     msg.sender,
                     tempEndowment.owner,
                     block.timestamp
                 ), "Unauthorized"
             );
-           tempEndowment.settingsController.strategies.delegate = newDelegate;
+           tempEndowment.settingsController.lockedInvestmentManagement.delegate = newDelegate;
+        } else if (setting == AngelCoreStruct.ControllerSettingOption.LiquidInvestmentManagement) {
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.lockedInvestmentManagement,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.lockedInvestmentManagement.delegate = newDelegate;
         } else if (setting == AngelCoreStruct.ControllerSettingOption.AllowlistedBeneficiaries) {
            require(
                 AngelCoreStruct.canChange(

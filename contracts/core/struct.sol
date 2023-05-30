@@ -437,7 +437,6 @@ library AngelCoreStruct {
   }
 
   struct SettingsController {
-    SettingsPermission strategies;
     SettingsPermission lockedInvestmentManagement;
     SettingsPermission liquidInvestmentManagement;
     SettingsPermission allowlistedBeneficiaries;
@@ -457,9 +456,8 @@ library AngelCoreStruct {
   }
 
   enum ControllerSettingOption {
-    Strategies,
-    lockedInvestmentManagement,
-    liquidInvestmentManagement,
+    LockedInvestmentManagement,
+    LiquidInvestmentManagement,
     AllowlistedBeneficiaries,
     AllowlistedContributors,
     MaturityAllowlist,
