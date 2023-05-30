@@ -151,43 +151,6 @@ library AngelCoreStruct {
     }
   }
 
-  // SHARED -- now defined by LocalRegistrar
-  // struct RebalanceDetails {
-  //     bool rebalanceLiquidInvestedProfits; // should invested portions of the liquid account be rebalanced?
-  //     bool lockedInterestsToLiquid; // should Locked acct interest earned be distributed to the Liquid Acct?
-  //     ///TODO: Should be decimal type insted of uint256
-  //     uint256 interest_distribution; // % of Locked acct interest earned to be distributed to the Liquid Acct
-  //     bool lockedPrincipleToLiquid; // should Locked acct principle be distributed to the Liquid Acct?
-  //     ///TODO: Should be decimal type insted of uint256
-  //     uint256 principle_distribution; // % of Locked acct principle to be distributed to the Liquid Acct
-  // }
-
-  // function rebalanceDetailsDefaut()
-  //     public
-  //     pure
-  //     returns (RebalanceDetails memory)
-  // {
-  //     RebalanceDetails memory _tempRebalanceDetails = RebalanceDetails({
-  //         rebalanceLiquidInvestedProfits: false,
-  //         lockedInterestsToLiquid: false,
-  //         interest_distribution: 20,
-  //         lockedPrincipleToLiquid: false,
-  //         principle_distribution: 0
-  //     });
-
-  //     return _tempRebalanceDetails;
-  // }
-
-  struct DonationsReceived {
-    uint256 locked;
-    uint256 liquid;
-  }
-
-  function donationsReceivedDefault() public pure returns (DonationsReceived memory) {
-    DonationsReceived memory empty;
-    return empty;
-  }
-
   struct Coin {
     string denom;
     uint128 amount;
@@ -207,122 +170,8 @@ library AngelCoreStruct {
     temp.balancesByToken[tokenAddress] += amount;
   }
 
-  // function addTokenMem(
-  //     GenericBalance memory temp,
-  //     address tokenaddress,
-  //     uint256 amount
-  // ) public pure returns (GenericBalance memory) {
-  //     bool notFound = true;
-  //     for (uint8 i = 0; i < temp.CoinVerified_addr.length; i++) {
-  //         if (temp.CoinVerified_addr[i] == tokenaddress) {
-  //             notFound = false;
-  //             temp.CoinVerified_amount[i] += amount;
-  //         }
-  //     }
-  //     if (notFound) {
-  //         GenericBalance memory new_temp = GenericBalance({
-  //             coinNativeAmount: temp.coinNativeAmount,
-  //             CoinVerified_amount: new uint256[](
-  //                 temp.CoinVerified_amount.length + 1
-  //             ),
-  //             CoinVerified_addr: new address[](
-  //                 temp.CoinVerified_addr.length + 1
-  //             )
-  //         });
-  //         for (uint256 i = 0; i < temp.CoinVerified_addr.length; i++) {
-  //             new_temp.CoinVerified_addr[i] = temp
-  //                 .CoinVerified_addr[i];
-  //             new_temp.CoinVerified_amount[i] = temp
-  //                 .CoinVerified_amount[i];
-  //         }
-  //         new_temp.CoinVerified_addr[
-  //             temp.CoinVerified_addr.length
-  //         ] = tokenaddress;
-  //         new_temp.CoinVerified_amount[
-  //             temp.CoinVerified_amount.length
-  //         ] = amount;
-  //         return new_temp;
-  //     } else return temp;
-  // }
-
   function subToken(GenericBalance storage temp, address tokenAddress, uint256 amount) public {
     temp.balancesByToken[tokenAddress] -= amount;
-  }
-
-  // function subTokenMem(
-  //     GenericBalance memory temp,
-  //     address tokenaddress,
-  //     uint256 amount
-  // ) public pure returns (GenericBalance memory) {
-  //     for (uint8 i = 0; i < temp.CoinVerified_addr.length; i++) {
-  //         if (temp.CoinVerified_addr[i] == tokenaddress) {
-  //             temp.CoinVerified_amount[i] -= amount;
-  //         }
-  //     }
-  //     return temp;
-  // }
-
-  // function splitBalance(
-  //     uint256[] storage Coin,
-  //     uint256 splitFactor
-  // ) public view returns (uint256[] memory) {
-  //     uint256[] memory temp = new uint256[](Coin.length);
-  //     for (uint8 i = 0; i < Coin.length; i++) {
-  //         uint256 result = SafeMath.div(Coin[i], splitFactor);
-  //         temp[i] = result;
-  //     }
-
-  //     return temp;
-  // }
-
-  function receiveGenericBalance(
-    address[] storage receiveaddr,
-    uint256[] storage receiveamount,
-    address[] storage senderaddr,
-    uint256[] storage senderamount
-  ) public {
-    uint256 a = senderaddr.length;
-    uint256 b = receiveaddr.length;
-
-    for (uint8 i = 0; i < a; i++) {
-      bool flag = true;
-      for (uint8 j = 0; j < b; j++) {
-        if (senderaddr[i] == receiveaddr[j]) {
-          flag = false;
-          receiveamount[j] += senderamount[i];
-        }
-      }
-
-      if (flag) {
-        receiveaddr.push(senderaddr[i]);
-        receiveamount.push(senderamount[i]);
-      }
-    }
-  }
-
-  function receiveGenericBalanceModified(
-    address[] storage receiveaddr,
-    uint256[] storage receiveamount,
-    address[] storage senderaddr,
-    uint256[] memory senderamount
-  ) public {
-    uint256 a = senderaddr.length;
-    uint256 b = receiveaddr.length;
-
-    for (uint8 i = 0; i < a; i++) {
-      bool flag = true;
-      for (uint8 j = 0; j < b; j++) {
-        if (senderaddr[i] == receiveaddr[j]) {
-          flag = false;
-          receiveamount[j] += senderamount[i];
-        }
-      }
-
-      if (flag) {
-        receiveaddr.push(senderaddr[i]);
-        receiveamount.push(senderamount[i]);
-      }
-    }
   }
 
   function deductTokens(uint256 amount, uint256 deductamount) public pure returns (uint256) {
@@ -345,15 +194,6 @@ library AngelCoreStruct {
 
     return amount;
   }
-
-  // function genericBalanceDefault()
-  //     public
-  //     pure
-  //     returns (GenericBalance memory)
-  // {
-  //     GenericBalance memory empty;
-  //     return empty;
-  // }
 
   struct BalanceInfo {
     GenericBalance locked;
@@ -466,17 +306,6 @@ library AngelCoreStruct {
     True,
     None
   }
-
-  // struct YieldVault {
-  //     string addr; // vault's contract address on chain where the Registrar lives/??
-  //     uint256 network; // Points to key in NetworkConnections storage map
-  //     address inputDenom; //?
-  //     address yieldToken; //?
-  //     bool approved;
-  //     EndowmentType[] restrictedFrom;
-  //     AccountType acctType;
-  //     VaultType vaultType;
-  // }
 
   struct Member {
     address addr;
