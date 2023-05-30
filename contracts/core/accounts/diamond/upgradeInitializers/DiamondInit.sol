@@ -50,7 +50,7 @@ contract DiamondInit {
         state.config.maxGeneralCategoryId = 1;
         state.config.earlyLockedWithdrawFee = AngelCoreStruct.EndowmentFee({
             payoutAddress: address(0),
-            percentage: 100 // 10% fee placeholder. Can always change later if needed
+            bps: 1000 // 10% fee placeholder. Can always change later if needed
         });
 
         // add your own state variables

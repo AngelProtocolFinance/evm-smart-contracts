@@ -83,6 +83,16 @@ export declare namespace AngelCoreStruct {
     liquid: string[];
     liquidAmount: BigNumber[];
   };
+
+  export type EndowmentFeeStruct = {
+    payoutAddress: PromiseOrValue<string>;
+    bps: PromiseOrValue<BigNumberish>;
+  };
+
+  export type EndowmentFeeStructOutput = [string, BigNumber] & {
+    payoutAddress: string;
+    bps: BigNumber;
+  };
 }
 
 export interface AngelCoreStructInterface extends utils.Interface {
@@ -93,6 +103,7 @@ export interface AngelCoreStructInterface extends utils.Interface {
     "deductTokens(uint256,uint256)": FunctionFragment;
     "getTokenAmount(address[],uint256[],address)": FunctionFragment;
     "oneOffVaultsDefault()": FunctionFragment;
+    "validateFee((address,uint256))": FunctionFragment;
   };
 
   getFunction(
@@ -103,6 +114,7 @@ export interface AngelCoreStructInterface extends utils.Interface {
       | "deductTokens"
       | "getTokenAmount"
       | "oneOffVaultsDefault"
+      | "validateFee"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "accountStrategiesDefaut", values?: undefined): string;
@@ -125,6 +137,10 @@ export interface AngelCoreStructInterface extends utils.Interface {
     values: [PromiseOrValue<string>[], PromiseOrValue<BigNumberish>[], PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "oneOffVaultsDefault", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "validateFee",
+    values: [AngelCoreStruct.EndowmentFeeStruct]
+  ): string;
 
   decodeFunctionResult(functionFragment: "accountStrategiesDefaut", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "beneficiaryDefault", data: BytesLike): Result;
@@ -132,6 +148,7 @@ export interface AngelCoreStructInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "deductTokens", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getTokenAmount", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "oneOffVaultsDefault", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "validateFee", data: BytesLike): Result;
 
   events: {};
 }
@@ -193,6 +210,11 @@ export interface AngelCoreStruct extends BaseContract {
     oneOffVaultsDefault(
       overrides?: CallOverrides
     ): Promise<[AngelCoreStruct.OneOffVaultsStructOutput]>;
+
+    validateFee(
+      fee: AngelCoreStruct.EndowmentFeeStruct,
+      overrides?: CallOverrides
+    ): Promise<[void]>;
   };
 
   accountStrategiesDefaut(
@@ -223,6 +245,8 @@ export interface AngelCoreStruct extends BaseContract {
   ): Promise<BigNumber>;
 
   oneOffVaultsDefault(overrides?: CallOverrides): Promise<AngelCoreStruct.OneOffVaultsStructOutput>;
+
+  validateFee(fee: AngelCoreStruct.EndowmentFeeStruct, overrides?: CallOverrides): Promise<void>;
 
   callStatic: {
     accountStrategiesDefaut(
@@ -255,6 +279,8 @@ export interface AngelCoreStruct extends BaseContract {
     oneOffVaultsDefault(
       overrides?: CallOverrides
     ): Promise<AngelCoreStruct.OneOffVaultsStructOutput>;
+
+    validateFee(fee: AngelCoreStruct.EndowmentFeeStruct, overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {};
@@ -286,6 +312,11 @@ export interface AngelCoreStruct extends BaseContract {
     ): Promise<BigNumber>;
 
     oneOffVaultsDefault(overrides?: CallOverrides): Promise<BigNumber>;
+
+    validateFee(
+      fee: AngelCoreStruct.EndowmentFeeStruct,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -315,5 +346,10 @@ export interface AngelCoreStruct extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     oneOffVaultsDefault(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    validateFee(
+      fee: AngelCoreStruct.EndowmentFeeStruct,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
   };
 }

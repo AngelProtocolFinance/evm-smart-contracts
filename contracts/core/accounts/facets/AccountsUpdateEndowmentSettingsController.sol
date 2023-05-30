@@ -222,11 +222,7 @@ contract AccountsUpdateEndowmentSettingsController is
                 block.timestamp
             )
         ) {
-            require(
-                details.earlyLockedWithdrawFee.payoutAddress != address(0) || details.earlyLockedWithdrawFee.percentage == 0,
-                "Invalid payout address given"
-            );
-            require(details.earlyLockedWithdrawFee.percentage < 1000, "Fee Percentage cannot be greater than 100%");
+            AngelCoreStruct.validateFee(details.earlyLockedWithdrawFee);
             tempEndowment.earlyLockedWithdrawFee = details.earlyLockedWithdrawFee;
         }
 
@@ -238,11 +234,7 @@ contract AccountsUpdateEndowmentSettingsController is
                 block.timestamp
             )
         ) {
-            require(
-                details.depositFee.payoutAddress != address(0) || details.depositFee.percentage == 0,
-                "Invalid payout address given"
-            );
-            require(details.depositFee.percentage < 1000, "Fee Percentage cannot be greater than 100%");
+            AngelCoreStruct.validateFee(details.depositFee);
             tempEndowment.depositFee = details.depositFee;
         }
 
@@ -254,11 +246,7 @@ contract AccountsUpdateEndowmentSettingsController is
                 block.timestamp
             )
         ) {
-            require(
-                details.withdrawFee.payoutAddress != address(0) || details.withdrawFee.percentage == 0,
-                "Invalid payout address given"
-            );
-            require(details.withdrawFee.percentage < 1000, "Fee Percentage cannot be greater than 100%");
+            AngelCoreStruct.validateFee(details.withdrawFee);
             tempEndowment.withdrawFee = details.withdrawFee;
         }
 
@@ -270,11 +258,7 @@ contract AccountsUpdateEndowmentSettingsController is
                 block.timestamp
             )
         ) {
-            require(
-                details.balanceFee.payoutAddress != address(0) || details.balanceFee.percentage == 0,
-                "Invalid payout address given"
-            );
-            require(details.balanceFee.percentage < 1000, "Fee Percentage cannot be greater than 100%");
+            AngelCoreStruct.validateFee(details.balanceFee);
             tempEndowment.balanceFee = details.balanceFee;
         }
 
