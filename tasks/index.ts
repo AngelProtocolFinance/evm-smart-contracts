@@ -1,3 +1,3 @@
-// import "./deploy";
-// import "./manage";
-// import "./upgrade";
+import "./deploy";
+import "./manage";
+import "./upgrade";
