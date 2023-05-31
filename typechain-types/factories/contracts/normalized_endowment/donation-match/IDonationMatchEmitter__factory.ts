@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
 import type {
   IDonationMatchEmitter,
   IDonationMatchEmitterInterface,
@@ -179,14 +179,7 @@ export class IDonationMatchEmitter__factory {
   static createInterface(): IDonationMatchEmitterInterface {
     return new utils.Interface(_abi) as IDonationMatchEmitterInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IDonationMatchEmitter {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as IDonationMatchEmitter;
+  static connect(address: string, signerOrProvider: Signer | Provider): IDonationMatchEmitter {
+    return new Contract(address, _abi, signerOrProvider) as IDonationMatchEmitter;
   }
 }

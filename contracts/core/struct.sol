@@ -648,17 +648,17 @@ library AngelCoreStruct {
   }
 
   enum FeeTypes {
-      Default,
-      Harvest,
-      WithdrawCharity,
-      WithdrawNormal,
-      EarlyLockedWithdrawCharity, 
-      EarlyLockedWithdrawNormal
+    Default,
+    Harvest,
+    WithdrawCharity,
+    WithdrawNormal,
+    EarlyLockedWithdrawCharity,
+    EarlyLockedWithdrawNormal
   }
 
   struct FeeSetting {
-      address payoutAddress;
-      uint256 feeRate;
+    address payoutAddress;
+    uint256 feeRate;
   }
 
   uint256 constant FEE_BASIS = 1000; // gives 0.1% precision for fees

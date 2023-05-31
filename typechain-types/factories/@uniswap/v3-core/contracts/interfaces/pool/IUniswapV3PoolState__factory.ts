@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
 import type {
   IUniswapV3PoolState,
   IUniswapV3PoolStateInterface,
@@ -263,10 +263,7 @@ export class IUniswapV3PoolState__factory {
   static createInterface(): IUniswapV3PoolStateInterface {
     return new utils.Interface(_abi) as IUniswapV3PoolStateInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IUniswapV3PoolState {
+  static connect(address: string, signerOrProvider: Signer | Provider): IUniswapV3PoolState {
     return new Contract(address, _abi, signerOrProvider) as IUniswapV3PoolState;
   }
 }

@@ -13,12 +13,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -69,11 +65,7 @@ export interface DonationMatchEmitterInterface extends utils.Interface {
 
   encodeFunctionData(
     functionFragment: "burnErC20",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "executeDonorMatch",
@@ -106,10 +98,7 @@ export interface DonationMatchEmitterInterface extends utils.Interface {
       DonationMatchStorage.ConfigStruct
     ]
   ): string;
-  encodeFunctionData(
-    functionFragment: "isDonationMatch",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "isDonationMatch", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(
     functionFragment: "transferErC20",
     values: [
@@ -121,30 +110,12 @@ export interface DonationMatchEmitterInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "burnErC20", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "executeDonorMatch",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "giveApprovalErC20",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "initDonationMatchEmiiter",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "initializeDonationMatch",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isDonationMatch",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferErC20",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "executeDonorMatch", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "giveApprovalErC20", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "initDonationMatchEmiiter", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "initializeDonationMatch", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "isDonationMatch", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "transferErC20", data: BytesLike): Result;
 
   events: {
     "DonationMatchExecuted(address,address,uint256,address,uint32,address)": EventFragment;
@@ -174,8 +145,7 @@ export type DonationMatchExecutedEvent = TypedEvent<
   DonationMatchExecutedEventObject
 >;
 
-export type DonationMatchExecutedEventFilter =
-  TypedEventFilter<DonationMatchExecutedEvent>;
+export type DonationMatchExecutedEventFilter = TypedEventFilter<DonationMatchExecutedEvent>;
 
 export interface DonationMatchInitializedEventObject {
   endowmentId: number;
@@ -187,8 +157,7 @@ export type DonationMatchInitializedEvent = TypedEvent<
   DonationMatchInitializedEventObject
 >;
 
-export type DonationMatchInitializedEventFilter =
-  TypedEventFilter<DonationMatchInitializedEvent>;
+export type DonationMatchInitializedEventFilter = TypedEventFilter<DonationMatchInitializedEvent>;
 
 export interface Erc20ApprovalGivenEventObject {
   endowmentId: number;
@@ -201,18 +170,14 @@ export type Erc20ApprovalGivenEvent = TypedEvent<
   Erc20ApprovalGivenEventObject
 >;
 
-export type Erc20ApprovalGivenEventFilter =
-  TypedEventFilter<Erc20ApprovalGivenEvent>;
+export type Erc20ApprovalGivenEventFilter = TypedEventFilter<Erc20ApprovalGivenEvent>;
 
 export interface Erc20BurnedEventObject {
   endowmentId: number;
   tokenAddress: string;
   amount: BigNumber;
 }
-export type Erc20BurnedEvent = TypedEvent<
-  [number, string, BigNumber],
-  Erc20BurnedEventObject
->;
+export type Erc20BurnedEvent = TypedEvent<[number, string, BigNumber], Erc20BurnedEventObject>;
 
 export type Erc20BurnedEventFilter = TypedEventFilter<Erc20BurnedEvent>;
 
@@ -246,9 +211,7 @@ export interface DonationMatchEmitter extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -260,7 +223,7 @@ export interface DonationMatchEmitter extends BaseContract {
       endowmentId: PromiseOrValue<BigNumberish>,
       tokenAddress: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     executeDonorMatch(
@@ -269,7 +232,7 @@ export interface DonationMatchEmitter extends BaseContract {
       accountsContract: PromiseOrValue<string>,
       endowmentId: PromiseOrValue<BigNumberish>,
       donor: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     giveApprovalErC20(
@@ -277,32 +240,29 @@ export interface DonationMatchEmitter extends BaseContract {
       tokenAddress: PromiseOrValue<string>,
       recipient: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     initDonationMatchEmiiter(
       accountscontract: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     initializeDonationMatch(
       endowmentId: PromiseOrValue<BigNumberish>,
       donationMatch: PromiseOrValue<string>,
       config: DonationMatchStorage.ConfigStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
-    isDonationMatch(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    isDonationMatch(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[boolean]>;
 
     transferErC20(
       endowmentId: PromiseOrValue<BigNumberish>,
       tokenAddress: PromiseOrValue<string>,
       recipient: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
 
@@ -310,7 +270,7 @@ export interface DonationMatchEmitter extends BaseContract {
     endowmentId: PromiseOrValue<BigNumberish>,
     tokenAddress: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   executeDonorMatch(
@@ -319,7 +279,7 @@ export interface DonationMatchEmitter extends BaseContract {
     accountsContract: PromiseOrValue<string>,
     endowmentId: PromiseOrValue<BigNumberish>,
     donor: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   giveApprovalErC20(
@@ -327,32 +287,29 @@ export interface DonationMatchEmitter extends BaseContract {
     tokenAddress: PromiseOrValue<string>,
     recipient: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   initDonationMatchEmiiter(
     accountscontract: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   initializeDonationMatch(
     endowmentId: PromiseOrValue<BigNumberish>,
     donationMatch: PromiseOrValue<string>,
     config: DonationMatchStorage.ConfigStruct,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
-  isDonationMatch(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  isDonationMatch(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
 
   transferErC20(
     endowmentId: PromiseOrValue<BigNumberish>,
     tokenAddress: PromiseOrValue<string>,
     recipient: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -392,10 +349,7 @@ export interface DonationMatchEmitter extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    isDonationMatch(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    isDonationMatch(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
 
     transferErC20(
       endowmentId: PromiseOrValue<BigNumberish>,
@@ -453,11 +407,7 @@ export interface DonationMatchEmitter extends BaseContract {
       tokenAddress?: null,
       amount?: null
     ): Erc20BurnedEventFilter;
-    Erc20Burned(
-      endowmentId?: null,
-      tokenAddress?: null,
-      amount?: null
-    ): Erc20BurnedEventFilter;
+    Erc20Burned(endowmentId?: null, tokenAddress?: null, amount?: null): Erc20BurnedEventFilter;
 
     "Erc20Transfer(uint32,address,address,uint256)"(
       endowmentId?: null,
@@ -478,7 +428,7 @@ export interface DonationMatchEmitter extends BaseContract {
       endowmentId: PromiseOrValue<BigNumberish>,
       tokenAddress: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     executeDonorMatch(
@@ -487,7 +437,7 @@ export interface DonationMatchEmitter extends BaseContract {
       accountsContract: PromiseOrValue<string>,
       endowmentId: PromiseOrValue<BigNumberish>,
       donor: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     giveApprovalErC20(
@@ -495,32 +445,29 @@ export interface DonationMatchEmitter extends BaseContract {
       tokenAddress: PromiseOrValue<string>,
       recipient: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     initDonationMatchEmiiter(
       accountscontract: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     initializeDonationMatch(
       endowmentId: PromiseOrValue<BigNumberish>,
       donationMatch: PromiseOrValue<string>,
       config: DonationMatchStorage.ConfigStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
-    isDonationMatch(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    isDonationMatch(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 
     transferErC20(
       endowmentId: PromiseOrValue<BigNumberish>,
       tokenAddress: PromiseOrValue<string>,
       recipient: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
 
@@ -529,7 +476,7 @@ export interface DonationMatchEmitter extends BaseContract {
       endowmentId: PromiseOrValue<BigNumberish>,
       tokenAddress: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     executeDonorMatch(
@@ -538,7 +485,7 @@ export interface DonationMatchEmitter extends BaseContract {
       accountsContract: PromiseOrValue<string>,
       endowmentId: PromiseOrValue<BigNumberish>,
       donor: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     giveApprovalErC20(
@@ -546,19 +493,19 @@ export interface DonationMatchEmitter extends BaseContract {
       tokenAddress: PromiseOrValue<string>,
       recipient: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     initDonationMatchEmiiter(
       accountscontract: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     initializeDonationMatch(
       endowmentId: PromiseOrValue<BigNumberish>,
       donationMatch: PromiseOrValue<string>,
       config: DonationMatchStorage.ConfigStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     isDonationMatch(
@@ -571,7 +518,7 @@ export interface DonationMatchEmitter extends BaseContract {
       tokenAddress: PromiseOrValue<string>,
       recipient: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };
 }
