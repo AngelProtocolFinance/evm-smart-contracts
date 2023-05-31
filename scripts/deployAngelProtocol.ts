@@ -2,6 +2,7 @@ import {deployDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
+import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {isLocalNetwork, updateAddresses} from "utils";
 // import { deployHaloImplementation } from "contracts/halo/scripts/deploy"
 import {charityApplications} from "contracts/multisigs/charity_applications/scripts/deploy";
@@ -93,6 +94,8 @@ export async function deployAngelProtocol(hre: HardhatRuntimeEnvironment): Promi
     verify_contracts,
     hre
   );
+
+  const router = await deployRouter();
 
   const ACCOUNT_ADDRESS = await deployDiamond(
     multisigAddress.APTeamMultiSig,
