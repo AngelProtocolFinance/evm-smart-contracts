@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as axelarGmpSdkSolidity from "./axelar-gmp-sdk-solidity";
-export type { axelarGmpSdkSolidity };
+export type {axelarGmpSdkSolidity};

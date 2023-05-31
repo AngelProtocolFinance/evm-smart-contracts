@@ -3,7 +3,7 @@
 /* eslint-disable */
 export * as haloTokenSol from "./haloToken.sol";
 export * as uniswapUtilsSol from "./uniswapUtils.sol";
-export { DummyGateway__factory } from "./DummyGateway__factory";
-export { INonfungiblePositionManager__factory } from "./INonfungiblePositionManager__factory";
-export { MockERC20__factory } from "./MockERC20__factory";
-export { MockUSDC__factory } from "./MockUSDC__factory";
+export {DummyGateway__factory} from "./DummyGateway__factory";
+export {INonfungiblePositionManager__factory} from "./INonfungiblePositionManager__factory";
+export {MockERC20__factory} from "./MockERC20__factory";
+export {MockUSDC__factory} from "./MockUSDC__factory";

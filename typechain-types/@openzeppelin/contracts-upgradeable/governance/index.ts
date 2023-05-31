@@ -2,9 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as extensions from "./extensions";
-export type { extensions };
+export type {extensions};
 import type * as utils from "./utils";
-export type { utils };
-export type { GovernorUpgradeable } from "./GovernorUpgradeable";
-export type { IGovernorUpgradeable } from "./IGovernorUpgradeable";
-export type { TimelockControllerUpgradeable } from "./TimelockControllerUpgradeable";
+export type {utils};
+export type {GovernorUpgradeable} from "./GovernorUpgradeable";
+export type {IGovernorUpgradeable} from "./IGovernorUpgradeable";
+export type {TimelockControllerUpgradeable} from "./TimelockControllerUpgradeable";
