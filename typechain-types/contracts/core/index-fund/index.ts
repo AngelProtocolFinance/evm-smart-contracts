@@ -2,5 +2,5 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as iindexFundSol from "./Iindex-fund.sol";
-export type { iindexFundSol };
-export type { IndexFund } from "./IndexFund";
+export type {iindexFundSol};
+export type {IndexFund} from "./IndexFund";

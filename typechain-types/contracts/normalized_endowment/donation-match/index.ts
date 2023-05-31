@@ -2,9 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as donationMatchSol from "./DonationMatch.sol";
-export type { donationMatchSol };
+export type {donationMatchSol};
 import type * as donationMatchCharitySol from "./DonationMatchCharity.sol";
-export type { donationMatchCharitySol };
-export type { DonationMatchEmitter } from "./DonationMatchEmitter";
-export type { IDonationMatchEmitter } from "./IDonationMatchEmitter";
-export type { IDonationMatching } from "./IDonationMatching";
+export type {donationMatchCharitySol};
+export type {DonationMatchEmitter} from "./DonationMatchEmitter";
+export type {IDonationMatchEmitter} from "./IDonationMatchEmitter";
+export type {IDonationMatching} from "./IDonationMatching";

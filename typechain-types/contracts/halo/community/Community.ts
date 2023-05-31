@@ -13,12 +13,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -76,21 +72,14 @@ export interface CommunityInterface extends utils.Interface {
   };
 
   getFunction(
-    nameOrSignatureOrTopic:
-      | "initialize"
-      | "queryConfig"
-      | "spend"
-      | "updateConfig"
+    nameOrSignatureOrTopic: "initialize" | "queryConfig" | "spend" | "updateConfig"
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "initialize",
     values: [CommunityMessage.InstantiateMsgStruct]
   ): string;
-  encodeFunctionData(
-    functionFragment: "queryConfig",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "queryConfig", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "spend",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
@@ -101,15 +90,9 @@ export interface CommunityInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "queryConfig",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "queryConfig", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "spend", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "updateConfig",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "updateConfig", data: BytesLike): Result;
 
   events: {
     "CommunityConfigUpdated(tuple)": EventFragment;
@@ -130,17 +113,13 @@ export type CommunityConfigUpdatedEvent = TypedEvent<
   CommunityConfigUpdatedEventObject
 >;
 
-export type CommunityConfigUpdatedEventFilter =
-  TypedEventFilter<CommunityConfigUpdatedEvent>;
+export type CommunityConfigUpdatedEventFilter = TypedEventFilter<CommunityConfigUpdatedEvent>;
 
 export interface CommunitySpendEventObject {
   recipient: string;
   amount: BigNumber;
 }
-export type CommunitySpendEvent = TypedEvent<
-  [string, BigNumber],
-  CommunitySpendEventObject
->;
+export type CommunitySpendEvent = TypedEvent<[string, BigNumber], CommunitySpendEventObject>;
 
 export type CommunitySpendEventFilter = TypedEventFilter<CommunitySpendEvent>;
 
@@ -168,9 +147,7 @@ export interface Community extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -180,45 +157,41 @@ export interface Community extends BaseContract {
   functions: {
     initialize(
       details: CommunityMessage.InstantiateMsgStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
-    queryConfig(
-      overrides?: CallOverrides
-    ): Promise<[CommunityMessage.ConfigResponseStructOutput]>;
+    queryConfig(overrides?: CallOverrides): Promise<[CommunityMessage.ConfigResponseStructOutput]>;
 
     spend(
       recipient: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     updateConfig(
       spendLimit: PromiseOrValue<BigNumberish>,
       timelockContract: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
 
   initialize(
     details: CommunityMessage.InstantiateMsgStruct,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
-  queryConfig(
-    overrides?: CallOverrides
-  ): Promise<CommunityMessage.ConfigResponseStructOutput>;
+  queryConfig(overrides?: CallOverrides): Promise<CommunityMessage.ConfigResponseStructOutput>;
 
   spend(
     recipient: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   updateConfig(
     spendLimit: PromiseOrValue<BigNumberish>,
     timelockContract: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -227,9 +200,7 @@ export interface Community extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    queryConfig(
-      overrides?: CallOverrides
-    ): Promise<CommunityMessage.ConfigResponseStructOutput>;
+    queryConfig(overrides?: CallOverrides): Promise<CommunityMessage.ConfigResponseStructOutput>;
 
     spend(
       recipient: PromiseOrValue<string>,
@@ -245,15 +216,10 @@ export interface Community extends BaseContract {
   };
 
   filters: {
-    "CommunityConfigUpdated(tuple)"(
-      config?: null
-    ): CommunityConfigUpdatedEventFilter;
+    "CommunityConfigUpdated(tuple)"(config?: null): CommunityConfigUpdatedEventFilter;
     CommunityConfigUpdated(config?: null): CommunityConfigUpdatedEventFilter;
 
-    "CommunitySpend(address,uint256)"(
-      recipient?: null,
-      amount?: null
-    ): CommunitySpendEventFilter;
+    "CommunitySpend(address,uint256)"(recipient?: null, amount?: null): CommunitySpendEventFilter;
     CommunitySpend(recipient?: null, amount?: null): CommunitySpendEventFilter;
 
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
@@ -263,7 +229,7 @@ export interface Community extends BaseContract {
   estimateGas: {
     initialize(
       details: CommunityMessage.InstantiateMsgStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     queryConfig(overrides?: CallOverrides): Promise<BigNumber>;
@@ -271,20 +237,20 @@ export interface Community extends BaseContract {
     spend(
       recipient: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     updateConfig(
       spendLimit: PromiseOrValue<BigNumberish>,
       timelockContract: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     initialize(
       details: CommunityMessage.InstantiateMsgStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     queryConfig(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -292,13 +258,13 @@ export interface Community extends BaseContract {
     spend(
       recipient: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     updateConfig(
       spendLimit: PromiseOrValue<BigNumberish>,
       timelockContract: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };
 }

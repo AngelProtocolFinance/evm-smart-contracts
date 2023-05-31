@@ -13,12 +13,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -76,15 +72,9 @@ export interface MultiSigWalletFactoryInterface extends utils.Interface {
     functionFragment: "instantiations",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "isInstantiation",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "isInstantiation", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "renounceOwnership", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [PromiseOrValue<string>]
@@ -99,39 +89,15 @@ export interface MultiSigWalletFactoryInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "create", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "endowmentIdToMultisig",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getInstantiationCount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "instantiations",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isInstantiation",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "endowmentIdToMultisig", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getInstantiationCount", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "instantiations", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "isInstantiation", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateImplementation",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateProxyAdmin",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "renounceOwnership", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "transferOwnership", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "updateImplementation", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "updateProxyAdmin", data: BytesLike): Result;
 
   events: {
     "ContractInstantiation(address,address)": EventFragment;
@@ -151,8 +117,7 @@ export type ContractInstantiationEvent = TypedEvent<
   ContractInstantiationEventObject
 >;
 
-export type ContractInstantiationEventFilter =
-  TypedEventFilter<ContractInstantiationEvent>;
+export type ContractInstantiationEventFilter = TypedEventFilter<ContractInstantiationEvent>;
 
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
@@ -163,8 +128,7 @@ export type OwnershipTransferredEvent = TypedEvent<
   OwnershipTransferredEventObject
 >;
 
-export type OwnershipTransferredEventFilter =
-  TypedEventFilter<OwnershipTransferredEvent>;
+export type OwnershipTransferredEventFilter = TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface MultiSigWalletFactory extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -183,9 +147,7 @@ export interface MultiSigWalletFactory extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -198,7 +160,7 @@ export interface MultiSigWalletFactory extends BaseContract {
       emitterAddress: PromiseOrValue<string>,
       owners: PromiseOrValue<string>[],
       required: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     endowmentIdToMultisig(
@@ -217,30 +179,27 @@ export interface MultiSigWalletFactory extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    isInstantiation(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    isInstantiation(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[boolean]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     updateImplementation(
       implementationAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     updateProxyAdmin(
       proxyAdmin: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
 
@@ -249,7 +208,7 @@ export interface MultiSigWalletFactory extends BaseContract {
     emitterAddress: PromiseOrValue<string>,
     owners: PromiseOrValue<string>[],
     required: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   endowmentIdToMultisig(
@@ -268,30 +227,27 @@ export interface MultiSigWalletFactory extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  isInstantiation(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  isInstantiation(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
   renounceOwnership(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   transferOwnership(
     newOwner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   updateImplementation(
     implementationAddress: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   updateProxyAdmin(
     proxyAdmin: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -319,29 +275,20 @@ export interface MultiSigWalletFactory extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    isInstantiation(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    isInstantiation(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
-    transferOwnership(
-      newOwner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    transferOwnership(newOwner: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
     updateImplementation(
       implementationAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    updateProxyAdmin(
-      proxyAdmin: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    updateProxyAdmin(proxyAdmin: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
@@ -349,10 +296,7 @@ export interface MultiSigWalletFactory extends BaseContract {
       sender?: null,
       instantiation?: null
     ): ContractInstantiationEventFilter;
-    ContractInstantiation(
-      sender?: null,
-      instantiation?: null
-    ): ContractInstantiationEventFilter;
+    ContractInstantiation(sender?: null, instantiation?: null): ContractInstantiationEventFilter;
 
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
@@ -370,7 +314,7 @@ export interface MultiSigWalletFactory extends BaseContract {
       emitterAddress: PromiseOrValue<string>,
       owners: PromiseOrValue<string>[],
       required: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     endowmentIdToMultisig(
@@ -389,30 +333,25 @@ export interface MultiSigWalletFactory extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    isInstantiation(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    isInstantiation(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    renounceOwnership(overrides?: Overrides & {from?: PromiseOrValue<string>}): Promise<BigNumber>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     updateImplementation(
       implementationAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     updateProxyAdmin(
       proxyAdmin: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
 
@@ -422,7 +361,7 @@ export interface MultiSigWalletFactory extends BaseContract {
       emitterAddress: PromiseOrValue<string>,
       owners: PromiseOrValue<string>[],
       required: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     endowmentIdToMultisig(
@@ -449,22 +388,22 @@ export interface MultiSigWalletFactory extends BaseContract {
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     updateImplementation(
       implementationAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     updateProxyAdmin(
       proxyAdmin: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };
 }
