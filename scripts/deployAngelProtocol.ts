@@ -3,7 +3,7 @@ import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
-import {ADDRESS_ZERO, ContractFunctionParams, isLocalNetwork} from "utils";
+import {ADDRESS_ZERO, isLocalNetwork} from "utils";
 // import { deployHaloImplementation } from "contracts/halo/scripts/deploy"
 import {charityApplications} from "contracts/multisigs/charity_applications/scripts/deploy";
 import {deployAPTeamMultiSig, deployApplicationsMultiSig} from "contracts/multisigs/scripts/deploy";
