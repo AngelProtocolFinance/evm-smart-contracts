@@ -2,7 +2,7 @@ import {task} from "hardhat/config";
 import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
 import {logger} from "utils";
 
-task("Deploy:deployEmitters", "Will deploy Emitters contract")
+task("Deploy:Emitters", "Will deploy Emitters contract")
   .addParam("verify", "Want to verify contract")
   .addParam("accountaddress", "Address of the account")
   .setAction(async (taskArgs, hre) => {

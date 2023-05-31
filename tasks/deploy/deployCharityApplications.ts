@@ -4,7 +4,7 @@ import {task} from "hardhat/config";
 import {logger} from "utils";
 import {getAddresses} from "utils";
 
-task("Deploy:deployCharityApplications", "Will deploy CharityApplications contract")
+task("Deploy:CharityApplications", "Will deploy CharityApplications contract")
   .addParam("verify", "Want to verify contract")
   .setAction(async (taskArgs, hre) => {
     try {
