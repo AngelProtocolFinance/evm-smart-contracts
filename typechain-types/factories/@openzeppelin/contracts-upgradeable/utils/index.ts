@@ -4,4 +4,4 @@
 export * as cryptography from "./cryptography";
 export * as introspection from "./introspection";
 export * as structs from "./structs";
-export { ContextUpgradeable__factory } from "./ContextUpgradeable__factory";
+export {ContextUpgradeable__factory} from "./ContextUpgradeable__factory";
