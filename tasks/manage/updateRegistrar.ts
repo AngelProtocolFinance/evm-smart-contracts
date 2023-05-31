@@ -8,7 +8,7 @@ import {ADDRESS_ZERO, getAddresses, getSigners, logger} from "utils";
 task("manage:updateRegistrar", "Will update the registrar config").setAction(
   async (taskArguments: TaskArguments, hre) => {
     try {
-      const {proxyAdmin, apTeam1, treasuryAdmin} = await getSigners(hre.ethers);
+      const {proxyAdmin, apTeam1, treasury} = await getSigners(hre.ethers);
 
       const addresses = await getAddresses(hre);
 
@@ -39,7 +39,7 @@ task("manage:updateRegistrar", "Will update the registrar config").setAction(
         // CONTRACT ADSRESSES
         indexFundContract: addresses.indexFund.proxy,
         govContract: apTeam1.address,
-        treasury: treasuryAdmin.address,
+        treasury: treasury.address,
         donationMatchCharitesContract: addresses.donationMatchCharity.proxy,
         donationMatchEmitter: ADDRESS_ZERO,
         haloToken: apTeam1.address,

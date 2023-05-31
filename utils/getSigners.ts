@@ -11,7 +11,7 @@ type Result = {
   deployer: SignerWithAddress;
   proxyAdmin: SignerWithAddress;
   timeLockAdmin: SignerWithAddress;
-  treasuryAdmin: SignerWithAddress;
+  treasury: SignerWithAddress;
 };
 
 export async function getSigners(ethers: HardhatRuntimeEnvironment["ethers"]): Promise<Result> {
@@ -26,7 +26,7 @@ export async function getSigners(ethers: HardhatRuntimeEnvironment["ethers"]): P
     apTeamMultisigOwners: [apTeam1, apTeam2],
     deployer,
     proxyAdmin,
-    treasuryAdmin: apTeam1,
+    treasury: apTeam1,
     timeLockAdmin: apTeam1,
   };
 }

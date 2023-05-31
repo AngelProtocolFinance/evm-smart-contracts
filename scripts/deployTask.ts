@@ -87,7 +87,7 @@ export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvi
 
     await cleanAddresses(hre);
 
-    const {proxyAdmin, apTeam1, apTeam2, apTeam3, treasuryAdmin} = await getSigners(ethers);
+    const {proxyAdmin, apTeam1, apTeam2, apTeam3, treasury} = await getSigners(ethers);
 
     console.log("Deploying the contracts with the account:", await proxyAdmin.getAddress());
 
@@ -133,7 +133,7 @@ export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvi
     );
 
     const registrarData = {
-      treasury: treasuryAdmin.address,
+      treasury: treasury.address,
       splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
       router: "", // will be updated to newly deployed router address in the next PR
       axelarGateway: config.REGISTRAR_DATA.axelarGateway,
@@ -387,7 +387,7 @@ export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvi
       donationMatchContract: implementations.donationMatch.implementation, //address
       indexFundContract: INDEX_FUND_ADDRESS, //address
       govContract: haloAddress.Gov.GovProxy, //address
-      treasury: treasuryAdmin.address,
+      treasury: treasury.address,
       donationMatchCharitesContract: implementations.donationMatchCharity.proxy, // once uniswap is setup //address
       donationMatchEmitter: emitters.DonationMatchEmitter,
       haloToken: haloAddress.Halo, //address

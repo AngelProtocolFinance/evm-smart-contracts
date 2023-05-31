@@ -60,7 +60,7 @@ async function deployLibraries() {
 
 export async function mainRouter(USDC: string, verify_contracts: boolean) {
   try {
-    const {applicationsMultisigOwners, apTeamMultisigOwners, deployer, proxyAdmin, treasuryAdmin} =
+    const {applicationsMultisigOwners, apTeamMultisigOwners, deployer, proxyAdmin, treasury} =
       await getSigners(ethers);
     // deployer = deployerObj
     console.log(deployer.address);
@@ -106,7 +106,7 @@ export async function mainRouter(USDC: string, verify_contracts: boolean) {
     );
 
     const registrarData = {
-      treasury: treasuryAdmin.address,
+      treasury: treasury.address,
       taxRate: config.REGISTRAR_DATA.taxRate,
       rebalance: config.REGISTRAR_DATA.rebalance,
       splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
@@ -372,7 +372,7 @@ export async function mainRouter(USDC: string, verify_contracts: boolean) {
       donationMatchContract: implementations.donationMatch, //address
       indexFundContract: INDEX_FUND_ADDRESS, //address
       govContract: haloAddress.Gov.GovProxy, //address
-      treasury: treasuryAdmin.address,
+      treasury: treasury.address,
       donationMatchCharitesContract: implementations.donationMatchCharity, // once uniswap is setup //address
       donationMatchEmitter: emitters.DonationMatchEmitter,
       haloToken: haloAddress.Halo, //address
