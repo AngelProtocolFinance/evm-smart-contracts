@@ -11,8 +11,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -47,47 +47,23 @@ export interface StorageMultiSigInterface extends utils.Interface {
     functionFragment: "confirmations",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "isOwner",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "owners",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "requireExecution",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "isOwner", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "owners", values: [PromiseOrValue<BigNumberish>]): string;
+  encodeFunctionData(functionFragment: "requireExecution", values?: undefined): string;
   encodeFunctionData(functionFragment: "required", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "transactionCount",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "transactionCount", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "transactions",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "confirmations",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "confirmations", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isOwner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owners", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "requireExecution",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "requireExecution", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "required", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "transactionCount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transactions",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "transactionCount", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "transactions", data: BytesLike): Result;
 
   events: {};
 }
@@ -109,9 +85,7 @@ export interface StorageMultiSig extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -125,15 +99,9 @@ export interface StorageMultiSig extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    isOwner(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    isOwner(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[boolean]>;
 
-    owners(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
+    owners(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<[string]>;
 
     requireExecution(overrides?: CallOverrides): Promise<[boolean]>;
 
@@ -163,15 +131,9 @@ export interface StorageMultiSig extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  isOwner(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  isOwner(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
 
-  owners(
-    arg0: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<string>;
+  owners(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<string>;
 
   requireExecution(overrides?: CallOverrides): Promise<boolean>;
 
@@ -201,15 +163,9 @@ export interface StorageMultiSig extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    isOwner(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    isOwner(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
 
-    owners(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<string>;
+    owners(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<string>;
 
     requireExecution(overrides?: CallOverrides): Promise<boolean>;
 
@@ -242,15 +198,9 @@ export interface StorageMultiSig extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    isOwner(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    isOwner(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 
-    owners(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    owners(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<BigNumber>;
 
     requireExecution(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -258,10 +208,7 @@ export interface StorageMultiSig extends BaseContract {
 
     transactionCount(overrides?: CallOverrides): Promise<BigNumber>;
 
-    transactions(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    transactions(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -271,10 +218,7 @@ export interface StorageMultiSig extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    isOwner(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    isOwner(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owners(
       arg0: PromiseOrValue<BigNumberish>,
