@@ -5,7 +5,6 @@ import {getAddresses, getSigners, logger} from "utils";
 
 task("Deploy:deployRegistrar", "Will deploy Registrar contract")
   .addParam("verify", "Want to verify contract")
-  .addParam("strlib", "Address of the string Library contract")
   .setAction(async (taskArgs, hre) => {
     try {
       const {
@@ -21,7 +20,7 @@ task("Deploy:deployRegistrar", "Will deploy Registrar contract")
         axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
       };
       var isTrueSet = taskArgs.verify === "true";
-      await deployRegistrar(taskArgs.strlib, registrarData, apTeam.proxy, isTrueSet, hre);
+      await deployRegistrar(registrarData, apTeam.proxy, isTrueSet, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
