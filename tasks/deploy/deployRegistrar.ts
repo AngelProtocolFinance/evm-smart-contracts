@@ -3,7 +3,7 @@ import config from "config";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {getAddresses, getSigners, logger} from "utils";
 
-task("Deploy:deployRegistrar", "Will deploy Registrar contract")
+task("Deploy:Registrar", "Will deploy Registrar contract")
   .addParam("verify", "Want to verify contract")
   .setAction(async (taskArgs, hre) => {
     try {
