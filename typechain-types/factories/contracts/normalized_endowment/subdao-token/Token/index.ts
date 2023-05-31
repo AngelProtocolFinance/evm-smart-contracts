@@ -2,5 +2,5 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as continousSol from "./Continous.sol";
-export { BancorBondingCurve__factory } from "./BancorBondingCurve__factory";
-export { Power__factory } from "./Power__factory";
+export {BancorBondingCurve__factory} from "./BancorBondingCurve__factory";
+export {Power__factory} from "./Power__factory";

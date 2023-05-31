@@ -11,12 +11,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -53,27 +49,12 @@ export interface FactoryInterface extends utils.Interface {
     functionFragment: "instantiations",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "isInstantiation",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "isInstantiation", values: [PromiseOrValue<string>]): string;
 
-  decodeFunctionResult(
-    functionFragment: "endowmentIdToMultisig",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getInstantiationCount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "instantiations",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isInstantiation",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "endowmentIdToMultisig", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getInstantiationCount", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "instantiations", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "isInstantiation", data: BytesLike): Result;
 
   events: {
     "ContractInstantiation(address,address)": EventFragment;
@@ -91,8 +72,7 @@ export type ContractInstantiationEvent = TypedEvent<
   ContractInstantiationEventObject
 >;
 
-export type ContractInstantiationEventFilter =
-  TypedEventFilter<ContractInstantiationEvent>;
+export type ContractInstantiationEventFilter = TypedEventFilter<ContractInstantiationEvent>;
 
 export interface Factory extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -111,9 +91,7 @@ export interface Factory extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -137,10 +115,7 @@ export interface Factory extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    isInstantiation(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    isInstantiation(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[boolean]>;
   };
 
   endowmentIdToMultisig(
@@ -159,10 +134,7 @@ export interface Factory extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  isInstantiation(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  isInstantiation(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
 
   callStatic: {
     endowmentIdToMultisig(
@@ -181,10 +153,7 @@ export interface Factory extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    isInstantiation(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    isInstantiation(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
   };
 
   filters: {
@@ -192,10 +161,7 @@ export interface Factory extends BaseContract {
       sender?: null,
       instantiation?: null
     ): ContractInstantiationEventFilter;
-    ContractInstantiation(
-      sender?: null,
-      instantiation?: null
-    ): ContractInstantiationEventFilter;
+    ContractInstantiation(sender?: null, instantiation?: null): ContractInstantiationEventFilter;
   };
 
   estimateGas: {
@@ -215,10 +181,7 @@ export interface Factory extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    isInstantiation(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    isInstantiation(arg0: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {

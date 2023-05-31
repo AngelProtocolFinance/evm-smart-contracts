@@ -2,12 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
-import type {
-  IAccounts,
-  IAccountsInterface,
-} from "../../../../contracts/core/accounts/IAccounts";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
+import type {IAccounts, IAccountsInterface} from "../../../../contracts/core/accounts/IAccounts";
 
 const _abi = [
   {
@@ -2283,10 +2280,7 @@ export class IAccounts__factory {
   static createInterface(): IAccountsInterface {
     return new utils.Interface(_abi) as IAccountsInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IAccounts {
+  static connect(address: string, signerOrProvider: Signer | Provider): IAccounts {
     return new Contract(address, _abi, signerOrProvider) as IAccounts;
   }
 }
