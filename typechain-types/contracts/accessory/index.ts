@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as giftCards from "./gift-cards";
-export type { giftCards };
+export type {giftCards};
