@@ -78,12 +78,14 @@ contract AccountDepositWithdrawEndowments is
             details.id
         ];
         require(!tempEndowmentState.closingEndowment, "Endowment is closed");
-        require(state.AcceptedTokens[details.id][tokenAddress], "Not in the Accepted Tokens List");
-
-        RegistrarStorage.Config memory registrar_config = 
-            IRegistrar(state.config.registrarContract)
-            .queryConfig();
-
+        // Check that the deposited token is either:
+        // A. In the protocol-level accepted tokens list in the Registrar Contract OR
+        // B. In the endowment-level accepted tokens list
+        require(
+            IRegistrar(state.config.registrarContract).isTokenAccepted(tokenAddress) ||
+            state.AcceptedTokens[details.id][tokenAddress],
+            "Not in an Accepted Tokens List"
+        );
         require(IERC20(tokenAddress).transferFrom(
             msg.sender,
             address(this),
@@ -250,7 +252,15 @@ contract AccountDepositWithdrawEndowments is
             id
         ];
         require(!tempEndowmentState.closingEndowment, "Endowment is closed");
-        require(state.AcceptedTokens[id][tokenAddress], "Not in the Accepted Tokens List");
+
+        // Check that the withdraw token is either:
+        // A. In the protocol-level accepted tokens list in the Registrar Contract OR
+        // B. In the endowment-level accepted tokens list
+        require(
+            IRegistrar(state.config.registrarContract).isTokenAccepted(tokenAddress) ||
+            state.AcceptedTokens[id][tokenAddress],
+            "Not in an Accepted Tokens List"
+        );
 
         // fetch regisrar config
         RegistrarStorage.Config memory registrar_config = IRegistrar(
