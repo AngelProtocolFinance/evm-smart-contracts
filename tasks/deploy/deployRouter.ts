@@ -7,14 +7,18 @@ task("Deploy:Router", "Will deploy Router contract")
   .addParam("verify", "Want to verify contract")
   .setAction(async (taskArgs, hre) => {
     try {
-      const {registrar} = await getAddresses(hre);
+      const {
+        registrar,
+        multiSig: {apTeam},
+      } = await getAddresses(hre);
 
-      var verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify === "true";
+      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify === "true";
 
       await deployRouter(
         config.REGISTRAR_DATA.axelarGateway,
         config.REGISTRAR_DATA.axelarGasRecv,
         registrar.proxy,
+        apTeam.proxy,
         verify_contracts,
         hre
       );
