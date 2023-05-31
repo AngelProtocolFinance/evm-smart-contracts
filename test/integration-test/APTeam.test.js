@@ -8,7 +8,7 @@ const Web3 = require("web3");
 // import keccak256 from 'keccak256'
 // import { MerkleTree } from 'merkletreejs'
 const web3 = new Web3();
-let {main} = require("../../scripts/deployMain");
+let {main} = require("../../scripts/deployAngelProtocol");
 
 let amounts = [1, 200, 300].map((amount) => ethers.utils.parseEther(amount.toString()));
 

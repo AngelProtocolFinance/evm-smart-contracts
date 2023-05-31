@@ -20,8 +20,6 @@ var ANGEL_CORE_STRUCT: Contract;
 var STRING_LIBRARY: Contract;
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 var REGISTRAR_ADDRESS;
-var deployer;
-var proxyAdmin;
 
 let updateConfig: RegistrarMessages.UpdateConfigRequestStruct;
 
@@ -30,12 +28,13 @@ interface AddressWriter {
 }
 let addressWriter: AddressWriter = {};
 
-import {cleanAddresses, updateAddresses} from "utils";
+import {ContractFunctionParams, cleanAddresses, updateAddresses} from "utils";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {Contract} from "ethers";
 import {APTeamMultiSig, ApplicationsMultiSig} from "typechain-types";
 import {isLocalNetwork} from "utils";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
+import {getSigners} from "utils/getSigners";
 
 async function deployLibraries(verify_contracts: boolean, hre: HardhatRuntimeEnvironment) {
   try {
@@ -82,26 +81,20 @@ async function deployLibraries(verify_contracts: boolean, hre: HardhatRuntimeEnv
   }
 }
 
-export async function mainTask(
-  apTeamAdmins = [],
-  verify_contracts = false,
-  hre: HardhatRuntimeEnvironment
-) {
+export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvironment) {
   try {
     const {run, network, ethers} = hre;
 
     await cleanAddresses(hre);
 
-    var Admins = config.AP_TEAM_MULTISIG_DATA.admins;
-    if (apTeamAdmins.length != 0) Admins = apTeamAdmins;
+    const {proxyAdmin, apTeam1, apTeam2, apTeam3, treasury} = await getSigners(ethers);
 
-    [deployer, proxyAdmin] = await ethers.getSigners();
-    console.log("Deploying the contracts with the account:", await deployer.getAddress());
+    console.log("Deploying the contracts with the account:", await proxyAdmin.getAddress());
 
     // Mock setup required for testing
     let mockUSDC: Contract | undefined;
     if (isLocalNetwork(network)) {
-      const MockUSDC = await ethers.getContractFactory("MockUSDC");
+      const MockUSDC = await ethers.getContractFactory("MockUSDC", proxyAdmin);
       mockUSDC = await MockUSDC.deploy("USDC", "USDC", 100);
       await mockUSDC.deployed();
       config.REGISTRAR_DATA.acceptedTokens.cw20 = [mockUSDC.address];
@@ -109,40 +102,25 @@ export async function mainTask(
       config.DONATION_MATCH_CHARITY_DATA.usdcAddress = mockUSDC.address;
 
       let tx = await mockUSDC.mint(
-        deployer.address,
+        proxyAdmin.address,
         ethers.utils.parseEther("10000000000000000000000")
       );
       await tx.wait();
 
-      console.log("given deployer USDC");
+      console.log("given proxyAdmin USDC");
 
       console.log("USDC Mock Address", mockUSDC.address);
     }
 
     await deployLibraries(verify_contracts, hre);
 
-    const registrarData = {
-      treasury: config.REGISTRAR_DATA.treasury,
-      splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
-      router: config.REGISTRAR_DATA.router,
-      axelarGateway: config.REGISTRAR_DATA.axelarGateway,
-      axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
-    };
-
-    REGISTRAR_ADDRESS = await deployRegistrar(
-      STRING_LIBRARY.address,
-      registrarData,
-      verify_contracts,
-      hre
-    );
-
-    var APTeamData: Parameters<APTeamMultiSig["initialize"]> = [
-      Admins,
+    var APTeamData: ContractFunctionParams<APTeamMultiSig["initialize"]> = [
+      [apTeam1.address, apTeam2.address],
       config.AP_TEAM_MULTISIG_DATA.threshold,
       config.AP_TEAM_MULTISIG_DATA.requireExecution,
     ];
-    var ApplicationData: Parameters<ApplicationsMultiSig["initialize"]> = [
-      Admins,
+    var ApplicationData: ContractFunctionParams<ApplicationsMultiSig["initialize"]> = [
+      [apTeam2.address, apTeam3.address],
       config.APPLICATION_MULTISIG_DATA.threshold,
       config.APPLICATION_MULTISIG_DATA.requireExecution,
     ];
@@ -150,6 +128,22 @@ export async function mainTask(
     const multisigAddress = await deployMultisig(
       ApplicationData,
       APTeamData,
+      verify_contracts,
+      hre
+    );
+
+    const registrarData = {
+      treasury: treasury.address,
+      splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
+      router: "", // will be updated to newly deployed router address in the next PR
+      axelarGateway: config.REGISTRAR_DATA.axelarGateway,
+      axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
+    };
+
+    REGISTRAR_ADDRESS = await deployRegistrar(
+      STRING_LIBRARY.address,
+      registrarData,
+      multisigAddress.APTeamMultiSig,
       verify_contracts,
       hre
     );
@@ -208,7 +202,12 @@ export async function mainTask(
       fundingGoal: config.INDEX_FUND_DATA.fundingGoal,
     };
 
-    let INDEX_FUND_ADDRESS = await deployIndexFund(indexFundData, verify_contracts, hre);
+    let INDEX_FUND_ADDRESS = await deployIndexFund(
+      indexFundData,
+      multisigAddress.APTeamMultiSig,
+      verify_contracts,
+      hre
+    );
 
     console.log("INDEX_FUND_ADDRESS contract deployed at:-", INDEX_FUND_ADDRESS);
 
@@ -242,7 +241,7 @@ export async function mainTask(
 
     console.log("halo token deployed at: ", haloToken.address);
 
-    console.log("halo token balance: ", await haloToken.balanceOf(deployer.address));
+    console.log("halo token balance: ", await haloToken.balanceOf(proxyAdmin.address));
 
     //
     if (isLocalNetwork(network)) {
@@ -302,7 +301,7 @@ export async function mainTask(
       console.log("Created WETH pool");
 
       // deploy DAI
-      const DAI = await ethers.getContractFactory("MockERC20");
+      const DAI = await ethers.getContractFactory("MockERC20", proxyAdmin);
       const dai = await DAI.deploy("DAI", "DAI", "1000000000");
       await dai.deployed();
       config.REGISTRAR_UPDATE_CONFIG.DAI_address = dai.address;
@@ -310,7 +309,7 @@ export async function mainTask(
       config.REGISTRAR_DATA.acceptedTokens.cw20.push(dai.address);
 
       // mint DAI
-      await dai.mint(deployer.address, ethers.utils.parseEther("100000000"));
+      await dai.mint(proxyAdmin.address, ethers.utils.parseEther("100000000"));
 
       console.log(dai.address);
 
@@ -388,7 +387,7 @@ export async function mainTask(
       donationMatchContract: implementations.donationMatch.implementation, //address
       indexFundContract: INDEX_FUND_ADDRESS, //address
       govContract: haloAddress.Gov.GovProxy, //address
-      treasury: config.REGISTRAR_DATA.treasury,
+      treasury: treasury.address,
       donationMatchCharitesContract: implementations.donationMatchCharity.proxy, // once uniswap is setup //address
       donationMatchEmitter: emitters.DonationMatchEmitter,
       haloToken: haloAddress.Halo, //address

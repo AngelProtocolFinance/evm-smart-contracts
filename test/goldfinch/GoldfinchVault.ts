@@ -13,7 +13,7 @@ import {
   LocalRegistrar,
   LocalRegistrar__factory,
 } from "typechain-types";
-import {StrategyApprovalState} from "utils";
+import {StrategyApprovalState, getSigners} from "utils";
 
 describe("Goldfinch Vault", function () {
   let owner: SignerWithAddress;
@@ -61,7 +61,10 @@ describe("Goldfinch Vault", function () {
   };
 
   async function deployAndConfigureRegistrarAsProxy(): Promise<LocalRegistrar> {
-    [owner, taxCollector, user] = await ethers.getSigners();
+    const {proxyAdmin, apTeam2, apTeam3} = await getSigners(ethers);
+    owner = proxyAdmin;
+    taxCollector = apTeam2;
+    user = apTeam3;
     Registrar = (await ethers.getContractFactory("LocalRegistrar")) as LocalRegistrar__factory;
     const registrar = (await upgrades.deployProxy(Registrar)) as LocalRegistrar;
     await registrar.deployed();

@@ -11,7 +11,7 @@ import {
 import deployFacets from "./deployFacets";
 import updateDiamond from "./updateDiamond";
 import verify from "./verify";
-import {logger, updateAddresses} from "utils";
+import {getSigners, logger, updateAddresses} from "utils";
 
 export async function deployDiamond(
   owner: string,
@@ -22,7 +22,7 @@ export async function deployDiamond(
   verify_contracts = false
 ) {
   try {
-    const [_deployer, diamondAdmin] = await hre.ethers.getSigners();
+    const {proxyAdmin: diamondAdmin} = await getSigners(hre.ethers);
     const diamondCut = await deployDiamondCutFacet(diamondAdmin);
 
     const diamond = await _deployDiamond(diamondAdmin, diamondCut.address, hre);

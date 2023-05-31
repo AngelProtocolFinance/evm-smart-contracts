@@ -1,66 +1,49 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {task} from "hardhat/config";
-import {AccountsCreateEndowment, AccountsQueryEndowments, MultiSigGeneric} from "typechain-types";
+import {
+  AccountsQueryEndowments__factory,
+  ApplicationsMultiSig__factory,
+  CharityApplication__factory,
+  MultiSigGeneric__factory,
+} from "typechain-types";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/IAccounts";
-import {genWallet, getAddresses, logger} from "utils";
+import {genWallet, getAddresses, getSigners, logger} from "utils";
 
 task("manage:createCharityEndowment", "Will create a new charity endowment").setAction(
   async (_taskArguments, hre) => {
     try {
-      let deployer: SignerWithAddress;
-      let apTeam1: SignerWithAddress;
-      let apTeam2: SignerWithAddress;
-      let apTeam3: SignerWithAddress;
-      [deployer, apTeam1, apTeam2, apTeam3] = await hre.ethers.getSigners();
+      const {apTeam1, apTeam2} = await getSigners(hre.ethers);
 
       const addresses = await getAddresses(hre);
 
-      let createEndowmentFacet = (await hre.ethers.getContractAt(
-        "AccountsCreateEndowment",
-        addresses.accounts.diamond
-      )) as AccountsCreateEndowment;
-      let queryEndowmentFacet = (await hre.ethers.getContractAt(
-        "AccountsQueryEndowments",
-        addresses.accounts.diamond
-      )) as AccountsQueryEndowments;
+      const queryEndowmentFacet = AccountsQueryEndowments__factory.connect(
+        addresses.accounts.diamond,
+        apTeam1
+      );
 
-      // let createEndowmentFacet = await AccountsCreateEndowment__factory
-      //                         .connect(addresses.accounts.diamond, apTeam1)
+      const config = await queryEndowmentFacet.queryConfig();
+      logger.out(`Current config: ${JSON.stringify(config, undefined, 2)}`);
 
-      // let config = await queryEndowmentFacet.queryConfig()
-      // logger.out(config)
-      // let endowmentDetails = await queryEndowmentFacet.queryEndowmentDetails(0)
-      // logger.out(endowmentDetails)
+      logger.out("Generating new wallet as owner...");
+      const wallet = genWallet(true);
 
-      logger.out("Generating new wallet as owner");
-      let wallet = genWallet(true);
-
-      let endowState = await queryEndowmentFacet.queryEndowmentDetails(37); // Charity #1
-
-      let currDetails: AccountMessages.CreateEndowmentRequestStruct = {
+      const createEndowmentRequest: AccountMessages.CreateEndowmentRequestStruct = {
         owner: wallet.address,
         withdrawBeforeMaturity: false,
         maturityTime: 0,
         maturityHeight: 0,
-        name: "Test Charity Endowment #3",
+        name: `Test Charity Endowment #${config.nextAccountId}`,
         categories: {
           sdgs: [1],
           general: [],
         },
+        kycDonorsOnly: false,
+        referralId: 0,
         tier: 3,
         endowType: 0, // Charity
         logo: "",
         image: "",
-        members: [wallet.address, endowState.owner],
-        threshold: {
-          enumData: 0,
-          data: {
-            weight: 0,
-            percentage: 0,
-            threshold: 0,
-            quorum: 1,
-          },
-        },
+        members: [wallet.address, apTeam1.address],
+        threshold: 1,
         maxVotingPeriod: {
           enumData: 0,
           data: {
@@ -68,30 +51,26 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
             time: 0,
           },
         },
-        allowlistedBeneficiaries: [wallet.address, apTeam2.address],
-        allowlistedContributors: [wallet.address, apTeam2.address],
+        allowlistedBeneficiaries: [wallet.address, apTeam1.address],
+        allowlistedContributors: [wallet.address, apTeam1.address],
         splitMax: 100,
         splitMin: 0,
         splitDefault: 50,
-        earningsFee: {
+        earlyLockedWithdrawFee: {
           payoutAddress: apTeam1.address,
-          feePercentage: 2,
-          active: true,
+          percentage: 5,
         },
         withdrawFee: {
           payoutAddress: apTeam1.address,
-          feePercentage: 2,
-          active: true,
+          percentage: 2,
         },
         depositFee: {
           payoutAddress: apTeam1.address,
-          feePercentage: 2,
-          active: true,
+          percentage: 2,
         },
         balanceFee: {
           payoutAddress: apTeam1.address,
-          feePercentage: 2,
-          active: true,
+          percentage: 2,
         },
         dao: {
           quorum: 1,
@@ -105,11 +84,11 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
             token: 0,
             data: {
               existingData: apTeam1.address,
-              newCw20InitialSupply: 0,
-              newCw20Name: "",
-              newCw20Symbol: "",
-              bondingCurveCurveType: {
-                curve_type: 0,
+              newInitialSupply: 0,
+              newName: "",
+              newSymbol: "",
+              veBondingType: {
+                ve_type: 0,
                 data: {
                   value: 0,
                   scale: 0,
@@ -117,140 +96,140 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
                   power: 0,
                 },
               },
-              bondingCurveName: "",
-              bondingCurveSymbol: "",
-              bondingCurveDecimals: 18,
-              bondingCurveReserveDenom: apTeam1.address,
-              bondingCurveReserveDecimals: 18,
-              bondingCurveUnbondingPeriod: 0,
+              veBondingName: "",
+              veBondingSymbol: "",
+              veBondingDecimals: 18,
+              veBondingReserveDenom: apTeam1.address,
+              veBondingReserveDecimals: 18,
+              veBondingPeriod: 0,
             },
           },
         },
         createDao: false,
         proposalLink: 0,
         settingsController: {
-          endowmentController: {
-            modifiableAfterInit: true,
-            delegate: {
-              Addr: apTeam1.address,
-              expires: 0,
-            },
-          },
-          strategies: {
-            modifiableAfterInit: true,
-            delegate: {
-              Addr: apTeam1.address,
-              expires: 0,
-            },
-          },
           allowlistedBeneficiaries: {
-            modifiableAfterInit: true,
+            locked: false,
             delegate: {
-              Addr: apTeam1.address,
+              addr: apTeam1.address,
               expires: 0,
             },
           },
           allowlistedContributors: {
-            modifiableAfterInit: true,
+            locked: false,
             delegate: {
-              Addr: apTeam1.address,
-              expires: 0,
-            },
-          },
-          maturityAllowlist: {
-            modifiableAfterInit: true,
-            delegate: {
-              Addr: apTeam1.address,
-              expires: 0,
-            },
-          },
-          maturityTime: {
-            modifiableAfterInit: true,
-            delegate: {
-              Addr: apTeam1.address,
-              expires: 0,
-            },
-          },
-          profile: {
-            modifiableAfterInit: true,
-            delegate: {
-              Addr: apTeam1.address,
-              expires: 0,
-            },
-          },
-          earningsFee: {
-            modifiableAfterInit: true,
-            delegate: {
-              Addr: apTeam1.address,
-              expires: 0,
-            },
-          },
-          withdrawFee: {
-            modifiableAfterInit: true,
-            delegate: {
-              Addr: apTeam1.address,
-              expires: 0,
-            },
-          },
-          depositFee: {
-            modifiableAfterInit: true,
-            delegate: {
-              Addr: apTeam1.address,
+              addr: apTeam1.address,
               expires: 0,
             },
           },
           balanceFee: {
-            modifiableAfterInit: true,
+            locked: false,
             delegate: {
-              Addr: apTeam1.address,
-              expires: 0,
-            },
-          },
-          name: {
-            modifiableAfterInit: true,
-            delegate: {
-              Addr: apTeam1.address,
-              expires: 0,
-            },
-          },
-          image: {
-            modifiableAfterInit: true,
-            delegate: {
-              Addr: apTeam1.address,
-              expires: 0,
-            },
-          },
-          logo: {
-            modifiableAfterInit: true,
-            delegate: {
-              Addr: apTeam1.address,
+              addr: apTeam1.address,
               expires: 0,
             },
           },
           categories: {
-            modifiableAfterInit: true,
+            locked: false,
             delegate: {
-              Addr: apTeam1.address,
+              addr: apTeam1.address,
               expires: 0,
             },
           },
-          splitToLiquid: {
-            modifiableAfterInit: true,
+          depositFee: {
+            locked: false,
             delegate: {
-              Addr: apTeam1.address,
+              addr: apTeam1.address,
+              expires: 0,
+            },
+          },
+          earlyLockedWithdrawFee: {
+            locked: false,
+            delegate: {
+              addr: apTeam1.address,
               expires: 0,
             },
           },
           ignoreUserSplits: {
-            modifiableAfterInit: true,
+            locked: false,
             delegate: {
-              Addr: apTeam1.address,
+              addr: apTeam1.address,
+              expires: 0,
+            },
+          },
+          image: {
+            locked: false,
+            delegate: {
+              addr: apTeam1.address,
+              expires: 0,
+            },
+          },
+          liquidInvestmentManagement: {
+            locked: false,
+            delegate: {
+              addr: apTeam1.address,
+              expires: 0,
+            },
+          },
+          lockedInvestmentManagement: {
+            locked: false,
+            delegate: {
+              addr: apTeam1.address,
+              expires: 0,
+            },
+          },
+          logo: {
+            locked: false,
+            delegate: {
+              addr: apTeam1.address,
+              expires: 0,
+            },
+          },
+          maturityAllowlist: {
+            locked: false,
+            delegate: {
+              addr: apTeam1.address,
+              expires: 0,
+            },
+          },
+          maturityTime: {
+            locked: false,
+            delegate: {
+              addr: apTeam1.address,
+              expires: 0,
+            },
+          },
+          name: {
+            locked: false,
+            delegate: {
+              addr: apTeam1.address,
+              expires: 0,
+            },
+          },
+          splitToLiquid: {
+            locked: false,
+            delegate: {
+              addr: apTeam1.address,
+              expires: 0,
+            },
+          },
+          strategies: {
+            locked: false,
+            delegate: {
+              addr: apTeam1.address,
+              expires: 0,
+            },
+          },
+          withdrawFee: {
+            locked: false,
+            delegate: {
+              addr: apTeam1.address,
               expires: 0,
             },
           },
         },
         parent: 0,
-        maturityAllowlist: [wallet.address, apTeam2.address],
+        maturityAllowlist: [wallet.address, apTeam1.address],
         ignoreUserSplits: false,
         splitToLiquid: {
           max: 100,
@@ -258,31 +237,61 @@ task("manage:createCharityEndowment", "Will create a new charity endowment").set
           defaultSplit: 50,
         },
       };
-      // let tx = await createEndowmentFacet.connect(apTeam1).createEndowment(currDetails)
-      // await hre.ethers.provider.waitForTransaction(tx.hash)
 
-      for (let i = 1; i < 1000; i++) {
-        try {
-          let endowState = await queryEndowmentFacet.queryEndowmentDetails(i);
-          logger.out(`${i} ${endowState.name} ${endowState.owner}`);
-          let multisig = (await hre.ethers.getContractAt(
-            "MultiSigGeneric",
-            endowState.owner
-          )) as MultiSigGeneric;
-          for (let j = 0; i < 50; j++) {
-            try {
-              logger.out(await multisig.owners(j));
-            } catch (error) {
-              break;
-            }
-          }
-        } catch (error) {
-          logger.out(error, logger.Level.Error);
-          return;
-        }
+      logger.out("Creating a charity proposal...");
+      const charityApplication = CharityApplication__factory.connect(
+        addresses.charityApplication.proxy,
+        apTeam1
+      );
+      const tx = await charityApplication.proposeCharity(createEndowmentRequest, "");
+      const receipt = await tx.wait();
+
+      if (!receipt.events?.length) {
+        throw new Error("Unexpected behaviour: no events emitted.");
+      }
+
+      const charityProposedEvent = receipt.events[0];
+      if (!charityProposedEvent.args?.length) {
+        throw new Error("Unexpected behaviour: no args in CharityProposed event.");
+      }
+      if (!charityProposedEvent.args.at(1)) {
+        throw new Error("Unexpected behaviour: no proposalId in CharityProposed args.");
+      }
+
+      const proposalId = charityProposedEvent.args[1];
+
+      logger.out(`Approving the new charity endowment with proposal ID: ${proposalId}...`);
+      const applicationMultisig = ApplicationsMultiSig__factory.connect(
+        addresses.multiSig.applications.proxy,
+        apTeam2
+      );
+      const data = charityApplication.interface.encodeFunctionData("approveCharity", [proposalId]);
+      const submitTransactionTx = await applicationMultisig.submitTransaction(
+        `Approve endowment with proposal ID: ${proposalId}`,
+        `Approve endowment with proposal ID: ${proposalId}`,
+        addresses.charityApplication.proxy,
+        0,
+        data,
+        "0x"
+      );
+      await submitTransactionTx.wait();
+
+      const newEndowmentDetails = await queryEndowmentFacet.queryEndowmentDetails(
+        config.nextAccountId
+      );
+      logger.out(`Added endowment: ${JSON.stringify(newEndowmentDetails, undefined, 2)}`);
+      logger.out();
+
+      const multisig = MultiSigGeneric__factory.connect(newEndowmentDetails.owner, apTeam1);
+      logger.out("Listing newly created endowment's multisig wallet owners...");
+      const owners = await multisig.getOwners();
+      for (let i = 0; i < owners.length; i++) {
+        logger.out(await multisig.owners(i));
       }
     } catch (error) {
       logger.out(error, logger.Level.Error);
+    } finally {
+      logger.out("Done.");
     }
   }
 );

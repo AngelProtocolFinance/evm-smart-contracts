@@ -8,7 +8,7 @@ const Web3 = require("web3");
 // import keccak256 from 'keccak256'
 // import { MerkleTree } from 'merkletreejs'
 const web3 = new Web3();
-let {main} = require("../../scripts/deployMain");
+let {main} = require("../../scripts/deployAngelProtocol");
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 const ADDRESS_ONE = "0x0000000000000000000000000000000000000001";
 

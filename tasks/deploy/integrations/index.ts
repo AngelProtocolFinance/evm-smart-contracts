@@ -1,1 +1,1 @@
-import "./goldfinch.ts";
+import "./goldfinch";

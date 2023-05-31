@@ -2,7 +2,7 @@
 // yours, or create new ones.
 
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {logger, updateAddresses} from "utils";
+import {getSigners, logger, updateAddresses} from "utils";
 
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
@@ -17,7 +17,7 @@ export async function deploySwapRouter(
   try {
     const {network, run, ethers} = hre;
 
-    let [deployer, proxyAdmin] = await ethers.getSigners();
+    const {proxyAdmin} = await getSigners(ethers);
     const swapRouter = await ethers.getContractFactory("SwapRouter");
     const swapRouterInstance = await swapRouter.deploy();
     await swapRouterInstance.deployed();

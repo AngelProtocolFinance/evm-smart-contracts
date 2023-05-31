@@ -1,19 +1,14 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {task} from "hardhat/config";
 import type {TaskArguments} from "hardhat/types";
 import {MultiSigGeneric} from "typechain-types";
-import {logger} from "utils";
+import {getSigners, logger} from "utils";
 
 task("manage:addMultisigOwner", "Will add the specified address to the multisig as an owner")
   .addParam("multisig", "Address of multisig")
   .addParam("owner", "Address of the new owner")
   .setAction(async (taskArguments: TaskArguments, hre) => {
     try {
-      let deployer: SignerWithAddress;
-      let apTeam1: SignerWithAddress;
-      let apTeam2: SignerWithAddress;
-      let apTeam3: SignerWithAddress;
-      [deployer, apTeam1, apTeam2, apTeam3] = await hre.ethers.getSigners();
+      const {apTeam2} = await getSigners(hre.ethers);
 
       const multisig = (await hre.ethers.getContractAt(
         "MultiSigGeneric",
