@@ -3,7 +3,7 @@ import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
-import {isLocalNetwork, updateAddresses} from "utils";
+import {ADDRESS_ZERO, isLocalNetwork, updateAddresses} from "utils";
 // import { deployHaloImplementation } from "contracts/halo/scripts/deploy"
 import {charityApplications} from "contracts/multisigs/charity_applications/scripts/deploy";
 import {deployMultisig} from "contracts/multisigs/scripts/deploy";
@@ -83,7 +83,7 @@ export async function deployAngelProtocol(hre: HardhatRuntimeEnvironment): Promi
     rebalance: config.REGISTRAR_DATA.rebalance,
     splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
     acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
-    router: "routerAdmin.address",
+    router: ADDRESS_ZERO,
     axelarGateway: config.REGISTRAR_DATA.axelarGateway,
     axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
   };
@@ -99,6 +99,7 @@ export async function deployAngelProtocol(hre: HardhatRuntimeEnvironment): Promi
     config.REGISTRAR_DATA.axelarGateway,
     config.REGISTRAR_DATA.axelarGasRecv,
     registrar.proxy.address,
+    multisigAddress.APTeamMultiSig,
     verify_contracts,
     hre
   );
