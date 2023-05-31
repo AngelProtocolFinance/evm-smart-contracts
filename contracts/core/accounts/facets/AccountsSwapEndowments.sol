@@ -36,9 +36,16 @@ contract AccountsSwapEndowments is ReentrancyGuardFacet, AccountsEvents {
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
 
-        require(amount > 0, "InvalidInputs");
-        require(tokenIn != address(0), "InvalidInputs");
-        require(tokenOut != address(0), "InvalidInputs");
+        require(amount > 0, "Invalid Swap Input: Zero Amount");
+        require(tokenIn != address(0) && tokenOut != address(0), "Invalid Swap Input: Zero Address");
+        // Check that the desired output token from the swap is either:
+        // A. In the protocol-level accepted tokens list in the Registrar Contract OR
+        // B. In the endowment-level accepted tokens list
+        require(
+            IRegistrar(state.config.registrarContract).isTokenAccepted(tokenOut) ||
+            state.AcceptedTokens[id][tokenOut],
+            "Output token not in an Accepted Tokens List"
+        );
 
         // check if the msg sender is either the owner or their delegate address and
         // that they have the power to manage the investments for an account balance
