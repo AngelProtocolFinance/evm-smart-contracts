@@ -22,42 +22,49 @@ abstract contract IVault {
     bytes4 strategySelector;
     address strategy;
     address registrar;
+    address baseAsset;
     address yieldAsset;
     string apTokenName;
     string apTokenSymbol;
+    address admin; 
   }
 
-    /// @notice Gerneric AP Vault action data 
-    /// @param destinationChain The Axelar string name of the blockchain that will receive redemptions/refunds
-    /// @param strategyId The 4 byte truncated keccak256 hash of the strategy name, i.e. bytes4(keccak256("Goldfinch"))
-    /// @param selector The Vault method that should be called
-    /// @param accountId The endowment uid
-    /// @param token The token (if any) that was forwarded along with the calldata packet by GMP
-    /// @param lockAmt The amount of said token that is intended to interact with the locked vault
-    /// @param liqAmt The amount of said token that is intended to interact with the liquid vault
-    struct VaultActionData {
-        string destinationChain;
-        bytes4 strategyId;
-        bytes4 selector;
-        uint32[] accountIds;
-        address token;
-        uint256 lockAmt;
-        uint256 liqAmt;
-        VaultActionStatus status;
-    }
+  /// @notice Gerneric AP Vault action data 
+  /// @param destinationChain The Axelar string name of the blockchain that will receive redemptions/refunds
+  /// @param strategyId The 4 byte truncated keccak256 hash of the strategy name, i.e. bytes4(keccak256("Goldfinch"))
+  /// @param selector The Vault method that should be called
+  /// @param accountId The endowment uid
+  /// @param token The token (if any) that was forwarded along with the calldata packet by GMP
+  /// @param lockAmt The amount of said token that is intended to interact with the locked vault
+  /// @param liqAmt The amount of said token that is intended to interact with the liquid vault
+  struct VaultActionData {
+      string destinationChain;
+      bytes4 strategyId;
+      bytes4 selector;
+      uint32[] accountIds;
+      address token;
+      uint256 lockAmt;
+      uint256 liqAmt;
+      VaultActionStatus status;
+  }
 
-    enum VaultActionStatus {
-        UNPROCESSED,                // INIT state
-        SUCCESS,                    // Ack 
-        POSITION_EXITED,             // Position fully exited 
-        FAIL_TOKENS_RETURNED,       // Tokens returned to accounts contract
-        FAIL_TOKENS_FALLBACK       // Tokens failed to be returned to accounts contract
-    }
+  struct Principle {
+    uint256 baseToken;
+    uint256 yieldToken;
+  }
 
-    struct RedemptionResponse {
-        uint256 amount; 
-        VaultActionStatus status;
-    }
+  enum VaultActionStatus {
+      UNPROCESSED,                // INIT state
+      SUCCESS,                    // Ack 
+      POSITION_EXITED,            // Position fully exited 
+      FAIL_TOKENS_RETURNED,       // Tokens returned to accounts contract
+      FAIL_TOKENS_FALLBACK        // Tokens failed to be returned to accounts contract
+  }
+
+  struct RedemptionResponse {
+      uint256 amount; 
+      VaultActionStatus status;
+  }
 
 
   /*////////////////////////////////////////////////
@@ -97,6 +104,9 @@ abstract contract IVault {
   /// @notice returns the vault config
   function getVaultConfig() external view virtual returns (VaultConfig memory);
 
+  /// @notice set the vault config
+  function setVaultConfig(VaultConfig memory _newConfig) external virtual;
+
   /// @notice deposit tokens into vault position of specified Account
   /// @dev the deposit method allows the Vault contract to create or add to an existing
   /// position for the specified Account. In the case that multiple different tokens can be deposited,
@@ -111,13 +121,11 @@ abstract contract IVault {
   /// @dev allows an Account to redeem from its staked value. The behavior is different dependent on VaultType.
   /// Before returning the redemption amt, the vault must approve the Router to spend the tokens.
   /// @param accountId a unique Id for each Angel Protocol account
-  /// @param token the deposited token
-  /// @param amt the amount of the deposited token
+  /// @param amt the amount of shares to redeem
   /// @return redemptionAmt returns the number of tokens redeemed by the call; this may differ from
   /// the called `amt` due to slippage/trading/fees
   function redeem(
     uint32 accountId,
-    address token,
     uint256 amt
   ) external payable virtual returns (RedemptionResponse memory);
 
@@ -126,7 +134,7 @@ abstract contract IVault {
   /// known explicitly. Before returning the redemption amt, the vault must approve the Router to spend the tokens.
   /// @param accountId a unique Id for each Angel Protocol account
   /// @return redemptionAmt returns the number of tokens redeemed by the call
-  function redeemAll(uint32 accountId) external payable virtual returns (uint256);
+  function redeemAll(uint32 accountId) external payable virtual returns (RedemptionResponse memory);
 
   /// @notice restricted method for harvesting accrued rewards
   /// @dev Claim reward tokens accumulated to the staked value. The underlying behavior will vary depending
@@ -139,8 +147,12 @@ abstract contract IVault {
                 INTERNAL HELPER METHODS
     */ ////////////////////////////////////////////////
 
-  /// @notice nternal method for validating that calls came from the approved AP router
+  /// @notice internal method for validating that calls came from the approved AP router
   /// @dev The registrar will hold a record of the approved Router address. This method must implement a method of
   /// checking that the msg.sender == ApprovedRouter
-  function _isApprovedRouter() internal virtual returns (bool);
+  function _isApprovedRouter() internal view virtual returns (bool);
+
+  /// @notice internal method for checking whether the caller is the paired locked/liquid vault
+  /// @dev can be used for more gas efficient rebalancing between the two sibling vaults  
+  function _isSiblingVault() internal view returns (bool);
 }

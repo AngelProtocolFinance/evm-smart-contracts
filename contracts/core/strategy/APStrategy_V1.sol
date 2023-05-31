@@ -25,6 +25,10 @@ abstract contract APStrategy_V1 is IStrategy, Pausable {
     config = _config;
   }
 
+  function isPaused() external view returns (bool) {
+    return _paused;
+  }
+
   /*//////////////////////////////////////////////////////////////
                                 ADMIN
   //////////////////////////////////////////////////////////////*/
@@ -43,7 +47,7 @@ abstract contract APStrategy_V1 is IStrategy, Pausable {
   }
 
   /*//////////////////////////////////////////////////////////////
-                                MEAT
+                            IMPLEMENTATION
   //////////////////////////////////////////////////////////////*/
 
   /// @notice Deposits tokens into the strategy
@@ -79,5 +83,20 @@ abstract contract APStrategy_V1 is IStrategy, Pausable {
   function previewWithdraw(uint256 amt) external view virtual returns (uint256) {
 
   }
- 
+
+  function _beforeDeposit(uint256 amt) internal virtual { 
+
+  }
+
+  function _afterDeposit(uint256 amt) internal virtual {
+
+  }
+
+  function _beforeWithdraw(uint256 amt) internal virtual {
+
+  }
+
+  function _afterWithdraw(uint256 amt) internal virtual {
+
+  }
 }

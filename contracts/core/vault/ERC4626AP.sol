@@ -109,14 +109,16 @@ abstract contract ERC4626AP is ERC20AP {
 
         emit Withdraw(_msgSender(), receiver, owner, assets, shares);
 
-        asset.safeTransfer(receiver, assets);
+        asset.approve(receiver, assets);
     }
 
     /*//////////////////////////////////////////////////////////////
                             ACCOUNTING LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function totalAssets() public view virtual returns (uint256) {}
+    function totalAssets() public view virtual returns (uint256) {
+        asset.balanceOf(address(this));
+    }
 
     function convertToShares(uint256 assets) public view virtual returns (uint256) {
         uint256 supply = totalSupply(); // Saves an extra SLOAD if totalSupply is non-zero.
