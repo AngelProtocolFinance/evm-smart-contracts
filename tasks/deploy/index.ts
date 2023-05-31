@@ -14,4 +14,3 @@ import "./deployRegistrar";
 import "./deployRouter";
 import "./deploySwapRouter";
 import "./integrations";
-import "./routerAndRegistrar";
