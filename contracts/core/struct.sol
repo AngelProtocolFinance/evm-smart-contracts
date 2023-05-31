@@ -647,9 +647,18 @@ library AngelCoreStruct {
     IgnoreUserSplits
   }
 
-  struct EndowmentFee {
+  enum FeeTypes {
+    Default,
+    Harvest,
+    WithdrawCharity,
+    WithdrawNormal,
+    EarlyLockedWithdrawCharity,
+    EarlyLockedWithdrawNormal
+  }
+
+  struct FeeSetting {
     address payoutAddress;
-    uint256 percentage;
+    uint256 feeRate;
   }
 
   uint256 constant FEE_BASIS = 1000; // gives 0.1% precision for fees

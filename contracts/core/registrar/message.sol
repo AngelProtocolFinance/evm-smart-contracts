@@ -67,8 +67,9 @@ library RegistrarMessages {
     }
 
     struct UpdateFeeRequest {
-        string[] keys;
-        uint256[] values;
+        AngelCoreStruct.FeeTypes feeType;
+        address payout;
+        uint256 rate;
     }
 
     struct ConfigResponse {

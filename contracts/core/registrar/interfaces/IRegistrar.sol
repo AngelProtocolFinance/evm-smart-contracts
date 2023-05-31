@@ -13,10 +13,6 @@ interface IRegistrar is ILocalRegistrar {
 
     function updateOwner(address newOwner) external;
 
-    function updateFees(
-        RegistrarMessages.UpdateFeeRequest memory details
-    ) external;
-
     function vaultAdd(
         RegistrarMessages.VaultAddRequest memory details
     ) external;
@@ -77,10 +73,6 @@ interface IRegistrar is ILocalRegistrar {
     function queryNetworkConnection(
         uint256 chainId
     ) external view returns (AngelCoreStruct.NetworkInfo memory response);
-
-    function queryFee(
-        string memory name
-    ) external view returns (uint256 response);
 
     function owner() external view returns (address);
 }

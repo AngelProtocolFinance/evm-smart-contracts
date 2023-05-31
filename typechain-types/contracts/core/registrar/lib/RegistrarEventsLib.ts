@@ -153,18 +153,6 @@ export declare namespace RegistrarStorage {
   };
 }
 
-export declare namespace RegistrarMessages {
-  export type UpdateFeeRequestStruct = {
-    keys: PromiseOrValue<string>[];
-    values: PromiseOrValue<BigNumberish>[];
-  };
-
-  export type UpdateFeeRequestStructOutput = [string[], BigNumber[]] & {
-    keys: string[];
-    values: BigNumber[];
-  };
-}
-
 export interface RegistrarEventsLibInterface extends utils.Interface {
   functions: {};
 
@@ -172,14 +160,12 @@ export interface RegistrarEventsLibInterface extends utils.Interface {
     "DeleteNetworkConnection(uint256)": EventFragment;
     "PostNetworkConnection(uint256,tuple)": EventFragment;
     "UpdateRegistrarConfig(tuple)": EventFragment;
-    "UpdateRegistrarFees(tuple)": EventFragment;
     "UpdateRegistrarOwner(address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "DeleteNetworkConnection"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PostNetworkConnection"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdateRegistrarConfig"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "UpdateRegistrarFees"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdateRegistrarOwner"): EventFragment;
 }
 
@@ -213,16 +199,6 @@ export type UpdateRegistrarConfigEvent = TypedEvent<
 >;
 
 export type UpdateRegistrarConfigEventFilter = TypedEventFilter<UpdateRegistrarConfigEvent>;
-
-export interface UpdateRegistrarFeesEventObject {
-  details: RegistrarMessages.UpdateFeeRequestStructOutput;
-}
-export type UpdateRegistrarFeesEvent = TypedEvent<
-  [RegistrarMessages.UpdateFeeRequestStructOutput],
-  UpdateRegistrarFeesEventObject
->;
-
-export type UpdateRegistrarFeesEventFilter = TypedEventFilter<UpdateRegistrarFeesEvent>;
 
 export interface UpdateRegistrarOwnerEventObject {
   newOwner: string;
@@ -271,9 +247,6 @@ export interface RegistrarEventsLib extends BaseContract {
 
     "UpdateRegistrarConfig(tuple)"(details?: null): UpdateRegistrarConfigEventFilter;
     UpdateRegistrarConfig(details?: null): UpdateRegistrarConfigEventFilter;
-
-    "UpdateRegistrarFees(tuple)"(details?: null): UpdateRegistrarFeesEventFilter;
-    UpdateRegistrarFees(details?: null): UpdateRegistrarFeesEventFilter;
 
     "UpdateRegistrarOwner(address)"(newOwner?: null): UpdateRegistrarOwnerEventFilter;
     UpdateRegistrarOwner(newOwner?: null): UpdateRegistrarOwnerEventFilter;

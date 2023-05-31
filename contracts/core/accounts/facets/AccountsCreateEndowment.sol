@@ -37,7 +37,7 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
             registrarAddress
         ).queryConfig();
 
-        AngelCoreStruct.EndowmentFee memory earlyLockedWithdrawFee = state.config.earlyLockedWithdrawFee;
+        AngelCoreStruct.FeeSetting memory earlyLockedWithdrawFee = state.config.earlyLockedWithdrawFee;
         if (AngelCoreStruct.EndowmentType.Charity == details.endowType) {
             require(
                 msg.sender == registrar_config.charityProposal,
