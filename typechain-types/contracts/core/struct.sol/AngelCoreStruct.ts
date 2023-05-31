@@ -84,12 +84,12 @@ export declare namespace AngelCoreStruct {
     liquidAmount: BigNumber[];
   };
 
-  export type EndowmentFeeStruct = {
+  export type FeeSettingStruct = {
     payoutAddress: PromiseOrValue<string>;
     bps: PromiseOrValue<BigNumberish>;
   };
 
-  export type EndowmentFeeStructOutput = [string, BigNumber] & {
+  export type FeeSettingStructOutput = [string, BigNumber] & {
     payoutAddress: string;
     bps: BigNumber;
   };
@@ -139,7 +139,7 @@ export interface AngelCoreStructInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "oneOffVaultsDefault", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "validateFee",
-    values: [AngelCoreStruct.EndowmentFeeStruct]
+    values: [AngelCoreStruct.FeeSettingStruct]
   ): string;
 
   decodeFunctionResult(functionFragment: "accountStrategiesDefaut", data: BytesLike): Result;
@@ -211,10 +211,7 @@ export interface AngelCoreStruct extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[AngelCoreStruct.OneOffVaultsStructOutput]>;
 
-    validateFee(
-      fee: AngelCoreStruct.EndowmentFeeStruct,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
+    validateFee(fee: AngelCoreStruct.FeeSettingStruct, overrides?: CallOverrides): Promise<[void]>;
   };
 
   accountStrategiesDefaut(
@@ -246,7 +243,7 @@ export interface AngelCoreStruct extends BaseContract {
 
   oneOffVaultsDefault(overrides?: CallOverrides): Promise<AngelCoreStruct.OneOffVaultsStructOutput>;
 
-  validateFee(fee: AngelCoreStruct.EndowmentFeeStruct, overrides?: CallOverrides): Promise<void>;
+  validateFee(fee: AngelCoreStruct.FeeSettingStruct, overrides?: CallOverrides): Promise<void>;
 
   callStatic: {
     accountStrategiesDefaut(
@@ -280,7 +277,7 @@ export interface AngelCoreStruct extends BaseContract {
       overrides?: CallOverrides
     ): Promise<AngelCoreStruct.OneOffVaultsStructOutput>;
 
-    validateFee(fee: AngelCoreStruct.EndowmentFeeStruct, overrides?: CallOverrides): Promise<void>;
+    validateFee(fee: AngelCoreStruct.FeeSettingStruct, overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {};
@@ -314,7 +311,7 @@ export interface AngelCoreStruct extends BaseContract {
     oneOffVaultsDefault(overrides?: CallOverrides): Promise<BigNumber>;
 
     validateFee(
-      fee: AngelCoreStruct.EndowmentFeeStruct,
+      fee: AngelCoreStruct.FeeSettingStruct,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -348,7 +345,7 @@ export interface AngelCoreStruct extends BaseContract {
     oneOffVaultsDefault(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     validateFee(
-      fee: AngelCoreStruct.EndowmentFeeStruct,
+      fee: AngelCoreStruct.FeeSettingStruct,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

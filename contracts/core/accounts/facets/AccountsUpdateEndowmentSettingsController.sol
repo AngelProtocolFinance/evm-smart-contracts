@@ -200,8 +200,8 @@ contract AccountsUpdateEndowmentSettingsController is
     @dev Emits an UpdateEndowment event containing the updated endowment details.
     @dev Reverts if the endowment is of type Charity, as charity endowments may not change fees.
     */
-    function updateEndowmentFees(
-        AccountMessages.UpdateEndowmentFeeRequest memory details
+    function updateFeeSettings(
+        AccountMessages.UpdateFeeSettingRequest memory details
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[

@@ -16,13 +16,13 @@ const _abi = [
       {
         indexed: true,
         internalType: "string",
-        name: "chainName",
+        name: "_chainName",
         type: "string",
       },
       {
         indexed: true,
         internalType: "string",
-        name: "accountsContractAddress",
+        name: "_accountsContractAddress",
         type: "string",
       },
     ],
@@ -34,21 +34,6 @@ const _abi = [
     inputs: [
       {
         components: [
-          {
-            internalType: "uint32",
-            name: "protocolTaxRate",
-            type: "uint32",
-          },
-          {
-            internalType: "uint32",
-            name: "protocolTaxBasis",
-            type: "uint32",
-          },
-          {
-            internalType: "address",
-            name: "protocolTaxCollector",
-            type: "address",
-          },
           {
             internalType: "address",
             name: "routerAddr",
@@ -62,11 +47,36 @@ const _abi = [
         ],
         indexed: false,
         internalType: "struct LocalRegistrarLib.AngelProtocolParams",
-        name: "newAngelProtocolParams",
+        name: "_newAngelProtocolParams",
         type: "tuple",
       },
     ],
     name: "AngelProtocolParamsChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "enum AngelCoreStruct.FeeTypes",
+        name: "_fee",
+        type: "uint8",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "_rate",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "_payout",
+        type: "address",
+      },
+    ],
+    name: "FeeUpdated",
     type: "event",
   },
   {
@@ -126,7 +136,7 @@ const _abi = [
         ],
         indexed: false,
         internalType: "struct LocalRegistrarLib.RebalanceParams",
-        name: "newRebalanceParams",
+        name: "_newRebalanceParams",
         type: "tuple",
       },
     ],
@@ -189,13 +199,13 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "tokenAddr",
+        name: "_tokenAddr",
         type: "address",
       },
       {
         indexed: false,
         internalType: "bool",
-        name: "isAccepted",
+        name: "_isAccepted",
         type: "bool",
       },
     ],
@@ -255,21 +265,6 @@ const _abi = [
       {
         components: [
           {
-            internalType: "uint32",
-            name: "protocolTaxRate",
-            type: "uint32",
-          },
-          {
-            internalType: "uint32",
-            name: "protocolTaxBasis",
-            type: "uint32",
-          },
-          {
-            internalType: "address",
-            name: "protocolTaxCollector",
-            type: "address",
-          },
-          {
             internalType: "address",
             name: "routerAddr",
             type: "address",
@@ -281,6 +276,37 @@ const _abi = [
           },
         ],
         internalType: "struct LocalRegistrarLib.AngelProtocolParams",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "enum AngelCoreStruct.FeeTypes",
+        name: "_feeType",
+        type: "uint8",
+      },
+    ],
+    name: "getFeeSettingsByFeeType",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "payoutAddress",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "bps",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct AngelCoreStruct.FeeSetting",
         name: "",
         type: "tuple",
       },
@@ -473,21 +499,6 @@ const _abi = [
       {
         components: [
           {
-            internalType: "uint32",
-            name: "protocolTaxRate",
-            type: "uint32",
-          },
-          {
-            internalType: "uint32",
-            name: "protocolTaxBasis",
-            type: "uint32",
-          },
-          {
-            internalType: "address",
-            name: "protocolTaxCollector",
-            type: "address",
-          },
-          {
             internalType: "address",
             name: "routerAddr",
             type: "address",
@@ -504,6 +515,29 @@ const _abi = [
       },
     ],
     name: "setAngelProtocolParams",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "enum AngelCoreStruct.FeeTypes",
+        name: "_feeType",
+        type: "uint8",
+      },
+      {
+        internalType: "uint256",
+        name: "_rate",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "_payout",
+        type: "address",
+      },
+    ],
+    name: "setFeeSettingsByFeesType",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

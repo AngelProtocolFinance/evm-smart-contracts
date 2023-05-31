@@ -25,17 +25,11 @@ import type {
 
 export declare namespace LocalRegistrarLib {
   export type AngelProtocolParamsStruct = {
-    protocolTaxRate: PromiseOrValue<BigNumberish>;
-    protocolTaxBasis: PromiseOrValue<BigNumberish>;
-    protocolTaxCollector: PromiseOrValue<string>;
     routerAddr: PromiseOrValue<string>;
     refundAddr: PromiseOrValue<string>;
   };
 
-  export type AngelProtocolParamsStructOutput = [number, number, string, string, string] & {
-    protocolTaxRate: number;
-    protocolTaxBasis: number;
-    protocolTaxCollector: string;
+  export type AngelProtocolParamsStructOutput = [string, string] & {
     routerAddr: string;
     refundAddr: string;
   };
@@ -85,17 +79,31 @@ export declare namespace LocalRegistrarLib {
   };
 }
 
+export declare namespace AngelCoreStruct {
+  export type FeeSettingStruct = {
+    payoutAddress: PromiseOrValue<string>;
+    bps: PromiseOrValue<BigNumberish>;
+  };
+
+  export type FeeSettingStructOutput = [string, BigNumber] & {
+    payoutAddress: string;
+    bps: BigNumber;
+  };
+}
+
 export interface ILocalRegistrarInterface extends utils.Interface {
   functions: {
     "getAccountsContractAddressByChain(string)": FunctionFragment;
     "getAngelProtocolParams()": FunctionFragment;
+    "getFeeSettingsByFeeType(uint8)": FunctionFragment;
     "getGasByToken(address)": FunctionFragment;
     "getRebalanceParams()": FunctionFragment;
     "getStrategyApprovalState(bytes4)": FunctionFragment;
     "getStrategyParamsById(bytes4)": FunctionFragment;
     "isTokenAccepted(address)": FunctionFragment;
     "setAccountsContractAddressByChain(string,string)": FunctionFragment;
-    "setAngelProtocolParams((uint32,uint32,address,address,address))": FunctionFragment;
+    "setAngelProtocolParams((address,address))": FunctionFragment;
+    "setFeeSettingsByFeesType(uint8,uint256,address)": FunctionFragment;
     "setGasByToken(address,uint256)": FunctionFragment;
     "setRebalanceParams((bool,uint32,uint32,bool,uint32,uint32))": FunctionFragment;
     "setStrategyApprovalState(bytes4,uint8)": FunctionFragment;
@@ -107,6 +115,7 @@ export interface ILocalRegistrarInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "getAccountsContractAddressByChain"
       | "getAngelProtocolParams"
+      | "getFeeSettingsByFeeType"
       | "getGasByToken"
       | "getRebalanceParams"
       | "getStrategyApprovalState"
@@ -114,6 +123,7 @@ export interface ILocalRegistrarInterface extends utils.Interface {
       | "isTokenAccepted"
       | "setAccountsContractAddressByChain"
       | "setAngelProtocolParams"
+      | "setFeeSettingsByFeesType"
       | "setGasByToken"
       | "setRebalanceParams"
       | "setStrategyApprovalState"
@@ -126,6 +136,10 @@ export interface ILocalRegistrarInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "getAngelProtocolParams", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getFeeSettingsByFeeType",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(functionFragment: "getGasByToken", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(functionFragment: "getRebalanceParams", values?: undefined): string;
   encodeFunctionData(
@@ -144,6 +158,10 @@ export interface ILocalRegistrarInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setAngelProtocolParams",
     values: [LocalRegistrarLib.AngelProtocolParamsStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setFeeSettingsByFeesType",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "setGasByToken",
@@ -176,6 +194,7 @@ export interface ILocalRegistrarInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getAngelProtocolParams", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getFeeSettingsByFeeType", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getGasByToken", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getRebalanceParams", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getStrategyApprovalState", data: BytesLike): Result;
@@ -186,6 +205,7 @@ export interface ILocalRegistrarInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setAngelProtocolParams", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "setFeeSettingsByFeesType", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setGasByToken", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setRebalanceParams", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setStrategyApprovalState", data: BytesLike): Result;
@@ -195,6 +215,7 @@ export interface ILocalRegistrarInterface extends utils.Interface {
   events: {
     "AccountsContractStorageChanged(string,string)": EventFragment;
     "AngelProtocolParamsChanged(tuple)": EventFragment;
+    "FeeUpdated(uint8,uint256,address)": EventFragment;
     "GasFeeUpdated(address,uint256)": EventFragment;
     "RebalanceParamsChanged(tuple)": EventFragment;
     "StrategyApprovalChanged(bytes4,uint8)": EventFragment;
@@ -204,6 +225,7 @@ export interface ILocalRegistrarInterface extends utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: "AccountsContractStorageChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AngelProtocolParamsChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FeeUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GasFeeUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RebalanceParamsChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "StrategyApprovalChanged"): EventFragment;
@@ -212,8 +234,8 @@ export interface ILocalRegistrarInterface extends utils.Interface {
 }
 
 export interface AccountsContractStorageChangedEventObject {
-  chainName: string;
-  accountsContractAddress: string;
+  _chainName: string;
+  _accountsContractAddress: string;
 }
 export type AccountsContractStorageChangedEvent = TypedEvent<
   [string, string],
@@ -224,7 +246,7 @@ export type AccountsContractStorageChangedEventFilter =
   TypedEventFilter<AccountsContractStorageChangedEvent>;
 
 export interface AngelProtocolParamsChangedEventObject {
-  newAngelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStructOutput;
+  _newAngelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStructOutput;
 }
 export type AngelProtocolParamsChangedEvent = TypedEvent<
   [LocalRegistrarLib.AngelProtocolParamsStructOutput],
@@ -233,6 +255,15 @@ export type AngelProtocolParamsChangedEvent = TypedEvent<
 
 export type AngelProtocolParamsChangedEventFilter =
   TypedEventFilter<AngelProtocolParamsChangedEvent>;
+
+export interface FeeUpdatedEventObject {
+  _fee: number;
+  _rate: BigNumber;
+  _payout: string;
+}
+export type FeeUpdatedEvent = TypedEvent<[number, BigNumber, string], FeeUpdatedEventObject>;
+
+export type FeeUpdatedEventFilter = TypedEventFilter<FeeUpdatedEvent>;
 
 export interface GasFeeUpdatedEventObject {
   _tokenAddr: string;
@@ -243,7 +274,7 @@ export type GasFeeUpdatedEvent = TypedEvent<[string, BigNumber], GasFeeUpdatedEv
 export type GasFeeUpdatedEventFilter = TypedEventFilter<GasFeeUpdatedEvent>;
 
 export interface RebalanceParamsChangedEventObject {
-  newRebalanceParams: LocalRegistrarLib.RebalanceParamsStructOutput;
+  _newRebalanceParams: LocalRegistrarLib.RebalanceParamsStructOutput;
 }
 export type RebalanceParamsChangedEvent = TypedEvent<
   [LocalRegistrarLib.RebalanceParamsStructOutput],
@@ -277,8 +308,8 @@ export type StrategyParamsChangedEvent = TypedEvent<
 export type StrategyParamsChangedEventFilter = TypedEventFilter<StrategyParamsChangedEvent>;
 
 export interface TokenAcceptanceChangedEventObject {
-  tokenAddr: string;
-  isAccepted: boolean;
+  _tokenAddr: string;
+  _isAccepted: boolean;
 }
 export type TokenAcceptanceChangedEvent = TypedEvent<
   [string, boolean],
@@ -321,6 +352,11 @@ export interface ILocalRegistrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[LocalRegistrarLib.AngelProtocolParamsStructOutput]>;
 
+    getFeeSettingsByFeeType(
+      _feeType: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[AngelCoreStruct.FeeSettingStructOutput]>;
+
     getGasByToken(
       _tokenAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -353,6 +389,13 @@ export interface ILocalRegistrar extends BaseContract {
 
     setAngelProtocolParams(
       _angelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStruct,
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
+    ): Promise<ContractTransaction>;
+
+    setFeeSettingsByFeesType(
+      _feeType: PromiseOrValue<BigNumberish>,
+      _rate: PromiseOrValue<BigNumberish>,
+      _payout: PromiseOrValue<string>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
@@ -397,6 +440,11 @@ export interface ILocalRegistrar extends BaseContract {
     overrides?: CallOverrides
   ): Promise<LocalRegistrarLib.AngelProtocolParamsStructOutput>;
 
+  getFeeSettingsByFeeType(
+    _feeType: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<AngelCoreStruct.FeeSettingStructOutput>;
+
   getGasByToken(_tokenAddr: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 
   getRebalanceParams(
@@ -423,6 +471,13 @@ export interface ILocalRegistrar extends BaseContract {
 
   setAngelProtocolParams(
     _angelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStruct,
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
+  ): Promise<ContractTransaction>;
+
+  setFeeSettingsByFeesType(
+    _feeType: PromiseOrValue<BigNumberish>,
+    _rate: PromiseOrValue<BigNumberish>,
+    _payout: PromiseOrValue<string>,
     overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
@@ -467,6 +522,11 @@ export interface ILocalRegistrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<LocalRegistrarLib.AngelProtocolParamsStructOutput>;
 
+    getFeeSettingsByFeeType(
+      _feeType: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<AngelCoreStruct.FeeSettingStructOutput>;
+
     getGasByToken(
       _tokenAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -499,6 +559,13 @@ export interface ILocalRegistrar extends BaseContract {
 
     setAngelProtocolParams(
       _angelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setFeeSettingsByFeesType(
+      _feeType: PromiseOrValue<BigNumberish>,
+      _rate: PromiseOrValue<BigNumberish>,
+      _payout: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -536,20 +603,27 @@ export interface ILocalRegistrar extends BaseContract {
 
   filters: {
     "AccountsContractStorageChanged(string,string)"(
-      chainName?: PromiseOrValue<string> | null,
-      accountsContractAddress?: PromiseOrValue<string> | null
+      _chainName?: PromiseOrValue<string> | null,
+      _accountsContractAddress?: PromiseOrValue<string> | null
     ): AccountsContractStorageChangedEventFilter;
     AccountsContractStorageChanged(
-      chainName?: PromiseOrValue<string> | null,
-      accountsContractAddress?: PromiseOrValue<string> | null
+      _chainName?: PromiseOrValue<string> | null,
+      _accountsContractAddress?: PromiseOrValue<string> | null
     ): AccountsContractStorageChangedEventFilter;
 
     "AngelProtocolParamsChanged(tuple)"(
-      newAngelProtocolParams?: null
+      _newAngelProtocolParams?: null
     ): AngelProtocolParamsChangedEventFilter;
     AngelProtocolParamsChanged(
-      newAngelProtocolParams?: null
+      _newAngelProtocolParams?: null
     ): AngelProtocolParamsChangedEventFilter;
+
+    "FeeUpdated(uint8,uint256,address)"(
+      _fee?: null,
+      _rate?: null,
+      _payout?: null
+    ): FeeUpdatedEventFilter;
+    FeeUpdated(_fee?: null, _rate?: null, _payout?: null): FeeUpdatedEventFilter;
 
     "GasFeeUpdated(address,uint256)"(
       _tokenAddr?: PromiseOrValue<string> | null,
@@ -560,8 +634,8 @@ export interface ILocalRegistrar extends BaseContract {
       _gasFee?: null
     ): GasFeeUpdatedEventFilter;
 
-    "RebalanceParamsChanged(tuple)"(newRebalanceParams?: null): RebalanceParamsChangedEventFilter;
-    RebalanceParamsChanged(newRebalanceParams?: null): RebalanceParamsChangedEventFilter;
+    "RebalanceParamsChanged(tuple)"(_newRebalanceParams?: null): RebalanceParamsChangedEventFilter;
+    RebalanceParamsChanged(_newRebalanceParams?: null): RebalanceParamsChangedEventFilter;
 
     "StrategyApprovalChanged(bytes4,uint8)"(
       _strategyId?: PromiseOrValue<BytesLike> | null,
@@ -586,12 +660,12 @@ export interface ILocalRegistrar extends BaseContract {
     ): StrategyParamsChangedEventFilter;
 
     "TokenAcceptanceChanged(address,bool)"(
-      tokenAddr?: PromiseOrValue<string> | null,
-      isAccepted?: null
+      _tokenAddr?: PromiseOrValue<string> | null,
+      _isAccepted?: null
     ): TokenAcceptanceChangedEventFilter;
     TokenAcceptanceChanged(
-      tokenAddr?: PromiseOrValue<string> | null,
-      isAccepted?: null
+      _tokenAddr?: PromiseOrValue<string> | null,
+      _isAccepted?: null
     ): TokenAcceptanceChangedEventFilter;
   };
 
@@ -602,6 +676,11 @@ export interface ILocalRegistrar extends BaseContract {
     ): Promise<BigNumber>;
 
     getAngelProtocolParams(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getFeeSettingsByFeeType(
+      _feeType: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     getGasByToken(
       _tokenAddr: PromiseOrValue<string>,
@@ -633,6 +712,13 @@ export interface ILocalRegistrar extends BaseContract {
 
     setAngelProtocolParams(
       _angelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStruct,
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
+    ): Promise<BigNumber>;
+
+    setFeeSettingsByFeesType(
+      _feeType: PromiseOrValue<BigNumberish>,
+      _rate: PromiseOrValue<BigNumberish>,
+      _payout: PromiseOrValue<string>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
@@ -676,6 +762,11 @@ export interface ILocalRegistrar extends BaseContract {
 
     getAngelProtocolParams(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    getFeeSettingsByFeeType(
+      _feeType: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getGasByToken(
       _tokenAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -706,6 +797,13 @@ export interface ILocalRegistrar extends BaseContract {
 
     setAngelProtocolParams(
       _angelProtocolParams: LocalRegistrarLib.AngelProtocolParamsStruct,
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
+    ): Promise<PopulatedTransaction>;
+
+    setFeeSettingsByFeesType(
+      _feeType: PromiseOrValue<BigNumberish>,
+      _rate: PromiseOrValue<BigNumberish>,
+      _payout: PromiseOrValue<string>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 

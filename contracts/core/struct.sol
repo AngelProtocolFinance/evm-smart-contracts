@@ -481,12 +481,21 @@ library AngelCoreStruct {
     IgnoreUserSplits
   }
 
-  struct EndowmentFee {
+  enum FeeTypes {
+    Default,
+    Harvest,
+    WithdrawCharity,
+    WithdrawNormal,
+    EarlyLockedWithdrawCharity,
+    EarlyLockedWithdrawNormal
+  }
+
+  struct FeeSetting {
     address payoutAddress;
     uint256 bps;
   }
 
-  function validateFee(EndowmentFee memory fee) public view {
+  function validateFee(FeeSetting memory fee) public view {
     if (fee.payoutAddress == address(0)) {
       revert("Invalid fee payout zero address given");
     } else if (fee.bps > FEE_BASIS) {

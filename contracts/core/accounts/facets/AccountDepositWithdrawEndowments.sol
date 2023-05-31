@@ -278,16 +278,16 @@ contract AccountDepositWithdrawEndowments is
                         .div(AngelCoreStruct.FEE_BASIS);
                 } else {
                     earlyLockedWithdrawPenalty = (tokens[tii].amnt.mul(
-                        IRegistrar(state.config.registrarContract).queryFee(
-                            "accounts_early_locked_withdraw"
-                        )
+                        IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(
+                            AngelCoreStruct.FeeTypes.EarlyLockedWithdrawCharity
+                        ).bps
                     )).div(AngelCoreStruct.FEE_BASIS);
                 }
             }
 
             // ** NORMAL TYPE WITHDRAWAL RULES **
             // In both balance types:
-            //      The endowment multisig OR beneficiaries allowlist addresses [if populated] can withdraw. After 
+            //      The endowment multisig OR beneficiaries allowlist addresses [if populated] can withdraw. After
             //      maturity has been reached, only addresses in Maturity Allowlist may withdraw. If the Maturity
             //      Allowlist is not populated, then only the endowment multisig is allowed to withdraw.
             if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Normal) {
@@ -326,13 +326,13 @@ contract AccountDepositWithdrawEndowments is
 
             uint256 withdrawFeeRateAp;
             if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Charity) {
-                withdrawFeeRateAp = IRegistrar(state.config.registrarContract).queryFee(
-                    "accounts_withdraw_charity"
-                );
+                withdrawFeeRateAp = IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(
+                    AngelCoreStruct.FeeTypes.WithdrawCharity
+                ).bps;
             } else {
-                withdrawFeeRateAp = IRegistrar(state.config.registrarContract).queryFee(
-                    "accounts_withdraw_normal"
-                );
+                withdrawFeeRateAp = IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(
+                    AngelCoreStruct.FeeTypes.WithdrawNormal
+                ).bps;
             }
 
             uint256 current_bal;
@@ -344,7 +344,7 @@ contract AccountDepositWithdrawEndowments is
 
             // ensure balance of tokens can cover the requested withdraw amount
             require(current_bal > tokens[tii].amnt, "InsufficientFunds");
-            
+
             // calculate AP Protocol fee owed on withdrawn token amount
             uint256 withdrawFeeAp = (tokens[tii].amnt.mul(withdrawFeeRateAp))
                                     .div(AngelCoreStruct.FEE_BASIS);

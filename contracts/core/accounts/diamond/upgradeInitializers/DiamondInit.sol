@@ -48,7 +48,7 @@ contract DiamondInit {
         state.config.registrarContract = registrar;
         state.config.nextAccountId = 1;
         state.config.maxGeneralCategoryId = 1;
-        state.config.earlyLockedWithdrawFee = AngelCoreStruct.EndowmentFee({
+        state.config.earlyLockedWithdrawFee = AngelCoreStruct.FeeSetting({
             payoutAddress: address(0),
             bps: 1000 // 10% fee placeholder. Can always change later if needed
         });
