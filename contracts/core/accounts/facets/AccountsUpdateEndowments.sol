@@ -343,10 +343,10 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         address tokenAddr,
         bool tokenStatus
     ) public nonReentrant {
-        require(tokenAddr != address(0), "Zero address passed");
-
         AccountStorage.State storage state = LibAccounts.diamondStorage();
         AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[endowId];
+
+        require(tokenAddr != address(0), "Zero address passed");
         require(!state.STATES[endowId].closingEndowment, "UpdatesAfterClosed");
         require(AngelCoreStruct.canChange(
                 tempEndowment.settingsController.acceptedTokens,
@@ -355,6 +355,13 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
                 block.timestamp
             ), "Unauthorized"
         );
+        // Check that the deposited token is NOT in the protocol-level accepted tokens list in the Registrar Contract
+        // These are globally set and cannot be modified/overridden by endowments
+        require(
+            !IRegistrar(state.config.registrarContract).isTokenAccepted(tokenAddr),
+            "Cannot add tokens already in the Registrar AcceptedTokens list"
+        );
+
         state.AcceptedTokens[endowId][tokenAddr] = tokenStatus;
     }
 

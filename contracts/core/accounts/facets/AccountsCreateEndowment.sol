@@ -93,9 +93,6 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
             "Invalid owner address"
         );
 
-        // set the default accepted tokens to approve USDC
-        state.AcceptedTokens[state.config.nextAccountId][registrar_config.usdcAddress] = true;
-
         state.ENDOWMENTS[state.config.nextAccountId] = AccountStorage
             .Endowment({
                 owner: details.owner,

@@ -58,7 +58,7 @@ contract AccountDepositWithdrawEndowments is
         uint256 usdcAmount = ISwappingV3(registrar_config.swapsRouter)
             .swapEthToToken{value: msg.value}();
         emit SwappedToken(usdcAmount);
-        processToken(details, registrar_config.usdcAddress, usdcAmount);
+        processTokenDeposit(details, registrar_config.usdcAddress, usdcAmount);
     }
 
     /**
@@ -78,19 +78,21 @@ contract AccountDepositWithdrawEndowments is
             details.id
         ];
         require(!tempEndowmentState.closingEndowment, "Endowment is closed");
-        require(state.AcceptedTokens[details.id][tokenAddress], "Not in the Accepted Tokens List");
-
-        RegistrarStorage.Config memory registrar_config = 
-            IRegistrar(state.config.registrarContract)
-            .queryConfig();
-
+        // Check that the deposited token is either:
+        // A. In the protocol-level accepted tokens list in the Registrar Contract OR
+        // B. In the endowment-level accepted tokens list
+        require(
+            IRegistrar(state.config.registrarContract).isTokenAccepted(tokenAddress) ||
+            state.AcceptedTokens[details.id][tokenAddress],
+            "Not in an Accepted Tokens List"
+        );
         require(IERC20(tokenAddress).transferFrom(
             msg.sender,
             address(this),
             amount),
         "Transfer failed");
 
-        processToken(details, tokenAddress, amount);
+        processTokenDeposit(details, tokenAddress, amount);
     }
 
     /**
@@ -100,7 +102,7 @@ contract AccountDepositWithdrawEndowments is
      * @param tokenAddress The address of the token to deposit (only called with USDC address)
      * @param amount The amount of the token to deposit (in USDC)
      */
-    function processToken(
+    function processTokenDeposit(
         AccountMessages.DepositRequest memory details,
         address tokenAddress,
         uint256 amount
@@ -138,7 +140,7 @@ contract AccountDepositWithdrawEndowments is
         uint256 lockedSplitPercent = details.lockedPercentage;
         uint256 liquidSplitPercent = details.liquidPercentage;
 
-        AngelCoreStruct.SplitDetails memory registrar_split_configs = 
+        AngelCoreStruct.SplitDetails memory registrar_split_configs =
             registrar_config.splitToLiquid;
 
         require(
@@ -241,19 +243,14 @@ contract AccountDepositWithdrawEndowments is
             id
         ];
         require(!tempEndowmentState.closingEndowment, "Endowment is closed");
-        require(
-            (beneficiaryAddress != address(0) && beneficiaryEndowId == 0) ||
-            (beneficiaryAddress == address(0) && beneficiaryEndowId != 0),
-            "Must provide Beneficiary Address xor Endowment ID"
-        );
 
         // place an arbitrary cap on the qty of different tokens per withdraw to limit gas use
         require(tokens.length > 0, "No tokens provided");
         require(tokens.length <= 10, "Upper-limit is ten(10) unique ERC20 tokens per withdraw");
-        // check all passed tokens address & amount values are non-zero to avoid gas waste
+        // quick check that all passed tokens address & amount values are non-zero to avoid gas waste
         for (uint256 ti = 0; ti < tokens.length; ti++) {
-            require(tokens[ti].amnt > 0, "InvalidZeroAmount");
-            require(state.AcceptedTokens[id][tokens[ti].addr], "Not in the Accepted Tokens List");
+            require(tokens[ti].addr != address(0), "Invalid withdraw token passed: zero address");
+            require(tokens[ti].amnt > 0, "Invalid withdraw token passed: zero amount");
         }
 
         // fetch registrar config
@@ -261,7 +258,7 @@ contract AccountDepositWithdrawEndowments is
             state.config.registrarContract
         ).queryConfig();
 
-         // Charities never mature & Normal endowments optionally mature
+        // Charities never mature & Normal endowments optionally mature
         // Check if maturity has been reached for the endowment (0 == no maturity date)
         bool mature = (
             tempEndowment.maturityTime != 0 &&
@@ -398,7 +395,7 @@ contract AccountDepositWithdrawEndowments is
                 // check endowment specified is not closed
                 require(!state.STATES[beneficiaryEndowId].closingEndowment, "Beneficiary endowment is closed");
                 // Send deposit message to 100% Liquid account of an endowment
-                processToken(
+                processTokenDeposit(
                     AccountMessages.DepositRequest({ id: id, lockedPercentage: 0, liquidPercentage: 100 }),
                     tokens[tii].addr,
                     (amountLeftover - withdrawFeeEndow)
