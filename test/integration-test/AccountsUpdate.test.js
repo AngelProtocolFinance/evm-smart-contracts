@@ -5,7 +5,7 @@ const {
   getNetwork,
   networks,
 } = require("@axelar-network/axelar-local-dev");
-const {mainRouter} = require("../../scripts/deploySetUp");
+const {deployAngelProtocol} = require("../../scripts");
 const {assert, expect} = require("chai");
 const {ethers, artifacts} = require("hardhat");
 const Web3 = require("web3");
@@ -67,7 +67,7 @@ describe("Account Update", function () {
     );
     polygon.giveToken(deployer.address, "USDC", ethers.utils.parseUnits("100000000000000000", 6));
 
-    deployRes = await mainRouter(
+    deployRes = await deployAngelProtocol(
       [admin1.address, admin2.address, admin3.address],
       usdcAddress.address,
       false

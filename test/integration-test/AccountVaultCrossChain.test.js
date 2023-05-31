@@ -13,7 +13,7 @@ const ethers = hre.ethers;
 const Web3 = require("web3");
 const web3 = new Web3();
 let {main} = require("../../scripts/deployAngelProtocol");
-const {mainRouter} = require("../../scripts/deploySetUp");
+const {deployAngelProtocol} = require("../../scripts");
 const endowmentData = require("../data/endowment.js");
 const data = require("./../../ethereum.json");
 const ENV_CONFIG = require("./../../config/index");
@@ -68,7 +68,7 @@ describe("Account Update", function () {
     );
     polygon.giveToken(deployer.address, "USDC", ethers.utils.parseUnits("100000000000000000", 6));
 
-    deployRes = await mainRouter(
+    deployRes = await deployAngelProtocol(
       [admin1.address, admin2.address, admin3.address],
       usdcAddress.address,
       false
