@@ -104,7 +104,6 @@ library AccountMessages {
     }
 
     struct StateResponse {
-        AngelCoreStruct.DonationsReceived donationsReceived;
         bool closingEndowment;
         AngelCoreStruct.Beneficiary closingBeneficiary;
     }

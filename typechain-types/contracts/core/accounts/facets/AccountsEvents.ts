@@ -127,12 +127,12 @@ export declare namespace AngelCoreStruct {
 
   export type FeeSettingStruct = {
     payoutAddress: PromiseOrValue<string>;
-    feeRate: PromiseOrValue<BigNumberish>;
+    bps: PromiseOrValue<BigNumberish>;
   };
 
   export type FeeSettingStructOutput = [string, BigNumber] & {
     payoutAddress: string;
-    feeRate: BigNumber;
+    bps: BigNumber;
   };
 
   export type DelegateStruct = {
@@ -156,7 +156,7 @@ export declare namespace AngelCoreStruct {
   };
 
   export type SettingsControllerStruct = {
-    strategies: AngelCoreStruct.SettingsPermissionStruct;
+    acceptedTokens: AngelCoreStruct.SettingsPermissionStruct;
     lockedInvestmentManagement: AngelCoreStruct.SettingsPermissionStruct;
     liquidInvestmentManagement: AngelCoreStruct.SettingsPermissionStruct;
     allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStruct;
@@ -194,7 +194,7 @@ export declare namespace AngelCoreStruct {
     AngelCoreStruct.SettingsPermissionStructOutput,
     AngelCoreStruct.SettingsPermissionStructOutput
   ] & {
-    strategies: AngelCoreStruct.SettingsPermissionStructOutput;
+    acceptedTokens: AngelCoreStruct.SettingsPermissionStructOutput;
     lockedInvestmentManagement: AngelCoreStruct.SettingsPermissionStructOutput;
     liquidInvestmentManagement: AngelCoreStruct.SettingsPermissionStructOutput;
     allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStructOutput;

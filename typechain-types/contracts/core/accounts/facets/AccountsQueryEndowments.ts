@@ -24,12 +24,12 @@ import type {
 export declare namespace AngelCoreStruct {
   export type FeeSettingStruct = {
     payoutAddress: PromiseOrValue<string>;
-    feeRate: PromiseOrValue<BigNumberish>;
+    bps: PromiseOrValue<BigNumberish>;
   };
 
   export type FeeSettingStructOutput = [string, BigNumber] & {
     payoutAddress: string;
-    feeRate: BigNumber;
+    bps: BigNumber;
   };
 
   export type CategoriesStruct = {
@@ -91,7 +91,7 @@ export declare namespace AngelCoreStruct {
   };
 
   export type SettingsControllerStruct = {
-    strategies: AngelCoreStruct.SettingsPermissionStruct;
+    acceptedTokens: AngelCoreStruct.SettingsPermissionStruct;
     lockedInvestmentManagement: AngelCoreStruct.SettingsPermissionStruct;
     liquidInvestmentManagement: AngelCoreStruct.SettingsPermissionStruct;
     allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStruct;
@@ -129,7 +129,7 @@ export declare namespace AngelCoreStruct {
     AngelCoreStruct.SettingsPermissionStructOutput,
     AngelCoreStruct.SettingsPermissionStructOutput
   ] & {
-    strategies: AngelCoreStruct.SettingsPermissionStructOutput;
+    acceptedTokens: AngelCoreStruct.SettingsPermissionStructOutput;
     lockedInvestmentManagement: AngelCoreStruct.SettingsPermissionStructOutput;
     liquidInvestmentManagement: AngelCoreStruct.SettingsPermissionStructOutput;
     allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStructOutput;
@@ -158,16 +158,6 @@ export declare namespace AngelCoreStruct {
     max: BigNumber;
     min: BigNumber;
     defaultSplit: BigNumber;
-  };
-
-  export type DonationsReceivedStruct = {
-    locked: PromiseOrValue<BigNumberish>;
-    liquid: PromiseOrValue<BigNumberish>;
-  };
-
-  export type DonationsReceivedStructOutput = [BigNumber, BigNumber] & {
-    locked: BigNumber;
-    liquid: BigNumber;
   };
 
   export type BeneficiaryDataStruct = {
@@ -229,17 +219,11 @@ export declare namespace AccountMessages {
   };
 
   export type StateResponseStruct = {
-    donationsReceived: AngelCoreStruct.DonationsReceivedStruct;
     closingEndowment: PromiseOrValue<boolean>;
     closingBeneficiary: AngelCoreStruct.BeneficiaryStruct;
   };
 
-  export type StateResponseStructOutput = [
-    AngelCoreStruct.DonationsReceivedStructOutput,
-    boolean,
-    AngelCoreStruct.BeneficiaryStructOutput
-  ] & {
-    donationsReceived: AngelCoreStruct.DonationsReceivedStructOutput;
+  export type StateResponseStructOutput = [boolean, AngelCoreStruct.BeneficiaryStructOutput] & {
     closingEndowment: boolean;
     closingBeneficiary: AngelCoreStruct.BeneficiaryStructOutput;
   };

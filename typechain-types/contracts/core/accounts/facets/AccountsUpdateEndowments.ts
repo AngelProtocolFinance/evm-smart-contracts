@@ -138,12 +138,12 @@ export declare namespace AngelCoreStruct {
 
   export type FeeSettingStruct = {
     payoutAddress: PromiseOrValue<string>;
-    feeRate: PromiseOrValue<BigNumberish>;
+    bps: PromiseOrValue<BigNumberish>;
   };
 
   export type FeeSettingStructOutput = [string, BigNumber] & {
     payoutAddress: string;
-    feeRate: BigNumber;
+    bps: BigNumber;
   };
 
   export type DelegateStruct = {
@@ -167,7 +167,7 @@ export declare namespace AngelCoreStruct {
   };
 
   export type SettingsControllerStruct = {
-    strategies: AngelCoreStruct.SettingsPermissionStruct;
+    acceptedTokens: AngelCoreStruct.SettingsPermissionStruct;
     lockedInvestmentManagement: AngelCoreStruct.SettingsPermissionStruct;
     liquidInvestmentManagement: AngelCoreStruct.SettingsPermissionStruct;
     allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStruct;
@@ -205,7 +205,7 @@ export declare namespace AngelCoreStruct {
     AngelCoreStruct.SettingsPermissionStructOutput,
     AngelCoreStruct.SettingsPermissionStructOutput
   ] & {
-    strategies: AngelCoreStruct.SettingsPermissionStructOutput;
+    acceptedTokens: AngelCoreStruct.SettingsPermissionStructOutput;
     lockedInvestmentManagement: AngelCoreStruct.SettingsPermissionStructOutput;
     liquidInvestmentManagement: AngelCoreStruct.SettingsPermissionStructOutput;
     allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStructOutput;
@@ -476,14 +476,19 @@ export declare namespace AccountMessages {
 
 export interface AccountsUpdateEndowmentsInterface extends utils.Interface {
   functions: {
+    "updateAcceptedToken(uint32,address,bool)": FunctionFragment;
     "updateDelegate(uint32,uint8,uint8,address,uint256)": FunctionFragment;
     "updateEndowmentDetails((uint32,address,string,(uint256[],uint256[]),string,string,(bool,uint32,uint32,bool,uint32,uint32)))": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "updateDelegate" | "updateEndowmentDetails"
+    nameOrSignatureOrTopic: "updateAcceptedToken" | "updateDelegate" | "updateEndowmentDetails"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "updateAcceptedToken",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>, PromiseOrValue<boolean>]
+  ): string;
   encodeFunctionData(
     functionFragment: "updateDelegate",
     values: [
@@ -499,6 +504,7 @@ export interface AccountsUpdateEndowmentsInterface extends utils.Interface {
     values: [AccountMessages.UpdateEndowmentDetailsRequestStruct]
   ): string;
 
+  decodeFunctionResult(functionFragment: "updateAcceptedToken", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "updateDelegate", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "updateEndowmentDetails", data: BytesLike): Result;
 
@@ -679,6 +685,13 @@ export interface AccountsUpdateEndowments extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    updateAcceptedToken(
+      endowId: PromiseOrValue<BigNumberish>,
+      tokenAddr: PromiseOrValue<string>,
+      tokenStatus: PromiseOrValue<boolean>,
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
+    ): Promise<ContractTransaction>;
+
     updateDelegate(
       id: PromiseOrValue<BigNumberish>,
       setting: PromiseOrValue<BigNumberish>,
@@ -693,6 +706,13 @@ export interface AccountsUpdateEndowments extends BaseContract {
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
+
+  updateAcceptedToken(
+    endowId: PromiseOrValue<BigNumberish>,
+    tokenAddr: PromiseOrValue<string>,
+    tokenStatus: PromiseOrValue<boolean>,
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
+  ): Promise<ContractTransaction>;
 
   updateDelegate(
     id: PromiseOrValue<BigNumberish>,
@@ -709,6 +729,13 @@ export interface AccountsUpdateEndowments extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    updateAcceptedToken(
+      endowId: PromiseOrValue<BigNumberish>,
+      tokenAddr: PromiseOrValue<string>,
+      tokenStatus: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     updateDelegate(
       id: PromiseOrValue<BigNumberish>,
       setting: PromiseOrValue<BigNumberish>,
@@ -801,6 +828,13 @@ export interface AccountsUpdateEndowments extends BaseContract {
   };
 
   estimateGas: {
+    updateAcceptedToken(
+      endowId: PromiseOrValue<BigNumberish>,
+      tokenAddr: PromiseOrValue<string>,
+      tokenStatus: PromiseOrValue<boolean>,
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
+    ): Promise<BigNumber>;
+
     updateDelegate(
       id: PromiseOrValue<BigNumberish>,
       setting: PromiseOrValue<BigNumberish>,
@@ -817,6 +851,13 @@ export interface AccountsUpdateEndowments extends BaseContract {
   };
 
   populateTransaction: {
+    updateAcceptedToken(
+      endowId: PromiseOrValue<BigNumberish>,
+      tokenAddr: PromiseOrValue<string>,
+      tokenStatus: PromiseOrValue<boolean>,
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
+    ): Promise<PopulatedTransaction>;
+
     updateDelegate(
       id: PromiseOrValue<BigNumberish>,
       setting: PromiseOrValue<BigNumberish>,

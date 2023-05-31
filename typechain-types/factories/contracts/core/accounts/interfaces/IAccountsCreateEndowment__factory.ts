@@ -154,7 +154,7 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "feeRate",
+                name: "bps",
                 type: "uint256",
               },
             ],
@@ -171,7 +171,7 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "feeRate",
+                name: "bps",
                 type: "uint256",
               },
             ],
@@ -188,7 +188,7 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "feeRate",
+                name: "bps",
                 type: "uint256",
               },
             ],
@@ -205,7 +205,7 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "feeRate",
+                name: "bps",
                 type: "uint256",
               },
             ],
@@ -401,7 +401,7 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "strategies",
+                name: "acceptedTokens",
                 type: "tuple",
               },
               {

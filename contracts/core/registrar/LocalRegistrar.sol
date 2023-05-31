@@ -227,7 +227,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
             LocalRegistrarLib.localRegistrarStorage();
         lrs.FeeSettingsByFeeType[_feeType] = AngelCoreStruct.FeeSetting({
             payoutAddress: _payout,
-            feeRate: _rate
+            bps: _rate
         });
         emit FeeUpdated(_feeType, _rate, _payout);
     }

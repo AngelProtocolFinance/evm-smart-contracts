@@ -103,14 +103,21 @@ const _abi = [
         type: "uint32",
       },
       {
-        internalType: "address",
-        name: "tokenAddress",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
+        components: [
+          {
+            internalType: "address",
+            name: "addr",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "amnt",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct AngelCoreStruct.TokenInfo[]",
+        name: "tokens",
+        type: "tuple[]",
       },
     ],
     name: "withdraw",

@@ -302,7 +302,7 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "feeRate",
+            name: "bps",
             type: "uint256",
           },
         ],

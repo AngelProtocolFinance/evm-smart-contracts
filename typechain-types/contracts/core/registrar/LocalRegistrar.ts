@@ -100,12 +100,12 @@ export declare namespace APGoldfinchConfigLib {
 export declare namespace AngelCoreStruct {
   export type FeeSettingStruct = {
     payoutAddress: PromiseOrValue<string>;
-    feeRate: PromiseOrValue<BigNumberish>;
+    bps: PromiseOrValue<BigNumberish>;
   };
 
   export type FeeSettingStructOutput = [string, BigNumber] & {
     payoutAddress: string;
-    feeRate: BigNumber;
+    bps: BigNumber;
   };
 }
 

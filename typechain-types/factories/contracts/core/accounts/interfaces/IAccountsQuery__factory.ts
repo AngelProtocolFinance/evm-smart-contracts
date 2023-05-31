@@ -65,7 +65,7 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "feeRate",
+                name: "bps",
                 type: "uint256",
               },
             ],
@@ -301,7 +301,7 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "feeRate",
+                name: "bps",
                 type: "uint256",
               },
             ],
@@ -318,7 +318,7 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "feeRate",
+                name: "bps",
                 type: "uint256",
               },
             ],
@@ -335,7 +335,7 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "feeRate",
+                name: "bps",
                 type: "uint256",
               },
             ],
@@ -352,7 +352,7 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "feeRate",
+                name: "bps",
                 type: "uint256",
               },
             ],
@@ -388,7 +388,7 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "strategies",
+                name: "acceptedTokens",
                 type: "tuple",
               },
               {
@@ -918,23 +918,6 @@ const _abi = [
     outputs: [
       {
         components: [
-          {
-            components: [
-              {
-                internalType: "uint256",
-                name: "locked",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
-                name: "liquid",
-                type: "uint256",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.DonationsReceived",
-            name: "donationsReceived",
-            type: "tuple",
-          },
           {
             internalType: "bool",
             name: "closingEndowment",

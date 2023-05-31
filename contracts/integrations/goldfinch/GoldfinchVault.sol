@@ -341,7 +341,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
 
     function _calcTax(uint256 yield_withPrecision, uint256 taxableAmt) internal view returns (uint256) {
         AngelCoreStruct.FeeSetting memory feeSetting = registrar.getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes.Default);
-        return ((yield_withPrecision * taxableAmt * feeSetting.feeRate)/AngelCoreStruct.FEE_BASIS)/PRECISION;
+        return ((yield_withPrecision * taxableAmt * feeSetting.bps)/AngelCoreStruct.FEE_BASIS)/PRECISION;
     }   
 
     function _redeemFiduForUsdc(uint32 accountId, uint256 positionAmount, uint256 desiredUsdc) internal returns (uint256, uint256) {
