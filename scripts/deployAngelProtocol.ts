@@ -1,9 +1,9 @@
 import {deployDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
-import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
-import {ADDRESS_ZERO, isLocalNetwork, updateAddresses} from "utils";
+import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
+import {ADDRESS_ZERO, isLocalNetwork} from "utils";
 // import { deployHaloImplementation } from "contracts/halo/scripts/deploy"
 import {charityApplications} from "contracts/multisigs/charity_applications/scripts/deploy";
 import {deployMultisig} from "contracts/multisigs/scripts/deploy";
@@ -13,18 +13,18 @@ import {deployImplementation} from "contracts/normalized_endowment/scripts/deplo
 import config from "config";
 import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
 import {Contract} from "ethers";
+import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {
   APTeamMultiSig,
   ApplicationsMultiSig,
   IndexFund__factory,
-  MockUSDC__factory,
   Registrar__factory,
 } from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 import {ContractFunctionParams, cleanAddresses} from "utils";
 import {getSigners} from "utils/getSigners";
 import {deployLibraries} from "./deployLibraries";
-import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {deployMockUSDC} from "./deployMockUSDC";
 
 export async function deployAngelProtocol(hre: HardhatRuntimeEnvironment): Promise<void> {
   const {network, ethers} = hre;
@@ -42,24 +42,7 @@ export async function deployAngelProtocol(hre: HardhatRuntimeEnvironment): Promi
   // Mock setup required for testing
   let mockUSDC: Contract | undefined;
   if (isLocalNetwork(network)) {
-    const MockUSDC = new MockUSDC__factory(proxyAdmin);
-    mockUSDC = await MockUSDC.deploy("USDC", "USDC", 100);
-    await mockUSDC.deployed();
-    config.REGISTRAR_DATA.acceptedTokens.cw20 = [mockUSDC.address];
-    config.REGISTRAR_UPDATE_CONFIG.usdcAddress = mockUSDC.address;
-    config.DONATION_MATCH_CHARITY_DATA.usdcAddress = mockUSDC.address;
-
-    const tx = await mockUSDC.mint(
-      proxyAdmin.address,
-      ethers.utils.parseEther("10000000000000000000000")
-    );
-    await tx.wait();
-
-    console.log("given proxyAdmin USDC");
-
-    console.log("USDC Mock Address", mockUSDC.address);
-
-    await updateAddresses({tokens: {usdc: mockUSDC.address}}, hre);
+    mockUSDC = await deployMockUSDC(proxyAdmin, hre);
   }
 
   const {angelCoreStruct, stringLib} = await deployLibraries(hre);
