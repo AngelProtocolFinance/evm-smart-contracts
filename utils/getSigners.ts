@@ -10,7 +10,6 @@ type Result = {
   apTeamMultisigOwners: SignerWithAddress[];
   deployer: SignerWithAddress;
   proxyAdmin: SignerWithAddress;
-  routerAdmin: SignerWithAddress;
   timeLockAdmin: SignerWithAddress;
   treasuryAdmin: SignerWithAddress;
 };
@@ -27,7 +26,6 @@ export async function getSigners(ethers: HardhatRuntimeEnvironment["ethers"]): P
     apTeamMultisigOwners: [apTeam1, apTeam2],
     deployer,
     proxyAdmin,
-    routerAdmin: apTeam1,
     treasuryAdmin: apTeam1,
     timeLockAdmin: apTeam1,
   };

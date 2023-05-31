@@ -10,12 +10,13 @@ task("Deploy:deployRegistrar", "Will deploy Registrar contract")
     try {
       const {
         multiSig: {apTeam},
+        router,
       } = await getAddresses(hre);
-      const {treasuryAdmin, routerAdmin} = await getSigners(hre.ethers);
+      const {treasuryAdmin} = await getSigners(hre.ethers);
       const registrarData = {
         treasury: treasuryAdmin.address,
         splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
-        router: routerAdmin.address,
+        router: router.proxy,
         axelarGateway: config.REGISTRAR_DATA.axelarGateway,
         axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
       };

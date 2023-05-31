@@ -87,9 +87,7 @@ export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvi
 
     await cleanAddresses(hre);
 
-    const {proxyAdmin, apTeam1, apTeam2, apTeam3, treasuryAdmin, routerAdmin} = await getSigners(
-      ethers
-    );
+    const {proxyAdmin, apTeam1, apTeam2, apTeam3, treasuryAdmin} = await getSigners(ethers);
 
     console.log("Deploying the contracts with the account:", await proxyAdmin.getAddress());
 
@@ -137,7 +135,7 @@ export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvi
     const registrarData = {
       treasury: treasuryAdmin.address,
       splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
-      router: routerAdmin.address,
+      router: "", // will be updated to newly deployed router address in the next PR
       axelarGateway: config.REGISTRAR_DATA.axelarGateway,
       axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
     };
