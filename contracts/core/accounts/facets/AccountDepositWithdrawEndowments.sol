@@ -140,7 +140,7 @@ contract AccountDepositWithdrawEndowments is
         uint256 lockedSplitPercent = details.lockedPercentage;
         uint256 liquidSplitPercent = details.liquidPercentage;
 
-        AngelCoreStruct.SplitDetails memory registrar_split_configs = 
+        AngelCoreStruct.SplitDetails memory registrar_split_configs =
             registrar_config.splitToLiquid;
 
         require(
@@ -295,7 +295,7 @@ contract AccountDepositWithdrawEndowments is
 
         // ** NORMAL TYPE WITHDRAWAL RULES **
         // In both balance types:
-        //      The endowment multisig OR beneficiaries allowlist addresses [if populated] can withdraw. After 
+        //      The endowment multisig OR beneficiaries allowlist addresses [if populated] can withdraw. After
         //      maturity has been reached, only addresses in Maturity Allowlist may withdraw. If the Maturity
         //      Allowlist is not populated, then only the endowment multisig is allowed to withdraw.
         if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Normal) {
@@ -352,7 +352,7 @@ contract AccountDepositWithdrawEndowments is
 
         // ensure balance of tokens can cover the requested withdraw amount
         require(rent_bal > amount, "InsufficientFunds");
-        
+
         // calculate AP Protocol fee owed on withdrawn token amount
         uint256 withdrawFeeAp = (amount.mul(withdrawFeeRateAp))
                                 .div(AngelCoreStruct.FEE_BASIS);
