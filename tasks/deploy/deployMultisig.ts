@@ -2,20 +2,20 @@ import {task} from "hardhat/config";
 import config from "config";
 import {ApplicationsMultiSig, APTeamMultiSig} from "typechain-types";
 import {deployMultisig} from "contracts/multisigs/scripts/deploy";
-import {logger} from "utils";
+import {ContractFunctionParams, getSigners, logger} from "utils";
 
 task("Deploy:deployMultisig", "Will deploy Multisig contract")
   .addParam("verify", "Want to verify contract")
   .setAction(async (taskArgs, hre) => {
     try {
-      const Admins = config.AP_TEAM_MULTISIG_DATA.admins;
-      const APTeamData: Parameters<APTeamMultiSig["initialize"]> = [
-        Admins,
+      const {apTeamMultisigOwners, applicationsMultisigOwners} = await getSigners(hre.ethers);
+      const APTeamData: ContractFunctionParams<APTeamMultiSig["initialize"]> = [
+        apTeamMultisigOwners.map((x) => x.address),
         config.AP_TEAM_MULTISIG_DATA.threshold,
         config.AP_TEAM_MULTISIG_DATA.requireExecution,
       ];
-      const ApplicationData: Parameters<ApplicationsMultiSig["initialize"]> = [
-        Admins,
+      const ApplicationData: ContractFunctionParams<ApplicationsMultiSig["initialize"]> = [
+        applicationsMultisigOwners.map((x) => x.address),
         config.APPLICATION_MULTISIG_DATA.threshold,
         config.APPLICATION_MULTISIG_DATA.requireExecution,
       ];

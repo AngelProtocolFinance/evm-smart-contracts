@@ -1,4 +1,4 @@
-import {updateAddresses} from "utils";
+import {getSigners, updateAddresses} from "utils";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {GiftCardsMessage} from "typechain-types/contracts/accessory/gift-cards/GiftCards";
 
@@ -10,7 +10,7 @@ export async function deployGiftCard(
 ) {
   try {
     const {ethers, run, network} = hre;
-    let [deployer, proxyAdmin] = await ethers.getSigners();
+    const {proxyAdmin} = await getSigners(ethers);
     const GiftCards = await ethers.getContractFactory("GiftCards", {
       libraries: {
         AngelCoreStruct: ANGEL_CORE_STRUCT,

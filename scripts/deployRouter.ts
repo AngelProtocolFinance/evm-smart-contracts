@@ -1,13 +1,11 @@
 import hre from "hardhat";
-import {getAddresses, logger, updateAddresses} from "utils";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {getAddresses, getSigners, logger, updateAddresses} from "utils";
 import {Router, Router__factory} from "typechain-types";
 
 async function deploy() {
   const {ethers, upgrades} = hre;
 
-  let deployer: SignerWithAddress;
-  [deployer] = await ethers.getSigners();
+  const {proxyAdmin} = await getSigners(ethers);
 
   const network = await ethers.provider.getNetwork();
 
@@ -21,7 +19,10 @@ async function deploy() {
   const gasReceiverAddress = "";
   const registrarAddress = addresses.registrar.proxy;
 
-  const Router = (await ethers.getContractFactory("Router__factory")) as Router__factory;
+  const Router = (await ethers.getContractFactory(
+    "Router__factory",
+    proxyAdmin
+  )) as Router__factory;
   const router = (await upgrades.deployProxy(Router, [
     gatewayAddress,
     gasReceiverAddress,

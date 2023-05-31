@@ -3,6 +3,10 @@ import {DEFAULT_CONTRACT_ADDRESS_FILE_PATH} from "..";
 import {getAddressesByNetworkId, readAllAddresses, saveFrontendFiles} from "./helpers";
 import {AddressObj} from "./types";
 
+type DeepPartial<T> = {
+  [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
+};
+
 /**
  * Removes contract address for the current network from the appropriate file.
  */
@@ -16,7 +20,7 @@ export async function cleanAddresses(
 
   const {[chainId]: toRemove, ...toRemain} = allAddresses;
 
-  await saveFrontendFiles(toRemain, filePath);
+  saveFrontendFiles(toRemain, filePath);
 }
 
 export async function getAddresses(
@@ -26,10 +30,6 @@ export async function getAddresses(
   const chainId = await getChainId(hre);
   return getAddressesByNetworkId(chainId, filePath);
 }
-
-type DeepPartial<T> = {
-  [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
-};
 
 export async function updateAddresses(
   partial: DeepPartial<AddressObj>,
@@ -42,7 +42,7 @@ export async function updateAddresses(
 
   const updated = updateInternal(currentAddressObj, partial);
 
-  await saveFrontendFiles({[chainId]: updated}, filePath);
+  saveFrontendFiles({[chainId]: updated}, filePath);
 }
 
 function updateInternal<T>(original: T, partial: DeepPartial<T>): T {

@@ -65,11 +65,11 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "percentage",
+                name: "bps",
                 type: "uint256",
               },
             ],
-            internalType: "struct AngelCoreStruct.EndowmentFee",
+            internalType: "struct AngelCoreStruct.FeeSetting",
             name: "earlyLockedWithdrawFee",
             type: "tuple",
           },
@@ -301,11 +301,11 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "percentage",
+                name: "bps",
                 type: "uint256",
               },
             ],
-            internalType: "struct AngelCoreStruct.EndowmentFee",
+            internalType: "struct AngelCoreStruct.FeeSetting",
             name: "earlyLockedWithdrawFee",
             type: "tuple",
           },
@@ -318,11 +318,11 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "percentage",
+                name: "bps",
                 type: "uint256",
               },
             ],
-            internalType: "struct AngelCoreStruct.EndowmentFee",
+            internalType: "struct AngelCoreStruct.FeeSetting",
             name: "withdrawFee",
             type: "tuple",
           },
@@ -335,11 +335,11 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "percentage",
+                name: "bps",
                 type: "uint256",
               },
             ],
-            internalType: "struct AngelCoreStruct.EndowmentFee",
+            internalType: "struct AngelCoreStruct.FeeSetting",
             name: "depositFee",
             type: "tuple",
           },
@@ -352,11 +352,11 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "percentage",
+                name: "bps",
                 type: "uint256",
               },
             ],
-            internalType: "struct AngelCoreStruct.EndowmentFee",
+            internalType: "struct AngelCoreStruct.FeeSetting",
             name: "balanceFee",
             type: "tuple",
           },
@@ -388,7 +388,7 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "strategies",
+                name: "acceptedTokens",
                 type: "tuple",
               },
               {
@@ -918,23 +918,6 @@ const _abi = [
     outputs: [
       {
         components: [
-          {
-            components: [
-              {
-                internalType: "uint256",
-                name: "locked",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
-                name: "liquid",
-                type: "uint256",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.DonationsReceived",
-            name: "donationsReceived",
-            type: "tuple",
-          },
           {
             internalType: "bool",
             name: "closingEndowment",

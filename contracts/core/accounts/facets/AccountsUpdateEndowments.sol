@@ -164,16 +164,36 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
             revert("Invalid action passed");
         }
 
-        if (setting == AngelCoreStruct.ControllerSettingOption.Strategies) {
+        if (setting == AngelCoreStruct.ControllerSettingOption.LockedInvestmentManagement) {
            require(
                 AngelCoreStruct.canChange(
-                    tempEndowment.settingsController.strategies,
+                    tempEndowment.settingsController.lockedInvestmentManagement,
                     msg.sender,
                     tempEndowment.owner,
                     block.timestamp
                 ), "Unauthorized"
             );
-           tempEndowment.settingsController.strategies.delegate = newDelegate;
+           tempEndowment.settingsController.lockedInvestmentManagement.delegate = newDelegate;
+        } else if (setting == AngelCoreStruct.ControllerSettingOption.LiquidInvestmentManagement) {
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.lockedInvestmentManagement,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.lockedInvestmentManagement.delegate = newDelegate;
+        } else if (setting == AngelCoreStruct.ControllerSettingOption.AcceptedTokens) {
+           require(
+                AngelCoreStruct.canChange(
+                    tempEndowment.settingsController.acceptedTokens,
+                    msg.sender,
+                    tempEndowment.owner,
+                    block.timestamp
+                ), "Unauthorized"
+            );
+           tempEndowment.settingsController.acceptedTokens.delegate = newDelegate;
         } else if (setting == AngelCoreStruct.ControllerSettingOption.AllowlistedBeneficiaries) {
            require(
                 AngelCoreStruct.canChange(
@@ -310,4 +330,39 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
 
         emit UpdateEndowment(id, tempEndowment);
     }
+
+    /**
+    @notice Updates the endowment-level list of accepted tokens with a status for the given token address.
+    @dev This function allows the Endowment owner, or a valid delegate, to add/update accepted tokens for an Endowment's Deposits & Withdrawals.
+    * @param endowId Endowment ID
+    * @param tokenAddr Token address to add/update in AcceptedTokens
+    * @param tokenStatus Boolean status to set for the token Address in AcceptedTokens
+    */
+    function updateAcceptedToken(
+        uint32 endowId,
+        address tokenAddr,
+        bool tokenStatus
+    ) public nonReentrant {
+        AccountStorage.State storage state = LibAccounts.diamondStorage();
+        AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[endowId];
+
+        require(tokenAddr != address(0), "Zero address passed");
+        require(!state.STATES[endowId].closingEndowment, "UpdatesAfterClosed");
+        require(AngelCoreStruct.canChange(
+                tempEndowment.settingsController.acceptedTokens,
+                msg.sender,
+                tempEndowment.owner,
+                block.timestamp
+            ), "Unauthorized"
+        );
+        // Check that the deposited token is NOT in the protocol-level accepted tokens list in the Registrar Contract
+        // These are globally set and cannot be modified/overridden by endowments
+        require(
+            !IRegistrar(state.config.registrarContract).isTokenAccepted(tokenAddr),
+            "Cannot add tokens already in the Registrar AcceptedTokens list"
+        );
+
+        state.AcceptedTokens[endowId][tokenAddr] = tokenStatus;
+    }
+
 }

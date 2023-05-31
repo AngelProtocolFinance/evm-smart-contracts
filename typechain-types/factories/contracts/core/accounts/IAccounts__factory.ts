@@ -63,35 +63,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint32",
-        name: "id",
-        type: "uint32",
-      },
-      {
-        internalType: "enum AngelCoreStruct.AccountType",
-        name: "acctType",
-        type: "uint8",
-      },
-      {
-        internalType: "uint256",
-        name: "idToCopy",
-        type: "uint256",
-      },
-    ],
-    name: "copycatStrategies",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         components: [
           {
             internalType: "address",
@@ -233,11 +204,11 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "percentage",
+                name: "bps",
                 type: "uint256",
               },
             ],
-            internalType: "struct AngelCoreStruct.EndowmentFee",
+            internalType: "struct AngelCoreStruct.FeeSetting",
             name: "earlyLockedWithdrawFee",
             type: "tuple",
           },
@@ -250,11 +221,11 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "percentage",
+                name: "bps",
                 type: "uint256",
               },
             ],
-            internalType: "struct AngelCoreStruct.EndowmentFee",
+            internalType: "struct AngelCoreStruct.FeeSetting",
             name: "withdrawFee",
             type: "tuple",
           },
@@ -267,11 +238,11 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "percentage",
+                name: "bps",
                 type: "uint256",
               },
             ],
-            internalType: "struct AngelCoreStruct.EndowmentFee",
+            internalType: "struct AngelCoreStruct.FeeSetting",
             name: "depositFee",
             type: "tuple",
           },
@@ -284,11 +255,11 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "percentage",
+                name: "bps",
                 type: "uint256",
               },
             ],
-            internalType: "struct AngelCoreStruct.EndowmentFee",
+            internalType: "struct AngelCoreStruct.FeeSetting",
             name: "balanceFee",
             type: "tuple",
           },
@@ -480,7 +451,7 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "strategies",
+                name: "acceptedTokens",
                 type: "tuple",
               },
               {
@@ -1117,11 +1088,11 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "percentage",
+                name: "bps",
                 type: "uint256",
               },
             ],
-            internalType: "struct AngelCoreStruct.EndowmentFee",
+            internalType: "struct AngelCoreStruct.FeeSetting",
             name: "earlyLockedWithdrawFee",
             type: "tuple",
           },
@@ -1353,11 +1324,11 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "percentage",
+                name: "bps",
                 type: "uint256",
               },
             ],
-            internalType: "struct AngelCoreStruct.EndowmentFee",
+            internalType: "struct AngelCoreStruct.FeeSetting",
             name: "earlyLockedWithdrawFee",
             type: "tuple",
           },
@@ -1370,11 +1341,11 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "percentage",
+                name: "bps",
                 type: "uint256",
               },
             ],
-            internalType: "struct AngelCoreStruct.EndowmentFee",
+            internalType: "struct AngelCoreStruct.FeeSetting",
             name: "withdrawFee",
             type: "tuple",
           },
@@ -1387,11 +1358,11 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "percentage",
+                name: "bps",
                 type: "uint256",
               },
             ],
-            internalType: "struct AngelCoreStruct.EndowmentFee",
+            internalType: "struct AngelCoreStruct.FeeSetting",
             name: "depositFee",
             type: "tuple",
           },
@@ -1404,11 +1375,11 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "percentage",
+                name: "bps",
                 type: "uint256",
               },
             ],
-            internalType: "struct AngelCoreStruct.EndowmentFee",
+            internalType: "struct AngelCoreStruct.FeeSetting",
             name: "balanceFee",
             type: "tuple",
           },
@@ -1440,7 +1411,7 @@ const _abi = [
                   },
                 ],
                 internalType: "struct AngelCoreStruct.SettingsPermission",
-                name: "strategies",
+                name: "acceptedTokens",
                 type: "tuple",
               },
               {
@@ -1971,23 +1942,6 @@ const _abi = [
       {
         components: [
           {
-            components: [
-              {
-                internalType: "uint256",
-                name: "locked",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
-                name: "liquid",
-                type: "uint256",
-              },
-            ],
-            internalType: "struct AngelCoreStruct.DonationsReceived",
-            name: "donationsReceived",
-            type: "tuple",
-          },
-          {
             internalType: "bool",
             name: "closingEndowment",
             type: "bool",
@@ -2064,6 +2018,35 @@ const _abi = [
       },
     ],
     name: "swapToken",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint32",
+        name: "endowId",
+        type: "uint32",
+      },
+      {
+        internalType: "address",
+        name: "tokenAddr",
+        type: "address",
+      },
+      {
+        internalType: "bool",
+        name: "tokenStatus",
+        type: "bool",
+      },
+    ],
+    name: "updateAcceptedToken",
     outputs: [
       {
         internalType: "bool",
@@ -2246,47 +2229,6 @@ const _abi = [
       },
     ],
     name: "updateOwner",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "id",
-        type: "uint32",
-      },
-      {
-        internalType: "enum AngelCoreStruct.AccountType",
-        name: "acctType",
-        type: "uint8",
-      },
-      {
-        components: [
-          {
-            internalType: "string",
-            name: "vault",
-            type: "string",
-          },
-          {
-            internalType: "uint256",
-            name: "percentage",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct AccountMessages.Strategy[]",
-        name: "strategies",
-        type: "tuple[]",
-      },
-    ],
-    name: "updateStrategies",
     outputs: [
       {
         internalType: "bool",

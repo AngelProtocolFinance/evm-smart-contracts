@@ -2,7 +2,7 @@ const {assert, expect} = require("chai");
 const {ethers, artifacts} = require("hardhat");
 const Web3 = require("web3");
 const web3 = new Web3();
-let {main} = require("../../scripts/deployMain");
+let {main} = require("../../scripts/deployAngelProtocol");
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 const getCreateEndowmentConfig = async function (
   owner,

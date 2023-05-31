@@ -3,6 +3,7 @@
 pragma solidity >=0.8.0;
 
 import { IVault } from "../../vault/interfaces/IVault.sol";
+import {AngelCoreStruct} from "../../struct.sol";
 
 library LocalRegistrarLib {
 
@@ -17,9 +18,6 @@ library LocalRegistrarLib {
     uint32 constant BASIS = 100;
 
     // DEFAULT ANGEL PROTOCOL PARAMS
-    uint32 constant PROTOCOL_TAX_RATE = 2;
-    uint32 constant PROTOCOL_TAX_BASIS = 100;
-    address constant PROTOCOL_TAX_COLLECTOR = address(0);
     address constant ROUTER_ADDRESS = address(0);
     address constant REFUND_ADDRESS = address(0);
 
@@ -36,9 +34,6 @@ library LocalRegistrarLib {
     }
 
     struct AngelProtocolParams { 
-        uint32 protocolTaxRate;
-        uint32 protocolTaxBasis;
-        address protocolTaxCollector;
         address routerAddr;
         address refundAddr;
     }
@@ -64,10 +59,11 @@ library LocalRegistrarLib {
     struct LocalRegistrarStorage {
       RebalanceParams rebalanceParams;
       AngelProtocolParams angelProtocolParams;
-      mapping(bytes32 => string) accountsContractByChain;
+      mapping(bytes32 => string) AccountsContractByChain;
       mapping(bytes4 => StrategyParams) VaultsByStrategyId;
       mapping(address => bool) AcceptedTokens;
       mapping(address=> uint256) GasFeeByToken;
+      mapping(AngelCoreStruct.FeeTypes => AngelCoreStruct.FeeSetting) FeeSettingsByFeeType;
       mapping(address => bool) ApprovedVaultOperators;
     }
 

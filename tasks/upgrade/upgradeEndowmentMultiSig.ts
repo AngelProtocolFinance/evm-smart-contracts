@@ -1,5 +1,5 @@
 import {task} from "hardhat/config";
-import {getAddresses, updateAddresses} from "utils";
+import {getAddresses, getSigners, updateAddresses} from "utils";
 import {EndowmentMultiSig__factory, MultiSigWalletFactory__factory} from "typechain-types";
 import {logger, shouldVerify} from "utils";
 
@@ -10,7 +10,7 @@ task(
   try {
     logger.out("Deploying a new EndowmentMultiSig contract...");
 
-    const [_deployer, proxyAdmin] = await hre.ethers.getSigners();
+    const {proxyAdmin} = await getSigners(hre.ethers);
 
     const addresses = await getAddresses(hre);
 

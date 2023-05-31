@@ -22,14 +22,14 @@ import type {
 } from "../../../../common";
 
 export declare namespace AngelCoreStruct {
-  export type EndowmentFeeStruct = {
+  export type FeeSettingStruct = {
     payoutAddress: PromiseOrValue<string>;
-    percentage: PromiseOrValue<BigNumberish>;
+    bps: PromiseOrValue<BigNumberish>;
   };
 
-  export type EndowmentFeeStructOutput = [string, BigNumber] & {
+  export type FeeSettingStructOutput = [string, BigNumber] & {
     payoutAddress: string;
-    percentage: BigNumber;
+    bps: BigNumber;
   };
 
   export type CategoriesStruct = {
@@ -91,7 +91,7 @@ export declare namespace AngelCoreStruct {
   };
 
   export type SettingsControllerStruct = {
-    strategies: AngelCoreStruct.SettingsPermissionStruct;
+    acceptedTokens: AngelCoreStruct.SettingsPermissionStruct;
     lockedInvestmentManagement: AngelCoreStruct.SettingsPermissionStruct;
     liquidInvestmentManagement: AngelCoreStruct.SettingsPermissionStruct;
     allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStruct;
@@ -129,7 +129,7 @@ export declare namespace AngelCoreStruct {
     AngelCoreStruct.SettingsPermissionStructOutput,
     AngelCoreStruct.SettingsPermissionStructOutput
   ] & {
-    strategies: AngelCoreStruct.SettingsPermissionStructOutput;
+    acceptedTokens: AngelCoreStruct.SettingsPermissionStructOutput;
     lockedInvestmentManagement: AngelCoreStruct.SettingsPermissionStructOutput;
     liquidInvestmentManagement: AngelCoreStruct.SettingsPermissionStructOutput;
     allowlistedBeneficiaries: AngelCoreStruct.SettingsPermissionStructOutput;
@@ -158,16 +158,6 @@ export declare namespace AngelCoreStruct {
     max: BigNumber;
     min: BigNumber;
     defaultSplit: BigNumber;
-  };
-
-  export type DonationsReceivedStruct = {
-    locked: PromiseOrValue<BigNumberish>;
-    liquid: PromiseOrValue<BigNumberish>;
-  };
-
-  export type DonationsReceivedStructOutput = [BigNumber, BigNumber] & {
-    locked: BigNumber;
-    liquid: BigNumber;
   };
 
   export type BeneficiaryDataStruct = {
@@ -203,7 +193,7 @@ export declare namespace AccountMessages {
     subDao: PromiseOrValue<string>;
     gateway: PromiseOrValue<string>;
     gasReceiver: PromiseOrValue<string>;
-    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStruct;
+    earlyLockedWithdrawFee: AngelCoreStruct.FeeSettingStruct;
   };
 
   export type ConfigResponseStructOutput = [
@@ -215,7 +205,7 @@ export declare namespace AccountMessages {
     string,
     string,
     string,
-    AngelCoreStruct.EndowmentFeeStructOutput
+    AngelCoreStruct.FeeSettingStructOutput
   ] & {
     owner: string;
     version: string;
@@ -225,21 +215,15 @@ export declare namespace AccountMessages {
     subDao: string;
     gateway: string;
     gasReceiver: string;
-    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
+    earlyLockedWithdrawFee: AngelCoreStruct.FeeSettingStructOutput;
   };
 
   export type StateResponseStruct = {
-    donationsReceived: AngelCoreStruct.DonationsReceivedStruct;
     closingEndowment: PromiseOrValue<boolean>;
     closingBeneficiary: AngelCoreStruct.BeneficiaryStruct;
   };
 
-  export type StateResponseStructOutput = [
-    AngelCoreStruct.DonationsReceivedStructOutput,
-    boolean,
-    AngelCoreStruct.BeneficiaryStructOutput
-  ] & {
-    donationsReceived: AngelCoreStruct.DonationsReceivedStructOutput;
+  export type StateResponseStructOutput = [boolean, AngelCoreStruct.BeneficiaryStructOutput] & {
     closingEndowment: boolean;
     closingBeneficiary: AngelCoreStruct.BeneficiaryStructOutput;
   };
@@ -289,10 +273,10 @@ export declare namespace AccountStorage {
     allowlistedBeneficiaries: PromiseOrValue<string>[];
     allowlistedContributors: PromiseOrValue<string>[];
     maturityAllowlist: PromiseOrValue<string>[];
-    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStruct;
-    withdrawFee: AngelCoreStruct.EndowmentFeeStruct;
-    depositFee: AngelCoreStruct.EndowmentFeeStruct;
-    balanceFee: AngelCoreStruct.EndowmentFeeStruct;
+    earlyLockedWithdrawFee: AngelCoreStruct.FeeSettingStruct;
+    withdrawFee: AngelCoreStruct.FeeSettingStruct;
+    depositFee: AngelCoreStruct.FeeSettingStruct;
+    balanceFee: AngelCoreStruct.FeeSettingStruct;
     settingsController: AngelCoreStruct.SettingsControllerStruct;
     parent: PromiseOrValue<BigNumberish>;
     ignoreUserSplits: PromiseOrValue<boolean>;
@@ -323,10 +307,10 @@ export declare namespace AccountStorage {
     string[],
     string[],
     string[],
-    AngelCoreStruct.EndowmentFeeStructOutput,
-    AngelCoreStruct.EndowmentFeeStructOutput,
-    AngelCoreStruct.EndowmentFeeStructOutput,
-    AngelCoreStruct.EndowmentFeeStructOutput,
+    AngelCoreStruct.FeeSettingStructOutput,
+    AngelCoreStruct.FeeSettingStructOutput,
+    AngelCoreStruct.FeeSettingStructOutput,
+    AngelCoreStruct.FeeSettingStructOutput,
     AngelCoreStruct.SettingsControllerStructOutput,
     number,
     boolean,
@@ -355,10 +339,10 @@ export declare namespace AccountStorage {
     allowlistedBeneficiaries: string[];
     allowlistedContributors: string[];
     maturityAllowlist: string[];
-    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
-    withdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
-    depositFee: AngelCoreStruct.EndowmentFeeStructOutput;
-    balanceFee: AngelCoreStruct.EndowmentFeeStructOutput;
+    earlyLockedWithdrawFee: AngelCoreStruct.FeeSettingStructOutput;
+    withdrawFee: AngelCoreStruct.FeeSettingStructOutput;
+    depositFee: AngelCoreStruct.FeeSettingStructOutput;
+    balanceFee: AngelCoreStruct.FeeSettingStructOutput;
     settingsController: AngelCoreStruct.SettingsControllerStructOutput;
     parent: number;
     ignoreUserSplits: boolean;

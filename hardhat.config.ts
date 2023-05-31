@@ -1,5 +1,5 @@
 import {HardhatUserConfig} from "hardhat/config";
-import {envConfig, accounts} from "./utils";
+import {envConfig} from "./utils";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@openzeppelin/hardhat-upgrades";
@@ -8,6 +8,14 @@ import "@typechain/hardhat";
 require("tsconfig-paths/register"); // must use `require`, otherwise TS complains about missing declaration files
 // import "hardhat-abi-exporter"
 import "./tasks";
+
+var accounts = [
+  envConfig.DEPLOYER.key,
+  envConfig.PROXY_ADMIN.key,
+  envConfig.AP_TEAM_1.key,
+  envConfig.AP_TEAM_2.key,
+  envConfig.AP_TEAM_3.key,
+];
 
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
@@ -23,20 +31,20 @@ const config: HardhatUserConfig = {
   },
   networks: {
     mainnet: {
-      url: envConfig.mainnetRPC,
+      url: envConfig.MAINNET_RPC_URL,
       accounts: accounts,
     },
     goerli: {
-      url: envConfig.goerliRPC,
+      url: envConfig.GOERLI_RPC_URL,
       accounts: accounts,
     },
     mumbai: {
-      url: envConfig.mumbaiRPC,
+      url: envConfig.MUMBAI_RPC_URL,
       accounts: accounts,
       // gasPrice: 50_000_000_000 //50Gwei
     },
     polygon: {
-      url: envConfig.polygonRPC,
+      url: envConfig.POLYGON_RPC_URL,
       accounts: accounts,
     },
   },
@@ -45,10 +53,10 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      etherscan: envConfig.etherscanAPIKey,
-      goerli: envConfig.etherscanAPIKey,
-      polygon: envConfig.polyscanAPIKey,
-      polygonMumbai: envConfig.polyscanAPIKey,
+      etherscan: envConfig.ETHERSCAN_API_KEY,
+      goerli: envConfig.ETHERSCAN_API_KEY,
+      polygon: envConfig.POLYSCAN_API_KEY,
+      polygonMumbai: envConfig.POLYSCAN_API_KEY,
     },
   },
   // abiExporter: [

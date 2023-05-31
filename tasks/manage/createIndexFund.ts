@@ -1,17 +1,12 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {BytesLike} from "ethers";
 import {task} from "hardhat/config";
 import {IndexFund, MultiSigGeneric} from "typechain-types";
-import {getAddresses, logger} from "utils";
+import {getAddresses, getSigners, logger} from "utils";
 
 task("manage:createIndexFund", "Will create a new index fund").setAction(
   async (_taskArguments, hre) => {
     try {
-      let deployer: SignerWithAddress;
-      let apTeam1: SignerWithAddress;
-      let apTeam2: SignerWithAddress;
-      let apTeam3: SignerWithAddress;
-      [deployer, apTeam1, apTeam2, apTeam3] = await hre.ethers.getSigners();
+      const {apTeam2} = await getSigners(hre.ethers);
 
       const addresses = await getAddresses(hre);
 

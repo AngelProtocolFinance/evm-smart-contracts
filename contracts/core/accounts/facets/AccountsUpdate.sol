@@ -44,7 +44,7 @@ contract AccountsUpdate is ReentrancyGuardFacet, AccountsEvents {
     function updateConfig(
         address newRegistrar,
         uint256 maxGeneralCategoryId,
-        AngelCoreStruct.EndowmentFee memory earlyLockedWithdrawFee
+        AngelCoreStruct.FeeSetting memory earlyLockedWithdrawFee
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
 

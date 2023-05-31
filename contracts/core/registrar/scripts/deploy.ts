@@ -1,23 +1,21 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 
-import {updateAddresses} from "utils";
+import {getSigners, updateAddresses} from "utils";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/registrar.sol/Registrar";
 
 export async function deployRegistrar(
   STRING_LIBRARY: string,
   registrarData: RegistrarMessages.InstantiateRequestStruct,
+  owner: string,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
   try {
     const {network, run, ethers} = hre;
 
-    let [deployer, proxyAdmin] = await ethers.getSigners();
-
-    // const [deployer] = await ethers.getSigners();
-    // Deploy registrar implementation first
+    const {proxyAdmin} = await getSigners(ethers);
 
     // const registrarLib = await ethers.getContractFactory('RegistrarLib');
     // const registrarLibInstance = await registrarLib.deploy();
@@ -28,6 +26,11 @@ export async function deployRegistrar(
     await registrarImplementation.deployed();
 
     console.log("registrarImplementation implementation address:", registrarImplementation.address);
+
+    console.log("Updating Registrar owner to: ", owner, "...");
+    const tx = await registrarImplementation.transferOwnership(owner);
+    await tx.wait();
+
     // Deploy proxy contract
 
     const ProxyContract = await ethers.getContractFactory("ProxyContract");

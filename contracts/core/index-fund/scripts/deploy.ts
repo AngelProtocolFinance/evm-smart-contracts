@@ -1,27 +1,30 @@
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import config from "config";
-import {updateAddresses} from "utils";
+import {getSigners, updateAddresses} from "utils";
 import {IndexFundMessage} from "typechain-types/contracts/core/index-fund/IndexFund";
 
 export async function deployIndexFund(
   initFactoryData: IndexFundMessage.InstantiateMessageStruct,
+  owner: string,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
   try {
     const {network, run, ethers} = hre;
 
-    let [deployer, _proxyAdmin] = await ethers.getSigners();
-    const IndexContract = await ethers.getContractFactory("IndexFund");
-
+    const {proxyAdmin} = await getSigners(ethers);
+    const IndexContract = await ethers.getContractFactory("IndexFund", proxyAdmin);
     const indexContract = await IndexContract.deploy();
     await indexContract.deployed();
 
     console.log("Index fund implementation address:", indexContract.address);
 
-    const ProxyContract = await ethers.getContractFactory("ProxyContract");
+    console.log("Updating IndexFund owner to: ", owner, "...");
+    const tx = await indexContract.updateOwner(owner);
+    await tx.wait();
+
+    const ProxyContract = await ethers.getContractFactory("ProxyContract", proxyAdmin);
 
     const IndexFundContractData = indexContract.interface.encodeFunctionData("initIndexFund", [
       initFactoryData,
@@ -29,7 +32,7 @@ export async function deployIndexFund(
 
     const IndexFundContractProxy = await ProxyContract.deploy(
       indexContract.address,
-      _proxyAdmin.address,
+      proxyAdmin.address,
       IndexFundContractData
     );
     await IndexFundContractProxy.deployed();
@@ -51,7 +54,7 @@ export async function deployIndexFund(
       });
       await run("verify:verify", {
         address: IndexFundContractProxy.address,
-        constructorArguments: [indexContract.address, _proxyAdmin.address, IndexFundContractData],
+        constructorArguments: [indexContract.address, proxyAdmin.address, IndexFundContractData],
       });
     }
 

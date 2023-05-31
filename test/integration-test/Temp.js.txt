@@ -2,7 +2,7 @@ const { expect } = require('chai');
 const { ethers, artifacts } = require('hardhat');
 const Web3 = require('web3');
 const web3 = new Web3();
-let { main } = require('../../scripts/deployMain');
+let { main } = require('../../scripts/deployAngelProtocol');
 const endowmentData = require('../data/endowment.ts');
 const { loadFixture } = require('@nomicfoundation/hardhat-network-helpers');
 

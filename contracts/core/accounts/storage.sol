@@ -15,7 +15,7 @@ library AccountStorage {
         address gateway;
         address gasReceiver;
         bool reentrancyGuardLocked;
-        AngelCoreStruct.EndowmentFee earlyLockedWithdrawFee;
+        AngelCoreStruct.FeeSetting earlyLockedWithdrawFee;
     }
 
     struct Endowment {
@@ -43,10 +43,10 @@ library AccountStorage {
         address[] allowlistedBeneficiaries;
         address[] allowlistedContributors;
         address[] maturityAllowlist;
-        AngelCoreStruct.EndowmentFee earlyLockedWithdrawFee;
-        AngelCoreStruct.EndowmentFee withdrawFee;
-        AngelCoreStruct.EndowmentFee depositFee;
-        AngelCoreStruct.EndowmentFee balanceFee;
+        AngelCoreStruct.FeeSetting earlyLockedWithdrawFee;
+        AngelCoreStruct.FeeSetting withdrawFee;
+        AngelCoreStruct.FeeSetting depositFee;
+        AngelCoreStruct.FeeSetting balanceFee;
         AngelCoreStruct.SettingsController settingsController;
         uint32 parent;
         bool ignoreUserSplits;
@@ -55,7 +55,6 @@ library AccountStorage {
     }
 
     struct EndowmentState {
-        AngelCoreStruct.DonationsReceived donationsReceived;
         AngelCoreStruct.BalanceInfo balances;
         bool closingEndowment;
         AngelCoreStruct.Beneficiary closingBeneficiary;
@@ -68,9 +67,9 @@ library AccountStorage {
         mapping(uint32 => Endowment) ENDOWMENTS;
         // endow ID -> spender Addr -> token Addr -> amount
         mapping(uint32 => mapping(address => mapping(address => uint256))) ALLOWANCES;
+        // endow ID -> token Addr -> bool
+        mapping(uint32 => mapping(address => bool)) AcceptedTokens;
         Config config;
-        // mapping(bytes4 => string) stratagyId;
-        // mapping(uint32 => mapping(AngelCoreStruct.AccountType => mapping(string => uint256))) vaultBalance;
     }
 }
 
