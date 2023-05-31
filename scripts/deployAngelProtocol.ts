@@ -95,7 +95,13 @@ export async function deployAngelProtocol(hre: HardhatRuntimeEnvironment): Promi
     hre
   );
 
-  const router = await deployRouter();
+  const router = await deployRouter(
+    config.REGISTRAR_DATA.axelarGateway,
+    config.REGISTRAR_DATA.axelarGasRecv,
+    registrar.proxy.address,
+    verify_contracts,
+    hre
+  );
 
   const ACCOUNT_ADDRESS = await deployDiamond(
     multisigAddress.APTeamMultiSig,
