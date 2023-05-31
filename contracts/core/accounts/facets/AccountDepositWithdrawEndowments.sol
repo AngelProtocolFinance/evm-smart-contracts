@@ -58,7 +58,7 @@ contract AccountDepositWithdrawEndowments is
         uint256 usdcAmount = ISwappingV3(registrar_config.swapsRouter)
             .swapEthToToken{value: msg.value}();
         emit SwappedToken(usdcAmount);
-        processToken(details, registrar_config.usdcAddress, usdcAmount);
+        processTokenDeposit(details, registrar_config.usdcAddress, usdcAmount);
     }
 
     /**
@@ -90,7 +90,7 @@ contract AccountDepositWithdrawEndowments is
             amount),
         "Transfer failed");
 
-        processToken(details, tokenAddress, amount);
+        processTokenDeposit(details, tokenAddress, amount);
     }
 
     /**
@@ -100,7 +100,7 @@ contract AccountDepositWithdrawEndowments is
      * @param tokenAddress The address of the token to deposit (only called with USDC address)
      * @param amount The amount of the token to deposit (in USDC)
      */
-    function processToken(
+    function processTokenDeposit(
         AccountMessages.DepositRequest memory details,
         address tokenAddress,
         uint256 amount
@@ -393,7 +393,7 @@ contract AccountDepositWithdrawEndowments is
             // check endowment specified is not closed
             require(!state.STATES[beneficiaryEndowId].closingEndowment, "Beneficiary endowment is closed");
             // Send deposit message to 100% Liquid account of an endowment
-            processToken(
+            processTokenDeposit(
                 AccountMessages.DepositRequest({ id: id, lockedPercentage: 0, liquidPercentage: 100 }),
                 tokenAddress,
                 (amountLeftover - withdrawFeeEndow)
