@@ -21,7 +21,7 @@ import {
   Registrar__factory,
 } from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-import {ParametersExceptLast, cleanAddresses} from "utils";
+import {ContractFunctionParams, cleanAddresses} from "utils";
 import {getSigners} from "utils/getSigners";
 import {deployLibraries} from "./deployLibraries";
 
@@ -64,12 +64,12 @@ task("Deploy:deployAngelProtocol", "Will deploy CompleteAngel protocol").setActi
 
       const {angelCoreStruct, stringLib} = await deployLibraries(hre);
 
-      var APTeamData: ParametersExceptLast<APTeamMultiSig["initialize"]> = [
+      var APTeamData: ContractFunctionParams<APTeamMultiSig["initialize"]> = [
         apTeamMultisigOwners.map((x) => x.address),
         config.AP_TEAM_MULTISIG_DATA.threshold,
         config.AP_TEAM_MULTISIG_DATA.requireExecution,
       ];
-      var ApplicationData: ParametersExceptLast<ApplicationsMultiSig["initialize"]> = [
+      var ApplicationData: ContractFunctionParams<ApplicationsMultiSig["initialize"]> = [
         applicationsMultisigOwners.map((x) => x.address),
         config.APPLICATION_MULTISIG_DATA.threshold,
         config.APPLICATION_MULTISIG_DATA.requireExecution,
