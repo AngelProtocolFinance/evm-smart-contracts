@@ -14,12 +14,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -66,36 +62,16 @@ export interface DummyVaultInterface extends utils.Interface {
 
   encodeFunctionData(
     functionFragment: "deposit",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "getVaultType",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "harvest",
-    values: [PromiseOrValue<BigNumberish>[]]
-  ): string;
+  encodeFunctionData(functionFragment: "getVaultType", values?: undefined): string;
+  encodeFunctionData(functionFragment: "harvest", values: [PromiseOrValue<BigNumberish>[]]): string;
   encodeFunctionData(
     functionFragment: "redeem",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "redeemAll",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setDefaultToken",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "redeemAll", values: [PromiseOrValue<BigNumberish>]): string;
+  encodeFunctionData(functionFragment: "setDefaultToken", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(
     functionFragment: "setDummyAmt",
     values: [PromiseOrValue<BigNumberish>]
@@ -106,25 +82,13 @@ export interface DummyVaultInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getVaultType",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "getVaultType", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "harvest", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "redeemAll", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setDefaultToken",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setDummyAmt",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setRouterAddress",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "setDefaultToken", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "setDummyAmt", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "setRouterAddress", data: BytesLike): Result;
 
   events: {
     "DepositMade(uint32,uint8,address,uint256)": EventFragment;
@@ -187,9 +151,7 @@ export interface DummyVault extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -201,41 +163,41 @@ export interface DummyVault extends BaseContract {
       accountId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     getVaultType(overrides?: CallOverrides): Promise<[number]>;
 
     harvest(
       accountIds: PromiseOrValue<BigNumberish>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     redeem(
       accountId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     redeemAll(
       accountId: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     setDefaultToken(
       _addr: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     setDummyAmt(
       _newDummyAmt: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     setRouterAddress(
       _addr: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
 
@@ -243,41 +205,41 @@ export interface DummyVault extends BaseContract {
     accountId: PromiseOrValue<BigNumberish>,
     token: PromiseOrValue<string>,
     amt: PromiseOrValue<BigNumberish>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   getVaultType(overrides?: CallOverrides): Promise<number>;
 
   harvest(
     accountIds: PromiseOrValue<BigNumberish>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   redeem(
     accountId: PromiseOrValue<BigNumberish>,
     token: PromiseOrValue<string>,
     amt: PromiseOrValue<BigNumberish>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   redeemAll(
     accountId: PromiseOrValue<BigNumberish>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   setDefaultToken(
     _addr: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   setDummyAmt(
     _newDummyAmt: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   setRouterAddress(
     _addr: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -290,10 +252,7 @@ export interface DummyVault extends BaseContract {
 
     getVaultType(overrides?: CallOverrides): Promise<number>;
 
-    harvest(
-      accountIds: PromiseOrValue<BigNumberish>[],
-      overrides?: CallOverrides
-    ): Promise<void>;
+    harvest(accountIds: PromiseOrValue<BigNumberish>[], overrides?: CallOverrides): Promise<void>;
 
     redeem(
       accountId: PromiseOrValue<BigNumberish>,
@@ -307,20 +266,14 @@ export interface DummyVault extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    setDefaultToken(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    setDefaultToken(_addr: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
     setDummyAmt(
       _newDummyAmt: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setRouterAddress(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    setRouterAddress(_addr: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
@@ -337,12 +290,8 @@ export interface DummyVault extends BaseContract {
       amtDeposited?: null
     ): DepositMadeEventFilter;
 
-    "Harvest(uint32[])"(
-      accountIds?: PromiseOrValue<BigNumberish>[] | null
-    ): HarvestEventFilter;
-    Harvest(
-      accountIds?: PromiseOrValue<BigNumberish>[] | null
-    ): HarvestEventFilter;
+    "Harvest(uint32[])"(accountIds?: PromiseOrValue<BigNumberish>[] | null): HarvestEventFilter;
+    Harvest(accountIds?: PromiseOrValue<BigNumberish>[] | null): HarvestEventFilter;
 
     "Redemption(uint32,uint8,address,uint256)"(
       accountId?: PromiseOrValue<BigNumberish> | null,
@@ -363,41 +312,41 @@ export interface DummyVault extends BaseContract {
       accountId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     getVaultType(overrides?: CallOverrides): Promise<BigNumber>;
 
     harvest(
       accountIds: PromiseOrValue<BigNumberish>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     redeem(
       accountId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     redeemAll(
       accountId: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     setDefaultToken(
       _addr: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     setDummyAmt(
       _newDummyAmt: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     setRouterAddress(
       _addr: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
 
@@ -406,41 +355,41 @@ export interface DummyVault extends BaseContract {
       accountId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     getVaultType(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     harvest(
       accountIds: PromiseOrValue<BigNumberish>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     redeem(
       accountId: PromiseOrValue<BigNumberish>,
       token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     redeemAll(
       accountId: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     setDefaultToken(
       _addr: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     setDummyAmt(
       _newDummyAmt: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     setRouterAddress(
       _addr: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };
 }
