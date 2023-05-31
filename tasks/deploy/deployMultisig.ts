@@ -4,7 +4,7 @@ import {ApplicationsMultiSig, APTeamMultiSig} from "typechain-types";
 import {deployMultisig} from "contracts/multisigs/scripts/deploy";
 import {ContractFunctionParams, getSigners, logger} from "utils";
 
-task("Deploy:deployMultisig", "Will deploy Multisig contract")
+task("Deploy:Multisig", "Will deploy Multisig contract")
   .addParam("verify", "Want to verify contract")
   .setAction(async (taskArgs, hre) => {
     try {

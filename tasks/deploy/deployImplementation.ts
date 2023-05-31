@@ -3,7 +3,7 @@ import config from "config";
 import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
 import {logger} from "utils";
 
-task("Deploy:deployImplementation", "Will deploy Implementation")
+task("Deploy:Implementation", "Will deploy Implementation")
   .addParam("verify", "Want to verify contract")
   .addParam("registraraddress", "Address of the Registrar contract")
   .addParam("angelcorestruct", "Address of the AngelCoreStruct contract")
