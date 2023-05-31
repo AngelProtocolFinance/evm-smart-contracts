@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
 import type {
   IERC20Burnable,
   IERC20BurnableInterface,
@@ -213,10 +213,7 @@ export class IERC20Burnable__factory {
   static createInterface(): IERC20BurnableInterface {
     return new utils.Interface(_abi) as IERC20BurnableInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IERC20Burnable {
+  static connect(address: string, signerOrProvider: Signer | Provider): IERC20Burnable {
     return new Contract(address, _abi, signerOrProvider) as IERC20Burnable;
   }
 }

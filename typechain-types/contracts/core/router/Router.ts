@@ -13,12 +13,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -99,11 +95,7 @@ export interface RouterInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "chain", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "deposit",
-    values: [
-      IRouter.VaultActionDataStruct,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [IRouter.VaultActionDataStruct, PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "execute",
@@ -116,11 +108,7 @@ export interface RouterInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "executeLocal",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BytesLike>
-    ]
+    values: [PromiseOrValue<string>, PromiseOrValue<string>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "executeWithToken",
@@ -143,10 +131,7 @@ export interface RouterInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>
     ]
   ): string;
-  encodeFunctionData(
-    functionFragment: "gasReceiver",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "gasReceiver", values?: undefined): string;
   encodeFunctionData(functionFragment: "gateway", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "initialize",
@@ -159,10 +144,7 @@ export interface RouterInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "registrar", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "renounceOwnership", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "sendTokens",
     values: [
@@ -183,35 +165,17 @@ export interface RouterInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "chain", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "executeLocal",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "executeWithToken",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "executeWithTokenLocal",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "gasReceiver",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "executeLocal", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "executeWithToken", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "executeWithTokenLocal", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "gasReceiver", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "gateway", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "registrar", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "renounceOwnership", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "sendTokens", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "transferOwnership", data: BytesLike): Result;
 
   events: {
     "Deposit(tuple)": EventFragment;
@@ -239,10 +203,7 @@ export interface RouterInterface extends utils.Interface {
 export interface DepositEventObject {
   action: IRouter.VaultActionDataStructOutput;
 }
-export type DepositEvent = TypedEvent<
-  [IRouter.VaultActionDataStructOutput],
-  DepositEventObject
->;
+export type DepositEvent = TypedEvent<[IRouter.VaultActionDataStructOutput], DepositEventObject>;
 
 export type DepositEventFilter = TypedEventFilter<DepositEvent>;
 
@@ -260,10 +221,7 @@ export type FallbackRefundEventFilter = TypedEventFilter<FallbackRefundEvent>;
 export interface HarvestEventObject {
   action: IRouter.VaultActionDataStructOutput;
 }
-export type HarvestEvent = TypedEvent<
-  [IRouter.VaultActionDataStructOutput],
-  HarvestEventObject
->;
+export type HarvestEvent = TypedEvent<[IRouter.VaultActionDataStructOutput], HarvestEventObject>;
 
 export type HarvestEventFilter = TypedEventFilter<HarvestEvent>;
 
@@ -305,8 +263,7 @@ export type OwnershipTransferredEvent = TypedEvent<
   OwnershipTransferredEventObject
 >;
 
-export type OwnershipTransferredEventFilter =
-  TypedEventFilter<OwnershipTransferredEvent>;
+export type OwnershipTransferredEventFilter = TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface RedemptionEventObject {
   action: IRouter.VaultActionDataStructOutput;
@@ -347,9 +304,7 @@ export interface Router extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -363,7 +318,7 @@ export interface Router extends BaseContract {
       action: IRouter.VaultActionDataStruct,
       tokenSymbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     execute(
@@ -371,14 +326,14 @@ export interface Router extends BaseContract {
       sourceChain: PromiseOrValue<string>,
       sourceAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     executeLocal(
       sourceChain: PromiseOrValue<string>,
       sourceAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     executeWithToken(
@@ -388,7 +343,7 @@ export interface Router extends BaseContract {
       payload: PromiseOrValue<BytesLike>,
       tokenSymbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     executeWithTokenLocal(
@@ -397,7 +352,7 @@ export interface Router extends BaseContract {
       payload: PromiseOrValue<BytesLike>,
       tokenSymbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     gasReceiver(overrides?: CallOverrides): Promise<[string]>;
@@ -409,7 +364,7 @@ export interface Router extends BaseContract {
       _gateway: PromiseOrValue<string>,
       _gasReceiver: PromiseOrValue<string>,
       _registrar: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
@@ -417,7 +372,7 @@ export interface Router extends BaseContract {
     registrar(overrides?: CallOverrides): Promise<[string]>;
 
     renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     sendTokens(
@@ -428,12 +383,12 @@ export interface Router extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       gasToken: PromiseOrValue<string>,
       gasFeeAmt: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
 
@@ -443,7 +398,7 @@ export interface Router extends BaseContract {
     action: IRouter.VaultActionDataStruct,
     tokenSymbol: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   execute(
@@ -451,14 +406,14 @@ export interface Router extends BaseContract {
     sourceChain: PromiseOrValue<string>,
     sourceAddress: PromiseOrValue<string>,
     payload: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   executeLocal(
     sourceChain: PromiseOrValue<string>,
     sourceAddress: PromiseOrValue<string>,
     payload: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   executeWithToken(
@@ -468,7 +423,7 @@ export interface Router extends BaseContract {
     payload: PromiseOrValue<BytesLike>,
     tokenSymbol: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   executeWithTokenLocal(
@@ -477,7 +432,7 @@ export interface Router extends BaseContract {
     payload: PromiseOrValue<BytesLike>,
     tokenSymbol: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   gasReceiver(overrides?: CallOverrides): Promise<string>;
@@ -489,7 +444,7 @@ export interface Router extends BaseContract {
     _gateway: PromiseOrValue<string>,
     _gasReceiver: PromiseOrValue<string>,
     _registrar: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   owner(overrides?: CallOverrides): Promise<string>;
@@ -497,7 +452,7 @@ export interface Router extends BaseContract {
   registrar(overrides?: CallOverrides): Promise<string>;
 
   renounceOwnership(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   sendTokens(
@@ -508,12 +463,12 @@ export interface Router extends BaseContract {
     amount: PromiseOrValue<BigNumberish>,
     gasToken: PromiseOrValue<string>,
     gasFeeAmt: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   transferOwnership(
     newOwner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -589,20 +544,14 @@ export interface Router extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    transferOwnership(
-      newOwner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    transferOwnership(newOwner: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
     "Deposit(tuple)"(action?: null): DepositEventFilter;
     Deposit(action?: null): DepositEventFilter;
 
-    "FallbackRefund(tuple,uint256)"(
-      action?: null,
-      amount?: null
-    ): FallbackRefundEventFilter;
+    "FallbackRefund(tuple,uint256)"(action?: null, amount?: null): FallbackRefundEventFilter;
     FallbackRefund(action?: null, amount?: null): FallbackRefundEventFilter;
 
     "Harvest(tuple)"(action?: null): HarvestEventFilter;
@@ -611,16 +560,10 @@ export interface Router extends BaseContract {
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
 
-    "LogError(tuple,string)"(
-      action?: null,
-      message?: null
-    ): LogErrorEventFilter;
+    "LogError(tuple,string)"(action?: null, message?: null): LogErrorEventFilter;
     LogError(action?: null, message?: null): LogErrorEventFilter;
 
-    "LogErrorBytes(tuple,bytes)"(
-      action?: null,
-      data?: null
-    ): LogErrorBytesEventFilter;
+    "LogErrorBytes(tuple,bytes)"(action?: null, data?: null): LogErrorBytesEventFilter;
     LogErrorBytes(action?: null, data?: null): LogErrorBytesEventFilter;
 
     "OwnershipTransferred(address,address)"(
@@ -632,16 +575,10 @@ export interface Router extends BaseContract {
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
 
-    "Redemption(tuple,uint256)"(
-      action?: null,
-      amount?: null
-    ): RedemptionEventFilter;
+    "Redemption(tuple,uint256)"(action?: null, amount?: null): RedemptionEventFilter;
     Redemption(action?: null, amount?: null): RedemptionEventFilter;
 
-    "TokensSent(tuple,uint256)"(
-      action?: null,
-      amount?: null
-    ): TokensSentEventFilter;
+    "TokensSent(tuple,uint256)"(action?: null, amount?: null): TokensSentEventFilter;
     TokensSent(action?: null, amount?: null): TokensSentEventFilter;
   };
 
@@ -652,7 +589,7 @@ export interface Router extends BaseContract {
       action: IRouter.VaultActionDataStruct,
       tokenSymbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     execute(
@@ -660,14 +597,14 @@ export interface Router extends BaseContract {
       sourceChain: PromiseOrValue<string>,
       sourceAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     executeLocal(
       sourceChain: PromiseOrValue<string>,
       sourceAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     executeWithToken(
@@ -677,7 +614,7 @@ export interface Router extends BaseContract {
       payload: PromiseOrValue<BytesLike>,
       tokenSymbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     executeWithTokenLocal(
@@ -686,7 +623,7 @@ export interface Router extends BaseContract {
       payload: PromiseOrValue<BytesLike>,
       tokenSymbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     gasReceiver(overrides?: CallOverrides): Promise<BigNumber>;
@@ -698,16 +635,14 @@ export interface Router extends BaseContract {
       _gateway: PromiseOrValue<string>,
       _gasReceiver: PromiseOrValue<string>,
       _registrar: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     registrar(overrides?: CallOverrides): Promise<BigNumber>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    renounceOwnership(overrides?: Overrides & {from?: PromiseOrValue<string>}): Promise<BigNumber>;
 
     sendTokens(
       destinationChain: PromiseOrValue<string>,
@@ -717,12 +652,12 @@ export interface Router extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       gasToken: PromiseOrValue<string>,
       gasFeeAmt: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
 
@@ -733,7 +668,7 @@ export interface Router extends BaseContract {
       action: IRouter.VaultActionDataStruct,
       tokenSymbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     execute(
@@ -741,14 +676,14 @@ export interface Router extends BaseContract {
       sourceChain: PromiseOrValue<string>,
       sourceAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     executeLocal(
       sourceChain: PromiseOrValue<string>,
       sourceAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     executeWithToken(
@@ -758,7 +693,7 @@ export interface Router extends BaseContract {
       payload: PromiseOrValue<BytesLike>,
       tokenSymbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     executeWithTokenLocal(
@@ -767,7 +702,7 @@ export interface Router extends BaseContract {
       payload: PromiseOrValue<BytesLike>,
       tokenSymbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     gasReceiver(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -779,7 +714,7 @@ export interface Router extends BaseContract {
       _gateway: PromiseOrValue<string>,
       _gasReceiver: PromiseOrValue<string>,
       _registrar: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -787,7 +722,7 @@ export interface Router extends BaseContract {
     registrar(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     sendTokens(
@@ -798,12 +733,12 @@ export interface Router extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       gasToken: PromiseOrValue<string>,
       gasFeeAmt: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };
 }
