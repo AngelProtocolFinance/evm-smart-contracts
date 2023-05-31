@@ -3,4 +3,4 @@
 /* eslint-disable */
 export * as interfaces from "./interfaces";
 export * as lib from "./lib";
-export { IncentivisedVotingLockup__factory } from "./IncentivisedVotingLockup__factory";
+export {IncentivisedVotingLockup__factory} from "./IncentivisedVotingLockup__factory";

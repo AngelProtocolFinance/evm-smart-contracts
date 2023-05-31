@@ -13,12 +13,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -51,12 +47,7 @@ export declare namespace DistributorMessage {
     spendLimit: PromiseOrValue<BigNumberish>;
   };
 
-  export type InstantiateMsgStructOutput = [
-    string,
-    string,
-    string[],
-    BigNumber
-  ] & {
+  export type InstantiateMsgStructOutput = [string, string, string[], BigNumber] & {
     timelockContract: string;
     haloToken: string;
     allowlist: string[];
@@ -70,12 +61,7 @@ export declare namespace DistributorMessage {
     spendLimit: PromiseOrValue<BigNumberish>;
   };
 
-  export type ConfigResponseStructOutput = [
-    string,
-    string,
-    string[],
-    BigNumber
-  ] & {
+  export type ConfigResponseStructOutput = [string, string, string[], BigNumber] & {
     timelockContract: string;
     haloToken: string;
     allowlist: string[];
@@ -103,18 +89,12 @@ export interface DistributorInterface extends utils.Interface {
       | "updateConfig"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "addDistributor",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "addDistributor", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(
     functionFragment: "initialize",
     values: [DistributorMessage.InstantiateMsgStruct]
   ): string;
-  encodeFunctionData(
-    functionFragment: "queryConfig",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "queryConfig", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "removeDistributor",
     values: [PromiseOrValue<string>]
@@ -128,24 +108,12 @@ export interface DistributorInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "addDistributor",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "addDistributor", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "queryConfig",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "removeDistributor",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "queryConfig", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "removeDistributor", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "spend", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "updateConfig",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "updateConfig", data: BytesLike): Result;
 
   events: {
     "DistributorAdded(address)": EventFragment;
@@ -165,13 +133,9 @@ export interface DistributorInterface extends utils.Interface {
 export interface DistributorAddedEventObject {
   distributor: string;
 }
-export type DistributorAddedEvent = TypedEvent<
-  [string],
-  DistributorAddedEventObject
->;
+export type DistributorAddedEvent = TypedEvent<[string], DistributorAddedEventObject>;
 
-export type DistributorAddedEventFilter =
-  TypedEventFilter<DistributorAddedEvent>;
+export type DistributorAddedEventFilter = TypedEventFilter<DistributorAddedEvent>;
 
 export interface DistributorConfigUpdatedEventObject {
   config: DistributorStorage.ConfigStructOutput;
@@ -181,31 +145,22 @@ export type DistributorConfigUpdatedEvent = TypedEvent<
   DistributorConfigUpdatedEventObject
 >;
 
-export type DistributorConfigUpdatedEventFilter =
-  TypedEventFilter<DistributorConfigUpdatedEvent>;
+export type DistributorConfigUpdatedEventFilter = TypedEventFilter<DistributorConfigUpdatedEvent>;
 
 export interface DistributorRemovedEventObject {
   distributor: string;
 }
-export type DistributorRemovedEvent = TypedEvent<
-  [string],
-  DistributorRemovedEventObject
->;
+export type DistributorRemovedEvent = TypedEvent<[string], DistributorRemovedEventObject>;
 
-export type DistributorRemovedEventFilter =
-  TypedEventFilter<DistributorRemovedEvent>;
+export type DistributorRemovedEventFilter = TypedEventFilter<DistributorRemovedEvent>;
 
 export interface DistributorSpendEventObject {
   recipient: string;
   amount: BigNumber;
 }
-export type DistributorSpendEvent = TypedEvent<
-  [string, BigNumber],
-  DistributorSpendEventObject
->;
+export type DistributorSpendEvent = TypedEvent<[string, BigNumber], DistributorSpendEventObject>;
 
-export type DistributorSpendEventFilter =
-  TypedEventFilter<DistributorSpendEvent>;
+export type DistributorSpendEventFilter = TypedEventFilter<DistributorSpendEvent>;
 
 export interface InitializedEventObject {
   version: number;
@@ -231,9 +186,7 @@ export interface Distributor extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -243,12 +196,12 @@ export interface Distributor extends BaseContract {
   functions: {
     addDistributor(
       distributor: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     initialize(
       details: DistributorMessage.InstantiateMsgStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     queryConfig(
@@ -257,67 +210,60 @@ export interface Distributor extends BaseContract {
 
     removeDistributor(
       distributor: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     spend(
       recipient: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     updateConfig(
       spendLimit: PromiseOrValue<BigNumberish>,
       timelockContract: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
 
   addDistributor(
     distributor: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   initialize(
     details: DistributorMessage.InstantiateMsgStruct,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
-  queryConfig(
-    overrides?: CallOverrides
-  ): Promise<DistributorMessage.ConfigResponseStructOutput>;
+  queryConfig(overrides?: CallOverrides): Promise<DistributorMessage.ConfigResponseStructOutput>;
 
   removeDistributor(
     distributor: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   spend(
     recipient: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   updateConfig(
     spendLimit: PromiseOrValue<BigNumberish>,
     timelockContract: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    addDistributor(
-      distributor: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    addDistributor(distributor: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
     initialize(
       details: DistributorMessage.InstantiateMsgStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    queryConfig(
-      overrides?: CallOverrides
-    ): Promise<DistributorMessage.ConfigResponseStructOutput>;
+    queryConfig(overrides?: CallOverrides): Promise<DistributorMessage.ConfigResponseStructOutput>;
 
     removeDistributor(
       distributor: PromiseOrValue<string>,
@@ -338,31 +284,20 @@ export interface Distributor extends BaseContract {
   };
 
   filters: {
-    "DistributorAdded(address)"(
-      distributor?: null
-    ): DistributorAddedEventFilter;
+    "DistributorAdded(address)"(distributor?: null): DistributorAddedEventFilter;
     DistributorAdded(distributor?: null): DistributorAddedEventFilter;
 
-    "DistributorConfigUpdated(tuple)"(
-      config?: null
-    ): DistributorConfigUpdatedEventFilter;
-    DistributorConfigUpdated(
-      config?: null
-    ): DistributorConfigUpdatedEventFilter;
+    "DistributorConfigUpdated(tuple)"(config?: null): DistributorConfigUpdatedEventFilter;
+    DistributorConfigUpdated(config?: null): DistributorConfigUpdatedEventFilter;
 
-    "DistributorRemoved(address)"(
-      distributor?: null
-    ): DistributorRemovedEventFilter;
+    "DistributorRemoved(address)"(distributor?: null): DistributorRemovedEventFilter;
     DistributorRemoved(distributor?: null): DistributorRemovedEventFilter;
 
     "DistributorSpend(address,uint256)"(
       recipient?: null,
       amount?: null
     ): DistributorSpendEventFilter;
-    DistributorSpend(
-      recipient?: null,
-      amount?: null
-    ): DistributorSpendEventFilter;
+    DistributorSpend(recipient?: null, amount?: null): DistributorSpendEventFilter;
 
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
@@ -371,62 +306,62 @@ export interface Distributor extends BaseContract {
   estimateGas: {
     addDistributor(
       distributor: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     initialize(
       details: DistributorMessage.InstantiateMsgStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     queryConfig(overrides?: CallOverrides): Promise<BigNumber>;
 
     removeDistributor(
       distributor: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     spend(
       recipient: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     updateConfig(
       spendLimit: PromiseOrValue<BigNumberish>,
       timelockContract: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     addDistributor(
       distributor: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     initialize(
       details: DistributorMessage.InstantiateMsgStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     queryConfig(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     removeDistributor(
       distributor: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     spend(
       recipient: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     updateConfig(
       spendLimit: PromiseOrValue<BigNumberish>,
       timelockContract: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };
 }
