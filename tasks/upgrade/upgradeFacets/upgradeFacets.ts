@@ -58,7 +58,8 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
       const facets = await deployFacets(
         facetsToUpgrade,
         proxyAdmin,
-        addresses.libraries.ANGEL_CORE_STRUCT_LIBRARY
+        addresses.libraries.ANGEL_CORE_STRUCT_LIBRARY,
+        hre
       );
 
       const facetCuts = await createFacetCuts(facets, addresses.accounts.diamond, proxyAdmin);

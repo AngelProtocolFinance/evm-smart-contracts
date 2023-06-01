@@ -1,25 +1,29 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {getContractName, getFacetFactoryEntries, logger} from "utils";
+import {getContractName, getFacetFactoryEntries, logger, updateAddresses} from "utils";
 import {Facet} from "./types";
+import {HardhatRuntimeEnvironment} from "hardhat/types";
 
 export default async function deployFacets(
   facetNames: string[],
   diamondOwner: SignerWithAddress,
-  corestruct: string
+  corestruct: string,
+  hre: HardhatRuntimeEnvironment
 ): Promise<Facet[]> {
   logger.out("Deploying facets...");
 
   const facets: Facet[] = [];
 
-  const facetsToUpgrade = await getFacetsToUpgrade(facetNames, diamondOwner, corestruct);
+  const facetEntries = await getFacetsToUpgrade(facetNames, diamondOwner, corestruct);
 
-  for (const facetFactory of facetsToUpgrade) {
-    const {addressField, factory} = facetFactory;
-    const facetName = getContractName(factory);
+  for (const entry of facetEntries) {
+    const facetName = getContractName(entry.factory);
     try {
-      const facet = await factory.deploy();
+      const facet = await entry.factory.deploy();
       await facet.deployed();
       logger.out(`${facetName} deployed: ${facet.address}`);
+
+      await updateAddresses({accounts: {facets: {[entry.addressField]: facet.address}}}, hre);
+
       facets.push({name: facetName, contract: facet});
     } catch (error) {
       logger.out(`Failed to deploy ${facetName}, reason: ${error}`, logger.Level.Error);
