@@ -14,6 +14,8 @@ import {
   AccountsUpdateStatusEndowments__factory,
   AccountsUpdate__factory,
   AccountsVaultFacet__factory,
+  DiamondLoupeFacet__factory,
+  OwnershipFacet__factory,
 } from "typechain-types";
 import {getContractName, logger} from "utils";
 import {Facet} from "./types";
@@ -21,14 +23,13 @@ import {Facet} from "./types";
 export default async function deployFacets(
   facetNames: string[],
   diamondOwner: SignerWithAddress,
-  corestruct: string,
-  stringlib: string
+  corestruct: string
 ): Promise<Facet[]> {
   const facets: Facet[] = [];
 
   logger.out("Instantiating factories...");
 
-  const facetFactories = await getFacetFactories(facetNames, diamondOwner, corestruct, stringlib);
+  const facetFactories = await getFacetFactories(facetNames, diamondOwner, corestruct);
 
   logger.out("Deploying facets...");
 
@@ -52,14 +53,13 @@ type FacetFactory = {facetName: string; factory: ContractFactory};
 async function getFacetFactories(
   facetNames: string[],
   diamondOwner: SignerWithAddress,
-  corestruct: string,
-  stringlib: string
+  corestruct: string
 ): Promise<FacetFactory[]> {
   const factories: FacetFactory[] = [];
   const nonExistentFacets: string[] = [];
 
   facetNames.forEach((facetName) => {
-    const factory = getFacetFactory(facetName, diamondOwner, corestruct, stringlib);
+    const factory = getFacetFactory(facetName, diamondOwner, corestruct);
     if (typeof factory === "string") {
       nonExistentFacets.push(factory);
     } else {
@@ -77,8 +77,7 @@ async function getFacetFactories(
 function getFacetFactory(
   facetName: string,
   diamondOwner: SignerWithAddress,
-  corestruct: string,
-  stringlib: string
+  corestruct: string
 ): ContractFactory | string {
   switch (facetName) {
     // no lib
@@ -92,6 +91,10 @@ function getFacetFactory(
       return new AccountsQueryEndowments__factory(diamondOwner);
     case getContractName(AccountsUpdate__factory):
       return new AccountsUpdate__factory(diamondOwner);
+    case getContractName(OwnershipFacet__factory):
+      return new OwnershipFacet__factory(diamondOwner);
+    case getContractName(DiamondLoupeFacet__factory):
+      return new DiamondLoupeFacet__factory(diamondOwner);
     // core lib
     case getContractName(AccountDepositWithdrawEndowments__factory):
       return new AccountDepositWithdrawEndowments__factory(
