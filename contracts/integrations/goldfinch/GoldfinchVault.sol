@@ -8,6 +8,7 @@ import {IRouter} from "../../core/router/IRouter.sol";
 import {IRegistrarGoldfinch} from "./IRegistrarGoldfinch.sol";
 import {APGoldfinchConfigLib} from "./APGoldfinchConfig.sol";
 import {LocalRegistrarLib} from "../../core/registrar/lib/LocalRegistrarLib.sol";
+import {AngelCoreStruct} from "../../core/struct.sol";
 
 // Integrations
 import {IStakingRewards} from "./IStakingRewards.sol";
@@ -164,13 +165,14 @@ contract GoldfinchVault is IVault, IERC721Receiver {
     returns (IRouter.RedemptionResponse memory)  {
         LocalRegistrarLib.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
         IStakingRewards.StakedPosition memory position = stakingPool.getPosition(tokenIdByAccountId[accountId]);
+        AngelCoreStruct.FeeSetting memory feeSetting = registrar.getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes.Default);
 
         _claimGFI(accountId);                                                                               // harvest GFI -> Tax Collector
         uint256 yield_withPrecision = _calcYield_withPrecision(accountId, position.amount);                 // determine yield as a rate demoninated in USDC
         (uint256 redeemedUSDC, uint256 redeemedFIDU) = _redeemFiduForUsdc(accountId, position.amount, amt); // unstake necessary FIDU 
         
         if(yield_withPrecision > 0) {
-            redeemedUSDC = _taxRedemption(apParams, yield_withPrecision, redeemedUSDC);
+            redeemedUSDC = _taxRedemption(feeSetting, yield_withPrecision, redeemedUSDC);
         }
 
         _updatePrinciples(accountId, redeemedFIDU);
@@ -194,6 +196,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
     function redeemAll(uint32 accountId) payable external override approvedRouterOnly nonzeroPositionOnly(accountId) returns (uint256) {
         IStakingRewards.StakedPosition memory position = stakingPool.getPosition(tokenIdByAccountId[accountId]);
         LocalRegistrarLib.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
+        AngelCoreStruct.FeeSetting memory feeSetting = registrar.getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes.Default);
 
         _claimGFI(accountId);      
         uint256 yield_withPrecision = _calcYield_withPrecision(accountId, position.amount);             // determine yield as a rate demoninated in USDC
@@ -201,7 +204,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
         uint256 redeemedUSDC = _unstakeAndSwap(accountId, position.amount, minUsdcOut);
         
         if(yield_withPrecision > 0) {
-            redeemedUSDC = _taxRedemption(apParams, yield_withPrecision, redeemedUSDC);
+            redeemedUSDC = _taxRedemption(feeSetting, yield_withPrecision, redeemedUSDC);
         }
 
         // Zero out principles
@@ -216,9 +219,9 @@ contract GoldfinchVault is IVault, IERC721Receiver {
     /// on the target yield strategy and VaultType. Only callable by an Angel Protocol Keeper
     /// @param accountIds Used to specify whether the harvest should be called against a specific account or accounts
     function harvest(uint32[] calldata accountIds) external override approvedRouterOnly {
-        LocalRegistrarLib.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
+        AngelCoreStruct.FeeSetting memory feeSetting = registrar.getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes.Harvest);
         for (uint256 i; i < accountIds.length; i++) {
-            _harvestSingle(accountIds[i], apParams);
+            _harvestSingle(accountIds[i], feeSetting);
         }
     }
 
@@ -247,7 +250,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
 
     function _harvestSingle(
         uint32 accountId, 
-        LocalRegistrarLib.AngelProtocolParams memory apParams
+        AngelCoreStruct.FeeSetting memory feeSetting
         ) internal nonzeroPositionOnly(accountId) {
         IStakingRewards.StakedPosition memory position = stakingPool.getPosition(tokenIdByAccountId[accountId]);
         
@@ -268,7 +271,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
 
         if (vaultType == VaultType.LIQUID) {
             (redeemedUSDC, dFidu) = _redeemFiduForUsdc(accountId, position.amount, tax);       
-            require(IERC20(USDC).transfer(apParams.protocolTaxCollector, redeemedUSDC));
+            require(IERC20(USDC).transfer(feeSetting.payoutAddress, redeemedUSDC));
             principleByAccountId[accountId].fiduP -= dFidu;             // Deduct fidu redemption from principle
             return;
         }
@@ -283,7 +286,7 @@ contract GoldfinchVault is IVault, IERC721Receiver {
             position.amount, 
             (tax + rebalAmt));              
         principleByAccountId[accountId].fiduP -= dFidu;                         // Deduct fidu redemption from principle
-        require(IERC20(USDC).transfer(apParams.protocolTaxCollector, tax));     // Scrape tax USDC to tax collector
+        require(IERC20(USDC).transfer(feeSetting.payoutAddress, tax));     // Scrape tax USDC to tax collector
 
         // Rebalance to sibling vault
         LocalRegistrarLib.StrategyParams memory stratParams = registrar.getStrategyParamsById(STRATEGY_ID);
@@ -292,11 +295,11 @@ contract GoldfinchVault is IVault, IERC721Receiver {
     }
 
     function _taxRedemption(
-        LocalRegistrarLib.AngelProtocolParams memory apParams, 
+        AngelCoreStruct.FeeSetting memory feeSetting, 
         uint256 yield_withPrecision, 
         uint256 redeemedAmt) internal returns (uint256) {
         uint256 taxedAmt = _calcTax(yield_withPrecision, redeemedAmt);
-        require(IERC20(USDC).transfer(apParams.protocolTaxCollector, taxedAmt));
+        require(IERC20(USDC).transfer(feeSetting.payoutAddress, taxedAmt));
         return redeemedAmt - taxedAmt;
     }
 
@@ -331,13 +334,14 @@ contract GoldfinchVault is IVault, IERC721Receiver {
     function _claimGFI(uint32 accountId) internal {
         stakingPool.getReward(tokenIdByAccountId[accountId]);
         uint256 bal = IERC20(GFI).balanceOf(address(this));
-        LocalRegistrarLib.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
-        require(IERC20(GFI).transfer(apParams.protocolTaxCollector, bal));
+        AngelCoreStruct.FeeSetting memory feeSetting = registrar.getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes.Default);
+
+        require(IERC20(GFI).transfer(feeSetting.payoutAddress, bal));
     } 
 
     function _calcTax(uint256 yield_withPrecision, uint256 taxableAmt) internal view returns (uint256) {
-        LocalRegistrarLib.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
-        return ((yield_withPrecision * taxableAmt * apParams.protocolTaxRate)/apParams.protocolTaxBasis)/PRECISION;
+        AngelCoreStruct.FeeSetting memory feeSetting = registrar.getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes.Default);
+        return ((yield_withPrecision * taxableAmt * feeSetting.bps)/AngelCoreStruct.FEE_BASIS)/PRECISION;
     }   
 
     function _redeemFiduForUsdc(uint32 accountId, uint256 positionAmount, uint256 desiredUsdc) internal returns (uint256, uint256) {

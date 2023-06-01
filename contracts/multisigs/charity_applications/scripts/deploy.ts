@@ -1,33 +1,19 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 
-import {BigNumberish} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {CharityApplication__factory} from "typechain-types";
-import {PromiseOrValue} from "typechain-types/common";
-import {logger, updateAddresses} from "utils";
-
-type InitializeParamsType = [
-  PromiseOrValue<BigNumberish>,
-  PromiseOrValue<string>,
-  PromiseOrValue<string>,
-  PromiseOrValue<BigNumberish>,
-  PromiseOrValue<boolean>,
-  PromiseOrValue<BigNumberish>,
-  PromiseOrValue<boolean>,
-  PromiseOrValue<string>,
-  PromiseOrValue<BigNumberish>
-];
+import {CharityApplication, CharityApplication__factory} from "typechain-types";
+import {ContractFunctionParams, getSigners, logger, updateAddresses} from "utils";
 
 export async function charityApplications(
-  CharityApplicationDataInput: InitializeParamsType,
+  CharityApplicationDataInput: ContractFunctionParams<CharityApplication["initialize"]>,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
   try {
     const {run, ethers} = hre;
 
-    let [_deployer, proxyAdmin] = await ethers.getSigners();
+    const {proxyAdmin} = await getSigners(ethers);
     const CharityApplicationLib = await ethers.getContractFactory("CharityApplicationLib");
     const CharityApplicationLibInstance = await CharityApplicationLib.deploy();
     await CharityApplicationLibInstance.deployed();

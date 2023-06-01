@@ -265,31 +265,6 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        components: [
-          {
-            internalType: "string[]",
-            name: "keys",
-            type: "string[]",
-          },
-          {
-            internalType: "uint256[]",
-            name: "values",
-            type: "uint256[]",
-          },
-        ],
-        indexed: false,
-        internalType: "struct RegistrarMessages.UpdateFeeRequest",
-        name: "details",
-        type: "tuple",
-      },
-    ],
-    name: "UpdateRegistrarFees",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
         indexed: false,
         internalType: "address",
         name: "newOwner",
@@ -302,7 +277,7 @@ const _abi = [
 ] as const;
 
 const _bytecode =
-  "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea26469706673582212204f0f2a7b902564241c10bf1f9fa0465483ce702d2b9a98c0e9caa59f965b57f964736f6c63430008120033";
+  "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea26469706673582212209f088f654e7f7deca066b8941e9ef1ad615d31730c62e904284dfbc3bee17cfa64736f6c63430008120033";
 
 type RegistrarEventsLibConstructorParams =
   | [signer?: Signer]

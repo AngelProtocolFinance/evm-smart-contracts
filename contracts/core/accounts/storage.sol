@@ -15,7 +15,7 @@ library AccountStorage {
         address gateway;
         address gasReceiver;
         bool reentrancyGuardLocked;
-        AngelCoreStruct.EndowmentFee earlyLockedWithdrawFee;
+        AngelCoreStruct.FeeSetting earlyLockedWithdrawFee;
     }
 
     struct Endowment {
@@ -43,10 +43,10 @@ library AccountStorage {
         address[] allowlistedBeneficiaries;
         address[] allowlistedContributors;
         address[] maturityAllowlist;
-        AngelCoreStruct.EndowmentFee earlyLockedWithdrawFee;
-        AngelCoreStruct.EndowmentFee withdrawFee;
-        AngelCoreStruct.EndowmentFee depositFee;
-        AngelCoreStruct.EndowmentFee balanceFee;
+        AngelCoreStruct.FeeSetting earlyLockedWithdrawFee;
+        AngelCoreStruct.FeeSetting withdrawFee;
+        AngelCoreStruct.FeeSetting depositFee;
+        AngelCoreStruct.FeeSetting balanceFee;
         AngelCoreStruct.SettingsController settingsController;
         uint32 parent;
         bool ignoreUserSplits;

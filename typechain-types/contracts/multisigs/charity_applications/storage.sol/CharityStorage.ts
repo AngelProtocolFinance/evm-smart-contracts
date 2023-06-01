@@ -52,14 +52,14 @@ export declare namespace AngelCoreStruct {
     data: AngelCoreStruct.DurationDataStructOutput;
   };
 
-  export type EndowmentFeeStruct = {
+  export type FeeSettingStruct = {
     payoutAddress: PromiseOrValue<string>;
-    percentage: PromiseOrValue<BigNumberish>;
+    bps: PromiseOrValue<BigNumberish>;
   };
 
-  export type EndowmentFeeStructOutput = [string, BigNumber] & {
+  export type FeeSettingStructOutput = [string, BigNumber] & {
     payoutAddress: string;
-    percentage: BigNumber;
+    bps: BigNumber;
   };
 
   export type VeTypeDataStruct = {
@@ -279,10 +279,10 @@ export declare namespace AccountMessages {
     splitMax: PromiseOrValue<BigNumberish>;
     splitMin: PromiseOrValue<BigNumberish>;
     splitDefault: PromiseOrValue<BigNumberish>;
-    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStruct;
-    withdrawFee: AngelCoreStruct.EndowmentFeeStruct;
-    depositFee: AngelCoreStruct.EndowmentFeeStruct;
-    balanceFee: AngelCoreStruct.EndowmentFeeStruct;
+    earlyLockedWithdrawFee: AngelCoreStruct.FeeSettingStruct;
+    withdrawFee: AngelCoreStruct.FeeSettingStruct;
+    depositFee: AngelCoreStruct.FeeSettingStruct;
+    balanceFee: AngelCoreStruct.FeeSettingStruct;
     dao: AngelCoreStruct.DaoSetupStruct;
     createDao: PromiseOrValue<boolean>;
     proposalLink: PromiseOrValue<BigNumberish>;
@@ -314,10 +314,10 @@ export declare namespace AccountMessages {
     BigNumber,
     BigNumber,
     BigNumber,
-    AngelCoreStruct.EndowmentFeeStructOutput,
-    AngelCoreStruct.EndowmentFeeStructOutput,
-    AngelCoreStruct.EndowmentFeeStructOutput,
-    AngelCoreStruct.EndowmentFeeStructOutput,
+    AngelCoreStruct.FeeSettingStructOutput,
+    AngelCoreStruct.FeeSettingStructOutput,
+    AngelCoreStruct.FeeSettingStructOutput,
+    AngelCoreStruct.FeeSettingStructOutput,
     AngelCoreStruct.DaoSetupStructOutput,
     boolean,
     BigNumber,
@@ -347,10 +347,10 @@ export declare namespace AccountMessages {
     splitMax: BigNumber;
     splitMin: BigNumber;
     splitDefault: BigNumber;
-    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
-    withdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
-    depositFee: AngelCoreStruct.EndowmentFeeStructOutput;
-    balanceFee: AngelCoreStruct.EndowmentFeeStructOutput;
+    earlyLockedWithdrawFee: AngelCoreStruct.FeeSettingStructOutput;
+    withdrawFee: AngelCoreStruct.FeeSettingStructOutput;
+    depositFee: AngelCoreStruct.FeeSettingStructOutput;
+    balanceFee: AngelCoreStruct.FeeSettingStructOutput;
     dao: AngelCoreStruct.DaoSetupStructOutput;
     createDao: boolean;
     proposalLink: BigNumber;

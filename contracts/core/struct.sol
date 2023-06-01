@@ -195,6 +195,11 @@ library AngelCoreStruct {
     return amount;
   }
 
+  struct TokenInfo {
+    address addr;
+    uint256 amnt;
+  }
+
   struct BalanceInfo {
     GenericBalance locked;
     GenericBalance liquid;
@@ -476,13 +481,29 @@ library AngelCoreStruct {
     IgnoreUserSplits
   }
 
-  struct EndowmentFee {
-    address payoutAddress;
-    uint256 percentage;
+  enum FeeTypes {
+    Default,
+    Harvest,
+    WithdrawCharity,
+    WithdrawNormal,
+    EarlyLockedWithdrawCharity,
+    EarlyLockedWithdrawNormal
   }
 
-  uint256 constant FEE_BASIS = 1000; // gives 0.1% precision for fees
-  uint256 constant PERCENT_BASIS = 100; // gives 1% precision for declared percentages
+  struct FeeSetting {
+    address payoutAddress;
+    uint256 bps;
+  }
+
+  function validateFee(FeeSetting memory fee) public view {
+    if (fee.payoutAddress == address(0)) {
+      revert("Invalid fee payout zero address given");
+    } else if (fee.bps > FEE_BASIS) {
+      revert("Invalid fee basis points given. Should be between 0 and 10000.");
+    }
+  }
+
+  uint256 constant FEE_BASIS = 10000; // gives 0.01% precision for fees (ie. Basis Points)
 
   enum Status {
     None,

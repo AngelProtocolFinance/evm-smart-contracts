@@ -44,7 +44,7 @@ library RegistrarStorage {
     struct State {
         Config config;
         bytes4[] STRATEGIES;
-        mapping(string => uint256) FEES;
+        mapping(AngelCoreStruct.FeeTypes => AngelCoreStruct.FeeSetting) FeeSettingsByFeeType;
         mapping(uint256 => AngelCoreStruct.NetworkInfo) NETWORK_CONNECTIONS;
     }
 }

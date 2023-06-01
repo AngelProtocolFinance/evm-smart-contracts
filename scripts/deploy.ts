@@ -1,6 +1,6 @@
-import {main} from "./deployMain";
+import deploy from "./deployAngelProtocol";
 
-main()
+deploy()
   .then(() => process.exit(0))
   .catch((error) => {
     console.error(error);

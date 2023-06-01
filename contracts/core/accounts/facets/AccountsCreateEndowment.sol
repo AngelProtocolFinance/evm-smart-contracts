@@ -37,7 +37,7 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
             registrarAddress
         ).queryConfig();
 
-        AngelCoreStruct.EndowmentFee memory earlyLockedWithdrawFee = state.config.earlyLockedWithdrawFee;
+        AngelCoreStruct.FeeSetting memory earlyLockedWithdrawFee = state.config.earlyLockedWithdrawFee;
         if (AngelCoreStruct.EndowmentType.Charity == details.endowType) {
             require(
                 msg.sender == registrar_config.charityProposal,
@@ -92,9 +92,6 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
             Validator.addressChecker(details.owner),
             "Invalid owner address"
         );
-
-        // set the default accepted tokens to approve USDC
-        state.AcceptedTokens[state.config.nextAccountId][registrar_config.usdcAddress] = true;
 
         state.ENDOWMENTS[state.config.nextAccountId] = AccountStorage
             .Endowment({

@@ -14,17 +14,15 @@ import {Collector} from "../collector/scripts/deploy";
 // const ethers = hre.ethers;
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {envConfig} from "utils";
+import {envConfig, getSigners} from "utils";
 
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
-const deployERC20 = async (
-  proxyAdmin: string,
-  verify_contracts: boolean,
-  hre: HardhatRuntimeEnvironment
-) => {
+const deployERC20 = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
   try {
     const {ethers, run, network} = hre;
+    const {proxyAdmin} = await getSigners(ethers);
+
     const ERC20Upgrade = await ethers.getContractFactory("ERC20Upgrade");
     const ERC20UpgradeInstance = await ERC20Upgrade.deploy();
     await ERC20UpgradeInstance.deployed();
@@ -37,7 +35,7 @@ const deployERC20 = async (
 
     const ERC20UpgradeProxy = await ProxyContract.deploy(
       ERC20UpgradeInstance.address,
-      proxyAdmin,
+      proxyAdmin.address,
       ERC20UpgradeData
     );
 
@@ -50,7 +48,7 @@ const deployERC20 = async (
       });
       await hre.run("verify:verify", {
         address: ERC20UpgradeProxy.address,
-        constructorArguments: [ERC20UpgradeInstance.address, proxyAdmin, ERC20UpgradeData],
+        constructorArguments: [ERC20UpgradeInstance.address, proxyAdmin.address, ERC20UpgradeData],
       });
     }
     console.log("ERC20Upgrade Address (Proxy):", ERC20UpgradeProxy.address);
@@ -67,27 +65,22 @@ export async function deployHaloImplementation(
   hre: HardhatRuntimeEnvironment
 ) {
   try {
-    const {
-      GovHodlerOwner,
-      airdropOwner,
-      CommunitySpendLimit,
-      distributorAllowlist,
-      distributorSpendLimit,
-    } = config.HALO_IMPLEMENTATION_DATA;
+    const {GovHodlerOwner, CommunitySpendLimit, distributorSpendLimit} =
+      config.HALO_IMPLEMENTATION_DATA;
 
     const {ethers, run, network} = hre;
 
-    let [deployer, proxyAdmin] = await ethers.getSigners();
+    const {proxyAdmin, airdropOwner, apTeam2, apTeam3} = await getSigners(ethers);
 
-    let halo = await deployERC20(proxyAdmin.address, verify_contracts, hre);
+    let halo = await deployERC20(verify_contracts, hre);
 
-    let gov = await deployGov(proxyAdmin.address, halo, verify_contracts, hre);
+    let gov = await deployGov(halo, verify_contracts, hre);
 
     let halo_code = await ethers.getContractAt("ERC20Upgrade", halo);
 
     if (network.config.chainId !== envConfig.PROD_NETWORK_ID) {
       await halo_code.mint(
-        deployer.address,
+        proxyAdmin.address,
         ethers.utils.parseEther("100000000000000000000000000")
       );
     }
@@ -99,7 +92,7 @@ export async function deployHaloImplementation(
       {
         timelockContract: gov.TimeLock,
         haloToken: halo,
-        allowlist: [...distributorAllowlist],
+        allowlist: [apTeam2.address, apTeam3.address],
         spendLimit: distributorSpendLimit,
       },
       hre
@@ -119,7 +112,7 @@ export async function deployHaloImplementation(
       Airdrop: await Airdrop(
         proxyAdmin.address,
         {
-          owner: airdropOwner,
+          owner: airdropOwner.address,
           haloToken: halo,
         },
         hre

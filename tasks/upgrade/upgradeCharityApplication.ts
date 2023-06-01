@@ -1,6 +1,6 @@
 import {task} from "hardhat/config";
 import {CharityApplication__factory} from "typechain-types";
-import {logger, updateAddresses, shouldVerify} from "utils";
+import {logger, updateAddresses, shouldVerify, getSigners} from "utils";
 
 task(
   "upgrade:upgradeCharityApplication",
@@ -9,7 +9,7 @@ task(
   try {
     logger.out("Upgrading CharityApplication...");
 
-    const [_deployer, proxyAdmin] = await hre.ethers.getSigners();
+    const {proxyAdmin} = await getSigners(hre.ethers);
 
     const CharityApplicationLib = await hre.ethers.getContractFactory(
       "CharityApplicationLib",

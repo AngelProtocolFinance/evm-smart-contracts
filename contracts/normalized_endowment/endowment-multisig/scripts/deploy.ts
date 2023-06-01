@@ -2,7 +2,7 @@
 // yours, or create new ones.
 
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {logger, updateAddresses} from "utils";
+import {getSigners, logger, updateAddresses} from "utils";
 
 const deployEndowmentMultiSigEmitter = async (
   proxyAdmin: string,
@@ -73,7 +73,7 @@ export async function deployEndowmentMultiSig(
 ) {
   try {
     const {ethers, run, network} = hre;
-    const [deployer, proxyAdmin] = await ethers.getSigners();
+    const {proxyAdmin} = await getSigners(ethers);
     const EndowmentMultiSig = await ethers.getContractFactory("EndowmentMultiSig");
     const EndowmentMultiSigInstance = await EndowmentMultiSig.deploy();
     await EndowmentMultiSigInstance.deployed();

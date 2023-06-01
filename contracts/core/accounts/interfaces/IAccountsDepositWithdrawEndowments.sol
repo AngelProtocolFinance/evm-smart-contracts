@@ -29,7 +29,6 @@ interface IAccountsDepositWithdrawEndowments {
         AngelCoreStruct.AccountType acctType,
         address beneficiaryAddress,
         uint32 beneficiaryEndowId,
-        address tokenAddress,
-        uint256 amount
+        AngelCoreStruct.TokenInfo[] memory tokens
     ) external;
 }

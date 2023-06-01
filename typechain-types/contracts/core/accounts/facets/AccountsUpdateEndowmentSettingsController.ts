@@ -136,14 +136,14 @@ export declare namespace AngelCoreStruct {
     liquidAmount: BigNumber[];
   };
 
-  export type EndowmentFeeStruct = {
+  export type FeeSettingStruct = {
     payoutAddress: PromiseOrValue<string>;
-    percentage: PromiseOrValue<BigNumberish>;
+    bps: PromiseOrValue<BigNumberish>;
   };
 
-  export type EndowmentFeeStructOutput = [string, BigNumber] & {
+  export type FeeSettingStructOutput = [string, BigNumber] & {
     payoutAddress: string;
-    percentage: BigNumber;
+    bps: BigNumber;
   };
 
   export type DelegateStruct = {
@@ -329,10 +329,10 @@ export declare namespace AccountStorage {
     allowlistedBeneficiaries: PromiseOrValue<string>[];
     allowlistedContributors: PromiseOrValue<string>[];
     maturityAllowlist: PromiseOrValue<string>[];
-    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStruct;
-    withdrawFee: AngelCoreStruct.EndowmentFeeStruct;
-    depositFee: AngelCoreStruct.EndowmentFeeStruct;
-    balanceFee: AngelCoreStruct.EndowmentFeeStruct;
+    earlyLockedWithdrawFee: AngelCoreStruct.FeeSettingStruct;
+    withdrawFee: AngelCoreStruct.FeeSettingStruct;
+    depositFee: AngelCoreStruct.FeeSettingStruct;
+    balanceFee: AngelCoreStruct.FeeSettingStruct;
     settingsController: AngelCoreStruct.SettingsControllerStruct;
     parent: PromiseOrValue<BigNumberish>;
     ignoreUserSplits: PromiseOrValue<boolean>;
@@ -363,10 +363,10 @@ export declare namespace AccountStorage {
     string[],
     string[],
     string[],
-    AngelCoreStruct.EndowmentFeeStructOutput,
-    AngelCoreStruct.EndowmentFeeStructOutput,
-    AngelCoreStruct.EndowmentFeeStructOutput,
-    AngelCoreStruct.EndowmentFeeStructOutput,
+    AngelCoreStruct.FeeSettingStructOutput,
+    AngelCoreStruct.FeeSettingStructOutput,
+    AngelCoreStruct.FeeSettingStructOutput,
+    AngelCoreStruct.FeeSettingStructOutput,
     AngelCoreStruct.SettingsControllerStructOutput,
     number,
     boolean,
@@ -395,10 +395,10 @@ export declare namespace AccountStorage {
     allowlistedBeneficiaries: string[];
     allowlistedContributors: string[];
     maturityAllowlist: string[];
-    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
-    withdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
-    depositFee: AngelCoreStruct.EndowmentFeeStructOutput;
-    balanceFee: AngelCoreStruct.EndowmentFeeStructOutput;
+    earlyLockedWithdrawFee: AngelCoreStruct.FeeSettingStructOutput;
+    withdrawFee: AngelCoreStruct.FeeSettingStructOutput;
+    depositFee: AngelCoreStruct.FeeSettingStructOutput;
+    balanceFee: AngelCoreStruct.FeeSettingStructOutput;
     settingsController: AngelCoreStruct.SettingsControllerStructOutput;
     parent: number;
     ignoreUserSplits: boolean;
@@ -416,7 +416,7 @@ export declare namespace AccountStorage {
     gateway: PromiseOrValue<string>;
     gasReceiver: PromiseOrValue<string>;
     reentrancyGuardLocked: PromiseOrValue<boolean>;
-    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStruct;
+    earlyLockedWithdrawFee: AngelCoreStruct.FeeSettingStruct;
   };
 
   export type ConfigStructOutput = [
@@ -429,7 +429,7 @@ export declare namespace AccountStorage {
     string,
     string,
     boolean,
-    AngelCoreStruct.EndowmentFeeStructOutput
+    AngelCoreStruct.FeeSettingStructOutput
   ] & {
     owner: string;
     version: string;
@@ -440,7 +440,7 @@ export declare namespace AccountStorage {
     gateway: string;
     gasReceiver: string;
     reentrancyGuardLocked: boolean;
-    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
+    earlyLockedWithdrawFee: AngelCoreStruct.FeeSettingStructOutput;
   };
 }
 
@@ -456,28 +456,6 @@ export declare namespace AccountMessages {
   ] & {
     id: number;
     settingsController: AngelCoreStruct.SettingsControllerStructOutput;
-  };
-
-  export type UpdateEndowmentFeeRequestStruct = {
-    id: PromiseOrValue<BigNumberish>;
-    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStruct;
-    depositFee: AngelCoreStruct.EndowmentFeeStruct;
-    withdrawFee: AngelCoreStruct.EndowmentFeeStruct;
-    balanceFee: AngelCoreStruct.EndowmentFeeStruct;
-  };
-
-  export type UpdateEndowmentFeeRequestStructOutput = [
-    number,
-    AngelCoreStruct.EndowmentFeeStructOutput,
-    AngelCoreStruct.EndowmentFeeStructOutput,
-    AngelCoreStruct.EndowmentFeeStructOutput,
-    AngelCoreStruct.EndowmentFeeStructOutput
-  ] & {
-    id: number;
-    earlyLockedWithdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
-    depositFee: AngelCoreStruct.EndowmentFeeStructOutput;
-    withdrawFee: AngelCoreStruct.EndowmentFeeStructOutput;
-    balanceFee: AngelCoreStruct.EndowmentFeeStructOutput;
   };
 
   export type UpdateEndowmentSettingsRequestStruct = {
@@ -513,20 +491,42 @@ export declare namespace AccountMessages {
     splitToLiquid: AngelCoreStruct.SplitDetailsStructOutput;
     ignoreUserSplits: boolean;
   };
+
+  export type UpdateFeeSettingRequestStruct = {
+    id: PromiseOrValue<BigNumberish>;
+    earlyLockedWithdrawFee: AngelCoreStruct.FeeSettingStruct;
+    depositFee: AngelCoreStruct.FeeSettingStruct;
+    withdrawFee: AngelCoreStruct.FeeSettingStruct;
+    balanceFee: AngelCoreStruct.FeeSettingStruct;
+  };
+
+  export type UpdateFeeSettingRequestStructOutput = [
+    number,
+    AngelCoreStruct.FeeSettingStructOutput,
+    AngelCoreStruct.FeeSettingStructOutput,
+    AngelCoreStruct.FeeSettingStructOutput,
+    AngelCoreStruct.FeeSettingStructOutput
+  ] & {
+    id: number;
+    earlyLockedWithdrawFee: AngelCoreStruct.FeeSettingStructOutput;
+    depositFee: AngelCoreStruct.FeeSettingStructOutput;
+    withdrawFee: AngelCoreStruct.FeeSettingStructOutput;
+    balanceFee: AngelCoreStruct.FeeSettingStructOutput;
+  };
 }
 
 export interface AccountsUpdateEndowmentSettingsControllerInterface extends utils.Interface {
   functions: {
     "updateEndowmentController((uint32,((bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)),(bool,(address,uint256)))))": FunctionFragment;
-    "updateEndowmentFees((uint32,(address,uint256),(address,uint256),(address,uint256),(address,uint256)))": FunctionFragment;
     "updateEndowmentSettings((uint32,bool,uint256,address[],address[],address[],address[],(uint256,uint256,uint256),bool))": FunctionFragment;
+    "updateFeeSettings((uint32,(address,uint256),(address,uint256),(address,uint256),(address,uint256)))": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "updateEndowmentController"
-      | "updateEndowmentFees"
       | "updateEndowmentSettings"
+      | "updateFeeSettings"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -534,17 +534,17 @@ export interface AccountsUpdateEndowmentSettingsControllerInterface extends util
     values: [AccountMessages.UpdateEndowmentControllerRequestStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "updateEndowmentFees",
-    values: [AccountMessages.UpdateEndowmentFeeRequestStruct]
-  ): string;
-  encodeFunctionData(
     functionFragment: "updateEndowmentSettings",
     values: [AccountMessages.UpdateEndowmentSettingsRequestStruct]
   ): string;
+  encodeFunctionData(
+    functionFragment: "updateFeeSettings",
+    values: [AccountMessages.UpdateFeeSettingRequestStruct]
+  ): string;
 
   decodeFunctionResult(functionFragment: "updateEndowmentController", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "updateEndowmentFees", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "updateEndowmentSettings", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "updateFeeSettings", data: BytesLike): Result;
 
   events: {
     "AllowanceStateUpdatedTo(address,address,address,uint256)": EventFragment;
@@ -728,13 +728,13 @@ export interface AccountsUpdateEndowmentSettingsController extends BaseContract 
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
-    updateEndowmentFees(
-      details: AccountMessages.UpdateEndowmentFeeRequestStruct,
+    updateEndowmentSettings(
+      details: AccountMessages.UpdateEndowmentSettingsRequestStruct,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
-    updateEndowmentSettings(
-      details: AccountMessages.UpdateEndowmentSettingsRequestStruct,
+    updateFeeSettings(
+      details: AccountMessages.UpdateFeeSettingRequestStruct,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
@@ -744,13 +744,13 @@ export interface AccountsUpdateEndowmentSettingsController extends BaseContract 
     overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
-  updateEndowmentFees(
-    details: AccountMessages.UpdateEndowmentFeeRequestStruct,
+  updateEndowmentSettings(
+    details: AccountMessages.UpdateEndowmentSettingsRequestStruct,
     overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
-  updateEndowmentSettings(
-    details: AccountMessages.UpdateEndowmentSettingsRequestStruct,
+  updateFeeSettings(
+    details: AccountMessages.UpdateFeeSettingRequestStruct,
     overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
@@ -760,13 +760,13 @@ export interface AccountsUpdateEndowmentSettingsController extends BaseContract 
       overrides?: CallOverrides
     ): Promise<void>;
 
-    updateEndowmentFees(
-      details: AccountMessages.UpdateEndowmentFeeRequestStruct,
+    updateEndowmentSettings(
+      details: AccountMessages.UpdateEndowmentSettingsRequestStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    updateEndowmentSettings(
-      details: AccountMessages.UpdateEndowmentSettingsRequestStruct,
+    updateFeeSettings(
+      details: AccountMessages.UpdateFeeSettingRequestStruct,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -853,13 +853,13 @@ export interface AccountsUpdateEndowmentSettingsController extends BaseContract 
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
-    updateEndowmentFees(
-      details: AccountMessages.UpdateEndowmentFeeRequestStruct,
+    updateEndowmentSettings(
+      details: AccountMessages.UpdateEndowmentSettingsRequestStruct,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
-    updateEndowmentSettings(
-      details: AccountMessages.UpdateEndowmentSettingsRequestStruct,
+    updateFeeSettings(
+      details: AccountMessages.UpdateFeeSettingRequestStruct,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
@@ -870,13 +870,13 @@ export interface AccountsUpdateEndowmentSettingsController extends BaseContract 
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
-    updateEndowmentFees(
-      details: AccountMessages.UpdateEndowmentFeeRequestStruct,
+    updateEndowmentSettings(
+      details: AccountMessages.UpdateEndowmentSettingsRequestStruct,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
-    updateEndowmentSettings(
-      details: AccountMessages.UpdateEndowmentSettingsRequestStruct,
+    updateFeeSettings(
+      details: AccountMessages.UpdateFeeSettingRequestStruct,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };

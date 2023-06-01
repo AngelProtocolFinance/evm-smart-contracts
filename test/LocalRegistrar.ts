@@ -3,6 +3,7 @@ import {ethers, upgrades} from "hardhat";
 import {LocalRegistrar, LocalRegistrar__factory} from "../typechain-types";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {StrategyApprovalState} from "../utils/test/ILocalRegistrarHelpers";
+import {getSigners} from "utils";
 
 describe("Local Registrar", function () {
   let owner: SignerWithAddress;
@@ -30,8 +31,13 @@ describe("Local Registrar", function () {
   let accountsContract = "0x000000000000000000000000000000000000dead";
 
   async function deployRegistrarAsProxy(): Promise<LocalRegistrar> {
-    [owner, user] = await ethers.getSigners();
-    Registrar = (await ethers.getContractFactory("LocalRegistrar")) as LocalRegistrar__factory;
+    const {proxyAdmin, apTeam3} = await getSigners(ethers);
+    owner = proxyAdmin;
+    user = apTeam3;
+    Registrar = (await ethers.getContractFactory(
+      "LocalRegistrar",
+      proxyAdmin
+    )) as LocalRegistrar__factory;
     const registrar = (await upgrades.deployProxy(Registrar)) as LocalRegistrar;
     await registrar.deployed();
     return registrar;

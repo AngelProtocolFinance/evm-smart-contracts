@@ -1,8 +1,9 @@
 import {expect} from "chai";
-import {ethers, upgrades} from "hardhat";
+import {ethers} from "hardhat";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {Halo, Halo__factory} from "typechain-types";
 import {BigNumber} from "ethers";
+import {getSigners} from "utils";
 
 describe("Halo token", function () {
   let deployer: SignerWithAddress;
@@ -13,8 +14,10 @@ describe("Halo token", function () {
     let halo: Halo;
     let INITIALSUPPLY = BigNumber.from(10).pow(27); // 1 billion tokens with 18 decimals
     beforeEach(async function () {
-      [deployer, user] = await ethers.getSigners();
-      Halo = (await ethers.getContractFactory("Halo")) as Halo__factory;
+      const {proxyAdmin, apTeam3} = await getSigners(ethers);
+      deployer = proxyAdmin;
+      user = apTeam3;
+      Halo = (await ethers.getContractFactory("Halo", proxyAdmin)) as Halo__factory;
       halo = await Halo.deploy(user.address, INITIALSUPPLY);
     });
 

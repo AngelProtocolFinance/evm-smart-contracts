@@ -19,7 +19,6 @@ import {LocalRegistrarLib} from "./lib/LocalRegistrarLib.sol";
  */
 contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     event UpdateRegistrarConfig(RegistrarStorage.Config details);
-    event UpdateRegistrarFees(RegistrarMessages.UpdateFeeRequest details);
     event PostNetworkConnection(
         uint256 chainId,
         AngelCoreStruct.NetworkInfo networkInfo
@@ -75,32 +74,15 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
         });
         emit UpdateRegistrarConfig(state.config);
 
-        // TODO everything about FEEs is rently broken. The rates are wrong and they arent unified with
-        // the way we can track basis points for clean division. Rework needed 
-        // state.FEES["accounts_withdraw"] = 2;
-        // string[] memory feeKeys = new string[](2);
-        // feeKeys[0] = "vault_harvest";
-        // feeKeys[1] = "accounts_withdraw";
-
-        // uint256[] memory feeValues = new uint256[](2);
-        // feeValues[0] = details.taxRate;
-        // feeValues[1] = 2;
-        // emit UpdateRegistrarFees(
-        //     RegistrarMessages.UpdateFeeRequest({
-        //         keys: feeKeys,
-        //         values: feeValues
-        //     })
-        // );
-
         state.NETWORK_CONNECTIONS[block.chainid] = AngelCoreStruct.NetworkInfo({
             name: "Polygon",
             chainId: block.chainid,
+            router: details.router,
+            axelarGateway: details.axelarGateway,
             ibcChannel: "",
             transferChannel: "",
             gasReceiver: details.axelarGasRecv,
-            gasLimit: 0,
-            router: details.router,
-            axelarGateway: details.axelarGateway
+            gasLimit: 0
         });
         emit PostNetworkConnection(
             block.chainid,
@@ -304,32 +286,6 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
         returns (RegistrarStorage.Config memory)
     {
         return state.config;
-    }
-    
-    function updateFees(
-        RegistrarMessages.UpdateFeeRequest memory details
-    ) public nonReentrant onlyOwner {
-        require(
-            details.keys.length == details.values.length,
-            "Invalid input"
-        );
-
-        for (uint256 i = 0; i < details.keys.length; i++) {
-            require(details.values[i] < AngelCoreStruct.FEE_BASIS, "invalid fee value");
-            state.FEES[details.keys[i]] = details.values[i];
-        }
-        emit UpdateRegistrarFees(details);
-    }
-    
-    /**
-     * @dev Query the fee in registrar
-     * @param name The name of the fee to query
-     * @return response The fee
-     */
-    function queryFee(
-        string memory name
-    ) public view returns (uint256 response) {
-        response = state.FEES[name];
     }
 
     // STRATEGY ARRAY HANDLING

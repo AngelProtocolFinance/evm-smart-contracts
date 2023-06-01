@@ -3,14 +3,12 @@
 
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {APTeamMultiSig, ApplicationsMultiSig} from "typechain-types";
-import {logger, updateAddresses} from "utils";
+import {ContractFunctionParams, getSigners, logger, updateAddresses} from "utils";
 // import { IndexFundMessage } from "typechain-types/contracts/core/index-fund/IndexFund"
 
-const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
-
 export async function deployMultisig(
-  ApplicationMultisigData: Parameters<ApplicationsMultiSig["initialize"]>,
-  APTeamMultisigData: Parameters<APTeamMultiSig["initialize"]>,
+  ApplicationMultisigData: ContractFunctionParams<ApplicationsMultiSig["initialize"]>,
+  APTeamMultisigData: ContractFunctionParams<APTeamMultiSig["initialize"]>,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
@@ -20,7 +18,7 @@ export async function deployMultisig(
     // Getting Proxy contract
     const ProxyContract = await ethers.getContractFactory("ProxyContract");
 
-    let [deployer, proxyAdmin] = await ethers.getSigners();
+    const {proxyAdmin} = await getSigners(ethers);
 
     const ApplicationsMultiSig = await ethers.getContractFactory("ApplicationsMultiSig");
     const ApplicationsMultiSigInstance = await ApplicationsMultiSig.deploy();

@@ -7,7 +7,7 @@ task("Deploy:deployAngelProtocol", "Will deploy CompleteAngel protocol")
   .setAction(async (taskArgs, hre) => {
     try {
       var isTrueSet = taskArgs.verify === "true";
-      await mainTask([], isTrueSet, hre);
+      await mainTask(isTrueSet, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
