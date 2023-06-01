@@ -2,10 +2,10 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as haloTokenSol from "./haloToken.sol";
-export type {haloTokenSol};
+export type { haloTokenSol };
 import type * as uniswapUtilsSol from "./uniswapUtils.sol";
-export type {uniswapUtilsSol};
-export type {DummyGateway} from "./DummyGateway";
-export type {INonfungiblePositionManager} from "./INonfungiblePositionManager";
-export type {MockERC20} from "./MockERC20";
-export type {MockUSDC} from "./MockUSDC";
+export type { uniswapUtilsSol };
+export type { DummyGateway } from "./DummyGateway";
+export type { INonfungiblePositionManager } from "./INonfungiblePositionManager";
+export type { MockERC20 } from "./MockERC20";
+export type { MockUSDC } from "./MockUSDC";

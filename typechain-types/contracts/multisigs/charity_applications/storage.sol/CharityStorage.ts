@@ -11,8 +11,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -47,10 +47,10 @@ export declare namespace AngelCoreStruct {
     data: AngelCoreStruct.DurationDataStruct;
   };
 
-  export type DurationStructOutput = [number, AngelCoreStruct.DurationDataStructOutput] & {
-    enumData: number;
-    data: AngelCoreStruct.DurationDataStructOutput;
-  };
+  export type DurationStructOutput = [
+    number,
+    AngelCoreStruct.DurationDataStructOutput
+  ] & { enumData: number; data: AngelCoreStruct.DurationDataStructOutput };
 
   export type FeeSettingStruct = {
     payoutAddress: PromiseOrValue<string>;
@@ -69,7 +69,12 @@ export declare namespace AngelCoreStruct {
     power: PromiseOrValue<BigNumberish>;
   };
 
-  export type VeTypeDataStructOutput = [BigNumber, BigNumber, BigNumber, BigNumber] & {
+  export type VeTypeDataStructOutput = [
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber
+  ] & {
     value: BigNumber;
     scale: BigNumber;
     slope: BigNumber;
@@ -81,10 +86,10 @@ export declare namespace AngelCoreStruct {
     data: AngelCoreStruct.VeTypeDataStruct;
   };
 
-  export type VeTypeStructOutput = [number, AngelCoreStruct.VeTypeDataStructOutput] & {
-    ve_type: number;
-    data: AngelCoreStruct.VeTypeDataStructOutput;
-  };
+  export type VeTypeStructOutput = [
+    number,
+    AngelCoreStruct.VeTypeDataStructOutput
+  ] & { ve_type: number; data: AngelCoreStruct.VeTypeDataStructOutput };
 
   export type DaoTokenDataStruct = {
     existingData: PromiseOrValue<string>;
@@ -131,10 +136,10 @@ export declare namespace AngelCoreStruct {
     data: AngelCoreStruct.DaoTokenDataStruct;
   };
 
-  export type DaoTokenStructOutput = [number, AngelCoreStruct.DaoTokenDataStructOutput] & {
-    token: number;
-    data: AngelCoreStruct.DaoTokenDataStructOutput;
-  };
+  export type DaoTokenStructOutput = [
+    number,
+    AngelCoreStruct.DaoTokenDataStructOutput
+  ] & { token: number; data: AngelCoreStruct.DaoTokenDataStructOutput };
 
   export type DaoSetupStruct = {
     quorum: PromiseOrValue<BigNumberish>;
@@ -182,10 +187,10 @@ export declare namespace AngelCoreStruct {
     delegate: AngelCoreStruct.DelegateStruct;
   };
 
-  export type SettingsPermissionStructOutput = [boolean, AngelCoreStruct.DelegateStructOutput] & {
-    locked: boolean;
-    delegate: AngelCoreStruct.DelegateStructOutput;
-  };
+  export type SettingsPermissionStructOutput = [
+    boolean,
+    AngelCoreStruct.DelegateStructOutput
+  ] & { locked: boolean; delegate: AngelCoreStruct.DelegateStructOutput };
 
   export type SettingsControllerStruct = {
     acceptedTokens: AngelCoreStruct.SettingsPermissionStruct;
@@ -372,7 +377,10 @@ export interface CharityStorageInterface extends utils.Interface {
   getFunction(nameOrSignatureOrTopic: "config" | "proposals"): FunctionFragment;
 
   encodeFunctionData(functionFragment: "config", values?: undefined): string;
-  encodeFunctionData(functionFragment: "proposals", values: [PromiseOrValue<BigNumberish>]): string;
+  encodeFunctionData(
+    functionFragment: "proposals",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
 
   decodeFunctionResult(functionFragment: "config", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "proposals", data: BytesLike): Result;
@@ -397,7 +405,9 @@ export interface CharityStorage extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -405,8 +415,20 @@ export interface CharityStorage extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    config(overrides?: CallOverrides): Promise<
-      [BigNumber, string, string, BigNumber, boolean, BigNumber, boolean, string, BigNumber] & {
+    config(
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        BigNumber,
+        string,
+        string,
+        BigNumber,
+        boolean,
+        BigNumber,
+        boolean,
+        string,
+        BigNumber
+      ] & {
         proposalExpiry: BigNumber;
         applicationMultisig: string;
         accountsContract: string;
@@ -441,8 +463,20 @@ export interface CharityStorage extends BaseContract {
     >;
   };
 
-  config(overrides?: CallOverrides): Promise<
-    [BigNumber, string, string, BigNumber, boolean, BigNumber, boolean, string, BigNumber] & {
+  config(
+    overrides?: CallOverrides
+  ): Promise<
+    [
+      BigNumber,
+      string,
+      string,
+      BigNumber,
+      boolean,
+      BigNumber,
+      boolean,
+      string,
+      BigNumber
+    ] & {
       proposalExpiry: BigNumber;
       applicationMultisig: string;
       accountsContract: string;
@@ -477,8 +511,20 @@ export interface CharityStorage extends BaseContract {
   >;
 
   callStatic: {
-    config(overrides?: CallOverrides): Promise<
-      [BigNumber, string, string, BigNumber, boolean, BigNumber, boolean, string, BigNumber] & {
+    config(
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        BigNumber,
+        string,
+        string,
+        BigNumber,
+        boolean,
+        BigNumber,
+        boolean,
+        string,
+        BigNumber
+      ] & {
         proposalExpiry: BigNumber;
         applicationMultisig: string;
         accountsContract: string;
@@ -518,7 +564,10 @@ export interface CharityStorage extends BaseContract {
   estimateGas: {
     config(overrides?: CallOverrides): Promise<BigNumber>;
 
-    proposals(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<BigNumber>;
+    proposals(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {

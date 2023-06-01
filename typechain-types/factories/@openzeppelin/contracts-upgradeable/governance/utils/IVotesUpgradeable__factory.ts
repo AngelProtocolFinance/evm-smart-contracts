@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   IVotesUpgradeable,
   IVotesUpgradeableInterface,
@@ -199,7 +199,10 @@ export class IVotesUpgradeable__factory {
   static createInterface(): IVotesUpgradeableInterface {
     return new utils.Interface(_abi) as IVotesUpgradeableInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): IVotesUpgradeable {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IVotesUpgradeable {
     return new Contract(address, _abi, signerOrProvider) as IVotesUpgradeable;
   }
 }

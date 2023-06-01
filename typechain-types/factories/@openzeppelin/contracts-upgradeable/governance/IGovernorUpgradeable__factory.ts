@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   IGovernorUpgradeable,
   IGovernorUpgradeableInterface,
@@ -711,7 +711,14 @@ export class IGovernorUpgradeable__factory {
   static createInterface(): IGovernorUpgradeableInterface {
     return new utils.Interface(_abi) as IGovernorUpgradeableInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): IGovernorUpgradeable {
-    return new Contract(address, _abi, signerOrProvider) as IGovernorUpgradeable;
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IGovernorUpgradeable {
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as IGovernorUpgradeable;
   }
 }

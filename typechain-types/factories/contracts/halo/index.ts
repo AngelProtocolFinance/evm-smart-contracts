@@ -9,4 +9,4 @@ export * as gov from "./gov";
 export * as govHodler from "./gov-hodler";
 export * as staking from "./staking";
 export * as vesting from "./vesting";
-export {ERC20Upgrade__factory} from "./ERC20Upgrade__factory";
+export { ERC20Upgrade__factory } from "./ERC20Upgrade__factory";

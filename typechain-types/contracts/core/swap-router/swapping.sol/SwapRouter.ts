@@ -14,8 +14,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -75,17 +75,35 @@ export interface SwapRouterInterface extends utils.Interface {
     functionFragment: "swapEthToAnyToken",
     values: [PromiseOrValue<string>]
   ): string;
-  encodeFunctionData(functionFragment: "swapEthToToken", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "swapEthToToken",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "swapTokenToUsdc",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
 
-  decodeFunctionResult(functionFragment: "executeSwapOperations", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "intiSwapRouter", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "swapEthToAnyToken", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "swapEthToToken", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "swapTokenToUsdc", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "executeSwapOperations",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "intiSwapRouter",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "swapEthToAnyToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "swapEthToToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "swapTokenToUsdc",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -107,7 +125,9 @@ export interface SwapRouter extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -120,27 +140,27 @@ export interface SwapRouter extends BaseContract {
       tokenOut: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
       amountOut: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     intiSwapRouter(
       details: SwapRouterMessages.InstantiateMsgStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     swapEthToAnyToken(
       token: PromiseOrValue<string>,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     swapEthToToken(
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     swapTokenToUsdc(
       tokena: PromiseOrValue<string>,
       amountin: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
@@ -149,27 +169,27 @@ export interface SwapRouter extends BaseContract {
     tokenOut: PromiseOrValue<string>,
     amountIn: PromiseOrValue<BigNumberish>,
     amountOut: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   intiSwapRouter(
     details: SwapRouterMessages.InstantiateMsgStruct,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   swapEthToAnyToken(
     token: PromiseOrValue<string>,
-    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   swapEthToToken(
-    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   swapTokenToUsdc(
     tokena: PromiseOrValue<string>,
     amountin: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -186,7 +206,10 @@ export interface SwapRouter extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    swapEthToAnyToken(token: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
+    swapEthToAnyToken(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     swapEthToToken(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -205,27 +228,27 @@ export interface SwapRouter extends BaseContract {
       tokenOut: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
       amountOut: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     intiSwapRouter(
       details: SwapRouterMessages.InstantiateMsgStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     swapEthToAnyToken(
       token: PromiseOrValue<string>,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     swapEthToToken(
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     swapTokenToUsdc(
       tokena: PromiseOrValue<string>,
       amountin: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
@@ -235,27 +258,27 @@ export interface SwapRouter extends BaseContract {
       tokenOut: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
       amountOut: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     intiSwapRouter(
       details: SwapRouterMessages.InstantiateMsgStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     swapEthToAnyToken(
       token: PromiseOrValue<string>,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     swapEthToToken(
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     swapTokenToUsdc(
       tokena: PromiseOrValue<string>,
       amountin: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

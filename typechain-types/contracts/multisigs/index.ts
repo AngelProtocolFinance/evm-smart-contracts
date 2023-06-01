@@ -2,11 +2,11 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as charityApplications from "./charity_applications";
-export type {charityApplications};
+export type { charityApplications };
 import type * as interfaces from "./interfaces";
-export type {interfaces};
+export type { interfaces };
 import type * as storageSol from "./storage.sol";
-export type {storageSol};
-export type {APTeamMultiSig} from "./APTeamMultiSig";
-export type {ApplicationsMultiSig} from "./ApplicationsMultiSig";
-export type {MultiSigGeneric} from "./MultiSigGeneric";
+export type { storageSol };
+export type { APTeamMultiSig } from "./APTeamMultiSig";
+export type { ApplicationsMultiSig } from "./ApplicationsMultiSig";
+export type { MultiSigGeneric } from "./MultiSigGeneric";

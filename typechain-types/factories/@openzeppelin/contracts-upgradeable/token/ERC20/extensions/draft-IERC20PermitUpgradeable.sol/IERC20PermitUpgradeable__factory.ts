@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   IERC20PermitUpgradeable,
   IERC20PermitUpgradeableInterface,
@@ -92,7 +92,14 @@ export class IERC20PermitUpgradeable__factory {
   static createInterface(): IERC20PermitUpgradeableInterface {
     return new utils.Interface(_abi) as IERC20PermitUpgradeableInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): IERC20PermitUpgradeable {
-    return new Contract(address, _abi, signerOrProvider) as IERC20PermitUpgradeable;
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IERC20PermitUpgradeable {
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as IERC20PermitUpgradeable;
   }
 }

@@ -12,4 +12,4 @@ export * as mock from "./mock";
 export * as multisigs from "./multisigs";
 export * as normalizedEndowment from "./normalized_endowment";
 export * as test from "./test";
-export {Halo__factory} from "./Halo__factory";
+export { Halo__factory } from "./Halo__factory";
