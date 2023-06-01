@@ -6,7 +6,8 @@
     "preinstall": "npx only-allow yarn",
     "format": "prettier --write './{config,contracts,scripts,tasks,test,utils}/**/*.{ts,tsx,js,sol}'",
     "test": "hardhat test",
-    "compile": "hardhat compile && yarn format",
+    "compile": "hardhat compile",
+    "clean-compile": "set -x && mv ./tasks/index.ts ./tasks/temp_index.ts && touch ./tasks/index.ts && hardhat clean && hardhat compile && mv ./tasks/temp_index.ts ./tasks/index.ts && set +x",
     "deploy": "hardhat compile && hardhat run ./scripts/deploy.ts",
     "abi": "hardhat export-abi"
   },

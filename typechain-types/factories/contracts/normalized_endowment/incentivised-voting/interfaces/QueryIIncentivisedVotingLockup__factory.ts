@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   QueryIIncentivisedVotingLockup,
   QueryIIncentivisedVotingLockupInterface,
@@ -96,6 +96,10 @@ export class QueryIIncentivisedVotingLockup__factory {
     address: string,
     signerOrProvider: Signer | Provider
   ): QueryIIncentivisedVotingLockup {
-    return new Contract(address, _abi, signerOrProvider) as QueryIIncentivisedVotingLockup;
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as QueryIIncentivisedVotingLockup;
   }
 }

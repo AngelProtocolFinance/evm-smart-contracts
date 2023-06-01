@@ -3,5 +3,5 @@
 /* eslint-disable */
 export * as endowmentMultiSigFactorySol from "./EndowmentMultiSigFactory.sol";
 export * as interfaces from "./interfaces";
-export {EndowmentMultiSig__factory} from "./EndowmentMultiSig__factory";
-export {EndowmentMultiSigEmitter__factory} from "./EndowmentMultiSigEmitter__factory";
+export { EndowmentMultiSig__factory } from "./EndowmentMultiSig__factory";
+export { EndowmentMultiSigEmitter__factory } from "./EndowmentMultiSigEmitter__factory";

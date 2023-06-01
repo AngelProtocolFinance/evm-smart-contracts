@@ -10,8 +10,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -27,9 +27,15 @@ export interface IBeaconInterface extends utils.Interface {
 
   getFunction(nameOrSignatureOrTopic: "implementation"): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "implementation", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "implementation",
+    values?: undefined
+  ): string;
 
-  decodeFunctionResult(functionFragment: "implementation", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "implementation",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -51,7 +57,9 @@ export interface IBeacon extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;

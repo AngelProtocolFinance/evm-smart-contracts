@@ -13,8 +13,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -60,12 +60,18 @@ export interface IveLPInterface extends utils.Interface {
       PromiseOrValue<string>
     ]
   ): string;
-  encodeFunctionData(functionFragment: "balances", values: [PromiseOrValue<BigNumberish>]): string;
+  encodeFunctionData(
+    functionFragment: "balances",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(
     functionFragment: "calc_token_amount",
     values: [[PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]]
   ): string;
-  encodeFunctionData(functionFragment: "coins", values: [PromiseOrValue<BigNumberish>]): string;
+  encodeFunctionData(
+    functionFragment: "coins",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(
     functionFragment: "exchange",
     values: [
@@ -101,15 +107,27 @@ export interface IveLPInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "token", values?: undefined): string;
 
-  decodeFunctionResult(functionFragment: "add_liquidity", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "add_liquidity",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "balances", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "calc_token_amount", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "calc_token_amount",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "coins", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "exchange", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "get_dy", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "lp_price", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "remove_liquidity", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "remove_liquidity_one_coin", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "remove_liquidity",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "remove_liquidity_one_coin",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
 
   events: {};
@@ -132,7 +150,9 @@ export interface IveLP extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -145,24 +165,30 @@ export interface IveLP extends BaseContract {
       min_mint_amount: PromiseOrValue<BigNumberish>,
       use_eth: PromiseOrValue<boolean>,
       receiver: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    balances(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<[BigNumber]>;
+    balances(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     calc_token_amount(
       amounts: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    coins(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<[string]>;
+    coins(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     exchange(
       i: PromiseOrValue<BigNumberish>,
       j: PromiseOrValue<BigNumberish>,
       dx: PromiseOrValue<BigNumberish>,
       min_dy: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     get_dy(
@@ -177,14 +203,14 @@ export interface IveLP extends BaseContract {
     remove_liquidity(
       _amount: PromiseOrValue<BigNumberish>,
       min_amounts: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     remove_liquidity_one_coin(
       token_amount: PromiseOrValue<BigNumberish>,
       i: PromiseOrValue<BigNumberish>,
       min_amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     token(overrides?: CallOverrides): Promise<[string]>;
@@ -195,24 +221,30 @@ export interface IveLP extends BaseContract {
     min_mint_amount: PromiseOrValue<BigNumberish>,
     use_eth: PromiseOrValue<boolean>,
     receiver: PromiseOrValue<string>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  balances(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<BigNumber>;
+  balances(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   calc_token_amount(
     amounts: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  coins(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<string>;
+  coins(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   exchange(
     i: PromiseOrValue<BigNumberish>,
     j: PromiseOrValue<BigNumberish>,
     dx: PromiseOrValue<BigNumberish>,
     min_dy: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   get_dy(
@@ -227,14 +259,14 @@ export interface IveLP extends BaseContract {
   remove_liquidity(
     _amount: PromiseOrValue<BigNumberish>,
     min_amounts: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   remove_liquidity_one_coin(
     token_amount: PromiseOrValue<BigNumberish>,
     i: PromiseOrValue<BigNumberish>,
     min_amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   token(overrides?: CallOverrides): Promise<string>;
@@ -248,14 +280,20 @@ export interface IveLP extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    balances(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<BigNumber>;
+    balances(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     calc_token_amount(
       amounts: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    coins(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<string>;
+    coins(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     exchange(
       i: PromiseOrValue<BigNumberish>,
@@ -298,24 +336,30 @@ export interface IveLP extends BaseContract {
       min_mint_amount: PromiseOrValue<BigNumberish>,
       use_eth: PromiseOrValue<boolean>,
       receiver: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    balances(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<BigNumber>;
+    balances(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     calc_token_amount(
       amounts: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    coins(arg0: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<BigNumber>;
+    coins(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     exchange(
       i: PromiseOrValue<BigNumberish>,
       j: PromiseOrValue<BigNumberish>,
       dx: PromiseOrValue<BigNumberish>,
       min_dy: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     get_dy(
@@ -330,14 +374,14 @@ export interface IveLP extends BaseContract {
     remove_liquidity(
       _amount: PromiseOrValue<BigNumberish>,
       min_amounts: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     remove_liquidity_one_coin(
       token_amount: PromiseOrValue<BigNumberish>,
       i: PromiseOrValue<BigNumberish>,
       min_amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     token(overrides?: CallOverrides): Promise<BigNumber>;
@@ -349,7 +393,7 @@ export interface IveLP extends BaseContract {
       min_mint_amount: PromiseOrValue<BigNumberish>,
       use_eth: PromiseOrValue<boolean>,
       receiver: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     balances(
@@ -372,7 +416,7 @@ export interface IveLP extends BaseContract {
       j: PromiseOrValue<BigNumberish>,
       dx: PromiseOrValue<BigNumberish>,
       min_dy: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     get_dy(
@@ -387,14 +431,14 @@ export interface IveLP extends BaseContract {
     remove_liquidity(
       _amount: PromiseOrValue<BigNumberish>,
       min_amounts: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     remove_liquidity_one_coin(
       token_amount: PromiseOrValue<BigNumberish>,
       i: PromiseOrValue<BigNumberish>,
       min_amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     token(overrides?: CallOverrides): Promise<PopulatedTransaction>;

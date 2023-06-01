@@ -13,8 +13,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -30,7 +30,9 @@ export interface IAxelarExecutableInterface extends utils.Interface {
     "gateway()": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "execute" | "executeWithToken" | "gateway"): FunctionFragment;
+  getFunction(
+    nameOrSignatureOrTopic: "execute" | "executeWithToken" | "gateway"
+  ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "execute",
@@ -55,7 +57,10 @@ export interface IAxelarExecutableInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "gateway", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "executeWithToken", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "executeWithToken",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "gateway", data: BytesLike): Result;
 
   events: {};
@@ -78,7 +83,9 @@ export interface IAxelarExecutable extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -91,7 +98,7 @@ export interface IAxelarExecutable extends BaseContract {
       sourceChain: PromiseOrValue<string>,
       sourceAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     executeWithToken(
@@ -101,7 +108,7 @@ export interface IAxelarExecutable extends BaseContract {
       payload: PromiseOrValue<BytesLike>,
       tokenSymbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     gateway(overrides?: CallOverrides): Promise<[string]>;
@@ -112,7 +119,7 @@ export interface IAxelarExecutable extends BaseContract {
     sourceChain: PromiseOrValue<string>,
     sourceAddress: PromiseOrValue<string>,
     payload: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   executeWithToken(
@@ -122,7 +129,7 @@ export interface IAxelarExecutable extends BaseContract {
     payload: PromiseOrValue<BytesLike>,
     tokenSymbol: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   gateway(overrides?: CallOverrides): Promise<string>;
@@ -157,7 +164,7 @@ export interface IAxelarExecutable extends BaseContract {
       sourceChain: PromiseOrValue<string>,
       sourceAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     executeWithToken(
@@ -167,7 +174,7 @@ export interface IAxelarExecutable extends BaseContract {
       payload: PromiseOrValue<BytesLike>,
       tokenSymbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     gateway(overrides?: CallOverrides): Promise<BigNumber>;
@@ -179,7 +186,7 @@ export interface IAxelarExecutable extends BaseContract {
       sourceChain: PromiseOrValue<string>,
       sourceAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     executeWithToken(
@@ -189,7 +196,7 @@ export interface IAxelarExecutable extends BaseContract {
       payload: PromiseOrValue<BytesLike>,
       tokenSymbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     gateway(overrides?: CallOverrides): Promise<PopulatedTransaction>;
