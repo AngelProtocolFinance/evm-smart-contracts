@@ -176,7 +176,7 @@
       }
     },
     "charityApplication": {
-      "implementation": "",
+      "implementation": "0x79eB828d1bBdfBC2c8415435676433572E1b2C55",
       "proxy": ""
     },
     "donationMatch": {
