@@ -1,27 +1,25 @@
 import {deployDiamond} from "contracts/core/accounts/scripts/deploy";
 import {task} from "hardhat/config";
-import {logger} from "utils";
+import {getAddresses, isLocalNetwork, logger} from "utils";
 
-task("Deploy:deployAccountDiamond", "It will deploy account diamond contracts")
-  .addParam("apteammultisig", "APTeamMultiSig address")
-  .addParam("registrar", "registrar contracts")
-  .addParam("corestruct", "core struct address")
-  .addParam("stringlib", "string lib address")
-  .setAction(async (taskArgs, hre) => {
+task("Deploy:deployAccountDiamond", "It will deploy account diamond contracts").setAction(
+  async (_, hre) => {
     try {
-      const verify_contracts = hre.network.name !== "hardhat" && hre.network.name !== "localhost";
+      const addresses = await getAddresses(hre);
+      const verify_contracts = !isLocalNetwork(hre.network);
 
       await deployDiamond(
-        taskArgs.apteammultisig,
-        taskArgs.registrar,
-        taskArgs.corestruct,
-        taskArgs.stringlib,
+        addresses.multiSig.apTeam.proxy,
+        addresses.registrar.proxy,
+        addresses.libraries.ANGEL_CORE_STRUCT_LIBRARY,
+        addresses.libraries.STRING_LIBRARY,
         hre,
         verify_contracts
       );
-
-      logger.out("Done.");
     } catch (error) {
       logger.out(`Diamond deployment failed, reason: ${error}`, logger.Level.Error);
+    } finally {
+      logger.out("Done.");
     }
-  });
+  }
+);
