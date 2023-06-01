@@ -1,6 +1,6 @@
+import "./deployAccountsDiamond";
 import "./deployAngelProtocol";
 import "./deployCharityApplications";
-import "./deployDiamond";
 import "./deployEmitters";
 import "./deployEndowmentMultisig";
 import "./deployFundraising";

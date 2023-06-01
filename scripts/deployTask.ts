@@ -1,7 +1,7 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 
-import {deployDiamond} from "contracts/core/accounts/scripts/deploy";
+import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
 import {deployMultisig} from "contracts/multisigs/scripts/deploy";
@@ -148,27 +148,24 @@ export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvi
       hre
     );
 
-    const ACCOUNT_ADDRESS = await deployDiamond(
+    const accountsDiamond = await deployAccountsDiamond(
       multisigAddress.APTeamMultiSig,
       REGISTRAR_ADDRESS,
       ANGEL_CORE_STRUCT.address,
-      STRING_LIBRARY.address,
-      hre,
-      verify_contracts
+      verify_contracts,
+      hre
     );
 
-    addressWriter.accountDiamond = ACCOUNT_ADDRESS;
+    console.log("Account contract deployed at:-", accountsDiamond.address);
 
-    console.log("Account contract deployed at:-", ACCOUNT_ADDRESS);
-
-    let emitters = await deployEmitters(ACCOUNT_ADDRESS, verify_contracts, hre);
+    let emitters = await deployEmitters(accountsDiamond.address, verify_contracts, hre);
 
     console.log("emitters Contract deployed at:-", emitters);
 
     let charityApplicationsData: Parameters<typeof charityApplications>[0] = [
       config.CHARITY_APPLICATION_DATA.expiry,
       multisigAddress.ApplicationsMultiSig,
-      ACCOUNT_ADDRESS,
+      accountsDiamond.address,
       config.CHARITY_APPLICATION_DATA.seedSplitToLiquid,
       config.CHARITY_APPLICATION_DATA.newEndowGasMoney,
       config.CHARITY_APPLICATION_DATA.gasAmount,
@@ -186,7 +183,7 @@ export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvi
 
     const SWAP_ROUTER = await deploySwapRouter(
       REGISTRAR_ADDRESS,
-      ACCOUNT_ADDRESS,
+      accountsDiamond.address,
       config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS,
       config.SWAP_ROUTER_DATA.SWAP_ROUTER_ADDRESS,
       verify_contracts,
@@ -372,7 +369,7 @@ export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvi
     config.REGISTRAR_DATA.acceptedTokens.cw20.push(haloToken.address);
 
     updateConfig = {
-      accountsContract: ACCOUNT_ADDRESS, //Address
+      accountsContract: accountsDiamond.address, //Address
       approved_charities: [], //string[]
       splitMax: 100, //uint256
       splitMin: 0, //uint256
@@ -426,7 +423,7 @@ export async function mainTask(verify_contracts = false, hre: HardhatRuntimeEnvi
       },
       dai: config.REGISTRAR_UPDATE_CONFIG.DAI_address,
       registrar: REGISTRAR_ADDRESS,
-      account: ACCOUNT_ADDRESS,
+      account: accountsDiamond,
       multisigAddress,
       charityApplicationsAddress,
       swapRouter: SWAP_ROUTER,

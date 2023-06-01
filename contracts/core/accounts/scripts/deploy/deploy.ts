@@ -9,62 +9,56 @@ import {
   Diamond__factory,
 } from "typechain-types";
 import deployFacets from "./deployFacets";
-import updateDiamond from "./updateDiamond";
+import cutDiamond from "./cutDiamond";
 import verify from "./verify";
 import {getSigners, logger, updateAddresses} from "utils";
 
-export async function deployDiamond(
+export async function deployAccountsDiamond(
   owner: string,
   registrar: string,
   ANGEL_CORE_STRUCT: string,
-  STRING_LIBRARY: string,
-  hre: HardhatRuntimeEnvironment,
-  verify_contracts = false
+  verify_contracts: boolean,
+  hre: HardhatRuntimeEnvironment
 ) {
-  try {
-    const {proxyAdmin: diamondAdmin} = await getSigners(hre.ethers);
-    const diamondCut = await deployDiamondCutFacet(diamondAdmin);
+  logger.out("Deploying and setting up Accounts Diamond and all its facets...");
 
-    const diamond = await _deployDiamond(diamondAdmin, diamondCut.address, hre);
+  const {proxyAdmin} = await getSigners(hre.ethers);
 
-    const diamondInit = await deployDiamondInit(diamondAdmin);
+  const {diamond, diamondCutFacet} = await deployDiamond(proxyAdmin, hre);
 
-    const cuts = await deployFacets(diamondAdmin, ANGEL_CORE_STRUCT, STRING_LIBRARY);
+  const diamondInit = await deployDiamondInit(proxyAdmin, hre);
 
-    await updateDiamond(diamond.address, diamondInit, diamondAdmin, owner, registrar, cuts, hre);
+  const cuts = await deployFacets(proxyAdmin, ANGEL_CORE_STRUCT, hre);
 
-    if (verify_contracts) {
-      await verify(diamond.address, diamondCut.address, cuts, diamondAdmin, hre);
-    }
+  await cutDiamond(diamond.address, diamondInit, proxyAdmin, owner, registrar, cuts, hre);
 
-    return Promise.resolve(diamond.address);
-  } catch (error) {
-    return Promise.reject(error);
+  if (verify_contracts) {
+    await verify(diamond.address, diamondCutFacet.address, cuts, proxyAdmin, hre);
   }
+
+  return diamond;
 }
 
-async function deployDiamondCutFacet(admin: SignerWithAddress): Promise<DiamondCutFacet> {
+async function deployDiamond(
+  admin: SignerWithAddress,
+  hre: HardhatRuntimeEnvironment
+): Promise<{diamond: Diamond; diamondCutFacet: DiamondCutFacet}> {
   const DiamondCutFacet = new DiamondCutFacet__factory(admin);
   const diamondCutFacet = await DiamondCutFacet.deploy();
   await diamondCutFacet.deployed();
-  console.log("DiamondCutFacet deployed:", diamondCutFacet.address);
-  return diamondCutFacet;
-}
+  logger.out(`DiamondCutFacet deployed at: ${diamondCutFacet.address}`);
 
-async function _deployDiamond(
-  admin: SignerWithAddress,
-  diamondCut: string,
-  hre: HardhatRuntimeEnvironment
-): Promise<Diamond> {
   const Diamond = new Diamond__factory(admin);
-  const diamond = await Diamond.deploy(admin.address, diamondCut);
+  const diamond = await Diamond.deploy(admin.address, diamondCutFacet.address);
   await diamond.deployed();
-  console.log("Diamond deployed:", diamond.address);
+  logger.out(`Diamond deployed at: ${diamond.address}`);
 
-  logger.out("Saving address to contract-address.json...");
-  await updateAddresses({accounts: {diamond: diamond.address}}, hre);
+  await updateAddresses(
+    {accounts: {diamond: diamond.address, facets: {diamondCutFacet: diamondCutFacet.address}}},
+    hre
+  );
 
-  return diamond;
+  return {diamond, diamondCutFacet};
 }
 
 /**
@@ -72,10 +66,16 @@ async function _deployDiamond(
  * Read about how the diamondCut function works here: https://eips.ethereum.org/EIPS/eip-2535#addingreplacingremoving-functions
  * @param admin signer representing administrator of the contract
  */
-async function deployDiamondInit(admin: SignerWithAddress): Promise<DiamondInit> {
+async function deployDiamondInit(
+  admin: SignerWithAddress,
+  hre: HardhatRuntimeEnvironment
+): Promise<DiamondInit> {
   const DiamondInit = new DiamondInit__factory(admin);
   const diamondInit = await DiamondInit.deploy();
   await diamondInit.deployed();
-  console.log("DiamondInit deployed:", diamondInit.address, "\n");
+  logger.out(`DiamondInit deployed at: ${diamondInit.address}`);
+
+  await updateAddresses({accounts: {facets: {diamondInitFacet: diamondInit.address}}}, hre);
+
   return diamondInit;
 }

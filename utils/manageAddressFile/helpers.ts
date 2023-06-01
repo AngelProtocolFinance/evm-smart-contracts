@@ -86,7 +86,6 @@ function createEmpty(): AddressObj {
         diamondInitFacet: "",
         diamondLoupeFacet: "",
         ownershipFacet: "",
-        reentrancyGuardFacet: "",
       },
     },
     charityApplication: {
