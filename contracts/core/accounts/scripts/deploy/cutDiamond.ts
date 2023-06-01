@@ -13,20 +13,20 @@ export default async function cutDiamond(
   facetCuts: FacetCut[],
   hre: HardhatRuntimeEnvironment
 ) {
-  logger.out("Updating Diamond with new facets facets...");
+  logger.out("Cutting the Diamond with new facets...");
 
   const diamondCut = DiamondCutFacet__factory.connect(address, admin);
   const calldata = diamondInit.interface.encodeFunctionData("init", [owner, registrar]);
 
   const cuts = facetCuts.map((x) => x.cut);
   const tx = await diamondCut.diamondCut(cuts, diamondInit.address, calldata);
-  logger.out(`Cutting diamond tx: ${tx.hash}`);
+  logger.out(`Cutting Diamond tx: ${tx.hash}`);
 
   const receipt = await hre.ethers.provider.waitForTransaction(tx.hash);
 
   if (!receipt.status) {
-    throw new Error(`Diamond upgrade failed: ${tx.hash}`);
+    throw new Error(`Diamond cut failed: ${tx.hash}`);
   }
 
-  logger.out("Completed diamond cut.");
+  logger.out("Completed Diamond cut.");
 }

@@ -20,7 +20,7 @@ export async function deployAccountsDiamond(
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
-  logger.out("Deploying Accounts Diamond...");
+  logger.out("Deploying and setting up Accounts Diamond and all its facets...");
 
   const {proxyAdmin} = await getSigners(hre.ethers);
 
@@ -43,17 +43,15 @@ async function deployDiamond(
   admin: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<{diamond: Diamond; diamondCutFacet: DiamondCutFacet}> {
-  logger.out("Deploying DiamondCutFacet...");
   const DiamondCutFacet = new DiamondCutFacet__factory(admin);
   const diamondCutFacet = await DiamondCutFacet.deploy();
   await diamondCutFacet.deployed();
-  logger.out(`Deployed at: ${diamondCutFacet.address}`);
+  logger.out(`DiamondCutFacet deployed at: ${diamondCutFacet.address}`);
 
-  logger.out("Deploying Diamond...");
   const Diamond = new Diamond__factory(admin);
   const diamond = await Diamond.deploy(admin.address, diamondCutFacet.address);
   await diamond.deployed();
-  logger.out(`Deployed at: ${diamond.address}`);
+  logger.out(`Diamond deployed at: ${diamond.address}`);
 
   await updateAddresses(
     {accounts: {diamond: diamond.address, facets: {diamondCutFacet: diamondCutFacet.address}}},
@@ -72,11 +70,10 @@ async function deployDiamondInit(
   admin: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<DiamondInit> {
-  logger.out("Deploying DiamondInit...");
   const DiamondInit = new DiamondInit__factory(admin);
   const diamondInit = await DiamondInit.deploy();
   await diamondInit.deployed();
-  logger.out(`Deployed at: ${diamondInit.address}`);
+  logger.out(`DiamondInit deployed at: ${diamondInit.address}`);
 
   await updateAddresses({accounts: {facets: {diamondInitFacet: diamondInit.address}}}, hre);
 

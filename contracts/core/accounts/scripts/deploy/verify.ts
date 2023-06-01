@@ -10,7 +10,7 @@ export default async function verify(
   admin: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<void> {
-  logger.out("Verifying newly deployed facets...");
+  logger.out("Verifying newly deployed contracts:");
 
   for (const {facetName, cut} of facetCuts) {
     try {
