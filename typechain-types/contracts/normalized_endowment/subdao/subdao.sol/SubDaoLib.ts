@@ -11,8 +11,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -47,28 +47,18 @@ export interface SubDaoLibInterface extends utils.Interface {
 
   encodeFunctionData(
     functionFragment: "queryAddressVotingBalanceAtBlock",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [PromiseOrValue<string>, PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "queryTotalVotingBalanceAtBlock",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "utfStringLength",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "utfStringLength", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(
     functionFragment: "validateDescription",
     values: [PromiseOrValue<string>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "validateLink",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "validateLink", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(
     functionFragment: "validateQuorum",
     values: [PromiseOrValue<BigNumberish>]
@@ -77,43 +67,19 @@ export interface SubDaoLibInterface extends utils.Interface {
     functionFragment: "validateThreshold",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "validateTitle",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "validateTitle", values: [PromiseOrValue<string>]): string;
 
   decodeFunctionResult(
     functionFragment: "queryAddressVotingBalanceAtBlock",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "queryTotalVotingBalanceAtBlock",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "utfStringLength",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "validateDescription",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "validateLink",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "validateQuorum",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "validateThreshold",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "validateTitle",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "queryTotalVotingBalanceAtBlock", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "utfStringLength", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "validateDescription", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "validateLink", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "validateQuorum", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "validateThreshold", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "validateTitle", data: BytesLike): Result;
 
   events: {};
 }
@@ -135,9 +101,7 @@ export interface SubDaoLib extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -161,17 +125,14 @@ export interface SubDaoLib extends BaseContract {
     utfStringLength(
       str: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<[BigNumber] & { length: BigNumber }>;
+    ): Promise<[BigNumber] & {length: BigNumber}>;
 
     validateDescription(
       description: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    validateLink(
-      link: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    validateLink(link: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[boolean]>;
 
     validateQuorum(
       quorum: PromiseOrValue<BigNumberish>,
@@ -183,10 +144,7 @@ export interface SubDaoLib extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    validateTitle(
-      title: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    validateTitle(title: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[boolean]>;
   };
 
   queryAddressVotingBalanceAtBlock(
@@ -202,35 +160,23 @@ export interface SubDaoLib extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  utfStringLength(
-    str: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  utfStringLength(str: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 
   validateDescription(
     description: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  validateLink(
-    link: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  validateLink(link: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
 
-  validateQuorum(
-    quorum: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  validateQuorum(quorum: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<boolean>;
 
   validateThreshold(
     threshold: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  validateTitle(
-    title: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  validateTitle(title: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
 
   callStatic: {
     queryAddressVotingBalanceAtBlock(
@@ -246,20 +192,14 @@ export interface SubDaoLib extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    utfStringLength(
-      str: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    utfStringLength(str: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 
     validateDescription(
       description: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    validateLink(
-      link: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    validateLink(link: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
 
     validateQuorum(
       quorum: PromiseOrValue<BigNumberish>,
@@ -271,10 +211,7 @@ export interface SubDaoLib extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    validateTitle(
-      title: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    validateTitle(title: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
   };
 
   filters: {};
@@ -293,20 +230,14 @@ export interface SubDaoLib extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    utfStringLength(
-      str: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    utfStringLength(str: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 
     validateDescription(
       description: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    validateLink(
-      link: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    validateLink(link: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 
     validateQuorum(
       quorum: PromiseOrValue<BigNumberish>,
@@ -318,10 +249,7 @@ export interface SubDaoLib extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    validateTitle(
-      title: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    validateTitle(title: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {

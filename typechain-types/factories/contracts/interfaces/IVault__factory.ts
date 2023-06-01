@@ -2,12 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
-import type {
-  IVault,
-  IVaultInterface,
-} from "../../../contracts/interfaces/IVault";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
+import type {IVault, IVaultInterface} from "../../../contracts/interfaces/IVault";
 
 const _abi = [
   {

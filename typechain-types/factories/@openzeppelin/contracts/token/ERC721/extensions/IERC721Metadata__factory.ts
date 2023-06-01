@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
 import type {
   IERC721Metadata,
   IERC721MetadataInterface,
@@ -347,10 +347,7 @@ export class IERC721Metadata__factory {
   static createInterface(): IERC721MetadataInterface {
     return new utils.Interface(_abi) as IERC721MetadataInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IERC721Metadata {
+  static connect(address: string, signerOrProvider: Signer | Provider): IERC721Metadata {
     return new Contract(address, _abi, signerOrProvider) as IERC721Metadata;
   }
 }

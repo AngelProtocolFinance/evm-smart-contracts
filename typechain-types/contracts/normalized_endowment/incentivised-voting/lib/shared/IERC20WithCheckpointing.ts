@@ -11,8 +11,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -30,43 +30,24 @@ export interface IERC20WithCheckpointingInterface extends utils.Interface {
   };
 
   getFunction(
-    nameOrSignatureOrTopic:
-      | "balanceOf"
-      | "balanceOfAt"
-      | "totalSupply"
-      | "totalSupplyAt"
+    nameOrSignatureOrTopic: "balanceOf" | "balanceOfAt" | "totalSupply" | "totalSupplyAt"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "balanceOf",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "balanceOf", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(
     functionFragment: "balanceOfAt",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "totalSupply",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "totalSupply", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "totalSupplyAt",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
 
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "balanceOfAt",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalSupply",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalSupplyAt",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "balanceOfAt", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "totalSupply", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "totalSupplyAt", data: BytesLike): Result;
 
   events: {};
 }
@@ -88,9 +69,7 @@ export interface IERC20WithCheckpointing extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -98,10 +77,7 @@ export interface IERC20WithCheckpointing extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    balanceOf(
-      owner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    balanceOf(owner: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     balanceOfAt(
       owner: PromiseOrValue<string>,
@@ -117,10 +93,7 @@ export interface IERC20WithCheckpointing extends BaseContract {
     ): Promise<[BigNumber]>;
   };
 
-  balanceOf(
-    owner: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  balanceOf(owner: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 
   balanceOfAt(
     owner: PromiseOrValue<string>,
@@ -136,10 +109,7 @@ export interface IERC20WithCheckpointing extends BaseContract {
   ): Promise<BigNumber>;
 
   callStatic: {
-    balanceOf(
-      owner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    balanceOf(owner: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 
     balanceOfAt(
       owner: PromiseOrValue<string>,
@@ -158,10 +128,7 @@ export interface IERC20WithCheckpointing extends BaseContract {
   filters: {};
 
   estimateGas: {
-    balanceOf(
-      owner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    balanceOf(owner: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 
     balanceOfAt(
       owner: PromiseOrValue<string>,

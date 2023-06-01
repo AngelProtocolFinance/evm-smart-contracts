@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
 import type {
   IDiamondCut,
   IDiamondCutInterface,
@@ -99,10 +99,7 @@ export class IDiamondCut__factory {
   static createInterface(): IDiamondCutInterface {
     return new utils.Interface(_abi) as IDiamondCutInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IDiamondCut {
+  static connect(address: string, signerOrProvider: Signer | Provider): IDiamondCut {
     return new Contract(address, _abi, signerOrProvider) as IDiamondCut;
   }
 }

@@ -14,12 +14,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -28,8 +24,7 @@ import type {
   PromiseOrValue,
 } from "../../../../common";
 
-export interface GovernorTimelockControlUpgradeableInterface
-  extends utils.Interface {
+export interface GovernorTimelockControlUpgradeableInterface extends utils.Interface {
   functions: {
     "BALLOT_TYPEHASH()": FunctionFragment;
     "COUNTING_MODE()": FunctionFragment;
@@ -101,18 +96,9 @@ export interface GovernorTimelockControlUpgradeableInterface
       | "votingPeriod"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "BALLOT_TYPEHASH",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "COUNTING_MODE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "EXTENDED_BALLOT_TYPEHASH",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "BALLOT_TYPEHASH", values?: undefined): string;
+  encodeFunctionData(functionFragment: "COUNTING_MODE", values?: undefined): string;
+  encodeFunctionData(functionFragment: "EXTENDED_BALLOT_TYPEHASH", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "castVote",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
@@ -129,11 +115,7 @@ export interface GovernorTimelockControlUpgradeableInterface
   ): string;
   encodeFunctionData(
     functionFragment: "castVoteWithReason",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
-    ]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "castVoteWithReasonAndParams",
@@ -171,11 +153,7 @@ export interface GovernorTimelockControlUpgradeableInterface
   ): string;
   encodeFunctionData(
     functionFragment: "getVotesWithParams",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>
-    ]
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "hasVoted",
@@ -232,10 +210,7 @@ export interface GovernorTimelockControlUpgradeableInterface
     functionFragment: "proposalSnapshot",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "proposalThreshold",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "proposalThreshold", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "propose",
     values: [
@@ -254,133 +229,57 @@ export interface GovernorTimelockControlUpgradeableInterface
       PromiseOrValue<BytesLike>
     ]
   ): string;
-  encodeFunctionData(
-    functionFragment: "quorum",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
+  encodeFunctionData(functionFragment: "quorum", values: [PromiseOrValue<BigNumberish>]): string;
   encodeFunctionData(
     functionFragment: "relay",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>
-    ]
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "state",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
+  encodeFunctionData(functionFragment: "state", values: [PromiseOrValue<BigNumberish>]): string;
   encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(functionFragment: "timelock", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "updateTimelock",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "updateTimelock", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(functionFragment: "version", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "votingDelay",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "votingPeriod",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "votingDelay", values?: undefined): string;
+  encodeFunctionData(functionFragment: "votingPeriod", values?: undefined): string;
 
-  decodeFunctionResult(
-    functionFragment: "BALLOT_TYPEHASH",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "COUNTING_MODE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "EXTENDED_BALLOT_TYPEHASH",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "BALLOT_TYPEHASH", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "COUNTING_MODE", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "EXTENDED_BALLOT_TYPEHASH", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "castVote", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "castVoteBySig",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "castVoteWithReason",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "castVoteWithReasonAndParams",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "castVoteBySig", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "castVoteWithReason", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "castVoteWithReasonAndParams", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "castVoteWithReasonAndParamsBySig",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getVotes", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getVotesWithParams",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "getVotesWithParams", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasVoted", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "hashProposal",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "hashProposal", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "onERC1155BatchReceived",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "onERC1155Received",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "onERC721Received",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "proposalDeadline",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "proposalEta",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "proposalSnapshot",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "proposalThreshold",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "onERC1155BatchReceived", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "onERC1155Received", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "onERC721Received", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "proposalDeadline", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "proposalEta", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "proposalSnapshot", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "proposalThreshold", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "propose", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "queue", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "quorum", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "relay", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "state", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "supportsInterface",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "supportsInterface", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "timelock", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "updateTimelock",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "updateTimelock", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "votingDelay",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "votingPeriod",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "votingDelay", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "votingPeriod", data: BytesLike): Result;
 
   events: {
     "Initialized(uint8)": EventFragment;
@@ -413,13 +312,9 @@ export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 export interface ProposalCanceledEventObject {
   proposalId: BigNumber;
 }
-export type ProposalCanceledEvent = TypedEvent<
-  [BigNumber],
-  ProposalCanceledEventObject
->;
+export type ProposalCanceledEvent = TypedEvent<[BigNumber], ProposalCanceledEventObject>;
 
-export type ProposalCanceledEventFilter =
-  TypedEventFilter<ProposalCanceledEvent>;
+export type ProposalCanceledEventFilter = TypedEventFilter<ProposalCanceledEvent>;
 
 export interface ProposalCreatedEventObject {
   proposalId: BigNumber;
@@ -433,17 +328,7 @@ export interface ProposalCreatedEventObject {
   description: string;
 }
 export type ProposalCreatedEvent = TypedEvent<
-  [
-    BigNumber,
-    string,
-    string[],
-    BigNumber[],
-    string[],
-    string[],
-    BigNumber,
-    BigNumber,
-    string
-  ],
+  [BigNumber, string, string[], BigNumber[], string[], string[], BigNumber, BigNumber, string],
   ProposalCreatedEventObject
 >;
 
@@ -452,22 +337,15 @@ export type ProposalCreatedEventFilter = TypedEventFilter<ProposalCreatedEvent>;
 export interface ProposalExecutedEventObject {
   proposalId: BigNumber;
 }
-export type ProposalExecutedEvent = TypedEvent<
-  [BigNumber],
-  ProposalExecutedEventObject
->;
+export type ProposalExecutedEvent = TypedEvent<[BigNumber], ProposalExecutedEventObject>;
 
-export type ProposalExecutedEventFilter =
-  TypedEventFilter<ProposalExecutedEvent>;
+export type ProposalExecutedEventFilter = TypedEventFilter<ProposalExecutedEvent>;
 
 export interface ProposalQueuedEventObject {
   proposalId: BigNumber;
   eta: BigNumber;
 }
-export type ProposalQueuedEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  ProposalQueuedEventObject
->;
+export type ProposalQueuedEvent = TypedEvent<[BigNumber, BigNumber], ProposalQueuedEventObject>;
 
 export type ProposalQueuedEventFilter = TypedEventFilter<ProposalQueuedEvent>;
 
@@ -475,10 +353,7 @@ export interface TimelockChangeEventObject {
   oldTimelock: string;
   newTimelock: string;
 }
-export type TimelockChangeEvent = TypedEvent<
-  [string, string],
-  TimelockChangeEventObject
->;
+export type TimelockChangeEvent = TypedEvent<[string, string], TimelockChangeEventObject>;
 
 export type TimelockChangeEventFilter = TypedEventFilter<TimelockChangeEvent>;
 
@@ -509,8 +384,7 @@ export type VoteCastWithParamsEvent = TypedEvent<
   VoteCastWithParamsEventObject
 >;
 
-export type VoteCastWithParamsEventFilter =
-  TypedEventFilter<VoteCastWithParamsEvent>;
+export type VoteCastWithParamsEventFilter = TypedEventFilter<VoteCastWithParamsEvent>;
 
 export interface GovernorTimelockControlUpgradeable extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -529,9 +403,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -548,7 +420,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
     castVote(
       proposalId: PromiseOrValue<BigNumberish>,
       support: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     castVoteBySig(
@@ -557,14 +429,14 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     castVoteWithReason(
       proposalId: PromiseOrValue<BigNumberish>,
       support: PromiseOrValue<BigNumberish>,
       reason: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     castVoteWithReasonAndParams(
@@ -572,7 +444,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       support: PromiseOrValue<BigNumberish>,
       reason: PromiseOrValue<string>,
       params: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     castVoteWithReasonAndParamsBySig(
@@ -583,7 +455,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     execute(
@@ -591,7 +463,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       values: PromiseOrValue<BigNumberish>[],
       calldatas: PromiseOrValue<BytesLike>[],
       descriptionHash: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     getVotes(
@@ -629,7 +501,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       arg2: PromiseOrValue<BigNumberish>[],
       arg3: PromiseOrValue<BigNumberish>[],
       arg4: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     onERC1155Received(
@@ -638,7 +510,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       arg2: PromiseOrValue<BigNumberish>,
       arg3: PromiseOrValue<BigNumberish>,
       arg4: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     onERC721Received(
@@ -646,7 +518,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       arg1: PromiseOrValue<string>,
       arg2: PromiseOrValue<BigNumberish>,
       arg3: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     proposalDeadline(
@@ -671,7 +543,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       values: PromiseOrValue<BigNumberish>[],
       calldatas: PromiseOrValue<BytesLike>[],
       description: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     queue(
@@ -679,7 +551,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       values: PromiseOrValue<BigNumberish>[],
       calldatas: PromiseOrValue<BytesLike>[],
       descriptionHash: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     quorum(
@@ -691,13 +563,10 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       target: PromiseOrValue<string>,
       value: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
-    state(
-      proposalId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[number]>;
+    state(proposalId: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<[number]>;
 
     supportsInterface(
       interfaceId: PromiseOrValue<BytesLike>,
@@ -708,7 +577,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
 
     updateTimelock(
       newTimelock: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     version(overrides?: CallOverrides): Promise<[string]>;
@@ -727,7 +596,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
   castVote(
     proposalId: PromiseOrValue<BigNumberish>,
     support: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   castVoteBySig(
@@ -736,14 +605,14 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
     v: PromiseOrValue<BigNumberish>,
     r: PromiseOrValue<BytesLike>,
     s: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   castVoteWithReason(
     proposalId: PromiseOrValue<BigNumberish>,
     support: PromiseOrValue<BigNumberish>,
     reason: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   castVoteWithReasonAndParams(
@@ -751,7 +620,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
     support: PromiseOrValue<BigNumberish>,
     reason: PromiseOrValue<string>,
     params: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   castVoteWithReasonAndParamsBySig(
@@ -762,7 +631,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
     v: PromiseOrValue<BigNumberish>,
     r: PromiseOrValue<BytesLike>,
     s: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   execute(
@@ -770,7 +639,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
     values: PromiseOrValue<BigNumberish>[],
     calldatas: PromiseOrValue<BytesLike>[],
     descriptionHash: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   getVotes(
@@ -808,7 +677,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
     arg2: PromiseOrValue<BigNumberish>[],
     arg3: PromiseOrValue<BigNumberish>[],
     arg4: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   onERC1155Received(
@@ -817,7 +686,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
     arg2: PromiseOrValue<BigNumberish>,
     arg3: PromiseOrValue<BigNumberish>,
     arg4: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   onERC721Received(
@@ -825,7 +694,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
     arg1: PromiseOrValue<string>,
     arg2: PromiseOrValue<BigNumberish>,
     arg3: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   proposalDeadline(
@@ -850,7 +719,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
     values: PromiseOrValue<BigNumberish>[],
     calldatas: PromiseOrValue<BytesLike>[],
     description: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   queue(
@@ -858,25 +727,19 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
     values: PromiseOrValue<BigNumberish>[],
     calldatas: PromiseOrValue<BytesLike>[],
     descriptionHash: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
-  quorum(
-    blockNumber: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  quorum(blockNumber: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<BigNumber>;
 
   relay(
     target: PromiseOrValue<string>,
     value: PromiseOrValue<BigNumberish>,
     data: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
-  state(
-    proposalId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<number>;
+  state(proposalId: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<number>;
 
   supportsInterface(
     interfaceId: PromiseOrValue<BytesLike>,
@@ -887,7 +750,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
 
   updateTimelock(
     newTimelock: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   version(overrides?: CallOverrides): Promise<string>;
@@ -1052,10 +915,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    state(
-      proposalId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<number>;
+    state(proposalId: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<number>;
 
     supportsInterface(
       interfaceId: PromiseOrValue<BytesLike>,
@@ -1064,10 +924,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
 
     timelock(overrides?: CallOverrides): Promise<string>;
 
-    updateTimelock(
-      newTimelock: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    updateTimelock(newTimelock: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
     version(overrides?: CallOverrides): Promise<string>;
 
@@ -1109,20 +966,14 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
     "ProposalExecuted(uint256)"(proposalId?: null): ProposalExecutedEventFilter;
     ProposalExecuted(proposalId?: null): ProposalExecutedEventFilter;
 
-    "ProposalQueued(uint256,uint256)"(
-      proposalId?: null,
-      eta?: null
-    ): ProposalQueuedEventFilter;
+    "ProposalQueued(uint256,uint256)"(proposalId?: null, eta?: null): ProposalQueuedEventFilter;
     ProposalQueued(proposalId?: null, eta?: null): ProposalQueuedEventFilter;
 
     "TimelockChange(address,address)"(
       oldTimelock?: null,
       newTimelock?: null
     ): TimelockChangeEventFilter;
-    TimelockChange(
-      oldTimelock?: null,
-      newTimelock?: null
-    ): TimelockChangeEventFilter;
+    TimelockChange(oldTimelock?: null, newTimelock?: null): TimelockChangeEventFilter;
 
     "VoteCast(address,uint256,uint8,uint256,string)"(
       voter?: PromiseOrValue<string> | null,
@@ -1167,7 +1018,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
     castVote(
       proposalId: PromiseOrValue<BigNumberish>,
       support: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     castVoteBySig(
@@ -1176,14 +1027,14 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     castVoteWithReason(
       proposalId: PromiseOrValue<BigNumberish>,
       support: PromiseOrValue<BigNumberish>,
       reason: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     castVoteWithReasonAndParams(
@@ -1191,7 +1042,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       support: PromiseOrValue<BigNumberish>,
       reason: PromiseOrValue<string>,
       params: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     castVoteWithReasonAndParamsBySig(
@@ -1202,7 +1053,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     execute(
@@ -1210,7 +1061,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       values: PromiseOrValue<BigNumberish>[],
       calldatas: PromiseOrValue<BytesLike>[],
       descriptionHash: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     getVotes(
@@ -1248,7 +1099,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       arg2: PromiseOrValue<BigNumberish>[],
       arg3: PromiseOrValue<BigNumberish>[],
       arg4: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     onERC1155Received(
@@ -1257,7 +1108,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       arg2: PromiseOrValue<BigNumberish>,
       arg3: PromiseOrValue<BigNumberish>,
       arg4: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     onERC721Received(
@@ -1265,7 +1116,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       arg1: PromiseOrValue<string>,
       arg2: PromiseOrValue<BigNumberish>,
       arg3: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     proposalDeadline(
@@ -1290,7 +1141,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       values: PromiseOrValue<BigNumberish>[],
       calldatas: PromiseOrValue<BytesLike>[],
       description: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     queue(
@@ -1298,7 +1149,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       values: PromiseOrValue<BigNumberish>[],
       calldatas: PromiseOrValue<BytesLike>[],
       descriptionHash: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     quorum(
@@ -1310,13 +1161,10 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       target: PromiseOrValue<string>,
       value: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
-    state(
-      proposalId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    state(proposalId: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<BigNumber>;
 
     supportsInterface(
       interfaceId: PromiseOrValue<BytesLike>,
@@ -1327,7 +1175,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
 
     updateTimelock(
       newTimelock: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     version(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1342,14 +1190,12 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
 
     COUNTING_MODE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    EXTENDED_BALLOT_TYPEHASH(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    EXTENDED_BALLOT_TYPEHASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     castVote(
       proposalId: PromiseOrValue<BigNumberish>,
       support: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     castVoteBySig(
@@ -1358,14 +1204,14 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     castVoteWithReason(
       proposalId: PromiseOrValue<BigNumberish>,
       support: PromiseOrValue<BigNumberish>,
       reason: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     castVoteWithReasonAndParams(
@@ -1373,7 +1219,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       support: PromiseOrValue<BigNumberish>,
       reason: PromiseOrValue<string>,
       params: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     castVoteWithReasonAndParamsBySig(
@@ -1384,7 +1230,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     execute(
@@ -1392,7 +1238,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       values: PromiseOrValue<BigNumberish>[],
       calldatas: PromiseOrValue<BytesLike>[],
       descriptionHash: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     getVotes(
@@ -1430,7 +1276,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       arg2: PromiseOrValue<BigNumberish>[],
       arg3: PromiseOrValue<BigNumberish>[],
       arg4: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     onERC1155Received(
@@ -1439,7 +1285,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       arg2: PromiseOrValue<BigNumberish>,
       arg3: PromiseOrValue<BigNumberish>,
       arg4: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     onERC721Received(
@@ -1447,7 +1293,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       arg1: PromiseOrValue<string>,
       arg2: PromiseOrValue<BigNumberish>,
       arg3: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     proposalDeadline(
@@ -1472,7 +1318,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       values: PromiseOrValue<BigNumberish>[],
       calldatas: PromiseOrValue<BytesLike>[],
       description: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     queue(
@@ -1480,7 +1326,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       values: PromiseOrValue<BigNumberish>[],
       calldatas: PromiseOrValue<BytesLike>[],
       descriptionHash: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     quorum(
@@ -1492,7 +1338,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
       target: PromiseOrValue<string>,
       value: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     state(
@@ -1509,7 +1355,7 @@ export interface GovernorTimelockControlUpgradeable extends BaseContract {
 
     updateTimelock(
       newTimelock: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     version(overrides?: CallOverrides): Promise<PopulatedTransaction>;

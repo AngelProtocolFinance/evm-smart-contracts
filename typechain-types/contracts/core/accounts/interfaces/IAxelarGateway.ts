@@ -14,12 +14,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -86,33 +82,17 @@ export interface IAxelarGatewayInterface extends utils.Interface {
       | "validateContractCallAndMint"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "adminEpoch",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "adminEpoch", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "adminThreshold",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "admins",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "allTokensFrozen",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "authModule",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "admins", values: [PromiseOrValue<BigNumberish>]): string;
+  encodeFunctionData(functionFragment: "allTokensFrozen", values?: undefined): string;
+  encodeFunctionData(functionFragment: "authModule", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "callContract",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BytesLike>
-    ]
+    values: [PromiseOrValue<string>, PromiseOrValue<string>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "callContractWithToken",
@@ -124,14 +104,8 @@ export interface IAxelarGatewayInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>
     ]
   ): string;
-  encodeFunctionData(
-    functionFragment: "execute",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "implementation",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "execute", values: [PromiseOrValue<BytesLike>]): string;
+  encodeFunctionData(functionFragment: "implementation", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "isCommandExecuted",
     values: [PromiseOrValue<BytesLike>]
@@ -193,37 +167,15 @@ export interface IAxelarGatewayInterface extends utils.Interface {
     functionFragment: "setTokenMintLimits",
     values: [PromiseOrValue<string>[], PromiseOrValue<BigNumberish>[]]
   ): string;
-  encodeFunctionData(
-    functionFragment: "setup",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenAddresses",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenDeployer",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenFrozen",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenMintAmount",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenMintLimit",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "setup", values: [PromiseOrValue<BytesLike>]): string;
+  encodeFunctionData(functionFragment: "tokenAddresses", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "tokenDeployer", values?: undefined): string;
+  encodeFunctionData(functionFragment: "tokenFrozen", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "tokenMintAmount", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "tokenMintLimit", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(
     functionFragment: "upgrade",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BytesLike>,
-      PromiseOrValue<BytesLike>
-    ]
+    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "validateContractCall",
@@ -247,84 +199,33 @@ export interface IAxelarGatewayInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "adminEpoch", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "adminThreshold",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "adminThreshold", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "admins", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "allTokensFrozen",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "allTokensFrozen", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "authModule", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "callContract",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "callContractWithToken",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "callContract", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "callContractWithToken", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "implementation",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isCommandExecuted",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isContractCallAndMintApproved",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isContractCallApproved",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "payNativeGasForContractCall",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "implementation", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "isCommandExecuted", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "isContractCallAndMintApproved", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "isContractCallApproved", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "payNativeGasForContractCall", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "payNativeGasForContractCallWithToken",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "sendToken", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setTokenMintLimits",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "setTokenMintLimits", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setup", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenAddresses",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenDeployer",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenFrozen",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenMintAmount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenMintLimit",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "tokenAddresses", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "tokenDeployer", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "tokenFrozen", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "tokenMintAmount", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "tokenMintLimit", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "upgrade", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "validateContractCall",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "validateContractCallAndMint",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "validateContractCall", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "validateContractCallAndMint", data: BytesLike): Result;
 
   events: {
     "ContractCall(address,string,string,bytes32,bytes)": EventFragment;
@@ -341,9 +242,7 @@ export interface IAxelarGatewayInterface extends utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: "ContractCall"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContractCallApproved"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ContractCallApprovedWithMint"
-  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ContractCallApprovedWithMint"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContractCallWithToken"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Executed"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OperatorshipTransferred"): EventFragment;
@@ -381,8 +280,7 @@ export type ContractCallApprovedEvent = TypedEvent<
   ContractCallApprovedEventObject
 >;
 
-export type ContractCallApprovedEventFilter =
-  TypedEventFilter<ContractCallApprovedEvent>;
+export type ContractCallApprovedEventFilter = TypedEventFilter<ContractCallApprovedEvent>;
 
 export interface ContractCallApprovedWithMintEventObject {
   commandId: string;
@@ -396,17 +294,7 @@ export interface ContractCallApprovedWithMintEventObject {
   sourceEventIndex: BigNumber;
 }
 export type ContractCallApprovedWithMintEvent = TypedEvent<
-  [
-    string,
-    string,
-    string,
-    string,
-    string,
-    string,
-    BigNumber,
-    string,
-    BigNumber
-  ],
+  [string, string, string, string, string, string, BigNumber, string, BigNumber],
   ContractCallApprovedWithMintEventObject
 >;
 
@@ -427,8 +315,7 @@ export type ContractCallWithTokenEvent = TypedEvent<
   ContractCallWithTokenEventObject
 >;
 
-export type ContractCallWithTokenEventFilter =
-  TypedEventFilter<ContractCallWithTokenEvent>;
+export type ContractCallWithTokenEventFilter = TypedEventFilter<ContractCallWithTokenEvent>;
 
 export interface ExecutedEventObject {
   commandId: string;
@@ -440,22 +327,15 @@ export type ExecutedEventFilter = TypedEventFilter<ExecutedEvent>;
 export interface OperatorshipTransferredEventObject {
   newOperatorsData: string;
 }
-export type OperatorshipTransferredEvent = TypedEvent<
-  [string],
-  OperatorshipTransferredEventObject
->;
+export type OperatorshipTransferredEvent = TypedEvent<[string], OperatorshipTransferredEventObject>;
 
-export type OperatorshipTransferredEventFilter =
-  TypedEventFilter<OperatorshipTransferredEvent>;
+export type OperatorshipTransferredEventFilter = TypedEventFilter<OperatorshipTransferredEvent>;
 
 export interface TokenDeployedEventObject {
   symbol: string;
   tokenAddresses: string;
 }
-export type TokenDeployedEvent = TypedEvent<
-  [string, string],
-  TokenDeployedEventObject
->;
+export type TokenDeployedEvent = TypedEvent<[string, string], TokenDeployedEventObject>;
 
 export type TokenDeployedEventFilter = TypedEventFilter<TokenDeployedEvent>;
 
@@ -468,8 +348,7 @@ export type TokenMintLimitUpdatedEvent = TypedEvent<
   TokenMintLimitUpdatedEventObject
 >;
 
-export type TokenMintLimitUpdatedEventFilter =
-  TypedEventFilter<TokenMintLimitUpdatedEvent>;
+export type TokenMintLimitUpdatedEventFilter = TypedEventFilter<TokenMintLimitUpdatedEvent>;
 
 export interface TokenSentEventObject {
   sender: string;
@@ -509,9 +388,7 @@ export interface IAxelarGateway extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -526,10 +403,7 @@ export interface IAxelarGateway extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    admins(
-      epoch: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[string[]]>;
+    admins(epoch: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<[string[]]>;
 
     allTokensFrozen(overrides?: CallOverrides): Promise<[boolean]>;
 
@@ -539,7 +413,7 @@ export interface IAxelarGateway extends BaseContract {
       destinationChain: PromiseOrValue<string>,
       contractAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     callContractWithToken(
@@ -548,12 +422,12 @@ export interface IAxelarGateway extends BaseContract {
       payload: PromiseOrValue<BytesLike>,
       symbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     execute(
       input: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     implementation(overrides?: CallOverrides): Promise<[string]>;
@@ -589,7 +463,7 @@ export interface IAxelarGateway extends BaseContract {
       destinationAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     payNativeGasForContractCallWithToken(
@@ -600,7 +474,7 @@ export interface IAxelarGateway extends BaseContract {
       symbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     sendToken(
@@ -608,47 +482,38 @@ export interface IAxelarGateway extends BaseContract {
       destinationAddress: PromiseOrValue<string>,
       symbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     setTokenMintLimits(
       symbols: PromiseOrValue<string>[],
       limits: PromiseOrValue<BigNumberish>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     setup(
       params: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
-    tokenAddresses(
-      symbol: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
+    tokenAddresses(symbol: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[string]>;
 
     tokenDeployer(overrides?: CallOverrides): Promise<[string]>;
 
-    tokenFrozen(
-      symbol: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    tokenFrozen(symbol: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[boolean]>;
 
     tokenMintAmount(
       symbol: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    tokenMintLimit(
-      symbol: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    tokenMintLimit(symbol: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     upgrade(
       newImplementation: PromiseOrValue<string>,
       newImplementationCodeHash: PromiseOrValue<BytesLike>,
       setupParams: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     validateContractCall(
@@ -656,7 +521,7 @@ export interface IAxelarGateway extends BaseContract {
       sourceChain: PromiseOrValue<string>,
       sourceAddress: PromiseOrValue<string>,
       payloadHash: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     validateContractCallAndMint(
@@ -666,7 +531,7 @@ export interface IAxelarGateway extends BaseContract {
       payloadHash: PromiseOrValue<BytesLike>,
       symbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
 
@@ -677,10 +542,7 @@ export interface IAxelarGateway extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  admins(
-    epoch: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<string[]>;
+  admins(epoch: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<string[]>;
 
   allTokensFrozen(overrides?: CallOverrides): Promise<boolean>;
 
@@ -690,7 +552,7 @@ export interface IAxelarGateway extends BaseContract {
     destinationChain: PromiseOrValue<string>,
     contractAddress: PromiseOrValue<string>,
     payload: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   callContractWithToken(
@@ -699,12 +561,12 @@ export interface IAxelarGateway extends BaseContract {
     payload: PromiseOrValue<BytesLike>,
     symbol: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   execute(
     input: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   implementation(overrides?: CallOverrides): Promise<string>;
@@ -740,7 +602,7 @@ export interface IAxelarGateway extends BaseContract {
     destinationAddress: PromiseOrValue<string>,
     payload: PromiseOrValue<BytesLike>,
     refundAddress: PromiseOrValue<string>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   payNativeGasForContractCallWithToken(
@@ -751,7 +613,7 @@ export interface IAxelarGateway extends BaseContract {
     symbol: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
     refundAddress: PromiseOrValue<string>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   sendToken(
@@ -759,47 +621,35 @@ export interface IAxelarGateway extends BaseContract {
     destinationAddress: PromiseOrValue<string>,
     symbol: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   setTokenMintLimits(
     symbols: PromiseOrValue<string>[],
     limits: PromiseOrValue<BigNumberish>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   setup(
     params: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
-  tokenAddresses(
-    symbol: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<string>;
+  tokenAddresses(symbol: PromiseOrValue<string>, overrides?: CallOverrides): Promise<string>;
 
   tokenDeployer(overrides?: CallOverrides): Promise<string>;
 
-  tokenFrozen(
-    symbol: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  tokenFrozen(symbol: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
 
-  tokenMintAmount(
-    symbol: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  tokenMintAmount(symbol: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 
-  tokenMintLimit(
-    symbol: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  tokenMintLimit(symbol: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 
   upgrade(
     newImplementation: PromiseOrValue<string>,
     newImplementationCodeHash: PromiseOrValue<BytesLike>,
     setupParams: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   validateContractCall(
@@ -807,7 +657,7 @@ export interface IAxelarGateway extends BaseContract {
     sourceChain: PromiseOrValue<string>,
     sourceAddress: PromiseOrValue<string>,
     payloadHash: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   validateContractCallAndMint(
@@ -817,7 +667,7 @@ export interface IAxelarGateway extends BaseContract {
     payloadHash: PromiseOrValue<BytesLike>,
     symbol: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -828,10 +678,7 @@ export interface IAxelarGateway extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    admins(
-      epoch: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<string[]>;
+    admins(epoch: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<string[]>;
 
     allTokensFrozen(overrides?: CallOverrides): Promise<boolean>;
 
@@ -853,10 +700,7 @@ export interface IAxelarGateway extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    execute(
-      input: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    execute(input: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<void>;
 
     implementation(overrides?: CallOverrides): Promise<string>;
 
@@ -919,32 +763,17 @@ export interface IAxelarGateway extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setup(
-      params: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    setup(params: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<void>;
 
-    tokenAddresses(
-      symbol: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<string>;
+    tokenAddresses(symbol: PromiseOrValue<string>, overrides?: CallOverrides): Promise<string>;
 
     tokenDeployer(overrides?: CallOverrides): Promise<string>;
 
-    tokenFrozen(
-      symbol: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    tokenFrozen(symbol: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
 
-    tokenMintAmount(
-      symbol: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    tokenMintAmount(symbol: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 
-    tokenMintLimit(
-      symbol: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    tokenMintLimit(symbol: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 
     upgrade(
       newImplementation: PromiseOrValue<string>,
@@ -1049,35 +878,20 @@ export interface IAxelarGateway extends BaseContract {
       amount?: null
     ): ContractCallWithTokenEventFilter;
 
-    "Executed(bytes32)"(
-      commandId?: PromiseOrValue<BytesLike> | null
-    ): ExecutedEventFilter;
+    "Executed(bytes32)"(commandId?: PromiseOrValue<BytesLike> | null): ExecutedEventFilter;
     Executed(commandId?: PromiseOrValue<BytesLike> | null): ExecutedEventFilter;
 
-    "OperatorshipTransferred(bytes)"(
-      newOperatorsData?: null
-    ): OperatorshipTransferredEventFilter;
-    OperatorshipTransferred(
-      newOperatorsData?: null
-    ): OperatorshipTransferredEventFilter;
+    "OperatorshipTransferred(bytes)"(newOperatorsData?: null): OperatorshipTransferredEventFilter;
+    OperatorshipTransferred(newOperatorsData?: null): OperatorshipTransferredEventFilter;
 
-    "TokenDeployed(string,address)"(
-      symbol?: null,
-      tokenAddresses?: null
-    ): TokenDeployedEventFilter;
-    TokenDeployed(
-      symbol?: null,
-      tokenAddresses?: null
-    ): TokenDeployedEventFilter;
+    "TokenDeployed(string,address)"(symbol?: null, tokenAddresses?: null): TokenDeployedEventFilter;
+    TokenDeployed(symbol?: null, tokenAddresses?: null): TokenDeployedEventFilter;
 
     "TokenMintLimitUpdated(string,uint256)"(
       symbol?: null,
       limit?: null
     ): TokenMintLimitUpdatedEventFilter;
-    TokenMintLimitUpdated(
-      symbol?: null,
-      limit?: null
-    ): TokenMintLimitUpdatedEventFilter;
+    TokenMintLimitUpdated(symbol?: null, limit?: null): TokenMintLimitUpdatedEventFilter;
 
     "TokenSent(address,string,string,string,uint256)"(
       sender?: PromiseOrValue<string> | null,
@@ -1094,12 +908,8 @@ export interface IAxelarGateway extends BaseContract {
       amount?: null
     ): TokenSentEventFilter;
 
-    "Upgraded(address)"(
-      implementation?: PromiseOrValue<string> | null
-    ): UpgradedEventFilter;
-    Upgraded(
-      implementation?: PromiseOrValue<string> | null
-    ): UpgradedEventFilter;
+    "Upgraded(address)"(implementation?: PromiseOrValue<string> | null): UpgradedEventFilter;
+    Upgraded(implementation?: PromiseOrValue<string> | null): UpgradedEventFilter;
   };
 
   estimateGas: {
@@ -1110,10 +920,7 @@ export interface IAxelarGateway extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    admins(
-      epoch: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    admins(epoch: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<BigNumber>;
 
     allTokensFrozen(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1123,7 +930,7 @@ export interface IAxelarGateway extends BaseContract {
       destinationChain: PromiseOrValue<string>,
       contractAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     callContractWithToken(
@@ -1132,12 +939,12 @@ export interface IAxelarGateway extends BaseContract {
       payload: PromiseOrValue<BytesLike>,
       symbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     execute(
       input: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     implementation(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1173,7 +980,7 @@ export interface IAxelarGateway extends BaseContract {
       destinationAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     payNativeGasForContractCallWithToken(
@@ -1184,7 +991,7 @@ export interface IAxelarGateway extends BaseContract {
       symbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     sendToken(
@@ -1192,47 +999,35 @@ export interface IAxelarGateway extends BaseContract {
       destinationAddress: PromiseOrValue<string>,
       symbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     setTokenMintLimits(
       symbols: PromiseOrValue<string>[],
       limits: PromiseOrValue<BigNumberish>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     setup(
       params: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
-    tokenAddresses(
-      symbol: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    tokenAddresses(symbol: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 
     tokenDeployer(overrides?: CallOverrides): Promise<BigNumber>;
 
-    tokenFrozen(
-      symbol: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    tokenFrozen(symbol: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 
-    tokenMintAmount(
-      symbol: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    tokenMintAmount(symbol: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 
-    tokenMintLimit(
-      symbol: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    tokenMintLimit(symbol: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 
     upgrade(
       newImplementation: PromiseOrValue<string>,
       newImplementationCodeHash: PromiseOrValue<BytesLike>,
       setupParams: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     validateContractCall(
@@ -1240,7 +1035,7 @@ export interface IAxelarGateway extends BaseContract {
       sourceChain: PromiseOrValue<string>,
       sourceAddress: PromiseOrValue<string>,
       payloadHash: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     validateContractCallAndMint(
@@ -1250,7 +1045,7 @@ export interface IAxelarGateway extends BaseContract {
       payloadHash: PromiseOrValue<BytesLike>,
       symbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
 
@@ -1275,7 +1070,7 @@ export interface IAxelarGateway extends BaseContract {
       destinationChain: PromiseOrValue<string>,
       contractAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     callContractWithToken(
@@ -1284,12 +1079,12 @@ export interface IAxelarGateway extends BaseContract {
       payload: PromiseOrValue<BytesLike>,
       symbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     execute(
       input: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     implementation(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1325,7 +1120,7 @@ export interface IAxelarGateway extends BaseContract {
       destinationAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     payNativeGasForContractCallWithToken(
@@ -1336,7 +1131,7 @@ export interface IAxelarGateway extends BaseContract {
       symbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     sendToken(
@@ -1344,18 +1139,18 @@ export interface IAxelarGateway extends BaseContract {
       destinationAddress: PromiseOrValue<string>,
       symbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     setTokenMintLimits(
       symbols: PromiseOrValue<string>[],
       limits: PromiseOrValue<BigNumberish>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     setup(
       params: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     tokenAddresses(
@@ -1384,7 +1179,7 @@ export interface IAxelarGateway extends BaseContract {
       newImplementation: PromiseOrValue<string>,
       newImplementationCodeHash: PromiseOrValue<BytesLike>,
       setupParams: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     validateContractCall(
@@ -1392,7 +1187,7 @@ export interface IAxelarGateway extends BaseContract {
       sourceChain: PromiseOrValue<string>,
       sourceAddress: PromiseOrValue<string>,
       payloadHash: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     validateContractCallAndMint(
@@ -1402,7 +1197,7 @@ export interface IAxelarGateway extends BaseContract {
       payloadHash: PromiseOrValue<BytesLike>,
       symbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };
 }

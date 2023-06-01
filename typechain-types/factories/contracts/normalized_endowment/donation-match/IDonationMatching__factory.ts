@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
 import type {
   IDonationMatching,
   IDonationMatchingInterface,
@@ -85,10 +85,7 @@ export class IDonationMatching__factory {
   static createInterface(): IDonationMatchingInterface {
     return new utils.Interface(_abi) as IDonationMatchingInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IDonationMatching {
+  static connect(address: string, signerOrProvider: Signer | Provider): IDonationMatching {
     return new Contract(address, _abi, signerOrProvider) as IDonationMatching;
   }
 }
