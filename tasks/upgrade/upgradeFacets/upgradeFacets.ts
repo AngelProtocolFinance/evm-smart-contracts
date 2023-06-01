@@ -7,7 +7,7 @@ import verify from "./verify";
 
 type TaskArguments = {facets: string[]};
 
-task("upgrade:upgradeFacets", "Will redeploy and upgrade all facets that use AccountStorage struct")
+task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountStorage struct")
   .addVariadicPositionalParam("facets", "List of facets to upgrade")
   .setAction(async (taskArguments: TaskArguments, hre) => {
     try {
