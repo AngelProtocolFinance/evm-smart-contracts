@@ -33,10 +33,7 @@ export async function deployAngelProtocol(hre: HardhatRuntimeEnvironment): Promi
   console.log("Deploying the contracts with the account:", proxyAdmin.address);
 
   // Mock setup required for testing
-  let mockUSDC: Contract | undefined;
-  if (isLocalNetwork(network)) {
-    mockUSDC = await deployMockUSDC(proxyAdmin, hre);
-  }
+  const mockUSDC = isLocalNetwork(network) ? await deployMockUSDC(proxyAdmin, hre) : undefined;
 
   const {angelCoreStruct, stringLib} = await deployLibraries(hre);
 
