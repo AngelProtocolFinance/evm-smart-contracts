@@ -36,7 +36,13 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
   )
   .setAction(async (taskArguments: TaskArguments, hre) => {
     try {
-      const facetsToUpgrade = taskArguments.facets[0] === "all" ? allFacets : taskArguments.facets;
+      if (taskArguments.facets.length === 0) {
+        throw new Error("Must provide at least one facet name or pass 'all'");
+      }
+
+      const facetsToUpgrade = /^all$/i.test(taskArguments.facets[0])
+        ? allFacets
+        : taskArguments.facets;
 
       const isConfirmed = await confirmAction(
         `You're about to upgrade the following facets:\n- ${facetsToUpgrade.join("\n- ")}`
