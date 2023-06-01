@@ -6,7 +6,7 @@ import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
 import {ADDRESS_ZERO, isLocalNetwork} from "utils";
 // import { deployHaloImplementation } from "contracts/halo/scripts/deploy"
 import {charityApplications} from "contracts/multisigs/charity_applications/scripts/deploy";
-import {deployMultisig} from "contracts/multisigs/scripts/deploy";
+import {deployAPTeamMultiSig, deployApplicationsMultiSig} from "contracts/multisigs/scripts/deploy";
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
 import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
 // import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
@@ -14,14 +14,9 @@ import config from "config";
 import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
 import {Contract} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {
-  APTeamMultiSig,
-  ApplicationsMultiSig,
-  IndexFund__factory,
-  Registrar__factory,
-} from "typechain-types";
+import {IndexFund__factory, Registrar__factory} from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-import {ContractFunctionParams, cleanAddresses} from "utils";
+import {cleanAddresses} from "utils";
 import {getSigners} from "utils/getSigners";
 import {deployLibraries} from "./deployLibraries";
 import {deployMockUSDC} from "./deployMockUSDC";
@@ -29,9 +24,7 @@ import {deployMockUSDC} from "./deployMockUSDC";
 export async function deployAngelProtocol(hre: HardhatRuntimeEnvironment): Promise<void> {
   const {network, ethers} = hre;
 
-  const {applicationsMultisigOwners, apTeamMultisigOwners, proxyAdmin, treasury} = await getSigners(
-    ethers
-  );
+  const {proxyAdmin, treasury} = await getSigners(ethers);
 
   await cleanAddresses(hre);
 
@@ -47,18 +40,9 @@ export async function deployAngelProtocol(hre: HardhatRuntimeEnvironment): Promi
 
   const {angelCoreStruct, stringLib} = await deployLibraries(hre);
 
-  var APTeamData: ContractFunctionParams<APTeamMultiSig["initialize"]> = [
-    apTeamMultisigOwners.map((x) => x.address),
-    config.AP_TEAM_MULTISIG_DATA.threshold,
-    config.AP_TEAM_MULTISIG_DATA.requireExecution,
-  ];
-  var ApplicationData: ContractFunctionParams<ApplicationsMultiSig["initialize"]> = [
-    applicationsMultisigOwners.map((x) => x.address),
-    config.APPLICATION_MULTISIG_DATA.threshold,
-    config.APPLICATION_MULTISIG_DATA.requireExecution,
-  ];
-  console.log(APTeamData, ApplicationData);
-  const multisigAddress = await deployMultisig(ApplicationData, APTeamData, verify_contracts, hre);
+  const apTeamMultisig = await deployAPTeamMultiSig(verify_contracts, hre);
+
+  const applicationsMultiSig = await deployApplicationsMultiSig(verify_contracts, hre);
 
   const registrarData = {
     treasury: treasury.address,
@@ -73,7 +57,7 @@ export async function deployAngelProtocol(hre: HardhatRuntimeEnvironment): Promi
 
   const registrar = await deployRegistrar(
     registrarData,
-    multisigAddress.APTeamMultiSig,
+    apTeamMultisig.proxy.address,
     verify_contracts,
     hre
   );
@@ -82,13 +66,13 @@ export async function deployAngelProtocol(hre: HardhatRuntimeEnvironment): Promi
     config.REGISTRAR_DATA.axelarGateway,
     config.REGISTRAR_DATA.axelarGasRecv,
     registrar.proxy.address,
-    multisigAddress.APTeamMultiSig,
+    apTeamMultisig.proxy.address,
     verify_contracts,
     hre
   );
 
   const ACCOUNT_ADDRESS = await deployDiamond(
-    multisigAddress.APTeamMultiSig,
+    apTeamMultisig.proxy.address,
     registrar.proxy.address,
     angelCoreStruct.address,
     stringLib.address,
@@ -104,7 +88,7 @@ export async function deployAngelProtocol(hre: HardhatRuntimeEnvironment): Promi
 
   const charityApplicationsData: Parameters<typeof charityApplications>[0] = [
     config.CHARITY_APPLICATION_DATA.expiry,
-    multisigAddress.ApplicationsMultiSig,
+    applicationsMultiSig.proxy.address,
     ACCOUNT_ADDRESS,
     config.CHARITY_APPLICATION_DATA.seedSplitToLiquid,
     config.CHARITY_APPLICATION_DATA.newEndowGasMoney,
@@ -141,7 +125,7 @@ export async function deployAngelProtocol(hre: HardhatRuntimeEnvironment): Promi
 
   const INDEX_FUND_ADDRESS = await deployIndexFund(
     indexFundData,
-    multisigAddress.APTeamMultiSig,
+    apTeamMultisig.proxy.address,
     verify_contracts,
     hre
   );
@@ -154,7 +138,7 @@ export async function deployAngelProtocol(hre: HardhatRuntimeEnvironment): Promi
   // console.log('implementations deployed at:', implementations);
 
   // const GiftCardDataInput = {
-  //     keeper: multisigAddress.APTeamMultiSig,
+  //     keeper: apTeamMultisig.proxy.address,
   //     registrarContract: REGISTRAR_ADDRESS,
   // }
 
@@ -334,7 +318,7 @@ export async function deployAngelProtocol(hre: HardhatRuntimeEnvironment): Promi
     haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
     charitySharesContract: ethers.constants.AddressZero, //TODO: //address
     fundraisingContract: ethers.constants.AddressZero, //TODO: //address
-    applicationsReview: multisigAddress.ApplicationsMultiSig, //address
+    applicationsReview: applicationsMultiSig.proxy.address, //address
     swapsRouter: SWAP_ROUTER, //address
     multisigFactory: multisigDat.MultiSigWalletFactory, //address
     multisigEmitter: multisigDat.EndowmentMultiSigEmitter, //address
@@ -351,11 +335,11 @@ export async function deployAngelProtocol(hre: HardhatRuntimeEnvironment): Promi
   const data = await REGISTRAR_CONTRACT.updateConfig(updateConfig);
   console.log("Successfully updated config:-", data.hash);
 
-  const newOwner = await REGISTRAR_CONTRACT.transferOwnership(multisigAddress.APTeamMultiSig);
+  const newOwner = await REGISTRAR_CONTRACT.transferOwnership(apTeamMultisig.proxy.address);
   console.log("Successfully transferred Ownership:-", newOwner.hash);
 
   const INDEX_FUND_CONTRACT = IndexFund__factory.connect(INDEX_FUND_ADDRESS, proxyAdmin);
 
-  const new_owner_index = await INDEX_FUND_CONTRACT.updateOwner(multisigAddress.APTeamMultiSig);
+  const new_owner_index = await INDEX_FUND_CONTRACT.updateOwner(apTeamMultisig.proxy.address);
   console.log("Successfully transferred Ownership:-", new_owner_index.hash);
 }
