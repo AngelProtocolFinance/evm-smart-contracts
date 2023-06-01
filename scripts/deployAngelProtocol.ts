@@ -1,4 +1,4 @@
-import {deployDiamond} from "contracts/core/accounts/scripts/deploy";
+import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
@@ -59,6 +59,7 @@ export async function deployAngelProtocol(hre: HardhatRuntimeEnvironment): Promi
     hre
   );
 
+  // Router deployment includes updating Registrar config's "router" address
   const router = await deployRouter(
     config.REGISTRAR_DATA.axelarGateway,
     config.REGISTRAR_DATA.axelarGasRecv,
@@ -68,25 +69,24 @@ export async function deployAngelProtocol(hre: HardhatRuntimeEnvironment): Promi
     hre
   );
 
-  const ACCOUNT_ADDRESS = await deployDiamond(
+  const accountsDiamond = await deployAccountsDiamond(
     apTeamMultisig.proxy.address,
     registrar.proxy.address,
     angelCoreStruct.address,
-    stringLib.address,
-    hre,
-    verify_contracts
+    verify_contracts,
+    hre
   );
 
-  console.log("Account contract deployed at:-", ACCOUNT_ADDRESS);
+  console.log("Account contract deployed at:-", accountsDiamond.address);
 
-  const emitters = await deployEmitters(ACCOUNT_ADDRESS, verify_contracts, hre);
+  const emitters = await deployEmitters(accountsDiamond.address, verify_contracts, hre);
 
   console.log("emitters Contract deployed at:-", emitters);
 
   const charityApplicationsData: Parameters<typeof charityApplications>[0] = [
     config.CHARITY_APPLICATION_DATA.expiry,
     applicationsMultiSig.proxy.address,
-    ACCOUNT_ADDRESS,
+    accountsDiamond.address,
     config.CHARITY_APPLICATION_DATA.seedSplitToLiquid,
     config.CHARITY_APPLICATION_DATA.newEndowGasMoney,
     config.CHARITY_APPLICATION_DATA.gasAmount,
@@ -104,7 +104,7 @@ export async function deployAngelProtocol(hre: HardhatRuntimeEnvironment): Promi
 
   const SWAP_ROUTER = await deploySwapRouter(
     registrar.proxy.address,
-    ACCOUNT_ADDRESS,
+    accountsDiamond.address,
     config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS,
     config.SWAP_ROUTER_DATA.SWAP_ROUTER_ADDRESS,
     verify_contracts,
@@ -293,7 +293,7 @@ export async function deployAngelProtocol(hre: HardhatRuntimeEnvironment): Promi
   // config.REGISTRAR_DATA.acceptedTokens.cw20.push(haloToken.address)
 
   const updateConfig: RegistrarMessages.UpdateConfigRequestStruct = {
-    accountsContract: ACCOUNT_ADDRESS, //Address
+    accountsContract: accountsDiamond.address, //Address
     approved_charities: [], //string[]
     splitMax: config.REGISTRAR_DATA.splitToLiquid.max, //uint256
     splitMin: config.REGISTRAR_DATA.splitToLiquid.min, //uint256
