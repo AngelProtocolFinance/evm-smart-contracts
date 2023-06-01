@@ -13,8 +13,12 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -70,11 +74,20 @@ export interface GovHodlerInterface extends utils.Interface {
     functionFragment: "initialiaze",
     values: [GovHodlerMessage.InstantiateMsgStruct]
   ): string;
-  encodeFunctionData(functionFragment: "updateConfig", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(
+    functionFragment: "updateConfig",
+    values: [PromiseOrValue<string>]
+  ): string;
 
   decodeFunctionResult(functionFragment: "claimHalo", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "initialiaze", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "updateConfig", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "initialiaze",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateConfig",
+    data: BytesLike
+  ): Result;
 
   events: {
     "GovHolderConfigUpdated(tuple)": EventFragment;
@@ -95,7 +108,8 @@ export type GovHolderConfigUpdatedEvent = TypedEvent<
   GovHolderConfigUpdatedEventObject
 >;
 
-export type GovHolderConfigUpdatedEventFilter = TypedEventFilter<GovHolderConfigUpdatedEvent>;
+export type GovHolderConfigUpdatedEventFilter =
+  TypedEventFilter<GovHolderConfigUpdatedEvent>;
 
 export interface GovHolderHaloClaimedEventObject {
   recipient: string;
@@ -106,7 +120,8 @@ export type GovHolderHaloClaimedEvent = TypedEvent<
   GovHolderHaloClaimedEventObject
 >;
 
-export type GovHolderHaloClaimedEventFilter = TypedEventFilter<GovHolderHaloClaimedEvent>;
+export type GovHolderHaloClaimedEventFilter =
+  TypedEventFilter<GovHolderHaloClaimedEvent>;
 
 export interface InitializedEventObject {
   version: number;
@@ -132,7 +147,9 @@ export interface GovHodler extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -143,34 +160,34 @@ export interface GovHodler extends BaseContract {
     claimHalo(
       recipient: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     initialiaze(
       details: GovHodlerMessage.InstantiateMsgStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     updateConfig(
       timelockContract: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
   claimHalo(
     recipient: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   initialiaze(
     details: GovHodlerMessage.InstantiateMsgStruct,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   updateConfig(
     timelockContract: PromiseOrValue<string>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -192,14 +209,19 @@ export interface GovHodler extends BaseContract {
   };
 
   filters: {
-    "GovHolderConfigUpdated(tuple)"(config?: null): GovHolderConfigUpdatedEventFilter;
+    "GovHolderConfigUpdated(tuple)"(
+      config?: null
+    ): GovHolderConfigUpdatedEventFilter;
     GovHolderConfigUpdated(config?: null): GovHolderConfigUpdatedEventFilter;
 
     "GovHolderHaloClaimed(address,uint256)"(
       recipient?: null,
       amount?: null
     ): GovHolderHaloClaimedEventFilter;
-    GovHolderHaloClaimed(recipient?: null, amount?: null): GovHolderHaloClaimedEventFilter;
+    GovHolderHaloClaimed(
+      recipient?: null,
+      amount?: null
+    ): GovHolderHaloClaimedEventFilter;
 
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
@@ -209,17 +231,17 @@ export interface GovHodler extends BaseContract {
     claimHalo(
       recipient: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     initialiaze(
       details: GovHodlerMessage.InstantiateMsgStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     updateConfig(
       timelockContract: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
@@ -227,17 +249,17 @@ export interface GovHodler extends BaseContract {
     claimHalo(
       recipient: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     initialiaze(
       details: GovHodlerMessage.InstantiateMsgStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     updateConfig(
       timelockContract: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

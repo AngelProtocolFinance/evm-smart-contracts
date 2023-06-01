@@ -13,8 +13,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -31,7 +31,10 @@ export interface IERC1155ReceiverUpgradeableInterface extends utils.Interface {
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "onERC1155BatchReceived" | "onERC1155Received" | "supportsInterface"
+    nameOrSignatureOrTopic:
+      | "onERC1155BatchReceived"
+      | "onERC1155Received"
+      | "supportsInterface"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -59,9 +62,18 @@ export interface IERC1155ReceiverUpgradeableInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
 
-  decodeFunctionResult(functionFragment: "onERC1155BatchReceived", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "onERC1155Received", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "supportsInterface", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "onERC1155BatchReceived",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "onERC1155Received",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "supportsInterface",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -83,7 +95,9 @@ export interface IERC1155ReceiverUpgradeable extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -97,7 +111,7 @@ export interface IERC1155ReceiverUpgradeable extends BaseContract {
       ids: PromiseOrValue<BigNumberish>[],
       values: PromiseOrValue<BigNumberish>[],
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     onERC1155Received(
@@ -106,7 +120,7 @@ export interface IERC1155ReceiverUpgradeable extends BaseContract {
       id: PromiseOrValue<BigNumberish>,
       value: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     supportsInterface(
@@ -121,7 +135,7 @@ export interface IERC1155ReceiverUpgradeable extends BaseContract {
     ids: PromiseOrValue<BigNumberish>[],
     values: PromiseOrValue<BigNumberish>[],
     data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   onERC1155Received(
@@ -130,7 +144,7 @@ export interface IERC1155ReceiverUpgradeable extends BaseContract {
     id: PromiseOrValue<BigNumberish>,
     value: PromiseOrValue<BigNumberish>,
     data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   supportsInterface(
@@ -172,7 +186,7 @@ export interface IERC1155ReceiverUpgradeable extends BaseContract {
       ids: PromiseOrValue<BigNumberish>[],
       values: PromiseOrValue<BigNumberish>[],
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     onERC1155Received(
@@ -181,7 +195,7 @@ export interface IERC1155ReceiverUpgradeable extends BaseContract {
       id: PromiseOrValue<BigNumberish>,
       value: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     supportsInterface(
@@ -197,7 +211,7 @@ export interface IERC1155ReceiverUpgradeable extends BaseContract {
       ids: PromiseOrValue<BigNumberish>[],
       values: PromiseOrValue<BigNumberish>[],
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     onERC1155Received(
@@ -206,7 +220,7 @@ export interface IERC1155ReceiverUpgradeable extends BaseContract {
       id: PromiseOrValue<BigNumberish>,
       value: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     supportsInterface(

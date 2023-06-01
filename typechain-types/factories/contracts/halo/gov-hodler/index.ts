@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as eventsSol from "./events.sol";
-export {GovHodler__factory} from "./GovHodler__factory";
+export { GovHodler__factory } from "./GovHodler__factory";
