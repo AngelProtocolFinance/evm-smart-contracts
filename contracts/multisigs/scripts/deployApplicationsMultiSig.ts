@@ -14,7 +14,7 @@ export async function deployApplicationsMultiSig(
   const applicationsMultiSigFactory = new ApplicationsMultiSig__factory(proxyAdmin);
   const applicationsMultiSig = await applicationsMultiSigFactory.deploy();
   await applicationsMultiSig.deployed();
-  logger.out(`ApplicationsMultiSig deployed at: ${applicationsMultiSig.address}.`);
+  logger.out(`Implementation deployed at: ${applicationsMultiSig.address}.`);
 
   const applicationsMultiSigData = applicationsMultiSig.interface.encodeFunctionData("initialize", [
     applicationsMultisigOwners.map((x) => x.address),
@@ -29,7 +29,7 @@ export async function deployApplicationsMultiSig(
   const proxyFactory = new ProxyContract__factory(proxyAdmin);
   const applicationsMultiSigProxy = await proxyFactory.deploy(...constructorArguments);
   await applicationsMultiSigProxy.deployed();
-  logger.out(`ApplicationsMultiSig Proxy deployed at: ${applicationsMultiSigProxy.address}.`);
+  logger.out(`Proxy deployed at: ${applicationsMultiSigProxy.address}.`);
 
   await updateAddresses(
     {
