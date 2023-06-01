@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
 import type {
   GovernorTimelockControlUpgradeable,
   GovernorTimelockControlUpgradeableInterface,
@@ -1009,18 +1009,12 @@ const _abi = [
 export class GovernorTimelockControlUpgradeable__factory {
   static readonly abi = _abi;
   static createInterface(): GovernorTimelockControlUpgradeableInterface {
-    return new utils.Interface(
-      _abi
-    ) as GovernorTimelockControlUpgradeableInterface;
+    return new utils.Interface(_abi) as GovernorTimelockControlUpgradeableInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
   ): GovernorTimelockControlUpgradeable {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as GovernorTimelockControlUpgradeable;
+    return new Contract(address, _abi, signerOrProvider) as GovernorTimelockControlUpgradeable;
   }
 }

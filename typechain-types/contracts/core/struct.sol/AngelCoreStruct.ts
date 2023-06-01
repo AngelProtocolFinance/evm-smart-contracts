@@ -11,8 +11,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -29,12 +29,7 @@ export declare namespace AngelCoreStruct {
     liquidPercentage: PromiseOrValue<BigNumberish>[];
   };
 
-  export type AccountStrategiesStructOutput = [
-    string[],
-    BigNumber[],
-    string[],
-    BigNumber[]
-  ] & {
+  export type AccountStrategiesStructOutput = [string[], BigNumber[], string[], BigNumber[]] & {
     locked_vault: string[];
     lockedPercentage: BigNumber[];
     liquid_vault: string[];
@@ -58,10 +53,10 @@ export declare namespace AngelCoreStruct {
     enumData: PromiseOrValue<BigNumberish>;
   };
 
-  export type BeneficiaryStructOutput = [
-    AngelCoreStruct.BeneficiaryDataStructOutput,
-    number
-  ] & { data: AngelCoreStruct.BeneficiaryDataStructOutput; enumData: number };
+  export type BeneficiaryStructOutput = [AngelCoreStruct.BeneficiaryDataStructOutput, number] & {
+    data: AngelCoreStruct.BeneficiaryDataStructOutput;
+    enumData: number;
+  };
 
   export type SplitDetailsStruct = {
     max: PromiseOrValue<BigNumberish>;
@@ -82,12 +77,7 @@ export declare namespace AngelCoreStruct {
     liquidAmount: PromiseOrValue<BigNumberish>[];
   };
 
-  export type OneOffVaultsStructOutput = [
-    string[],
-    BigNumber[],
-    string[],
-    BigNumber[]
-  ] & {
+  export type OneOffVaultsStructOutput = [string[], BigNumber[], string[], BigNumber[]] & {
     locked: string[];
     lockedAmount: BigNumber[];
     liquid: string[];
@@ -127,14 +117,8 @@ export interface AngelCoreStructInterface extends utils.Interface {
       | "validateFee"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "accountStrategiesDefaut",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "beneficiaryDefault",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "accountStrategiesDefaut", values?: undefined): string;
+  encodeFunctionData(functionFragment: "beneficiaryDefault", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "checkSplits",
     values: [
@@ -150,49 +134,21 @@ export interface AngelCoreStructInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getTokenAmount",
-    values: [
-      PromiseOrValue<string>[],
-      PromiseOrValue<BigNumberish>[],
-      PromiseOrValue<string>
-    ]
+    values: [PromiseOrValue<string>[], PromiseOrValue<BigNumberish>[], PromiseOrValue<string>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "oneOffVaultsDefault",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "oneOffVaultsDefault", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "validateFee",
     values: [AngelCoreStruct.FeeSettingStruct]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "accountStrategiesDefaut",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "beneficiaryDefault",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "checkSplits",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "deductTokens",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getTokenAmount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "oneOffVaultsDefault",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "validateFee",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "accountStrategiesDefaut", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "beneficiaryDefault", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "checkSplits", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "deductTokens", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getTokenAmount", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "oneOffVaultsDefault", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "validateFee", data: BytesLike): Result;
 
   events: {};
 }
@@ -214,9 +170,7 @@ export interface AngelCoreStruct extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -257,19 +211,14 @@ export interface AngelCoreStruct extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[AngelCoreStruct.OneOffVaultsStructOutput]>;
 
-    validateFee(
-      fee: AngelCoreStruct.FeeSettingStruct,
-      overrides?: CallOverrides
-    ): Promise<[void]>;
+    validateFee(fee: AngelCoreStruct.FeeSettingStruct, overrides?: CallOverrides): Promise<[void]>;
   };
 
   accountStrategiesDefaut(
     overrides?: CallOverrides
   ): Promise<AngelCoreStruct.AccountStrategiesStructOutput>;
 
-  beneficiaryDefault(
-    overrides?: CallOverrides
-  ): Promise<AngelCoreStruct.BeneficiaryStructOutput>;
+  beneficiaryDefault(overrides?: CallOverrides): Promise<AngelCoreStruct.BeneficiaryStructOutput>;
 
   checkSplits(
     splits: AngelCoreStruct.SplitDetailsStruct,
@@ -292,23 +241,16 @@ export interface AngelCoreStruct extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  oneOffVaultsDefault(
-    overrides?: CallOverrides
-  ): Promise<AngelCoreStruct.OneOffVaultsStructOutput>;
+  oneOffVaultsDefault(overrides?: CallOverrides): Promise<AngelCoreStruct.OneOffVaultsStructOutput>;
 
-  validateFee(
-    fee: AngelCoreStruct.FeeSettingStruct,
-    overrides?: CallOverrides
-  ): Promise<void>;
+  validateFee(fee: AngelCoreStruct.FeeSettingStruct, overrides?: CallOverrides): Promise<void>;
 
   callStatic: {
     accountStrategiesDefaut(
       overrides?: CallOverrides
     ): Promise<AngelCoreStruct.AccountStrategiesStructOutput>;
 
-    beneficiaryDefault(
-      overrides?: CallOverrides
-    ): Promise<AngelCoreStruct.BeneficiaryStructOutput>;
+    beneficiaryDefault(overrides?: CallOverrides): Promise<AngelCoreStruct.BeneficiaryStructOutput>;
 
     checkSplits(
       splits: AngelCoreStruct.SplitDetailsStruct,
@@ -335,10 +277,7 @@ export interface AngelCoreStruct extends BaseContract {
       overrides?: CallOverrides
     ): Promise<AngelCoreStruct.OneOffVaultsStructOutput>;
 
-    validateFee(
-      fee: AngelCoreStruct.FeeSettingStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    validateFee(fee: AngelCoreStruct.FeeSettingStruct, overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {};
@@ -378,13 +317,9 @@ export interface AngelCoreStruct extends BaseContract {
   };
 
   populateTransaction: {
-    accountStrategiesDefaut(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    accountStrategiesDefaut(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    beneficiaryDefault(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    beneficiaryDefault(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     checkSplits(
       splits: AngelCoreStruct.SplitDetailsStruct,
@@ -407,9 +342,7 @@ export interface AngelCoreStruct extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    oneOffVaultsDefault(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    oneOffVaultsDefault(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     validateFee(
       fee: AngelCoreStruct.FeeSettingStruct,

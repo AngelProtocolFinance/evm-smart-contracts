@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
 import type {
   IRegistrar,
   IRegistrarInterface,
@@ -1260,10 +1260,7 @@ export class IRegistrar__factory {
   static createInterface(): IRegistrarInterface {
     return new utils.Interface(_abi) as IRegistrarInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IRegistrar {
+  static connect(address: string, signerOrProvider: Signer | Provider): IRegistrar {
     return new Contract(address, _abi, signerOrProvider) as IRegistrar;
   }
 }

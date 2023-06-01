@@ -13,8 +13,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -108,38 +108,22 @@ export interface IStakingRewardsInterface extends utils.Interface {
       | "unstake"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "accumulatedRewardsPerToken",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "accumulatedRewardsPerToken", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "addToStake",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "depositToveAndStakeFrom",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "getPosition",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "getReward",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "kick",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lastUpdateTime",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "getReward", values: [PromiseOrValue<BigNumberish>]): string;
+  encodeFunctionData(functionFragment: "kick", values: [PromiseOrValue<BigNumberish>]): string;
+  encodeFunctionData(functionFragment: "lastUpdateTime", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "stake",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
@@ -153,30 +137,15 @@ export interface IStakingRewardsInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "accumulatedRewardsPerToken",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "accumulatedRewardsPerToken", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "addToStake", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "depositToveAndStakeFrom",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getPosition",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "depositToveAndStakeFrom", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getPosition", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getReward", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "kick", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "lastUpdateTime",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "lastUpdateTime", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "stake", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "stakedBalanceOf",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "stakedBalanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "unstake", data: BytesLike): Result;
 
   events: {};
@@ -199,9 +168,7 @@ export interface IStakingRewards extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -214,14 +181,14 @@ export interface IStakingRewards extends BaseContract {
     addToStake(
       tokenId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     depositToveAndStakeFrom(
       nftRecipient: PromiseOrValue<string>,
       fiduAmount: PromiseOrValue<BigNumberish>,
       usdcAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     getPosition(
@@ -235,12 +202,12 @@ export interface IStakingRewards extends BaseContract {
 
     getReward(
       tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     kick(
       tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     lastUpdateTime(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -248,7 +215,7 @@ export interface IStakingRewards extends BaseContract {
     stake(
       amount: PromiseOrValue<BigNumberish>,
       positionType: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     stakedBalanceOf(
@@ -259,7 +226,7 @@ export interface IStakingRewards extends BaseContract {
     unstake(
       tokenId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
 
@@ -268,14 +235,14 @@ export interface IStakingRewards extends BaseContract {
   addToStake(
     tokenId: PromiseOrValue<BigNumberish>,
     amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   depositToveAndStakeFrom(
     nftRecipient: PromiseOrValue<string>,
     fiduAmount: PromiseOrValue<BigNumberish>,
     usdcAmount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   getPosition(
@@ -285,12 +252,12 @@ export interface IStakingRewards extends BaseContract {
 
   getReward(
     tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   kick(
     tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   lastUpdateTime(overrides?: CallOverrides): Promise<BigNumber>;
@@ -298,7 +265,7 @@ export interface IStakingRewards extends BaseContract {
   stake(
     amount: PromiseOrValue<BigNumberish>,
     positionType: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   stakedBalanceOf(
@@ -309,7 +276,7 @@ export interface IStakingRewards extends BaseContract {
   unstake(
     tokenId: PromiseOrValue<BigNumberish>,
     amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -333,15 +300,9 @@ export interface IStakingRewards extends BaseContract {
       overrides?: CallOverrides
     ): Promise<IStakingRewards.StakedPositionStructOutput>;
 
-    getReward(
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    getReward(tokenId: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<void>;
 
-    kick(
-      tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    kick(tokenId: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<void>;
 
     lastUpdateTime(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -371,14 +332,14 @@ export interface IStakingRewards extends BaseContract {
     addToStake(
       tokenId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     depositToveAndStakeFrom(
       nftRecipient: PromiseOrValue<string>,
       fiduAmount: PromiseOrValue<BigNumberish>,
       usdcAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     getPosition(
@@ -388,12 +349,12 @@ export interface IStakingRewards extends BaseContract {
 
     getReward(
       tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     kick(
       tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     lastUpdateTime(overrides?: CallOverrides): Promise<BigNumber>;
@@ -401,7 +362,7 @@ export interface IStakingRewards extends BaseContract {
     stake(
       amount: PromiseOrValue<BigNumberish>,
       positionType: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     stakedBalanceOf(
@@ -412,26 +373,24 @@ export interface IStakingRewards extends BaseContract {
     unstake(
       tokenId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    accumulatedRewardsPerToken(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    accumulatedRewardsPerToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     addToStake(
       tokenId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     depositToveAndStakeFrom(
       nftRecipient: PromiseOrValue<string>,
       fiduAmount: PromiseOrValue<BigNumberish>,
       usdcAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     getPosition(
@@ -441,12 +400,12 @@ export interface IStakingRewards extends BaseContract {
 
     getReward(
       tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     kick(
       tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     lastUpdateTime(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -454,7 +413,7 @@ export interface IStakingRewards extends BaseContract {
     stake(
       amount: PromiseOrValue<BigNumberish>,
       positionType: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     stakedBalanceOf(
@@ -465,7 +424,7 @@ export interface IStakingRewards extends BaseContract {
     unstake(
       tokenId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };
 }

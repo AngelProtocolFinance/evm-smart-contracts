@@ -13,12 +13,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -49,11 +45,7 @@ export interface IUniswapV3FactoryInterface extends utils.Interface {
 
   encodeFunctionData(
     functionFragment: "createPool",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [PromiseOrValue<string>, PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "enableFeeAmount",
@@ -65,27 +57,14 @@ export interface IUniswapV3FactoryInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getPool",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [PromiseOrValue<string>, PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "setOwner",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "setOwner", values: [PromiseOrValue<string>]): string;
 
   decodeFunctionResult(functionFragment: "createPool", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "enableFeeAmount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "feeAmountTickSpacing",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "enableFeeAmount", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "feeAmountTickSpacing", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getPool", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setOwner", data: BytesLike): Result;
@@ -105,22 +84,15 @@ export interface FeeAmountEnabledEventObject {
   fee: number;
   tickSpacing: number;
 }
-export type FeeAmountEnabledEvent = TypedEvent<
-  [number, number],
-  FeeAmountEnabledEventObject
->;
+export type FeeAmountEnabledEvent = TypedEvent<[number, number], FeeAmountEnabledEventObject>;
 
-export type FeeAmountEnabledEventFilter =
-  TypedEventFilter<FeeAmountEnabledEvent>;
+export type FeeAmountEnabledEventFilter = TypedEventFilter<FeeAmountEnabledEvent>;
 
 export interface OwnerChangedEventObject {
   oldOwner: string;
   newOwner: string;
 }
-export type OwnerChangedEvent = TypedEvent<
-  [string, string],
-  OwnerChangedEventObject
->;
+export type OwnerChangedEvent = TypedEvent<[string, string], OwnerChangedEventObject>;
 
 export type OwnerChangedEventFilter = TypedEventFilter<OwnerChangedEvent>;
 
@@ -155,9 +127,7 @@ export interface IUniswapV3Factory extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -169,13 +139,13 @@ export interface IUniswapV3Factory extends BaseContract {
       tokenA: PromiseOrValue<string>,
       tokenB: PromiseOrValue<string>,
       fee: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     enableFeeAmount(
       fee: PromiseOrValue<BigNumberish>,
       tickSpacing: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     feeAmountTickSpacing(
@@ -188,13 +158,13 @@ export interface IUniswapV3Factory extends BaseContract {
       tokenB: PromiseOrValue<string>,
       fee: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<[string] & { pool: string }>;
+    ): Promise<[string] & {pool: string}>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     setOwner(
       _owner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
 
@@ -202,13 +172,13 @@ export interface IUniswapV3Factory extends BaseContract {
     tokenA: PromiseOrValue<string>,
     tokenB: PromiseOrValue<string>,
     fee: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   enableFeeAmount(
     fee: PromiseOrValue<BigNumberish>,
     tickSpacing: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   feeAmountTickSpacing(
@@ -227,7 +197,7 @@ export interface IUniswapV3Factory extends BaseContract {
 
   setOwner(
     _owner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -258,10 +228,7 @@ export interface IUniswapV3Factory extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
-    setOwner(
-      _owner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    setOwner(_owner: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
@@ -304,13 +271,13 @@ export interface IUniswapV3Factory extends BaseContract {
       tokenA: PromiseOrValue<string>,
       tokenB: PromiseOrValue<string>,
       fee: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     enableFeeAmount(
       fee: PromiseOrValue<BigNumberish>,
       tickSpacing: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     feeAmountTickSpacing(
@@ -329,7 +296,7 @@ export interface IUniswapV3Factory extends BaseContract {
 
     setOwner(
       _owner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
 
@@ -338,13 +305,13 @@ export interface IUniswapV3Factory extends BaseContract {
       tokenA: PromiseOrValue<string>,
       tokenB: PromiseOrValue<string>,
       fee: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     enableFeeAmount(
       fee: PromiseOrValue<BigNumberish>,
       tickSpacing: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     feeAmountTickSpacing(
@@ -363,7 +330,7 @@ export interface IUniswapV3Factory extends BaseContract {
 
     setOwner(
       _owner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };
 }

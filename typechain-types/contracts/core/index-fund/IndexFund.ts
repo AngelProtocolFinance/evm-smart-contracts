@@ -13,12 +13,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -36,13 +32,7 @@ export declare namespace IndexFundStorage {
     fundingGoal: PromiseOrValue<BigNumberish>;
   };
 
-  export type ConfigStructOutput = [
-    string,
-    string,
-    BigNumber,
-    BigNumber,
-    BigNumber
-  ] & {
+  export type ConfigStructOutput = [string, string, BigNumber, BigNumber, BigNumber] & {
     owner: string;
     registrarContract: string;
     fundRotation: BigNumber;
@@ -80,13 +70,7 @@ export declare namespace IndexFundStorage {
     nextFundId: PromiseOrValue<BigNumberish>;
   };
 
-  export type _StateStructOutput = [
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    BigNumber
-  ] & {
+  export type _StateStructOutput = [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
     totalFunds: BigNumber;
     activeFund: BigNumber;
     roundDonations: BigNumber;
@@ -157,12 +141,7 @@ export declare namespace IndexFundMessage {
     fundingGoal: PromiseOrValue<BigNumberish>;
   };
 
-  export type InstantiateMessageStructOutput = [
-    string,
-    BigNumber,
-    BigNumber,
-    BigNumber
-  ] & {
+  export type InstantiateMessageStructOutput = [string, BigNumber, BigNumber, BigNumber] & {
     registrarContract: string;
     fundRotation: BigNumber;
     fundMemberLimit: BigNumber;
@@ -176,12 +155,7 @@ export declare namespace IndexFundMessage {
     nextRotationBlock: PromiseOrValue<BigNumberish>;
   };
 
-  export type StateResponseMessageStructOutput = [
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    BigNumber
-  ] & {
+  export type StateResponseMessageStructOutput = [BigNumber, BigNumber, BigNumber, BigNumber] & {
     totalFunds: BigNumber;
     activeFund: BigNumber;
     roundDonations: BigNumber;
@@ -194,11 +168,7 @@ export declare namespace IndexFundMessage {
     fundingGoal: PromiseOrValue<BigNumberish>;
   };
 
-  export type UpdateConfigMessageStructOutput = [
-    BigNumber,
-    BigNumber,
-    BigNumber
-  ] & {
+  export type UpdateConfigMessageStructOutput = [BigNumber, BigNumber, BigNumber] & {
     fundRotation: BigNumber;
     fundMemberLimit: BigNumber;
     fundingGoal: BigNumber;
@@ -265,14 +235,8 @@ export interface IndexFundInterface extends utils.Interface {
     functionFragment: "initIndexFund",
     values: [IndexFundMessage.InstantiateMessageStruct]
   ): string;
-  encodeFunctionData(
-    functionFragment: "queryActiveFundDetails",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "queryConfig",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "queryActiveFundDetails", values?: undefined): string;
+  encodeFunctionData(functionFragment: "queryConfig", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "queryFundDetails",
     values: [PromiseOrValue<BigNumberish>]
@@ -281,10 +245,7 @@ export interface IndexFundInterface extends utils.Interface {
     functionFragment: "queryInvolvedFunds",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "queryState",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "queryState", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "removeIndexFund",
     values: [PromiseOrValue<BigNumberish>]
@@ -301,68 +262,23 @@ export interface IndexFundInterface extends utils.Interface {
     functionFragment: "updateFundMembers",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>[]]
   ): string;
-  encodeFunctionData(
-    functionFragment: "updateOwner",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "updateRegistrar",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "updateOwner", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(functionFragment: "updateRegistrar", values: [PromiseOrValue<string>]): string;
 
-  decodeFunctionResult(
-    functionFragment: "createIndexFund",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "depositERC20",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "initIndexFund",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "queryActiveFundDetails",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "queryConfig",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "queryFundDetails",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "queryInvolvedFunds",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "createIndexFund", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "depositERC20", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "initIndexFund", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "queryActiveFundDetails", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "queryConfig", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "queryFundDetails", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "queryInvolvedFunds", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "queryState", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "removeIndexFund",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "removeMember",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateConfig",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateFundMembers",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateOwner",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateRegistrar",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "removeIndexFund", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "removeMember", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "updateConfig", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "updateFundMembers", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "updateOwner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "updateRegistrar", data: BytesLike): Result;
 
   events: {
     "ConfigUpdated(tuple)": EventFragment;
@@ -409,8 +325,7 @@ export type DonationMessagesUpdatedEvent = TypedEvent<
   DonationMessagesUpdatedEventObject
 >;
 
-export type DonationMessagesUpdatedEventFilter =
-  TypedEventFilter<DonationMessagesUpdatedEvent>;
+export type DonationMessagesUpdatedEventFilter = TypedEventFilter<DonationMessagesUpdatedEvent>;
 
 export interface IndexFundCreatedEventObject {
   id: BigNumber;
@@ -421,19 +336,14 @@ export type IndexFundCreatedEvent = TypedEvent<
   IndexFundCreatedEventObject
 >;
 
-export type IndexFundCreatedEventFilter =
-  TypedEventFilter<IndexFundCreatedEvent>;
+export type IndexFundCreatedEventFilter = TypedEventFilter<IndexFundCreatedEvent>;
 
 export interface IndexFundRemovedEventObject {
   id: BigNumber;
 }
-export type IndexFundRemovedEvent = TypedEvent<
-  [BigNumber],
-  IndexFundRemovedEventObject
->;
+export type IndexFundRemovedEvent = TypedEvent<[BigNumber], IndexFundRemovedEventObject>;
 
-export type IndexFundRemovedEventFilter =
-  TypedEventFilter<IndexFundRemovedEvent>;
+export type IndexFundRemovedEventFilter = TypedEventFilter<IndexFundRemovedEvent>;
 
 export interface InitializedEventObject {
   version: number;
@@ -446,10 +356,7 @@ export interface MemberAddedEventObject {
   fundId: BigNumber;
   memberId: number;
 }
-export type MemberAddedEvent = TypedEvent<
-  [BigNumber, number],
-  MemberAddedEventObject
->;
+export type MemberAddedEvent = TypedEvent<[BigNumber, number], MemberAddedEventObject>;
 
 export type MemberAddedEventFilter = TypedEventFilter<MemberAddedEvent>;
 
@@ -457,10 +364,7 @@ export interface MemberRemovedEventObject {
   fundId: BigNumber;
   memberId: number;
 }
-export type MemberRemovedEvent = TypedEvent<
-  [BigNumber, number],
-  MemberRemovedEventObject
->;
+export type MemberRemovedEvent = TypedEvent<[BigNumber, number], MemberRemovedEventObject>;
 
 export type MemberRemovedEventFilter = TypedEventFilter<MemberRemovedEvent>;
 
@@ -474,24 +378,16 @@ export type OwnerUpdatedEventFilter = TypedEventFilter<OwnerUpdatedEvent>;
 export interface RegistrarUpdatedEventObject {
   newRegistrar: string;
 }
-export type RegistrarUpdatedEvent = TypedEvent<
-  [string],
-  RegistrarUpdatedEventObject
->;
+export type RegistrarUpdatedEvent = TypedEvent<[string], RegistrarUpdatedEventObject>;
 
-export type RegistrarUpdatedEventFilter =
-  TypedEventFilter<RegistrarUpdatedEvent>;
+export type RegistrarUpdatedEventFilter = TypedEventFilter<RegistrarUpdatedEvent>;
 
 export interface UpdateActiveFundEventObject {
   fundId: BigNumber;
 }
-export type UpdateActiveFundEvent = TypedEvent<
-  [BigNumber],
-  UpdateActiveFundEventObject
->;
+export type UpdateActiveFundEvent = TypedEvent<[BigNumber], UpdateActiveFundEventObject>;
 
-export type UpdateActiveFundEventFilter =
-  TypedEventFilter<UpdateActiveFundEvent>;
+export type UpdateActiveFundEventFilter = TypedEventFilter<UpdateActiveFundEvent>;
 
 export interface UpdateIndexFundStateEventObject {
   state: IndexFundStorage._StateStructOutput;
@@ -501,8 +397,7 @@ export type UpdateIndexFundStateEvent = TypedEvent<
   UpdateIndexFundStateEventObject
 >;
 
-export type UpdateIndexFundStateEventFilter =
-  TypedEventFilter<UpdateIndexFundStateEvent>;
+export type UpdateIndexFundStateEventFilter = TypedEventFilter<UpdateIndexFundStateEvent>;
 
 export interface IndexFund extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -521,9 +416,7 @@ export interface IndexFund extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -539,28 +432,26 @@ export interface IndexFund extends BaseContract {
       splitToLiquid: PromiseOrValue<BigNumberish>,
       expiryTime: PromiseOrValue<BigNumberish>,
       expiryHeight: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     depositERC20(
       senderAddr: PromiseOrValue<string>,
       details: IndexFundMessage.DepositMsgStruct,
       fund: AngelCoreStruct.AssetBaseStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     initIndexFund(
       details: IndexFundMessage.InstantiateMessageStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     queryActiveFundDetails(
       overrides?: CallOverrides
     ): Promise<[AngelCoreStruct.IndexFundStructOutput]>;
 
-    queryConfig(
-      overrides?: CallOverrides
-    ): Promise<[IndexFundStorage.ConfigStructOutput]>;
+    queryConfig(overrides?: CallOverrides): Promise<[IndexFundStorage.ConfigStructOutput]>;
 
     queryFundDetails(
       fundId: PromiseOrValue<BigNumberish>,
@@ -578,33 +469,33 @@ export interface IndexFund extends BaseContract {
 
     removeIndexFund(
       fundId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     removeMember(
       member: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     updateConfig(
       details: IndexFundMessage.UpdateConfigMessageStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     updateFundMembers(
       fundId: PromiseOrValue<BigNumberish>,
       members: PromiseOrValue<BigNumberish>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     updateOwner(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     updateRegistrar(
       newRegistrar: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
 
@@ -616,28 +507,24 @@ export interface IndexFund extends BaseContract {
     splitToLiquid: PromiseOrValue<BigNumberish>,
     expiryTime: PromiseOrValue<BigNumberish>,
     expiryHeight: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   depositERC20(
     senderAddr: PromiseOrValue<string>,
     details: IndexFundMessage.DepositMsgStruct,
     fund: AngelCoreStruct.AssetBaseStruct,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   initIndexFund(
     details: IndexFundMessage.InstantiateMessageStruct,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
-  queryActiveFundDetails(
-    overrides?: CallOverrides
-  ): Promise<AngelCoreStruct.IndexFundStructOutput>;
+  queryActiveFundDetails(overrides?: CallOverrides): Promise<AngelCoreStruct.IndexFundStructOutput>;
 
-  queryConfig(
-    overrides?: CallOverrides
-  ): Promise<IndexFundStorage.ConfigStructOutput>;
+  queryConfig(overrides?: CallOverrides): Promise<IndexFundStorage.ConfigStructOutput>;
 
   queryFundDetails(
     fundId: PromiseOrValue<BigNumberish>,
@@ -649,39 +536,37 @@ export interface IndexFund extends BaseContract {
     overrides?: CallOverrides
   ): Promise<AngelCoreStruct.IndexFundStructOutput[]>;
 
-  queryState(
-    overrides?: CallOverrides
-  ): Promise<IndexFundMessage.StateResponseMessageStructOutput>;
+  queryState(overrides?: CallOverrides): Promise<IndexFundMessage.StateResponseMessageStructOutput>;
 
   removeIndexFund(
     fundId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   removeMember(
     member: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   updateConfig(
     details: IndexFundMessage.UpdateConfigMessageStruct,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   updateFundMembers(
     fundId: PromiseOrValue<BigNumberish>,
     members: PromiseOrValue<BigNumberish>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   updateOwner(
     newOwner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   updateRegistrar(
     newRegistrar: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -712,9 +597,7 @@ export interface IndexFund extends BaseContract {
       overrides?: CallOverrides
     ): Promise<AngelCoreStruct.IndexFundStructOutput>;
 
-    queryConfig(
-      overrides?: CallOverrides
-    ): Promise<IndexFundStorage.ConfigStructOutput>;
+    queryConfig(overrides?: CallOverrides): Promise<IndexFundStorage.ConfigStructOutput>;
 
     queryFundDetails(
       fundId: PromiseOrValue<BigNumberish>,
@@ -735,10 +618,7 @@ export interface IndexFund extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    removeMember(
-      member: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    removeMember(member: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<boolean>;
 
     updateConfig(
       details: IndexFundMessage.UpdateConfigMessageStruct,
@@ -751,10 +631,7 @@ export interface IndexFund extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    updateOwner(
-      newOwner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    updateOwner(newOwner: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
 
     updateRegistrar(
       newRegistrar: PromiseOrValue<string>,
@@ -766,17 +643,10 @@ export interface IndexFund extends BaseContract {
     "ConfigUpdated(tuple)"(config?: null): ConfigUpdatedEventFilter;
     ConfigUpdated(config?: null): ConfigUpdatedEventFilter;
 
-    "DonationMessagesUpdated(tuple)"(
-      messages?: null
-    ): DonationMessagesUpdatedEventFilter;
-    DonationMessagesUpdated(
-      messages?: null
-    ): DonationMessagesUpdatedEventFilter;
+    "DonationMessagesUpdated(tuple)"(messages?: null): DonationMessagesUpdatedEventFilter;
+    DonationMessagesUpdated(messages?: null): DonationMessagesUpdatedEventFilter;
 
-    "IndexFundCreated(uint256,tuple)"(
-      id?: null,
-      fund?: null
-    ): IndexFundCreatedEventFilter;
+    "IndexFundCreated(uint256,tuple)"(id?: null, fund?: null): IndexFundCreatedEventFilter;
     IndexFundCreated(id?: null, fund?: null): IndexFundCreatedEventFilter;
 
     "IndexFundRemoved(uint256)"(id?: null): IndexFundRemovedEventFilter;
@@ -785,32 +655,22 @@ export interface IndexFund extends BaseContract {
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
 
-    "MemberAdded(uint256,uint32)"(
-      fundId?: null,
-      memberId?: null
-    ): MemberAddedEventFilter;
+    "MemberAdded(uint256,uint32)"(fundId?: null, memberId?: null): MemberAddedEventFilter;
     MemberAdded(fundId?: null, memberId?: null): MemberAddedEventFilter;
 
-    "MemberRemoved(uint256,uint32)"(
-      fundId?: null,
-      memberId?: null
-    ): MemberRemovedEventFilter;
+    "MemberRemoved(uint256,uint32)"(fundId?: null, memberId?: null): MemberRemovedEventFilter;
     MemberRemoved(fundId?: null, memberId?: null): MemberRemovedEventFilter;
 
     "OwnerUpdated(address)"(newOwner?: null): OwnerUpdatedEventFilter;
     OwnerUpdated(newOwner?: null): OwnerUpdatedEventFilter;
 
-    "RegistrarUpdated(address)"(
-      newRegistrar?: null
-    ): RegistrarUpdatedEventFilter;
+    "RegistrarUpdated(address)"(newRegistrar?: null): RegistrarUpdatedEventFilter;
     RegistrarUpdated(newRegistrar?: null): RegistrarUpdatedEventFilter;
 
     "UpdateActiveFund(uint256)"(fundId?: null): UpdateActiveFundEventFilter;
     UpdateActiveFund(fundId?: null): UpdateActiveFundEventFilter;
 
-    "UpdateIndexFundState(tuple)"(
-      state?: null
-    ): UpdateIndexFundStateEventFilter;
+    "UpdateIndexFundState(tuple)"(state?: null): UpdateIndexFundStateEventFilter;
     UpdateIndexFundState(state?: null): UpdateIndexFundStateEventFilter;
   };
 
@@ -823,19 +683,19 @@ export interface IndexFund extends BaseContract {
       splitToLiquid: PromiseOrValue<BigNumberish>,
       expiryTime: PromiseOrValue<BigNumberish>,
       expiryHeight: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     depositERC20(
       senderAddr: PromiseOrValue<string>,
       details: IndexFundMessage.DepositMsgStruct,
       fund: AngelCoreStruct.AssetBaseStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     initIndexFund(
       details: IndexFundMessage.InstantiateMessageStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     queryActiveFundDetails(overrides?: CallOverrides): Promise<BigNumber>;
@@ -856,33 +716,33 @@ export interface IndexFund extends BaseContract {
 
     removeIndexFund(
       fundId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     removeMember(
       member: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     updateConfig(
       details: IndexFundMessage.UpdateConfigMessageStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     updateFundMembers(
       fundId: PromiseOrValue<BigNumberish>,
       members: PromiseOrValue<BigNumberish>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     updateOwner(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     updateRegistrar(
       newRegistrar: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
 
@@ -895,24 +755,22 @@ export interface IndexFund extends BaseContract {
       splitToLiquid: PromiseOrValue<BigNumberish>,
       expiryTime: PromiseOrValue<BigNumberish>,
       expiryHeight: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     depositERC20(
       senderAddr: PromiseOrValue<string>,
       details: IndexFundMessage.DepositMsgStruct,
       fund: AngelCoreStruct.AssetBaseStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     initIndexFund(
       details: IndexFundMessage.InstantiateMessageStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
-    queryActiveFundDetails(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    queryActiveFundDetails(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     queryConfig(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -930,33 +788,33 @@ export interface IndexFund extends BaseContract {
 
     removeIndexFund(
       fundId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     removeMember(
       member: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     updateConfig(
       details: IndexFundMessage.UpdateConfigMessageStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     updateFundMembers(
       fundId: PromiseOrValue<BigNumberish>,
       members: PromiseOrValue<BigNumberish>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     updateOwner(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     updateRegistrar(
       newRegistrar: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };
 }

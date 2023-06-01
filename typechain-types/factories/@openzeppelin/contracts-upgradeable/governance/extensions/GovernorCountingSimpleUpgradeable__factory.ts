@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
 import type {
   GovernorCountingSimpleUpgradeable,
   GovernorCountingSimpleUpgradeableInterface,
@@ -921,18 +921,12 @@ const _abi = [
 export class GovernorCountingSimpleUpgradeable__factory {
   static readonly abi = _abi;
   static createInterface(): GovernorCountingSimpleUpgradeableInterface {
-    return new utils.Interface(
-      _abi
-    ) as GovernorCountingSimpleUpgradeableInterface;
+    return new utils.Interface(_abi) as GovernorCountingSimpleUpgradeableInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
   ): GovernorCountingSimpleUpgradeable {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as GovernorCountingSimpleUpgradeable;
+    return new Contract(address, _abi, signerOrProvider) as GovernorCountingSimpleUpgradeable;
   }
 }
