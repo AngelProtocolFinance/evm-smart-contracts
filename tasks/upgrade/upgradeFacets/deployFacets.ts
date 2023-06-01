@@ -1,20 +1,19 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {ContractFactory} from "ethers";
 import {
+  AccountDeployContract__factory,
   AccountDepositWithdrawEndowments__factory,
   AccountDonationMatch__factory,
   AccountsAllowance__factory,
   AccountsCreateEndowment__factory,
   AccountsDAOEndowments__factory,
   AccountsQueryEndowments__factory,
-  AccountsStrategiesCopyEndowments__factory,
-  AccountsStrategiesUpdateEndowments__factory,
   AccountsSwapEndowments__factory,
   AccountsUpdateEndowmentSettingsController__factory,
   AccountsUpdateEndowments__factory,
   AccountsUpdateStatusEndowments__factory,
+  AccountsUpdate__factory,
   AccountsVaultFacet__factory,
-  AxelarExecutionContract__factory,
 } from "typechain-types";
 import {getContractName, logger} from "utils";
 import {Facet} from "./types";
@@ -83,22 +82,29 @@ function getFacetFactory(
 ): ContractFactory | string {
   switch (facetName) {
     // no lib
-    case getContractName(AccountsAllowance__factory):
-      return new AccountsAllowance__factory(diamondOwner);
-    case getContractName(AccountsDAOEndowments__factory):
-      return new AccountsDAOEndowments__factory(diamondOwner);
+    case getContractName(AccountDeployContract__factory):
+      return new AccountDeployContract__factory(diamondOwner);
     case getContractName(AccountDonationMatch__factory):
       return new AccountDonationMatch__factory(diamondOwner);
-    case getContractName(AccountsStrategiesCopyEndowments__factory):
-      return new AccountsStrategiesCopyEndowments__factory(diamondOwner);
+    case getContractName(AccountsDAOEndowments__factory):
+      return new AccountsDAOEndowments__factory(diamondOwner);
+    case getContractName(AccountsQueryEndowments__factory):
+      return new AccountsQueryEndowments__factory(diamondOwner);
+    case getContractName(AccountsUpdate__factory):
+      return new AccountsUpdate__factory(diamondOwner);
     // core lib
-    case getContractName(AccountsCreateEndowment__factory):
-      return new AccountsCreateEndowment__factory(
+    case getContractName(AccountDepositWithdrawEndowments__factory):
+      return new AccountDepositWithdrawEndowments__factory(
         {"contracts/core/struct.sol:AngelCoreStruct": corestruct},
         diamondOwner
       );
-    case getContractName(AccountsQueryEndowments__factory):
-      return new AccountsQueryEndowments__factory(
+    case getContractName(AccountsAllowance__factory):
+      return new AccountsAllowance__factory(
+        {"contracts/core/struct.sol:AngelCoreStruct": corestruct},
+        diamondOwner
+      );
+    case getContractName(AccountsCreateEndowment__factory):
+      return new AccountsCreateEndowment__factory(
         {"contracts/core/struct.sol:AngelCoreStruct": corestruct},
         diamondOwner
       );
@@ -117,37 +123,11 @@ function getFacetFactory(
         {"contracts/core/struct.sol:AngelCoreStruct": corestruct},
         diamondOwner
       );
-    case getContractName(AxelarExecutionContract__factory):
-      return new AxelarExecutionContract__factory(
-        {"contracts/core/struct.sol:AngelCoreStruct": corestruct},
-        diamondOwner
-      );
-    // string lib
-    case getContractName(AccountsStrategiesUpdateEndowments__factory):
-      return new AccountsStrategiesUpdateEndowments__factory(
-        {"contracts/lib/Strings/string.sol:StringArray": stringlib},
-        diamondOwner
-      );
     case getContractName(AccountsUpdateStatusEndowments__factory):
-      return new AccountsUpdateStatusEndowments__factory(
-        {"contracts/lib/Strings/string.sol:StringArray": stringlib},
-        diamondOwner
-      );
-    // all libs
-    case getContractName(AccountDepositWithdrawEndowments__factory):
-      return new AccountDepositWithdrawEndowments__factory(
-        {
-          "contracts/core/struct.sol:AngelCoreStruct": corestruct,
-          "contracts/lib/Strings/string.sol:StringArray": stringlib,
-        },
-        diamondOwner
-      );
+      return new AccountsUpdateStatusEndowments__factory(diamondOwner);
     case getContractName(AccountsVaultFacet__factory):
       return new AccountsVaultFacet__factory(
-        {
-          "contracts/core/struct.sol:AngelCoreStruct": corestruct,
-          "contracts/lib/Strings/string.sol:StringArray": stringlib,
-        },
+        {"contracts/core/struct.sol:AngelCoreStruct": corestruct},
         diamondOwner
       );
     default:
