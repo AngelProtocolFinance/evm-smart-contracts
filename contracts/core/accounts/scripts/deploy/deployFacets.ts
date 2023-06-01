@@ -1,6 +1,6 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getFacetFactoryEntries, logger, updateAddresses} from "utils";
+import {getContractName, getFacetFactoryEntries, logger, updateAddresses} from "utils";
 import {FacetCutAction, getSelectors} from "../libraries/diamond";
 import {FacetCut} from "./types";
 
@@ -16,7 +16,7 @@ export default async function deployFacets(
   const factoryEntries = await getFacetFactoryEntries(diamondOwner, corestruct);
 
   for (const entry of factoryEntries) {
-    const contractName = entry.factory.constructor.name.replace("__factory", "");
+    const contractName = getContractName(entry.factory);
     try {
       const facet = await entry.factory.deploy();
       await facet.deployed();
