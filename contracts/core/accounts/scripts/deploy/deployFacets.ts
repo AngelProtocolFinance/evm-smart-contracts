@@ -13,9 +13,9 @@ export default async function deployFacets(
 
   const cuts: FacetCut[] = [];
 
-  const factoryData = await getFacetFactoryEntries(diamondOwner, corestruct);
+  const factoryEntries = await getFacetFactoryEntries(diamondOwner, corestruct);
 
-  for (const entry of factoryData) {
+  for (const entry of factoryEntries) {
     const contractName = entry.factory.constructor.name.replace("__factory", "");
     try {
       const facet = await entry.factory.deploy();
