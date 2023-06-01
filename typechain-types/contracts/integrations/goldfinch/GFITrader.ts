@@ -13,8 +13,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -33,12 +33,7 @@ export interface GFITraderInterface extends utils.Interface {
   };
 
   getFunction(
-    nameOrSignatureOrTopic:
-      | "GFI"
-      | "USDC"
-      | "WETH9"
-      | "poolFee"
-      | "swapExactInputMultihop"
+    nameOrSignatureOrTopic: "GFI" | "USDC" | "WETH9" | "poolFee" | "swapExactInputMultihop"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "GFI", values?: undefined): string;
@@ -54,10 +49,7 @@ export interface GFITraderInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "USDC", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "WETH9", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "poolFee", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "swapExactInputMultihop",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "swapExactInputMultihop", data: BytesLike): Result;
 
   events: {};
 }
@@ -79,9 +71,7 @@ export interface GFITrader extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -100,7 +90,7 @@ export interface GFITrader extends BaseContract {
     swapExactInputMultihop(
       amountIn: PromiseOrValue<BigNumberish>,
       amountOutMin: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
 
@@ -115,7 +105,7 @@ export interface GFITrader extends BaseContract {
   swapExactInputMultihop(
     amountIn: PromiseOrValue<BigNumberish>,
     amountOutMin: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -148,7 +138,7 @@ export interface GFITrader extends BaseContract {
     swapExactInputMultihop(
       amountIn: PromiseOrValue<BigNumberish>,
       amountOutMin: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
 
@@ -164,7 +154,7 @@ export interface GFITrader extends BaseContract {
     swapExactInputMultihop(
       amountIn: PromiseOrValue<BigNumberish>,
       amountOutMin: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };
 }

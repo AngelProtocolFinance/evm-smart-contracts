@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
 import type {
   IAxelarExecutable,
   IAxelarExecutableInterface,
@@ -106,10 +106,7 @@ export class IAxelarExecutable__factory {
   static createInterface(): IAxelarExecutableInterface {
     return new utils.Interface(_abi) as IAxelarExecutableInterface;
   }
-  static connect(
-    address: string,
-    signerOrProvider: Signer | Provider
-  ): IAxelarExecutable {
+  static connect(address: string, signerOrProvider: Signer | Provider): IAxelarExecutable {
     return new Contract(address, _abi, signerOrProvider) as IAxelarExecutable;
   }
 }

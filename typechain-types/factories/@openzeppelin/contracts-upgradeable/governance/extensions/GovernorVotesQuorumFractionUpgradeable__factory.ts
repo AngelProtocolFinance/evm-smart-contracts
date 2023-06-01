@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import {Contract, Signer, utils} from "ethers";
+import type {Provider} from "@ethersproject/providers";
 import type {
   GovernorVotesQuorumFractionUpgradeable,
   GovernorVotesQuorumFractionUpgradeableInterface,
@@ -982,18 +982,12 @@ const _abi = [
 export class GovernorVotesQuorumFractionUpgradeable__factory {
   static readonly abi = _abi;
   static createInterface(): GovernorVotesQuorumFractionUpgradeableInterface {
-    return new utils.Interface(
-      _abi
-    ) as GovernorVotesQuorumFractionUpgradeableInterface;
+    return new utils.Interface(_abi) as GovernorVotesQuorumFractionUpgradeableInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
   ): GovernorVotesQuorumFractionUpgradeable {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as GovernorVotesQuorumFractionUpgradeable;
+    return new Contract(address, _abi, signerOrProvider) as GovernorVotesQuorumFractionUpgradeable;
   }
 }

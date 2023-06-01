@@ -14,12 +14,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -94,30 +90,12 @@ export interface TimeLockInterface extends utils.Interface {
       | "updateDelay"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "CANCELLER_ROLE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "DEFAULT_ADMIN_ROLE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "EXECUTOR_ROLE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "PROPOSER_ROLE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "TIMELOCK_ADMIN_ROLE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "cancel",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
+  encodeFunctionData(functionFragment: "CANCELLER_ROLE", values?: undefined): string;
+  encodeFunctionData(functionFragment: "DEFAULT_ADMIN_ROLE", values?: undefined): string;
+  encodeFunctionData(functionFragment: "EXECUTOR_ROLE", values?: undefined): string;
+  encodeFunctionData(functionFragment: "PROPOSER_ROLE", values?: undefined): string;
+  encodeFunctionData(functionFragment: "TIMELOCK_ADMIN_ROLE", values?: undefined): string;
+  encodeFunctionData(functionFragment: "cancel", values: [PromiseOrValue<BytesLike>]): string;
   encodeFunctionData(
     functionFragment: "execute",
     values: [
@@ -138,18 +116,9 @@ export interface TimeLockInterface extends utils.Interface {
       PromiseOrValue<BytesLike>
     ]
   ): string;
-  encodeFunctionData(
-    functionFragment: "getMinDelay",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getRoleAdmin",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getTimestamp",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
+  encodeFunctionData(functionFragment: "getMinDelay", values?: undefined): string;
+  encodeFunctionData(functionFragment: "getRoleAdmin", values: [PromiseOrValue<BytesLike>]): string;
+  encodeFunctionData(functionFragment: "getTimestamp", values: [PromiseOrValue<BytesLike>]): string;
   encodeFunctionData(
     functionFragment: "grantRole",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
@@ -187,10 +156,7 @@ export interface TimeLockInterface extends utils.Interface {
       PromiseOrValue<string>
     ]
   ): string;
-  encodeFunctionData(
-    functionFragment: "isOperation",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
+  encodeFunctionData(functionFragment: "isOperation", values: [PromiseOrValue<BytesLike>]): string;
   encodeFunctionData(
     functionFragment: "isOperationDone",
     values: [PromiseOrValue<BytesLike>]
@@ -271,104 +237,35 @@ export interface TimeLockInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "CANCELLER_ROLE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "DEFAULT_ADMIN_ROLE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "EXECUTOR_ROLE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "PROPOSER_ROLE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "TIMELOCK_ADMIN_ROLE",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "CANCELLER_ROLE", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "DEFAULT_ADMIN_ROLE", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "EXECUTOR_ROLE", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "PROPOSER_ROLE", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "TIMELOCK_ADMIN_ROLE", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "executeBatch",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getMinDelay",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getRoleAdmin",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getTimestamp",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "executeBatch", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getMinDelay", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getRoleAdmin", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getTimestamp", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "hashOperation",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "hashOperationBatch",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "initTimeLock",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isOperation",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isOperationDone",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isOperationPending",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isOperationReady",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "onERC1155BatchReceived",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "onERC1155Received",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "onERC721Received",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceRole",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "hashOperation", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "hashOperationBatch", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "initTimeLock", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "isOperation", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "isOperationDone", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "isOperationPending", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "isOperationReady", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "onERC1155BatchReceived", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "onERC1155Received", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "onERC721Received", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "renounceRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "schedule", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "scheduleBatch",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "supportsInterface",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateDelay",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "scheduleBatch", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "supportsInterface", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "updateDelay", data: BytesLike): Result;
 
   events: {
     "CallExecuted(bytes32,uint256,address,uint256,bytes)": EventFragment;
@@ -439,10 +336,7 @@ export interface MinDelayChangeEventObject {
   oldDuration: BigNumber;
   newDuration: BigNumber;
 }
-export type MinDelayChangeEvent = TypedEvent<
-  [BigNumber, BigNumber],
-  MinDelayChangeEventObject
->;
+export type MinDelayChangeEvent = TypedEvent<[BigNumber, BigNumber], MinDelayChangeEventObject>;
 
 export type MinDelayChangeEventFilter = TypedEventFilter<MinDelayChangeEvent>;
 
@@ -456,18 +350,14 @@ export type RoleAdminChangedEvent = TypedEvent<
   RoleAdminChangedEventObject
 >;
 
-export type RoleAdminChangedEventFilter =
-  TypedEventFilter<RoleAdminChangedEvent>;
+export type RoleAdminChangedEventFilter = TypedEventFilter<RoleAdminChangedEvent>;
 
 export interface RoleGrantedEventObject {
   role: string;
   account: string;
   sender: string;
 }
-export type RoleGrantedEvent = TypedEvent<
-  [string, string, string],
-  RoleGrantedEventObject
->;
+export type RoleGrantedEvent = TypedEvent<[string, string, string], RoleGrantedEventObject>;
 
 export type RoleGrantedEventFilter = TypedEventFilter<RoleGrantedEvent>;
 
@@ -476,10 +366,7 @@ export interface RoleRevokedEventObject {
   account: string;
   sender: string;
 }
-export type RoleRevokedEvent = TypedEvent<
-  [string, string, string],
-  RoleRevokedEventObject
->;
+export type RoleRevokedEvent = TypedEvent<[string, string, string], RoleRevokedEventObject>;
 
 export type RoleRevokedEventFilter = TypedEventFilter<RoleRevokedEvent>;
 
@@ -500,9 +387,7 @@ export interface TimeLock extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -522,7 +407,7 @@ export interface TimeLock extends BaseContract {
 
     cancel(
       id: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     execute(
@@ -531,7 +416,7 @@ export interface TimeLock extends BaseContract {
       payload: PromiseOrValue<BytesLike>,
       predecessor: PromiseOrValue<BytesLike>,
       salt: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     executeBatch(
@@ -540,27 +425,22 @@ export interface TimeLock extends BaseContract {
       payloads: PromiseOrValue<BytesLike>[],
       predecessor: PromiseOrValue<BytesLike>,
       salt: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
-    getMinDelay(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { duration: BigNumber }>;
+    getMinDelay(overrides?: CallOverrides): Promise<[BigNumber] & {duration: BigNumber}>;
 
-    getRoleAdmin(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
+    getRoleAdmin(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[string]>;
 
     getTimestamp(
       id: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[BigNumber] & { timestamp: BigNumber }>;
+    ): Promise<[BigNumber] & {timestamp: BigNumber}>;
 
     grantRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     hasRole(
@@ -576,7 +456,7 @@ export interface TimeLock extends BaseContract {
       predecessor: PromiseOrValue<BytesLike>,
       salt: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[string] & { hash: string }>;
+    ): Promise<[string] & {hash: string}>;
 
     hashOperationBatch(
       targets: PromiseOrValue<string>[],
@@ -585,35 +465,35 @@ export interface TimeLock extends BaseContract {
       predecessor: PromiseOrValue<BytesLike>,
       salt: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[string] & { hash: string }>;
+    ): Promise<[string] & {hash: string}>;
 
     initTimeLock(
       minDelay: PromiseOrValue<BigNumberish>,
       proposers: PromiseOrValue<string>[],
       executors: PromiseOrValue<string>[],
       admin: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     isOperation(
       id: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[boolean] & { registered: boolean }>;
+    ): Promise<[boolean] & {registered: boolean}>;
 
     isOperationDone(
       id: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[boolean] & { done: boolean }>;
+    ): Promise<[boolean] & {done: boolean}>;
 
     isOperationPending(
       id: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[boolean] & { pending: boolean }>;
+    ): Promise<[boolean] & {pending: boolean}>;
 
     isOperationReady(
       id: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[boolean] & { ready: boolean }>;
+    ): Promise<[boolean] & {ready: boolean}>;
 
     onERC1155BatchReceived(
       arg0: PromiseOrValue<string>,
@@ -621,7 +501,7 @@ export interface TimeLock extends BaseContract {
       arg2: PromiseOrValue<BigNumberish>[],
       arg3: PromiseOrValue<BigNumberish>[],
       arg4: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     onERC1155Received(
@@ -630,7 +510,7 @@ export interface TimeLock extends BaseContract {
       arg2: PromiseOrValue<BigNumberish>,
       arg3: PromiseOrValue<BigNumberish>,
       arg4: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     onERC721Received(
@@ -638,19 +518,19 @@ export interface TimeLock extends BaseContract {
       arg1: PromiseOrValue<string>,
       arg2: PromiseOrValue<BigNumberish>,
       arg3: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     renounceRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     revokeRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     schedule(
@@ -660,7 +540,7 @@ export interface TimeLock extends BaseContract {
       predecessor: PromiseOrValue<BytesLike>,
       salt: PromiseOrValue<BytesLike>,
       delay: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     scheduleBatch(
@@ -670,7 +550,7 @@ export interface TimeLock extends BaseContract {
       predecessor: PromiseOrValue<BytesLike>,
       salt: PromiseOrValue<BytesLike>,
       delay: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     supportsInterface(
@@ -680,7 +560,7 @@ export interface TimeLock extends BaseContract {
 
     updateDelay(
       newDelay: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
 
@@ -696,7 +576,7 @@ export interface TimeLock extends BaseContract {
 
   cancel(
     id: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   execute(
@@ -705,7 +585,7 @@ export interface TimeLock extends BaseContract {
     payload: PromiseOrValue<BytesLike>,
     predecessor: PromiseOrValue<BytesLike>,
     salt: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   executeBatch(
@@ -714,25 +594,19 @@ export interface TimeLock extends BaseContract {
     payloads: PromiseOrValue<BytesLike>[],
     predecessor: PromiseOrValue<BytesLike>,
     salt: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   getMinDelay(overrides?: CallOverrides): Promise<BigNumber>;
 
-  getRoleAdmin(
-    role: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<string>;
+  getRoleAdmin(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string>;
 
-  getTimestamp(
-    id: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  getTimestamp(id: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
 
   grantRole(
     role: PromiseOrValue<BytesLike>,
     account: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   hasRole(
@@ -764,28 +638,16 @@ export interface TimeLock extends BaseContract {
     proposers: PromiseOrValue<string>[],
     executors: PromiseOrValue<string>[],
     admin: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
-  isOperation(
-    id: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  isOperation(id: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
 
-  isOperationDone(
-    id: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  isOperationDone(id: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
 
-  isOperationPending(
-    id: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  isOperationPending(id: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
 
-  isOperationReady(
-    id: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  isOperationReady(id: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
 
   onERC1155BatchReceived(
     arg0: PromiseOrValue<string>,
@@ -793,7 +655,7 @@ export interface TimeLock extends BaseContract {
     arg2: PromiseOrValue<BigNumberish>[],
     arg3: PromiseOrValue<BigNumberish>[],
     arg4: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   onERC1155Received(
@@ -802,7 +664,7 @@ export interface TimeLock extends BaseContract {
     arg2: PromiseOrValue<BigNumberish>,
     arg3: PromiseOrValue<BigNumberish>,
     arg4: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   onERC721Received(
@@ -810,19 +672,19 @@ export interface TimeLock extends BaseContract {
     arg1: PromiseOrValue<string>,
     arg2: PromiseOrValue<BigNumberish>,
     arg3: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   renounceRole(
     role: PromiseOrValue<BytesLike>,
     account: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   revokeRole(
     role: PromiseOrValue<BytesLike>,
     account: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   schedule(
@@ -832,7 +694,7 @@ export interface TimeLock extends BaseContract {
     predecessor: PromiseOrValue<BytesLike>,
     salt: PromiseOrValue<BytesLike>,
     delay: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   scheduleBatch(
@@ -842,7 +704,7 @@ export interface TimeLock extends BaseContract {
     predecessor: PromiseOrValue<BytesLike>,
     salt: PromiseOrValue<BytesLike>,
     delay: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   supportsInterface(
@@ -852,7 +714,7 @@ export interface TimeLock extends BaseContract {
 
   updateDelay(
     newDelay: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -866,10 +728,7 @@ export interface TimeLock extends BaseContract {
 
     TIMELOCK_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
-    cancel(
-      id: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    cancel(id: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<void>;
 
     execute(
       target: PromiseOrValue<string>,
@@ -891,15 +750,9 @@ export interface TimeLock extends BaseContract {
 
     getMinDelay(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getRoleAdmin(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<string>;
+    getRoleAdmin(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string>;
 
-    getTimestamp(
-      id: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    getTimestamp(id: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
 
     grantRole(
       role: PromiseOrValue<BytesLike>,
@@ -939,25 +792,13 @@ export interface TimeLock extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    isOperation(
-      id: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    isOperation(id: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
 
-    isOperationDone(
-      id: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    isOperationDone(id: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
 
-    isOperationPending(
-      id: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    isOperationPending(id: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
 
-    isOperationReady(
-      id: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    isOperationReady(id: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
 
     onERC1155BatchReceived(
       arg0: PromiseOrValue<string>,
@@ -1022,10 +863,7 @@ export interface TimeLock extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    updateDelay(
-      newDelay: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    updateDelay(newDelay: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
@@ -1063,9 +901,7 @@ export interface TimeLock extends BaseContract {
       delay?: null
     ): CallScheduledEventFilter;
 
-    "Cancelled(bytes32)"(
-      id?: PromiseOrValue<BytesLike> | null
-    ): CancelledEventFilter;
+    "Cancelled(bytes32)"(id?: PromiseOrValue<BytesLike> | null): CancelledEventFilter;
     Cancelled(id?: PromiseOrValue<BytesLike> | null): CancelledEventFilter;
 
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
@@ -1075,10 +911,7 @@ export interface TimeLock extends BaseContract {
       oldDuration?: null,
       newDuration?: null
     ): MinDelayChangeEventFilter;
-    MinDelayChange(
-      oldDuration?: null,
-      newDuration?: null
-    ): MinDelayChangeEventFilter;
+    MinDelayChange(oldDuration?: null, newDuration?: null): MinDelayChangeEventFilter;
 
     "RoleAdminChanged(bytes32,bytes32,bytes32)"(
       role?: PromiseOrValue<BytesLike> | null,
@@ -1127,7 +960,7 @@ export interface TimeLock extends BaseContract {
 
     cancel(
       id: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     execute(
@@ -1136,7 +969,7 @@ export interface TimeLock extends BaseContract {
       payload: PromiseOrValue<BytesLike>,
       predecessor: PromiseOrValue<BytesLike>,
       salt: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     executeBatch(
@@ -1145,25 +978,19 @@ export interface TimeLock extends BaseContract {
       payloads: PromiseOrValue<BytesLike>[],
       predecessor: PromiseOrValue<BytesLike>,
       salt: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     getMinDelay(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getRoleAdmin(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    getRoleAdmin(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
 
-    getTimestamp(
-      id: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    getTimestamp(id: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
 
     grantRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     hasRole(
@@ -1195,28 +1022,19 @@ export interface TimeLock extends BaseContract {
       proposers: PromiseOrValue<string>[],
       executors: PromiseOrValue<string>[],
       admin: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
-    isOperation(
-      id: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    isOperation(id: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
 
-    isOperationDone(
-      id: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    isOperationDone(id: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
 
     isOperationPending(
       id: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    isOperationReady(
-      id: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    isOperationReady(id: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
 
     onERC1155BatchReceived(
       arg0: PromiseOrValue<string>,
@@ -1224,7 +1042,7 @@ export interface TimeLock extends BaseContract {
       arg2: PromiseOrValue<BigNumberish>[],
       arg3: PromiseOrValue<BigNumberish>[],
       arg4: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     onERC1155Received(
@@ -1233,7 +1051,7 @@ export interface TimeLock extends BaseContract {
       arg2: PromiseOrValue<BigNumberish>,
       arg3: PromiseOrValue<BigNumberish>,
       arg4: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     onERC721Received(
@@ -1241,19 +1059,19 @@ export interface TimeLock extends BaseContract {
       arg1: PromiseOrValue<string>,
       arg2: PromiseOrValue<BigNumberish>,
       arg3: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     renounceRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     revokeRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     schedule(
@@ -1263,7 +1081,7 @@ export interface TimeLock extends BaseContract {
       predecessor: PromiseOrValue<BytesLike>,
       salt: PromiseOrValue<BytesLike>,
       delay: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     scheduleBatch(
@@ -1273,7 +1091,7 @@ export interface TimeLock extends BaseContract {
       predecessor: PromiseOrValue<BytesLike>,
       salt: PromiseOrValue<BytesLike>,
       delay: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     supportsInterface(
@@ -1283,28 +1101,24 @@ export interface TimeLock extends BaseContract {
 
     updateDelay(
       newDelay: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     CANCELLER_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    DEFAULT_ADMIN_ROLE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     EXECUTOR_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     PROPOSER_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    TIMELOCK_ADMIN_ROLE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    TIMELOCK_ADMIN_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     cancel(
       id: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     execute(
@@ -1313,7 +1127,7 @@ export interface TimeLock extends BaseContract {
       payload: PromiseOrValue<BytesLike>,
       predecessor: PromiseOrValue<BytesLike>,
       salt: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     executeBatch(
@@ -1322,7 +1136,7 @@ export interface TimeLock extends BaseContract {
       payloads: PromiseOrValue<BytesLike>[],
       predecessor: PromiseOrValue<BytesLike>,
       salt: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     getMinDelay(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1340,7 +1154,7 @@ export interface TimeLock extends BaseContract {
     grantRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     hasRole(
@@ -1372,7 +1186,7 @@ export interface TimeLock extends BaseContract {
       proposers: PromiseOrValue<string>[],
       executors: PromiseOrValue<string>[],
       admin: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     isOperation(
@@ -1401,7 +1215,7 @@ export interface TimeLock extends BaseContract {
       arg2: PromiseOrValue<BigNumberish>[],
       arg3: PromiseOrValue<BigNumberish>[],
       arg4: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     onERC1155Received(
@@ -1410,7 +1224,7 @@ export interface TimeLock extends BaseContract {
       arg2: PromiseOrValue<BigNumberish>,
       arg3: PromiseOrValue<BigNumberish>,
       arg4: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     onERC721Received(
@@ -1418,19 +1232,19 @@ export interface TimeLock extends BaseContract {
       arg1: PromiseOrValue<string>,
       arg2: PromiseOrValue<BigNumberish>,
       arg3: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     renounceRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     revokeRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     schedule(
@@ -1440,7 +1254,7 @@ export interface TimeLock extends BaseContract {
       predecessor: PromiseOrValue<BytesLike>,
       salt: PromiseOrValue<BytesLike>,
       delay: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     scheduleBatch(
@@ -1450,7 +1264,7 @@ export interface TimeLock extends BaseContract {
       predecessor: PromiseOrValue<BytesLike>,
       salt: PromiseOrValue<BytesLike>,
       delay: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     supportsInterface(
@@ -1460,7 +1274,7 @@ export interface TimeLock extends BaseContract {
 
     updateDelay(
       newDelay: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };
 }

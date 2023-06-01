@@ -13,12 +13,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
+import type {Listener, Provider} from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -105,11 +101,7 @@ export interface GiftCardsInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "executeDepositERC20",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [PromiseOrValue<string>, PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "executeSpend",
@@ -130,69 +122,32 @@ export interface GiftCardsInterface extends utils.Interface {
     functionFragment: "queryBalance",
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "queryConfig",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "queryConfig", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "queryDeposit",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "renounceOwnership", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "updateConfig",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
+    values: [PromiseOrValue<string>, PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "executeClaim",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "executeDepositERC20",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "executeSpend",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "executeClaim", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "executeDepositERC20", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "executeSpend", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "queryBalance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "queryConfig",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "queryDeposit",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateConfig",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "queryBalance", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "queryConfig", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "queryDeposit", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "renounceOwnership", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "transferOwnership", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "updateConfig", data: BytesLike): Result;
 
   events: {
     "GiftCardsUpdateBalances(address,address,uint256,uint8)": EventFragment;
@@ -220,8 +175,7 @@ export type GiftCardsUpdateBalancesEvent = TypedEvent<
   GiftCardsUpdateBalancesEventObject
 >;
 
-export type GiftCardsUpdateBalancesEventFilter =
-  TypedEventFilter<GiftCardsUpdateBalancesEvent>;
+export type GiftCardsUpdateBalancesEventFilter = TypedEventFilter<GiftCardsUpdateBalancesEvent>;
 
 export interface GiftCardsUpdateConfigEventObject {
   config: GiftCardsStorage.ConfigStructOutput;
@@ -231,8 +185,7 @@ export type GiftCardsUpdateConfigEvent = TypedEvent<
   GiftCardsUpdateConfigEventObject
 >;
 
-export type GiftCardsUpdateConfigEventFilter =
-  TypedEventFilter<GiftCardsUpdateConfigEvent>;
+export type GiftCardsUpdateConfigEventFilter = TypedEventFilter<GiftCardsUpdateConfigEvent>;
 
 export interface GiftCardsUpdateDepositEventObject {
   depositId: BigNumber;
@@ -243,8 +196,7 @@ export type GiftCardsUpdateDepositEvent = TypedEvent<
   GiftCardsUpdateDepositEventObject
 >;
 
-export type GiftCardsUpdateDepositEventFilter =
-  TypedEventFilter<GiftCardsUpdateDepositEvent>;
+export type GiftCardsUpdateDepositEventFilter = TypedEventFilter<GiftCardsUpdateDepositEvent>;
 
 export interface InitializedEventObject {
   version: number;
@@ -262,8 +214,7 @@ export type OwnershipTransferredEvent = TypedEvent<
   OwnershipTransferredEventObject
 >;
 
-export type OwnershipTransferredEventFilter =
-  TypedEventFilter<OwnershipTransferredEvent>;
+export type OwnershipTransferredEventFilter = TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface GiftCards extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -282,9 +233,7 @@ export interface GiftCards extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
+  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -295,14 +244,14 @@ export interface GiftCards extends BaseContract {
     executeClaim(
       depositId: PromiseOrValue<BigNumberish>,
       recipient: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     executeDepositERC20(
       toAddress: PromiseOrValue<string>,
       tokenAddress: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     executeSpend(
@@ -311,12 +260,12 @@ export interface GiftCards extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       lockedPercentage: PromiseOrValue<BigNumberish>,
       liquidPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     initialize(
       details: GiftCardsMessage.InstantiateMsgStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
@@ -327,9 +276,7 @@ export interface GiftCards extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    queryConfig(
-      overrides?: CallOverrides
-    ): Promise<[GiftCardsStorage.ConfigStructOutput]>;
+    queryConfig(overrides?: CallOverrides): Promise<[GiftCardsStorage.ConfigStructOutput]>;
 
     queryDeposit(
       depositId: PromiseOrValue<BigNumberish>,
@@ -337,33 +284,33 @@ export interface GiftCards extends BaseContract {
     ): Promise<[GiftCardsStorage.DepositStructOutput]>;
 
     renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
 
     updateConfig(
       owner: PromiseOrValue<string>,
       keeper: PromiseOrValue<string>,
       registrarContract: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
 
   executeClaim(
     depositId: PromiseOrValue<BigNumberish>,
     recipient: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   executeDepositERC20(
     toAddress: PromiseOrValue<string>,
     tokenAddress: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   executeSpend(
@@ -372,12 +319,12 @@ export interface GiftCards extends BaseContract {
     amount: PromiseOrValue<BigNumberish>,
     lockedPercentage: PromiseOrValue<BigNumberish>,
     liquidPercentage: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   initialize(
     details: GiftCardsMessage.InstantiateMsgStruct,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   owner(overrides?: CallOverrides): Promise<string>;
@@ -388,9 +335,7 @@ export interface GiftCards extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  queryConfig(
-    overrides?: CallOverrides
-  ): Promise<GiftCardsStorage.ConfigStructOutput>;
+  queryConfig(overrides?: CallOverrides): Promise<GiftCardsStorage.ConfigStructOutput>;
 
   queryDeposit(
     depositId: PromiseOrValue<BigNumberish>,
@@ -398,19 +343,19 @@ export interface GiftCards extends BaseContract {
   ): Promise<GiftCardsStorage.DepositStructOutput>;
 
   renounceOwnership(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   transferOwnership(
     newOwner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   updateConfig(
     owner: PromiseOrValue<string>,
     keeper: PromiseOrValue<string>,
     registrarContract: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -449,9 +394,7 @@ export interface GiftCards extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    queryConfig(
-      overrides?: CallOverrides
-    ): Promise<GiftCardsStorage.ConfigStructOutput>;
+    queryConfig(overrides?: CallOverrides): Promise<GiftCardsStorage.ConfigStructOutput>;
 
     queryDeposit(
       depositId: PromiseOrValue<BigNumberish>,
@@ -460,10 +403,7 @@ export interface GiftCards extends BaseContract {
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
-    transferOwnership(
-      newOwner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    transferOwnership(newOwner: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
     updateConfig(
       owner: PromiseOrValue<string>,
@@ -487,19 +427,14 @@ export interface GiftCards extends BaseContract {
       action?: null
     ): GiftCardsUpdateBalancesEventFilter;
 
-    "GiftCardsUpdateConfig(tuple)"(
-      config?: null
-    ): GiftCardsUpdateConfigEventFilter;
+    "GiftCardsUpdateConfig(tuple)"(config?: null): GiftCardsUpdateConfigEventFilter;
     GiftCardsUpdateConfig(config?: null): GiftCardsUpdateConfigEventFilter;
 
     "GiftCardsUpdateDeposit(uint256,tuple)"(
       depositId?: null,
       deposit?: null
     ): GiftCardsUpdateDepositEventFilter;
-    GiftCardsUpdateDeposit(
-      depositId?: null,
-      deposit?: null
-    ): GiftCardsUpdateDepositEventFilter;
+    GiftCardsUpdateDeposit(depositId?: null, deposit?: null): GiftCardsUpdateDepositEventFilter;
 
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
@@ -518,14 +453,14 @@ export interface GiftCards extends BaseContract {
     executeClaim(
       depositId: PromiseOrValue<BigNumberish>,
       recipient: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     executeDepositERC20(
       toAddress: PromiseOrValue<string>,
       tokenAddress: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     executeSpend(
@@ -534,12 +469,12 @@ export interface GiftCards extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       lockedPercentage: PromiseOrValue<BigNumberish>,
       liquidPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     initialize(
       details: GiftCardsMessage.InstantiateMsgStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
@@ -557,20 +492,18 @@ export interface GiftCards extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    renounceOwnership(overrides?: Overrides & {from?: PromiseOrValue<string>}): Promise<BigNumber>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
 
     updateConfig(
       owner: PromiseOrValue<string>,
       keeper: PromiseOrValue<string>,
       registrarContract: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
 
@@ -578,14 +511,14 @@ export interface GiftCards extends BaseContract {
     executeClaim(
       depositId: PromiseOrValue<BigNumberish>,
       recipient: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     executeDepositERC20(
       toAddress: PromiseOrValue<string>,
       tokenAddress: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     executeSpend(
@@ -594,12 +527,12 @@ export interface GiftCards extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       lockedPercentage: PromiseOrValue<BigNumberish>,
       liquidPercentage: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     initialize(
       details: GiftCardsMessage.InstantiateMsgStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -618,19 +551,19 @@ export interface GiftCards extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
 
     updateConfig(
       owner: PromiseOrValue<string>,
       keeper: PromiseOrValue<string>,
       registrarContract: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };
 }
