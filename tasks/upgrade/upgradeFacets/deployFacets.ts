@@ -29,7 +29,7 @@ export default async function deployFacets(
 
   logger.out("Instantiating factories...");
 
-  const facetFactories = await getFacetFactories(facetNames, diamondOwner, corestruct);
+  const facetFactories = getFacetFactories(facetNames, diamondOwner, corestruct);
 
   logger.out("Deploying facets...");
 
@@ -50,35 +50,27 @@ export default async function deployFacets(
 type FacetFactory = {facetName: string; factory: ContractFactory};
 
 // Getting factories instantiated in bulk as they share the deploy/cut creation logic.
-async function getFacetFactories(
+function getFacetFactories(
   facetNames: string[],
   diamondOwner: SignerWithAddress,
   corestruct: string
-): Promise<FacetFactory[]> {
-  const factories: FacetFactory[] = [];
-  const nonExistentFacets: string[] = [];
-
-  facetNames.forEach((facetName) => {
+): FacetFactory[] {
+  const factories: FacetFactory[] = facetNames.map((facetName) => {
     const factory = getFacetFactory(facetName, diamondOwner, corestruct);
-    if (typeof factory === "string") {
-      nonExistentFacets.push(factory);
-    } else {
-      factories.push({facetName, factory});
+    if (!factory) {
+      throw new Error(`Nonexistent facet detected: ${facetName}.`);
     }
+    return {facetName, factory};
   });
 
-  if (!nonExistentFacets.length) {
-    return factories;
-  }
-
-  throw new Error(`Nonexistent facets detected: ${nonExistentFacets.join(", ")}.`);
+  return factories;
 }
 
 function getFacetFactory(
   facetName: string,
   diamondOwner: SignerWithAddress,
   corestruct: string
-): ContractFactory | string {
+): ContractFactory | undefined {
   switch (facetName) {
     // no lib
     case getContractName(AccountDeployContract__factory):
@@ -134,6 +126,6 @@ function getFacetFactory(
         diamondOwner
       );
     default:
-      return facetName;
+      return undefined;
   }
 }
