@@ -110,6 +110,12 @@ contract APVault_V1 is IVault, ERC4626AP {
   function redeemAll(
     uint32 accountId
   ) public payable virtual override notPaused onlyApproved returns (RedemptionResponse memory) {
+    if (balanceOf(accountId) == 0) {
+      return RedemptionResponse memory response = RedemptionResponse({
+        amount: 0,
+        status: VaultActionStatus.POSITION_EXITED
+      });
+    }
     // redeem shares for yieldToken -> approve strategy
     uint256 yieldTokenAmt = super.redeem(balanceOf(accountId), vaultConfig.strategy, accountId);
     // withdraw all baseToken
@@ -142,6 +148,7 @@ contract APVault_V1 is IVault, ERC4626AP {
         return;
       }
       // Determine aggregate yield
+      // @TODO this is the wrong principle and do we even need the yield princ. tracked? 
       uint256 p = principleByAccountId[acct].yieldToken;
       uint256 yield_withPrecision = (baseTokenValue - p).mulDivDown(AngelCoreStruct.FEE_BASIS, p);
       AngelCoreStruct.FeeSetting memory feeSetting = IRegistrar(vaultConfig.registrar)
