@@ -1,59 +1,15 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {DonationMatchEmitter__factory, ProxyContract__factory} from "typechain-types";
-import {getSigners, logger, updateAddresses} from "utils";
+import deployDonationMatchEmitter from "./deployDonationMatchEmitter";
+import deployDonationMatchCharity from "./deployDonationMatchCharity";
 
 export async function deployDonationMatch(
   accountsDiamond: string,
+  registrar: string,
   verify: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
-  logger.out("Deploying DonationMatchEmitter...");
+  const donationMatchCharity = await deployDonationMatchCharity(registrar, verify, hre);
+  const donationMatchEmitter = await deployDonationMatchEmitter(accountsDiamond, verify, hre);
 
-  const {proxyAdmin} = await getSigners(hre.ethers);
-
-  // deploying implementation
-  const factory = new DonationMatchEmitter__factory(proxyAdmin);
-  const donationMatchEmitter = await factory.deploy();
-  await donationMatchEmitter.deployed();
-  logger.out(`Implementation deployed at: ${donationMatchEmitter.address}`);
-
-  // deploying proxy
-  const initData = donationMatchEmitter.interface.encodeFunctionData("initDonationMatchEmiiter", [
-    accountsDiamond,
-  ]);
-  const proxyFactory = new ProxyContract__factory(proxyAdmin);
-  const donationMatchEmitterProxy = await proxyFactory.deploy(
-    donationMatchEmitter.address,
-    proxyAdmin.address,
-    initData
-  );
-  await donationMatchEmitterProxy.deployed();
-  logger.out(`Proxy deployed at: ${donationMatchEmitterProxy.address}`);
-
-  await updateAddresses(
-    {
-      donationMatch: {
-        emitter: {
-          implementation: donationMatchEmitter.address,
-          proxy: donationMatchEmitterProxy.address,
-        },
-      },
-    },
-    hre
-  );
-
-  if (verify) {
-    await hre.run("verify:verify", {
-      address: donationMatchEmitter.address,
-      constructorArguments: [],
-    });
-    await hre.run("verify:verify", {
-      address: donationMatchEmitterProxy.address,
-      constructorArguments: [donationMatchEmitter.address, proxyAdmin.address, initData],
-    });
-  }
-
-  return {
-    donationMatchEmitter: {implementation: donationMatchEmitter, proxy: donationMatchEmitterProxy},
-  };
+  return {donationMatchCharity, donationMatchEmitter};
 }
