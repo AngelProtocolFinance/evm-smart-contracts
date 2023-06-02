@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   ILocalRegistrar,
   ILocalRegistrarInterface,
@@ -649,7 +649,10 @@ export class ILocalRegistrar__factory {
   static createInterface(): ILocalRegistrarInterface {
     return new utils.Interface(_abi) as ILocalRegistrarInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): ILocalRegistrar {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): ILocalRegistrar {
     return new Contract(address, _abi, signerOrProvider) as ILocalRegistrar;
   }
 }

@@ -14,8 +14,12 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -80,17 +84,32 @@ export interface IAxelarGasServiceInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "addNativeExpressGas",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "addNativeGas",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "collectFees",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>[], PromiseOrValue<BigNumberish>[]]
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>[],
+      PromiseOrValue<BigNumberish>[]
+    ]
   ): string;
-  encodeFunctionData(functionFragment: "gasCollector", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "gasCollector",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "payGasForContractCall",
     values: [
@@ -167,19 +186,50 @@ export interface IAxelarGasServiceInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "refund",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
+    ]
   ): string;
 
-  decodeFunctionResult(functionFragment: "addExpressGas", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "addExpressGas",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "addGas", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "addNativeExpressGas", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "addNativeGas", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "collectFees", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "gasCollector", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "payGasForContractCall", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "payGasForContractCallWithToken", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "payGasForExpressCallWithToken", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "payNativeGasForContractCall", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "addNativeExpressGas",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "addNativeGas",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "collectFees",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "gasCollector",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "payGasForContractCall",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "payGasForContractCallWithToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "payGasForExpressCallWithToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "payNativeGasForContractCall",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "payNativeGasForContractCallWithToken",
     data: BytesLike
@@ -206,13 +256,23 @@ export interface IAxelarGasServiceInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ExpressGasAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GasAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GasPaidForContractCall"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "GasPaidForContractCallWithToken"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "GasPaidForExpressCallWithToken"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "GasPaidForContractCallWithToken"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "GasPaidForExpressCallWithToken"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NativeExpressGasAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NativeGasAdded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NativeGasPaidForContractCall"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NativeGasPaidForContractCallWithToken"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NativeGasPaidForExpressCallWithToken"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "NativeGasPaidForContractCall"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "NativeGasPaidForContractCallWithToken"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "NativeGasPaidForExpressCallWithToken"
+  ): EventFragment;
 }
 
 export interface ExpressGasAddedEventObject {
@@ -257,7 +317,8 @@ export type GasPaidForContractCallEvent = TypedEvent<
   GasPaidForContractCallEventObject
 >;
 
-export type GasPaidForContractCallEventFilter = TypedEventFilter<GasPaidForContractCallEvent>;
+export type GasPaidForContractCallEventFilter =
+  TypedEventFilter<GasPaidForContractCallEvent>;
 
 export interface GasPaidForContractCallWithTokenEventObject {
   sourceAddress: string;
@@ -271,7 +332,17 @@ export interface GasPaidForContractCallWithTokenEventObject {
   refundAddress: string;
 }
 export type GasPaidForContractCallWithTokenEvent = TypedEvent<
-  [string, string, string, string, string, BigNumber, string, BigNumber, string],
+  [
+    string,
+    string,
+    string,
+    string,
+    string,
+    BigNumber,
+    string,
+    BigNumber,
+    string
+  ],
   GasPaidForContractCallWithTokenEventObject
 >;
 
@@ -290,7 +361,17 @@ export interface GasPaidForExpressCallWithTokenEventObject {
   refundAddress: string;
 }
 export type GasPaidForExpressCallWithTokenEvent = TypedEvent<
-  [string, string, string, string, string, BigNumber, string, BigNumber, string],
+  [
+    string,
+    string,
+    string,
+    string,
+    string,
+    BigNumber,
+    string,
+    BigNumber,
+    string
+  ],
   GasPaidForExpressCallWithTokenEventObject
 >;
 
@@ -308,7 +389,8 @@ export type NativeExpressGasAddedEvent = TypedEvent<
   NativeExpressGasAddedEventObject
 >;
 
-export type NativeExpressGasAddedEventFilter = TypedEventFilter<NativeExpressGasAddedEvent>;
+export type NativeExpressGasAddedEventFilter =
+  TypedEventFilter<NativeExpressGasAddedEvent>;
 
 export interface NativeGasAddedEventObject {
   txHash: string;
@@ -392,7 +474,9 @@ export interface IAxelarGasService extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -406,7 +490,7 @@ export interface IAxelarGasService extends BaseContract {
       gasToken: PromiseOrValue<string>,
       gasFeeAmount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     addGas(
@@ -415,32 +499,32 @@ export interface IAxelarGasService extends BaseContract {
       gasToken: PromiseOrValue<string>,
       gasFeeAmount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     addNativeExpressGas(
       txHash: PromiseOrValue<BytesLike>,
       logIndex: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     addNativeGas(
       txHash: PromiseOrValue<BytesLike>,
       logIndex: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     collectFees(
       receiver: PromiseOrValue<string>,
       tokens: PromiseOrValue<string>[],
       amounts: PromiseOrValue<BigNumberish>[],
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     gasCollector(
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     payGasForContractCall(
@@ -451,7 +535,7 @@ export interface IAxelarGasService extends BaseContract {
       gasToken: PromiseOrValue<string>,
       gasFeeAmount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     payGasForContractCallWithToken(
@@ -464,7 +548,7 @@ export interface IAxelarGasService extends BaseContract {
       gasToken: PromiseOrValue<string>,
       gasFeeAmount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     payGasForExpressCallWithToken(
@@ -477,7 +561,7 @@ export interface IAxelarGasService extends BaseContract {
       gasToken: PromiseOrValue<string>,
       gasFeeAmount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     payNativeGasForContractCall(
@@ -486,7 +570,7 @@ export interface IAxelarGasService extends BaseContract {
       destinationAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     payNativeGasForContractCallWithToken(
@@ -497,7 +581,7 @@ export interface IAxelarGasService extends BaseContract {
       symbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     payNativeGasForExpressCallWithToken(
@@ -508,14 +592,14 @@ export interface IAxelarGasService extends BaseContract {
       symbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     refund(
       receiver: PromiseOrValue<string>,
       token: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
@@ -525,7 +609,7 @@ export interface IAxelarGasService extends BaseContract {
     gasToken: PromiseOrValue<string>,
     gasFeeAmount: PromiseOrValue<BigNumberish>,
     refundAddress: PromiseOrValue<string>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   addGas(
@@ -534,32 +618,32 @@ export interface IAxelarGasService extends BaseContract {
     gasToken: PromiseOrValue<string>,
     gasFeeAmount: PromiseOrValue<BigNumberish>,
     refundAddress: PromiseOrValue<string>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   addNativeExpressGas(
     txHash: PromiseOrValue<BytesLike>,
     logIndex: PromiseOrValue<BigNumberish>,
     refundAddress: PromiseOrValue<string>,
-    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   addNativeGas(
     txHash: PromiseOrValue<BytesLike>,
     logIndex: PromiseOrValue<BigNumberish>,
     refundAddress: PromiseOrValue<string>,
-    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   collectFees(
     receiver: PromiseOrValue<string>,
     tokens: PromiseOrValue<string>[],
     amounts: PromiseOrValue<BigNumberish>[],
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   gasCollector(
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   payGasForContractCall(
@@ -570,7 +654,7 @@ export interface IAxelarGasService extends BaseContract {
     gasToken: PromiseOrValue<string>,
     gasFeeAmount: PromiseOrValue<BigNumberish>,
     refundAddress: PromiseOrValue<string>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   payGasForContractCallWithToken(
@@ -583,7 +667,7 @@ export interface IAxelarGasService extends BaseContract {
     gasToken: PromiseOrValue<string>,
     gasFeeAmount: PromiseOrValue<BigNumberish>,
     refundAddress: PromiseOrValue<string>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   payGasForExpressCallWithToken(
@@ -596,7 +680,7 @@ export interface IAxelarGasService extends BaseContract {
     gasToken: PromiseOrValue<string>,
     gasFeeAmount: PromiseOrValue<BigNumberish>,
     refundAddress: PromiseOrValue<string>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   payNativeGasForContractCall(
@@ -605,7 +689,7 @@ export interface IAxelarGasService extends BaseContract {
     destinationAddress: PromiseOrValue<string>,
     payload: PromiseOrValue<BytesLike>,
     refundAddress: PromiseOrValue<string>,
-    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   payNativeGasForContractCallWithToken(
@@ -616,7 +700,7 @@ export interface IAxelarGasService extends BaseContract {
     symbol: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
     refundAddress: PromiseOrValue<string>,
-    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   payNativeGasForExpressCallWithToken(
@@ -627,14 +711,14 @@ export interface IAxelarGasService extends BaseContract {
     symbol: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
     refundAddress: PromiseOrValue<string>,
-    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   refund(
     receiver: PromiseOrValue<string>,
     token: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -944,7 +1028,7 @@ export interface IAxelarGasService extends BaseContract {
       gasToken: PromiseOrValue<string>,
       gasFeeAmount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     addGas(
@@ -953,31 +1037,33 @@ export interface IAxelarGasService extends BaseContract {
       gasToken: PromiseOrValue<string>,
       gasFeeAmount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     addNativeExpressGas(
       txHash: PromiseOrValue<BytesLike>,
       logIndex: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     addNativeGas(
       txHash: PromiseOrValue<BytesLike>,
       logIndex: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     collectFees(
       receiver: PromiseOrValue<string>,
       tokens: PromiseOrValue<string>[],
       amounts: PromiseOrValue<BigNumberish>[],
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    gasCollector(overrides?: Overrides & {from?: PromiseOrValue<string>}): Promise<BigNumber>;
+    gasCollector(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     payGasForContractCall(
       sender: PromiseOrValue<string>,
@@ -987,7 +1073,7 @@ export interface IAxelarGasService extends BaseContract {
       gasToken: PromiseOrValue<string>,
       gasFeeAmount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     payGasForContractCallWithToken(
@@ -1000,7 +1086,7 @@ export interface IAxelarGasService extends BaseContract {
       gasToken: PromiseOrValue<string>,
       gasFeeAmount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     payGasForExpressCallWithToken(
@@ -1013,7 +1099,7 @@ export interface IAxelarGasService extends BaseContract {
       gasToken: PromiseOrValue<string>,
       gasFeeAmount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     payNativeGasForContractCall(
@@ -1022,7 +1108,7 @@ export interface IAxelarGasService extends BaseContract {
       destinationAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     payNativeGasForContractCallWithToken(
@@ -1033,7 +1119,7 @@ export interface IAxelarGasService extends BaseContract {
       symbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     payNativeGasForExpressCallWithToken(
@@ -1044,14 +1130,14 @@ export interface IAxelarGasService extends BaseContract {
       symbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     refund(
       receiver: PromiseOrValue<string>,
       token: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
@@ -1062,7 +1148,7 @@ export interface IAxelarGasService extends BaseContract {
       gasToken: PromiseOrValue<string>,
       gasFeeAmount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     addGas(
@@ -1071,32 +1157,32 @@ export interface IAxelarGasService extends BaseContract {
       gasToken: PromiseOrValue<string>,
       gasFeeAmount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     addNativeExpressGas(
       txHash: PromiseOrValue<BytesLike>,
       logIndex: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     addNativeGas(
       txHash: PromiseOrValue<BytesLike>,
       logIndex: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     collectFees(
       receiver: PromiseOrValue<string>,
       tokens: PromiseOrValue<string>[],
       amounts: PromiseOrValue<BigNumberish>[],
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     gasCollector(
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     payGasForContractCall(
@@ -1107,7 +1193,7 @@ export interface IAxelarGasService extends BaseContract {
       gasToken: PromiseOrValue<string>,
       gasFeeAmount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     payGasForContractCallWithToken(
@@ -1120,7 +1206,7 @@ export interface IAxelarGasService extends BaseContract {
       gasToken: PromiseOrValue<string>,
       gasFeeAmount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     payGasForExpressCallWithToken(
@@ -1133,7 +1219,7 @@ export interface IAxelarGasService extends BaseContract {
       gasToken: PromiseOrValue<string>,
       gasFeeAmount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     payNativeGasForContractCall(
@@ -1142,7 +1228,7 @@ export interface IAxelarGasService extends BaseContract {
       destinationAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     payNativeGasForContractCallWithToken(
@@ -1153,7 +1239,7 @@ export interface IAxelarGasService extends BaseContract {
       symbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     payNativeGasForExpressCallWithToken(
@@ -1164,14 +1250,14 @@ export interface IAxelarGasService extends BaseContract {
       symbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       refundAddress: PromiseOrValue<string>,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     refund(
       receiver: PromiseOrValue<string>,
       token: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }
