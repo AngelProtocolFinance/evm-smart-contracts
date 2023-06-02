@@ -11,13 +11,11 @@ export async function deployAPTeamMultiSig(
 
   const {apTeamMultisigOwners, proxyAdmin} = await getSigners(hre.ethers);
 
-  logger.out("Deploying implementation...");
   const apTeamMultiSigFactory = new APTeamMultiSig__factory(proxyAdmin);
   const apTeamMultiSig = await apTeamMultiSigFactory.deploy();
   await apTeamMultiSig.deployed();
-  logger.out(`Implementation deployed at: ${apTeamMultiSig.address}.`);
+  logger.out(`APTeamMultiSig deployed at: ${apTeamMultiSig.address}.`);
 
-  logger.out("Deploying proxy contract...");
   const apTeamMultiSigData = apTeamMultiSig.interface.encodeFunctionData("initialize", [
     apTeamMultisigOwners.map((x) => x.address),
     config.AP_TEAM_MULTISIG_DATA.threshold,
@@ -31,7 +29,7 @@ export async function deployAPTeamMultiSig(
   const proxyFactory = new ProxyContract__factory(proxyAdmin);
   const apTeamMultiSigProxy = await proxyFactory.deploy(...constructorArguments);
   await apTeamMultiSigProxy.deployed();
-  logger.out(`Proxy deployed at: ${apTeamMultiSigProxy.address}.`);
+  logger.out(`APTeamMultiSig Proxy deployed at: ${apTeamMultiSigProxy.address}.`);
 
   await updateAddresses(
     {
