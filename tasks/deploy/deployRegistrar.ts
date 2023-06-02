@@ -4,7 +4,7 @@ import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {getAddresses, getSigners, isLocalNetwork, logger} from "utils";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 
-task("Deploy:Registrar", "Will deploy Registrar contract")
+task("deploy:Registrar", "Will deploy Registrar contract")
   .addParam("verify", "Want to verify contract")
   .setAction(async (taskArgs, hre) => {
     try {
