@@ -3,7 +3,7 @@ import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
-import {ADDRESS_ZERO, isLocalNetwork} from "utils";
+import {ADDRESS_ZERO, envConfig, isLocalNetwork, updateAddresses} from "utils";
 // import { deployHaloImplementation } from "contracts/halo/scripts/deploy"
 import {charityApplications} from "contracts/multisigs/charity_applications/scripts/deploy";
 import {deployAPTeamMultiSig, deployApplicationsMultiSig} from "contracts/multisigs/scripts/deploy";
@@ -13,7 +13,7 @@ import {deployImplementation} from "contracts/normalized_endowment/scripts/deplo
 import config from "config";
 // import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {IndexFund__factory, Registrar__factory} from "typechain-types";
+import {ERC20, ERC20__factory, IndexFund__factory, Registrar__factory} from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 import {cleanAddresses} from "utils";
 import {getSigners} from "utils/getSigners";
@@ -34,7 +34,9 @@ export async function deployAngelProtocol(
   console.log("Deploying the contracts with the account:", proxyAdmin.address);
 
   // Mock setup required for testing
-  const usdcToken = isLocalNetwork(network) ? await deployMockUSDC(proxyAdmin, hre) : undefined;
+  const usdcToken = isLocalNetwork(network)
+    ? await deployMockUSDC(proxyAdmin, hre)
+    : await connectUSDC(hre);
 
   const {angelCoreStruct, stringLib} = await deployLibraries(verify_contracts, hre);
 
@@ -82,7 +84,7 @@ export async function deployAngelProtocol(
     await deployDonationMatchContracts(
       accountsDiamond.address,
       registrar.proxy.address,
-      usdcToken?.address ?? config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
+      usdcToken.address,
       verify_contracts,
       hre
     );
@@ -173,24 +175,20 @@ export async function deployAngelProtocol(
   // console.log("halo token balance: ", await haloToken.balanceOf(proxyAdmin.address))
 
   // if (isLocalNetwork(network)) {
-  //     // if network is 'hardhat' then mockUSDC should always be initialized
-  //     // but TS forces us to confirm this is the case
-  //     mockUSDC = mockUSDC!
-
   //     const UniswapUtils = new UniswapUtils__factory(proxyAdmin)
   //     const uniswap_utils = await UniswapUtils.deploy()
   //     await uniswap_utils.deployed()
 
   //     // create a uniswap pool for HALO and USDC
   //     console.log("halo", haloToken.address.toString())
-  //     console.log("usdc", mockUSDC.address.toString())
+  //     console.log("usdc", usdcToken.address.toString())
   //     const sqrtPrice = "79228162514264334008320"
-  //     if (mockUSDC.address < haloToken.address.toString()) {
+  //     if (usdcToken.address < haloToken.address.toString()) {
   //         sqrtPrice = "79228162514264337593543950336000000"
   //     }
   //     const createUniswapPoolParams = {
   //         projectToken: haloToken.address,
-  //         usdcToken: mockUSDC.address,
+  //         usdcToken: usdcToken.address,
   //         uniswapFee: 3000,
   //         amountA: ethers.utils.parseEther("100000000"),
   //         amountB: ethers.utils.parseUnits("100000000", 6),
@@ -199,21 +197,21 @@ export async function deployAngelProtocol(
   //         tickUpper: "506580",
   //     }
   //     haloToken.approve(uniswap_utils.address, ethers.utils.parseEther("100000000"))
-  //     mockUSDC.approve(uniswap_utils.address, ethers.utils.parseUnits("100000000", 6))
+  //     usdcToken.approve(uniswap_utils.address, ethers.utils.parseUnits("100000000", 6))
   //     await uniswap_utils.createPoolAndMintPositionErC20(createUniswapPoolParams)
 
   //     console.log("Created HALO pool")
 
   //     // create a uniswap pool for WETH and USDC
   //     console.log("WETH address: ", config.REGISTRAR_UPDATE_CONFIG.wethAddress)
-  //     console.log("USDC address: ", mockUSDC.address.toString())
+  //     console.log("USDC address: ", usdcToken.address.toString())
 
   //     sqrtPrice = "79228162514264334008320"
-  //     if (mockUSDC.address < config.REGISTRAR_UPDATE_CONFIG.wethAddress) {
+  //     if (usdcToken.address < config.REGISTRAR_UPDATE_CONFIG.wethAddress) {
   //         sqrtPrice = "79228162514264337593543950336000000"
   //     }
   //     const createUniswapPoolParams2 = {
-  //         tokenA: mockUSDC.address,
+  //         tokenA: usdcToken.address,
   //         tokenB: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
   //         uniswapFee: 3000,
   //         amountA: ethers.utils.parseUnits("1000", 6),
@@ -221,7 +219,7 @@ export async function deployAngelProtocol(
   //         tickLower: "-598680",
   //         tickUpper: "506580",
   //     }
-  //     mockUSDC.approve(uniswap_utils.address, ethers.utils.parseUnits("1000", 6))
+  //     usdcToken.approve(uniswap_utils.address, ethers.utils.parseUnits("1000", 6))
   //     await uniswap_utils.createPoolAndMintPosition(createUniswapPoolParams2, {
   //         value: ethers.utils.parseEther("1000"),
   //     })
@@ -243,12 +241,12 @@ export async function deployAngelProtocol(
 
   //     // create a uniswap pool for DAI and USDC
   //     sqrtPrice = "79228162514264334008320"
-  //     if (mockUSDC.address < dai.address.toString()) {
+  //     if (usdcToken.address < dai.address.toString()) {
   //         sqrtPrice = "79228162514264337593543950336000000"
   //     }
   //     const createUniswapPoolParams3 = {
   //         projectToken: dai.address,
-  //         usdcToken: mockUSDC.address,
+  //         usdcToken: usdcToken.address,
   //         uniswapFee: 3000,
   //         amountA: ethers.utils.parseEther("100000000"),
   //         amountB: ethers.utils.parseUnits("100000000", 6),
@@ -257,12 +255,12 @@ export async function deployAngelProtocol(
   //         tickUpper: "506580",
   //     }
   //     dai.approve(uniswap_utils.address, ethers.utils.parseEther("100000000"))
-  //     mockUSDC.approve(uniswap_utils.address, ethers.utils.parseUnits("100000000", 6))
+  //     usdcToken.approve(uniswap_utils.address, ethers.utils.parseUnits("100000000", 6))
   //     await uniswap_utils.createPoolAndMintPositionErC20(createUniswapPoolParams3)
   //     console.log("Created DAI pool")
   // }
 
-  //  requires setting up of a HALO - MockUSDC pool on forked uniswap in deployment
+  //  requires setting up of a HALO - usdcToken pool on forked uniswap in deployment
   // if on non-production network
 
   const donationMatchCharityData = {
@@ -342,4 +340,15 @@ export async function deployAngelProtocol(
 
   const new_owner_index = await INDEX_FUND_CONTRACT.updateOwner(apTeamMultisig.proxy.address);
   console.log("Successfully transferred Ownership:-", new_owner_index.hash);
+}
+
+async function connectUSDC(hre: HardhatRuntimeEnvironment): Promise<ERC20> {
+  const {proxyAdmin} = await getSigners(hre.ethers);
+  const usdcAddress =
+    hre.network.name === "mumbai" ? envConfig.USDC_ADDRESS_MUMBAI : envConfig.USDC_ADDRESS;
+  const usdc = ERC20__factory.connect(usdcAddress, proxyAdmin);
+
+  await updateAddresses({tokens: {usdc: usdc.address}}, hre);
+
+  return usdc;
 }
