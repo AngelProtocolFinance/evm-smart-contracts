@@ -161,19 +161,19 @@ contract APVault_V1 is IVault, ERC4626AP {
     AngelCoreStruct.FeeSetting memory _feeSetting
   ) internal {
     // Determine tax denominated in yield token
-    uint256 taxyieldToken = _yieldTokenBalance(accountId)
+    uint256 taxYieldToken = _yieldTokenBalance(accountId)
       .mulDivDown(yield_withPrecision, AngelCoreStruct.FEE_BASIS)
       .mulDivDown(_feeSetting.bps, AngelCoreStruct.FEE_BASIS);
     // Shares -> Yield Asset -> Base Asset
-    uint256 dyieldToken = super.redeem(
-      convertToShares(taxyieldToken),
+    uint256 dYieldToken = super.redeem(
+      convertToShares(taxYieldToken),
       vaultConfig.strategy,
       accountId
     );
-    uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dyieldToken);
+    uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dYieldToken);
     // Pay tax to tax collector and rebase principle
     require(IERC20Metadata(vaultConfig.baseToken).transfer(_feeSetting.payoutAddress, redemption));
-    principleByAccountId[accountId].yieldToken -= dyieldToken;
+    principleByAccountId[accountId].yieldToken -= dYieldToken;
   }
 
   function _harvestLocked(
@@ -225,7 +225,7 @@ contract APVault_V1 is IVault, ERC4626AP {
 
     AngelCoreStruct.FeeSetting memory feeSetting = IRegistrar(vaultConfig.registrar)
       .getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes.Default);
-
+    // tax = taxableAmt * yieldRate * feeRate 
     uint256 tax = (taxableAmt.mulDivDown(yield_withPrecision, AngelCoreStruct.FEE_BASIS)) // Apply yield rate
       .mulDivDown(feeSetting.bps, AngelCoreStruct.FEE_BASIS); // Apply fee to yield
 

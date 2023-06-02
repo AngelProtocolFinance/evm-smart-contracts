@@ -179,7 +179,6 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         // Redeem tokens from vaults which sends them from the vault to this contract
         IVault.RedemptionResponse memory _redemptionLock = lockedVault.redeem(
             _action.accountIds[0],
-            _action.token,
             _action.lockAmt
         );
         require(
@@ -192,7 +191,6 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
 
         IVault.RedemptionResponse memory _redemptionLiquid = liquidVault.redeem(
             _action.accountIds[0],
-            _action.token,
             _action.liqAmt
         );
         require(
@@ -220,7 +218,6 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     }
 
     // Vault action::RedeemAll
-    // @todo redemption amts need to affect _action data
     function _redeemAll(
         LocalRegistrarLib.StrategyParams memory _params,
         IVault.VaultActionData memory _action
@@ -229,37 +226,33 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         IVault liquidVault = IVault(_params.Liquid.vaultAddr);
 
         // Redeem tokens from vaults and txfer them to the Router
-        uint256 _redeemedLockAmt;
-        if (_action.lockAmt > 0) {
-            _redeemedLockAmt = lockedVault.redeemAll(_action.accountIds[0]);
-            require(
-                IERC20Metadata(_action.token).transferFrom(
-                    _params.Locked.vaultAddr,
-                    address(this),
-                    _redeemedLockAmt
-                )
-            );
-            _action.lockAmt = _redeemedLockAmt;
-        }
+        IVault.RedemptionResponse memory lockResponse = lockedVault.redeemAll(_action.accountIds[0]);
+        require(
+            IERC20Metadata(_action.token).transferFrom(
+                _params.Locked.vaultAddr,
+                address(this),
+                _redeemedLockAmt
+            )
+        );
+        _action.lockAmt = lockResponse.amount;
 
-        uint256 _redeemedLiqAmt;
-        if (_action.liqAmt > 0) {
-            _redeemedLiqAmt = liquidVault.redeemAll(_action.accountIds[0]);
-            require(
-                IERC20Metadata(_action.token).transferFrom(
-                    _params.Liquid.vaultAddr,
-                    address(this),
-                    _redeemedLiqAmt
-                )
-            );
-            _action.liqAmt = _redeemedLiqAmt;
-        }
+        IVault.RedemptionResponse memory liqResponse = liquidVault.redeemAll(_action.accountIds[0]);
+        require(
+            IERC20Metadata(_action.token).transferFrom(
+                _params.Liquid.vaultAddr,
+                address(this),
+                _redeemedLiqAmt
+            )
+        );
+        _action.liqAmt = liqResponse.amount;
 
         // Pack and send the tokens back through GMP
-        uint256 _redeemedAmt = _redeemedLockAmt + _redeemedLiqAmt;
+        uint256 _redeemedAmt = lockResponse.amount + liqResponse.amount;
         _action = _prepareToSendTokens(_action, _redeemedAmt);
         emit Redemption(_action, _redeemedAmt);
-        _action.status = IVault.VaultActionStatus.POSITION_EXITED;
+        if (liqResponse.status == lockResponse.status == IVault.VaultActionStatus.POSITION_EXITED) {
+            _action.status =  IVault.VaultActionStatus.POSITION_EXITED;
+        }
         return _action;
     }
 
