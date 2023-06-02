@@ -2,7 +2,7 @@ import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {AngelCoreStruct__factory, StringArray__factory} from "typechain-types";
 import {getSigners, updateAddresses} from "utils";
 
-export async function deployLibraries(verify_contracts: boolean, hre: HardhatRuntimeEnvironment) {
+export async function deployLibraries(verify: boolean, hre: HardhatRuntimeEnvironment) {
   const {proxyAdmin} = await getSigners(hre.ethers);
 
   const angelCoreStructFactory = new AngelCoreStruct__factory(proxyAdmin);
@@ -30,7 +30,7 @@ export async function deployLibraries(verify_contracts: boolean, hre: HardhatRun
     hre
   );
 
-  if (verify_contracts) {
+  if (verify) {
     console.log("Verifying...");
     await hre.run(`verify:verify`, {
       address: angelCoreStruct.address,

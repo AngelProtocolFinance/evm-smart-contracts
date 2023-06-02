@@ -9,7 +9,7 @@ import {getSigners, updateAddresses} from "utils";
 export async function deployRegistrar(
   registrarData: RegistrarMessages.InstantiateRequestStruct,
   owner: string,
-  verify_contracts: boolean,
+  verify: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
   const {run, ethers} = hre;
@@ -45,7 +45,7 @@ export async function deployRegistrar(
     hre
   );
 
-  if (verify_contracts) {
+  if (verify) {
     await run(`verify:verify`, {
       address: registrar.address,
       constructorArguments: [],

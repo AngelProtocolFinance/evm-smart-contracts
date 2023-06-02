@@ -6,9 +6,9 @@ task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
   .addParam("verify", "Want to verify contract", false, types.boolean)
   .setAction(async (taskArgs: {verify: boolean}, hre) => {
     try {
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify = !isLocalNetwork(hre.network) && taskArgs.verify;
 
-      await deployEndowmentMultiSig(verify_contracts, hre);
+      await deployEndowmentMultiSig(verify, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

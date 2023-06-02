@@ -7,7 +7,7 @@ import {IndexFundMessage} from "typechain-types/contracts/core/index-fund/IndexF
 export async function deployIndexFund(
   initFactoryData: IndexFundMessage.InstantiateMessageStruct,
   owner: string,
-  verify_contracts: boolean,
+  verify: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
   try {
@@ -47,7 +47,7 @@ export async function deployIndexFund(
       hre
     );
 
-    if (verify_contracts) {
+    if (verify) {
       await run("verify:verify", {
         address: indexContract.address,
         constructorArguments: [],

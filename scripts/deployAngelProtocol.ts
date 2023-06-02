@@ -21,7 +21,7 @@ import {deployLibraries} from "./deployLibraries";
 import {deployMockUSDC} from "./deployMockUSDC";
 
 export async function deployAngelProtocol(
-  verify_contracts: boolean,
+  verify: boolean,
   hre: HardhatRuntimeEnvironment
 ): Promise<void> {
   const {network, ethers} = hre;
@@ -35,11 +35,11 @@ export async function deployAngelProtocol(
   // Mock setup required for testing
   const mockUSDC = isLocalNetwork(network) ? await deployMockUSDC(proxyAdmin, hre) : undefined;
 
-  const {angelCoreStruct, stringLib} = await deployLibraries(verify_contracts, hre);
+  const {angelCoreStruct, stringLib} = await deployLibraries(verify, hre);
 
-  const apTeamMultisig = await deployAPTeamMultiSig(verify_contracts, hre);
+  const apTeamMultisig = await deployAPTeamMultiSig(verify, hre);
 
-  const applicationsMultiSig = await deployApplicationsMultiSig(verify_contracts, hre);
+  const applicationsMultiSig = await deployApplicationsMultiSig(verify, hre);
 
   const registrarData = {
     treasury: treasury.address,
@@ -52,12 +52,7 @@ export async function deployAngelProtocol(
     axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
   };
 
-  const registrar = await deployRegistrar(
-    registrarData,
-    apTeamMultisig.proxy.address,
-    verify_contracts,
-    hre
-  );
+  const registrar = await deployRegistrar(registrarData, apTeamMultisig.proxy.address, verify, hre);
 
   // Router deployment includes updating Registrar config's "router" address
   const router = await deployRouter(
@@ -65,7 +60,7 @@ export async function deployAngelProtocol(
     config.REGISTRAR_DATA.axelarGasRecv,
     registrar.proxy.address,
     apTeamMultisig.proxy.address,
-    verify_contracts,
+    verify,
     hre
   );
 
@@ -73,13 +68,13 @@ export async function deployAngelProtocol(
     apTeamMultisig.proxy.address,
     registrar.proxy.address,
     angelCoreStruct.address,
-    verify_contracts,
+    verify,
     hre
   );
 
   console.log("Account contract deployed at:-", accountsDiamond.address);
 
-  const emitters = await deployEmitters(accountsDiamond.address, verify_contracts, hre);
+  const emitters = await deployEmitters(accountsDiamond.address, verify, hre);
 
   console.log("emitters Contract deployed at:-", emitters);
 
@@ -97,7 +92,7 @@ export async function deployAngelProtocol(
 
   const charityApplicationsAddress = await charityApplications(
     charityApplicationsData,
-    verify_contracts,
+    verify,
     hre
   );
   console.log("charityApplicationsAddress deployed at:-", charityApplicationsAddress);
@@ -107,7 +102,7 @@ export async function deployAngelProtocol(
     accountsDiamond.address,
     config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS,
     config.SWAP_ROUTER_DATA.SWAP_ROUTER_ADDRESS,
-    verify_contracts,
+    verify,
     hre
   );
 
@@ -123,13 +118,13 @@ export async function deployAngelProtocol(
   const INDEX_FUND_ADDRESS = await deployIndexFund(
     indexFundData,
     apTeamMultisig.proxy.address,
-    verify_contracts,
+    verify,
     hre
   );
 
   console.log("INDEX_FUND_ADDRESS contract deployed at:-", INDEX_FUND_ADDRESS);
 
-  const multisigDat = await deployEndowmentMultiSig(verify_contracts, hre);
+  const multisigDat = await deployEndowmentMultiSig(verify, hre);
 
   console.log("multisigDat contract deployed at:-", multisigDat);
   // console.log('implementations deployed at:', implementations);
@@ -139,7 +134,7 @@ export async function deployAngelProtocol(
   //     registrarContract: REGISTRAR_ADDRESS,
   // }
 
-  // const giftCardAddress = await giftCard(GiftCardDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre)
+  // const giftCardAddress = await giftCard(GiftCardDataInput, ANGEL_CORE_STRUCT.address, verify, hre)
 
   // const FundraisingDataInput = {
   //     registrarContract: REGISTRAR_ADDRESS,
@@ -151,14 +146,14 @@ export async function deployAngelProtocol(
   // const fundraisingAddress = await deployFundraising(
   //     FundraisingDataInput,
   //     ANGEL_CORE_STRUCT.address,
-  //     verify_contracts,
+  //     verify,
   //     hre
   // )
 
   // TODO:
   // UNCOMMENT WHEN HALO CONTRACTS ARE READY FOR DEPLOYMENT
   //
-  // var haloAddress = await deployHaloImplementation(SWAP_ROUTER, verify_contracts, hre)
+  // var haloAddress = await deployHaloImplementation(SWAP_ROUTER, verify, hre)
 
   // addressWriter.haloAddress = haloAddress
 
@@ -282,7 +277,7 @@ export async function deployAngelProtocol(
   const implementations = await deployImplementation(
     angelCoreStruct.address,
     donationMatchCharityData,
-    verify_contracts,
+    verify,
     hre
   );
 

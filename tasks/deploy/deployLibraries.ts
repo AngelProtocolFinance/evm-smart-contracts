@@ -6,8 +6,8 @@ task("deploy:Libraries", "Will deploy Libraries")
   .addParam("verify", "Want to verify contract", false, types.boolean)
   .setAction(async (taskArgs: {verify: boolean}, hre) => {
     try {
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
-      await deployLibraries(verify_contracts, hre);
+      const verify = !isLocalNetwork(hre.network) && taskArgs.verify;
+      await deployLibraries(verify, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     } finally {
