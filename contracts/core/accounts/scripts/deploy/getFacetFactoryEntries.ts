@@ -16,7 +16,7 @@ import {
   AccountsVaultFacet__factory,
   DiamondLoupeFacet__factory,
   OwnershipFacet__factory,
-} from "typechain-types";
+} from "../typechain-types";
 import {AddressObj} from "utils";
 
 // Getting factories instantiated in bulk as they share the deploy/cut creation logic.
