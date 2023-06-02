@@ -48,9 +48,9 @@ contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
             earlyLockedWithdrawFee = details.earlyLockedWithdrawFee;
         }
         // check all of the other fees
-        AngelCoreStruct.validateFee(details.withdrawFee.bps);
-        AngelCoreStruct.validateFee(details.depositFee.bps);
-        AngelCoreStruct.validateFee(details.balanceFee.bps);
+        AngelCoreStruct.validateFee(details.withdrawFee);
+        AngelCoreStruct.validateFee(details.depositFee);
+        AngelCoreStruct.validateFee(details.balanceFee);
         
         if (details.members.length == 0) {
             details.members = new address[](1);
