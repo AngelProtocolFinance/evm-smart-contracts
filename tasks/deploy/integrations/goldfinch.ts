@@ -15,7 +15,6 @@ import {GoldfinchVault, GoldfinchVault__factory, Registrar} from "typechain-type
 task("deploy:integrations:Goldfinch")
   .addParam("stakingPool", "address of the FIDU stakingPool", "", types.string)
   .addParam("crvPool", "address of the USDC/FIDU LP on CRV", "", types.string)
-  .addParam("usdc", "address of the USDC token", "", types.string)
   .addParam("fidu", "address of the FIDU token", "", types.string)
   .addParam("gfi", "address of the GFI token", "", types.string)
   .addOptionalParam(
@@ -26,11 +25,12 @@ task("deploy:integrations:Goldfinch")
   )
   .setAction(async function (taskArguments: TaskArguments, hre) {
     logger.divider();
+    const addresses = await getAddresses(hre);
+
     let registrarAddress;
     if (taskArguments.registrar == "") {
       logger.out("Connecting to registrar on specified network...");
-      const addresses = await getAddresses(hre);
-      registrarAddress = addresses["registrar"]["proxy"];
+      registrarAddress = addresses.registrar.proxy;
     } else {
       registrarAddress = taskArguments.registrar;
     }
@@ -52,7 +52,7 @@ task("deploy:integrations:Goldfinch")
       registrarAddress,
       taskArguments.stakingPool,
       taskArguments.crvPool,
-      taskArguments.usdc,
+      addresses.tokens.usdc,
       taskArguments.fidu,
       taskArguments.gfi,
     ] as const;
@@ -65,7 +65,7 @@ task("deploy:integrations:Goldfinch")
       registrarAddress,
       taskArguments.stakingPool,
       taskArguments.crvPool,
-      taskArguments.usdc,
+      addresses.tokens.usdc,
       taskArguments.fidu,
       taskArguments.gfi,
     ] as const;

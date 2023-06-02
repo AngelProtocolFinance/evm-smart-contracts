@@ -49,14 +49,12 @@ const EXPORT_CONFIG = {
     uniswapFactory: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
     registrarContract: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
     poolFee: 300,
-    usdcAddress: "0xe6b8a5CF854791412c1f6EFC7CAf629f5Df1c747",
     DAI_address: "",
   },
   REGISTRAR_UPDATE_CONFIG: {
     collectorShare: 1,
     haloTokenLpContract: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
     wethAddress: "0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa",
-    usdcAddress: "0xe6b8a5CF854791412c1f6EFC7CAf629f5Df1c747",
     DAI_address: "",
   },
   SWAP_ROUTER_DATA: {

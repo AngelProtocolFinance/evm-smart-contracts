@@ -268,7 +268,7 @@ export async function deployAngelProtocol(
     uniswapFactory: config.DONATION_MATCH_CHARITY_DATA.uniswapFactory,
     registrarContract: registrar.proxy.address,
     poolFee: config.DONATION_MATCH_CHARITY_DATA.poolFee,
-    usdcAddress: config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
+    usdcAddress: usdcToken.address,
   };
 
   if (isLocalNetwork(network)) {
@@ -276,7 +276,6 @@ export async function deployAngelProtocol(
     // donationMatchCharityData.reserveToken = haloToken.address
     donationMatchCharityData.uniswapFactory = config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS;
     donationMatchCharityData.poolFee = 3000;
-    donationMatchCharityData.usdcAddress = usdcToken!.address;
   }
 
   // transfer 100000000 HALO to donation match charities

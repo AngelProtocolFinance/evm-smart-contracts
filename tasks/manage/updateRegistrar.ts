@@ -52,7 +52,7 @@ task("manage:updateRegistrar", "Will update the registrar config").setAction(
         multisigEmitter: addresses.multiSig.endowment.emitter.proxy,
         charityProposal: ADDRESS_ZERO,
         proxyAdmin: proxyAdmin.address,
-        usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress,
+        usdcAddress: addresses.tokens.usdc,
         wethAddress: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
         cw900lvAddress: apTeam1.address,
         lockedWithdrawal: ADDRESS_ZERO,
