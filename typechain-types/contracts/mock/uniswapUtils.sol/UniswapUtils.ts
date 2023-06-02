@@ -14,8 +14,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -107,11 +107,23 @@ export interface UniswapUtilsInterface extends utils.Interface {
     functionFragment: "createPoolAndMintPositionErC20",
     values: [UniswapUtils.CreateUniswapPoolERC20ArgsStruct]
   ): string;
-  encodeFunctionData(functionFragment: "nonfungiblePositionManager", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "nonfungiblePositionManager",
+    values?: undefined
+  ): string;
 
-  decodeFunctionResult(functionFragment: "createPoolAndMintPosition", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "createPoolAndMintPositionErC20", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "nonfungiblePositionManager", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "createPoolAndMintPosition",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "createPoolAndMintPositionErC20",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "nonfungiblePositionManager",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -133,7 +145,9 @@ export interface UniswapUtils extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -143,12 +157,12 @@ export interface UniswapUtils extends BaseContract {
   functions: {
     createPoolAndMintPosition(
       details: UniswapUtils.CreateUniswapPoolArgsStruct,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     createPoolAndMintPositionErC20(
       details: UniswapUtils.CreateUniswapPoolERC20ArgsStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     nonfungiblePositionManager(overrides?: CallOverrides): Promise<[string]>;
@@ -156,12 +170,12 @@ export interface UniswapUtils extends BaseContract {
 
   createPoolAndMintPosition(
     details: UniswapUtils.CreateUniswapPoolArgsStruct,
-    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   createPoolAndMintPositionErC20(
     details: UniswapUtils.CreateUniswapPoolERC20ArgsStruct,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   nonfungiblePositionManager(overrides?: CallOverrides): Promise<string>;
@@ -185,12 +199,12 @@ export interface UniswapUtils extends BaseContract {
   estimateGas: {
     createPoolAndMintPosition(
       details: UniswapUtils.CreateUniswapPoolArgsStruct,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     createPoolAndMintPositionErC20(
       details: UniswapUtils.CreateUniswapPoolERC20ArgsStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     nonfungiblePositionManager(overrides?: CallOverrides): Promise<BigNumber>;
@@ -199,14 +213,16 @@ export interface UniswapUtils extends BaseContract {
   populateTransaction: {
     createPoolAndMintPosition(
       details: UniswapUtils.CreateUniswapPoolArgsStruct,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     createPoolAndMintPositionErC20(
       details: UniswapUtils.CreateUniswapPoolERC20ArgsStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    nonfungiblePositionManager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    nonfungiblePositionManager(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
   };
 }

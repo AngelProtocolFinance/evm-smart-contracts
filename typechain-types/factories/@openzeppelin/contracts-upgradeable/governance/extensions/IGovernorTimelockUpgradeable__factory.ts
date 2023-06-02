@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   IGovernorTimelockUpgradeable,
   IGovernorTimelockUpgradeableInterface,
@@ -800,6 +800,10 @@ export class IGovernorTimelockUpgradeable__factory {
     address: string,
     signerOrProvider: Signer | Provider
   ): IGovernorTimelockUpgradeable {
-    return new Contract(address, _abi, signerOrProvider) as IGovernorTimelockUpgradeable;
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as IGovernorTimelockUpgradeable;
   }
 }

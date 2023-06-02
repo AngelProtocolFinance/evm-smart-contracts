@@ -10,8 +10,12 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -26,13 +30,21 @@ export interface ProxyContractInterface extends utils.Interface {
     "getImplementation()": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "getAdmin" | "getImplementation"): FunctionFragment;
+  getFunction(
+    nameOrSignatureOrTopic: "getAdmin" | "getImplementation"
+  ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "getAdmin", values?: undefined): string;
-  encodeFunctionData(functionFragment: "getImplementation", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getImplementation",
+    values?: undefined
+  ): string;
 
   decodeFunctionResult(functionFragment: "getAdmin", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getImplementation", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getImplementation",
+    data: BytesLike
+  ): Result;
 
   events: {
     "AdminChanged(address,address)": EventFragment;
@@ -49,14 +61,20 @@ export interface AdminChangedEventObject {
   previousAdmin: string;
   newAdmin: string;
 }
-export type AdminChangedEvent = TypedEvent<[string, string], AdminChangedEventObject>;
+export type AdminChangedEvent = TypedEvent<
+  [string, string],
+  AdminChangedEventObject
+>;
 
 export type AdminChangedEventFilter = TypedEventFilter<AdminChangedEvent>;
 
 export interface BeaconUpgradedEventObject {
   beacon: string;
 }
-export type BeaconUpgradedEvent = TypedEvent<[string], BeaconUpgradedEventObject>;
+export type BeaconUpgradedEvent = TypedEvent<
+  [string],
+  BeaconUpgradedEventObject
+>;
 
 export type BeaconUpgradedEventFilter = TypedEventFilter<BeaconUpgradedEvent>;
 
@@ -84,7 +102,9 @@ export interface ProxyContract extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -92,9 +112,11 @@ export interface ProxyContract extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    getAdmin(overrides?: CallOverrides): Promise<[string] & {adm: string}>;
+    getAdmin(overrides?: CallOverrides): Promise<[string] & { adm: string }>;
 
-    getImplementation(overrides?: CallOverrides): Promise<[string] & {impl: string}>;
+    getImplementation(
+      overrides?: CallOverrides
+    ): Promise<[string] & { impl: string }>;
   };
 
   getAdmin(overrides?: CallOverrides): Promise<string>;
@@ -108,14 +130,28 @@ export interface ProxyContract extends BaseContract {
   };
 
   filters: {
-    "AdminChanged(address,address)"(previousAdmin?: null, newAdmin?: null): AdminChangedEventFilter;
-    AdminChanged(previousAdmin?: null, newAdmin?: null): AdminChangedEventFilter;
+    "AdminChanged(address,address)"(
+      previousAdmin?: null,
+      newAdmin?: null
+    ): AdminChangedEventFilter;
+    AdminChanged(
+      previousAdmin?: null,
+      newAdmin?: null
+    ): AdminChangedEventFilter;
 
-    "BeaconUpgraded(address)"(beacon?: PromiseOrValue<string> | null): BeaconUpgradedEventFilter;
-    BeaconUpgraded(beacon?: PromiseOrValue<string> | null): BeaconUpgradedEventFilter;
+    "BeaconUpgraded(address)"(
+      beacon?: PromiseOrValue<string> | null
+    ): BeaconUpgradedEventFilter;
+    BeaconUpgraded(
+      beacon?: PromiseOrValue<string> | null
+    ): BeaconUpgradedEventFilter;
 
-    "Upgraded(address)"(implementation?: PromiseOrValue<string> | null): UpgradedEventFilter;
-    Upgraded(implementation?: PromiseOrValue<string> | null): UpgradedEventFilter;
+    "Upgraded(address)"(
+      implementation?: PromiseOrValue<string> | null
+    ): UpgradedEventFilter;
+    Upgraded(
+      implementation?: PromiseOrValue<string> | null
+    ): UpgradedEventFilter;
   };
 
   estimateGas: {

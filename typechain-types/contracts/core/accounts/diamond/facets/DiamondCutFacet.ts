@@ -13,8 +13,12 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -46,7 +50,11 @@ export interface DiamondCutFacetInterface extends utils.Interface {
 
   encodeFunctionData(
     functionFragment: "diamondCut",
-    values: [IDiamondCut.FacetCutStruct[], PromiseOrValue<string>, PromiseOrValue<BytesLike>]
+    values: [
+      IDiamondCut.FacetCutStruct[],
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>
+    ]
   ): string;
 
   decodeFunctionResult(functionFragment: "diamondCut", data: BytesLike): Result;
@@ -87,7 +95,9 @@ export interface DiamondCutFacet extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -99,7 +109,7 @@ export interface DiamondCutFacet extends BaseContract {
       diamondcut: IDiamondCut.FacetCutStruct[],
       init: PromiseOrValue<string>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
@@ -107,7 +117,7 @@ export interface DiamondCutFacet extends BaseContract {
     diamondcut: IDiamondCut.FacetCutStruct[],
     init: PromiseOrValue<string>,
     data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -125,7 +135,11 @@ export interface DiamondCutFacet extends BaseContract {
       init?: null,
       data?: null
     ): DiamondCutEventFilter;
-    DiamondCut(diamondcut?: null, init?: null, data?: null): DiamondCutEventFilter;
+    DiamondCut(
+      diamondcut?: null,
+      init?: null,
+      data?: null
+    ): DiamondCutEventFilter;
   };
 
   estimateGas: {
@@ -133,7 +147,7 @@ export interface DiamondCutFacet extends BaseContract {
       diamondcut: IDiamondCut.FacetCutStruct[],
       init: PromiseOrValue<string>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
@@ -142,7 +156,7 @@ export interface DiamondCutFacet extends BaseContract {
       diamondcut: IDiamondCut.FacetCutStruct[],
       init: PromiseOrValue<string>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

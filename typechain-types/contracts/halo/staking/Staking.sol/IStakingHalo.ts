@@ -13,8 +13,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -53,47 +53,88 @@ export interface IStakingHaloInterface extends utils.Interface {
       | "updateInterestRate"
   ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "lastStakedFor", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(
+    functionFragment: "lastStakedFor",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
     functionFragment: "stake",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "stakeFor",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
+    ]
   ): string;
-  encodeFunctionData(functionFragment: "supportsHistory", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "supportsHistory",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "token", values?: undefined): string;
-  encodeFunctionData(functionFragment: "totalStaked", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "totalStaked",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "totalStakedAt",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(functionFragment: "totalStakedFor", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(
+    functionFragment: "totalStakedFor",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
     functionFragment: "totalStakedForAt",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "unstake",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "updateInterestRate",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
 
-  decodeFunctionResult(functionFragment: "lastStakedFor", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "lastStakedFor",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "stake", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "stakeFor", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "supportsHistory", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "supportsHistory",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "totalStaked", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "totalStakedAt", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "totalStakedFor", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "totalStakedForAt", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "totalStaked",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "totalStakedAt",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "totalStakedFor",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "totalStakedForAt",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "unstake", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "updateInterestRate", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "updateInterestRate",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -115,7 +156,9 @@ export interface IStakingHalo extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -123,19 +166,22 @@ export interface IStakingHalo extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    lastStakedFor(addr: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[BigNumber]>;
+    lastStakedFor(
+      addr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     stake(
       amount: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     stakeFor(
       user: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     supportsHistory(overrides?: CallOverrides): Promise<[boolean]>;
@@ -149,7 +195,10 @@ export interface IStakingHalo extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    totalStakedFor(addr: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[BigNumber]>;
+    totalStakedFor(
+      addr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     totalStakedForAt(
       addr: PromiseOrValue<string>,
@@ -161,28 +210,31 @@ export interface IStakingHalo extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       stakeId: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     updateInterestRate(
       interestRate: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
-  lastStakedFor(addr: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
+  lastStakedFor(
+    addr: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   stake(
     amount: PromiseOrValue<BigNumberish>,
     data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   stakeFor(
     user: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
     data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   supportsHistory(overrides?: CallOverrides): Promise<boolean>;
@@ -196,7 +248,10 @@ export interface IStakingHalo extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  totalStakedFor(addr: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
+  totalStakedFor(
+    addr: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   totalStakedForAt(
     addr: PromiseOrValue<string>,
@@ -208,16 +263,19 @@ export interface IStakingHalo extends BaseContract {
     amount: PromiseOrValue<BigNumberish>,
     stakeId: PromiseOrValue<BigNumberish>,
     data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   updateInterestRate(
     interestRate: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    lastStakedFor(addr: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
+    lastStakedFor(
+      addr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     stake(
       amount: PromiseOrValue<BigNumberish>,
@@ -243,7 +301,10 @@ export interface IStakingHalo extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    totalStakedFor(addr: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
+    totalStakedFor(
+      addr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     totalStakedForAt(
       addr: PromiseOrValue<string>,
@@ -267,19 +328,22 @@ export interface IStakingHalo extends BaseContract {
   filters: {};
 
   estimateGas: {
-    lastStakedFor(addr: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
+    lastStakedFor(
+      addr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     stake(
       amount: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     stakeFor(
       user: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     supportsHistory(overrides?: CallOverrides): Promise<BigNumber>;
@@ -293,7 +357,10 @@ export interface IStakingHalo extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    totalStakedFor(addr: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
+    totalStakedFor(
+      addr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     totalStakedForAt(
       addr: PromiseOrValue<string>,
@@ -305,12 +372,12 @@ export interface IStakingHalo extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       stakeId: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     updateInterestRate(
       interestRate: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
@@ -323,14 +390,14 @@ export interface IStakingHalo extends BaseContract {
     stake(
       amount: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     stakeFor(
       user: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     supportsHistory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -359,12 +426,12 @@ export interface IStakingHalo extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       stakeId: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     updateInterestRate(
       interestRate: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }
