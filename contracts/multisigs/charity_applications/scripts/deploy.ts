@@ -7,7 +7,7 @@ import {ContractFunctionParams, getSigners, logger, updateAddresses} from "utils
 
 export async function charityApplications(
   CharityApplicationDataInput: ContractFunctionParams<CharityApplication["initialize"]>,
-  verify: boolean,
+  verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
   try {
@@ -56,7 +56,7 @@ export async function charityApplications(
       hre
     );
 
-    if (verify) {
+    if (verify_contracts) {
       await run(`verify:verify`, {
         address: CharityApplicationInstance.address,
         constructorArguments: [],

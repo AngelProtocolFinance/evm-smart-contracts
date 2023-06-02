@@ -18,7 +18,7 @@ import {envConfig, getSigners} from "utils";
 
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
-const deployERC20 = async (verify: boolean, hre: HardhatRuntimeEnvironment) => {
+const deployERC20 = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
   try {
     const {ethers, run, network} = hre;
     const {proxyAdmin} = await getSigners(ethers);
@@ -41,7 +41,7 @@ const deployERC20 = async (verify: boolean, hre: HardhatRuntimeEnvironment) => {
 
     await ERC20UpgradeProxy.deployed();
 
-    if (verify) {
+    if (verify_contracts) {
       await hre.run("verify:verify", {
         address: ERC20UpgradeInstance.address,
         constructorArguments: [],
@@ -61,7 +61,7 @@ const deployERC20 = async (verify: boolean, hre: HardhatRuntimeEnvironment) => {
 
 export async function deployHaloImplementation(
   swapRouter: string,
-  verify: boolean,
+  verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
   try {
@@ -72,9 +72,9 @@ export async function deployHaloImplementation(
 
     const {proxyAdmin, airdropOwner, apTeam2, apTeam3} = await getSigners(ethers);
 
-    let halo = await deployERC20(verify, hre);
+    let halo = await deployERC20(verify_contracts, hre);
 
-    let gov = await deployGov(halo, verify, hre);
+    let gov = await deployGov(halo, verify_contracts, hre);
 
     let halo_code = await ethers.getContractAt("ERC20Upgrade", halo);
 

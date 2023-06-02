@@ -9,7 +9,7 @@ export async function deployRouter(
   gasReceiver: string,
   registrar: string,
   apTeamMultisig: string,
-  verify: boolean,
+  verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
   logger.out("Deploying Router...");
@@ -32,7 +32,7 @@ export async function deployRouter(
   // Registrar NetworkInfo's Router address must be updated for the current network
   await updateRegistrar(registrar, routerProxy, axelarGateway, gasReceiver, apTeamMultisig, hre);
 
-  if (verify) {
+  if (verify_contracts) {
     try {
       logger.out("Verifying...");
       await hre.run("verify:verify", {

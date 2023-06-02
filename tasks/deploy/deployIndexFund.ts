@@ -17,9 +17,9 @@ task("deploy:IndexFund", "Will deploy IndexFund contract")
         fundMemberLimit: config.INDEX_FUND_DATA.fundMemberLimit,
         fundingGoal: config.INDEX_FUND_DATA.fundingGoal,
       };
-      const verify = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
 
-      await deployIndexFund(indexFundData, apTeam.proxy, verify, hre);
+      await deployIndexFund(indexFundData, apTeam.proxy, verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

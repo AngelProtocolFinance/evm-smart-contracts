@@ -10,7 +10,7 @@ const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
 export async function deployGov(
   haloTokenAddress: string,
-  verify: boolean,
+  verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
   // TODO: remove param timelock
@@ -103,7 +103,7 @@ export async function deployGov(
     );
     const revokerole = await revokeTx.wait(1);
 
-    if (verify) {
+    if (verify_contracts) {
       await hre.run("verify:verify", {
         address: TimeLockInstance.address,
         constructorArguments: [],

@@ -9,14 +9,14 @@ task("deploy:SwapRouter", "Will deploy SwapRouter contract")
   .addParam("accountaddress", "Address of the account")
   .setAction(async (taskArgs, hre) => {
     try {
-      const verify = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
 
       await deploySwapRouter(
         taskArgs.registraraddress,
         taskArgs.accountaddress,
         config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS,
         config.SWAP_ROUTER_DATA.SWAP_ROUTER_ADDRESS,
-        verify,
+        verify_contracts,
         hre
       );
     } catch (error) {

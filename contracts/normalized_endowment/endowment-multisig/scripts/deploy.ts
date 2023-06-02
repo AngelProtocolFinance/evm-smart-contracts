@@ -7,7 +7,7 @@ import {getSigners, logger, updateAddresses} from "utils";
 const deployEndowmentMultiSigEmitter = async (
   proxyAdmin: string,
   factoryAddress: string,
-  verify: boolean,
+  verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) => {
   try {
@@ -43,7 +43,7 @@ const deployEndowmentMultiSigEmitter = async (
       EndowmentMultiSigEmitterProxy.address
     );
 
-    if (verify) {
+    if (verify_contracts) {
       await run("verify:verify", {
         address: EndowmentMultiSigEmitterImplementation.address,
         constructorArguments: [],
@@ -67,7 +67,10 @@ const deployEndowmentMultiSigEmitter = async (
   }
 };
 
-export async function deployEndowmentMultiSig(verify: boolean, hre: HardhatRuntimeEnvironment) {
+export async function deployEndowmentMultiSig(
+  verify_contracts: boolean,
+  hre: HardhatRuntimeEnvironment
+) {
   try {
     const {ethers, run, network} = hre;
     const {proxyAdmin} = await getSigners(ethers);
@@ -89,7 +92,7 @@ export async function deployEndowmentMultiSig(verify: boolean, hre: HardhatRunti
     const EndowmentMultiSigEmitterAddresses = await deployEndowmentMultiSigEmitter(
       proxyAdmin.address,
       MultiSigWalletFactoryInstance.address,
-      verify,
+      verify_contracts,
       hre
     );
 
@@ -107,7 +110,7 @@ export async function deployEndowmentMultiSig(verify: boolean, hre: HardhatRunti
       hre
     );
 
-    if (verify) {
+    if (verify_contracts) {
       await run("verify:verify", {
         address: EndowmentMultiSigInstance.address,
         constructorArguments: [],
