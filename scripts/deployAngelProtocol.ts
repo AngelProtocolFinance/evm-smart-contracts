@@ -35,7 +35,7 @@ export async function deployAngelProtocol(
   // Mock setup required for testing
   const mockUSDC = isLocalNetwork(network) ? await deployMockUSDC(proxyAdmin, hre) : undefined;
 
-  const {angelCoreStruct, stringLib} = await deployLibraries(hre);
+  const {angelCoreStruct, stringLib} = await deployLibraries(verify_contracts, hre);
 
   const apTeamMultisig = await deployAPTeamMultiSig(verify_contracts, hre);
 
