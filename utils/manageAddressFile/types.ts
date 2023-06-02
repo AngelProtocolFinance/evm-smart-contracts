@@ -31,6 +31,7 @@ export type AddressObj = {
       proxy: string;
     };
     implementation: string;
+    proxy: string;
   };
   donationMatchCharity: {
     implementation: string;

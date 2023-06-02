@@ -5,6 +5,7 @@ import {getSigners, logger, updateAddresses} from "utils";
 
 export default async function deployDonationMatchCharity(
   registrar: string,
+  usdcAddress: string,
   verify: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
@@ -25,7 +26,7 @@ export default async function deployDonationMatchCharity(
       uniswapFactory: config.DONATION_MATCH_CHARITY_DATA.uniswapFactory,
       registrarContract: registrar,
       poolFee: config.DONATION_MATCH_CHARITY_DATA.poolFee,
-      usdcAddress: config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
+      usdcAddress,
     },
   ]);
   const proxyFactory = new ProxyContract__factory(proxyAdmin);

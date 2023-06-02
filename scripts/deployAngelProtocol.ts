@@ -19,7 +19,7 @@ import {cleanAddresses} from "utils";
 import {getSigners} from "utils/getSigners";
 import {deployLibraries} from "./deployLibraries";
 import {deployMockUSDC} from "./deployMockUSDC";
-import {deployDonationMatch} from "contracts/normalized_endowment/donation-match/scripts/deploy";
+import {deployDonationMatchContracts} from "contracts/normalized_endowment/donation-match/scripts/deploy";
 
 export async function deployAngelProtocol(
   verify_contracts: boolean,
@@ -78,12 +78,14 @@ export async function deployAngelProtocol(
     hre
   );
 
-  const {donationMatchCharity, donationMatchEmitter} = await deployDonationMatch(
-    accountsDiamond.address,
-    registrar.proxy.address,
-    verify_contracts,
-    hre
-  );
+  const {donationMatch, donationMatchCharity, donationMatchEmitter} =
+    await deployDonationMatchContracts(
+      accountsDiamond.address,
+      registrar.proxy.address,
+      mockUSDC?.address ?? config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
+      verify_contracts,
+      hre
+    );
 
   const charityApplicationsData: Parameters<typeof charityApplications>[0] = [
     config.CHARITY_APPLICATION_DATA.expiry,
@@ -283,7 +285,6 @@ export async function deployAngelProtocol(
 
   const implementations = await deployImplementation(
     angelCoreStruct.address,
-    donationMatchCharityData,
     verify_contracts,
     hre
   );
@@ -307,7 +308,7 @@ export async function deployAngelProtocol(
     subdaoCw900Contract: implementations.incentivisedVotingLockup.implementation, //address
     subdaoDistributorContract: ethers.constants.AddressZero,
     subdaoEmitter: ethers.constants.AddressZero, //TODO:
-    donationMatchContract: implementations.donationMatch.implementation, //address
+    donationMatchContract: donationMatch.proxy.address, //address
     indexFundContract: INDEX_FUND_ADDRESS, //address
     govContract: ethers.constants.AddressZero, //address
     treasury: treasury.address,
