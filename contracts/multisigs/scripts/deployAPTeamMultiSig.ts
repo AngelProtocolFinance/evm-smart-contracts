@@ -3,7 +3,10 @@ import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {APTeamMultiSig__factory, ProxyContract__factory} from "typechain-types";
 import {ContractFunctionParams, getSigners, logger, updateAddresses} from "utils";
 
-export async function deployAPTeamMultiSig(verify: boolean, hre: HardhatRuntimeEnvironment) {
+export async function deployAPTeamMultiSig(
+  verify_contracts: boolean,
+  hre: HardhatRuntimeEnvironment
+) {
   logger.out("Deploying APTeamMultiSig...");
 
   const {apTeamMultisigOwners, proxyAdmin} = await getSigners(hre.ethers);
@@ -40,7 +43,7 @@ export async function deployAPTeamMultiSig(verify: boolean, hre: HardhatRuntimeE
     hre
   );
 
-  if (verify) {
+  if (verify_contracts) {
     logger.out("Verifying...");
     await hre.run("verify:verify", {
       address: apTeamMultiSig.address,

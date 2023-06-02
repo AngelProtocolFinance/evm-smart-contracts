@@ -10,7 +10,7 @@ const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 export async function deployFundraising(
   FundraisingDataInput: FundraisingMessage.InstantiateMsgStruct,
   ANGEL_CORE_STRUCT: string,
-  verify: boolean,
+  verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
   try {
@@ -63,7 +63,7 @@ export async function deployFundraising(
       hre
     );
 
-    if (verify) {
+    if (verify_contracts) {
       await run("verify:verify", {
         address: FundraisingLibInstance.address,
         constructorArguments: [],

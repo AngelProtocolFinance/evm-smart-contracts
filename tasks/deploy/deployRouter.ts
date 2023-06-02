@@ -12,14 +12,14 @@ task("deploy:Router", "Will deploy Router contract")
         multiSig: {apTeam},
       } = await getAddresses(hre);
 
-      const verify = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
 
       await deployRouter(
         config.REGISTRAR_DATA.axelarGateway,
         config.REGISTRAR_DATA.axelarGasRecv,
         registrar.proxy,
         apTeam.proxy,
-        verify,
+        verify_contracts,
         hre
       );
     } catch (error) {

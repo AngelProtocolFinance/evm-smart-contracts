@@ -17,7 +17,7 @@ export async function deployAccountsDiamond(
   owner: string,
   registrar: string,
   ANGEL_CORE_STRUCT: string,
-  verify: boolean,
+  verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
   logger.out("Deploying and setting up Accounts Diamond and all its facets...");
@@ -32,7 +32,7 @@ export async function deployAccountsDiamond(
 
   await cutDiamond(diamond.address, diamondInit, proxyAdmin, owner, registrar, cuts, hre);
 
-  if (verify) {
+  if (verify_contracts) {
     await verify(diamond.address, diamondCutFacet.address, cuts, proxyAdmin, hre);
   }
 

@@ -7,9 +7,9 @@ task("deploy:Emitters", "Will deploy Emitters contract")
   .addParam("accountaddress", "Address of the account")
   .setAction(async (taskArgs, hre) => {
     try {
-      const verify = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
 
-      await deployEmitters(taskArgs.accountaddress, verify, hre);
+      await deployEmitters(taskArgs.accountaddress, verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

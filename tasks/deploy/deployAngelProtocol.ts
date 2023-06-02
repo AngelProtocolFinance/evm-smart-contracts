@@ -6,8 +6,8 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
   .addParam("verify", "Want to verify contract", false, types.boolean)
   .setAction(async (taskArgs: {verify: boolean}, hre) => {
     try {
-      const verify = !isLocalNetwork(hre.network) && taskArgs.verify;
-      await deployAngelProtocol(verify, hre);
+      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
+      await deployAngelProtocol(verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     } finally {

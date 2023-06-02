@@ -16,9 +16,14 @@ task("deploy:Fundraising", "Will deploy Fundraising contract")
         taxRate: config.FundraisingDataInput.taxRate,
         acceptedTokens: config.FundraisingDataInput.acceptedTokens,
       };
-      const verify = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
 
-      await deployFundraising(FundraisingDataInput, taskArgs.angelcorestruct, verify, hre);
+      await deployFundraising(
+        FundraisingDataInput,
+        taskArgs.angelcorestruct,
+        verify_contracts,
+        hre
+      );
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
