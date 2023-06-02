@@ -12,7 +12,6 @@ import {deployImplementation} from "contracts/normalized_endowment/scripts/deplo
 // import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
 import config from "config";
 import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
-import {Contract} from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {IndexFund__factory, Registrar__factory} from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
@@ -21,14 +20,15 @@ import {getSigners} from "utils/getSigners";
 import {deployLibraries} from "./deployLibraries";
 import {deployMockUSDC} from "./deployMockUSDC";
 
-export async function deployAngelProtocol(hre: HardhatRuntimeEnvironment): Promise<void> {
+export async function deployAngelProtocol(
+  verify_contracts: boolean,
+  hre: HardhatRuntimeEnvironment
+): Promise<void> {
   const {network, ethers} = hre;
 
   const {proxyAdmin, treasury} = await getSigners(ethers);
 
   await cleanAddresses(hre);
-
-  const verify_contracts = isLocalNetwork(hre.network);
 
   console.log("Deploying the contracts with the account:", proxyAdmin.address);
 
