@@ -11,7 +11,7 @@ export async function deploySwapRouter(
   accountsContract: string,
   swapFactory: string,
   swapRouterAddress: string,
-  verify_contracts: boolean,
+  verify: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
   try {
@@ -59,7 +59,7 @@ export async function deploySwapRouter(
       hre
     );
 
-    if (verify_contracts) {
+    if (verify) {
       await run(`verify:verify`, {
         address: swapRouterInstance.address,
         constructorArguments: [],

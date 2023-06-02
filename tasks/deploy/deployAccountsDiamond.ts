@@ -7,12 +7,12 @@ task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
   .setAction(async (taskArgs: {verify: boolean}, hre) => {
     try {
       const addresses = await getAddresses(hre);
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify = !isLocalNetwork(hre.network) && taskArgs.verify;
       await deployAccountsDiamond(
         addresses.multiSig.apTeam.proxy,
         addresses.registrar.proxy,
         addresses.libraries.ANGEL_CORE_STRUCT_LIBRARY,
-        verify_contracts,
+        verify,
         hre
       );
     } catch (error) {

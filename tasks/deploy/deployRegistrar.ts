@@ -21,16 +21,16 @@ task("deploy:Registrar", "Will deploy Registrar contract")
         axelarGateway: config.REGISTRAR_DATA.axelarGateway,
         axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
       };
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify = !isLocalNetwork(hre.network) && taskArgs.verify;
 
-      const registrar = await deployRegistrar(registrarData, apTeam.proxy, verify_contracts, hre);
+      const registrar = await deployRegistrar(registrarData, apTeam.proxy, verify, hre);
 
       await deployRouter(
         config.REGISTRAR_DATA.axelarGateway,
         config.REGISTRAR_DATA.axelarGasRecv,
         registrar.proxy.address,
         apTeam.proxy,
-        verify_contracts,
+        verify,
         hre
       );
     } catch (error) {

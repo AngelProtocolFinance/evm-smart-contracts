@@ -44,7 +44,7 @@ const POLYGON_RPC_URL = extractString("POLYGON_RPC_URL");
 const POLYSCAN_API_KEY = extractString("POLYSCAN_API_KEY");
 const PROD_NETWORK_ID = extractNumber("PROD_NETWORK_ID");
 const ROUTER_ADDRESS = extractString("ROUTER_ADDRESS");
-const VERIFY_CONTRACTS = extractString("VERIFY_CONTRACTS");
+const verify = extractString("verify");
 
 function extractNumber(name: string): number {
   const envVar = extractString(name);
@@ -84,5 +84,5 @@ export var envConfig = {
   POLYSCAN_API_KEY,
   PROD_NETWORK_ID,
   ROUTER_ADDRESS,
-  VERIFY_CONTRACTS,
+  verify,
 };

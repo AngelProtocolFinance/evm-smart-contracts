@@ -5,7 +5,7 @@ import {GiftCardsMessage} from "typechain-types/contracts/accessory/gift-cards/G
 export async function deployGiftCard(
   GiftCardsDataInput: GiftCardsMessage.InstantiateMsgStruct,
   ANGEL_CORE_STRUCT: string,
-  verify_contracts: boolean,
+  verify: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
   try {
@@ -32,7 +32,7 @@ export async function deployGiftCard(
     await GiftCardsProxy.deployed();
     console.log("GiftCards Address (Proxy):", GiftCardsProxy.address);
 
-    if (verify_contracts) {
+    if (verify) {
       await run("verify:verify", {
         address: GiftCardsInstance.address,
         constructorArguments: [],

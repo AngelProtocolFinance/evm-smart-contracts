@@ -3,10 +3,7 @@ import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {ApplicationsMultiSig__factory, ProxyContract__factory} from "typechain-types";
 import {ContractFunctionParams, getSigners, logger, updateAddresses} from "utils";
 
-export async function deployApplicationsMultiSig(
-  verify_contracts: boolean,
-  hre: HardhatRuntimeEnvironment
-) {
+export async function deployApplicationsMultiSig(verify: boolean, hre: HardhatRuntimeEnvironment) {
   logger.out("Deploying ApplicationsMultiSig...");
 
   const {applicationsMultisigOwners, proxyAdmin} = await getSigners(hre.ethers);
@@ -43,7 +40,7 @@ export async function deployApplicationsMultiSig(
     hre
   );
 
-  if (verify_contracts) {
+  if (verify) {
     logger.out("Verifying...");
     await hre.run("verify:verify", {
       address: applicationsMultiSig.address,

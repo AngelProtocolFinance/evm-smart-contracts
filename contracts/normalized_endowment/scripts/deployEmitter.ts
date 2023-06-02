@@ -7,7 +7,7 @@ import {getSigners, logger, updateAddresses} from "utils";
 const deploySubDaoEmitter = async (
   proxyAdmin: string,
   accountAddress: string,
-  verify_contracts: boolean,
+  verify: boolean,
   hre: HardhatRuntimeEnvironment
 ) => {
   try {
@@ -49,7 +49,7 @@ const deploySubDaoEmitter = async (
       hre
     );
 
-    if (verify_contracts) {
+    if (verify) {
       await run(`verify:verify`, {
         address: SubdaoEmitterImplementation.address,
         constructorArguments: [],
@@ -69,7 +69,7 @@ const deploySubDaoEmitter = async (
 const deployDonationMatchEmitter = async (
   proxyAdmin: string,
   accountAddress: string,
-  verify_contracts: boolean,
+  verify: boolean,
   hre: HardhatRuntimeEnvironment
 ) => {
   try {
@@ -94,7 +94,7 @@ const deployDonationMatchEmitter = async (
 
     await DonationMatchEmitterProxy.deployed();
 
-    if (verify_contracts) {
+    if (verify) {
       await run(`verify:verify`, {
         address: DonationMatchEmitterImplementation.address,
         constructorArguments: [],
@@ -119,7 +119,7 @@ const deployDonationMatchEmitter = async (
 
 export async function deployEmitters(
   accountAddress: string,
-  verify_contracts: boolean,
+  verify: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
   try {
@@ -127,16 +127,11 @@ export async function deployEmitters(
 
     const {proxyAdmin} = await getSigners(ethers);
     const Emitters = {
-      subDaoEmitter: await deploySubDaoEmitter(
-        proxyAdmin.address,
-        accountAddress,
-        verify_contracts,
-        hre
-      ),
+      subDaoEmitter: await deploySubDaoEmitter(proxyAdmin.address, accountAddress, verify, hre),
       DonationMatchEmitter: await deployDonationMatchEmitter(
         proxyAdmin.address,
         accountAddress,
-        verify_contracts,
+        verify,
         hre
       ),
     };
