@@ -1,15 +1,30 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import deployDonationMatchEmitter from "./deployDonationMatchEmitter";
+import deployDonationMatch from "./deployDonationMatch";
 import deployDonationMatchCharity from "./deployDonationMatchCharity";
+import deployDonationMatchEmitter from "./deployDonationMatchEmitter";
 
-export async function deployDonationMatch(
+export async function deployDonationMatchContracts(
   accountsDiamond: string,
   registrar: string,
+  usdcAddress: string,
   verify: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
-  const donationMatchCharity = await deployDonationMatchCharity(registrar, verify, hre);
+  const donationMatchCharity = await deployDonationMatchCharity(
+    registrar,
+    usdcAddress,
+    verify,
+    hre
+  );
   const donationMatchEmitter = await deployDonationMatchEmitter(accountsDiamond, verify, hre);
 
-  return {donationMatchCharity, donationMatchEmitter};
+  const donationMatch = await deployDonationMatch(
+    donationMatchEmitter.proxy.address,
+    registrar,
+    usdcAddress,
+    verify,
+    hre
+  );
+
+  return {donationMatch, donationMatchCharity, donationMatchEmitter};
 }
