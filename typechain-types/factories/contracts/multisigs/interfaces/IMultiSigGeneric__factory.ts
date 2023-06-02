@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   IMultiSigGeneric,
   IMultiSigGenericInterface,
@@ -490,7 +490,10 @@ export class IMultiSigGeneric__factory {
   static createInterface(): IMultiSigGenericInterface {
     return new utils.Interface(_abi) as IMultiSigGenericInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): IMultiSigGeneric {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IMultiSigGeneric {
     return new Contract(address, _abi, signerOrProvider) as IMultiSigGeneric;
   }
 }

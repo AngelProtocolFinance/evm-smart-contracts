@@ -14,8 +14,12 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -32,7 +36,12 @@ export declare namespace INonfungiblePositionManager {
     amount1Max: PromiseOrValue<BigNumberish>;
   };
 
-  export type CollectParamsStructOutput = [BigNumber, string, BigNumber, BigNumber] & {
+  export type CollectParamsStructOutput = [
+    BigNumber,
+    string,
+    BigNumber,
+    BigNumber
+  ] & {
     tokenId: BigNumber;
     recipient: string;
     amount0Max: BigNumber;
@@ -151,7 +160,10 @@ export interface INonfungiblePositionManagerInterface extends utils.Interface {
       | "positions"
   ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "burn", values: [PromiseOrValue<BigNumberish>]): string;
+  encodeFunctionData(
+    functionFragment: "burn",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(
     functionFragment: "collect",
     values: [INonfungiblePositionManager.CollectParamsStruct]
@@ -177,8 +189,14 @@ export interface INonfungiblePositionManagerInterface extends utils.Interface {
     functionFragment: "mint",
     values: [INonfungiblePositionManager.MintParamsStruct]
   ): string;
-  encodeFunctionData(functionFragment: "multicall", values: [PromiseOrValue<BytesLike>[]]): string;
-  encodeFunctionData(functionFragment: "positions", values: [PromiseOrValue<BigNumberish>]): string;
+  encodeFunctionData(
+    functionFragment: "multicall",
+    values: [PromiseOrValue<BytesLike>[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "positions",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
 
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "collect", data: BytesLike): Result;
@@ -186,8 +204,14 @@ export interface INonfungiblePositionManagerInterface extends utils.Interface {
     functionFragment: "createAndInitializePoolIfNecessary",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "decreaseLiquidity", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "increaseLiquidity", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "decreaseLiquidity",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "increaseLiquidity",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "multicall", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "positions", data: BytesLike): Result;
@@ -227,7 +251,8 @@ export type DecreaseLiquidityEvent = TypedEvent<
   DecreaseLiquidityEventObject
 >;
 
-export type DecreaseLiquidityEventFilter = TypedEventFilter<DecreaseLiquidityEvent>;
+export type DecreaseLiquidityEventFilter =
+  TypedEventFilter<DecreaseLiquidityEvent>;
 
 export interface IncreaseLiquidityEventObject {
   tokenId: BigNumber;
@@ -240,7 +265,8 @@ export type IncreaseLiquidityEvent = TypedEvent<
   IncreaseLiquidityEventObject
 >;
 
-export type IncreaseLiquidityEventFilter = TypedEventFilter<IncreaseLiquidityEvent>;
+export type IncreaseLiquidityEventFilter =
+  TypedEventFilter<IncreaseLiquidityEvent>;
 
 export interface INonfungiblePositionManager extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -259,7 +285,9 @@ export interface INonfungiblePositionManager extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -269,12 +297,12 @@ export interface INonfungiblePositionManager extends BaseContract {
   functions: {
     burn(
       tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     collect(
       params: INonfungiblePositionManager.CollectParamsStruct,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     createAndInitializePoolIfNecessary(
@@ -282,27 +310,27 @@ export interface INonfungiblePositionManager extends BaseContract {
       tokenB: PromiseOrValue<string>,
       fee: PromiseOrValue<BigNumberish>,
       sqrtPriceX96: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     decreaseLiquidity(
       params: INonfungiblePositionManager.DecreaseLiquidityParamsStruct,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     increaseLiquidity(
       params: INonfungiblePositionManager.IncreaseLiquidityParamsStruct,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     mint(
       params: INonfungiblePositionManager.MintParamsStruct,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     multicall(
       data: PromiseOrValue<BytesLike>[],
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     positions(
@@ -341,12 +369,12 @@ export interface INonfungiblePositionManager extends BaseContract {
 
   burn(
     tokenId: PromiseOrValue<BigNumberish>,
-    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   collect(
     params: INonfungiblePositionManager.CollectParamsStruct,
-    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   createAndInitializePoolIfNecessary(
@@ -354,27 +382,27 @@ export interface INonfungiblePositionManager extends BaseContract {
     tokenB: PromiseOrValue<string>,
     fee: PromiseOrValue<BigNumberish>,
     sqrtPriceX96: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   decreaseLiquidity(
     params: INonfungiblePositionManager.DecreaseLiquidityParamsStruct,
-    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   increaseLiquidity(
     params: INonfungiblePositionManager.IncreaseLiquidityParamsStruct,
-    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   mint(
     params: INonfungiblePositionManager.MintParamsStruct,
-    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   multicall(
     data: PromiseOrValue<BytesLike>[],
-    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   positions(
@@ -411,12 +439,17 @@ export interface INonfungiblePositionManager extends BaseContract {
   >;
 
   callStatic: {
-    burn(tokenId: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<void>;
+    burn(
+      tokenId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     collect(
       params: INonfungiblePositionManager.CollectParamsStruct,
       overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber] & {amount0: BigNumber; amount1: BigNumber}>;
+    ): Promise<
+      [BigNumber, BigNumber] & { amount0: BigNumber; amount1: BigNumber }
+    >;
 
     createAndInitializePoolIfNecessary(
       tokenA: PromiseOrValue<string>,
@@ -429,7 +462,9 @@ export interface INonfungiblePositionManager extends BaseContract {
     decreaseLiquidity(
       params: INonfungiblePositionManager.DecreaseLiquidityParamsStruct,
       overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber] & {amount0: BigNumber; amount1: BigNumber}>;
+    ): Promise<
+      [BigNumber, BigNumber] & { amount0: BigNumber; amount1: BigNumber }
+    >;
 
     increaseLiquidity(
       params: INonfungiblePositionManager.IncreaseLiquidityParamsStruct,
@@ -454,7 +489,10 @@ export interface INonfungiblePositionManager extends BaseContract {
       }
     >;
 
-    multicall(data: PromiseOrValue<BytesLike>[], overrides?: CallOverrides): Promise<string[]>;
+    multicall(
+      data: PromiseOrValue<BytesLike>[],
+      overrides?: CallOverrides
+    ): Promise<string[]>;
 
     positions(
       tokenId: PromiseOrValue<BigNumberish>,
@@ -534,12 +572,12 @@ export interface INonfungiblePositionManager extends BaseContract {
   estimateGas: {
     burn(
       tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     collect(
       params: INonfungiblePositionManager.CollectParamsStruct,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     createAndInitializePoolIfNecessary(
@@ -547,41 +585,44 @@ export interface INonfungiblePositionManager extends BaseContract {
       tokenB: PromiseOrValue<string>,
       fee: PromiseOrValue<BigNumberish>,
       sqrtPriceX96: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     decreaseLiquidity(
       params: INonfungiblePositionManager.DecreaseLiquidityParamsStruct,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     increaseLiquidity(
       params: INonfungiblePositionManager.IncreaseLiquidityParamsStruct,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     mint(
       params: INonfungiblePositionManager.MintParamsStruct,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     multicall(
       data: PromiseOrValue<BytesLike>[],
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    positions(tokenId: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<BigNumber>;
+    positions(
+      tokenId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     burn(
       tokenId: PromiseOrValue<BigNumberish>,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     collect(
       params: INonfungiblePositionManager.CollectParamsStruct,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     createAndInitializePoolIfNecessary(
@@ -589,27 +630,27 @@ export interface INonfungiblePositionManager extends BaseContract {
       tokenB: PromiseOrValue<string>,
       fee: PromiseOrValue<BigNumberish>,
       sqrtPriceX96: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     decreaseLiquidity(
       params: INonfungiblePositionManager.DecreaseLiquidityParamsStruct,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     increaseLiquidity(
       params: INonfungiblePositionManager.IncreaseLiquidityParamsStruct,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     mint(
       params: INonfungiblePositionManager.MintParamsStruct,
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     multicall(
       data: PromiseOrValue<BytesLike>[],
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     positions(

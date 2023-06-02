@@ -13,8 +13,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -40,7 +40,10 @@ export interface SubdaoTokenInterface extends utils.Interface {
     ]
   ): string;
 
-  decodeFunctionResult(functionFragment: "executeDonorMatch", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "executeDonorMatch",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -62,7 +65,9 @@ export interface SubdaoToken extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -75,7 +80,7 @@ export interface SubdaoToken extends BaseContract {
       accountscontract: PromiseOrValue<string>,
       endowmentid: PromiseOrValue<BigNumberish>,
       donor: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
@@ -84,7 +89,7 @@ export interface SubdaoToken extends BaseContract {
     accountscontract: PromiseOrValue<string>,
     endowmentid: PromiseOrValue<BigNumberish>,
     donor: PromiseOrValue<string>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -105,7 +110,7 @@ export interface SubdaoToken extends BaseContract {
       accountscontract: PromiseOrValue<string>,
       endowmentid: PromiseOrValue<BigNumberish>,
       donor: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
@@ -115,7 +120,7 @@ export interface SubdaoToken extends BaseContract {
       accountscontract: PromiseOrValue<string>,
       endowmentid: PromiseOrValue<BigNumberish>,
       donor: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }
