@@ -2,5 +2,5 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as erc20Sol from "./ERC20.sol";
-export {Gov__factory} from "./Gov__factory";
-export {TimeLock__factory} from "./TimeLock__factory";
+export { Gov__factory } from "./Gov__factory";
+export { TimeLock__factory } from "./TimeLock__factory";

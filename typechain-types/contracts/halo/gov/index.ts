@@ -2,6 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as erc20Sol from "./ERC20.sol";
-export type {erc20Sol};
-export type {Gov} from "./Gov";
-export type {TimeLock} from "./TimeLock";
+export type { erc20Sol };
+export type { Gov } from "./Gov";
+export type { TimeLock } from "./TimeLock";
