@@ -16,7 +16,10 @@ const EXPORT_CONFIG = {
   REGISTRAR_DATA: {
     taxRate: 1,
     acceptedTokens: {
-      cw20: [envConfig.USDC_ADDRESS, envConfig.USDC_ADDRESS_MUMBAI],
+      cw20: [
+        "0xaBCe32FBA4C591E8Ea5A5f711F7112dC08BCee74", // what is this?
+        envConfig.USDC_ADDRESS_MUMBAI,
+      ],
     },
     rebalance: {
       rebalanceLiquidInvestedProfits: false,

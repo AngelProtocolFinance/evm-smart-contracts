@@ -322,7 +322,7 @@ export async function deployAngelProtocol(
     charityProposal: charityApplicationsAddress, //address
     lockedWithdrawal: ethers.constants.AddressZero,
     proxyAdmin: proxyAdmin.address, //address
-    usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
+    usdcAddress: usdcToken.address, //address
     wethAddress: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
     cw900lvAddress: implementations.cw900lv,
   };
@@ -346,6 +346,11 @@ async function connectUSDC(hre: HardhatRuntimeEnvironment): Promise<ERC20> {
   const usdcAddress =
     hre.network.name === "mumbai" ? envConfig.USDC_ADDRESS_MUMBAI : envConfig.USDC_ADDRESS;
   const usdc = ERC20__factory.connect(usdcAddress, proxyAdmin);
+
+  config.REGISTRAR_DATA.acceptedTokens.cw20 = [
+    ...config.REGISTRAR_DATA.acceptedTokens.cw20,
+    usdcAddress,
+  ];
 
   await updateAddresses({tokens: {usdc: usdc.address}}, hre);
 
