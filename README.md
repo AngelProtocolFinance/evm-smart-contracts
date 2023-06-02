@@ -48,7 +48,7 @@ The network can be pointed to using the `--network` CLI flag.
 
 To deploy a contract, call its relevant deployment task. Many tasks leverage data contained in the file `config/index.ts` and `contract-address.json`. Make sure these files are current before deploying:
 
-`npx hardhat Deploy:AngelProtocol.ts --network localhost`
+`npx hardhat Deploy:AngelProtocol --network localhost`
 
 To run the Chai test suite, invoke:
 
