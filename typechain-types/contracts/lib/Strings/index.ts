@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as stringSol from "./string.sol";
-export type {stringSol};
+export type { stringSol };
