@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   ERC20BurnableUpgradeable,
   ERC20BurnableUpgradeableInterface,
@@ -331,7 +331,14 @@ export class ERC20BurnableUpgradeable__factory {
   static createInterface(): ERC20BurnableUpgradeableInterface {
     return new utils.Interface(_abi) as ERC20BurnableUpgradeableInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): ERC20BurnableUpgradeable {
-    return new Contract(address, _abi, signerOrProvider) as ERC20BurnableUpgradeable;
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): ERC20BurnableUpgradeable {
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as ERC20BurnableUpgradeable;
   }
 }

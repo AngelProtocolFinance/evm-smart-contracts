@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   GovernorSettingsUpgradeable,
   GovernorSettingsUpgradeableInterface,
@@ -994,6 +994,10 @@ export class GovernorSettingsUpgradeable__factory {
     address: string,
     signerOrProvider: Signer | Provider
   ): GovernorSettingsUpgradeable {
-    return new Contract(address, _abi, signerOrProvider) as GovernorSettingsUpgradeable;
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as GovernorSettingsUpgradeable;
   }
 }

@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as shared from "./shared";
-export type {shared};
+export type { shared };

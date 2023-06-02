@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   Pausable,
   PausableInterface,
@@ -56,7 +56,10 @@ export class Pausable__factory {
   static createInterface(): PausableInterface {
     return new utils.Interface(_abi) as PausableInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): Pausable {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): Pausable {
     return new Contract(address, _abi, signerOrProvider) as Pausable;
   }
 }

@@ -3,7 +3,7 @@
 /* eslint-disable */
 export * as iCurveLpSol from "./ICurveLP.sol";
 export * as test from "./test";
-export {GFITrader__factory} from "./GFITrader__factory";
-export {GoldfinchVault__factory} from "./GoldfinchVault__factory";
-export {IRegistrarGoldfinch__factory} from "./IRegistrarGoldfinch__factory";
-export {IStakingRewards__factory} from "./IStakingRewards__factory";
+export { GFITrader__factory } from "./GFITrader__factory";
+export { GoldfinchVault__factory } from "./GoldfinchVault__factory";
+export { IRegistrarGoldfinch__factory } from "./IRegistrarGoldfinch__factory";
+export { IStakingRewards__factory } from "./IStakingRewards__factory";

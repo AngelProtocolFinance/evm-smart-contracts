@@ -2,9 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
-import type {Proxy, ProxyInterface} from "../../../../@openzeppelin/contracts/proxy/Proxy";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
+import type {
+  Proxy,
+  ProxyInterface,
+} from "../../../../@openzeppelin/contracts/proxy/Proxy";
 
 const _abi = [
   {

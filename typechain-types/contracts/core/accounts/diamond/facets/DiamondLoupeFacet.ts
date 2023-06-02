@@ -10,8 +10,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -50,8 +50,14 @@ export interface DiamondLoupeFacetInterface extends utils.Interface {
       | "supportsInterface"
   ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "facetAddress", values: [PromiseOrValue<BytesLike>]): string;
-  encodeFunctionData(functionFragment: "facetAddresses", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "facetAddress",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "facetAddresses",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "facetFunctionSelectors",
     values: [PromiseOrValue<string>]
@@ -62,11 +68,23 @@ export interface DiamondLoupeFacetInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
 
-  decodeFunctionResult(functionFragment: "facetAddress", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "facetAddresses", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "facetFunctionSelectors", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "facetAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "facetAddresses",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "facetFunctionSelectors",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "facets", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "supportsInterface", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "supportsInterface",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -88,7 +106,9 @@ export interface DiamondLoupeFacet extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -99,16 +119,20 @@ export interface DiamondLoupeFacet extends BaseContract {
     facetAddress(
       functionSelector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[string] & {facetAddress_: string}>;
+    ): Promise<[string] & { facetAddress_: string }>;
 
-    facetAddresses(overrides?: CallOverrides): Promise<[string[]] & {facetAddresses_: string[]}>;
+    facetAddresses(
+      overrides?: CallOverrides
+    ): Promise<[string[]] & { facetAddresses_: string[] }>;
 
     facetFunctionSelectors(
       facet: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<[string[]] & {facetfunctionselectors: string[]}>;
+    ): Promise<[string[]] & { facetfunctionselectors: string[] }>;
 
-    facets(overrides?: CallOverrides): Promise<
+    facets(
+      overrides?: CallOverrides
+    ): Promise<
       [IDiamondLoupe.FacetStructOutput[]] & {
         facets_: IDiamondLoupe.FacetStructOutput[];
       }
@@ -152,7 +176,9 @@ export interface DiamondLoupeFacet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string[]>;
 
-    facets(overrides?: CallOverrides): Promise<IDiamondLoupe.FacetStructOutput[]>;
+    facets(
+      overrides?: CallOverrides
+    ): Promise<IDiamondLoupe.FacetStructOutput[]>;
 
     supportsInterface(
       interfaceId: PromiseOrValue<BytesLike>,

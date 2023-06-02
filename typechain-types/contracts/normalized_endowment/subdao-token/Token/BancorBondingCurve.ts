@@ -11,8 +11,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -29,7 +29,10 @@ export interface BancorBondingCurveInterface extends utils.Interface {
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "calculatePurchaseReturn" | "calculateSaleReturn" | "version"
+    nameOrSignatureOrTopic:
+      | "calculatePurchaseReturn"
+      | "calculateSaleReturn"
+      | "version"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -52,8 +55,14 @@ export interface BancorBondingCurveInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "version", values?: undefined): string;
 
-  decodeFunctionResult(functionFragment: "calculatePurchaseReturn", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "calculateSaleReturn", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "calculatePurchaseReturn",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "calculateSaleReturn",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
 
   events: {};
@@ -76,7 +85,9 @@ export interface BancorBondingCurve extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;

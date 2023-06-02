@@ -10,8 +10,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -28,10 +28,16 @@ export interface StringArrayInterface extends utils.Interface {
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "addressToString" | "stringCompare" | "stringIndexOf"
+    nameOrSignatureOrTopic:
+      | "addressToString"
+      | "stringCompare"
+      | "stringIndexOf"
   ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "addressToString", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(
+    functionFragment: "addressToString",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
     functionFragment: "stringCompare",
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
@@ -41,9 +47,18 @@ export interface StringArrayInterface extends utils.Interface {
     values: [PromiseOrValue<string>[], PromiseOrValue<string>]
   ): string;
 
-  decodeFunctionResult(functionFragment: "addressToString", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "stringCompare", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "stringIndexOf", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "addressToString",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "stringCompare",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "stringIndexOf",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -65,7 +80,9 @@ export interface StringArray extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -73,13 +90,16 @@ export interface StringArray extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    addressToString(addr: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[string]>;
+    addressToString(
+      addr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     stringCompare(
       s1: PromiseOrValue<string>,
       s2: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<[boolean] & {result: boolean}>;
+    ): Promise<[boolean] & { result: boolean }>;
 
     stringIndexOf(
       arr: PromiseOrValue<string>[],
@@ -88,7 +108,10 @@ export interface StringArray extends BaseContract {
     ): Promise<[BigNumber, boolean]>;
   };
 
-  addressToString(addr: PromiseOrValue<string>, overrides?: CallOverrides): Promise<string>;
+  addressToString(
+    addr: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   stringCompare(
     s1: PromiseOrValue<string>,
@@ -103,7 +126,10 @@ export interface StringArray extends BaseContract {
   ): Promise<[BigNumber, boolean]>;
 
   callStatic: {
-    addressToString(addr: PromiseOrValue<string>, overrides?: CallOverrides): Promise<string>;
+    addressToString(
+      addr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     stringCompare(
       s1: PromiseOrValue<string>,
@@ -121,7 +147,10 @@ export interface StringArray extends BaseContract {
   filters: {};
 
   estimateGas: {
-    addressToString(addr: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
+    addressToString(
+      addr: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     stringCompare(
       s1: PromiseOrValue<string>,
