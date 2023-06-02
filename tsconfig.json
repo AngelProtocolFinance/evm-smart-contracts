@@ -1,23 +1,24 @@
 {
   "compilerOptions": {
-      "baseUrl": ".",
-      "target": "es2018",
-      "module": "commonjs",
-      "strict": true,
-      "esModuleInterop": true,
-      "forceConsistentCasingInFileNames": true,
-      "allowSyntheticDefaultImports": true,
-      "outDir": "dist",
-      "declaration": true,
-      "skipLibCheck": true,
+    "baseUrl": ".",
+    "target": "es2018",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "outDir": "dist",
+    "declaration": true,
+    "skipLibCheck": true
   },
   "include": [
-      "./constants",
-      "./scripts",
-      "./utils",
-      "./tasks/*",
-      "./test",
-      "./typechain-types"
+    "./constants",
+    "./scripts",
+    "./utils",
+    "./tasks/*",
+    "./test",
+    "./typechain-types",
+    "contracts/core/accounts/scripts/deploy/getFacetFactoryEntries.ts"
   ],
   "files": ["./hardhat.config.ts"]
 }
