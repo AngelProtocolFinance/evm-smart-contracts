@@ -2,31 +2,9 @@
 // yours, or create new ones.
 
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {DonationMatchMessages} from "typechain-types/contracts/normalized_endowment/donation-match/DonationMatch.sol/DonationMatch";
-import {getSigners, logger, updateAddresses} from "utils";
+import {logger, updateAddresses} from "utils";
 
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
-
-const deployDonationMatch = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
-  try {
-    const {network, run, ethers} = hre;
-    const DonationMatch = await ethers.getContractFactory("DonationMatch");
-    const donationMatchImplementation = await DonationMatch.deploy();
-    await donationMatchImplementation.deployed();
-
-    if (verify_contracts) {
-      await run("verify:verify", {
-        address: donationMatchImplementation.address,
-        constructorArguments: [],
-      });
-    }
-
-    return Promise.resolve(donationMatchImplementation.address);
-  } catch (e) {
-    console.error(e);
-    return Promise.reject(e);
-  }
-};
 
 const deployCw900lvImplementation = async (
   verify_contracts: boolean,
@@ -48,61 +26,6 @@ const deployCw900lvImplementation = async (
     return Promise.resolve(IncentivisedVotingLockupImplementation.address);
   } catch (error) {
     console.log(error);
-    return Promise.reject(error);
-  }
-};
-
-const deployDonationMatchCharity = async (
-  proxyAdmin: string,
-  deployDonationMatchCharity: DonationMatchMessages.InstantiateMessageStruct,
-  verify_contracts: boolean,
-  hre: HardhatRuntimeEnvironment
-) => {
-  try {
-    const {network, run, ethers} = hre;
-    // Getting Proxy contract
-    const ProxyContract = await ethers.getContractFactory("ProxyContract");
-
-    const DonationMatch = await ethers.getContractFactory("DonationMatchCharity");
-    const DonationMatchImplementation = await DonationMatch.deploy();
-    await DonationMatchImplementation.deployed();
-
-    // const DonationMatchEmitter = await ethers.getContractFactory('DonationMatchEmitter');
-    // const DonationMatchEmitterImplementation = await DonationMatchEmitter.deploy();
-    // await DonationMatchEmitterImplementation.deployed();
-
-    const DonationMatchData = DonationMatchImplementation.interface.encodeFunctionData(
-      "initialize",
-      [deployDonationMatchCharity]
-    );
-
-    const DonationMatchProxy = await ProxyContract.deploy(
-      DonationMatchImplementation.address,
-      proxyAdmin,
-      DonationMatchData
-    );
-
-    await DonationMatchProxy.deployed();
-
-    console.log("DonationMatchCharityProxy Address (Proxy):", DonationMatchProxy.address);
-
-    if (verify_contracts) {
-      await run("verify:verify", {
-        address: DonationMatchImplementation.address,
-        constructorArguments: [],
-      });
-
-      await run("verify:verify", {
-        address: DonationMatchProxy.address,
-        constructorArguments: [DonationMatchImplementation.address, proxyAdmin, DonationMatchData],
-      });
-    }
-
-    return Promise.resolve({
-      implementation: DonationMatchImplementation.address,
-      proxy: DonationMatchProxy.address,
-    });
-  } catch (error) {
     return Promise.reject(error);
   }
 };
@@ -232,24 +155,12 @@ const deployIncentivisedVotingLockup = async (
 
 export async function deployImplementation(
   ANGEL_CORE_STRUCT: string,
-  donationMatchCharityData: DonationMatchMessages.InstantiateMessageStruct,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
   try {
-    const {proxyAdmin} = await getSigners(hre.ethers);
-
     const implementations = {
       cw900lv: await deployCw900lvImplementation(verify_contracts, hre),
-      donationMatch: {
-        implementation: await deployDonationMatch(verify_contracts, hre),
-      },
-      donationMatchCharity: await deployDonationMatchCharity(
-        proxyAdmin.address,
-        donationMatchCharityData,
-        verify_contracts,
-        hre
-      ),
       feeDistributor: await deployFeeDistributor(verify_contracts, hre),
       incentivisedVotingLockup: {
         implementation: await deployIncentivisedVotingLockup(verify_contracts, hre),
