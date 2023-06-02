@@ -1,5 +1,5 @@
 import {task, types} from "hardhat/config";
-import {giftCard} from "contracts/accessory/gift-cards/scripts/deploy";
+import {deployGiftCard} from "contracts/accessory/gift-cards/scripts/deploy";
 import {isLocalNetwork, logger} from "utils";
 
 task("deploy:GiftCard", "Will deploy GiftCardContracts contract")
@@ -18,7 +18,7 @@ task("deploy:GiftCard", "Will deploy GiftCardContracts contract")
 
       const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
 
-      await giftCard(GiftCardDataInput, taskArgs.corelibrary, verify_contracts, hre);
+      await deployGiftCard(GiftCardDataInput, taskArgs.corelibrary, verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
