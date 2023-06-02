@@ -2,7 +2,7 @@ import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {task} from "hardhat/config";
 import {getAddresses, isLocalNetwork, logger} from "utils";
 
-task("Deploy:AccountsDiamond", "It will deploy accounts diamond contracts").setAction(
+task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts").setAction(
   async (_, hre) => {
     try {
       const addresses = await getAddresses(hre);

@@ -2,7 +2,7 @@ import {task} from "hardhat/config";
 import {deployLibraries} from "scripts";
 import {logger} from "utils";
 
-task("Deploy:Libraries", "Will deploy Libraries").setAction(async (_, hre) => {
+task("deploy:Libraries", "Will deploy Libraries").setAction(async (_, hre) => {
   try {
     await deployLibraries(hre);
   } catch (error) {

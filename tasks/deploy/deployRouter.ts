@@ -3,7 +3,7 @@ import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
 import {getAddresses, isLocalNetwork, logger} from "utils";
 
-task("Deploy:Router", "Will deploy Router contract")
+task("deploy:Router", "Will deploy Router contract")
   .addParam("verify", "Want to verify contract")
   .setAction(async (taskArgs, hre) => {
     try {
