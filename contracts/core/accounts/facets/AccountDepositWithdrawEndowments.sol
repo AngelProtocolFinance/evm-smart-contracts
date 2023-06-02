@@ -359,8 +359,7 @@ contract AccountDepositWithdrawEndowments is
 
             // ** Endowment specific withdraw fee **
             // Endowment specific withdraw fee needs to be calculated against the amount
-            // leftover after all AP withdraw fees are subtracted. Otherwise we risk having
-            // negative amounts due to collective fees being greater than AngelCoreStruct.PERCENTAGE_BASIS%
+            // leftover after all AP withdraw fees are subtracted.
             uint256 amountLeftover = tokens[tii].amnt - withdrawFeeAp - earlyLockedWithdrawPenalty;
             uint256 withdrawFeeEndow = 0;
             if (
@@ -392,7 +391,7 @@ contract AccountDepositWithdrawEndowments is
             } else {
                 // check endowment specified is not closed
                 require(!state.STATES[beneficiaryEndowId].closingEndowment, "Beneficiary endowment is closed");
-                // Send deposit message to AngelCoreStruct.PERCENTAGE_BASIS% Liquid account of an endowment
+                // Send deposit message to 100% Liquid account of an endowment
                 processTokenDeposit(
                     AccountMessages.DepositRequest({ id: id, lockedPercentage: 0, liquidPercentage: 100 }),
                     tokens[tii].addr,
