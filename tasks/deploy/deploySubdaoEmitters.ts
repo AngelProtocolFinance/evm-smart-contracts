@@ -2,7 +2,7 @@ import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitt
 import {task, types} from "hardhat/config";
 import {isLocalNetwork, logger} from "utils";
 
-task("deploy:Emitters", "Will deploy Emitters contract")
+task("deploy:SubdaoEmitter", "Will deploy SubdaoEmitter contract")
   .addOptionalParam("verify", "Contract verification flag", false, types.boolean)
   .addParam("accountaddress", "Address of the account")
   .setAction(async (taskArgs, hre) => {

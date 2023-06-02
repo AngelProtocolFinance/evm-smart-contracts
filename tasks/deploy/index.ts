@@ -3,7 +3,7 @@ import "./deployAccountsDiamond";
 import "./deployAngelProtocol";
 import "./deployApplicationsMultiSig";
 import "./deployCharityApplications";
-import "./deployEmitters";
+import "./deploySubdaoEmitters";
 import "./deployEndowmentMultisig";
 import "./deployFundraising";
 import "./deployGiftcard";
