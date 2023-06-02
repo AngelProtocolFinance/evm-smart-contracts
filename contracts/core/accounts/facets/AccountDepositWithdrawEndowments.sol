@@ -168,10 +168,8 @@ contract AccountDepositWithdrawEndowments is
             }
         }
 
-        uint256 lockedAmount = (amount.mul(lockedSplitPercent))
-                                .div(AngelCoreStruct.FEE_BASIS);
-        uint256 liquidAmount = (amount.mul(liquidSplitPercent))
-                                .div(AngelCoreStruct.FEE_BASIS);
+        uint256 lockedAmount = (amount.mul(lockedSplitPercent)).div(100);
+        uint256 liquidAmount = (amount.mul(liquidSplitPercent)).div(100);
 
         //donation matching flow
         //execute donor match will always be called on an EOA
