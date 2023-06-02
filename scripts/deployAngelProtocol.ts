@@ -78,8 +78,9 @@ export async function deployAngelProtocol(
     hre
   );
 
-  const {donationMatchEmitter} = await deployDonationMatch(
+  const {donationMatchCharity, donationMatchEmitter} = await deployDonationMatch(
     accountsDiamond.address,
+    registrar.proxy.address,
     verify_contracts,
     hre
   );
@@ -310,7 +311,7 @@ export async function deployAngelProtocol(
     indexFundContract: INDEX_FUND_ADDRESS, //address
     govContract: ethers.constants.AddressZero, //address
     treasury: treasury.address,
-    donationMatchCharitesContract: implementations.donationMatchCharity.proxy, // once uniswap is setup //address
+    donationMatchCharitesContract: donationMatchCharity.proxy.address, // once uniswap is setup //address
     donationMatchEmitter: donationMatchEmitter.proxy.address,
     haloToken: ethers.constants.AddressZero, //address
     haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
