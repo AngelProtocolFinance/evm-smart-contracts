@@ -93,8 +93,12 @@ function createEmpty(): AddressObj {
       proxy: "",
     },
     donationMatch: {
-      emitter: "",
+      emitter: {
+        implementation: "",
+        proxy: "",
+      },
       implementation: "",
+      proxy: "",
     },
     donationMatchCharity: {
       implementation: "",
