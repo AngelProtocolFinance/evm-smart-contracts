@@ -1,15 +1,15 @@
-import {task} from "hardhat/config";
 import {deployHaloImplementation} from "contracts/halo/scripts/deploy";
-import {logger} from "utils";
+import {task, types} from "hardhat/config";
+import {isLocalNetwork, logger} from "utils";
 
 task("deploy:HaloImplementation", "Will deploy HaloImplementation contract")
-  .addParam("verify", "Want to verify contract")
+  .addParam("verify", "Want to verify contract", false, types.boolean)
   .addParam("swaprouter", "swap Router address")
   .setAction(async (taskArgs, hre) => {
     try {
-      var isTrueSet = taskArgs.verify === "true";
+      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
 
-      await deployHaloImplementation(taskArgs.swaprouter, isTrueSet, hre);
+      await deployHaloImplementation(taskArgs.swaprouter, verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

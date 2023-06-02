@@ -1,12 +1,11 @@
 import config from "config";
 import {charityApplications} from "contracts/multisigs/charity_applications/scripts/deploy";
-import {task} from "hardhat/config";
-import {logger} from "utils";
-import {getAddresses} from "utils";
+import {task, types} from "hardhat/config";
+import {getAddresses, isLocalNetwork, logger} from "utils";
 
 task("deploy:CharityApplications", "Will deploy CharityApplications contract")
-  .addParam("verify", "Want to verify contract")
-  .setAction(async (taskArgs, hre) => {
+  .addParam("verify", "Want to verify contract", false, types.boolean)
+  .setAction(async (taskArgs: {verify: boolean}, hre) => {
     try {
       const addresses = await getAddresses(hre);
       const charityApplicationsData: Parameters<typeof charityApplications>[0] = [
@@ -20,9 +19,9 @@ task("deploy:CharityApplications", "Will deploy CharityApplications contract")
         config.CHARITY_APPLICATION_DATA.seedAsset,
         config.CHARITY_APPLICATION_DATA.seedAssetAmount,
       ];
-      const isTrueSet = taskArgs.verify === "true";
+      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
 
-      await charityApplications(charityApplicationsData, isTrueSet, hre);
+      await charityApplications(charityApplicationsData, verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
