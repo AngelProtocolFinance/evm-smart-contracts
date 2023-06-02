@@ -26,7 +26,10 @@ export type AddressObj = {
     proxy: string;
   };
   donationMatch: {
-    emitter: string;
+    emitter: {
+      implementation: string;
+      proxy: string;
+    };
     implementation: string;
   };
   donationMatchCharity: {

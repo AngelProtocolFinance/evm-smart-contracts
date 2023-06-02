@@ -66,57 +66,6 @@ const deploySubDaoEmitter = async (
   }
 };
 
-const deployDonationMatchEmitter = async (
-  proxyAdmin: string,
-  accountAddress: string,
-  verify_contracts: boolean,
-  hre: HardhatRuntimeEnvironment
-) => {
-  try {
-    const {run, ethers} = hre;
-    // Getting Proxy contract
-    const ProxyContract = await ethers.getContractFactory("ProxyContract");
-
-    const DonationMatchEmitter = await ethers.getContractFactory("DonationMatchEmitter");
-    const DonationMatchEmitterImplementation = await DonationMatchEmitter.deploy();
-    await DonationMatchEmitterImplementation.deployed();
-
-    const DonationMatchEmitterData =
-      DonationMatchEmitterImplementation.interface.encodeFunctionData("initDonationMatchEmiiter", [
-        accountAddress,
-      ]);
-
-    const DonationMatchEmitterProxy = await ProxyContract.deploy(
-      DonationMatchEmitterImplementation.address,
-      proxyAdmin,
-      DonationMatchEmitterData
-    );
-
-    await DonationMatchEmitterProxy.deployed();
-
-    if (verify_contracts) {
-      await run(`verify:verify`, {
-        address: DonationMatchEmitterImplementation.address,
-        constructorArguments: [],
-      });
-      await run(`verify:verify`, {
-        address: DonationMatchEmitterProxy.address,
-        constructorArguments: [
-          DonationMatchEmitterImplementation.address,
-          proxyAdmin,
-          DonationMatchEmitterData,
-        ],
-      });
-    }
-
-    console.log("DonationMatchEmitterProxy Address (Proxy):", DonationMatchEmitterProxy.address);
-
-    return Promise.resolve(DonationMatchEmitterProxy.address);
-  } catch (error) {
-    return Promise.reject(error);
-  }
-};
-
 export async function deployEmitters(
   accountAddress: string,
   verify_contracts: boolean,
@@ -128,12 +77,6 @@ export async function deployEmitters(
     const {proxyAdmin} = await getSigners(ethers);
     const Emitters = {
       subDaoEmitter: await deploySubDaoEmitter(
-        proxyAdmin.address,
-        accountAddress,
-        verify_contracts,
-        hre
-      ),
-      DonationMatchEmitter: await deployDonationMatchEmitter(
         proxyAdmin.address,
         accountAddress,
         verify_contracts,

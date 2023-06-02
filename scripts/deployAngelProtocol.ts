@@ -11,7 +11,7 @@ import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-
 import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
 // import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
 import config from "config";
-import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
+// import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {IndexFund__factory, Registrar__factory} from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
@@ -19,6 +19,7 @@ import {cleanAddresses} from "utils";
 import {getSigners} from "utils/getSigners";
 import {deployLibraries} from "./deployLibraries";
 import {deployMockUSDC} from "./deployMockUSDC";
+import {deployDonationMatch} from "contracts/normalized_endowment/donation-match/scripts/deploy";
 
 export async function deployAngelProtocol(
   verify_contracts: boolean,
@@ -77,11 +78,11 @@ export async function deployAngelProtocol(
     hre
   );
 
-  console.log("Account contract deployed at:-", accountsDiamond.address);
-
-  const emitters = await deployEmitters(accountsDiamond.address, verify_contracts, hre);
-
-  console.log("emitters Contract deployed at:-", emitters);
+  const {donationMatchEmitter} = await deployDonationMatch(
+    accountsDiamond.address,
+    verify_contracts,
+    hre
+  );
 
   const charityApplicationsData: Parameters<typeof charityApplications>[0] = [
     config.CHARITY_APPLICATION_DATA.expiry,
@@ -304,13 +305,13 @@ export async function deployAngelProtocol(
     subdaoBondingTokenContract: implementations.subDao.veBondingToken, //address
     subdaoCw900Contract: implementations.incentivisedVotingLockup.implementation, //address
     subdaoDistributorContract: ethers.constants.AddressZero,
-    subdaoEmitter: emitters.subDaoEmitter, //TODO:
+    subdaoEmitter: ethers.constants.AddressZero, //TODO:
     donationMatchContract: implementations.donationMatch.implementation, //address
     indexFundContract: INDEX_FUND_ADDRESS, //address
     govContract: ethers.constants.AddressZero, //address
     treasury: treasury.address,
     donationMatchCharitesContract: implementations.donationMatchCharity.proxy, // once uniswap is setup //address
-    donationMatchEmitter: emitters.DonationMatchEmitter,
+    donationMatchEmitter: donationMatchEmitter.proxy.address,
     haloToken: ethers.constants.AddressZero, //address
     haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
     charitySharesContract: ethers.constants.AddressZero, //TODO: //address
