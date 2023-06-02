@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import {ethers} from "ethers";
+import {envConfig} from "utils";
 
 dotenv.config({path: __dirname + "/./../.env"});
 
@@ -15,10 +16,7 @@ const EXPORT_CONFIG = {
   REGISTRAR_DATA: {
     taxRate: 1,
     acceptedTokens: {
-      cw20: [
-        "0xaBCe32FBA4C591E8Ea5A5f711F7112dC08BCee74",
-        "0xe6b8a5CF854791412c1f6EFC7CAf629f5Df1c747",
-      ],
+      cw20: [envConfig.USDC_ADDRESS, envConfig.USDC_ADDRESS_MUMBAI],
     },
     rebalance: {
       rebalanceLiquidInvestedProfits: false,

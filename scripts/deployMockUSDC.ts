@@ -15,7 +15,10 @@ export async function deployMockUSDC(
   console.log("Deployed at: ", mockUSDC.address);
 
   logger.out("Updating global config...");
-  config.REGISTRAR_DATA.acceptedTokens.cw20 = [mockUSDC.address];
+  config.REGISTRAR_DATA.acceptedTokens.cw20 = [
+    ...config.REGISTRAR_DATA.acceptedTokens.cw20,
+    mockUSDC.address,
+  ];
 
   logger.out("Minting some USDC to admin wallet...");
   const tx = await mockUSDC.mint(
