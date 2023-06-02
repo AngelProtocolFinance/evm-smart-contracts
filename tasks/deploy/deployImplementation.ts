@@ -4,7 +4,7 @@ import {deployImplementation} from "contracts/normalized_endowment/scripts/deplo
 import {isLocalNetwork, logger} from "utils";
 
 task("deploy:Implementation", "Will deploy Implementation")
-  .addParam("verify", "Want to verify contract", false, types.boolean)
+  .addOptionalParam("verify", "Want to verify contract", false, types.boolean)
   .addParam("registraraddress", "Address of the Registrar contract")
   .addParam("angelcorestruct", "Address of the AngelCoreStruct contract")
   .addParam("accountaddress", "Address of the Account")

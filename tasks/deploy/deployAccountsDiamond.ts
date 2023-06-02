@@ -3,7 +3,7 @@ import {task, types} from "hardhat/config";
 import {getAddresses, isLocalNetwork, logger} from "utils";
 
 task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
-  .addParam("verify", "Want to verify contract", false, types.boolean)
+  .addOptionalParam("verify", "Want to verify contract", false, types.boolean)
   .setAction(async (taskArgs: {verify: boolean}, hre) => {
     try {
       const addresses = await getAddresses(hre);

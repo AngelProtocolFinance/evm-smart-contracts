@@ -3,7 +3,7 @@ import {task, types} from "hardhat/config";
 import {isLocalNetwork, logger} from "utils";
 
 task("deploy:Emitters", "Will deploy Emitters contract")
-  .addParam("verify", "Want to verify contract", false, types.boolean)
+  .addOptionalParam("verify", "Want to verify contract", false, types.boolean)
   .addParam("accountaddress", "Address of the account")
   .setAction(async (taskArgs, hre) => {
     try {

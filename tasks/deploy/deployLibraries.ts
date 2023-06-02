@@ -3,7 +3,7 @@ import {deployLibraries} from "scripts";
 import {isLocalNetwork, logger} from "utils";
 
 task("deploy:Libraries", "Will deploy Libraries")
-  .addParam("verify", "Want to verify contract", false, types.boolean)
+  .addOptionalParam("verify", "Want to verify contract", false, types.boolean)
   .setAction(async (taskArgs: {verify: boolean}, hre) => {
     try {
       const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
