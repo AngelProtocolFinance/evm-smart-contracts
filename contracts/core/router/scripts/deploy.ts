@@ -24,24 +24,28 @@ export async function deployRouter(
     hre
   );
 
-  // Registrar NetworkInfo's Router address must be updated for the current network
-  await updateRegistrar(registrar, routerProxy, axelarGateway, gasReceiver, apTeamMultisig, hre);
-
   await updateAddresses(
     {router: {implementation: router.address, proxy: routerProxy.address}},
     hre
   );
 
+  // Registrar NetworkInfo's Router address must be updated for the current network
+  await updateRegistrar(registrar, routerProxy, axelarGateway, gasReceiver, apTeamMultisig, hre);
+
   if (verify_contracts) {
-    logger.out("Verifying...");
-    await hre.run("verify:verify", {
-      address: router.address,
-      constructorArguments: [],
-    });
-    await hre.run("verify:verify", {
-      address: routerProxy.address,
-      constructorArguments,
-    });
+    try {
+      logger.out("Verifying...");
+      await hre.run("verify:verify", {
+        address: router.address,
+        constructorArguments: [],
+      });
+      await hre.run("verify:verify", {
+        address: routerProxy.address,
+        constructorArguments,
+      });
+    } catch (error) {
+      logger.out(error, logger.Level.Error);
+    }
   }
 
   return {implementation: router.address, proxy: routerProxy.address};
