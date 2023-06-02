@@ -2,7 +2,7 @@ import {task} from "hardhat/config";
 import {deployAngelProtocol} from "scripts";
 import {logger} from "utils";
 
-task("Deploy:AngelProtocol", "Will deploy complete Angel Protocol").setAction(async (_, hre) => {
+task("deploy:AngelProtocol", "Will deploy complete Angel Protocol").setAction(async (_, hre) => {
   try {
     await deployAngelProtocol(hre);
   } catch (error) {

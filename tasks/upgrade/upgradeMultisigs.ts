@@ -8,7 +8,7 @@ import {
 import {logger, shouldVerify} from "utils";
 
 task(
-  "upgrade:upgradeMultisig",
+  "upgrade:Multisig",
   "Will upgrade the implementation of the AP Team and Applications multisigs"
 ).setAction(async (_taskArguments, hre) => {
   try {

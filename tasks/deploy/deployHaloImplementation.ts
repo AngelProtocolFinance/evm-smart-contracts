@@ -2,7 +2,7 @@ import {task} from "hardhat/config";
 import {deployHaloImplementation} from "contracts/halo/scripts/deploy";
 import {logger} from "utils";
 
-task("Deploy:HaloImplementation", "Will deploy HaloImplementation contract")
+task("deploy:HaloImplementation", "Will deploy HaloImplementation contract")
   .addParam("verify", "Want to verify contract")
   .addParam("swaprouter", "swap Router address")
   .setAction(async (taskArgs, hre) => {
