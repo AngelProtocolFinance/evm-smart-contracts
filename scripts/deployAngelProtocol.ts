@@ -34,7 +34,7 @@ export async function deployAngelProtocol(
   console.log("Deploying the contracts with the account:", proxyAdmin.address);
 
   // Mock setup required for testing
-  const mockUSDC = isLocalNetwork(network) ? await deployMockUSDC(proxyAdmin, hre) : undefined;
+  const usdcToken = isLocalNetwork(network) ? await deployMockUSDC(proxyAdmin, hre) : undefined;
 
   const {angelCoreStruct, stringLib} = await deployLibraries(verify_contracts, hre);
 
@@ -82,7 +82,7 @@ export async function deployAngelProtocol(
     await deployDonationMatchContracts(
       accountsDiamond.address,
       registrar.proxy.address,
-      mockUSDC?.address ?? config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
+      usdcToken?.address ?? config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
       verify_contracts,
       hre
     );
@@ -278,7 +278,7 @@ export async function deployAngelProtocol(
     // donationMatchCharityData.reserveToken = haloToken.address
     donationMatchCharityData.uniswapFactory = config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS;
     donationMatchCharityData.poolFee = 3000;
-    donationMatchCharityData.usdcAddress = mockUSDC!.address;
+    donationMatchCharityData.usdcAddress = usdcToken!.address;
   }
 
   // transfer 100000000 HALO to donation match charities
