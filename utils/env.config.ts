@@ -46,6 +46,10 @@ const PROD_NETWORK_ID = extractNumber("PROD_NETWORK_ID");
 const ROUTER_ADDRESS = extractString("ROUTER_ADDRESS");
 const VERIFY_CONTRACTS = extractString("VERIFY_CONTRACTS");
 
+// tokens
+const USDC_ADDRESS = extractString("USDC_ADDRESS");
+const USDC_ADDRESS_MUMBAI = extractString("USDC_ADDRESS_MUMBAI");
+
 function extractNumber(name: string): number {
   const envVar = extractString(name);
 
@@ -85,4 +89,6 @@ export var envConfig = {
   PROD_NETWORK_ID,
   ROUTER_ADDRESS,
   VERIFY_CONTRACTS,
+  USDC_ADDRESS,
+  USDC_ADDRESS_MUMBAI,
 };
