@@ -25,10 +25,6 @@ abstract contract APStrategy_V1 is IStrategy, Pausable {
     config = _config;
   }
 
-  function isPaused() external view returns (bool) {
-    return _paused;
-  }
-
   /*//////////////////////////////////////////////////////////////
                                 ADMIN
   //////////////////////////////////////////////////////////////*/

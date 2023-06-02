@@ -22,8 +22,8 @@ abstract contract IVault {
     bytes4 strategySelector;
     address strategy;
     address registrar;
-    address baseAsset;
-    address yieldAsset;
+    address baseToken;
+    address yieldToken;
     string apTokenName;
     string apTokenSymbol;
     address admin; 
@@ -122,8 +122,7 @@ abstract contract IVault {
   /// Before returning the redemption amt, the vault must approve the Router to spend the tokens.
   /// @param accountId a unique Id for each Angel Protocol account
   /// @param amt the amount of shares to redeem
-  /// @return redemptionAmt returns the number of tokens redeemed by the call; this may differ from
-  /// the called `amt` due to slippage/trading/fees
+  /// @return RedemptionResponse returns the number of base tokens redeemed by the call and the status
   function redeem(
     uint32 accountId,
     uint256 amt
@@ -133,7 +132,7 @@ abstract contract IVault {
   /// @dev allows an Account to redeem all of its staked value. Good for rebasing tokens wherein the value isn't
   /// known explicitly. Before returning the redemption amt, the vault must approve the Router to spend the tokens.
   /// @param accountId a unique Id for each Angel Protocol account
-  /// @return redemptionAmt returns the number of tokens redeemed by the call
+  /// @return RedemptionResponse returns the number of base tokens redeemed by the call and the status
   function redeemAll(uint32 accountId) external payable virtual returns (RedemptionResponse memory);
 
   /// @notice restricted method for harvesting accrued rewards
@@ -154,5 +153,5 @@ abstract contract IVault {
 
   /// @notice internal method for checking whether the caller is the paired locked/liquid vault
   /// @dev can be used for more gas efficient rebalancing between the two sibling vaults  
-  function _isSiblingVault() internal view returns (bool);
+  function _isSiblingVault() internal view virtual returns (bool);
 }

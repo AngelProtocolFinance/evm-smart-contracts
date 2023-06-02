@@ -125,6 +125,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
         LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
             LocalRegistrarLib.localRegistrarStorage();
         return lrs.ApprovedVaultOperators[_operator];
+    } 
 
     function getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes _feeType) external view returns (AngelCoreStruct.FeeSetting memory) {
         LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
@@ -231,7 +232,8 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
         LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
             LocalRegistrarLib.localRegistrarStorage();
         lrs.ApprovedVaultOperators[_operator] = _isApproved;
-
+    } 
+    
     function setFeeSettingsByFeesType(AngelCoreStruct.FeeTypes _feeType, uint256 _rate, address _payout) external {
         LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
             LocalRegistrarLib.localRegistrarStorage();

@@ -16,8 +16,6 @@ interface IStrategy {
   function getStrategyConfig() external view returns (StrategyConfig memory);
 
   function setStrategyConfig(StrategyConfig memory _newConfig) external; 
-
-  function isPaused() external view returns (bool);
   
   function deposit(uint256 amt) payable external returns (uint256);
 
@@ -27,4 +25,5 @@ interface IStrategy {
   
   function previewWithdraw(uint256 amt) external view returns (uint256);
 
+  function paused() external view returns (bool);
 }
