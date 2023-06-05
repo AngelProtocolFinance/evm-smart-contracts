@@ -147,7 +147,7 @@
     "tokens": {
       "halo": "",
       "usdc": "",
-      "weth": ""
+      "wmatic": ""
     }
   },
   "80001": {
@@ -298,7 +298,7 @@
     "tokens": {
       "halo": "",
       "usdc": "",
-      "weth": ""
+      "wmatic": ""
     }
   }
 }

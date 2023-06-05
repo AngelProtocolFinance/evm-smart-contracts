@@ -213,7 +213,7 @@ function createEmpty(): AddressObj {
     tokens: {
       halo: "",
       usdc: "",
-      weth: "",
+      wmatic: "",
     },
   };
 }

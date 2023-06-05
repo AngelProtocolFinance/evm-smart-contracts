@@ -200,17 +200,17 @@ export async function deployAngelProtocol(
 
   //     console.log("Created HALO pool")
 
-  //     // create a uniswap pool for WETH and USDC
-  //     console.log("WETH address: ", config.REGISTRAR_UPDATE_CONFIG.wethAddress)
+  //     // create a uniswap pool for WMATIC and USDC
+  //     console.log("WMATIC address: ", config.REGISTRAR_UPDATE_CONFIG.wmaticAddress)
   //     console.log("USDC address: ", mockUSDC.address.toString())
 
   //     sqrtPrice = "79228162514264334008320"
-  //     if (mockUSDC.address < config.REGISTRAR_UPDATE_CONFIG.wethAddress) {
+  //     if (mockUSDC.address < config.REGISTRAR_UPDATE_CONFIG.wmaticAddress) {
   //         sqrtPrice = "79228162514264337593543950336000000"
   //     }
   //     const createUniswapPoolParams2 = {
   //         tokenA: mockUSDC.address,
-  //         tokenB: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
+  //         tokenB: config.REGISTRAR_UPDATE_CONFIG.wmaticAddress,
   //         uniswapFee: 3000,
   //         amountA: ethers.utils.parseUnits("1000", 6),
   //         sqrtPriceX96: sqrtPrice,
@@ -222,7 +222,7 @@ export async function deployAngelProtocol(
   //         value: ethers.utils.parseEther("1000"),
   //     })
 
-  //     console.log("Created WETH pool")
+  //     console.log("Created WMATIC pool")
 
   //     // deploy DAI
   //     const DAI = new MockERC20__factory(proxyAdmin)
@@ -323,7 +323,7 @@ export async function deployAngelProtocol(
     lockedWithdrawal: ethers.constants.AddressZero,
     proxyAdmin: proxyAdmin.address, //address
     usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
-    wethAddress: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
+    wMaticAddress: config.REGISTRAR_UPDATE_CONFIG.wmaticAddress,
     cw900lvAddress: implementations.cw900lv,
   };
 
