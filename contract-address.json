@@ -154,7 +154,7 @@
     "accounts": {
       "diamond": "0xFCbE277d74027455A92fA67253FA16385F0579F4",
       "facets": {
-        "accountDeployContract": "0x103Cfa6fCe53A6c82d422C72e848Fc3207D2318e",
+        "accountDeployContract": "0xCebb4FbC3b20042d0D7cCf6658e4150B4A680DCd",
         "accountDepositWithdrawEndowments": "0xb43421526bB09ECe4Fd8Ee58C4F33F19162c1E3c",
         "accountDonationMatch": "0x8d1200931Ff1e176e2eA033C3CDB2C8d0B7b4e29",
         "accountsAllowance": "0x76d7E8D8BA2D488a0f532D59EE0C7E43CCA2a509",
