@@ -1,12 +1,14 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 
+import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {CharityApplication, CharityApplication__factory} from "typechain-types";
-import {ContractFunctionParams, getSigners, logger, updateAddresses} from "utils";
+import {CharityApplication__factory} from "typechain-types";
+import {getSigners, logger, updateAddresses} from "utils";
 
 export async function charityApplications(
-  CharityApplicationDataInput: ContractFunctionParams<CharityApplication["initialize"]>,
+  applicationsMultiSig: string,
+  accountsDiamond: string,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
@@ -32,7 +34,17 @@ export async function charityApplications(
 
     const CharityApplicationData = CharityApplicationInstance.interface.encodeFunctionData(
       "initialize",
-      [...CharityApplicationDataInput]
+      [
+        config.CHARITY_APPLICATION_DATA.expiry,
+        applicationsMultiSig,
+        accountsDiamond,
+        config.CHARITY_APPLICATION_DATA.seedSplitToLiquid,
+        config.CHARITY_APPLICATION_DATA.newEndowGasMoney,
+        config.CHARITY_APPLICATION_DATA.gasAmount,
+        config.CHARITY_APPLICATION_DATA.fundSeedAsset,
+        config.CHARITY_APPLICATION_DATA.seedAsset,
+        config.CHARITY_APPLICATION_DATA.seedAssetAmount,
+      ]
     );
 
     const CharityApplicationProxy = await ProxyContract.deploy(

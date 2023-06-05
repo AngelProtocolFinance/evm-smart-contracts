@@ -89,24 +89,12 @@ export async function deployAngelProtocol(
       hre
     );
 
-  const charityApplicationsData: Parameters<typeof charityApplications>[0] = [
-    config.CHARITY_APPLICATION_DATA.expiry,
+  const charityApplicationsAddress = await charityApplications(
     applicationsMultiSig.proxy.address,
     accountsDiamond.address,
-    config.CHARITY_APPLICATION_DATA.seedSplitToLiquid,
-    config.CHARITY_APPLICATION_DATA.newEndowGasMoney,
-    config.CHARITY_APPLICATION_DATA.gasAmount,
-    config.CHARITY_APPLICATION_DATA.fundSeedAsset,
-    config.CHARITY_APPLICATION_DATA.seedAsset,
-    config.CHARITY_APPLICATION_DATA.seedAssetAmount,
-  ];
-
-  const charityApplicationsAddress = await charityApplications(
-    charityApplicationsData,
     verify_contracts,
     hre
   );
-  console.log("charityApplicationsAddress deployed at:-", charityApplicationsAddress);
 
   const SWAP_ROUTER = await deploySwapRouter(
     registrar.proxy.address,
