@@ -6,7 +6,6 @@ import {SwapRouterMessages} from "./message.sol";
 import {AngelCoreStruct} from "../struct.sol";
 import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../registrar/storage.sol";
-// import {IUniswapV2Router, IUniswapV2Pair, IUniswapV2Factory} from "./interfaces/ISwapping.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -180,50 +179,5 @@ contract SwapRouter is Storage {
         );
 
         return amountPossible;
-    }
-
-    /**
-     * @dev This function swaps the sent MATIC for wrapped MATIC ERC20 token.
-     * @return amountOut Returns the amount of wMATIC after swapping.
-     */
-    function swapMaticToWrappedMatic() public payable returns (uint256) {
-        require(
-            msg.sender == config.accountsContract,
-            "Unauthorized"
-        );
-
-        require(msg.value > 0, "Invalid Amount");
-
-        RegistrarStorage.Config memory registrar_config = IRegistrar(
-            config.registrarContract
-        ).queryConfig();
-
-        //Get pool
-        uint24 fees = checkPoolAndReturFee(
-            registrar_config.wMaticAddress,
-            registrar_config.usdcAddress
-        );
-
-        // Naively set amountOutMinimum to 0. In production, use an oracle or other data source to choose a safer value for amountOutMinimum.
-        // We also set the sqrtPriceLimitx96 to be 0 to ensure we swap our exact input amount.
-        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
-            .ExactInputSingleParams({
-                tokenIn: registrar_config.wMaticAddress,
-                tokenOut: registrar_config.usdcAddress,
-                fee: fees,
-                recipient: msg.sender,
-                deadline: block.timestamp + 600,
-                amountIn: msg.value,
-                amountOutMinimum: 0,
-                sqrtPriceLimitX96: 0
-            });
-
-        // The call to `exactInputSingle` executes the swap.
-        uint256 amountOut = ISwapRouter(swapRouter).exactInputSingle{
-            value: msg.value
-        }(params);
-
-        //Perform Swap
-        return amountOut;
     }
 }

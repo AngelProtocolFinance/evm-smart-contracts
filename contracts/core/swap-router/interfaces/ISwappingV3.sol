@@ -11,6 +11,4 @@ interface ISwappingV3 {
         address tokenOut,
         uint256 minAmountOut
     ) external returns (uint256);
-
-    function swapMaticToWrappedMatic() external payable returns (uint256);
 }

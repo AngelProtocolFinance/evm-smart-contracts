@@ -9,7 +9,6 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
-  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -27,10 +26,9 @@ import type {
 export interface ISwappingV3Interface extends utils.Interface {
   functions: {
     "executeSwaps(address,uint256,address,uint256)": FunctionFragment;
-    "swapMaticToWrappedMatic()": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "executeSwaps" | "swapMaticToWrappedMatic"): FunctionFragment;
+  getFunction(nameOrSignatureOrTopic: "executeSwaps"): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "executeSwaps",
@@ -41,10 +39,8 @@ export interface ISwappingV3Interface extends utils.Interface {
       PromiseOrValue<BigNumberish>
     ]
   ): string;
-  encodeFunctionData(functionFragment: "swapMaticToWrappedMatic", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "executeSwaps", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "swapMaticToWrappedMatic", data: BytesLike): Result;
 
   events: {};
 }
@@ -81,10 +77,6 @@ export interface ISwappingV3 extends BaseContract {
       minAmountOut: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
-
-    swapMaticToWrappedMatic(
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
-    ): Promise<ContractTransaction>;
   };
 
   executeSwaps(
@@ -95,10 +87,6 @@ export interface ISwappingV3 extends BaseContract {
     overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
-  swapMaticToWrappedMatic(
-    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
-  ): Promise<ContractTransaction>;
-
   callStatic: {
     executeSwaps(
       tokenIn: PromiseOrValue<string>,
@@ -107,8 +95,6 @@ export interface ISwappingV3 extends BaseContract {
       minAmountOut: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    swapMaticToWrappedMatic(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {};
@@ -121,10 +107,6 @@ export interface ISwappingV3 extends BaseContract {
       minAmountOut: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
-
-    swapMaticToWrappedMatic(
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -134,10 +116,6 @@ export interface ISwappingV3 extends BaseContract {
       tokenOut: PromiseOrValue<string>,
       minAmountOut: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
-    ): Promise<PopulatedTransaction>;
-
-    swapMaticToWrappedMatic(
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };
 }

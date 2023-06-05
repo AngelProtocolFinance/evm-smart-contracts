@@ -20,6 +20,7 @@ import {AccountsEvents} from "./AccountsEvents.sol";
 import {IVault} from "./../../../interfaces/IVault.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {IAccountsDepositWithdrawEndowments} from "../interfaces/IAccountsDepositWithdrawEndowments.sol";
+import {Utils} from "../../../lib/utils.sol";
 
 /**
  * @title AccountDepositWithdrawEndowments
@@ -36,7 +37,7 @@ contract AccountDepositWithdrawEndowments is
     event SwappedToken(uint256 amountOut);
 
     /**
-     * @notice Deposit MATIC into the account (later swaps into USDC and then deposits into the account)
+     * @notice Deposit MATIC into the endowment. Wraps first to ERC20 before processing.
      * @param details The details of the deposit
      */
     function depositMatic(
@@ -54,11 +55,15 @@ contract AccountDepositWithdrawEndowments is
             tempConfig.registrarContract
         ).queryConfig();
 
-        // Swap MATIC >> ERC20 wMATIC
-        uint256 wMaticAmount = ISwappingV3(registrar_config.swapsRouter)
-            .swapMaticToWrappedMatic{value: msg.value}();
-        emit SwappedToken(wMaticAmount);
-        processTokenDeposit(details, registrar_config.usdcAddress, wMaticAmount);
+        // Wrap MATIC >> wMATIC by calling the deposit() endpoint on wMATIC contract
+        Utils._execute(
+            registrar_config.wMaticAddress,
+            msg.value,
+            abi.encodeWithSignature("deposit()")
+        );
+
+        // finish donation process with the newly wrapped MATIC
+        processTokenDeposit(details, registrar_config.wMaticAddress, msg.value);
     }
 
     /**

@@ -9,7 +9,6 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
-  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -44,12 +43,9 @@ export interface SwapRouterInterface extends utils.Interface {
   functions: {
     "executeSwaps(address,address,uint256,uint256)": FunctionFragment;
     "initSwapRouter((address,address,address,address))": FunctionFragment;
-    "swapMaticToWrappedMatic()": FunctionFragment;
   };
 
-  getFunction(
-    nameOrSignatureOrTopic: "executeSwaps" | "initSwapRouter" | "swapMaticToWrappedMatic"
-  ): FunctionFragment;
+  getFunction(nameOrSignatureOrTopic: "executeSwaps" | "initSwapRouter"): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "executeSwaps",
@@ -64,11 +60,9 @@ export interface SwapRouterInterface extends utils.Interface {
     functionFragment: "initSwapRouter",
     values: [SwapRouterMessages.InstantiateMsgStruct]
   ): string;
-  encodeFunctionData(functionFragment: "swapMaticToWrappedMatic", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "executeSwaps", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initSwapRouter", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "swapMaticToWrappedMatic", data: BytesLike): Result;
 
   events: {};
 }
@@ -110,10 +104,6 @@ export interface SwapRouter extends BaseContract {
       details: SwapRouterMessages.InstantiateMsgStruct,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
-
-    swapMaticToWrappedMatic(
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
-    ): Promise<ContractTransaction>;
   };
 
   executeSwaps(
@@ -129,10 +119,6 @@ export interface SwapRouter extends BaseContract {
     overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
-  swapMaticToWrappedMatic(
-    overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
-  ): Promise<ContractTransaction>;
-
   callStatic: {
     executeSwaps(
       tokenIn: PromiseOrValue<string>,
@@ -146,8 +132,6 @@ export interface SwapRouter extends BaseContract {
       details: SwapRouterMessages.InstantiateMsgStruct,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    swapMaticToWrappedMatic(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {};
@@ -165,10 +149,6 @@ export interface SwapRouter extends BaseContract {
       details: SwapRouterMessages.InstantiateMsgStruct,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
-
-    swapMaticToWrappedMatic(
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -183,10 +163,6 @@ export interface SwapRouter extends BaseContract {
     initSwapRouter(
       details: SwapRouterMessages.InstantiateMsgStruct,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
-    ): Promise<PopulatedTransaction>;
-
-    swapMaticToWrappedMatic(
-      overrides?: PayableOverrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };
 }
