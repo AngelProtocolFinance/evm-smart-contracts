@@ -7,7 +7,8 @@
     "format": "prettier --write './**/*.{ts,tsx,js}' --write contracts/**/*.sol",
     "test": "hardhat test",
     "compile": "hardhat compile && yarn format",
-    "deploy": "hardhat compile && hardhat run ./scripts/deploy.ts",
+    "clean-compile": "set -x && mv ./tasks/index.ts ./tasks/temp_index.ts && touch ./tasks/index.ts && hardhat clean && yarn compile && mv ./tasks/temp_index.ts ./tasks/index.ts && set +x",
+    "deploy": "yarn compile && hardhat run ./scripts/deploy.ts",
     "abi": "hardhat export-abi"
   },
   "engines": {

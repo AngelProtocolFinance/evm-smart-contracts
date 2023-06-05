@@ -1,45 +1,30 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {ContractFactory} from "ethers";
-import {
-  AccountDeployContract__factory,
-  AccountDepositWithdrawEndowments__factory,
-  AccountDonationMatch__factory,
-  AccountsAllowance__factory,
-  AccountsCreateEndowment__factory,
-  AccountsDAOEndowments__factory,
-  AccountsQueryEndowments__factory,
-  AccountsSwapEndowments__factory,
-  AccountsUpdateEndowmentSettingsController__factory,
-  AccountsUpdateEndowments__factory,
-  AccountsUpdateStatusEndowments__factory,
-  AccountsUpdate__factory,
-  AccountsVaultFacet__factory,
-  DiamondLoupeFacet__factory,
-  OwnershipFacet__factory,
-} from "typechain-types";
-import {logger} from "utils";
+import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {getContractName, logger, updateAddresses} from "utils";
 import {FacetCutAction, getSelectors} from "../libraries/diamond";
+import {getFacetFactoryEntries} from "./getFacetFactoryEntries";
 import {FacetCut} from "./types";
 
 export default async function deployFacets(
   diamondOwner: SignerWithAddress,
   corestruct: string,
-  stringlib: string
+  hre: HardhatRuntimeEnvironment
 ): Promise<FacetCut[]> {
-  console.log("Deploying facets...");
+  logger.out("Deploying facets...");
 
   const cuts: FacetCut[] = [];
 
-  console.log("Instantiating factories...");
+  const factoryEntries = await getFacetFactoryEntries(diamondOwner, corestruct);
 
-  const factories = await getFactories(diamondOwner, corestruct);
-
-  for (const Factory of factories) {
-    const contractName = Factory.constructor.name.replace("__factory", "");
+  for (const entry of factoryEntries) {
+    const contractName = getContractName(entry.factory);
     try {
-      const facet = await Factory.deploy();
+      const facet = await entry.factory.deploy();
       await facet.deployed();
-      console.log(`${contractName} deployed: ${facet.address}`);
+      logger.out(`${contractName} deployed at: ${facet.address}`);
+
+      await updateAddresses({accounts: {facets: {[entry.addressField]: facet.address}}}, hre);
+
       cuts.push({
         facetName: contractName,
         cut: {
@@ -53,57 +38,5 @@ export default async function deployFacets(
     }
   }
 
-  console.log("\nDiamond Cut:", cuts);
-
   return cuts;
-}
-
-// Getting factories instantiated in bulk as they share the deploy/cut creation logic.
-async function getFactories(
-  diamondOwner: SignerWithAddress,
-  corestruct: string
-): Promise<ContractFactory[]> {
-  const factories = [
-    // no lib
-    new AccountDeployContract__factory(diamondOwner),
-    new AccountsDAOEndowments__factory(diamondOwner),
-    new AccountDonationMatch__factory(diamondOwner),
-    new AccountsUpdate__factory(diamondOwner),
-    new AccountsQueryEndowments__factory(diamondOwner),
-    new AccountsUpdateStatusEndowments__factory(diamondOwner),
-    // core lib
-    new AccountsVaultFacet__factory(
-      {"contracts/core/struct.sol:AngelCoreStruct": corestruct},
-      diamondOwner
-    ),
-    new AccountsAllowance__factory(
-      {"contracts/core/struct.sol:AngelCoreStruct": corestruct},
-      diamondOwner
-    ),
-    new AccountsCreateEndowment__factory(
-      {"contracts/core/struct.sol:AngelCoreStruct": corestruct},
-      diamondOwner
-    ),
-    new AccountsSwapEndowments__factory(
-      {"contracts/core/struct.sol:AngelCoreStruct": corestruct},
-      diamondOwner
-    ),
-    new AccountsUpdateEndowments__factory(
-      {"contracts/core/struct.sol:AngelCoreStruct": corestruct},
-      diamondOwner
-    ),
-    new AccountsUpdateEndowmentSettingsController__factory(
-      {"contracts/core/struct.sol:AngelCoreStruct": corestruct},
-      diamondOwner
-    ),
-    new AccountDepositWithdrawEndowments__factory(
-      {
-        "contracts/core/struct.sol:AngelCoreStruct": corestruct,
-      },
-      diamondOwner
-    ),
-    new DiamondLoupeFacet__factory(diamondOwner),
-    new OwnershipFacet__factory(diamondOwner),
-  ];
-  return factories;
 }

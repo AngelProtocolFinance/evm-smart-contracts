@@ -16,5 +16,9 @@ export default async function cutDiamond(
   const diamondInit = DiamondInit__factory.connect(diamondAddress, diamondOwner);
   const cuts = facetCuts.map((x) => x.cut);
   const tx = await diamondCut.diamondCut(cuts, diamondInit.address, "0x");
-  await hre.ethers.provider.waitForTransaction(tx.hash);
+  const receipt = await hre.ethers.provider.waitForTransaction(tx.hash);
+
+  if (!receipt.status) {
+    throw new Error("Diamond cut failed.");
+  }
 }

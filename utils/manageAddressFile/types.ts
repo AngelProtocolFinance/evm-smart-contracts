@@ -19,7 +19,6 @@ export type AddressObj = {
       diamondInitFacet: string;
       diamondLoupeFacet: string;
       ownershipFacet: string;
-      reentrancyGuardFacet: string;
     };
   };
   charityApplication: {

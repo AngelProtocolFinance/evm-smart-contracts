@@ -8,7 +8,6 @@ yarn-error.log
 .env
 .prettierrc
 .nvmrc
-contract-address-local.json
 dist
 
 #Hardhat files
