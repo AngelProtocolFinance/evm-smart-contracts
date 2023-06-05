@@ -5,7 +5,7 @@ import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
 import {ADDRESS_ZERO, envConfig, isLocalNetwork, updateAddresses} from "utils";
 // import { deployHaloImplementation } from "contracts/halo/scripts/deploy"
-import {charityApplications} from "contracts/multisigs/charity_applications/scripts/deploy";
+import {deployCharityApplication} from "contracts/multisigs/charity_applications/scripts/deploy";
 import {deployAPTeamMultiSig, deployApplicationsMultiSig} from "contracts/multisigs/scripts/deploy";
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
 import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
@@ -89,7 +89,7 @@ export async function deployAngelProtocol(
       hre
     );
 
-  const charityApplicationsAddress = await charityApplications(
+  const charityApplication = await deployCharityApplication(
     applicationsMultiSig.proxy.address,
     accountsDiamond.address,
     verify_contracts,
@@ -307,7 +307,7 @@ export async function deployAngelProtocol(
     swapsRouter: SWAP_ROUTER, //address
     multisigFactory: multisigDat.MultiSigWalletFactory, //address
     multisigEmitter: multisigDat.EndowmentMultiSigEmitter, //address
-    charityProposal: charityApplicationsAddress, //address
+    charityProposal: charityApplication.proxy.address, //address
     lockedWithdrawal: ethers.constants.AddressZero,
     proxyAdmin: proxyAdmin.address, //address
     usdcAddress: usdcToken.address, //address

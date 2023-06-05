@@ -1,4 +1,4 @@
-import {charityApplications} from "contracts/multisigs/charity_applications/scripts/deploy";
+import {deployCharityApplication} from "contracts/multisigs/charity_applications/scripts/deploy";
 import {task, types} from "hardhat/config";
 import {getAddresses, isLocalNetwork, logger} from "utils";
 
@@ -10,7 +10,7 @@ task("deploy:CharityApplications", "Will deploy CharityApplications contract")
 
       const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
 
-      await charityApplications(
+      await deployCharityApplication(
         addresses.multiSig.applications.proxy,
         addresses.accounts.diamond,
         verify_contracts,
