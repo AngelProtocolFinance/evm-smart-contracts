@@ -41,7 +41,9 @@ async function getFacetsToUpgrade(
 ) {
   const factoryEntries = await getFacetFactoryEntries(diamondOwner, corestruct);
   const facetsToUpgrade = facetNames.map((facetName) => {
-    const factoryEntry = factoryEntries.find((entry) => getContractName(entry.factory));
+    const factoryEntry = factoryEntries.find(
+      (entry) => getContractName(entry.factory) === facetName
+    );
     if (!factoryEntry) {
       throw new Error(`Nonexistent facet detected: ${facetName}.`);
     }
