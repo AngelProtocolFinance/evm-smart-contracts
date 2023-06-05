@@ -41,7 +41,7 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
       }
 
       const facetsToUpgrade = /^all$/i.test(taskArguments.facets[0])
-        ? allFacets
+        ? FACET_NAMES
         : taskArguments.facets;
 
       const isConfirmed = await confirmAction(
@@ -76,18 +76,34 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
     }
   });
 
-const allFacets: string[] = [
-  getContractName(AccountDeployContract__factory),
-  getContractName(AccountDepositWithdrawEndowments__factory),
-  getContractName(AccountDonationMatch__factory),
-  getContractName(AccountsAllowance__factory),
-  getContractName(AccountsCreateEndowment__factory),
-  getContractName(AccountsDAOEndowments__factory),
-  getContractName(AccountsQueryEndowments__factory),
-  getContractName(AccountsSwapEndowments__factory),
-  getContractName(AccountsUpdateEndowmentSettingsController__factory),
-  getContractName(AccountsUpdateEndowments__factory),
-  getContractName(AccountsUpdateStatusEndowments__factory),
-  getContractName(AccountsUpdate__factory),
-  getContractName(AccountsVaultFacet__factory),
+const FACET_NAMES: string[] = [
+  getContractName(new AccountDeployContract__factory()),
+  getContractName(
+    new AccountDepositWithdrawEndowments__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
+  ),
+  getContractName(new AccountDonationMatch__factory()),
+  getContractName(
+    new AccountsAllowance__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
+  ),
+  getContractName(
+    new AccountsCreateEndowment__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
+  ),
+  getContractName(new AccountsDAOEndowments__factory()),
+  getContractName(new AccountsQueryEndowments__factory()),
+  getContractName(
+    new AccountsSwapEndowments__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
+  ),
+  getContractName(
+    new AccountsUpdateEndowmentSettingsController__factory({
+      "contracts/core/struct.sol:AngelCoreStruct": "",
+    })
+  ),
+  getContractName(
+    new AccountsUpdateEndowments__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
+  ),
+  getContractName(new AccountsUpdateStatusEndowments__factory()),
+  getContractName(new AccountsUpdate__factory()),
+  getContractName(
+    new AccountsVaultFacet__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
+  ),
 ];
