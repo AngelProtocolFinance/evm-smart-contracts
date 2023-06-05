@@ -64,7 +64,7 @@ function hasKey<T extends object>(obj: T, k: keyof any): k is keyof T {
   return k in obj;
 }
 
-function createEmpty(): AddressObj {
+export function createEmpty(): AddressObj {
   return {
     accounts: {
       diamond: "",
