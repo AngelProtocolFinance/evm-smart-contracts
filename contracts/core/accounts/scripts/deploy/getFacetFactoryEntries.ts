@@ -20,7 +20,7 @@ import {
 import {AddressObj} from "utils";
 
 // Getting factories instantiated in bulk as they share the deploy/cut creation logic.
-export async function getFacetFactoryEntries(
+export default async function getFacetFactoryEntries(
   diamondOwner: SignerWithAddress,
   corestruct: string
 ): Promise<
