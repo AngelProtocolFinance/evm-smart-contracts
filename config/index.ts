@@ -4,7 +4,7 @@ import {envConfig} from "utils";
 
 dotenv.config({path: __dirname + "/./../.env"});
 
-const EXPORT_CONFIG = {
+const config = {
   AP_TEAM_MULTISIG_DATA: {
     threshold: 1,
     requireExecution: false,
@@ -87,4 +87,4 @@ const EXPORT_CONFIG = {
   },
 };
 
-export default EXPORT_CONFIG;
+export default config;
