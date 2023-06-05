@@ -3,7 +3,7 @@ import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
-import {ADDRESS_ZERO, isLocalNetwork} from "utils";
+import {ADDRESS_ZERO, ContractFunctionParams, isLocalNetwork} from "utils";
 // import { deployHaloImplementation } from "contracts/halo/scripts/deploy"
 import {charityApplications} from "contracts/multisigs/charity_applications/scripts/deploy";
 import {deployAPTeamMultiSig, deployApplicationsMultiSig} from "contracts/multisigs/scripts/deploy";
@@ -41,19 +41,8 @@ export async function deployAngelProtocol(
 
   const applicationsMultiSig = await deployApplicationsMultiSig(verify_contracts, hre);
 
-  const registrarData = {
-    treasury: treasury.address,
-    taxRate: config.REGISTRAR_DATA.taxRate,
-    rebalance: config.REGISTRAR_DATA.rebalance,
-    splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
-    acceptedTokens: config.REGISTRAR_DATA.acceptedTokens,
-    router: ADDRESS_ZERO,
-    axelarGateway: config.REGISTRAR_DATA.axelarGateway,
-    axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
-  };
-
   const registrar = await deployRegistrar(
-    registrarData,
+    ADDRESS_ZERO,
     apTeamMultisig.proxy.address,
     verify_contracts,
     hre

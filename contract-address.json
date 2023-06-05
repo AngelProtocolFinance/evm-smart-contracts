@@ -102,17 +102,17 @@
       "proxy": ""
     },
     "libraries": {
-      "ANGEL_CORE_STRUCT_LIBRARY": "",
-      "STRING_LIBRARY": ""
+      "ANGEL_CORE_STRUCT_LIBRARY": "0x3C8841ddf731d168b0B4FFB633995281DaE8bc3D",
+      "STRING_LIBRARY": "0x79C42a0742733f61F110EaBAB2836397714AbBA1"
     },
     "multiSig": {
       "applications": {
-        "implementation": "",
-        "proxy": ""
+        "implementation": "0x1f5466599D672402C804cc80c676B0b49c8bBC13",
+        "proxy": "0x1Ef8f58544Ca4d9b1e34E2F9Cd1b37257C618C6D"
       },
       "apTeam": {
-        "implementation": "",
-        "proxy": ""
+        "implementation": "0x075FbeB3802AfdCDe6DDEB1d807E4805ed719eca",
+        "proxy": "0x451632B70577a9D12fC8284a5C5e65DC03d8Da1a"
       },
       "endowment": {
         "emitter": {
@@ -146,7 +146,7 @@
     },
     "tokens": {
       "halo": "",
-      "usdc": "",
+      "usdc": "0xD641747EbDbfD170DBc31a74bB7E825Da27C0472",
       "wmatic": ""
     }
   },

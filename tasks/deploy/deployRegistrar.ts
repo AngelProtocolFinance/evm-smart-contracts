@@ -1,8 +1,8 @@
-import {task} from "hardhat/config";
 import config from "config";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
-import {getAddresses, getSigners, isLocalNetwork, logger} from "utils";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
+import {task} from "hardhat/config";
+import {getAddresses, isLocalNetwork, logger} from "utils";
 
 task("deploy:Registrar", "Will deploy Registrar contract")
   .addParam("verify", "Want to verify contract")
@@ -12,18 +12,10 @@ task("deploy:Registrar", "Will deploy Registrar contract")
         multiSig: {apTeam},
         router,
       } = await getAddresses(hre);
-      const {treasury} = await getSigners(hre.ethers);
 
-      const registrarData = {
-        treasury: treasury.address,
-        splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
-        router: router.proxy,
-        axelarGateway: config.REGISTRAR_DATA.axelarGateway,
-        axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
-      };
       const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify === "true";
 
-      const registrar = await deployRegistrar(registrarData, apTeam.proxy, verify_contracts, hre);
+      const registrar = await deployRegistrar(router.proxy, apTeam.proxy, verify_contracts, hre);
 
       await deployRouter(
         config.REGISTRAR_DATA.axelarGateway,
