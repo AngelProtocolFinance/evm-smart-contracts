@@ -4,7 +4,7 @@ import {task, types} from "hardhat/config";
 import {isLocalNetwork, logger} from "utils";
 
 task("deploy:Fundraising", "Will deploy Fundraising contract")
-  .addOptionalParam("verify", "Want to verify contract", false, types.boolean)
+  .addOptionalParam("verify", "Contract verification flag", false, types.boolean)
   .addParam("registraraddress", "Address of the Registrar contract")
   .addParam("angelcorestruct", "Address of the AngelCoreStruct contract")
   .setAction(async (taskArgs, hre) => {

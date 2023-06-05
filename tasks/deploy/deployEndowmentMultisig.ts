@@ -3,7 +3,7 @@ import {task, types} from "hardhat/config";
 import {isLocalNetwork, logger} from "utils";
 
 task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
-  .addOptionalParam("verify", "Want to verify contract", false, types.boolean)
+  .addOptionalParam("verify", "Contract verification flag", false, types.boolean)
   .setAction(async (taskArgs: {verify: boolean}, hre) => {
     try {
       const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;

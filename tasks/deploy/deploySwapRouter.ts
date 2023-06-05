@@ -4,7 +4,7 @@ import {task, types} from "hardhat/config";
 import {isLocalNetwork, logger} from "utils";
 
 task("deploy:SwapRouter", "Will deploy SwapRouter contract")
-  .addOptionalParam("verify", "Want to verify contract", false, types.boolean)
+  .addOptionalParam("verify", "Contract verification flag", false, types.boolean)
   .addParam("registraraddress", "Address of the Registrar contract")
   .addParam("accountaddress", "Address of the account")
   .setAction(async (taskArgs, hre) => {

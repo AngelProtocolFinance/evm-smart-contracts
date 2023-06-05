@@ -4,7 +4,7 @@ import {task, types} from "hardhat/config";
 import {getAddresses, isLocalNetwork, logger} from "utils";
 
 task("deploy:Router", "Will deploy Router contract")
-  .addOptionalParam("verify", "Want to verify contract", false, types.boolean)
+  .addOptionalParam("verify", "Contract verification flag", false, types.boolean)
   .setAction(async (taskArgs: {verify: boolean}, hre) => {
     try {
       const {

@@ -3,7 +3,7 @@ import {giftCard} from "contracts/accessory/gift-cards/scripts/deploy";
 import {isLocalNetwork, logger} from "utils";
 
 task("deploy:GiftCard", "Will deploy GiftCardContracts contract")
-  .addOptionalParam("verify", "Want to verify contract", false, types.boolean)
+  .addOptionalParam("verify", "Contract verification flag", false, types.boolean)
   .addParam("keeper", "keeper address for giftCard contract")
   .addParam("registraraddress", "Address of the registrar contract")
   .addParam("corelibrary", "Angel core library address")

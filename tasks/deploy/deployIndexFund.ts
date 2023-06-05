@@ -4,7 +4,7 @@ import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {getAddresses, isLocalNetwork, logger} from "utils";
 
 task("deploy:IndexFund", "Will deploy IndexFund contract")
-  .addOptionalParam("verify", "Want to verify contract", false, types.boolean)
+  .addOptionalParam("verify", "Contract verification flag", false, types.boolean)
   .addParam("registraraddress", "Address of the Registrar contract")
   .setAction(async (taskArgs, hre) => {
     try {
