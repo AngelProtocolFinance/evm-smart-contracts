@@ -86,7 +86,7 @@ export declare namespace RegistrarStorage {
     lockedWithdrawal: PromiseOrValue<string>;
     proxyAdmin: PromiseOrValue<string>;
     usdcAddress: PromiseOrValue<string>;
-    wethAddress: PromiseOrValue<string>;
+    wMaticAddress: PromiseOrValue<string>;
     cw900lvAddress: PromiseOrValue<string>;
   };
 
@@ -148,7 +148,7 @@ export declare namespace RegistrarStorage {
     lockedWithdrawal: string;
     proxyAdmin: string;
     usdcAddress: string;
-    wethAddress: string;
+    wMaticAddress: string;
     cw900lvAddress: string;
   };
 }

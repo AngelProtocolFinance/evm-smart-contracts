@@ -495,7 +495,7 @@ library AngelCoreStruct {
     uint256 bps;
   }
 
-  function validateFee(FeeSetting memory fee) public view {
+  function validateFee(FeeSetting memory fee) public pure {
     if (fee.bps > 0 && fee.payoutAddress == address(0)) {
       revert("Invalid fee payout zero address given");
     } else if (fee.bps > FEE_BASIS) {

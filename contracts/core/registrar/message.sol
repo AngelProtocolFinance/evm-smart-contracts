@@ -44,7 +44,7 @@ library RegistrarMessages {
         address lockedWithdrawal;
         address proxyAdmin;
         address usdcAddress;
-        address wethAddress;
+        address wMaticAddress;
         address subdaoGovContract;
         address subdaoTokenContract;
         address subdaoBondingTokenContract;

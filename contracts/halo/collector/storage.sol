@@ -4,6 +4,7 @@ pragma solidity ^0.8.16;
 library CollectorStorage {
     struct Config {
         address owner;
+        address registrarContract;
         address haloToken;
         address timelockContract;
         address govContract;

@@ -6,7 +6,6 @@ import {SwapRouterMessages} from "./message.sol";
 import {AngelCoreStruct} from "../struct.sol";
 import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../registrar/storage.sol";
-// import {IUniswapV2Router, IUniswapV2Pair, IUniswapV2Factory} from "./interfaces/ISwapping.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -32,7 +31,7 @@ contract SwapRouter is Storage {
      * @dev Initialize contract
      * @param details SwapRouterMessages.InstantiateMsg used to initialize contract
      */
-    function intiSwapRouter(
+    function initSwapRouter(
         SwapRouterMessages.InstantiateMsg memory details
     ) public {
         require(!initSwapRouterFlag, "Already Initilized");
@@ -115,7 +114,6 @@ contract SwapRouter is Storage {
         uint24 fees = checkPoolAndReturFee(tokena, tokenb);
 
         require(fees > 0, "Invalid Token Send to swap");
-
         require(
             IERC20(tokena).transferFrom(
                 msg.sender,
@@ -124,7 +122,6 @@ contract SwapRouter is Storage {
             ),
             "TransferFrom failed"
         );
-
         require(
             IERC20(tokena).approve(swapRouter, amount),
             "Approve failed"
@@ -146,159 +143,41 @@ contract SwapRouter is Storage {
 
         // The call to `exactInputSingle` executes the swap.
         uint256 amountOut = ISwapRouter(swapRouter).exactInputSingle(params);
-        //Perform Swap
+
         return amountOut;
     }
 
     /**
-     * @dev This function swaps a token for the specified output token and returns the amount obtained.
+     * @dev This function swaps the given amount of the specified ERC20 token for another ERC20. 
+     *      This function can only be called by the accounts contract.
      * @param tokenIn address
-     * @param tokenOut address
      * @param amountIn uint256
-     * @param amountOut uint256
+     * @param tokenOut address
+     * @param minAmountOut uint256
      * @return amountPossible Returns the amount of token obtained after swapping the tokens.
      */
-    function executeSwapOperations(
+    function executeSwaps(
         address tokenIn,
         address tokenOut,
         uint256 amountIn,
-        uint256 amountOut
+        uint256 minAmountOut
     ) public returns (uint256) {
-
-        uint256 amountPossible;
-        
-        amountPossible += swap(
+        uint256 amountPossible = swap(
             tokenIn,
             tokenOut,
             amountIn,
             address(this)
         );
 
-
         require(
-            amountPossible >= amountOut,
+            amountPossible >= minAmountOut,
             "Output funds less than the minimum funds"
         );
-
         require(
             IERC20(tokenOut).transfer(msg.sender, amountPossible),
             "Transfer failed"
         );
 
         return amountPossible;
-    }
-
-    /**
-     * @dev This function swaps the given amount of the specified token for USDC. This function can only be called by the registrar contract or the accounts contract.
-     * @param tokena address
-     * @param amountin uint256
-     * @return account Returns the amount of token after swapping specified USDC token.
-     */
-    function swapTokenToUsdc(
-        address tokena,
-        uint256 amountin
-    ) public returns (uint256) {
-        require(
-            msg.sender == config.registrarContract ||
-                msg.sender == config.accountsContract,
-            "Unauthorized"
-        );
-
-        RegistrarStorage.Config memory registrar_config = IRegistrar(
-            config.registrarContract
-        ).queryConfig();
-
-        uint256 account = swap(
-            tokena,
-            registrar_config.usdcAddress,
-            amountin,
-            msg.sender
-        );
-
-        return account;
-    }
-
-    /**
-     * @dev This function swaps the sent ETH for the specified token.
-     * @return amountOut Returns the amount of token after swapping with ETH.
-     */
-    function swapEthToToken() public payable returns (uint256) {
-        require(
-            msg.sender == config.registrarContract ||
-                msg.sender == config.accountsContract,
-            "Unauthorized"
-        );
-
-        require(msg.value > 0, "Invalid Amount");
-
-        RegistrarStorage.Config memory registrar_config = IRegistrar(
-            config.registrarContract
-        ).queryConfig();
-
-        //Get pool
-        uint24 fees = checkPoolAndReturFee(
-            registrar_config.wethAddress,
-            registrar_config.usdcAddress
-        );
-
-        // Naively set amountOutMinimum to 0. In production, use an oracle or other data source to choose a safer value for amountOutMinimum.
-        // We also set the sqrtPriceLimitx96 to be 0 to ensure we swap our exact input amount.
-        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
-            .ExactInputSingleParams({
-                tokenIn: registrar_config.wethAddress,
-                tokenOut: registrar_config.usdcAddress,
-                fee: fees,
-                recipient: msg.sender,
-                deadline: block.timestamp + 600,
-                amountIn: msg.value,
-                amountOutMinimum: 0,
-                sqrtPriceLimitX96: 0
-            });
-
-        // The call to `exactInputSingle` executes the swap.
-        uint256 amountOut = ISwapRouter(swapRouter).exactInputSingle{
-            value: msg.value
-        }(params);
-
-        //Perform Swap
-        return amountOut;
-    }
-
-    /**
-     * @dev This function swaps the sent ETH to any token.
-     * @param token address
-     * @return amountOut Returns the amount of token after swapping with ETH.
-     */
-    function swapEthToAnyToken(address token) public payable returns (uint256) {
-        require(msg.value > 0, "Invalid Amount");
-
-        RegistrarStorage.Config memory registrar_config = IRegistrar(
-            config.registrarContract
-        ).queryConfig();
-
-        //Get pool
-        uint24 fees = checkPoolAndReturFee(registrar_config.wethAddress, token);
-
-        // Naively set amountOutMinimum to 0. In production, use an oracle or other data source to choose a safer value for amountOutMinimum.
-        // We also set the sqrtPriceLimitx96 to be 0 to ensure we swap our exact input amount.
-        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
-            .ExactInputSingleParams({
-                tokenIn: registrar_config.wethAddress,
-                tokenOut: token,
-                fee: fees,
-                recipient: msg.sender,
-                deadline: block.timestamp + 600,
-                amountIn: msg.value,
-                amountOutMinimum: 0,
-                sqrtPriceLimitX96: 0
-            });
-
-        // The call to `exactInputSingle` executes the swap.
-        uint256 amountOut = ISwapRouter(swapRouter).exactInputSingle{
-            value: msg.value
-        }(params);
-
-        //Perform Swap
-        return amountOut;
     }
 }

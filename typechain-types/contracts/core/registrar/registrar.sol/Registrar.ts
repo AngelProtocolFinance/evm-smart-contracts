@@ -163,7 +163,7 @@ export declare namespace RegistrarStorage {
     lockedWithdrawal: PromiseOrValue<string>;
     proxyAdmin: PromiseOrValue<string>;
     usdcAddress: PromiseOrValue<string>;
-    wethAddress: PromiseOrValue<string>;
+    wMaticAddress: PromiseOrValue<string>;
     cw900lvAddress: PromiseOrValue<string>;
   };
 
@@ -225,7 +225,7 @@ export declare namespace RegistrarStorage {
     lockedWithdrawal: string;
     proxyAdmin: string;
     usdcAddress: string;
-    wethAddress: string;
+    wMaticAddress: string;
     cw900lvAddress: string;
   };
 }
@@ -295,7 +295,7 @@ export declare namespace RegistrarMessages {
     lockedWithdrawal: PromiseOrValue<string>;
     proxyAdmin: PromiseOrValue<string>;
     usdcAddress: PromiseOrValue<string>;
-    wethAddress: PromiseOrValue<string>;
+    wMaticAddress: PromiseOrValue<string>;
     subdaoGovContract: PromiseOrValue<string>;
     subdaoTokenContract: PromiseOrValue<string>;
     subdaoBondingTokenContract: PromiseOrValue<string>;
@@ -363,7 +363,7 @@ export declare namespace RegistrarMessages {
     lockedWithdrawal: string;
     proxyAdmin: string;
     usdcAddress: string;
-    wethAddress: string;
+    wMaticAddress: string;
     subdaoGovContract: string;
     subdaoTokenContract: string;
     subdaoBondingTokenContract: string;

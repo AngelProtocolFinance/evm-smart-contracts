@@ -243,7 +243,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "wethAddress",
+            name: "wMaticAddress",
             type: "address",
           },
           {
@@ -277,7 +277,7 @@ const _abi = [
 ] as const;
 
 const _bytecode =
-  "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea2646970667358221220a4fbdd3775e68741ff4bf34ff487d3bf34c3c39727cf7fe7ce2b4b0c2cf5954364736f6c63430008120033";
+  "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea2646970667358221220e5ee1216ade6c63d037634e6c34de5885ee8441e521b5da23e7e4dbe6166323d64736f6c63430008120033";
 
 type RegistrarEventsLibConstructorParams =
   | [signer?: Signer]

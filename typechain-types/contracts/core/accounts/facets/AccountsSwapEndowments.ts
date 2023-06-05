@@ -446,7 +446,7 @@ export declare namespace AccountStorage {
 
 export interface AccountsSwapEndowmentsInterface extends utils.Interface {
   functions: {
-    "swapToken(uint32,uint8,uint256,address,address)": FunctionFragment;
+    "swapToken(uint32,uint8,address,uint256,address)": FunctionFragment;
   };
 
   getFunction(nameOrSignatureOrTopic: "swapToken"): FunctionFragment;
@@ -456,8 +456,8 @@ export interface AccountsSwapEndowmentsInterface extends utils.Interface {
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>
     ]
   ): string;
@@ -473,7 +473,7 @@ export interface AccountsSwapEndowmentsInterface extends utils.Interface {
     "EndowmentCreated(uint256,tuple)": EventFragment;
     "EndowmentSettingUpdated(uint256,string)": EventFragment;
     "RemoveAllowance(address,address,address)": EventFragment;
-    "SwapToken(uint256,uint8,uint256,address,address,uint256)": EventFragment;
+    "SwapToken(uint256,uint8,address,uint256,address,uint256)": EventFragment;
     "UpdateConfig(tuple)": EventFragment;
     "UpdateEndowment(uint256,tuple)": EventFragment;
   };
@@ -583,13 +583,13 @@ export type RemoveAllowanceEventFilter = TypedEventFilter<RemoveAllowanceEvent>;
 export interface SwapTokenEventObject {
   id: BigNumber;
   accountType: number;
-  amount: BigNumber;
-  tokenin: string;
-  tokenout: string;
-  amountout: BigNumber;
+  tokenIn: string;
+  amountIn: BigNumber;
+  tokenOut: string;
+  amountOut: BigNumber;
 }
 export type SwapTokenEvent = TypedEvent<
-  [BigNumber, number, BigNumber, string, string, BigNumber],
+  [BigNumber, number, string, BigNumber, string, BigNumber],
   SwapTokenEventObject
 >;
 
@@ -644,8 +644,8 @@ export interface AccountsSwapEndowments extends BaseContract {
     swapToken(
       id: PromiseOrValue<BigNumberish>,
       accountType: PromiseOrValue<BigNumberish>,
-      amount: PromiseOrValue<BigNumberish>,
       tokenIn: PromiseOrValue<string>,
+      amountIn: PromiseOrValue<BigNumberish>,
       tokenOut: PromiseOrValue<string>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
@@ -654,8 +654,8 @@ export interface AccountsSwapEndowments extends BaseContract {
   swapToken(
     id: PromiseOrValue<BigNumberish>,
     accountType: PromiseOrValue<BigNumberish>,
-    amount: PromiseOrValue<BigNumberish>,
     tokenIn: PromiseOrValue<string>,
+    amountIn: PromiseOrValue<BigNumberish>,
     tokenOut: PromiseOrValue<string>,
     overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
@@ -664,8 +664,8 @@ export interface AccountsSwapEndowments extends BaseContract {
     swapToken(
       id: PromiseOrValue<BigNumberish>,
       accountType: PromiseOrValue<BigNumberish>,
-      amount: PromiseOrValue<BigNumberish>,
       tokenIn: PromiseOrValue<string>,
+      amountIn: PromiseOrValue<BigNumberish>,
       tokenOut: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -723,21 +723,21 @@ export interface AccountsSwapEndowments extends BaseContract {
     ): RemoveAllowanceEventFilter;
     RemoveAllowance(sender?: null, spender?: null, tokenAddress?: null): RemoveAllowanceEventFilter;
 
-    "SwapToken(uint256,uint8,uint256,address,address,uint256)"(
+    "SwapToken(uint256,uint8,address,uint256,address,uint256)"(
       id?: null,
       accountType?: null,
-      amount?: null,
-      tokenin?: null,
-      tokenout?: null,
-      amountout?: null
+      tokenIn?: null,
+      amountIn?: null,
+      tokenOut?: null,
+      amountOut?: null
     ): SwapTokenEventFilter;
     SwapToken(
       id?: null,
       accountType?: null,
-      amount?: null,
-      tokenin?: null,
-      tokenout?: null,
-      amountout?: null
+      tokenIn?: null,
+      amountIn?: null,
+      tokenOut?: null,
+      amountOut?: null
     ): SwapTokenEventFilter;
 
     "UpdateConfig(tuple)"(config?: null): UpdateConfigEventFilter;
@@ -751,8 +751,8 @@ export interface AccountsSwapEndowments extends BaseContract {
     swapToken(
       id: PromiseOrValue<BigNumberish>,
       accountType: PromiseOrValue<BigNumberish>,
-      amount: PromiseOrValue<BigNumberish>,
       tokenIn: PromiseOrValue<string>,
+      amountIn: PromiseOrValue<BigNumberish>,
       tokenOut: PromiseOrValue<string>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
@@ -762,8 +762,8 @@ export interface AccountsSwapEndowments extends BaseContract {
     swapToken(
       id: PromiseOrValue<BigNumberish>,
       accountType: PromiseOrValue<BigNumberish>,
-      amount: PromiseOrValue<BigNumberish>,
       tokenIn: PromiseOrValue<string>,
+      amountIn: PromiseOrValue<BigNumberish>,
       tokenOut: PromiseOrValue<string>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
