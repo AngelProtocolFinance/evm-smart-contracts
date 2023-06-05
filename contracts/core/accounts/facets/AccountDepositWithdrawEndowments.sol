@@ -168,10 +168,8 @@ contract AccountDepositWithdrawEndowments is
             }
         }
 
-        uint256 lockedAmount = (amount.mul(lockedSplitPercent))
-                                .div(AngelCoreStruct.FEE_BASIS);
-        uint256 liquidAmount = (amount.mul(liquidSplitPercent))
-                                .div(AngelCoreStruct.FEE_BASIS);
+        uint256 lockedAmount = (amount.mul(lockedSplitPercent)).div(AngelCoreStruct.PERCENT_BASIS);
+        uint256 liquidAmount = (amount.mul(liquidSplitPercent)).div(AngelCoreStruct.PERCENT_BASIS);
 
         //donation matching flow
         //execute donor match will always be called on an EOA
@@ -361,8 +359,7 @@ contract AccountDepositWithdrawEndowments is
 
             // ** Endowment specific withdraw fee **
             // Endowment specific withdraw fee needs to be calculated against the amount
-            // leftover after all AP withdraw fees are subtracted. Otherwise we risk having
-            // negative amounts due to collective fees being greater than 100%
+            // leftover after all AP withdraw fees are subtracted.
             uint256 amountLeftover = tokens[tii].amnt - withdrawFeeAp - earlyLockedWithdrawPenalty;
             uint256 withdrawFeeEndow = 0;
             if (
