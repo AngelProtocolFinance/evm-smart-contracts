@@ -31,7 +31,7 @@ export async function deployAngelProtocol(
 
   await cleanAddresses(hre);
 
-  console.log("Deploying the contracts with the account:", proxyAdmin.address);
+  console.log("Deploying the contracts with the admin account:", proxyAdmin.address);
 
   // Mock setup required for testing
   const usdcToken = isLocalNetwork(network)
@@ -99,8 +99,8 @@ export async function deployAngelProtocol(
   const SWAP_ROUTER = await deploySwapRouter(
     registrar.proxy.address,
     accountsDiamond.address,
-    config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS,
-    config.SWAP_ROUTER_DATA.SWAP_ROUTER_ADDRESS,
+    config.SWAP_ROUTER_DATA.uniswapFactory,
+    config.SWAP_ROUTER_DATA.swapRouterAddress,
     verify_contracts,
     hre
   );
@@ -262,7 +262,7 @@ export async function deployAngelProtocol(
   if (isLocalNetwork(network)) {
     // haloToken
     // donationMatchCharityData.reserveToken = haloToken.address
-    donationMatchCharityData.uniswapFactory = config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS;
+    donationMatchCharityData.uniswapFactory = config.SWAP_ROUTER_DATA.uniswapFactory;
     donationMatchCharityData.poolFee = 3000;
   }
 

@@ -14,8 +14,8 @@ task("deploy:SwapRouter", "Will deploy SwapRouter contract")
       await deploySwapRouter(
         taskArgs.registraraddress,
         taskArgs.accountaddress,
-        config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS,
-        config.SWAP_ROUTER_DATA.SWAP_ROUTER_ADDRESS,
+        config.SWAP_ROUTER_DATA.uniswapFactory,
+        config.SWAP_ROUTER_DATA.swapRouterAddress,
         verify_contracts,
         hre
       );
