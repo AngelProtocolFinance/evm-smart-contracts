@@ -33,7 +33,7 @@ export async function deployCharityApplication(
   );
   const charityApplication = await charityApplicationFactory.deploy();
   await charityApplication.deployed();
-  logger.out(`CharityApplicationLib deployed at: ${charityApplication.address}`);
+  logger.out(`Implementation deployed at: ${charityApplication.address}`);
 
   const initData = charityApplication.interface.encodeFunctionData("initialize", [
     config.CHARITY_APPLICATION_DATA.expiry,
