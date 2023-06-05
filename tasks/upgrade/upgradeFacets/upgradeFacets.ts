@@ -1,4 +1,4 @@
-import {task} from "hardhat/config";
+import {task, types} from "hardhat/config";
 import {
   AccountDeployContract__factory,
   AccountDepositWithdrawEndowments__factory,
@@ -27,13 +27,14 @@ import cutDiamond from "./cutDiamond";
 import deployFacets from "./deployFacets";
 import verify from "./verify";
 
-type TaskArguments = {facets: string[]};
+type TaskArguments = {facets: string[]; verify: boolean};
 
 task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountStorage struct")
   .addVariadicPositionalParam(
     "facets",
     "List of facets to upgrade. If set to 'all', will upgrade all facets."
   )
+  .addOptionalParam("verify", "Contract verification flag", false, types.boolean)
   .setAction(async (taskArguments: TaskArguments, hre) => {
     try {
       if (taskArguments.facets.length === 0) {
@@ -66,7 +67,7 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
 
       await cutDiamond(addresses.accounts.diamond, proxyAdmin, facetCuts, hre);
 
-      if (shouldVerify(hre.network)) {
+      if (shouldVerify(hre.network) && taskArguments.verify) {
         await verify(facetCuts, hre);
       }
     } catch (error) {
