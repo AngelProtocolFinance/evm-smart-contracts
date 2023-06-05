@@ -43,7 +43,7 @@ export declare namespace SwapRouterMessages {
 export interface SwapRouterInterface extends utils.Interface {
   functions: {
     "executeSwapOperations(address,address,uint256,uint256)": FunctionFragment;
-    "intiSwapRouter((address,address,address,address))": FunctionFragment;
+    "initSwapRouter((address,address,address,address))": FunctionFragment;
     "swapEthToAnyToken(address)": FunctionFragment;
     "swapEthToToken()": FunctionFragment;
     "swapTokenToUsdc(address,uint256)": FunctionFragment;
@@ -52,7 +52,7 @@ export interface SwapRouterInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "executeSwapOperations"
-      | "intiSwapRouter"
+      | "initSwapRouter"
       | "swapEthToAnyToken"
       | "swapEthToToken"
       | "swapTokenToUsdc"
@@ -68,7 +68,7 @@ export interface SwapRouterInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "intiSwapRouter",
+    functionFragment: "initSwapRouter",
     values: [SwapRouterMessages.InstantiateMsgStruct]
   ): string;
   encodeFunctionData(
@@ -89,7 +89,7 @@ export interface SwapRouterInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "intiSwapRouter",
+    functionFragment: "initSwapRouter",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -143,7 +143,7 @@ export interface SwapRouter extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    intiSwapRouter(
+    initSwapRouter(
       details: SwapRouterMessages.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -172,7 +172,7 @@ export interface SwapRouter extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  intiSwapRouter(
+  initSwapRouter(
     details: SwapRouterMessages.InstantiateMsgStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -201,7 +201,7 @@ export interface SwapRouter extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    intiSwapRouter(
+    initSwapRouter(
       details: SwapRouterMessages.InstantiateMsgStruct,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -231,7 +231,7 @@ export interface SwapRouter extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    intiSwapRouter(
+    initSwapRouter(
       details: SwapRouterMessages.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -261,7 +261,7 @@ export interface SwapRouter extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    intiSwapRouter(
+    initSwapRouter(
       details: SwapRouterMessages.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
