@@ -1,7 +1,7 @@
 import config from "config";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {getAddresses, isLocalNetwork, logger} from "utils";
+import {getAddresses, logger, shouldVerify} from "utils";
 
 task("deploy:Router", "Will deploy Router contract")
   .addOptionalParam("verify", "Contract verification flag", false, types.boolean)
@@ -12,7 +12,7 @@ task("deploy:Router", "Will deploy Router contract")
         multiSig: {apTeam},
       } = await getAddresses(hre);
 
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify_contracts = shouldVerify(hre.network) && taskArgs.verify;
 
       await deployRouter(
         config.REGISTRAR_DATA.axelarGateway,

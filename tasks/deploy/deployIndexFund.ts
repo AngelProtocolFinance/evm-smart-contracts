@@ -1,7 +1,7 @@
 import {task, types} from "hardhat/config";
 import config from "config";
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
-import {getAddresses, isLocalNetwork, logger} from "utils";
+import {getAddresses, logger, shouldVerify} from "utils";
 
 task("deploy:IndexFund", "Will deploy IndexFund contract")
   .addOptionalParam("verify", "Contract verification flag", false, types.boolean)
@@ -17,7 +17,7 @@ task("deploy:IndexFund", "Will deploy IndexFund contract")
         fundMemberLimit: config.INDEX_FUND_DATA.fundMemberLimit,
         fundingGoal: config.INDEX_FUND_DATA.fundingGoal,
       };
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify_contracts = shouldVerify(hre.network) && taskArgs.verify;
 
       await deployIndexFund(indexFundData, apTeam.proxy, verify_contracts, hre);
     } catch (error) {

@@ -1,7 +1,7 @@
 import config from "config";
 import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {isLocalNetwork, logger} from "utils";
+import {logger, shouldVerify} from "utils";
 
 task("deploy:SwapRouter", "Will deploy SwapRouter contract")
   .addOptionalParam("verify", "Contract verification flag", false, types.boolean)
@@ -9,7 +9,7 @@ task("deploy:SwapRouter", "Will deploy SwapRouter contract")
   .addParam("accountaddress", "Address of the account")
   .setAction(async (taskArgs, hre) => {
     try {
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify_contracts = shouldVerify(hre.network) && taskArgs.verify;
 
       await deploySwapRouter(
         taskArgs.registraraddress,

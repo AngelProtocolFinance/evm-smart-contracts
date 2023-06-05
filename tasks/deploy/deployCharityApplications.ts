@@ -1,7 +1,7 @@
 import config from "config";
 import {charityApplications} from "contracts/multisigs/charity_applications/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {getAddresses, isLocalNetwork, logger} from "utils";
+import {getAddresses, logger, shouldVerify} from "utils";
 
 task("deploy:CharityApplications", "Will deploy CharityApplications contract")
   .addOptionalParam("verify", "Contract verification flag", false, types.boolean)
@@ -19,7 +19,7 @@ task("deploy:CharityApplications", "Will deploy CharityApplications contract")
         config.CHARITY_APPLICATION_DATA.seedAsset,
         config.CHARITY_APPLICATION_DATA.seedAssetAmount,
       ];
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify_contracts = shouldVerify(hre.network) && taskArgs.verify;
 
       await charityApplications(charityApplicationsData, verify_contracts, hre);
     } catch (error) {

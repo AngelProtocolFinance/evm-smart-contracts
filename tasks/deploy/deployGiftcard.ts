@@ -1,6 +1,6 @@
 import {task, types} from "hardhat/config";
 import {giftCard} from "contracts/accessory/gift-cards/scripts/deploy";
-import {isLocalNetwork, logger} from "utils";
+import {logger, shouldVerify} from "utils";
 
 task("deploy:GiftCard", "Will deploy GiftCardContracts contract")
   .addOptionalParam("verify", "Contract verification flag", false, types.boolean)
@@ -16,7 +16,7 @@ task("deploy:GiftCard", "Will deploy GiftCardContracts contract")
 
       logger.out(taskArgs.corelibrary);
 
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify_contracts = shouldVerify(hre.network) && taskArgs.verify;
 
       await giftCard(GiftCardDataInput, taskArgs.corelibrary, verify_contracts, hre);
     } catch (error) {

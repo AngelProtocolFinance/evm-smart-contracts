@@ -2,7 +2,7 @@ import config from "config";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {getAddresses, getSigners, isLocalNetwork, logger} from "utils";
+import {getAddresses, getSigners, logger, shouldVerify} from "utils";
 
 task("deploy:Registrar", "Will deploy Registrar contract")
   .addOptionalParam("verify", "Contract verification flag", false, types.boolean)
@@ -21,7 +21,7 @@ task("deploy:Registrar", "Will deploy Registrar contract")
         axelarGateway: config.REGISTRAR_DATA.axelarGateway,
         axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
       };
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify_contracts = shouldVerify(hre.network) && taskArgs.verify;
 
       const registrar = await deployRegistrar(registrarData, apTeam.proxy, verify_contracts, hre);
 

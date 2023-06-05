@@ -1,7 +1,7 @@
 import {task, types} from "hardhat/config";
 import config from "config";
 import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
-import {isLocalNetwork, logger} from "utils";
+import {logger, shouldVerify} from "utils";
 
 task("deploy:Implementation", "Will deploy Implementation")
   .addOptionalParam("verify", "Contract verification flag", false, types.boolean)
@@ -12,7 +12,7 @@ task("deploy:Implementation", "Will deploy Implementation")
   .addParam("endowmentmultisigaddress", "Address of the Endowment multisig")
   .setAction(async (taskArgs, hre) => {
     try {
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify_contracts = shouldVerify(hre.network) && taskArgs.verify;
 
       let donationMatchCharityData = {
         reserveToken: config.DONATION_MATCH_CHARITY_DATA.reserveToken,

@@ -1,7 +1,7 @@
 import config from "config";
 import {deployFundraising} from "contracts/accessory/fundraising/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {isLocalNetwork, logger} from "utils";
+import {logger, shouldVerify} from "utils";
 
 task("deploy:Fundraising", "Will deploy Fundraising contract")
   .addOptionalParam("verify", "Contract verification flag", false, types.boolean)
@@ -16,7 +16,7 @@ task("deploy:Fundraising", "Will deploy Fundraising contract")
         taxRate: config.FundraisingDataInput.taxRate,
         acceptedTokens: config.FundraisingDataInput.acceptedTokens,
       };
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify_contracts = shouldVerify(hre.network) && taskArgs.verify;
 
       await deployFundraising(
         FundraisingDataInput,
