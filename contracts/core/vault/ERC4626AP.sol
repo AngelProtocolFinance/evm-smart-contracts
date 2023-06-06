@@ -117,7 +117,7 @@ abstract contract ERC4626AP is ERC20AP {
     //////////////////////////////////////////////////////////////*/
 
     function totalAssets() public view virtual returns (uint256) {
-        asset.balanceOf(address(this));
+        return asset.balanceOf(address(this));
     }
 
     function convertToShares(uint256 assets) public view virtual returns (uint256) {

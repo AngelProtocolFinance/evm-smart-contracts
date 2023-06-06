@@ -14,7 +14,7 @@ import {FixedPointMathLib} from "../../lib/FixedPointMathLib.sol";
 contract APVault_V1 is IVault, ERC4626AP {
   using FixedPointMathLib for uint256;
 
-  VaultConfig vaultConfig;
+  VaultConfig public vaultConfig;
   mapping(uint32 => Principle) principleByAccountId;
 
   constructor(
@@ -56,7 +56,7 @@ contract APVault_V1 is IVault, ERC4626AP {
                                 CONFIG
   //////////////////////////////////////////////////////////////*/
 
-  function setVaultConfig(VaultConfig memory _newConfig) external virtual onlyAdmin {
+  function setVaultConfig(VaultConfig memory _newConfig) external override virtual onlyAdmin {
     vaultConfig = _newConfig;
   }
 
@@ -85,7 +85,7 @@ contract APVault_V1 is IVault, ERC4626AP {
   function redeem(
     uint32 accountId,
     uint256 amt
-  ) public payable override notPaused onlyApproved returns (RedemptionResponse memory) {
+  ) public payable override virtual notPaused onlyApproved returns (RedemptionResponse memory) {
     // check against requested amt
     if (balanceOf(accountId) < amt) {
        // redeemAll if less
@@ -111,7 +111,7 @@ contract APVault_V1 is IVault, ERC4626AP {
     uint32 accountId
   ) public payable virtual override notPaused onlyApproved returns (RedemptionResponse memory) {
     if (balanceOf(accountId) == 0) {
-      return RedemptionResponse memory response = RedemptionResponse({
+      return RedemptionResponse({
         amount: 0,
         status: VaultActionStatus.POSITION_EXITED
       });
@@ -138,7 +138,7 @@ contract APVault_V1 is IVault, ERC4626AP {
     return response;
   }
 
-  function harvest(uint32[] calldata accountIds) public override notPaused onlyApproved {
+  function harvest(uint32[] calldata accountIds) public override virtual notPaused onlyApproved {
     for (uint32 acct; acct < accountIds.length; acct++) {
       uint256 baseTokenValue = IStrategy(vaultConfig.strategy).previewWithdraw(
         _yieldTokenBalance(acct)
@@ -218,7 +218,7 @@ contract APVault_V1 is IVault, ERC4626AP {
   /// @notice Determine if a tax can be applied (yield > 0)
   /// @dev Apply the tax and send it to the payee, return the value of the tax
   /// @param taxableAmt value in base token that is being taxed
-  function _taxIfNecessary(uint32 accountId, uint256 taxableAmt) internal view returns (uint256) {
+  function _taxIfNecessary(uint32 accountId, uint256 taxableAmt) internal returns (uint256) {
     uint256 p = principleByAccountId[accountId].baseToken;
     uint256 maxRedemptionAmt = IStrategy(vaultConfig.strategy).previewWithdraw(
       _yieldTokenBalance(accountId)
@@ -258,7 +258,7 @@ contract APVault_V1 is IVault, ERC4626AP {
     principleByAccountId[accountId].baseToken -= redemptionLessYield;
   }
 
-  function _yieldTokenBalance(uint32 accountId) internal returns (uint256) {
+  function _yieldTokenBalance(uint32 accountId) internal view returns (uint256) {
     return convertToAssets(balanceOf(accountId));
   }
 

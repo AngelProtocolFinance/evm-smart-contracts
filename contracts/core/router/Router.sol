@@ -231,7 +231,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
             IERC20Metadata(_action.token).transferFrom(
                 _params.Locked.vaultAddr,
                 address(this),
-                _redeemedLockAmt
+                lockResponse.amount
             )
         );
         _action.lockAmt = lockResponse.amount;
@@ -241,18 +241,16 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
             IERC20Metadata(_action.token).transferFrom(
                 _params.Liquid.vaultAddr,
                 address(this),
-                _redeemedLiqAmt
+                liqResponse.amount
             )
         );
         _action.liqAmt = liqResponse.amount;
 
-        // Pack and send the tokens back through GMP
+        // Pack and send the tokens back 
         uint256 _redeemedAmt = lockResponse.amount + liqResponse.amount;
         _action = _prepareToSendTokens(_action, _redeemedAmt);
         emit Redemption(_action, _redeemedAmt);
-        if (liqResponse.status == lockResponse.status == IVault.VaultActionStatus.POSITION_EXITED) {
-            _action.status =  IVault.VaultActionStatus.POSITION_EXITED;
-        }
+        _action.status =  IVault.VaultActionStatus.POSITION_EXITED;
         return _action;
     }
 

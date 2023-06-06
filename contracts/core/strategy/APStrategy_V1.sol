@@ -42,6 +42,10 @@ abstract contract APStrategy_V1 is IStrategy, Pausable {
     _unpause();
   }
 
+  function paused() public override(IStrategy, Pausable) virtual view returns (bool) {
+    return super.paused();
+  }
+
   /*//////////////////////////////////////////////////////////////
                             IMPLEMENTATION
   //////////////////////////////////////////////////////////////*/
