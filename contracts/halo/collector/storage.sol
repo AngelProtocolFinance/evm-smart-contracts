@@ -7,8 +7,6 @@ library CollectorStorage {
         address registrarContract;
         address haloToken;
         address timelockContract;
-        address govContract;
-        address swapFactory;
         address distributorContract;
         uint256 rewardFactor; // 2 decimals
     }

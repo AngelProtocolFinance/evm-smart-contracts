@@ -9,7 +9,7 @@ export {AccountsCreateEndowment__factory} from "./AccountsCreateEndowment__facto
 export {AccountsDAOEndowments__factory} from "./AccountsDAOEndowments__factory";
 export {AccountsEvents__factory} from "./AccountsEvents__factory";
 export {AccountsQueryEndowments__factory} from "./AccountsQueryEndowments__factory";
-export {AccountsSwapEndowments__factory} from "./AccountsSwapEndowments__factory";
+export {AccountsSwapRouter__factory} from "./AccountsSwapRouter__factory";
 export {AccountsUpdate__factory} from "./AccountsUpdate__factory";
 export {AccountsUpdateEndowmentSettingsController__factory} from "./AccountsUpdateEndowmentSettingsController__factory";
 export {AccountsUpdateEndowments__factory} from "./AccountsUpdateEndowments__factory";

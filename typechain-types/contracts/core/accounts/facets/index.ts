@@ -9,7 +9,7 @@ export type {AccountsCreateEndowment} from "./AccountsCreateEndowment";
 export type {AccountsDAOEndowments} from "./AccountsDAOEndowments";
 export type {AccountsEvents} from "./AccountsEvents";
 export type {AccountsQueryEndowments} from "./AccountsQueryEndowments";
-export type {AccountsSwapEndowments} from "./AccountsSwapEndowments";
+export type {AccountsSwapRouter} from "./AccountsSwapRouter";
 export type {AccountsUpdate} from "./AccountsUpdate";
 export type {AccountsUpdateEndowmentSettingsController} from "./AccountsUpdateEndowmentSettingsController";
 export type {AccountsUpdateEndowments} from "./AccountsUpdateEndowments";

@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {CollectorMessage} from "./message.sol";
-import "./storage.sol";
-import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import {ISwappingV3} from "../../core/swap-router/interfaces/ISwappingV3.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
+import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import {CollectorMessage} from "./message.sol";
+import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
+import {RegistrarStorage} from "../../core/registrar/storage.sol";
+import "./storage.sol";
 
 /**
  *@title Collector
@@ -15,13 +17,23 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
  * 3) It also has a sweep function to swap asset tokens to HALO tokens and distribute the result HALO tokens to the gov contract.
  * 4) Lastly, there is a queryConfig function to return the configuration details.
  */
-contract Collector is Storage {
+contract Collector is Storage {    
+    /*///////////////////////////////////////////////
+                    EVENTS
+    */ ///////////////////////////////////////////////
     event CollecterInitialized(CollectorMessage.InstantiateMsg details);
     event CollectedConfigUpdated(CollectorStorage.Config config);
     event CollectorSweeped(address tokenSwept, uint256 amountSwept, uint256 haloOut);
+
+
     IERC20Upgradeable token;
     bool initialized = false;
+    ISwapRouter public immutable swapRouter;
     uint256 constant SWEEP_REPLY_ID = 1;
+
+    constructor(ISwapRouter _swapRouter) {
+        swapRouter = _swapRouter;
+    }
 
     /**
      * @dev Initialize contract
@@ -37,8 +49,6 @@ contract Collector is Storage {
             registrarContract: details.registrarContract,
             rewardFactor: details.rewardFactor,
             timelockContract: details.timelockContract,
-            govContract: details.govContract,
-            swapFactory: details.swapFactory,
             distributorContract: details.distributorContract,
             haloToken: details.haloToken
         });
@@ -50,23 +60,18 @@ contract Collector is Storage {
      * @dev Update config for collector contract
      * @param rewardFactor uint256
      * @param timelockContract address
-     * @param govContract address
-     * @param swapFactory address
+     * @param registrarContract address
      */
     function updateConfig(
         uint256 rewardFactor,
         address timelockContract,
-        address govContract,
-        address swapFactory,
         address registrarContract
     ) public returns (bool) {
+        require(msg.sender == state.config.owner, "Unauthorized");
         require(
             timelockContract != address(0),
             "Invalid timelockContract address given"
         );
-        require(swapFactory != address(0), "Invalid swapFactory address given");
-        require(govContract != address(0), "Invalid govContract address given");
-        require(msg.sender == state.config.owner, "Unauthorized");
         require(
             state.config.rewardFactor <= 100,
             "Invalid reward factor input given"
@@ -74,8 +79,6 @@ contract Collector is Storage {
         state.config.registrarContract = registrarContract;
         state.config.rewardFactor = rewardFactor;
         state.config.timelockContract = timelockContract;
-        state.config.swapFactory = swapFactory;
-        state.config.govContract = govContract;
         emit CollectedConfigUpdated(state.config);
         return true;
     }
@@ -89,19 +92,17 @@ contract Collector is Storage {
     ) public {
         uint256 sweepAmount = 0;
         // swap token to HALO token
-        uint256 amountOut = ISwappingV3(state.config.swapFactory)
-            .executeSwaps(
-                sweepToken,
-                sweepAmount,
-                state.config.haloToken,
-                0
-            );
+        uint256 amountOut = 0; // TO DO: Need to properly wire up for swaps
 
         // distribute HALO token to gov contract
         uint256 distributeAmount = (amountOut * state.config.rewardFactor) / 100;
-        if (distributeAmount > 0) {
+        if (distributeAmount > 0) {        
+            RegistrarStorage.Config memory registrar_config = IRegistrar(
+                state.config.registrarContract
+            ).queryConfig();
+
             require(
-                token.transfer(state.config.govContract, distributeAmount),
+                token.transfer(registrar_config.govContract, distributeAmount),
                 "Transfer failed"
             );
             if ((amountOut - distributeAmount) > 0) {
@@ -132,8 +133,6 @@ contract Collector is Storage {
             registrarContract: state.config.registrarContract,
             rewardFactor: state.config.rewardFactor,
             timelockContract: state.config.timelockContract,
-            govContract: state.config.govContract,
-            swapFactory: state.config.swapFactory,
             distributorContract: state.config.distributorContract,
             haloToken: state.config.haloToken
         });

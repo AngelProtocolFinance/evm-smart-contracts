@@ -29,28 +29,15 @@ export declare namespace CollectorStorage {
     registrarContract: PromiseOrValue<string>;
     haloToken: PromiseOrValue<string>;
     timelockContract: PromiseOrValue<string>;
-    govContract: PromiseOrValue<string>;
-    swapFactory: PromiseOrValue<string>;
     distributorContract: PromiseOrValue<string>;
     rewardFactor: PromiseOrValue<BigNumberish>;
   };
 
-  export type ConfigStructOutput = [
-    string,
-    string,
-    string,
-    string,
-    string,
-    string,
-    string,
-    BigNumber
-  ] & {
+  export type ConfigStructOutput = [string, string, string, string, string, BigNumber] & {
     owner: string;
     registrarContract: string;
     haloToken: string;
     timelockContract: string;
-    govContract: string;
-    swapFactory: string;
     distributorContract: string;
     rewardFactor: BigNumber;
   };
@@ -60,26 +47,14 @@ export declare namespace CollectorMessage {
   export type InstantiateMsgStruct = {
     registrarContract: PromiseOrValue<string>;
     timelockContract: PromiseOrValue<string>;
-    govContract: PromiseOrValue<string>;
-    swapFactory: PromiseOrValue<string>;
     haloToken: PromiseOrValue<string>;
     distributorContract: PromiseOrValue<string>;
     rewardFactor: PromiseOrValue<BigNumberish>;
   };
 
-  export type InstantiateMsgStructOutput = [
-    string,
-    string,
-    string,
-    string,
-    string,
-    string,
-    BigNumber
-  ] & {
+  export type InstantiateMsgStructOutput = [string, string, string, string, BigNumber] & {
     registrarContract: string;
     timelockContract: string;
-    govContract: string;
-    swapFactory: string;
     haloToken: string;
     distributorContract: string;
     rewardFactor: BigNumber;
@@ -89,29 +64,16 @@ export declare namespace CollectorMessage {
     owner: PromiseOrValue<string>;
     registrarContract: PromiseOrValue<string>;
     haloToken: PromiseOrValue<string>;
-    govContract: PromiseOrValue<string>;
     timelockContract: PromiseOrValue<string>;
-    swapFactory: PromiseOrValue<string>;
     distributorContract: PromiseOrValue<string>;
     rewardFactor: PromiseOrValue<BigNumberish>;
   };
 
-  export type ConfigResponseStructOutput = [
-    string,
-    string,
-    string,
-    string,
-    string,
-    string,
-    string,
-    BigNumber
-  ] & {
+  export type ConfigResponseStructOutput = [string, string, string, string, string, BigNumber] & {
     owner: string;
     registrarContract: string;
     haloToken: string;
-    govContract: string;
     timelockContract: string;
-    swapFactory: string;
     distributorContract: string;
     rewardFactor: BigNumber;
   };
@@ -119,14 +81,15 @@ export declare namespace CollectorMessage {
 
 export interface CollectorInterface extends utils.Interface {
   functions: {
-    "initialize((address,address,address,address,address,address,uint256))": FunctionFragment;
+    "initialize((address,address,address,address,uint256))": FunctionFragment;
     "queryConfig()": FunctionFragment;
+    "swapRouter()": FunctionFragment;
     "sweep(address)": FunctionFragment;
-    "updateConfig(uint256,address,address,address,address)": FunctionFragment;
+    "updateConfig(uint256,address,address)": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "initialize" | "queryConfig" | "sweep" | "updateConfig"
+    nameOrSignatureOrTopic: "initialize" | "queryConfig" | "swapRouter" | "sweep" | "updateConfig"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -134,20 +97,16 @@ export interface CollectorInterface extends utils.Interface {
     values: [CollectorMessage.InstantiateMsgStruct]
   ): string;
   encodeFunctionData(functionFragment: "queryConfig", values?: undefined): string;
+  encodeFunctionData(functionFragment: "swapRouter", values?: undefined): string;
   encodeFunctionData(functionFragment: "sweep", values: [PromiseOrValue<string>]): string;
   encodeFunctionData(
     functionFragment: "updateConfig",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
 
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "queryConfig", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "swapRouter", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "sweep", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "updateConfig", data: BytesLike): Result;
 
@@ -226,6 +185,8 @@ export interface Collector extends BaseContract {
 
     queryConfig(overrides?: CallOverrides): Promise<[CollectorMessage.ConfigResponseStructOutput]>;
 
+    swapRouter(overrides?: CallOverrides): Promise<[string]>;
+
     sweep(
       sweepToken: PromiseOrValue<string>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
@@ -234,8 +195,6 @@ export interface Collector extends BaseContract {
     updateConfig(
       rewardFactor: PromiseOrValue<BigNumberish>,
       timelockContract: PromiseOrValue<string>,
-      govContract: PromiseOrValue<string>,
-      swapFactory: PromiseOrValue<string>,
       registrarContract: PromiseOrValue<string>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
@@ -248,6 +207,8 @@ export interface Collector extends BaseContract {
 
   queryConfig(overrides?: CallOverrides): Promise<CollectorMessage.ConfigResponseStructOutput>;
 
+  swapRouter(overrides?: CallOverrides): Promise<string>;
+
   sweep(
     sweepToken: PromiseOrValue<string>,
     overrides?: Overrides & {from?: PromiseOrValue<string>}
@@ -256,8 +217,6 @@ export interface Collector extends BaseContract {
   updateConfig(
     rewardFactor: PromiseOrValue<BigNumberish>,
     timelockContract: PromiseOrValue<string>,
-    govContract: PromiseOrValue<string>,
-    swapFactory: PromiseOrValue<string>,
     registrarContract: PromiseOrValue<string>,
     overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
@@ -270,13 +229,13 @@ export interface Collector extends BaseContract {
 
     queryConfig(overrides?: CallOverrides): Promise<CollectorMessage.ConfigResponseStructOutput>;
 
+    swapRouter(overrides?: CallOverrides): Promise<string>;
+
     sweep(sweepToken: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
     updateConfig(
       rewardFactor: PromiseOrValue<BigNumberish>,
       timelockContract: PromiseOrValue<string>,
-      govContract: PromiseOrValue<string>,
-      swapFactory: PromiseOrValue<string>,
       registrarContract: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -309,6 +268,8 @@ export interface Collector extends BaseContract {
 
     queryConfig(overrides?: CallOverrides): Promise<BigNumber>;
 
+    swapRouter(overrides?: CallOverrides): Promise<BigNumber>;
+
     sweep(
       sweepToken: PromiseOrValue<string>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
@@ -317,8 +278,6 @@ export interface Collector extends BaseContract {
     updateConfig(
       rewardFactor: PromiseOrValue<BigNumberish>,
       timelockContract: PromiseOrValue<string>,
-      govContract: PromiseOrValue<string>,
-      swapFactory: PromiseOrValue<string>,
       registrarContract: PromiseOrValue<string>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
@@ -332,6 +291,8 @@ export interface Collector extends BaseContract {
 
     queryConfig(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    swapRouter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     sweep(
       sweepToken: PromiseOrValue<string>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
@@ -340,8 +301,6 @@ export interface Collector extends BaseContract {
     updateConfig(
       rewardFactor: PromiseOrValue<BigNumberish>,
       timelockContract: PromiseOrValue<string>,
-      govContract: PromiseOrValue<string>,
-      swapFactory: PromiseOrValue<string>,
       registrarContract: PromiseOrValue<string>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;

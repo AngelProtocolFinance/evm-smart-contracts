@@ -444,13 +444,17 @@ export declare namespace AccountStorage {
   };
 }
 
-export interface AccountsSwapEndowmentsInterface extends utils.Interface {
+export interface AccountsSwapRouterInterface extends utils.Interface {
   functions: {
-    "swapToken(uint32,uint8,address,uint256,address)": FunctionFragment;
+    "poolFee()": FunctionFragment;
+    "swapRouter()": FunctionFragment;
+    "swapToken(uint32,uint8,address,uint256,address,uint256)": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "swapToken"): FunctionFragment;
+  getFunction(nameOrSignatureOrTopic: "poolFee" | "swapRouter" | "swapToken"): FunctionFragment;
 
+  encodeFunctionData(functionFragment: "poolFee", values?: undefined): string;
+  encodeFunctionData(functionFragment: "swapRouter", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "swapToken",
     values: [
@@ -458,10 +462,13 @@ export interface AccountsSwapEndowmentsInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
     ]
   ): string;
 
+  decodeFunctionResult(functionFragment: "poolFee", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "swapRouter", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "swapToken", data: BytesLike): Result;
 
   events: {
@@ -616,12 +623,12 @@ export type UpdateEndowmentEvent = TypedEvent<
 
 export type UpdateEndowmentEventFilter = TypedEventFilter<UpdateEndowmentEvent>;
 
-export interface AccountsSwapEndowments extends BaseContract {
+export interface AccountsSwapRouter extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: AccountsSwapEndowmentsInterface;
+  interface: AccountsSwapRouterInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -641,15 +648,24 @@ export interface AccountsSwapEndowments extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    poolFee(overrides?: CallOverrides): Promise<[number]>;
+
+    swapRouter(overrides?: CallOverrides): Promise<[string]>;
+
     swapToken(
       id: PromiseOrValue<BigNumberish>,
       accountType: PromiseOrValue<BigNumberish>,
       tokenIn: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
       tokenOut: PromiseOrValue<string>,
+      minAmountOut: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
+
+  poolFee(overrides?: CallOverrides): Promise<number>;
+
+  swapRouter(overrides?: CallOverrides): Promise<string>;
 
   swapToken(
     id: PromiseOrValue<BigNumberish>,
@@ -657,16 +673,22 @@ export interface AccountsSwapEndowments extends BaseContract {
     tokenIn: PromiseOrValue<string>,
     amountIn: PromiseOrValue<BigNumberish>,
     tokenOut: PromiseOrValue<string>,
+    minAmountOut: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    poolFee(overrides?: CallOverrides): Promise<number>;
+
+    swapRouter(overrides?: CallOverrides): Promise<string>;
+
     swapToken(
       id: PromiseOrValue<BigNumberish>,
       accountType: PromiseOrValue<BigNumberish>,
       tokenIn: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
       tokenOut: PromiseOrValue<string>,
+      minAmountOut: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -748,23 +770,33 @@ export interface AccountsSwapEndowments extends BaseContract {
   };
 
   estimateGas: {
+    poolFee(overrides?: CallOverrides): Promise<BigNumber>;
+
+    swapRouter(overrides?: CallOverrides): Promise<BigNumber>;
+
     swapToken(
       id: PromiseOrValue<BigNumberish>,
       accountType: PromiseOrValue<BigNumberish>,
       tokenIn: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
       tokenOut: PromiseOrValue<string>,
+      minAmountOut: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    poolFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    swapRouter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     swapToken(
       id: PromiseOrValue<BigNumberish>,
       accountType: PromiseOrValue<BigNumberish>,
       tokenIn: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
       tokenOut: PromiseOrValue<string>,
+      minAmountOut: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };

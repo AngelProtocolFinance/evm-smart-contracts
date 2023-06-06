@@ -345,9 +345,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AccountsQueryEndowments__factory>;
     getContractFactory(
-      name: "AccountsSwapEndowments",
+      name: "AccountsSwapRouter",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.AccountsSwapEndowments__factory>;
+    ): Promise<Contracts.AccountsSwapRouter__factory>;
     getContractFactory(
       name: "AccountsUpdate",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -392,6 +392,10 @@ declare module "hardhat/types/runtime" {
       name: "IAccountsQuery",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IAccountsQuery__factory>;
+    getContractFactory(
+      name: "IAccountsSwapRouter",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IAccountsSwapRouter__factory>;
     getContractFactory(
       name: "IAxelarGateway",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -440,18 +444,6 @@ declare module "hardhat/types/runtime" {
       name: "AngelCoreStruct",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AngelCoreStruct__factory>;
-    getContractFactory(
-      name: "IPool",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IPool__factory>;
-    getContractFactory(
-      name: "ISwappingV3",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ISwappingV3__factory>;
-    getContractFactory(
-      name: "SwapRouter",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.SwapRouter__factory>;
     getContractFactory(
       name: "Halo",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -1165,10 +1157,10 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.AccountsQueryEndowments>;
     getContractAt(
-      name: "AccountsSwapEndowments",
+      name: "AccountsSwapRouter",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.AccountsSwapEndowments>;
+    ): Promise<Contracts.AccountsSwapRouter>;
     getContractAt(
       name: "AccountsUpdate",
       address: string,
@@ -1224,6 +1216,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.IAccountsQuery>;
+    getContractAt(
+      name: "IAccountsSwapRouter",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IAccountsSwapRouter>;
     getContractAt(
       name: "IAxelarGateway",
       address: string,
@@ -1284,17 +1281,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.AngelCoreStruct>;
-    getContractAt(name: "IPool", address: string, signer?: ethers.Signer): Promise<Contracts.IPool>;
-    getContractAt(
-      name: "ISwappingV3",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ISwappingV3>;
-    getContractAt(
-      name: "SwapRouter",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.SwapRouter>;
     getContractAt(name: "Halo", address: string, signer?: ethers.Signer): Promise<Contracts.Halo>;
     getContractAt(
       name: "Airdrop",

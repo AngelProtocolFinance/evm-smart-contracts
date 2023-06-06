@@ -18,7 +18,6 @@ import {StringArray} from "./../../../lib/Strings/string.sol";
 import {AddressToString} from "../../../lib/StringAddressUtils.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
-import {ISwappingV3} from "./../../swap-router/interfaces/ISwappingV3.sol";
 import {IVault} from "./../../../interfaces/IVault.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";

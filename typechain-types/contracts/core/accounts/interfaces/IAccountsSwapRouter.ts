@@ -23,56 +23,36 @@ import type {
   PromiseOrValue,
 } from "../../../../common";
 
-export declare namespace SwapRouterMessages {
-  export type InstantiateMsgStruct = {
-    registrarContract: PromiseOrValue<string>;
-    accountsContract: PromiseOrValue<string>;
-    swapFactory: PromiseOrValue<string>;
-    swapRouter: PromiseOrValue<string>;
-  };
-
-  export type InstantiateMsgStructOutput = [string, string, string, string] & {
-    registrarContract: string;
-    accountsContract: string;
-    swapFactory: string;
-    swapRouter: string;
-  };
-}
-
-export interface SwapRouterInterface extends utils.Interface {
+export interface IAccountsSwapRouterInterface extends utils.Interface {
   functions: {
-    "executeSwaps(address,address,uint256,uint256)": FunctionFragment;
-    "initSwapRouter((address,address,address,address))": FunctionFragment;
+    "swapToken(uint32,uint8,address,uint256,address,uint256)": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "executeSwaps" | "initSwapRouter"): FunctionFragment;
+  getFunction(nameOrSignatureOrTopic: "swapToken"): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "executeSwaps",
+    functionFragment: "swapToken",
     values: [
-      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>
     ]
   ): string;
-  encodeFunctionData(
-    functionFragment: "initSwapRouter",
-    values: [SwapRouterMessages.InstantiateMsgStruct]
-  ): string;
 
-  decodeFunctionResult(functionFragment: "executeSwaps", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "initSwapRouter", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "swapToken", data: BytesLike): Result;
 
   events: {};
 }
 
-export interface SwapRouter extends BaseContract {
+export interface IAccountsSwapRouter extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: SwapRouterInterface;
+  interface: IAccountsSwapRouterInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -92,44 +72,35 @@ export interface SwapRouter extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    executeSwaps(
+    swapToken(
+      id: PromiseOrValue<BigNumberish>,
+      accountType: PromiseOrValue<BigNumberish>,
       tokenIn: PromiseOrValue<string>,
-      tokenOut: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
+      tokenOut: PromiseOrValue<string>,
       minAmountOut: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
-    ): Promise<ContractTransaction>;
-
-    initSwapRouter(
-      details: SwapRouterMessages.InstantiateMsgStruct,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
 
-  executeSwaps(
+  swapToken(
+    id: PromiseOrValue<BigNumberish>,
+    accountType: PromiseOrValue<BigNumberish>,
     tokenIn: PromiseOrValue<string>,
-    tokenOut: PromiseOrValue<string>,
     amountIn: PromiseOrValue<BigNumberish>,
+    tokenOut: PromiseOrValue<string>,
     minAmountOut: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
-  initSwapRouter(
-    details: SwapRouterMessages.InstantiateMsgStruct,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
-  ): Promise<ContractTransaction>;
-
   callStatic: {
-    executeSwaps(
+    swapToken(
+      id: PromiseOrValue<BigNumberish>,
+      accountType: PromiseOrValue<BigNumberish>,
       tokenIn: PromiseOrValue<string>,
-      tokenOut: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
+      tokenOut: PromiseOrValue<string>,
       minAmountOut: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    initSwapRouter(
-      details: SwapRouterMessages.InstantiateMsgStruct,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -137,31 +108,25 @@ export interface SwapRouter extends BaseContract {
   filters: {};
 
   estimateGas: {
-    executeSwaps(
+    swapToken(
+      id: PromiseOrValue<BigNumberish>,
+      accountType: PromiseOrValue<BigNumberish>,
       tokenIn: PromiseOrValue<string>,
-      tokenOut: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
+      tokenOut: PromiseOrValue<string>,
       minAmountOut: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
-    ): Promise<BigNumber>;
-
-    initSwapRouter(
-      details: SwapRouterMessages.InstantiateMsgStruct,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    executeSwaps(
+    swapToken(
+      id: PromiseOrValue<BigNumberish>,
+      accountType: PromiseOrValue<BigNumberish>,
       tokenIn: PromiseOrValue<string>,
-      tokenOut: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
+      tokenOut: PromiseOrValue<string>,
       minAmountOut: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
-    ): Promise<PopulatedTransaction>;
-
-    initSwapRouter(
-      details: SwapRouterMessages.InstantiateMsgStruct,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };

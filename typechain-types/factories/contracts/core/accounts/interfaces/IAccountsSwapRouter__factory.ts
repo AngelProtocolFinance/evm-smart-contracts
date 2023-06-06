@@ -5,13 +5,23 @@
 import {Contract, Signer, utils} from "ethers";
 import type {Provider} from "@ethersproject/providers";
 import type {
-  ISwappingV3,
-  ISwappingV3Interface,
-} from "../../../../../contracts/core/swap-router/interfaces/ISwappingV3";
+  IAccountsSwapRouter,
+  IAccountsSwapRouterInterface,
+} from "../../../../../contracts/core/accounts/interfaces/IAccountsSwapRouter";
 
 const _abi = [
   {
     inputs: [
+      {
+        internalType: "uint32",
+        name: "id",
+        type: "uint32",
+      },
+      {
+        internalType: "enum AngelCoreStruct.AccountType",
+        name: "accountType",
+        type: "uint8",
+      },
       {
         internalType: "address",
         name: "tokenIn",
@@ -33,25 +43,19 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "executeSwaps",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
+    name: "swapToken",
+    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
 ] as const;
 
-export class ISwappingV3__factory {
+export class IAccountsSwapRouter__factory {
   static readonly abi = _abi;
-  static createInterface(): ISwappingV3Interface {
-    return new utils.Interface(_abi) as ISwappingV3Interface;
+  static createInterface(): IAccountsSwapRouterInterface {
+    return new utils.Interface(_abi) as IAccountsSwapRouterInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): ISwappingV3 {
-    return new Contract(address, _abi, signerOrProvider) as ISwappingV3;
+  static connect(address: string, signerOrProvider: Signer | Provider): IAccountsSwapRouter {
+    return new Contract(address, _abi, signerOrProvider) as IAccountsSwapRouter;
   }
 }

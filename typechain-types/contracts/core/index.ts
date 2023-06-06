@@ -13,5 +13,3 @@ import type * as router from "./router";
 export type {router};
 import type * as structSol from "./struct.sol";
 export type {structSol};
-import type * as swapRouter from "./swap-router";
-export type {swapRouter};
