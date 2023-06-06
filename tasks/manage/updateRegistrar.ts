@@ -53,7 +53,7 @@ task("manage:updateRegistrar", "Will update the registrar config").setAction(
         charityProposal: ADDRESS_ZERO,
         proxyAdmin: proxyAdmin.address,
         usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress,
-        wethAddress: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
+        wMaticAddress: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
         cw900lvAddress: apTeam1.address,
         lockedWithdrawal: ADDRESS_ZERO,
       };
