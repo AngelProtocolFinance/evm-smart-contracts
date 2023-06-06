@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   ILocalRegistrar,
   ILocalRegistrarInterface,
@@ -434,6 +434,25 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
+        name: "_operator",
+        type: "address",
+      },
+    ],
+    name: "getVaultOperatorApproved",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
         name: "_tokenAddr",
         type: "address",
       },
@@ -642,6 +661,24 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_operator",
+        type: "address",
+      },
+      {
+        internalType: "bool",
+        name: "_isApproved",
+        type: "bool",
+      },
+    ],
+    name: "setVaultOperatorApproved",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
 ] as const;
 
 export class ILocalRegistrar__factory {
@@ -649,7 +686,10 @@ export class ILocalRegistrar__factory {
   static createInterface(): ILocalRegistrarInterface {
     return new utils.Interface(_abi) as ILocalRegistrarInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): ILocalRegistrar {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): ILocalRegistrar {
     return new Contract(address, _abi, signerOrProvider) as ILocalRegistrar;
   }
 }

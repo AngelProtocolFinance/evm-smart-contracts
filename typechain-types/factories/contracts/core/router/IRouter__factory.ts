@@ -2,9 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
-import type {IRouter, IRouterInterface} from "../../../../contracts/core/router/IRouter";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
+import type {
+  IRouter,
+  IRouterInterface,
+} from "../../../../contracts/core/router/IRouter";
 
 const _abi = [
   {
@@ -58,13 +61,13 @@ const _abi = [
             type: "uint256",
           },
           {
-            internalType: "enum IRouter.VaultActionStatus",
+            internalType: "enum IVault.VaultActionStatus",
             name: "status",
             type: "uint8",
           },
         ],
         indexed: false,
-        internalType: "struct IRouter.VaultActionData",
+        internalType: "struct IVault.VaultActionData",
         name: "action",
         type: "tuple",
       },
@@ -113,13 +116,13 @@ const _abi = [
             type: "uint256",
           },
           {
-            internalType: "enum IRouter.VaultActionStatus",
+            internalType: "enum IVault.VaultActionStatus",
             name: "status",
             type: "uint8",
           },
         ],
         indexed: false,
-        internalType: "struct IRouter.VaultActionData",
+        internalType: "struct IVault.VaultActionData",
         name: "action",
         type: "tuple",
       },
@@ -174,13 +177,13 @@ const _abi = [
             type: "uint256",
           },
           {
-            internalType: "enum IRouter.VaultActionStatus",
+            internalType: "enum IVault.VaultActionStatus",
             name: "status",
             type: "uint8",
           },
         ],
         indexed: false,
-        internalType: "struct IRouter.VaultActionData",
+        internalType: "struct IVault.VaultActionData",
         name: "action",
         type: "tuple",
       },
@@ -229,13 +232,13 @@ const _abi = [
             type: "uint256",
           },
           {
-            internalType: "enum IRouter.VaultActionStatus",
+            internalType: "enum IVault.VaultActionStatus",
             name: "status",
             type: "uint8",
           },
         ],
         indexed: false,
-        internalType: "struct IRouter.VaultActionData",
+        internalType: "struct IVault.VaultActionData",
         name: "action",
         type: "tuple",
       },
@@ -290,13 +293,13 @@ const _abi = [
             type: "uint256",
           },
           {
-            internalType: "enum IRouter.VaultActionStatus",
+            internalType: "enum IVault.VaultActionStatus",
             name: "status",
             type: "uint8",
           },
         ],
         indexed: false,
-        internalType: "struct IRouter.VaultActionData",
+        internalType: "struct IVault.VaultActionData",
         name: "action",
         type: "tuple",
       },
@@ -351,13 +354,13 @@ const _abi = [
             type: "uint256",
           },
           {
-            internalType: "enum IRouter.VaultActionStatus",
+            internalType: "enum IVault.VaultActionStatus",
             name: "status",
             type: "uint8",
           },
         ],
         indexed: false,
-        internalType: "struct IRouter.VaultActionData",
+        internalType: "struct IVault.VaultActionData",
         name: "action",
         type: "tuple",
       },
@@ -412,13 +415,13 @@ const _abi = [
             type: "uint256",
           },
           {
-            internalType: "enum IRouter.VaultActionStatus",
+            internalType: "enum IVault.VaultActionStatus",
             name: "status",
             type: "uint8",
           },
         ],
         indexed: false,
-        internalType: "struct IRouter.VaultActionData",
+        internalType: "struct IVault.VaultActionData",
         name: "action",
         type: "tuple",
       },
@@ -518,12 +521,12 @@ const _abi = [
             type: "uint256",
           },
           {
-            internalType: "enum IRouter.VaultActionStatus",
+            internalType: "enum IVault.VaultActionStatus",
             name: "status",
             type: "uint8",
           },
         ],
-        internalType: "struct IRouter.VaultActionData",
+        internalType: "struct IVault.VaultActionData",
         name: "",
         type: "tuple",
       },
@@ -637,12 +640,12 @@ const _abi = [
             type: "uint256",
           },
           {
-            internalType: "enum IRouter.VaultActionStatus",
+            internalType: "enum IVault.VaultActionStatus",
             name: "status",
             type: "uint8",
           },
         ],
-        internalType: "struct IRouter.VaultActionData",
+        internalType: "struct IVault.VaultActionData",
         name: "",
         type: "tuple",
       },
@@ -670,7 +673,10 @@ export class IRouter__factory {
   static createInterface(): IRouterInterface {
     return new utils.Interface(_abi) as IRouterInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): IRouter {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IRouter {
     return new Contract(address, _abi, signerOrProvider) as IRouter;
   }
 }

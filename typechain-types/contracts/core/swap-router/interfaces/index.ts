@@ -2,5 +2,5 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as ipoolSol from "./Ipool.sol";
-export type {ipoolSol};
-export type {ISwappingV3} from "./ISwappingV3";
+export type { ipoolSol };
+export type { ISwappingV3 } from "./ISwappingV3";
