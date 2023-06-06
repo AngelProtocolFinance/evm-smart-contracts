@@ -100,7 +100,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
         }
 
         // Who ya gonna call? Swap Function! 
-        uint256 amountOut = swap(tokenIn, amountIn, tokenOut);
+        uint256 amountOut = swap(tokenIn, amountIn, tokenOut, minAmountOut);
 
         require(
             amountOut >= minAmountOut,
@@ -190,7 +190,8 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
     function swap(
         address tokenIn,
         uint256 amountIn,
-        address tokenOut
+        address tokenOut,
+        uint256 minAmountOut
     ) internal returns (uint256 amountOut) {
         //Get pool fee
         // uint24 fees = checkPoolAndReturnFee(tokenIn, tokenOut);
@@ -201,8 +202,8 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
             "Approve failed"
         );
 
-        // Naively set amountOutMinimum to 0. In production, use an oracle or other data source to choose a safer value for amountOutMinimum.
-        // We also set the sqrtPriceLimitx96 to be 0 to ensure we swap our exact input amount.
+        // Naively set amountOutMinimum to the user passed value, the alternative being to set it to 0 for now.
+        // In production, we need to use an oracle or other data source to choose a safer value for amountOutMinimum.
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
             .ExactInputSingleParams({
                 tokenIn: tokenIn,
@@ -211,8 +212,8 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
                 recipient: address(this),
                 deadline: block.timestamp,
                 amountIn: amountIn,
-                amountOutMinimum: 0,
-                sqrtPriceLimitX96: 0
+                amountOutMinimum: minAmountOut,
+                sqrtPriceLimitX96: 0 // ensures that we swap our exact input amount
             });
         // execute the swap on the router
         amountOut = swapRouter.exactInputSingle(params);
