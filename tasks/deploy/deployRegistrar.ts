@@ -4,7 +4,10 @@ import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
 import {getAddresses, isLocalNetwork, logger} from "utils";
 
-task("deploy:Registrar", "Will deploy Registrar contract")
+task(
+  "deploy:Registrar",
+  "Will deploy Registrar contract. Will redeploy Router contract as well as there's no way to update the Router's `registrar` address field."
+)
   .addParam("verify", "Want to verify contract")
   .setAction(async (taskArgs, hre) => {
     try {
