@@ -90,6 +90,11 @@ contract APVault_V1 is IVault, ERC4626AP {
     if (balanceOf(accountId) < amt) {
        // redeemAll if less
       return redeemAll(accountId);
+    } else if (amt == 0) {
+       return RedemptionResponse({
+        amount: 0,
+        status: VaultActionStatus.UNPROCESSED
+       });
     } else {
       // redeem shares for yieldToken -> approve strategy -> strategy withdraw -> base token
       uint256 yieldTokenAmt = super.redeem(amt, vaultConfig.strategy, accountId); 
