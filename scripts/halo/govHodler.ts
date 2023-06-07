@@ -5,9 +5,6 @@ import path from "path";
 
 import {GovHodlerMessage} from "typechain-types/contracts/halo/gov-hodler/GovHodler";
 
-// const hre = require("hardhat");
-// const ethers = hre.ethers;
-
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
 export async function GovHodler(

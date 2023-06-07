@@ -449,10 +449,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AngelCoreStruct__factory>;
     getContractFactory(
-      name: "Halo",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Halo__factory>;
-    getContractFactory(
       name: "Airdrop",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Airdrop__factory>;
@@ -492,6 +488,10 @@ declare module "hardhat/types/runtime" {
       name: "TimeLock",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TimeLock__factory>;
+    getContractFactory(
+      name: "Halo",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Halo__factory>;
     getContractFactory(
       name: "IStakingHalo",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -1299,11 +1299,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.AngelCoreStruct>;
     getContractAt(
-      name: "Halo",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Halo>;
-    getContractAt(
       name: "Airdrop",
       address: string,
       signer?: ethers.Signer
@@ -1353,6 +1348,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.TimeLock>;
+    getContractAt(
+      name: "Halo",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Halo>;
     getContractAt(
       name: "IStakingHalo",
       address: string,

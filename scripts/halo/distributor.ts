@@ -5,8 +5,6 @@ import path from "path";
 
 import {DistributorMessage} from "typechain-types/contracts/halo/distributor/Distributor";
 
-// const hre = require("hardhat");
-// const ethers = hre.ethers;
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
 export async function distributor(

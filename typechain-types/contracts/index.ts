@@ -36,4 +36,3 @@ export type { multisigs };
 export type { normalizedEndowment };
 
 export type { test };
-export type { Halo } from "./Halo";

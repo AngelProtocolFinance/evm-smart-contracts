@@ -28,3 +28,4 @@ export type { staking };
 
 export type { vesting };
 export type { ERC20Upgrade } from "./ERC20Upgrade";
+export type { Halo } from "./Halo";
