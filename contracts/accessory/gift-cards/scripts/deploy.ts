@@ -1,5 +1,6 @@
-import {getSigners, updateAddresses} from "utils";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {getSigners, updateAddresses} from "utils";
+
 import {GiftCardsMessage} from "typechain-types/contracts/accessory/gift-cards/GiftCards";
 
 export async function deployGiftCard(

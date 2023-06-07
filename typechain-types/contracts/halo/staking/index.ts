@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 import type * as stakingSol from "./Staking.sol";
-export type {stakingSol};
+export type { stakingSol };

@@ -1,9 +1,10 @@
-const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
-
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getSigners, updateAddresses} from "utils";
-import {IndexFundMessage} from "typechain-types/contracts/core/index-fund/IndexFund";
 import {IndexFund__factory} from "typechain-types";
+import {getSigners, updateAddresses} from "utils";
+
+import {IndexFundMessage} from "typechain-types/contracts/core/index-fund/IndexFund";
+
+const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
 export async function deployIndexFund(
   initFactoryData: IndexFundMessage.InstantiateMessageStruct,

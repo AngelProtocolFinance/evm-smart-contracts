@@ -1,5 +1,6 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {logger, updateAddresses} from "utils";
+
 import deployRouterImplementation from "./deployRouterImplementation";
 import deployRouterProxy from "./deployRouterProxy";
 import updateRegistrar from "./updateRegistrar";

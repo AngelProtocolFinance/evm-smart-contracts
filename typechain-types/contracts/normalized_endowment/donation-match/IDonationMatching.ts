@@ -13,8 +13,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -47,7 +47,9 @@ export interface IDonationMatchingInterface extends utils.Interface {
     "queryConfig()": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "executeDonorMatch" | "queryConfig"): FunctionFragment;
+  getFunction(
+    nameOrSignatureOrTopic: "executeDonorMatch" | "queryConfig"
+  ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "executeDonorMatch",
@@ -58,10 +60,19 @@ export interface IDonationMatchingInterface extends utils.Interface {
       PromiseOrValue<string>
     ]
   ): string;
-  encodeFunctionData(functionFragment: "queryConfig", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "queryConfig",
+    values?: undefined
+  ): string;
 
-  decodeFunctionResult(functionFragment: "executeDonorMatch", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "queryConfig", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "executeDonorMatch",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "queryConfig",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -83,7 +94,9 @@ export interface IDonationMatching extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -96,10 +109,12 @@ export interface IDonationMatching extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       donor: PromiseOrValue<string>,
       token: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    queryConfig(overrides?: CallOverrides): Promise<[DonationMatchStorage.ConfigStructOutput]>;
+    queryConfig(
+      overrides?: CallOverrides
+    ): Promise<[DonationMatchStorage.ConfigStructOutput]>;
   };
 
   executeDonorMatch(
@@ -107,10 +122,12 @@ export interface IDonationMatching extends BaseContract {
     amount: PromiseOrValue<BigNumberish>,
     donor: PromiseOrValue<string>,
     token: PromiseOrValue<string>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  queryConfig(overrides?: CallOverrides): Promise<DonationMatchStorage.ConfigStructOutput>;
+  queryConfig(
+    overrides?: CallOverrides
+  ): Promise<DonationMatchStorage.ConfigStructOutput>;
 
   callStatic: {
     executeDonorMatch(
@@ -121,7 +138,9 @@ export interface IDonationMatching extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    queryConfig(overrides?: CallOverrides): Promise<DonationMatchStorage.ConfigStructOutput>;
+    queryConfig(
+      overrides?: CallOverrides
+    ): Promise<DonationMatchStorage.ConfigStructOutput>;
   };
 
   filters: {};
@@ -132,7 +151,7 @@ export interface IDonationMatching extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       donor: PromiseOrValue<string>,
       token: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     queryConfig(overrides?: CallOverrides): Promise<BigNumber>;
@@ -144,7 +163,7 @@ export interface IDonationMatching extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       donor: PromiseOrValue<string>,
       token: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     queryConfig(overrides?: CallOverrides): Promise<PopulatedTransaction>;

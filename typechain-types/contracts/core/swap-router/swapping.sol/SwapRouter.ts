@@ -13,8 +13,8 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -45,7 +45,9 @@ export interface SwapRouterInterface extends utils.Interface {
     "initSwapRouter((address,address,address,address))": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "executeSwaps" | "initSwapRouter"): FunctionFragment;
+  getFunction(
+    nameOrSignatureOrTopic: "executeSwaps" | "initSwapRouter"
+  ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "executeSwaps",
@@ -61,8 +63,14 @@ export interface SwapRouterInterface extends utils.Interface {
     values: [SwapRouterMessages.InstantiateMsgStruct]
   ): string;
 
-  decodeFunctionResult(functionFragment: "executeSwaps", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "initSwapRouter", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "executeSwaps",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "initSwapRouter",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -84,7 +92,9 @@ export interface SwapRouter extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -97,12 +107,12 @@ export interface SwapRouter extends BaseContract {
       tokenOut: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
       minAmountOut: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     initSwapRouter(
       details: SwapRouterMessages.InstantiateMsgStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
@@ -111,12 +121,12 @@ export interface SwapRouter extends BaseContract {
     tokenOut: PromiseOrValue<string>,
     amountIn: PromiseOrValue<BigNumberish>,
     minAmountOut: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   initSwapRouter(
     details: SwapRouterMessages.InstantiateMsgStruct,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -142,12 +152,12 @@ export interface SwapRouter extends BaseContract {
       tokenOut: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
       minAmountOut: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     initSwapRouter(
       details: SwapRouterMessages.InstantiateMsgStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
@@ -157,12 +167,12 @@ export interface SwapRouter extends BaseContract {
       tokenOut: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
       minAmountOut: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     initSwapRouter(
       details: SwapRouterMessages.InstantiateMsgStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

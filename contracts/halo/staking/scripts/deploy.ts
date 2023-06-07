@@ -1,14 +1,15 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
-
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import path from "path";
+
 import {Staking} from "typechain-types/contracts/halo/staking/Staking.sol/Staking";
+
 // const hre = require("hardhat");
 // const ethers = hre.ethers;
+
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
-export async function Staking(
+export async function deployStaking(
   proxyAdmin = ADDRESS_ZERO,
   StakingDataInput: Staking.InstantiateMsgStruct,
   hre: HardhatRuntimeEnvironment

@@ -1,22 +1,25 @@
+// import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
+import config from "config";
+import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {IndexFund__factory, Registrar__factory} from "typechain-types";
+import {ADDRESS_ZERO, cleanAddresses, isLocalNetwork} from "utils";
+
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
-import {ADDRESS_ZERO, ContractFunctionParams, isLocalNetwork} from "utils";
 // import { deployHaloImplementation } from "contracts/halo/scripts/deploy"
 import {charityApplications} from "contracts/multisigs/charity_applications/scripts/deploy";
 import {deployAPTeamMultiSig, deployApplicationsMultiSig} from "contracts/multisigs/scripts/deploy";
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
-import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
-// import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
-import config from "config";
 import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
-import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {IndexFund__factory, Registrar__factory} from "typechain-types";
+import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
+
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-import {cleanAddresses} from "utils";
+
 import {getSigners} from "utils/getSigners";
+
 import {deployLibraries} from "./deployLibraries";
 import {deployMockUSDC} from "./deployMockUSDC";
 

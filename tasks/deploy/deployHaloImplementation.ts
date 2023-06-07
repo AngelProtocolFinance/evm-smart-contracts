@@ -1,6 +1,7 @@
 import {task} from "hardhat/config";
-import {deployHaloImplementation} from "contracts/halo/scripts/deploy";
 import {logger} from "utils";
+
+import {deployHaloImplementation} from "contracts/halo/scripts/deploy";
 
 task("deploy:HaloImplementation", "Will deploy HaloImplementation contract")
   .addParam("verify", "Want to verify contract")

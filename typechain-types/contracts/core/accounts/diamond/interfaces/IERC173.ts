@@ -12,8 +12,12 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -28,7 +32,9 @@ export interface IERC173Interface extends utils.Interface {
     "transferOwnership(address)": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "owner" | "transferOwnership"): FunctionFragment;
+  getFunction(
+    nameOrSignatureOrTopic: "owner" | "transferOwnership"
+  ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -37,7 +43,10 @@ export interface IERC173Interface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "transferOwnership", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
+    data: BytesLike
+  ): Result;
 
   events: {
     "OwnershipTransferred(address,address)": EventFragment;
@@ -55,7 +64,8 @@ export type OwnershipTransferredEvent = TypedEvent<
   OwnershipTransferredEventObject
 >;
 
-export type OwnershipTransferredEventFilter = TypedEventFilter<OwnershipTransferredEvent>;
+export type OwnershipTransferredEventFilter =
+  TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface IERC173 extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -74,7 +84,9 @@ export interface IERC173 extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -82,11 +94,11 @@ export interface IERC173 extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    owner(overrides?: CallOverrides): Promise<[string] & {owner: string}>;
+    owner(overrides?: CallOverrides): Promise<[string] & { owner: string }>;
 
     transferOwnership(
       newowner: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
@@ -94,13 +106,16 @@ export interface IERC173 extends BaseContract {
 
   transferOwnership(
     newowner: PromiseOrValue<string>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     owner(overrides?: CallOverrides): Promise<string>;
 
-    transferOwnership(newowner: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
+    transferOwnership(
+      newowner: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -119,7 +134,7 @@ export interface IERC173 extends BaseContract {
 
     transferOwnership(
       newowner: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
@@ -128,7 +143,7 @@ export interface IERC173 extends BaseContract {
 
     transferOwnership(
       newowner: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

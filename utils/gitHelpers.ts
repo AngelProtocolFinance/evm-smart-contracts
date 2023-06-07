@@ -1,11 +1,12 @@
 import simpleGit, {
-  gitP,
-  SimpleGit,
-  GitError,
-  PushResult,
   CleanOptions,
   CommitResult,
+  GitError,
+  PushResult,
+  SimpleGit,
+  gitP,
 } from "simple-git";
+
 import * as logger from "./logger";
 import * as timeHelpers from "./timeHelpers";
 

@@ -1,6 +1,7 @@
-import {deployApplicationsMultiSig} from "contracts/multisigs/scripts/deploy";
 import {task} from "hardhat/config";
 import {isLocalNetwork, logger} from "utils";
+
+import {deployApplicationsMultiSig} from "contracts/multisigs/scripts/deploy";
 
 task("deploy:ApplicationsMultiSig", "Will deploy ApplicationsMultiSig contract")
   .addParam("verify", "Want to verify contract")

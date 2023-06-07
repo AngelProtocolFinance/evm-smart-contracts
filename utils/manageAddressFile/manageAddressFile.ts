@@ -1,4 +1,5 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+
 import {DEFAULT_CONTRACT_ADDRESS_FILE_PATH} from "..";
 import {createEmpty, getAddressesByNetworkId, saveFrontendFiles} from "./helpers";
 import {AddressObj} from "./types";

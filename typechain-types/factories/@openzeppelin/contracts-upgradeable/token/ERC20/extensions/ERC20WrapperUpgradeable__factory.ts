@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   ERC20WrapperUpgradeable,
   ERC20WrapperUpgradeableInterface,
@@ -361,7 +361,14 @@ export class ERC20WrapperUpgradeable__factory {
   static createInterface(): ERC20WrapperUpgradeableInterface {
     return new utils.Interface(_abi) as ERC20WrapperUpgradeableInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): ERC20WrapperUpgradeable {
-    return new Contract(address, _abi, signerOrProvider) as ERC20WrapperUpgradeable;
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): ERC20WrapperUpgradeable {
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as ERC20WrapperUpgradeable;
   }
 }

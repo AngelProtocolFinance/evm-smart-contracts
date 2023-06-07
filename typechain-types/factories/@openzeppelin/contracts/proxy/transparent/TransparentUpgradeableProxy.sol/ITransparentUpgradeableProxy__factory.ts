@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   ITransparentUpgradeableProxy,
   ITransparentUpgradeableProxyInterface,
@@ -136,6 +136,10 @@ export class ITransparentUpgradeableProxy__factory {
     address: string,
     signerOrProvider: Signer | Provider
   ): ITransparentUpgradeableProxy {
-    return new Contract(address, _abi, signerOrProvider) as ITransparentUpgradeableProxy;
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as ITransparentUpgradeableProxy;
   }
 }

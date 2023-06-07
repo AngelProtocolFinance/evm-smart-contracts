@@ -13,8 +13,12 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -126,15 +130,25 @@ export interface CollectorInterface extends utils.Interface {
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "initialize" | "queryConfig" | "sweep" | "updateConfig"
+    nameOrSignatureOrTopic:
+      | "initialize"
+      | "queryConfig"
+      | "sweep"
+      | "updateConfig"
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "initialize",
     values: [CollectorMessage.InstantiateMsgStruct]
   ): string;
-  encodeFunctionData(functionFragment: "queryConfig", values?: undefined): string;
-  encodeFunctionData(functionFragment: "sweep", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(
+    functionFragment: "queryConfig",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "sweep",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
     functionFragment: "updateConfig",
     values: [
@@ -147,9 +161,15 @@ export interface CollectorInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "queryConfig", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "queryConfig",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "sweep", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "updateConfig", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "updateConfig",
+    data: BytesLike
+  ): Result;
 
   events: {
     "CollectedConfigUpdated(tuple)": EventFragment;
@@ -170,7 +190,8 @@ export type CollectedConfigUpdatedEvent = TypedEvent<
   CollectedConfigUpdatedEventObject
 >;
 
-export type CollectedConfigUpdatedEventFilter = TypedEventFilter<CollectedConfigUpdatedEvent>;
+export type CollectedConfigUpdatedEventFilter =
+  TypedEventFilter<CollectedConfigUpdatedEvent>;
 
 export interface CollecterInitializedEventObject {
   details: CollectorMessage.InstantiateMsgStructOutput;
@@ -180,7 +201,8 @@ export type CollecterInitializedEvent = TypedEvent<
   CollecterInitializedEventObject
 >;
 
-export type CollecterInitializedEventFilter = TypedEventFilter<CollecterInitializedEvent>;
+export type CollecterInitializedEventFilter =
+  TypedEventFilter<CollecterInitializedEvent>;
 
 export interface CollectorSweepedEventObject {
   tokenSwept: string;
@@ -192,7 +214,8 @@ export type CollectorSweepedEvent = TypedEvent<
   CollectorSweepedEventObject
 >;
 
-export type CollectorSweepedEventFilter = TypedEventFilter<CollectorSweepedEvent>;
+export type CollectorSweepedEventFilter =
+  TypedEventFilter<CollectorSweepedEvent>;
 
 export interface Collector extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -211,7 +234,9 @@ export interface Collector extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -221,14 +246,16 @@ export interface Collector extends BaseContract {
   functions: {
     initialize(
       details: CollectorMessage.InstantiateMsgStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    queryConfig(overrides?: CallOverrides): Promise<[CollectorMessage.ConfigResponseStructOutput]>;
+    queryConfig(
+      overrides?: CallOverrides
+    ): Promise<[CollectorMessage.ConfigResponseStructOutput]>;
 
     sweep(
       sweepToken: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     updateConfig(
@@ -237,20 +264,22 @@ export interface Collector extends BaseContract {
       govContract: PromiseOrValue<string>,
       swapFactory: PromiseOrValue<string>,
       registrarContract: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
   initialize(
     details: CollectorMessage.InstantiateMsgStruct,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  queryConfig(overrides?: CallOverrides): Promise<CollectorMessage.ConfigResponseStructOutput>;
+  queryConfig(
+    overrides?: CallOverrides
+  ): Promise<CollectorMessage.ConfigResponseStructOutput>;
 
   sweep(
     sweepToken: PromiseOrValue<string>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   updateConfig(
@@ -259,7 +288,7 @@ export interface Collector extends BaseContract {
     govContract: PromiseOrValue<string>,
     swapFactory: PromiseOrValue<string>,
     registrarContract: PromiseOrValue<string>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -268,9 +297,14 @@ export interface Collector extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    queryConfig(overrides?: CallOverrides): Promise<CollectorMessage.ConfigResponseStructOutput>;
+    queryConfig(
+      overrides?: CallOverrides
+    ): Promise<CollectorMessage.ConfigResponseStructOutput>;
 
-    sweep(sweepToken: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
+    sweep(
+      sweepToken: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     updateConfig(
       rewardFactor: PromiseOrValue<BigNumberish>,
@@ -283,10 +317,14 @@ export interface Collector extends BaseContract {
   };
 
   filters: {
-    "CollectedConfigUpdated(tuple)"(config?: null): CollectedConfigUpdatedEventFilter;
+    "CollectedConfigUpdated(tuple)"(
+      config?: null
+    ): CollectedConfigUpdatedEventFilter;
     CollectedConfigUpdated(config?: null): CollectedConfigUpdatedEventFilter;
 
-    "CollecterInitialized(tuple)"(details?: null): CollecterInitializedEventFilter;
+    "CollecterInitialized(tuple)"(
+      details?: null
+    ): CollecterInitializedEventFilter;
     CollecterInitialized(details?: null): CollecterInitializedEventFilter;
 
     "CollectorSweeped(address,uint256,uint256)"(
@@ -304,14 +342,14 @@ export interface Collector extends BaseContract {
   estimateGas: {
     initialize(
       details: CollectorMessage.InstantiateMsgStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     queryConfig(overrides?: CallOverrides): Promise<BigNumber>;
 
     sweep(
       sweepToken: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     updateConfig(
@@ -320,21 +358,21 @@ export interface Collector extends BaseContract {
       govContract: PromiseOrValue<string>,
       swapFactory: PromiseOrValue<string>,
       registrarContract: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     initialize(
       details: CollectorMessage.InstantiateMsgStruct,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     queryConfig(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     sweep(
       sweepToken: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     updateConfig(
@@ -343,7 +381,7 @@ export interface Collector extends BaseContract {
       govContract: PromiseOrValue<string>,
       swapFactory: PromiseOrValue<string>,
       registrarContract: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

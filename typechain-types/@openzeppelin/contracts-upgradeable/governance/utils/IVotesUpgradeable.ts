@@ -13,8 +13,12 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {FunctionFragment, Result, EventFragment} from "@ethersproject/abi";
-import type {Listener, Provider} from "@ethersproject/providers";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
+import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
   TypedEvent,
@@ -43,7 +47,10 @@ export interface IVotesUpgradeableInterface extends utils.Interface {
       | "getVotes"
   ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "delegate", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(
+    functionFragment: "delegate",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
     functionFragment: "delegateBySig",
     values: [
@@ -55,7 +62,10 @@ export interface IVotesUpgradeableInterface extends utils.Interface {
       PromiseOrValue<BytesLike>
     ]
   ): string;
-  encodeFunctionData(functionFragment: "delegates", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(
+    functionFragment: "delegates",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
     functionFragment: "getPastTotalSupply",
     values: [PromiseOrValue<BigNumberish>]
@@ -64,13 +74,25 @@ export interface IVotesUpgradeableInterface extends utils.Interface {
     functionFragment: "getPastVotes",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(functionFragment: "getVotes", values: [PromiseOrValue<string>]): string;
+  encodeFunctionData(
+    functionFragment: "getVotes",
+    values: [PromiseOrValue<string>]
+  ): string;
 
   decodeFunctionResult(functionFragment: "delegate", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "delegateBySig", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "delegateBySig",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "delegates", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getPastTotalSupply", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getPastVotes", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getPastTotalSupply",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getPastVotes",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "getVotes", data: BytesLike): Result;
 
   events: {
@@ -87,7 +109,10 @@ export interface DelegateChangedEventObject {
   fromDelegate: string;
   toDelegate: string;
 }
-export type DelegateChangedEvent = TypedEvent<[string, string, string], DelegateChangedEventObject>;
+export type DelegateChangedEvent = TypedEvent<
+  [string, string, string],
+  DelegateChangedEventObject
+>;
 
 export type DelegateChangedEventFilter = TypedEventFilter<DelegateChangedEvent>;
 
@@ -101,7 +126,8 @@ export type DelegateVotesChangedEvent = TypedEvent<
   DelegateVotesChangedEventObject
 >;
 
-export type DelegateVotesChangedEventFilter = TypedEventFilter<DelegateVotesChangedEvent>;
+export type DelegateVotesChangedEventFilter =
+  TypedEventFilter<DelegateVotesChangedEvent>;
 
 export interface IVotesUpgradeable extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -120,7 +146,9 @@ export interface IVotesUpgradeable extends BaseContract {
     eventFilter?: TypedEventFilter<TEvent>
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(eventFilter: TypedEventFilter<TEvent>): this;
+  removeAllListeners<TEvent extends TypedEvent>(
+    eventFilter: TypedEventFilter<TEvent>
+  ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
   on: OnEvent<this>;
@@ -130,7 +158,7 @@ export interface IVotesUpgradeable extends BaseContract {
   functions: {
     delegate(
       delegatee: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     delegateBySig(
@@ -140,10 +168,13 @@ export interface IVotesUpgradeable extends BaseContract {
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    delegates(account: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[string]>;
+    delegates(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     getPastTotalSupply(
       blockNumber: PromiseOrValue<BigNumberish>,
@@ -156,12 +187,15 @@ export interface IVotesUpgradeable extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    getVotes(account: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[BigNumber]>;
+    getVotes(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
   };
 
   delegate(
     delegatee: PromiseOrValue<string>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   delegateBySig(
@@ -171,10 +205,13 @@ export interface IVotesUpgradeable extends BaseContract {
     v: PromiseOrValue<BigNumberish>,
     r: PromiseOrValue<BytesLike>,
     s: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & {from?: PromiseOrValue<string>}
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  delegates(account: PromiseOrValue<string>, overrides?: CallOverrides): Promise<string>;
+  delegates(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   getPastTotalSupply(
     blockNumber: PromiseOrValue<BigNumberish>,
@@ -187,10 +224,16 @@ export interface IVotesUpgradeable extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  getVotes(account: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
+  getVotes(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   callStatic: {
-    delegate(delegatee: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
+    delegate(
+      delegatee: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     delegateBySig(
       delegatee: PromiseOrValue<string>,
@@ -202,7 +245,10 @@ export interface IVotesUpgradeable extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    delegates(account: PromiseOrValue<string>, overrides?: CallOverrides): Promise<string>;
+    delegates(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     getPastTotalSupply(
       blockNumber: PromiseOrValue<BigNumberish>,
@@ -215,7 +261,10 @@ export interface IVotesUpgradeable extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getVotes(account: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
+    getVotes(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   filters: {
@@ -245,7 +294,7 @@ export interface IVotesUpgradeable extends BaseContract {
   estimateGas: {
     delegate(
       delegatee: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     delegateBySig(
@@ -255,10 +304,13 @@ export interface IVotesUpgradeable extends BaseContract {
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    delegates(account: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
+    delegates(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     getPastTotalSupply(
       blockNumber: PromiseOrValue<BigNumberish>,
@@ -271,13 +323,16 @@ export interface IVotesUpgradeable extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getVotes(account: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
+    getVotes(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     delegate(
       delegatee: PromiseOrValue<string>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     delegateBySig(
@@ -287,7 +342,7 @@ export interface IVotesUpgradeable extends BaseContract {
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & {from?: PromiseOrValue<string>}
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     delegates(

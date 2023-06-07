@@ -1,10 +1,10 @@
 import {task} from "hardhat/config";
-import {getAddresses, getSigners, updateAddresses} from "utils";
 import {
   APTeamMultiSig__factory,
   ApplicationsMultiSig__factory,
   ITransparentUpgradeableProxy__factory,
 } from "typechain-types";
+import {getAddresses, getSigners, updateAddresses} from "utils";
 import {logger, shouldVerify} from "utils";
 
 task(

@@ -2,8 +2,9 @@ import config from "config";
 import {task} from "hardhat/config";
 import type {TaskArguments} from "hardhat/types";
 import {Registrar} from "typechain-types";
-import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 import {ADDRESS_ZERO, getAddresses, getSigners, logger} from "utils";
+
+import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 
 task("manage:updateRegistrar", "Will update the registrar config").setAction(
   async (taskArguments: TaskArguments, hre) => {
