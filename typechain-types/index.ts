@@ -3,6 +3,8 @@
 /* eslint-disable */
 import type * as axelarNetwork from "./@axelar-network";
 export type {axelarNetwork};
+import type * as chainlink from "./@chainlink";
+export type {chainlink};
 import type * as openzeppelin from "./@openzeppelin";
 export type {openzeppelin};
 import type * as uniswap from "./@uniswap";
@@ -16,6 +18,8 @@ export type {IAxelarGasService} from "./@axelar-network/axelar-gmp-sdk-solidity/
 export {IAxelarGasService__factory} from "./factories/@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService__factory";
 export type {IAxelarGateway} from "./@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway";
 export {IAxelarGateway__factory} from "./factories/@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway__factory";
+export type {AggregatorV3Interface} from "./@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface";
+export {AggregatorV3Interface__factory} from "./factories/@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface__factory";
 export type {AccessControlUpgradeable} from "./@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable";
 export {AccessControlUpgradeable__factory} from "./factories/@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable__factory";
 export type {IAccessControlUpgradeable} from "./@openzeppelin/contracts-upgradeable/access/IAccessControlUpgradeable";

@@ -11,19 +11,47 @@ import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import '@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol';
 import '@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol';
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 /**
  * @title AccountsSwapEndowments
  * @dev This contract manages the swaps for endowments
  */
 contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
+    using SafeMath for uint256;
     ISwapRouter public immutable swapRouter;
     uint24 public constant poolFee = 3000; // constant pool fee of 0.3%
 
     constructor(ISwapRouter _swapRouter) {
         swapRouter = _swapRouter;
+    }
+
+    /**
+     * @dev This function updates an Endowment-Level Accepted Token's Price Feed contract address in storage.
+     * @param endowId uint32
+     * @param token address
+     * @param priceFeed address
+     */
+    function updateEndowmentTokenPriceFeed(
+        uint32 endowId,
+        address token,
+        address priceFeed
+    ) public {
+        AccountStorage.State storage state = LibAccounts.diamondStorage();
+        // only endowment owner can update these 
+        AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
+            endowId
+        ];
+        // Check that the token is in the endowment-level accepted tokens list
+        require(
+            state.AcceptedTokens[endowId][token],
+            "Output token not in this endowment's Accepted Tokens List"
+        );
+
+        state.PriceFeeds[endowId][token] = priceFeed;
     }
 
     /**
@@ -34,7 +62,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
      * @param tokenIn The address of the token to be swapped
      * @param amountIn The amount of tokens to be swapped in
      * @param tokenOut The address of the token to be received out
-     * @param minAmountOut Minimum cutoff of the target token to receive out
+     * @param slippage Maximum slippage tolerance allowed for output token amount (max is 100% or 10000)
      */
 
     function swapToken(
@@ -43,12 +71,16 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
         address tokenIn,
         uint256 amountIn,
         address tokenOut,
-        uint256 minAmountOut
+        uint256 slippage
     ) public nonReentrant {
         AccountStorage.State storage state = LibAccounts.diamondStorage();
+        AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
+            id
+        ];
 
         require(amountIn > 0, "Invalid Swap Input: Zero Amount");
         require(tokenIn != address(0) && tokenOut != address(0), "Invalid Swap Input: Zero Address");
+        require(slippage < AngelCoreStruct.FEE_BASIS, "Invalid Swap Input: Token Out slippage set too high");
         // Check that the desired output token from the swap is either:
         // A. In the protocol-level accepted tokens list in the Registrar Contract OR
         // B. In the endowment-level accepted tokens list
@@ -76,22 +108,21 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
             ), "Unauthorized");
         }
 
-        RegistrarStorage.Config memory registrar_config = IRegistrar(
-            state.config.registrarContract
-        ).queryConfig();
-
-        require(
-            IERC20(tokenIn).balanceOf(address(this)) >= amountIn,
-            "BalanceTooSmall"
-        );
-
         if (accountType == AngelCoreStruct.AccountType.Locked) {
+            require(
+                state.STATES[id].balances.locked.balancesByToken[tokenIn] >= amountIn,
+                "Requested swap amount is greater than Endowment Locked balance"
+            );
             state.STATES[id].balances.locked.balancesByToken[tokenIn] = 
                 AngelCoreStruct.deductTokens(
                     state.STATES[id].balances.locked.balancesByToken[tokenIn],
                     amountIn
                 );
         } else {
+            require(
+                state.STATES[id].balances.liquid.balancesByToken[tokenIn] >= amountIn,
+                "Requested swap amount is greater than Endowment Liquid balance"
+            );
             state.STATES[id].balances.liquid.balancesByToken[tokenIn] = 
                 AngelCoreStruct.deductTokens(
                     state.STATES[id].balances.liquid.balancesByToken[tokenIn],
@@ -99,13 +130,32 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
                 );
         }
 
-        // Who ya gonna call? Swap Function! 
-        uint256 amountOut = swap(tokenIn, amountIn, tokenOut, minAmountOut);
+        // Check that both in & out tokens have chainlink price feed contract set for them
+        // this could be either at the Registrar or the Endowment level
+        address priceFeedIn = IRegistrar(state.config.registrarContract).queryTokenPriceFeed(tokenIn);
+        address priceFeedOut = IRegistrar(state.config.registrarContract).queryTokenPriceFeed(tokenOut);
+        if (priceFeedIn == address(0)) {
+            priceFeedIn = state.PriceFeeds[id][tokenIn];
+        }
+        if (priceFeedOut == address(0)) {
+            priceFeedOut = state.PriceFeeds[id][tokenOut];
+        }
+        require(
+            priceFeedIn != address(0) && priceFeedOut != address(0),
+            "Chinlink Oracle Price Feed contracts are required for all tokens swapping to/from"
+        );
+
+        RegistrarStorage.Config memory registrar_config = IRegistrar(
+            state.config.registrarContract
+        ).queryConfig();
 
         require(
-            amountOut >= minAmountOut,
-            "Output funds less than the minimum output"
+            IERC20(tokenIn).approve(address(registrar_config.uniswapSwapRouter), amountIn),
+            "Approval failed"
         );
+
+        // Who ya gonna call? Swap Function!
+        uint256 amountOut = swap(tokenIn, amountIn, priceFeedIn, tokenOut, priceFeedOut, slippage);
 
         // Allocate the newly swapped tokens to the correct endowment balance
         if (accountType == AngelCoreStruct.AccountType.Locked) {
@@ -137,10 +187,27 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
     */ ///////////////////////////////////////////////
 
     /**
-     * @dev This function sorts two token addresses in ascending order and returns them.
-     * @param tokenA address
-     * @param tokenB address
+     * @dev This function fetches the latest token price from a Price Feed from Chainlink Oracles.
+     * @param tokenFeed address
+     * @return answer Returns the oracle answer of current price as an int
      */
+    function getLatestPriceData(address tokenFeed) internal returns (uint256) {
+        AggregatorV3Interface chainlinkFeed = AggregatorV3Interface(tokenFeed);
+        (
+            uint80 roundID,
+            int256 answer,
+            uint256 startedAt,
+            uint256 timeStamp,
+            uint80 answeredInRound
+        ) = chainlinkFeed.latestRoundData();
+        return uint256(answer);
+    }
+
+    // /**
+    //  * @dev This function sorts two token addresses in ascending order and returns them.
+    //  * @param tokenA address
+    //  * @param tokenB address
+    //  */
     function sortTokens(
         address tokenA,
         address tokenB
@@ -152,12 +219,12 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
         require(token0 != address(0), "UniswapV3Library: ZERO_ADDRESS");
     }
 
-    /**
-     * @dev This function checks the pool and returns the fee for a swap between the two given tokens.
-     * @param tokenIn address
-     * @param tokenOut address
-     * @return fees Returns the fee for swapping
-     */
+    // /**
+    //  * @dev This function checks the pool and returns the fee for a swap between the two given tokens.
+    //  * @param tokenIn address
+    //  * @param tokenOut address
+    //  * @return fees Returns the fee for swapping
+    //  */
     // function checkPoolAndReturnFee(
     //     address tokenA,
     //     address tokenB
@@ -190,20 +257,19 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
     function swap(
         address tokenIn,
         uint256 amountIn,
+        address priceFeedIn,
         address tokenOut,
-        uint256 minAmountOut
+        address priceFeedOut,
+        uint256 slippage
     ) internal returns (uint256 amountOut) {
         //Get pool fee
         // uint24 fees = checkPoolAndReturnFee(tokenIn, tokenOut);
         require(poolFee > 0, "Invalid Token sent to swap");
-        
-        require(
-            IERC20(tokenIn).approve(address(swapRouter), amountIn),
-            "Approve failed"
-        );
 
-        // Naively set amountOutMinimum to the user passed value, the alternative being to set it to 0 for now.
-        // In production, we need to use an oracle or other data source to choose a safer value for amountOutMinimum.
+        uint256 priceRatio = getLatestPriceData(priceFeedOut).div(getLatestPriceData(priceFeedIn));
+        uint256 estAmountOut = amountIn.mul(priceRatio);
+        uint256 minAmountOut = estAmountOut.sub(estAmountOut.mul(slippage).div(AngelCoreStruct.FEE_BASIS));
+
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
             .ExactInputSingleParams({
                 tokenIn: tokenIn,
@@ -212,10 +278,15 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
                 recipient: address(this),
                 deadline: block.timestamp,
                 amountIn: amountIn,
-                amountOutMinimum: minAmountOut,
+                amountOutMinimum: minAmountOut, 
                 sqrtPriceLimitX96: 0 // ensures that we swap our exact input amount
             });
         // execute the swap on the router
         amountOut = swapRouter.exactInputSingle(params);
+
+        require(
+            amountOut >= minAmountOut,
+            "Output funds less than the minimum output"
+        );
     }
 }

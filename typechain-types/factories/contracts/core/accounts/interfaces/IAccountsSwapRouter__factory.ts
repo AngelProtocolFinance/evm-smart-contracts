@@ -39,7 +39,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "minAmountOut",
+        name: "slippage",
         type: "uint256",
       },
     ],

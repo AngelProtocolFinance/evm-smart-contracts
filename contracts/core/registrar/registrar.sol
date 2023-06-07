@@ -62,7 +62,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
             charitySharesContract: address(0),
             // acceptedTokens: details.acceptedTokens,
             fundraisingContract: address(0),
-            swapsRouter: address(0),
+            uniswapSwapRouter: address(0),
             multisigFactory: address(0),
             multisigEmitter: address(0),
             charityProposal: address(0),
@@ -109,8 +109,8 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
             state.config.accountsContract = details.accountsContract;
         }
 
-        if (Validator.addressChecker(details.swapsRouter)) {
-            state.config.swapsRouter = details.swapsRouter;
+        if (Validator.addressChecker(details.uniswapSwapRouter)) {
+            state.config.uniswapSwapRouter = details.uniswapSwapRouter;
         }
 
         if (Validator.addressChecker(details.charitySharesContract)) {
@@ -241,6 +241,18 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
         // });
         emit UpdateRegistrarConfig(state.config);
     }
+
+    /**
+     * @dev This function updates a Registrar-Level Accepted Token's Price Feed contract address in storage.
+     * @param token address
+     * @param priceFeed address
+     */
+    function updateTokenPriceFeed(
+        address token,
+        address priceFeed
+    ) public onlyOwner {
+        state.PriceFeeds[token] = priceFeed;
+    }
     
     /**
      * @dev update network connections in the registrar
@@ -251,7 +263,6 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
         AngelCoreStruct.NetworkInfo memory networkInfo,
         string memory action
     ) public nonReentrant onlyOwner {
-
         if (Validator.compareStrings(action, "post")) {
             state.NETWORK_CONNECTIONS[networkInfo.chainId] = networkInfo;
             emit PostNetworkConnection(networkInfo.chainId, networkInfo);
@@ -262,7 +273,18 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
             revert("Invalid inputs");
         }
     }
-    
+   
+    /**
+     * @dev Query the Price Feed contract set for an Accepted Token in the Registrar
+     * @param token The address of token
+     * @return address of Price Feed contract set (zero-address if not set)
+     */
+    function queryTokenPriceFeed(
+        address token
+    ) public view returns (address) {
+        return state.PriceFeeds[token];
+    } 
+   
     /**
      * @dev Query the network connection in registrar
      * @param chainId The chain id of the network to query

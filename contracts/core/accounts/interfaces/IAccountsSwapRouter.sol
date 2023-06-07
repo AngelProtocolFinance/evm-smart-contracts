@@ -10,6 +10,6 @@ interface IAccountsSwapRouter {
         address tokenIn,
         uint256 amountIn,
         address tokenOut,
-        uint256 minAmountOut
+        uint256 slippage
     ) external;
 }

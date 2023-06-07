@@ -78,7 +78,7 @@ export interface IAccountsSwapRouter extends BaseContract {
       tokenIn: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
       tokenOut: PromiseOrValue<string>,
-      minAmountOut: PromiseOrValue<BigNumberish>,
+      slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
@@ -89,7 +89,7 @@ export interface IAccountsSwapRouter extends BaseContract {
     tokenIn: PromiseOrValue<string>,
     amountIn: PromiseOrValue<BigNumberish>,
     tokenOut: PromiseOrValue<string>,
-    minAmountOut: PromiseOrValue<BigNumberish>,
+    slippage: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
@@ -100,7 +100,7 @@ export interface IAccountsSwapRouter extends BaseContract {
       tokenIn: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
       tokenOut: PromiseOrValue<string>,
-      minAmountOut: PromiseOrValue<BigNumberish>,
+      slippage: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -114,7 +114,7 @@ export interface IAccountsSwapRouter extends BaseContract {
       tokenIn: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
       tokenOut: PromiseOrValue<string>,
-      minAmountOut: PromiseOrValue<BigNumberish>,
+      slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
@@ -126,7 +126,7 @@ export interface IAccountsSwapRouter extends BaseContract {
       tokenIn: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
       tokenOut: PromiseOrValue<string>,
-      minAmountOut: PromiseOrValue<BigNumberish>,
+      slippage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };

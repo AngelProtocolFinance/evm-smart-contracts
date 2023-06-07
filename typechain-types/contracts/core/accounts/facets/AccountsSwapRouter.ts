@@ -449,9 +449,12 @@ export interface AccountsSwapRouterInterface extends utils.Interface {
     "poolFee()": FunctionFragment;
     "swapRouter()": FunctionFragment;
     "swapToken(uint32,uint8,address,uint256,address,uint256)": FunctionFragment;
+    "updateEndowmentTokenPriceFeed(uint32,address,address)": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "poolFee" | "swapRouter" | "swapToken"): FunctionFragment;
+  getFunction(
+    nameOrSignatureOrTopic: "poolFee" | "swapRouter" | "swapToken" | "updateEndowmentTokenPriceFeed"
+  ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "poolFee", values?: undefined): string;
   encodeFunctionData(functionFragment: "swapRouter", values?: undefined): string;
@@ -466,10 +469,15 @@ export interface AccountsSwapRouterInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "updateEndowmentTokenPriceFeed",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
 
   decodeFunctionResult(functionFragment: "poolFee", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "swapRouter", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "swapToken", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "updateEndowmentTokenPriceFeed", data: BytesLike): Result;
 
   events: {
     "AllowanceStateUpdatedTo(address,address,address,uint256)": EventFragment;
@@ -658,7 +666,14 @@ export interface AccountsSwapRouter extends BaseContract {
       tokenIn: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
       tokenOut: PromiseOrValue<string>,
-      minAmountOut: PromiseOrValue<BigNumberish>,
+      slippage: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
+    ): Promise<ContractTransaction>;
+
+    updateEndowmentTokenPriceFeed(
+      endowId: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
+      priceFeed: PromiseOrValue<string>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<ContractTransaction>;
   };
@@ -673,7 +688,14 @@ export interface AccountsSwapRouter extends BaseContract {
     tokenIn: PromiseOrValue<string>,
     amountIn: PromiseOrValue<BigNumberish>,
     tokenOut: PromiseOrValue<string>,
-    minAmountOut: PromiseOrValue<BigNumberish>,
+    slippage: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & {from?: PromiseOrValue<string>}
+  ): Promise<ContractTransaction>;
+
+  updateEndowmentTokenPriceFeed(
+    endowId: PromiseOrValue<BigNumberish>,
+    token: PromiseOrValue<string>,
+    priceFeed: PromiseOrValue<string>,
     overrides?: Overrides & {from?: PromiseOrValue<string>}
   ): Promise<ContractTransaction>;
 
@@ -688,7 +710,14 @@ export interface AccountsSwapRouter extends BaseContract {
       tokenIn: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
       tokenOut: PromiseOrValue<string>,
-      minAmountOut: PromiseOrValue<BigNumberish>,
+      slippage: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    updateEndowmentTokenPriceFeed(
+      endowId: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
+      priceFeed: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -780,7 +809,14 @@ export interface AccountsSwapRouter extends BaseContract {
       tokenIn: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
       tokenOut: PromiseOrValue<string>,
-      minAmountOut: PromiseOrValue<BigNumberish>,
+      slippage: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
+    ): Promise<BigNumber>;
+
+    updateEndowmentTokenPriceFeed(
+      endowId: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
+      priceFeed: PromiseOrValue<string>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<BigNumber>;
   };
@@ -796,7 +832,14 @@ export interface AccountsSwapRouter extends BaseContract {
       tokenIn: PromiseOrValue<string>,
       amountIn: PromiseOrValue<BigNumberish>,
       tokenOut: PromiseOrValue<string>,
-      minAmountOut: PromiseOrValue<BigNumberish>,
+      slippage: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & {from?: PromiseOrValue<string>}
+    ): Promise<PopulatedTransaction>;
+
+    updateEndowmentTokenPriceFeed(
+      endowId: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
+      priceFeed: PromiseOrValue<string>,
       overrides?: Overrides & {from?: PromiseOrValue<string>}
     ): Promise<PopulatedTransaction>;
   };

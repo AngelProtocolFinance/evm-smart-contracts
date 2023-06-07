@@ -30,7 +30,7 @@ library RegistrarStorage {
         //PROTOCOL LEVEL
         address fundraisingContract;
         // AngelCoreStruct.RebalanceDetails rebalance;
-        address swapsRouter;
+        address uniswapSwapRouter;
         address multisigFactory;
         address multisigEmitter;
         address charityProposal;
@@ -46,6 +46,7 @@ library RegistrarStorage {
         bytes4[] STRATEGIES;
         mapping(AngelCoreStruct.FeeTypes => AngelCoreStruct.FeeSetting) FeeSettingsByFeeType;
         mapping(uint256 => AngelCoreStruct.NetworkInfo) NETWORK_CONNECTIONS;
+        mapping(address => address) PriceFeeds;
     }
 }
 

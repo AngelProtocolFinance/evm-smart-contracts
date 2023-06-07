@@ -69,6 +69,8 @@ library AccountStorage {
         mapping(uint32 => mapping(address => mapping(address => uint256))) ALLOWANCES;
         // endow ID -> token Addr -> bool
         mapping(uint32 => mapping(address => bool)) AcceptedTokens;
+        // endow ID -> token Addr -> Price Feed Addr
+        mapping(uint32 => mapping(address => address)) PriceFeeds;
         Config config;
     }
 }
