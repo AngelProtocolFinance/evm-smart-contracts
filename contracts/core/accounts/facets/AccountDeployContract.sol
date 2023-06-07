@@ -19,33 +19,39 @@ import {ISubDao} from "../../../normalized_endowment/subdao/Isubdao.sol";
  * @dev Is always going to be called by address(this)
  */
 contract AccountDeployContract is ReentrancyGuardFacet, AccountsEvents {
-  /**
-   * @notice Create a new Dao for endowment
-   * @param createDaoMessage Dao creation message with initial configuration
-   */
-  function createDaoContract(
-    subDaoMessage.InstantiateMsg memory createDaoMessage
-  ) public nonReentrant returns (address daoAddress) {
-    // will be called by self, as this is deployment facet
-    require(msg.sender == address(this), "Unauthorized");
-    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    /**
+     * @notice Create a new Dao for endowment
+     * @param createDaoMessage Dao creation message with initial configuration
+     */
+    function createDaoContract(
+        subDaoMessage.InstantiateMsg memory createDaoMessage
+    ) public nonReentrant returns (address daoAddress) {
+        // will be called by self, as this is deployment facet
+        require(msg.sender == address(this), "Unauthorized");
+        AccountStorage.State storage state = LibAccounts.diamondStorage();
 
-    RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
-      .queryConfig();
+        RegistrarStorage.Config memory registrar_config = IRegistrar(
+            state.config.registrarContract
+        ).queryConfig();
 
-    address implementation = registrar_config.subdaoGovContract;
-    address admin = registrar_config.proxyAdmin;
+        address implementation = registrar_config.subdaoGovContract;
+        address admin = registrar_config.proxyAdmin;
 
-    bytes memory subDaoData = abi.encodeWithSignature(
-      "initializeSubDao((uint256,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address),address)",
-      createDaoMessage,
-      registrar_config.subdaoEmitter
-    );
+        bytes memory subDaoData = abi.encodeWithSignature(
+            "initializeSubDao((uint256,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address),address)",
+            createDaoMessage,
+            registrar_config.subdaoEmitter
+        );
 
-    daoAddress = address(new ProxyContract(implementation, admin, subDaoData));
-    ISubdaoEmitter(registrar_config.subdaoEmitter).initializeSubdao(daoAddress, createDaoMessage);
+        daoAddress = address(
+            new ProxyContract(implementation, admin, subDaoData)
+        );
+        ISubdaoEmitter(registrar_config.subdaoEmitter).initializeSubdao(
+            daoAddress,
+            createDaoMessage
+        );
 
-    ISubDao(daoAddress).buildDaoTokenMesage(createDaoMessage);
-    emit DaoContractCreated(createDaoMessage, daoAddress);
-  }
+        ISubDao(daoAddress).buildDaoTokenMesage(createDaoMessage);
+        emit DaoContractCreated(createDaoMessage, daoAddress);
+    }
 }

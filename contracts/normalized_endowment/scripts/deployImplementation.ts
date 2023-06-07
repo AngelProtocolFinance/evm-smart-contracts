@@ -1,9 +1,9 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
-import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getSigners, logger, updateAddresses} from "utils";
 
+import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {DonationMatchMessages} from "typechain-types/contracts/normalized_endowment/donation-match/DonationMatch.sol/DonationMatch";
+import {getSigners, logger, updateAddresses} from "utils";
 
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 

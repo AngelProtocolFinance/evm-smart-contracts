@@ -1,19 +1,20 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
+
+import path from "path";
+// const hre = require('hardhat');
+import {deployGov} from "../gov/scripts/deploy";
+import {GovHodler} from "../gov-hodler/scripts/deploy";
+import {Airdrop} from "../airdrop/scripts/deploy";
+import {Community} from "../community/scripts/deploy";
+import {distributor} from "../distributor/scripts/deploy";
+import {Vesting} from "../vesting/scripts/deploy";
+import {Staking} from "../staking/scripts/deploy";
+import {Collector} from "../collector/scripts/deploy";
 // const ethers = hre.ethers;
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {envConfig, getSigners} from "utils";
-
-import {Airdrop} from "../airdrop/scripts/deploy";
-import {Collector} from "../collector/scripts/deploy";
-import {Community} from "../community/scripts/deploy";
-import {distributor} from "../distributor/scripts/deploy";
-import {GovHodler} from "../gov-hodler/scripts/deploy";
-// const hre = require('hardhat');
-import {deployGov} from "../gov/scripts/deploy";
-import {deployStaking} from "../staking/scripts/deploy";
-import {Vesting} from "../vesting/scripts/deploy";
 
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
@@ -145,7 +146,7 @@ export async function deployHaloImplementation(
         },
         hre
       ),
-      staking: await deployStaking(
+      staking: await Staking(
         proxyAdmin.address,
         {
           haloToken: halo,

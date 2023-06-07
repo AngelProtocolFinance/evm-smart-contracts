@@ -6,13 +6,11 @@ import {ILocalRegistrar} from "../../core/registrar/interfaces/ILocalRegistrar.s
 import {APGoldfinchConfigLib} from "./APGoldfinchConfig.sol";
 
 interface IRegistrarGoldfinch is ILocalRegistrar {
-  struct principle {
-    uint256 usdcP;
-    uint256 fiduP;
-  }
 
-  function getAPGoldfinchParams()
-    external
-    view
-    returns (APGoldfinchConfigLib.APGoldfinchConfig memory);
+    struct principle {
+        uint256 usdcP;
+        uint256 fiduP;
+    }
+    
+    function getAPGoldfinchParams() external view returns (APGoldfinchConfigLib.APGoldfinchConfig memory);
 }

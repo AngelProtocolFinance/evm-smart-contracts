@@ -5,12 +5,13 @@ pragma experimental ABIEncoderV2;
 import "./StakingRewardsVesting.sol";
 
 interface IStakingRewards {
+
   /// @notice Indicates which ERC20 is staked
   enum StakedPositionType {
     Fidu,
     veLP
   }
-
+  
   struct StakedPosition {
     // @notice Staked amount denominated in `stakingToken().decimals()`
     uint256 amount;
