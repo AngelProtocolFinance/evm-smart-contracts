@@ -9,9 +9,8 @@ import {AccountMessages} from "typechain-types/contracts/core/accounts/IAccounts
 import {getAddresses, getSigners, logger} from "utils";
 
 task("manage:createEndowment", "Will create a new endowment")
-.addParam("endowType", "0 - charity, 1 - normal")  
-.setAction(
-  async (_taskArguments, hre) => {
+  .addParam("endowType", "0 - charity, 1 - normal")
+  .setAction(async (_taskArguments, hre) => {
     try {
       const {apTeam1, apTeam2} = await getSigners(hre.ethers);
 
@@ -34,12 +33,12 @@ task("manage:createEndowment", "Will create a new endowment")
           addr: apTeam1.address,
           expires: 0,
         },
-      }
+      };
 
       const defaultFeeStruct = {
         payoutAddress: hre.ethers.constants.AddressZero,
         bps: 0,
-      }
+      };
 
       const createEndowmentRequest: AccountMessages.CreateEndowmentRequestStruct = {
         owner: apTeam1.address,
@@ -112,22 +111,22 @@ task("manage:createEndowment", "Will create a new endowment")
         proposalLink: 0,
         settingsController: {
           acceptedTokens: defaultSettingsPermissionsStruct,
-          lockedInvestmentManagement:  defaultSettingsPermissionsStruct,
-          liquidInvestmentManagement:  defaultSettingsPermissionsStruct,
-          allowlistedBeneficiaries:  defaultSettingsPermissionsStruct,
-          allowlistedContributors:  defaultSettingsPermissionsStruct,
-          maturityAllowlist:  defaultSettingsPermissionsStruct,
-          maturityTime:  defaultSettingsPermissionsStruct,
-          earlyLockedWithdrawFee:  defaultSettingsPermissionsStruct,
-          withdrawFee:  defaultSettingsPermissionsStruct,
-          depositFee:  defaultSettingsPermissionsStruct,
-          balanceFee:  defaultSettingsPermissionsStruct,
-          name:  defaultSettingsPermissionsStruct,
-          image:  defaultSettingsPermissionsStruct,
-          logo:  defaultSettingsPermissionsStruct,
-          categories:  defaultSettingsPermissionsStruct,
-          splitToLiquid:  defaultSettingsPermissionsStruct,
-          ignoreUserSplits:  defaultSettingsPermissionsStruct,
+          lockedInvestmentManagement: defaultSettingsPermissionsStruct,
+          liquidInvestmentManagement: defaultSettingsPermissionsStruct,
+          allowlistedBeneficiaries: defaultSettingsPermissionsStruct,
+          allowlistedContributors: defaultSettingsPermissionsStruct,
+          maturityAllowlist: defaultSettingsPermissionsStruct,
+          maturityTime: defaultSettingsPermissionsStruct,
+          earlyLockedWithdrawFee: defaultSettingsPermissionsStruct,
+          withdrawFee: defaultSettingsPermissionsStruct,
+          depositFee: defaultSettingsPermissionsStruct,
+          balanceFee: defaultSettingsPermissionsStruct,
+          name: defaultSettingsPermissionsStruct,
+          image: defaultSettingsPermissionsStruct,
+          logo: defaultSettingsPermissionsStruct,
+          categories: defaultSettingsPermissionsStruct,
+          splitToLiquid: defaultSettingsPermissionsStruct,
+          ignoreUserSplits: defaultSettingsPermissionsStruct,
         },
         parent: 0,
         maturityAllowlist: [],
@@ -137,15 +136,15 @@ task("manage:createEndowment", "Will create a new endowment")
           min: 0,
           defaultSplit: 50,
         },
-      }
+      };
 
-      if(_taskArguments.endowType == 0) {
+      if (_taskArguments.endowType == 0) {
         logger.out("Creating a charity proposal...");
         const charityApplication = CharityApplication__factory.connect(
           addresses.charityApplication.proxy,
           apTeam1
-        )
-        const tx = await charityApplication.proposeCharity(createEndowmentRequest, "")
+        );
+        const tx = await charityApplication.proposeCharity(createEndowmentRequest, "");
         const receipt = await tx.wait();
 
         if (!receipt.events?.length) {
@@ -166,8 +165,10 @@ task("manage:createEndowment", "Will create a new endowment")
         const applicationMultisig = ApplicationsMultiSig__factory.connect(
           addresses.multiSig.applications.proxy,
           apTeam2
-        )
-        const data = charityApplication.interface.encodeFunctionData("approveCharity", [proposalId]);
+        );
+        const data = charityApplication.interface.encodeFunctionData("approveCharity", [
+          proposalId,
+        ]);
         const submitTransactionTx = await applicationMultisig.submitTransaction(
           `Approve endowment with proposal ID: ${proposalId}`,
           `Approve endowment with proposal ID: ${proposalId}`,
@@ -177,28 +178,23 @@ task("manage:createEndowment", "Will create a new endowment")
           "0x"
         );
         await submitTransactionTx.wait();
-      }
-      else {
+      } else {
         const createEndowFacet = AccountsCreateEndowment__factory.connect(
           addresses.accounts.diamond,
           apTeam1
-        )
-        let tx = await createEndowFacet.createEndowment(createEndowmentRequest)
-        await hre.ethers.provider.waitForTransaction(tx.hash)
-
+        );
+        let tx = await createEndowFacet.createEndowment(createEndowmentRequest);
+        await hre.ethers.provider.waitForTransaction(tx.hash);
       }
-      
 
       const newEndowmentDetails = await queryEndowmentFacet.queryEndowmentDetails(
         config.nextAccountId
       );
       logger.out(`Added endowment: ${JSON.stringify(newEndowmentDetails, undefined, 2)}`);
       logger.out();
-
     } catch (error) {
       logger.out(error, logger.Level.Error);
     } finally {
       logger.out("Done.");
     }
-  }
-);
+  });

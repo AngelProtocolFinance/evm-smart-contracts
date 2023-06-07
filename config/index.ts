@@ -55,7 +55,7 @@ const EXPORT_CONFIG = {
   REGISTRAR_UPDATE_CONFIG: {
     collectorShare: 1,
     haloTokenLpContract: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-    wethAddress: "0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa",
+    wmaticAddress: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
     usdcAddress: "0xe6b8a5CF854791412c1f6EFC7CAf629f5Df1c747",
     DAI_address: "",
   },

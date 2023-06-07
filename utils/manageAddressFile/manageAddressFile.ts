@@ -1,6 +1,6 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {DEFAULT_CONTRACT_ADDRESS_FILE_PATH} from "..";
-import {getAddressesByNetworkId, readAllAddresses, saveFrontendFiles} from "./helpers";
+import {createEmpty, getAddressesByNetworkId, saveFrontendFiles} from "./helpers";
 import {AddressObj} from "./types";
 
 type DeepPartial<T> = {
@@ -16,11 +16,7 @@ export async function cleanAddresses(
 ) {
   const chainId = await getChainId(hre);
 
-  const allAddresses = readAllAddresses(filePath);
-
-  const {[chainId]: toRemove, ...toRemain} = allAddresses;
-
-  saveFrontendFiles(toRemain, filePath);
+  saveFrontendFiles({[chainId]: createEmpty()}, filePath);
 }
 
 export async function getAddresses(

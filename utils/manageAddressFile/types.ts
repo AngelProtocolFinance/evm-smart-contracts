@@ -146,6 +146,6 @@ export type AddressObj = {
   tokens: {
     halo: string;
     usdc: string;
-    weth: string;
+    wmatic: string;
   };
 };

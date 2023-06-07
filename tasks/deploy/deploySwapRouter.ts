@@ -3,7 +3,7 @@ import config from "config";
 import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
 import {logger} from "utils";
 
-task("Deploy:deploySwapRouter", "Will deploy SwapRouter contract")
+task("deploy:SwapRouter", "Will deploy SwapRouter contract")
   .addParam("verify", "Want to verify contract")
   .addParam("registraraddress", "Address of the Registrar contract")
   .addParam("accountaddress", "Address of the account")
