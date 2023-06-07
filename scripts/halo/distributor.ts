@@ -1,11 +1,10 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
-
-import path from "path";
-import {DistributorMessage} from "typechain-types/contracts/halo/distributor/Distributor";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-// const hre = require("hardhat");
-// const ethers = hre.ethers;
+import path from "path";
+
+import {DistributorMessage} from "typechain-types/contracts/halo/distributor/Distributor";
+
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
 export async function distributor(

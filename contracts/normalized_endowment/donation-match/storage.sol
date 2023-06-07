@@ -2,19 +2,19 @@
 pragma solidity ^0.8.16;
 
 library DonationMatchStorage {
-    struct Config {
-        address reserveToken;
-        address uniswapFactory;
-        address usdcAddress;
-        address registrarContract;
-        uint24 poolFee;
-    }
+  struct Config {
+    address reserveToken;
+    address uniswapFactory;
+    address usdcAddress;
+    address registrarContract;
+    uint24 poolFee;
+  }
 
-    struct State {
-        Config config;
-    }
+  struct State {
+    Config config;
+  }
 }
 
 contract Storage {
-    DonationMatchStorage.State state;
+  DonationMatchStorage.State state;
 }

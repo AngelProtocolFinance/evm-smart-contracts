@@ -2,5 +2,5 @@
 pragma solidity ^0.8.6;
 
 interface IBasicToken {
-    function decimals() external view returns (uint8);
+  function decimals() external view returns (uint8);
 }
