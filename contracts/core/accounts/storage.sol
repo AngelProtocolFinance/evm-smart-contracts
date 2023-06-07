@@ -27,8 +27,6 @@ library AccountStorage {
     string logo;
     string image;
     uint256 maturityTime; // datetime int of endowment maturity
-    //OG:AngelCoreStruct.AccountStrategies
-    // uint256 strategies; // vaults and percentages for locked/liquid accounts donations where auto_invest == TRUE
     AngelCoreStruct.AccountStrategies strategies;
     AngelCoreStruct.OneOffVaults oneoffVaults; // vaults not covered in account startegies (more efficient tracking of vaults vs. looking up allll vaults)
     LocalRegistrarLib.RebalanceParams rebalance; // parameters to guide rebalancing & harvesting of gains from locked/liquid accounts
