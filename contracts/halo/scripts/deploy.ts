@@ -12,7 +12,7 @@ import {distributor} from "../distributor/scripts/deploy";
 import {GovHodler} from "../gov-hodler/scripts/deploy";
 // const hre = require('hardhat');
 import {deployGov} from "../gov/scripts/deploy";
-import {Staking} from "../staking/scripts/deploy";
+import {deployStaking} from "../staking/scripts/deploy";
 import {Vesting} from "../vesting/scripts/deploy";
 
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
@@ -145,7 +145,7 @@ export async function deployHaloImplementation(
         },
         hre
       ),
-      staking: await Staking(
+      staking: await deployStaking(
         proxyAdmin.address,
         {
           haloToken: halo,
