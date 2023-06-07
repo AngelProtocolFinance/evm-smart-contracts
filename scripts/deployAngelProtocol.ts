@@ -1,7 +1,7 @@
 // import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {IndexFund__factory, Registrar__factory} from "typechain-types";
+import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
 import {ADDRESS_ZERO, cleanAddresses, isLocalNetwork} from "utils";
 
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
@@ -29,7 +29,7 @@ export async function deployAngelProtocol(
 ): Promise<void> {
   const {network, ethers} = hre;
 
-  const {proxyAdmin, treasury} = await getSigners(ethers);
+  const {proxyAdmin, treasury, apTeamMultisigOwners} = await getSigners(ethers);
 
   await cleanAddresses(hre);
 
@@ -319,16 +319,26 @@ export async function deployAngelProtocol(
     cw900lvAddress: implementations.cw900lv,
   };
 
-  const REGISTRAR_CONTRACT = Registrar__factory.connect(registrar.proxy.address, proxyAdmin);
-
-  const data = await REGISTRAR_CONTRACT.updateConfig(updateConfig);
-  console.log("Successfully updated config:-", data.hash);
-
-  const newOwner = await REGISTRAR_CONTRACT.transferOwnership(apTeamMultisig.proxy.address);
-  console.log("Successfully transferred Ownership:-", newOwner.hash);
-
-  const INDEX_FUND_CONTRACT = IndexFund__factory.connect(INDEX_FUND_ADDRESS, proxyAdmin);
-
-  const new_owner_index = await INDEX_FUND_CONTRACT.updateOwner(apTeamMultisig.proxy.address);
-  console.log("Successfully transferred Ownership:-", new_owner_index.hash);
+  console.log("Updating Registrar config with new addresses...");
+  const registrarContract = Registrar__factory.connect(
+    registrar.proxy.address,
+    apTeamMultisigOwners[0]
+  );
+  const updateConfigData = registrarContract.interface.encodeFunctionData("updateConfig", [
+    updateConfig,
+  ]);
+  const apTeamMultisigContract = APTeamMultiSig__factory.connect(
+    apTeamMultisig.proxy.address,
+    apTeamMultisigOwners[0]
+  );
+  const tx = await apTeamMultisigContract.submitTransaction(
+    "Update Registrar config",
+    "Update Registrar config",
+    registrar.proxy.address,
+    0,
+    updateConfigData,
+    "0x"
+  );
+  await tx.wait();
+  console.log("Successfully updated config:-", tx.hash);
 }
