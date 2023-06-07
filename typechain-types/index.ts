@@ -177,8 +177,8 @@ export type { AccountsAllowance } from "./contracts/core/accounts/facets/Account
 export { AccountsAllowance__factory } from "./factories/contracts/core/accounts/facets/AccountsAllowance__factory";
 export type { AccountsCreateEndowment } from "./contracts/core/accounts/facets/AccountsCreateEndowment";
 export { AccountsCreateEndowment__factory } from "./factories/contracts/core/accounts/facets/AccountsCreateEndowment__factory";
-export type { AccountsDAOEndowments } from "./contracts/core/accounts/facets/AccountsDAOEndowments";
-export { AccountsDAOEndowments__factory } from "./factories/contracts/core/accounts/facets/AccountsDAOEndowments__factory";
+export type { AccountsDaoEndowments } from "./contracts/core/accounts/facets/AccountsDaoEndowments";
+export { AccountsDaoEndowments__factory } from "./factories/contracts/core/accounts/facets/AccountsDaoEndowments__factory";
 export type { AccountsEvents } from "./contracts/core/accounts/facets/AccountsEvents";
 export { AccountsEvents__factory } from "./factories/contracts/core/accounts/facets/AccountsEvents__factory";
 export type { AccountsQueryEndowments } from "./contracts/core/accounts/facets/AccountsQueryEndowments";

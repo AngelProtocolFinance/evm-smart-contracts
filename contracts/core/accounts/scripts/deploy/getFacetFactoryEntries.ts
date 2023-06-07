@@ -6,7 +6,7 @@ import {
   AccountDonationMatch__factory,
   AccountsAllowance__factory,
   AccountsCreateEndowment__factory,
-  AccountsDAOEndowments__factory,
+  AccountsDaoEndowments__factory,
   AccountsQueryEndowments__factory,
   AccountsSwapEndowments__factory,
   AccountsUpdateEndowmentSettingsController__factory,
@@ -40,8 +40,8 @@ export default async function getFacetFactoryEntries(
       factory: new AccountDonationMatch__factory(diamondOwner),
     },
     {
-      addressField: "accountsDAOEndowments",
-      factory: new AccountsDAOEndowments__factory(diamondOwner),
+      addressField: "AccountsDaoEndowments",
+      factory: new AccountsDaoEndowments__factory(diamondOwner),
     },
     {addressField: "accountsUpdate", factory: new AccountsUpdate__factory(diamondOwner)},
     {

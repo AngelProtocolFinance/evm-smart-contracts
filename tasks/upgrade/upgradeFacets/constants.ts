@@ -4,7 +4,7 @@ import {
   AccountDonationMatch__factory,
   AccountsAllowance__factory,
   AccountsCreateEndowment__factory,
-  AccountsDAOEndowments__factory,
+  AccountsDaoEndowments__factory,
   AccountsQueryEndowments__factory,
   AccountsSwapEndowments__factory,
   AccountsUpdateEndowmentSettingsController__factory,
@@ -27,7 +27,7 @@ export const ALL_FACET_NAMES: string[] = [
   getContractName(
     new AccountsCreateEndowment__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
   ),
-  getContractName(new AccountsDAOEndowments__factory()),
+  getContractName(new AccountsDaoEndowments__factory()),
   getContractName(new AccountsQueryEndowments__factory()),
   getContractName(
     new AccountsSwapEndowments__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})

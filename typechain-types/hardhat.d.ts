@@ -337,9 +337,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AccountsCreateEndowment__factory>;
     getContractFactory(
-      name: "AccountsDAOEndowments",
+      name: "AccountsDaoEndowments",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.AccountsDAOEndowments__factory>;
+    ): Promise<Contracts.AccountsDaoEndowments__factory>;
     getContractFactory(
       name: "AccountsEvents",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -1159,10 +1159,10 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.AccountsCreateEndowment>;
     getContractAt(
-      name: "AccountsDAOEndowments",
+      name: "AccountsDaoEndowments",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.AccountsDAOEndowments>;
+    ): Promise<Contracts.AccountsDaoEndowments>;
     getContractAt(
       name: "AccountsEvents",
       address: string,

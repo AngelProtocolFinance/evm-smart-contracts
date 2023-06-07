@@ -6,7 +6,7 @@ export { AccountDepositWithdrawEndowments__factory } from "./AccountDepositWithd
 export { AccountDonationMatch__factory } from "./AccountDonationMatch__factory";
 export { AccountsAllowance__factory } from "./AccountsAllowance__factory";
 export { AccountsCreateEndowment__factory } from "./AccountsCreateEndowment__factory";
-export { AccountsDAOEndowments__factory } from "./AccountsDAOEndowments__factory";
+export { AccountsDaoEndowments__factory } from "./AccountsDaoEndowments__factory";
 export { AccountsEvents__factory } from "./AccountsEvents__factory";
 export { AccountsQueryEndowments__factory } from "./AccountsQueryEndowments__factory";
 export { AccountsSwapRouter__factory } from "./AccountsSwapRouter__factory";
