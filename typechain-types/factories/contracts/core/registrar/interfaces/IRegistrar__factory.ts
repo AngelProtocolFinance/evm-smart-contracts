@@ -1192,6 +1192,92 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "network",
+            type: "uint256",
+          },
+          {
+            internalType: "string",
+            name: "stratagyName",
+            type: "string",
+          },
+          {
+            internalType: "address",
+            name: "inputDenom",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "yieldToken",
+            type: "address",
+          },
+          {
+            internalType: "enum AngelCoreStruct.EndowmentType[]",
+            name: "restrictedFrom",
+            type: "uint8[]",
+          },
+          {
+            internalType: "enum AngelCoreStruct.AccountType",
+            name: "acctType",
+            type: "uint8",
+          },
+          {
+            internalType: "enum AngelCoreStruct.VaultType",
+            name: "vaultType",
+            type: "uint8",
+          },
+        ],
+        internalType: "struct RegistrarMessages.VaultAddRequest",
+        name: "details",
+        type: "tuple",
+      },
+    ],
+    name: "vaultAdd",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "_stratagyName",
+        type: "string",
+      },
+    ],
+    name: "vaultRemove",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "_stratagyName",
+        type: "string",
+      },
+      {
+        internalType: "bool",
+        name: "approved",
+        type: "bool",
+      },
+      {
+        internalType: "enum AngelCoreStruct.EndowmentType[]",
+        name: "restrictedfrom",
+        type: "uint8[]",
+      },
+    ],
+    name: "vaultUpdate",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
 ] as const;
 
 export class IRegistrar__factory {

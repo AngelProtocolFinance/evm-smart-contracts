@@ -302,7 +302,7 @@ export interface Collector extends BaseContract {
       timelockContract: PromiseOrValue<string>,
       registrarContract: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<boolean>;
   };
 
   filters: {

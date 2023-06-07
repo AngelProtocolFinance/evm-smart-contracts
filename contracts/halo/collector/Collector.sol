@@ -2,13 +2,11 @@
 pragma solidity ^0.8.16;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {CollectorMessage} from "./message.sol";
 import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
-import {AngelCoreStruct} from "../../core/struct.sol";
 import "./storage.sol";
 
 /**
@@ -27,7 +25,6 @@ contract Collector is Storage {
   event CollectedConfigUpdated(CollectorStorage.Config config);
   event CollectorSweeped(address tokenSwept, uint256 amountSwept, uint256 haloOut);
 
-  using SafeMath for uint256;
   IERC20Upgradeable token;
   bool initialized = false;
   ISwapRouter public immutable swapRouter;
@@ -66,7 +63,7 @@ contract Collector is Storage {
     uint256 rewardFactor,
     address timelockContract,
     address registrarContract
-  ) public {
+  ) public returns (bool) {
     require(msg.sender == state.config.owner, "Unauthorized");
     require(timelockContract != address(0), "Invalid timelockContract address given");
     require(state.config.rewardFactor <= 100, "Invalid reward factor input given");
@@ -74,6 +71,7 @@ contract Collector is Storage {
     state.config.rewardFactor = rewardFactor;
     state.config.timelockContract = timelockContract;
     emit CollectedConfigUpdated(state.config);
+    return true;
   }
 
   /**
@@ -86,9 +84,7 @@ contract Collector is Storage {
     uint256 amountOut = 0; // TO DO: Need to properly wire up for swaps
 
     // distribute HALO token to gov contract
-    uint256 distributeAmount = amountOut.mul(state.config.rewardFactor).div(
-      AngelCoreStruct.PERCENT_BASIS
-    );
+    uint256 distributeAmount = (amountOut * state.config.rewardFactor) / 100;
     if (distributeAmount > 0) {
       RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
         .queryConfig();

@@ -346,6 +346,34 @@ export declare namespace RegistrarMessages {
     donationMatchContract: string;
     cw900lvAddress: string;
   };
+
+  export type VaultAddRequestStruct = {
+    network: PromiseOrValue<BigNumberish>;
+    stratagyName: PromiseOrValue<string>;
+    inputDenom: PromiseOrValue<string>;
+    yieldToken: PromiseOrValue<string>;
+    restrictedFrom: PromiseOrValue<BigNumberish>[];
+    acctType: PromiseOrValue<BigNumberish>;
+    vaultType: PromiseOrValue<BigNumberish>;
+  };
+
+  export type VaultAddRequestStructOutput = [
+    BigNumber,
+    string,
+    string,
+    string,
+    number[],
+    number,
+    number
+  ] & {
+    network: BigNumber;
+    stratagyName: string;
+    inputDenom: string;
+    yieldToken: string;
+    restrictedFrom: number[];
+    acctType: number;
+    vaultType: number;
+  };
 }
 
 export interface IRegistrarInterface extends utils.Interface {
@@ -375,6 +403,9 @@ export interface IRegistrarInterface extends utils.Interface {
     "updateNetworkConnections((string,uint256,address,address,string,string,address,uint256),string)": FunctionFragment;
     "updateOwner(address)": FunctionFragment;
     "updateTokenPriceFeed(address,address)": FunctionFragment;
+    "vaultAdd((uint256,string,address,address,uint8[],uint8,uint8))": FunctionFragment;
+    "vaultRemove(string)": FunctionFragment;
+    "vaultUpdate(string,bool,uint8[])": FunctionFragment;
   };
 
   getFunction(
@@ -404,6 +435,9 @@ export interface IRegistrarInterface extends utils.Interface {
       | "updateNetworkConnections"
       | "updateOwner"
       | "updateTokenPriceFeed"
+      | "vaultAdd"
+      | "vaultRemove"
+      | "vaultUpdate"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -512,6 +546,22 @@ export interface IRegistrarInterface extends utils.Interface {
     functionFragment: "updateTokenPriceFeed",
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "vaultAdd",
+    values: [RegistrarMessages.VaultAddRequestStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "vaultRemove",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "vaultUpdate",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<boolean>,
+      PromiseOrValue<BigNumberish>[]
+    ]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "getAccountsContractAddressByChain",
@@ -608,6 +658,15 @@ export interface IRegistrarInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "updateTokenPriceFeed",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "vaultAdd", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "vaultRemove",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "vaultUpdate",
     data: BytesLike
   ): Result;
 
@@ -888,6 +947,23 @@ export interface IRegistrar extends BaseContract {
       priceFeed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    vaultAdd(
+      details: RegistrarMessages.VaultAddRequestStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    vaultRemove(
+      _stratagyName: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    vaultUpdate(
+      _stratagyName: PromiseOrValue<string>,
+      approved: PromiseOrValue<boolean>,
+      restrictedfrom: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   getAccountsContractAddressByChain(
@@ -1017,6 +1093,23 @@ export interface IRegistrar extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  vaultAdd(
+    details: RegistrarMessages.VaultAddRequestStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  vaultRemove(
+    _stratagyName: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  vaultUpdate(
+    _stratagyName: PromiseOrValue<string>,
+    approved: PromiseOrValue<boolean>,
+    restrictedfrom: PromiseOrValue<BigNumberish>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     getAccountsContractAddressByChain(
       _targetChain: PromiseOrValue<string>,
@@ -1142,6 +1235,23 @@ export interface IRegistrar extends BaseContract {
     updateTokenPriceFeed(
       token: PromiseOrValue<string>,
       priceFeed: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    vaultAdd(
+      details: RegistrarMessages.VaultAddRequestStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    vaultRemove(
+      _stratagyName: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    vaultUpdate(
+      _stratagyName: PromiseOrValue<string>,
+      approved: PromiseOrValue<boolean>,
+      restrictedfrom: PromiseOrValue<BigNumberish>[],
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -1343,6 +1453,23 @@ export interface IRegistrar extends BaseContract {
       priceFeed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    vaultAdd(
+      details: RegistrarMessages.VaultAddRequestStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    vaultRemove(
+      _stratagyName: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    vaultUpdate(
+      _stratagyName: PromiseOrValue<string>,
+      approved: PromiseOrValue<boolean>,
+      restrictedfrom: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -1470,6 +1597,23 @@ export interface IRegistrar extends BaseContract {
     updateTokenPriceFeed(
       token: PromiseOrValue<string>,
       priceFeed: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    vaultAdd(
+      details: RegistrarMessages.VaultAddRequestStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    vaultRemove(
+      _stratagyName: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    vaultUpdate(
+      _stratagyName: PromiseOrValue<string>,
+      approved: PromiseOrValue<boolean>,
+      restrictedfrom: PromiseOrValue<BigNumberish>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

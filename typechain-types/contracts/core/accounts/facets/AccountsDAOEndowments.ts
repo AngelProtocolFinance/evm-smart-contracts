@@ -503,7 +503,7 @@ export declare namespace AccountStorage {
   };
 }
 
-export interface AccountsDaoEndowmentsInterface extends utils.Interface {
+export interface AccountsDAOEndowmentsInterface extends utils.Interface {
   functions: {
     "setupDao(uint32,(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))))": FunctionFragment;
   };
@@ -679,12 +679,12 @@ export type UpdateEndowmentEvent = TypedEvent<
 
 export type UpdateEndowmentEventFilter = TypedEventFilter<UpdateEndowmentEvent>;
 
-export interface AccountsDaoEndowments extends BaseContract {
+export interface AccountsDAOEndowments extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: AccountsDaoEndowmentsInterface;
+  interface: AccountsDAOEndowmentsInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,

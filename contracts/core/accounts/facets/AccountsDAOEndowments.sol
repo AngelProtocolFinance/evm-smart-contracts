@@ -19,11 +19,10 @@ import {DonationMatchStorage} from "./../../../normalized_endowment/donation-mat
 import {DonationMatchMessages} from "./../../../normalized_endowment/donation-match/message.sol";
 
 /**
- * @title AccountsDaoEndowments
+ * @title AccountsDAOEndowments
  * @dev This contract facet manages the creation contracts required for DAO Functioning
  */
-<<<<<<< Updated upstream:contracts/core/accounts/facets/AccountsDaoEndowments.sol
-contract AccountsDaoEndowments is ReentrancyGuardFacet, AccountsEvents {
+contract AccountsDAOEndowments is ReentrancyGuardFacet, AccountsEvents {
   /**
    * @notice This function creates a DAO for an endowment
    * @dev creates a DAO for an endowment based on parameters
@@ -32,20 +31,6 @@ contract AccountsDaoEndowments is ReentrancyGuardFacet, AccountsEvents {
    */
   function setupDao(uint32 id, AngelCoreStruct.DaoSetup memory details) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-=======
-contract AccountsDaoEndowments is ReentrancyGuardFacet, AccountsEvents {
-    /**
-     * @notice This function creates a DAO for an endowment
-     * @dev creates a DAO for an endowment based on parameters
-     * @param id The id of the endowment
-     * @param details The details of the DAO
-     */
-    function setupDao(
-        uint32 id,
-        AngelCoreStruct.DaoSetup memory details
-    ) public nonReentrant {
-        AccountStorage.State storage state = LibAccounts.diamondStorage();
->>>>>>> Stashed changes:contracts/core/accounts/facets/AccountsDaoEndowments.sol
 
     AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];
     // AccountStorage.Config memory tempConfig = state.config;

@@ -55,6 +55,23 @@ library RegistrarMessages {
     address cw900lvAddress;
   }
 
+  struct VaultAddRequest {
+    // chainid of network
+    uint256 network;
+    string stratagyName;
+    address inputDenom;
+    address yieldToken;
+    AngelCoreStruct.EndowmentType[] restrictedFrom;
+    AngelCoreStruct.AccountType acctType;
+    AngelCoreStruct.VaultType vaultType;
+  }
+
+  struct UpdateFeeRequest {
+    AngelCoreStruct.FeeTypes feeType;
+    address payout;
+    uint256 rate;
+  }
+
   struct ConfigResponse {
     uint256 version;
     address accountsContract;

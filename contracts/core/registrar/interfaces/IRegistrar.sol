@@ -13,6 +13,16 @@ interface IRegistrar is ILocalRegistrar {
 
   function updateTokenPriceFeed(address token, address priceFeed) external;
 
+  function vaultAdd(RegistrarMessages.VaultAddRequest memory details) external;
+
+  function vaultRemove(string memory _stratagyName) external;
+
+  function vaultUpdate(
+    string memory _stratagyName,
+    bool approved,
+    AngelCoreStruct.EndowmentType[] memory restrictedfrom
+  ) external;
+
   function updateNetworkConnections(
     AngelCoreStruct.NetworkInfo memory networkInfo,
     string memory action
@@ -29,35 +39,6 @@ interface IRegistrar is ILocalRegistrar {
   function queryNetworkConnection(
     uint256 chainId
   ) external view returns (AngelCoreStruct.NetworkInfo memory response);
-
-  // function testQueryStruct()
-  //     external
-  //     view
-  //     returns (AngelCoreStruct.YieldVault[] memory);
-
-  // function queryVaultListDep(
-  //     uint256 network,
-  //     AngelCoreStruct.EndowmentType endowmentType,
-  //     AngelCoreStruct.AccountType accountType,
-  //     AngelCoreStruct.VaultType vaultType,
-  //     AngelCoreStruct.BoolOptional approved,
-  //     uint256 startAfter,
-  //     uint256 limit
-  // ) external view returns (AngelCoreStruct.YieldVault[] memory);
-
-  // function queryVaultList(
-  //     uint256 network,
-  //     AngelCoreStruct.EndowmentType endowmentType,
-  //     AngelCoreStruct.AccountType accountType,
-  //     AngelCoreStruct.VaultType vaultType,
-  //     AngelCoreStruct.BoolOptional approved,
-  //     uint256 startAfter,
-  //     uint256 limit
-  // ) external view returns (AngelCoreStruct.YieldVault[] memory);
-
-  // function queryVaultDetails(
-  //     string memory _stratagyName
-  // ) external view returns (AngelCoreStruct.YieldVault memory response);
 
   function owner() external view returns (address);
 }

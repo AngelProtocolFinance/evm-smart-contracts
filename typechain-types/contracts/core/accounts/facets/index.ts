@@ -6,7 +6,7 @@ export type { AccountDepositWithdrawEndowments } from "./AccountDepositWithdrawE
 export type { AccountDonationMatch } from "./AccountDonationMatch";
 export type { AccountsAllowance } from "./AccountsAllowance";
 export type { AccountsCreateEndowment } from "./AccountsCreateEndowment";
-export type { AccountsDaoEndowments } from "./AccountsDaoEndowments";
+export type { AccountsDAOEndowments } from "./AccountsDAOEndowments";
 export type { AccountsEvents } from "./AccountsEvents";
 export type { AccountsQueryEndowments } from "./AccountsQueryEndowments";
 export type { AccountsSwapRouter } from "./AccountsSwapRouter";

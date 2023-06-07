@@ -1,6 +1,7 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import path from "path";
 
 import {CommunityMessage} from "typechain-types/contracts/halo/community/Community";
 
