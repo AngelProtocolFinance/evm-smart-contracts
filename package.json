@@ -4,9 +4,9 @@
   "description": "Angel Protocol EVM smart contracts, testing and deployment suite.",
   "scripts": {
     "preinstall": "npx only-allow yarn",
-    "format": "prettier --write './**/*.{ts,tsx,js}' --write contracts/**/*.sol",
+    "format": "prettier --write './{config,contracts,scripts,tasks,test,utils}/**/*.{ts,js,sol}'",
     "test": "hardhat test",
-    "compile": "hardhat compile && yarn format",
+    "compile": "hardhat compile",
     "clean-compile": "set -x && mv ./tasks/index.ts ./tasks/temp_index.ts && touch ./tasks/index.ts && hardhat clean && yarn compile && mv ./tasks/temp_index.ts ./tasks/index.ts && set +x",
     "deploy": "yarn compile && hardhat deploy:AngelProtocol",
     "abi": "hardhat export-abi"
@@ -25,6 +25,7 @@
     "@nomiclabs/hardhat-ethers": "^2.2.2",
     "@nomiclabs/hardhat-etherscan": "^3.1.5",
     "@openzeppelin/contracts": "^4.8.3",
+    "@trivago/prettier-plugin-sort-imports": "^4.1.1",
     "@typechain/ethers-v5": "^10.2.0",
     "@typechain/hardhat": "^6.1.5",
     "@types/chai": "^4.3.1",

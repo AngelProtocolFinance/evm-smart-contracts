@@ -1,12 +1,13 @@
 import {task} from "hardhat/config";
 import {
-  AccountsQueryEndowments__factory,
   AccountsCreateEndowment__factory,
+  AccountsQueryEndowments__factory,
   ApplicationsMultiSig__factory,
   CharityApplication__factory,
 } from "typechain-types";
-import {AccountMessages} from "typechain-types/contracts/core/accounts/IAccounts";
 import {getAddresses, getSigners, logger} from "utils";
+
+import {AccountMessages} from "typechain-types/contracts/core/accounts/IAccounts";
 
 task("manage:createEndowment", "Will create a new endowment")
   .addParam("endowType", "0 - charity, 1 - normal")

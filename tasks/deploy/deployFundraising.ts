@@ -1,7 +1,8 @@
-import {task} from "hardhat/config";
 import config from "config";
-import {deployFundraising} from "contracts/accessory/fundraising/scripts/deploy";
+import {task} from "hardhat/config";
 import {logger} from "utils";
+
+import {deployFundraising} from "contracts/accessory/fundraising/scripts/deploy";
 
 task("deploy:Fundraising", "Will deploy Fundraising contract")
   .addParam("verify", "Want to verify contract")

@@ -1,5 +1,6 @@
-// // SPDX-License-Identifier: MIT
-// pragma solidity ^0.8.16;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.16;
+
 // import "./message.sol";
 
 // import {AngelCoreStruct} from "../../core/struct.sol";

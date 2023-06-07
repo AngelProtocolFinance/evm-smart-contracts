@@ -1,6 +1,6 @@
 import {task} from "hardhat/config";
-import {getAddresses, getSigners, updateAddresses} from "utils";
 import {EndowmentMultiSig__factory, MultiSigWalletFactory__factory} from "typechain-types";
+import {getAddresses, getSigners, updateAddresses} from "utils";
 import {logger, shouldVerify} from "utils";
 
 task(

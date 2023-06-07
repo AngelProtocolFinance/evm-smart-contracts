@@ -1,7 +1,7 @@
 import {task, types} from "hardhat/config";
 import type {TaskArguments} from "hardhat/types";
-import {getAddresses, logger, updateAddresses} from "utils";
 import {GoldfinchVault, GoldfinchVault__factory, Registrar} from "typechain-types";
+import {getAddresses, logger, updateAddresses} from "utils";
 
 // Goerli addresses
 

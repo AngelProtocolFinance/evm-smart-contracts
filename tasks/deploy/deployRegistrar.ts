@@ -1,8 +1,9 @@
 import config from "config";
-import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
-import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
 import {getAddresses, isLocalNetwork, logger} from "utils";
+
+import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
+import {deployRouter} from "contracts/core/router/scripts/deploy";
 
 task(
   "deploy:Registrar",
