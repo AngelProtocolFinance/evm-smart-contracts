@@ -3,7 +3,7 @@ import {CharityApplication__factory} from "typechain-types";
 import {logger, updateAddresses, shouldVerify, getSigners} from "utils";
 
 task(
-  "upgrade:upgradeCharityApplication",
+  "upgrade:CharityApplication",
   "Will upgrade the implementation of the Charity Application multisig"
 ).setAction(async (_taskArguments, hre) => {
   try {

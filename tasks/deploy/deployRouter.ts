@@ -1,34 +1,30 @@
 import config from "config";
-import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
 import {getAddresses, isLocalNetwork, logger} from "utils";
 
-task(
-  "deploy:Registrar",
-  "Will deploy Registrar contract. Will redeploy Router contract as well as there's no way to update the Router's `registrar` address field."
-)
+task("deploy:Router", "Will deploy Router contract")
   .addParam("verify", "Want to verify contract")
   .setAction(async (taskArgs, hre) => {
     try {
       const {
+        registrar,
         multiSig: {apTeam},
-        router,
       } = await getAddresses(hre);
 
       const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify === "true";
 
-      const registrar = await deployRegistrar(router.proxy, apTeam.proxy, verify_contracts, hre);
-
       await deployRouter(
         config.REGISTRAR_DATA.axelarGateway,
         config.REGISTRAR_DATA.axelarGasRecv,
-        registrar.proxy.address,
+        registrar.proxy,
         apTeam.proxy,
         verify_contracts,
         hre
       );
     } catch (error) {
       logger.out(error, logger.Level.Error);
+    } finally {
+      logger.out("Done.");
     }
   });

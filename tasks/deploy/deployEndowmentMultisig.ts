@@ -2,7 +2,7 @@ import {task} from "hardhat/config";
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
 import {logger} from "utils";
 
-task("Deploy:deployEndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
+task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
   .addParam("verify", "Want to verify contract")
   .setAction(async (taskArgs, hre) => {
     try {

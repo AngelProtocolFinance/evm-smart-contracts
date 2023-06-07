@@ -8,7 +8,7 @@
     "test": "hardhat test",
     "compile": "hardhat compile && yarn format",
     "clean-compile": "set -x && mv ./tasks/index.ts ./tasks/temp_index.ts && touch ./tasks/index.ts && hardhat clean && yarn compile && mv ./tasks/temp_index.ts ./tasks/index.ts && set +x",
-    "deploy": "yarn compile && hardhat run ./scripts/deploy.ts",
+    "deploy": "yarn compile && hardhat deploy:AngelProtocol",
     "abi": "hardhat export-abi"
   },
   "engines": {

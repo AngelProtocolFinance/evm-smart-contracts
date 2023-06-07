@@ -1,84 +1,65 @@
-// This is a script for deploying your contracts. You can adapt it to deploy
-// yours, or create new ones.
-
-import {getSigners, updateAddresses} from "utils";
+import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {RegistrarMessages} from "typechain-types/contracts/core/registrar/registrar.sol/Registrar";
+import {ProxyContract__factory, Registrar__factory} from "typechain-types";
+import {getSigners, updateAddresses} from "utils";
 
 export async function deployRegistrar(
-  STRING_LIBRARY: string,
-  registrarData: RegistrarMessages.InstantiateRequestStruct,
+  router: string,
   owner: string,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
-  try {
-    const {network, run, ethers} = hre;
+  const {apTeam1, proxyAdmin, treasury} = await getSigners(hre.ethers);
 
-    const {proxyAdmin} = await getSigners(ethers);
+  const factory = new Registrar__factory(proxyAdmin);
+  const registrar = await factory.deploy();
+  await registrar.deployed();
+  console.log("Registrar implementation deployed at: ", registrar.address);
 
-    // const registrarLib = await ethers.getContractFactory('RegistrarLib');
-    // const registrarLibInstance = await registrarLib.deploy();
-    // await registrarLibInstance.deployed();
-
-    const Registrar = await ethers.getContractFactory("Registrar");
-    const registrarImplementation = await Registrar.deploy();
-    await registrarImplementation.deployed();
-
-    console.log("registrarImplementation implementation address:", registrarImplementation.address);
-
-    console.log("Updating Registrar owner to: ", owner, "...");
-    const tx = await registrarImplementation.transferOwnership(owner);
-    await tx.wait();
-
-    // Deploy proxy contract
-
-    const ProxyContract = await ethers.getContractFactory("ProxyContract");
-
-    // Initialise registrar
-
-    const registrarProxyData = registrarImplementation.interface.encodeFunctionData(
-      "initialize((address,(uint256,uint256,uint256),address,address,address))",
-      [registrarData]
-    );
-
-    const registrarProxy = await ProxyContract.deploy(
-      registrarImplementation.address,
-      proxyAdmin.address,
-      registrarProxyData
-    );
-
-    await registrarProxy.deployed();
-
-    if (verify_contracts) {
-      await run(`verify:verify`, {
-        address: registrarImplementation.address,
-        constructorArguments: [],
-      });
-      await run(`verify:verify`, {
-        address: registrarProxy.address,
-        constructorArguments: [
-          registrarImplementation.address,
-          proxyAdmin.address,
-          registrarProxyData,
-        ],
-      });
-    }
-
-    await updateAddresses(
+  // Deploy proxy contract
+  const data = registrar.interface.encodeFunctionData(
+    "initialize((address,(uint256,uint256,uint256),address,address,address))",
+    [
       {
-        registrar: {
-          implementation: registrarImplementation.address,
-          proxy: registrarProxy.address,
-        },
+        treasury: treasury.address,
+        splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
+        router,
+        axelarGateway: config.REGISTRAR_DATA.axelarGateway,
+        axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
       },
-      hre
-    );
+    ]
+  );
+  const proxyFactory = new ProxyContract__factory(apTeam1);
+  const proxy = await proxyFactory.deploy(registrar.address, proxyAdmin.address, data);
+  await proxy.deployed();
+  console.log("Registrar Proxy deployed at: ", proxy.address);
 
-    console.log("Registrar Address (Proxy):", registrarProxy.address);
+  console.log("Updating Registrar owner to: ", owner, "...");
+  const proxiedRegistrar = Registrar__factory.connect(proxy.address, apTeam1);
+  const tx = await proxiedRegistrar.transferOwnership(owner);
+  await tx.wait();
 
-    return Promise.resolve(registrarProxy.address);
-  } catch (error) {
-    return Promise.reject(error);
+  await updateAddresses(
+    {
+      registrar: {
+        implementation: registrar.address,
+        proxy: proxy.address,
+      },
+    },
+    hre
+  );
+
+  if (verify_contracts) {
+    console.log("Verifying...");
+    await hre.run("verify:verify", {
+      address: registrar.address,
+      constructorArguments: [],
+    });
+    await hre.run("verify:verify", {
+      address: proxy.address,
+      constructorArguments: [registrar.address, proxyAdmin.address, data],
+    });
   }
+
+  return {implementation: registrar, proxy};
 }

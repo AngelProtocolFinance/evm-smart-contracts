@@ -2,11 +2,11 @@ import {task} from "hardhat/config";
 import {logger} from "utils";
 
 task(
-  "upgrade:upgradeContractsUsingAccountStorage",
+  "upgrade:ContractsUsingAccountStorage",
   "Will redeploy all contracts that use AccountStorage struct"
 ).setAction(async (_taskArguments, hre) => {
   try {
-    await hre.run("upgrade:upgradeCharityApplication");
+    await hre.run("upgrade:CharityApplication");
     await hre.run("upgrade:facets", {facets: ["all"]});
   } catch (error) {
     logger.out(

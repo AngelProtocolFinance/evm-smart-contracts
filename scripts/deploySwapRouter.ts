@@ -36,7 +36,7 @@ export async function deploySwapRouter(
 
     console.log("SwapRouterData", SwapRouterData);
 
-    const swapRouterProxyData = swapRouterInstance.interface.encodeFunctionData("intiSwapRouter", [
+    const swapRouterProxyData = swapRouterInstance.interface.encodeFunctionData("initSwapRouter", [
       SwapRouterData,
     ]);
 

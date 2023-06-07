@@ -1,18 +1,15 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {AngelCoreStruct__factory, StringArray__factory} from "typechain-types";
-import {isLocalNetwork, updateAddresses} from "utils";
+import {getSigners, isLocalNetwork, updateAddresses} from "utils";
 
-export async function deployLibraries(
-  verify_contracts: boolean,
-  signer: SignerWithAddress,
-  hre: HardhatRuntimeEnvironment
-) {
-  const angelCoreStructFactory = new AngelCoreStruct__factory(signer);
+export async function deployLibraries(hre: HardhatRuntimeEnvironment) {
+  const {proxyAdmin} = await getSigners(hre.ethers);
+
+  const angelCoreStructFactory = new AngelCoreStruct__factory(proxyAdmin);
   const angelCoreStruct = await angelCoreStructFactory.deploy();
   await angelCoreStruct.deployed();
 
-  const stringLibFactory = new StringArray__factory(signer);
+  const stringLibFactory = new StringArray__factory(proxyAdmin);
   const stringLib = await stringLibFactory.deploy();
   await stringLib.deployed();
 
@@ -20,6 +17,8 @@ export async function deployLibraries(
     "STRING_LIBRARY Deployed at ": stringLib.address,
     "ANGEL_CORE_STRUCT_LIBRARY Deployed at ": angelCoreStruct.address,
   });
+
+  // TODO: should also update all contracts that depend on the updated libraries
 
   await updateAddresses(
     {
@@ -31,7 +30,7 @@ export async function deployLibraries(
     hre
   );
 
-  if (!isLocalNetwork(hre.network) && verify_contracts) {
+  if (!isLocalNetwork(hre.network)) {
     await hre.run(`verify:verify`, {
       address: angelCoreStruct.address,
       constructorArguments: [],
