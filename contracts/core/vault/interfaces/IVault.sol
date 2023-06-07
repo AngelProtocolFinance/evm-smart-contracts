@@ -50,7 +50,7 @@ abstract contract IVault {
 
   struct Principle {
     uint256 baseToken;
-    uint256 yieldToken;
+    uint256 costBasis_withPrecision;
   }
 
   enum VaultActionStatus {
@@ -96,6 +96,16 @@ abstract contract IVault {
   /// @param accountIds a list of the Accounts harvested for
   event Harvest(uint32[] indexed accountIds);
 
+  /*////////////////////////////////////////////////
+                        ERRORS
+  */ ////////////////////////////////////////////////
+  error OnlyAdmin();
+  error OnlyRouter();
+  error OnlyApproved();
+  error OnlyBaseToken();
+  error OnlyNotPaused();
+  error ApproveFailed();
+  error TransferFailed();
 
   /*////////////////////////////////////////////////
                     EXTERNAL METHODS

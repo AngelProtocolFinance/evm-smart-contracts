@@ -28,27 +28,37 @@ contract APVault_V1 is IVault, ERC4626AP {
   //////////////////////////////////////////////////////////////*/
 
   modifier onlyAdmin() {
-    require(_msgSender() == vaultConfig.admin);
+    if (!(_msgSender() == vaultConfig.admin)) {
+      revert OnlyAdmin();
+    }
     _;
   }
 
   modifier onlyApprovedRouter() {
-    require(_isApprovedRouter(), "Only approved Router");
+    if (!_isApprovedRouter()) {
+      revert OnlyRouter();
+    }
     _;
   }
 
   modifier onlyApproved() {
-    require(_isApprovedRouter() || _isSiblingVault() || _isOperator(_msgSender()), "Only approved contracts");
+    if (!_isApprovedRouter() && !_isSiblingVault() && !_isOperator(_msgSender())) {
+      revert OnlyApproved();
+    }
     _;
   }
 
   modifier onlybaseToken(address _token) {
-    require(_isFromToken(_token), "Wrong token");
+    if (!_isFromToken(_token)) {
+      revert OnlyBaseToken();
+    }
     _;
   }
 
   modifier notPaused() {
-    require(!IStrategy(vaultConfig.strategy).paused(), "Strategy Paused");
+    if (IStrategy(vaultConfig.strategy).paused()) {
+      revert OnlyNotPaused();
+    }
     _;
   }
 
@@ -56,7 +66,7 @@ contract APVault_V1 is IVault, ERC4626AP {
                                 CONFIG
   //////////////////////////////////////////////////////////////*/
 
-  function setVaultConfig(VaultConfig memory _newConfig) external override virtual onlyAdmin {
+  function setVaultConfig(VaultConfig memory _newConfig) external virtual override onlyAdmin {
     vaultConfig = _newConfig;
   }
 
@@ -73,11 +83,12 @@ contract APVault_V1 is IVault, ERC4626AP {
     address token,
     uint256 amt
   ) public payable virtual override onlyApproved notPaused onlybaseToken(token) {
-    require(IERC20Metadata(token).approve(vaultConfig.strategy, amt), "Approve failed");
+    if (!IERC20Metadata(token).approve(vaultConfig.strategy, amt)) {
+      revert ApproveFailed();
+    }
     uint256 yieldAmt = IStrategy(vaultConfig.strategy).deposit(amt);
 
-    principleByAccountId[accountId].baseToken += amt;
-    principleByAccountId[accountId].yieldToken += yieldAmt;
+    _updatePrincipleDeposit(accountId, amt, yieldAmt);
 
     super.deposit(yieldAmt, accountId);
   }
@@ -85,30 +96,26 @@ contract APVault_V1 is IVault, ERC4626AP {
   function redeem(
     uint32 accountId,
     uint256 amt
-  ) public payable override virtual notPaused onlyApproved returns (RedemptionResponse memory) {
+  ) public payable virtual override notPaused onlyApproved returns (RedemptionResponse memory) {
     // check against requested amt
     if (balanceOf(accountId) < amt) {
-       // redeemAll if less
+      // redeemAll if less
       return redeemAll(accountId);
     } else if (amt == 0) {
-       return RedemptionResponse({
-        amount: 0,
-        status: VaultActionStatus.UNPROCESSED
-       });
+      return RedemptionResponse({amount: 0, status: VaultActionStatus.UNPROCESSED});
     } else {
       // redeem shares for yieldToken -> approve strategy -> strategy withdraw -> base token
-      uint256 yieldTokenAmt = super.redeem(amt, vaultConfig.strategy, accountId); 
-      uint256 redemptionAmt = IStrategy(vaultConfig.strategy).withdraw(yieldTokenAmt);
+      uint256 yieldTokenAmt = super.redeem(amt, vaultConfig.strategy, accountId);
+      uint256 returnAmt = IStrategy(vaultConfig.strategy).withdraw(yieldTokenAmt);
       // apply tax
-      redemptionAmt -= _taxIfNecessary(accountId, redemptionAmt);
-      // update principles and approve txfer of redeemed tokens      
-      _updatePrinciples(accountId, redemptionAmt); 
-      require(
-        IERC20Metadata(vaultConfig.baseToken).approve(_msgSender(), redemptionAmt),
-        "Approve failed"
-      );
+      returnAmt -= _taxIfNecessary(accountId, yieldTokenAmt, returnAmt);
+      // update principles and approve txfer of redeemed tokens
+      _updatePrincipleRedemption(accountId, amt, returnAmt);
+      if (!IERC20Metadata(vaultConfig.baseToken).approve(_msgSender(), returnAmt)) {
+        revert ApproveFailed();
+      }
       // generate and return redemption response
-      return RedemptionResponse({amount: redemptionAmt, status: VaultActionStatus.SUCCESS});
+      return RedemptionResponse({amount: returnAmt, status: VaultActionStatus.SUCCESS});
     }
   }
 
@@ -116,34 +123,30 @@ contract APVault_V1 is IVault, ERC4626AP {
     uint32 accountId
   ) public payable virtual override notPaused onlyApproved returns (RedemptionResponse memory) {
     if (balanceOf(accountId) == 0) {
-      return RedemptionResponse({
-        amount: 0,
-        status: VaultActionStatus.POSITION_EXITED
-      });
+      return RedemptionResponse({amount: 0, status: VaultActionStatus.POSITION_EXITED});
     }
     // redeem shares for yieldToken -> approve strategy
     uint256 yieldTokenAmt = super.redeem(balanceOf(accountId), vaultConfig.strategy, accountId);
     // withdraw all baseToken
-    uint256 redemptionAmt = IStrategy(vaultConfig.strategy).withdraw(yieldTokenAmt);
+    uint256 returnAmt = IStrategy(vaultConfig.strategy).withdraw(yieldTokenAmt);
     // apply tax
-    redemptionAmt -= _taxIfNecessary(accountId, redemptionAmt);
+    returnAmt -= _taxIfNecessary(accountId, yieldTokenAmt, returnAmt);
     // zero out principles
-    principleByAccountId[accountId].yieldToken = 0;
     principleByAccountId[accountId].baseToken = 0;
+    principleByAccountId[accountId].costBasis_withPrecision = 0;
     // approve txfer back to sender
-    require(
-      IERC20Metadata(vaultConfig.baseToken).approve(_msgSender(), redemptionAmt),
-      "Approve failed"
-    );
+    if (!IERC20Metadata(vaultConfig.baseToken).approve(_msgSender(), returnAmt)) {
+      revert ApproveFailed();
+    }
     // generate redemption response
     RedemptionResponse memory response = RedemptionResponse({
-      amount: redemptionAmt,
+      amount: returnAmt,
       status: VaultActionStatus.POSITION_EXITED
     });
     return response;
   }
 
-  function harvest(uint32[] calldata accountIds) public override virtual notPaused onlyApproved {
+  function harvest(uint32[] calldata accountIds) public virtual override notPaused onlyApproved {
     for (uint32 acct; acct < accountIds.length; acct++) {
       uint256 baseTokenValue = IStrategy(vaultConfig.strategy).previewWithdraw(
         _yieldTokenBalance(acct)
@@ -153,28 +156,29 @@ contract APVault_V1 is IVault, ERC4626AP {
         return;
       }
       // Determine aggregate yield
-      // @TODO this is the wrong principle and do we even need the yield princ. tracked? 
-      uint256 p = principleByAccountId[acct].yieldToken;
-      uint256 yield_withPrecision = (baseTokenValue - p).mulDivDown(AngelCoreStruct.FEE_BASIS, p);
+      uint256 currentExRate_withPrecision = _yieldTokenBalance(acct).mulDivDown(baseTokenValue, AngelCoreStruct.PRECISION);
+      // yield denominated in amt of baseToken 
+      uint256 yield = (principleByAccountId[acct].costBasis_withPrecision - currentExRate_withPrecision)
+        .mulDivDown(principleByAccountId[acct].baseToken, AngelCoreStruct.PRECISION);
       AngelCoreStruct.FeeSetting memory feeSetting = IRegistrar(vaultConfig.registrar)
         .getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes.Harvest);
       // Call appropriate harvest method
       if (vaultConfig.vaultType == VaultType.LIQUID) {
-        _harvestLiquid(acct, yield_withPrecision, feeSetting);
+        _harvestLiquid(acct, yield, feeSetting);
       } else {
-        _harvestLocked(acct, yield_withPrecision, feeSetting);
+        _harvestLocked(acct, yield, feeSetting);
       }
     }
   }
 
   function _harvestLiquid(
     uint32 accountId,
-    uint256 yield_withPrecision,
+    uint256 yield,
     AngelCoreStruct.FeeSetting memory _feeSetting
   ) internal {
     // Determine tax denominated in yield token
     uint256 taxYieldToken = _yieldTokenBalance(accountId)
-      .mulDivDown(yield_withPrecision, AngelCoreStruct.FEE_BASIS)
+      .mulDivDown(yield_withPrecision, AngelCoreStruct.PRECISION)
       .mulDivDown(_feeSetting.bps, AngelCoreStruct.FEE_BASIS);
     // Shares -> Yield Asset -> Base Asset
     uint256 dYieldToken = super.redeem(
@@ -184,7 +188,9 @@ contract APVault_V1 is IVault, ERC4626AP {
     );
     uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dYieldToken);
     // Pay tax to tax collector and rebase principle
-    require(IERC20Metadata(vaultConfig.baseToken).transfer(_feeSetting.payoutAddress, redemption));
+    if (!IERC20Metadata(vaultConfig.baseToken).transfer(_feeSetting.payoutAddress, redemption)) {
+      revert TransferFailed();
+    }
     principleByAccountId[accountId].yieldToken -= dYieldToken;
   }
 
@@ -198,11 +204,11 @@ contract APVault_V1 is IVault, ERC4626AP {
       .getRebalanceParams();
     // Determine rebal + tax denominated in yield token
     uint256 taxyieldToken = _yieldTokenBalance(accountId)
-      .mulDivDown(yield_withPrecision, AngelCoreStruct.FEE_BASIS)
+      .mulDivDown(yield_withPrecision, AngelCoreStruct.PRECISION)
       .mulDivDown(_feeSetting.bps, AngelCoreStruct.FEE_BASIS);
 
     uint256 rebalyieldToken = _yieldTokenBalance(accountId)
-      .mulDivDown(yield_withPrecision, AngelCoreStruct.FEE_BASIS)
+      .mulDivDown(yield_withPrecision, AngelCoreStruct.PRECISION)
       .mulDivDown(rbParams.lockedRebalanceToLiquid, rbParams.basis);
 
     _sendRebalAndTax(accountId, taxyieldToken, rebalyieldToken, _feeSetting.payoutAddress);
@@ -217,50 +223,67 @@ contract APVault_V1 is IVault, ERC4626AP {
     uint256 from,
     uint256 to
   ) internal pure returns (uint256) {
-    return to.mulDivDown(AngelCoreStruct.FEE_BASIS, from);
+    return to.mulDivDown(AngelCoreStruct.PRECISION, from);
   }
 
   /// @notice Determine if a tax can be applied (yield > 0)
   /// @dev Apply the tax and send it to the payee, return the value of the tax
   /// @param taxableAmt value in base token that is being taxed
-  function _taxIfNecessary(uint32 accountId, uint256 taxableAmt) internal returns (uint256) {
+  function _taxIfNecessary(
+    uint32 accountId,
+    uint256 redemptionAmt,
+    uint256 taxableReturn
+  ) internal returns (uint256) {
     uint256 p = principleByAccountId[accountId].baseToken;
-    uint256 maxRedemptionAmt = IStrategy(vaultConfig.strategy).previewWithdraw(
-      _yieldTokenBalance(accountId)
-    ); // determine balance of baseToken if exited
-
-    if (maxRedemptionAmt < p) {
-      // no yield, no tax
-      return 0;
-    }
-    uint256 yield_withPrecision = (maxRedemptionAmt - p).mulDivDown(AngelCoreStruct.FEE_BASIS, p);
+    uint256 yield_withPrecision = (maxRedemptionAmt - p).mulDivDown(AngelCoreStruct.PRECISION, p);
 
     AngelCoreStruct.FeeSetting memory feeSetting = IRegistrar(vaultConfig.registrar)
       .getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes.Default);
-    // tax = taxableAmt * yieldRate * feeRate 
-    uint256 tax = (taxableAmt.mulDivDown(yield_withPrecision, AngelCoreStruct.FEE_BASIS)) // Apply yield rate
+    // tax = taxableAmt * yieldRate * feeRate
+    uint256 tax = (taxableAmt.mulDivDown(yield_withPrecision, AngelCoreStruct.PRECISION)) // Apply yield rate
       .mulDivDown(feeSetting.bps, AngelCoreStruct.FEE_BASIS); // Apply fee to yield
 
-    require(
-      IERC20Metadata(vaultConfig.baseToken).transfer(feeSetting.payoutAddress, tax),
-      "Transfer failed"
-    );
+    if (!IERC20Metadata(vaultConfig.baseToken).transfer(feeSetting.payoutAddress, tax)) {
+      revert TransferFailed();
+    }
     return tax;
   }
 
-  function _updatePrinciples(uint32 accountId, uint256 redemption) internal {
-    uint256 percentOfPRedeemed_withPrecision = redemption.mulDivDown(
-      AngelCoreStruct.FEE_BASIS,
-      principleByAccountId[accountId].yieldToken
-    );
+  function _updatePrincipleDeposit(uint32 accountId, uint256 amt, uint256 yieldAmt) internal {
+    // new position
+    if (principleByAccountId[accountId].baseToken == 0) {
+      principleByAccountId[accountId] = Principle({
+        baseToken: amt,
+        costBasis_withPrecision: yieldAmt.mulDivDown(AngelCoreStruct.PRECISION, amt)
+      });
+    }
+    // update existing position
+    else {
+      uint256 currentCostBasis_withPrecision = principleByAccountId[accountId]
+        .costBasis_withPrecision;
+      uint256 newCostBasis_withPrecision = yieldAmt.mulDivDown(AngelCoreStruct.PRECISION, amt);
+      // The ratio of the new position to the entire position
+      uint256 weight_withPrecision = amt.mulDivDown(
+        AngelCoreStruct.PRECISION,
+        (principleByAccountId[accountId].baseToken + amt)
+      );
+      principleByAccountId[accountId].baseToken += amt;
+      // Weighted average, CB = newCB*weight + oldCB*(1-weight)
+      principleByAccountId[accountId].costBasis_withPrecision =
+        (newCostBasis_withPrecision.mulDivDown(weight_withPrecision, AngelCoreStruct.PRECISION)) +
+        (currentCostBasis_withPrecision.mulDivDown(
+            (AngelCoreStruct.PRECISION - weight_withPrecision),
+            AngelCoreStruct.PRECISION)
+        );
+    }
+  }
 
-    uint256 redemptionLessYield = percentOfPRedeemed_withPrecision.mulDivDown(
-      principleByAccountId[accountId].baseToken,
-      AngelCoreStruct.FEE_BASIS
-    );
-    // update principles
-    principleByAccountId[accountId].yieldToken -= redemption;
-    principleByAccountId[accountId].baseToken -= redemptionLessYield;
+  function _updatePrincipleRedemption(uint32 accountId, uint256 sharesRedeeemed, uint256 yieldAmt) internal {
+    uint256 currentPrinciple = principleByAccountId[accountId].baseToken;
+    uint256 rateOfPositionRedeemed_withPrecision = sharesRedeemed
+      .mulDivDown(AngelCoreStruct.PRECISION, (sharesRedeemed + balanceOf(accountId)));
+    principleByAccountId[accountId].baseToken -= currentPrinciple
+      .mulDivDown(rateOfPositionRedeemed_withPrecision, AngelCoreStruct.PRECISION);
   }
 
   function _yieldTokenBalance(uint32 accountId) internal view returns (uint256) {
@@ -282,20 +305,28 @@ contract APVault_V1 is IVault, ERC4626AP {
     uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dyieldToken);
     // Determine proportion owed in tax
     uint256 tax = redemption.mulDivDown(
-      taxyieldToken * AngelCoreStruct.FEE_BASIS,
+      taxyieldToken * AngelCoreStruct.PRECISION,
       (taxyieldToken + rebalyieldToken)
-    ) / AngelCoreStruct.FEE_BASIS;
-    require(IERC20Metadata(vaultConfig.baseToken).transfer(feeRecipient, tax), "Transfer failed");
+    ) / AngelCoreStruct.PRECISION;
+    if (!IERC20Metadata(vaultConfig.baseToken).transfer(feeRecipient, tax)) {
+      revert TransferFailed();
+    }
     // Rebalance to liquid
     LocalRegistrarLib.StrategyParams memory stratParams = IRegistrar(vaultConfig.registrar)
       .getStrategyParamsById(vaultConfig.strategySelector);
-    require(
-      IERC20Metadata(vaultConfig.baseToken).transfer(
+    if (
+      !IERC20Metadata(vaultConfig.baseToken).transfer(
         stratParams.Liquid.vaultAddr,
         (redemption - tax)
       )
+    ) {
+      revert TransferFailed();
+    }
+    IVault(stratParams.Liquid.vaultAddr).deposit(
+      accountId,
+      vaultConfig.baseToken,
+      (redemption - tax)
     );
-    IVault(stratParams.Liquid.vaultAddr).deposit(accountId, vaultConfig.baseToken, (redemption - tax));
     principleByAccountId[accountId].yieldToken -= dyieldToken;
   }
 

@@ -152,6 +152,10 @@ abstract contract ERC4626AP is ERC20AP {
         return convertToAssets(shares);
     }
 
+    function getPricePerFullShare() public view virtual returns (uint256) {
+        return totalSupply() == 0 ? decimals() : asset.balanceOf(address(this)) * decimals() / totalSupply();
+    }
+
     /*//////////////////////////////////////////////////////////////
                      DEPOSIT/WITHDRAWAL LIMIT LOGIC
     //////////////////////////////////////////////////////////////*/

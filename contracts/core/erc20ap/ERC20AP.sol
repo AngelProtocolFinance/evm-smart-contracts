@@ -4,7 +4,6 @@
 pragma solidity ^0.8.0;
 
 import "./IERC20AP.sol";
-import "./IERC20APMetadata.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 
 /**
