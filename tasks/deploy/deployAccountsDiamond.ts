@@ -1,6 +1,7 @@
-import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {task} from "hardhat/config";
 import {getAddresses, isLocalNetwork, logger} from "utils";
+
+import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 
 task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
   .addParam("verify", "Want to verify contract")

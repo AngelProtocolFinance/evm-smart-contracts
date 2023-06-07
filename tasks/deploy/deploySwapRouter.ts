@@ -1,7 +1,8 @@
-import {task} from "hardhat/config";
 import config from "config";
-import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
+import {task} from "hardhat/config";
 import {logger} from "utils";
+
+import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
 
 task("deploy:SwapRouter", "Will deploy SwapRouter contract")
   .addParam("verify", "Want to verify contract")

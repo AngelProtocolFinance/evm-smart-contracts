@@ -8,10 +8,11 @@ import {
   DiamondInit__factory,
   Diamond__factory,
 } from "typechain-types";
-import deployFacets from "./deployFacets";
-import cutDiamond from "./cutDiamond";
-import verify from "./verify";
 import {getSigners, logger, updateAddresses} from "utils";
+
+import cutDiamond from "./cutDiamond";
+import deployFacets from "./deployFacets";
+import verify from "./verify";
 
 export async function deployAccountsDiamond(
   owner: string,

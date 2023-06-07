@@ -1,9 +1,10 @@
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import {ethers, upgrades} from "hardhat";
-import {LocalRegistrar, LocalRegistrar__factory} from "../typechain-types";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {StrategyApprovalState} from "../utils/test/ILocalRegistrarHelpers";
 import {getSigners} from "utils";
+
+import {LocalRegistrar, LocalRegistrar__factory} from "../typechain-types";
+import {StrategyApprovalState} from "../utils/test/ILocalRegistrarHelpers";
 
 describe("Local Registrar", function () {
   let owner: SignerWithAddress;

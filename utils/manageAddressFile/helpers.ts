@@ -1,4 +1,5 @@
 import fs from "fs";
+
 import {AddressObj} from "./types";
 
 export function getAddressesByNetworkId(

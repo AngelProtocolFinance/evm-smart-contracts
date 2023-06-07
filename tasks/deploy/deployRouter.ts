@@ -1,7 +1,8 @@
 import config from "config";
-import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
 import {getAddresses, isLocalNetwork, logger} from "utils";
+
+import {deployRouter} from "contracts/core/router/scripts/deploy";
 
 task("deploy:Router", "Will deploy Router contract")
   .addParam("verify", "Want to verify contract")

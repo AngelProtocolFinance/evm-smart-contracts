@@ -1,8 +1,8 @@
-import {logger, updateAddresses} from "utils";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {MockUSDC, MockUSDC__factory} from "typechain-types";
+import {logger, updateAddresses} from "utils";
 
 export async function deployMockUSDC(
   proxyAdmin: SignerWithAddress,

@@ -1,7 +1,9 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {logger} from "utils";
-import {FacetCut} from "./types";
+
 import {FacetCutAction} from "contracts/core/accounts/scripts/libraries/diamond";
+
+import {FacetCut} from "./types";
 
 export default async function verify(
   facetCuts: FacetCut[],

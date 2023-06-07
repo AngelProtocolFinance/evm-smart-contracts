@@ -1,6 +1,7 @@
 import {task} from "hardhat/config";
-import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
 import {logger} from "utils";
+
+import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
 
 task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
   .addParam("verify", "Want to verify contract")
