@@ -24,25 +24,6 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
   uint24 public constant poolFee = 3000; // constant pool fee of 0.3%
 
   /**
-   * @dev This function updates an Endowment-Level Accepted Token's Price Feed contract address in storage.
-   * @param endowId uint32
-   * @param token address
-   * @param priceFeed address
-   */
-  function updateEndowmentTokenPriceFeed(uint32 endowId, address token, address priceFeed) public {
-    AccountStorage.State storage state = LibAccounts.diamondStorage();
-    // only endowment owner can update these
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[endowId];
-    // Check that the token is in the endowment-level accepted tokens list
-    require(
-      state.AcceptedTokens[endowId][token],
-      "Output token not in this endowment's Accepted Tokens List"
-    );
-
-    state.PriceFeeds[endowId][token] = priceFeed;
-  }
-
-  /**
    * @notice This function swaps tokens for an endowment
    * @dev This function swaps tokens for an endowment
    * @param id The id of the endowment
@@ -255,8 +236,8 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
     //Get pool fee
     // uint24 fees = checkPoolAndReturnFee(tokenIn, tokenOut);
     require(poolFee > 0, "Invalid Token sent to swap");
-    uint256 priceRatio = getLatestPriceData(priceFeedOut).div(getLatestPriceData(priceFeedIn)).mul(
-      AngelCoreStruct.BIG_NUMBA_BASIS
+    uint256 priceRatio = getLatestPriceData(priceFeedOut).mul(AngelCoreStruct.BIG_NUMBA_BASIS).div(
+      getLatestPriceData(priceFeedIn)
     );
     uint256 estAmountOut = amountIn.mul(priceRatio).div(AngelCoreStruct.BIG_NUMBA_BASIS);
     uint256 minAmountOut = estAmountOut.sub(

@@ -507,6 +507,11 @@ library AngelCoreStruct {
   uint256 constant PERCENT_BASIS = 100; // gives 1% precision for declared percentages
   uint256 constant BIG_NUMBA_BASIS = 1e24;
 
+  // Interface IDs
+  bytes4 constant InterfaceId_Invalid = 0xffffffff;
+  bytes4 constant InterfaceId_ERC165 = 0x01ffc9a7;
+  bytes4 constant InterfaceId_ERC721 = 0x80ac58cd;
+
   enum Status {
     None,
     Pending,
