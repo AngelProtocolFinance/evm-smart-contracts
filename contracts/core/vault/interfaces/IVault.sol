@@ -8,7 +8,8 @@ abstract contract IVault {
   /*////////////////////////////////////////////////
                     CUSTOM TYPES
   */ ////////////////////////////////////////////////
-  
+  uint256 constant PRECISION = 10**24;
+
   /// @notice Angel Protocol Vault Type
   /// @dev Vaults have different behavior depending on type. Specifically access to redemptions and
   /// principle balance
@@ -48,6 +49,9 @@ abstract contract IVault {
       VaultActionStatus status;
   }
 
+  /// @notice Structure for storing account principle information necessary for yield calculations 
+  /// @param baseToken The qty of base tokens deposited into the vault
+  /// @param costBasis_withPrecision The cost per share for entry into the vault (baseToken / share) 
   struct Principle {
     uint256 baseToken;
     uint256 costBasis_withPrecision;

@@ -504,7 +504,6 @@ library AngelCoreStruct {
   }
 
   uint256 constant FEE_BASIS = 10000; // gives 0.01% precision for fees (ie. Basis Points)
-  uint256 constant PRECISION = 1000000; // gives 6 decimals of precison == USDC.decimals()
   
   enum Status {
     None,
