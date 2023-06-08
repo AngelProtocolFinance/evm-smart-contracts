@@ -83,6 +83,7 @@ export interface APVault_V1Interface extends utils.Interface {
     "decimals()": FunctionFragment;
     "deposit(uint32,address,uint256)": FunctionFragment;
     "deposit(uint256,uint32)": FunctionFragment;
+    "getPricePerFullShare()": FunctionFragment;
     "getVaultConfig()": FunctionFragment;
     "harvest(uint32[])": FunctionFragment;
     "maxDeposit(uint32)": FunctionFragment;
@@ -117,6 +118,7 @@ export interface APVault_V1Interface extends utils.Interface {
       | "decimals"
       | "deposit(uint32,address,uint256)"
       | "deposit(uint256,uint32)"
+      | "getPricePerFullShare"
       | "getVaultConfig"
       | "harvest"
       | "maxDeposit"
@@ -167,6 +169,10 @@ export interface APVault_V1Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "deposit(uint256,uint32)",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getPricePerFullShare",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getVaultConfig",
@@ -284,6 +290,10 @@ export interface APVault_V1Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "deposit(uint256,uint32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getPricePerFullShare",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -497,6 +507,8 @@ export interface APVault_V1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    getPricePerFullShare(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     getVaultConfig(
       overrides?: CallOverrides
     ): Promise<[IVault.VaultConfigStructOutput]>;
@@ -662,6 +674,8 @@ export interface APVault_V1 extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  getPricePerFullShare(overrides?: CallOverrides): Promise<BigNumber>;
+
   getVaultConfig(
     overrides?: CallOverrides
   ): Promise<IVault.VaultConfigStructOutput>;
@@ -816,6 +830,8 @@ export interface APVault_V1 extends BaseContract {
       receiver: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    getPricePerFullShare(overrides?: CallOverrides): Promise<BigNumber>;
 
     getVaultConfig(
       overrides?: CallOverrides
@@ -1057,6 +1073,8 @@ export interface APVault_V1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    getPricePerFullShare(overrides?: CallOverrides): Promise<BigNumber>;
+
     getVaultConfig(overrides?: CallOverrides): Promise<BigNumber>;
 
     harvest(
@@ -1195,6 +1213,10 @@ export interface APVault_V1 extends BaseContract {
       assets: PromiseOrValue<BigNumberish>,
       receiver: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getPricePerFullShare(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getVaultConfig(overrides?: CallOverrides): Promise<PopulatedTransaction>;

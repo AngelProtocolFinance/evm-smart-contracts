@@ -545,17 +545,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.GFITrader__factory>;
     getContractFactory(
-      name: "GoldfinchVault",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.GoldfinchVault__factory>;
-    getContractFactory(
       name: "ICurveLP",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ICurveLP__factory>;
-    getContractFactory(
-      name: "IveLP",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IveLP__factory>;
     getContractFactory(
       name: "IRegistrarGoldfinch",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -572,18 +564,6 @@ declare module "hardhat/types/runtime" {
       name: "DummyStakingRewards",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DummyStakingRewards__factory>;
-    getContractFactory(
-      name: "IVault",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IVault__factory>;
-    getContractFactory(
-      name: "IVaultLiquid",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IVaultLiquid__factory>;
-    getContractFactory(
-      name: "IVaultLocked",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IVaultLocked__factory>;
     getContractFactory(
       name: "StringToAddress",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -1459,20 +1439,10 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.GFITrader>;
     getContractAt(
-      name: "GoldfinchVault",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.GoldfinchVault>;
-    getContractAt(
       name: "ICurveLP",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ICurveLP>;
-    getContractAt(
-      name: "IveLP",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IveLP>;
     getContractAt(
       name: "IRegistrarGoldfinch",
       address: string,
@@ -1493,21 +1463,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.DummyStakingRewards>;
-    getContractAt(
-      name: "IVault",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IVault>;
-    getContractAt(
-      name: "IVaultLiquid",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IVaultLiquid>;
-    getContractAt(
-      name: "IVaultLocked",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IVaultLocked>;
     getContractAt(
       name: "StringToAddress",
       address: string,

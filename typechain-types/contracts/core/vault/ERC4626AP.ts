@@ -35,6 +35,7 @@ export interface ERC4626APInterface extends utils.Interface {
     "convertToShares(uint256)": FunctionFragment;
     "decimals()": FunctionFragment;
     "deposit(uint256,uint32)": FunctionFragment;
+    "getPricePerFullShare()": FunctionFragment;
     "maxDeposit(uint32)": FunctionFragment;
     "maxMint(uint32)": FunctionFragment;
     "maxRedeem(uint32)": FunctionFragment;
@@ -62,6 +63,7 @@ export interface ERC4626APInterface extends utils.Interface {
       | "convertToShares"
       | "decimals"
       | "deposit"
+      | "getPricePerFullShare"
       | "maxDeposit"
       | "maxMint"
       | "maxRedeem"
@@ -98,6 +100,10 @@ export interface ERC4626APInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "deposit",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getPricePerFullShare",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "maxDeposit",
@@ -186,6 +192,10 @@ export interface ERC4626APInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getPricePerFullShare",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "maxDeposit", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "maxMint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "maxRedeem", data: BytesLike): Result;
@@ -330,6 +340,8 @@ export interface ERC4626AP extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    getPricePerFullShare(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     maxDeposit(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -437,6 +449,8 @@ export interface ERC4626AP extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  getPricePerFullShare(overrides?: CallOverrides): Promise<BigNumber>;
+
   maxDeposit(
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
@@ -543,6 +557,8 @@ export interface ERC4626AP extends BaseContract {
       receiver: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    getPricePerFullShare(overrides?: CallOverrides): Promise<BigNumber>;
 
     maxDeposit(
       arg0: PromiseOrValue<BigNumberish>,
@@ -693,6 +709,8 @@ export interface ERC4626AP extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    getPricePerFullShare(overrides?: CallOverrides): Promise<BigNumber>;
+
     maxDeposit(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -799,6 +817,10 @@ export interface ERC4626AP extends BaseContract {
       assets: PromiseOrValue<BigNumberish>,
       receiver: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getPricePerFullShare(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     maxDeposit(

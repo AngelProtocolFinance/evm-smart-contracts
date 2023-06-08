@@ -11,6 +11,41 @@ import type {
 
 const _abi = [
   {
+    inputs: [],
+    name: "ApproveFailed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "OnlyAdmin",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "OnlyApproved",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "OnlyBaseToken",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "OnlyNotPaused",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "OnlyRouter",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "TransferFailed",
+    type: "error",
+  },
+  {
     anonymous: false,
     inputs: [
       {
