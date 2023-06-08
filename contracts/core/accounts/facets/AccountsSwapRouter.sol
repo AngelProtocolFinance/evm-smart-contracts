@@ -248,9 +248,8 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
     //Get pool fee
     // uint24 fees = checkPoolAndReturnFee(tokenIn, tokenOut);
     require(poolFee > 0, "Invalid Token sent to swap");
-
-    uint256 priceRatio = getLatestPriceData(priceFeedOut).div(getLatestPriceData(priceFeedIn));
-    uint256 estAmountOut = amountIn.mul(priceRatio);
+    uint256 priceRatio = getLatestPriceData(priceFeedOut).div(getLatestPriceData(priceFeedIn)).mul(BIG_NUMBA_BASIS);
+    uint256 estAmountOut = amountIn.mul(priceRatio).div(BIG_NUMBA_BASIS);
     uint256 minAmountOut = estAmountOut.sub(
       estAmountOut.mul(slippage).div(AngelCoreStruct.FEE_BASIS)
     );
