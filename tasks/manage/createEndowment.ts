@@ -185,7 +185,8 @@ task("manage:createEndowment", "Will create a new endowment")
           apTeam1
         );
         let tx = await createEndowFacet.createEndowment(createEndowmentRequest);
-        await hre.ethers.provider.waitForTransaction(tx.hash);
+        logger.out(`Creating endowment...\nTx hash: ${tx.hash}`);
+        await tx.wait();
       }
 
       const newEndowmentDetails = await queryEndowmentFacet.queryEndowmentDetails(
