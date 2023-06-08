@@ -107,6 +107,8 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
         ),
         "Unauthorized"
       );
+    } else {
+      revert("Invalid AccountType");
     }
 
     if (accountType == AngelCoreStruct.AccountType.Locked) {
@@ -140,7 +142,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
       priceFeedOut = state.PriceFeeds[id][tokenOut];
     }
     require(
-      priceFeedIn != address(0) && priceFeedOut != address(0),
+      (priceFeedIn != address(0) && priceFeedOut != address(0)),
       "Chinlink Oracle Price Feed contracts are required for all tokens swapping to/from"
     );
 
