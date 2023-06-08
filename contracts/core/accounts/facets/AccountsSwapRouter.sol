@@ -13,7 +13,6 @@ import {AccountsEvents} from "./AccountsEvents.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
-import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 /**
@@ -22,12 +21,7 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
  */
 contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
   using SafeMath for uint256;
-  ISwapRouter public immutable swapRouter;
   uint24 public constant poolFee = 3000; // constant pool fee of 0.3%
-
-  constructor(ISwapRouter _swapRouter) {
-    swapRouter = _swapRouter;
-  }
 
   /**
    * @dev This function updates an Endowment-Level Accepted Token's Price Feed contract address in storage.
@@ -70,6 +64,13 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
 
+    RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
+      .queryConfig();
+
+    require(
+      registrar_config.uniswapSwapRouter != address(0),
+      "Uniswap Swap Router address is not set in Registrar"
+    );
     require(amountIn > 0, "Invalid Swap Input: Zero Amount");
     require(tokenIn != address(0) && tokenOut != address(0), "Invalid Swap Input: Zero Address");
     require(
@@ -146,16 +147,21 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
       "Chinlink Oracle Price Feed contracts are required for all tokens swapping to/from"
     );
 
-    RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
-      .queryConfig();
-
     require(
       IERC20(tokenIn).approve(address(registrar_config.uniswapSwapRouter), amountIn),
       "Approval failed"
     );
 
     // Who ya gonna call? Swap Function!
-    uint256 amountOut = swap(tokenIn, amountIn, priceFeedIn, tokenOut, priceFeedOut, slippage);
+    uint256 amountOut = swap(
+      tokenIn,
+      amountIn,
+      priceFeedIn,
+      tokenOut,
+      priceFeedOut,
+      slippage,
+      registrar_config.uniswapSwapRouter
+    );
 
     // Allocate the newly swapped tokens to the correct endowment balance
     if (accountType == AngelCoreStruct.AccountType.Locked) {
@@ -243,13 +249,16 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
     address priceFeedIn,
     address tokenOut,
     address priceFeedOut,
-    uint256 slippage
+    uint256 slippage,
+    address uniswapSwapRouter
   ) internal returns (uint256 amountOut) {
     //Get pool fee
     // uint24 fees = checkPoolAndReturnFee(tokenIn, tokenOut);
     require(poolFee > 0, "Invalid Token sent to swap");
-    uint256 priceRatio = getLatestPriceData(priceFeedOut).div(getLatestPriceData(priceFeedIn)).mul(BIG_NUMBA_BASIS);
-    uint256 estAmountOut = amountIn.mul(priceRatio).div(BIG_NUMBA_BASIS);
+    uint256 priceRatio = getLatestPriceData(priceFeedOut).div(getLatestPriceData(priceFeedIn)).mul(
+      AngelCoreStruct.BIG_NUMBA_BASIS
+    );
+    uint256 estAmountOut = amountIn.mul(priceRatio).div(AngelCoreStruct.BIG_NUMBA_BASIS);
     uint256 minAmountOut = estAmountOut.sub(
       estAmountOut.mul(slippage).div(AngelCoreStruct.FEE_BASIS)
     );
@@ -265,7 +274,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
       sqrtPriceLimitX96: 0 // ensures that we swap our exact input amount
     });
     // execute the swap on the router
-    amountOut = swapRouter.exactInputSingle(params);
+    amountOut = ISwapRouter(uniswapSwapRouter).exactInputSingle(params);
 
     require(amountOut >= minAmountOut, "Output funds less than the minimum output");
   }

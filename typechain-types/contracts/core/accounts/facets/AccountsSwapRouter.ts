@@ -475,7 +475,6 @@ export declare namespace AccountStorage {
 export interface AccountsSwapRouterInterface extends utils.Interface {
   functions: {
     "poolFee()": FunctionFragment;
-    "swapRouter()": FunctionFragment;
     "swapToken(uint32,uint8,address,uint256,address,uint256)": FunctionFragment;
     "updateEndowmentTokenPriceFeed(uint32,address,address)": FunctionFragment;
   };
@@ -483,16 +482,11 @@ export interface AccountsSwapRouterInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "poolFee"
-      | "swapRouter"
       | "swapToken"
       | "updateEndowmentTokenPriceFeed"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "poolFee", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "swapRouter",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "swapToken",
     values: [
@@ -514,7 +508,6 @@ export interface AccountsSwapRouterInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "poolFee", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "swapRouter", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "swapToken", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "updateEndowmentTokenPriceFeed",
@@ -712,8 +705,6 @@ export interface AccountsSwapRouter extends BaseContract {
   functions: {
     poolFee(overrides?: CallOverrides): Promise<[number]>;
 
-    swapRouter(overrides?: CallOverrides): Promise<[string]>;
-
     swapToken(
       id: PromiseOrValue<BigNumberish>,
       accountType: PromiseOrValue<BigNumberish>,
@@ -734,8 +725,6 @@ export interface AccountsSwapRouter extends BaseContract {
 
   poolFee(overrides?: CallOverrides): Promise<number>;
 
-  swapRouter(overrides?: CallOverrides): Promise<string>;
-
   swapToken(
     id: PromiseOrValue<BigNumberish>,
     accountType: PromiseOrValue<BigNumberish>,
@@ -755,8 +744,6 @@ export interface AccountsSwapRouter extends BaseContract {
 
   callStatic: {
     poolFee(overrides?: CallOverrides): Promise<number>;
-
-    swapRouter(overrides?: CallOverrides): Promise<string>;
 
     swapToken(
       id: PromiseOrValue<BigNumberish>,
@@ -881,8 +868,6 @@ export interface AccountsSwapRouter extends BaseContract {
   estimateGas: {
     poolFee(overrides?: CallOverrides): Promise<BigNumber>;
 
-    swapRouter(overrides?: CallOverrides): Promise<BigNumber>;
-
     swapToken(
       id: PromiseOrValue<BigNumberish>,
       accountType: PromiseOrValue<BigNumberish>,
@@ -903,8 +888,6 @@ export interface AccountsSwapRouter extends BaseContract {
 
   populateTransaction: {
     poolFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    swapRouter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     swapToken(
       id: PromiseOrValue<BigNumberish>,
