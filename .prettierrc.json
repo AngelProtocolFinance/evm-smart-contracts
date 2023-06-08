@@ -11,18 +11,5 @@
   "proseWrap": "preserve",
   "endOfLine": "lf",
   "embeddedLanguageFormatting": "auto",
-  "singleAttributePerLine": true,
-  "importOrder": [
-    "^config/(.*)",
-    "^contracts/(.*)",
-    "^scripts/(.*)",
-    "^tasks/(.*)",
-    "^test/(.*)",
-    "^typechain-types/(.*)",
-    "^utils/(.*)",
-    "^[../]",
-    "^[./]"
-  ],
-  "importOrderSeparation": true,
-  "importOrderSortSpecifiers": true
+  "singleAttributePerLine": true
 }
