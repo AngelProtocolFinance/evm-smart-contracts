@@ -8,8 +8,6 @@ import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
-import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
-// import { deployHaloImplementation } from "contracts/halo/scripts/deploy"
 import {charityApplications} from "contracts/multisigs/charity_applications/scripts/deploy";
 import {deployAPTeamMultiSig, deployApplicationsMultiSig} from "contracts/multisigs/scripts/deploy";
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
@@ -94,17 +92,6 @@ export async function deployAngelProtocol(
   );
   console.log("charityApplicationsAddress deployed at:-", charityApplicationsAddress);
 
-  const SWAP_ROUTER = await deploySwapRouter(
-    registrar.proxy.address,
-    accountsDiamond.address,
-    config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS,
-    config.SWAP_ROUTER_DATA.SWAP_ROUTER_ADDRESS,
-    verify_contracts,
-    hre
-  );
-
-  console.log("SWAP_ROUTER contract deployed at:-", SWAP_ROUTER);
-
   const indexFundData = {
     registrarContract: registrar.proxy.address,
     fundRotation: config.INDEX_FUND_DATA.fundRotation,
@@ -150,7 +137,7 @@ export async function deployAngelProtocol(
   // TODO:
   // UNCOMMENT WHEN HALO CONTRACTS ARE READY FOR DEPLOYMENT
   //
-  // var haloAddress = await deployHaloImplementation(SWAP_ROUTER, verify_contracts, hre)
+  // var haloAddress = await deployHaloImplementation(SWAP_ROUTER.UNISWAP_ROUTER_ADDRESS, verify_contracts, hre)
 
   // addressWriter.haloAddress = haloAddress
 
@@ -264,7 +251,7 @@ export async function deployAngelProtocol(
   if (isLocalNetwork(network)) {
     // haloToken
     // donationMatchCharityData.reserveToken = haloToken.address
-    donationMatchCharityData.uniswapFactory = config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS;
+    donationMatchCharityData.uniswapFactory = config.SWAP_ROUTER_DATA.UNISWAP_ROUTER_ADDRESS;
     donationMatchCharityData.poolFee = 3000;
     donationMatchCharityData.usdcAddress = mockUSDC!.address;
   }
@@ -308,7 +295,6 @@ export async function deployAngelProtocol(
     charitySharesContract: ethers.constants.AddressZero, //TODO: //address
     fundraisingContract: ethers.constants.AddressZero, //TODO: //address
     applicationsReview: applicationsMultiSig.proxy.address, //address
-    swapsRouter: SWAP_ROUTER, //address
     multisigFactory: multisigDat.MultiSigWalletFactory, //address
     multisigEmitter: multisigDat.EndowmentMultiSigEmitter, //address
     charityProposal: charityApplicationsAddress, //address
@@ -317,6 +303,7 @@ export async function deployAngelProtocol(
     usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
     wMaticAddress: config.REGISTRAR_UPDATE_CONFIG.wmaticAddress,
     cw900lvAddress: implementations.cw900lv,
+    uniswapSwapRouter: config.SWAP_ROUTER_DATA.UNISWAP_ROUTER_ADDRESS, // address
   };
 
   console.log("Updating Registrar config with new addresses...");

@@ -95,7 +95,7 @@ describe("Donor donation matching for normal endowments", function () {
 
     const data = accountDonationMatch.interface.encodeFunctionData("setupDonationMatch", [
       1,
-      [0, [registrarConfig.haloToken, config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS, 3000]],
+      [0, [registrarConfig.haloToken, config.SWAP_ROUTER_DATA.UNISWAP_ROUTER_ADDRESS, 3000]],
     ]);
 
     let tx2 = await endowmentMultisig
@@ -264,7 +264,7 @@ describe("Donor donation matching for normal endowments", function () {
 
     const data = accountDonationMatch.interface.encodeFunctionData("setupDonationMatch", [
       2,
-      [1, [deployRes.addresses.dai, config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS, 3000]],
+      [1, [deployRes.addresses.dai, config.SWAP_ROUTER_DATA.UNISWAP_ROUTER_ADDRESS, 3000]],
     ]);
 
     let tx2 = await endowmentMultisig

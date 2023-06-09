@@ -18,7 +18,7 @@
 
 - Create Endowments: Function used to create endowments (Public)
 
-### AccountsDaoEndowments
+### AccountsDAOEndowments
 
 - Setup Dao
 - Setup Donation Match
@@ -32,7 +32,7 @@
 - Update Strategies
 - Copycat Strategies
 
-### AccountsSwapEndowments
+### AccountsSwapRouter
 
 - Swap Token
 - Swap Receipt

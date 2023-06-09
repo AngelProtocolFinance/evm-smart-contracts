@@ -141,7 +141,7 @@ describe("SubDao test", function () {
       deployer.address
     );
 
-    let setUpDao = await ethers.getContractAt("AccountsDaoEndowments", deployRes.addresses.account);
+    let setUpDao = await ethers.getContractAt("AccountsDAOEndowments", deployRes.addresses.account);
 
     let dao = {
       quorum: 10,

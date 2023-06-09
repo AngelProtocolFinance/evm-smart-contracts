@@ -103,7 +103,7 @@ describe("Endowment Members", function () {
     const endowmentMultisig = await ethers.getContractAt("EndowmentMultiSig", endowment.owner);
 
     const accountsSwap = await ethers.getContractAt(
-      "AccountsSwapEndowments",
+      "AccountsSwapRouter",
       deployRes.addresses.account
     );
 

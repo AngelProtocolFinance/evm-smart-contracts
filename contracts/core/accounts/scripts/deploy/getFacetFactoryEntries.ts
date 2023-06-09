@@ -8,7 +8,7 @@ import {
   AccountsCreateEndowment__factory,
   AccountsDAOEndowments__factory,
   AccountsQueryEndowments__factory,
-  AccountsSwapEndowments__factory,
+  AccountsSwapRouter__factory,
   AccountsUpdateEndowmentSettingsController__factory,
   AccountsUpdateEndowments__factory,
   AccountsUpdateStatusEndowments__factory,
@@ -79,8 +79,8 @@ export default async function getFacetFactoryEntries(
       ),
     },
     {
-      addressField: "accountsSwapEndowments",
-      factory: new AccountsSwapEndowments__factory(
+      addressField: "accountsSwapRouter",
+      factory: new AccountsSwapRouter__factory(
         {"contracts/core/struct.sol:AngelCoreStruct": corestruct},
         diamondOwner
       ),

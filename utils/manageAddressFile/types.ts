@@ -7,9 +7,9 @@ export type AddressObj = {
       accountDonationMatch: string;
       accountsAllowance: string;
       accountsCreateEndowment: string;
-      AccountsDaoEndowments: string;
+      AccountsDAOEndowments: string;
       accountsQueryEndowments: string;
-      accountsSwapEndowments: string;
+      accountsSwapRouter: string;
       accountsUpdate: string;
       accountsUpdateEndowments: string;
       accountsUpdateEndowmentSettingsController: string;
