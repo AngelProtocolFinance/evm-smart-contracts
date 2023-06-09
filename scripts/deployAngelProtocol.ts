@@ -76,7 +76,7 @@ export async function deployAngelProtocol(
     hre
   );
 
-  const SWAP_ROUTER = await deploySwapRouter(
+  const swapRouter = await deploySwapRouter(
     registrar.proxy.address,
     accountsDiamond.address,
     config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS,
@@ -84,8 +84,6 @@ export async function deployAngelProtocol(
     verify_contracts,
     hre
   );
-
-  console.log("SWAP_ROUTER contract deployed at:-", SWAP_ROUTER);
 
   const indexFundData = {
     registrarContract: registrar.proxy.address,
@@ -290,7 +288,7 @@ export async function deployAngelProtocol(
     charitySharesContract: hre.ethers.constants.AddressZero, //TODO: //address
     fundraisingContract: hre.ethers.constants.AddressZero, //TODO: //address
     applicationsReview: applicationsMultiSig.proxy.address, //address
-    swapsRouter: SWAP_ROUTER, //address
+    swapsRouter: swapRouter.proxy.address, //address
     multisigFactory: multisigDat.MultiSigWalletFactory, //address
     multisigEmitter: multisigDat.EndowmentMultiSigEmitter, //address
     charityProposal: charityApplication.proxy.address, //address

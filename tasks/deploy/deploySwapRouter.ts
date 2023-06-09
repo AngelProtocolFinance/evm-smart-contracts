@@ -4,6 +4,8 @@ import {isLocalNetwork, logger} from "utils";
 
 import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
 
+type TaskArgs = {accountaddress: string; registraraddress: string; verify: boolean};
+
 task("deploy:SwapRouter", "Will deploy SwapRouter contract")
   .addOptionalParam(
     "verify",
@@ -13,7 +15,7 @@ task("deploy:SwapRouter", "Will deploy SwapRouter contract")
   )
   .addParam("registraraddress", "Address of the Registrar contract")
   .addParam("accountaddress", "Address of the account")
-  .setAction(async (taskArgs, hre) => {
+  .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
@@ -27,5 +29,7 @@ task("deploy:SwapRouter", "Will deploy SwapRouter contract")
       );
     } catch (error) {
       logger.out(error, logger.Level.Error);
+    } finally {
+      logger.out("Done.");
     }
   });
