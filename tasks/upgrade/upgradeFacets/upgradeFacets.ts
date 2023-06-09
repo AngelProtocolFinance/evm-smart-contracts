@@ -50,7 +50,7 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
 
       await cutDiamond(addresses.accounts.diamond, proxyAdmin, facetCuts, hre);
 
-      if (!isLocalNetwork(hre.network) && taskArgs.verify) {
+      if (!isLocalNetwork(hre) && taskArgs.verify) {
         await verify(facetCuts, hre);
       }
     } catch (error) {

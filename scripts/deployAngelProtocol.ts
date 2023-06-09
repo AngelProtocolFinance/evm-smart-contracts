@@ -27,16 +27,14 @@ export async function deployAngelProtocol(
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ): Promise<void> {
-  const {network, ethers} = hre;
-
-  const {proxyAdmin, treasury, apTeamMultisigOwners} = await getSigners(ethers);
+  const {proxyAdmin, treasury, apTeamMultisigOwners} = await getSigners(hre.ethers);
 
   await cleanAddresses(hre);
 
   console.log("Deploying the contracts with the account:", proxyAdmin.address);
 
   // Mock setup required for testing
-  const mockUSDC = isLocalNetwork(network) ? await deployMockUSDC(proxyAdmin, hre) : undefined;
+  const mockUSDC = isLocalNetwork(hre) ? await deployMockUSDC(proxyAdmin, hre) : undefined;
 
   const {angelCoreStruct, stringLib} = await deployLibraries(verify_contracts, hre);
 
@@ -261,7 +259,7 @@ export async function deployAngelProtocol(
     usdcAddress: config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
   };
 
-  if (isLocalNetwork(network)) {
+  if (isLocalNetwork(hre)) {
     // haloToken
     // donationMatchCharityData.reserveToken = haloToken.address
     donationMatchCharityData.uniswapFactory = config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS;
@@ -295,24 +293,24 @@ export async function deployAngelProtocol(
     subdaoTokenContract: implementations.subDao.token, //address
     subdaoBondingTokenContract: implementations.subDao.veBondingToken, //address
     subdaoCw900Contract: implementations.incentivisedVotingLockup.implementation, //address
-    subdaoDistributorContract: ethers.constants.AddressZero,
+    subdaoDistributorContract: hre.ethers.constants.AddressZero,
     subdaoEmitter: emitters.subDaoEmitter, //TODO:
     donationMatchContract: implementations.donationMatch.implementation, //address
     indexFundContract: INDEX_FUND_ADDRESS, //address
-    govContract: ethers.constants.AddressZero, //address
+    govContract: hre.ethers.constants.AddressZero, //address
     treasury: treasury.address,
     donationMatchCharitesContract: implementations.donationMatchCharity.proxy, // once uniswap is setup //address
     donationMatchEmitter: emitters.DonationMatchEmitter,
-    haloToken: ethers.constants.AddressZero, //address
+    haloToken: hre.ethers.constants.AddressZero, //address
     haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
-    charitySharesContract: ethers.constants.AddressZero, //TODO: //address
-    fundraisingContract: ethers.constants.AddressZero, //TODO: //address
+    charitySharesContract: hre.ethers.constants.AddressZero, //TODO: //address
+    fundraisingContract: hre.ethers.constants.AddressZero, //TODO: //address
     applicationsReview: applicationsMultiSig.proxy.address, //address
     swapsRouter: SWAP_ROUTER, //address
     multisigFactory: multisigDat.MultiSigWalletFactory, //address
     multisigEmitter: multisigDat.EndowmentMultiSigEmitter, //address
     charityProposal: charityApplicationsAddress, //address
-    lockedWithdrawal: ethers.constants.AddressZero,
+    lockedWithdrawal: hre.ethers.constants.AddressZero,
     proxyAdmin: proxyAdmin.address, //address
     usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
     wMaticAddress: config.REGISTRAR_UPDATE_CONFIG.wmaticAddress,

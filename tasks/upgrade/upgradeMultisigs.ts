@@ -99,7 +99,7 @@ task(
         hre
       );
 
-      if (!isLocalNetwork(hre.network) && taskArgs.verify) {
+      if (!isLocalNetwork(hre) && taskArgs.verify) {
         logger.out("Verifying APTeamMultiSig...");
 
         await hre.run("verify:verify", {

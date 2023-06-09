@@ -22,7 +22,7 @@ task(
         router,
       } = await getAddresses(hre);
 
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify === "true";
+      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify === "true";
 
       const registrar = await deployRegistrar(router.proxy, apTeam.proxy, verify_contracts, hre);
 

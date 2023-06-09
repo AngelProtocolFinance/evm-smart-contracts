@@ -11,7 +11,7 @@ task("deploy:Libraries", "Will deploy Libraries")
   )
   .setAction(async (taskArgs: {verify: boolean}, hre) => {
     try {
-      const verify_contracts = taskArgs.verify && !isLocalNetwork(hre.network);
+      const verify_contracts = taskArgs.verify && !isLocalNetwork(hre);
       await deployLibraries(verify_contracts, hre);
       // TODO: should also update all contracts that depend on the updated libraries
     } catch (error) {

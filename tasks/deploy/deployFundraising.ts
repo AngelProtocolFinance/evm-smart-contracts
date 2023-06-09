@@ -15,7 +15,7 @@ task("deploy:Fundraising", "Will deploy Fundraising contract")
   .addParam("angelcorestruct", "Address of the AngelCoreStruct contract")
   .setAction(async (taskArgs, hre) => {
     try {
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
       let FundraisingDataInput = {
         registrarContract: taskArgs.registraraddress,
         nextId: config.FundraisingDataInput.nextId,

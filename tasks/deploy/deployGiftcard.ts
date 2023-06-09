@@ -22,7 +22,7 @@ task("deploy:GiftCard", "Will deploy GiftCardContracts contract")
 
       logger.out(taskArgs.corelibrary);
 
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
       await deployGiftCard(GiftCardDataInput, taskArgs.corelibrary, verify_contracts, hre);
     } catch (error) {

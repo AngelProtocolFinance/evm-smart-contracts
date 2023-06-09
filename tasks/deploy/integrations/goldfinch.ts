@@ -93,7 +93,7 @@ task("deploy:integrations:Goldfinch")
       hre
     );
     // Verify contracts on etherscan
-    if (taskArguments.verify && !isLocalNetwork(hre.network)) {
+    if (taskArguments.verify && !isLocalNetwork(hre)) {
       logger.divider();
       logger.out("Verifying contracts on etherscan");
       try {

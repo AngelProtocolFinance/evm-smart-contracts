@@ -13,7 +13,7 @@ task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
   .setAction(async (taskArgs: {verify: boolean}, hre) => {
     try {
       const addresses = await getAddresses(hre);
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
       await deployAccountsDiamond(
         addresses.multiSig.apTeam.proxy,
         addresses.registrar.proxy,

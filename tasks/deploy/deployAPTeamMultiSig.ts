@@ -12,7 +12,7 @@ task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
   )
   .setAction(async (taskArgs: {verify: boolean}, hre) => {
     try {
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
       await deployAPTeamMultiSig(verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);

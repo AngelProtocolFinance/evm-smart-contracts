@@ -12,7 +12,7 @@ task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
   )
   .setAction(async (taskArgs: {verify: boolean}, hre) => {
     try {
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
       await deployEndowmentMultiSig(verify_contracts, hre);
     } catch (error) {

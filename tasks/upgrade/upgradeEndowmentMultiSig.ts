@@ -49,7 +49,7 @@ task(
 
       await updateAddresses({multiSig: {endowment: {implementation: contract.address}}}, hre);
 
-      if (!isLocalNetwork(hre.network) && taskArgs.verify) {
+      if (!isLocalNetwork(hre) && taskArgs.verify) {
         logger.out("Verifying...");
         await hre.run("verify:verify", {
           address: contract.address,

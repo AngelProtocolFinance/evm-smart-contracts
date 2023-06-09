@@ -26,7 +26,7 @@ task("deploy:CharityApplications", "Will deploy CharityApplications contract")
         config.CHARITY_APPLICATION_DATA.seedAsset,
         config.CHARITY_APPLICATION_DATA.seedAssetAmount,
       ];
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
       await charityApplications(charityApplicationsData, verify_contracts, hre);
     } catch (error) {

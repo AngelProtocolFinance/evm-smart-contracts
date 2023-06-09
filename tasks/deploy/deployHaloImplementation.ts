@@ -13,7 +13,7 @@ task("deploy:HaloImplementation", "Will deploy HaloImplementation contract")
   .addParam("swaprouter", "swap Router address")
   .setAction(async (taskArgs, hre) => {
     try {
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
       // await deployHaloImplementation(taskArgs.swaprouter, verify_contracts, hre);
     } catch (error) {

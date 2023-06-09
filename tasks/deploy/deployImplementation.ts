@@ -18,7 +18,7 @@ task("deploy:Implementation", "Will deploy Implementation")
   .addParam("endowmentmultisigaddress", "Address of the Endowment multisig")
   .setAction(async (taskArgs, hre) => {
     try {
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
+      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
       let donationMatchCharityData = {
         reserveToken: config.DONATION_MATCH_CHARITY_DATA.reserveToken,

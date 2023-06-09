@@ -45,7 +45,7 @@ task(
         hre
       );
 
-      if (!isLocalNetwork(hre.network) && taskArgs.verify) {
+      if (!isLocalNetwork(hre) && taskArgs.verify) {
         logger.out("Verifying CharityApplication implementation...");
         await hre.run("verify:verify", {
           address: charityApplicationImpl.address,
