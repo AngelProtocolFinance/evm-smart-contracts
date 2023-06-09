@@ -40,12 +40,9 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
 
       const facetsToUpgrade = /^all$/i.test(taskArgs.facets[0]) ? ALL_FACET_NAMES : taskArgs.facets;
 
-      const isConfirmed = await confirmAction(
+      await confirmAction(
         `You're about to upgrade the following facets:\n- ${facetsToUpgrade.join("\n- ")}`
       );
-      if (!isConfirmed) {
-        return logger.out("Aborting...");
-      }
 
       const {proxyAdmin} = await getSigners(hre);
 

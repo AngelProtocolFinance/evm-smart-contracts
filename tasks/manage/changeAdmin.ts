@@ -14,12 +14,7 @@ task("manage:changeAdmin", "Will update the admin for all proxy contracts")
   )
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      const isConfirmed = await confirmAction(
-        `You're about to set ${taskArgs.new} as the new admin`
-      );
-      if (!isConfirmed) {
-        return logger.out("Aborting...");
-      }
+      await confirmAction(`You're about to set ${taskArgs.new} as the new admin`);
 
       const currentAdmin = await hre.ethers.getSigner(taskArgs.current);
 
