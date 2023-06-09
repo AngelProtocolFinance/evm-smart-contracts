@@ -14,7 +14,7 @@ export default async function updateRegistrar(
 
   const network = await hre.ethers.provider.getNetwork();
 
-  const {proxyAdmin, apTeamMultisigOwners} = await getSigners(hre.ethers);
+  const {proxyAdmin, apTeamMultisigOwners} = await getSigners(hre);
 
   const registrarContract = Registrar__factory.connect(registrar, proxyAdmin);
   const updateNetworkConnectionsData = registrarContract.interface.encodeFunctionData(

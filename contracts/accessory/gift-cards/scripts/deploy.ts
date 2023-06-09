@@ -11,7 +11,7 @@ export async function deployGiftCard(
 ) {
   try {
     const {ethers, run, network} = hre;
-    const {proxyAdmin} = await getSigners(ethers);
+    const {proxyAdmin} = await getSigners(hre);
     const GiftCards = await ethers.getContractFactory("GiftCards", {
       libraries: {
         AngelCoreStruct: ANGEL_CORE_STRUCT,

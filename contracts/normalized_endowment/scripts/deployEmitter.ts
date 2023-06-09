@@ -124,7 +124,7 @@ export async function deployEmitters(
   try {
     const {ethers} = hre;
 
-    const {proxyAdmin} = await getSigners(ethers);
+    const {proxyAdmin} = await getSigners(hre);
     const Emitters = {
       subDaoEmitter: await deploySubDaoEmitter(
         proxyAdmin.address,

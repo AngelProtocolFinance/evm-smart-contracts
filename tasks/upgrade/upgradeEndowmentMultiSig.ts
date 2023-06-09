@@ -17,7 +17,7 @@ task(
     try {
       logger.out("Deploying a new EndowmentMultiSig contract...");
 
-      const {proxyAdmin} = await getSigners(hre.ethers);
+      const {proxyAdmin} = await getSigners(hre);
 
       const addresses = await getAddresses(hre);
 

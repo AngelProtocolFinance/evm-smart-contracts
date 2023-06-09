@@ -29,7 +29,7 @@ describe("Local Registrar", function () {
   let accountsContract = "0x000000000000000000000000000000000000dead";
 
   async function deployRegistrarAsProxy(): Promise<LocalRegistrar> {
-    const {proxyAdmin, apTeam3} = await getSigners(ethers);
+    const {proxyAdmin, apTeam3} = await getSigners(hre);
     owner = proxyAdmin;
     user = apTeam3;
     Registrar = (await ethers.getContractFactory(

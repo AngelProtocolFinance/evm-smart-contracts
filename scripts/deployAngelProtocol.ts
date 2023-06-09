@@ -27,7 +27,7 @@ export async function deployAngelProtocol(
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ): Promise<void> {
-  const {proxyAdmin, treasury, apTeamMultisigOwners} = await getSigners(hre.ethers);
+  const {proxyAdmin, treasury, apTeamMultisigOwners} = await getSigners(hre);
 
   await cleanAddresses(hre);
 

@@ -15,7 +15,7 @@ export async function deployGov(
   // TODO: remove param timelock
   try {
     const {ethers, run, network} = hre;
-    const {proxyAdmin, timeLockAdmin} = await getSigners(ethers);
+    const {proxyAdmin, timeLockAdmin} = await getSigners(hre);
     const TimeLock = await ethers.getContractFactory("TimeLock");
     const TimeLockInstance = await TimeLock.deploy();
     await TimeLockInstance.deployed();

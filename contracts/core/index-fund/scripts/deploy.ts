@@ -15,7 +15,7 @@ export async function deployIndexFund(
   try {
     const {network, run, ethers} = hre;
 
-    const {deployer, proxyAdmin} = await getSigners(ethers);
+    const {deployer, proxyAdmin} = await getSigners(hre);
     const IndexContract = await ethers.getContractFactory("IndexFund", proxyAdmin);
     const indexContract = await IndexContract.deploy();
     await indexContract.deployed();

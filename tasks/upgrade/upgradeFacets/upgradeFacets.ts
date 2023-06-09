@@ -35,7 +35,7 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
         return logger.out("Aborting...");
       }
 
-      const {proxyAdmin} = await getSigners(hre.ethers);
+      const {proxyAdmin} = await getSigners(hre);
 
       const addresses = await getAddresses(hre);
 

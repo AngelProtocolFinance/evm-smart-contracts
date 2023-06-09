@@ -9,7 +9,7 @@ export async function deployRegistrar(
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
-  const {apTeam1, proxyAdmin, treasury} = await getSigners(hre.ethers);
+  const {apTeam1, proxyAdmin, treasury} = await getSigners(hre);
 
   const factory = new Registrar__factory(proxyAdmin);
   const registrar = await factory.deploy();

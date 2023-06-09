@@ -23,7 +23,7 @@ export async function deployAccountsDiamond(
 ) {
   logger.out("Deploying and setting up Accounts Diamond and all its facets...");
 
-  const {proxyAdmin} = await getSigners(hre.ethers);
+  const {proxyAdmin} = await getSigners(hre);
 
   const {diamond, diamondCutFacet} = await deployDiamond(proxyAdmin, hre);
 

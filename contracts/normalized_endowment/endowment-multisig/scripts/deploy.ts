@@ -72,7 +72,7 @@ export async function deployEndowmentMultiSig(
 ) {
   try {
     const {ethers, run, network} = hre;
-    const {proxyAdmin} = await getSigners(ethers);
+    const {proxyAdmin} = await getSigners(hre);
     const EndowmentMultiSig = await ethers.getContractFactory("EndowmentMultiSig");
     const EndowmentMultiSigInstance = await EndowmentMultiSig.deploy();
     await EndowmentMultiSigInstance.deployed();

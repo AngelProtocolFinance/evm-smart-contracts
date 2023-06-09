@@ -6,7 +6,7 @@ import {getAddresses, getSigners, logger} from "utils";
 task("manage:createIndexFund", "Will create a new index fund").setAction(
   async (_taskArguments, hre) => {
     try {
-      const {apTeam2} = await getSigners(hre.ethers);
+      const {apTeam2} = await getSigners(hre);
 
       const addresses = await getAddresses(hre);
 

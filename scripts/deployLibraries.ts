@@ -3,7 +3,7 @@ import {AngelCoreStruct__factory, StringArray__factory} from "typechain-types";
 import {getSigners, logger, updateAddresses} from "utils";
 
 export async function deployLibraries(verify_contracts: boolean, hre: HardhatRuntimeEnvironment) {
-  const {proxyAdmin} = await getSigners(hre.ethers);
+  const {proxyAdmin} = await getSigners(hre);
 
   logger.out("Deploying AngelCoreStruct library...");
   const angelCoreStructFactory = new AngelCoreStruct__factory(proxyAdmin);

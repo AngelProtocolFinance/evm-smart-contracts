@@ -237,7 +237,7 @@ export async function deployImplementation(
   hre: HardhatRuntimeEnvironment
 ) {
   try {
-    const {proxyAdmin} = await getSigners(hre.ethers);
+    const {proxyAdmin} = await getSigners(hre);
 
     const implementations = {
       cw900lv: await deployCw900lvImplementation(verify_contracts, hre),

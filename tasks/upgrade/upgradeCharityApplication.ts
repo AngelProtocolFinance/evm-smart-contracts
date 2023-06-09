@@ -16,7 +16,7 @@ task(
     try {
       logger.out("Upgrading CharityApplication...");
 
-      const {proxyAdmin} = await getSigners(hre.ethers);
+      const {proxyAdmin} = await getSigners(hre);
 
       const CharityApplicationLib = await hre.ethers.getContractFactory(
         "CharityApplicationLib",

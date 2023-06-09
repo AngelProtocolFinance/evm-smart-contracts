@@ -13,7 +13,7 @@ task("manage:createEndowment", "Will create a new endowment")
   .addParam("endowType", "0 - charity, 1 - normal")
   .setAction(async (_taskArguments, hre) => {
     try {
-      const {apTeam1, apTeam2} = await getSigners(hre.ethers);
+      const {apTeam1, apTeam2} = await getSigners(hre);
 
       const addresses = await getAddresses(hre);
 

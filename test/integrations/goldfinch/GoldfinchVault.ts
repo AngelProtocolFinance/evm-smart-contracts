@@ -61,7 +61,7 @@ describe("Goldfinch Vault", function () {
   };
 
   async function deployAndConfigureRegistrarAsProxy(): Promise<LocalRegistrar> {
-    const {proxyAdmin, apTeam2, apTeam3} = await getSigners(ethers);
+    const {proxyAdmin, apTeam2, apTeam3} = await getSigners(hre);
     owner = proxyAdmin;
     taxCollector = apTeam2;
     user = apTeam3;

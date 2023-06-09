@@ -8,7 +8,7 @@ task("manage:addMultisigOwner", "Will add the specified address to the multisig 
   .addParam("owner", "Address of the new owner")
   .setAction(async (taskArguments: TaskArguments, hre) => {
     try {
-      const {apTeam2} = await getSigners(hre.ethers);
+      const {apTeam2} = await getSigners(hre);
 
       const multisig = (await hre.ethers.getContractAt(
         "MultiSigGeneric",

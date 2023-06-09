@@ -16,7 +16,7 @@ export async function deploySwapRouter(
   try {
     const {network, run, ethers} = hre;
 
-    const {proxyAdmin} = await getSigners(ethers);
+    const {proxyAdmin} = await getSigners(hre);
     const swapRouter = await ethers.getContractFactory("SwapRouter");
     const swapRouterInstance = await swapRouter.deploy();
     await swapRouterInstance.deployed();

@@ -12,7 +12,7 @@ export async function charityApplications(
   try {
     const {run, ethers} = hre;
 
-    const {proxyAdmin} = await getSigners(ethers);
+    const {proxyAdmin} = await getSigners(hre);
     const CharityApplicationLib = await ethers.getContractFactory("CharityApplicationLib");
     const CharityApplicationLibInstance = await CharityApplicationLib.deploy();
     await CharityApplicationLibInstance.deployed();

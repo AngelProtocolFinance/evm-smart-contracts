@@ -16,7 +16,7 @@ export async function deployFundraising(
   try {
     const {network, run, ethers} = hre;
 
-    const {proxyAdmin} = await getSigners(ethers);
+    const {proxyAdmin} = await getSigners(hre);
 
     const FundraisingLib = await ethers.getContractFactory("FundraisingLib", {
       libraries: {

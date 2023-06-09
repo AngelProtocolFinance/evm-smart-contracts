@@ -9,7 +9,7 @@ import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interf
 task("manage:updateRegistrar", "Will update the registrar config").setAction(
   async (taskArguments: TaskArguments, hre) => {
     try {
-      const {proxyAdmin, apTeam1, treasury} = await getSigners(hre.ethers);
+      const {proxyAdmin, apTeam1, treasury} = await getSigners(hre);
 
       const addresses = await getAddresses(hre);
 
