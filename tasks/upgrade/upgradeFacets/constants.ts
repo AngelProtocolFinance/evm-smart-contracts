@@ -15,20 +15,16 @@ import {
 } from "typechain-types";
 import {getContractName} from "utils";
 
-export const ALL_FACET_NAMES: string[] = [
-  getContractName(new AccountDeployContract__factory()),
+export const FACET_NAMES_USING_ANGEL_CORE_STRUCT: string[] = [
   getContractName(
     new AccountDepositWithdrawEndowments__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
   ),
-  getContractName(new AccountDonationMatch__factory()),
   getContractName(
     new AccountsAllowance__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
   ),
   getContractName(
     new AccountsCreateEndowment__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
   ),
-  getContractName(new AccountsDAOEndowments__factory()),
-  getContractName(new AccountsQueryEndowments__factory()),
   getContractName(
     new AccountsSwapEndowments__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
   ),
@@ -40,9 +36,17 @@ export const ALL_FACET_NAMES: string[] = [
   getContractName(
     new AccountsUpdateEndowments__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
   ),
-  getContractName(new AccountsUpdateStatusEndowments__factory()),
-  getContractName(new AccountsUpdate__factory()),
   getContractName(
     new AccountsVaultFacet__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
   ),
+];
+
+export const ALL_FACET_NAMES: string[] = [
+  ...FACET_NAMES_USING_ANGEL_CORE_STRUCT,
+  getContractName(new AccountDeployContract__factory()),
+  getContractName(new AccountDonationMatch__factory()),
+  getContractName(new AccountsDAOEndowments__factory()),
+  getContractName(new AccountsQueryEndowments__factory()),
+  getContractName(new AccountsUpdateStatusEndowments__factory()),
+  getContractName(new AccountsUpdate__factory()),
 ];
