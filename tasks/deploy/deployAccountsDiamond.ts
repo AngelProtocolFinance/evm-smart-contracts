@@ -24,7 +24,7 @@ task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
   )
   .addOptionalParam(
     "verify",
-    "Indicates whether the contract should be verified",
+    "Flag indicating whether the contract should be verified",
     false,
     types.boolean
   )

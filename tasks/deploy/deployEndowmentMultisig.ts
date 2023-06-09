@@ -5,7 +5,7 @@ import {isLocalNetwork, logger} from "utils";
 task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
   .addOptionalParam(
     "verify",
-    "Indicates whether the contract should be verified",
+    "Flag indicating whether the contract should be verified",
     false,
     types.boolean
   )

@@ -7,7 +7,7 @@ import {deployImplementation} from "contracts/normalized_endowment/scripts/deplo
 task("deploy:Implementation", "Will deploy Implementation")
   .addOptionalParam(
     "verify",
-    "Indicates whether the contract should be verified",
+    "Flag indicating whether the contract should be verified",
     false,
     types.boolean
   )

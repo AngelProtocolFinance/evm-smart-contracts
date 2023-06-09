@@ -7,7 +7,7 @@ type TaskArgs = {owner?: string; registrar?: string; verify: boolean};
 task("deploy:IndexFund", "Will deploy IndexFund contract")
   .addOptionalParam(
     "verify",
-    "Indicates whether the contract should be verified",
+    "Flag indicating whether the contract should be verified",
     false,
     types.boolean
   )

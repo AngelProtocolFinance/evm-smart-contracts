@@ -26,7 +26,7 @@ task("deploy:integrations:Goldfinch")
   )
   .addOptionalParam(
     "verify",
-    "Indicates whether the contract should be verified",
+    "Flag indicating whether the contract should be verified",
     false,
     types.boolean
   )

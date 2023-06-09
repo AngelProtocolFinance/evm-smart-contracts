@@ -28,7 +28,7 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
   )
   .addOptionalParam(
     "verify",
-    "Indicates whether the contract should be verified",
+    "Flag indicating whether the contract should be verified",
     false,
     types.boolean
   )
