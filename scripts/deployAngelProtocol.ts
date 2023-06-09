@@ -2,7 +2,7 @@
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
-import {ADDRESS_ZERO, cleanAddresses, isLocalNetwork} from "utils";
+import {cleanAddresses, isLocalNetwork} from "utils";
 
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
@@ -13,7 +13,7 @@ import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
 import {deployCharityApplication} from "contracts/multisigs/charity_applications/scripts/deploy";
 import {deployAPTeamMultiSig, deployApplicationsMultiSig} from "contracts/multisigs/scripts/deploy";
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
-import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
+// import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
 import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
 
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
@@ -43,7 +43,7 @@ export async function deployAngelProtocol(
   const applicationsMultiSig = await deployApplicationsMultiSig(verify_contracts, hre);
 
   const registrar = await deployRegistrar(
-    ADDRESS_ZERO,
+    hre.ethers.constants.AddressZero,
     apTeamMultisig.proxy.address,
     verify_contracts,
     hre
@@ -67,11 +67,7 @@ export async function deployAngelProtocol(
     hre
   );
 
-  console.log("Account contract deployed at:-", accountsDiamond.address);
-
-  const emitters = await deployEmitters(accountsDiamond.address, verify_contracts, hre);
-
-  console.log("emitters Contract deployed at:-", emitters);
+  // const emitters = await deployEmitters(accountsDiamond.address, verify_contracts, hre);
 
   const charityApplication = await deployCharityApplication(
     applicationsMultiSig.proxy.address,
@@ -282,13 +278,13 @@ export async function deployAngelProtocol(
     subdaoBondingTokenContract: implementations.subDao.veBondingToken, //address
     subdaoCw900Contract: implementations.incentivisedVotingLockup.implementation, //address
     subdaoDistributorContract: hre.ethers.constants.AddressZero,
-    subdaoEmitter: emitters.subDaoEmitter, //TODO:
+    subdaoEmitter: hre.ethers.constants.AddressZero, //TODO:
     donationMatchContract: implementations.donationMatch.implementation, //address
     indexFundContract: INDEX_FUND_ADDRESS, //address
     govContract: hre.ethers.constants.AddressZero, //address
     treasury: treasury.address,
     donationMatchCharitesContract: implementations.donationMatchCharity.proxy, // once uniswap is setup //address
-    donationMatchEmitter: emitters.DonationMatchEmitter,
+    donationMatchEmitter: hre.ethers.constants.AddressZero,
     haloToken: hre.ethers.constants.AddressZero, //address
     haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
     charitySharesContract: hre.ethers.constants.AddressZero, //TODO: //address
