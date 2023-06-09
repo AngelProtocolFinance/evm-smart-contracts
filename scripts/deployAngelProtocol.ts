@@ -101,7 +101,7 @@ export async function deployAngelProtocol(
   //     registrarContract: REGISTRAR_ADDRESS,
   // }
 
-  // const giftCardAddress = await giftCard(GiftCardDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre)
+  // const giftCardAddress = await giftCard(GiftCardDataInput, angelCoreStruct.address, verify_contracts, hre)
 
   // const FundraisingDataInput = {
   //     registrarContract: REGISTRAR_ADDRESS,
@@ -112,7 +112,7 @@ export async function deployAngelProtocol(
   // }
   // const fundraisingAddress = await deployFundraising(
   //     FundraisingDataInput,
-  //     ANGEL_CORE_STRUCT.address,
+  //     angelCoreStruct.address,
   //     verify_contracts,
   //     hre
   // )

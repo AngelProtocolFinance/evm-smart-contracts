@@ -102,8 +102,8 @@
       "proxy": "0xD8a5a9b31c3C0232E196d518E89Fd8bF83AcAd43"
     },
     "libraries": {
-      "ANGEL_CORE_STRUCT_LIBRARY": "0xec552B17995198A0e71E9198D047B5Ec42710359",
-      "STRING_LIBRARY": "0xD641747EbDbfD170DBc31a74bB7E825Da27C0472"
+      "angelCoreStruct": "0xec552B17995198A0e71E9198D047B5Ec42710359",
+      "stringArray": "0xD641747EbDbfD170DBc31a74bB7E825Da27C0472"
     },
     "multiSig": {
       "applications": {
@@ -253,8 +253,8 @@
       "proxy": "0xE036D1034640fa16280682fd8CC00Ccf3D42e8E4"
     },
     "libraries": {
-      "ANGEL_CORE_STRUCT_LIBRARY": "0xb8e674d1E6b423A7c64E25296Eb305d7c5bCEC4e",
-      "STRING_LIBRARY": "0x5d26E0feBB34C07C0f2750D43D6Bd5F63D9f71c1"
+      "angelCoreStruct": "0xb8e674d1E6b423A7c64E25296Eb305d7c5bCEC4e",
+      "stringArray": "0x5d26E0feBB34C07C0f2750D43D6Bd5F63D9f71c1"
     },
     "multiSig": {
       "applications": {

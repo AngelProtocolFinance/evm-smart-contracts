@@ -169,9 +169,9 @@ export function createEmpty(): AddressObj {
       proxy: "",
     },
     libraries: {
-      ANGEL_CORE_STRUCT_LIBRARY: "",
+      angelCoreStruct: "",
       charityApplicationLib: "",
-      STRING_LIBRARY: "",
+      stringArray: "",
     },
     multiSig: {
       applications: {

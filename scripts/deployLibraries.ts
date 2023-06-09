@@ -20,8 +20,8 @@ export async function deployLibraries(verify_contracts: boolean, hre: HardhatRun
   await updateAddresses(
     {
       libraries: {
-        STRING_LIBRARY: stringLib.address,
-        ANGEL_CORE_STRUCT_LIBRARY: angelCoreStruct.address,
+        stringArray: stringLib.address,
+        angelCoreStruct: angelCoreStruct.address,
       },
     },
     hre

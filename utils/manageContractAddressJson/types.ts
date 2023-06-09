@@ -101,9 +101,9 @@ export type AddressObj = {
     proxy: string;
   };
   libraries: {
-    ANGEL_CORE_STRUCT_LIBRARY: string;
+    angelCoreStruct: string;
     charityApplicationLib: string;
-    STRING_LIBRARY: string;
+    stringArray: string;
   };
   multiSig: {
     applications: {

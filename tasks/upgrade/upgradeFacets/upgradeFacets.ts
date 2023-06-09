@@ -52,8 +52,7 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
       const addresses = await getAddresses(hre);
 
       const accountsDiamond = taskArgs.accountsDiamond || addresses.accounts.diamond;
-      const angelCoreStruct =
-        taskArgs.angelCoreStruct || addresses.libraries.ANGEL_CORE_STRUCT_LIBRARY;
+      const angelCoreStruct = taskArgs.angelCoreStruct || addresses.libraries.angelCoreStruct;
 
       const facets = await deployFacets(facetsToUpgrade, proxyAdmin, angelCoreStruct, hre);
 

@@ -24,8 +24,7 @@ task("deploy:Fundraising", "Will deploy Fundraising contract")
     try {
       const addresses = await getAddresses(hre);
 
-      const angelCoreStruct =
-        taskArgs.angelCoreStruct || addresses.libraries.ANGEL_CORE_STRUCT_LIBRARY;
+      const angelCoreStruct = taskArgs.angelCoreStruct || addresses.libraries.angelCoreStruct;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
       const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
