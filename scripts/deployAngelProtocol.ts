@@ -284,7 +284,7 @@ export async function deployAngelProtocol(
     charityProposal: charityApplication.proxy.address, //address
     lockedWithdrawal: hre.ethers.constants.AddressZero,
     proxyAdmin: proxyAdmin.address, //address
-    usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
+    usdcAddress: mockUSDC ? mockUSDC.address : config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
     wMaticAddress: config.REGISTRAR_UPDATE_CONFIG.wmaticAddress,
     cw900lvAddress: hre.ethers.constants.AddressZero,
   };
