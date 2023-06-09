@@ -98,6 +98,7 @@ abstract contract ERC20AP is Context, IERC20AP {
      * - the caller must have a balance of at least `amount`.
      */
     function transfer(uint32 to, uint256 amount) public virtual override returns (bool) {
+        revert("transfer() not supported");
     }
 
     /**
