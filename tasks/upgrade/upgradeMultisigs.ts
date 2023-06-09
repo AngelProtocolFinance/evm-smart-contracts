@@ -5,7 +5,7 @@ import {
   ITransparentUpgradeableProxy__factory,
 } from "typechain-types";
 import {getAddresses, getSigners, updateAddresses} from "utils";
-import {logger, shouldVerify} from "utils";
+import {logger, isLocalNetwork} from "utils";
 
 task(
   "upgrade:Multisig",
@@ -92,7 +92,7 @@ task(
       hre
     );
 
-    if (shouldVerify(hre.network)) {
+    if (!isLocalNetwork(hre.network)) {
       logger.out("Verifying APTeamMultiSig...");
 
       await hre.run("verify:verify", {

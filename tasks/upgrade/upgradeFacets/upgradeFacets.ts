@@ -1,5 +1,5 @@
 import {task} from "hardhat/config";
-import {confirmAction, getAddresses, getSigners, logger, shouldVerify} from "utils";
+import {confirmAction, getAddresses, getSigners, logger, isLocalNetwork} from "utils";
 
 import {ALL_FACET_NAMES} from "./constants";
 import createFacetCuts from "./createFacetCuts";
@@ -46,7 +46,7 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
 
       await cutDiamond(addresses.accounts.diamond, proxyAdmin, facetCuts, hre);
 
-      if (shouldVerify(hre.network)) {
+      if (!isLocalNetwork(hre.network)) {
         await verify(facetCuts, hre);
       }
     } catch (error) {

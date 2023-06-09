@@ -1,7 +1,7 @@
 import {task} from "hardhat/config";
 import {EndowmentMultiSig__factory, MultiSigWalletFactory__factory} from "typechain-types";
 import {getAddresses, getSigners, updateAddresses} from "utils";
-import {logger, shouldVerify} from "utils";
+import {logger, isLocalNetwork} from "utils";
 
 task(
   "upgrade:EndowmentMultiSig",
@@ -42,7 +42,7 @@ task(
 
     await updateAddresses({multiSig: {endowment: {implementation: contract.address}}}, hre);
 
-    if (shouldVerify(hre.network)) {
+    if (!isLocalNetwork(hre.network)) {
       logger.out("Verifying the contract...");
 
       await hre.run("verify:verify", {

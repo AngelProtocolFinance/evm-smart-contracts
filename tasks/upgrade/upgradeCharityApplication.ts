@@ -1,6 +1,6 @@
 import {task} from "hardhat/config";
 import {CharityApplication__factory} from "typechain-types";
-import {getSigners, logger, shouldVerify, updateAddresses} from "utils";
+import {getSigners, logger, isLocalNetwork, updateAddresses} from "utils";
 
 task(
   "upgrade:CharityApplication",
@@ -38,7 +38,7 @@ task(
       hre
     );
 
-    if (shouldVerify(hre.network)) {
+    if (!isLocalNetwork(hre.network)) {
       logger.out("Verifying CharityApplication implementation...");
 
       await hre.run("verify:verify", {
