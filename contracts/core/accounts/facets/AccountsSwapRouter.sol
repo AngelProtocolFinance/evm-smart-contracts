@@ -95,22 +95,16 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
 
     if (accountType == AngelCoreStruct.AccountType.Locked) {
       require(
-        state.STATES[id].balances.locked.balancesByToken[tokenIn] >= amountIn,
+        state.STATES[id].balances.locked[tokenIn] >= amountIn,
         "Requested swap amount is greater than Endowment Locked balance"
       );
-      state.STATES[id].balances.locked.balancesByToken[tokenIn] = AngelCoreStruct.deductTokens(
-        state.STATES[id].balances.locked.balancesByToken[tokenIn],
-        amountIn
-      );
+      state.STATES[id].balances.locked[tokenIn] -= amountIn;
     } else {
       require(
-        state.STATES[id].balances.liquid.balancesByToken[tokenIn] >= amountIn,
+        state.STATES[id].balances.liquid[tokenIn] >= amountIn,
         "Requested swap amount is greater than Endowment Liquid balance"
       );
-      state.STATES[id].balances.liquid.balancesByToken[tokenIn] = AngelCoreStruct.deductTokens(
-        state.STATES[id].balances.liquid.balancesByToken[tokenIn],
-        amountIn
-      );
+      state.STATES[id].balances.liquid[tokenIn] -= amountIn;
     }
 
     // Check that both in & out tokens have chainlink price feed contract set for them
@@ -146,9 +140,9 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
 
     // Allocate the newly swapped tokens to the correct endowment balance
     if (accountType == AngelCoreStruct.AccountType.Locked) {
-      AngelCoreStruct.addToken(state.STATES[id].balances.locked, tokenOut, amountOut);
+      state.STATES[id].balances.locked[tokenOut] += amountOut;
     } else {
-      AngelCoreStruct.addToken(state.STATES[id].balances.liquid, tokenOut, amountOut);
+      state.STATES[id].balances.liquid[tokenOut] +=  amountOut;
     }
 
     emit SwapToken(id, accountType, tokenIn, amountIn, tokenOut, amountOut);

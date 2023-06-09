@@ -22,24 +22,6 @@ library AngelCoreStruct {
     address contractAddress;
   }
 
-  struct Asset {
-    address addr;
-    string name;
-  }
-
-  enum AssetInfoBase {
-    Cw20,
-    Native,
-    None
-  }
-
-  struct AssetBase {
-    AssetInfoBase info;
-    uint256 amount;
-    address addr;
-    string name;
-  }
-
   //By default array are empty
   struct Categories {
     uint256[] sdgs;
@@ -161,48 +143,14 @@ library AngelCoreStruct {
     address addr;
   }
 
-  struct GenericBalance {
-    uint256 coinNativeAmount;
-    mapping(address => uint256) balancesByToken;
-  }
-
-  function addToken(GenericBalance storage temp, address tokenAddress, uint256 amount) public {
-    temp.balancesByToken[tokenAddress] += amount;
-  }
-
-  function subToken(GenericBalance storage temp, address tokenAddress, uint256 amount) public {
-    temp.balancesByToken[tokenAddress] -= amount;
-  }
-
-  function deductTokens(uint256 amount, uint256 deductamount) public pure returns (uint256) {
-    require(amount > deductamount, "Insufficient Funds");
-    amount -= deductamount;
-    return amount;
-  }
-
-  function getTokenAmount(
-    address[] memory addresses,
-    uint256[] memory amounts,
-    address token
-  ) public pure returns (uint256) {
-    uint256 amount = 0;
-    for (uint8 i = 0; i < addresses.length; i++) {
-      if (addresses[i] == token) {
-        amount = amounts[i];
-      }
-    }
-
-    return amount;
-  }
-
   struct TokenInfo {
     address addr;
     uint256 amnt;
   }
 
   struct BalanceInfo {
-    GenericBalance locked;
-    GenericBalance liquid;
+    mapping(address => uint256) locked;
+    mapping(address => uint256) liquid;
   }
 
   ///TODO: need to test this same names already declared in other libraries

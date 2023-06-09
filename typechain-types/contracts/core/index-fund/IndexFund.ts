@@ -123,33 +123,9 @@ export declare namespace AngelCoreStruct {
     expiryTime: BigNumber;
     expiryHeight: BigNumber;
   };
-
-  export type AssetBaseStruct = {
-    info: PromiseOrValue<BigNumberish>;
-    amount: PromiseOrValue<BigNumberish>;
-    addr: PromiseOrValue<string>;
-    name: PromiseOrValue<string>;
-  };
-
-  export type AssetBaseStructOutput = [number, BigNumber, string, string] & {
-    info: number;
-    amount: BigNumber;
-    addr: string;
-    name: string;
-  };
 }
 
 export declare namespace IndexFundMessage {
-  export type DepositMsgStruct = {
-    fundId: PromiseOrValue<BigNumberish>;
-    split: PromiseOrValue<BigNumberish>;
-  };
-
-  export type DepositMsgStructOutput = [BigNumber, BigNumber] & {
-    fundId: BigNumber;
-    split: BigNumber;
-  };
-
   export type InstantiateMessageStruct = {
     registrarContract: PromiseOrValue<string>;
     fundRotation: PromiseOrValue<BigNumberish>;
@@ -208,7 +184,7 @@ export declare namespace IndexFundMessage {
 export interface IndexFundInterface extends utils.Interface {
   functions: {
     "createIndexFund(string,string,uint32[],bool,uint256,uint256,uint256)": FunctionFragment;
-    "depositERC20(address,(uint256,uint256),(uint8,uint256,address,string))": FunctionFragment;
+    "depositERC20(uint256,address,uint256,uint256)": FunctionFragment;
     "initIndexFund((address,uint256,uint256,uint256))": FunctionFragment;
     "queryActiveFundDetails()": FunctionFragment;
     "queryConfig()": FunctionFragment;
@@ -256,9 +232,10 @@ export interface IndexFundInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "depositERC20",
     values: [
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
-      IndexFundMessage.DepositMsgStruct,
-      AngelCoreStruct.AssetBaseStruct
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
     ]
   ): string;
   encodeFunctionData(
@@ -543,9 +520,10 @@ export interface IndexFund extends BaseContract {
     ): Promise<ContractTransaction>;
 
     depositERC20(
-      senderAddr: PromiseOrValue<string>,
-      details: IndexFundMessage.DepositMsgStruct,
-      fund: AngelCoreStruct.AssetBaseStruct,
+      fundId: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      splitToLiquid: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -620,9 +598,10 @@ export interface IndexFund extends BaseContract {
   ): Promise<ContractTransaction>;
 
   depositERC20(
-    senderAddr: PromiseOrValue<string>,
-    details: IndexFundMessage.DepositMsgStruct,
-    fund: AngelCoreStruct.AssetBaseStruct,
+    fundId: PromiseOrValue<BigNumberish>,
+    token: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
+    splitToLiquid: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -697,11 +676,12 @@ export interface IndexFund extends BaseContract {
     ): Promise<boolean>;
 
     depositERC20(
-      senderAddr: PromiseOrValue<string>,
-      details: IndexFundMessage.DepositMsgStruct,
-      fund: AngelCoreStruct.AssetBaseStruct,
+      fundId: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      splitToLiquid: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<boolean>;
+    ): Promise<void>;
 
     initIndexFund(
       details: IndexFundMessage.InstantiateMessageStruct,
@@ -827,9 +807,10 @@ export interface IndexFund extends BaseContract {
     ): Promise<BigNumber>;
 
     depositERC20(
-      senderAddr: PromiseOrValue<string>,
-      details: IndexFundMessage.DepositMsgStruct,
-      fund: AngelCoreStruct.AssetBaseStruct,
+      fundId: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      splitToLiquid: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -899,9 +880,10 @@ export interface IndexFund extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     depositERC20(
-      senderAddr: PromiseOrValue<string>,
-      details: IndexFundMessage.DepositMsgStruct,
-      fund: AngelCoreStruct.AssetBaseStruct,
+      fundId: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      splitToLiquid: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
