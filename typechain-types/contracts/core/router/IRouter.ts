@@ -27,7 +27,7 @@ import type {
   PromiseOrValue,
 } from "../../../common";
 
-export declare namespace IRouter {
+export declare namespace IVault {
   export type VaultActionDataStruct = {
     destinationChain: PromiseOrValue<string>;
     strategyId: PromiseOrValue<BytesLike>;
@@ -153,75 +153,75 @@ export interface IRouterInterface extends utils.Interface {
 }
 
 export interface DepositEventObject {
-  action: IRouter.VaultActionDataStructOutput;
+  action: IVault.VaultActionDataStructOutput;
 }
 export type DepositEvent = TypedEvent<
-  [IRouter.VaultActionDataStructOutput],
+  [IVault.VaultActionDataStructOutput],
   DepositEventObject
 >;
 
 export type DepositEventFilter = TypedEventFilter<DepositEvent>;
 
 export interface FallbackRefundEventObject {
-  action: IRouter.VaultActionDataStructOutput;
+  action: IVault.VaultActionDataStructOutput;
   amount: BigNumber;
 }
 export type FallbackRefundEvent = TypedEvent<
-  [IRouter.VaultActionDataStructOutput, BigNumber],
+  [IVault.VaultActionDataStructOutput, BigNumber],
   FallbackRefundEventObject
 >;
 
 export type FallbackRefundEventFilter = TypedEventFilter<FallbackRefundEvent>;
 
 export interface HarvestEventObject {
-  action: IRouter.VaultActionDataStructOutput;
+  action: IVault.VaultActionDataStructOutput;
 }
 export type HarvestEvent = TypedEvent<
-  [IRouter.VaultActionDataStructOutput],
+  [IVault.VaultActionDataStructOutput],
   HarvestEventObject
 >;
 
 export type HarvestEventFilter = TypedEventFilter<HarvestEvent>;
 
 export interface LogErrorEventObject {
-  action: IRouter.VaultActionDataStructOutput;
+  action: IVault.VaultActionDataStructOutput;
   message: string;
 }
 export type LogErrorEvent = TypedEvent<
-  [IRouter.VaultActionDataStructOutput, string],
+  [IVault.VaultActionDataStructOutput, string],
   LogErrorEventObject
 >;
 
 export type LogErrorEventFilter = TypedEventFilter<LogErrorEvent>;
 
 export interface LogErrorBytesEventObject {
-  action: IRouter.VaultActionDataStructOutput;
+  action: IVault.VaultActionDataStructOutput;
   data: string;
 }
 export type LogErrorBytesEvent = TypedEvent<
-  [IRouter.VaultActionDataStructOutput, string],
+  [IVault.VaultActionDataStructOutput, string],
   LogErrorBytesEventObject
 >;
 
 export type LogErrorBytesEventFilter = TypedEventFilter<LogErrorBytesEvent>;
 
 export interface RedemptionEventObject {
-  action: IRouter.VaultActionDataStructOutput;
+  action: IVault.VaultActionDataStructOutput;
   amount: BigNumber;
 }
 export type RedemptionEvent = TypedEvent<
-  [IRouter.VaultActionDataStructOutput, BigNumber],
+  [IVault.VaultActionDataStructOutput, BigNumber],
   RedemptionEventObject
 >;
 
 export type RedemptionEventFilter = TypedEventFilter<RedemptionEvent>;
 
 export interface TokensSentEventObject {
-  action: IRouter.VaultActionDataStructOutput;
+  action: IVault.VaultActionDataStructOutput;
   amount: BigNumber;
 }
 export type TokensSentEvent = TypedEvent<
-  [IRouter.VaultActionDataStructOutput, BigNumber],
+  [IVault.VaultActionDataStructOutput, BigNumber],
   TokensSentEventObject
 >;
 
@@ -341,7 +341,7 @@ export interface IRouter extends BaseContract {
       sourceAddress: PromiseOrValue<string>,
       payload: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<IRouter.VaultActionDataStructOutput>;
+    ): Promise<IVault.VaultActionDataStructOutput>;
 
     executeWithToken(
       commandId: PromiseOrValue<BytesLike>,
@@ -360,7 +360,7 @@ export interface IRouter extends BaseContract {
       tokenSymbol: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<IRouter.VaultActionDataStructOutput>;
+    ): Promise<IVault.VaultActionDataStructOutput>;
 
     gateway(overrides?: CallOverrides): Promise<string>;
   };

@@ -15,7 +15,7 @@ import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
 import {IAxelarGateway} from "./../interfaces/IAxelarGateway.sol";
 import {StringArray} from "./../../../lib/Strings/string.sol";
-import {IVault} from "../../../interfaces/IVault.sol";
+import {IVault} from "../../vault/interfaces/IVault.sol";
 
 /**
  * @title AccountsUpdateStatusEndowments

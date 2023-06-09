@@ -2,11 +2,11 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.0;
 
-import {ILocalRegistrar} from "./interfaces/ILocalRegistrar.sol";
-import {LocalRegistrarLib} from "./lib/LocalRegistrarLib.sol";
-import {IVault} from "../../interfaces/IVault.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import { ILocalRegistrar } from "./interfaces/ILocalRegistrar.sol";
+import { LocalRegistrarLib } from "./lib/LocalRegistrarLib.sol";
+import {IVault} from "../vault/interfaces/IVault.sol";
+import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {AngelCoreStruct} from "../struct.sol";
 
 // Import integrations here
@@ -103,11 +103,16 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     return lrs.GasFeeByToken[_tokenAddr];
   }
 
-  function getFeeSettingsByFeeType(
-    AngelCoreStruct.FeeTypes _feeType
-  ) external view returns (AngelCoreStruct.FeeSetting memory) {
-    LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
-    return lrs.FeeSettingsByFeeType[_feeType];
+  function getVaultOperatorApproved(address _operator) external view override returns (bool) {
+      LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
+          LocalRegistrarLib.localRegistrarStorage();
+      return lrs.ApprovedVaultOperators[_operator];
+  }
+
+  function getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes _feeType) external view returns (AngelCoreStruct.FeeSetting memory) {
+      LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
+          LocalRegistrarLib.localRegistrarStorage();
+      return lrs.FeeSettingsByFeeType[_feeType];
   }
 
   /*////////////////////////////////////////////////
@@ -174,33 +179,40 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
 
     LocalRegistrarLib.VaultParams memory lockedParams = LocalRegistrarLib.VaultParams(
-      IVault.VaultType.LOCKED,
-      _lockAddr
+        IVault.VaultType.LOCKED,
+        _lockAddr
     );
     LocalRegistrarLib.VaultParams memory liquidParams = LocalRegistrarLib.VaultParams(
-      IVault.VaultType.LIQUID,
-      _liqAddr
+        IVault.VaultType.LIQUID,
+        _liqAddr
     );
-
+    
     lrs.VaultsByStrategyId[_strategyId] = LocalRegistrarLib.StrategyParams(
-      _approvalState,
-      lockedParams,
-      liquidParams
+        _approvalState,
+        lockedParams,
+        liquidParams
     );
-    emit StrategyParamsChanged(_strategyId, _lockAddr, _liqAddr, _approvalState);
+    emit StrategyParamsChanged(
+        _strategyId,
+        _lockAddr,
+        _liqAddr,
+        _approvalState
+    );
   }
 
-  function setFeeSettingsByFeesType(
-    AngelCoreStruct.FeeTypes _feeType,
-    uint256 _rate,
-    address _payout
-  ) external {
-    LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
-    lrs.FeeSettingsByFeeType[_feeType] = AngelCoreStruct.FeeSetting({
-      payoutAddress: _payout,
-      bps: _rate
-    });
-    emit FeeUpdated(_feeType, _rate, _payout);
+  function setVaultOperatorApproved(address _operator, bool _isApproved) external override {
+    LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
+        LocalRegistrarLib.localRegistrarStorage();
+    lrs.ApprovedVaultOperators[_operator] = _isApproved;
+  }
+  function setFeeSettingsByFeesType(AngelCoreStruct.FeeTypes _feeType, uint256 _rate, address _payout) external {
+      LocalRegistrarLib.LocalRegistrarStorage storage lrs = 
+          LocalRegistrarLib.localRegistrarStorage();
+      lrs.FeeSettingsByFeeType[_feeType] = AngelCoreStruct.FeeSetting({
+          payoutAddress: _payout,
+          bps: _rate
+      });
+      emit FeeUpdated(_feeType, _rate, _payout);
   }
 
   /*////////////////////////////////////////////////

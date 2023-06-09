@@ -396,6 +396,7 @@ export interface RegistrarInterface extends utils.Interface {
     "getRebalanceParams()": FunctionFragment;
     "getStrategyApprovalState(bytes4)": FunctionFragment;
     "getStrategyParamsById(bytes4)": FunctionFragment;
+    "getVaultOperatorApproved(address)": FunctionFragment;
     "initialize((address,(uint256,uint256,uint256),address,address,address))": FunctionFragment;
     "initialize()": FunctionFragment;
     "isTokenAccepted(address)": FunctionFragment;
@@ -413,6 +414,7 @@ export interface RegistrarInterface extends utils.Interface {
     "setStrategyApprovalState(bytes4,uint8)": FunctionFragment;
     "setStrategyParams(bytes4,address,address,uint8)": FunctionFragment;
     "setTokenAccepted(address,bool)": FunctionFragment;
+    "setVaultOperatorApproved(address,bool)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "updateConfig((address,string[],uint256,uint256,uint256,uint256,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address))": FunctionFragment;
     "updateNetworkConnections((string,uint256,address,address,string,string,address,uint256),string)": FunctionFragment;
@@ -428,6 +430,7 @@ export interface RegistrarInterface extends utils.Interface {
       | "getRebalanceParams"
       | "getStrategyApprovalState"
       | "getStrategyParamsById"
+      | "getVaultOperatorApproved"
       | "initialize((address,(uint256,uint256,uint256),address,address,address))"
       | "initialize()"
       | "isTokenAccepted"
@@ -445,6 +448,7 @@ export interface RegistrarInterface extends utils.Interface {
       | "setStrategyApprovalState"
       | "setStrategyParams"
       | "setTokenAccepted"
+      | "setVaultOperatorApproved"
       | "transferOwnership"
       | "updateConfig"
       | "updateNetworkConnections"
@@ -481,6 +485,10 @@ export interface RegistrarInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getStrategyParamsById",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getVaultOperatorApproved",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "initialize((address,(uint256,uint256,uint256),address,address,address))",
@@ -557,6 +565,10 @@ export interface RegistrarInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setVaultOperatorApproved",
+    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [PromiseOrValue<string>]
   ): string;
@@ -599,6 +611,10 @@ export interface RegistrarInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getStrategyParamsById",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getVaultOperatorApproved",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -664,6 +680,10 @@ export interface RegistrarInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setTokenAccepted",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setVaultOperatorApproved",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -924,6 +944,11 @@ export interface Registrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[LocalRegistrarLib.StrategyParamsStructOutput]>;
 
+    getVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     "initialize((address,(uint256,uint256,uint256),address,address,address))"(
       details: RegistrarMessages.InstantiateRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1015,6 +1040,12 @@ export interface Registrar extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      _isApproved: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     transferOwnership(
       newOwner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1068,6 +1099,11 @@ export interface Registrar extends BaseContract {
     _strategyId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<LocalRegistrarLib.StrategyParamsStructOutput>;
+
+  getVaultOperatorApproved(
+    _operator: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   "initialize((address,(uint256,uint256,uint256),address,address,address))"(
     details: RegistrarMessages.InstantiateRequestStruct,
@@ -1154,6 +1190,12 @@ export interface Registrar extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setVaultOperatorApproved(
+    _operator: PromiseOrValue<string>,
+    _isApproved: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   transferOwnership(
     newOwner: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1207,6 +1249,11 @@ export interface Registrar extends BaseContract {
       _strategyId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<LocalRegistrarLib.StrategyParamsStructOutput>;
+
+    getVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     "initialize((address,(uint256,uint256,uint256),address,address,address))"(
       details: RegistrarMessages.InstantiateRequestStruct,
@@ -1286,6 +1333,12 @@ export interface Registrar extends BaseContract {
     setTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       _isAccepted: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      _isApproved: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1445,6 +1498,11 @@ export interface Registrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     "initialize((address,(uint256,uint256,uint256),address,address,address))"(
       details: RegistrarMessages.InstantiateRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1528,6 +1586,12 @@ export interface Registrar extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      _isApproved: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     transferOwnership(
       newOwner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1580,6 +1644,11 @@ export interface Registrar extends BaseContract {
 
     getStrategyParamsById(
       _strategyId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1665,6 +1734,12 @@ export interface Registrar extends BaseContract {
     setTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       _isAccepted: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      _isApproved: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -130,6 +130,7 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
     "getRebalanceParams()": FunctionFragment;
     "getStrategyApprovalState(bytes4)": FunctionFragment;
     "getStrategyParamsById(bytes4)": FunctionFragment;
+    "getVaultOperatorApproved(address)": FunctionFragment;
     "isTokenAccepted(address)": FunctionFragment;
     "setAccountsContractAddressByChain(string,string)": FunctionFragment;
     "setAngelProtocolParams((address,address))": FunctionFragment;
@@ -139,6 +140,7 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
     "setStrategyApprovalState(bytes4,uint8)": FunctionFragment;
     "setStrategyParams(bytes4,address,address,uint8)": FunctionFragment;
     "setTokenAccepted(address,bool)": FunctionFragment;
+    "setVaultOperatorApproved(address,bool)": FunctionFragment;
   };
 
   getFunction(
@@ -151,6 +153,7 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
       | "getRebalanceParams"
       | "getStrategyApprovalState"
       | "getStrategyParamsById"
+      | "getVaultOperatorApproved"
       | "isTokenAccepted"
       | "setAccountsContractAddressByChain"
       | "setAngelProtocolParams"
@@ -160,6 +163,7 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
       | "setStrategyApprovalState"
       | "setStrategyParams"
       | "setTokenAccepted"
+      | "setVaultOperatorApproved"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -193,6 +197,10 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getStrategyParamsById",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getVaultOperatorApproved",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "isTokenAccepted",
@@ -239,6 +247,10 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
     functionFragment: "setTokenAccepted",
     values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "setVaultOperatorApproved",
+    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "getAPGoldfinchParams",
@@ -270,6 +282,10 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getStrategyParamsById",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getVaultOperatorApproved",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -306,6 +322,10 @@ export interface IRegistrarGoldfinchInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setTokenAccepted",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setVaultOperatorApproved",
     data: BytesLike
   ): Result;
 
@@ -491,6 +511,11 @@ export interface IRegistrarGoldfinch extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[LocalRegistrarLib.StrategyParamsStructOutput]>;
 
+    getVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     isTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -544,6 +569,12 @@ export interface IRegistrarGoldfinch extends BaseContract {
       _isAccepted: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    setVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      _isApproved: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   getAPGoldfinchParams(
@@ -582,6 +613,11 @@ export interface IRegistrarGoldfinch extends BaseContract {
     _strategyId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<LocalRegistrarLib.StrategyParamsStructOutput>;
+
+  getVaultOperatorApproved(
+    _operator: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   isTokenAccepted(
     _tokenAddr: PromiseOrValue<string>,
@@ -637,6 +673,12 @@ export interface IRegistrarGoldfinch extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setVaultOperatorApproved(
+    _operator: PromiseOrValue<string>,
+    _isApproved: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     getAPGoldfinchParams(
       overrides?: CallOverrides
@@ -674,6 +716,11 @@ export interface IRegistrarGoldfinch extends BaseContract {
       _strategyId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<LocalRegistrarLib.StrategyParamsStructOutput>;
+
+    getVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     isTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
@@ -726,6 +773,12 @@ export interface IRegistrarGoldfinch extends BaseContract {
     setTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       _isAccepted: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      _isApproved: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -838,6 +891,11 @@ export interface IRegistrarGoldfinch extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     isTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -889,6 +947,12 @@ export interface IRegistrarGoldfinch extends BaseContract {
     setTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       _isAccepted: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      _isApproved: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -931,6 +995,11 @@ export interface IRegistrarGoldfinch extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    getVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     isTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -982,6 +1051,12 @@ export interface IRegistrarGoldfinch extends BaseContract {
     setTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       _isAccepted: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      _isApproved: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

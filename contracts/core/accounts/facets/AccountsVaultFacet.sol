@@ -19,7 +19,7 @@ import {AddressToString} from "../../../lib/StringAddressUtils.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
 import {ISwappingV3} from "./../../swap-router/interfaces/ISwappingV3.sol";
-import {IVault} from "./../../../interfaces/IVault.sol";
+import {IVault} from "../../vault/interfaces/IVault.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "hardhat/console.sol";
@@ -101,36 +101,37 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
     uint32[] memory accts = new uint32[](1);
     accts[0] = id;
 
-    IRouter.VaultActionData memory payload = IRouter.VaultActionData({
-      destinationChain: network.name,
-      strategyId: strategy,
-      selector: IVault.deposit.selector,
-      accountIds: accts,
-      token: tokenAddress,
-      lockAmt: lockAmt,
-      liqAmt: liquidAmt,
-      status: IRouter.VaultActionStatus.UNPROCESSED
-    });
-    bytes memory packedPayload = RouterLib.packCallData(payload);
+        IVault.VaultActionData memory payload = IVault
+            .VaultActionData({
+                destinationChain: network.name,
+                strategyId: strategy,
+                selector: IVault.deposit.selector,
+                accountIds: accts,
+                token: tokenAddress,
+                lockAmt: lockAmt,
+                liqAmt: liquidAmt,
+                status: IVault.VaultActionStatus.UNPROCESSED
+            });
+        bytes memory packedPayload = RouterLib.packCallData(payload);
 
-    IRouter.VaultActionData memory response = IRouter(network.router).executeWithTokenLocal(
-      network.name,
-      AddressToString.toString(address(this)),
-      packedPayload,
-      token,
-      (lockAmt + liquidAmt)
-    );
-
-    if (
-      response.status == IRouter.VaultActionStatus.SUCCESS ||
-      response.status == IRouter.VaultActionStatus.FAIL_TOKENS_FALLBACK
-    ) {
-      state.STATES[id].balances.locked.balancesByToken[tokenAddress] -= response.lockAmt;
-      state.STATES[id].balances.liquid.balancesByToken[tokenAddress] -= response.liqAmt;
-      state.STATES[id].activeStrategies[strategy] == true;
-      // emit UpdateEndowmentState(id, state.STATES[id]);
+        IVault.VaultActionData memory response = 
+            IRouter(network.router)
+            .executeWithTokenLocal(
+                network.name, 
+                AddressToString.toString(address(this)), 
+                packedPayload,
+                token,
+                (lockAmt + liquidAmt)
+            );
+        
+        if (response.status == IVault.VaultActionStatus.SUCCESS ||
+            response.status == IVault.VaultActionStatus.FAIL_TOKENS_FALLBACK) {
+            state.STATES[id].balances.locked.balancesByToken[tokenAddress] -= response.lockAmt;
+            state.STATES[id].balances.liquid.balancesByToken[tokenAddress] -= response.liqAmt;
+            state.STATES[id].activeStrategies[strategy] == true;
+            // emit UpdateEndowmentState(id, state.STATES[id]);
+        }
     }
-  }
 
   /**
    * @notice Allows an endowment owner to redeem their funds from multiple yield strategies.
@@ -187,35 +188,39 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
 
     address tokenAddress = IAxelarGateway(network.axelarGateway).tokenAddresses(token);
 
-    uint32[] memory accts = new uint32[](1);
-    accts[0] = id;
-    IRouter.VaultActionData memory payload = IRouter.VaultActionData({
-      destinationChain: network.name,
-      strategyId: strategy,
-      selector: IVault.redeem.selector,
-      accountIds: accts,
-      token: tokenAddress,
-      lockAmt: lockAmt,
-      liqAmt: liquidAmt,
-      status: IRouter.VaultActionStatus.UNPROCESSED
-    });
+
+        uint32[] memory accts = new uint32[](1);
+        accts[0] = id;
+        IVault.VaultActionData memory payload = IVault
+            .VaultActionData({
+                destinationChain: network.name,
+                strategyId: strategy,
+                selector: IVault.redeem.selector,
+                accountIds: accts,
+                token: tokenAddress,
+                lockAmt: lockAmt,
+                liqAmt: liquidAmt,
+                status: IVault.VaultActionStatus.UNPROCESSED
+            });
 
     bytes memory packedPayload = RouterLib.packCallData(payload);
 
-    IRouter.VaultActionData memory response = IRouter(network.router).executeLocal(
-      network.name,
-      AddressToString.toString(address(this)),
-      packedPayload
-    );
-    if (response.status == IRouter.VaultActionStatus.SUCCESS) {
-      state.STATES[id].balances.locked.balancesByToken[tokenAddress] += response.lockAmt;
-      state.STATES[id].balances.liquid.balancesByToken[tokenAddress] += response.liqAmt;
-      // emit UpdateEndowmentState(id, state.STATES[id]);
+        IVault.VaultActionData memory response = 
+            IRouter(network.router)
+            .executeLocal(
+                network.name, 
+                AddressToString.toString(address(this)), 
+                packedPayload
+            );
+        if (response.status == IVault.VaultActionStatus.SUCCESS) {
+            state.STATES[id].balances.locked.balancesByToken[tokenAddress] += response.lockAmt;
+            state.STATES[id].balances.liquid.balancesByToken[tokenAddress] += response.liqAmt;
+            // emit UpdateEndowmentState(id, state.STATES[id]);
+        }
+        if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
+            state.STATES[id].activeStrategies[strategy] == false;
+        }
     }
-    if (response.status == IRouter.VaultActionStatus.POSITION_EXITED) {
-      state.STATES[id].activeStrategies[strategy] == false;
-    }
-  }
 
   /**
    * @notice Allows an endowment owner to redeem their funds from multiple yield strategies.
@@ -242,33 +247,36 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
 
     address tokenAddress = IAxelarGateway(network.axelarGateway).tokenAddresses(token);
 
-    uint32[] memory accts = new uint32[](1);
-    accts[0] = id;
-    IRouter.VaultActionData memory payload = IRouter.VaultActionData({
-      destinationChain: network.name,
-      strategyId: strategy,
-      selector: IVault.redeemAll.selector,
-      accountIds: accts,
-      token: tokenAddress,
-      lockAmt: 0,
-      liqAmt: 0,
-      status: IRouter.VaultActionStatus.UNPROCESSED
-    });
-    bytes memory packedPayload = RouterLib.packCallData(payload);
+        uint32[] memory accts = new uint32[](1);
+        accts[0] = id;
+        IVault.VaultActionData memory payload = IVault
+            .VaultActionData({
+                destinationChain: network.name,
+                strategyId: strategy,
+                selector: IVault.redeemAll.selector,
+                accountIds: accts,
+                token: tokenAddress,
+                lockAmt: 0,
+                liqAmt: 0,
+                status: IVault.VaultActionStatus.UNPROCESSED
+            });
+        bytes memory packedPayload = RouterLib.packCallData(payload);
 
-    IRouter.VaultActionData memory response = IRouter(network.router).executeLocal(
-      network.name,
-      AddressToString.toString(address(this)),
-      packedPayload
-    );
-
-    if (response.status == IRouter.VaultActionStatus.SUCCESS) {
-      state.STATES[id].balances.locked.balancesByToken[tokenAddress] += response.lockAmt;
-      state.STATES[id].balances.liquid.balancesByToken[tokenAddress] += response.liqAmt;
-      // emit UpdateEndowmentState(id, state.STATES[id]);
+        IVault.VaultActionData memory response = 
+            IRouter(network.router)
+            .executeLocal(
+                network.name, 
+                AddressToString.toString(address(this)), 
+                packedPayload
+            );
+        
+        if (response.status == IVault.VaultActionStatus.SUCCESS) {
+            state.STATES[id].balances.locked.balancesByToken[tokenAddress] += response.lockAmt;
+            state.STATES[id].balances.liquid.balancesByToken[tokenAddress] += response.liqAmt;
+            // emit UpdateEndowmentState(id, state.STATES[id]);
+        }
+        if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
+            state.STATES[id].activeStrategies[strategy] == false;
+        }
     }
-    if (response.status == IRouter.VaultActionStatus.POSITION_EXITED) {
-      state.STATES[id].activeStrategies[strategy] == false;
-    }
-  }
 }
