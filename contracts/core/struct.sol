@@ -22,24 +22,6 @@ library AngelCoreStruct {
     address contractAddress;
   }
 
-  struct Asset {
-    address addr;
-    string name;
-  }
-
-  enum AssetInfoBase {
-    Cw20,
-    Native,
-    None
-  }
-
-  struct AssetBase {
-    AssetInfoBase info;
-    uint256 amount;
-    address addr;
-    string name;
-  }
-
   //By default array are empty
   struct Categories {
     uint256[] sdgs;

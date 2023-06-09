@@ -286,22 +286,21 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
   /**
    * @notice deposit function which can be called by user to add funds to index fund
    * @dev converted from rust implementation, handles donations by managing limits and rotating active fund
-   * @param details deposit details
-   * @param fund fund to deposit to
+   * @param fundId index fund ID
+   * @param token address of Token being deposited
+   * @param amount amount of Token being deposited
+   * @param splitToLiquid integer % of deposit to be split to liquid balance
    */
   function depositERC20(
-    address senderAddr,
-    IndexFundMessage.DepositMsg memory details,
-    AngelCoreStruct.AssetBase memory fund
-  ) public nonReentrant returns (bool) {
-    if (fund.info != AngelCoreStruct.AssetInfoBase.Cw20) {
-      revert("Invalid asset type");
-    }
+    uint256 fundId,
+    address token,
+    uint256 amount,
+    uint256 splitToLiquid
+  ) public nonReentrant {
+    require(token != address(0), "Invalid Token Address");
 
-    // validate fund
-    validateDepositFund(fund);
 
-    uint256 depositAmount = fund.amount;
+    uint256 depositAmount = amount;
 
     // check if block height limit is reached
     if (state.config.fundRotation != 0) {
@@ -320,24 +319,22 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
       .queryConfig();
 
-    if (details.fundId != 0) {
-      require(state.FUNDS[details.fundId].members.length != 0, "Empty Fund");
+    if (fundId != 0) {
+      require(state.FUNDS[fundId].members.length != 0, "Empty Fund");
 
       require(
-        !fundIsExpired(state.FUNDS[details.fundId], block.number, block.timestamp),
+        !fundIsExpired(state.FUNDS[fundId], block.number, block.timestamp),
         "Expired Fund"
       );
 
-      uint256 split = calculateSplit(
-        registrar_config.splitToLiquid,
-        state.FUNDS[details.fundId].splitToLiquid,
-        details.split
-      );
-
       updateDonationMessages(
-        state.FUNDS[details.fundId].members,
-        split,
-        fund.amount,
+        state.FUNDS[fundId].members,
+        calculateSplit(
+          registrar_config.splitToLiquid,
+          state.FUNDS[fundId].splitToLiquid,
+          splitToLiquid
+        ),
+        amount,
         state.donationMessages
       );
     } else {
@@ -373,15 +370,13 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
             loopDonation = depositAmount;
           }
 
-          uint256 split = calculateSplit(
-            registrar_config.splitToLiquid,
-            state.FUNDS[activeFund].splitToLiquid,
-            details.split
-          );
-
           updateDonationMessages(
             state.FUNDS[activeFund].members,
-            split,
+            calculateSplit(
+              registrar_config.splitToLiquid,
+              state.FUNDS[activeFund].splitToLiquid,
+              splitToLiquid
+            ),
             loopDonation,
             state.donationMessages
           );
@@ -396,16 +391,14 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
           "Expired Fund"
         );
 
-        uint256 split = calculateSplit(
-          registrar_config.splitToLiquid,
-          state.FUNDS[state.state.activeFund].splitToLiquid,
-          details.split
-        );
-
         updateDonationMessages(
           state.FUNDS[state.state.activeFund].members,
-          split,
-          fund.amount,
+          calculateSplit(
+            registrar_config.splitToLiquid,
+            state.FUNDS[state.state.activeFund].splitToLiquid,
+            splitToLiquid
+          ),
+          amount,
           state.donationMessages
         );
       }
@@ -413,13 +406,13 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
     // transfer funds from msg sender to here
     require(
-      IERC20(fund.addr).transferFrom(senderAddr, address(this), fund.amount),
+      IERC20(token).transferFrom(msg.sender, address(this), amount),
       "Failed to transfer funds"
     );
 
     // give allowance to accounts
     require(
-      IERC20(fund.addr).approve(registrar_config.accountsContract, fund.amount),
+      IERC20(token).approve(registrar_config.accountsContract, amount),
       "Failed to approve funds"
     );
 
@@ -427,7 +420,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
       address[] memory target,
       uint256[] memory value,
       bytes[] memory callData
-    ) = buildDonationMessages(registrar_config.accountsContract, state.donationMessages, fund.addr);
+    ) = buildDonationMessages(registrar_config.accountsContract, state.donationMessages, token);
 
     Utils._execute(target[0], value[0], callData[0]);
 
@@ -439,19 +432,18 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     delete state.donationMessages.liquidSplit;
 
     emit UpdateIndexFundState(state.state);
-    return true;
   }
 
   /**
    * @dev Update donation messages
    * @param members Array of members
-   * @param split Split to liquid
+   * @param liquidSplit Split to liquid
    * @param balance Balance of fund
    * @param donationMessages Donation messages
    */
   function updateDonationMessages(
     uint32[] memory members,
-    uint256 split,
+    uint256 liquidSplit,
     uint256 balance,
     IndexFundStorage.DonationMessages storage donationMessages
   ) internal {
@@ -461,7 +453,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
       memberPortion = memberPortion.div(members.length);
     }
 
-    uint256 lockSplit = 100 - split;
+    uint256 lockSplit = 100 - liquidSplit;
 
     for (uint256 i = 0; i < members.length; i++) {
       // check if member is in membersidsm, then modify, else push
@@ -478,7 +470,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
       if (alreadyExists) {
         donationMessages.lockedSplit[index] = lockSplit;
-        donationMessages.liquidSplit[index] = split;
+        donationMessages.liquidSplit[index] = liquidSplit;
         donationMessages.locked_donation_amount[index] += (memberPortion * lockSplit) / 100;
         // avoid any over and under flows
         donationMessages.liquid_donation_amount[index] += (
@@ -487,7 +479,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
       } else {
         donationMessages.member_ids.push(members[i]);
         donationMessages.lockedSplit.push(lockSplit);
-        donationMessages.liquidSplit.push(split);
+        donationMessages.liquidSplit.push(liquidSplit);
         donationMessages.locked_donation_amount.push((memberPortion * lockSplit) / 100);
         // avoid any over and under flows
         donationMessages.liquid_donation_amount.push(
@@ -679,25 +671,5 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     } else {
       return activeFunds[index + 1].id;
     }
-  }
-
-  /**
-   * @dev Validate deposit fund (by querying registrar contract)
-   * @param fund Fund
-   * @return True if fund is valid
-   */
-  function validateDepositFund(AngelCoreStruct.AssetBase memory fund) internal view returns (bool) {
-    if (fund.info == AngelCoreStruct.AssetInfoBase.Cw20) {
-      require(
-        IRegistrar(state.config.registrarContract).isTokenAccepted(fund.addr),
-        "Not accepted token"
-      );
-    } else {
-      revert();
-    }
-
-    require(fund.amount != 0, "invalid fund amount");
-
-    return true;
   }
 }

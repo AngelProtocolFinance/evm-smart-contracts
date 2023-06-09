@@ -26,19 +26,6 @@ library IndexFundMessage {
 
   struct DonationDetailsResponse {
     address addr;
-    uint256 totalUst;
+    uint256 total;
   }
-
-  struct DepositMsg {
-    uint256 fundId;
-    uint256 split;
-  }
-
-  // struct BuildDonationMessage{
-  //     uint256 key;
-  //     uint256 key1;
-  //     uint256 value1;
-  //     uint256 key2;
-  //     uint256 value2;
-  // }
 }
