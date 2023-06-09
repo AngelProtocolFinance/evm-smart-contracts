@@ -1,5 +1,5 @@
 import {task, types} from "hardhat/config";
-import {deployLibraries} from "scripts";
+import {deployCommonLibraries} from "scripts";
 import {FACET_NAMES_USING_ANGEL_CORE_STRUCT} from "tasks/upgrade/upgradeFacets/constants";
 import {confirmAction, isLocalNetwork, logger} from "utils";
 
@@ -21,7 +21,7 @@ task("deploy:Libraries", "Will deploy Libraries")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const verify_contracts = taskArgs.verify && !isLocalNetwork(hre);
-      await deployLibraries(verify_contracts, hre);
+      await deployCommonLibraries(verify_contracts, hre);
 
       // update contracts that use these libraries if confirmation is provided
       if (taskArgs.upgradeContracts === false) {

@@ -2,7 +2,10 @@ import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {AngelCoreStruct__factory, StringArray__factory} from "typechain-types";
 import {getSigners, logger, updateAddresses} from "utils";
 
-export async function deployLibraries(verify_contracts: boolean, hre: HardhatRuntimeEnvironment) {
+export async function deployCommonLibraries(
+  verify_contracts: boolean,
+  hre: HardhatRuntimeEnvironment
+) {
   const {proxyAdmin} = await getSigners(hre);
 
   logger.out("Deploying AngelCoreStruct library...");

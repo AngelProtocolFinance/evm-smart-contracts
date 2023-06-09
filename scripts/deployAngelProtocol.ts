@@ -20,7 +20,7 @@ import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interf
 
 import {getSigners} from "utils/getSigners";
 
-import {deployLibraries} from "./deployLibraries";
+import {deployCommonLibraries} from "./deployCommonLibraries";
 import {deployMockUSDC} from "./deployMockUSDC";
 import {updateRegistrarNetworkConnection} from "./updateRegistrar";
 
@@ -37,7 +37,7 @@ export async function deployAngelProtocol(
   // Mock setup required for testing
   const mockUSDC = isLocalNetwork(hre) ? await deployMockUSDC(proxyAdmin, hre) : undefined;
 
-  const {angelCoreStruct, stringLib} = await deployLibraries(verify_contracts, hre);
+  const {angelCoreStruct, stringLib} = await deployCommonLibraries(verify_contracts, hre);
 
   const apTeamMultisig = await deployAPTeamMultiSig(verify_contracts, hre);
 
