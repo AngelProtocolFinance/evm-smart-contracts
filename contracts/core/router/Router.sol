@@ -226,7 +226,6 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         IVault liquidVault = IVault(_params.Liquid.vaultAddr);
 
         // Redeem tokens from vaults and txfer them to the Router
-        // @TODO need to fix the case where amt is 0 because there is no position 
         IVault.RedemptionResponse memory lockResponse = lockedVault.redeemAll(_action.accountIds[0]);
         if(lockResponse.amount > 0) {
             require(
