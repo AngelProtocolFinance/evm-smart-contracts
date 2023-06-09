@@ -1,6 +1,6 @@
 import type {BigNumberish, BytesLike} from "ethers";
 
-export declare namespace IRouter {
+export declare namespace IVaultHelpers {
   export type VaultActionDataStruct = {
     destinationChain: string;
     strategyId: BytesLike;
@@ -9,6 +9,7 @@ export declare namespace IRouter {
     token: string;
     lockAmt: BigNumberish;
     liqAmt: BigNumberish;
+    status: BigNumberish;
   };
 
   export type AngelProtocolParamsStructOutput = [
@@ -17,6 +18,7 @@ export declare namespace IRouter {
     string,
     Array<number>,
     string,
+    number,
     number,
     number
   ] & {
@@ -27,10 +29,11 @@ export declare namespace IRouter {
     token: string;
     lockAmt: number;
     liqAmt: number;
+    status: number;
   };
 }
 
-export function VaultActionStructToArray(actionData: IRouter.VaultActionDataStruct) {
+export function VaultActionStructToArray(actionData: IVaultHelpers.VaultActionDataStruct) {
   return [
     actionData.destinationChain,
     actionData.strategyId,
@@ -39,6 +42,7 @@ export function VaultActionStructToArray(actionData: IRouter.VaultActionDataStru
     actionData.token,
     actionData.lockAmt,
     actionData.liqAmt,
+    actionData.status
   ];
 }
 
@@ -51,5 +55,6 @@ export function ArrayToVaultActionStruct(decodedData: any) {
     token: decodedData[4],
     lockAmt: decodedData[5],
     liqAmt: decodedData[6],
-  } as IRouter.VaultActionDataStruct;
+    status: decodedData[7]
+  } as IVaultHelpers.VaultActionDataStruct;
 }

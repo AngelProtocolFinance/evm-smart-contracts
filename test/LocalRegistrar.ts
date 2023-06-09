@@ -20,9 +20,6 @@ describe("Local Registrar", function () {
   };
 
   let defaultApParams = {
-    protocolTaxRate: 2,
-    protocolTaxBasis: 100,
-    protocolTaxCollector: ethers.constants.AddressZero,
     routerAddr: ethers.constants.AddressZero,
     refundAddr: ethers.constants.AddressZero,
   };
@@ -73,9 +70,6 @@ describe("Local Registrar", function () {
       expect(rebalParams.principleDistribution).to.equal(defaultRebalParams.principleDistribution);
 
       let apParams = await registrar.getAngelProtocolParams();
-      expect(apParams.protocolTaxRate).to.equal(defaultApParams.protocolTaxRate);
-      expect(apParams.protocolTaxBasis).to.equal(defaultApParams.protocolTaxBasis);
-      expect(apParams.protocolTaxCollector).to.equal(defaultApParams.protocolTaxCollector);
       expect(apParams.routerAddr).to.equal(defaultApParams.routerAddr);
     });
 
@@ -116,10 +110,10 @@ describe("Local Registrar", function () {
 
       it("Should accept and set the values", async function () {
         let newValues = defaultApParams;
-        newValues.protocolTaxRate = 0;
+        newValues.routerAddr = user.address;
         await registrar.setAngelProtocolParams(newValues);
         let returnedValues = await registrar.getAngelProtocolParams();
-        expect(returnedValues.protocolTaxRate).to.equal(newValues.protocolTaxRate);
+        expect(returnedValues.routerAddr).to.equal(newValues.routerAddr);
       });
     });
 

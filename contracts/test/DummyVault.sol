@@ -2,11 +2,12 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.0;
 
-import {APVault_V1} from "../core/vault/APVault_V1.sol";
+// import {APVault_V1} from "../core/vault/APVault_V1.sol";
+import {IVault} from "../core/vault/interfaces/IVault.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract DummyVault is APVault_V1 {
-
+contract DummyVault is IVault {
+  VaultConfig vaultConfig;
   uint256 dummyAmt;
 
   /// Test helpers
@@ -15,8 +16,13 @@ contract DummyVault is APVault_V1 {
   }
 
   /// Vault impl
-  constructor(VaultConfig memory _config)
-    APVault_V1(_config) {}
+  constructor(VaultConfig memory _config) {
+    vaultConfig = _config;
+  }
+
+  function setVaultConfig(VaultConfig memory _newConfig) external override {
+    vaultConfig = _newConfig;
+  }
 
   function getVaultConfig() external view virtual override returns (VaultConfig memory) {
     return vaultConfig;
@@ -44,4 +50,8 @@ contract DummyVault is APVault_V1 {
   function harvest(uint32[] calldata accountIds) public override {
     emit Harvest(accountIds);
   }
+
+  function _isApprovedRouter() internal view override returns (bool) {}
+  function _isSiblingVault() internal view override returns (bool) {}
+
 }

@@ -1,5 +1,6 @@
 import {expect} from "chai";
 import {ethers, upgrades} from "hardhat";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   DummyERC20,
   DummyERC20__factory,
@@ -9,6 +10,7 @@ import {
   DummyGateway__factory,
   DummyVault,
   DummyVault__factory,
+  IVault,
   LocalRegistrar,
   LocalRegistrar__factory,
   Router,
@@ -17,10 +19,10 @@ import {
 import {LocalRegistrarLib} from "../typechain-types/contracts/core/registrar/LocalRegistrar";
 import {
   ArrayToVaultActionStruct,
-  IRouter,
+  IVaultHelpers,
   StrategyApprovalState,
   VaultActionStructToArray,
-  getSigners,
+  getSigners
 } from "utils";
 
 describe("Router", function () {
@@ -47,10 +49,7 @@ describe("Router", function () {
     gasRecvAddress: string = "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
     registrar?: LocalRegistrar
   ): Promise<Router> {
-    const {proxyAdmin, apTeam2, apTeam3} = await getSigners(ethers);
-    owner = proxyAdmin;
-    user = apTeam2;
-    collector = apTeam3;
+    [owner, user, collector] = await ethers.getSigners();
     let apParams = defaultApParams;
     apParams.refundAddr = collector.address;
     if (!registrar) {
@@ -75,9 +74,40 @@ describe("Router", function () {
     return registrar;
   }
 
-  async function deployDummyVault(vaultType: number = 1): Promise<DummyVault> {
+  async function deployDummyVault(
+    {
+      vaultType = 1, 
+      strategySelector = "0x12345678",
+      strategy = ethers.constants.AddressZero,
+      registrar = ethers.constants.AddressZero,
+      baseToken, 
+      yieldToken,
+      apTokenName = "TestVault",
+      apTokenSymbol = "TV"
+    } : {
+      vaultType?: number, 
+      strategySelector?: string,
+      strategy?: string,
+      registrar?: string,
+      baseToken: string, 
+      yieldToken: string,
+      apTokenName?: string,
+      apTokenSymbol?: string
+    }
+    ): Promise<DummyVault> {
     let Vault = (await ethers.getContractFactory("DummyVault")) as DummyVault__factory;
-    const vault = await Vault.deploy(vaultType); // Liquid type by default
+    let vaultInitConfig: IVault.VaultConfigStruct = {
+      vaultType: vaultType,
+      strategySelector: strategySelector,
+      strategy: strategy,
+      registrar: registrar,
+      baseToken: baseToken, 
+      yieldToken: yieldToken,
+      apTokenName: apTokenName,
+      apTokenSymbol: apTokenSymbol,
+      admin: owner.address
+    }
+    const vault = await Vault.deploy(vaultInitConfig); // Liquid type by default
     await vault.deployed();
     return vault;
   }
@@ -98,15 +128,15 @@ describe("Router", function () {
     return gasService;
   }
 
-  async function packActionData(_actionData: IRouter.VaultActionDataStruct): Promise<string> {
-    const TypeList = ["string", "bytes4", "bytes4", "uint[]", "address", "uint", "uint"];
+  async function packActionData(_actionData: IVaultHelpers.VaultActionDataStruct): Promise<string> {
+    const TypeList = ["string", "bytes4", "bytes4", "uint[]", "address", "uint", "uint", "uint"];
     return ethers.utils.defaultAbiCoder.encode(TypeList, VaultActionStructToArray(_actionData));
   }
 
   async function unpackActionData(
     _encodedActionData: string
-  ): Promise<IRouter.VaultActionDataStruct> {
-    const TypeList = ["string", "string", "string", "uint[]", "string", "uint", "uint"];
+  ): Promise<IVaultHelpers.VaultActionDataStruct> {
+    const TypeList = ["string", "string", "string", "uint[]", "string", "uint", "uint", "uint"];
     let decoded = ethers.utils.defaultAbiCoder.decode(TypeList, _encodedActionData);
     return ArrayToVaultActionStruct(decoded);
   }
@@ -165,9 +195,10 @@ describe("Router", function () {
     let router: Router;
     let gasService: DummyGasService;
     before(async function () {
+      token = await deployDummyERC20();
       gateway = await deployDummyGateway();
-      lockedVault = await deployDummyVault(0);
-      liquidVault = await deployDummyVault(1);
+      lockedVault = await deployDummyVault({baseToken: token.address, yieldToken: token.address, vaultType: 0});
+      liquidVault = await deployDummyVault({baseToken: token.address, yieldToken: token.address, vaultType: 1});
       gasService = await deployDummyGasService();
       token = await deployDummyERC20();
       registrar = await deployRegistrarAsProxy();
@@ -268,12 +299,14 @@ describe("Router", function () {
         token: "",
         lockAmt: 111,
         liqAmt: 222,
-      } as IRouter.VaultActionDataStruct);
+        status: 0 // unprocessed 
+      } as IVaultHelpers.VaultActionDataStruct);
 
     describe("and the refund call is successful back through axelar", function () {
       before(async function () {
-        lockedVault = await deployDummyVault(0);
-        liquidVault = await deployDummyVault(1);
+        token = await deployDummyERC20();
+        lockedVault = await deployDummyVault({baseToken: token.address, yieldToken: token.address, vaultType: 0});
+        liquidVault = await deployDummyVault({baseToken: token.address, yieldToken: token.address, vaultType: 1});
         gateway = await deployDummyGateway();
         gasService = await deployDummyGasService();
         token = await deployDummyERC20();
@@ -467,11 +500,11 @@ describe("Router", function () {
 
     describe("and the refund call fails through axelar and falls back to the refund collector", async function () {
       before(async function () {
-        lockedVault = await deployDummyVault(0);
-        liquidVault = await deployDummyVault(1);
+        token = await deployDummyERC20();
+        lockedVault = await deployDummyVault({baseToken: token.address, yieldToken: token.address, vaultType: 0});
+        liquidVault = await deployDummyVault({baseToken: token.address, yieldToken: token.address, vaultType: 1});
         gateway = await deployDummyGateway();
         gasService = await deployDummyGasService();
-        token = await deployDummyERC20();
         registrar = await deployRegistrarAsProxy();
         await gateway.setTestTokenAddress(token.address);
         await registrar.setTokenAccepted(token.address, true);
@@ -674,31 +707,31 @@ describe("Router", function () {
       token: "",
       lockAmt: 111,
       liqAmt: 222,
-    } as IRouter.VaultActionDataStruct;
+      status: 0
+    } as IVaultHelpers.VaultActionDataStruct;
 
     before(async function () {
-      lockedVault = await deployDummyVault(0);
-      liquidVault = await deployDummyVault(1);
       gateway = await deployDummyGateway();
       gasService = await deployDummyGasService();
       token = await deployDummyERC20();
-      await liquidVault.setDefaultToken(token.address);
-      await lockedVault.setDefaultToken(token.address);
       registrar = await deployRegistrarAsProxy();
-      await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract);
-      await gateway.setTestTokenAddress(token.address);
       await registrar.setTokenAccepted(token.address, true);
+      await gateway.setTestTokenAddress(token.address);
+      await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract);
+      actionData.token = token.address;
+      lockedVault = await deployDummyVault({baseToken: token.address, yieldToken: token.address, vaultType: 0});
+      liquidVault = await deployDummyVault({baseToken: token.address, yieldToken: token.address, vaultType: 1});
       await registrar.setStrategyParams(
         actionData.strategyId,
         lockedVault.address,
         liquidVault.address,
         StrategyApprovalState.APPROVED
       );
-      actionData.token = token.address;
     });
 
     beforeEach(async function () {
       router = await deployRouterAsProxy(gateway.address, gasService.address, registrar);
+      await registrar.setAngelProtocolParams({routerAddr: router.address, refundAddr: owner.address})
     });
 
     it("correctly calls depost", async function () {
@@ -735,8 +768,6 @@ describe("Router", function () {
       actionData.selector = liquidVault.interface.getSighash("redeem");
       actionData.token = token.address;
       packedData = await packActionData(actionData);
-      await liquidVault.setRouterAddress(router.address);
-      await lockedVault.setRouterAddress(router.address);
       await expect(
         router.execute(
           ethers.utils.formatBytes32String("true"),
@@ -810,20 +841,19 @@ describe("Router", function () {
       token: "",
       lockAmt: 111,
       liqAmt: 222,
-    } as IRouter.VaultActionDataStruct;
+      status: 0
+    } as IVaultHelpers.VaultActionDataStruct;
 
     before(async function () {
-      lockedVault = await deployDummyVault(0);
-      liquidVault = await deployDummyVault(1);
       gateway = await deployDummyGateway();
       gasService = await deployDummyGasService();
       token = await deployDummyERC20();
-      await liquidVault.setDefaultToken(token.address);
-      await lockedVault.setDefaultToken(token.address);
       registrar = await deployRegistrarAsProxy();
       await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract);
       await gateway.setTestTokenAddress(token.address);
       await registrar.setTokenAccepted(token.address, true);
+      lockedVault = await deployDummyVault({baseToken: token.address, yieldToken: token.address, vaultType: 0});
+      liquidVault = await deployDummyVault({baseToken: token.address, yieldToken: token.address, vaultType: 1});
       await registrar.setStrategyParams(
         actionData.strategyId,
         lockedVault.address,
@@ -871,19 +901,18 @@ describe("Router", function () {
       token: "",
       lockAmt: 111,
       liqAmt: 222,
-    } as IRouter.VaultActionDataStruct;
+      status: 0
+    } as IVaultHelpers.VaultActionDataStruct;
 
     before(async function () {
-      lockedVault = await deployDummyVault(0);
-      liquidVault = await deployDummyVault(1);
       gateway = await deployDummyGateway();
       gasService = await deployDummyGasService();
       token = await deployDummyERC20();
-      await liquidVault.setDefaultToken(token.address);
-      await lockedVault.setDefaultToken(token.address);
       registrar = await deployRegistrarAsProxy();
       await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract);
       await gateway.setTestTokenAddress(token.address);
+      lockedVault = await deployDummyVault({baseToken: token.address, yieldToken: token.address, vaultType: 0});
+      liquidVault = await deployDummyVault({baseToken: token.address, yieldToken: token.address, vaultType: 1});
       await registrar.setTokenAccepted(token.address, true);
       await registrar.setStrategyParams(
         actionData.strategyId,
@@ -1011,20 +1040,19 @@ describe("Router", function () {
       token: "",
       lockAmt: 111,
       liqAmt: 222,
-    } as IRouter.VaultActionDataStruct;
+      status: 0
+    } as IVaultHelpers.VaultActionDataStruct;
 
     before(async function () {
-      lockedVault = await deployDummyVault(0);
-      liquidVault = await deployDummyVault(1);
       gateway = await deployDummyGateway();
       gasService = await deployDummyGasService();
       token = await deployDummyERC20();
-      await liquidVault.setDefaultToken(token.address);
-      await lockedVault.setDefaultToken(token.address);
       registrar = await deployRegistrarAsProxy();
       await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract);
       await gateway.setTestTokenAddress(token.address);
       await registrar.setTokenAccepted(token.address, true);
+      lockedVault = await deployDummyVault({baseToken: token.address, yieldToken: token.address, vaultType: 0});
+      liquidVault = await deployDummyVault({baseToken: token.address, yieldToken: token.address, vaultType: 1});
       await registrar.setStrategyParams(
         actionData.strategyId,
         lockedVault.address,
