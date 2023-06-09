@@ -154,19 +154,19 @@
     "accounts": {
       "diamond": "0xFCbE277d74027455A92fA67253FA16385F0579F4",
       "facets": {
-        "accountDeployContract": "0x1906352b143d11040d3cb76fe25f77F49aF8a76b",
-        "accountDepositWithdrawEndowments": "0x7a323CA6Ddf5dA17C5C848D2D5F9396Daa410f07",
-        "accountDonationMatch": "0xC7d613A627c5411B3EE8b77b348DEc6df7f1ba27",
-        "accountsAllowance": "0x775343B5F876da7Ab05711E3414A9B67de59CF6d",
-        "accountsCreateEndowment": "0x23A30793A3dc5cC7b682e57934ef938fD829Fd0a",
-        "AccountsDaoEndowments": "0xfCbb17C228A3694bcCB3C4eF5d23Cf3BA081f8E3",
-        "accountsQueryEndowments": "0x3051C96255c857b86d6136a1b171dBf2336E8a13",
-        "accountsSwapEndowments": "0x15c44508e37cB4576d03D886F86b5c3824798Cc1",
-        "accountsUpdate": "0x0490C93D48fE652EcD8108Fa5c336BDdacD02978",
-        "accountsUpdateEndowments": "0xA482b93123B736eE977E87E659EBBCE253C9465b",
-        "accountsUpdateEndowmentSettingsController": "0x1E263d2c45F6583a7F8035436edf55CF70C2626c",
-        "accountsUpdateStatusEndowments": "0xAaf7abB71cE6E6De15E6af527f1Fe4929BC44450",
-        "accountsVaultFacet": "0x11422c97e7F99E8FC8A78B8005b45E1E6cc5bE0e",
+        "accountDeployContract": "0x2A428390c936E74dCB1996348d38c76ABc276Eb6",
+        "accountDepositWithdrawEndowments": "0xB2B77fD5260Ed0Dd5DD4cfF28AFC9A242f2a2C19",
+        "accountDonationMatch": "0xE319dce647CD4EE69B5AAf4B45D863722e64b5c7",
+        "accountsAllowance": "0xC2aa25C6637883CCadAAf02E2BE496bAae68EBaa",
+        "accountsCreateEndowment": "0x6066b5FB313F9251CC5664c8e9F37084eEc225D2",
+        "accountsDAOEndowments": "0x1936e051f584AD8B00A8Da7865A2858ed43CE729",
+        "accountsQueryEndowments": "0xdBCD74A5A004816A1aE17678B6cef5F60C255A3b",
+        "accountsSwapEndowments": "0x124B266E14B0B8fd50e71C96182112cA099398D8",
+        "accountsUpdate": "0xE2b25B6c26CB26ed2A5957e1B611d73D99D88cF7",
+        "accountsUpdateEndowments": "0xc70f04490A543B23234e463d773de2636b3ceC0b",
+        "accountsUpdateEndowmentSettingsController": "0xcf5ad1296845e84aA3e4C0D859237F6925dEb95c",
+        "accountsUpdateStatusEndowments": "0x41Aa111E1d3deC88281D14b5B5823529079f5dAE",
+        "accountsVaultFacet": "0xFE526Fe9db645bfe76CA79b652E5e47E798331c3",
         "diamondCutFacet": "0xB5602EB190943fb897999C9Df49c92faa27F9672",
         "diamondInitFacet": "0x9908870F15E1626FB2944c622791f2e929EC2f58",
         "diamondLoupeFacet": "0x76bd4D306B494287b3d87164bAC6665f275D7359",
@@ -253,8 +253,8 @@
       "proxy": "0xE036D1034640fa16280682fd8CC00Ccf3D42e8E4"
     },
     "libraries": {
-      "ANGEL_CORE_STRUCT_LIBRARY": "0xa91ad7B8650B0D5C1A39163a3D8Ff4294290Ac75",
-      "STRING_LIBRARY": "0x34eFaFC3456Db1B459EcE744270e68a45Ad1139a"
+      "ANGEL_CORE_STRUCT_LIBRARY": "0xb8e674d1E6b423A7c64E25296Eb305d7c5bCEC4e",
+      "STRING_LIBRARY": "0x5d26E0feBB34C07C0f2750D43D6Bd5F63D9f71c1"
     },
     "multiSig": {
       "applications": {
