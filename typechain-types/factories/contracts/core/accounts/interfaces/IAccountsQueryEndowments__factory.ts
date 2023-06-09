@@ -5,9 +5,9 @@
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
 import type {
-  IAccountsQuery,
-  IAccountsQueryInterface,
-} from "../../../../../contracts/core/accounts/interfaces/IAccountsQuery";
+  IAccountsQueryEndowments,
+  IAccountsQueryEndowmentsInterface,
+} from "../../../../../contracts/core/accounts/interfaces/IAccountsQueryEndowments";
 
 const _abi = [
   {
@@ -85,9 +85,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
+        internalType: "uint32",
         name: "id",
-        type: "uint256",
+        type: "uint32",
       },
     ],
     name: "queryEndowmentDetails",
@@ -909,9 +909,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
+        internalType: "uint32",
         name: "id",
-        type: "uint256",
+        type: "uint32",
       },
     ],
     name: "queryState",
@@ -969,9 +969,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
+        internalType: "uint32",
         name: "id",
-        type: "uint256",
+        type: "uint32",
       },
       {
         internalType: "enum AngelCoreStruct.AccountType",
@@ -997,15 +997,19 @@ const _abi = [
   },
 ] as const;
 
-export class IAccountsQuery__factory {
+export class IAccountsQueryEndowments__factory {
   static readonly abi = _abi;
-  static createInterface(): IAccountsQueryInterface {
-    return new utils.Interface(_abi) as IAccountsQueryInterface;
+  static createInterface(): IAccountsQueryEndowmentsInterface {
+    return new utils.Interface(_abi) as IAccountsQueryEndowmentsInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): IAccountsQuery {
-    return new Contract(address, _abi, signerOrProvider) as IAccountsQuery;
+  ): IAccountsQueryEndowments {
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as IAccountsQueryEndowments;
   }
 }

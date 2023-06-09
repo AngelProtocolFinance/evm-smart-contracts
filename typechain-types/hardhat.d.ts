@@ -389,13 +389,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IAccountsDepositWithdrawEndowments__factory>;
     getContractFactory(
-      name: "IAccountsQuery",
+      name: "IAccountsQueryEndowments",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IAccountsQuery__factory>;
-    getContractFactory(
-      name: "IAxelarGateway",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IAxelarGateway__factory>;
+    ): Promise<Contracts.IAccountsQueryEndowments__factory>;
     getContractFactory(
       name: "ERC20AP",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -1236,15 +1232,10 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IAccountsDepositWithdrawEndowments>;
     getContractAt(
-      name: "IAccountsQuery",
+      name: "IAccountsQueryEndowments",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.IAccountsQuery>;
-    getContractAt(
-      name: "IAxelarGateway",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IAxelarGateway>;
+    ): Promise<Contracts.IAccountsQueryEndowments>;
     getContractAt(
       name: "ERC20AP",
       address: string,

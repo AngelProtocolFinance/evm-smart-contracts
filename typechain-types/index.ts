@@ -194,8 +194,8 @@ export type { IAccountsCreateEndowment } from "./contracts/core/accounts/interfa
 export { IAccountsCreateEndowment__factory } from "./factories/contracts/core/accounts/interfaces/IAccountsCreateEndowment__factory";
 export type { IAccountsDepositWithdrawEndowments } from "./contracts/core/accounts/interfaces/IAccountsDepositWithdrawEndowments";
 export { IAccountsDepositWithdrawEndowments__factory } from "./factories/contracts/core/accounts/interfaces/IAccountsDepositWithdrawEndowments__factory";
-export type { IAccountsQuery } from "./contracts/core/accounts/interfaces/IAccountsQuery";
-export { IAccountsQuery__factory } from "./factories/contracts/core/accounts/interfaces/IAccountsQuery__factory";
+export type { IAccountsQueryEndowments } from "./contracts/core/accounts/interfaces/IAccountsQueryEndowments";
+export { IAccountsQueryEndowments__factory } from "./factories/contracts/core/accounts/interfaces/IAccountsQueryEndowments__factory";
 export type { ERC20AP } from "./contracts/core/erc20ap/ERC20AP";
 export { ERC20AP__factory } from "./factories/contracts/core/erc20ap/ERC20AP__factory";
 export type { IERC20AP } from "./contracts/core/erc20ap/IERC20AP";
