@@ -10,7 +10,7 @@ import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
 // import { deployHaloImplementation } from "contracts/halo/scripts/deploy"
-import {charityApplications} from "contracts/multisigs/charity_applications/scripts/deploy";
+import {deployCharityApplication} from "contracts/multisigs/charity_applications/scripts/deploy";
 import {deployAPTeamMultiSig, deployApplicationsMultiSig} from "contracts/multisigs/scripts/deploy";
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
 import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
@@ -73,24 +73,12 @@ export async function deployAngelProtocol(
 
   console.log("emitters Contract deployed at:-", emitters);
 
-  const charityApplicationsData: Parameters<typeof charityApplications>[0] = [
-    config.CHARITY_APPLICATION_DATA.expiry,
+  const charityApplication = await deployCharityApplication(
     applicationsMultiSig.proxy.address,
     accountsDiamond.address,
-    config.CHARITY_APPLICATION_DATA.seedSplitToLiquid,
-    config.CHARITY_APPLICATION_DATA.newEndowGasMoney,
-    config.CHARITY_APPLICATION_DATA.gasAmount,
-    config.CHARITY_APPLICATION_DATA.fundSeedAsset,
-    config.CHARITY_APPLICATION_DATA.seedAsset,
-    config.CHARITY_APPLICATION_DATA.seedAssetAmount,
-  ];
-
-  const charityApplicationsAddress = await charityApplications(
-    charityApplicationsData,
     verify_contracts,
     hre
   );
-  console.log("charityApplicationsAddress deployed at:-", charityApplicationsAddress);
 
   const SWAP_ROUTER = await deploySwapRouter(
     registrar.proxy.address,
@@ -309,7 +297,7 @@ export async function deployAngelProtocol(
     swapsRouter: SWAP_ROUTER, //address
     multisigFactory: multisigDat.MultiSigWalletFactory, //address
     multisigEmitter: multisigDat.EndowmentMultiSigEmitter, //address
-    charityProposal: charityApplicationsAddress, //address
+    charityProposal: charityApplication.proxy.address, //address
     lockedWithdrawal: hre.ethers.constants.AddressZero,
     proxyAdmin: proxyAdmin.address, //address
     usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address

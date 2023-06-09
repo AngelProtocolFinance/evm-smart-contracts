@@ -3,7 +3,7 @@ import {task, types} from "hardhat/config";
 import {isLocalNetwork, logger} from "utils";
 import {getAddresses} from "utils";
 
-import {charityApplications} from "contracts/multisigs/charity_applications/scripts/deploy";
+import {deployCharityApplication} from "contracts/multisigs/charity_applications/scripts/deploy";
 
 task("deploy:CharityApplications", "Will deploy CharityApplications contract")
   .addOptionalParam(
@@ -15,7 +15,7 @@ task("deploy:CharityApplications", "Will deploy CharityApplications contract")
   .setAction(async (taskArgs: {verify: boolean}, hre) => {
     try {
       const addresses = await getAddresses(hre);
-      const charityApplicationsData: Parameters<typeof charityApplications>[0] = [
+      const charityApplicationsData: Parameters<typeof deployCharityApplication>[0] = [
         config.CHARITY_APPLICATION_DATA.expiry,
         addresses.multiSig.applications.proxy,
         addresses.accounts.diamond,
@@ -28,7 +28,7 @@ task("deploy:CharityApplications", "Will deploy CharityApplications contract")
       ];
       const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
-      await charityApplications(charityApplicationsData, verify_contracts, hre);
+      await deployCharityApplication(charityApplicationsData, verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

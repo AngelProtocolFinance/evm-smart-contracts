@@ -102,6 +102,7 @@ export type AddressObj = {
   };
   libraries: {
     ANGEL_CORE_STRUCT_LIBRARY: string;
+    charityApplicationLib: string;
     STRING_LIBRARY: string;
   };
   multiSig: {

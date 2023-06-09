@@ -170,6 +170,7 @@ export function createEmpty(): AddressObj {
     },
     libraries: {
       ANGEL_CORE_STRUCT_LIBRARY: "",
+      charityApplicationLib: "",
       STRING_LIBRARY: "",
     },
     multiSig: {
