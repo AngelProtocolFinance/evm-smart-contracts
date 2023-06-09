@@ -1,8 +1,8 @@
-import config from "config";
 import {task, types} from "hardhat/config";
 import {getAddresses, isLocalNetwork, logger} from "utils";
-
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
+
+type TaskArgs = {owner?: string; registrar?: string; verify: boolean};
 
 task("deploy:IndexFund", "Will deploy IndexFund contract")
   .addOptionalParam(
@@ -11,22 +11,26 @@ task("deploy:IndexFund", "Will deploy IndexFund contract")
     false,
     types.boolean
   )
-  .addParam("registraraddress", "Address of the Registrar contract")
-  .setAction(async (taskArgs, hre) => {
+  .addOptionalParam(
+    "registrar",
+    "Address of the Registrar contract. Will do a local lookup from contract-address.json if none is provided."
+  )
+  .addOptionalParam(
+    "owner",
+    "Address of the owner. By default set to AP team multisig proxy saved in contract-address.json."
+  )
+  .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      const {
-        multiSig: {apTeam},
-      } = await getAddresses(hre);
-      const indexFundData = {
-        registrarContract: taskArgs.registraraddress,
-        fundRotation: config.INDEX_FUND_DATA.fundRotation,
-        fundMemberLimit: config.INDEX_FUND_DATA.fundMemberLimit,
-        fundingGoal: config.INDEX_FUND_DATA.fundingGoal,
-      };
+      const addresses = await getAddresses(hre);
+
+      const registrar = taskArgs.registrar || addresses.registrar.proxy;
+      const owner = taskArgs.owner || addresses.multiSig.apTeam.proxy;
       const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
-      await deployIndexFund(indexFundData, apTeam.proxy, verify_contracts, hre);
+      await deployIndexFund(registrar, owner, verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
+    } finally {
+      logger.out("Done.");
     }
   });

@@ -85,21 +85,14 @@ export async function deployAngelProtocol(
     hre
   );
 
-  const indexFundData = {
-    registrarContract: registrar.proxy.address,
-    fundRotation: config.INDEX_FUND_DATA.fundRotation,
-    fundMemberLimit: config.INDEX_FUND_DATA.fundMemberLimit,
-    fundingGoal: config.INDEX_FUND_DATA.fundingGoal,
-  };
-
-  const INDEX_FUND_ADDRESS = await deployIndexFund(
-    indexFundData,
+  const indexFund = await deployIndexFund(
+    registrar.proxy.address,
     apTeamMultisig.proxy.address,
     verify_contracts,
     hre
   );
 
-  console.log("INDEX_FUND_ADDRESS contract deployed at:-", INDEX_FUND_ADDRESS);
+  console.log("INDEX_FUND_ADDRESS contract deployed at:-", indexFund);
 
   const multisigDat = await deployEndowmentMultiSig(verify_contracts, hre);
 
@@ -278,7 +271,7 @@ export async function deployAngelProtocol(
     subdaoDistributorContract: hre.ethers.constants.AddressZero,
     subdaoEmitter: hre.ethers.constants.AddressZero, //TODO:
     donationMatchContract: implementations.donationMatch.implementation, //address
-    indexFundContract: INDEX_FUND_ADDRESS, //address
+    indexFundContract: indexFund.proxy.address, //address
     govContract: hre.ethers.constants.AddressZero, //address
     treasury: treasury.address,
     donationMatchCharitesContract: implementations.donationMatchCharity.proxy, // once uniswap is setup //address
