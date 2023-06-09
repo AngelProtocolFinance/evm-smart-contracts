@@ -5,7 +5,7 @@ export * from "./getContractName";
 export * from "./getSigners";
 export * from "./keygen";
 export * as logger from "./logger";
-export * from "./manageAddressFile";
+export * from "./manageContractAddressJson";
 export * from "./networkHelpers";
 export * from "./test";
 export * from "./types";
