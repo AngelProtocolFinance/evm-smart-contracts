@@ -176,9 +176,8 @@ contract AccountsDepositWithdrawEndowments is
       }
     }
 
-    AngelCoreStruct.addToken(state.STATES[details.id].balances.locked, tokenAddress, lockedAmount);
-    AngelCoreStruct.addToken(state.STATES[details.id].balances.liquid, tokenAddress, liquidAmount);
-    // emit UpdateEndowmentState(details.id, state.STATES[details.id]);
+    state.STATES[details.id].balances.locked[tokenAddress] += lockedAmount;
+    state.STATES[details.id].balances.liquid[tokenAddress] += liquidAmount;
 
     state.ENDOWMENTS[details.id] = tempEndowment;
     emit UpdateEndowment(details.id, tempEndowment);
@@ -296,9 +295,9 @@ contract AccountsDepositWithdrawEndowments is
 
       uint256 current_bal;
       if (acctType == AngelCoreStruct.AccountType.Locked) {
-        current_bal = state.STATES[id].balances.locked.balancesByToken[tokens[tii].addr];
+        current_bal = state.STATES[id].balances.locked[tokens[tii].addr];
       } else {
-        current_bal = state.STATES[id].balances.liquid.balancesByToken[tokens[tii].addr];
+        current_bal = state.STATES[id].balances.liquid[tokens[tii].addr];
       }
 
       // ensure balance of tokens can cover the requested withdraw amount
@@ -364,9 +363,9 @@ contract AccountsDepositWithdrawEndowments is
 
       // reduce the orgs balance by the withdrawn token amount
       if (acctType == AngelCoreStruct.AccountType.Locked) {
-        state.STATES[id].balances.locked.balancesByToken[tokens[tii].addr] -= tokens[tii].amnt;
+        state.STATES[id].balances.locked[tokens[tii].addr] -= tokens[tii].amnt;
       } else {
-        state.STATES[id].balances.liquid.balancesByToken[tokens[tii].addr] -= tokens[tii].amnt;
+        state.STATES[id].balances.liquid[tokens[tii].addr] -= tokens[tii].amnt;
       }
     }
   }
