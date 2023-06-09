@@ -1,7 +1,7 @@
 import {task} from "hardhat/config";
 import {logger} from "utils";
 
-import {deployHaloImplementation} from "contracts/halo/scripts/deploy";
+// import {deployHaloImplementation} from "contracts/halo/scripts/deploy";
 
 task("deploy:HaloImplementation", "Will deploy HaloImplementation contract")
   .addParam("verify", "Want to verify contract")
@@ -10,7 +10,7 @@ task("deploy:HaloImplementation", "Will deploy HaloImplementation contract")
     try {
       var isTrueSet = taskArgs.verify === "true";
 
-      await deployHaloImplementation(taskArgs.swaprouter, isTrueSet, hre);
+      // await deployHaloImplementation(taskArgs.swaprouter, isTrueSet, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
