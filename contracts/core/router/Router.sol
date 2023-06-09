@@ -228,23 +228,27 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         // Redeem tokens from vaults and txfer them to the Router
         // @TODO need to fix the case where amt is 0 because there is no position 
         IVault.RedemptionResponse memory lockResponse = lockedVault.redeemAll(_action.accountIds[0]);
-        require(
-            IERC20Metadata(_action.token).transferFrom(
-                _params.Locked.vaultAddr,
-                address(this),
-                lockResponse.amount
-            )
-        );
+        if(lockResponse.amount > 0) {
+            require(
+                IERC20Metadata(_action.token).transferFrom(
+                    _params.Locked.vaultAddr,
+                    address(this),
+                    lockResponse.amount
+                )
+            );
+        }
         _action.lockAmt = lockResponse.amount;
 
         IVault.RedemptionResponse memory liqResponse = liquidVault.redeemAll(_action.accountIds[0]);
-        require(
-            IERC20Metadata(_action.token).transferFrom(
-                _params.Liquid.vaultAddr,
-                address(this),
-                liqResponse.amount
-            )
-        );
+        if(liqResponse.amount > 0) {
+            require(
+                IERC20Metadata(_action.token).transferFrom(
+                    _params.Liquid.vaultAddr,
+                    address(this),
+                    liqResponse.amount
+                )
+            );
+        }
         _action.liqAmt = liqResponse.amount;
 
         // Pack and send the tokens back 
