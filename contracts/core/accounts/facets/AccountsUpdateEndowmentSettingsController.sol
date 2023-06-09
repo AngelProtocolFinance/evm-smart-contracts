@@ -6,12 +6,8 @@ import {Validator} from "../lib/validator.sol";
 import {AddressArray} from "../../../lib/address/array.sol";
 import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
-import {RegistrarStorage} from "../../registrar/storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
-import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
-import {IIndexFund} from "../../index-fund/Iindex-fund.sol";
 import {Array} from "../../../lib/array.sol";
-import {Utils} from "../../../lib/utils.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
 
