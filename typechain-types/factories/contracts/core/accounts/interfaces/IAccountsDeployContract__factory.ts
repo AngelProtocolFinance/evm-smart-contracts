@@ -5,9 +5,9 @@
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
 import type {
-  IAccountDeployContract,
-  IAccountDeployContractInterface,
-} from "../../../../../contracts/core/accounts/interfaces/IAccountDeployContract";
+  IAccountsDeployContract,
+  IAccountsDeployContractInterface,
+} from "../../../../../contracts/core/accounts/interfaces/IAccountsDeployContract";
 
 const _abi = [
   {
@@ -201,19 +201,19 @@ const _abi = [
   },
 ] as const;
 
-export class IAccountDeployContract__factory {
+export class IAccountsDeployContract__factory {
   static readonly abi = _abi;
-  static createInterface(): IAccountDeployContractInterface {
-    return new utils.Interface(_abi) as IAccountDeployContractInterface;
+  static createInterface(): IAccountsDeployContractInterface {
+    return new utils.Interface(_abi) as IAccountsDeployContractInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): IAccountDeployContract {
+  ): IAccountsDeployContract {
     return new Contract(
       address,
       _abi,
       signerOrProvider
-    ) as IAccountDeployContract;
+    ) as IAccountsDeployContract;
   }
 }

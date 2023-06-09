@@ -470,20 +470,75 @@ export declare namespace AccountStorage {
   };
 }
 
-export interface AccountDeployContractInterface extends utils.Interface {
-  functions: {
-    "createDaoContract((uint32,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address))": FunctionFragment;
+export declare namespace AccountMessages {
+  export type DonationMatchDataStruct = {
+    reserveToken: PromiseOrValue<string>;
+    uniswapFactory: PromiseOrValue<string>;
+    poolFee: PromiseOrValue<BigNumberish>;
   };
 
-  getFunction(nameOrSignatureOrTopic: "createDaoContract"): FunctionFragment;
+  export type DonationMatchDataStructOutput = [string, string, number] & {
+    reserveToken: string;
+    uniswapFactory: string;
+    poolFee: number;
+  };
+
+  export type DonationMatchStruct = {
+    enumData: PromiseOrValue<BigNumberish>;
+    data: AccountMessages.DonationMatchDataStruct;
+  };
+
+  export type DonationMatchStructOutput = [
+    number,
+    AccountMessages.DonationMatchDataStructOutput
+  ] & { enumData: number; data: AccountMessages.DonationMatchDataStructOutput };
+}
+
+export interface AccountsDonationMatchInterface extends utils.Interface {
+  functions: {
+    "depositDonationMatchErC20(uint32,address,uint256)": FunctionFragment;
+    "setupDonationMatch(uint32,(uint8,(address,address,uint24)))": FunctionFragment;
+    "withdrawDonationMatchErC20(uint32,address,uint256)": FunctionFragment;
+  };
+
+  getFunction(
+    nameOrSignatureOrTopic:
+      | "depositDonationMatchErC20"
+      | "setupDonationMatch"
+      | "withdrawDonationMatchErC20"
+  ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "createDaoContract",
-    values: [SubDaoMessage.InstantiateMsgStruct]
+    functionFragment: "depositDonationMatchErC20",
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setupDonationMatch",
+    values: [PromiseOrValue<BigNumberish>, AccountMessages.DonationMatchStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawDonationMatchErC20",
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
+    ]
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "createDaoContract",
+    functionFragment: "depositDonationMatchErC20",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setupDonationMatch",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawDonationMatchErC20",
     data: BytesLike
   ): Result;
 
@@ -649,12 +704,12 @@ export type UpdateEndowmentEvent = TypedEvent<
 
 export type UpdateEndowmentEventFilter = TypedEventFilter<UpdateEndowmentEvent>;
 
-export interface AccountDeployContract extends BaseContract {
+export interface AccountsDonationMatch extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: AccountDeployContractInterface;
+  interface: AccountsDonationMatchInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -676,22 +731,67 @@ export interface AccountDeployContract extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    createDaoContract(
-      createDaoMessage: SubDaoMessage.InstantiateMsgStruct,
+    depositDonationMatchErC20(
+      id: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setupDonationMatch(
+      id: PromiseOrValue<BigNumberish>,
+      details: AccountMessages.DonationMatchStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    withdrawDonationMatchErC20(
+      id: PromiseOrValue<BigNumberish>,
+      recipient: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
-  createDaoContract(
-    createDaoMessage: SubDaoMessage.InstantiateMsgStruct,
+  depositDonationMatchErC20(
+    id: PromiseOrValue<BigNumberish>,
+    token: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setupDonationMatch(
+    id: PromiseOrValue<BigNumberish>,
+    details: AccountMessages.DonationMatchStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  withdrawDonationMatchErC20(
+    id: PromiseOrValue<BigNumberish>,
+    recipient: PromiseOrValue<string>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    createDaoContract(
-      createDaoMessage: SubDaoMessage.InstantiateMsgStruct,
+    depositDonationMatchErC20(
+      id: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<void>;
+
+    setupDonationMatch(
+      id: PromiseOrValue<BigNumberish>,
+      details: AccountMessages.DonationMatchStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    withdrawDonationMatchErC20(
+      id: PromiseOrValue<BigNumberish>,
+      recipient: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -797,15 +897,45 @@ export interface AccountDeployContract extends BaseContract {
   };
 
   estimateGas: {
-    createDaoContract(
-      createDaoMessage: SubDaoMessage.InstantiateMsgStruct,
+    depositDonationMatchErC20(
+      id: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setupDonationMatch(
+      id: PromiseOrValue<BigNumberish>,
+      details: AccountMessages.DonationMatchStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    withdrawDonationMatchErC20(
+      id: PromiseOrValue<BigNumberish>,
+      recipient: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    createDaoContract(
-      createDaoMessage: SubDaoMessage.InstantiateMsgStruct,
+    depositDonationMatchErC20(
+      id: PromiseOrValue<BigNumberish>,
+      token: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setupDonationMatch(
+      id: PromiseOrValue<BigNumberish>,
+      details: AccountMessages.DonationMatchStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    withdrawDonationMatchErC20(
+      id: PromiseOrValue<BigNumberish>,
+      recipient: PromiseOrValue<string>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

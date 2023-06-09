@@ -70,12 +70,12 @@ export function createEmpty(): AddressObj {
     accounts: {
       diamond: "",
       facets: {
-        accountDeployContract: "",
-        accountDepositWithdrawEndowments: "",
-        accountDonationMatch: "",
+        accountsDeployContract: "",
+        accountsDepositWithdrawEndowments: "",
+        accountsDonationMatch: "",
         accountsAllowance: "",
         accountsCreateEndowment: "",
-        AccountsDAOEndowments: "",
+        AccountsDaoEndowments: "",
         accountsQueryEndowments: "",
         accountsSwapRouter: "",
         accountsUpdate: "",

@@ -8,7 +8,7 @@ import {AccountMessages} from "../message.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
-import {IAccountDeployContract} from "./../interfaces/IAccountDeployContract.sol";
+import {IAccountsDeployContract} from "./../interfaces/IAccountsDeployContract.sol";
 import {SubDao, subDaoMessage} from "./../../../normalized_endowment/subdao/subdao.sol";
 import {ISubDao} from "./../../../normalized_endowment/subdao/Isubdao.sol";
 import {ProxyContract} from "../../proxy.sol";
@@ -19,10 +19,10 @@ import {DonationMatchStorage} from "./../../../normalized_endowment/donation-mat
 import {DonationMatchMessages} from "./../../../normalized_endowment/donation-match/message.sol";
 
 /**
- * @title AccountsDAOEndowments
+ * @title AccountsDaoEndowments
  * @dev This contract facet manages the creation contracts required for DAO Functioning
  */
-contract AccountsDAOEndowments is ReentrancyGuardFacet, AccountsEvents {
+contract AccountsDaoEndowments is ReentrancyGuardFacet, AccountsEvents {
   /**
    * @notice This function creates a DAO for an endowment
    * @dev creates a DAO for an endowment based on parameters
@@ -54,7 +54,7 @@ contract AccountsDAOEndowments is ReentrancyGuardFacet, AccountsEvents {
       registrarContract: state.config.registrarContract
     });
 
-    address daoAddress = IAccountDeployContract(address(this)).createDaoContract(createDaoMessage);
+    address daoAddress = IAccountsDeployContract(address(this)).createDaoContract(createDaoMessage);
 
     tempEndowment.dao = daoAddress;
 

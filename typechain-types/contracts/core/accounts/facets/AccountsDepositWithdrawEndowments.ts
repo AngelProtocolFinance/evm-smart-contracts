@@ -9,6 +9,7 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -254,6 +255,16 @@ export declare namespace AngelCoreStruct {
     min: BigNumber;
     defaultSplit: BigNumber;
   };
+
+  export type TokenInfoStruct = {
+    addr: PromiseOrValue<string>;
+    amnt: PromiseOrValue<BigNumberish>;
+  };
+
+  export type TokenInfoStructOutput = [string, BigNumber] & {
+    addr: string;
+    amnt: BigNumber;
+  };
 }
 
 export declare namespace SubDaoMessage {
@@ -471,76 +482,63 @@ export declare namespace AccountStorage {
 }
 
 export declare namespace AccountMessages {
-  export type DonationMatchDataStruct = {
-    reserveToken: PromiseOrValue<string>;
-    uniswapFactory: PromiseOrValue<string>;
-    poolFee: PromiseOrValue<BigNumberish>;
+  export type DepositRequestStruct = {
+    id: PromiseOrValue<BigNumberish>;
+    lockedPercentage: PromiseOrValue<BigNumberish>;
+    liquidPercentage: PromiseOrValue<BigNumberish>;
   };
 
-  export type DonationMatchDataStructOutput = [string, string, number] & {
-    reserveToken: string;
-    uniswapFactory: string;
-    poolFee: number;
+  export type DepositRequestStructOutput = [number, BigNumber, BigNumber] & {
+    id: number;
+    lockedPercentage: BigNumber;
+    liquidPercentage: BigNumber;
   };
-
-  export type DonationMatchStruct = {
-    enumData: PromiseOrValue<BigNumberish>;
-    data: AccountMessages.DonationMatchDataStruct;
-  };
-
-  export type DonationMatchStructOutput = [
-    number,
-    AccountMessages.DonationMatchDataStructOutput
-  ] & { enumData: number; data: AccountMessages.DonationMatchDataStructOutput };
 }
 
-export interface AccountDonationMatchInterface extends utils.Interface {
+export interface AccountsDepositWithdrawEndowmentsInterface
+  extends utils.Interface {
   functions: {
-    "depositDonationMatchErC20(uint32,address,uint256)": FunctionFragment;
-    "setupDonationMatch(uint32,(uint8,(address,address,uint24)))": FunctionFragment;
-    "withdrawDonationMatchErC20(uint32,address,uint256)": FunctionFragment;
+    "depositERC20((uint32,uint256,uint256),address,uint256)": FunctionFragment;
+    "depositMatic((uint32,uint256,uint256))": FunctionFragment;
+    "withdraw(uint32,uint8,address,uint32,(address,uint256)[])": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic:
-      | "depositDonationMatchErC20"
-      | "setupDonationMatch"
-      | "withdrawDonationMatchErC20"
+    nameOrSignatureOrTopic: "depositERC20" | "depositMatic" | "withdraw"
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "depositDonationMatchErC20",
+    functionFragment: "depositERC20",
     values: [
-      PromiseOrValue<BigNumberish>,
+      AccountMessages.DepositRequestStruct,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "setupDonationMatch",
-    values: [PromiseOrValue<BigNumberish>, AccountMessages.DonationMatchStruct]
+    functionFragment: "depositMatic",
+    values: [AccountMessages.DepositRequestStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "withdrawDonationMatchErC20",
+    functionFragment: "withdraw",
     values: [
       PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
+      PromiseOrValue<BigNumberish>,
+      AngelCoreStruct.TokenInfoStruct[]
     ]
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "depositDonationMatchErC20",
+    functionFragment: "depositERC20",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setupDonationMatch",
+    functionFragment: "depositMatic",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "withdrawDonationMatchErC20",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
   events: {
     "AllowanceStateUpdatedTo(address,address,address,uint256)": EventFragment;
@@ -552,6 +550,7 @@ export interface AccountDonationMatchInterface extends utils.Interface {
     "EndowmentSettingUpdated(uint256,string)": EventFragment;
     "RemoveAllowance(address,address,address)": EventFragment;
     "SwapToken(uint256,uint8,address,uint256,address,uint256)": EventFragment;
+    "SwappedToken(uint256)": EventFragment;
     "UpdateConfig(tuple)": EventFragment;
     "UpdateEndowment(uint256,tuple)": EventFragment;
   };
@@ -565,6 +564,7 @@ export interface AccountDonationMatchInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "EndowmentSettingUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RemoveAllowance"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SwapToken"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SwappedToken"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdateConfig"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdateEndowment"): EventFragment;
 }
@@ -683,6 +683,16 @@ export type SwapTokenEvent = TypedEvent<
 
 export type SwapTokenEventFilter = TypedEventFilter<SwapTokenEvent>;
 
+export interface SwappedTokenEventObject {
+  amountOut: BigNumber;
+}
+export type SwappedTokenEvent = TypedEvent<
+  [BigNumber],
+  SwappedTokenEventObject
+>;
+
+export type SwappedTokenEventFilter = TypedEventFilter<SwappedTokenEvent>;
+
 export interface UpdateConfigEventObject {
   config: AccountStorage.ConfigStructOutput;
 }
@@ -704,12 +714,12 @@ export type UpdateEndowmentEvent = TypedEvent<
 
 export type UpdateEndowmentEventFilter = TypedEventFilter<UpdateEndowmentEvent>;
 
-export interface AccountDonationMatch extends BaseContract {
+export interface AccountsDepositWithdrawEndowments extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: AccountDonationMatchInterface;
+  interface: AccountsDepositWithdrawEndowmentsInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -731,65 +741,68 @@ export interface AccountDonationMatch extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    depositDonationMatchErC20(
-      id: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
+    depositERC20(
+      details: AccountMessages.DepositRequestStruct,
+      tokenAddress: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setupDonationMatch(
-      id: PromiseOrValue<BigNumberish>,
-      details: AccountMessages.DonationMatchStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    depositMatic(
+      details: AccountMessages.DepositRequestStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    withdrawDonationMatchErC20(
+    withdraw(
       id: PromiseOrValue<BigNumberish>,
-      recipient: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+      acctType: PromiseOrValue<BigNumberish>,
+      beneficiaryAddress: PromiseOrValue<string>,
+      beneficiaryEndowId: PromiseOrValue<BigNumberish>,
+      tokens: AngelCoreStruct.TokenInfoStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
-  depositDonationMatchErC20(
-    id: PromiseOrValue<BigNumberish>,
-    token: PromiseOrValue<string>,
+  depositERC20(
+    details: AccountMessages.DepositRequestStruct,
+    tokenAddress: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setupDonationMatch(
-    id: PromiseOrValue<BigNumberish>,
-    details: AccountMessages.DonationMatchStruct,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  depositMatic(
+    details: AccountMessages.DepositRequestStruct,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  withdrawDonationMatchErC20(
+  withdraw(
     id: PromiseOrValue<BigNumberish>,
-    recipient: PromiseOrValue<string>,
-    amount: PromiseOrValue<BigNumberish>,
+    acctType: PromiseOrValue<BigNumberish>,
+    beneficiaryAddress: PromiseOrValue<string>,
+    beneficiaryEndowId: PromiseOrValue<BigNumberish>,
+    tokens: AngelCoreStruct.TokenInfoStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    depositDonationMatchErC20(
-      id: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
+    depositERC20(
+      details: AccountMessages.DepositRequestStruct,
+      tokenAddress: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setupDonationMatch(
-      id: PromiseOrValue<BigNumberish>,
-      details: AccountMessages.DonationMatchStruct,
+    depositMatic(
+      details: AccountMessages.DepositRequestStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    withdrawDonationMatchErC20(
+    withdraw(
       id: PromiseOrValue<BigNumberish>,
-      recipient: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+      acctType: PromiseOrValue<BigNumberish>,
+      beneficiaryAddress: PromiseOrValue<string>,
+      beneficiaryEndowId: PromiseOrValue<BigNumberish>,
+      tokens: AngelCoreStruct.TokenInfoStruct[],
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -886,6 +899,9 @@ export interface AccountDonationMatch extends BaseContract {
       amountOut?: null
     ): SwapTokenEventFilter;
 
+    "SwappedToken(uint256)"(amountOut?: null): SwappedTokenEventFilter;
+    SwappedToken(amountOut?: null): SwappedTokenEventFilter;
+
     "UpdateConfig(tuple)"(config?: null): UpdateConfigEventFilter;
     UpdateConfig(config?: null): UpdateConfigEventFilter;
 
@@ -897,45 +913,47 @@ export interface AccountDonationMatch extends BaseContract {
   };
 
   estimateGas: {
-    depositDonationMatchErC20(
-      id: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
+    depositERC20(
+      details: AccountMessages.DepositRequestStruct,
+      tokenAddress: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setupDonationMatch(
-      id: PromiseOrValue<BigNumberish>,
-      details: AccountMessages.DonationMatchStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    depositMatic(
+      details: AccountMessages.DepositRequestStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    withdrawDonationMatchErC20(
+    withdraw(
       id: PromiseOrValue<BigNumberish>,
-      recipient: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+      acctType: PromiseOrValue<BigNumberish>,
+      beneficiaryAddress: PromiseOrValue<string>,
+      beneficiaryEndowId: PromiseOrValue<BigNumberish>,
+      tokens: AngelCoreStruct.TokenInfoStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    depositDonationMatchErC20(
-      id: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
+    depositERC20(
+      details: AccountMessages.DepositRequestStruct,
+      tokenAddress: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setupDonationMatch(
-      id: PromiseOrValue<BigNumberish>,
-      details: AccountMessages.DonationMatchStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    depositMatic(
+      details: AccountMessages.DepositRequestStruct,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    withdrawDonationMatchErC20(
+    withdraw(
       id: PromiseOrValue<BigNumberish>,
-      recipient: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+      acctType: PromiseOrValue<BigNumberish>,
+      beneficiaryAddress: PromiseOrValue<string>,
+      beneficiaryEndowId: PromiseOrValue<BigNumberish>,
+      tokens: AngelCoreStruct.TokenInfoStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

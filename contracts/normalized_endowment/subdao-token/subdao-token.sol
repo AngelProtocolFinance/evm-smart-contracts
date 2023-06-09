@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-import {IAccountDonationMatch} from "../../core/accounts/interfaces/IAccountDonationMatch.sol";
+import {IAccountsDonationMatch} from "../../core/accounts/interfaces/IAccountsDonationMatch.sol";
 import {SubDaoTokenMessage} from "./message.sol";
 import {subDaoTokenStorage} from "./storage.sol";
 // import {ISubdaoTokenEmitter} from "./ISubdaoTokenEmitter.sol";
@@ -87,7 +87,7 @@ contract SubDaoToken is Storage, ContinuousToken {
 
     require(IERC20(address(this)).approve(accountscontract, endowmentAmount), "Approve failed");
 
-    IAccountDonationMatch(accountscontract).depositDonationMatchErC20(
+    IAccountsDonationMatch(accountscontract).depositDonationMatchErC20(
       endowmentId,
       address(this),
       endowmentAmount

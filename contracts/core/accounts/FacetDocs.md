@@ -18,7 +18,7 @@
 
 - Create Endowments: Function used to create endowments (Public)
 
-### AccountsDAOEndowments
+### AccountsDaoEndowments
 
 - Setup Dao
 - Setup Donation Match

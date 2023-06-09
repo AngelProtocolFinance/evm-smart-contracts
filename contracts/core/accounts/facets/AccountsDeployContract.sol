@@ -13,12 +13,12 @@ import {ISubdaoEmitter} from "../../../normalized_endowment/subdao/ISubdaoEmitte
 import {ISubDao} from "../../../normalized_endowment/subdao/Isubdao.sol";
 
 /**
- * @title AccountDeployContract
+ * @title AccountsDeployContract
  * @notice This contract is used to deploy contracts from accounts diamond
  * @dev Created so that deploying facets (which call this) don't have size conflicts
  * @dev Is always going to be called by address(this)
  */
-contract AccountDeployContract is ReentrancyGuardFacet, AccountsEvents {
+contract AccountsDeployContract is ReentrancyGuardFacet, AccountsEvents {
   /**
    * @notice Create a new Dao for endowment
    * @param createDaoMessage Dao creation message with initial configuration

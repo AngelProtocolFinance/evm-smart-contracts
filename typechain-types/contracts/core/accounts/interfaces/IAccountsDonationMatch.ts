@@ -23,7 +23,7 @@ import type {
   PromiseOrValue,
 } from "../../../../common";
 
-export interface IAccountDonationMatchInterface extends utils.Interface {
+export interface IAccountsDonationMatchInterface extends utils.Interface {
   functions: {
     "depositDonationMatchErC20(uint32,address,uint256)": FunctionFragment;
   };
@@ -49,12 +49,12 @@ export interface IAccountDonationMatchInterface extends utils.Interface {
   events: {};
 }
 
-export interface IAccountDonationMatch extends BaseContract {
+export interface IAccountsDonationMatch extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: IAccountDonationMatchInterface;
+  interface: IAccountsDonationMatchInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,

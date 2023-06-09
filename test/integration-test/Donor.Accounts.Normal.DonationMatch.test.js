@@ -88,12 +88,12 @@ describe("Donor donation matching for normal endowments", function () {
 
     // setup donation match
 
-    const accountDonationMatch = await ethers.getContractAt(
-      "AccountDonationMatch",
+    const accountsDonationMatch = await ethers.getContractAt(
+      "AccountsDonationMatch",
       deployRes.addresses.account
     );
 
-    const data = accountDonationMatch.interface.encodeFunctionData("setupDonationMatch", [
+    const data = accountsDonationMatch.interface.encodeFunctionData("setupDonationMatch", [
       1,
       [0, [registrarConfig.haloToken, config.SWAP_ROUTER_DATA.UNISWAP_ROUTER_ADDRESS, 3000]],
     ]);
@@ -103,7 +103,7 @@ describe("Donor donation matching for normal endowments", function () {
       .submitTransaction(
         "Setup donation match",
         "Setup donation match for endowment",
-        accountDonationMatch.address,
+        accountsDonationMatch.address,
         0,
         data
       );
@@ -141,7 +141,7 @@ describe("Donor donation matching for normal endowments", function () {
     // Deposit to accounts
 
     const accountDeposit = await ethers.getContractAt(
-      "AccountDepositWithdrawEndowments",
+      "AccountsDepositWithdrawEndowments",
       deployRes.addresses.account
     );
 
@@ -257,12 +257,12 @@ describe("Donor donation matching for normal endowments", function () {
 
     // setup donation match for endowment with DAI as the donation match reserve token
 
-    const accountDonationMatch = await ethers.getContractAt(
-      "AccountDonationMatch",
+    const accountsDonationMatch = await ethers.getContractAt(
+      "AccountsDonationMatch",
       deployRes.addresses.account
     );
 
-    const data = accountDonationMatch.interface.encodeFunctionData("setupDonationMatch", [
+    const data = accountsDonationMatch.interface.encodeFunctionData("setupDonationMatch", [
       2,
       [1, [deployRes.addresses.dai, config.SWAP_ROUTER_DATA.UNISWAP_ROUTER_ADDRESS, 3000]],
     ]);
@@ -272,7 +272,7 @@ describe("Donor donation matching for normal endowments", function () {
       .submitTransaction(
         "Setup donation match",
         "Setup donation match for endowment",
-        accountDonationMatch.address,
+        accountsDonationMatch.address,
         0,
         data
       );
@@ -334,7 +334,7 @@ describe("Donor donation matching for normal endowments", function () {
     // Deposit to accounts
 
     const accountDeposit = await ethers.getContractAt(
-      "AccountDepositWithdrawEndowments",
+      "AccountsDepositWithdrawEndowments",
       deployRes.addresses.account
     );
 
@@ -389,7 +389,7 @@ describe("Donor donation matching for normal endowments", function () {
     const endowmentMultisig = await ethers.getContractAt("EndowmentMultiSig", endowment.owner);
 
     const accountsDonationMatch = await ethers.getContractAt(
-      "AccountDonationMatch",
+      "AccountsDonationMatch",
       deployRes.addresses.account
     );
 

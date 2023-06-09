@@ -12,15 +12,15 @@ import {IDonationMatchEmitter} from "./../../../normalized_endowment/donation-ma
 import {DonationMatchStorage} from "./../../../normalized_endowment/donation-match/storage.sol";
 import {DonationMatchMessages} from "./../../../normalized_endowment/donation-match/message.sol";
 import {ProxyContract} from "../../proxy.sol";
-import {IAccountDonationMatch} from "../interfaces/IAccountDonationMatch.sol";
+import {IAccountsDonationMatch} from "../interfaces/IAccountsDonationMatch.sol";
 
 /**
- * @title AccountDeployContract
+ * @title AccountsDeployContract
  * @notice This contract is used to deploy contracts from accounts diamond
  * @dev Created so that deploying facets (which call this) don't have size conflicts
  * @dev Is always going to be called by address(this)
  */
-contract AccountDonationMatch is ReentrancyGuardFacet, AccountsEvents, IAccountDonationMatch {
+contract AccountsDonationMatch is ReentrancyGuardFacet, AccountsEvents, IAccountsDonationMatch {
   /**
    * @notice Deposit DAOToken(or Halo) to the endowment and store its balance
    * @dev Function manages reserve token sent by donation matching contract

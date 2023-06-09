@@ -1,12 +1,12 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {ContractFactory} from "ethers";
 import {
-  AccountDeployContract__factory,
-  AccountDepositWithdrawEndowments__factory,
-  AccountDonationMatch__factory,
+  AccountsDeployContract__factory,
+  AccountsDepositWithdrawEndowments__factory,
+  AccountsDonationMatch__factory,
   AccountsAllowance__factory,
   AccountsCreateEndowment__factory,
-  AccountsDAOEndowments__factory,
+  AccountsDaoEndowments__factory,
   AccountsQueryEndowments__factory,
   AccountsSwapRouter__factory,
   AccountsUpdateEndowmentSettingsController__factory,
@@ -32,16 +32,16 @@ export default async function getFacetFactoryEntries(
   return [
     // no lib
     {
-      addressField: "accountDeployContract",
-      factory: new AccountDeployContract__factory(diamondOwner),
+      addressField: "accountsDeployContract",
+      factory: new AccountsDeployContract__factory(diamondOwner),
     },
     {
-      addressField: "accountDonationMatch",
-      factory: new AccountDonationMatch__factory(diamondOwner),
+      addressField: "accountsDonationMatch",
+      factory: new AccountsDonationMatch__factory(diamondOwner),
     },
     {
-      addressField: "accountsDAOEndowments",
-      factory: new AccountsDAOEndowments__factory(diamondOwner),
+      addressField: "accountsDaoEndowments",
+      factory: new AccountsDaoEndowments__factory(diamondOwner),
     },
     {addressField: "accountsUpdate", factory: new AccountsUpdate__factory(diamondOwner)},
     {
@@ -56,8 +56,8 @@ export default async function getFacetFactoryEntries(
     {addressField: "ownershipFacet", factory: new OwnershipFacet__factory(diamondOwner)},
     // core lib
     {
-      addressField: "accountDepositWithdrawEndowments",
-      factory: new AccountDepositWithdrawEndowments__factory(
+      addressField: "accountsDepositWithdrawEndowments",
+      factory: new AccountsDepositWithdrawEndowments__factory(
         {
           "contracts/core/struct.sol:AngelCoreStruct": corestruct,
         },

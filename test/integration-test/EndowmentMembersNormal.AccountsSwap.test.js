@@ -67,7 +67,7 @@ describe("Endowment Members", function () {
     // Deposit to accounts
 
     const accountDeposit = await ethers.getContractAt(
-      "AccountDepositWithdrawEndowments",
+      "AccountsDepositWithdrawEndowments",
       deployRes.addresses.account
     );
 

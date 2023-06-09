@@ -9,7 +9,6 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
-  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -256,14 +255,35 @@ export declare namespace AngelCoreStruct {
     defaultSplit: BigNumber;
   };
 
-  export type TokenInfoStruct = {
-    addr: PromiseOrValue<string>;
-    amnt: PromiseOrValue<BigNumberish>;
+  export type DaoSetupStruct = {
+    quorum: PromiseOrValue<BigNumberish>;
+    threshold: PromiseOrValue<BigNumberish>;
+    votingPeriod: PromiseOrValue<BigNumberish>;
+    timelockPeriod: PromiseOrValue<BigNumberish>;
+    expirationPeriod: PromiseOrValue<BigNumberish>;
+    proposalDeposit: PromiseOrValue<BigNumberish>;
+    snapshotPeriod: PromiseOrValue<BigNumberish>;
+    token: AngelCoreStruct.DaoTokenStruct;
   };
 
-  export type TokenInfoStructOutput = [string, BigNumber] & {
-    addr: string;
-    amnt: BigNumber;
+  export type DaoSetupStructOutput = [
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    AngelCoreStruct.DaoTokenStructOutput
+  ] & {
+    quorum: BigNumber;
+    threshold: BigNumber;
+    votingPeriod: BigNumber;
+    timelockPeriod: BigNumber;
+    expirationPeriod: BigNumber;
+    proposalDeposit: BigNumber;
+    snapshotPeriod: BigNumber;
+    token: AngelCoreStruct.DaoTokenStructOutput;
   };
 }
 
@@ -481,64 +501,19 @@ export declare namespace AccountStorage {
   };
 }
 
-export declare namespace AccountMessages {
-  export type DepositRequestStruct = {
-    id: PromiseOrValue<BigNumberish>;
-    lockedPercentage: PromiseOrValue<BigNumberish>;
-    liquidPercentage: PromiseOrValue<BigNumberish>;
-  };
-
-  export type DepositRequestStructOutput = [number, BigNumber, BigNumber] & {
-    id: number;
-    lockedPercentage: BigNumber;
-    liquidPercentage: BigNumber;
-  };
-}
-
-export interface AccountDepositWithdrawEndowmentsInterface
-  extends utils.Interface {
+export interface AccountsDaoEndowmentsInterface extends utils.Interface {
   functions: {
-    "depositERC20((uint32,uint256,uint256),address,uint256)": FunctionFragment;
-    "depositMatic((uint32,uint256,uint256))": FunctionFragment;
-    "withdraw(uint32,uint8,address,uint32,(address,uint256)[])": FunctionFragment;
+    "setupDao(uint32,(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))))": FunctionFragment;
   };
 
-  getFunction(
-    nameOrSignatureOrTopic: "depositERC20" | "depositMatic" | "withdraw"
-  ): FunctionFragment;
+  getFunction(nameOrSignatureOrTopic: "setupDao"): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "depositERC20",
-    values: [
-      AccountMessages.DepositRequestStruct,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "depositMatic",
-    values: [AccountMessages.DepositRequestStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "withdraw",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      AngelCoreStruct.TokenInfoStruct[]
-    ]
+    functionFragment: "setupDao",
+    values: [PromiseOrValue<BigNumberish>, AngelCoreStruct.DaoSetupStruct]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "depositERC20",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "depositMatic",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "setupDao", data: BytesLike): Result;
 
   events: {
     "AllowanceStateUpdatedTo(address,address,address,uint256)": EventFragment;
@@ -550,7 +525,6 @@ export interface AccountDepositWithdrawEndowmentsInterface
     "EndowmentSettingUpdated(uint256,string)": EventFragment;
     "RemoveAllowance(address,address,address)": EventFragment;
     "SwapToken(uint256,uint8,address,uint256,address,uint256)": EventFragment;
-    "SwappedToken(uint256)": EventFragment;
     "UpdateConfig(tuple)": EventFragment;
     "UpdateEndowment(uint256,tuple)": EventFragment;
   };
@@ -564,7 +538,6 @@ export interface AccountDepositWithdrawEndowmentsInterface
   getEvent(nameOrSignatureOrTopic: "EndowmentSettingUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RemoveAllowance"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SwapToken"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SwappedToken"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdateConfig"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdateEndowment"): EventFragment;
 }
@@ -683,16 +656,6 @@ export type SwapTokenEvent = TypedEvent<
 
 export type SwapTokenEventFilter = TypedEventFilter<SwapTokenEvent>;
 
-export interface SwappedTokenEventObject {
-  amountOut: BigNumber;
-}
-export type SwappedTokenEvent = TypedEvent<
-  [BigNumber],
-  SwappedTokenEventObject
->;
-
-export type SwappedTokenEventFilter = TypedEventFilter<SwappedTokenEvent>;
-
 export interface UpdateConfigEventObject {
   config: AccountStorage.ConfigStructOutput;
 }
@@ -714,12 +677,12 @@ export type UpdateEndowmentEvent = TypedEvent<
 
 export type UpdateEndowmentEventFilter = TypedEventFilter<UpdateEndowmentEvent>;
 
-export interface AccountDepositWithdrawEndowments extends BaseContract {
+export interface AccountsDaoEndowments extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: AccountDepositWithdrawEndowmentsInterface;
+  interface: AccountsDaoEndowmentsInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -741,68 +704,23 @@ export interface AccountDepositWithdrawEndowments extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    depositERC20(
-      details: AccountMessages.DepositRequestStruct,
-      tokenAddress: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    depositMatic(
-      details: AccountMessages.DepositRequestStruct,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    withdraw(
+    setupDao(
       id: PromiseOrValue<BigNumberish>,
-      acctType: PromiseOrValue<BigNumberish>,
-      beneficiaryAddress: PromiseOrValue<string>,
-      beneficiaryEndowId: PromiseOrValue<BigNumberish>,
-      tokens: AngelCoreStruct.TokenInfoStruct[],
+      details: AngelCoreStruct.DaoSetupStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
-  depositERC20(
-    details: AccountMessages.DepositRequestStruct,
-    tokenAddress: PromiseOrValue<string>,
-    amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  depositMatic(
-    details: AccountMessages.DepositRequestStruct,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  withdraw(
+  setupDao(
     id: PromiseOrValue<BigNumberish>,
-    acctType: PromiseOrValue<BigNumberish>,
-    beneficiaryAddress: PromiseOrValue<string>,
-    beneficiaryEndowId: PromiseOrValue<BigNumberish>,
-    tokens: AngelCoreStruct.TokenInfoStruct[],
+    details: AngelCoreStruct.DaoSetupStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    depositERC20(
-      details: AccountMessages.DepositRequestStruct,
-      tokenAddress: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    depositMatic(
-      details: AccountMessages.DepositRequestStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    withdraw(
+    setupDao(
       id: PromiseOrValue<BigNumberish>,
-      acctType: PromiseOrValue<BigNumberish>,
-      beneficiaryAddress: PromiseOrValue<string>,
-      beneficiaryEndowId: PromiseOrValue<BigNumberish>,
-      tokens: AngelCoreStruct.TokenInfoStruct[],
+      details: AngelCoreStruct.DaoSetupStruct,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -899,9 +817,6 @@ export interface AccountDepositWithdrawEndowments extends BaseContract {
       amountOut?: null
     ): SwapTokenEventFilter;
 
-    "SwappedToken(uint256)"(amountOut?: null): SwappedTokenEventFilter;
-    SwappedToken(amountOut?: null): SwappedTokenEventFilter;
-
     "UpdateConfig(tuple)"(config?: null): UpdateConfigEventFilter;
     UpdateConfig(config?: null): UpdateConfigEventFilter;
 
@@ -913,47 +828,17 @@ export interface AccountDepositWithdrawEndowments extends BaseContract {
   };
 
   estimateGas: {
-    depositERC20(
-      details: AccountMessages.DepositRequestStruct,
-      tokenAddress: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    depositMatic(
-      details: AccountMessages.DepositRequestStruct,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    withdraw(
+    setupDao(
       id: PromiseOrValue<BigNumberish>,
-      acctType: PromiseOrValue<BigNumberish>,
-      beneficiaryAddress: PromiseOrValue<string>,
-      beneficiaryEndowId: PromiseOrValue<BigNumberish>,
-      tokens: AngelCoreStruct.TokenInfoStruct[],
+      details: AngelCoreStruct.DaoSetupStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    depositERC20(
-      details: AccountMessages.DepositRequestStruct,
-      tokenAddress: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    depositMatic(
-      details: AccountMessages.DepositRequestStruct,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    withdraw(
+    setupDao(
       id: PromiseOrValue<BigNumberish>,
-      acctType: PromiseOrValue<BigNumberish>,
-      beneficiaryAddress: PromiseOrValue<string>,
-      beneficiaryEndowId: PromiseOrValue<BigNumberish>,
-      tokens: AngelCoreStruct.TokenInfoStruct[],
+      details: AngelCoreStruct.DaoSetupStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

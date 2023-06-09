@@ -152,7 +152,7 @@ export declare namespace SubDaoMessage {
   };
 }
 
-export interface IAccountDeployContractInterface extends utils.Interface {
+export interface IAccountsDeployContractInterface extends utils.Interface {
   functions: {
     "createDaoContract((uint32,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address))": FunctionFragment;
   };
@@ -172,12 +172,12 @@ export interface IAccountDeployContractInterface extends utils.Interface {
   events: {};
 }
 
-export interface IAccountDeployContract extends BaseContract {
+export interface IAccountsDeployContract extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: IAccountDeployContractInterface;
+  interface: IAccountsDeployContractInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,

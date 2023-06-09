@@ -5,9 +5,9 @@
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
 import type {
-  IAccountDonationMatch,
-  IAccountDonationMatchInterface,
-} from "../../../../../contracts/core/accounts/interfaces/IAccountDonationMatch";
+  IAccountsDonationMatch,
+  IAccountsDonationMatchInterface,
+} from "../../../../../contracts/core/accounts/interfaces/IAccountsDonationMatch";
 
 const _abi = [
   {
@@ -35,19 +35,19 @@ const _abi = [
   },
 ] as const;
 
-export class IAccountDonationMatch__factory {
+export class IAccountsDonationMatch__factory {
   static readonly abi = _abi;
-  static createInterface(): IAccountDonationMatchInterface {
-    return new utils.Interface(_abi) as IAccountDonationMatchInterface;
+  static createInterface(): IAccountsDonationMatchInterface {
+    return new utils.Interface(_abi) as IAccountsDonationMatchInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): IAccountDonationMatch {
+  ): IAccountsDonationMatch {
     return new Contract(
       address,
       _abi,
       signerOrProvider
-    ) as IAccountDonationMatch;
+    ) as IAccountsDonationMatch;
   }
 }

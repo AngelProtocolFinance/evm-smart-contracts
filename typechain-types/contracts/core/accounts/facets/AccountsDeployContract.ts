@@ -254,37 +254,6 @@ export declare namespace AngelCoreStruct {
     min: BigNumber;
     defaultSplit: BigNumber;
   };
-
-  export type DaoSetupStruct = {
-    quorum: PromiseOrValue<BigNumberish>;
-    threshold: PromiseOrValue<BigNumberish>;
-    votingPeriod: PromiseOrValue<BigNumberish>;
-    timelockPeriod: PromiseOrValue<BigNumberish>;
-    expirationPeriod: PromiseOrValue<BigNumberish>;
-    proposalDeposit: PromiseOrValue<BigNumberish>;
-    snapshotPeriod: PromiseOrValue<BigNumberish>;
-    token: AngelCoreStruct.DaoTokenStruct;
-  };
-
-  export type DaoSetupStructOutput = [
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    BigNumber,
-    AngelCoreStruct.DaoTokenStructOutput
-  ] & {
-    quorum: BigNumber;
-    threshold: BigNumber;
-    votingPeriod: BigNumber;
-    timelockPeriod: BigNumber;
-    expirationPeriod: BigNumber;
-    proposalDeposit: BigNumber;
-    snapshotPeriod: BigNumber;
-    token: AngelCoreStruct.DaoTokenStructOutput;
-  };
 }
 
 export declare namespace SubDaoMessage {
@@ -501,19 +470,22 @@ export declare namespace AccountStorage {
   };
 }
 
-export interface AccountsDAOEndowmentsInterface extends utils.Interface {
+export interface AccountsDeployContractInterface extends utils.Interface {
   functions: {
-    "setupDao(uint32,(uint256,uint256,uint256,uint256,uint256,uint128,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256))))": FunctionFragment;
+    "createDaoContract((uint32,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address))": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "setupDao"): FunctionFragment;
+  getFunction(nameOrSignatureOrTopic: "createDaoContract"): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "setupDao",
-    values: [PromiseOrValue<BigNumberish>, AngelCoreStruct.DaoSetupStruct]
+    functionFragment: "createDaoContract",
+    values: [SubDaoMessage.InstantiateMsgStruct]
   ): string;
 
-  decodeFunctionResult(functionFragment: "setupDao", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "createDaoContract",
+    data: BytesLike
+  ): Result;
 
   events: {
     "AllowanceStateUpdatedTo(address,address,address,uint256)": EventFragment;
@@ -677,12 +649,12 @@ export type UpdateEndowmentEvent = TypedEvent<
 
 export type UpdateEndowmentEventFilter = TypedEventFilter<UpdateEndowmentEvent>;
 
-export interface AccountsDAOEndowments extends BaseContract {
+export interface AccountsDeployContract extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: AccountsDAOEndowmentsInterface;
+  interface: AccountsDeployContractInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -704,25 +676,22 @@ export interface AccountsDAOEndowments extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    setupDao(
-      id: PromiseOrValue<BigNumberish>,
-      details: AngelCoreStruct.DaoSetupStruct,
+    createDaoContract(
+      createDaoMessage: SubDaoMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
-  setupDao(
-    id: PromiseOrValue<BigNumberish>,
-    details: AngelCoreStruct.DaoSetupStruct,
+  createDaoContract(
+    createDaoMessage: SubDaoMessage.InstantiateMsgStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    setupDao(
-      id: PromiseOrValue<BigNumberish>,
-      details: AngelCoreStruct.DaoSetupStruct,
+    createDaoContract(
+      createDaoMessage: SubDaoMessage.InstantiateMsgStruct,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<string>;
   };
 
   filters: {
@@ -828,17 +797,15 @@ export interface AccountsDAOEndowments extends BaseContract {
   };
 
   estimateGas: {
-    setupDao(
-      id: PromiseOrValue<BigNumberish>,
-      details: AngelCoreStruct.DaoSetupStruct,
+    createDaoContract(
+      createDaoMessage: SubDaoMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    setupDao(
-      id: PromiseOrValue<BigNumberish>,
-      details: AngelCoreStruct.DaoSetupStruct,
+    createDaoContract(
+      createDaoMessage: SubDaoMessage.InstantiateMsgStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

@@ -22,12 +22,12 @@ import {Utils} from "../../../lib/utils.sol";
 import {Validator} from "../lib/validator.sol";
 
 /**
- * @title AccountDepositWithdrawEndowments
+ * @title AccountsDepositWithdrawEndowments
  * @notice This facet manages the deposits and withdrawals for accounts
  * @dev This facet manages the deposits and withdrawals for accounts
  */
 
-contract AccountDepositWithdrawEndowments is
+contract AccountsDepositWithdrawEndowments is
   ReentrancyGuardFacet,
   AccountsEvents,
   IAccountsDepositWithdrawEndowments

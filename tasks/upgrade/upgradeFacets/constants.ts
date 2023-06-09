@@ -1,10 +1,10 @@
 import {
-  AccountDeployContract__factory,
-  AccountDepositWithdrawEndowments__factory,
-  AccountDonationMatch__factory,
+  AccountsDeployContract__factory,
+  AccountsDepositWithdrawEndowments__factory,
+  AccountsDonationMatch__factory,
   AccountsAllowance__factory,
   AccountsCreateEndowment__factory,
-  AccountsDAOEndowments__factory,
+  AccountsDaoEndowments__factory,
   AccountsQueryEndowments__factory,
   AccountsSwapRouter__factory,
   AccountsUpdateEndowmentSettingsController__factory,
@@ -16,18 +16,20 @@ import {
 import {getContractName} from "utils";
 
 export const ALL_FACET_NAMES: string[] = [
-  getContractName(new AccountDeployContract__factory()),
+  getContractName(new AccountsDeployContract__factory()),
   getContractName(
-    new AccountDepositWithdrawEndowments__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
+    new AccountsDepositWithdrawEndowments__factory({
+      "contracts/core/struct.sol:AngelCoreStruct": "",
+    })
   ),
-  getContractName(new AccountDonationMatch__factory()),
+  getContractName(new AccountsDonationMatch__factory()),
   getContractName(
     new AccountsAllowance__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
   ),
   getContractName(
     new AccountsCreateEndowment__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
   ),
-  getContractName(new AccountsDAOEndowments__factory()),
+  getContractName(new AccountsDaoEndowments__factory()),
   getContractName(new AccountsQueryEndowments__factory()),
   getContractName(
     new AccountsSwapRouter__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
