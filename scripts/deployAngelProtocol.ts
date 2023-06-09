@@ -92,11 +92,8 @@ export async function deployAngelProtocol(
     hre
   );
 
-  console.log("INDEX_FUND_ADDRESS contract deployed at:-", indexFund);
+  const endowmentMultiSig = await deployEndowmentMultiSig(verify_contracts, hre);
 
-  const multisigDat = await deployEndowmentMultiSig(verify_contracts, hre);
-
-  console.log("multisigDat contract deployed at:-", multisigDat);
   // console.log('implementations deployed at:', implementations);
 
   // const GiftCardDataInput = {
@@ -282,8 +279,8 @@ export async function deployAngelProtocol(
     fundraisingContract: hre.ethers.constants.AddressZero, //TODO: //address
     applicationsReview: applicationsMultiSig.proxy.address, //address
     swapsRouter: swapRouter.proxy.address, //address
-    multisigFactory: multisigDat.MultiSigWalletFactory, //address
-    multisigEmitter: multisigDat.EndowmentMultiSigEmitter, //address
+    multisigFactory: endowmentMultiSig.factory.address, //address
+    multisigEmitter: endowmentMultiSig.emitter.proxy.contract.address, //address
     charityProposal: charityApplication.proxy.address, //address
     lockedWithdrawal: hre.ethers.constants.AddressZero,
     proxyAdmin: proxyAdmin.address, //address
