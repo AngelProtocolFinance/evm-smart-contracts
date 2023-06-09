@@ -14,7 +14,6 @@ import {Array} from "../../../lib/array.sol";
 import {Utils} from "../../../lib/utils.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
-import {IAccountsQuery} from "../interfaces/IAccountsQuery.sol";
 
 /**
  * @title AccountsUpdateEndowmentSettingsController

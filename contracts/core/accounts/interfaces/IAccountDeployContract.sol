@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
-import {SubDao, subDaoMessage} from "./../../../normalized_endowment/subdao/subdao.sol";
+import {subDaoMessage} from "./../../../normalized_endowment/subdao/subdao.sol";
 
 interface IAccountDeployContract {
   function createDaoContract(

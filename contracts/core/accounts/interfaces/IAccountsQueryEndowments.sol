@@ -5,7 +5,7 @@ import {AccountMessages} from "../message.sol";
 import {AccountStorage} from "../storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 
-interface IAccountsQuery {
+interface IAccountsQueryEndowments {
   function queryTokenAmount(
     uint256 id,
     AngelCoreStruct.AccountType accountType,

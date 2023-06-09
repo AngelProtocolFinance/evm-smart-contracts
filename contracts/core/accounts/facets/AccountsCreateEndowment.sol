@@ -8,19 +8,18 @@ import {AccountMessages} from "../message.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
-import {LocalRegistrarLib} from "../../registrar/lib/LocalRegistrarLib.sol";
-import {SubDao, subDaoMessage} from "./../../../normalized_endowment/subdao/subdao.sol";
+import {subDaoMessage} from "./../../../normalized_endowment/subdao/subdao.sol";
 import {ISubDao} from "./../../../normalized_endowment/subdao/Isubdao.sol";
 import {IAccountDeployContract} from "./../interfaces/IAccountDeployContract.sol";
 import {IEndowmentMultiSigFactory} from "./../../../normalized_endowment/endowment-multisig/interfaces/IEndowmentMultiSigFactory.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
-
+import {IAccountsCreateEndowment} from "../interfaces/IAccountsCreateEndowment.sol";
 /**
  * @title AccountsCreateEndowment
  * @dev This contract facet manages the creation of endowments
  */
-contract AccountsCreateEndowment is ReentrancyGuardFacet, AccountsEvents {
+contract AccountsCreateEndowment is IAccountsCreateEndowment, ReentrancyGuardFacet, AccountsEvents {
   /**
    * @notice This function creates an endowment
    * @dev creates an endowment based on parameters and setups a dao if required

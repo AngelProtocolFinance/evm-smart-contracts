@@ -8,7 +8,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {AngelCoreStruct} from "../../core/struct.sol";
 import {IAccountsCreateEndowment} from "../../core/accounts/interfaces/IAccountsCreateEndowment.sol";
-import {IAccountsQuery} from "../../core/accounts/interfaces/IAccountsQuery.sol";
+import {IAccountsQueryEndowments} from "../../core/accounts/interfaces/IAccountsQueryEndowments.sol";
 import {IAccountsDepositWithdrawEndowments} from "../../core/accounts/interfaces/IAccountsDepositWithdrawEndowments.sol";
 import {AccountStorage} from "../../core/accounts/storage.sol";
 import {AccountMessages} from "../../core/accounts/message.sol";
@@ -231,7 +231,7 @@ contract CharityApplication is CharityStorage, ICharityApplication, ERC165, Reen
 
     if (config.newEndowGasMoney) {
       //query endowments from accounts contract and get the owner address
-      AccountStorage.Endowment memory endowDetails = IAccountsQuery(config.accountsContract)
+      AccountStorage.Endowment memory endowDetails = IAccountsQueryEndowments(config.accountsContract)
         .queryEndowmentDetails(endowmentId);
 
       // TODO: Test this in remix
