@@ -1,22 +1,31 @@
-import {task, types} from "hardhat/config";
-import {isLocalNetwork, logger} from "utils";
-
 import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
+import {task, types} from "hardhat/config";
+import {getAddresses, isLocalNetwork, logger} from "utils";
+
+type TaskArgs = {accountsDiamond?: string; verify: boolean};
 
 task("deploy:Emitters", "Will deploy Emitters contract")
+  .addOptionalParam(
+    "accountsDiamond",
+    "Accounts Diamond contract address. Will do a local lookup from contract-address.json if none is provided."
+  )
   .addOptionalParam(
     "verify",
     "Indicates whether the contract should be verified",
     false,
     types.boolean
   )
-  .addParam("accountaddress", "Address of the account")
-  .setAction(async (taskArgs, hre) => {
+  .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
+      const addresses = await getAddresses(hre);
 
-      await deployEmitters(taskArgs.accountaddress, verify_contracts, hre);
+      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
+      const accountsDiamond = taskArgs.accountsDiamond || addresses.accounts.diamond;
+
+      await deployEmitters(accountsDiamond, verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
+    } finally {
+      logger.out("Done.");
     }
   });

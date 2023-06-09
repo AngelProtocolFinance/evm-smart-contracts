@@ -1,51 +1,47 @@
 import {task, types} from "hardhat/config";
 import {EndowmentMultiSig__factory, MultiSigWalletFactory__factory} from "typechain-types";
-import {getAddresses, getSigners, updateAddresses} from "utils";
-import {logger, isLocalNetwork} from "utils";
+import {getAddresses, getSigners, isLocalNetwork, logger, updateAddresses} from "utils";
+
+type TaskArgs = {factory?: string; verify: boolean};
 
 task(
   "upgrade:EndowmentMultiSig",
   "Will upgrade the implementation of the EndowmentMultiSig contracts"
 )
   .addOptionalParam(
+    "factory",
+    "MultiSigFactory contract address. Will do a local lookup from contract-address.json if none is provided."
+  )
+  .addOptionalParam(
     "verify",
     "Indicates whether the contract should be verified",
     false,
     types.boolean
   )
-  .setAction(async (taskArgs: {verify: boolean}, hre) => {
+  .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      logger.out("Deploying a new EndowmentMultiSig contract...");
+      logger.out("Upgrading EndowmentMultiSig implementation contract...");
 
       const {proxyAdmin} = await getSigners(hre);
 
       const addresses = await getAddresses(hre);
 
+      const multisigWalletFactoryAddress = taskArgs.factory || addresses.multiSig.endowment.factory;
+
+      logger.out("Deploying a new EndowmentMultiSig contract...");
       const factory = new EndowmentMultiSig__factory(proxyAdmin);
       const contract = await factory.deploy();
       await contract.deployed();
+      logger.out(`Address: ${contract.address}`);
 
-      logger.out(`Deployed at: ${contract.address}`);
-
-      logger.out(
-        `Upgrading EndowmentMultiSig implementation address inside MultiSigWalletFactory...`
-      );
-
+      logger.out("Upgrading MultiSigWalletFactory's implementation address...");
       const multisigWalletFactory = MultiSigWalletFactory__factory.connect(
-        addresses.multiSig.endowment.factory,
+        multisigWalletFactoryAddress,
         proxyAdmin
       );
       const tx = await multisigWalletFactory.updateImplementation(contract.address);
       logger.out(`Tx hash: ${tx.hash}`);
-
-      const receipt = await hre.ethers.provider.waitForTransaction(tx.hash);
-      if (!receipt.status) {
-        throw new Error(
-          `Failed to update EndowmentMultiSig implementation address inside MultiSigWalletFactory.`
-        );
-      }
-
-      logger.out("Saving the new implementation address to JSON file...");
+      await tx.wait();
 
       await updateAddresses({multiSig: {endowment: {implementation: contract.address}}}, hre);
 

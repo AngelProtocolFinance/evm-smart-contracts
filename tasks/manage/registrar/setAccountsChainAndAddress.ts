@@ -1,29 +1,26 @@
-import {task, types} from "hardhat/config";
-import type {TaskArguments} from "hardhat/types";
-import {Registrar} from "typechain-types";
-import {getAddresses, logger} from "utils";
+import {task} from "hardhat/config";
+import {Registrar__factory} from "typechain-types";
+import {getAddresses, getSigners, logger} from "utils";
+
+type TaskArgs = {accountsDiamond: string; chainName: string};
 
 task("manage:registrar:setAccountsChainAndAddress")
-  .addParam("chainName", "The Axelar blockchain name of the accounts contract", "", types.string)
-  .addParam(
-    "accountsContractAddress",
-    "Address of the accounts contract on that chain",
-    "",
-    types.string
-  )
-  .setAction(async function (taskArguments: TaskArguments, hre) {
+  .addParam("accountsDiamond", "Address of the accounts contract on target Axelar blockchain")
+  .addParam("chainName", "The Axelar blockchain name of the accounts contract")
+  .setAction(async function (taskArguments: TaskArgs, hre) {
     logger.divider();
     logger.out("Connecting to registrar on specified network...");
     const addresses = await getAddresses(hre);
     const registrarAddress = addresses["registrar"]["proxy"];
-    const registrar = (await hre.ethers.getContractAt("Registrar", registrarAddress)) as Registrar;
+    const {deployer} = await getSigners(hre);
+    const registrar = Registrar__factory.connect(registrarAddress, deployer);
     logger.pad(50, "Connected to Registrar at: ", registrar.address);
 
     logger.divider();
     logger.pad(30, "Setting accounts contract on: ", taskArguments.chainName);
-    logger.pad(30, "to contract at: ", taskArguments.accountsContractAddress);
+    logger.pad(30, "to contract at: ", taskArguments.accountsDiamond);
     await registrar.setAccountsContractAddressByChain(
       taskArguments.chainName,
-      taskArguments.accountsContractAddress
+      taskArguments.accountsDiamond
     );
   });

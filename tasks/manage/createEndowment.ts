@@ -1,17 +1,18 @@
-import {task} from "hardhat/config";
+import {task, types} from "hardhat/config";
 import {
   AccountsCreateEndowment__factory,
   AccountsQueryEndowments__factory,
   ApplicationsMultiSig__factory,
   CharityApplication__factory,
 } from "typechain-types";
+import {AccountMessages} from "typechain-types/contracts/core/accounts/IAccounts";
 import {getAddresses, getSigners, logger} from "utils";
 
-import {AccountMessages} from "typechain-types/contracts/core/accounts/IAccounts";
+type TaskArgs = {endowType: 0 | 1};
 
 task("manage:createEndowment", "Will create a new endowment")
-  .addParam("endowType", "0 - charity, 1 - normal")
-  .setAction(async (_taskArguments, hre) => {
+  .addParam("endowType", "0 - charity, 1 - normal", 0, types.int)
+  .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const {apTeam1, apTeam2} = await getSigners(hre);
 
@@ -54,7 +55,7 @@ task("manage:createEndowment", "Will create a new endowment")
         kycDonorsOnly: false,
         referralId: 0,
         tier: 0,
-        endowType: _taskArguments.endowType, // Charity
+        endowType: taskArgs.endowType, // Charity
         logo: "",
         image: "",
         members: [apTeam1.address],
@@ -139,7 +140,7 @@ task("manage:createEndowment", "Will create a new endowment")
         },
       };
 
-      if (_taskArguments.endowType == 0) {
+      if (taskArgs.endowType == 0) {
         logger.out("Creating a charity proposal...");
         const charityApplication = CharityApplication__factory.connect(
           addresses.charityApplication.proxy,

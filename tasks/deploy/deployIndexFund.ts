@@ -13,7 +13,7 @@ task("deploy:IndexFund", "Will deploy IndexFund contract")
   )
   .addOptionalParam(
     "registrar",
-    "Address of the Registrar contract. Will do a local lookup from contract-address.json if none is provided."
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
     "owner",

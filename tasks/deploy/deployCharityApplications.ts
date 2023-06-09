@@ -1,18 +1,17 @@
-import {task, types} from "hardhat/config";
-import {isLocalNetwork, logger} from "utils";
-import {getAddresses} from "utils";
 import {deployCharityApplication} from "contracts/multisigs/charity_applications/scripts/deploy";
+import {task, types} from "hardhat/config";
+import {getAddresses, isLocalNetwork, logger} from "utils";
 
 type TaskArgs = {accountsDiamond?: string; applications?: string; verify: boolean};
 
 task("deploy:CharityApplications", "Will deploy CharityApplications contract")
   .addOptionalParam(
     "accountsDiamond",
-    "Address of the Accounts Diamond contract. Will do a local lookup from contract-address.json if none is provided."
+    "Accounts Diamond contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
     "applications",
-    "Address of the ApplicationsMultiSig contract. Will do a local lookup from contract-address.json if none is provided."
+    "ApplicationsMultiSig contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
     "verify",

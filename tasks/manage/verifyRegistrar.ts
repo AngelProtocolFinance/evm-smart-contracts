@@ -1,27 +1,27 @@
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {task} from "hardhat/config";
-import {Registrar} from "typechain-types";
+import {Registrar__factory} from "typechain-types";
 import {getAddresses, getSigners, logger} from "utils";
 
-task("manage:verifyRegistrar", "Will create a new charity endowment").setAction(
-  async (_taskArguments, hre) => {
+task("manage:verifyRegistrar", "Will verify the Registrar implementation contract").setAction(
+  async (_, hre) => {
     try {
       const addresses = await getAddresses(hre);
+      const {proxyAdmin} = await getSigners(hre);
 
-      let registrar = (await hre.ethers.getContractAt(
-        "Registrar",
-        addresses.registrar.proxy
-      )) as Registrar;
+      let registrar = Registrar__factory.connect(addresses.registrar.proxy, proxyAdmin);
 
       let registrarConfig = await registrar.queryConfig();
       logger.out(`Registrar owner: ${registrarConfig.proxyAdmin}`);
 
+      logger.out("Verifying...");
       await hre.run("verify:verify", {
         address: addresses.registrar.implementation,
         constructorArguments: [],
       });
     } catch (error) {
       logger.out(error, logger.Level.Error);
+    } finally {
+      logger.out("Done.");
     }
   }
 );

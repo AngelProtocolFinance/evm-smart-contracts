@@ -1,7 +1,6 @@
+import {deployAPTeamMultiSig} from "contracts/multisigs/scripts/deploy";
 import {task, types} from "hardhat/config";
 import {isLocalNetwork, logger} from "utils";
-
-import {deployAPTeamMultiSig} from "contracts/multisigs/scripts/deploy";
 
 task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
   .addOptionalParam(

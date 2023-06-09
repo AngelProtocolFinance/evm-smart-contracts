@@ -1,7 +1,6 @@
+import {deployApplicationsMultiSig} from "contracts/multisigs/scripts/deploy";
 import {task, types} from "hardhat/config";
 import {isLocalNetwork, logger} from "utils";
-
-import {deployApplicationsMultiSig} from "contracts/multisigs/scripts/deploy";
 
 task("deploy:ApplicationsMultiSig", "Will deploy ApplicationsMultiSig contract")
   .addOptionalParam(

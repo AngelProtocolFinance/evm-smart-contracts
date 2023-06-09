@@ -1,31 +1,48 @@
-import {task, types} from "hardhat/config";
-import {isLocalNetwork, logger} from "utils";
-
 import {deployGiftCard} from "contracts/accessory/gift-cards/scripts/deploy";
+import {task, types} from "hardhat/config";
+import {getAddresses, isLocalNetwork, logger} from "utils";
+
+type TaskArgs = {
+  angelCoreStruct?: string;
+  keeper: string;
+  registrar?: string;
+  verify: boolean;
+};
 
 task("deploy:GiftCard", "Will deploy GiftCardContracts contract")
+  .addOptionalParam(
+    "angelCoreStruct",
+    "AngelCoreStruct library address. Will do a local lookup from contract-address.json if none is provided."
+  )
+  .addParam("keeper", "Keeper address for GiftCard contract.")
+  .addOptionalParam(
+    "registrar",
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
+  )
   .addOptionalParam(
     "verify",
     "Indicates whether the contract should be verified",
     false,
     types.boolean
   )
-  .addParam("keeper", "keeper address for giftCard contract")
-  .addParam("registraraddress", "Address of the registrar contract")
-  .addParam("corelibrary", "Angel core library address")
-  .setAction(async (taskArgs, hre) => {
+  .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      let GiftCardDataInput = {
-        keeper: taskArgs.keeper,
-        registrarContract: taskArgs.registraraddress,
-      };
+      const addresses = await getAddresses(hre);
 
-      logger.out(taskArgs.corelibrary);
-
+      const angelCoreStruct =
+        taskArgs.angelCoreStruct || addresses.libraries.ANGEL_CORE_STRUCT_LIBRARY;
+      const registrar = taskArgs.registrar || addresses.registrar.proxy;
       const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
-      await deployGiftCard(GiftCardDataInput, taskArgs.corelibrary, verify_contracts, hre);
+      const GiftCardDataInput = {
+        keeper: taskArgs.keeper,
+        registrarContract: registrar,
+      };
+
+      await deployGiftCard(GiftCardDataInput, angelCoreStruct, verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
+    } finally {
+      logger.out("Done.");
     }
   });

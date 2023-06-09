@@ -1,15 +1,27 @@
 import {task, types} from "hardhat/config";
-import {confirmAction, getAddresses, getSigners, logger, isLocalNetwork} from "utils";
-
+import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger} from "utils";
 import {ALL_FACET_NAMES} from "./constants";
 import createFacetCuts from "./createFacetCuts";
 import cutDiamond from "./cutDiamond";
 import deployFacets from "./deployFacets";
 import verify from "./verify";
 
-type TaskArguments = {facets: string[]; verify: boolean};
+type TaskArgs = {
+  accountsDiamond?: string;
+  angelCoreStruct?: string;
+  facets: string[];
+  verify: boolean;
+};
 
 task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountStorage struct")
+  .addOptionalParam(
+    "accountsDiamond",
+    "Accounts Diamond contract address. Will do a local lookup from contract-address.json if none is provided."
+  )
+  .addOptionalParam(
+    "angelCoreStruct",
+    "AngelCoreStruct library address. Will do a local lookup from contract-address.json if none is provided."
+  )
   .addVariadicPositionalParam(
     "facets",
     "List of facets to upgrade. If set to 'all', will upgrade all facets."
@@ -20,7 +32,7 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
     false,
     types.boolean
   )
-  .setAction(async (taskArgs: TaskArguments, hre) => {
+  .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       if (taskArgs.facets.length === 0) {
         throw new Error("Must provide at least one facet name or pass 'all'");
@@ -39,16 +51,15 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
 
       const addresses = await getAddresses(hre);
 
-      const facets = await deployFacets(
-        facetsToUpgrade,
-        proxyAdmin,
-        addresses.libraries.ANGEL_CORE_STRUCT_LIBRARY,
-        hre
-      );
+      const accountsDiamond = taskArgs.accountsDiamond || addresses.accounts.diamond;
+      const angelCoreStruct =
+        taskArgs.angelCoreStruct || addresses.libraries.ANGEL_CORE_STRUCT_LIBRARY;
 
-      const facetCuts = await createFacetCuts(facets, addresses.accounts.diamond, proxyAdmin);
+      const facets = await deployFacets(facetsToUpgrade, proxyAdmin, angelCoreStruct, hre);
 
-      await cutDiamond(addresses.accounts.diamond, proxyAdmin, facetCuts, hre);
+      const facetCuts = await createFacetCuts(facets, accountsDiamond, proxyAdmin);
+
+      await cutDiamond(accountsDiamond, proxyAdmin, facetCuts, hre);
 
       if (!isLocalNetwork(hre) && taskArgs.verify) {
         await verify(facetCuts, hre);

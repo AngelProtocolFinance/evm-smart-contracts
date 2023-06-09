@@ -4,8 +4,7 @@ import {
   ApplicationsMultiSig__factory,
   ITransparentUpgradeableProxy__factory,
 } from "typechain-types";
-import {getAddresses, getSigners, updateAddresses} from "utils";
-import {logger, isLocalNetwork} from "utils";
+import {getAddresses, getSigners, isLocalNetwork, logger, updateAddresses} from "utils";
 
 task(
   "upgrade:Multisig",
@@ -23,76 +22,46 @@ task(
 
       const addresses = await getAddresses(hre);
 
-      let IMPLEMENTATION_ADDRESS_SLOT =
-        "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc";
+      // Update APTeamMultiSig
+      logger.out("Deploying APTeamMultiSig...");
+      const apTeamFactory = new APTeamMultiSig__factory(proxyAdmin);
+      const apTeamMultiSig = await apTeamFactory.deploy();
+      await apTeamMultiSig.deployed();
+      logger.out(`Address: ${apTeamMultiSig.address}`);
 
-      // Get the new Multisig Factories
-      const APMultisig = new APTeamMultiSig__factory(proxyAdmin);
-      const apMultisigImpl = await APMultisig.deploy();
-      await apMultisigImpl.deployed();
-
-      const AppsMultisig = new ApplicationsMultiSig__factory(proxyAdmin);
-      const appsMultisigImpl = await AppsMultisig.deploy();
-      await appsMultisigImpl.deployed();
-
-      // Connect to the Proxy contracts
-      const APTeamProxy = ITransparentUpgradeableProxy__factory.connect(
+      logger.out("Upgrading APTeamMultiSig proxy implementation...");
+      const apTeamProxy = ITransparentUpgradeableProxy__factory.connect(
         addresses.multiSig.apTeam.proxy,
         proxyAdmin
       );
-      const ApplicationsProxy = ITransparentUpgradeableProxy__factory.connect(
+      const tx1 = await apTeamProxy.upgradeTo(apTeamMultiSig.address);
+      logger.out(`Tx hash: ${tx1.hash}`);
+      await tx1.wait();
+
+      // Update ApplicationsMultiSig
+      logger.out("Deploying ApplicationsMultiSig...");
+      const applicationsFactory = new ApplicationsMultiSig__factory(proxyAdmin);
+      const applicationsMultiSig = await applicationsFactory.deploy();
+      await applicationsMultiSig.deployed();
+      logger.out(`Address: ${applicationsMultiSig.address}`);
+
+      logger.out("Upgrading ApplicationsMultiSig proxy implementation...");
+      const applicationsProxy = ITransparentUpgradeableProxy__factory.connect(
         addresses.multiSig.applications.proxy,
         proxyAdmin
       );
+      const tx2 = await applicationsProxy.upgradeTo(applicationsMultiSig.address);
+      logger.out(`Tx hash: ${tx2.hash}`);
+      await tx2.wait();
 
-      // Confirm that the proxy is pointed to the new implementation
-      let currentAPImpl = await hre.ethers.provider.getStorageAt(
-        APTeamProxy.address,
-        IMPLEMENTATION_ADDRESS_SLOT
-      );
-      logger.out(`Current AP Team Impl: ${currentAPImpl}`);
-      logger.out(`For proxy at: ${APTeamProxy.address}`);
-
-      let currentAppsImpl = await hre.ethers.provider.getStorageAt(
-        ApplicationsProxy.address,
-        IMPLEMENTATION_ADDRESS_SLOT
-      );
-      logger.out(`Current Apps impl: ${currentAppsImpl}`);
-      logger.out(`For proxy at: ${ApplicationsProxy.address}`);
-
-      // Send the upgrade call and wait for the tx to be finalized
-      logger.out("Upgrading APTeamMultiSig proxy implementation...");
-      let tx1 = await APTeamProxy.upgradeTo(apMultisigImpl.address);
-      logger.out(`Tx hash: ${tx1.hash}`);
-      await hre.ethers.provider.waitForTransaction(tx1.hash);
-
-      logger.out("Upgrading ApplicationsMultiSig proxy implementation...");
-      let tx2 = await ApplicationsProxy.upgradeTo(appsMultisigImpl.address);
-      await hre.ethers.provider.waitForTransaction(tx2.hash);
-      logger.out(`Tx hash: ${tx1.hash}`);
-
-      // Confirm that the proxy is pointed to the new implementation
-      let newAPImpl = await hre.ethers.provider.getStorageAt(
-        APTeamProxy.address,
-        IMPLEMENTATION_ADDRESS_SLOT
-      );
-      logger.out(`New AP Team Impl: ${newAPImpl}`);
-
-      let newAppsImpl = await hre.ethers.provider.getStorageAt(
-        ApplicationsProxy.address,
-        IMPLEMENTATION_ADDRESS_SLOT
-      );
-      logger.out(`New Apps impl: ${newAppsImpl}`);
-
-      logger.out("Saving the new implementation address to JSON file...");
       await updateAddresses(
         {
           multiSig: {
             applications: {
-              implementation: appsMultisigImpl.address,
+              implementation: applicationsMultiSig.address,
             },
             apTeam: {
-              implementation: apMultisigImpl.address,
+              implementation: apTeamMultiSig.address,
             },
           },
         },
@@ -101,17 +70,15 @@ task(
 
       if (!isLocalNetwork(hre) && taskArgs.verify) {
         logger.out("Verifying APTeamMultiSig...");
-
         await hre.run("verify:verify", {
-          address: apMultisigImpl.address,
+          address: apTeamMultiSig.address,
           constructorArguments: [],
           contract: "contracts/multisigs/APTeamMultiSig.sol:APTeamMultiSig",
         });
 
         logger.out("\nVerifying ApplicationsMultiSig...");
-
         await hre.run("verify:verify", {
-          address: appsMultisigImpl.address,
+          address: applicationsMultiSig.address,
           constructorArguments: [],
           contract: "contracts/multisigs/ApplicationsMultiSig.sol:ApplicationsMultiSig",
         });

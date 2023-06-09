@@ -11,8 +11,8 @@ task("deploy:Implementation", "Will deploy Implementation")
     false,
     types.boolean
   )
-  .addParam("registraraddress", "Address of the Registrar contract")
-  .addParam("angelcorestruct", "Address of the AngelCoreStruct contract")
+  .addParam("registraraddress", "Registrar contract address")
+  .addParam("angelcorestruct", "AngelCoreStruct library address")
   .addParam("accountaddress", "Address of the Account")
   .addParam("apteammultisigaddress", "Address of the APTeam multisig")
   .addParam("endowmentmultisigaddress", "Address of the Endowment multisig")
