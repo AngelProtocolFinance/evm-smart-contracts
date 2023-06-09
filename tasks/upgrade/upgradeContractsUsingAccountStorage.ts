@@ -1,26 +1,13 @@
 import {task} from "hardhat/config";
-import {
-  AccountDepositWithdrawEndowments__factory,
-  AccountDonationMatch__factory,
-  AccountsAllowance__factory,
-  AccountsCreateEndowment__factory,
-  AccountsDAOEndowments__factory,
-  AccountsQueryEndowments__factory,
-  AccountsSwapEndowments__factory,
-  AccountsUpdateEndowmentSettingsController__factory,
-  AccountsUpdateEndowments__factory,
-  AccountsUpdateStatusEndowments__factory,
-  AccountsVaultFacet__factory,
-} from "typechain-types";
-import {getContractName, logger} from "utils";
+import {logger} from "utils";
 
 task(
-  "upgrade:upgradeContractsUsingAccountStorage",
+  "upgrade:ContractsUsingAccountStorage",
   "Will redeploy all contracts that use AccountStorage struct"
 ).setAction(async (_taskArguments, hre) => {
   try {
-    await hre.run("upgrade:upgradeCharityApplication");
-    await hre.run("upgrade:upgradeFacets", {facets});
+    await hre.run("upgrade:CharityApplication");
+    await hre.run("upgrade:facets", {facets: ["all"]});
   } catch (error) {
     logger.out(
       `Redeployment of all contracts that use AccountStorage struct failed, reason: ${error}`,
@@ -28,17 +15,3 @@ task(
     );
   }
 });
-
-const facets: string[] = [
-  getContractName(AccountsAllowance__factory),
-  getContractName(AccountsDAOEndowments__factory),
-  getContractName(AccountDonationMatch__factory),
-  getContractName(AccountsCreateEndowment__factory),
-  getContractName(AccountsQueryEndowments__factory),
-  getContractName(AccountsSwapEndowments__factory),
-  getContractName(AccountsUpdateEndowments__factory),
-  getContractName(AccountsUpdateEndowmentSettingsController__factory),
-  getContractName(AccountsUpdateStatusEndowments__factory),
-  getContractName(AccountDepositWithdrawEndowments__factory),
-  getContractName(AccountsVaultFacet__factory),
-];

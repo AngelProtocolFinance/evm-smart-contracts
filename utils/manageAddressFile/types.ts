@@ -19,7 +19,6 @@ export type AddressObj = {
       diamondInitFacet: string;
       diamondLoupeFacet: string;
       ownershipFacet: string;
-      reentrancyGuardFacet: string;
     };
   };
   charityApplication: {
@@ -147,6 +146,6 @@ export type AddressObj = {
   tokens: {
     halo: string;
     usdc: string;
-    weth: string;
+    wmatic: string;
   };
 };

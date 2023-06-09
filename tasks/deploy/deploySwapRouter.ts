@@ -1,9 +1,10 @@
-import {task} from "hardhat/config";
 import config from "config";
-import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
+import {task} from "hardhat/config";
 import {logger} from "utils";
 
-task("Deploy:deploySwapRouter", "Will deploy SwapRouter contract")
+import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
+
+task("deploy:SwapRouter", "Will deploy SwapRouter contract")
   .addParam("verify", "Want to verify contract")
   .addParam("registraraddress", "Address of the Registrar contract")
   .addParam("accountaddress", "Address of the account")

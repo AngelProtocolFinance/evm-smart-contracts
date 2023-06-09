@@ -1,8 +1,9 @@
 import {task} from "hardhat/config";
-import {giftCard} from "contracts/accessory/gift-cards/scripts/deploy";
 import {logger} from "utils";
 
-task("Deploy:deployGiftCard", "Will deploy GiftCardContracts contract")
+import {giftCard} from "contracts/accessory/gift-cards/scripts/deploy";
+
+task("deploy:GiftCard", "Will deploy GiftCardContracts contract")
   .addParam("verify", "Want to verify contract")
   .addParam("keeper", "keeper address for giftCard contract")
   .addParam("registraraddress", "Address of the registrar contract")

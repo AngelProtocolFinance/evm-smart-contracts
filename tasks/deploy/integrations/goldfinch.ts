@@ -1,7 +1,7 @@
 import {task, types} from "hardhat/config";
 import type {TaskArguments} from "hardhat/types";
-import {getAddresses, logger, updateAddresses} from "utils";
 import {GoldfinchVault, GoldfinchVault__factory, Registrar} from "typechain-types";
+import {getAddresses, logger, updateAddresses} from "utils";
 
 // Goerli addresses
 
@@ -12,7 +12,7 @@ import {GoldfinchVault, GoldfinchVault__factory, Registrar} from "typechain-type
 // FIDU                 0x6a445e9f40e0b97c92d0b8a3366cef1d67f700bf
 // GFI                  0xdab396cCF3d84Cf2D07C4454e10C8A6F5b008D2b
 
-task("deploy:integrations:goldfinch")
+task("deploy:integrations:Goldfinch")
   .addParam("stakingPool", "address of the FIDU stakingPool", "", types.string)
   .addParam("crvPool", "address of the USDC/FIDU LP on CRV", "", types.string)
   .addParam("usdc", "address of the USDC token", "", types.string)

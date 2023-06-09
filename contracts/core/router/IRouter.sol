@@ -6,9 +6,9 @@ import {IAxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contrac
 import {IVault} from "../vault/interfaces/IVault.sol";
 
 interface IRouter is IAxelarExecutable {
-    /*////////////////////////////////////////////////
+  /*////////////////////////////////////////////////
                         EVENTS
-    */////////////////////////////////////////////////
+    */ ////////////////////////////////////////////////
 
     event TokensSent(IVault.VaultActionData action, uint256 amount);
     event FallbackRefund(IVault.VaultActionData action, uint256 amount);
@@ -18,9 +18,9 @@ interface IRouter is IAxelarExecutable {
     event LogError(IVault.VaultActionData action, string message);
     event LogErrorBytes(IVault.VaultActionData action, bytes data);
 
-    /*////////////////////////////////////////////////
+  /*////////////////////////////////////////////////
                     CUSTOM TYPES
-    */////////////////////////////////////////////////
+    */ ////////////////////////////////////////////////
 
     function executeLocal(
         string calldata sourceChain,

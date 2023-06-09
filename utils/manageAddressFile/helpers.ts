@@ -1,4 +1,5 @@
 import fs from "fs";
+
 import {AddressObj} from "./types";
 
 export function getAddressesByNetworkId(
@@ -64,7 +65,7 @@ function hasKey<T extends object>(obj: T, k: keyof any): k is keyof T {
   return k in obj;
 }
 
-function createEmpty(): AddressObj {
+export function createEmpty(): AddressObj {
   return {
     accounts: {
       diamond: "",
@@ -86,7 +87,6 @@ function createEmpty(): AddressObj {
         diamondInitFacet: "",
         diamondLoupeFacet: "",
         ownershipFacet: "",
-        reentrancyGuardFacet: "",
       },
     },
     charityApplication: {
@@ -214,7 +214,7 @@ function createEmpty(): AddressObj {
     tokens: {
       halo: "",
       usdc: "",
-      weth: "",
+      wmatic: "",
     },
   };
 }

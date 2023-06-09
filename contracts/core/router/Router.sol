@@ -17,30 +17,30 @@ import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contrac
 import {IAxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarExecutable.sol";
 
 contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
-    string public chain;
-    ILocalRegistrar public registrar;
-    IAxelarGasService public gasReceiver;
+  string public chain;
+  ILocalRegistrar public registrar;
+  IAxelarGasService public gasReceiver;
 
-    uint256 constant PRECISION = 10 ** 6;
+  uint256 constant PRECISION = 10 ** 6;
 
-    /*///////////////////////////////////////////////
+  /*///////////////////////////////////////////////
                         PROXY INIT
     */ ///////////////////////////////////////////////
 
-    function initialize(
-        string calldata _chain,
-        address _gateway,
-        address _gasReceiver,
-        address _registrar
-    ) public initializer {
-        chain = _chain;
-        registrar = ILocalRegistrar(_registrar);
-        gasReceiver = IAxelarGasService(_gasReceiver);
-        __AxelarExecutable_init_unchained(_gateway);
-        __Ownable_init_unchained();
-    }
+  function initialize(
+    string calldata _chain,
+    address _gateway,
+    address _gasReceiver,
+    address _registrar
+  ) public initializer {
+    chain = _chain;
+    registrar = ILocalRegistrar(_registrar);
+    gasReceiver = IAxelarGasService(_gasReceiver);
+    __AxelarExecutable_init_unchained(_gateway);
+    __Ownable_init_unchained();
+  }
 
-    /*///////////////////////////////////////////////
+  /*///////////////////////////////////////////////
                     MODIFIERS
     */ ///////////////////////////////////////////////
 
@@ -49,10 +49,10 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         _;
     }
 
-    modifier onlySelf() {
-        require(msg.sender == address(this));
-        _;
-    }
+  modifier onlySelf() {
+    require(msg.sender == address(this));
+    _;
+  }
 
     modifier validateDeposit(
         IVault.VaultActionData memory action,
@@ -98,7 +98,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         _;
     }
 
-    /*///////////////////////////////////////////////
+  /*///////////////////////////////////////////////
                     ANGEL PROTOCOL ROUTER
     */ ///////////////////////////////////////////////
 
@@ -226,6 +226,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         IVault liquidVault = IVault(_params.Liquid.vaultAddr);
 
         // Redeem tokens from vaults and txfer them to the Router
+        // @TODO need to fix the case where amt is 0 because there is no position 
         IVault.RedemptionResponse memory lockResponse = lockedVault.redeemAll(_action.accountIds[0]);
         require(
             IERC20Metadata(_action.token).transferFrom(
@@ -255,7 +256,6 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     }
 
     // Vault action::Harvest
-    // @todo redemption amts need to affect _action data
     function _harvest(
         LocalRegistrarLib.StrategyParams memory _params,
         IVault.VaultActionData memory _action
@@ -268,7 +268,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         return _action;
     }
 
-    /*////////////////////////////////////////////////
+  /*////////////////////////////////////////////////
                         AXELAR IMPL.
     */ ////////////////////////////////////////////////
 
@@ -297,37 +297,27 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
             );
     }
 
-    modifier onlyLocalAccountsContract() {
-        string memory accountAddress = registrar
-            .getAccountsContractAddressByChain(chain);
-        require(
-            StringToAddress.toAddress(accountAddress) == msg.sender,
-            "Unauthorized local call"
-        );
-        _;
-    }
+  modifier onlyLocalAccountsContract() {
+    string memory accountAddress = registrar.getAccountsContractAddressByChain(chain);
+    require(StringToAddress.toAddress(accountAddress) == msg.sender, "Unauthorized local call");
+    _;
+  }
 
-    modifier onlyAccountsContract(
-        string calldata _sourceChain,
-        string calldata _sourceAddress
-    ) {
-        string memory accountsContractAddress = registrar
-            .getAccountsContractAddressByChain(_sourceChain);
-        require(
-            keccak256(bytes(_sourceAddress)) ==
-                keccak256(bytes(accountsContractAddress)),
-            "Unauthorized Call"
-        );
-        _;
-    }
+  modifier onlyAccountsContract(string calldata _sourceChain, string calldata _sourceAddress) {
+    string memory accountsContractAddress = registrar.getAccountsContractAddressByChain(
+      _sourceChain
+    );
+    require(
+      keccak256(bytes(_sourceAddress)) == keccak256(bytes(accountsContractAddress)),
+      "Unauthorized Call"
+    );
+    _;
+  }
 
-    modifier notZeroAddress(string calldata _sourceAddress) {
-        require(
-            StringToAddress.toAddress(_sourceAddress) != address(0),
-            "Unauthorized Call"
-        );
-        _;
-    }
+  modifier notZeroAddress(string calldata _sourceAddress) {
+    require(StringToAddress.toAddress(_sourceAddress) != address(0), "Unauthorized Call");
+    _;
+  }
 
     function _prepareToSendTokens(
         IVault.VaultActionData memory _action,
@@ -365,17 +355,16 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         LocalRegistrarLib.AngelProtocolParams memory apParams = registrar
             .getAngelProtocolParams();
 
-        // Prepare gas
-        uint256 gasFee = registrar.getGasByToken(_action.token);
-        require(_sendAmt > gasFee, "Send amount does not cover gas");
-        uint256 amtLessGasFee = _sendAmt - gasFee;
+    // Prepare gas
+    uint256 gasFee = registrar.getGasByToken(_action.token);
+    require(_sendAmt > gasFee, "Send amount does not cover gas");
+    uint256 amtLessGasFee = _sendAmt - gasFee;
 
-        // Split gas proportionally between liquid and lock amts
-        uint256 liqGas = (gasFee * ((_action.liqAmt * PRECISION) / _sendAmt)) /
-            PRECISION;
-        uint256 lockGas = gasFee - liqGas;
-        _action.liqAmt -= liqGas;
-        _action.lockAmt -= lockGas;
+    // Split gas proportionally between liquid and lock amts
+    uint256 liqGas = (gasFee * ((_action.liqAmt * PRECISION) / _sendAmt)) / PRECISION;
+    uint256 lockGas = gasFee - liqGas;
+    _action.liqAmt -= liqGas;
+    _action.lockAmt -= lockGas;
 
         bytes memory payload = RouterLib.packCallData(_action);
         try
@@ -412,44 +401,37 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         return _action;
     }
 
-    function sendTokens(
-        string memory destinationChain,
-        string memory destinationAddress,
-        bytes memory payload,
-        string memory symbol,
-        uint256 amount,
-        address gasToken,
-        uint256 gasFeeAmt
-    ) public onlySelf {
-        address tokenAddress = gateway.tokenAddresses(symbol);
-        require(IERC20Metadata(tokenAddress).approve(address(gateway), amount));
-        require(
-            IERC20Metadata(gasToken).approve(address(gasReceiver), gasFeeAmt)
-        );
+  function sendTokens(
+    string memory destinationChain,
+    string memory destinationAddress,
+    bytes memory payload,
+    string memory symbol,
+    uint256 amount,
+    address gasToken,
+    uint256 gasFeeAmt
+  ) public onlySelf {
+    address tokenAddress = gateway.tokenAddresses(symbol);
+    require(IERC20Metadata(tokenAddress).approve(address(gateway), amount));
+    require(IERC20Metadata(gasToken).approve(address(gasReceiver), gasFeeAmt));
 
-        AngelCoreStruct.FeeSetting memory feeSetting = registrar
-            .getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes.Default);
+    AngelCoreStruct.FeeSetting memory feeSetting = registrar.getFeeSettingsByFeeType(
+      AngelCoreStruct.FeeTypes.Default
+    );
 
-        gasReceiver.payGasForContractCallWithToken(
-            address(this),
-            destinationChain,
-            destinationAddress,
-            payload,
-            symbol,
-            amount,
-            gasToken,
-            gasFeeAmt,
-            feeSetting.payoutAddress
-        );
+    gasReceiver.payGasForContractCallWithToken(
+      address(this),
+      destinationChain,
+      destinationAddress,
+      payload,
+      symbol,
+      amount,
+      gasToken,
+      gasFeeAmt,
+      feeSetting.payoutAddress
+    );
 
-        gateway.callContractWithToken(
-            destinationChain,
-            destinationAddress,
-            payload,
-            symbol,
-            amount
-        );
-    }
+    gateway.callContractWithToken(destinationChain, destinationAddress, payload, symbol, amount);
+  }
 
     function _executeWithToken(
         string calldata sourceChain,
@@ -499,7 +481,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         LocalRegistrarLib.StrategyParams memory params = registrar
             .getStrategyParamsById(action.strategyId);
 
-        // Switch for calling appropriate vault/method
-        return _callSwitch(params, action);
-    }
+    // Switch for calling appropriate vault/method
+    return _callSwitch(params, action);
+  }
 }

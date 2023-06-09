@@ -1,7 +1,7 @@
 import "./addMultisigOwner";
 import "./changeAdmin";
 import "./changeOwner";
-import "./createCharityEndowment";
+import "./createEndowment";
 import "./createIndexFund";
 import "./registrar";
 import "./updateRegistrar";

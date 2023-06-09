@@ -1,8 +1,10 @@
-const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
-
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {IndexFund__factory} from "typechain-types";
 import {getSigners, updateAddresses} from "utils";
+
 import {IndexFundMessage} from "typechain-types/contracts/core/index-fund/IndexFund";
+
+const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
 export async function deployIndexFund(
   initFactoryData: IndexFundMessage.InstantiateMessageStruct,
@@ -13,18 +15,14 @@ export async function deployIndexFund(
   try {
     const {network, run, ethers} = hre;
 
-    const {proxyAdmin} = await getSigners(ethers);
+    const {deployer, proxyAdmin} = await getSigners(ethers);
     const IndexContract = await ethers.getContractFactory("IndexFund", proxyAdmin);
     const indexContract = await IndexContract.deploy();
     await indexContract.deployed();
 
     console.log("Index fund implementation address:", indexContract.address);
 
-    console.log("Updating IndexFund owner to: ", owner, "...");
-    const tx = await indexContract.updateOwner(owner);
-    await tx.wait();
-
-    const ProxyContract = await ethers.getContractFactory("ProxyContract", proxyAdmin);
+    const ProxyContract = await ethers.getContractFactory("ProxyContract", deployer);
 
     const IndexFundContractData = indexContract.interface.encodeFunctionData("initIndexFund", [
       initFactoryData,
@@ -36,6 +34,11 @@ export async function deployIndexFund(
       IndexFundContractData
     );
     await IndexFundContractProxy.deployed();
+
+    console.log("Updating IndexFund owner to: ", owner, "...");
+    const proxiedIndexFund = IndexFund__factory.connect(IndexFundContractProxy.address, deployer);
+    const tx = await proxiedIndexFund.updateOwner(owner);
+    await tx.wait();
 
     await updateAddresses(
       {

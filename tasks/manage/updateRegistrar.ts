@@ -2,8 +2,9 @@ import config from "config";
 import {task} from "hardhat/config";
 import type {TaskArguments} from "hardhat/types";
 import {Registrar} from "typechain-types";
-import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 import {ADDRESS_ZERO, getAddresses, getSigners, logger} from "utils";
+
+import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 
 task("manage:updateRegistrar", "Will update the registrar config").setAction(
   async (taskArguments: TaskArguments, hre) => {
@@ -53,7 +54,7 @@ task("manage:updateRegistrar", "Will update the registrar config").setAction(
         charityProposal: ADDRESS_ZERO,
         proxyAdmin: proxyAdmin.address,
         usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress,
-        wethAddress: config.REGISTRAR_UPDATE_CONFIG.wethAddress,
+        wMaticAddress: config.REGISTRAR_UPDATE_CONFIG.wmaticAddress,
         cw900lvAddress: apTeam1.address,
         lockedWithdrawal: ADDRESS_ZERO,
       };

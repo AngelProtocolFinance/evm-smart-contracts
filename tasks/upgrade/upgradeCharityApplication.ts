@@ -1,9 +1,9 @@
 import {task} from "hardhat/config";
 import {CharityApplication__factory} from "typechain-types";
-import {logger, updateAddresses, shouldVerify, getSigners} from "utils";
+import {getSigners, logger, shouldVerify, updateAddresses} from "utils";
 
 task(
-  "upgrade:upgradeCharityApplication",
+  "upgrade:CharityApplication",
   "Will upgrade the implementation of the Charity Application multisig"
 ).setAction(async (_taskArguments, hre) => {
   try {

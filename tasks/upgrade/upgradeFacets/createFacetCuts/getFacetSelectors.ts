@@ -1,6 +1,8 @@
-import {getSelectors} from "contracts/core/accounts/scripts/libraries/diamond";
 import {DiamondLoupeFacet} from "typechain-types";
 import {ADDRESS_ZERO, logger} from "utils";
+
+import {getSelectors} from "contracts/core/accounts/scripts/libraries/diamond";
+
 import {Facet} from "../types";
 
 export default async function getFacetSelectors(

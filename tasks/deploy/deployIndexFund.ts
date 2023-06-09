@@ -1,9 +1,10 @@
-import {task} from "hardhat/config";
 import config from "config";
-import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
+import {task} from "hardhat/config";
 import {getAddresses, logger} from "utils";
 
-task("Deploy:deployIndexFund", "Will deploy IndexFund contract")
+import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
+
+task("deploy:IndexFund", "Will deploy IndexFund contract")
   .addParam("verify", "Want to verify contract")
   .addParam("registraraddress", "Address of the Registrar contract")
   .setAction(async (taskArgs, hre) => {

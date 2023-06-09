@@ -1,14 +1,14 @@
 import {task} from "hardhat/config";
-import {getAddresses, getSigners, updateAddresses} from "utils";
 import {
   APTeamMultiSig__factory,
   ApplicationsMultiSig__factory,
   ITransparentUpgradeableProxy__factory,
 } from "typechain-types";
+import {getAddresses, getSigners, updateAddresses} from "utils";
 import {logger, shouldVerify} from "utils";
 
 task(
-  "upgrade:upgradeMultisig",
+  "upgrade:Multisig",
   "Will upgrade the implementation of the AP Team and Applications multisigs"
 ).setAction(async (_taskArguments, hre) => {
   try {

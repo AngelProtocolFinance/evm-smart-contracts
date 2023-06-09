@@ -6,25 +6,19 @@ import {AccountStorage} from "../storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 
 interface IAccountsQuery {
-    function queryTokenAmount(
-        uint256 id,
-        AngelCoreStruct.AccountType accountType,
-        address tokenaddress
-    ) external view returns (uint256 tokenAmount);
+  function queryTokenAmount(
+    uint256 id,
+    AngelCoreStruct.AccountType accountType,
+    address tokenaddress
+  ) external view returns (uint256 tokenAmount);
 
-    function queryEndowmentDetails(
-        uint256 id
-    ) external view returns (AccountStorage.Endowment memory endowment);
+  function queryEndowmentDetails(
+    uint256 id
+  ) external view returns (AccountStorage.Endowment memory endowment);
 
-    function queryConfig()
-        external
-        view
-        returns (AccountMessages.ConfigResponse memory config);
+  function queryConfig() external view returns (AccountMessages.ConfigResponse memory config);
 
-    function queryState(
-        uint256 id
-    )
-        external
-        view
-        returns (AccountMessages.StateResponse memory stateResponse);
+  function queryState(
+    uint256 id
+  ) external view returns (AccountMessages.StateResponse memory stateResponse);
 }

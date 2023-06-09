@@ -1,10 +1,10 @@
 import {task} from "hardhat/config";
-import {getAddresses, getSigners, updateAddresses} from "utils";
 import {EndowmentMultiSig__factory, MultiSigWalletFactory__factory} from "typechain-types";
+import {getAddresses, getSigners, updateAddresses} from "utils";
 import {logger, shouldVerify} from "utils";
 
 task(
-  "upgrade:upgradeEndowmentMultiSig",
+  "upgrade:EndowmentMultiSig",
   "Will upgrade the implementation of the EndowmentMultiSig contracts"
 ).setAction(async (_taskArguments, hre) => {
   try {

@@ -16,7 +16,6 @@ import {
   Router,
   Router__factory,
 } from "typechain-types";
-import {LocalRegistrarLib} from "../typechain-types/contracts/core/registrar/LocalRegistrar";
 import {
   ArrayToVaultActionStruct,
   IVaultHelpers,
@@ -24,6 +23,8 @@ import {
   VaultActionStructToArray,
   getSigners
 } from "utils";
+
+import {LocalRegistrarLib} from "../typechain-types/contracts/core/registrar/LocalRegistrar";
 
 describe("Router", function () {
   let owner: SignerWithAddress;

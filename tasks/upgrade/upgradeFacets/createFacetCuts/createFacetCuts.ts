@@ -1,7 +1,9 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {FacetCutAction} from "contracts/core/accounts/scripts/libraries/diamond";
 import {DiamondLoupeFacet__factory} from "typechain-types";
-import {logger} from "utils";
+import {ADDRESS_ZERO, logger} from "utils";
+
+import {FacetCutAction} from "contracts/core/accounts/scripts/libraries/diamond";
+
 import {Facet, FacetCut} from "../types";
 import getFacetSelectors from "./getFacetSelectors";
 
@@ -45,7 +47,7 @@ export default async function createFacetCuts(
       facetCuts.push({
         facetName: facet.name,
         cut: {
-          facetAddress: facet.contract.address,
+          facetAddress: ADDRESS_ZERO,
           action: FacetCutAction.Remove,
           functionSelectors: toRemove,
         },

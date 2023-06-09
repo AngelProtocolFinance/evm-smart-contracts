@@ -495,8 +495,8 @@ library AngelCoreStruct {
     uint256 bps;
   }
 
-  function validateFee(FeeSetting memory fee) public view {
-    if (fee.payoutAddress == address(0)) {
+  function validateFee(FeeSetting memory fee) public pure {
+    if (fee.bps > 0 && fee.payoutAddress == address(0)) {
       revert("Invalid fee payout zero address given");
     } else if (fee.bps > FEE_BASIS) {
       revert("Invalid fee basis points given. Should be between 0 and 10000.");
@@ -504,7 +504,8 @@ library AngelCoreStruct {
   }
 
   uint256 constant FEE_BASIS = 10000; // gives 0.01% precision for fees (ie. Basis Points)
-  
+  uint256 constant PERCENT_BASIS = 100; // gives 1% precision for declared percentages
+
   enum Status {
     None,
     Pending,

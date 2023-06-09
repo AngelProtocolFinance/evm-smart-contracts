@@ -1,7 +1,5 @@
 import {ContractFactory} from "ethers";
 
-export function getContractName<T extends ContractFactory>(
-  factoryType: new (...args: any) => T
-): string {
-  return factoryType.name.replace("__factory", "");
+export function getContractName<T extends ContractFactory>(factory: T): string {
+  return factory.constructor.name.replace("__factory", "");
 }

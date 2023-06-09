@@ -1,10 +1,11 @@
 import config from "config";
-import {charityApplications} from "contracts/multisigs/charity_applications/scripts/deploy";
 import {task} from "hardhat/config";
 import {logger} from "utils";
 import {getAddresses} from "utils";
 
-task("Deploy:deployCharityApplications", "Will deploy CharityApplications contract")
+import {charityApplications} from "contracts/multisigs/charity_applications/scripts/deploy";
+
+task("deploy:CharityApplications", "Will deploy CharityApplications contract")
   .addParam("verify", "Want to verify contract")
   .setAction(async (taskArgs, hre) => {
     try {

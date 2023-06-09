@@ -1,5 +1,6 @@
-import {ethers} from "ethers";
 import * as crypto from "crypto";
+import {ethers} from "ethers";
+
 import {pad} from "./logger";
 
 export function genWallet(printToConsole: Boolean = false) {

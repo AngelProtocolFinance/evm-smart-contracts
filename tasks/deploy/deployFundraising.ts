@@ -1,9 +1,10 @@
-import {task} from "hardhat/config";
 import config from "config";
-import {deployFundraising} from "contracts/accessory/fundraising/scripts/deploy";
+import {task} from "hardhat/config";
 import {logger} from "utils";
 
-task("Deploy:deployFundraising", "Will deploy Fundraising contract")
+import {deployFundraising} from "contracts/accessory/fundraising/scripts/deploy";
+
+task("deploy:Fundraising", "Will deploy Fundraising contract")
   .addParam("verify", "Want to verify contract")
   .addParam("registraraddress", "Address of the Registrar contract")
   .addParam("angelcorestruct", "Address of the AngelCoreStruct contract")

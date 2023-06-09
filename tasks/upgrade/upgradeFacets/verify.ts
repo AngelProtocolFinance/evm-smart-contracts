@@ -1,5 +1,8 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {logger} from "utils";
+
+import {FacetCutAction} from "contracts/core/accounts/scripts/libraries/diamond";
+
 import {FacetCut} from "./types";
 
 export default async function verify(
@@ -8,7 +11,9 @@ export default async function verify(
 ): Promise<void> {
   logger.out("Verifying newly deployed facets...");
 
-  for (const {facetName, cut} of facetCuts) {
+  const facetsToVerify = facetCuts.filter((cut) => cut.cut.action !== FacetCutAction.Remove);
+
+  for (const {facetName, cut} of facetsToVerify) {
     try {
       logger.out(`Verifying ${facetName}...`);
       await hre.run("verify:verify", {

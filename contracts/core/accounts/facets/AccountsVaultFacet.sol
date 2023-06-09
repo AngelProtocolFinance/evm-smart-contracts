@@ -29,72 +29,77 @@ import "hardhat/console.sol";
  * @dev This contract manages the vaults for endowments
  */
 contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
-    /**
-     * @notice This function that allows users to deposit into a yield strategy using tokens from their locked or liquid account in an endowment.
-     * @dev Allows the owner of an endowment to invest tokens into specified yield vaults.
-     * @param id The endowment id
-     * @param strategy The strategies to invest into
-     * @param token The tokens to withdraw
-     * @param lockAmt The amount to deposit lock 
-     * @param liquidAmt The amount to deposit liquid
-     */
-    function strategyInvest(
-        uint32 id,
-        bytes4 strategy,
-        string memory token,
-        uint256 lockAmt,
-        uint256 liquidAmt
-    ) public payable nonReentrant {
-        AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
-            id
-        ];
+  /**
+   * @notice This function that allows users to deposit into a yield strategy using tokens from their locked or liquid account in an endowment.
+   * @dev Allows the owner of an endowment to invest tokens into specified yield vaults.
+   * @param id The endowment id
+   * @param strategy The strategies to invest into
+   * @param token The tokens to withdraw
+   * @param lockAmt The amount to deposit lock
+   * @param liquidAmt The amount to deposit liquid
+   */
+  function strategyInvest(
+    uint32 id,
+    bytes4 strategy,
+    string memory token,
+    uint256 lockAmt,
+    uint256 liquidAmt
+  ) public payable nonReentrant {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
 
-        // check if the msg sender is either the owner or their delegate address and
-        // that they have the power to manage the investments for an account balance
-        if (lockAmt > 0) {
-            require(AngelCoreStruct.canChange(
-                tempEndowment.settingsController.lockedInvestmentManagement,
-                msg.sender,
-                tempEndowment.owner,
-                block.timestamp
-            ), "Unauthorized");
-        }
-        if (liquidAmt > 0) {
-            require(AngelCoreStruct.canChange(
-                tempEndowment.settingsController.liquidInvestmentManagement,
-                msg.sender,
-                tempEndowment.owner,
-                block.timestamp
-            ), "Unauthorized");
-        }
+    // check if the msg sender is either the owner or their delegate address and
+    // that they have the power to manage the investments for an account balance
+    if (lockAmt > 0) {
+      require(
+        AngelCoreStruct.canChange(
+          tempEndowment.settingsController.lockedInvestmentManagement,
+          msg.sender,
+          tempEndowment.owner,
+          block.timestamp
+        ),
+        "Unauthorized"
+      );
+    }
+    if (liquidAmt > 0) {
+      require(
+        AngelCoreStruct.canChange(
+          tempEndowment.settingsController.liquidInvestmentManagement,
+          msg.sender,
+          tempEndowment.owner,
+          block.timestamp
+        ),
+        "Unauthorized"
+      );
+    }
 
-        require(
-            IRegistrar(state.config.registrarContract).getStrategyApprovalState(
-                strategy
-            ) == LocalRegistrarLib.StrategyApprovalState.APPROVED,
-            "Vault is not approved"
-        );
+    require(
+      IRegistrar(state.config.registrarContract).getStrategyApprovalState(strategy) ==
+        LocalRegistrarLib.StrategyApprovalState.APPROVED,
+      "Vault is not approved"
+    );
 
-        AngelCoreStruct.NetworkInfo memory network = 
-            IRegistrar(state.config.registrarContract)
-            .queryNetworkConnection(block.chainid);
+    AngelCoreStruct.NetworkInfo memory network = IRegistrar(state.config.registrarContract)
+      .queryNetworkConnection(block.chainid);
 
-        address tokenAddress = IAxelarGateway(network.axelarGateway)
-            .tokenAddresses(token);
+    address tokenAddress = IAxelarGateway(network.axelarGateway).tokenAddresses(token);
 
-        require(
-            state.STATES[id].balances.locked.balancesByToken[tokenAddress] >= lockAmt, 
-            "Insufficient Balance");
-        require(state.STATES[id].balances.liquid.balancesByToken[tokenAddress] >= liquidAmt, 
-            "Insufficient Balance");
+    require(
+      state.STATES[id].balances.locked.balancesByToken[tokenAddress] >= lockAmt,
+      "Insufficient Balance"
+    );
+    require(
+      state.STATES[id].balances.liquid.balancesByToken[tokenAddress] >= liquidAmt,
+      "Insufficient Balance"
+    );
 
-        require(IRegistrar(state.config.registrarContract)
-            .isTokenAccepted(tokenAddress),
-            "Token not approved");
+    require(
+      IRegistrar(state.config.registrarContract).isTokenAccepted(tokenAddress),
+      "Token not approved"
+    );
 
-        uint32[] memory accts = new uint32[](1);
-        accts[0] = id;
+    uint32[] memory accts = new uint32[](1);
+    accts[0] = id;
 
         IVault.VaultActionData memory payload = IVault
             .VaultActionData({
@@ -128,59 +133,60 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
         }
     }
 
-    /**
-     * @notice Allows an endowment owner to redeem their funds from multiple yield strategies.
-     * @param id  The endowment ID
-     * @param strategy The strategy to redeem from
-     * @param token The vaults to redeem from
-     * @param lockAmt The amt to remdeem from the locked component
-     * @param liquidAmt The amt to redeem from the liquid component
-     */
-    function strategyRedeem(
-        uint32 id,
-        bytes4 strategy,
-        string memory token,
-        uint256 lockAmt,
-        uint256 liquidAmt
-    ) public payable nonReentrant {
-        AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
-            id
-        ];
+  /**
+   * @notice Allows an endowment owner to redeem their funds from multiple yield strategies.
+   * @param id  The endowment ID
+   * @param strategy The strategy to redeem from
+   * @param token The vaults to redeem from
+   * @param lockAmt The amt to remdeem from the locked component
+   * @param liquidAmt The amt to redeem from the liquid component
+   */
+  function strategyRedeem(
+    uint32 id,
+    bytes4 strategy,
+    string memory token,
+    uint256 lockAmt,
+    uint256 liquidAmt
+  ) public payable nonReentrant {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
 
-        // check if the msg sender is either the owner or their delegate address and
-        // that they have the power to manage the investments for an account balance
-        if (lockAmt > 0) {
-            require(AngelCoreStruct.canChange(
-                tempEndowment.settingsController.lockedInvestmentManagement,
-                msg.sender,
-                tempEndowment.owner,
-                block.timestamp
-            ), "Unauthorized");
-        }
-        if (liquidAmt > 0) {
-            require(AngelCoreStruct.canChange(
-                tempEndowment.settingsController.liquidInvestmentManagement,
-                msg.sender,
-                tempEndowment.owner,
-                block.timestamp
-            ), "Unauthorized");
-        }
+    // check if the msg sender is either the owner or their delegate address and
+    // that they have the power to manage the investments for an account balance
+    if (lockAmt > 0) {
+      require(
+        AngelCoreStruct.canChange(
+          tempEndowment.settingsController.lockedInvestmentManagement,
+          msg.sender,
+          tempEndowment.owner,
+          block.timestamp
+        ),
+        "Unauthorized"
+      );
+    }
+    if (liquidAmt > 0) {
+      require(
+        AngelCoreStruct.canChange(
+          tempEndowment.settingsController.liquidInvestmentManagement,
+          msg.sender,
+          tempEndowment.owner,
+          block.timestamp
+        ),
+        "Unauthorized"
+      );
+    }
 
-        require(tempEndowment.owner == msg.sender, "Unauthorized");
-        require(tempEndowment.pendingRedemptions == 0, "RedemptionInProgress");
-        require(
-            IRegistrar(state.config.registrarContract).getStrategyApprovalState(
-                strategy
-            ) == LocalRegistrarLib.StrategyApprovalState.APPROVED,
-            "Vault is not approved"
-        );
-        AngelCoreStruct.NetworkInfo memory network = 
-            IRegistrar(state.config.registrarContract)
-            .queryNetworkConnection(block.chainid);
+    require(tempEndowment.owner == msg.sender, "Unauthorized");
+    require(tempEndowment.pendingRedemptions == 0, "RedemptionInProgress");
+    require(
+      IRegistrar(state.config.registrarContract).getStrategyApprovalState(strategy) ==
+        LocalRegistrarLib.StrategyApprovalState.APPROVED,
+      "Vault is not approved"
+    );
+    AngelCoreStruct.NetworkInfo memory network = IRegistrar(state.config.registrarContract)
+      .queryNetworkConnection(block.chainid);
 
-        address tokenAddress = IAxelarGateway(network.axelarGateway)
-            .tokenAddresses(token);
+    address tokenAddress = IAxelarGateway(network.axelarGateway).tokenAddresses(token);
 
 
         uint32[] memory accts = new uint32[](1);
@@ -197,7 +203,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
                 status: IVault.VaultActionStatus.UNPROCESSED
             });
 
-        bytes memory packedPayload = RouterLib.packCallData(payload);
+    bytes memory packedPayload = RouterLib.packCallData(payload);
 
         IVault.VaultActionData memory response = 
             IRouter(network.router)
@@ -216,35 +222,30 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
         }
     }
 
-    /**
-     * @notice Allows an endowment owner to redeem their funds from multiple yield strategies.
-     * @param id  The endowment ID
-     * @param strategy The strategy to redeem from
-     * @param token The vaults to redeem from
-     */
-    function strategyRedeemAll(
-        uint32 id,
-        bytes4 strategy,
-        string memory token
-    ) public payable nonReentrant {
-        AccountStorage.State storage state = LibAccounts.diamondStorage();
-        AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[
-            id
-        ];
-        require(tempEndowment.owner == msg.sender, "Unauthorized");
-        require(tempEndowment.pendingRedemptions == 0, "RedemptionInProgress");
-        require(
-            IRegistrar(state.config.registrarContract).getStrategyApprovalState(
-                strategy
-            ) == LocalRegistrarLib.StrategyApprovalState.APPROVED,
-            "Vault is not approved"
-        );
-        AngelCoreStruct.NetworkInfo memory network = 
-            IRegistrar(state.config.registrarContract)
-            .queryNetworkConnection(block.chainid);
-        
-        address tokenAddress = IAxelarGateway(network.axelarGateway)
-            .tokenAddresses(token);
+  /**
+   * @notice Allows an endowment owner to redeem their funds from multiple yield strategies.
+   * @param id  The endowment ID
+   * @param strategy The strategy to redeem from
+   * @param token The vaults to redeem from
+   */
+  function strategyRedeemAll(
+    uint32 id,
+    bytes4 strategy,
+    string memory token
+  ) public payable nonReentrant {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
+    require(tempEndowment.owner == msg.sender, "Unauthorized");
+    require(tempEndowment.pendingRedemptions == 0, "RedemptionInProgress");
+    require(
+      IRegistrar(state.config.registrarContract).getStrategyApprovalState(strategy) ==
+        LocalRegistrarLib.StrategyApprovalState.APPROVED,
+      "Vault is not approved"
+    );
+    AngelCoreStruct.NetworkInfo memory network = IRegistrar(state.config.registrarContract)
+      .queryNetworkConnection(block.chainid);
+
+    address tokenAddress = IAxelarGateway(network.axelarGateway).tokenAddresses(token);
 
         uint32[] memory accts = new uint32[](1);
         accts[0] = id;

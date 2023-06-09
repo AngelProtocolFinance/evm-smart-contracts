@@ -4,10 +4,11 @@
   "description": "Angel Protocol EVM smart contracts, testing and deployment suite.",
   "scripts": {
     "preinstall": "npx only-allow yarn",
-    "format": "prettier --write './**/*.{ts,tsx,js}' --write contracts/**/*.sol",
+    "format": "prettier --write './{config,contracts,scripts,tasks,test,utils}/**/*.{ts,js,sol}'",
     "test": "hardhat test",
-    "compile": "hardhat compile && yarn format",
-    "deploy": "hardhat compile && hardhat run ./scripts/deploy.ts",
+    "compile": "hardhat compile",
+    "clean-compile": "set -x && mv ./tasks/index.ts ./tasks/temp_index.ts && touch ./tasks/index.ts && hardhat clean && yarn compile && mv ./tasks/temp_index.ts ./tasks/index.ts && set +x",
+    "deploy": "yarn compile && hardhat deploy:AngelProtocol",
     "abi": "hardhat export-abi"
   },
   "engines": {
