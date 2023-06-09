@@ -1,12 +1,17 @@
-import {task} from "hardhat/config";
+import {task, types} from "hardhat/config";
 import {deployAngelProtocol} from "scripts";
 import {isLocalNetwork, logger} from "utils";
 
 task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
-  .addParam("verify", "Want to verify contract")
-  .setAction(async (taskArgs: {verify: string}, hre) => {
+  .addOptionalParam(
+    "verify",
+    "Indicates whether the contract should be verified",
+    false,
+    types.boolean
+  )
+  .setAction(async (taskArgs: {verify: boolean}, hre) => {
     try {
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify === "true";
+      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
       await deployAngelProtocol(verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);

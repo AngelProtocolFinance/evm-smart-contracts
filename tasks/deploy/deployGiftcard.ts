@@ -1,10 +1,15 @@
-import {task} from "hardhat/config";
-import {logger} from "utils";
+import {task, types} from "hardhat/config";
+import {isLocalNetwork, logger} from "utils";
 
 import {giftCard} from "contracts/accessory/gift-cards/scripts/deploy";
 
 task("deploy:GiftCard", "Will deploy GiftCardContracts contract")
-  .addParam("verify", "Want to verify contract")
+  .addOptionalParam(
+    "verify",
+    "Indicates whether the contract should be verified",
+    false,
+    types.boolean
+  )
   .addParam("keeper", "keeper address for giftCard contract")
   .addParam("registraraddress", "Address of the registrar contract")
   .addParam("corelibrary", "Angel core library address")
@@ -17,9 +22,9 @@ task("deploy:GiftCard", "Will deploy GiftCardContracts contract")
 
       logger.out(taskArgs.corelibrary);
 
-      var isTrueSet = taskArgs.verify === "true";
+      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
 
-      await giftCard(GiftCardDataInput, taskArgs.corelibrary, isTrueSet, hre);
+      await giftCard(GiftCardDataInput, taskArgs.corelibrary, verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

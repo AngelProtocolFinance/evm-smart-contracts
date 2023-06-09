@@ -1,16 +1,21 @@
 import config from "config";
-import {task} from "hardhat/config";
-import {logger} from "utils";
+import {task, types} from "hardhat/config";
+import {isLocalNetwork, logger} from "utils";
 
 import {deployFundraising} from "contracts/accessory/fundraising/scripts/deploy";
 
 task("deploy:Fundraising", "Will deploy Fundraising contract")
-  .addParam("verify", "Want to verify contract")
+  .addOptionalParam(
+    "verify",
+    "Indicates whether the contract should be verified",
+    false,
+    types.boolean
+  )
   .addParam("registraraddress", "Address of the Registrar contract")
   .addParam("angelcorestruct", "Address of the AngelCoreStruct contract")
   .setAction(async (taskArgs, hre) => {
     try {
-      var isTrueSet = taskArgs.verify === "true";
+      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
       let FundraisingDataInput = {
         registrarContract: taskArgs.registraraddress,
         nextId: config.FundraisingDataInput.nextId,
@@ -19,7 +24,12 @@ task("deploy:Fundraising", "Will deploy Fundraising contract")
         acceptedTokens: config.FundraisingDataInput.acceptedTokens,
       };
 
-      await deployFundraising(FundraisingDataInput, taskArgs.angelcorestruct, isTrueSet, hre);
+      await deployFundraising(
+        FundraisingDataInput,
+        taskArgs.angelcorestruct,
+        verify_contracts,
+        hre
+      );
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

@@ -1,14 +1,19 @@
-import {task} from "hardhat/config";
+import {task, types} from "hardhat/config";
 import {getAddresses, isLocalNetwork, logger} from "utils";
 
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 
 task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
-  .addParam("verify", "Want to verify contract")
-  .setAction(async (taskArgs: {verify: string}, hre) => {
+  .addOptionalParam(
+    "verify",
+    "Indicates whether the contract should be verified",
+    false,
+    types.boolean
+  )
+  .setAction(async (taskArgs: {verify: boolean}, hre) => {
     try {
       const addresses = await getAddresses(hre);
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify === "true";
+      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
       await deployAccountsDiamond(
         addresses.multiSig.apTeam.proxy,
         addresses.registrar.proxy,

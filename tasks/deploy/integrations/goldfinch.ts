@@ -1,7 +1,7 @@
 import {task, types} from "hardhat/config";
 import type {TaskArguments} from "hardhat/types";
 import {GoldfinchVault, GoldfinchVault__factory, Registrar} from "typechain-types";
-import {getAddresses, logger, updateAddresses} from "utils";
+import {getAddresses, isLocalNetwork, logger, updateAddresses} from "utils";
 
 // Goerli addresses
 
@@ -23,6 +23,12 @@ task("deploy:integrations:Goldfinch")
     "address of the registrar. Will do a local lookup from contract-address.json if none is provided",
     "",
     types.string
+  )
+  .addOptionalParam(
+    "verify",
+    "Indicates whether the contract should be verified",
+    false,
+    types.boolean
   )
   .setAction(async function (taskArguments: TaskArguments, hre) {
     logger.divider();
@@ -87,30 +93,32 @@ task("deploy:integrations:Goldfinch")
       hre
     );
     // Verify contracts on etherscan
-    logger.divider();
-    logger.out("Verifying contracts on etherscan");
-    try {
-      await hre.run("verify:verify", {
-        address: lockedVault.address,
-        constructorArguments: lockedVaultArgs,
-      });
-    } catch (error) {
-      logger.out(
-        "Caught the following error while trying to verify locked Vault:",
-        logger.Level.Warn
-      );
-      logger.out(error, logger.Level.Error);
-    }
-    try {
-      await hre.run("verify:verify", {
-        address: liquidVault.address,
-        constructorArguments: liquidVaultArgs,
-      });
-    } catch (error) {
-      logger.out(
-        "Caught the following error while trying to verify liquid Vault:",
-        logger.Level.Warn
-      );
-      logger.out(error, logger.Level.Error);
+    if (taskArguments.verify && !isLocalNetwork(hre.network)) {
+      logger.divider();
+      logger.out("Verifying contracts on etherscan");
+      try {
+        await hre.run("verify:verify", {
+          address: lockedVault.address,
+          constructorArguments: lockedVaultArgs,
+        });
+      } catch (error) {
+        logger.out(
+          "Caught the following error while trying to verify locked Vault:",
+          logger.Level.Warn
+        );
+        logger.out(error, logger.Level.Error);
+      }
+      try {
+        await hre.run("verify:verify", {
+          address: liquidVault.address,
+          constructorArguments: liquidVaultArgs,
+        });
+      } catch (error) {
+        logger.out(
+          "Caught the following error while trying to verify liquid Vault:",
+          logger.Level.Warn
+        );
+        logger.out(error, logger.Level.Error);
+      }
     }
   });

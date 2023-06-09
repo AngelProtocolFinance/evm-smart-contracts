@@ -1,9 +1,14 @@
-import {task} from "hardhat/config";
+import {task, types} from "hardhat/config";
 import {deployLibraries} from "scripts";
 import {isLocalNetwork, logger} from "utils";
 
 task("deploy:Libraries", "Will deploy Libraries")
-  .addParam("verify", "Want to verify contract")
+  .addOptionalParam(
+    "verify",
+    "Indicates whether the contract should be verified",
+    false,
+    types.boolean
+  )
   .setAction(async (taskArgs: {verify: boolean}, hre) => {
     try {
       const verify_contracts = taskArgs.verify && !isLocalNetwork(hre.network);

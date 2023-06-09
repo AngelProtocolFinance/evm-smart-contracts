@@ -1,5 +1,5 @@
 import config from "config";
-import {task} from "hardhat/config";
+import {task, types} from "hardhat/config";
 import {getAddresses, isLocalNetwork, logger} from "utils";
 
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
@@ -9,7 +9,12 @@ task(
   "deploy:Registrar",
   "Will deploy Registrar contract. Will redeploy Router contract as well as there's no way to update the Router's `registrar` address field."
 )
-  .addParam("verify", "Want to verify contract")
+  .addOptionalParam(
+    "verify",
+    "Indicates whether the contract should be verified",
+    false,
+    types.boolean
+  )
   .setAction(async (taskArgs, hre) => {
     try {
       const {

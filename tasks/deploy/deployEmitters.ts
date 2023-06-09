@@ -1,16 +1,21 @@
-import {task} from "hardhat/config";
-import {logger} from "utils";
+import {task, types} from "hardhat/config";
+import {isLocalNetwork, logger} from "utils";
 
 import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
 
 task("deploy:Emitters", "Will deploy Emitters contract")
-  .addParam("verify", "Want to verify contract")
+  .addOptionalParam(
+    "verify",
+    "Indicates whether the contract should be verified",
+    false,
+    types.boolean
+  )
   .addParam("accountaddress", "Address of the account")
   .setAction(async (taskArgs, hre) => {
     try {
-      var isTrueSet = taskArgs.verify === "true";
+      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify;
 
-      await deployEmitters(taskArgs.accountaddress, isTrueSet, hre);
+      await deployEmitters(taskArgs.accountaddress, verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
