@@ -2,12 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
-  IveLP,
-  IveLPInterface,
-} from "../../../../../contracts/integrations/goldfinch/ICurveLP.sol/IveLP";
+  ICurveLP,
+  ICurveLPInterface,
+} from "../../../../contracts/integrations/goldfinch/ICurveLP";
 
 const _abi = [
   {
@@ -245,12 +245,15 @@ const _abi = [
   },
 ] as const;
 
-export class IveLP__factory {
+export class ICurveLP__factory {
   static readonly abi = _abi;
-  static createInterface(): IveLPInterface {
-    return new utils.Interface(_abi) as IveLPInterface;
+  static createInterface(): ICurveLPInterface {
+    return new utils.Interface(_abi) as ICurveLPInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): IveLP {
-    return new Contract(address, _abi, signerOrProvider) as IveLP;
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): ICurveLP {
+    return new Contract(address, _abi, signerOrProvider) as ICurveLP;
   }
 }

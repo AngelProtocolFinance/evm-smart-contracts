@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   IStakingHalo,
   IStakingHaloInterface,
@@ -226,7 +226,10 @@ export class IStakingHalo__factory {
   static createInterface(): IStakingHaloInterface {
     return new utils.Interface(_abi) as IStakingHaloInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): IStakingHalo {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IStakingHalo {
     return new Contract(address, _abi, signerOrProvider) as IStakingHalo;
   }
 }

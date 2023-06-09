@@ -405,10 +405,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20AP__factory>;
     getContractFactory(
-      name: "IERC20APMetadata",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IERC20APMetadata__factory>;
-    getContractFactory(
       name: "IIndexFund",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IIndexFund__factory>;
@@ -572,10 +568,6 @@ declare module "hardhat/types/runtime" {
       name: "StringArray",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.StringArray__factory>;
-    getContractFactory(
-      name: "DummyGateway",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.DummyGateway__factory>;
     getContractFactory(
       name: "HaloToken",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -1264,11 +1256,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IERC20AP>;
     getContractAt(
-      name: "IERC20APMetadata",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IERC20APMetadata>;
-    getContractAt(
       name: "IIndexFund",
       address: string,
       signer?: ethers.Signer
@@ -1473,11 +1460,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.StringArray>;
-    getContractAt(
-      name: "DummyGateway",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.DummyGateway>;
     getContractAt(
       name: "HaloToken",
       address: string,

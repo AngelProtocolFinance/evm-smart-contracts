@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   ISwapRouter,
   ISwapRouterInterface,
@@ -254,7 +254,10 @@ export class ISwapRouter__factory {
   static createInterface(): ISwapRouterInterface {
     return new utils.Interface(_abi) as ISwapRouterInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): ISwapRouter {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): ISwapRouter {
     return new Contract(address, _abi, signerOrProvider) as ISwapRouter;
   }
 }

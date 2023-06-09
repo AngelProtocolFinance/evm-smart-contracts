@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   IERC173,
   IERC173Interface,
@@ -62,7 +62,10 @@ export class IERC173__factory {
   static createInterface(): IERC173Interface {
     return new utils.Interface(_abi) as IERC173Interface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): IERC173 {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IERC173 {
     return new Contract(address, _abi, signerOrProvider) as IERC173;
   }
 }

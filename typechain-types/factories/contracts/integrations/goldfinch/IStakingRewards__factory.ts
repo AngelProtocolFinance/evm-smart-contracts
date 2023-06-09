@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   IStakingRewards,
   IStakingRewardsInterface,
@@ -259,7 +259,10 @@ export class IStakingRewards__factory {
   static createInterface(): IStakingRewardsInterface {
     return new utils.Interface(_abi) as IStakingRewardsInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): IStakingRewards {
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): IStakingRewards {
     return new Contract(address, _abi, signerOrProvider) as IStakingRewards;
   }
 }

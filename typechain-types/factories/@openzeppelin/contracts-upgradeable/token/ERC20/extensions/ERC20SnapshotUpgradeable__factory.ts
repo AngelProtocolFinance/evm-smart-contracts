@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import {Contract, Signer, utils} from "ethers";
-import type {Provider} from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { Provider } from "@ethersproject/providers";
 import type {
   ERC20SnapshotUpgradeable,
   ERC20SnapshotUpgradeableInterface,
@@ -356,7 +356,14 @@ export class ERC20SnapshotUpgradeable__factory {
   static createInterface(): ERC20SnapshotUpgradeableInterface {
     return new utils.Interface(_abi) as ERC20SnapshotUpgradeableInterface;
   }
-  static connect(address: string, signerOrProvider: Signer | Provider): ERC20SnapshotUpgradeable {
-    return new Contract(address, _abi, signerOrProvider) as ERC20SnapshotUpgradeable;
+  static connect(
+    address: string,
+    signerOrProvider: Signer | Provider
+  ): ERC20SnapshotUpgradeable {
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as ERC20SnapshotUpgradeable;
   }
 }
