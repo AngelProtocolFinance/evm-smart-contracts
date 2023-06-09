@@ -2,7 +2,9 @@ import config from "config";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {getAddresses, isLocalNetwork, logger} from "utils";
+import {updateRegistrarNetworkConnection} from "scripts";
+import {Registrar__factory} from "typechain-types";
+import {getAddresses, getSigners, isLocalNetwork, logger} from "utils";
 
 type TaskArgs = {
   apTeamMultisig?: string;
@@ -33,17 +35,37 @@ task(
       const addresses = await getAddresses(hre);
 
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
-      const router = taskArgs.router || addresses.router.proxy;
+      const oldRouterAddress = taskArgs.router || addresses.router.proxy;
       const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
-      const registrar = await deployRegistrar(router, apTeamMultiSig, verify_contracts, hre);
+      const registrar = await deployRegistrar(
+        oldRouterAddress,
+        apTeamMultiSig,
+        verify_contracts,
+        hre
+      );
 
-      await deployRouter(
+      const router = await deployRouter(
         config.REGISTRAR_DATA.axelarGateway,
         config.REGISTRAR_DATA.axelarGasRecv,
         registrar.proxy.address,
-        apTeamMultiSig,
         verify_contracts,
+        hre
+      );
+
+      // Registrar NetworkInfo's Router address must be updated for the current network
+      const {deployer} = await getSigners(hre);
+      const network = await hre.ethers.provider.getNetwork();
+      const registrarContract = Registrar__factory.connect(registrar.proxy.address, deployer);
+      logger.out(
+        `Fetching current Registrar's network connection data for chain ID:${network.chainId}...`
+      );
+      const curNetworkConnection = await registrarContract.queryNetworkConnection(network.chainId);
+      logger.out(JSON.stringify(curNetworkConnection, undefined, 2));
+      await updateRegistrarNetworkConnection(
+        registrar.proxy.address,
+        {...curNetworkConnection, router: router.proxy.address},
+        apTeamMultiSig,
         hre
       );
     } catch (error) {

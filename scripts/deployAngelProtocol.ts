@@ -2,7 +2,7 @@
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
-import {cleanAddresses, isLocalNetwork} from "utils";
+import {cleanAddresses, isLocalNetwork, logger} from "utils";
 
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
@@ -22,6 +22,7 @@ import {getSigners} from "utils/getSigners";
 
 import {deployLibraries} from "./deployLibraries";
 import {deployMockUSDC} from "./deployMockUSDC";
+import {updateRegistrarNetworkConnection} from "./updateRegistrar";
 
 export async function deployAngelProtocol(
   verify_contracts: boolean,
@@ -54,7 +55,6 @@ export async function deployAngelProtocol(
     config.REGISTRAR_DATA.axelarGateway,
     config.REGISTRAR_DATA.axelarGasRecv,
     registrar.proxy.address,
-    apTeamMultisig.proxy.address,
     verify_contracts,
     hre
   );
@@ -311,4 +311,18 @@ export async function deployAngelProtocol(
   );
   await tx.wait();
   console.log("Successfully updated config:-", tx.hash);
+
+  // Registrar NetworkInfo's Router address must be updated for the current network
+  const network = await hre.ethers.provider.getNetwork();
+  logger.out(
+    `Fetching current Registrar's network connection data for chain ID:${network.chainId}...`
+  );
+  const curNetworkConnection = await registrarContract.queryNetworkConnection(network.chainId);
+  logger.out(JSON.stringify(curNetworkConnection, undefined, 2));
+  await updateRegistrarNetworkConnection(
+    registrar.proxy.address,
+    {...curNetworkConnection, router: router.proxy.address},
+    apTeamMultisig.proxy.address,
+    hre
+  );
 }
