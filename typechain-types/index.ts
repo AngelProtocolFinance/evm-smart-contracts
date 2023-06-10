@@ -374,5 +374,7 @@ export type { DummyGasService } from "./contracts/test/DummyGasService";
 export { DummyGasService__factory } from "./factories/contracts/test/DummyGasService__factory";
 export type { DummyGateway } from "./contracts/test/DummyGateway";
 export { DummyGateway__factory } from "./factories/contracts/test/DummyGateway__factory";
+export type { DummyStrategy } from "./contracts/test/DummyStrategy";
+export { DummyStrategy__factory } from "./factories/contracts/test/DummyStrategy__factory";
 export type { DummyVault } from "./contracts/test/DummyVault";
 export { DummyVault__factory } from "./factories/contracts/test/DummyVault__factory";

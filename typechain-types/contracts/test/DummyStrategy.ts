@@ -26,7 +26,7 @@ import type {
   TypedListener,
   OnEvent,
   PromiseOrValue,
-} from "../../../common";
+} from "../../common";
 
 export declare namespace IStrategy {
   export type StrategyConfigStruct = {
@@ -55,35 +55,30 @@ export declare namespace IStrategy {
   };
 }
 
-export interface APStrategy_V1Interface extends utils.Interface {
+export interface DummyStrategyInterface extends utils.Interface {
   functions: {
-    "config()": FunctionFragment;
     "deposit(uint256)": FunctionFragment;
     "getStrategyConfig()": FunctionFragment;
-    "pause()": FunctionFragment;
     "paused()": FunctionFragment;
     "previewDeposit(uint256)": FunctionFragment;
     "previewWithdraw(uint256)": FunctionFragment;
+    "setDummyAmt(uint256)": FunctionFragment;
     "setStrategyConfig((bytes4,address,address,address,address,address))": FunctionFragment;
-    "unpause()": FunctionFragment;
     "withdraw(uint256)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "config"
       | "deposit"
       | "getStrategyConfig"
-      | "pause"
       | "paused"
       | "previewDeposit"
       | "previewWithdraw"
+      | "setDummyAmt"
       | "setStrategyConfig"
-      | "unpause"
       | "withdraw"
   ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "config", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "deposit",
     values: [PromiseOrValue<BigNumberish>]
@@ -92,7 +87,6 @@ export interface APStrategy_V1Interface extends utils.Interface {
     functionFragment: "getStrategyConfig",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "pause", values?: undefined): string;
   encodeFunctionData(functionFragment: "paused", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "previewDeposit",
@@ -103,22 +97,23 @@ export interface APStrategy_V1Interface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setDummyAmt",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setStrategyConfig",
     values: [IStrategy.StrategyConfigStruct]
   ): string;
-  encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "withdraw",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
 
-  decodeFunctionResult(functionFragment: "config", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getStrategyConfig",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "previewDeposit",
@@ -129,10 +124,13 @@ export interface APStrategy_V1Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setDummyAmt",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setStrategyConfig",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
   events: {
@@ -158,12 +156,12 @@ export type UnpausedEvent = TypedEvent<[string], UnpausedEventObject>;
 
 export type UnpausedEventFilter = TypedEventFilter<UnpausedEvent>;
 
-export interface APStrategy_V1 extends BaseContract {
+export interface DummyStrategy extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: APStrategy_V1Interface;
+  interface: DummyStrategyInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -185,19 +183,6 @@ export interface APStrategy_V1 extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    config(
-      overrides?: CallOverrides
-    ): Promise<
-      [string, string, string, string, string, string] & {
-        strategySelector: string;
-        baseToken: string;
-        yieldToken: string;
-        lockedVault: string;
-        liquidVault: string;
-        admin: string;
-      }
-    >;
-
     deposit(
       amt: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -206,10 +191,6 @@ export interface APStrategy_V1 extends BaseContract {
     getStrategyConfig(
       overrides?: CallOverrides
     ): Promise<[IStrategy.StrategyConfigStructOutput]>;
-
-    pause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     paused(overrides?: CallOverrides): Promise<[boolean]>;
 
@@ -223,12 +204,13 @@ export interface APStrategy_V1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    setStrategyConfig(
-      _config: IStrategy.StrategyConfigStruct,
+    setDummyAmt(
+      amt: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    unpause(
+    setStrategyConfig(
+      _newConfig: IStrategy.StrategyConfigStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -238,19 +220,6 @@ export interface APStrategy_V1 extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  config(
-    overrides?: CallOverrides
-  ): Promise<
-    [string, string, string, string, string, string] & {
-      strategySelector: string;
-      baseToken: string;
-      yieldToken: string;
-      lockedVault: string;
-      liquidVault: string;
-      admin: string;
-    }
-  >;
-
   deposit(
     amt: PromiseOrValue<BigNumberish>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
@@ -259,10 +228,6 @@ export interface APStrategy_V1 extends BaseContract {
   getStrategyConfig(
     overrides?: CallOverrides
   ): Promise<IStrategy.StrategyConfigStructOutput>;
-
-  pause(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   paused(overrides?: CallOverrides): Promise<boolean>;
 
@@ -276,12 +241,13 @@ export interface APStrategy_V1 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  setStrategyConfig(
-    _config: IStrategy.StrategyConfigStruct,
+  setDummyAmt(
+    amt: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  unpause(
+  setStrategyConfig(
+    _newConfig: IStrategy.StrategyConfigStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -291,19 +257,6 @@ export interface APStrategy_V1 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    config(
-      overrides?: CallOverrides
-    ): Promise<
-      [string, string, string, string, string, string] & {
-        strategySelector: string;
-        baseToken: string;
-        yieldToken: string;
-        lockedVault: string;
-        liquidVault: string;
-        admin: string;
-      }
-    >;
-
     deposit(
       amt: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -312,8 +265,6 @@ export interface APStrategy_V1 extends BaseContract {
     getStrategyConfig(
       overrides?: CallOverrides
     ): Promise<IStrategy.StrategyConfigStructOutput>;
-
-    pause(overrides?: CallOverrides): Promise<void>;
 
     paused(overrides?: CallOverrides): Promise<boolean>;
 
@@ -327,12 +278,15 @@ export interface APStrategy_V1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    setStrategyConfig(
-      _config: IStrategy.StrategyConfigStruct,
+    setDummyAmt(
+      amt: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    unpause(overrides?: CallOverrides): Promise<void>;
+    setStrategyConfig(
+      _newConfig: IStrategy.StrategyConfigStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     withdraw(
       amt: PromiseOrValue<BigNumberish>,
@@ -349,18 +303,12 @@ export interface APStrategy_V1 extends BaseContract {
   };
 
   estimateGas: {
-    config(overrides?: CallOverrides): Promise<BigNumber>;
-
     deposit(
       amt: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     getStrategyConfig(overrides?: CallOverrides): Promise<BigNumber>;
-
-    pause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
 
     paused(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -374,12 +322,13 @@ export interface APStrategy_V1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    setStrategyConfig(
-      _config: IStrategy.StrategyConfigStruct,
+    setDummyAmt(
+      amt: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    unpause(
+    setStrategyConfig(
+      _newConfig: IStrategy.StrategyConfigStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -390,18 +339,12 @@ export interface APStrategy_V1 extends BaseContract {
   };
 
   populateTransaction: {
-    config(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     deposit(
       amt: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     getStrategyConfig(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    pause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
 
     paused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -415,12 +358,13 @@ export interface APStrategy_V1 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    setStrategyConfig(
-      _config: IStrategy.StrategyConfigStruct,
+    setDummyAmt(
+      amt: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    unpause(
+    setStrategyConfig(
+      _newConfig: IStrategy.StrategyConfigStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

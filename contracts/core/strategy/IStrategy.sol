@@ -6,8 +6,8 @@ interface IStrategy {
 
   struct StrategyConfig {
     bytes4 strategySelector;
-    address fromToken;
-    address toToken;
+    address baseToken;
+    address yieldToken;
     address lockedVault;
     address liquidVault;
     address admin;

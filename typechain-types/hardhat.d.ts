@@ -761,6 +761,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DummyGateway__factory>;
     getContractFactory(
+      name: "DummyStrategy",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.DummyStrategy__factory>;
+    getContractFactory(
       name: "DummyVault",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DummyVault__factory>;
@@ -1700,6 +1704,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.DummyGateway>;
+    getContractAt(
+      name: "DummyStrategy",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DummyStrategy>;
     getContractAt(
       name: "DummyVault",
       address: string,

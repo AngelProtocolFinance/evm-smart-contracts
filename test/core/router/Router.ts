@@ -24,7 +24,7 @@ import {
   getSigners
 } from "utils";
 
-import {LocalRegistrarLib} from "../typechain-types/contracts/core/registrar/LocalRegistrar";
+import {LocalRegistrarLib} from "../../../typechain-types/contracts/core/registrar/LocalRegistrar";
 
 describe("Router", function () {
   let owner: SignerWithAddress;
@@ -33,9 +33,6 @@ describe("Router", function () {
   let Router: Router__factory;
   let Registrar: LocalRegistrar__factory;
   let defaultApParams = {
-    protocolTaxRate: 2,
-    protocolTaxBasis: 100,
-    protocolTaxCollector: ethers.constants.AddressZero,
     routerAddr: ethers.constants.AddressZero,
     refundAddr: ethers.constants.AddressZero,
   } as LocalRegistrarLib.AngelProtocolParamsStruct;

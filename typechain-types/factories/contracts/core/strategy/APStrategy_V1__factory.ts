@@ -47,12 +47,12 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "fromToken",
+        name: "baseToken",
         type: "address",
       },
       {
         internalType: "address",
-        name: "toToken",
+        name: "yieldToken",
         type: "address",
       },
       {
@@ -106,12 +106,12 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "fromToken",
+            name: "baseToken",
             type: "address",
           },
           {
             internalType: "address",
-            name: "toToken",
+            name: "yieldToken",
             type: "address",
           },
           {
@@ -207,12 +207,12 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "fromToken",
+            name: "baseToken",
             type: "address",
           },
           {
             internalType: "address",
-            name: "toToken",
+            name: "yieldToken",
             type: "address",
           },
           {

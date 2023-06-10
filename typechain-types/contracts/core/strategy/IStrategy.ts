@@ -27,8 +27,8 @@ import type {
 export declare namespace IStrategy {
   export type StrategyConfigStruct = {
     strategySelector: PromiseOrValue<BytesLike>;
-    fromToken: PromiseOrValue<string>;
-    toToken: PromiseOrValue<string>;
+    baseToken: PromiseOrValue<string>;
+    yieldToken: PromiseOrValue<string>;
     lockedVault: PromiseOrValue<string>;
     liquidVault: PromiseOrValue<string>;
     admin: PromiseOrValue<string>;
@@ -43,8 +43,8 @@ export declare namespace IStrategy {
     string
   ] & {
     strategySelector: string;
-    fromToken: string;
-    toToken: string;
+    baseToken: string;
+    yieldToken: string;
     lockedVault: string;
     liquidVault: string;
     admin: string;

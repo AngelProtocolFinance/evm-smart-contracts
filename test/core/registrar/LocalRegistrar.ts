@@ -3,8 +3,8 @@ import {expect} from "chai";
 import {ethers, upgrades} from "hardhat";
 import {getSigners} from "utils";
 
-import {LocalRegistrar, LocalRegistrar__factory} from "../typechain-types";
-import {StrategyApprovalState} from "../utils/test/ILocalRegistrarHelpers";
+import {LocalRegistrar, LocalRegistrar__factory} from "../../../typechain-types";
+import {StrategyApprovalState} from "../../../utils/test/ILocalRegistrarHelpers";
 
 describe("Local Registrar", function () {
   let owner: SignerWithAddress;

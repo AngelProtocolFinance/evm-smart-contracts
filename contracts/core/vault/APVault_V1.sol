@@ -49,7 +49,7 @@ contract APVault_V1 is IVault, ERC4626AP {
   }
 
   modifier onlybaseToken(address _token) {
-    if (!_isFromToken(_token)) {
+    if (!_isBaseToken(_token)) {
       revert OnlyBaseToken();
     }
     _;
@@ -364,9 +364,9 @@ contract APVault_V1 is IVault, ERC4626AP {
     );
   }
 
-  function _isFromToken(address _token) internal view returns (bool) {
+  function _isBaseToken(address _token) internal view returns (bool) {
     IStrategy.StrategyConfig memory stratConfig = IStrategy(vaultConfig.strategy)
       .getStrategyConfig();
-    return (_token == stratConfig.fromToken);
+    return (_token == stratConfig.baseToken);
   }
 }
