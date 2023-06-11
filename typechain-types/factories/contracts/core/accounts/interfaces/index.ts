@@ -5,5 +5,4 @@ export { IAccountDeployContract__factory } from "./IAccountDeployContract__facto
 export { IAccountDonationMatch__factory } from "./IAccountDonationMatch__factory";
 export { IAccountsCreateEndowment__factory } from "./IAccountsCreateEndowment__factory";
 export { IAccountsDepositWithdrawEndowments__factory } from "./IAccountsDepositWithdrawEndowments__factory";
-export { IAccountsQuery__factory } from "./IAccountsQuery__factory";
-export { IAxelarGateway__factory } from "./IAxelarGateway__factory";
+export { IAccountsQueryEndowments__factory } from "./IAccountsQueryEndowments__factory";

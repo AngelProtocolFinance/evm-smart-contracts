@@ -371,12 +371,12 @@ export declare namespace AccountStorage {
   };
 }
 
-export interface IAccountsQueryInterface extends utils.Interface {
+export interface IAccountsQueryEndowmentsInterface extends utils.Interface {
   functions: {
     "queryConfig()": FunctionFragment;
-    "queryEndowmentDetails(uint256)": FunctionFragment;
-    "queryState(uint256)": FunctionFragment;
-    "queryTokenAmount(uint256,uint8,address)": FunctionFragment;
+    "queryEndowmentDetails(uint32)": FunctionFragment;
+    "queryState(uint32)": FunctionFragment;
+    "queryTokenAmount(uint32,uint8,address)": FunctionFragment;
   };
 
   getFunction(
@@ -425,12 +425,12 @@ export interface IAccountsQueryInterface extends utils.Interface {
   events: {};
 }
 
-export interface IAccountsQuery extends BaseContract {
+export interface IAccountsQueryEndowments extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: IAccountsQueryInterface;
+  interface: IAccountsQueryEndowmentsInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
