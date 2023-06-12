@@ -4,7 +4,7 @@ import {ProxyContract__factory, Registrar__factory} from "typechain-types";
 import {ADDRESS_ZERO, getSigners, logger, updateAddresses, validateAddress} from "utils";
 
 export async function deployRegistrar(
-  router: string,
+  router: string, // no need to verify address validity, as Registrar will be deployed before the router
   owner: string,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
@@ -14,7 +14,6 @@ export async function deployRegistrar(
   try {
     logger.out("Deploying Registrar...");
 
-    validateAddress(router, "router");
     validateAddress(owner, "owner");
 
     const factory = new Registrar__factory(proxyAdmin);
