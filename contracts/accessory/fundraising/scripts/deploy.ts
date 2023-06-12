@@ -1,7 +1,7 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getSigners, updateAddresses} from "utils";
+import {getSigners, updateAddresses, verify} from "utils";
 
 import {FundraisingMessage} from "typechain-types/contracts/accessory/fundraising/Fundraising";
 
@@ -62,15 +62,9 @@ export async function deployFundraising(
     );
 
     if (verify_contracts) {
-      await run("verify:verify", {
-        address: FundraisingLibInstance.address,
-        constructorArguments: [],
-      });
-      await run("verify:verify", {
-        address: FundraisingInstance.address,
-        constructorArguments: [],
-      });
-      await run("verify:verify", {
+      await verify(hre, {address: FundraisingLibInstance.address});
+      await verify(hre, {address: FundraisingInstance.address});
+      await verify(hre, {
         address: FundraisingProxy.address,
         constructorArguments: [FundraisingInstance.address, proxyAdmin.address, FundraisingData],
       });

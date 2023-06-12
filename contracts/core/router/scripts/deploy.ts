@@ -1,5 +1,12 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {ADDRESS_ZERO, ContractFunctionParams, getSigners, logger, updateAddresses} from "utils";
+import {
+  ADDRESS_ZERO,
+  ContractFunctionParams,
+  getSigners,
+  logger,
+  updateAddresses,
+  verify,
+} from "utils";
 import {ProxyContract__factory, Router__factory} from "typechain-types";
 
 export async function deployRouter(
@@ -44,15 +51,8 @@ export async function deployRouter(
     );
 
     if (verify_contracts) {
-      logger.out("Verifying...");
-      await hre.run("verify:verify", {
-        address: router.address,
-        constructorArguments: [],
-      });
-      await hre.run("verify:verify", {
-        address: routerProxy.address,
-        constructorArguments,
-      });
+      await verify(hre, {address: router.address});
+      await verify(hre, {address: routerProxy.address, constructorArguments});
     }
 
     return {implementation: router, proxy: routerProxy};

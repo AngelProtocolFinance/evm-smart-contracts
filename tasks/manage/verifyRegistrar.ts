@@ -1,6 +1,6 @@
 import {task} from "hardhat/config";
 import {Registrar__factory} from "typechain-types";
-import {getAddresses, getSigners, logger} from "utils";
+import {getAddresses, getSigners, logger, verify} from "utils";
 
 task("manage:verifyRegistrar", "Will verify the Registrar implementation contract").setAction(
   async (_, hre) => {
@@ -13,11 +13,7 @@ task("manage:verifyRegistrar", "Will verify the Registrar implementation contrac
       let registrarConfig = await registrar.queryConfig();
       logger.out(`Registrar owner: ${registrarConfig.proxyAdmin}`);
 
-      logger.out("Verifying...");
-      await hre.run("verify:verify", {
-        address: addresses.registrar.implementation,
-        constructorArguments: [],
-      });
+      await verify(hre, {address: addresses.registrar.implementation});
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

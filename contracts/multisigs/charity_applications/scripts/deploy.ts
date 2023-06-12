@@ -1,7 +1,7 @@
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {CharityApplication__factory, ProxyContract__factory} from "typechain-types";
-import {ADDRESS_ZERO, getSigners, logger, updateAddresses} from "utils";
+import {ADDRESS_ZERO, getSigners, logger, updateAddresses, verify} from "utils";
 
 export async function deployCharityApplication(
   applicationsMultiSig: string,
@@ -70,12 +70,8 @@ export async function deployCharityApplication(
     );
 
     if (verify_contracts) {
-      logger.out("Verifying...");
-      await hre.run("verify:verify", {
-        address: charityApplication.address,
-        constructorArguments: [],
-      });
-      await hre.run("verify:verify", {
+      await verify(hre, {address: charityApplication.address});
+      await verify(hre, {
         address: charityApplicationProxy.address,
         constructorArguments: [charityApplication.address, proxyAdmin.address, initData],
       });

@@ -1,6 +1,6 @@
 import {task, types} from "hardhat/config";
 import {EndowmentMultiSig__factory, MultiSigWalletFactory__factory} from "typechain-types";
-import {getAddresses, getSigners, isLocalNetwork, logger, updateAddresses} from "utils";
+import {getAddresses, getSigners, isLocalNetwork, logger, updateAddresses, verify} from "utils";
 
 type TaskArgs = {factory?: string; verify: boolean};
 
@@ -46,11 +46,7 @@ task(
       await updateAddresses({multiSig: {endowment: {implementation: contract.address}}}, hre);
 
       if (!isLocalNetwork(hre) && taskArgs.verify) {
-        logger.out("Verifying...");
-        await hre.run("verify:verify", {
-          address: contract.address,
-          constructorArguments: [],
-        });
+        await verify(hre, {address: contract.address});
       }
     } catch (error) {
       logger.out(`EndowmentMultiSig upgrade failed, reason: ${error}`, logger.Level.Error);

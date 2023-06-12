@@ -1,7 +1,14 @@
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {ApplicationsMultiSig__factory, ProxyContract__factory} from "typechain-types";
-import {ADDRESS_ZERO, ContractFunctionParams, getSigners, logger, updateAddresses} from "utils";
+import {
+  ADDRESS_ZERO,
+  ContractFunctionParams,
+  getSigners,
+  logger,
+  updateAddresses,
+  verify,
+} from "utils";
 
 export async function deployApplicationsMultiSig(
   verify_contracts: boolean,
@@ -48,13 +55,11 @@ export async function deployApplicationsMultiSig(
     );
 
     if (verify_contracts) {
-      logger.out("Verifying...");
-      await hre.run("verify:verify", {
+      await verify(hre, {
         address: applicationsMultiSig.address,
         contract: "contracts/multisigs/ApplicationsMultiSig.sol:ApplicationsMultiSig",
-        constructorArguments: [],
       });
-      await hre.run("verify:verify", {
+      await verify(hre, {
         address: applicationsMultiSigProxy.address,
         constructorArguments,
       });

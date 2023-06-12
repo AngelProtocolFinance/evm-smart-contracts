@@ -1,7 +1,7 @@
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {ProxyContract__factory, Registrar__factory} from "typechain-types";
-import {ADDRESS_ZERO, getSigners, logger, updateAddresses, validateAddress} from "utils";
+import {ADDRESS_ZERO, getSigners, logger, updateAddresses, validateAddress, verify} from "utils";
 
 export async function deployRegistrar(
   router: string, // no need to verify address validity, as Registrar will be deployed before the router
@@ -55,12 +55,8 @@ export async function deployRegistrar(
     );
 
     if (verify_contracts) {
-      console.log("Verifying...");
-      await hre.run("verify:verify", {
-        address: registrar.address,
-        constructorArguments: [],
-      });
-      await hre.run("verify:verify", {
+      await verify(hre, {address: registrar.address});
+      await verify(hre, {
         address: proxy.address,
         constructorArguments: [registrar.address, proxyAdmin.address, data],
       });

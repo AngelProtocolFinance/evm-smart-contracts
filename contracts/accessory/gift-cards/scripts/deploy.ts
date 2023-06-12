@@ -1,5 +1,5 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getSigners, updateAddresses} from "utils";
+import {getSigners, updateAddresses, verify} from "utils";
 
 import {GiftCardsMessage} from "typechain-types/contracts/accessory/gift-cards/GiftCards";
 
@@ -29,17 +29,6 @@ export async function deployGiftCard(
     await GiftCardsProxy.deployed();
     console.log("GiftCards Address (Proxy):", GiftCardsProxy.address);
 
-    if (verify_contracts) {
-      await run("verify:verify", {
-        address: GiftCardsInstance.address,
-        constructorArguments: [],
-      });
-      await run("verify:verify", {
-        address: GiftCardsProxy.address,
-        constructorArguments: [GiftCardsInstance.address, proxyAdmin.address, GiftCardsData],
-      });
-    }
-
     await updateAddresses(
       {
         giftcards: {
@@ -49,6 +38,14 @@ export async function deployGiftCard(
       },
       hre
     );
+
+    if (verify_contracts) {
+      await verify(hre, {address: GiftCardsInstance.address});
+      await verify(hre, {
+        address: GiftCardsProxy.address,
+        constructorArguments: [GiftCardsInstance.address, proxyAdmin.address, GiftCardsData],
+      });
+    }
 
     return Promise.resolve(GiftCardsProxy.address);
   } catch (error) {

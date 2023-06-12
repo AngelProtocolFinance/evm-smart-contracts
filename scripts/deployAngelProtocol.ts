@@ -266,7 +266,7 @@ export async function deployAngelProtocol(
       applicationsReview: applicationsMultiSig.proxy.address, //address
       swapsRouter: swapRouter.proxy.address, //address
       multisigFactory: endowmentMultiSig.factory.address, //address
-      multisigEmitter: endowmentMultiSig.emitter.proxy.contract.address, //address
+      multisigEmitter: endowmentMultiSig.emitter.proxy.address, //address
       charityProposal: charityApplication.proxy.address, //address
       proxyAdmin: proxyAdmin.address, //address
       usdcAddress: isLocalNetwork(hre)

@@ -8,11 +8,10 @@ import {
   DiamondInit__factory,
   Diamond__factory,
 } from "typechain-types";
-import {ADDRESS_ZERO, getSigners, logger, updateAddresses, validateAddress} from "utils";
+import {ADDRESS_ZERO, getSigners, logger, updateAddresses, validateAddress, verify} from "utils";
 
 import cutDiamond from "./cutDiamond";
 import deployFacets from "./deployFacets";
-import verify from "./verify";
 
 export async function deployAccountsDiamond(
   owner: string,
@@ -39,7 +38,14 @@ export async function deployAccountsDiamond(
     await cutDiamond(diamond.address, diamondInit, proxyAdmin, owner, registrar, cuts, hre);
 
     if (verify_contracts) {
-      await verify(diamond.address, diamondCutFacet.address, cuts, proxyAdmin, hre);
+      for (const {facetName, cut} of cuts) {
+        await verify(hre, {address: cut.facetAddress.toString(), contractName: facetName});
+      }
+      await verify(hre, {
+        address: diamond.address,
+        contractName: "Diamond",
+        constructorArguments: [proxyAdmin.address, diamondCutFacet.address],
+      });
     }
 
     return diamond;

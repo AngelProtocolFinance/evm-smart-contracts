@@ -4,7 +4,15 @@ import {
   ApplicationsMultiSig__factory,
   ITransparentUpgradeableProxy__factory,
 } from "typechain-types";
-import {getAddresses, getSigners, isLocalNetwork, logger, updateAddresses} from "utils";
+import {
+  getAddresses,
+  getContractName,
+  getSigners,
+  isLocalNetwork,
+  logger,
+  updateAddresses,
+  verify,
+} from "utils";
 
 task(
   "upgrade:Multisig",
@@ -69,18 +77,15 @@ task(
       );
 
       if (!isLocalNetwork(hre) && taskArgs.verify) {
-        logger.out("Verifying APTeamMultiSig...");
-        await hre.run("verify:verify", {
+        await verify(hre, {
           address: apTeamMultiSig.address,
-          constructorArguments: [],
           contract: "contracts/multisigs/APTeamMultiSig.sol:APTeamMultiSig",
+          contractName: getContractName(apTeamFactory),
         });
-
-        logger.out("\nVerifying ApplicationsMultiSig...");
-        await hre.run("verify:verify", {
+        await verify(hre, {
           address: applicationsMultiSig.address,
-          constructorArguments: [],
           contract: "contracts/multisigs/ApplicationsMultiSig.sol:ApplicationsMultiSig",
+          contractName: getContractName(applicationsFactory),
         });
       }
     } catch (error) {

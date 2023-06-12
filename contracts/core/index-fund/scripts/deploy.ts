@@ -1,7 +1,7 @@
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {IndexFund__factory, ProxyContract__factory} from "typechain-types";
-import {ADDRESS_ZERO, getSigners, logger, updateAddresses, validateAddress} from "utils";
+import {ADDRESS_ZERO, getSigners, logger, updateAddresses, validateAddress, verify} from "utils";
 
 export async function deployIndexFund(
   registrar: string,
@@ -57,12 +57,8 @@ export async function deployIndexFund(
     );
 
     if (verify_contracts) {
-      logger.out("Verifying...");
-      await hre.run("verify:verify", {
-        address: indexFund.address,
-        constructorArguments: [],
-      });
-      await hre.run("verify:verify", {
+      await verify(hre, {address: indexFund.address});
+      await verify(hre, {
         address: indexFundProxy.address,
         constructorArguments: [indexFund.address, proxyAdmin.address, initData],
       });

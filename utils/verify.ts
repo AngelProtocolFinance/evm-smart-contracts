@@ -3,9 +3,9 @@ import {logger} from ".";
 
 type Args = {
   address: string;
-  constructorArguments?: any[];
+  constructorArguments?: readonly any[];
   contractName?: string;
-  contractPath?: string;
+  contract?: string;
 };
 
 export async function verify(hre: HardhatRuntimeEnvironment, args: Args) {

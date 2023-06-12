@@ -1,7 +1,7 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getSigners, logger, updateAddresses} from "utils";
+import {getSigners, logger, updateAddresses, verify} from "utils";
 
 const deploySubDaoEmitter = async (
   proxyAdmin: string,
@@ -49,11 +49,8 @@ const deploySubDaoEmitter = async (
     );
 
     if (verify_contracts) {
-      await run(`verify:verify`, {
-        address: SubdaoEmitterImplementation.address,
-        constructorArguments: [],
-      });
-      await run(`verify:verify`, {
+      await verify(hre, {address: SubdaoEmitterImplementation.address});
+      await verify(hre, {
         address: SubdaoEmitterProxy.address,
         constructorArguments: [SubdaoEmitterImplementation.address, proxyAdmin, SubdaoEmitterData],
       });
@@ -94,11 +91,8 @@ const deployDonationMatchEmitter = async (
     await DonationMatchEmitterProxy.deployed();
 
     if (verify_contracts) {
-      await run(`verify:verify`, {
-        address: DonationMatchEmitterImplementation.address,
-        constructorArguments: [],
-      });
-      await run(`verify:verify`, {
+      await verify(hre, {address: DonationMatchEmitterImplementation.address});
+      await verify(hre, {
         address: DonationMatchEmitterProxy.address,
         constructorArguments: [
           DonationMatchEmitterImplementation.address,
