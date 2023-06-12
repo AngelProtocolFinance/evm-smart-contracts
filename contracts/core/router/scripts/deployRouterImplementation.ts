@@ -3,7 +3,7 @@ import {Router__factory} from "typechain-types";
 import {getSigners, logger} from "utils";
 
 export default async function deployRouterImplementation(hre: HardhatRuntimeEnvironment) {
-  const {proxyAdmin} = await getSigners(hre.ethers);
+  const {proxyAdmin} = await getSigners(hre);
 
   const routerFactory = new Router__factory(proxyAdmin);
   const router = await routerFactory.deploy();

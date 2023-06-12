@@ -1,13 +1,17 @@
-import {task} from "hardhat/config";
+import {deployApplicationsMultiSig} from "contracts/multisigs/scripts/deploy";
+import {task, types} from "hardhat/config";
 import {isLocalNetwork, logger} from "utils";
 
-import {deployApplicationsMultiSig} from "contracts/multisigs/scripts/deploy";
-
 task("deploy:ApplicationsMultiSig", "Will deploy ApplicationsMultiSig contract")
-  .addParam("verify", "Want to verify contract")
-  .setAction(async (taskArgs, hre) => {
+  .addOptionalParam(
+    "verify",
+    "Flag indicating whether the contract should be verified",
+    false,
+    types.boolean
+  )
+  .setAction(async (taskArgs: {verify: boolean}, hre) => {
     try {
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify === "true";
+      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
       await deployApplicationsMultiSig(verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);

@@ -1,37 +1,23 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {APTeamMultiSig__factory, ProxyContract, Registrar__factory} from "typechain-types";
+import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
+import {AngelCoreStruct} from "typechain-types/contracts/core/registrar/registrar.sol/Registrar";
 import {getSigners, logger} from "utils";
 
-export default async function updateRegistrar(
+export async function updateRegistrarNetworkConnection(
   registrar: string,
-  routerProxy: ProxyContract,
-  axelarGateway: string,
-  gasReceiver: string,
+  newNetworkInfo: AngelCoreStruct.NetworkInfoStructOutput,
   apTeamMultisig: string,
   hre: HardhatRuntimeEnvironment
 ) {
-  logger.out("Updating router address in Registrar...");
+  logger.out(`Updating Registrar network connection...`);
+  logger.out(`New network info:\n${JSON.stringify(newNetworkInfo, undefined, 2)}`);
 
-  const network = await hre.ethers.provider.getNetwork();
-
-  const {proxyAdmin, apTeamMultisigOwners} = await getSigners(hre.ethers);
+  const {proxyAdmin, apTeamMultisigOwners} = await getSigners(hre);
 
   const registrarContract = Registrar__factory.connect(registrar, proxyAdmin);
   const updateNetworkConnectionsData = registrarContract.interface.encodeFunctionData(
     "updateNetworkConnections",
-    [
-      {
-        name: network.name,
-        chainId: network.chainId,
-        router: routerProxy.address,
-        axelarGateway,
-        gasReceiver,
-        ibcChannel: "",
-        transferChannel: "",
-        gasLimit: 0,
-      },
-      "post",
-    ]
+    [newNetworkInfo, "post"]
   );
   const apTeamMultisigContract = APTeamMultiSig__factory.connect(
     apTeamMultisig,
@@ -45,5 +31,6 @@ export default async function updateRegistrar(
     updateNetworkConnectionsData,
     "0x"
   );
+  logger.out(`Tx hash: ${tx.hash}`);
   await tx.wait();
 }

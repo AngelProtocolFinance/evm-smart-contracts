@@ -10,7 +10,7 @@ export default async function deployRouterProxy(
   hre: HardhatRuntimeEnvironment
 ) {
   const network = await hre.ethers.provider.getNetwork();
-  const {proxyAdmin} = await getSigners(hre.ethers);
+  const {proxyAdmin} = await getSigners(hre);
 
   const initData = router.interface.encodeFunctionData("initialize", [
     network.name,

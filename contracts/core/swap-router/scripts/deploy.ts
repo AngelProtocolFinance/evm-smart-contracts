@@ -1,78 +1,64 @@
-// This is a script for deploying your contracts. You can adapt it to deploy
-// yours, or create new ones.
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {ProxyContract__factory, SwapRouter__factory} from "typechain-types";
 import {getSigners, logger, updateAddresses} from "utils";
-
-const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
 export async function deploySwapRouter(
   registrarContract: string,
   accountsContract: string,
-  swapFactory: string,
+  uniswapFactory: string,
   swapRouterAddress: string,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
-  try {
-    const {network, run, ethers} = hre;
+  logger.out("Deploying SwapRouter...");
 
-    const {proxyAdmin} = await getSigners(ethers);
-    const swapRouter = await ethers.getContractFactory("SwapRouter");
-    const swapRouterInstance = await swapRouter.deploy();
-    await swapRouterInstance.deployed();
+  const {proxyAdmin} = await getSigners(hre);
 
-    console.log("SwapRouter implementation address:", swapRouterInstance.address);
-    // Deploy proxy contract
+  logger.out("Deploying Implementation...");
+  const swapRouterFactory = new SwapRouter__factory(proxyAdmin);
+  const swapRouter = await swapRouterFactory.deploy();
+  await swapRouter.deployed();
+  logger.out(`Address: ${swapRouter.address}`);
 
-    const ProxyContract = await ethers.getContractFactory("ProxyContract");
-
-    const SwapRouterData = {
+  logger.out("Deploying Proxy...");
+  const initData = swapRouter.interface.encodeFunctionData("initSwapRouter", [
+    {
       registrarContract,
       accountsContract,
-      swapFactory,
+      swapFactory: uniswapFactory,
       swapRouter: swapRouterAddress,
-    };
+    },
+  ]);
+  const proxyFactory = new ProxyContract__factory(proxyAdmin);
+  const swapRouterProxy = await proxyFactory.deploy(
+    swapRouter.address,
+    proxyAdmin.address,
+    initData
+  );
+  await swapRouterProxy.deployed();
+  logger.out(`Address: ${swapRouterProxy.address}`);
 
-    console.log("SwapRouterData", SwapRouterData);
-
-    const swapRouterProxyData = swapRouterInstance.interface.encodeFunctionData("initSwapRouter", [
-      SwapRouterData,
-    ]);
-
-    const swapRouterProxy = await ProxyContract.deploy(
-      swapRouterInstance.address,
-      proxyAdmin.address,
-      swapRouterProxyData
-    );
-
-    await swapRouterProxy.deployed();
-
-    logger.out("Saving addresses to contract-address.json...");
-    await updateAddresses(
-      {
-        swapRouter: {
-          proxy: swapRouterProxy.address,
-          implementation: swapRouterInstance.address,
-        },
+  await updateAddresses(
+    {
+      swapRouter: {
+        proxy: swapRouterProxy.address,
+        implementation: swapRouter.address,
       },
-      hre
-    );
+    },
+    hre
+  );
 
-    if (verify_contracts) {
-      await run(`verify:verify`, {
-        address: swapRouterInstance.address,
-        constructorArguments: [],
-      });
-      await run(`verify:verify`, {
-        address: swapRouterProxy.address,
-        constructorArguments: [swapRouterInstance.address, proxyAdmin.address, swapRouterProxyData],
-      });
-    }
-
-    console.log("Swap Router Address (Proxy):", swapRouterProxy.address);
-
-    return Promise.resolve(swapRouterProxy.address);
-  } catch (error) {
-    return Promise.reject(error);
+  if (verify_contracts) {
+    logger.out("Verifying...");
+    await hre.run("verify:verify", {
+      address: swapRouter.address,
+      constructorArguments: [],
+    });
+    await hre.run("verify:verify", {
+      address: swapRouterProxy.address,
+      constructorArguments: [swapRouter.address, proxyAdmin.address, initData],
+    });
   }
+
+  return {implementation: swapRouter, proxy: swapRouterProxy};
 }

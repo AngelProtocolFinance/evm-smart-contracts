@@ -9,7 +9,7 @@ export async function deployAPTeamMultiSig(
 ) {
   logger.out("Deploying APTeamMultiSig...");
 
-  const {apTeamMultisigOwners, proxyAdmin} = await getSigners(hre.ethers);
+  const {apTeamMultisigOwners, proxyAdmin} = await getSigners(hre);
 
   const apTeamMultiSigFactory = new APTeamMultiSig__factory(proxyAdmin);
   const apTeamMultiSig = await apTeamMultiSigFactory.deploy();
