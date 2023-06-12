@@ -3,13 +3,11 @@ import {logger, updateAddresses} from "utils";
 
 import deployRouterImplementation from "./deployRouterImplementation";
 import deployRouterProxy from "./deployRouterProxy";
-import updateRegistrar from "./updateRegistrar";
 
 export async function deployRouter(
   axelarGateway: string,
   gasReceiver: string,
   registrar: string,
-  apTeamMultisig: string,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
@@ -30,9 +28,6 @@ export async function deployRouter(
     hre
   );
 
-  // Registrar NetworkInfo's Router address must be updated for the current network
-  await updateRegistrar(registrar, routerProxy, axelarGateway, gasReceiver, apTeamMultisig, hre);
-
   if (verify_contracts) {
     try {
       logger.out("Verifying...");
@@ -49,5 +44,5 @@ export async function deployRouter(
     }
   }
 
-  return {implementation: router.address, proxy: routerProxy.address};
+  return {implementation: router, proxy: routerProxy};
 }

@@ -17,19 +17,19 @@ import verify from "./verify";
 export async function deployAccountsDiamond(
   owner: string,
   registrar: string,
-  ANGEL_CORE_STRUCT: string,
+  angelCoreStruct: string,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
   logger.out("Deploying and setting up Accounts Diamond and all its facets...");
 
-  const {proxyAdmin} = await getSigners(hre.ethers);
+  const {proxyAdmin} = await getSigners(hre);
 
   const {diamond, diamondCutFacet} = await deployDiamond(proxyAdmin, hre);
 
   const diamondInit = await deployDiamondInit(proxyAdmin, hre);
 
-  const cuts = await deployFacets(proxyAdmin, ANGEL_CORE_STRUCT, hre);
+  const cuts = await deployFacets(proxyAdmin, angelCoreStruct, hre);
 
   await cutDiamond(diamond.address, diamondInit, proxyAdmin, owner, registrar, cuts, hre);
 

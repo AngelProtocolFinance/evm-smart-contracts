@@ -1,19 +1,17 @@
 import {task} from "hardhat/config";
-import type {TaskArguments} from "hardhat/types";
-import {MultiSigGeneric} from "typechain-types";
+import {MultiSigGeneric__factory} from "typechain-types";
 import {getSigners, logger} from "utils";
+
+type TaskArgs = {multisig: string; owner: string};
 
 task("manage:addMultisigOwner", "Will add the specified address to the multisig as an owner")
   .addParam("multisig", "Address of multisig")
   .addParam("owner", "Address of the new owner")
-  .setAction(async (taskArguments: TaskArguments, hre) => {
+  .setAction(async (taskArguments: TaskArgs, hre) => {
     try {
-      const {apTeam2} = await getSigners(hre.ethers);
+      const {apTeam2} = await getSigners(hre);
 
-      const multisig = (await hre.ethers.getContractAt(
-        "MultiSigGeneric",
-        taskArguments.multisig
-      )) as MultiSigGeneric;
+      const multisig = MultiSigGeneric__factory.connect(taskArguments.multisig, apTeam2);
 
       logger.out("Current owners");
       let currentOwners = await multisig.getOwners();
@@ -24,9 +22,9 @@ task("manage:addMultisigOwner", "Will add the specified address to the multisig 
       const {data} = await multisig.populateTransaction.addOwner(taskArguments.owner);
       const addOwnerData = hre.ethers.utils.toUtf8Bytes(data!);
 
-      let tx = await multisig.connect(apTeam2).submitTransaction(
+      let tx = await multisig.submitTransaction(
         "add owner", //title
-        "add ap team 3 as owner", //description
+        `add ${taskArguments.owner} as owner`, //description
         multisig.address, //destination,
         0, //value
         addOwnerData, //data)
@@ -39,5 +37,7 @@ task("manage:addMultisigOwner", "Will add the specified address to the multisig 
       logger.out(currentOwners);
     } catch (error) {
       logger.out(error, logger.Level.Error);
+    } finally {
+      logger.out("Done.");
     }
   });

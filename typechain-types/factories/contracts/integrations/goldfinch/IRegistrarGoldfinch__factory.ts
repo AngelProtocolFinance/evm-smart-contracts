@@ -461,6 +461,25 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
+        name: "_operator",
+        type: "address",
+      },
+    ],
+    name: "getVaultOperatorApproved",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
         name: "_tokenAddr",
         type: "address",
       },
@@ -665,6 +684,24 @@ const _abi = [
       },
     ],
     name: "setTokenAccepted",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_operator",
+        type: "address",
+      },
+      {
+        internalType: "bool",
+        name: "_isApproved",
+        type: "bool",
+      },
+    ],
+    name: "setVaultOperatorApproved",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

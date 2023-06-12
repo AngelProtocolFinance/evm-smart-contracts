@@ -1,16 +1,21 @@
-import {task} from "hardhat/config";
-import {logger} from "utils";
-
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
+import {task, types} from "hardhat/config";
+import {isLocalNetwork, logger} from "utils";
 
 task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
-  .addParam("verify", "Want to verify contract")
-  .setAction(async (taskArgs, hre) => {
+  .addOptionalParam(
+    "verify",
+    "Flag indicating whether the contract should be verified",
+    false,
+    types.boolean
+  )
+  .setAction(async (taskArgs: {verify: boolean}, hre) => {
     try {
-      var isTrueSet = taskArgs.verify === "true";
-
-      await deployEndowmentMultiSig(isTrueSet, hre);
+      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
+      await deployEndowmentMultiSig(verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
+    } finally {
+      logger.out("Done.");
     }
   });

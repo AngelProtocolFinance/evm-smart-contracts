@@ -383,6 +383,7 @@ export interface IRegistrarInterface extends utils.Interface {
     "getRebalanceParams()": FunctionFragment;
     "getStrategyApprovalState(bytes4)": FunctionFragment;
     "getStrategyParamsById(bytes4)": FunctionFragment;
+    "getVaultOperatorApproved(address)": FunctionFragment;
     "isTokenAccepted(address)": FunctionFragment;
     "owner()": FunctionFragment;
     "queryAllStrategies()": FunctionFragment;
@@ -397,6 +398,7 @@ export interface IRegistrarInterface extends utils.Interface {
     "setStrategyApprovalState(bytes4,uint8)": FunctionFragment;
     "setStrategyParams(bytes4,address,address,uint8)": FunctionFragment;
     "setTokenAccepted(address,bool)": FunctionFragment;
+    "setVaultOperatorApproved(address,bool)": FunctionFragment;
     "updateConfig((address,string[],uint256,uint256,uint256,uint256,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address))": FunctionFragment;
     "updateNetworkConnections((string,uint256,address,address,string,string,address,uint256),string)": FunctionFragment;
     "updateOwner(address)": FunctionFragment;
@@ -415,6 +417,7 @@ export interface IRegistrarInterface extends utils.Interface {
       | "getRebalanceParams"
       | "getStrategyApprovalState"
       | "getStrategyParamsById"
+      | "getVaultOperatorApproved"
       | "isTokenAccepted"
       | "owner"
       | "queryAllStrategies"
@@ -429,6 +432,7 @@ export interface IRegistrarInterface extends utils.Interface {
       | "setStrategyApprovalState"
       | "setStrategyParams"
       | "setTokenAccepted"
+      | "setVaultOperatorApproved"
       | "updateConfig"
       | "updateNetworkConnections"
       | "updateOwner"
@@ -465,6 +469,10 @@ export interface IRegistrarInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getStrategyParamsById",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getVaultOperatorApproved",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "isTokenAccepted",
@@ -529,6 +537,10 @@ export interface IRegistrarInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setVaultOperatorApproved",
+    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "updateConfig",
     values: [RegistrarMessages.UpdateConfigRequestStruct]
   ): string;
@@ -590,6 +602,10 @@ export interface IRegistrarInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getVaultOperatorApproved",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "isTokenAccepted",
     data: BytesLike
   ): Result;
@@ -640,6 +656,10 @@ export interface IRegistrarInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setTokenAccepted",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setVaultOperatorApproved",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -846,6 +866,11 @@ export interface IRegistrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[LocalRegistrarLib.StrategyParamsStructOutput]>;
 
+    getVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     isTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -924,6 +949,12 @@ export interface IRegistrar extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      _isApproved: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     updateConfig(
       details: RegistrarMessages.UpdateConfigRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -997,6 +1028,11 @@ export interface IRegistrar extends BaseContract {
     overrides?: CallOverrides
   ): Promise<LocalRegistrarLib.StrategyParamsStructOutput>;
 
+  getVaultOperatorApproved(
+    _operator: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   isTokenAccepted(
     _tokenAddr: PromiseOrValue<string>,
     overrides?: CallOverrides
@@ -1066,6 +1102,12 @@ export interface IRegistrar extends BaseContract {
   setTokenAccepted(
     _tokenAddr: PromiseOrValue<string>,
     _isAccepted: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setVaultOperatorApproved(
+    _operator: PromiseOrValue<string>,
+    _isApproved: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1142,6 +1184,11 @@ export interface IRegistrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<LocalRegistrarLib.StrategyParamsStructOutput>;
 
+    getVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     isTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1211,6 +1258,12 @@ export interface IRegistrar extends BaseContract {
     setTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       _isAccepted: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      _isApproved: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1360,6 +1413,11 @@ export interface IRegistrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     isTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1427,6 +1485,12 @@ export interface IRegistrar extends BaseContract {
     setTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       _isAccepted: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      _isApproved: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1504,6 +1568,11 @@ export interface IRegistrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    getVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     isTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1573,6 +1642,12 @@ export interface IRegistrar extends BaseContract {
     setTokenAccepted(
       _tokenAddr: PromiseOrValue<string>,
       _isAccepted: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setVaultOperatorApproved(
+      _operator: PromiseOrValue<string>,
+      _isApproved: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

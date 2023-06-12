@@ -19,7 +19,7 @@ const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 const deployERC20 = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
   try {
     const {ethers, run, network} = hre;
-    const {proxyAdmin} = await getSigners(ethers);
+    const {proxyAdmin} = await getSigners(hre);
 
     const ERC20Upgrade = await ethers.getContractFactory("ERC20Upgrade");
     const ERC20UpgradeInstance = await ERC20Upgrade.deploy();
@@ -68,7 +68,7 @@ export async function deployHaloImplementation(
 
     const {ethers, run, network} = hre;
 
-    const {proxyAdmin, airdropOwner, apTeam2, apTeam3} = await getSigners(ethers);
+    const {proxyAdmin, airdropOwner, apTeam2, apTeam3} = await getSigners(hre);
 
     let halo = await deployERC20(verify_contracts, hre);
 

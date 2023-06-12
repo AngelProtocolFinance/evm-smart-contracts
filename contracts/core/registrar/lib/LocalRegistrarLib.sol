@@ -2,7 +2,7 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.0;
 
-import {IVault} from "../../../interfaces/IVault.sol";
+import { IVault } from "../../vault/interfaces/IVault.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 
 library LocalRegistrarLib {
@@ -55,15 +55,16 @@ library LocalRegistrarLib {
     address vaultAddr;
   }
 
-  struct LocalRegistrarStorage {
-    RebalanceParams rebalanceParams;
-    AngelProtocolParams angelProtocolParams;
-    mapping(bytes32 => string) AccountsContractByChain;
-    mapping(bytes4 => StrategyParams) VaultsByStrategyId;
-    mapping(address => bool) AcceptedTokens;
-    mapping(address => uint256) GasFeeByToken;
-    mapping(AngelCoreStruct.FeeTypes => AngelCoreStruct.FeeSetting) FeeSettingsByFeeType;
-  }
+    struct LocalRegistrarStorage {
+      RebalanceParams rebalanceParams;
+      AngelProtocolParams angelProtocolParams;
+      mapping(bytes32 => string) AccountsContractByChain;
+      mapping(bytes4 => StrategyParams) VaultsByStrategyId;
+      mapping(address => bool) AcceptedTokens;
+      mapping(address=> uint256) GasFeeByToken;
+      mapping(AngelCoreStruct.FeeTypes => AngelCoreStruct.FeeSetting) FeeSettingsByFeeType;
+      mapping(address => bool) ApprovedVaultOperators;
+    }
 
   /*////////////////////////////////////////////////
                         STORAGE MGMT

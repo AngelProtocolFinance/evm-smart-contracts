@@ -2,9 +2,8 @@
 pragma solidity ^0.8.16;
 
 import {AccountStorage} from "../storage.sol";
-import {SubDao, subDaoMessage} from "./../../../normalized_endowment/subdao/subdao.sol";
+import {subDaoMessage} from "./../../../normalized_endowment/subdao/subdao.sol";
 import {AngelCoreStruct} from "../../struct.sol";
-import {AccountMessages} from "../message.sol";
 
 abstract contract AccountsEvents {
   event DaoContractCreated(subDaoMessage.InstantiateMsg createdaomessage, address daoAddress);

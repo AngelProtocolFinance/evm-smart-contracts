@@ -4,25 +4,30 @@ import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {ITransparentUpgradeableProxy__factory, OwnershipFacet__factory} from "typechain-types";
 import {AddressObj, confirmAction, getAddresses, logger} from "utils";
 
+type TaskArgs = {current: string; new: string};
+
 task("manage:changeAdmin", "Will update the admin for all proxy contracts")
-  .addParam("currentAdmin", "Current admin address")
-  .addParam("newAdmin", "New admin address")
-  .setAction(async (taskArguments, hre) => {
+  .addParam("current", "Current admin address.")
+  .addParam(
+    "new",
+    "New admin address. Make sure to use an address of an account listed in the hardhat configuration for the target network."
+  )
+  .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const isConfirmed = await confirmAction(
-        `You're about to set ${taskArguments.newAdmin} as the new admin`
+        `You're about to set ${taskArgs.new} as the new admin`
       );
       if (!isConfirmed) {
         return logger.out("Aborting...");
       }
 
-      const currentAdmin = await hre.ethers.getSigner(taskArguments.currentAdmin);
+      const currentAdmin = await hre.ethers.getSigner(taskArgs.current);
 
       const addresses = await getAddresses(hre);
 
-      await transferAccountOwnership(currentAdmin, taskArguments.newAdmin, addresses, hre);
+      await transferAccountOwnership(currentAdmin, taskArgs.new, addresses, hre);
 
-      await changeProxiesAdmin(currentAdmin, taskArguments.newAdmin, addresses, hre);
+      await changeProxiesAdmin(currentAdmin, taskArgs.new, addresses, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     } finally {
@@ -61,15 +66,16 @@ async function changeProxiesAdmin(
 
   for (const proxy of proxies) {
     try {
+      logger.out(`Changing admin for ${proxy.name}...`);
       const upgradeableProxy = ITransparentUpgradeableProxy__factory.connect(
         proxy.address,
         currentAdmin
       );
       const tx = await upgradeableProxy.changeAdmin(taskArguments.newAdmin);
-      await hre.ethers.provider.waitForTransaction(tx.hash);
-      logger.out(`Changed admin for ${proxy.name}.`);
+      logger.out(`Tx hash: ${tx.hash}`);
+      await tx.wait();
     } catch (error) {
-      logger.out(`Failed to change admin for ${proxy.name}, reason: ${error}`, logger.Level.Error);
+      logger.out(`Failed to change admin, reason: ${error}`, logger.Level.Error);
     }
   }
 }

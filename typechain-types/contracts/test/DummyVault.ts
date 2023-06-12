@@ -28,7 +28,41 @@ import type {
   PromiseOrValue,
 } from "../../common";
 
-export declare namespace IRouter {
+export declare namespace IVault {
+  export type VaultConfigStruct = {
+    vaultType: PromiseOrValue<BigNumberish>;
+    strategySelector: PromiseOrValue<BytesLike>;
+    strategy: PromiseOrValue<string>;
+    registrar: PromiseOrValue<string>;
+    baseToken: PromiseOrValue<string>;
+    yieldToken: PromiseOrValue<string>;
+    apTokenName: PromiseOrValue<string>;
+    apTokenSymbol: PromiseOrValue<string>;
+    admin: PromiseOrValue<string>;
+  };
+
+  export type VaultConfigStructOutput = [
+    number,
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+    string
+  ] & {
+    vaultType: number;
+    strategySelector: string;
+    strategy: string;
+    registrar: string;
+    baseToken: string;
+    yieldToken: string;
+    apTokenName: string;
+    apTokenSymbol: string;
+    admin: string;
+  };
+
   export type RedemptionResponseStruct = {
     amount: PromiseOrValue<BigNumberish>;
     status: PromiseOrValue<BigNumberish>;
@@ -43,25 +77,23 @@ export declare namespace IRouter {
 export interface DummyVaultInterface extends utils.Interface {
   functions: {
     "deposit(uint32,address,uint256)": FunctionFragment;
-    "getVaultType()": FunctionFragment;
+    "getVaultConfig()": FunctionFragment;
     "harvest(uint32[])": FunctionFragment;
-    "redeem(uint32,address,uint256)": FunctionFragment;
+    "redeem(uint32,uint256)": FunctionFragment;
     "redeemAll(uint32)": FunctionFragment;
-    "setDefaultToken(address)": FunctionFragment;
     "setDummyAmt(uint256)": FunctionFragment;
-    "setRouterAddress(address)": FunctionFragment;
+    "setVaultConfig((uint8,bytes4,address,address,address,address,string,string,address))": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "deposit"
-      | "getVaultType"
+      | "getVaultConfig"
       | "harvest"
       | "redeem"
       | "redeemAll"
-      | "setDefaultToken"
       | "setDummyAmt"
-      | "setRouterAddress"
+      | "setVaultConfig"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -73,7 +105,7 @@ export interface DummyVaultInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "getVaultType",
+    functionFragment: "getVaultConfig",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -82,47 +114,35 @@ export interface DummyVaultInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "redeem",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "redeemAll",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setDefaultToken",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setDummyAmt",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setRouterAddress",
-    values: [PromiseOrValue<string>]
+    functionFragment: "setVaultConfig",
+    values: [IVault.VaultConfigStruct]
   ): string;
 
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "getVaultType",
+    functionFragment: "getVaultConfig",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "harvest", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "redeemAll", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "setDefaultToken",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "setDummyAmt",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setRouterAddress",
+    functionFragment: "setVaultConfig",
     data: BytesLike
   ): Result;
 
@@ -204,7 +224,9 @@ export interface DummyVault extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    getVaultType(overrides?: CallOverrides): Promise<[number]>;
+    getVaultConfig(
+      overrides?: CallOverrides
+    ): Promise<[IVault.VaultConfigStructOutput]>;
 
     harvest(
       accountIds: PromiseOrValue<BigNumberish>[],
@@ -213,7 +235,6 @@ export interface DummyVault extends BaseContract {
 
     redeem(
       accountId: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -223,18 +244,13 @@ export interface DummyVault extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setDefaultToken(
-      _addr: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     setDummyAmt(
       _newDummyAmt: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setRouterAddress(
-      _addr: PromiseOrValue<string>,
+    setVaultConfig(
+      _newConfig: IVault.VaultConfigStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -246,7 +262,9 @@ export interface DummyVault extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  getVaultType(overrides?: CallOverrides): Promise<number>;
+  getVaultConfig(
+    overrides?: CallOverrides
+  ): Promise<IVault.VaultConfigStructOutput>;
 
   harvest(
     accountIds: PromiseOrValue<BigNumberish>[],
@@ -255,7 +273,6 @@ export interface DummyVault extends BaseContract {
 
   redeem(
     accountId: PromiseOrValue<BigNumberish>,
-    token: PromiseOrValue<string>,
     amt: PromiseOrValue<BigNumberish>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -265,18 +282,13 @@ export interface DummyVault extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setDefaultToken(
-    _addr: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   setDummyAmt(
     _newDummyAmt: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setRouterAddress(
-    _addr: PromiseOrValue<string>,
+  setVaultConfig(
+    _newConfig: IVault.VaultConfigStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -288,7 +300,9 @@ export interface DummyVault extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    getVaultType(overrides?: CallOverrides): Promise<number>;
+    getVaultConfig(
+      overrides?: CallOverrides
+    ): Promise<IVault.VaultConfigStructOutput>;
 
     harvest(
       accountIds: PromiseOrValue<BigNumberish>[],
@@ -297,28 +311,22 @@ export interface DummyVault extends BaseContract {
 
     redeem(
       accountId: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<IRouter.RedemptionResponseStructOutput>;
+    ): Promise<IVault.RedemptionResponseStructOutput>;
 
     redeemAll(
       accountId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    setDefaultToken(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<IVault.RedemptionResponseStructOutput>;
 
     setDummyAmt(
       _newDummyAmt: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setRouterAddress(
-      _addr: PromiseOrValue<string>,
+    setVaultConfig(
+      _newConfig: IVault.VaultConfigStruct,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -366,7 +374,7 @@ export interface DummyVault extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    getVaultType(overrides?: CallOverrides): Promise<BigNumber>;
+    getVaultConfig(overrides?: CallOverrides): Promise<BigNumber>;
 
     harvest(
       accountIds: PromiseOrValue<BigNumberish>[],
@@ -375,7 +383,6 @@ export interface DummyVault extends BaseContract {
 
     redeem(
       accountId: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -385,18 +392,13 @@ export interface DummyVault extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setDefaultToken(
-      _addr: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     setDummyAmt(
       _newDummyAmt: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setRouterAddress(
-      _addr: PromiseOrValue<string>,
+    setVaultConfig(
+      _newConfig: IVault.VaultConfigStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -409,7 +411,7 @@ export interface DummyVault extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    getVaultType(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getVaultConfig(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     harvest(
       accountIds: PromiseOrValue<BigNumberish>[],
@@ -418,7 +420,6 @@ export interface DummyVault extends BaseContract {
 
     redeem(
       accountId: PromiseOrValue<BigNumberish>,
-      token: PromiseOrValue<string>,
       amt: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -428,18 +429,13 @@ export interface DummyVault extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setDefaultToken(
-      _addr: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     setDummyAmt(
       _newDummyAmt: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setRouterAddress(
-      _addr: PromiseOrValue<string>,
+    setVaultConfig(
+      _newConfig: IVault.VaultConfigStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

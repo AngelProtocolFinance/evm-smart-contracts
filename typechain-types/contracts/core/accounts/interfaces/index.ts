@@ -5,6 +5,5 @@ export type { IAccountsCreateEndowment } from "./IAccountsCreateEndowment";
 export type { IAccountsDeployContract } from "./IAccountsDeployContract";
 export type { IAccountsDepositWithdrawEndowments } from "./IAccountsDepositWithdrawEndowments";
 export type { IAccountsDonationMatch } from "./IAccountsDonationMatch";
-export type { IAccountsQuery } from "./IAccountsQuery";
+export type { IAccountsQueryEndowments } from "./IAccountsQueryEndowments";
 export type { IAccountsSwapRouter } from "./IAccountsSwapRouter";
-export type { IAxelarGateway } from "./IAxelarGateway";

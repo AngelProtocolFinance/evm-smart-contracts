@@ -14,8 +14,8 @@ type Result = {
   treasury: SignerWithAddress;
 };
 
-export async function getSigners(ethers: HardhatRuntimeEnvironment["ethers"]): Promise<Result> {
-  const [deployer, proxyAdmin, apTeam1, apTeam2, apTeam3] = await ethers.getSigners();
+export async function getSigners(hre: HardhatRuntimeEnvironment): Promise<Result> {
+  const [deployer, proxyAdmin, apTeam1, apTeam2, apTeam3] = await hre.ethers.getSigners();
 
   return {
     airdropOwner: apTeam1,

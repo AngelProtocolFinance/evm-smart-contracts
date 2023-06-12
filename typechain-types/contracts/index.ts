@@ -11,8 +11,6 @@ import type * as halo from "./halo";
 export type { halo };
 import type * as integrations from "./integrations";
 export type { integrations };
-import type * as interfaces from "./interfaces";
-export type { interfaces };
 import type * as lib from "./lib";
 export type { lib };
 import type * as mock from "./mock";
