@@ -21,7 +21,7 @@ export async function deployRegistrar(
     const factory = new Registrar__factory(proxyAdmin);
     const registrar = await factory.deploy();
     await registrar.deployed();
-    console.log("Address: ", registrar.address);
+    logger.out(`Address: ${registrar.address}`);
 
     // deploy proxy
     logger.out("Deploying proxy...");
@@ -40,10 +40,10 @@ export async function deployRegistrar(
     const proxyFactory = new ProxyContract__factory(deployer);
     const proxy = await proxyFactory.deploy(registrar.address, proxyAdmin.address, data);
     await proxy.deployed();
-    console.log("Address: ", proxy.address);
+    logger.out(`Address: ${proxy.address}`);
 
     // update owner
-    console.log("Updating Registrar owner to: ", owner, "...");
+    logger.out(`Updating Registrar owner to '${owner}'..."`);
     const proxiedRegistrar = Registrar__factory.connect(proxy.address, deployer);
     const tx = await proxiedRegistrar.transferOwnership(owner);
     await tx.wait();

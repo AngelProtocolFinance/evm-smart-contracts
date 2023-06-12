@@ -1,7 +1,7 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getSigners, updateAddresses, verify} from "utils";
+import {getSigners, logger, updateAddresses, verify} from "utils";
 
 import {FundraisingMessage} from "typechain-types/contracts/accessory/fundraising/Fundraising";
 
@@ -23,7 +23,7 @@ export async function deployFundraising(
     });
     const FundraisingLibInstance = await FundraisingLib.deploy();
     await FundraisingLibInstance.deployed();
-    console.log("FundraisingLib address:", FundraisingLibInstance.address);
+    logger.out(`FundraisingLib address: ${FundraisingLibInstance.address}`);
 
     const Fundraising = await ethers.getContractFactory("Fundraising", {
       libraries: {
@@ -34,7 +34,7 @@ export async function deployFundraising(
     const FundraisingInstance = await Fundraising.deploy();
     await FundraisingInstance.deployed();
 
-    console.log("Fundraising implementation address:", FundraisingInstance.address);
+    logger.out(`Fundraising implementation address: ${FundraisingInstance.address}`);
 
     const ProxyContract = await ethers.getContractFactory("ProxyContract");
 
@@ -71,7 +71,7 @@ export async function deployFundraising(
       });
     }
 
-    console.log("Fundraising Address (Proxy):", FundraisingProxy.address);
+    logger.out(`Fundraising Address (Proxy): ${FundraisingProxy.address}`);
 
     return Promise.resolve(FundraisingProxy.address);
   } catch (error) {

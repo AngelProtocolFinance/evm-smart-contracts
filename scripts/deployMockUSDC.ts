@@ -13,7 +13,7 @@ export async function deployMockUSDC(
     const factory = new MockUSDC__factory(proxyAdmin);
     const mockUSDC = await factory.deploy("USDC", "USDC", 100);
     await mockUSDC.deployed();
-    console.log("Deployed at: ", mockUSDC.address);
+    logger.out(`Address: ${mockUSDC.address}`);
 
     logger.out("Updating global config...");
     config.REGISTRAR_DATA.acceptedTokens.cw20 = [mockUSDC.address];

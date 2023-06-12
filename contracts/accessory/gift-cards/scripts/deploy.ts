@@ -1,5 +1,5 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getSigners, updateAddresses, verify} from "utils";
+import {getSigners, logger, updateAddresses, verify} from "utils";
 
 import {GiftCardsMessage} from "typechain-types/contracts/accessory/gift-cards/GiftCards";
 
@@ -15,7 +15,7 @@ export async function deployGiftCard(
     const GiftCards = await ethers.getContractFactory("GiftCards", {libraries: {AngelCoreStruct}});
     const GiftCardsInstance = await GiftCards.deploy();
     await GiftCardsInstance.deployed();
-    console.log("GiftCards implementation address:", GiftCardsInstance.address);
+    logger.out(`GiftCards implementation address: ${GiftCardsInstance.address}"`);
 
     const ProxyContract = await ethers.getContractFactory("ProxyContract");
     const GiftCardsData = GiftCardsInstance.interface.encodeFunctionData("initialize", [
@@ -27,7 +27,7 @@ export async function deployGiftCard(
       GiftCardsData
     );
     await GiftCardsProxy.deployed();
-    console.log("GiftCards Address (Proxy):", GiftCardsProxy.address);
+    logger.out(`GiftCards Address (Proxy): ${GiftCardsProxy.address}"`);
 
     // update address file & verify contracts
     await updateAddresses(

@@ -41,7 +41,7 @@ const deployCw900lvImplementation = async (
 
     return Promise.resolve(IncentivisedVotingLockupImplementation.address);
   } catch (error) {
-    console.log(error);
+    logger.out(error, logger.Level.Error);
     return Promise.reject(error);
   }
 };
@@ -78,7 +78,7 @@ const deployDonationMatchCharity = async (
 
     await DonationMatchProxy.deployed();
 
-    console.log("DonationMatchCharityProxy Address (Proxy):", DonationMatchProxy.address);
+    logger.out(`DonationMatchCharityProxy Address (Proxy): ${DonationMatchProxy.address}`);
 
     if (verify_contracts) {
       await verify(hre, {address: DonationMatchImplementation.address});
