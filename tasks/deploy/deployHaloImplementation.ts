@@ -7,7 +7,7 @@ task("deploy:HaloImplementation", "Will deploy HaloImplementation contract")
   .addOptionalParam(
     "verify",
     "Flag indicating whether the contract should be verified",
-    false,
+    true,
     types.boolean
   )
   .addParam("swaprouter", "swap Router address")

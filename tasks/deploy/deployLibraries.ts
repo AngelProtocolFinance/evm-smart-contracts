@@ -15,7 +15,7 @@ task("deploy:Libraries", "Will deploy Libraries")
   .addOptionalParam(
     "verify",
     "Flag indicating whether the contract should be verified",
-    false,
+    true,
     types.boolean
   )
   .setAction(async (taskArgs: TaskArgs, hre) => {

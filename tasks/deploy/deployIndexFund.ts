@@ -8,7 +8,7 @@ task("deploy:IndexFund", "Will deploy IndexFund contract")
   .addOptionalParam(
     "verify",
     "Flag indicating whether the contract should be verified",
-    false,
+    true,
     types.boolean
   )
   .addOptionalParam(
