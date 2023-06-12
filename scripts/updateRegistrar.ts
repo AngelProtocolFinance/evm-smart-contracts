@@ -5,19 +5,25 @@ import {getSigners, logger} from "utils";
 
 export async function updateRegistrarNetworkConnections(
   registrar: string,
-  newNetworkInfo: AngelCoreStruct.NetworkInfoStructOutput,
   apTeamMultisig: string,
+  newNetworkInfo: Partial<AngelCoreStruct.NetworkInfoStructOutput>,
   hre: HardhatRuntimeEnvironment
 ) {
-  logger.out(`Updating Registrar network connection...`);
-  logger.out(`New network info:\n${JSON.stringify(newNetworkInfo, undefined, 2)}`);
+  const network = await hre.ethers.provider.getNetwork();
+  logger.out(`Updating Registrar network connection for chain ID:${network.chainId}...`);
 
   const {proxyAdmin, apTeamMultisigOwners} = await getSigners(hre);
 
   const registrarContract = Registrar__factory.connect(registrar, proxyAdmin);
+  logger.out(`Fetching current Registrar's network connection data...`);
+  const curNetworkConnection = await registrarContract.queryNetworkConnection(network.chainId);
+  logger.out(JSON.stringify(curNetworkConnection, undefined, 2));
+
+  logger.out(`Network info to update:\n${JSON.stringify(newNetworkInfo, undefined, 2)}`);
+
   const updateNetworkConnectionsData = registrarContract.interface.encodeFunctionData(
     "updateNetworkConnections",
-    [newNetworkInfo, "post"]
+    [{...curNetworkConnection, ...newNetworkInfo}, "post"]
   );
   const apTeamMultisigContract = APTeamMultiSig__factory.connect(
     apTeamMultisig,
@@ -33,4 +39,6 @@ export async function updateRegistrarNetworkConnections(
   );
   logger.out(`Tx hash: ${tx.hash}`);
   await tx.wait();
+
+  logger.out("Done.");
 }

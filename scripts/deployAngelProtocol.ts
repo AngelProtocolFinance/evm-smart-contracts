@@ -2,7 +2,7 @@
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
-import {ADDRESS_ZERO, cleanAddresses, isLocalNetwork, logger} from "utils";
+import {ADDRESS_ZERO, cleanAddresses, isLocalNetwork} from "utils";
 
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
@@ -317,16 +317,10 @@ export async function deployAngelProtocol(
   console.log("Successfully updated config:-", tx.hash);
 
   // Registrar NetworkInfo's Router address must be updated for the current network
-  const network = await hre.ethers.provider.getNetwork();
-  logger.out(
-    `Fetching current Registrar's network connection data for chain ID:${network.chainId}...`
-  );
-  const curNetworkConnection = await registrarContract.queryNetworkConnection(network.chainId);
-  logger.out(JSON.stringify(curNetworkConnection, undefined, 2));
   await updateRegistrarNetworkConnections(
     registrar.proxy.address,
-    {...curNetworkConnection, router: router.proxy.address},
     apTeamMultisig.proxy.address,
+    {router: router.proxy.address},
     hre
   );
 }

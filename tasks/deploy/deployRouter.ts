@@ -2,7 +2,6 @@ import config from "config";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task, types} from "hardhat/config";
 import {updateRegistrarNetworkConnections} from "scripts";
-import {Registrar__factory} from "typechain-types";
 import {getAddresses, getSigners, isLocalNetwork, logger} from "utils";
 
 type TaskArgs = {
@@ -29,7 +28,6 @@ task("deploy:Router", "Will deploy Router contract")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const addresses = await getAddresses(hre);
-      const {proxyAdmin} = await getSigners(hre);
 
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
@@ -44,17 +42,10 @@ task("deploy:Router", "Will deploy Router contract")
       );
 
       // Registrar NetworkInfo's Router address must be updated for the current network
-      const network = await hre.ethers.provider.getNetwork();
-      const registrarContract = Registrar__factory.connect(registrar, proxyAdmin);
-      logger.out(
-        `Fetching current Registrar's network connection data for chain ID:${network.chainId}...`
-      );
-      const curNetworkConnection = await registrarContract.queryNetworkConnection(network.chainId);
-      logger.out(JSON.stringify(curNetworkConnection, undefined, 2));
       await updateRegistrarNetworkConnections(
         registrar,
-        {...curNetworkConnection, router: router.proxy.address},
         apTeamMultiSig,
+        {router: router.proxy.address},
         hre
       );
     } catch (error) {
