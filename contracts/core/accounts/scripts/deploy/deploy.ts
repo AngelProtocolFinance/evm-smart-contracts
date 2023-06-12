@@ -8,7 +8,7 @@ import {
   DiamondInit__factory,
   Diamond__factory,
 } from "typechain-types";
-import {getSigners, logger, updateAddresses} from "utils";
+import {ADDRESS_ZERO, getSigners, logger, updateAddresses, validateAddress} from "utils";
 
 import cutDiamond from "./cutDiamond";
 import deployFacets from "./deployFacets";
@@ -21,23 +21,32 @@ export async function deployAccountsDiamond(
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
-  logger.out("Deploying and setting up Accounts Diamond and all its facets...");
-
   const {proxyAdmin} = await getSigners(hre);
 
-  const {diamond, diamondCutFacet} = await deployDiamond(proxyAdmin, hre);
+  try {
+    logger.out("Deploying and setting up Accounts Diamond and all its facets...");
 
-  const diamondInit = await deployDiamondInit(proxyAdmin, hre);
+    validateAddress(owner, "owner");
+    validateAddress(registrar, "registrar");
+    validateAddress(angelCoreStruct, "angelCoreStruct");
 
-  const cuts = await deployFacets(proxyAdmin, angelCoreStruct, hre);
+    const {diamond, diamondCutFacet} = await deployDiamond(proxyAdmin, hre);
 
-  await cutDiamond(diamond.address, diamondInit, proxyAdmin, owner, registrar, cuts, hre);
+    const diamondInit = await deployDiamondInit(proxyAdmin, hre);
 
-  if (verify_contracts) {
-    await verify(diamond.address, diamondCutFacet.address, cuts, proxyAdmin, hre);
+    const cuts = await deployFacets(proxyAdmin, angelCoreStruct, hre);
+
+    await cutDiamond(diamond.address, diamondInit, proxyAdmin, owner, registrar, cuts, hre);
+
+    if (verify_contracts) {
+      await verify(diamond.address, diamondCutFacet.address, cuts, proxyAdmin, hre);
+    }
+
+    return diamond;
+  } catch (error) {
+    logger.out(error, logger.Level.Error);
+    return Diamond__factory.connect(ADDRESS_ZERO, proxyAdmin);
   }
-
-  return diamond;
 }
 
 async function deployDiamond(

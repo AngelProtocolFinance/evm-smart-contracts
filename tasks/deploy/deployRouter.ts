@@ -1,7 +1,7 @@
 import config from "config";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {updateRegistrarNetworkConnection} from "scripts";
+import {updateRegistrarNetworkConnections} from "scripts";
 import {Registrar__factory} from "typechain-types";
 import {getAddresses, getSigners, isLocalNetwork, logger} from "utils";
 
@@ -51,7 +51,7 @@ task("deploy:Router", "Will deploy Router contract")
       );
       const curNetworkConnection = await registrarContract.queryNetworkConnection(network.chainId);
       logger.out(JSON.stringify(curNetworkConnection, undefined, 2));
-      await updateRegistrarNetworkConnection(
+      await updateRegistrarNetworkConnections(
         registrar,
         {...curNetworkConnection, router: router.proxy.address},
         apTeamMultiSig,

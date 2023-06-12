@@ -103,8 +103,9 @@
       "proxy": "0x5f3f1dBD7B74C6B46e8c44f98792A1dAf8d69154"
     },
     "libraries": {
-      "angelCoreStruct": "0xec552B17995198A0e71E9198D047B5Ec42710359",
-      "stringArray": "0xD641747EbDbfD170DBc31a74bB7E825Da27C0472"
+      "angelCoreStruct": "",
+      "charityApplicationLib": "",
+      "stringArray": ""
     },
     "multiSig": {
       "applications": {

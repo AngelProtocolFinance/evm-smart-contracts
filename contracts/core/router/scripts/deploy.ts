@@ -1,8 +1,6 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {logger, updateAddresses} from "utils";
-
-import deployRouterImplementation from "./deployRouterImplementation";
-import deployRouterProxy from "./deployRouterProxy";
+import {ADDRESS_ZERO, ContractFunctionParams, getSigners, logger, updateAddresses} from "utils";
+import {ProxyContract__factory, Router__factory} from "typechain-types";
 
 export async function deployRouter(
   axelarGateway: string,
@@ -11,25 +9,41 @@ export async function deployRouter(
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
-  logger.out("Deploying Router...");
+  const {proxyAdmin} = await getSigners(hre);
 
-  const router = await deployRouterImplementation(hre);
+  try {
+    logger.out("Deploying Router...");
 
-  const {routerProxy, constructorArguments} = await deployRouterProxy(
-    router,
-    axelarGateway,
-    gasReceiver,
-    registrar,
-    hre
-  );
+    // deploy implementation
+    const routerFactory = new Router__factory(proxyAdmin);
+    const router = await routerFactory.deploy();
+    await router.deployed();
+    logger.out(`Router deployed at: ${router.address}.`);
 
-  await updateAddresses(
-    {router: {implementation: router.address, proxy: routerProxy.address}},
-    hre
-  );
+    // deploy proxy
+    const network = await hre.ethers.provider.getNetwork();
+    const initData = router.interface.encodeFunctionData("initialize", [
+      network.name,
+      axelarGateway,
+      gasReceiver,
+      registrar,
+    ]);
+    const constructorArguments: ContractFunctionParams<ProxyContract__factory["deploy"]> = [
+      router.address,
+      proxyAdmin.address,
+      initData,
+    ];
+    const routerProxyFactory = new ProxyContract__factory(proxyAdmin);
+    const routerProxy = await routerProxyFactory.deploy(...constructorArguments);
+    await routerProxy.deployed();
+    logger.out(`Router Proxy deployed at: ${routerProxy.address}.`);
 
-  if (verify_contracts) {
-    try {
+    await updateAddresses(
+      {router: {implementation: router.address, proxy: routerProxy.address}},
+      hre
+    );
+
+    if (verify_contracts) {
       logger.out("Verifying...");
       await hre.run("verify:verify", {
         address: router.address,
@@ -39,10 +53,14 @@ export async function deployRouter(
         address: routerProxy.address,
         constructorArguments,
       });
-    } catch (error) {
-      logger.out(error, logger.Level.Error);
     }
-  }
 
-  return {implementation: router, proxy: routerProxy};
+    return {implementation: router, proxy: routerProxy};
+  } catch (error) {
+    logger.out(error, logger.Level.Error);
+    return {
+      implementation: Router__factory.connect(ADDRESS_ZERO, proxyAdmin),
+      proxy: ProxyContract__factory.connect(ADDRESS_ZERO, proxyAdmin),
+    };
+  }
 }

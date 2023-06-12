@@ -2,7 +2,7 @@ import config from "config";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {updateRegistrarNetworkConnection} from "scripts";
+import {updateNetworkConnections} from "scripts";
 import {Registrar__factory} from "typechain-types";
 import {getAddresses, getSigners, isLocalNetwork, logger} from "utils";
 
@@ -62,7 +62,7 @@ task(
       );
       const curNetworkConnection = await registrarContract.queryNetworkConnection(network.chainId);
       logger.out(JSON.stringify(curNetworkConnection, undefined, 2));
-      await updateRegistrarNetworkConnection(
+      await updateNetworkConnections(
         registrar.proxy.address,
         {...curNetworkConnection, router: router.proxy.address},
         apTeamMultiSig,

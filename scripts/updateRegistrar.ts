@@ -3,7 +3,7 @@ import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
 import {AngelCoreStruct} from "typechain-types/contracts/core/registrar/registrar.sol/Registrar";
 import {getSigners, logger} from "utils";
 
-export async function updateRegistrarNetworkConnection(
+export async function updateRegistrarNetworkConnections(
   registrar: string,
   newNetworkInfo: AngelCoreStruct.NetworkInfoStructOutput,
   apTeamMultisig: string,

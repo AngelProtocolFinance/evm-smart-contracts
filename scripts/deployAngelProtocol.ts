@@ -2,7 +2,7 @@
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
-import {cleanAddresses, isLocalNetwork, logger} from "utils";
+import {ADDRESS_ZERO, cleanAddresses, isLocalNetwork, logger} from "utils";
 
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
@@ -22,7 +22,7 @@ import {getSigners} from "utils/getSigners";
 
 import {deployCommonLibraries} from "./deployCommonLibraries";
 import {deployMockUSDC} from "./deployMockUSDC";
-import {updateRegistrarNetworkConnection} from "./updateRegistrar";
+import {updateRegistrarNetworkConnections} from "./updateRegistrar";
 
 export async function deployAngelProtocol(
   verify_contracts: boolean,
@@ -37,14 +37,14 @@ export async function deployAngelProtocol(
   // Mock setup required for testing
   const mockUSDC = isLocalNetwork(hre) ? await deployMockUSDC(proxyAdmin, hre) : undefined;
 
-  const {angelCoreStruct, stringLib} = await deployCommonLibraries(verify_contracts, hre);
+  const {angelCoreStruct} = await deployCommonLibraries(verify_contracts, hre);
 
   const apTeamMultisig = await deployAPTeamMultiSig(verify_contracts, hre);
 
   const applicationsMultiSig = await deployApplicationsMultiSig(verify_contracts, hre);
 
   const registrar = await deployRegistrar(
-    hre.ethers.constants.AddressZero,
+    ADDRESS_ZERO,
     apTeamMultisig.proxy.address,
     verify_contracts,
     hre
@@ -261,32 +261,36 @@ export async function deployAngelProtocol(
     splitMin: config.REGISTRAR_DATA.splitToLiquid.min, //uint256
     splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit, //uint256
     collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
-    subdaoGovContract: hre.ethers.constants.AddressZero, //address
-    subdaoTokenContract: hre.ethers.constants.AddressZero, //address
-    subdaoBondingTokenContract: hre.ethers.constants.AddressZero, //address
-    subdaoCw900Contract: hre.ethers.constants.AddressZero, //address
-    subdaoDistributorContract: hre.ethers.constants.AddressZero,
-    subdaoEmitter: hre.ethers.constants.AddressZero, //TODO:
-    donationMatchContract: hre.ethers.constants.AddressZero, //address
+    subdaoGovContract: ADDRESS_ZERO, //address
+    subdaoTokenContract: ADDRESS_ZERO, //address
+    subdaoBondingTokenContract: ADDRESS_ZERO, //address
+    subdaoCw900Contract: ADDRESS_ZERO, //address
+    subdaoDistributorContract: ADDRESS_ZERO,
+    subdaoEmitter: ADDRESS_ZERO, //TODO:
+    donationMatchContract: ADDRESS_ZERO, //address
     indexFundContract: indexFund.proxy.address, //address
-    govContract: hre.ethers.constants.AddressZero, //address
+    govContract: ADDRESS_ZERO, //address
     treasury: treasury.address,
-    donationMatchCharitesContract: hre.ethers.constants.AddressZero, // once uniswap is setup //address
-    donationMatchEmitter: hre.ethers.constants.AddressZero,
-    haloToken: hre.ethers.constants.AddressZero, //address
+    donationMatchCharitesContract: ADDRESS_ZERO, // once uniswap is setup //address
+    donationMatchEmitter: ADDRESS_ZERO,
+    haloToken: ADDRESS_ZERO, //address
     haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
-    charitySharesContract: hre.ethers.constants.AddressZero, //TODO: //address
-    fundraisingContract: hre.ethers.constants.AddressZero, //TODO: //address
+    charitySharesContract: ADDRESS_ZERO, //TODO: //address
+    fundraisingContract: ADDRESS_ZERO, //TODO: //address
     applicationsReview: applicationsMultiSig.proxy.address, //address
     swapsRouter: swapRouter.proxy.address, //address
     multisigFactory: endowmentMultiSig.factory.address, //address
     multisigEmitter: endowmentMultiSig.emitter.proxy.contract.address, //address
     charityProposal: charityApplication.proxy.address, //address
-    lockedWithdrawal: hre.ethers.constants.AddressZero,
+    lockedWithdrawal: ADDRESS_ZERO,
     proxyAdmin: proxyAdmin.address, //address
-    usdcAddress: mockUSDC ? mockUSDC.address : config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
+    usdcAddress: isLocalNetwork(hre)
+      ? mockUSDC
+        ? mockUSDC.address
+        : ADDRESS_ZERO
+      : config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
     wMaticAddress: config.REGISTRAR_UPDATE_CONFIG.wmaticAddress,
-    cw900lvAddress: hre.ethers.constants.AddressZero,
+    cw900lvAddress: ADDRESS_ZERO,
   };
 
   console.log("Updating Registrar config with new addresses...");
@@ -319,7 +323,7 @@ export async function deployAngelProtocol(
   );
   const curNetworkConnection = await registrarContract.queryNetworkConnection(network.chainId);
   logger.out(JSON.stringify(curNetworkConnection, undefined, 2));
-  await updateRegistrarNetworkConnection(
+  await updateRegistrarNetworkConnections(
     registrar.proxy.address,
     {...curNetworkConnection, router: router.proxy.address},
     apTeamMultisig.proxy.address,
