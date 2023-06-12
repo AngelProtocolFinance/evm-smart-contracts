@@ -46,7 +46,5 @@ task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
       );
     } catch (error) {
       logger.out(`Diamond deployment failed, reason: ${error}`, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

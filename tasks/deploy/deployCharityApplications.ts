@@ -30,7 +30,5 @@ task("deploy:CharityApplications", "Will deploy CharityApplications contract")
       await deployCharityApplication(applications, accountsDiamond, verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

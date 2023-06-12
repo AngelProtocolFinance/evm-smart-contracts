@@ -15,7 +15,5 @@ task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
       await deployEndowmentMultiSig(verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

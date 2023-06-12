@@ -50,7 +50,5 @@ task("deploy:Router", "Will deploy Router contract")
       );
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

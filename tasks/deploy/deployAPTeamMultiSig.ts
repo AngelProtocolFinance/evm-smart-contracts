@@ -15,7 +15,5 @@ task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
       await deployAPTeamMultiSig(verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

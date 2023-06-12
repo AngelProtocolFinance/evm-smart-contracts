@@ -37,7 +37,5 @@ task("manage:addMultisigOwner", "Will add the specified address to the multisig 
       logger.out(currentOwners);
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

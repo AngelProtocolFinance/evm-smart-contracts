@@ -31,7 +31,6 @@ export default async function verify(
 
   try {
     logger.out("Verifying the Diamond...");
-
     await hre.run("verify:verify", {
       address: diamondAddress,
       constructorArguments: [admin.address, diamondCutAddress],

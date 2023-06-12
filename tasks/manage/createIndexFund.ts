@@ -49,8 +49,6 @@ task("manage:createIndexFund", "Will create a new index fund").setAction(
       logger.out(txDetails);
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   }
 );

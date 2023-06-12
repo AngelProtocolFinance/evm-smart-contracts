@@ -1,7 +1,7 @@
 // import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {ADDRESS_ZERO, cleanAddresses, isLocalNetwork} from "utils";
+import {ADDRESS_ZERO, cleanAddresses, isLocalNetwork, logger} from "utils";
 
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
@@ -286,4 +286,6 @@ export async function deployAngelProtocol(
     {router: router.proxy.address},
     hre
   );
+
+  logger.out("Successfully deployed Angel Protocol contracts.");
 }

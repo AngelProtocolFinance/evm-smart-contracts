@@ -30,7 +30,5 @@ task("deploy:IndexFund", "Will deploy IndexFund contract")
       await deployIndexFund(registrar, owner, verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

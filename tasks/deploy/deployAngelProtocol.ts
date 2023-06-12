@@ -15,7 +15,5 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       await deployAngelProtocol(verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

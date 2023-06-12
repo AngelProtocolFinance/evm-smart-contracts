@@ -65,7 +65,5 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
       }
     } catch (error) {
       logger.out(`Upgrade facets failed, reason: ${error}`, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

@@ -54,7 +54,5 @@ task(
       }
     } catch (error) {
       logger.out(`EndowmentMultiSig upgrade failed, reason: ${error}`, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

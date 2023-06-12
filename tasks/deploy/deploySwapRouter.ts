@@ -38,7 +38,5 @@ task("deploy:SwapRouter", "Will deploy SwapRouter contract")
       );
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

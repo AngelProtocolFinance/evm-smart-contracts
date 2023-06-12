@@ -25,7 +25,5 @@ task("deploy:Emitters", "Will deploy Emitters contract")
       await deployEmitters(accountsDiamond, verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

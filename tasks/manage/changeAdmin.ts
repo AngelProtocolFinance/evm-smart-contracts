@@ -30,8 +30,6 @@ task("manage:changeAdmin", "Will update the admin for all proxy contracts")
       await changeProxiesAdmin(currentAdmin, taskArgs.new, addresses, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });
 

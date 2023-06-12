@@ -38,7 +38,5 @@ task("deploy:Libraries", "Will deploy Libraries")
       }
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

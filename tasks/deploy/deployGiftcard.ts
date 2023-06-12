@@ -41,7 +41,5 @@ task("deploy:GiftCard", "Will deploy GiftCardContracts contract")
       await deployGiftCard(GiftCardDataInput, angelCoreStruct, verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

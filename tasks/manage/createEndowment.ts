@@ -197,7 +197,5 @@ task("manage:createEndowment", "Will create a new endowment")
       logger.out();
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

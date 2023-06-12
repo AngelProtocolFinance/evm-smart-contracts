@@ -20,8 +20,6 @@ task("manage:verifyRegistrar", "Will verify the Registrar implementation contrac
       });
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   }
 );
