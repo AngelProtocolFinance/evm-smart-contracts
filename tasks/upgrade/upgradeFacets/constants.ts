@@ -1,12 +1,12 @@
 import {
-  AccountDeployContract__factory,
-  AccountDepositWithdrawEndowments__factory,
-  AccountDonationMatch__factory,
+  AccountsDeployContract__factory,
+  AccountsDepositWithdrawEndowments__factory,
+  AccountsDonationMatch__factory,
   AccountsAllowance__factory,
   AccountsCreateEndowment__factory,
-  AccountsDAOEndowments__factory,
+  AccountsDaoEndowments__factory,
   AccountsQueryEndowments__factory,
-  AccountsSwapEndowments__factory,
+  AccountsSwapRouter__factory,
   AccountsUpdateEndowmentSettingsController__factory,
   AccountsUpdateEndowments__factory,
   AccountsUpdateStatusEndowments__factory,
@@ -17,7 +17,9 @@ import {getContractName} from "utils";
 
 export const FACET_NAMES_USING_ANGEL_CORE_STRUCT: string[] = [
   getContractName(
-    new AccountDepositWithdrawEndowments__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
+    new AccountsDepositWithdrawEndowments__factory({
+      "contracts/core/struct.sol:AngelCoreStruct": "",
+    })
   ),
   getContractName(
     new AccountsAllowance__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
@@ -26,7 +28,7 @@ export const FACET_NAMES_USING_ANGEL_CORE_STRUCT: string[] = [
     new AccountsCreateEndowment__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
   ),
   getContractName(
-    new AccountsSwapEndowments__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
+    new AccountsSwapRouter__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
   ),
   getContractName(
     new AccountsUpdateEndowmentSettingsController__factory({
@@ -43,8 +45,8 @@ export const FACET_NAMES_USING_ANGEL_CORE_STRUCT: string[] = [
 
 export const ALL_FACET_NAMES: string[] = [
   ...FACET_NAMES_USING_ANGEL_CORE_STRUCT,
-  getContractName(new AccountDeployContract__factory()),
-  getContractName(new AccountDonationMatch__factory()),
+  getContractName(new AccountsDeployContract__factory()),
+  getContractName(new AccountsDonationMatch__factory()),
   getContractName(new AccountsDAOEndowments__factory()),
   getContractName(new AccountsQueryEndowments__factory()),
   getContractName(new AccountsUpdateStatusEndowments__factory()),

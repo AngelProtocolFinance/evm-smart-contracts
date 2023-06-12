@@ -9,6 +9,7 @@ import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {Array} from "../../../lib/array.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 
 /**
  * @title AccountsUpdateEndowments
@@ -324,21 +325,23 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
   }
 
   /**
-    @notice Updates the endowment-level list of accepted tokens with a status for the given token address.
+    @notice Updates the endowment-level list of accepted tokens with a status for the given ERC20 Token address & Chainlink Price Feed contract address.
     @dev This function allows the Endowment owner, or a valid delegate, to add/update accepted tokens for an Endowment's Deposits & Withdrawals.
     * @param endowId Endowment ID
     * @param tokenAddr Token address to add/update in AcceptedTokens
+    * @param priceFeedAddr Chainlink Price Feed contract address for accepted token to fetch USD price data
     * @param tokenStatus Boolean status to set for the token Address in AcceptedTokens
     */
   function updateAcceptedToken(
     uint32 endowId,
     address tokenAddr,
+    address priceFeedAddr,
     bool tokenStatus
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[endowId];
 
-    require(tokenAddr != address(0), "Zero address passed");
+    require((tokenAddr != address(0) && priceFeedAddr != address(0)), "Zero address passed");
     require(!state.STATES[endowId].closingEndowment, "UpdatesAfterClosed");
     require(
       AngelCoreStruct.canChange(
@@ -355,7 +358,12 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
       !IRegistrar(state.config.registrarContract).isTokenAccepted(tokenAddr),
       "Cannot add tokens already in the Registrar AcceptedTokens list"
     );
-
+    // check that the price feed contract address supports ERC-165
+    require(
+      ERC165Checker.supportsInterface(priceFeedAddr, AngelCoreStruct.InterfaceId_ERC165),
+      "Price Feed contract is not a valid ERC-165 interface"
+    );
+    state.PriceFeeds[endowId][tokenAddr] = priceFeedAddr;
     state.AcceptedTokens[endowId][tokenAddr] = tokenStatus;
   }
 }

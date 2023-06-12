@@ -2,6 +2,7 @@
 // yours, or create new ones.
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import path from "path";
 import {envConfig, getSigners} from "utils";
 
 import {Airdrop} from "../halo/airdrop";

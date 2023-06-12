@@ -67,7 +67,7 @@ describe("Endowment Members", function () {
     // Deposit to accounts
 
     const accountDeposit = await ethers.getContractAt(
-      "AccountDepositWithdrawEndowments",
+      "AccountsDepositWithdrawEndowments",
       deployRes.addresses.account
     );
 
@@ -103,7 +103,7 @@ describe("Endowment Members", function () {
     const endowmentMultisig = await ethers.getContractAt("EndowmentMultiSig", endowment.owner);
 
     const accountsSwap = await ethers.getContractAt(
-      "AccountsSwapEndowments",
+      "AccountsSwapRouter",
       deployRes.addresses.account
     );
 

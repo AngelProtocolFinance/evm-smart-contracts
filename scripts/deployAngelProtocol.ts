@@ -120,7 +120,7 @@ export async function deployAngelProtocol(
   // TODO:
   // UNCOMMENT WHEN HALO CONTRACTS ARE READY FOR DEPLOYMENT
   //
-  // var haloAddress = await deployHaloImplementation(SWAP_ROUTER, verify_contracts, hre)
+  // var haloAddress = await deployHaloImplementation(SWAP_ROUTER.UNISWAP_ROUTER_ADDRESS, verify_contracts, hre)
 
   // addressWriter.haloAddress = haloAddress
 

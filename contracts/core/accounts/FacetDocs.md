@@ -32,7 +32,7 @@
 - Update Strategies
 - Copycat Strategies
 
-### AccountsSwapEndowments
+### AccountsSwapRouter
 
 - Swap Token
 - Swap Receipt
