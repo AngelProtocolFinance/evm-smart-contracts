@@ -1,5 +1,5 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {logger} from "utils";
+import {logger} from ".";
 
 export async function verify(
   hre: HardhatRuntimeEnvironment,
