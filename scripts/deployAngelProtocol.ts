@@ -1,7 +1,6 @@
 // import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
 import {ADDRESS_ZERO, cleanAddresses, isLocalNetwork} from "utils";
 
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
@@ -16,19 +15,17 @@ import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-
 // import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
 // import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
 
-import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-
 import {getSigners} from "utils/getSigners";
 
 import {deployCommonLibraries} from "./deployCommonLibraries";
 import {deployMockUSDC} from "./deployMockUSDC";
-import {updateRegistrarNetworkConnections} from "./updateRegistrar";
+import {updateRegistrarConfig, updateRegistrarNetworkConnections} from "./updateRegistrar";
 
 export async function deployAngelProtocol(
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ): Promise<void> {
-  const {proxyAdmin, treasury, apTeamMultisigOwners} = await getSigners(hre);
+  const {proxyAdmin, treasury} = await getSigners(hre);
 
   await cleanAddresses(hre);
 
@@ -254,67 +251,33 @@ export async function deployAngelProtocol(
 
   // config.REGISTRAR_DATA.acceptedTokens.cw20.push(haloToken.address)
 
-  const updateConfig: RegistrarMessages.UpdateConfigRequestStruct = {
-    accountsContract: accountsDiamond.address, //Address
-    approved_charities: [], //string[]
-    splitMax: config.REGISTRAR_DATA.splitToLiquid.max, //uint256
-    splitMin: config.REGISTRAR_DATA.splitToLiquid.min, //uint256
-    splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit, //uint256
-    collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
-    subdaoGovContract: ADDRESS_ZERO, //address
-    subdaoTokenContract: ADDRESS_ZERO, //address
-    subdaoBondingTokenContract: ADDRESS_ZERO, //address
-    subdaoCw900Contract: ADDRESS_ZERO, //address
-    subdaoDistributorContract: ADDRESS_ZERO,
-    subdaoEmitter: ADDRESS_ZERO, //TODO:
-    donationMatchContract: ADDRESS_ZERO, //address
-    indexFundContract: indexFund.proxy.address, //address
-    govContract: ADDRESS_ZERO, //address
-    treasury: treasury.address,
-    donationMatchCharitesContract: ADDRESS_ZERO, // once uniswap is setup //address
-    donationMatchEmitter: ADDRESS_ZERO,
-    haloToken: ADDRESS_ZERO, //address
-    haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
-    charitySharesContract: ADDRESS_ZERO, //TODO: //address
-    fundraisingContract: ADDRESS_ZERO, //TODO: //address
-    applicationsReview: applicationsMultiSig.proxy.address, //address
-    swapsRouter: swapRouter.proxy.address, //address
-    multisigFactory: endowmentMultiSig.factory.address, //address
-    multisigEmitter: endowmentMultiSig.emitter.proxy.contract.address, //address
-    charityProposal: charityApplication.proxy.address, //address
-    lockedWithdrawal: ADDRESS_ZERO,
-    proxyAdmin: proxyAdmin.address, //address
-    usdcAddress: isLocalNetwork(hre)
-      ? mockUSDC
-        ? mockUSDC.address
-        : ADDRESS_ZERO
-      : config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
-    wMaticAddress: config.REGISTRAR_UPDATE_CONFIG.wmaticAddress,
-    cw900lvAddress: ADDRESS_ZERO,
-  };
-
-  console.log("Updating Registrar config with new addresses...");
-  const registrarContract = Registrar__factory.connect(
+  await updateRegistrarConfig(
     registrar.proxy.address,
-    apTeamMultisigOwners[0]
-  );
-  const updateConfigData = registrarContract.interface.encodeFunctionData("updateConfig", [
-    updateConfig,
-  ]);
-  const apTeamMultisigContract = APTeamMultiSig__factory.connect(
     apTeamMultisig.proxy.address,
-    apTeamMultisigOwners[0]
+    {
+      accountsContract: accountsDiamond.address, //Address
+      splitMax: config.REGISTRAR_DATA.splitToLiquid.max, //uint256
+      splitMin: config.REGISTRAR_DATA.splitToLiquid.min, //uint256
+      splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit, //uint256
+      collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
+      indexFundContract: indexFund.proxy.address, //address
+      treasury: treasury.address,
+      haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
+      applicationsReview: applicationsMultiSig.proxy.address, //address
+      swapsRouter: swapRouter.proxy.address, //address
+      multisigFactory: endowmentMultiSig.factory.address, //address
+      multisigEmitter: endowmentMultiSig.emitter.proxy.contract.address, //address
+      charityProposal: charityApplication.proxy.address, //address
+      proxyAdmin: proxyAdmin.address, //address
+      usdcAddress: isLocalNetwork(hre)
+        ? mockUSDC
+          ? mockUSDC.address
+          : ADDRESS_ZERO
+        : config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
+      wMaticAddress: config.REGISTRAR_UPDATE_CONFIG.wmaticAddress,
+    },
+    hre
   );
-  const tx = await apTeamMultisigContract.submitTransaction(
-    "Update Registrar config",
-    "Update Registrar config",
-    registrar.proxy.address,
-    0,
-    updateConfigData,
-    "0x"
-  );
-  await tx.wait();
-  console.log("Successfully updated config:-", tx.hash);
 
   // Registrar NetworkInfo's Router address must be updated for the current network
   await updateRegistrarNetworkConnections(
