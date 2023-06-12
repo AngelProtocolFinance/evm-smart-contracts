@@ -240,6 +240,7 @@ export async function deployImplementation(
     const {cw900lv, feeDistributor, ...toUpdate} = implementations;
 
     logger.out("Saving addresses to contract-address.json...");
+    // update address file
     await updateAddresses(toUpdate, hre);
 
     return Promise.resolve(implementations);

@@ -47,7 +47,7 @@ export async function deployAngelProtocol(
     hre
   );
 
-  // Router deployment includes updating Registrar config's "router" address
+  // Router deployment will require updating Registrar config's "router" address
   const router = await deployRouter(
     config.REGISTRAR_DATA.axelarGateway,
     config.REGISTRAR_DATA.axelarGasRecv,

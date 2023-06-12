@@ -16,18 +16,20 @@ export async function deployRouter(
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
+  logger.out("Deploying Router...");
+
   const {proxyAdmin} = await getSigners(hre);
 
   try {
-    logger.out("Deploying Router...");
-
     // deploy implementation
+    logger.out("Deploying implementation...");
     const routerFactory = new Router__factory(proxyAdmin);
     const router = await routerFactory.deploy();
     await router.deployed();
-    logger.out(`Router deployed at: ${router.address}.`);
+    logger.out(`Address: ${router.address}.`);
 
     // deploy proxy
+    logger.out("Deploying proxy...");
     const network = await hre.ethers.provider.getNetwork();
     const initData = router.interface.encodeFunctionData("initialize", [
       network.name,
@@ -43,8 +45,9 @@ export async function deployRouter(
     const routerProxyFactory = new ProxyContract__factory(proxyAdmin);
     const routerProxy = await routerProxyFactory.deploy(...constructorArguments);
     await routerProxy.deployed();
-    logger.out(`Router Proxy deployed at: ${routerProxy.address}.`);
+    logger.out(`Address: ${routerProxy.address}.`);
 
+    // update address file & verify contracts
     await updateAddresses(
       {router: {implementation: router.address, proxy: routerProxy.address}},
       hre

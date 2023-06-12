@@ -29,6 +29,7 @@ export async function deployGiftCard(
     await GiftCardsProxy.deployed();
     console.log("GiftCards Address (Proxy):", GiftCardsProxy.address);
 
+    // update address file & verify contracts
     await updateAddresses(
       {
         giftcards: {

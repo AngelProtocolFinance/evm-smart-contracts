@@ -42,7 +42,7 @@ export async function deployEndowmentMultiSig(
     await emitter.deployed();
     logger.out(`Address: ${emitter.address}`);
 
-    logger.out("Deploying Proxy...");
+    logger.out("Deploying proxy...");
     const initData = emitter.interface.encodeFunctionData("initEndowmentMultiSigEmitter", [
       multiSigWalletFactory.address,
     ]);
@@ -51,7 +51,7 @@ export async function deployEndowmentMultiSig(
     await emitterProxy.deployed();
     logger.out(`Address: ${emitterProxy.address}`);
 
-    // update addresses and verify
+    // update address file & verify contracts
     await updateAddresses(
       {
         multiSig: {

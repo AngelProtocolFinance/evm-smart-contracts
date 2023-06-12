@@ -10,9 +10,10 @@ export async function updateRegistrarNetworkConnections(
   newNetworkInfo: Partial<AngelCoreStruct.NetworkInfoStructOutput>,
   hre: HardhatRuntimeEnvironment
 ) {
+  logger.out("Updating Registrar config...");
+
   try {
     const network = await hre.ethers.provider.getNetwork();
-    logger.out(`Updating Registrar network connection for chain ID:${network.chainId}...`);
 
     const {apTeamMultisigOwners} = await getSigners(hre);
 
@@ -43,7 +44,7 @@ export async function updateRegistrarNetworkConnections(
     logger.out(`Tx hash: ${tx.hash}`);
     await tx.wait();
 
-    logger.out("Successfully updated network connections.");
+    logger.out("Network connections updated.");
   } catch (error) {
     logger.out(error, logger.Level.Error);
   }
@@ -93,7 +94,7 @@ export async function updateRegistrarConfig(
     logger.out(`Tx hash: ${tx.hash}`);
     await tx.wait();
 
-    logger.out("Successfully updated config.");
+    logger.out("Config updated.");
   } catch (error) {
     logger.out(error, logger.Level.Error);
   }

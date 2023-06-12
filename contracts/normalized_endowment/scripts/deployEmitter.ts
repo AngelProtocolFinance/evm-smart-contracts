@@ -36,6 +36,7 @@ const deploySubDaoEmitter = async (
     console.log("SubdaoEmitterProxy Address (Proxy):", SubdaoEmitterProxy.address);
 
     logger.out("Saving addresses to contract-address.json...");
+    // update address file & verify contracts
     await updateAddresses(
       {
         subDao: {

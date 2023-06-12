@@ -14,16 +14,20 @@ export async function deployApplicationsMultiSig(
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
+  logger.out("Deploying ApplicationsMultiSig...");
+
   const {applicationsMultisigOwners, proxyAdmin} = await getSigners(hre);
 
   try {
-    logger.out("Deploying ApplicationsMultiSig...");
-
+    // deploy implementation
+    logger.out("Deploying implementation...");
     const applicationsMultiSigFactory = new ApplicationsMultiSig__factory(proxyAdmin);
     const applicationsMultiSig = await applicationsMultiSigFactory.deploy();
     await applicationsMultiSig.deployed();
-    logger.out(`ApplicationsMultiSig deployed at: ${applicationsMultiSig.address}.`);
+    logger.out(`Address: ${applicationsMultiSig.address}.`);
 
+    // deploy proxy
+    logger.out("Deploying proxy...");
     const applicationsMultiSigData = applicationsMultiSig.interface.encodeFunctionData(
       "initialize",
       [
@@ -40,8 +44,9 @@ export async function deployApplicationsMultiSig(
     const proxyFactory = new ProxyContract__factory(proxyAdmin);
     const applicationsMultiSigProxy = await proxyFactory.deploy(...constructorArguments);
     await applicationsMultiSigProxy.deployed();
-    logger.out(`ApplicationsMultiSig Proxy deployed at: ${applicationsMultiSigProxy.address}.`);
+    logger.out(`Address: ${applicationsMultiSigProxy.address}.`);
 
+    // update address file & verify contracts
     await updateAddresses(
       {
         multiSig: {

@@ -9,19 +9,22 @@ export async function deployRegistrar(
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
+  logger.out("Deploying Registrar...");
+
   const {deployer, proxyAdmin, treasury} = await getSigners(hre);
 
   try {
-    logger.out("Deploying Registrar...");
-
     validateAddress(owner, "owner");
 
+    // deploy implementation
+    logger.out("Deploying implementation...");
     const factory = new Registrar__factory(proxyAdmin);
     const registrar = await factory.deploy();
     await registrar.deployed();
-    console.log("Registrar implementation deployed at: ", registrar.address);
+    console.log("Address: ", registrar.address);
 
-    // Deploy proxy contract
+    // deploy proxy
+    logger.out("Deploying proxy...");
     const data = registrar.interface.encodeFunctionData(
       "initialize((address,(uint256,uint256,uint256),address,address,address))",
       [
@@ -37,13 +40,15 @@ export async function deployRegistrar(
     const proxyFactory = new ProxyContract__factory(deployer);
     const proxy = await proxyFactory.deploy(registrar.address, proxyAdmin.address, data);
     await proxy.deployed();
-    console.log("Registrar Proxy deployed at: ", proxy.address);
+    console.log("Address: ", proxy.address);
 
+    // update owner
     console.log("Updating Registrar owner to: ", owner, "...");
     const proxiedRegistrar = Registrar__factory.connect(proxy.address, deployer);
     const tx = await proxiedRegistrar.transferOwnership(owner);
     await tx.wait();
 
+    // update address file & verify contracts
     await updateAddresses(
       {
         registrar: {

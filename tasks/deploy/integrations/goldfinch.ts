@@ -83,6 +83,7 @@ task("deploy:integrations:Goldfinch")
     logger.divider();
     logger.out("Writing to contract-address.json", logger.Level.Info);
 
+    // update address file & verify contracts
     await updateAddresses(
       {
         goldfinch: {

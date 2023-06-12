@@ -21,6 +21,7 @@ export async function deployCommonLibraries(
     await stringLib.deployed();
     logger.out(`Address: ${angelCoreStruct.address}`);
 
+    // update address file & verify contracts
     await updateAddresses(
       {
         libraries: {

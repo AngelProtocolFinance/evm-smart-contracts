@@ -9,21 +9,23 @@ export async function deployIndexFund(
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
+  logger.out("Deploying IndexFund...");
+
   const {deployer, proxyAdmin} = await getSigners(hre);
 
   try {
-    logger.out("Deploying IndexFund...");
-
     validateAddress(registrar, "registrar");
     validateAddress(owner, "owner");
 
-    logger.out("Deploying Implementation...");
+    // deploy implementation
+    logger.out("Deploying implementation...");
     const indexFundFactory = new IndexFund__factory(proxyAdmin);
     const indexFund = await indexFundFactory.deploy();
     await indexFund.deployed();
     logger.out(`Address: ${indexFund.address}`);
 
-    logger.out("Deploying Proxy...");
+    // deploy proxy
+    logger.out("Deploying proxy...");
     const initData = indexFund.interface.encodeFunctionData("initIndexFund", [
       {
         registrarContract: registrar,
@@ -41,11 +43,13 @@ export async function deployIndexFund(
     await indexFundProxy.deployed();
     logger.out(`Address: ${indexFund.address}`);
 
+    // update owner
     logger.out(`Updating IndexFund owner to: ${owner}...`);
     const proxiedIndexFund = IndexFund__factory.connect(indexFundProxy.address, deployer);
     const tx = await proxiedIndexFund.updateOwner(owner);
     await tx.wait();
 
+    // update address file & verify contracts
     await updateAddresses(
       {
         indexFund: {

@@ -50,6 +50,7 @@ export async function deployFundraising(
 
     await FundraisingProxy.deployed();
 
+    // update address file & verify contracts
     await updateAddresses(
       {
         fundraising: {

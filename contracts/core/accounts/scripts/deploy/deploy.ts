@@ -20,11 +20,11 @@ export async function deployAccountsDiamond(
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
+  logger.out("Deploying and setting up Accounts Diamond and all its facets...");
+
   const {proxyAdmin} = await getSigners(hre);
 
   try {
-    logger.out("Deploying and setting up Accounts Diamond and all its facets...");
-
     validateAddress(owner, "owner");
     validateAddress(registrar, "registrar");
     validateAddress(angelCoreStruct, "angelCoreStruct");

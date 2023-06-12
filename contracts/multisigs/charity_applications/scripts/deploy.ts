@@ -12,8 +12,7 @@ export async function deployCharityApplication(
   const {proxyAdmin} = await getSigners(hre);
 
   try {
-    logger.out("Deploying CharityApplication...");
-
+    // deploy library
     logger.out("Deploying CharityApplicationLib...");
     const charityApplicationLibFactory = await hre.ethers.getContractFactory(
       "CharityApplicationLib",
@@ -23,7 +22,10 @@ export async function deployCharityApplication(
     await charityApplicationLib.deployed();
     logger.out(`Address: ${charityApplicationLib.address}`);
 
-    logger.out("Deploying Implementation...");
+    logger.out("Deploying CharityApplication...");
+
+    // deploy implementation
+    logger.out("Deploying implementation...");
     const charityApplicationFactory = new CharityApplication__factory(
       {
         "contracts/multisigs/charity_applications/CharityApplication.sol:CharityApplicationLib":
@@ -35,7 +37,8 @@ export async function deployCharityApplication(
     await charityApplication.deployed();
     logger.out(`Address: ${charityApplication.address}`);
 
-    logger.out("Deploying Proxy...");
+    // deploy proxy
+    logger.out("Deploying proxy...");
     const initData = charityApplication.interface.encodeFunctionData("initialize", [
       config.CHARITY_APPLICATION_DATA.expiry,
       applicationsMultiSig,
@@ -56,6 +59,7 @@ export async function deployCharityApplication(
     await charityApplicationProxy.deployed();
     logger.out(`Address: ${charityApplicationProxy.address}`);
 
+    // update address file & verify contracts
     await updateAddresses(
       {
         charityApplication: {
