@@ -58,13 +58,14 @@ interface ILocalRegistrar {
     bytes4 _strategyId
   ) external view returns (LocalRegistrarLib.StrategyApprovalState);
 
-  function getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes _feeType) external view returns (AngelCoreStruct.FeeSetting memory);
+  function getFeeSettingsByFeeType(
+    AngelCoreStruct.FeeTypes _feeType
+  ) external view returns (AngelCoreStruct.FeeSetting memory);
 
   function getVaultOperatorApproved(address _operator) external view returns (bool);
 
   // Setter methods for granular changes to specific params
-  function setRebalanceParams(LocalRegistrarLib.RebalanceParams calldata _rebalanceParams)
-      external;
+  function setRebalanceParams(LocalRegistrarLib.RebalanceParams calldata _rebalanceParams) external;
 
   function setAngelProtocolParams(
     LocalRegistrarLib.AngelProtocolParams calldata _angelProtocolParams
@@ -102,10 +103,10 @@ interface ILocalRegistrar {
   function setGasByToken(address _tokenAddr, uint256 _gasFee) external;
 
   function setFeeSettingsByFeesType(
-      AngelCoreStruct.FeeTypes _feeType, 
-      uint256 _rate, 
-      address _payout
+    AngelCoreStruct.FeeTypes _feeType,
+    uint256 _rate,
+    address _payout
   ) external;
-  
+
   function setVaultOperatorApproved(address _operator, bool _isApproved) external;
 }

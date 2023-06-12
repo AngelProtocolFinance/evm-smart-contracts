@@ -8,7 +8,7 @@ abstract contract IVault {
   /*////////////////////////////////////////////////
                     CUSTOM TYPES
   */ ////////////////////////////////////////////////
-  uint256 constant PRECISION = 10**24;
+  uint256 constant PRECISION = 10 ** 24;
 
   /// @notice Angel Protocol Vault Type
   /// @dev Vaults have different behavior depending on type. Specifically access to redemptions and
@@ -27,10 +27,10 @@ abstract contract IVault {
     address yieldToken;
     string apTokenName;
     string apTokenSymbol;
-    address admin; 
+    address admin;
   }
 
-  /// @notice Gerneric AP Vault action data 
+  /// @notice Gerneric AP Vault action data
   /// @param destinationChain The Axelar string name of the blockchain that will receive redemptions/refunds
   /// @param strategyId The 4 byte truncated keccak256 hash of the strategy name, i.e. bytes4(keccak256("Goldfinch"))
   /// @param selector The Vault method that should be called
@@ -39,37 +39,36 @@ abstract contract IVault {
   /// @param lockAmt The amount of said token that is intended to interact with the locked vault
   /// @param liqAmt The amount of said token that is intended to interact with the liquid vault
   struct VaultActionData {
-      string destinationChain;
-      bytes4 strategyId;
-      bytes4 selector;
-      uint32[] accountIds;
-      address token;
-      uint256 lockAmt;
-      uint256 liqAmt;
-      VaultActionStatus status;
+    string destinationChain;
+    bytes4 strategyId;
+    bytes4 selector;
+    uint32[] accountIds;
+    address token;
+    uint256 lockAmt;
+    uint256 liqAmt;
+    VaultActionStatus status;
   }
 
-  /// @notice Structure for storing account principle information necessary for yield calculations 
+  /// @notice Structure for storing account principle information necessary for yield calculations
   /// @param baseToken The qty of base tokens deposited into the vault
-  /// @param costBasis_withPrecision The cost per share for entry into the vault (baseToken / share) 
+  /// @param costBasis_withPrecision The cost per share for entry into the vault (baseToken / share)
   struct Principle {
     uint256 baseToken;
     uint256 costBasis_withPrecision;
   }
 
   enum VaultActionStatus {
-      UNPROCESSED,                // INIT state
-      SUCCESS,                    // Ack 
-      POSITION_EXITED,            // Position fully exited 
-      FAIL_TOKENS_RETURNED,       // Tokens returned to accounts contract
-      FAIL_TOKENS_FALLBACK        // Tokens failed to be returned to accounts contract
+    UNPROCESSED, // INIT state
+    SUCCESS, // Ack
+    POSITION_EXITED, // Position fully exited
+    FAIL_TOKENS_RETURNED, // Tokens returned to accounts contract
+    FAIL_TOKENS_FALLBACK // Tokens failed to be returned to accounts contract
   }
 
   struct RedemptionResponse {
-      uint256 amount; 
-      VaultActionStatus status;
+    uint256 amount;
+    VaultActionStatus status;
   }
-
 
   /*////////////////////////////////////////////////
                         EVENTS
@@ -166,6 +165,6 @@ abstract contract IVault {
   function _isApprovedRouter() internal view virtual returns (bool);
 
   /// @notice internal method for checking whether the caller is the paired locked/liquid vault
-  /// @dev can be used for more gas efficient rebalancing between the two sibling vaults  
+  /// @dev can be used for more gas efficient rebalancing between the two sibling vaults
   function _isSiblingVault() internal view virtual returns (bool);
 }
