@@ -1,7 +1,7 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import {BigNumber} from "ethers";
-import {ethers} from "hardhat";
+import hre from "hardhat";
 import {Halo, Halo__factory} from "typechain-types";
 import {getSigners} from "utils";
 
@@ -17,7 +17,7 @@ describe("Halo token", function () {
       const {proxyAdmin, apTeam3} = await getSigners(hre);
       deployer = proxyAdmin;
       user = apTeam3;
-      Halo = (await ethers.getContractFactory("Halo", proxyAdmin)) as Halo__factory;
+      Halo = (await hre.ethers.getContractFactory("Halo", proxyAdmin)) as Halo__factory;
       halo = await Halo.deploy(user.address, INITIALSUPPLY);
     });
 

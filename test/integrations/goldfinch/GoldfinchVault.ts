@@ -1,6 +1,6 @@
 import {expect} from "chai";
 import {BigNumber} from "ethers";
-import {ethers, upgrades} from "hardhat";
+import hre from "hardhat";
 import {
   DummyCRVLP,
   DummyCRVLP__factory,
@@ -16,6 +16,7 @@ import {
 import {StrategyApprovalState, getSigners} from "utils";
 
 describe("Goldfinch Vault", function () {
+  const {ethers, upgrades} = hre;
   let owner: SignerWithAddress;
   let taxCollector: SignerWithAddress;
   let user: SignerWithAddress;
