@@ -14,9 +14,9 @@ export async function updateRegistrarNetworkConnections(
     const network = await hre.ethers.provider.getNetwork();
     logger.out(`Updating Registrar network connection for chain ID:${network.chainId}...`);
 
-    const {proxyAdmin, apTeamMultisigOwners} = await getSigners(hre);
+    const {apTeamMultisigOwners} = await getSigners(hre);
 
-    const registrarContract = Registrar__factory.connect(registrar, proxyAdmin);
+    const registrarContract = Registrar__factory.connect(registrar, apTeamMultisigOwners[0]);
 
     logger.out("Fetching current Registrar's network connection data...");
     const curNetworkConnection = await registrarContract.queryNetworkConnection(network.chainId);
