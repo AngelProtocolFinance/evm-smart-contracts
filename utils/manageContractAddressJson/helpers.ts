@@ -52,7 +52,7 @@ export function saveFrontendFiles(addresses: Record<string, AddressObj>, filePat
 
   Object.assign(data, addresses);
 
-  fs.writeFileSync(filePath, JSON.stringify(data, undefined, 2));
+  fs.writeFileSync(filePath, `${JSON.stringify(data, undefined, 2)}\n`);
 }
 
 function checkExistence(filePath: string) {
