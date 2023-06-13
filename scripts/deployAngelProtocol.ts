@@ -242,6 +242,7 @@ export async function deployAngelProtocol(
   // config.REGISTRAR_DATA.acceptedTokens.cw20.push(haloToken.address)
 
   const addresses = await getAddresses(hre);
+
   await updateRegistrarConfig(
     registrar.proxy.address,
     apTeamMultisig.proxy.address,

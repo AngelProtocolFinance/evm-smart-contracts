@@ -3,12 +3,12 @@ import {deployCommonLibraries} from "scripts";
 import {FACET_NAMES_USING_ANGEL_CORE_STRUCT} from "tasks/upgrade/upgradeFacets/constants";
 import {confirmAction, isLocalNetwork, logger} from "utils";
 
-type TaskArgs = {upgradeContracts?: boolean; verify: boolean};
+type TaskArgs = {updateContracts?: boolean; verify: boolean};
 
 task("deploy:Libraries", "Will deploy Libraries")
   .addOptionalParam(
-    "upgradeContracts",
-    "Flag indicating whether to upgrade all contracts that use these libraries",
+    "updateContracts",
+    "Flag indicating whether to upgrade all contracts affected by this deployment",
     undefined, // if no value is set, will ask the caller to confirm the action
     types.boolean
   )
@@ -24,11 +24,11 @@ task("deploy:Libraries", "Will deploy Libraries")
       await deployCommonLibraries(verify_contracts, hre);
 
       // update contracts that use these libraries if confirmation is provided
-      if (taskArgs.upgradeContracts === false) {
+      if (taskArgs.updateContracts === false) {
         return;
       }
       if (
-        taskArgs.upgradeContracts ||
+        taskArgs.updateContracts ||
         (await confirmAction("Updating contracts that use these libraries."))
       ) {
         await hre.run("upgrade:facets", {
