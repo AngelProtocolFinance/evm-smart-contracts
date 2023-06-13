@@ -3,6 +3,8 @@ pragma solidity ^0.8.16;
 
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {LibAccounts} from  "../../core/accounts/lib/LibAccounts.sol";
+import {AccountStorage} from "../../core/accounts/storage.sol";
+import {AngelCoreStruct} from "../../core/struct.sol";
 
 /**
  * @dev This contract implements a proxy that is upgradeable by an admin.
@@ -26,7 +28,7 @@ import {LibAccounts} from  "../../core/accounts/lib/LibAccounts.sol";
  * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.
  */
 
-contract ProxyContract is TransparentUpgradeableProxy {
+contract TestFacetProxyContract is TransparentUpgradeableProxy {
   constructor(
     address implementation,
     address admin,
@@ -47,8 +49,113 @@ contract ProxyContract is TransparentUpgradeableProxy {
     }
   }
 
-  function setEndowmentState(uint32 accountId, EndowmentState memory _endowmentState) external {
+  function getDaoTokenBalance(uint32 accountId) external returns (uint256) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    state.STATES[accountId] = _endowmentState;
+    return state.DAOTOKENBALANCE[accountId];
+  }
+
+  function setDaoTokenBalance(uint32 accountId, uint256 _tokenBal) external {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    state.DAOTOKENBALANCE[accountId] = _tokenBal;
+  }
+  // This doesn't work since it contains a nested mapping, to set endowment state, we need some field specific methods
+  // function setEndowmentState(uint32 accountId, AccountStorage.EndowmentState memory _endowmentState) external {
+  //   AccountStorage.State storage state = LibAccounts.diamondStorage();
+  //   state.STATES[accountId] = _endowmentState;
+  // }
+
+  function setEndowmentTokenBalance(uint32 accountId, address _token, uint256 _lockBal, uint256 _liqBal) external {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    state.STATES[accountId].balances.locked[_token] = _lockBal;
+    state.STATES[accountId].balances.liquid[_token] = _liqBal;
+  }
+
+  function getEndowmentTokenBalance(uint32 accountId, address _token) external returns (uint256, uint256) {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    return (
+      state.STATES[accountId].balances.locked[_token], 
+      state.STATES[accountId].balances.liquid[_token]
+    );
+  }
+
+  function setClosingEndowmentState(
+    uint32 accountId, 
+    bool _closing, 
+    AngelCoreStruct.Beneficiary memory _closingBeneficiary
+  ) external {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    state.STATES[accountId].closingEndowment = _closing;
+    state.STATES[accountId].closingBeneficiary = _closingBeneficiary;
+  }
+
+  function getClosingEndowmentState(
+    uint32 accountId
+    ) external 
+    returns (bool, AngelCoreStruct.Beneficiary memory) {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    return (
+      state.STATES[accountId].closingEndowment,
+      state.STATES[accountId].closingBeneficiary
+    );
+  }
+
+  function setActiveStrategyEndowmentState(uint32 accountId, bytes4 _strategy, bool _accepted) external {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    state.STATES[accountId].activeStrategies[_strategy] = _accepted;
+  }
+
+  function getActiveStrategyEndowmentState(uint32 accountId, bytes4 _strategy) external returns (bool) {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    return state.STATES[accountId].activeStrategies[_strategy];
+  }
+
+  function setEndowmentDetails(uint32 accountId, AccountStorage.Endowment memory _endowment) external {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    state.ENDOWMENTS[accountId] = _endowment;
+  }
+
+  function getEndowmentDetails(uint32 accountId) external returns (AccountStorage.Endowment memory) {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    return state.ENDOWMENTS[accountId];
+  }
+
+  function setTokenAllowance(uint32 accountId, address _spender, address _token, uint256 _allowance) external {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    state.ALLOWANCES[accountId][_spender][_token] = _allowance;
+  }
+
+  function getTokenAllowance(uint32 accountId, address _spender, address _token) external returns (uint256) {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    return state.ALLOWANCES[accountId][_spender][_token];
+  }
+
+  function setTokenAccepted(uint32 accountId, address _token, bool _accepted) external {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    state.AcceptedTokens[accountId][_token] = _accepted;
+  }
+  
+  function getTokenAccepted(uint32 accountId, address _token) external returns (bool) {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    return state.AcceptedTokens[accountId][_token];
+  }
+
+  function setPriceFeed(uint32 accountId, address _token, address _feed) external {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    state.PriceFeeds[accountId][_token] = _feed;
+  }
+
+  function getPriceFeed(uint32 accountId, address _token) external returns (address) {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    return state.PriceFeeds[accountId][_token];
+  }
+
+  function setConfig(AccountStorage.Config memory _config) external {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    state.config = _config;
+  }
+
+  function getConfig() external returns (AccountStorage.Config memory) {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    return state.config;
   }
 }
