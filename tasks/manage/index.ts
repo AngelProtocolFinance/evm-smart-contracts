@@ -4,5 +4,6 @@ import "./changeOwner";
 import "./createEndowment";
 import "./createIndexFund";
 import "./registrar";
+import "./updateCharityApplicationConfig";
 import "./updateRegistrar";
 import "./verifyRegistrar";
