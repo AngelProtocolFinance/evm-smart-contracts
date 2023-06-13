@@ -4,17 +4,17 @@ pragma solidity ^0.8.16;
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
-import {IAccountDeployContract} from "./../interfaces/IAccountDeployContract.sol";
+import {IAccountsDeployContract} from "./../interfaces/IAccountsDeployContract.sol";
 import {subDaoMessage} from "./../../../normalized_endowment/subdao/subdao.sol";
 import {ISubDao} from "./../../../normalized_endowment/subdao/Isubdao.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
 
 /**
- * @title AccountsDAOEndowments
+ * @title AccountsDaoEndowments
  * @dev This contract facet manages the creation contracts required for DAO Functioning
  */
-contract AccountsDAOEndowments is ReentrancyGuardFacet, AccountsEvents {
+contract AccountsDaoEndowments is ReentrancyGuardFacet, AccountsEvents {
   /**
    * @notice This function creates a DAO for an endowment
    * @dev creates a DAO for an endowment based on parameters
@@ -46,7 +46,7 @@ contract AccountsDAOEndowments is ReentrancyGuardFacet, AccountsEvents {
       registrarContract: state.config.registrarContract
     });
 
-    address daoAddress = IAccountDeployContract(address(this)).createDaoContract(createDaoMessage);
+    address daoAddress = IAccountsDeployContract(address(this)).createDaoContract(createDaoMessage);
 
     tempEndowment.dao = daoAddress;
 

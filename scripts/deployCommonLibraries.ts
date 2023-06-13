@@ -1,36 +1,36 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {AngelCoreStruct__factory, StringArray__factory} from "typechain-types";
-import {getSigners, isLocalNetwork, updateAddresses} from "utils";
+import {getSigners, logger, updateAddresses} from "utils";
 
-export async function deployLibraries(hre: HardhatRuntimeEnvironment) {
-  const {proxyAdmin} = await getSigners(hre.ethers);
+export async function deployCommonLibraries(
+  verify_contracts: boolean,
+  hre: HardhatRuntimeEnvironment
+) {
+  const {proxyAdmin} = await getSigners(hre);
 
+  logger.out("Deploying AngelCoreStruct library...");
   const angelCoreStructFactory = new AngelCoreStruct__factory(proxyAdmin);
   const angelCoreStruct = await angelCoreStructFactory.deploy();
   await angelCoreStruct.deployed();
+  logger.out(`Address: ${angelCoreStruct.address}`);
 
+  logger.out("Deploying StringArray library...");
   const stringLibFactory = new StringArray__factory(proxyAdmin);
   const stringLib = await stringLibFactory.deploy();
   await stringLib.deployed();
-
-  console.log("Libraries Deployed as", {
-    "STRING_LIBRARY Deployed at ": stringLib.address,
-    "ANGEL_CORE_STRUCT_LIBRARY Deployed at ": angelCoreStruct.address,
-  });
-
-  // TODO: should also update all contracts that depend on the updated libraries
+  logger.out(`Address: ${angelCoreStruct.address}`);
 
   await updateAddresses(
     {
       libraries: {
-        STRING_LIBRARY: stringLib.address,
-        ANGEL_CORE_STRUCT_LIBRARY: angelCoreStruct.address,
+        stringArray: stringLib.address,
+        angelCoreStruct: angelCoreStruct.address,
       },
     },
     hre
   );
 
-  if (!isLocalNetwork(hre.network)) {
+  if (verify_contracts) {
     await hre.run(`verify:verify`, {
       address: angelCoreStruct.address,
       constructorArguments: [],

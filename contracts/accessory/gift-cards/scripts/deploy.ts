@@ -5,18 +5,14 @@ import {GiftCardsMessage} from "typechain-types/contracts/accessory/gift-cards/G
 
 export async function deployGiftCard(
   GiftCardsDataInput: GiftCardsMessage.InstantiateMsgStruct,
-  ANGEL_CORE_STRUCT: string,
+  AngelCoreStruct: string,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
   try {
     const {ethers, run, network} = hre;
-    const {proxyAdmin} = await getSigners(ethers);
-    const GiftCards = await ethers.getContractFactory("GiftCards", {
-      libraries: {
-        AngelCoreStruct: ANGEL_CORE_STRUCT,
-      },
-    });
+    const {proxyAdmin} = await getSigners(hre);
+    const GiftCards = await ethers.getContractFactory("GiftCards", {libraries: {AngelCoreStruct}});
     const GiftCardsInstance = await GiftCards.deploy();
     await GiftCardsInstance.deployed();
     console.log("GiftCards implementation address:", GiftCardsInstance.address);

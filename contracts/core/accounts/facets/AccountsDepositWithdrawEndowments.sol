@@ -4,25 +4,26 @@ pragma solidity ^0.8.16;
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
-import {RegistrarStorage} from "../../registrar/storage.sol";
+import {AccountsEvents} from "./AccountsEvents.sol";
+import {AccountStorage} from "../storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
+import {RegistrarStorage} from "../../registrar/storage.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {IDonationMatching} from "./../../../normalized_endowment/donation-match/IDonationMatching.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
-import {ISwappingV3} from "./../../swap-router/interfaces/ISwappingV3.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
 import {IAccountsDepositWithdrawEndowments} from "../interfaces/IAccountsDepositWithdrawEndowments.sol";
 import {Utils} from "../../../lib/utils.sol";
 
 /**
- * @title AccountDepositWithdrawEndowments
+ * @title AccountsDepositWithdrawEndowments
  * @notice This facet manages the deposits and withdrawals for accounts
  * @dev This facet manages the deposits and withdrawals for accounts
  */
 
-contract AccountDepositWithdrawEndowments is
+contract AccountsDepositWithdrawEndowments is
   ReentrancyGuardFacet,
   AccountsEvents,
   IAccountsDepositWithdrawEndowments
@@ -171,9 +172,8 @@ contract AccountDepositWithdrawEndowments is
       }
     }
 
-    AngelCoreStruct.addToken(state.STATES[details.id].balances.locked, tokenAddress, lockedAmount);
-    AngelCoreStruct.addToken(state.STATES[details.id].balances.liquid, tokenAddress, liquidAmount);
-    // emit UpdateEndowmentState(details.id, state.STATES[details.id]);
+    state.STATES[details.id].balances.locked[tokenAddress] += lockedAmount;
+    state.STATES[details.id].balances.liquid[tokenAddress] += liquidAmount;
 
     state.ENDOWMENTS[details.id] = tempEndowment;
     emit UpdateEndowment(details.id, tempEndowment);
@@ -291,9 +291,9 @@ contract AccountDepositWithdrawEndowments is
 
       uint256 current_bal;
       if (acctType == AngelCoreStruct.AccountType.Locked) {
-        current_bal = state.STATES[id].balances.locked.balancesByToken[tokens[tii].addr];
+        current_bal = state.STATES[id].balances.locked[tokens[tii].addr];
       } else {
-        current_bal = state.STATES[id].balances.liquid.balancesByToken[tokens[tii].addr];
+        current_bal = state.STATES[id].balances.liquid[tokens[tii].addr];
       }
 
       // ensure balance of tokens can cover the requested withdraw amount
@@ -359,9 +359,9 @@ contract AccountDepositWithdrawEndowments is
 
       // reduce the orgs balance by the withdrawn token amount
       if (acctType == AngelCoreStruct.AccountType.Locked) {
-        state.STATES[id].balances.locked.balancesByToken[tokens[tii].addr] -= tokens[tii].amnt;
+        state.STATES[id].balances.locked[tokens[tii].addr] -= tokens[tii].amnt;
       } else {
-        state.STATES[id].balances.liquid.balancesByToken[tokens[tii].addr] -= tokens[tii].amnt;
+        state.STATES[id].balances.liquid[tokens[tii].addr] -= tokens[tii].amnt;
       }
     }
   }

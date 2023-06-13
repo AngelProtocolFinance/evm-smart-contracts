@@ -3,7 +3,7 @@ import {ethers} from "ethers";
 
 dotenv.config({path: __dirname + "/./../.env"});
 
-const EXPORT_CONFIG = {
+const config = {
   AP_TEAM_MULTISIG_DATA: {
     threshold: 1,
     requireExecution: false,
@@ -60,8 +60,7 @@ const EXPORT_CONFIG = {
     DAI_address: "",
   },
   SWAP_ROUTER_DATA: {
-    SWAP_FACTORY_ADDRESS: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
-    SWAP_ROUTER_ADDRESS: "0x0c00F32a3603ba39f6D1eACD21a0D60d2c58675c",
+    UNISWAP_ROUTER_ADDRESS: "0x0c00F32a3603ba39f6D1eACD21a0D60d2c58675c",
   },
   INDEX_FUND_DATA: {
     fundRotation: 1000,
@@ -88,4 +87,4 @@ const EXPORT_CONFIG = {
   },
 };
 
-export default EXPORT_CONFIG;
+export default config;

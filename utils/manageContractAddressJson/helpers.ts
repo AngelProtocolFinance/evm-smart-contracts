@@ -70,14 +70,14 @@ export function createEmpty(): AddressObj {
     accounts: {
       diamond: "",
       facets: {
-        accountDeployContract: "",
-        accountDepositWithdrawEndowments: "",
-        accountDonationMatch: "",
+        accountsDeployContract: "",
+        accountsDepositWithdrawEndowments: "",
+        accountsDonationMatch: "",
         accountsAllowance: "",
         accountsCreateEndowment: "",
-        accountsDAOEndowments: "",
+        AccountsDaoEndowments: "",
         accountsQueryEndowments: "",
-        accountsSwapEndowments: "",
+        accountsSwapRouter: "",
         accountsUpdate: "",
         accountsUpdateEndowments: "",
         accountsUpdateEndowmentSettingsController: "",
@@ -169,8 +169,9 @@ export function createEmpty(): AddressObj {
       proxy: "",
     },
     libraries: {
-      ANGEL_CORE_STRUCT_LIBRARY: "",
-      STRING_LIBRARY: "",
+      angelCoreStruct: "",
+      charityApplicationLib: "",
+      stringArray: "",
     },
     multiSig: {
       applications: {

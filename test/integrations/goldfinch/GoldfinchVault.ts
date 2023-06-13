@@ -1,6 +1,6 @@
 import {expect} from "chai";
 import {BigNumber} from "ethers";
-import {ethers, upgrades} from "hardhat";
+import hre from "hardhat";
 import {
   DummyCRVLP,
   DummyCRVLP__factory,
@@ -16,6 +16,7 @@ import {
 import {StrategyApprovalState, getSigners} from "utils";
 
 describe("Goldfinch Vault", function () {
+  const {ethers, upgrades} = hre;
   let owner: SignerWithAddress;
   let taxCollector: SignerWithAddress;
   let user: SignerWithAddress;
@@ -61,7 +62,7 @@ describe("Goldfinch Vault", function () {
   };
 
   async function deployAndConfigureRegistrarAsProxy(): Promise<LocalRegistrar> {
-    const {proxyAdmin, apTeam2, apTeam3} = await getSigners(ethers);
+    const {proxyAdmin, apTeam2, apTeam3} = await getSigners(hre);
     owner = proxyAdmin;
     taxCollector = apTeam2;
     user = apTeam3;

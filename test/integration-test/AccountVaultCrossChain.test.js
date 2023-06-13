@@ -262,7 +262,7 @@ describe("Account Update", function () {
     await MockERC20.connect(deployer).transfer(donor.address, ethers.utils.parseUnits("10000", 6));
 
     const accountDeposit = await ethers.getContractAt(
-      "AccountDepositWithdrawEndowments",
+      "AccountsDepositWithdrawEndowments",
       deployRes.addresses.account
     );
 
@@ -314,7 +314,7 @@ describe("Account Update", function () {
     // Deposit to accounts
 
     const accountDeposit = await ethers.getContractAt(
-      "AccountDepositWithdrawEndowments",
+      "AccountsDepositWithdrawEndowments",
       deployRes.addresses.account
     );
 
