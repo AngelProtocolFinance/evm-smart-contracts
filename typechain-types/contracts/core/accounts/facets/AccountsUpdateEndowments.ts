@@ -502,7 +502,7 @@ export declare namespace AccountMessages {
 
 export interface AccountsUpdateEndowmentsInterface extends utils.Interface {
   functions: {
-    "updateAcceptedToken(uint32,address,bool)": FunctionFragment;
+    "updateAcceptedToken(uint32,address,address,bool)": FunctionFragment;
     "updateDelegate(uint32,uint8,uint8,address,uint256)": FunctionFragment;
     "updateEndowmentDetails((uint32,address,string,(uint256[],uint256[]),string,string,(bool,uint32,uint32,bool,uint32,uint32)))": FunctionFragment;
   };
@@ -518,6 +518,7 @@ export interface AccountsUpdateEndowmentsInterface extends utils.Interface {
     functionFragment: "updateAcceptedToken",
     values: [
       PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<boolean>
     ]
@@ -742,6 +743,7 @@ export interface AccountsUpdateEndowments extends BaseContract {
     updateAcceptedToken(
       endowId: PromiseOrValue<BigNumberish>,
       tokenAddr: PromiseOrValue<string>,
+      priceFeedAddr: PromiseOrValue<string>,
       tokenStatus: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -764,6 +766,7 @@ export interface AccountsUpdateEndowments extends BaseContract {
   updateAcceptedToken(
     endowId: PromiseOrValue<BigNumberish>,
     tokenAddr: PromiseOrValue<string>,
+    priceFeedAddr: PromiseOrValue<string>,
     tokenStatus: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -786,6 +789,7 @@ export interface AccountsUpdateEndowments extends BaseContract {
     updateAcceptedToken(
       endowId: PromiseOrValue<BigNumberish>,
       tokenAddr: PromiseOrValue<string>,
+      priceFeedAddr: PromiseOrValue<string>,
       tokenStatus: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -911,6 +915,7 @@ export interface AccountsUpdateEndowments extends BaseContract {
     updateAcceptedToken(
       endowId: PromiseOrValue<BigNumberish>,
       tokenAddr: PromiseOrValue<string>,
+      priceFeedAddr: PromiseOrValue<string>,
       tokenStatus: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -934,6 +939,7 @@ export interface AccountsUpdateEndowments extends BaseContract {
     updateAcceptedToken(
       endowId: PromiseOrValue<BigNumberish>,
       tokenAddr: PromiseOrValue<string>,
+      priceFeedAddr: PromiseOrValue<string>,
       tokenStatus: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

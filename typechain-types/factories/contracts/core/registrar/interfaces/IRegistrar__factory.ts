@@ -619,7 +619,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "swapsRouter",
+            name: "uniswapSwapRouter",
             type: "address",
           },
           {
@@ -727,6 +727,25 @@ const _abi = [
         internalType: "struct AngelCoreStruct.NetworkInfo",
         name: "response",
         type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+    ],
+    name: "queryTokenPriceFeed",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
       },
     ],
     stateMutability: "view",
@@ -944,19 +963,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "testQuery",
-    outputs: [
-      {
-        internalType: "string[]",
-        name: "",
-        type: "string[]",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         components: [
@@ -1042,7 +1048,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "swapsRouter",
+            name: "uniswapSwapRouter",
             type: "address",
           },
           {
@@ -1200,6 +1206,24 @@ const _abi = [
       },
     ],
     name: "updateOwner",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "priceFeed",
+        type: "address",
+      },
+    ],
+    name: "updateTokenPriceFeed",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

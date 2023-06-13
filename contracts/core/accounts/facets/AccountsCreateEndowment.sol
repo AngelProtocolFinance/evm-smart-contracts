@@ -10,7 +10,7 @@ import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {subDaoMessage} from "./../../../normalized_endowment/subdao/subdao.sol";
 import {ISubDao} from "./../../../normalized_endowment/subdao/Isubdao.sol";
-import {IAccountDeployContract} from "./../interfaces/IAccountDeployContract.sol";
+import {IAccountsDeployContract} from "./../interfaces/IAccountsDeployContract.sol";
 import {IEndowmentMultiSigFactory} from "./../../../normalized_endowment/endowment-multisig/interfaces/IEndowmentMultiSigFactory.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
@@ -151,7 +151,7 @@ contract AccountsCreateEndowment is IAccountsCreateEndowment, ReentrancyGuardFac
         registrarContract: registrarAddress
       });
 
-      address daoAddress = IAccountDeployContract(address(this)).createDaoContract(
+      address daoAddress = IAccountsDeployContract(address(this)).createDaoContract(
         createDaoMessage
       );
       state.ENDOWMENTS[state.config.nextAccountId].dao = daoAddress;

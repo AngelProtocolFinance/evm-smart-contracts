@@ -74,14 +74,8 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
 
     address tokenAddress = IAxelarGateway(network.axelarGateway).tokenAddresses(token);
 
-    require(
-      state.STATES[id].balances.locked.balancesByToken[tokenAddress] >= lockAmt,
-      "Insufficient Balance"
-    );
-    require(
-      state.STATES[id].balances.liquid.balancesByToken[tokenAddress] >= liquidAmt,
-      "Insufficient Balance"
-    );
+    require(state.STATES[id].balances.locked[tokenAddress] >= lockAmt, "Insufficient Balance");
+    require(state.STATES[id].balances.liquid[tokenAddress] >= liquidAmt, "Insufficient Balance");
 
     require(
       IRegistrar(state.config.registrarContract).isTokenAccepted(tokenAddress),
@@ -115,8 +109,8 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
       response.status == IVault.VaultActionStatus.SUCCESS ||
       response.status == IVault.VaultActionStatus.FAIL_TOKENS_FALLBACK
     ) {
-      state.STATES[id].balances.locked.balancesByToken[tokenAddress] -= response.lockAmt;
-      state.STATES[id].balances.liquid.balancesByToken[tokenAddress] -= response.liqAmt;
+      state.STATES[id].balances.locked[tokenAddress] -= response.lockAmt;
+      state.STATES[id].balances.liquid[tokenAddress] -= response.liqAmt;
       state.STATES[id].activeStrategies[strategy] == true;
       // emit UpdateEndowmentState(id, state.STATES[id]);
     }
@@ -198,8 +192,8 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
       packedPayload
     );
     if (response.status == IVault.VaultActionStatus.SUCCESS) {
-      state.STATES[id].balances.locked.balancesByToken[tokenAddress] += response.lockAmt;
-      state.STATES[id].balances.liquid.balancesByToken[tokenAddress] += response.liqAmt;
+      state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
+      state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
       // emit UpdateEndowmentState(id, state.STATES[id]);
     }
     if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
@@ -253,8 +247,8 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
     );
 
     if (response.status == IVault.VaultActionStatus.SUCCESS) {
-      state.STATES[id].balances.locked.balancesByToken[tokenAddress] += response.lockAmt;
-      state.STATES[id].balances.liquid.balancesByToken[tokenAddress] += response.liqAmt;
+      state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
+      state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
       // emit UpdateEndowmentState(id, state.STATES[id]);
     }
     if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {

@@ -1,5 +1,5 @@
 import {expect} from "chai";
-import {ethers, upgrades} from "hardhat";
+import hre from "hardhat";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {
   DummyERC20,
@@ -27,6 +27,7 @@ import {
 import {LocalRegistrarLib} from "../typechain-types/contracts/core/registrar/LocalRegistrar";
 
 describe("Router", function () {
+  const {ethers, upgrades} = hre;
   let owner: SignerWithAddress;
   let user: SignerWithAddress;
   let collector: SignerWithAddress;
@@ -50,7 +51,10 @@ describe("Router", function () {
     gasRecvAddress: string = "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
     registrar?: LocalRegistrar
   ): Promise<Router> {
-    [owner, user, collector] = await ethers.getSigners();
+    const {proxyAdmin, apTeam2, apTeam3} = await getSigners(hre);
+    owner = proxyAdmin;
+    user = apTeam2;
+    collector = apTeam3;
     let apParams = defaultApParams;
     apParams.refundAddr = collector.address;
     if (!registrar) {

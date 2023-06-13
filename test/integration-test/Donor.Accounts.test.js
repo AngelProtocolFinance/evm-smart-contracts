@@ -61,7 +61,7 @@ describe("Donor donating from Accounts", function () {
     // Deposit to accounts
 
     const accountDeposit = await ethers.getContractAt(
-      "AccountDepositWithdrawEndowments",
+      "AccountsDepositWithdrawEndowments",
       deployRes.addresses.account
     );
 
@@ -124,7 +124,7 @@ describe("Donor donating from Accounts", function () {
     // console.log('Fetched USDC address', registrarConfig.usdcAddress);
 
     const accountDeposit = await ethers.getContractAt(
-      "AccountDepositWithdrawEndowments",
+      "AccountsDepositWithdrawEndowments",
       deployRes.addresses.account
     );
 
@@ -181,7 +181,7 @@ describe("Donor donating from Accounts", function () {
     // console.log('Fetched USDC address', registrarConfig.usdcAddress);
 
     const accountDeposit = await ethers.getContractAt(
-      "AccountDepositWithdrawEndowments",
+      "AccountsDepositWithdrawEndowments",
       deployRes.addresses.account
     );
 

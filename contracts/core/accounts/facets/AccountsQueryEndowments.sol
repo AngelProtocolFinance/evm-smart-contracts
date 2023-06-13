@@ -30,9 +30,9 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments {
     require(address(0) != tokenAddress, "Invalid token address");
 
     if (accountType == AngelCoreStruct.AccountType.Locked) {
-      tokenAmount = state.STATES[id].balances.locked.balancesByToken[tokenAddress];
+      tokenAmount = state.STATES[id].balances.locked[tokenAddress];
     } else {
-      tokenAmount = state.STATES[id].balances.liquid.balancesByToken[tokenAddress];
+      tokenAmount = state.STATES[id].balances.liquid[tokenAddress];
     }
   }
 

@@ -115,13 +115,10 @@ contract AccountsAllowance is ReentrancyGuardFacet, AccountsEvents {
       state.ALLOWANCES[endowId][msg.sender][token] > amount,
       "Amount reqested exceeds allowance balance"
     );
-    require(
-      amount < state.STATES[endowId].balances.liquid.balancesByToken[token],
-      "InsufficientFunds"
-    );
+    require(state.STATES[endowId].balances.liquid[token] >= amount, "InsufficientFunds");
 
     state.ALLOWANCES[endowId][msg.sender][token] -= amount;
-    state.STATES[endowId].balances.liquid.balancesByToken[token] -= amount;
+    state.STATES[endowId].balances.liquid[token] -= amount;
 
     require(IERC20(token).transfer(recipient, amount), "Transfer failed");
   }

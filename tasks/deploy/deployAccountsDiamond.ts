@@ -1,18 +1,46 @@
-import {task} from "hardhat/config";
+import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
+import {task, types} from "hardhat/config";
 import {getAddresses, isLocalNetwork, logger} from "utils";
 
-import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
+type TaskArgs = {
+  angelCoreStruct?: string;
+  apTeamMultisig?: string;
+  registrar?: string;
+  verify: boolean;
+};
 
 task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
-  .addParam("verify", "Want to verify contract")
-  .setAction(async (taskArgs: {verify: string}, hre) => {
+  .addOptionalParam(
+    "angelCoreStruct",
+    "AngelCoreStruct library address. Will do a local lookup from contract-address.json if none is provided."
+  )
+  .addOptionalParam(
+    "apTeamMultisig",
+    "APTeamMultiSig contract address. Will do a local lookup from contract-address.json if none is provided."
+  )
+  .addOptionalParam(
+    "registrar",
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
+  )
+  .addOptionalParam(
+    "verify",
+    "Flag indicating whether the contract should be verified",
+    false,
+    types.boolean
+  )
+  .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const addresses = await getAddresses(hre);
-      const verify_contracts = !isLocalNetwork(hre.network) && taskArgs.verify === "true";
+
+      const angelCoreStruct = taskArgs.angelCoreStruct || addresses.libraries.angelCoreStruct;
+      const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
+      const registrar = taskArgs.registrar || addresses.registrar.proxy;
+      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
+
       await deployAccountsDiamond(
-        addresses.multiSig.apTeam.proxy,
-        addresses.registrar.proxy,
-        addresses.libraries.ANGEL_CORE_STRUCT_LIBRARY,
+        apTeamMultiSig,
+        registrar,
+        angelCoreStruct,
         verify_contracts,
         hre
       );

@@ -60,6 +60,7 @@ contract EndowmentMultiSigEmitter {
    * @param emitter the emitter of the multisig
    * @param owners the owners of the multisig
    * @param required the required number of signatures
+   * @param requireExecution the require execution flag
    */
   function createMultisig(
     address multisigAddress,

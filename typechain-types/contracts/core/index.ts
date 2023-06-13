@@ -17,7 +17,5 @@ import type * as strategy from "./strategy";
 export type { strategy };
 import type * as structSol from "./struct.sol";
 export type { structSol };
-import type * as swapRouter from "./swap-router";
-export type { swapRouter };
 import type * as vault from "./vault";
 export type { vault };

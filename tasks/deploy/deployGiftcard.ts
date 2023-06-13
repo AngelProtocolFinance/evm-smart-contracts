@@ -1,26 +1,47 @@
-import {task} from "hardhat/config";
-import {logger} from "utils";
+import {deployGiftCard} from "contracts/accessory/gift-cards/scripts/deploy";
+import {task, types} from "hardhat/config";
+import {getAddresses, isLocalNetwork, logger} from "utils";
 
-import {giftCard} from "contracts/accessory/gift-cards/scripts/deploy";
+type TaskArgs = {
+  angelCoreStruct?: string;
+  keeper: string;
+  registrar?: string;
+  verify: boolean;
+};
 
 task("deploy:GiftCard", "Will deploy GiftCardContracts contract")
-  .addParam("verify", "Want to verify contract")
-  .addParam("keeper", "keeper address for giftCard contract")
-  .addParam("registraraddress", "Address of the registrar contract")
-  .addParam("corelibrary", "Angel core library address")
-  .setAction(async (taskArgs, hre) => {
+  .addOptionalParam(
+    "angelCoreStruct",
+    "AngelCoreStruct library address. Will do a local lookup from contract-address.json if none is provided."
+  )
+  .addParam("keeper", "Keeper address for GiftCard contract.")
+  .addOptionalParam(
+    "registrar",
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
+  )
+  .addOptionalParam(
+    "verify",
+    "Flag indicating whether the contract should be verified",
+    false,
+    types.boolean
+  )
+  .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      let GiftCardDataInput = {
+      const addresses = await getAddresses(hre);
+
+      const angelCoreStruct = taskArgs.angelCoreStruct || addresses.libraries.angelCoreStruct;
+      const registrar = taskArgs.registrar || addresses.registrar.proxy;
+      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
+
+      const GiftCardDataInput = {
         keeper: taskArgs.keeper,
-        registrarContract: taskArgs.registraraddress,
+        registrarContract: registrar,
       };
 
-      logger.out(taskArgs.corelibrary);
-
-      var isTrueSet = taskArgs.verify === "true";
-
-      await giftCard(GiftCardDataInput, taskArgs.corelibrary, isTrueSet, hre);
+      await deployGiftCard(GiftCardDataInput, angelCoreStruct, verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
+    } finally {
+      logger.out("Done.");
     }
   });

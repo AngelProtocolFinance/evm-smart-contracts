@@ -1,5 +1,5 @@
-import {Network} from "hardhat/types";
+import {HardhatRuntimeEnvironment, Network} from "hardhat/types";
 
-export function isLocalNetwork(network: Network) {
-  return network.name === "hardhat" || network.name === "localhost";
+export function isLocalNetwork(hre: HardhatRuntimeEnvironment) {
+  return hre.network.name === "hardhat" || hre.network.name === "localhost";
 }

@@ -9,7 +9,7 @@ export async function deployApplicationsMultiSig(
 ) {
   logger.out("Deploying ApplicationsMultiSig...");
 
-  const {applicationsMultisigOwners, proxyAdmin} = await getSigners(hre.ethers);
+  const {applicationsMultisigOwners, proxyAdmin} = await getSigners(hre);
 
   const applicationsMultiSigFactory = new ApplicationsMultiSig__factory(proxyAdmin);
   const applicationsMultiSig = await applicationsMultiSigFactory.deploy();

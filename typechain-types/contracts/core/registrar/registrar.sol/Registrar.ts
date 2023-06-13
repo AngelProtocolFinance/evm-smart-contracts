@@ -167,7 +167,7 @@ export declare namespace RegistrarStorage {
     collectorShare: PromiseOrValue<BigNumberish>;
     charitySharesContract: PromiseOrValue<string>;
     fundraisingContract: PromiseOrValue<string>;
-    swapsRouter: PromiseOrValue<string>;
+    uniswapSwapRouter: PromiseOrValue<string>;
     multisigFactory: PromiseOrValue<string>;
     multisigEmitter: PromiseOrValue<string>;
     charityProposal: PromiseOrValue<string>;
@@ -229,7 +229,7 @@ export declare namespace RegistrarStorage {
     collectorShare: BigNumber;
     charitySharesContract: string;
     fundraisingContract: string;
-    swapsRouter: string;
+    uniswapSwapRouter: string;
     multisigFactory: string;
     multisigEmitter: string;
     charityProposal: string;
@@ -299,7 +299,7 @@ export declare namespace RegistrarMessages {
     charitySharesContract: PromiseOrValue<string>;
     fundraisingContract: PromiseOrValue<string>;
     applicationsReview: PromiseOrValue<string>;
-    swapsRouter: PromiseOrValue<string>;
+    uniswapSwapRouter: PromiseOrValue<string>;
     multisigFactory: PromiseOrValue<string>;
     multisigEmitter: PromiseOrValue<string>;
     charityProposal: PromiseOrValue<string>;
@@ -367,7 +367,7 @@ export declare namespace RegistrarMessages {
     charitySharesContract: string;
     fundraisingContract: string;
     applicationsReview: string;
-    swapsRouter: string;
+    uniswapSwapRouter: string;
     multisigFactory: string;
     multisigEmitter: string;
     charityProposal: string;
@@ -404,6 +404,7 @@ export interface RegistrarInterface extends utils.Interface {
     "queryAllStrategies()": FunctionFragment;
     "queryConfig()": FunctionFragment;
     "queryNetworkConnection(uint256)": FunctionFragment;
+    "queryTokenPriceFeed(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "setAPGoldfinchParams(((uint256)))": FunctionFragment;
     "setAccountsContractAddressByChain(string,string)": FunctionFragment;
@@ -418,6 +419,7 @@ export interface RegistrarInterface extends utils.Interface {
     "transferOwnership(address)": FunctionFragment;
     "updateConfig((address,string[],uint256,uint256,uint256,uint256,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address))": FunctionFragment;
     "updateNetworkConnections((string,uint256,address,address,string,string,address,uint256),string)": FunctionFragment;
+    "updateTokenPriceFeed(address,address)": FunctionFragment;
   };
 
   getFunction(
@@ -438,6 +440,7 @@ export interface RegistrarInterface extends utils.Interface {
       | "queryAllStrategies"
       | "queryConfig"
       | "queryNetworkConnection"
+      | "queryTokenPriceFeed"
       | "renounceOwnership"
       | "setAPGoldfinchParams"
       | "setAccountsContractAddressByChain"
@@ -452,6 +455,7 @@ export interface RegistrarInterface extends utils.Interface {
       | "transferOwnership"
       | "updateConfig"
       | "updateNetworkConnections"
+      | "updateTokenPriceFeed"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -514,6 +518,10 @@ export interface RegistrarInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "queryNetworkConnection",
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "queryTokenPriceFeed",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
@@ -580,6 +588,10 @@ export interface RegistrarInterface extends utils.Interface {
     functionFragment: "updateNetworkConnections",
     values: [AngelCoreStruct.NetworkInfoStruct, PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "updateTokenPriceFeed",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "getAPGoldfinchParams",
@@ -643,6 +655,10 @@ export interface RegistrarInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "queryTokenPriceFeed",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
@@ -696,6 +712,10 @@ export interface RegistrarInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "updateNetworkConnections",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateTokenPriceFeed",
     data: BytesLike
   ): Result;
 
@@ -982,6 +1002,11 @@ export interface Registrar extends BaseContract {
       }
     >;
 
+    queryTokenPriceFeed(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -1061,6 +1086,12 @@ export interface Registrar extends BaseContract {
       action: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    updateTokenPriceFeed(
+      token: PromiseOrValue<string>,
+      priceFeed: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   getAPGoldfinchParams(
@@ -1131,6 +1162,11 @@ export interface Registrar extends BaseContract {
     chainId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<AngelCoreStruct.NetworkInfoStructOutput>;
+
+  queryTokenPriceFeed(
+    token: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   renounceOwnership(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1212,6 +1248,12 @@ export interface Registrar extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  updateTokenPriceFeed(
+    token: PromiseOrValue<string>,
+    priceFeed: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     getAPGoldfinchParams(
       overrides?: CallOverrides
@@ -1279,6 +1321,11 @@ export interface Registrar extends BaseContract {
       chainId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<AngelCoreStruct.NetworkInfoStructOutput>;
+
+    queryTokenPriceFeed(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
@@ -1355,6 +1402,12 @@ export interface Registrar extends BaseContract {
     updateNetworkConnections(
       networkInfo: AngelCoreStruct.NetworkInfoStruct,
       action: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    updateTokenPriceFeed(
+      token: PromiseOrValue<string>,
+      priceFeed: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -1528,6 +1581,11 @@ export interface Registrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    queryTokenPriceFeed(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1605,6 +1663,12 @@ export interface Registrar extends BaseContract {
     updateNetworkConnections(
       networkInfo: AngelCoreStruct.NetworkInfoStruct,
       action: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    updateTokenPriceFeed(
+      token: PromiseOrValue<string>,
+      priceFeed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -1679,6 +1743,11 @@ export interface Registrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    queryTokenPriceFeed(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -1756,6 +1825,12 @@ export interface Registrar extends BaseContract {
     updateNetworkConnections(
       networkInfo: AngelCoreStruct.NetworkInfoStruct,
       action: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateTokenPriceFeed(
+      token: PromiseOrValue<string>,
+      priceFeed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
