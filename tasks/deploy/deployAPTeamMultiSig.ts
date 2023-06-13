@@ -42,7 +42,7 @@ task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
           to: apTeamMultiSig.proxy.address,
           yes: true,
         });
-        await hre.run("manage:indexFund:updateOwner", {
+        await hre.run("manage:IndexFund:updateOwner", {
           to: apTeamMultiSig.proxy.address,
           yes: true,
         });

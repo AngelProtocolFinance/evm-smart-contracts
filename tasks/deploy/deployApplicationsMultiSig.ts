@@ -34,7 +34,7 @@ task("deploy:ApplicationsMultiSig", "Will deploy ApplicationsMultiSig contract")
         taskArgs.updateContracts ||
         (await confirmAction("Updating affected contracts:\n- Registrar.updateConfig\n"))
       ) {
-        await hre.run("manage:charityApplication:updateConfig", {
+        await hre.run("manage:CharityApplication:updateConfig", {
           applicationsMultisig: applicationsMultisig.proxy.address,
         });
       }

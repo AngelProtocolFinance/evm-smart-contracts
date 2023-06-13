@@ -68,7 +68,7 @@ task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
           {accountsContract: accountsDiamond.address},
           hre
         );
-        await hre.run("manage:charityApplication:updateConfig", {
+        await hre.run("manage:CharityApplication:updateConfig", {
           accountsDiamond: accountsDiamond.address,
         });
       }

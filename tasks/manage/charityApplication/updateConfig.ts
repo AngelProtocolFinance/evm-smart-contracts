@@ -14,7 +14,7 @@ type TaskArgs = {
   seedAssetAmount?: number;
 };
 
-task("manage:charityApplication:updateConfig", "Will update CharityApplication config")
+task("manage:CharityApplication:updateConfig", "Will update CharityApplication config")
   .addOptionalParam(
     "accountsDiamond",
     "Accounts Diamond contract address. Will do a local lookup from contract-address.json if none is provided."
