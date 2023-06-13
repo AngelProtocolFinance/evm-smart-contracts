@@ -1,41 +1,25 @@
 import {task, types} from "hardhat/config";
 import {deployCommonLibraries} from "scripts";
 import {FACET_NAMES_USING_ANGEL_CORE_STRUCT} from "tasks/upgrade/upgradeFacets/constants";
-import {confirmAction, isLocalNetwork, logger} from "utils";
-
-type TaskArgs = {updateContracts?: boolean; verify: boolean};
+import {isLocalNetwork, logger} from "utils";
 
 task("deploy:Libraries", "Will deploy Libraries")
-  .addOptionalParam(
-    "updateContracts",
-    "Flag indicating whether to upgrade all contracts affected by this deployment",
-    undefined, // if no value is set, will ask the caller to confirm the action
-    types.boolean
-  )
   .addOptionalParam(
     "verify",
     "Flag indicating whether the contract should be verified",
     true,
     types.boolean
   )
-  .setAction(async (taskArgs: TaskArgs, hre) => {
+  .setAction(async (taskArgs: {verify: boolean}, hre) => {
     try {
       const verify_contracts = taskArgs.verify && !isLocalNetwork(hre);
+
       await deployCommonLibraries(verify_contracts, hre);
 
-      // update contracts that use these libraries if confirmation is provided
-      if (taskArgs.updateContracts === false) {
-        return;
-      }
-      if (
-        taskArgs.updateContracts ||
-        (await confirmAction("Updating contracts that use these libraries."))
-      ) {
-        await hre.run("upgrade:facets", {
-          facets: FACET_NAMES_USING_ANGEL_CORE_STRUCT,
-          verify: taskArgs.verify,
-        });
-      }
+      await hre.run("upgrade:facets", {
+        facets: FACET_NAMES_USING_ANGEL_CORE_STRUCT,
+        verify: taskArgs.verify,
+      });
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

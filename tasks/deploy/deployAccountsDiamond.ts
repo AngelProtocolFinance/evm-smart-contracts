@@ -1,13 +1,12 @@
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {task, types} from "hardhat/config";
 import {updateRegistrarConfig} from "scripts";
-import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
+import {getAddresses, isLocalNetwork, logger} from "utils";
 
 type TaskArgs = {
   angelCoreStruct?: string;
   apTeamMultisig?: string;
   registrar?: string;
-  updateContracts?: boolean;
   verify: boolean;
 };
 
@@ -23,12 +22,6 @@ task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
   .addOptionalParam(
     "registrar",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
-  )
-  .addOptionalParam(
-    "updateContracts",
-    "Flag indicating whether to upgrade all contracts affected by this deployment",
-    undefined, // if no value is set, will ask the caller to confirm the action
-    types.boolean
   )
   .addOptionalParam(
     "verify",
@@ -53,25 +46,15 @@ task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
         hre
       );
 
-      // skip this step if explicit `false` is provided
-      if (taskArgs.updateContracts === false) {
-        return;
-      }
-      // update the contracts if flag was set to `true` or explicit confirmation is provided
-      if (
-        taskArgs.updateContracts ||
-        (await confirmAction("Updating affected contracts:\n- Registrar.updateConfig\n"))
-      ) {
-        await updateRegistrarConfig(
-          registrar,
-          apTeamMultiSig,
-          {accountsContract: accountsDiamond.address},
-          hre
-        );
-        await hre.run("manage:CharityApplication:updateConfig", {
-          accountsDiamond: accountsDiamond.address,
-        });
-      }
+      await updateRegistrarConfig(
+        registrar,
+        apTeamMultiSig,
+        {accountsContract: accountsDiamond.address},
+        hre
+      );
+      await hre.run("manage:CharityApplication:updateConfig", {
+        accountsDiamond: accountsDiamond.address,
+      });
     } catch (error) {
       logger.out(`Diamond deployment failed, reason: ${error}`, logger.Level.Error);
     }
