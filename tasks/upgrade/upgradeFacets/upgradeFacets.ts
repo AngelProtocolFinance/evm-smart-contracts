@@ -11,6 +11,7 @@ type TaskArgs = {
   angelCoreStruct?: string;
   facets: string[];
   verify: boolean;
+  yes: boolean;
 };
 
 task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountStorage struct")
@@ -32,6 +33,7 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
     true,
     types.boolean
   )
+  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       if (taskArgs.facets.length === 0) {
@@ -40,11 +42,11 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
 
       const facetsToUpgrade = /^all$/i.test(taskArgs.facets[0]) ? ALL_FACET_NAMES : taskArgs.facets;
 
-      const isConfirmed = await confirmAction(
-        `You're about to upgrade the following facets:\n- ${facetsToUpgrade.join("\n- ")}`
-      );
+      const isConfirmed =
+        taskArgs.yes ||
+        (await confirmAction(`Upgrade the following facets:\n- ${facetsToUpgrade.join("\n- ")}`));
       if (!isConfirmed) {
-        return logger.out("Aborting...");
+        return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
       const {proxyAdmin} = await getSigners(hre);
