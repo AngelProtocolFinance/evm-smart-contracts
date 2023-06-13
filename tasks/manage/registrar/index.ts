@@ -5,4 +5,4 @@ import "./setRebalParams";
 import "./setStratApproval";
 import "./setStratParams";
 import "./setTokenAccepted";
-import "./updateConfig";
+import "./transferOwnership";
