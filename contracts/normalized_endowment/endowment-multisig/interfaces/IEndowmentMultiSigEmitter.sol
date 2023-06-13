@@ -25,12 +25,14 @@ interface IEndowmentMultiSigEmitter {
 
   function requirementChangeEndowment(uint256 endowmentId, uint256 required) external;
 
+  function requireExecutionChangeEndowment(uint256 endowmentId, bool requireExecution) external;
+
   function createMultisig(
     address multisigAddress,
     uint256 endowmentId,
     address emitter,
     address[] memory owners,
     uint256 required,
-    bool requireexecution
+    bool requireExecution
   ) external;
 }

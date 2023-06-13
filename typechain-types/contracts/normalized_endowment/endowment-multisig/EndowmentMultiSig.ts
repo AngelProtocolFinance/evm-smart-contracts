@@ -63,6 +63,7 @@ export interface EndowmentMultiSigInterface extends utils.Interface {
     "ENDOWMENT_ID()": FunctionFragment;
     "MAX_OWNER_COUNT()": FunctionFragment;
     "addOwner(address)": FunctionFragment;
+    "changeRequireExecution(bool)": FunctionFragment;
     "changeRequirement(uint256)": FunctionFragment;
     "confirmTransaction(uint256)": FunctionFragment;
     "confirmations(uint256,address)": FunctionFragment;
@@ -94,6 +95,7 @@ export interface EndowmentMultiSigInterface extends utils.Interface {
       | "ENDOWMENT_ID"
       | "MAX_OWNER_COUNT"
       | "addOwner"
+      | "changeRequireExecution"
       | "changeRequirement"
       | "confirmTransaction"
       | "confirmations"
@@ -134,6 +136,10 @@ export interface EndowmentMultiSigInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "addOwner",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "changeRequireExecution",
+    values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
     functionFragment: "changeRequirement",
@@ -258,6 +264,10 @@ export interface EndowmentMultiSigInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "addOwner", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "changeRequireExecution",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "changeRequirement",
     data: BytesLike
   ): Result;
@@ -343,6 +353,7 @@ export interface EndowmentMultiSigInterface extends utils.Interface {
     "Deposit(address,uint256)": EventFragment;
     "Execution(uint256)": EventFragment;
     "ExecutionFailure(uint256)": EventFragment;
+    "ExecutionRequiredChange(bool)": EventFragment;
     "Initialized(uint8)": EventFragment;
     "OwnerAddition(address)": EventFragment;
     "OwnerRemoval(address)": EventFragment;
@@ -355,6 +366,7 @@ export interface EndowmentMultiSigInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Deposit"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Execution"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ExecutionFailure"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ExecutionRequiredChange"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnerAddition"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnerRemoval"): EventFragment;
@@ -399,6 +411,17 @@ export type ExecutionFailureEvent = TypedEvent<
 
 export type ExecutionFailureEventFilter =
   TypedEventFilter<ExecutionFailureEvent>;
+
+export interface ExecutionRequiredChangeEventObject {
+  requireExecution: boolean;
+}
+export type ExecutionRequiredChangeEvent = TypedEvent<
+  [boolean],
+  ExecutionRequiredChangeEventObject
+>;
+
+export type ExecutionRequiredChangeEventFilter =
+  TypedEventFilter<ExecutionRequiredChangeEvent>;
 
 export interface InitializedEventObject {
   version: number;
@@ -489,6 +512,11 @@ export interface EndowmentMultiSig extends BaseContract {
 
     addOwner(
       _owner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    changeRequireExecution(
+      _requireExecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -634,6 +662,11 @@ export interface EndowmentMultiSig extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  changeRequireExecution(
+    _requireExecution: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   changeRequirement(
     _required: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -773,6 +806,11 @@ export interface EndowmentMultiSig extends BaseContract {
 
     addOwner(
       _owner: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    changeRequireExecution(
+      _requireExecution: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -940,6 +978,13 @@ export interface EndowmentMultiSig extends BaseContract {
       transactionId?: PromiseOrValue<BigNumberish> | null
     ): ExecutionFailureEventFilter;
 
+    "ExecutionRequiredChange(bool)"(
+      requireExecution?: null
+    ): ExecutionRequiredChangeEventFilter;
+    ExecutionRequiredChange(
+      requireExecution?: null
+    ): ExecutionRequiredChangeEventFilter;
+
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
 
@@ -988,6 +1033,11 @@ export interface EndowmentMultiSig extends BaseContract {
 
     addOwner(
       _owner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    changeRequireExecution(
+      _requireExecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1121,6 +1171,11 @@ export interface EndowmentMultiSig extends BaseContract {
 
     addOwner(
       _owner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    changeRequireExecution(
+      _requireExecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

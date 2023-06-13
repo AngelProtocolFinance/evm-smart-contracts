@@ -231,8 +231,9 @@ contract CharityApplication is CharityStorage, ICharityApplication, ERC165, Reen
 
     if (config.newEndowGasMoney) {
       //query endowments from accounts contract and get the owner address
-      AccountStorage.Endowment memory endowDetails = IAccountsQueryEndowments(config.accountsContract)
-        .queryEndowmentDetails(endowmentId);
+      AccountStorage.Endowment memory endowDetails = IAccountsQueryEndowments(
+        config.accountsContract
+      ).queryEndowmentDetails(endowmentId);
 
       // TODO: Test this in remix
       // query owner multisig to find the first signer

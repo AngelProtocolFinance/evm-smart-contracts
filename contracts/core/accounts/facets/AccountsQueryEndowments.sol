@@ -6,6 +6,7 @@ import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 import {IAccountsQueryEndowments} from "../interfaces/IAccountsQueryEndowments.sol";
+
 /**
  * @title AccountsQueryEndowments
  * @notice This contract facet queries for endowment and accounts config

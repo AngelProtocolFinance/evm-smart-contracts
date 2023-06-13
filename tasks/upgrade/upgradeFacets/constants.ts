@@ -47,7 +47,7 @@ export const ALL_FACET_NAMES: string[] = [
   ...FACET_NAMES_USING_ANGEL_CORE_STRUCT,
   getContractName(new AccountsDeployContract__factory()),
   getContractName(new AccountsDonationMatch__factory()),
-  getContractName(new AccountsDAOEndowments__factory()),
+  getContractName(new AccountsDaoEndowments__factory()),
   getContractName(new AccountsQueryEndowments__factory()),
   getContractName(new AccountsUpdateStatusEndowments__factory()),
   getContractName(new AccountsUpdate__factory()),

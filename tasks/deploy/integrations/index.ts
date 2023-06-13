@@ -1,2 +1,2 @@
-import "./goldfinch"
-import "./genericVault"
+import "./goldfinch";
+import "./genericVault";

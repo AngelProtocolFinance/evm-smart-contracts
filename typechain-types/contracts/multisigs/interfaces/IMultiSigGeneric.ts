@@ -60,6 +60,7 @@ export declare namespace MultiSigStorage {
 export interface IMultiSigGenericInterface extends utils.Interface {
   functions: {
     "addOwner(address)": FunctionFragment;
+    "changeRequireExecution(bool)": FunctionFragment;
     "changeRequirement(uint256)": FunctionFragment;
     "confirmTransaction(uint256)": FunctionFragment;
     "executeTransaction(uint256)": FunctionFragment;
@@ -79,6 +80,7 @@ export interface IMultiSigGenericInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "addOwner"
+      | "changeRequireExecution"
       | "changeRequirement"
       | "confirmTransaction"
       | "executeTransaction"
@@ -98,6 +100,10 @@ export interface IMultiSigGenericInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "addOwner",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "changeRequireExecution",
+    values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
     functionFragment: "changeRequirement",
@@ -167,6 +173,10 @@ export interface IMultiSigGenericInterface extends utils.Interface {
 
   decodeFunctionResult(functionFragment: "addOwner", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "changeRequireExecution",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "changeRequirement",
     data: BytesLike
   ): Result;
@@ -225,6 +235,7 @@ export interface IMultiSigGenericInterface extends utils.Interface {
     "Deposit(address,uint256)": EventFragment;
     "Execution(uint256)": EventFragment;
     "ExecutionFailure(uint256)": EventFragment;
+    "ExecutionRequiredChange(bool)": EventFragment;
     "OwnerAddition(address)": EventFragment;
     "OwnerRemoval(address)": EventFragment;
     "RequirementChange(uint256)": EventFragment;
@@ -236,6 +247,7 @@ export interface IMultiSigGenericInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Deposit"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Execution"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ExecutionFailure"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ExecutionRequiredChange"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnerAddition"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnerRemoval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RequirementChange"): EventFragment;
@@ -279,6 +291,17 @@ export type ExecutionFailureEvent = TypedEvent<
 
 export type ExecutionFailureEventFilter =
   TypedEventFilter<ExecutionFailureEvent>;
+
+export interface ExecutionRequiredChangeEventObject {
+  requireExecution: boolean;
+}
+export type ExecutionRequiredChangeEvent = TypedEvent<
+  [boolean],
+  ExecutionRequiredChangeEventObject
+>;
+
+export type ExecutionRequiredChangeEventFilter =
+  TypedEventFilter<ExecutionRequiredChangeEvent>;
 
 export interface OwnerAdditionEventObject {
   owner: string;
@@ -356,6 +379,11 @@ export interface IMultiSigGeneric extends BaseContract {
   functions: {
     addOwner(
       owner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    changeRequireExecution(
+      requireExecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -442,6 +470,11 @@ export interface IMultiSigGeneric extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  changeRequireExecution(
+    requireExecution: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   changeRequirement(
     required: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -522,6 +555,11 @@ export interface IMultiSigGeneric extends BaseContract {
   callStatic: {
     addOwner(
       owner: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    changeRequireExecution(
+      requireExecution: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -636,6 +674,13 @@ export interface IMultiSigGeneric extends BaseContract {
       transactionId?: PromiseOrValue<BigNumberish> | null
     ): ExecutionFailureEventFilter;
 
+    "ExecutionRequiredChange(bool)"(
+      requireExecution?: null
+    ): ExecutionRequiredChangeEventFilter;
+    ExecutionRequiredChange(
+      requireExecution?: null
+    ): ExecutionRequiredChangeEventFilter;
+
     "OwnerAddition(address)"(
       owner?: PromiseOrValue<string> | null
     ): OwnerAdditionEventFilter;
@@ -675,6 +720,11 @@ export interface IMultiSigGeneric extends BaseContract {
   estimateGas: {
     addOwner(
       owner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    changeRequireExecution(
+      requireExecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -759,6 +809,11 @@ export interface IMultiSigGeneric extends BaseContract {
   populateTransaction: {
     addOwner(
       owner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    changeRequireExecution(
+      requireExecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

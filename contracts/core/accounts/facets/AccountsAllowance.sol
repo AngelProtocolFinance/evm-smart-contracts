@@ -115,10 +115,7 @@ contract AccountsAllowance is ReentrancyGuardFacet, AccountsEvents {
       state.ALLOWANCES[endowId][msg.sender][token] > amount,
       "Amount reqested exceeds allowance balance"
     );
-    require(
-      state.STATES[endowId].balances.liquid[token] >= amount,
-      "InsufficientFunds"
-    );
+    require(state.STATES[endowId].balances.liquid[token] >= amount, "InsufficientFunds");
 
     state.ALLOWANCES[endowId][msg.sender][token] -= amount;
     state.STATES[endowId].balances.liquid[token] -= amount;
