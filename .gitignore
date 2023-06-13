@@ -14,3 +14,7 @@ dist
 cache
 artifacts
 .openzeppelin
+
+# typechain
+typechain-types
+eth-sdk/abis/*
