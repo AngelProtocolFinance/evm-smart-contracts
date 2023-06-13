@@ -59,6 +59,11 @@ task(
         {router: router.proxy.address},
         hre
       );
+
+      await hre.run("manage:accounts:updateConfig", {
+        newRegistrar: registrar.proxy.address,
+        yes: true,
+      });
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
