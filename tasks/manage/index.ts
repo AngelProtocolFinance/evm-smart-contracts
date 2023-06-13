@@ -1,3 +1,4 @@
+import "./accounts";
 import "./addMultisigOwner";
 import "./changeAdmin";
 import "./changeOwner";

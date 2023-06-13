@@ -1,10 +1,14 @@
 import {task, types} from "hardhat/config";
-import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
+import {
+  APTeamMultiSig__factory,
+  AccountsQueryEndowments__factory,
+  AccountsUpdate__factory,
+} from "typechain-types";
 import {confirmAction, getAddresses, getSigners, logger} from "utils";
 
 type TaskArgs = {to: string; yes: boolean};
 
-task("manage:registrar:transferOwnership")
+task("manage:accounts:updateOwner", "Will update the owner of the Accounts Diamond")
   .addOptionalParam(
     "to",
     "Address of the new owner. Ensure at least one of `apTeamMultisigOwners` is the controller of this address. Will default to `contract-address.json > multiSig.apTeam.proxy` if none is provided."
@@ -13,18 +17,17 @@ task("manage:registrar:transferOwnership")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       logger.divider();
-      logger.out("Connecting to registrar on specified network...");
       const addresses = await getAddresses(hre);
       const {apTeamMultisigOwners} = await getSigners(hre);
-      const registrar = Registrar__factory.connect(
-        addresses.registrar.proxy,
-        apTeamMultisigOwners[0]
-      );
-      logger.pad(50, "Connected to Registrar at: ", registrar.address);
 
       const newOwner = taskArgs.to || addresses.multiSig.apTeam.proxy;
 
-      const curOwner = await registrar.owner();
+      logger.out("Querying current Diamond owner...");
+      const accountsQueryEndowments = AccountsQueryEndowments__factory.connect(
+        addresses.accounts.diamond,
+        apTeamMultisigOwners[0]
+      );
+      const curOwner = (await accountsQueryEndowments.queryConfig()).owner;
       if (curOwner === newOwner) {
         return logger.out(`"${newOwner}" is already the owner.`);
       }
@@ -36,16 +39,20 @@ task("manage:registrar:transferOwnership")
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      logger.out("Submitting `transferOwnership` transaction to multisig...");
-      const data = registrar.interface.encodeFunctionData("transferOwnership", [newOwner]);
+      logger.out("Transferring ownership...");
+      const accountsUpdate = AccountsUpdate__factory.connect(
+        addresses.accounts.diamond,
+        apTeamMultisigOwners[0]
+      );
+      const data = accountsUpdate.interface.encodeFunctionData("updateOwner", [newOwner]);
       const apTeamMultiSig = APTeamMultiSig__factory.connect(
         curOwner, // ensure connection to current owning APTeamMultiSig contract
         apTeamMultisigOwners[0]
       );
       const tx = await apTeamMultiSig.submitTransaction(
-        "Registrar: transfer ownership",
+        "Accounts Diamond: transfer ownership",
         `Transfer ownership to ${newOwner}`,
-        registrar.address,
+        addresses.accounts.diamond,
         0,
         data,
         "0x"
