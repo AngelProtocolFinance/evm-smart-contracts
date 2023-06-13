@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
-import {MultiSigStorage} from "../storage.sol";
 
+import {MultiSigStorage} from "../storage.sol";
 import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 abstract contract IMultiSigGeneric is IERC165 {
@@ -17,6 +17,7 @@ abstract contract IMultiSigGeneric is IERC165 {
   event OwnerAddition(address indexed owner);
   event OwnerRemoval(address indexed owner);
   event RequirementChange(uint256 required);
+  event ExecutionRequiredChange(bool requireExecution);
 
   /// @dev Receive function allows to deposit ether.
   receive() external payable virtual;
@@ -44,6 +45,10 @@ abstract contract IMultiSigGeneric is IERC165 {
   /// @dev Allows to change the number of required confirmations. Transaction has to be sent by wallet.
   /// @param required Number of required confirmations.
   function changeRequirement(uint256 required) public virtual;
+
+  /// @dev Allows to change whether explicit execution step is needed once the required number of confirmations is met. Transaction has to be sent by wallet.
+  /// @param requireExecution Explicit execution step is needed
+  function changeRequireExecution(bool requireExecution) public virtual;
 
   /// @dev Allows an owner to submit and confirm a transaction.
   /// @param destination Transaction target address.

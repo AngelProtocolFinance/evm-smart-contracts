@@ -8,7 +8,7 @@ import {StrategyApprovalState} from "../utils/test/ILocalRegistrarHelpers";
 
 describe("Local Registrar", function () {
   const {ethers, upgrades} = hre;
-  
+
   let owner: SignerWithAddress;
   let user: SignerWithAddress;
   let Registrar: LocalRegistrar__factory;

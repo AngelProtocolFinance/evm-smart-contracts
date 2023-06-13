@@ -299,7 +299,6 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
   ) public nonReentrant {
     require(token != address(0), "Invalid Token Address");
 
-
     uint256 depositAmount = amount;
 
     // check if block height limit is reached
@@ -322,10 +321,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     if (fundId != 0) {
       require(state.FUNDS[fundId].members.length != 0, "Empty Fund");
 
-      require(
-        !fundIsExpired(state.FUNDS[fundId], block.number, block.timestamp),
-        "Expired Fund"
-      );
+      require(!fundIsExpired(state.FUNDS[fundId], block.number, block.timestamp), "Expired Fund");
 
       updateDonationMessages(
         state.FUNDS[fundId].members,

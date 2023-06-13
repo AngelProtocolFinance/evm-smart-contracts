@@ -149,7 +149,9 @@ contract APVault_V1 is IVault, ERC4626AP {
 
   function harvest(uint32[] calldata accountIds) public virtual override notPaused onlyApproved {
     for (uint32 acct; acct < accountIds.length; acct++) {
-      uint256 baseTokenValue = IStrategy(vaultConfig.strategy).previewWithdraw(_yieldTokenBalance(acct));
+      uint256 baseTokenValue = IStrategy(vaultConfig.strategy).previewWithdraw(
+        _yieldTokenBalance(acct)
+      );
       // no yield, no harvest
       if (baseTokenValue < principleByAccountId[acct].baseToken) {
         return;
@@ -157,10 +159,9 @@ contract APVault_V1 is IVault, ERC4626AP {
       // Determine going exchange rate (shares / baseToken)
       uint256 currentExRate_withPrecision = balanceOf(acct).mulDivDown(PRECISION, baseTokenValue);
 
-      // tokens of yield denominated in base token  
-      uint256 yieldBaseTokens = baseTokenValue - 
-        principleByAccountId[acct].costBasis_withPrecision
-        .mulDivDown(balanceOf(acct), PRECISION);
+      // tokens of yield denominated in base token
+      uint256 yieldBaseTokens = baseTokenValue -
+        principleByAccountId[acct].costBasis_withPrecision.mulDivDown(balanceOf(acct), PRECISION);
 
       AngelCoreStruct.FeeSetting memory feeSetting = IRegistrar(vaultConfig.registrar)
         .getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes.Harvest);
@@ -182,15 +183,12 @@ contract APVault_V1 is IVault, ERC4626AP {
   ) internal {
     // Determine tax denominated in shares
     // tax (shares) = yield * exchangeRate * feeRate
-    uint256 taxShares = yield
-      .mulDivDown(exchageRate, PRECISION)
-      .mulDivDown(feeSetting.bps, AngelCoreStruct.FEE_BASIS);
-    // Redeem shares to cover fee
-    uint256 dYieldToken = super.redeem(
-      taxShares,
-      vaultConfig.strategy,
-      accountId
+    uint256 taxShares = yield.mulDivDown(exchageRate, PRECISION).mulDivDown(
+      feeSetting.bps,
+      AngelCoreStruct.FEE_BASIS
     );
+    // Redeem shares to cover fee
+    uint256 dYieldToken = super.redeem(taxShares, vaultConfig.strategy, accountId);
     uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dYieldToken);
     // Pay tax to tax collector and rebase principle
     if (!IERC20Metadata(vaultConfig.baseToken).transfer(feeSetting.payoutAddress, redemption)) {
@@ -209,12 +207,14 @@ contract APVault_V1 is IVault, ERC4626AP {
       .getRebalanceParams();
 
     // Determine rebal + tax denominated in yield token
-    uint256 taxShares = yield
-      .mulDivDown(exchageRate, PRECISION)
-      .mulDivDown(feeSetting.bps, AngelCoreStruct.FEE_BASIS);
-    uint256 rebalShares = yield
-      .mulDivDown(exchageRate, PRECISION)
-      .mulDivDown(rbParams.lockedRebalanceToLiquid, rbParams.basis);
+    uint256 taxShares = yield.mulDivDown(exchageRate, PRECISION).mulDivDown(
+      feeSetting.bps,
+      AngelCoreStruct.FEE_BASIS
+    );
+    uint256 rebalShares = yield.mulDivDown(exchageRate, PRECISION).mulDivDown(
+      rbParams.lockedRebalanceToLiquid,
+      rbParams.basis
+    );
 
     _sendRebalAndTax(accountId, taxShares, rebalShares, feeSetting.payoutAddress);
   }
@@ -223,7 +223,7 @@ contract APVault_V1 is IVault, ERC4626AP {
                         ACCOUNTING
   //////////////////////////////////////////////////////////////*/
 
-  /// @notice Determine if a tax can be applied and send if so 
+  /// @notice Determine if a tax can be applied and send if so
   /// @dev Apply the tax and send it to the payee, return the value of the tax
   /// @param sharesRedeemedAmt number of shares redeemed for redemption value
   /// @param baseTokensReturnedAmt number of tokens returned by redemption
@@ -234,16 +234,17 @@ contract APVault_V1 is IVault, ERC4626AP {
     uint256 baseTokensReturnedAmt
   ) internal returns (uint256) {
     uint256 p = principleByAccountId[accountId].baseToken;
-    uint256 redemptionCostBasis =  baseTokensReturnedAmt
-      .mulDivDown(PRECISION, sharesRedeemedAmt);
+    uint256 redemptionCostBasis = baseTokensReturnedAmt.mulDivDown(PRECISION, sharesRedeemedAmt);
     // no yield, no tax
     if (redemptionCostBasis <= principleByAccountId[accountId].costBasis_withPrecision) {
       return 0;
     }
-    // tokens of yield denominated in base token  
-    uint256 yieldBaseTokens = baseTokensReturnedAmt - 
-      principleByAccountId[accountId].costBasis_withPrecision
-      .mulDivDown(sharesRedeemedAmt, PRECISION);
+    // tokens of yield denominated in base token
+    uint256 yieldBaseTokens = baseTokensReturnedAmt -
+      principleByAccountId[accountId].costBasis_withPrecision.mulDivDown(
+        sharesRedeemedAmt,
+        PRECISION
+      );
 
     AngelCoreStruct.FeeSetting memory feeSetting = IRegistrar(vaultConfig.registrar)
       .getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes.Default);
@@ -274,25 +275,30 @@ contract APVault_V1 is IVault, ERC4626AP {
         PRECISION,
         (principleByAccountId[accountId].baseToken + amt)
       );
-      // Add base token amt to principle 
+      // Add base token amt to principle
       principleByAccountId[accountId].baseToken += amt;
       // Weighted average, CB = newCB*weight + oldCB*(1-weight)
       principleByAccountId[accountId].costBasis_withPrecision =
         (newCostBasis_withPrecision.mulDivDown(weight_withPrecision, PRECISION)) +
-        (currentCostBasis_withPrecision.mulDivDown(
-            (PRECISION - weight_withPrecision),
-            PRECISION)
-        );
+        (currentCostBasis_withPrecision.mulDivDown((PRECISION - weight_withPrecision), PRECISION));
     }
   }
 
-  function _updatePrincipleRedemption(uint32 accountId, uint256 sharesRedeemed, uint256 yieldAmt) internal {
+  function _updatePrincipleRedemption(
+    uint32 accountId,
+    uint256 sharesRedeemed,
+    uint256 yieldAmt
+  ) internal {
     uint256 currentPrinciple = principleByAccountId[accountId].baseToken;
-    uint256 portionOfPositionRedeemed_withPrecision = sharesRedeemed
-      .mulDivDown(PRECISION, (sharesRedeemed + balanceOf(accountId)));
-    // Update principle of base token, cost basis is unaffected 
-    principleByAccountId[accountId].baseToken -= currentPrinciple
-      .mulDivDown(portionOfPositionRedeemed_withPrecision, PRECISION);
+    uint256 portionOfPositionRedeemed_withPrecision = sharesRedeemed.mulDivDown(
+      PRECISION,
+      (sharesRedeemed + balanceOf(accountId))
+    );
+    // Update principle of base token, cost basis is unaffected
+    principleByAccountId[accountId].baseToken -= currentPrinciple.mulDivDown(
+      portionOfPositionRedeemed_withPrecision,
+      PRECISION
+    );
   }
 
   function _yieldTokenBalance(uint32 accountId) internal view returns (uint256) {
@@ -305,17 +311,15 @@ contract APVault_V1 is IVault, ERC4626AP {
     uint256 rebalShares,
     address feeRecipient
   ) internal {
-
     // Shares -> Yield Asset -> Base Asset
-    uint256 dYieldToken = super.redeem(
-      (taxShares + rebalShares),
-      vaultConfig.strategy,
-      accountId
-    );
+    uint256 dYieldToken = super.redeem((taxShares + rebalShares), vaultConfig.strategy, accountId);
     uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dYieldToken);
 
     // Determine proportion owed in tax and send to payee
-    uint256 taxProportion_withPrecision = taxShares.mulDivDown(PRECISION,(taxShares + rebalShares));
+    uint256 taxProportion_withPrecision = taxShares.mulDivDown(
+      PRECISION,
+      (taxShares + rebalShares)
+    );
     uint256 tax = redemption.mulDivDown(taxProportion_withPrecision, PRECISION);
     if (!IERC20Metadata(vaultConfig.baseToken).transfer(feeRecipient, tax)) {
       revert TransferFailed();

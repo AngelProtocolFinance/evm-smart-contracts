@@ -142,7 +142,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
     if (accountType == AngelCoreStruct.AccountType.Locked) {
       state.STATES[id].balances.locked[tokenOut] += amountOut;
     } else {
-      state.STATES[id].balances.liquid[tokenOut] +=  amountOut;
+      state.STATES[id].balances.liquid[tokenOut] += amountOut;
     }
 
     emit SwapToken(id, accountType, tokenIn, amountIn, tokenOut, amountOut);

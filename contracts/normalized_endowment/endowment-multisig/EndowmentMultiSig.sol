@@ -13,7 +13,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
   uint256 public ENDOWMENT_ID;
   address public EMITTER_ADDRESS;
 
-  // @dev overriden the generic multisig initializer and restricted function
+  // @dev overrides the generic multisig initializer and restricted function
   function initialize(address[] memory, uint256, bool) public override initializer {
     revert("Not Implemented");
   }
@@ -41,7 +41,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
   }
 
   /**
-   * @notice overriden the generic multisig addOwner function
+   * @notice overrides the generic multisig addOwner function
    * @dev emits the addOwnerEndowment event
    * @param _owner the owner to be added
    */
@@ -51,7 +51,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
   }
 
   /**
-   * @notice overriden the generic multisig removeOwner function
+   * @notice overrides the generic multisig removeOwner function
    * @dev emits the removeOwnerEndowment event
    * @param _owner the owner to be removed
    */
@@ -61,7 +61,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
   }
 
   /**
-   * @notice overriden the generic multisig replaceOwner function
+   * @notice overrides the generic multisig replaceOwner function
    * @dev emits the removeOwnerEndowment and addOwnerEndowment events
    * @param _owner the owner to be replaced
    */
@@ -72,13 +72,26 @@ contract EndowmentMultiSig is MultiSigGeneric {
   }
 
   /**
-   * @notice overriden the generic multisig changeRequirement function
+   * @notice overrides the generic multisig changeRequirement function
    * @dev emits the requirementChangeEndowment event
    * @param _required the new required number of signatures
    */
   function changeRequirement(uint256 _required) public override {
     super.changeRequirement(_required);
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).requirementChangeEndowment(ENDOWMENT_ID, _required);
+  }
+
+  /**
+   * @notice overrides the generic multisig changeRequireExecution function
+   * @dev emits the requirementChangeEndowment event
+   * @param _requireExecution Explicit execution step is needed
+   */
+  function changeRequireExecution(bool _requireExecution) public override {
+    super.changeRequireExecution(_requireExecution);
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).requireExecutionChangeEndowment(
+      ENDOWMENT_ID,
+      _requireExecution
+    );
   }
 
   /// @dev Allows an owner to submit and confirm a transaction.
@@ -101,7 +114,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
   }
 
   /**
-   * @notice overriden the generic multisig confirmTransaction function
+   * @notice overrides the generic multisig confirmTransaction function
    * @dev emits the confirmEndowment event
    * @param transactionId the transaction id
    */
@@ -115,7 +128,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
   }
 
   /**
-   * @notice overriden the generic multisig revokeConfirmation function
+   * @notice overrides the generic multisig revokeConfirmation function
    * @dev emits the revokeEndowment event
    * @param transactionId the transaction id
    */
@@ -152,7 +165,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
   }
 
   /**
-   * @notice overriden the generic multisig addTransaction function
+   * @notice overrides the generic multisig addTransaction function
    * @dev emits the submitEndowment event
    * @param title the title of the transaction
    * @param description the description of the transaction

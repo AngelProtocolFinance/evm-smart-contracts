@@ -1,6 +1,5 @@
-// // SPDX-License-Identifier: UNLICENSED
-// // author: @stevieraykatz
-// pragma solidity >=0.8.0;
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.8.0;
 
 // // Angel Protocol
 // import {IVault} from "../../core/vault/interfaces/IVault.sol";
@@ -20,7 +19,7 @@
 // contract GoldfinchVault is IVault, IERC721Receiver {
 //     bytes4 constant STRATEGY_ID = bytes4(keccak256(abi.encode("Goldfinch")));
 //     uint256 constant PRECISION = 10**24;
-    
+
 //     IVault.VaultType vaultType;
 
 //                             // Mainnet address
@@ -90,7 +89,6 @@
 //         return(msg.sender == stratParams.Locked.vaultAddr);
 //     }
 
-
 //     /*////////////////////////////////////////////////
 //                         IVAULT IMPL
 //     */////////////////////////////////////////////////
@@ -109,7 +107,7 @@
 //     /// @param accountId a unique Id for each Angel Protocol account
 //     /// @param token the deposited token
 //     /// @param amt the amount of the deposited token
-    
+
 //     function deposit(
 //         uint32 accountId,
 //         address token,
@@ -122,9 +120,9 @@
 //         IERC20(USDC).approve(address(crvPool), amt);
 //         uint256 fiduReturned = crvPool.exchange(0, 1, amt, minAmtOut);
 
-//         // if new position: 
+//         // if new position:
 //             // stake
-//             // store position NFT id 
+//             // store position NFT id
 //         if(tokenIdByAccountId[accountId] == 0) {
 //             IERC20(FIDU).approve(address(stakingPool), fiduReturned);
 //             uint256 id = stakingPool.stake(fiduReturned, IStakingRewards.StakedPositionType.Fidu);
@@ -154,13 +152,13 @@
 //         uint32 accountId,
 //         address token,
 //         uint256 amt
-//     ) 
-//     external 
-//     payable 
-//     override 
-//     approvedRouterOnly 
-//     onlyUSDC(token) 
-//     nonzeroPositionOnly(accountId) 
+//     )
+//     external
+//     payable
+//     override
+//     approvedRouterOnly
+//     onlyUSDC(token)
+//     nonzeroPositionOnly(accountId)
 //     returns (IVault.RedemptionResponse memory)  {
 //         LocalRegistrarLib.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
 //         IStakingRewards.StakedPosition memory position = stakingPool.getPosition(tokenIdByAccountId[accountId]);
@@ -168,8 +166,8 @@
 
 //         _claimGFI(accountId);                                                                               // harvest GFI -> Tax Collector
 //         uint256 yield_withPrecision = _calcYield_withPrecision(accountId, position.amount);                 // determine yield as a rate demoninated in USDC
-//         (uint256 redeemedUSDC, uint256 redeemedFIDU) = _redeemFiduForUsdc(accountId, position.amount, amt); // unstake necessary FIDU 
-        
+//         (uint256 redeemedUSDC, uint256 redeemedFIDU) = _redeemFiduForUsdc(accountId, position.amount, amt); // unstake necessary FIDU
+
 //         if(yield_withPrecision > 0) {
 //             redeemedUSDC = _taxRedemption(feeSetting, yield_withPrecision, redeemedUSDC);
 //         }
@@ -178,18 +176,18 @@
 //         IERC20(USDC).approve(apParams.routerAddr, redeemedUSDC);
 //         IVault.RedemptionResponse memory response = IVault.RedemptionResponse({
 //             amount: redeemedUSDC,
-//             status: IVault.VaultActionStatus.SUCCESS 
+//             status: IVault.VaultActionStatus.SUCCESS
 //         });
-        
+
 //         if (principleByAccountId[accountId].usdcP == 0) {
 //             response.status = IVault.VaultActionStatus.POSITION_EXITED;
-//         } 
+//         }
 //         return response;
 //     }
 
 //     /// @notice redeem all of the value from the vault contract
 //     /// @dev allows an Account to redeem all of its staked value. Good for rebasing tokens wherein the value isn't
-//     /// known explicitly 
+//     /// known explicitly
 //     /// @param accountId a unique Id for each Angel Protocol account
 //     /// @return redemptionAmt returns the number of tokens redeemed by the call
 //     function redeemAll(uint32 accountId) payable external override approvedRouterOnly nonzeroPositionOnly(accountId) returns (uint256) {
@@ -197,11 +195,11 @@
 //         LocalRegistrarLib.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
 //         AngelCoreStruct.FeeSetting memory feeSetting = registrar.getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes.Default);
 
-//         _claimGFI(accountId);      
+//         _claimGFI(accountId);
 //         uint256 yield_withPrecision = _calcYield_withPrecision(accountId, position.amount);             // determine yield as a rate demoninated in USDC
-//         uint256 minUsdcOut =  _calcSlippageTolernace(1, 0, position.amount, _getSlippageTolerance());   // determine usdc less slippage tolerance 
+//         uint256 minUsdcOut =  _calcSlippageTolernace(1, 0, position.amount, _getSlippageTolerance());   // determine usdc less slippage tolerance
 //         uint256 redeemedUSDC = _unstakeAndSwap(accountId, position.amount, minUsdcOut);
-        
+
 //         if(yield_withPrecision > 0) {
 //             redeemedUSDC = _taxRedemption(feeSetting, yield_withPrecision, redeemedUSDC);
 //         }
@@ -242,34 +240,33 @@
 //         return IERC721Receiver.onERC721Received.selector;
 //     }
 
-
 //     /*////////////////////////////////////////////////
 //                         INTERNAL
 //     */////////////////////////////////////////////////
 
 //     function _harvestSingle(
-//         uint32 accountId, 
+//         uint32 accountId,
 //         AngelCoreStruct.FeeSetting memory feeSetting
 //         ) internal nonzeroPositionOnly(accountId) {
 //         IStakingRewards.StakedPosition memory position = stakingPool.getPosition(tokenIdByAccountId[accountId]);
-        
-//         // Scrape GFI to tax collector 
+
+//         // Scrape GFI to tax collector
 //         _claimGFI(accountId);
-        
+
 //         uint256 yield_withPrecision = _calcYield_withPrecision(accountId, position.amount);
-//         // Only tax and rebal if the yield is positive, return early and save gas otherwise 
-//         if(yield_withPrecision == 0) {   
+//         // Only tax and rebal if the yield is positive, return early and save gas otherwise
+//         if(yield_withPrecision == 0) {
 //             return;
 //         }
 
-//         // If yield nonzero then redeem tax and maybe rebalance                 
-//         uint256 taxableAmt = (principleByAccountId[accountId].usdcP * yield_withPrecision)  / PRECISION; 
+//         // If yield nonzero then redeem tax and maybe rebalance
+//         uint256 taxableAmt = (principleByAccountId[accountId].usdcP * yield_withPrecision)  / PRECISION;
 //         uint256 tax = _calcTax(yield_withPrecision, taxableAmt);    // Calculate the tax on taxable amt
 //         uint256 redeemedUSDC;
 //         uint256 dFidu;
 
 //         if (vaultType == VaultType.LIQUID) {
-//             (redeemedUSDC, dFidu) = _redeemFiduForUsdc(accountId, position.amount, tax);       
+//             (redeemedUSDC, dFidu) = _redeemFiduForUsdc(accountId, position.amount, tax);
 //             require(IERC20(USDC).transfer(feeSetting.payoutAddress, redeemedUSDC));
 //             principleByAccountId[accountId].fiduP -= dFidu;             // Deduct fidu redemption from principle
 //             return;
@@ -278,24 +275,24 @@
 //         // For locked vaults, we rebal and deposit to liquid
 //         LocalRegistrarLib.RebalanceParams memory rbParams = registrar.getRebalanceParams();
 //         uint256 rebalAmt = ((taxableAmt - tax) * rbParams.lockedRebalanceToLiquid) / rbParams.basis;
-        
-//         // Unstake necessary FIDU to cover tax + rebalance to liquid 
+
+//         // Unstake necessary FIDU to cover tax + rebalance to liquid
 //         (redeemedUSDC, dFidu) = _redeemFiduForUsdc(                             // Redeem FIDU from underlying to USDC
-//             accountId, 
-//             position.amount, 
-//             (tax + rebalAmt));              
+//             accountId,
+//             position.amount,
+//             (tax + rebalAmt));
 //         principleByAccountId[accountId].fiduP -= dFidu;                         // Deduct fidu redemption from principle
 //         require(IERC20(USDC).transfer(feeSetting.payoutAddress, tax));     // Scrape tax USDC to tax collector
 
 //         // Rebalance to sibling vault
 //         LocalRegistrarLib.StrategyParams memory stratParams = registrar.getStrategyParamsById(STRATEGY_ID);
-//         require(IERC20(USDC).transfer(stratParams.Liquid.vaultAddr, (redeemedUSDC - tax))); 
+//         require(IERC20(USDC).transfer(stratParams.Liquid.vaultAddr, (redeemedUSDC - tax)));
 //         IVault(stratParams.Liquid.vaultAddr).deposit(accountId, USDC, (redeemedUSDC - tax));
 //     }
 
 //     function _taxRedemption(
-//         AngelCoreStruct.FeeSetting memory feeSetting, 
-//         uint256 yield_withPrecision, 
+//         AngelCoreStruct.FeeSetting memory feeSetting,
+//         uint256 yield_withPrecision,
 //         uint256 redeemedAmt) internal returns (uint256) {
 //         uint256 taxedAmt = _calcTax(yield_withPrecision, redeemedAmt);
 //         require(IERC20(USDC).transfer(feeSetting.payoutAddress, taxedAmt));
@@ -322,7 +319,7 @@
 //     function _calcYield_withPrecision(uint32 accountId, uint256 positionAmount) internal view returns (uint256) {
 //         uint256 p = principleByAccountId[accountId].usdcP;
 //         uint256 usdcValue = crvPool.get_dy(1, 0, positionAmount);
-//         if(usdcValue >= p) { // check for underflow 
+//         if(usdcValue >= p) { // check for underflow
 //             return ((usdcValue - p)*PRECISION/p);
 //         }
 //         else {
@@ -336,35 +333,33 @@
 //         AngelCoreStruct.FeeSetting memory feeSetting = registrar.getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes.Default);
 
 //         require(IERC20(GFI).transfer(feeSetting.payoutAddress, bal));
-//     } 
+//     }
 
 //     function _calcTax(uint256 yield_withPrecision, uint256 taxableAmt) internal view returns (uint256) {
 //         AngelCoreStruct.FeeSetting memory feeSetting = registrar.getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes.Default);
 //         return ((yield_withPrecision * taxableAmt * feeSetting.bps)/AngelCoreStruct.FEE_BASIS)/PRECISION;
-//     }   
+//     }
 
 //     function _redeemFiduForUsdc(uint32 accountId, uint256 positionAmount, uint256 desiredUsdc) internal returns (uint256, uint256) {
 //         // Determine how much FIDU is needed to achieve desired USDC output
 //         uint256 exRate_withPrecision =_getExchageRate_withPrecision(1, 0, positionAmount);   // get exchange rate for worst case swap
 //         uint256 dFidu =  (desiredUsdc * PRECISION) / exRate_withPrecision;                    // determine fidu necessary given worst case ex rate
-//         require(dFidu <= positionAmount, "Cannot redeem more than available"); // check to see if redemption is possible 
-//         uint256 minUsdcOut =  _calcSlippageTolernace(1, 0, dFidu, _getSlippageTolerance());  // determine usdc less slippage tolerance 
+//         require(dFidu <= positionAmount, "Cannot redeem more than available"); // check to see if redemption is possible
+//         uint256 minUsdcOut =  _calcSlippageTolernace(1, 0, dFidu, _getSlippageTolerance());  // determine usdc less slippage tolerance
 //         uint256 redeemedUsdc = _unstakeAndSwap(accountId, dFidu, minUsdcOut);
 //         return (redeemedUsdc, dFidu);
 //     }
 
-    
-
 //     function _unstakeAndSwap(uint32 accountId, uint256 dFidu, uint256 minUsdcOut) internal returns (uint256) {
-//         // Move tokens from staking pool -> crv for swap -> return usdc redeemed 
-//         stakingPool.unstake(tokenIdByAccountId[accountId], dFidu);  // unstake dFidu position from staking pool 
+//         // Move tokens from staking pool -> crv for swap -> return usdc redeemed
+//         stakingPool.unstake(tokenIdByAccountId[accountId], dFidu);  // unstake dFidu position from staking pool
 //         IERC20(FIDU).approve(address(crvPool), dFidu);              // approve the CRV dex to trade the fidu for usdc
-//         return crvPool.exchange(1, 0, dFidu, minUsdcOut);           // return the usdc redeemed 
+//         return crvPool.exchange(1, 0, dFidu, minUsdcOut);           // return the usdc redeemed
 //     }
 
 //     function _getExchageRate_withPrecision(uint256 i, uint256 j, uint256 amt) internal view returns (uint256) {
 //         uint256 dy = crvPool.get_dy(i, j, amt); // get rent expected dy
 //         require(dy > 0, "Invalid exchange rate");
-//         return (dy  * PRECISION / amt); 
+//         return (dy  * PRECISION / amt);
 //     }
 // }
