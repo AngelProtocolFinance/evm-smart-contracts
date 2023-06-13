@@ -45,7 +45,7 @@ task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
       const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
-      const diamond = await deployAccountsDiamond(
+      const accountsDiamond = await deployAccountsDiamond(
         apTeamMultiSig,
         registrar,
         angelCoreStruct,
@@ -65,9 +65,12 @@ task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
         await updateRegistrarConfig(
           registrar,
           apTeamMultiSig,
-          {accountsContract: diamond.address},
+          {accountsContract: accountsDiamond.address},
           hre
         );
+        await hre.run("manage:CharityApplication:updateConfig", {
+          accountsDiamond: accountsDiamond.address,
+        });
       }
     } catch (error) {
       logger.out(`Diamond deployment failed, reason: ${error}`, logger.Level.Error);
