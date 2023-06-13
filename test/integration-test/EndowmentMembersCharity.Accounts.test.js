@@ -153,7 +153,7 @@ describe("Charity Endowment Creation and Approval from Application Team", functi
     // Deposit to accounts
 
     const accountDeposit = await ethers.getContractAt(
-      "AccountDepositWithdrawEndowments",
+      "AccountsDepositWithdrawEndowments",
       deployRes.addresses.account
     );
 
@@ -275,7 +275,7 @@ describe("Charity Endowment Creation and Approval from Application Team", functi
     // Deposit to accounts
 
     const accountDeposit = await ethers.getContractAt(
-      "AccountDepositWithdrawEndowments",
+      "AccountsDepositWithdrawEndowments",
       deployRes.addresses.account
     );
 
@@ -528,7 +528,7 @@ describe("Charity Endowment Creation and Approval from Application Team", functi
     // Deposit to accounts
 
     const accountDeposit = await ethers.getContractAt(
-      "AccountDepositWithdrawEndowments",
+      "AccountsDepositWithdrawEndowments",
       deployRes.addresses.account
     );
 

@@ -78,6 +78,19 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "bool",
+        name: "requireExecution",
+        type: "bool",
+      },
+    ],
+    name: "ExecutionRequiredChange",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "address",
         name: "owner",
@@ -201,6 +214,19 @@ const _abi = [
       },
     ],
     name: "addOwner",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bool",
+        name: "requireExecution",
+        type: "bool",
+      },
+    ],
+    name: "changeRequireExecution",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

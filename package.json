@@ -58,6 +58,7 @@
   "dependencies": {
     "@axelar-network/axelar-gmp-sdk-solidity": "^3.3.0",
     "@axelar-network/axelar-local-dev": "^1.4.4",
+    "@chainlink/contracts": "^0.6.1",
     "@openzeppelin/contracts": "^4.8.3",
     "@openzeppelin/contracts-upgradeable": "^4.8.3",
     "@openzeppelin/hardhat-upgrades": "^1.23.1",

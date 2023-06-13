@@ -343,7 +343,7 @@ export interface MultisigCreatedEventObject {
   emitter: string;
   owners: string[];
   required: BigNumber;
-  requireexecution: boolean;
+  requireExecution: boolean;
 }
 export type MultisigCreatedEvent = TypedEvent<
   [string, BigNumber, string, string[], BigNumber, boolean],
@@ -398,7 +398,7 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
       emitter: PromiseOrValue<string>,
       owners: PromiseOrValue<string>[],
       required: PromiseOrValue<BigNumberish>,
-      requireexecution: PromiseOrValue<boolean>,
+      requireExecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -472,7 +472,7 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
     emitter: PromiseOrValue<string>,
     owners: PromiseOrValue<string>[],
     required: PromiseOrValue<BigNumberish>,
-    requireexecution: PromiseOrValue<boolean>,
+    requireExecution: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -546,7 +546,7 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
       emitter: PromiseOrValue<string>,
       owners: PromiseOrValue<string>[],
       required: PromiseOrValue<BigNumberish>,
-      requireexecution: PromiseOrValue<boolean>,
+      requireExecution: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -697,7 +697,7 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
       emitter?: null,
       owners?: null,
       required?: null,
-      requireexecution?: null
+      requireExecution?: null
     ): MultisigCreatedEventFilter;
     MultisigCreated(
       multisigAddress?: null,
@@ -705,7 +705,7 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
       emitter?: null,
       owners?: null,
       required?: null,
-      requireexecution?: null
+      requireExecution?: null
     ): MultisigCreatedEventFilter;
   };
 
@@ -729,7 +729,7 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
       emitter: PromiseOrValue<string>,
       owners: PromiseOrValue<string>[],
       required: PromiseOrValue<BigNumberish>,
-      requireexecution: PromiseOrValue<boolean>,
+      requireExecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -804,7 +804,7 @@ export interface EndowmentMultiSigEmitter extends BaseContract {
       emitter: PromiseOrValue<string>,
       owners: PromiseOrValue<string>[],
       required: PromiseOrValue<BigNumberish>,
-      requireexecution: PromiseOrValue<boolean>,
+      requireExecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

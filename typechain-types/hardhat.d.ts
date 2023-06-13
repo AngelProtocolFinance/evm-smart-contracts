@@ -25,6 +25,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IAxelarGateway__factory>;
     getContractFactory(
+      name: "AggregatorV3Interface",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.AggregatorV3Interface__factory>;
+    getContractFactory(
       name: "AccessControlUpgradeable",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AccessControlUpgradeable__factory>;
@@ -313,18 +317,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DiamondInit__factory>;
     getContractFactory(
-      name: "AccountDeployContract",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.AccountDeployContract__factory>;
-    getContractFactory(
-      name: "AccountDepositWithdrawEndowments",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.AccountDepositWithdrawEndowments__factory>;
-    getContractFactory(
-      name: "AccountDonationMatch",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.AccountDonationMatch__factory>;
-    getContractFactory(
       name: "AccountsAllowance",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AccountsAllowance__factory>;
@@ -333,9 +325,21 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AccountsCreateEndowment__factory>;
     getContractFactory(
-      name: "AccountsDAOEndowments",
+      name: "AccountsDaoEndowments",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.AccountsDAOEndowments__factory>;
+    ): Promise<Contracts.AccountsDaoEndowments__factory>;
+    getContractFactory(
+      name: "AccountsDeployContract",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.AccountsDeployContract__factory>;
+    getContractFactory(
+      name: "AccountsDepositWithdrawEndowments",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.AccountsDepositWithdrawEndowments__factory>;
+    getContractFactory(
+      name: "AccountsDonationMatch",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.AccountsDonationMatch__factory>;
     getContractFactory(
       name: "AccountsEvents",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -345,9 +349,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AccountsQueryEndowments__factory>;
     getContractFactory(
-      name: "AccountsSwapEndowments",
+      name: "AccountsSwapRouter",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.AccountsSwapEndowments__factory>;
+    ): Promise<Contracts.AccountsSwapRouter__factory>;
     getContractFactory(
       name: "AccountsUpdate",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -373,25 +377,29 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IAccounts__factory>;
     getContractFactory(
-      name: "IAccountDeployContract",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IAccountDeployContract__factory>;
-    getContractFactory(
-      name: "IAccountDonationMatch",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IAccountDonationMatch__factory>;
-    getContractFactory(
       name: "IAccountsCreateEndowment",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IAccountsCreateEndowment__factory>;
+    getContractFactory(
+      name: "IAccountsDeployContract",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IAccountsDeployContract__factory>;
     getContractFactory(
       name: "IAccountsDepositWithdrawEndowments",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IAccountsDepositWithdrawEndowments__factory>;
     getContractFactory(
+      name: "IAccountsDonationMatch",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IAccountsDonationMatch__factory>;
+    getContractFactory(
       name: "IAccountsQueryEndowments",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IAccountsQueryEndowments__factory>;
+    getContractFactory(
+      name: "IAccountsSwapRouter",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IAccountsSwapRouter__factory>;
     getContractFactory(
       name: "ERC20AP",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -452,18 +460,6 @@ declare module "hardhat/types/runtime" {
       name: "AngelCoreStruct",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AngelCoreStruct__factory>;
-    getContractFactory(
-      name: "IPool",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IPool__factory>;
-    getContractFactory(
-      name: "ISwappingV3",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ISwappingV3__factory>;
-    getContractFactory(
-      name: "SwapRouter",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.SwapRouter__factory>;
     getContractFactory(
       name: "APVault_V1",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -776,6 +772,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.IAxelarGateway>;
+    getContractAt(
+      name: "AggregatorV3Interface",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AggregatorV3Interface>;
     getContractAt(
       name: "AccessControlUpgradeable",
       address: string,
@@ -1137,21 +1138,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.DiamondInit>;
     getContractAt(
-      name: "AccountDeployContract",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.AccountDeployContract>;
-    getContractAt(
-      name: "AccountDepositWithdrawEndowments",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.AccountDepositWithdrawEndowments>;
-    getContractAt(
-      name: "AccountDonationMatch",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.AccountDonationMatch>;
-    getContractAt(
       name: "AccountsAllowance",
       address: string,
       signer?: ethers.Signer
@@ -1162,10 +1148,25 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.AccountsCreateEndowment>;
     getContractAt(
-      name: "AccountsDAOEndowments",
+      name: "AccountsDaoEndowments",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.AccountsDAOEndowments>;
+    ): Promise<Contracts.AccountsDaoEndowments>;
+    getContractAt(
+      name: "AccountsDeployContract",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AccountsDeployContract>;
+    getContractAt(
+      name: "AccountsDepositWithdrawEndowments",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AccountsDepositWithdrawEndowments>;
+    getContractAt(
+      name: "AccountsDonationMatch",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AccountsDonationMatch>;
     getContractAt(
       name: "AccountsEvents",
       address: string,
@@ -1177,10 +1178,10 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.AccountsQueryEndowments>;
     getContractAt(
-      name: "AccountsSwapEndowments",
+      name: "AccountsSwapRouter",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.AccountsSwapEndowments>;
+    ): Promise<Contracts.AccountsSwapRouter>;
     getContractAt(
       name: "AccountsUpdate",
       address: string,
@@ -1212,30 +1213,35 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IAccounts>;
     getContractAt(
-      name: "IAccountDeployContract",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IAccountDeployContract>;
-    getContractAt(
-      name: "IAccountDonationMatch",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IAccountDonationMatch>;
-    getContractAt(
       name: "IAccountsCreateEndowment",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.IAccountsCreateEndowment>;
+    getContractAt(
+      name: "IAccountsDeployContract",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IAccountsDeployContract>;
     getContractAt(
       name: "IAccountsDepositWithdrawEndowments",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.IAccountsDepositWithdrawEndowments>;
     getContractAt(
+      name: "IAccountsDonationMatch",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IAccountsDonationMatch>;
+    getContractAt(
       name: "IAccountsQueryEndowments",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.IAccountsQueryEndowments>;
+    getContractAt(
+      name: "IAccountsSwapRouter",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IAccountsSwapRouter>;
     getContractAt(
       name: "ERC20AP",
       address: string,
@@ -1311,21 +1317,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.AngelCoreStruct>;
-    getContractAt(
-      name: "IPool",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IPool>;
-    getContractAt(
-      name: "ISwappingV3",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ISwappingV3>;
-    getContractAt(
-      name: "SwapRouter",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.SwapRouter>;
     getContractAt(
       name: "APVault_V1",
       address: string,

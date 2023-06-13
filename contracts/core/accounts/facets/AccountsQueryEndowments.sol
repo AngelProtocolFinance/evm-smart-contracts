@@ -6,6 +6,7 @@ import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 import {IAccountsQueryEndowments} from "../interfaces/IAccountsQueryEndowments.sol";
+
 /**
  * @title AccountsQueryEndowments
  * @notice This contract facet queries for endowment and accounts config
@@ -29,9 +30,9 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments {
     require(address(0) != tokenAddress, "Invalid token address");
 
     if (accountType == AngelCoreStruct.AccountType.Locked) {
-      tokenAmount = state.STATES[id].balances.locked.balancesByToken[tokenAddress];
+      tokenAmount = state.STATES[id].balances.locked[tokenAddress];
     } else {
-      tokenAmount = state.STATES[id].balances.liquid.balancesByToken[tokenAddress];
+      tokenAmount = state.STATES[id].balances.liquid[tokenAddress];
     }
   }
 

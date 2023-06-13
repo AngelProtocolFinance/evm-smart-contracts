@@ -208,7 +208,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "swapsRouter",
+            name: "uniswapSwapRouter",
             type: "address",
           },
           {
@@ -277,7 +277,7 @@ const _abi = [
 ] as const;
 
 const _bytecode =
-  "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea264697066735822122048c6ae1172b7c0382304784610f3a3f3378ce01313e2fa590ed72220a0224dfc64736f6c63430008120033";
+  "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea26469706673582212201a9444daa492553fe181d2417c9c2fcb7f77dd8f40d6f78a52643b9a7607b13c64736f6c63430008120033";
 
 type RegistrarEventsLibConstructorParams =
   | [signer?: Signer]

@@ -80,7 +80,7 @@ const _abi = [
       },
       {
         internalType: "bool",
-        name: "requireexecution",
+        name: "requireExecution",
         type: "bool",
       },
     ],
@@ -162,6 +162,24 @@ const _abi = [
       },
     ],
     name: "removeOwnerEndowment",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "endowmentId",
+        type: "uint256",
+      },
+      {
+        internalType: "bool",
+        name: "requireExecution",
+        type: "bool",
+      },
+    ],
+    name: "requireExecutionChangeEndowment",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

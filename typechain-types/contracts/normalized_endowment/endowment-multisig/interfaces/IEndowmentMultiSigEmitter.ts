@@ -62,6 +62,7 @@ export interface IEndowmentMultiSigEmitterInterface extends utils.Interface {
     "executeEndowment(uint256,uint256)": FunctionFragment;
     "executeFailureEndowment(uint256,uint256)": FunctionFragment;
     "removeOwnerEndowment(uint256,address)": FunctionFragment;
+    "requireExecutionChangeEndowment(uint256,bool)": FunctionFragment;
     "requirementChangeEndowment(uint256,uint256)": FunctionFragment;
     "revokeEndowment(uint256,address,uint256)": FunctionFragment;
     "submitEndowment(uint256,uint256,(string,string,address,uint256,bytes,bool,bytes))": FunctionFragment;
@@ -76,6 +77,7 @@ export interface IEndowmentMultiSigEmitterInterface extends utils.Interface {
       | "executeEndowment"
       | "executeFailureEndowment"
       | "removeOwnerEndowment"
+      | "requireExecutionChangeEndowment"
       | "requirementChangeEndowment"
       | "revokeEndowment"
       | "submitEndowment"
@@ -125,6 +127,10 @@ export interface IEndowmentMultiSigEmitterInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "requireExecutionChangeEndowment",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "requirementChangeEndowment",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
@@ -171,6 +177,10 @@ export interface IEndowmentMultiSigEmitterInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "removeOwnerEndowment",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "requireExecutionChangeEndowment",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -235,7 +245,7 @@ export interface IEndowmentMultiSigEmitter extends BaseContract {
       emitter: PromiseOrValue<string>,
       owners: PromiseOrValue<string>[],
       required: PromiseOrValue<BigNumberish>,
-      requireexecution: PromiseOrValue<boolean>,
+      requireExecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -261,6 +271,12 @@ export interface IEndowmentMultiSigEmitter extends BaseContract {
     removeOwnerEndowment(
       endowmentId: PromiseOrValue<BigNumberish>,
       owner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    requireExecutionChangeEndowment(
+      endowmentId: PromiseOrValue<BigNumberish>,
+      requireExecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -304,7 +320,7 @@ export interface IEndowmentMultiSigEmitter extends BaseContract {
     emitter: PromiseOrValue<string>,
     owners: PromiseOrValue<string>[],
     required: PromiseOrValue<BigNumberish>,
-    requireexecution: PromiseOrValue<boolean>,
+    requireExecution: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -330,6 +346,12 @@ export interface IEndowmentMultiSigEmitter extends BaseContract {
   removeOwnerEndowment(
     endowmentId: PromiseOrValue<BigNumberish>,
     owner: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  requireExecutionChangeEndowment(
+    endowmentId: PromiseOrValue<BigNumberish>,
+    requireExecution: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -373,7 +395,7 @@ export interface IEndowmentMultiSigEmitter extends BaseContract {
       emitter: PromiseOrValue<string>,
       owners: PromiseOrValue<string>[],
       required: PromiseOrValue<BigNumberish>,
-      requireexecution: PromiseOrValue<boolean>,
+      requireExecution: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -399,6 +421,12 @@ export interface IEndowmentMultiSigEmitter extends BaseContract {
     removeOwnerEndowment(
       endowmentId: PromiseOrValue<BigNumberish>,
       owner: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    requireExecutionChangeEndowment(
+      endowmentId: PromiseOrValue<BigNumberish>,
+      requireExecution: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -445,7 +473,7 @@ export interface IEndowmentMultiSigEmitter extends BaseContract {
       emitter: PromiseOrValue<string>,
       owners: PromiseOrValue<string>[],
       required: PromiseOrValue<BigNumberish>,
-      requireexecution: PromiseOrValue<boolean>,
+      requireExecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -471,6 +499,12 @@ export interface IEndowmentMultiSigEmitter extends BaseContract {
     removeOwnerEndowment(
       endowmentId: PromiseOrValue<BigNumberish>,
       owner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    requireExecutionChangeEndowment(
+      endowmentId: PromiseOrValue<BigNumberish>,
+      requireExecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -515,7 +549,7 @@ export interface IEndowmentMultiSigEmitter extends BaseContract {
       emitter: PromiseOrValue<string>,
       owners: PromiseOrValue<string>[],
       required: PromiseOrValue<BigNumberish>,
-      requireexecution: PromiseOrValue<boolean>,
+      requireExecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -541,6 +575,12 @@ export interface IEndowmentMultiSigEmitter extends BaseContract {
     removeOwnerEndowment(
       endowmentId: PromiseOrValue<BigNumberish>,
       owner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    requireExecutionChangeEndowment(
+      endowmentId: PromiseOrValue<BigNumberish>,
+      requireExecution: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

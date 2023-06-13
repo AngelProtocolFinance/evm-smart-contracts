@@ -80,7 +80,7 @@
 
 //     await MockERC20.connect(deployer).transfer(donor.address, ethers.utils.parseUnits('10000', 6));
 
-//     const accountDeposit = await ethers.getContractAt('AccountDepositWithdrawEndowments', deployRes.addresses.account);
+//     const accountDeposit = await ethers.getContractAt('AccountsDepositWithdrawEndowments', deployRes.addresses.account);
 
 //     MockERC20.connect(donor).approve(accountDeposit.address, ethers.utils.parseUnits('10000', 6));
 

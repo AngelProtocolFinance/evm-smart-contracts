@@ -13,5 +13,4 @@ import "./deployIndexFund";
 import "./deployLibraries";
 import "./deployRegistrar";
 import "./deployRouter";
-import "./deploySwapRouter";
 import "./integrations";

@@ -167,7 +167,7 @@ export declare namespace RegistrarStorage {
     collectorShare: PromiseOrValue<BigNumberish>;
     charitySharesContract: PromiseOrValue<string>;
     fundraisingContract: PromiseOrValue<string>;
-    swapsRouter: PromiseOrValue<string>;
+    uniswapSwapRouter: PromiseOrValue<string>;
     multisigFactory: PromiseOrValue<string>;
     multisigEmitter: PromiseOrValue<string>;
     charityProposal: PromiseOrValue<string>;
@@ -229,7 +229,7 @@ export declare namespace RegistrarStorage {
     collectorShare: BigNumber;
     charitySharesContract: string;
     fundraisingContract: string;
-    swapsRouter: string;
+    uniswapSwapRouter: string;
     multisigFactory: string;
     multisigEmitter: string;
     charityProposal: string;
@@ -259,7 +259,7 @@ export declare namespace RegistrarMessages {
     charitySharesContract: PromiseOrValue<string>;
     fundraisingContract: PromiseOrValue<string>;
     applicationsReview: PromiseOrValue<string>;
-    swapsRouter: PromiseOrValue<string>;
+    uniswapSwapRouter: PromiseOrValue<string>;
     multisigFactory: PromiseOrValue<string>;
     multisigEmitter: PromiseOrValue<string>;
     charityProposal: PromiseOrValue<string>;
@@ -327,7 +327,7 @@ export declare namespace RegistrarMessages {
     charitySharesContract: string;
     fundraisingContract: string;
     applicationsReview: string;
-    swapsRouter: string;
+    uniswapSwapRouter: string;
     multisigFactory: string;
     multisigEmitter: string;
     charityProposal: string;
@@ -389,6 +389,7 @@ export interface IRegistrarInterface extends utils.Interface {
     "queryAllStrategies()": FunctionFragment;
     "queryConfig()": FunctionFragment;
     "queryNetworkConnection(uint256)": FunctionFragment;
+    "queryTokenPriceFeed(address)": FunctionFragment;
     "setAccountsContractAddressByChain(string,string)": FunctionFragment;
     "setAngelProtocolParams((address,address))": FunctionFragment;
     "setFeeSettingsByFeesType(uint8,uint256,address)": FunctionFragment;
@@ -398,10 +399,10 @@ export interface IRegistrarInterface extends utils.Interface {
     "setStrategyParams(bytes4,address,address,uint8)": FunctionFragment;
     "setTokenAccepted(address,bool)": FunctionFragment;
     "setVaultOperatorApproved(address,bool)": FunctionFragment;
-    "testQuery()": FunctionFragment;
     "updateConfig((address,string[],uint256,uint256,uint256,uint256,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address,address))": FunctionFragment;
     "updateNetworkConnections((string,uint256,address,address,string,string,address,uint256),string)": FunctionFragment;
     "updateOwner(address)": FunctionFragment;
+    "updateTokenPriceFeed(address,address)": FunctionFragment;
     "vaultAdd((uint256,string,address,address,uint8[],uint8,uint8))": FunctionFragment;
     "vaultRemove(string)": FunctionFragment;
     "vaultUpdate(string,bool,uint8[])": FunctionFragment;
@@ -422,6 +423,7 @@ export interface IRegistrarInterface extends utils.Interface {
       | "queryAllStrategies"
       | "queryConfig"
       | "queryNetworkConnection"
+      | "queryTokenPriceFeed"
       | "setAccountsContractAddressByChain"
       | "setAngelProtocolParams"
       | "setFeeSettingsByFeesType"
@@ -431,10 +433,10 @@ export interface IRegistrarInterface extends utils.Interface {
       | "setStrategyParams"
       | "setTokenAccepted"
       | "setVaultOperatorApproved"
-      | "testQuery"
       | "updateConfig"
       | "updateNetworkConnections"
       | "updateOwner"
+      | "updateTokenPriceFeed"
       | "vaultAdd"
       | "vaultRemove"
       | "vaultUpdate"
@@ -490,6 +492,10 @@ export interface IRegistrarInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "queryTokenPriceFeed",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setAccountsContractAddressByChain",
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
@@ -534,7 +540,6 @@ export interface IRegistrarInterface extends utils.Interface {
     functionFragment: "setVaultOperatorApproved",
     values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
   ): string;
-  encodeFunctionData(functionFragment: "testQuery", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "updateConfig",
     values: [RegistrarMessages.UpdateConfigRequestStruct]
@@ -546,6 +551,10 @@ export interface IRegistrarInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "updateOwner",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updateTokenPriceFeed",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "vaultAdd",
@@ -614,6 +623,10 @@ export interface IRegistrarInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "queryTokenPriceFeed",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setAccountsContractAddressByChain",
     data: BytesLike
   ): Result;
@@ -649,7 +662,6 @@ export interface IRegistrarInterface extends utils.Interface {
     functionFragment: "setVaultOperatorApproved",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "testQuery", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "updateConfig",
     data: BytesLike
@@ -660,6 +672,10 @@ export interface IRegistrarInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "updateOwner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateTokenPriceFeed",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "vaultAdd", data: BytesLike): Result;
@@ -879,6 +895,11 @@ export interface IRegistrar extends BaseContract {
       }
     >;
 
+    queryTokenPriceFeed(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     setAccountsContractAddressByChain(
       _chainName: PromiseOrValue<string>,
       _accountsContractAddress: PromiseOrValue<string>,
@@ -934,8 +955,6 @@ export interface IRegistrar extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    testQuery(overrides?: CallOverrides): Promise<[string[]]>;
-
     updateConfig(
       details: RegistrarMessages.UpdateConfigRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -949,6 +968,12 @@ export interface IRegistrar extends BaseContract {
 
     updateOwner(
       newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    updateTokenPriceFeed(
+      token: PromiseOrValue<string>,
+      priceFeed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1026,6 +1051,11 @@ export interface IRegistrar extends BaseContract {
     overrides?: CallOverrides
   ): Promise<AngelCoreStruct.NetworkInfoStructOutput>;
 
+  queryTokenPriceFeed(
+    token: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   setAccountsContractAddressByChain(
     _chainName: PromiseOrValue<string>,
     _accountsContractAddress: PromiseOrValue<string>,
@@ -1081,8 +1111,6 @@ export interface IRegistrar extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  testQuery(overrides?: CallOverrides): Promise<string[]>;
-
   updateConfig(
     details: RegistrarMessages.UpdateConfigRequestStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1096,6 +1124,12 @@ export interface IRegistrar extends BaseContract {
 
   updateOwner(
     newOwner: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  updateTokenPriceFeed(
+    token: PromiseOrValue<string>,
+    priceFeed: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1173,6 +1207,11 @@ export interface IRegistrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<AngelCoreStruct.NetworkInfoStructOutput>;
 
+    queryTokenPriceFeed(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     setAccountsContractAddressByChain(
       _chainName: PromiseOrValue<string>,
       _accountsContractAddress: PromiseOrValue<string>,
@@ -1228,8 +1267,6 @@ export interface IRegistrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    testQuery(overrides?: CallOverrides): Promise<string[]>;
-
     updateConfig(
       details: RegistrarMessages.UpdateConfigRequestStruct,
       overrides?: CallOverrides
@@ -1243,6 +1280,12 @@ export interface IRegistrar extends BaseContract {
 
     updateOwner(
       newOwner: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    updateTokenPriceFeed(
+      token: PromiseOrValue<string>,
+      priceFeed: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1391,6 +1434,11 @@ export interface IRegistrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    queryTokenPriceFeed(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     setAccountsContractAddressByChain(
       _chainName: PromiseOrValue<string>,
       _accountsContractAddress: PromiseOrValue<string>,
@@ -1446,8 +1494,6 @@ export interface IRegistrar extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    testQuery(overrides?: CallOverrides): Promise<BigNumber>;
-
     updateConfig(
       details: RegistrarMessages.UpdateConfigRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1461,6 +1507,12 @@ export interface IRegistrar extends BaseContract {
 
     updateOwner(
       newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    updateTokenPriceFeed(
+      token: PromiseOrValue<string>,
+      priceFeed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1539,6 +1591,11 @@ export interface IRegistrar extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    queryTokenPriceFeed(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     setAccountsContractAddressByChain(
       _chainName: PromiseOrValue<string>,
       _accountsContractAddress: PromiseOrValue<string>,
@@ -1594,8 +1651,6 @@ export interface IRegistrar extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    testQuery(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     updateConfig(
       details: RegistrarMessages.UpdateConfigRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1609,6 +1664,12 @@ export interface IRegistrar extends BaseContract {
 
     updateOwner(
       newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateTokenPriceFeed(
+      token: PromiseOrValue<string>,
+      priceFeed: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

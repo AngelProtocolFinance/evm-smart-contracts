@@ -110,8 +110,6 @@ export interface AngelCoreStructInterface extends utils.Interface {
     "accountStrategiesDefaut()": FunctionFragment;
     "beneficiaryDefault()": FunctionFragment;
     "checkSplits((uint256,uint256,uint256),uint256,uint256,bool)": FunctionFragment;
-    "deductTokens(uint256,uint256)": FunctionFragment;
-    "getTokenAmount(address[],uint256[],address)": FunctionFragment;
     "oneOffVaultsDefault()": FunctionFragment;
     "validateFee((address,uint256))": FunctionFragment;
   };
@@ -121,8 +119,6 @@ export interface AngelCoreStructInterface extends utils.Interface {
       | "accountStrategiesDefaut"
       | "beneficiaryDefault"
       | "checkSplits"
-      | "deductTokens"
-      | "getTokenAmount"
       | "oneOffVaultsDefault"
       | "validateFee"
   ): FunctionFragment;
@@ -145,18 +141,6 @@ export interface AngelCoreStructInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "deductTokens",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getTokenAmount",
-    values: [
-      PromiseOrValue<string>[],
-      PromiseOrValue<BigNumberish>[],
-      PromiseOrValue<string>
-    ]
-  ): string;
-  encodeFunctionData(
     functionFragment: "oneOffVaultsDefault",
     values?: undefined
   ): string;
@@ -175,14 +159,6 @@ export interface AngelCoreStructInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "checkSplits",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "deductTokens",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getTokenAmount",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -240,19 +216,6 @@ export interface AngelCoreStruct extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber]>;
 
-    deductTokens(
-      amount: PromiseOrValue<BigNumberish>,
-      deductamount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    getTokenAmount(
-      addresses: PromiseOrValue<string>[],
-      amounts: PromiseOrValue<BigNumberish>[],
-      token: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     oneOffVaultsDefault(
       overrides?: CallOverrides
     ): Promise<[AngelCoreStruct.OneOffVaultsStructOutput]>;
@@ -278,19 +241,6 @@ export interface AngelCoreStruct extends BaseContract {
     userOverride: PromiseOrValue<boolean>,
     overrides?: CallOverrides
   ): Promise<[BigNumber, BigNumber]>;
-
-  deductTokens(
-    amount: PromiseOrValue<BigNumberish>,
-    deductamount: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  getTokenAmount(
-    addresses: PromiseOrValue<string>[],
-    amounts: PromiseOrValue<BigNumberish>[],
-    token: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
 
   oneOffVaultsDefault(
     overrides?: CallOverrides
@@ -318,19 +268,6 @@ export interface AngelCoreStruct extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber]>;
 
-    deductTokens(
-      amount: PromiseOrValue<BigNumberish>,
-      deductamount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getTokenAmount(
-      addresses: PromiseOrValue<string>[],
-      amounts: PromiseOrValue<BigNumberish>[],
-      token: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     oneOffVaultsDefault(
       overrides?: CallOverrides
     ): Promise<AngelCoreStruct.OneOffVaultsStructOutput>;
@@ -356,19 +293,6 @@ export interface AngelCoreStruct extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    deductTokens(
-      amount: PromiseOrValue<BigNumberish>,
-      deductamount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getTokenAmount(
-      addresses: PromiseOrValue<string>[],
-      amounts: PromiseOrValue<BigNumberish>[],
-      token: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     oneOffVaultsDefault(overrides?: CallOverrides): Promise<BigNumber>;
 
     validateFee(
@@ -391,19 +315,6 @@ export interface AngelCoreStruct extends BaseContract {
       userLocked: PromiseOrValue<BigNumberish>,
       userLiquid: PromiseOrValue<BigNumberish>,
       userOverride: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    deductTokens(
-      amount: PromiseOrValue<BigNumberish>,
-      deductamount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getTokenAmount(
-      addresses: PromiseOrValue<string>[],
-      amounts: PromiseOrValue<BigNumberish>[],
-      token: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

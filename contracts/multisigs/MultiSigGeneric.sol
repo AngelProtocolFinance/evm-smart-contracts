@@ -159,6 +159,13 @@ contract MultiSigGeneric is
     emit RequirementChange(_required);
   }
 
+  /// @dev Allows to change whether explicit execution step is needed once the required number of confirmations is met. Transaction has to be sent by wallet.
+  /// @param _requireExecution Is an explicit execution step is needed
+  function changeRequireExecution(bool _requireExecution) public virtual override onlyWallet {
+    requireExecution = _requireExecution;
+    emit ExecutionRequiredChange(_requireExecution);
+  }
+
   /// @dev Allows an owner to submit and confirm a transaction.
   /// @param title title related to txn
   /// @param description description related to txn

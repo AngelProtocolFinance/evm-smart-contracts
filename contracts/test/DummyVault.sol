@@ -52,6 +52,6 @@ contract DummyVault is IVault {
   }
 
   function _isApprovedRouter() internal view override returns (bool) {}
-  function _isSiblingVault() internal view override returns (bool) {}
 
+  function _isSiblingVault() internal view override returns (bool) {}
 }
