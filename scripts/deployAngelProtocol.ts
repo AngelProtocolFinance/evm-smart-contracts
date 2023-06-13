@@ -1,7 +1,7 @@
 // import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {ADDRESS_ZERO, cleanAddresses, isLocalNetwork, logger} from "utils";
+import {ADDRESS_ZERO, cleanAddresses, getAddresses, isLocalNetwork, logger} from "utils";
 
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
@@ -73,14 +73,14 @@ export async function deployAngelProtocol(
     hre
   );
 
-  const swapRouter = await deploySwapRouter(
-    registrar.proxy.address,
-    accountsDiamond.address,
-    config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS,
-    config.SWAP_ROUTER_DATA.SWAP_ROUTER_ADDRESS,
-    verify_contracts,
-    hre
-  );
+  // const swapRouter = await deploySwapRouter(
+  //   registrar.proxy.address,
+  //   accountsDiamond.address,
+  //   config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS,
+  //   config.SWAP_ROUTER_DATA.SWAP_ROUTER_ADDRESS,
+  //   verify_contracts,
+  //   hre
+  // );
 
   const indexFund = await deployIndexFund(
     registrar.proxy.address,
@@ -251,6 +251,7 @@ export async function deployAngelProtocol(
 
   // config.REGISTRAR_DATA.acceptedTokens.cw20.push(haloToken.address)
 
+  const addresses = await getAddresses(hre);
   await updateRegistrarConfig(
     registrar.proxy.address,
     apTeamMultisig.proxy.address,
@@ -264,7 +265,7 @@ export async function deployAngelProtocol(
       treasury: treasury.address,
       haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
       applicationsReview: applicationsMultiSig.proxy.address, //address
-      swapsRouter: swapRouter.proxy.address, //address
+      uniswapSwapRouter: addresses.uniswapSwapRouter, //address
       multisigFactory: endowmentMultiSig.factory.address, //address
       multisigEmitter: endowmentMultiSig.emitter.proxy.address, //address
       charityProposal: charityApplication.proxy.address, //address

@@ -208,14 +208,11 @@ export function createEmpty(): AddressObj {
       token: "",
       veBondingToken: "",
     },
-    swapRouter: {
-      implementation: "",
-      proxy: "",
-    },
     tokens: {
       halo: "",
       usdc: "",
       wmatic: "",
     },
+    uniswapSwapRouter: "",
   };
 }

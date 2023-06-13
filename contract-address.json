@@ -142,15 +142,12 @@
       "token": "0x922D6956C99E12DFeB3224DEA977D0939758A1Fe",
       "veBondingToken": "0x5081a39b8A5f0E35a8D959395a630b68B74Dd30f"
     },
-    "swapRouter": {
-      "implementation": "",
-      "proxy": ""
-    },
     "tokens": {
       "halo": "",
       "usdc": "0xDDEec1224034F4A68A2697eF13379a014fa60261",
       "wmatic": ""
-    }
+    },
+    "uniswapSwapRouter": ""
   },
   "80001": {
     "accounts": {
@@ -293,14 +290,11 @@
       "token": "0x4Bc5366E4e5c60ed383Cdc8cBD9180791Ae572f2",
       "veBondingToken": "0x9DDFfa45bD8B04ba10b5d291f9D80c56A711637A"
     },
-    "swapRouter": {
-      "implementation": "0x4Cec8D5d3877FAA9Ebd040d1cFc1DA947D92fe36",
-      "proxy": "0x5F3BB40873856B7a8dB666e26E3EF73015C6b9aD"
-    },
     "tokens": {
       "halo": "",
       "usdc": "",
       "wmatic": ""
-    }
+    },
+    "uniswapSwapRouter": "0xE592427A0AEce92De3Edee1F18E0157C05861564"
   }
 }
