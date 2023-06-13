@@ -29,7 +29,7 @@ task("manage:registrar:updateConfig")
       const charityProposal = taskArgs.charityProposal || addresses.charityApplication.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
 
-      await updateRegistrarConfig(apTeamMultiSig, registrar, {charityProposal}, hre);
+      await updateRegistrarConfig(registrar, apTeamMultiSig, {charityProposal}, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
