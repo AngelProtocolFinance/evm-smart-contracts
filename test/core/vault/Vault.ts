@@ -3,26 +3,21 @@ import {ethers, upgrades} from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   DummyERC20,
-  DummyERC20__factory,
   DummyGasService,
-  DummyGasService__factory,
   DummyGateway,
-  DummyGateway__factory,
   IVault,
   APVault_V1,
   APVault_V1__factory,
   LocalRegistrar,
-  LocalRegistrar__factory,
   Router,
-  Router__factory,
   DummyStrategy,
-  DummyStrategy__factory,
   IStrategy,
 } from "typechain-types";
-import {LocalRegistrarLib} from "../../../typechain-types/contracts/core/registrar/LocalRegistrar";
 import {
   deployDummyStrategy,
   deployDummyERC20,
+  deployRegistrarAsProxy,
+  StrategyApprovalState,
   DEFAULT_STRATEGY_SELECTOR,
   DEFAULT_VAULT_NAME,
   DEFAULT_VAULT_SYMBOL
@@ -161,6 +156,7 @@ describe("Vault", function () {
     let baseToken: DummyERC20
     let yieldToken: DummyERC20
     let strategy: DummyStrategy
+    let registrar: LocalRegistrar
     before(async function() {
       baseToken = await deployDummyERC20(owner)
       yieldToken = await deployDummyERC20(owner)
@@ -171,14 +167,68 @@ describe("Vault", function () {
           yieldToken: yieldToken.address, 
           admin: owner.address
         })
+      registrar = await deployRegistrarAsProxy(owner)
+      await registrar.setVaultOperatorApproved(owner.address, true)
     })
     beforeEach(async function () {
       vault = await deployVault({
+        vaultType: 1, // Liquid
         admin: owner.address, 
         baseToken: baseToken.address, 
         yieldToken: yieldToken.address,
-        strategy: strategy.address
+        strategy: strategy.address,
+        registrar: registrar.address
       })
+    })
+
+    it("reverts if the operator isn't approved as an operator, sibling vault, or approved router", async function () {
+      await registrar.setVaultOperatorApproved(owner.address, false)
+      await registrar.setStrategyParams(
+        DEFAULT_STRATEGY_SELECTOR,
+        user.address,
+        vault.address,
+        StrategyApprovalState.APPROVED
+      )
+      await registrar.setAngelProtocolParams(
+        {
+          routerAddr: user.address,
+          refundAddr: collector.address
+        })
+      await (expect (vault.deposit(0,baseToken.address,1)))
+        .to.be.revertedWithCustomError(vault, "OnlyApproved")
+      await registrar.setVaultOperatorApproved(owner.address, true)
+    })
+
+    it("reverts if the strategy is paused", async function () {
+      await strategy.pause()
+      await expect(vault.deposit(0,baseToken.address,1))
+        .to.be.revertedWithCustomError(vault, "OnlyNotPaused")
+      await strategy.unpause()
+    })
+
+    it("reverts if the token provided isn't the base token", async function () {
+      await expect(vault.deposit(0,yieldToken.address,1))
+      .to.be.revertedWithCustomError(vault, "OnlyBaseToken")
+    })
+
+    it("reverts if the baseToken approval fails", async function () {
+      await baseToken.setApproveAllowed(false)
+      await baseToken.mint(vault.address, 1)
+      await expect(vault.deposit(0, baseToken.address, 1))
+        .to.be.revertedWithCustomError(vault, "ApproveFailed")
+      await baseToken.setApproveAllowed(true)
+    })
+
+    it("successfully completes the deposit", async function () {
+      await baseToken.mint(vault.address, 1)
+      await yieldToken.mint(strategy.address, 1)
+      await strategy.setDummyAmt(1)
+      expect(await vault.deposit(0, baseToken.address, 1))
+      expect(await yieldToken.balanceOf(vault.address)).to.equal(1)
+      expect(await baseToken.balanceOf(strategy.address)).to.equal(1)
+      expect(await vault.balanceOf(0)).to.equal(1)
+      let principles = await vault.principleByAccountId(0)
+      expect(principles.baseToken).to.equal(1)
     })
   })
   })

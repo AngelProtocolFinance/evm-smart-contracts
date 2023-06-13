@@ -45,7 +45,8 @@ abstract contract ERC4626AP is ERC20AP {
                         DEPOSIT/WITHDRAWAL LOGIC
     //////////////////////////////////////////////////////////////*/
 
-  function deposit(
+  function depositERC4626(
+    address strategy, 
     uint256 assets,
     uint32 receiver
   ) public virtual operatorOnly returns (uint256 shares) {
@@ -53,7 +54,7 @@ abstract contract ERC4626AP is ERC20AP {
     require((shares = previewDeposit(assets)) != 0, "ZERO_SHARES");
 
     // Need to transfer before minting or ERC777s could reenter.
-    asset.transferFrom(_msgSender(), address(this), assets);
+    asset.transferFrom(strategy, address(this), assets);
 
     _mint(receiver, shares);
 
@@ -100,7 +101,7 @@ abstract contract ERC4626AP is ERC20AP {
     asset.safeTransfer(receiver, assets);
   }
 
-  function redeem(
+  function redeemERC4626(
     uint256 shares,
     address receiver,
     uint32 owner

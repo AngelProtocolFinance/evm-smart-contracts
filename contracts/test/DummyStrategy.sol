@@ -29,13 +29,13 @@ contract DummyStrategy is Pausable, IStrategy {
   
   function deposit(uint256 amt) payable external returns (uint256) {
     IERC20(stratConfig.baseToken).transferFrom(msg.sender, address(this), amt);
-    IERC20(stratConfig.yieldToken).transfer(msg.sender, dummyAmt);
+    IERC20(stratConfig.yieldToken).approve(msg.sender, dummyAmt);
     return dummyAmt;
   }
 
   function withdraw(uint256 amt) payable external returns (uint256){
     IERC20(stratConfig.yieldToken).transferFrom(msg.sender, address(this), amt);
-    IERC20(stratConfig.baseToken).transfer(msg.sender, dummyAmt);
+    IERC20(stratConfig.baseToken).approve(msg.sender, dummyAmt);
     return dummyAmt;
   }
 
@@ -49,5 +49,11 @@ contract DummyStrategy is Pausable, IStrategy {
 
   function paused() public override(IStrategy, Pausable) view returns (bool) {
     return super.paused();
+  }
+  function pause() public {
+    _pause();
+  }
+  function unpause() public {
+    _unpause();
   }
 }

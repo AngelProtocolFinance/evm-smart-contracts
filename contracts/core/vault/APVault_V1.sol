@@ -15,7 +15,7 @@ contract APVault_V1 is IVault, ERC4626AP {
   using FixedPointMathLib for uint256;
 
   VaultConfig public vaultConfig;
-  mapping(uint32 => Principle) principleByAccountId;
+  mapping(uint32 => Principle) public principleByAccountId;
 
   constructor(
     VaultConfig memory _config
@@ -90,7 +90,7 @@ contract APVault_V1 is IVault, ERC4626AP {
 
     _updatePrincipleDeposit(accountId, amt, yieldAmt);
 
-    super.deposit(yieldAmt, accountId);
+    super.depositERC4626(vaultConfig.strategy, yieldAmt, accountId);
   }
 
   function redeem(
@@ -105,8 +105,11 @@ contract APVault_V1 is IVault, ERC4626AP {
       return RedemptionResponse({amount: 0, status: VaultActionStatus.UNPROCESSED});
     } else {
       // redeem shares for yieldToken -> approve strategy -> strategy withdraw -> base token
-      uint256 yieldTokenAmt = super.redeem(amt, vaultConfig.strategy, accountId);
+      uint256 yieldTokenAmt = super.redeemERC4626(amt, vaultConfig.strategy, accountId);
       uint256 returnAmt = IStrategy(vaultConfig.strategy).withdraw(yieldTokenAmt);
+      if(!IERC20Metadata(vaultConfig.baseToken).transferFrom(vaultConfig.strategy, address(this), returnAmt)){
+        revert TransferFailed();
+      }
       // apply tax and deduct from returned amt
       returnAmt -= _taxIfNecessary(accountId, amt, returnAmt);
       // update principles and approve txfer of redeemed tokens
@@ -127,7 +130,7 @@ contract APVault_V1 is IVault, ERC4626AP {
     }
     uint256 balance = balanceOf(accountId);
     // redeem shares for yieldToken -> approve strategy
-    uint256 yieldTokenAmt = super.redeem(balance, vaultConfig.strategy, accountId);
+    uint256 yieldTokenAmt = super.redeemERC4626(balance, vaultConfig.strategy, accountId);
     // withdraw all baseToken
     uint256 returnAmt = IStrategy(vaultConfig.strategy).withdraw(yieldTokenAmt);
     // apply tax
@@ -188,7 +191,7 @@ contract APVault_V1 is IVault, ERC4626AP {
       AngelCoreStruct.FEE_BASIS
     );
     // Redeem shares to cover fee
-    uint256 dYieldToken = super.redeem(taxShares, vaultConfig.strategy, accountId);
+    uint256 dYieldToken = super.redeemERC4626(taxShares, vaultConfig.strategy, accountId);
     uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dYieldToken);
     // Pay tax to tax collector and rebase principle
     if (!IERC20Metadata(vaultConfig.baseToken).transfer(feeSetting.payoutAddress, redemption)) {
@@ -312,7 +315,7 @@ contract APVault_V1 is IVault, ERC4626AP {
     address feeRecipient
   ) internal {
     // Shares -> Yield Asset -> Base Asset
-    uint256 dYieldToken = super.redeem((taxShares + rebalShares), vaultConfig.strategy, accountId);
+    uint256 dYieldToken = super.redeemERC4626((taxShares + rebalShares), vaultConfig.strategy, accountId);
     uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dYieldToken);
 
     // Determine proportion owed in tax and send to payee
