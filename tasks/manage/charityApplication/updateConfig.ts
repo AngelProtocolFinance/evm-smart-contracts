@@ -1,10 +1,6 @@
 import {task, types} from "hardhat/config";
-import {
-  ApplicationsMultiSig__factory,
-  CharityApplication__factory,
-  Registrar__factory,
-} from "typechain-types";
-import {getAddresses, getSigners, logger, verify} from "utils";
+import {ApplicationsMultiSig__factory, CharityApplication__factory} from "typechain-types";
+import {getAddresses, getSigners, logger} from "utils";
 
 type TaskArgs = {
   accountsDiamond?: string;
