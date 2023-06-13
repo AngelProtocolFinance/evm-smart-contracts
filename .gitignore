@@ -9,8 +9,13 @@ yarn-error.log
 .prettierrc
 .nvmrc
 dist
+tasks/temp_index.ts
 
 #Hardhat files
 cache
 artifacts
 .openzeppelin
+
+# typechain
+typechain-types
+eth-sdk/abis/*

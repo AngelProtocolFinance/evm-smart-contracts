@@ -1,11 +1,19 @@
 import {task, types} from "hardhat/config";
-import type {TaskArguments} from "hardhat/types";
-import {Registrar} from "typechain-types";
-import {getAddresses, logger} from "utils";
+import {Registrar__factory} from "typechain-types";
+import {getAddresses, getSigners, logger} from "utils";
 
 const NULL_NUMBER = 0;
 const NULL_STRING = "";
 const NULL_BOOL = false;
+
+type TaskArgs = {
+  basis: number;
+  interestDistribution: number;
+  lockedPrincipleToLiquid: boolean;
+  lockedRebalanceToLiquid: number;
+  principleDistribution: number;
+  rebalanceLiquidProfits: boolean;
+};
 
 task("manage:registrar:setRebalParams")
   .addOptionalParam(
@@ -34,12 +42,13 @@ task("manage:registrar:setRebalParams")
     types.int
   )
   .addOptionalParam("basis", "The precision of rebalance rates", NULL_NUMBER, types.int)
-  .setAction(async function (taskArguments: TaskArguments, hre) {
+  .setAction(async function (taskArguments: TaskArgs, hre) {
     logger.divider();
     logger.out("Connecting to registrar on specified network...");
     const addresses = await getAddresses(hre);
     const registrarAddress = addresses["registrar"]["proxy"];
-    const registrar = (await hre.ethers.getContractAt("Registrar", registrarAddress)) as Registrar;
+    const {deployer} = await getSigners(hre);
+    const registrar = Registrar__factory.connect(registrarAddress, deployer);
     logger.pad(50, "Connected to Registrar at: ", registrar.address);
 
     logger.divider();

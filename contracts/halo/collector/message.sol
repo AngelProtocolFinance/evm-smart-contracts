@@ -5,8 +5,6 @@ library CollectorMessage {
   struct InstantiateMsg {
     address registrarContract;
     address timelockContract;
-    address govContract;
-    address swapFactory;
     address haloToken;
     address distributorContract;
     uint256 rewardFactor; // 2 decimals
@@ -15,9 +13,7 @@ library CollectorMessage {
     address owner;
     address registrarContract;
     address haloToken;
-    address govContract;
     address timelockContract;
-    address swapFactory;
     address distributorContract;
     uint256 rewardFactor; // 2 decimals
   }

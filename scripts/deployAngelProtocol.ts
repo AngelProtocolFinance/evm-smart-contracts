@@ -2,50 +2,49 @@
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
-import {ADDRESS_ZERO, cleanAddresses, isLocalNetwork} from "utils";
+import {cleanAddresses, isLocalNetwork, logger} from "utils";
 
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
-import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
+// import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
 // import { deployHaloImplementation } from "contracts/halo/scripts/deploy"
-import {charityApplications} from "contracts/multisigs/charity_applications/scripts/deploy";
+import {deployCharityApplication} from "contracts/multisigs/charity_applications/scripts/deploy";
 import {deployAPTeamMultiSig, deployApplicationsMultiSig} from "contracts/multisigs/scripts/deploy";
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
-import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
-import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
+// import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
+// import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
 
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 
 import {getSigners} from "utils/getSigners";
 
-import {deployLibraries} from "./deployLibraries";
+import {deployCommonLibraries} from "./deployCommonLibraries";
 import {deployMockUSDC} from "./deployMockUSDC";
+import {updateRegistrarNetworkConnection} from "./updateRegistrar";
 
 export async function deployAngelProtocol(
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ): Promise<void> {
-  const {network, ethers} = hre;
-
-  const {proxyAdmin, treasury, apTeamMultisigOwners} = await getSigners(ethers);
+  const {proxyAdmin, treasury, apTeamMultisigOwners} = await getSigners(hre);
 
   await cleanAddresses(hre);
 
   console.log("Deploying the contracts with the account:", proxyAdmin.address);
 
   // Mock setup required for testing
-  const mockUSDC = isLocalNetwork(network) ? await deployMockUSDC(proxyAdmin, hre) : undefined;
+  const mockUSDC = isLocalNetwork(hre) ? await deployMockUSDC(proxyAdmin, hre) : undefined;
 
-  const {angelCoreStruct, stringLib} = await deployLibraries(hre);
+  const {angelCoreStruct, stringLib} = await deployCommonLibraries(verify_contracts, hre);
 
   const apTeamMultisig = await deployAPTeamMultiSig(verify_contracts, hre);
 
   const applicationsMultiSig = await deployApplicationsMultiSig(verify_contracts, hre);
 
   const registrar = await deployRegistrar(
-    ADDRESS_ZERO,
+    hre.ethers.constants.AddressZero,
     apTeamMultisig.proxy.address,
     verify_contracts,
     hre
@@ -56,7 +55,6 @@ export async function deployAngelProtocol(
     config.REGISTRAR_DATA.axelarGateway,
     config.REGISTRAR_DATA.axelarGasRecv,
     registrar.proxy.address,
-    apTeamMultisig.proxy.address,
     verify_contracts,
     hre
   );
@@ -69,32 +67,16 @@ export async function deployAngelProtocol(
     hre
   );
 
-  console.log("Account contract deployed at:-", accountsDiamond.address);
+  // const emitters = await deployEmitters(accountsDiamond.address, verify_contracts, hre);
 
-  const emitters = await deployEmitters(accountsDiamond.address, verify_contracts, hre);
-
-  console.log("emitters Contract deployed at:-", emitters);
-
-  const charityApplicationsData: Parameters<typeof charityApplications>[0] = [
-    config.CHARITY_APPLICATION_DATA.expiry,
+  const charityApplication = await deployCharityApplication(
     applicationsMultiSig.proxy.address,
     accountsDiamond.address,
-    config.CHARITY_APPLICATION_DATA.seedSplitToLiquid,
-    config.CHARITY_APPLICATION_DATA.newEndowGasMoney,
-    config.CHARITY_APPLICATION_DATA.gasAmount,
-    config.CHARITY_APPLICATION_DATA.fundSeedAsset,
-    config.CHARITY_APPLICATION_DATA.seedAsset,
-    config.CHARITY_APPLICATION_DATA.seedAssetAmount,
-  ];
-
-  const charityApplicationsAddress = await charityApplications(
-    charityApplicationsData,
     verify_contracts,
     hre
   );
-  console.log("charityApplicationsAddress deployed at:-", charityApplicationsAddress);
 
-  const SWAP_ROUTER = await deploySwapRouter(
+  const swapRouter = await deploySwapRouter(
     registrar.proxy.address,
     accountsDiamond.address,
     config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS,
@@ -103,27 +85,15 @@ export async function deployAngelProtocol(
     hre
   );
 
-  console.log("SWAP_ROUTER contract deployed at:-", SWAP_ROUTER);
-
-  const indexFundData = {
-    registrarContract: registrar.proxy.address,
-    fundRotation: config.INDEX_FUND_DATA.fundRotation,
-    fundMemberLimit: config.INDEX_FUND_DATA.fundMemberLimit,
-    fundingGoal: config.INDEX_FUND_DATA.fundingGoal,
-  };
-
-  const INDEX_FUND_ADDRESS = await deployIndexFund(
-    indexFundData,
+  const indexFund = await deployIndexFund(
+    registrar.proxy.address,
     apTeamMultisig.proxy.address,
     verify_contracts,
     hre
   );
 
-  console.log("INDEX_FUND_ADDRESS contract deployed at:-", INDEX_FUND_ADDRESS);
+  const endowmentMultiSig = await deployEndowmentMultiSig(verify_contracts, hre);
 
-  const multisigDat = await deployEndowmentMultiSig(verify_contracts, hre);
-
-  console.log("multisigDat contract deployed at:-", multisigDat);
   // console.log('implementations deployed at:', implementations);
 
   // const GiftCardDataInput = {
@@ -131,7 +101,7 @@ export async function deployAngelProtocol(
   //     registrarContract: REGISTRAR_ADDRESS,
   // }
 
-  // const giftCardAddress = await giftCard(GiftCardDataInput, ANGEL_CORE_STRUCT.address, verify_contracts, hre)
+  // const giftCardAddress = await giftCard(GiftCardDataInput, angelCoreStruct.address, verify_contracts, hre)
 
   // const FundraisingDataInput = {
   //     registrarContract: REGISTRAR_ADDRESS,
@@ -142,7 +112,7 @@ export async function deployAngelProtocol(
   // }
   // const fundraisingAddress = await deployFundraising(
   //     FundraisingDataInput,
-  //     ANGEL_CORE_STRUCT.address,
+  //     angelCoreStruct.address,
   //     verify_contracts,
   //     hre
   // )
@@ -150,7 +120,7 @@ export async function deployAngelProtocol(
   // TODO:
   // UNCOMMENT WHEN HALO CONTRACTS ARE READY FOR DEPLOYMENT
   //
-  // var haloAddress = await deployHaloImplementation(SWAP_ROUTER, verify_contracts, hre)
+  // var haloAddress = await deployHaloImplementation(SWAP_ROUTER.UNISWAP_ROUTER_ADDRESS, verify_contracts, hre)
 
   // addressWriter.haloAddress = haloAddress
 
@@ -253,30 +223,30 @@ export async function deployAngelProtocol(
   //  requires setting up of a HALO - MockUSDC pool on forked uniswap in deployment
   // if on non-production network
 
-  const donationMatchCharityData = {
-    reserveToken: config.DONATION_MATCH_CHARITY_DATA.reserveToken,
-    uniswapFactory: config.DONATION_MATCH_CHARITY_DATA.uniswapFactory,
-    registrarContract: registrar.proxy.address,
-    poolFee: config.DONATION_MATCH_CHARITY_DATA.poolFee,
-    usdcAddress: config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
-  };
+  // const donationMatchCharityData = {
+  //   reserveToken: config.DONATION_MATCH_CHARITY_DATA.reserveToken,
+  //   uniswapFactory: config.DONATION_MATCH_CHARITY_DATA.uniswapFactory,
+  //   registrarContract: registrar.proxy.address,
+  //   poolFee: config.DONATION_MATCH_CHARITY_DATA.poolFee,
+  //   usdcAddress: config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
+  // };
 
-  if (isLocalNetwork(network)) {
-    // haloToken
-    // donationMatchCharityData.reserveToken = haloToken.address
-    donationMatchCharityData.uniswapFactory = config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS;
-    donationMatchCharityData.poolFee = 3000;
-    donationMatchCharityData.usdcAddress = mockUSDC!.address;
-  }
+  // if (isLocalNetwork(hre)) {
+  //   // haloToken
+  //   // donationMatchCharityData.reserveToken = haloToken.address
+  //   donationMatchCharityData.uniswapFactory = config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS;
+  //   donationMatchCharityData.poolFee = 3000;
+  //   donationMatchCharityData.usdcAddress = mockUSDC!.address;
+  // }
 
   // transfer 100000000 HALO to donation match charities
 
-  const implementations = await deployImplementation(
-    angelCoreStruct.address,
-    donationMatchCharityData,
-    verify_contracts,
-    hre
-  );
+  // const implementations = await deployImplementation(
+  //   angelCoreStruct.address,
+  //   donationMatchCharityData,
+  //   verify_contracts,
+  //   hre
+  // );
 
   // if (isLocalNetwork(network)) {
   //     await haloToken.transfer(implementations.donationMatchCharity.proxy, ethers.utils.parseEther("100000000"))
@@ -291,32 +261,32 @@ export async function deployAngelProtocol(
     splitMin: config.REGISTRAR_DATA.splitToLiquid.min, //uint256
     splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit, //uint256
     collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
-    subdaoGovContract: implementations.subDao.implementation, //address
-    subdaoTokenContract: implementations.subDao.token, //address
-    subdaoBondingTokenContract: implementations.subDao.veBondingToken, //address
-    subdaoCw900Contract: implementations.incentivisedVotingLockup.implementation, //address
-    subdaoDistributorContract: ethers.constants.AddressZero,
-    subdaoEmitter: emitters.subDaoEmitter, //TODO:
-    donationMatchContract: implementations.donationMatch.implementation, //address
-    indexFundContract: INDEX_FUND_ADDRESS, //address
-    govContract: ethers.constants.AddressZero, //address
+    subdaoGovContract: hre.ethers.constants.AddressZero, //address
+    subdaoTokenContract: hre.ethers.constants.AddressZero, //address
+    subdaoBondingTokenContract: hre.ethers.constants.AddressZero, //address
+    subdaoCw900Contract: hre.ethers.constants.AddressZero, //address
+    subdaoDistributorContract: hre.ethers.constants.AddressZero,
+    subdaoEmitter: hre.ethers.constants.AddressZero, //TODO:
+    donationMatchContract: hre.ethers.constants.AddressZero, //address
+    indexFundContract: indexFund.proxy.address, //address
+    govContract: hre.ethers.constants.AddressZero, //address
     treasury: treasury.address,
-    donationMatchCharitesContract: implementations.donationMatchCharity.proxy, // once uniswap is setup //address
-    donationMatchEmitter: emitters.DonationMatchEmitter,
-    haloToken: ethers.constants.AddressZero, //address
+    donationMatchCharitesContract: hre.ethers.constants.AddressZero, // once uniswap is setup //address
+    donationMatchEmitter: hre.ethers.constants.AddressZero,
+    haloToken: hre.ethers.constants.AddressZero, //address
     haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
-    charitySharesContract: ethers.constants.AddressZero, //TODO: //address
-    fundraisingContract: ethers.constants.AddressZero, //TODO: //address
+    charitySharesContract: hre.ethers.constants.AddressZero, //TODO: //address
+    fundraisingContract: hre.ethers.constants.AddressZero, //TODO: //address
     applicationsReview: applicationsMultiSig.proxy.address, //address
-    swapsRouter: SWAP_ROUTER, //address
-    multisigFactory: multisigDat.MultiSigWalletFactory, //address
-    multisigEmitter: multisigDat.EndowmentMultiSigEmitter, //address
-    charityProposal: charityApplicationsAddress, //address
-    lockedWithdrawal: ethers.constants.AddressZero,
+    swapsRouter: swapRouter.proxy.address, //address
+    multisigFactory: endowmentMultiSig.factory.address, //address
+    multisigEmitter: endowmentMultiSig.emitter.proxy.contract.address, //address
+    charityProposal: charityApplication.proxy.address, //address
+    lockedWithdrawal: hre.ethers.constants.AddressZero,
     proxyAdmin: proxyAdmin.address, //address
-    usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
+    usdcAddress: mockUSDC ? mockUSDC.address : config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
     wMaticAddress: config.REGISTRAR_UPDATE_CONFIG.wmaticAddress,
-    cw900lvAddress: implementations.cw900lv,
+    cw900lvAddress: hre.ethers.constants.AddressZero,
   };
 
   console.log("Updating Registrar config with new addresses...");
@@ -341,4 +311,18 @@ export async function deployAngelProtocol(
   );
   await tx.wait();
   console.log("Successfully updated config:-", tx.hash);
+
+  // Registrar NetworkInfo's Router address must be updated for the current network
+  const network = await hre.ethers.provider.getNetwork();
+  logger.out(
+    `Fetching current Registrar's network connection data for chain ID:${network.chainId}...`
+  );
+  const curNetworkConnection = await registrarContract.queryNetworkConnection(network.chainId);
+  logger.out(JSON.stringify(curNetworkConnection, undefined, 2));
+  await updateRegistrarNetworkConnection(
+    registrar.proxy.address,
+    {...curNetworkConnection, router: router.proxy.address},
+    apTeamMultisig.proxy.address,
+    hre
+  );
 }

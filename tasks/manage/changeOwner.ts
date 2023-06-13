@@ -7,7 +7,7 @@ task("manage:changeOwner", "Will update the owner of the specified contract").se
   async (_taskArguments: TaskArguments, hre) => {
     try {
       const addresses = await getAddresses(hre);
-      const {proxyAdmin} = await getSigners(hre.ethers);
+      const {proxyAdmin} = await getSigners(hre);
       const indexfund = IndexFund__factory.connect(addresses.indexFund.proxy, proxyAdmin);
 
       logger.out("Current owner:");

@@ -42,7 +42,7 @@ export function VaultActionStructToArray(actionData: IVaultHelpers.VaultActionDa
     actionData.token,
     actionData.lockAmt,
     actionData.liqAmt,
-    actionData.status
+    actionData.status,
   ];
 }
 
@@ -55,6 +55,6 @@ export function ArrayToVaultActionStruct(decodedData: any) {
     token: decodedData[4],
     lockAmt: decodedData[5],
     liqAmt: decodedData[6],
-    status: decodedData[7]
+    status: decodedData[7],
   } as IVaultHelpers.VaultActionDataStruct;
 }

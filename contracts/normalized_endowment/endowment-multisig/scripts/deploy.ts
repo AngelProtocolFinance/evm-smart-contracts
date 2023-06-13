@@ -1,130 +1,70 @@
-// This is a script for deploying your contracts. You can adapt it to deploy
-// yours, or create new ones.
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {EndowmentMultiSig__factory, MultiSigWalletFactory__factory} from "typechain-types";
 import {getSigners, logger, updateAddresses} from "utils";
-
-const deployEndowmentMultiSigEmitter = async (
-  proxyAdmin: string,
-  factoryAddress: string,
-  verify_contracts: boolean,
-  hre: HardhatRuntimeEnvironment
-) => {
-  try {
-    // Getting Proxy contract
-    const {ethers, run, network} = hre;
-    const ProxyContract = await ethers.getContractFactory("ProxyContract");
-
-    const EndowmentMultiSigEmitter = await ethers.getContractFactory("EndowmentMultiSigEmitter");
-    const EndowmentMultiSigEmitterImplementation = await EndowmentMultiSigEmitter.deploy();
-    await EndowmentMultiSigEmitterImplementation.deployed();
-
-    console.log(
-      "EndowmentMultiSigEmitter Address (Implementation):",
-      EndowmentMultiSigEmitterImplementation.address
-    );
-
-    const EndowmentMultiSigEmitterData =
-      EndowmentMultiSigEmitterImplementation.interface.encodeFunctionData(
-        "initEndowmentMultiSigEmitter",
-        [factoryAddress]
-      );
-
-    const EndowmentMultiSigEmitterProxy = await ProxyContract.deploy(
-      EndowmentMultiSigEmitterImplementation.address,
-      proxyAdmin,
-      EndowmentMultiSigEmitterData
-    );
-
-    await EndowmentMultiSigEmitterProxy.deployed();
-
-    console.log(
-      "EndowmentMultiSigEmitterProxy Address (Proxy):",
-      EndowmentMultiSigEmitterProxy.address
-    );
-
-    if (verify_contracts) {
-      await run("verify:verify", {
-        address: EndowmentMultiSigEmitterImplementation.address,
-        constructorArguments: [],
-      });
-      await run("verify:verify", {
-        address: EndowmentMultiSigEmitterProxy.address,
-        constructorArguments: [
-          EndowmentMultiSigEmitterImplementation.address,
-          proxyAdmin,
-          EndowmentMultiSigEmitterData,
-        ],
-      });
-    }
-
-    return Promise.resolve({
-      implementation: EndowmentMultiSigEmitterImplementation.address,
-      proxy: EndowmentMultiSigEmitterProxy.address,
-    });
-  } catch (error) {
-    return Promise.reject(error);
-  }
-};
+import deployEndowmentMultiSigEmitter from "./deployEndowmentMultiSigEmitter";
 
 export async function deployEndowmentMultiSig(
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
-  try {
-    const {ethers, run, network} = hre;
-    const {proxyAdmin} = await getSigners(ethers);
-    const EndowmentMultiSig = await ethers.getContractFactory("EndowmentMultiSig");
-    const EndowmentMultiSigInstance = await EndowmentMultiSig.deploy();
-    await EndowmentMultiSigInstance.deployed();
+  logger.out("Deploying EndowmentMultiSig contracts...");
 
-    console.log("EndowmentMultiSig implementation address:", EndowmentMultiSigInstance.address);
+  const {proxyAdmin} = await getSigners(hre);
 
-    const MultiSigWalletFactory = await ethers.getContractFactory("MultiSigWalletFactory");
-    const MultiSigWalletFactoryInstance = await MultiSigWalletFactory.deploy(
-      EndowmentMultiSigInstance.address,
-      proxyAdmin.address
-    );
-    await MultiSigWalletFactoryInstance.deployed();
+  logger.out("Deploying EndowmentMultiSig implementation...");
+  const endowmentMultiSigFactory = new EndowmentMultiSig__factory(proxyAdmin);
+  const endowmentMultiSig = await endowmentMultiSigFactory.deploy();
+  await endowmentMultiSig.deployed();
+  logger.out(`Address: ${endowmentMultiSig.address}`);
 
-    console.log("MultiSigWalletFactory address:", MultiSigWalletFactoryInstance.address);
+  logger.out("Deploying EndowmentMultiSigFactory...");
+  const multiSigWalletFactoryFactory = new MultiSigWalletFactory__factory(proxyAdmin);
+  const multiSigWalletFactory = await multiSigWalletFactoryFactory.deploy(
+    endowmentMultiSig.address,
+    proxyAdmin.address
+  );
+  await multiSigWalletFactory.deployed();
+  logger.out(`Address: ${multiSigWalletFactory.address}`);
 
-    const EndowmentMultiSigEmitterAddresses = await deployEndowmentMultiSigEmitter(
-      proxyAdmin.address,
-      MultiSigWalletFactoryInstance.address,
-      verify_contracts,
-      hre
-    );
+  const emitter = await deployEndowmentMultiSigEmitter(proxyAdmin, multiSigWalletFactory.address);
 
-    logger.out("Saving addresses to contract-address.json...");
-    await updateAddresses(
-      {
-        multiSig: {
-          endowment: {
-            emitter: {...EndowmentMultiSigEmitterAddresses},
-            factory: MultiSigWalletFactoryInstance.address,
-            implementation: EndowmentMultiSigInstance.address,
+  await updateAddresses(
+    {
+      multiSig: {
+        endowment: {
+          emitter: {
+            implementation: emitter.implementation.address,
+            proxy: emitter.proxy.contract.address,
           },
+          factory: multiSigWalletFactory.address,
+          implementation: endowmentMultiSig.address,
         },
       },
-      hre
-    );
+    },
+    hre
+  );
 
-    if (verify_contracts) {
-      await run("verify:verify", {
-        address: EndowmentMultiSigInstance.address,
-        constructorArguments: [],
-      });
-      await run("verify:verify", {
-        address: MultiSigWalletFactoryInstance.address,
-        constructorArguments: [EndowmentMultiSigInstance.address, proxyAdmin.address],
-      });
-    }
-
-    return Promise.resolve({
-      MultiSigWalletFactory: MultiSigWalletFactoryInstance.address,
-      EndowmentMultiSigEmitter: EndowmentMultiSigEmitterAddresses.proxy,
+  if (verify_contracts) {
+    logger.out("Verifying EndowmentMultiSigEmitter...");
+    await hre.run("verify:verify", {
+      address: emitter.implementation.address,
+      constructorArguments: [],
     });
-  } catch (error) {
-    return Promise.reject(error);
+    await hre.run("verify:verify", {
+      address: emitter.proxy.contract.address,
+      constructorArguments: emitter.proxy.constructorArguments,
+    });
+    logger.out("Verifying EndowmentMultiSig...");
+    await hre.run("verify:verify", {
+      address: endowmentMultiSig.address,
+      constructorArguments: [],
+    });
+    logger.out("Verifying MultiSigWalletFactory...");
+    await hre.run("verify:verify", {
+      address: multiSigWalletFactory.address,
+      constructorArguments: [endowmentMultiSig.address, proxyAdmin.address],
+    });
   }
+
+  return {implementation: endowmentMultiSig, factory: multiSigWalletFactory, emitter};
 }

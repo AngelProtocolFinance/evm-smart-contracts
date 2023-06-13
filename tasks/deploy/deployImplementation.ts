@@ -1,19 +1,24 @@
 import config from "config";
-import {task} from "hardhat/config";
-import {logger} from "utils";
+import {task, types} from "hardhat/config";
+import {isLocalNetwork, logger} from "utils";
 
 import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
 
 task("deploy:Implementation", "Will deploy Implementation")
-  .addParam("verify", "Want to verify contract")
-  .addParam("registraraddress", "Address of the Registrar contract")
-  .addParam("angelcorestruct", "Address of the AngelCoreStruct contract")
+  .addOptionalParam(
+    "verify",
+    "Flag indicating whether the contract should be verified",
+    false,
+    types.boolean
+  )
+  .addParam("registraraddress", "Registrar contract address")
+  .addParam("angelcorestruct", "AngelCoreStruct library address")
   .addParam("accountaddress", "Address of the Account")
   .addParam("apteammultisigaddress", "Address of the APTeam multisig")
   .addParam("endowmentmultisigaddress", "Address of the Endowment multisig")
   .setAction(async (taskArgs, hre) => {
     try {
-      var isTrueSet = taskArgs.verify === "true";
+      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
       let donationMatchCharityData = {
         reserveToken: config.DONATION_MATCH_CHARITY_DATA.reserveToken,
@@ -26,7 +31,7 @@ task("deploy:Implementation", "Will deploy Implementation")
       await deployImplementation(
         taskArgs.angelcorestruct,
         donationMatchCharityData,
-        isTrueSet,
+        verify_contracts,
         hre
       );
     } catch (error) {

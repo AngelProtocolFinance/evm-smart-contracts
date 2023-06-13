@@ -9,7 +9,7 @@ export async function deployRegistrar(
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
-  const {apTeam1, proxyAdmin, treasury} = await getSigners(hre.ethers);
+  const {deployer, proxyAdmin, treasury} = await getSigners(hre);
 
   const factory = new Registrar__factory(proxyAdmin);
   const registrar = await factory.deploy();
@@ -29,13 +29,13 @@ export async function deployRegistrar(
       },
     ]
   );
-  const proxyFactory = new ProxyContract__factory(apTeam1);
+  const proxyFactory = new ProxyContract__factory(deployer);
   const proxy = await proxyFactory.deploy(registrar.address, proxyAdmin.address, data);
   await proxy.deployed();
   console.log("Registrar Proxy deployed at: ", proxy.address);
 
   console.log("Updating Registrar owner to: ", owner, "...");
-  const proxiedRegistrar = Registrar__factory.connect(proxy.address, apTeam1);
+  const proxiedRegistrar = Registrar__factory.connect(proxy.address, deployer);
   const tx = await proxiedRegistrar.transferOwnership(owner);
   await tx.wait();
 

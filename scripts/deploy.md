@@ -18,11 +18,10 @@
    4. Deploy Account Diamond
    5. Deploy Emitters
    6. Deploy Charity Application
-   7. Deploy Swap Router
-   8. Deploy Index Fund
-   9. Deploy Endowment Multisig Factory
-   10. Deploy Gift Card
-   11. Deploy FundRaising
-   12. Deploy Halo Implementation
-   13. Deploy Remaining implementation
-   14. Deploy Router
+   7. Deploy Index Fund
+   8. Deploy Endowment Multisig Factory
+   9. Deploy Gift Card
+   10. Deploy FundRaising
+   11. Deploy Halo Implementation
+   12. Deploy Remaining implementation
+   13. Deploy Router

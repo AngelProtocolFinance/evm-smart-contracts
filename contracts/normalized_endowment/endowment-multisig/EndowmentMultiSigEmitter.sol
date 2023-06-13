@@ -37,7 +37,7 @@ contract EndowmentMultiSigEmitter {
     address emitter,
     address[] owners,
     uint256 required,
-    bool requireexecution
+    bool requireExecution
   );
   event EndowmentConfirmation(uint256 endowmentId, address sender, uint256 transactionId);
   event EndowmentRevocation(uint256 endowmentId, address sender, uint256 transactionId);
@@ -60,7 +60,7 @@ contract EndowmentMultiSigEmitter {
    * @param emitter the emitter of the multisig
    * @param owners the owners of the multisig
    * @param required the required number of signatures
-   * @param requireexecution the require execution flag
+   * @param requireExecution the require execution flag
    */
   function createMultisig(
     address multisigAddress,
@@ -68,10 +68,10 @@ contract EndowmentMultiSigEmitter {
     address emitter,
     address[] memory owners,
     uint256 required,
-    bool requireexecution
+    bool requireExecution
   ) public isOwner {
     isMultisig[multisigAddress] = true;
-    emit MultisigCreated(multisigAddress, endowmentId, emitter, owners, required, requireexecution);
+    emit MultisigCreated(multisigAddress, endowmentId, emitter, owners, required, requireExecution);
   }
 
   /**
