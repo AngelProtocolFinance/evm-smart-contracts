@@ -23,6 +23,9 @@ import {LocalRegistrarLib} from "../../../typechain-types/contracts/core/registr
 import {
   deployDummyStrategy,
   deployDummyERC20,
+  DEFAULT_STRATEGY_SELECTOR,
+  DEFAULT_VAULT_NAME,
+  DEFAULT_VAULT_SYMBOL
 } from "test/utils"
 
 describe("Vault", function () {
@@ -105,13 +108,13 @@ describe("Vault", function () {
     it("should set the config as specified on deployment", async function () {
       let config = await vault.getVaultConfig()
       expect(config.vaultType).to.equal(0)
-      expect(config.strategySelector).to.equal("0x12345678")
+      expect(config.strategySelector).to.equal(DEFAULT_STRATEGY_SELECTOR)
       expect(config.strategy).to.equal(ethers.constants.AddressZero)
       expect(config.registrar).to.equal(ethers.constants.AddressZero)
       expect(config.baseToken).to.equal(token.address)
       expect(config.yieldToken).to.equal(token.address)
-      expect(config.apTokenName).to.equal("TestVault")
-      expect(config.apTokenSymbol).to.equal("TV")
+      expect(config.apTokenName).to.equal(DEFAULT_VAULT_NAME)
+      expect(config.apTokenSymbol).to.equal(DEFAULT_VAULT_SYMBOL)
       expect(config.admin).to.equal(owner.address)
     })
     it("should accept new config values", async function () {
