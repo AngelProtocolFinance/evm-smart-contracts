@@ -10,6 +10,7 @@
     "compile": "hardhat compile",
     "clean-compile": "set -x && mv ./tasks/index.ts ./tasks/temp_index.ts && touch ./tasks/index.ts && hardhat clean && yarn compile && mv ./tasks/temp_index.ts ./tasks/index.ts && set +x",
     "deploy": "yarn compile && hardhat deploy:AngelProtocol",
+    "sdks": "yarn eth-sdk",
     "abi": "hardhat export-abi"
   },
   "engines": {
@@ -17,6 +18,8 @@
     "yarn": "1.22.x"
   },
   "devDependencies": {
+    "@dethcrypto/eth-sdk": "^0.3.4",
+    "@dethcrypto/eth-sdk-client": "^0.1.6",
     "@ethersproject/abi": "^5.7.0",
     "@ethersproject/bytes": "^5.6.1",
     "@ethersproject/providers": "^5.6.6",
