@@ -42,6 +42,10 @@ task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
           to: apTeamMultiSig.proxy.address,
           yes: true,
         });
+        await hre.run("manage:indexFund:updateOwner", {
+          to: apTeamMultiSig.proxy.address,
+          yes: true,
+        });
       }
     } catch (error) {
       logger.out(error, logger.Level.Error);
