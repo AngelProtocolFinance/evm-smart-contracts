@@ -4,7 +4,6 @@
   "description": "Angel Protocol EVM smart contracts, testing and deployment suite.",
   "scripts": {
     "preinstall": "npx only-allow yarn",
-    "postinstall": "typechain",
     "format": "prettier --write './{config,contracts,scripts,tasks,test,utils}/**/*.{ts,js,sol}'",
     "test": "hardhat test",
     "compile": "hardhat compile",
