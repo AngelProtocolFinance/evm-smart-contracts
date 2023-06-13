@@ -5,6 +5,7 @@ import "./changeOwner";
 import "./charityApplication";
 import "./createEndowment";
 import "./createIndexFund";
+import "./indexFund";
 import "./registrar";
 import "./updateRegistrar";
 import "./verifyRegistrar";
