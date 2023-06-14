@@ -1,31 +1,30 @@
 {
   "31337": {
     "accounts": {
-      "diamond": "0xcA03Dc4665A8C3603cb4Fd5Ce71Af9649dC00d44",
+      "diamond": "",
       "facets": {
-        "accountsDeployContract": "0x73eccD6288e117cAcA738BDAD4FEC51312166C1A",
-        "accountsDepositWithdrawEndowments": "0x2fc631e4B3018258759C52AF169200213e84ABab",
-        "accountsDonationMatch": "0x381445710b5e73d34aF196c53A3D5cDa58EDBf7A",
-        "accountsAllowance": "0x63cf2Cd54fE91e3545D1379abf5bfd194545259d",
-        "accountsCreateEndowment": "0x1e2F4432bFeF9E9Ad39DA6d272F4aFf33629c770",
+        "accountsDeployContract": "",
+        "accountsDepositWithdrawEndowments": "",
+        "accountsDonationMatch": "",
+        "accountsAllowance": "",
+        "accountsCreateEndowment": "",
         "AccountsDaoEndowments": "",
-        "accountsQueryEndowments": "0x0D4ff719551E23185Aeb16FFbF2ABEbB90635942",
-        "accountsSwapRouter": "0x446e7636a5Fa9af46c3718719e465B547248bF62",
-        "accountsUpdate": "0x5C7c905B505f0Cf40Ab6600d05e677F717916F6B",
-        "accountsUpdateEndowments": "0x505d59ffFd312983Cc0eD114d7F117B91520d742",
-        "accountsUpdateEndowmentSettingsController": "0xed17543171C1459714cdC6519b58fFcC29A3C3c9",
-        "accountsUpdateStatusEndowments": "0x85C5Dd61585773423e378146D4bEC6f8D149E248",
-        "accountsVaultFacet": "0x677df0cb865368207999F2862Ece576dC56D8dF6",
-        "diamondCutFacet": "0x90118d110B07ABB82Ba8980D1c5cC96EeA810d2C",
-        "diamondInitFacet": "0x2dE080e97B0caE9825375D31f5D0eD5751fDf16D",
-        "diamondLoupeFacet": "0xfbAb4aa40C202E4e80390171E82379824f7372dd",
-        "ownershipFacet": "0xAfe1b5bdEbD4ae65AF2024738bf0735fbb65d44b",
-        "accountsDaoEndowments": "0xe6b98F104c1BEf218F3893ADab4160Dc73Eb8367"
+        "accountsQueryEndowments": "",
+        "accountsSwapRouter": "",
+        "accountsUpdate": "",
+        "accountsUpdateEndowments": "",
+        "accountsUpdateEndowmentSettingsController": "",
+        "accountsUpdateStatusEndowments": "",
+        "accountsVaultFacet": "",
+        "diamondCutFacet": "",
+        "diamondInitFacet": "",
+        "diamondLoupeFacet": "",
+        "ownershipFacet": ""
       }
     },
     "charityApplication": {
-      "implementation": "0x5370F78c6af2Da9cF6642382A3a75F9D5aEc9cc1",
-      "proxy": "0xC76A71C4492c11bbaDC841342C4Cb470b5d12193"
+      "implementation": "",
+      "proxy": ""
     },
     "donationMatch": {
       "emitter": "",
@@ -99,8 +98,8 @@
       "implementation": ""
     },
     "indexFund": {
-      "implementation": "0xF818A7C2AFC45cF4B9DDC48933C9A1edD624e46f",
-      "proxy": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+      "implementation": "",
+      "proxy": ""
     },
     "libraries": {
       "angelCoreStruct": "",
@@ -109,29 +108,29 @@
     },
     "multiSig": {
       "applications": {
-        "implementation": "0xC6bA8C3233eCF65B761049ef63466945c362EdD2",
-        "proxy": "0x1275D096B9DBf2347bD2a131Fb6BDaB0B4882487"
+        "implementation": "",
+        "proxy": ""
       },
       "apTeam": {
-        "implementation": "0xbCF26943C0197d2eE0E5D05c716Be60cc2761508",
-        "proxy": "0x59F2f1fCfE2474fD5F0b9BA1E73ca90b143Eb8d0"
+        "implementation": "",
+        "proxy": ""
       },
       "endowment": {
         "emitter": {
-          "implementation": "0xe0B39353F69b54e945364ffcdDD7901697Ca0166",
-          "proxy": "0xE5BD5bDC03371fB239956dbbF40bD185D6c2ea28"
+          "implementation": "",
+          "proxy": ""
         },
-        "factory": "0x20Fbd46DeEd5EEDEB6e5c87eeB31924e9CA312ad",
-        "implementation": "0x8613A4029EaA95dA61AE65380aC2e7366451bF2b"
+        "factory": "",
+        "implementation": ""
       }
     },
     "registrar": {
-      "implementation": "0x05Aa229Aec102f78CE0E852A812a388F076Aa555",
-      "proxy": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+      "implementation": "",
+      "proxy": ""
     },
     "router": {
-      "implementation": "0x0b48aF34f4c854F5ae1A3D587da471FeA45bAD52",
-      "proxy": "0x0f5D1ef48f12b6f691401bfe88c2037c690a6afe"
+      "implementation": "",
+      "proxy": ""
     },
     "subDao": {
       "emitter": {
@@ -144,7 +143,7 @@
     },
     "tokens": {
       "halo": "",
-      "usdc": "0x8464135c8F25Da09e49BC8782676a84730C318bC",
+      "usdc": "",
       "wmatic": ""
     },
     "uniswapSwapRouter": ""

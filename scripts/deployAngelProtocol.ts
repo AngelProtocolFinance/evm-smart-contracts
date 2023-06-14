@@ -1,7 +1,14 @@
 // import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {ADDRESS_ZERO, resetAddresses, getAddresses, isLocalNetwork, logger} from "utils";
+import {
+  ADDRESS_ZERO,
+  resetAddresses,
+  getAddresses,
+  isLocalNetwork,
+  logger,
+  updateAddresses,
+} from "utils";
 
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
@@ -19,6 +26,8 @@ import {getSigners} from "utils/getSigners";
 import {deployCommonLibraries} from "./deployCommonLibraries";
 import {deployMockUSDC} from "./deployMockUSDC";
 import {updateRegistrarConfig, updateRegistrarNetworkConnections} from "./updateRegistrar";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {ISwapRouter__factory} from "typechain-types";
 
 export async function deployAngelProtocol(
   verify_contracts: boolean,
@@ -32,6 +41,10 @@ export async function deployAngelProtocol(
 
   // Mock setup required for testing
   const mockUSDC = isLocalNetwork(hre) ? await deployMockUSDC(proxyAdmin, hre) : undefined;
+
+  const uniswapSwapRouter = isLocalNetwork(hre)
+    ? await deployMockUniswapSwapRouter(proxyAdmin, hre)
+    : await getUniswapSwapRouter(proxyAdmin, hre);
 
   const {angelCoreStruct} = await deployCommonLibraries(verify_contracts, hre);
 
@@ -256,7 +269,7 @@ export async function deployAngelProtocol(
       treasury: treasury.address,
       haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
       applicationsReview: applicationsMultiSig.proxy.address, //address
-      uniswapSwapRouter: addresses.uniswapSwapRouter, //address
+      uniswapSwapRouter: uniswapSwapRouter.address, //address
       multisigFactory: endowmentMultiSig.factory.address, //address
       multisigEmitter: endowmentMultiSig.emitter.proxy.address, //address
       charityProposal: charityApplication.proxy.address, //address
@@ -280,4 +293,22 @@ export async function deployAngelProtocol(
   );
 
   logger.out("Successfully deployed Angel Protocol contracts.");
+}
+
+async function deployMockUniswapSwapRouter(
+  admin: SignerWithAddress,
+  hre: HardhatRuntimeEnvironment
+) {
+  // just use some placeholder address until actual mock deployment is created
+  const address = admin.address;
+  await updateAddresses({uniswapSwapRouter: address}, hre);
+
+  const contract = ISwapRouter__factory.connect(address, admin);
+  return contract;
+}
+
+async function getUniswapSwapRouter(signer: SignerWithAddress, hre: HardhatRuntimeEnvironment) {
+  const addresses = await getAddresses(hre);
+  const contract = ISwapRouter__factory.connect(addresses.uniswapSwapRouter, signer);
+  return contract;
 }
