@@ -50,7 +50,6 @@ const config = {
   REGISTRAR_UPDATE_CONFIG: {
     collectorShare: 1,
     haloTokenLpContract: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-    wmaticAddress: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
   },
   INDEX_FUND_DATA: {
     fundRotation: 1000,

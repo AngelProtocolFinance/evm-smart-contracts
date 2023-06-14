@@ -52,7 +52,7 @@ task(
       charityProposal: addresses.charityApplication.proxy,
       proxyAdmin: proxyAdmin.address,
       usdcAddress: addresses.tokens.usdc,
-      wMaticAddress: config.REGISTRAR_UPDATE_CONFIG.wmaticAddress,
+      wMaticAddress: addresses.tokens.wmatic,
       cw900lvAddress: apTeam1.address,
       lockedWithdrawal: ADDRESS_ZERO,
     };
