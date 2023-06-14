@@ -33,6 +33,8 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
   .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
+      const {yes, ...newConfig} = taskArgs;
+
       logger.divider();
       const addresses = await getAddresses(hre);
       const {apTeamMultisigOwners} = await getSigners(hre);
@@ -47,10 +49,10 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
       const curConfig = {registrarContract, earlyLockedWithdrawFee, maxGeneralCategoryId};
       logger.out(curConfig);
 
-      const {yes, ...newConfig} = taskArgs;
-      const isConfirmed =
-        taskArgs.yes ||
-        (await confirmAction(`Update config to:\n${JSON.stringify(newConfig, undefined, 2)}`));
+      logger.out("Config data to update:");
+      logger.out(newConfig);
+
+      const isConfirmed = taskArgs.yes || (await confirmAction(`Updating config...`));
       if (!isConfirmed) {
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
@@ -61,12 +63,12 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
         apTeamMultisigOwners[0]
       );
       const data = accountsUpdate.interface.encodeFunctionData("updateConfig", [
-        taskArgs.newRegistrar || curConfig.registrarContract,
-        taskArgs.maxGeneralCategoryId || curConfig.maxGeneralCategoryId,
+        newConfig.newRegistrar || curConfig.registrarContract,
+        newConfig.maxGeneralCategoryId || curConfig.maxGeneralCategoryId,
         {
-          bps: taskArgs.earlyLockedWithdrawFeeBps || curConfig.earlyLockedWithdrawFee.bps,
+          bps: newConfig.earlyLockedWithdrawFeeBps || curConfig.earlyLockedWithdrawFee.bps,
           payoutAddress:
-            taskArgs.earlyLockedWithdrawFeePayoutAddress ||
+            newConfig.earlyLockedWithdrawFeePayoutAddress ||
             curConfig.earlyLockedWithdrawFee.payoutAddress,
         },
       ]);
