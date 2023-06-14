@@ -23,7 +23,7 @@
       }
     },
     "charityApplication": {
-      "implementation": "0xa8CcbBE18FaaF698E407DEE792370e36B2f505c7",
+      "implementation": "0x87Fb4A0e7139C8227e3A49d7dA60E7f7B04B0d7b",
       "proxy": "0x07dEF209701605580893ecd7C3cE2340f5b16875"
     },
     "donationMatch": {
@@ -108,11 +108,11 @@
     },
     "multiSig": {
       "applications": {
-        "implementation": "0xB6B18cae509Fcf3542FF6975C2Da06CAAc9773c5",
+        "implementation": "0x4fC92Db7DD04f69e8ed448747F589FFD91622886",
         "proxy": "0x4060eF0D5a7F0633c5927F7E05041dd7Fcd95f42"
       },
       "apTeam": {
-        "implementation": "0x7F6D5d1bDFB4b281374285510A845cb140d4367b",
+        "implementation": "0x90b8b4F5B00dCC13c50fC098F2A93368E5a2839a",
         "proxy": "0x455A2aC2F917956c0f2664992C1DDd9Cd6562976"
       },
       "endowment": {

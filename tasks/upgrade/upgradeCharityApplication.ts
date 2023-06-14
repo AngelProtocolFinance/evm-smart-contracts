@@ -16,7 +16,7 @@ type TaskArgs = {
   yes: boolean;
 };
 
-task("upgrade:CharityApplications", "Will upgrade the implementation of CharityApplications")
+task("upgrade:CharityApplication", "Will upgrade the implementation of CharityApplication")
   .addOptionalParam(
     "charityApplicationLib",
     "CharityApplicationLib contract address. Will do a local lookup from contract-address.json if none is provided."
@@ -32,7 +32,7 @@ task("upgrade:CharityApplications", "Will upgrade the implementation of CharityA
     try {
       const isConfirmed =
         taskArgs.yes ||
-        (await confirmAction("Upgrading CharityApplications implementation contract..."));
+        (await confirmAction("Upgrading CharityApplication implementation contract..."));
       if (!isConfirmed) {
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
@@ -45,7 +45,7 @@ task("upgrade:CharityApplications", "Will upgrade the implementation of CharityA
         taskArgs.charityApplicationLib || addresses.libraries.charityApplicationLib;
 
       // deploy implementation
-      logger.out("Deploying implementation...");
+      logger.out("Deploying CharityApplication...");
       const charityApplicationFactory = new CharityApplication__factory(
         {
           "contracts/multisigs/charity_applications/CharityApplication.sol:CharityApplicationLib":
@@ -70,10 +70,8 @@ task("upgrade:CharityApplications", "Will upgrade the implementation of CharityA
       // update address & verify
       await updateAddresses(
         {
-          multiSig: {
-            endowment: {
-              implementation: charityApplication.address,
-            },
+          charityApplication: {
+            implementation: charityApplication.address,
           },
         },
         hre
