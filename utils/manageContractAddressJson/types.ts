@@ -141,6 +141,7 @@ export type AddressObj = {
     veBondingToken: string;
   };
   tokens: {
+    dai: string;
     halo: string;
     usdc: string;
     wmatic: string;

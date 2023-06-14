@@ -31,6 +31,7 @@ export async function resetAddresses(
     ...createEmptyAddressObj(),
     uniswapSwapRouter: currentAddressObj.uniswapSwapRouter,
     tokens: {
+      dai: currentAddressObj.tokens.dai,
       halo: "",
       usdc: currentAddressObj.tokens.usdc,
       wmatic: currentAddressObj.tokens.wmatic,

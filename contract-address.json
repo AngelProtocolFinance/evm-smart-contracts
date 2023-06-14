@@ -142,6 +142,7 @@
       "veBondingToken": ""
     },
     "tokens": {
+      "dai": "",
       "halo": "",
       "usdc": "0xe0B39353F69b54e945364ffcdDD7901697Ca0166",
       "wmatic": ""
@@ -290,8 +291,9 @@
       "veBondingToken": "0x9DDFfa45bD8B04ba10b5d291f9D80c56A711637A"
     },
     "tokens": {
+      "dai": "",
       "halo": "",
-      "usdc": "",
+      "usdc": "0x0fa8781a83e46826621b3bc094ea2a0212e71b23",
       "wmatic": ""
     },
     "uniswapSwapRouter": "0xE592427A0AEce92De3Edee1F18E0157C05861564"

@@ -209,6 +209,7 @@ export function createEmpty(): AddressObj {
       veBondingToken: "",
     },
     tokens: {
+      dai: "",
       halo: "",
       usdc: "",
       wmatic: "",
