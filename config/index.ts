@@ -62,7 +62,7 @@ const config: Config = {
     },
   },
   HALO_IMPLEMENTATION_DATA: {
-    curTimelock: "0x8747cF2bd9BB0F46ced4adA1b472E995d1A3174A",
+    // curTimelock: "0x8747cF2bd9BB0F46ced4adA1b472E995d1A3174A",
     GovHodlerOwner: "0x8B1386F6fE42995Db5F7f7018af90496103CD39e",
     CommunitySpendLimit: 5000,
     distributorSpendLimit: 5000,

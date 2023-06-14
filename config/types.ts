@@ -59,7 +59,6 @@ export type Config = {
     };
   };
   HALO_IMPLEMENTATION_DATA: {
-    curTimelock: string;
     GovHodlerOwner: string;
     CommunitySpendLimit: number;
     distributorSpendLimit: number;
