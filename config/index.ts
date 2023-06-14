@@ -44,12 +44,10 @@ const config = {
   DONATION_MATCH_CHARITY_DATA: {
     reserveToken: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
     uniswapFactory: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
-    registrarContract: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
     poolFee: 300,
   },
   REGISTRAR_UPDATE_CONFIG: {
     collectorShare: 1,
-    haloTokenLpContract: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
   },
   INDEX_FUND_DATA: {
     fundRotation: 1000,

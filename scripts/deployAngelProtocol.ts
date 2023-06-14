@@ -270,7 +270,7 @@ export async function deployAngelProtocol(
       collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
       indexFundContract: indexFund.proxy.address, //address
       treasury: treasury.address,
-      haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
+      // haloTokenLpContract: addresses.halo.tokenLp,
       applicationsReview: applicationsMultiSig.proxy.address, //address
       uniswapSwapRouter: uniswapSwapRouter.address, //address
       multisigFactory: endowmentMultiSig.factory.address, //address

@@ -42,7 +42,8 @@ task(
       donationMatchCharitesContract: addresses.donationMatchCharity.proxy,
       donationMatchEmitter: ADDRESS_ZERO,
       haloToken: apTeam1.address,
-      haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract,
+      haloTokenLpContract: ADDRESS_ZERO,
+      // haloTokenLpContract: addresses.halo.tokenLp, -> TODO: when implemented
       charitySharesContract: apTeam1.address,
       fundraisingContract: apTeam1.address,
       applicationsReview: addresses.multiSig.applications.proxy,
