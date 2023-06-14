@@ -40,7 +40,6 @@ const config: Config = {
     seedAssetAmount: 100,
   },
   DONATION_MATCH_CHARITY_DATA: {
-    reserveToken: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
     poolFee: 300,
   },
   REGISTRAR_UPDATE_CONFIG: {

@@ -216,6 +216,7 @@ export function createEmpty(): AddressObj {
     tokens: {
       dai: "",
       halo: "",
+      reserveToken: "",
       usdc: "",
       wmatic: "",
     },

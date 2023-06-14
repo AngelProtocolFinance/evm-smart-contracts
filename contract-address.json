@@ -149,6 +149,7 @@
     "tokens": {
       "dai": "",
       "halo": "",
+      "reserveToken": "",
       "usdc": "0xEC57dE8D74bdf9F19908f12Cef32D0dE639d9e7a",
       "wmatic": "0x77467C858DD37aeC07B9320553F562899ddE6505"
     },
@@ -306,6 +307,7 @@
     "tokens": {
       "dai": "0xb973d2876c4f161439ad05f1dae184dbd594e04e",
       "halo": "",
+      "reserveToken": "",
       "usdc": "0x0fa8781a83e46826621b3bc094ea2a0212e71b23",
       "wmatic": "0x9c3c9283d3e44854697cd22d3faa240cfb032889"
     },

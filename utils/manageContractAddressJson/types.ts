@@ -148,6 +148,7 @@ export type AddressObj = {
   tokens: {
     dai: string;
     halo: string;
+    reserveToken: string;
     usdc: string;
     wmatic: string;
   };

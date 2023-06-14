@@ -23,7 +23,7 @@ task("deploy:Implementation", "Will deploy Implementation")
       const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
       let donationMatchCharityData = {
-        reserveToken: config.DONATION_MATCH_CHARITY_DATA.reserveToken,
+        reserveToken: addresses.tokens.reserveToken,
         uniswapFactory: addresses.uniswap.factory,
         registrarContract: taskArgs.registraraddress,
         poolFee: config.DONATION_MATCH_CHARITY_DATA.poolFee,

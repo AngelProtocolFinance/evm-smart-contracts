@@ -31,7 +31,7 @@ export async function resetAddresses(
     ...createEmptyAddressObj(),
     axelar: currentAddressObj.axelar,
     seedAsset: currentAddressObj.seedAsset,
-    tokens: {...currentAddressObj.tokens, halo: ""},
+    tokens: {...currentAddressObj.tokens, halo: "", reserveToken: ""},
     uniswap: currentAddressObj.uniswap,
   };
 

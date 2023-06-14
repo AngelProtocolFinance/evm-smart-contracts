@@ -37,7 +37,6 @@ export type Config = {
     seedAssetAmount: number;
   };
   DONATION_MATCH_CHARITY_DATA: {
-    reserveToken: string;
     poolFee: number;
   };
   REGISTRAR_UPDATE_CONFIG: {
