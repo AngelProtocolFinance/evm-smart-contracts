@@ -231,6 +231,14 @@ describe("Vault", function () {
       let principles = await vault.principleByAccountId(0)
       expect(principles.baseToken).to.equal(1)
     })
+
+    it("successfully adds to the position after subsequent deposits", async function () {
+      await baseToken.mint(vault.address, 10)
+      await yieldToken.mint(strategy.address, 10)
+      await strategy.setDummyAmt(5)
+      expect(await vault.deposit(0, baseToken.address, 5))
+      expect(await vault.deposit(0, baseToken.address, 5))
+    })
   })
 
   describe("upon Redemption", async function () {
@@ -284,9 +292,5 @@ describe("Vault", function () {
       await expect(vault.redeem(0,1)).to.be.revertedWithCustomError(vault, "TransferFailed")
       await baseToken.setTransferAllowed(true)
     })
-
-    it("")
-
-
   })
 })
