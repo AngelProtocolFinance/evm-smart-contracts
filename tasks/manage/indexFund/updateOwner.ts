@@ -27,7 +27,7 @@ task("manage:IndexFund:updateOwner", "Will update the owner of the IndexFund")
       if (curOwner === newOwner) {
         return logger.out(`"${newOwner}" is already the owner.`);
       }
-      logger.pad(50, "Current owner: ", curOwner);
+      logger.out(`Current owner: ${curOwner}`);
 
       const isConfirmed =
         taskArgs.yes || (await confirmAction(`Transfer ownership to: ${newOwner}`));
@@ -35,7 +35,7 @@ task("manage:IndexFund:updateOwner", "Will update the owner of the IndexFund")
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      logger.out("Transferring ownership...");
+      logger.out(`Transferring ownership to: ${newOwner}...`);
       const data = indexFund.interface.encodeFunctionData("updateOwner", [newOwner]);
       const apTeamMultiSig = APTeamMultiSig__factory.connect(
         curOwner, // ensure connection to current owning APTeamMultiSig contract
@@ -44,13 +44,16 @@ task("manage:IndexFund:updateOwner", "Will update the owner of the IndexFund")
       const tx = await apTeamMultiSig.submitTransaction(
         "IndexFund: transfer ownership",
         `Transfer ownership to ${newOwner}`,
-        addresses.accounts.diamond,
+        indexFund.address,
         0,
         data,
         "0x"
       );
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();
+
+      const updatedOwner = (await indexFund.queryConfig()).owner;
+      logger.out(`New owner: ${updatedOwner}`);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
