@@ -25,6 +25,7 @@ task("deploy:Libraries", "Will deploy Libraries")
       await hre.run("upgrade:facets", {
         facets: FACET_NAMES_USING_ANGEL_CORE_STRUCT,
         verify: taskArgs.verify,
+        yes: true,
       });
     } catch (error) {
       logger.out(error, logger.Level.Error);
