@@ -51,7 +51,7 @@ task(
       multisigEmitter: addresses.multiSig.endowment.emitter.proxy,
       charityProposal: addresses.charityApplication.proxy,
       proxyAdmin: proxyAdmin.address,
-      usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress,
+      usdcAddress: addresses.tokens.usdc,
       wMaticAddress: config.REGISTRAR_UPDATE_CONFIG.wmaticAddress,
       cw900lvAddress: apTeam1.address,
       lockedWithdrawal: ADDRESS_ZERO,

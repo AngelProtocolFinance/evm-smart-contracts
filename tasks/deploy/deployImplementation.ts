@@ -1,6 +1,6 @@
 import config from "config";
 import {task, types} from "hardhat/config";
-import {isLocalNetwork, logger} from "utils";
+import {getAddresses, isLocalNetwork, logger} from "utils";
 
 import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
 
@@ -18,6 +18,8 @@ task("deploy:Implementation", "Will deploy Implementation")
   .addParam("endowmentmultisigaddress", "Address of the Endowment multisig")
   .setAction(async (taskArgs, hre) => {
     try {
+      const addresses = await getAddresses(hre);
+
       const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
       let donationMatchCharityData = {
@@ -25,7 +27,7 @@ task("deploy:Implementation", "Will deploy Implementation")
         uniswapFactory: config.DONATION_MATCH_CHARITY_DATA.uniswapFactory,
         registrarContract: taskArgs.registraraddress,
         poolFee: config.DONATION_MATCH_CHARITY_DATA.poolFee,
-        usdcAddress: config.DONATION_MATCH_CHARITY_DATA.usdcAddress,
+        usdcAddress: addresses.tokens.usdc,
       };
 
       await deployImplementation(

@@ -15,10 +15,7 @@ const config = {
   REGISTRAR_DATA: {
     taxRate: 1,
     acceptedTokens: {
-      cw20: [
-        "0xaBCe32FBA4C591E8Ea5A5f711F7112dC08BCee74",
-        "0xe6b8a5CF854791412c1f6EFC7CAf629f5Df1c747",
-      ],
+      cw20: ["usdc"],
     },
     rebalance: {
       rebalanceLiquidInvestedProfits: false,
@@ -49,14 +46,12 @@ const config = {
     uniswapFactory: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
     registrarContract: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
     poolFee: 300,
-    usdcAddress: "0xe6b8a5CF854791412c1f6EFC7CAf629f5Df1c747",
     DAI_address: "",
   },
   REGISTRAR_UPDATE_CONFIG: {
     collectorShare: 1,
     haloTokenLpContract: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
     wmaticAddress: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
-    usdcAddress: "0xe6b8a5CF854791412c1f6EFC7CAf629f5Df1c747",
     DAI_address: "",
   },
   SWAP_ROUTER_DATA: {
