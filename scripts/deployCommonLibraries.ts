@@ -19,7 +19,7 @@ export async function deployCommonLibraries(
     const stringLibFactory = new StringArray__factory(proxyAdmin);
     const stringLib = await stringLibFactory.deploy();
     await stringLib.deployed();
-    logger.out(`Address: ${angelCoreStruct.address}`);
+    logger.out(`Address: ${stringLib.address}`);
 
     // update address file & verify contracts
     await updateAddresses(
