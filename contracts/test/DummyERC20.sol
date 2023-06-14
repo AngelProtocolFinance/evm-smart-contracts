@@ -7,6 +7,7 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract DummyERC20 is ERC20 {
   uint8 tokenDecimals = 18; // default for erc20
   bool approveAllowed = true;
+  bool transferAllowed = true;
 
   constructor() ERC20("Token", "TKN") {}
 
@@ -22,6 +23,26 @@ contract DummyERC20 is ERC20 {
     if(approveAllowed) {
       _approve(owner, spender, amount);
     }
+  }
+
+  function transferFrom(
+      address from,
+      address to,
+      uint256 amount
+  ) public override returns (bool) {
+    if(transferAllowed){
+      address spender = _msgSender();
+      _spendAllowance(from, spender, amount);
+      _transfer(from, to, amount);
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+  
+  function setTransferAllowed(bool allowed) external {
+    transferAllowed = allowed;
   }
 
   function setApproveAllowed(bool _approved) external {

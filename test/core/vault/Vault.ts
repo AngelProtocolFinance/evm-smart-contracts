@@ -150,6 +150,7 @@ describe("Vault", function () {
       } as IVault.VaultConfigStruct
       await expect(vault.connect(user).setVaultConfig(newConfig)).to.be.revertedWithCustomError(vault, "OnlyAdmin")
     })
+  })
 
   describe("upon Deposit", async function () {
     let vault: APVault_V1
@@ -231,5 +232,61 @@ describe("Vault", function () {
       expect(principles.baseToken).to.equal(1)
     })
   })
+
+  describe("upon Redemption", async function () {
+    let vault: APVault_V1
+    let baseToken: DummyERC20
+    let yieldToken: DummyERC20
+    let strategy: DummyStrategy
+    let registrar: LocalRegistrar
+    before(async function() {
+      baseToken = await deployDummyERC20(owner)
+      yieldToken = await deployDummyERC20(owner)
+      strategy = await deployDummyStrategy(
+        owner,
+        {
+          baseToken: baseToken.address, 
+          yieldToken: yieldToken.address, 
+          admin: owner.address
+        })
+      registrar = await deployRegistrarAsProxy(owner)
+      await registrar.setVaultOperatorApproved(owner.address, true)
+    })
+    beforeEach(async function () {
+      vault = await deployVault({
+        vaultType: 0, // Locked
+        admin: owner.address, 
+        baseToken: baseToken.address, 
+        yieldToken: yieldToken.address,
+        strategy: strategy.address,
+        registrar: registrar.address
+      })
+      await baseToken.mint(vault.address, 1)
+      await yieldToken.mint(strategy.address, 2)
+      await strategy.setDummyAmt(2)
+      await vault.deposit(0, baseToken.address, 1)
+    })
+
+    it("reverts if the strategy is paused", async function () {
+      await strategy.pause()
+      await expect(vault.redeem(0,1)).to.be.revertedWithCustomError(vault, "OnlyNotPaused")
+      await strategy.unpause()
+    })
+
+    it("reverts if the caller isn't approved", async function () {
+      await registrar.setVaultOperatorApproved(owner.address, false)
+      await expect(vault.redeem(0,1)).to.be.revertedWithCustomError(vault, "OnlyApproved")
+      await registrar.setVaultOperatorApproved(owner.address, true)
+    })
+
+    it("reverts if the baseToken transfer fails", async function () {
+      await baseToken.setTransferAllowed(false)
+      await expect(vault.redeem(0,1)).to.be.revertedWithCustomError(vault, "TransferFailed")
+      await baseToken.setTransferAllowed(true)
+    })
+
+    it("")
+
+
   })
 })
