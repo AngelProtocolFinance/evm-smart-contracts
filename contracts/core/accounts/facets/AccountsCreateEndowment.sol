@@ -73,27 +73,14 @@ contract AccountsCreateEndowment is IAccountsCreateEndowment, ReentrancyGuardFac
       donationMatchContract = registrar_config.donationMatchCharitesContract;
     }
 
-    if (details.categories.general.length > 0) {
-      uint256 max = details.categories.general[0];
-      for (uint256 i = 1; i < details.categories.general.length; i++) {
-        if (max < details.categories.general[i]) {
-          max = details.categories.general[i];
-        }
-      }
-
-      require(max < state.config.maxGeneralCategoryId, "Invalid inputs");
-    }
-
     require(Validator.addressChecker(details.owner), "Invalid owner address");
 
     state.ENDOWMENTS[state.config.nextAccountId] = AccountStorage.Endowment({
       owner: details.owner,
       name: details.name,
-      categories: details.categories,
+      sdgs: details.sdgs,
       endowType: details.endowType,
       maturityTime: details.maturityTime,
-      strategies: AngelCoreStruct.accountStrategiesDefaut(),
-      oneoffVaults: AngelCoreStruct.oneOffVaultsDefault(),
       rebalance: IRegistrar(registrarAddress).getRebalanceParams(),
       kycDonorsOnly: details.kycDonorsOnly,
       pendingRedemptions: 0,

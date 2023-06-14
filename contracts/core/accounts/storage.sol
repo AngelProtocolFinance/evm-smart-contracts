@@ -21,16 +21,12 @@ library AccountStorage {
   struct Endowment {
     address owner;
     string name; // name of the Endowment
-    AngelCoreStruct.Categories categories; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP Team Multisig can set/update)
+    uint256[] sdgs;
     uint256 tier; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP Team Multisig can set/update)
     AngelCoreStruct.EndowmentType endowType;
     string logo;
     string image;
     uint256 maturityTime; // datetime int of endowment maturity
-    //OG:AngelCoreStruct.AccountStrategies
-    // uint256 strategies; // vaults and percentages for locked/liquid accounts donations where auto_invest == TRUE
-    AngelCoreStruct.AccountStrategies strategies;
-    AngelCoreStruct.OneOffVaults oneoffVaults; // vaults not covered in account startegies (more efficient tracking of vaults vs. looking up allll vaults)
     LocalRegistrarLib.RebalanceParams rebalance; // parameters to guide rebalancing & harvesting of gains from locked/liquid accounts
     bool kycDonorsOnly; // allow owner to state a preference for receiving only kyc'd donations (where possible) //TODO:
     uint256 pendingRedemptions; // number of vault redemptions rently pending for this endowment

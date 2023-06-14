@@ -22,12 +22,6 @@ library AngelCoreStruct {
     address contractAddress;
   }
 
-  //By default array are empty
-  struct Categories {
-    uint256[] sdgs;
-    uint256[] general;
-  }
-
   enum EndowmentType {
     Charity,
     Normal
@@ -38,111 +32,6 @@ library AngelCoreStruct {
     Remove
   }
 
-  struct AccountStrategies {
-    string[] locked_vault;
-    uint256[] lockedPercentage;
-    string[] liquid_vault;
-    uint256[] liquidPercentage;
-  }
-
-  function accountStratagyLiquidCheck(
-    AccountStrategies storage strategies,
-    OneOffVaults storage oneoffVaults
-  ) public {
-    for (uint256 i = 0; i < strategies.liquid_vault.length; i++) {
-      bool checkFlag = true;
-      for (uint256 j = 0; j < oneoffVaults.liquid.length; j++) {
-        if (
-          keccak256(abi.encodePacked(strategies.liquid_vault[i])) ==
-          keccak256(abi.encodePacked(oneoffVaults.liquid[j]))
-        ) {
-          checkFlag = false;
-        }
-      }
-
-      if (checkFlag) {
-        oneoffVaults.liquid.push(strategies.liquid_vault[i]);
-      }
-    }
-  }
-
-  function accountStratagyLockedCheck(
-    AccountStrategies storage strategies,
-    OneOffVaults storage oneoffVaults
-  ) public {
-    for (uint256 i = 0; i < strategies.locked_vault.length; i++) {
-      bool checkFlag = true;
-      for (uint256 j = 0; j < oneoffVaults.locked.length; j++) {
-        if (
-          keccak256(abi.encodePacked(strategies.locked_vault[i])) ==
-          keccak256(abi.encodePacked(oneoffVaults.locked[j]))
-        ) {
-          checkFlag = false;
-        }
-      }
-
-      if (checkFlag) {
-        oneoffVaults.locked.push(strategies.locked_vault[i]);
-      }
-    }
-  }
-
-  function accountStrategiesDefaut() public pure returns (AccountStrategies memory) {
-    AccountStrategies memory empty;
-    return empty;
-  }
-
-  //TODO: handle the case when we invest into vault or redem from vault
-  struct OneOffVaults {
-    string[] locked;
-    uint256[] lockedAmount;
-    string[] liquid;
-    uint256[] liquidAmount;
-  }
-
-  function removeLast(string[] storage vault, string memory remove) public {
-    for (uint256 i = 0; i < vault.length - 1; i++) {
-      if (keccak256(abi.encodePacked(vault[i])) == keccak256(abi.encodePacked(remove))) {
-        vault[i] = vault[vault.length - 1];
-        break;
-      }
-    }
-
-    vault.pop();
-  }
-
-  function oneOffVaultsDefault() public pure returns (OneOffVaults memory) {
-    OneOffVaults memory empty;
-    return empty;
-  }
-
-  function checkTokenInOffVault(
-    string[] storage availible,
-    uint256[] storage cerAvailibleAmount,
-    string memory token
-  ) public {
-    bool check = true;
-    for (uint8 j = 0; j < availible.length; j++) {
-      if (keccak256(abi.encodePacked(availible[j])) == keccak256(abi.encodePacked(token))) {
-        check = false;
-      }
-    }
-    if (check) {
-      availible.push(token);
-      cerAvailibleAmount.push(0);
-    }
-  }
-
-  struct Coin {
-    string denom;
-    uint128 amount;
-  }
-
-  struct CoinVerified {
-    uint128 amount;
-    address addr;
-  }
-
   struct TokenInfo {
     address addr;
     uint256 amnt;
@@ -151,11 +40,6 @@ library AngelCoreStruct {
   struct BalanceInfo {
     mapping(address => uint256) locked;
     mapping(address => uint256) liquid;
-  }
-
-  ///TODO: need to test this same names already declared in other libraries
-  struct EndowmentId {
-    uint32 id;
   }
 
   struct IndexFund {
@@ -169,6 +53,11 @@ library AngelCoreStruct {
     // Used for one-off funds that have an end date (ex. disaster recovery funds)
     uint256 expiryTime; // datetime int of index fund expiry
     uint256 expiryHeight; // block equiv of the expiry_datetime
+  }
+
+  ///TODO: need to test this same names already declared in other libraries
+  struct EndowmentId {
+    uint32 id;
   }
 
   struct Wallet {
@@ -404,7 +293,7 @@ library AngelCoreStruct {
     SettingsPermission name;
     SettingsPermission image;
     SettingsPermission logo;
-    SettingsPermission categories;
+    SettingsPermission sdgs;
     SettingsPermission splitToLiquid;
     SettingsPermission ignoreUserSplits;
   }
@@ -424,7 +313,7 @@ library AngelCoreStruct {
     Name,
     Image,
     Logo,
-    Categories,
+    Sdgs,
     SplitToLiquid,
     IgnoreUserSplits
   }
