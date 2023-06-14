@@ -125,12 +125,12 @@
       }
     },
     "registrar": {
-      "implementation": "0x1a6a3e7Bb246158dF31d8f924B84D961669Ba4e5",
-      "proxy": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+      "implementation": "0x5C3A8b1E8273F52EF64D70CEAB437AA6f7092f65",
+      "proxy": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6"
     },
     "router": {
-      "implementation": "0x075FbeB3802AfdCDe6DDEB1d807E4805ed719eca",
-      "proxy": "0x451632B70577a9D12fC8284a5C5e65DC03d8Da1a"
+      "implementation": "0x0760d8F8486d7d337B6782F2613AB7143e5B096B",
+      "proxy": "0xd5C9Febf02791Bd2AE746FAF9e51Ea4Af25Ad2cb"
     },
     "subDao": {
       "emitter": {

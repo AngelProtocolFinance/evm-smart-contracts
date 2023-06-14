@@ -10,6 +10,7 @@ export async function updateRegistrarNetworkConnections(
   newNetworkInfo: Partial<AngelCoreStruct.NetworkInfoStructOutput>,
   hre: HardhatRuntimeEnvironment
 ) {
+  logger.divider();
   logger.out("Updating Registrar config...");
 
   try {
@@ -59,6 +60,7 @@ export async function updateRegistrarConfig(
   hre: HardhatRuntimeEnvironment
 ) {
   try {
+    logger.divider();
     logger.out("Updating Registrar config with new addresses...");
 
     const {apTeamMultisigOwners} = await getSigners(hre);
