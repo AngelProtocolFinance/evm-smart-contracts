@@ -52,9 +52,6 @@ const config = {
     haloTokenLpContract: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
     wmaticAddress: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
   },
-  SWAP_ROUTER_DATA: {
-    UNISWAP_ROUTER_ADDRESS: "0x0c00F32a3603ba39f6D1eACD21a0D60d2c58675c",
-  },
   INDEX_FUND_DATA: {
     fundRotation: 1000,
     fundMemberLimit: 30,
