@@ -46,13 +46,11 @@ const config = {
     uniswapFactory: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
     registrarContract: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
     poolFee: 300,
-    DAI_address: "",
   },
   REGISTRAR_UPDATE_CONFIG: {
     collectorShare: 1,
     haloTokenLpContract: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
     wmaticAddress: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
-    DAI_address: "",
   },
   SWAP_ROUTER_DATA: {
     UNISWAP_ROUTER_ADDRESS: "0x0c00F32a3603ba39f6D1eACD21a0D60d2c58675c",
