@@ -8,7 +8,6 @@ import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
-// import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
 // import { deployHaloImplementation } from "contracts/halo/scripts/deploy"
 import {deployCharityApplication} from "contracts/multisigs/charity_applications/scripts/deploy";
 import {deployAPTeamMultiSig, deployApplicationsMultiSig} from "contracts/multisigs/scripts/deploy";
@@ -72,15 +71,6 @@ export async function deployAngelProtocol(
   const charityApplication = await deployCharityApplication(
     applicationsMultiSig.proxy.address,
     accountsDiamond.address,
-    verify_contracts,
-    hre
-  );
-
-  const swapRouter = await deploySwapRouter(
-    registrar.proxy.address,
-    accountsDiamond.address,
-    config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS,
-    config.SWAP_ROUTER_DATA.SWAP_ROUTER_ADDRESS,
     verify_contracts,
     hre
   );
@@ -278,7 +268,7 @@ export async function deployAngelProtocol(
     charitySharesContract: hre.ethers.constants.AddressZero, //TODO: //address
     fundraisingContract: hre.ethers.constants.AddressZero, //TODO: //address
     applicationsReview: applicationsMultiSig.proxy.address, //address
-    swapsRouter: swapRouter.proxy.address, //address
+    uniswapSwapRouter: config.SWAP_ROUTER_DATA.UNISWAP_ROUTER_ADDRESS, //address
     multisigFactory: endowmentMultiSig.factory.address, //address
     multisigEmitter: endowmentMultiSig.emitter.proxy.contract.address, //address
     charityProposal: charityApplication.proxy.address, //address
