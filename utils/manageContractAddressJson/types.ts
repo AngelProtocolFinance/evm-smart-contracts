@@ -21,6 +21,10 @@ export type AddressObj = {
       ownershipFacet: string;
     };
   };
+  axelar: {
+    gasRecv: string;
+    gateway: string;
+  };
   charityApplication: {
     implementation: string;
     proxy: string;

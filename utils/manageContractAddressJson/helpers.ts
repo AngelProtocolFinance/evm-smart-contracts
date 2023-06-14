@@ -89,6 +89,10 @@ export function createEmpty(): AddressObj {
         ownershipFacet: "",
       },
     },
+    axelar: {
+      gasRecv: "",
+      gateway: "",
+    },
     charityApplication: {
       implementation: "",
       proxy: "",

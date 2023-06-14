@@ -26,7 +26,12 @@ import {getSigners} from "utils/getSigners";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {ERC20__factory, ISwapRouter__factory} from "typechain-types";
 import {deployCommonLibraries} from "./deployCommonLibraries";
-import {deployMockUSDC, deployMockWMatic} from "./mocks";
+import {
+  deployMockAxelarGateway,
+  deployMockAxelarRecv,
+  deployMockUSDC,
+  deployMockWMatic,
+} from "./mocks";
 import {updateRegistrarConfig, updateRegistrarNetworkConnections} from "./updateRegistrar";
 
 export async function deployAngelProtocol(
@@ -51,6 +56,14 @@ export async function deployAngelProtocol(
     ? await deployMockWMatic(proxyAdmin, hre)
     : await getWMaticToken(proxyAdmin, hre);
 
+  const axelarGateway = isLocalNetwork(hre)
+    ? await deployMockAxelarGateway(proxyAdmin, hre)
+    : await getAxelarGateway(proxyAdmin, hre);
+
+  const axelarGasRecv = isLocalNetwork(hre)
+    ? await deployMockAxelarRecv(proxyAdmin, hre)
+    : await getAxelarGasRecv(proxyAdmin, hre);
+
   const {angelCoreStruct} = await deployCommonLibraries(verify_contracts, hre);
 
   const apTeamMultisig = await deployAPTeamMultiSig(verify_contracts, hre);
@@ -58,6 +71,8 @@ export async function deployAngelProtocol(
   const applicationsMultiSig = await deployApplicationsMultiSig(verify_contracts, hre);
 
   const registrar = await deployRegistrar(
+    axelarGasRecv.address,
+    axelarGateway.address,
     ADDRESS_ZERO,
     apTeamMultisig.proxy.address,
     verify_contracts,
@@ -66,8 +81,8 @@ export async function deployAngelProtocol(
 
   // Router deployment will require updating Registrar config's "router" address
   const router = await deployRouter(
-    config.REGISTRAR_DATA.axelarGateway,
-    config.REGISTRAR_DATA.axelarGasRecv,
+    axelarGateway.address,
+    axelarGasRecv.address,
     registrar.proxy.address,
     verify_contracts,
     hre
@@ -325,5 +340,25 @@ async function getUSDCToken(signer: SignerWithAddress, hre: HardhatRuntimeEnviro
 async function getWMaticToken(signer: SignerWithAddress, hre: HardhatRuntimeEnvironment) {
   const addresses = await getAddresses(hre);
   const contract = ERC20__factory.connect(addresses.tokens.wmatic, signer);
+  return contract;
+}
+
+async function getAxelarGateway(signer: SignerWithAddress, hre: HardhatRuntimeEnvironment) {
+  const addresses = await getAddresses(hre);
+  const contract = await hre.ethers.getContractAt(
+    "AxelarGateway",
+    addresses.axelar.gateway,
+    signer
+  );
+  return contract;
+}
+
+async function getAxelarGasRecv(signer: SignerWithAddress, hre: HardhatRuntimeEnvironment) {
+  const addresses = await getAddresses(hre);
+  const contract = await hre.ethers.getContractAt(
+    "AxelarGasRecv",
+    addresses.axelar.gasRecv,
+    signer
+  );
   return contract;
 }

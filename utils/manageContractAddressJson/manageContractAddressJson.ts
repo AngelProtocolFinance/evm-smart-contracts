@@ -29,13 +29,9 @@ export async function resetAddresses(
 
   const cleaned: AddressObj = {
     ...createEmptyAddressObj(),
+    axelar: currentAddressObj.axelar,
+    tokens: {...currentAddressObj.tokens, halo: ""},
     uniswapSwapRouter: currentAddressObj.uniswapSwapRouter,
-    tokens: {
-      dai: currentAddressObj.tokens.dai,
-      halo: "",
-      usdc: currentAddressObj.tokens.usdc,
-      wmatic: currentAddressObj.tokens.wmatic,
-    },
   };
 
   saveFrontendFiles({[chainId]: cleaned}, filePath);

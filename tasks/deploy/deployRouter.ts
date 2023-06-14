@@ -1,8 +1,7 @@
-import config from "config";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task, types} from "hardhat/config";
 import {updateRegistrarNetworkConnections} from "scripts";
-import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger} from "utils";
+import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
 
 type TaskArgs = {
   apTeamMultisig?: string;
@@ -41,8 +40,8 @@ task("deploy:Router", "Will deploy Router contract")
       const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
       const router = await deployRouter(
-        config.REGISTRAR_DATA.axelarGateway,
-        config.REGISTRAR_DATA.axelarGasRecv,
+        addresses.axelar.gateway,
+        addresses.axelar.gasRecv,
         registrar,
         verify_contracts,
         hre

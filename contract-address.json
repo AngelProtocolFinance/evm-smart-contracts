@@ -22,6 +22,10 @@
         "ownershipFacet": "0x1D1aEE6D5dC35F3c15E2D11083D0e59C026b64c4"
       }
     },
+    "axelar": {
+      "gasRecv": "",
+      "gateway": ""
+    },
     "charityApplication": {
       "implementation": "0xD71F8cDe87726587941dCDE67845dd6945eDB3A9",
       "proxy": "0x07dEF209701605580893ecd7C3cE2340f5b16875"
@@ -171,6 +175,10 @@
         "diamondLoupeFacet": "0x76bd4D306B494287b3d87164bAC6665f275D7359",
         "ownershipFacet": "0x9934602ad547c33e9B4615be9b824caF563368d2"
       }
+    },
+    "axelar": {
+      "gasRecv": "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B",
+      "gateway": "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B"
     },
     "charityApplication": {
       "implementation": "0x79eB828d1bBdfBC2c8415435676433572E1b2C55",

@@ -1,4 +1,3 @@
-import config from "config";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task, types} from "hardhat/config";
@@ -46,6 +45,8 @@ task(
       const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
       const registrar = await deployRegistrar(
+        addresses.axelar.gasRecv,
+        addresses.axelar.gateway,
         oldRouterAddress,
         apTeamMultiSig,
         verify_contracts,
@@ -53,8 +54,8 @@ task(
       );
 
       const router = await deployRouter(
-        config.REGISTRAR_DATA.axelarGateway,
-        config.REGISTRAR_DATA.axelarGasRecv,
+        addresses.axelar.gateway,
+        addresses.axelar.gasRecv,
         registrar.proxy.address,
         verify_contracts,
         hre

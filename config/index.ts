@@ -29,8 +29,6 @@ const config = {
       min: 0,
       defaultSplit: 50,
     },
-    axelarGateway: "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B",
-    axelarGasRecv: "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B",
   },
   CHARITY_APPLICATION_DATA: {
     expiry: 0,

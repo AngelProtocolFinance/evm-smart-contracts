@@ -4,6 +4,8 @@ import {ProxyContract__factory, Registrar__factory} from "typechain-types";
 import {ADDRESS_ZERO, getSigners, logger, updateAddresses, validateAddress, verify} from "utils";
 
 export async function deployRegistrar(
+  axelarGasRecv: string,
+  axelarGateway: string,
   router: string, // no need to verify address validity, as Registrar will be deployed before the router
   owner: string,
   verify_contracts: boolean,
@@ -32,8 +34,8 @@ export async function deployRegistrar(
           treasury: treasury.address,
           splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
           router,
-          axelarGateway: config.REGISTRAR_DATA.axelarGateway,
-          axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
+          axelarGateway,
+          axelarGasRecv,
         },
       ]
     );
