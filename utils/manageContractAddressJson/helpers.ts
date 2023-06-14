@@ -11,7 +11,7 @@ export function getAddressesByNetworkId(
   const key = String(networkId);
 
   if (!hasKey(addresses, key)) {
-    return createEmpty();
+    throw new Error(`Missing address object for network ${key} in address file`);
   }
 
   return new Proxy(addresses[key], {

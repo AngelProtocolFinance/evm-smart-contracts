@@ -39,14 +39,13 @@ export async function deployAngelProtocol(
 
   logger.out(`Deploying the contracts with the account: ${proxyAdmin.address}`);
 
-  // Mock setup required for testing
-  const usdcToken = isLocalNetwork(hre)
-    ? await deployMockUSDC(proxyAdmin, hre)
-    : await getUSDCToken(proxyAdmin, hre);
-
   const uniswapSwapRouter = isLocalNetwork(hre)
     ? await deployMockUniswapSwapRouter(proxyAdmin, hre)
     : await getUniswapSwapRouter(proxyAdmin, hre);
+
+  const usdcToken = isLocalNetwork(hre)
+    ? await deployMockUSDC(proxyAdmin, hre)
+    : await getUSDCToken(proxyAdmin, hre);
 
   const {angelCoreStruct} = await deployCommonLibraries(verify_contracts, hre);
 
@@ -299,9 +298,13 @@ async function deployMockUniswapSwapRouter(
 ) {
   // just use some placeholder address until actual mock deployment is created
   const address = admin.address;
+  logger.out("Updating");
+
   await updateAddresses({uniswapSwapRouter: address}, hre);
 
+  logger.out("Saving uniswap");
   const contract = ISwapRouter__factory.connect(address, admin);
+  logger.out("Saved");
   return contract;
 }
 
