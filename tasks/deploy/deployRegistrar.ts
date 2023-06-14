@@ -3,12 +3,13 @@ import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task, types} from "hardhat/config";
 import {updateRegistrarNetworkConnections} from "scripts";
-import {getAddresses, isLocalNetwork, logger} from "utils";
+import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
 
 type TaskArgs = {
   apTeamMultisig?: string;
   router?: string;
   verify: boolean;
+  yes: boolean;
 };
 
 task(
@@ -29,8 +30,15 @@ task(
     true,
     types.boolean
   )
+  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
+      const isConfirmed =
+        taskArgs.yes || (await confirmAction("Deploying Registrar (and Router)..."));
+      if (!isConfirmed) {
+        return logger.out("Confirmation denied.", logger.Level.Warn);
+      }
+
       const addresses = await getAddresses(hre);
 
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;

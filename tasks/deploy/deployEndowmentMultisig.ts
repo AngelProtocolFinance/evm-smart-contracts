@@ -1,12 +1,13 @@
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
 import {task, types} from "hardhat/config";
 import {updateRegistrarConfig} from "scripts";
-import {getAddresses, isLocalNetwork, logger} from "utils";
+import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
 
 type TaskArgs = {
   apTeamMultisig?: string;
   registrar?: string;
   verify: boolean;
+  yes: boolean;
 };
 
 task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
@@ -24,8 +25,14 @@ task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
     true,
     types.boolean
   )
+  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
+      const isConfirmed = taskArgs.yes || (await confirmAction("Deploying EndowmentMultiSig..."));
+      if (!isConfirmed) {
+        return logger.out("Confirmation denied.", logger.Level.Warn);
+      }
+
       const addresses = await getAddresses(hre);
 
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;

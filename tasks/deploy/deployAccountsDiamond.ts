@@ -1,13 +1,14 @@
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {task, types} from "hardhat/config";
 import {updateRegistrarConfig} from "scripts";
-import {getAddresses, isLocalNetwork, logger} from "utils";
+import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
 
 type TaskArgs = {
   angelCoreStruct?: string;
   apTeamMultisig?: string;
   registrar?: string;
   verify: boolean;
+  yes: boolean;
 };
 
 task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
@@ -29,8 +30,14 @@ task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
     true,
     types.boolean
   )
+  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
+      const isConfirmed = taskArgs.yes || (await confirmAction("Deploying Accounts Diamond..."));
+      if (!isConfirmed) {
+        return logger.out("Confirmation denied.", logger.Level.Warn);
+      }
+
       const addresses = await getAddresses(hre);
 
       const angelCoreStruct = taskArgs.angelCoreStruct || addresses.libraries.angelCoreStruct;

@@ -1,8 +1,20 @@
 import {task, types} from "hardhat/config";
 import {CharityApplication__factory, ITransparentUpgradeableProxy__factory} from "typechain-types";
-import {getAddresses, getSigners, isLocalNetwork, logger, updateAddresses, verify} from "utils";
+import {
+  confirmAction,
+  getAddresses,
+  getSigners,
+  isLocalNetwork,
+  logger,
+  updateAddresses,
+  verify,
+} from "utils";
 
-type TaskArgs = {charityApplicationLib?: string; verify: boolean};
+type TaskArgs = {
+  charityApplicationLib?: string;
+  verify: boolean;
+  yes: boolean;
+};
 
 task("upgrade:CharityApplications", "Will upgrade the implementation of CharityApplications")
   .addOptionalParam(
@@ -15,9 +27,15 @@ task("upgrade:CharityApplications", "Will upgrade the implementation of CharityA
     true,
     types.boolean
   )
+  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      logger.out("Upgrading CharityApplications implementation contract...");
+      const isConfirmed =
+        taskArgs.yes ||
+        (await confirmAction("Upgrading CharityApplications implementation contract..."));
+      if (!isConfirmed) {
+        return logger.out("Confirmation denied.", logger.Level.Warn);
+      }
 
       const {proxyAdmin} = await getSigners(hre);
 

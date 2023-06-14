@@ -1,10 +1,15 @@
 import {deployCharityApplication} from "contracts/multisigs/charity_applications/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {getAddresses, isLocalNetwork, logger} from "utils";
+import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
 
-type TaskArgs = {accountsDiamond?: string; applications?: string; verify: boolean};
+type TaskArgs = {
+  accountsDiamond?: string;
+  applications?: string;
+  verify: boolean;
+  yes: boolean;
+};
 
-task("deploy:CharityApplications", "Will deploy CharityApplications contract")
+task("deploy:CharityApplication", "Will deploy CharityApplication contract")
   .addOptionalParam(
     "accountsDiamond",
     "Accounts Diamond contract address. Will do a local lookup from contract-address.json if none is provided."
@@ -19,8 +24,14 @@ task("deploy:CharityApplications", "Will deploy CharityApplications contract")
     true,
     types.boolean
   )
+  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
+      const isConfirmed = taskArgs.yes || (await confirmAction("Deploying CharityApplication..."));
+      if (!isConfirmed) {
+        return logger.out("Confirmation denied.", logger.Level.Warn);
+      }
+
       const addresses = await getAddresses(hre);
 
       const applications = taskArgs.applications || addresses.multiSig.applications.proxy;

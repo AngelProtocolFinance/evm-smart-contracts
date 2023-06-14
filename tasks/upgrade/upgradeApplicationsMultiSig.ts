@@ -1,12 +1,11 @@
 import {task, types} from "hardhat/config";
 import {
-  APTeamMultiSig__factory,
   ApplicationsMultiSig__factory,
   ITransparentUpgradeableProxy__factory,
 } from "typechain-types";
 import {
+  confirmAction,
   getAddresses,
-  getContractName,
   getSigners,
   isLocalNetwork,
   logger,
@@ -14,39 +13,26 @@ import {
   verify,
 } from "utils";
 
-task(
-  "upgrade:Multisig",
-  "Will upgrade the implementation of the AP Team and Applications multisigs"
-)
+task("upgrade:ApplicationsMultiSig", "Will upgrade the ApplicationsMultiSig")
   .addOptionalParam(
     "verify",
     "Flag indicating whether the contract should be verified",
     true,
     types.boolean
   )
-  .setAction(async (taskArgs: {verify: boolean}, hre) => {
+  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
+  .setAction(async (taskArgs: {verify: boolean; yes: boolean}, hre) => {
     try {
+      const isConfirmed =
+        taskArgs.yes || (await confirmAction("Upgrading ApplicationsMultiSig..."));
+      if (!isConfirmed) {
+        return logger.out("Confirmation denied.", logger.Level.Warn);
+      }
+
       const {proxyAdmin} = await getSigners(hre);
 
       const addresses = await getAddresses(hre);
 
-      // Update APTeamMultiSig
-      logger.out("Deploying APTeamMultiSig...");
-      const apTeamFactory = new APTeamMultiSig__factory(proxyAdmin);
-      const apTeamMultiSig = await apTeamFactory.deploy();
-      await apTeamMultiSig.deployed();
-      logger.out(`Address: ${apTeamMultiSig.address}`);
-
-      logger.out("Upgrading APTeamMultiSig proxy implementation...");
-      const apTeamProxy = ITransparentUpgradeableProxy__factory.connect(
-        addresses.multiSig.apTeam.proxy,
-        proxyAdmin
-      );
-      const tx1 = await apTeamProxy.upgradeTo(apTeamMultiSig.address);
-      logger.out(`Tx hash: ${tx1.hash}`);
-      await tx1.wait();
-
-      // Update ApplicationsMultiSig
       logger.out("Deploying ApplicationsMultiSig...");
       const applicationsFactory = new ApplicationsMultiSig__factory(proxyAdmin);
       const applicationsMultiSig = await applicationsFactory.deploy();
@@ -58,18 +44,15 @@ task(
         addresses.multiSig.applications.proxy,
         proxyAdmin
       );
-      const tx2 = await applicationsProxy.upgradeTo(applicationsMultiSig.address);
-      logger.out(`Tx hash: ${tx2.hash}`);
-      await tx2.wait();
+      const tx = await applicationsProxy.upgradeTo(applicationsMultiSig.address);
+      logger.out(`Tx hash: ${tx.hash}`);
+      await tx.wait();
 
       await updateAddresses(
         {
           multiSig: {
             applications: {
               implementation: applicationsMultiSig.address,
-            },
-            apTeam: {
-              implementation: apTeamMultiSig.address,
             },
           },
         },
@@ -78,14 +61,8 @@ task(
 
       if (!isLocalNetwork(hre) && taskArgs.verify) {
         await verify(hre, {
-          address: apTeamMultiSig.address,
-          contract: "contracts/multisigs/APTeamMultiSig.sol:APTeamMultiSig",
-          contractName: getContractName(apTeamFactory),
-        });
-        await verify(hre, {
           address: applicationsMultiSig.address,
           contract: "contracts/multisigs/ApplicationsMultiSig.sol:ApplicationsMultiSig",
-          contractName: getContractName(applicationsFactory),
         });
       }
     } catch (error) {

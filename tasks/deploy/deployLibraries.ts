@@ -1,7 +1,7 @@
 import {task, types} from "hardhat/config";
 import {deployCommonLibraries} from "scripts";
 import {FACET_NAMES_USING_ANGEL_CORE_STRUCT} from "tasks/upgrade/upgradeFacets/constants";
-import {isLocalNetwork, logger} from "utils";
+import {confirmAction, isLocalNetwork, logger} from "utils";
 
 task("deploy:Libraries", "Will deploy Libraries")
   .addOptionalParam(
@@ -10,8 +10,14 @@ task("deploy:Libraries", "Will deploy Libraries")
     true,
     types.boolean
   )
-  .setAction(async (taskArgs: {verify: boolean}, hre) => {
+  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
+  .setAction(async (taskArgs: {verify: boolean; yes: boolean}, hre) => {
     try {
+      const isConfirmed = taskArgs.yes || (await confirmAction("Deploying common libraries..."));
+      if (!isConfirmed) {
+        return logger.out("Confirmation denied.", logger.Level.Warn);
+      }
+
       const verify_contracts = taskArgs.verify && !isLocalNetwork(hre);
 
       await deployCommonLibraries(verify_contracts, hre);

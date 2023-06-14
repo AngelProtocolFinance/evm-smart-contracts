@@ -1,9 +1,14 @@
 import config from "config";
 import {deployFundraising} from "contracts/accessory/fundraising/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {getAddresses, isLocalNetwork, logger} from "utils";
+import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
 
-type TaskArgs = {angelCoreStruct?: string; registrar?: string; verify: boolean};
+type TaskArgs = {
+  angelCoreStruct?: string;
+  registrar?: string;
+  verify: boolean;
+  yes: boolean;
+};
 
 task("deploy:Fundraising", "Will deploy Fundraising contract")
   .addOptionalParam(
@@ -20,8 +25,14 @@ task("deploy:Fundraising", "Will deploy Fundraising contract")
     true,
     types.boolean
   )
+  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
+      const isConfirmed = taskArgs.yes || (await confirmAction("Deploying Fundraising..."));
+      if (!isConfirmed) {
+        return logger.out("Confirmation denied.", logger.Level.Warn);
+      }
+
       const addresses = await getAddresses(hre);
 
       const angelCoreStruct = taskArgs.angelCoreStruct || addresses.libraries.angelCoreStruct;
