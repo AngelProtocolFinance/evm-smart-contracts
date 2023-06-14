@@ -112,8 +112,8 @@
         "proxy": "0x4060eF0D5a7F0633c5927F7E05041dd7Fcd95f42"
       },
       "apTeam": {
-        "implementation": "0x43dFD957bB91b568176E976A8d4e8ab4E94aeBfD",
-        "proxy": "0xA303374bda3A6Ce7550514E6681228Ca12020BBA"
+        "implementation": "0x7F6D5d1bDFB4b281374285510A845cb140d4367b",
+        "proxy": "0x455A2aC2F917956c0f2664992C1DDd9Cd6562976"
       },
       "endowment": {
         "emitter": {

@@ -31,7 +31,7 @@ task("manage:AccountsDiamond:updateOwner", "Will update the owner of the Account
       if (curOwner === newOwner) {
         return logger.out(`"${newOwner}" is already the owner.`);
       }
-      logger.pad(50, "Current owner: ", curOwner);
+      logger.out(`Current owner: ${curOwner}`);
 
       const isConfirmed =
         taskArgs.yes || (await confirmAction(`Transfer ownership to: ${newOwner}`));
@@ -39,7 +39,7 @@ task("manage:AccountsDiamond:updateOwner", "Will update the owner of the Account
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      logger.out("Transferring ownership...");
+      logger.out(`Transferring ownership to: ${newOwner}...`);
       const accountsUpdate = AccountsUpdate__factory.connect(
         addresses.accounts.diamond,
         apTeamMultisigOwners[0]
@@ -58,6 +58,9 @@ task("manage:AccountsDiamond:updateOwner", "Will update the owner of the Account
         "0x"
       );
       logger.out(`Tx hash: ${tx.hash}`);
+
+      const updatedOwner = (await accountsQueryEndowments.queryConfig()).owner;
+      logger.out(`New owner: ${updatedOwner}`);
       await tx.wait();
     } catch (error) {
       logger.out(error, logger.Level.Error);
