@@ -24,7 +24,7 @@ task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
         to: apTeamMultiSig.proxy.address,
         yes: true,
       });
-      await hre.run("manage:accounts:updateOwner", {
+      await hre.run("manage:AccountsDiamond:updateOwner", {
         to: apTeamMultiSig.proxy.address,
         yes: true,
       });

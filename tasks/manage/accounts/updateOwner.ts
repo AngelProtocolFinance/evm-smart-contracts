@@ -8,7 +8,7 @@ import {confirmAction, getAddresses, getSigners, logger} from "utils";
 
 type TaskArgs = {to: string; yes: boolean};
 
-task("manage:accounts:updateOwner", "Will update the owner of the Accounts Diamond")
+task("manage:AccountsDiamond:updateOwner", "Will update the owner of the Accounts Diamond")
   .addOptionalParam(
     "to",
     "Address of the new owner. Ensure at least one of `apTeamMultisigOwners` is the controller of this address. Will default to `contract-address.json > multiSig.apTeam.proxy` if none is provided."
