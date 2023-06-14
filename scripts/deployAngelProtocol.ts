@@ -3,10 +3,10 @@ import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {
   ADDRESS_ZERO,
-  resetAddresses,
   getAddresses,
   isLocalNetwork,
   logger,
+  resetAddresses,
   updateAddresses,
 } from "utils";
 
@@ -23,11 +23,11 @@ import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-
 
 import {getSigners} from "utils/getSigners";
 
-import {deployCommonLibraries} from "./deployCommonLibraries";
-import {deployMockUSDC} from "./deployMockUSDC";
-import {updateRegistrarConfig, updateRegistrarNetworkConnections} from "./updateRegistrar";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {ERC20__factory, ISwapRouter__factory} from "typechain-types";
+import {deployCommonLibraries} from "./deployCommonLibraries";
+import {deployMockUSDC, deployMockWMatic} from "./mocks";
+import {updateRegistrarConfig, updateRegistrarNetworkConnections} from "./updateRegistrar";
 
 export async function deployAngelProtocol(
   verify_contracts: boolean,
@@ -46,6 +46,10 @@ export async function deployAngelProtocol(
   const usdcToken = isLocalNetwork(hre)
     ? await deployMockUSDC(proxyAdmin, hre)
     : await getUSDCToken(proxyAdmin, hre);
+
+  const wmaticToken = isLocalNetwork(hre)
+    ? await deployMockWMatic(proxyAdmin, hre)
+    : await getWMaticToken(proxyAdmin, hre);
 
   const {angelCoreStruct} = await deployCommonLibraries(verify_contracts, hre);
 
@@ -274,7 +278,7 @@ export async function deployAngelProtocol(
       charityProposal: charityApplication.proxy.address, //address
       proxyAdmin: proxyAdmin.address, //address
       usdcAddress: usdcToken.address,
-      wMaticAddress: config.REGISTRAR_UPDATE_CONFIG.wmaticAddress,
+      wMaticAddress: wmaticToken.address,
     },
     hre
   );
@@ -315,5 +319,11 @@ async function getUniswapSwapRouter(signer: SignerWithAddress, hre: HardhatRunti
 async function getUSDCToken(signer: SignerWithAddress, hre: HardhatRuntimeEnvironment) {
   const addresses = await getAddresses(hre);
   const contract = ERC20__factory.connect(addresses.tokens.usdc, signer);
+  return contract;
+}
+
+async function getWMaticToken(signer: SignerWithAddress, hre: HardhatRuntimeEnvironment) {
+  const addresses = await getAddresses(hre);
+  const contract = ERC20__factory.connect(addresses.tokens.wmatic, signer);
   return contract;
 }
