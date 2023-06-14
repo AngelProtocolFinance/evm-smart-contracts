@@ -41,7 +41,7 @@ export async function deployIndexFund(
       initData
     );
     await indexFundProxy.deployed();
-    logger.out(`Address: ${indexFund.address}`);
+    logger.out(`Address: ${indexFundProxy.address}`);
 
     // update owner
     logger.out(`Updating IndexFund owner to: ${owner}...`);

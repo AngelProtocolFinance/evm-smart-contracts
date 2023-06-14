@@ -98,8 +98,8 @@
       "implementation": ""
     },
     "indexFund": {
-      "implementation": "0x82B642D9deDb3Ad19b8E99FF3792A49d4d9d85Bf",
-      "proxy": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+      "implementation": "0x086bCD73D03A5e1163A9224Fa09dC5cF70d73094",
+      "proxy": "0x0165878A594ca255338adfa4d48449f69242Eb8F"
     },
     "libraries": {
       "angelCoreStruct": "0xAd5d57aD9bB17d34Debb88566ab2F5dB879Cc46F",
