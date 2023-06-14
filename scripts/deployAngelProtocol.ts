@@ -7,7 +7,6 @@ import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
-// import {deploySwapRouter} from "contracts/core/swap-router/scripts/deploy";
 // import { deployHaloImplementation } from "contracts/halo/scripts/deploy"
 import {deployCharityApplication} from "contracts/multisigs/charity_applications/scripts/deploy";
 import {deployAPTeamMultiSig, deployApplicationsMultiSig} from "contracts/multisigs/scripts/deploy";
@@ -72,15 +71,6 @@ export async function deployAngelProtocol(
     verify_contracts,
     hre
   );
-
-  // const swapRouter = await deploySwapRouter(
-  //   registrar.proxy.address,
-  //   accountsDiamond.address,
-  //   config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS,
-  //   config.SWAP_ROUTER_DATA.SWAP_ROUTER_ADDRESS,
-  //   verify_contracts,
-  //   hre
-  // );
 
   const indexFund = await deployIndexFund(
     registrar.proxy.address,
