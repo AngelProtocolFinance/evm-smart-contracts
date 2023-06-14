@@ -20,8 +20,8 @@ task(
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      await hre.run("upgrade:CharityApplication", {verify: taskArgs.verify});
-      await hre.run("upgrade:facets", {facets: ["all"], verify: taskArgs.verify});
+      await hre.run("upgrade:CharityApplication", {verify: taskArgs.verify, yes: true});
+      await hre.run("upgrade:facets", {facets: ["all"], verify: taskArgs.verify, yes: true});
     } catch (error) {
       logger.out(
         `Redeployment of all contracts that use AccountStorage struct failed, reason: ${error}`,
