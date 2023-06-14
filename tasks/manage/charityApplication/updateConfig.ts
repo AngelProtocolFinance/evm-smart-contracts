@@ -1,6 +1,6 @@
 import {task, types} from "hardhat/config";
 import {ApplicationsMultiSig__factory, CharityApplication__factory} from "typechain-types";
-import {getAddresses, getSigners, logger} from "utils";
+import {getAddresses, getSigners, logger, structToObject} from "utils";
 
 type TaskArgs = {
   accountsDiamond?: string;
@@ -59,12 +59,16 @@ task("manage:CharityApplication:updateConfig", "Will update CharityApplication c
 
       // fetch current config
       logger.out("Querying current config...");
-      const curConfig = await charityApplication.queryConfig();
+      const struct = await charityApplication.queryConfig();
+      const curConfig = structToObject(struct);
       logger.out(curConfig);
 
       // data setup
       logger.out("Config data to update:");
       logger.out(taskArgs);
+
+      // update config
+      logger.out("Updating config...");
       const updateConfigData = charityApplication.interface.encodeFunctionData("updateConfig", [
         taskArgs.proposalExpiry || curConfig.proposalExpiry,
         taskArgs.applicationsMultisig || addresses.multiSig.applications.proxy,
@@ -76,9 +80,6 @@ task("manage:CharityApplication:updateConfig", "Will update CharityApplication c
         taskArgs.seedAsset || curConfig.seedAsset,
         taskArgs.seedAssetAmount || curConfig.seedAssetAmount,
       ]);
-
-      // update config
-      logger.out("Updating config...");
       const applicationMultiSigContract = ApplicationsMultiSig__factory.connect(
         curConfig.applicationMultisig, // we need to use current config's ApplicationsMultiSig address
         applicationsMultisigOwners[0]
