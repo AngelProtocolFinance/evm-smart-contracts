@@ -45,7 +45,7 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
       const {registrarContract, earlyLockedWithdrawFee, maxGeneralCategoryId, owner} =
         await accountsQueryEndowments.queryConfig();
       const curConfig = {registrarContract, earlyLockedWithdrawFee, maxGeneralCategoryId};
-      logger.out(JSON.stringify(curConfig, undefined, 2));
+      logger.out(curConfig);
 
       const {yes, ...newConfig} = taskArgs;
       const isConfirmed =
