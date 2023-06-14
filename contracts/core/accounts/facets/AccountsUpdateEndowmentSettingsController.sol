@@ -299,7 +299,7 @@ contract AccountsUpdateEndowmentSettingsController is ReentrancyGuardFacet, Acco
     ) {
       tempEndowment.settingsController.ignoreUserSplits = details.settingsController.ignoreUserSplits;
     }
-
+    state.ENDOWMENTS[details.id] = tempEndowment;
     emit EndowmentSettingUpdated(details.id, "endowmentController");
     emit UpdateEndowment(details.id, tempEndowment);
   }
