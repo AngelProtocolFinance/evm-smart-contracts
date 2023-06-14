@@ -9,7 +9,6 @@ library AccountMessages {
     address owner; // address that originally setup the endowment account
     bool withdrawBeforeMaturity; // endowment allowed to withdraw funds from locked acct before maturity date
     uint256 maturityTime; // datetime int of endowment maturity
-    uint256 maturityHeight; // block equiv of the maturity_datetime
     string name; // name of the Endowment
     uint256[] sdgs;
     uint256 tier; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP Team Multisig can set/update)
