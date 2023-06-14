@@ -1,25 +1,25 @@
 {
   "31337": {
     "accounts": {
-      "diamond": "0x1Ef8f58544Ca4d9b1e34E2F9Cd1b37257C618C6D",
+      "diamond": "0xbAAf47e7e5096AcD4745A0998774e11F9Cb39029",
       "facets": {
-        "accountsDeployContract": "0x09DC2cba1450d7E22bf68866E41e24c75BE13723",
-        "accountsDepositWithdrawEndowments": "0x601cdcC58A69F0cC474395F4d9f7921D5510A7B5",
-        "accountsDonationMatch": "0x5bf45fc980160f16108e9e7DC68E65d5e430b6eC",
-        "accountsAllowance": "0x6D1366b16EAafbB328432894981F71CE55b0FDF8",
-        "accountsCreateEndowment": "0x7217caCf3AbcC7faE047D533D017C70E4ceFFB5c",
-        "accountsDaoEndowments": "0x3Ba9711f93fD5b561904b05171C57Ff23BB1114d",
-        "accountsQueryEndowments": "0xe36DB6C868A28e465e6872e76001A582812D19ff",
-        "accountsSwapRouter": "0xd637EBC8337d13C4efDD1f90903e10B211FEd52d",
-        "accountsUpdate": "0xC668EFaD85F05DD7a3bDD4c653D466D4d754eC55",
-        "accountsUpdateEndowments": "0xfd0B361B23fD98A201d60f289bACB6561711af51",
-        "accountsUpdateEndowmentSettingsController": "0x8Ae04176b5761bb9Ea8bd74f92e271487F044581",
-        "accountsUpdateStatusEndowments": "0x47ba5F8E0e55b694c1F98E28a6889cB5aA985a08",
-        "accountsVaultFacet": "0xf9FFCCdb71D68eeBa284e6b8cbF35146f018C9b9",
-        "diamondCutFacet": "0x1f5466599D672402C804cc80c676B0b49c8bBC13",
-        "diamondInitFacet": "0xce79BCB6Ca09C5F9939b22Bd37498781476264CC",
-        "diamondLoupeFacet": "0x9dBCF50e357172D490ee5E428d75129A6224a2e9",
-        "ownershipFacet": "0x1D1aEE6D5dC35F3c15E2D11083D0e59C026b64c4"
+        "accountsDeployContract": "0x235dB99880759ac7C54D033A3B53A4Cbd4dD8F89",
+        "accountsDepositWithdrawEndowments": "0xE106E239Fd5a667a6DBB0Acb89081D2cEe3AB41b",
+        "accountsDonationMatch": "0x72a49d0fb5D8D3C80fbde48B253CFe4D37938d0e",
+        "accountsAllowance": "0x42B1d621236dB1142048E545dAbc886e5235788a",
+        "accountsCreateEndowment": "0x8d7B2Eb0Fa74f232b1C715de15CBC43515a0Ec7E",
+        "accountsDaoEndowments": "0x75490F5582de9d3adea303D6B60Fd7DEDf564C16",
+        "accountsQueryEndowments": "0xb0BeB07CCE83b28d5487F5F307fa70F1e32A7054",
+        "accountsSwapRouter": "0x053eE368b6369eA294F126e56C67eC969e52ba3f",
+        "accountsUpdate": "0xEa2FC63Eac9b21A83996186e3B36b141e0172a3E",
+        "accountsUpdateEndowments": "0xc55f48d5eb8DfCe4810c69C6a5d15c300e70c3D8",
+        "accountsUpdateEndowmentSettingsController": "0xC0E2EE50690ACF7fE4979fb44ac50EDa91f99697",
+        "accountsUpdateStatusEndowments": "0xBdC25F602A25E3E515a0f44861b9Dd333C3e942e",
+        "accountsVaultFacet": "0x6cc5b8C7df6A806963E61f95CB16eD09F177c4A3",
+        "diamondCutFacet": "0xa6359c744E4b76195986f7F928cF4bA21064C16F",
+        "diamondInitFacet": "0x0C97C5366ed8A79F72174861F31Fd3729858E0e5",
+        "diamondLoupeFacet": "0x98eab1FEA912C435e5a5d913dD2AdC5F7E49DE72",
+        "ownershipFacet": "0xc95E07AC97CB6af09aC0e5A982D42021ceFCf622"
       }
     },
     "axelar": {
@@ -27,8 +27,8 @@
       "gateway": ""
     },
     "charityApplication": {
-      "implementation": "0xD71F8cDe87726587941dCDE67845dd6945eDB3A9",
-      "proxy": "0x07dEF209701605580893ecd7C3cE2340f5b16875"
+      "implementation": "0x6641F123824EE3af635D9AaDcD4f2cDa1Fc738fD",
+      "proxy": "0xdF582304420A499372e6442043621914511426Fe"
     },
     "donationMatch": {
       "emitter": "",
@@ -102,39 +102,39 @@
       "implementation": ""
     },
     "indexFund": {
-      "implementation": "0x086bCD73D03A5e1163A9224Fa09dC5cF70d73094",
-      "proxy": "0x0165878A594ca255338adfa4d48449f69242Eb8F"
+      "implementation": "0xC2a1a334f7140aE222daF81226196c3D8f207454",
+      "proxy": "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1"
     },
     "libraries": {
-      "angelCoreStruct": "0x6b07B7A11cF992B436DE5d3bf28F50eBA606649b",
-      "charityApplicationLib": "0x32Ed2BD67238Be274E127096F42f0a4061aC0Bff",
-      "stringArray": "0x05275a4799cd1B07D81319390fC62Bc7BDbDf269"
+      "angelCoreStruct": "0xBEF54832A694bc46a7592c3EFf627BfF2Ee6a204",
+      "charityApplicationLib": "0xc57E2052Cd788af8573C2472dcCaB09E6140f684",
+      "stringArray": "0x45410Fbd87216d6f8151a0a2c13C6352328059d3"
     },
     "multiSig": {
       "applications": {
-        "implementation": "0x4fC92Db7DD04f69e8ed448747F589FFD91622886",
-        "proxy": "0x4060eF0D5a7F0633c5927F7E05041dd7Fcd95f42"
+        "implementation": "0x33d318c009F6eEa7a83fF756997FCAc92B6486af",
+        "proxy": "0xe98587C08e712Bf491F545ecA42A4ab36A18650a"
       },
       "apTeam": {
-        "implementation": "0x90b8b4F5B00dCC13c50fC098F2A93368E5a2839a",
-        "proxy": "0x455A2aC2F917956c0f2664992C1DDd9Cd6562976"
+        "implementation": "0x343AAf0aE4657a5c7015F05866A12431B1c6C765",
+        "proxy": "0x3B2afbA0F1F7be555944fd14aBd83746f7E172eE"
       },
       "endowment": {
         "emitter": {
-          "implementation": "0xD63c1597435d2E16d7f216A12A3dA65B3bF12241",
-          "proxy": "0x59c7E6B2c565Ff92B762523BD6B778CE66dC0302"
+          "implementation": "0x2d7C3eA2d5bBD164098268c63ECE58405BDeaa4A",
+          "proxy": "0xB043A12ab263C50eBb0Ad8e3a026eB1006e77254"
         },
-        "factory": "0x9687796759CAbecC1674A4Aaf23889fC9EC2FCA2",
-        "implementation": "0x2d0adf1795389d6fB7d231ea5D282F1b19be5495"
+        "factory": "0xF705161CE3C5426a1Ac54627A9eA9440D337712F",
+        "implementation": "0x13fCEB7078734997CD22e5CeFd89558c97e18638"
       }
     },
     "registrar": {
-      "implementation": "0x5C3A8b1E8273F52EF64D70CEAB437AA6f7092f65",
-      "proxy": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6"
+      "implementation": "0x0711f2e2BC23A9a240AA903dcf95E161F7B81E18",
+      "proxy": "0x9A676e781A523b5d0C0e43731313A708CB607508"
     },
     "router": {
-      "implementation": "0x780ABF86d3a8c070b1e8757A961C126c7D88e460",
-      "proxy": "0x07F1599D3fCEC400eFf2528f29fD4f00E9A61062"
+      "implementation": "0xE9E8acbBFbd8B268c88fE5709e93887606af501a",
+      "proxy": "0xd80ed0A37BBD26bb5B8c39b92EBacc80EE914ddD"
     },
     "seedAsset": "",
     "subDao": {
@@ -149,8 +149,8 @@
     "tokens": {
       "dai": "",
       "halo": "",
-      "usdc": "0xe0B39353F69b54e945364ffcdDD7901697Ca0166",
-      "wmatic": ""
+      "usdc": "0xEC57dE8D74bdf9F19908f12Cef32D0dE639d9e7a",
+      "wmatic": "0x77467C858DD37aeC07B9320553F562899ddE6505"
     },
     "uniswapSwapRouter": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
   },
