@@ -1,9 +1,10 @@
 import dotenv from "dotenv";
 import {ethers} from "ethers";
+import {Config} from "./types";
 
 dotenv.config({path: __dirname + "/./../.env"});
 
-const config = {
+const config: Config = {
   AP_TEAM_MULTISIG_DATA: {
     threshold: 1,
     requireExecution: false,
