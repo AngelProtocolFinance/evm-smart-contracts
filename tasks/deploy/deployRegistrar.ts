@@ -64,6 +64,10 @@ task(
         newRegistrar: registrar.proxy.address,
         yes: true,
       });
+      await hre.run("manage:IndexFund:updateOwner", {
+        to: registrar.proxy.address,
+        yes: true,
+      });
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
