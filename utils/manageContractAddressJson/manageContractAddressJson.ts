@@ -1,7 +1,11 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 
-import {DEFAULT_CONTRACT_ADDRESS_FILE_PATH} from "..";
-import {createEmpty, getAddressesByNetworkId, saveFrontendFiles} from "./helpers";
+import {DEFAULT_CONTRACT_ADDRESS_FILE_PATH, isLocalNetwork} from "..";
+import {
+  createEmpty as createEmptyAddressObj,
+  getAddressesByNetworkId,
+  saveFrontendFiles,
+} from "./helpers";
 import {AddressObj} from "./types";
 
 type DeepPartial<T> = {
@@ -11,13 +15,29 @@ type DeepPartial<T> = {
 /**
  * Removes contract address for the current network from the appropriate file.
  */
-export async function cleanAddresses(
+export async function resetAddresses(
   hre: HardhatRuntimeEnvironment,
   filePath = DEFAULT_CONTRACT_ADDRESS_FILE_PATH
 ) {
   const chainId = await getChainId(hre);
 
-  saveFrontendFiles({[chainId]: createEmpty()}, filePath);
+  if (isLocalNetwork(hre)) {
+    return saveFrontendFiles({[chainId]: createEmptyAddressObj()}, filePath);
+  }
+
+  const currentAddressObj = getAddressesByNetworkId(chainId, filePath);
+
+  const cleaned: AddressObj = {
+    ...createEmptyAddressObj(),
+    uniswapSwapRouter: currentAddressObj.uniswapSwapRouter,
+    tokens: {
+      halo: "",
+      usdc: currentAddressObj.tokens.usdc,
+      wmatic: currentAddressObj.tokens.wmatic,
+    },
+  };
+
+  saveFrontendFiles({[chainId]: cleaned}, filePath);
 }
 
 export async function getAddresses(

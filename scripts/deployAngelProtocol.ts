@@ -1,7 +1,7 @@
 // import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {ADDRESS_ZERO, cleanAddresses, getAddresses, isLocalNetwork, logger} from "utils";
+import {ADDRESS_ZERO, resetAddresses, getAddresses, isLocalNetwork, logger} from "utils";
 
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
@@ -26,7 +26,7 @@ export async function deployAngelProtocol(
 ): Promise<void> {
   const {proxyAdmin, treasury} = await getSigners(hre);
 
-  await cleanAddresses(hre);
+  await resetAddresses(hre);
 
   logger.out(`Deploying the contracts with the account: ${proxyAdmin.address}`);
 
