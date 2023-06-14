@@ -31,12 +31,12 @@ library CharityApplicationLib {
   ) public {
     require(proposals[proposalCounter].proposer == address(0), "Proposal already exists");
     require(charityApplication.endowType == AngelCoreStruct.EndowmentType.Charity, "Unauthorized");
-    require(charityApplication.categories.sdgs.length > 0, "No UN SDGs given");
+    require(charityApplication.sdgs.length > 0, "No UN SDGs given");
 
     // check all sdgs id
-    for (uint256 i = 0; i < charityApplication.categories.sdgs.length; i++) {
+    for (uint256 i = 0; i < charityApplication.sdgs.length; i++) {
       if (
-        charityApplication.categories.sdgs[i] > 17 || charityApplication.categories.sdgs[i] == 0
+        charityApplication.sdgs[i] > 17 || charityApplication.sdgs[i] == 0
       ) {
         revert("Invalid UN SDG inputs given");
       }

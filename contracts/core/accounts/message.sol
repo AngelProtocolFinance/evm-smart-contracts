@@ -9,9 +9,8 @@ library AccountMessages {
     address owner; // address that originally setup the endowment account
     bool withdrawBeforeMaturity; // endowment allowed to withdraw funds from locked acct before maturity date
     uint256 maturityTime; // datetime int of endowment maturity
-    uint256 maturityHeight; // block equiv of the maturity_datetime
     string name; // name of the Endowment
-    AngelCoreStruct.Categories categories; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP Team Multisig can set/update)
+    uint256[] sdgs;
     uint256 tier; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP Team Multisig can set/update)
     AngelCoreStruct.EndowmentType endowType;
     string logo;
@@ -59,11 +58,11 @@ library AccountMessages {
 
   struct UpdateEndowmentDetailsRequest {
     uint32 id;
-    address owner; /// Option<String>,
-    string name; /// Option<String>,
-    AngelCoreStruct.Categories categories; /// Option<Categories>,
-    string logo; /// Option<String>,
-    string image; /// Option<String>,
+    address owner;
+    string name;
+    uint256[] sdgs;
+    string logo;
+    string image;
     LocalRegistrarLib.RebalanceParams rebalance;
   }
 
@@ -108,32 +107,20 @@ library AccountMessages {
     AngelCoreStruct.Beneficiary closingBeneficiary;
   }
 
-  struct EndowmentBalanceResponse {
-    AngelCoreStruct.BalanceInfo tokensOnHand; //: BalanceInfo,
-    address[] invested_locked_string; //: Vec<(String, Uint128)>,
-    uint128[] invested_locked_amount;
-    address[] invested_liquid_string; //: Vec<(String, Uint128)>,
-    uint128[] invested_liquid_amount;
-  }
-
   struct EndowmentEntry {
-    uint32 id; // u32,
-    address owner; // String,
-    AngelCoreStruct.EndowmentType endowType; // EndowmentType,
-    string name; // Option<String>,
-    string logo; // Option<String>,
-    string image; // Option<String>,
-    AngelCoreStruct.Tier tier; // Option<Tier>,
-    AngelCoreStruct.Categories categories; // Categories,
-    string proposalLink; // Option<u64>,
-  }
-
-  struct EndowmentListResponse {
-    EndowmentEntry[] endowments;
+    uint32 id;
+    address owner;
+    AngelCoreStruct.EndowmentType endowType;
+    string name;
+    string logo;
+    string image;
+    AngelCoreStruct.Tier tier;
+    uint256[] sdgs;
+    string proposalLink;
   }
 
   struct EndowmentDetailsResponse {
-    address owner; //: Addr,
+    address owner;
     address dao;
     address daoToken;
     string description;
@@ -146,7 +133,7 @@ library AccountMessages {
     string logo;
     string image;
     string name;
-    AngelCoreStruct.Categories categories;
+    uint256[] sdgs;
     uint256 tier;
     uint256 copycatStrategy;
     uint256 proposalLink;

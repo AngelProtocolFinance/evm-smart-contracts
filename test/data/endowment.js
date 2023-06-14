@@ -19,10 +19,7 @@ const getCreateEndowmentConfig = async function (
       maturityTime: Math.floor(Date.now() / 1000) + 1000,
       maturityHeight: 500,
       name: title,
-      categories: {
-        sdgs: [2],
-        general: [],
-      },
+      sdgs: [2],
       tier: 3,
       endowType: endowType,
       logo: "Some fancy logo",
@@ -231,7 +228,7 @@ const getCreateEndowmentConfig = async function (
             expires: Math.floor(Date.now() / 1000) + 1000, // datetime int of delegation expiry
           },
         },
-        categories: {
+        sdgs: {
           ownerControlled: true,
           govControlled: true,
           modifiableAfterInit: true,

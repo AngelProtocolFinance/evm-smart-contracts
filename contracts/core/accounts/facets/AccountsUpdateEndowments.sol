@@ -19,7 +19,7 @@ import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
   /**
     @notice Updates the endowment details.
-    @dev This function allows the Endowment owner to update the endowment details like owner & rebalance and allows them or their Delegate(s) to update name, categories, logo, and image.
+    @dev This function allows the Endowment owner to update the endowment details like owner & rebalance and allows them or their Delegate(s) to update name, sdgs, logo, and image.
     @param details UpdateEndowmentDetailsRequest struct containing the updated endowment details.
     */
   function updateEndowmentDetails(
@@ -58,31 +58,24 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
 
     if (
       AngelCoreStruct.canChange(
-        tempEndowment.settingsController.categories,
+        tempEndowment.settingsController.sdgs,
         msg.sender,
         tempEndowment.owner,
         block.timestamp
       )
     ) {
       if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Charity) {
-        if (details.categories.sdgs.length == 0) {
+        if (details.sdgs.length == 0) {
           revert("InvalidInputs");
         }
-        details.categories.sdgs = Array.sort(details.categories.sdgs);
-        for (uint256 i = 0; i < details.categories.sdgs.length; i++) {
-          if (details.categories.sdgs[i] > 17 || details.categories.sdgs[i] == 0) {
+        details.sdgs = Array.sort(details.sdgs);
+        for (uint256 i = 0; i < details.sdgs.length; i++) {
+          if (details.sdgs[i] > 17 || details.sdgs[i] == 0) {
             revert("InvalidInputs");
           }
         }
       }
-      if (details.categories.general.length > 0) {
-        details.categories.general = Array.sort(details.categories.general);
-        uint256 length = details.categories.general.length;
-        if (details.categories.general[length - 1] > state.config.maxGeneralCategoryId) {
-          revert("InvalidInputs");
-        }
-      }
-      tempEndowment.categories = details.categories;
+      tempEndowment.sdgs = details.sdgs;
     }
 
     if (
@@ -284,17 +277,17 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
         "Unauthorized"
       );
       tempEndowment.settingsController.logo.delegate = newDelegate;
-    } else if (setting == AngelCoreStruct.ControllerSettingOption.Categories) {
+    } else if (setting == AngelCoreStruct.ControllerSettingOption.Sdgs) {
       require(
         AngelCoreStruct.canChange(
-          tempEndowment.settingsController.categories,
+          tempEndowment.settingsController.sdgs,
           msg.sender,
           tempEndowment.owner,
           block.timestamp
         ),
         "Unauthorized"
       );
-      tempEndowment.settingsController.categories.delegate = newDelegate;
+      tempEndowment.settingsController.sdgs.delegate = newDelegate;
     } else if (setting == AngelCoreStruct.ControllerSettingOption.SplitToLiquid) {
       require(
         AngelCoreStruct.canChange(

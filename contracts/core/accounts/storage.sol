@@ -21,7 +21,7 @@ library AccountStorage {
   struct Endowment {
     address owner;
     string name; // name of the Endowment
-    AngelCoreStruct.Categories categories; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP Team Multisig can set/update)
+    uint256[] sdgs;
     uint256 tier; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP Team Multisig can set/update)
     AngelCoreStruct.EndowmentType endowType;
     string logo;

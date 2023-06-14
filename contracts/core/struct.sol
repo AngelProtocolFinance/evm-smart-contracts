@@ -22,12 +22,6 @@ library AngelCoreStruct {
     address contractAddress;
   }
 
-  //By default array are empty
-  struct Categories {
-    uint256[] sdgs;
-    uint256[] general;
-  }
-
   enum EndowmentType {
     Charity,
     Normal
@@ -38,16 +32,6 @@ library AngelCoreStruct {
     Remove
   }
 
-  struct Coin {
-    string denom;
-    uint128 amount;
-  }
-
-  struct CoinVerified {
-    uint128 amount;
-    address addr;
-  }
-
   struct TokenInfo {
     address addr;
     uint256 amnt;
@@ -56,11 +40,6 @@ library AngelCoreStruct {
   struct BalanceInfo {
     mapping(address => uint256) locked;
     mapping(address => uint256) liquid;
-  }
-
-  ///TODO: need to test this same names already declared in other libraries
-  struct EndowmentId {
-    uint32 id;
   }
 
   struct IndexFund {
@@ -74,6 +53,11 @@ library AngelCoreStruct {
     // Used for one-off funds that have an end date (ex. disaster recovery funds)
     uint256 expiryTime; // datetime int of index fund expiry
     uint256 expiryHeight; // block equiv of the expiry_datetime
+  }
+
+  ///TODO: need to test this same names already declared in other libraries
+  struct EndowmentId {
+    uint32 id;
   }
 
   struct Wallet {
@@ -309,7 +293,7 @@ library AngelCoreStruct {
     SettingsPermission name;
     SettingsPermission image;
     SettingsPermission logo;
-    SettingsPermission categories;
+    SettingsPermission sdgs;
     SettingsPermission splitToLiquid;
     SettingsPermission ignoreUserSplits;
   }
@@ -329,7 +313,7 @@ library AngelCoreStruct {
     Name,
     Image,
     Logo,
-    Categories,
+    Sdgs,
     SplitToLiquid,
     IgnoreUserSplits
   }
