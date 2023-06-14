@@ -47,7 +47,10 @@ export async function updateRegistrarNetworkConnections(
     logger.out(`Tx hash: ${tx.hash}`);
     await tx.wait();
 
-    logger.out("Network connections updated.");
+    logger.out("Updated network connection data:");
+    const newStruct = await registrarContract.queryNetworkConnection(network.chainId);
+    const newNetworkConnection = structToObject(newStruct);
+    logger.out(newNetworkConnection);
   } catch (error) {
     logger.out(error, logger.Level.Error);
   }
@@ -101,7 +104,10 @@ export async function updateRegistrarConfig(
     logger.out(`Tx hash: ${tx.hash}`);
     await tx.wait();
 
-    logger.out("Config updated.");
+    logger.out("New config:");
+    const newStruct = await registrarContract.queryConfig();
+    const newConfig = structToObject(newStruct);
+    logger.out(newConfig);
   } catch (error) {
     logger.out(error, logger.Level.Error);
   }
