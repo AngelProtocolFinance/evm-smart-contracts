@@ -155,14 +155,14 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
     } else if (setting == AngelCoreStruct.ControllerSettingOption.LiquidInvestmentManagement) {
       require(
         AngelCoreStruct.canChange(
-          tempEndowment.settingsController.lockedInvestmentManagement,
+          tempEndowment.settingsController.liquidInvestmentManagement,
           msg.sender,
           tempEndowment.owner,
           block.timestamp
         ),
         "Unauthorized"
       );
-      tempEndowment.settingsController.lockedInvestmentManagement.delegate = newDelegate;
+      tempEndowment.settingsController.liquidInvestmentManagement.delegate = newDelegate;
     } else if (setting == AngelCoreStruct.ControllerSettingOption.AcceptedTokens) {
       require(
         AngelCoreStruct.canChange(
