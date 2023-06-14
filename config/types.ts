@@ -38,7 +38,6 @@ export type Config = {
   };
   DONATION_MATCH_CHARITY_DATA: {
     reserveToken: string;
-    uniswapFactory: string;
     poolFee: number;
   };
   REGISTRAR_UPDATE_CONFIG: {

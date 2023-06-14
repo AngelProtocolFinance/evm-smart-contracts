@@ -254,7 +254,7 @@ export async function deployAngelProtocol(
       treasury: treasury.address,
       // haloTokenLpContract: addresses.halo.tokenLp,
       applicationsReview: applicationsMultiSig.proxy.address, //address
-      uniswapSwapRouter: thirdPartyAddresses.uniswapSwapRouter, //address
+      uniswapSwapRouter: thirdPartyAddresses.uniswap.swapRouter, //address
       multisigFactory: endowmentMultiSig.factory.address, //address
       multisigEmitter: endowmentMultiSig.emitter.proxy.address, //address
       charityProposal: charityApplication.proxy.address, //address

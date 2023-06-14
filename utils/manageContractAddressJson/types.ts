@@ -151,5 +151,8 @@ export type AddressObj = {
     usdc: string;
     wmatic: string;
   };
-  uniswapSwapRouter: string;
+  uniswap: {
+    factory: string;
+    swapRouter: string;
+  };
 };

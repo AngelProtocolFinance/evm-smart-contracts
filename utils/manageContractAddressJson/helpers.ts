@@ -219,6 +219,9 @@ export function createEmpty(): AddressObj {
       usdc: "",
       wmatic: "",
     },
-    uniswapSwapRouter: "",
+    uniswap: {
+      factory: "",
+      swapRouter: "",
+    },
   };
 }

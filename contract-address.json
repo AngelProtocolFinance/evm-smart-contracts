@@ -152,7 +152,10 @@
       "usdc": "0xEC57dE8D74bdf9F19908f12Cef32D0dE639d9e7a",
       "wmatic": "0x77467C858DD37aeC07B9320553F562899ddE6505"
     },
-    "uniswapSwapRouter": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+    "uniswap": {
+      "factory": "",
+      "swapRouter": ""
+    }
   },
   "80001": {
     "accounts": {
@@ -306,6 +309,9 @@
       "usdc": "0x0fa8781a83e46826621b3bc094ea2a0212e71b23",
       "wmatic": "0x9c3c9283d3e44854697cd22d3faa240cfb032889"
     },
-    "uniswapSwapRouter": "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+    "uniswap": {
+      "factory": "0x1f98431c8ad98523631ae4a59f267346ea31f984",
+      "swapRouter": "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+    }
   }
 }

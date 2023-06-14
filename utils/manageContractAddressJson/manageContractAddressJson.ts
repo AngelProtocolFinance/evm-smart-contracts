@@ -32,7 +32,7 @@ export async function resetAddresses(
     axelar: currentAddressObj.axelar,
     seedAsset: currentAddressObj.seedAsset,
     tokens: {...currentAddressObj.tokens, halo: ""},
-    uniswapSwapRouter: currentAddressObj.uniswapSwapRouter,
+    uniswap: currentAddressObj.uniswap,
   };
 
   saveFrontendFiles({[chainId]: cleaned}, filePath);

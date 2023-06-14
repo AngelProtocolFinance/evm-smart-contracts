@@ -24,7 +24,7 @@ task("deploy:Implementation", "Will deploy Implementation")
 
       let donationMatchCharityData = {
         reserveToken: config.DONATION_MATCH_CHARITY_DATA.reserveToken,
-        uniswapFactory: config.DONATION_MATCH_CHARITY_DATA.uniswapFactory,
+        uniswapFactory: addresses.uniswap.factory,
         registrarContract: taskArgs.registraraddress,
         poolFee: config.DONATION_MATCH_CHARITY_DATA.poolFee,
         usdcAddress: addresses.tokens.usdc,
