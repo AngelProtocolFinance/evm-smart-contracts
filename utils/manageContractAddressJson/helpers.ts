@@ -26,7 +26,7 @@ export function getAddressesByNetworkId(
         return Reflect.get(target, prop, receiver);
       }
 
-      if (hasKey(target, contractKey) && !!target[contractKey]) {
+      if (hasKey(target, contractKey)) {
         return target[contractKey];
       }
 
