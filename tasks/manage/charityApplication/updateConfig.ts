@@ -60,10 +60,11 @@ task("manage:CharityApplication:updateConfig", "Will update CharityApplication c
       // fetch current config
       logger.out("Querying current config...");
       const curConfig = await charityApplication.queryConfig();
-      logger.out(JSON.stringify(curConfig, undefined, 2));
+      logger.out(curConfig);
 
       // data setup
-      logger.out(`Config data to update:\n${JSON.stringify(taskArgs)}`);
+      logger.out("Config data to update:");
+      logger.out(taskArgs);
       const updateConfigData = charityApplication.interface.encodeFunctionData("updateConfig", [
         taskArgs.proposalExpiry || curConfig.proposalExpiry,
         taskArgs.applicationsMultisig || addresses.multiSig.applications.proxy,

@@ -2,7 +2,7 @@ import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 import {AngelCoreStruct} from "typechain-types/contracts/core/registrar/registrar.sol/Registrar";
-import {getSigners, logger} from "utils";
+import {getSigners, logger, structToObject} from "utils";
 
 export async function updateRegistrarNetworkConnections(
   registrar: string,
@@ -20,10 +20,12 @@ export async function updateRegistrarNetworkConnections(
     const registrarContract = Registrar__factory.connect(registrar, apTeamMultisigOwners[0]);
 
     logger.out("Fetching current Registrar's network connection data...");
-    const curNetworkConnection = await registrarContract.queryNetworkConnection(network.chainId);
-    logger.out(JSON.stringify(curNetworkConnection, undefined, 2));
+    const struct = await registrarContract.queryNetworkConnection(network.chainId);
+    const curNetworkConnection = structToObject(struct);
+    logger.out(curNetworkConnection);
 
-    logger.out(`Network info to update:\n${JSON.stringify(newNetworkInfo, undefined, 2)}`);
+    logger.out("Network info to update:");
+    logger.out(newNetworkInfo);
 
     const updateNetworkConnectionsData = registrarContract.interface.encodeFunctionData(
       "updateNetworkConnections",
@@ -64,14 +66,17 @@ export async function updateRegistrarConfig(
     const registrarContract = Registrar__factory.connect(registrar, apTeamMultisigOwners[0]);
 
     logger.out("Fetching current Registrar's config...");
-    const {splitToLiquid, ...curConfig} = await registrarContract.queryConfig();
-    logger.out(JSON.stringify(curConfig, undefined, 2));
+    const struct = await registrarContract.queryConfig();
+    const curConfig = structToObject(struct);
+    logger.out(curConfig);
 
-    logger.out(`Config data to update:\n${JSON.stringify(updateConfigRequest, undefined, 2)}`);
+    logger.out("Config data to update:");
+    logger.out(updateConfigRequest);
 
+    const {splitToLiquid, ...otherConfig} = curConfig;
     const updateConfigData = registrarContract.interface.encodeFunctionData("updateConfig", [
       {
-        ...curConfig,
+        ...otherConfig,
         splitDefault: splitToLiquid.defaultSplit,
         splitMin: splitToLiquid.min,
         splitMax: splitToLiquid.max,
