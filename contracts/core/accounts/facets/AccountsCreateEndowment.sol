@@ -92,8 +92,6 @@ contract AccountsCreateEndowment is IAccountsCreateEndowment, ReentrancyGuardFac
       categories: details.categories,
       endowType: details.endowType,
       maturityTime: details.maturityTime,
-      strategies: AngelCoreStruct.accountStrategiesDefaut(),
-      oneoffVaults: AngelCoreStruct.oneOffVaultsDefault(),
       rebalance: IRegistrar(registrarAddress).getRebalanceParams(),
       kycDonorsOnly: details.kycDonorsOnly,
       pendingRedemptions: 0,

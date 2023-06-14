@@ -75,11 +75,7 @@ contract AccountsUpdateStatusEndowments is ReentrancyGuardFacet, AccountsEvents 
     state.STATES[id].closingBeneficiary = beneficiary;
 
     require(checkFullyExited(uint32(id)), "Not fully exited");
-    uint256 redemption = uint256(tempEndowment.oneoffVaults.liquid.length) +
-      uint256(tempEndowment.oneoffVaults.locked.length);
-    tempEndowment.pendingRedemptions = redemption;
     state.ENDOWMENTS[id] = tempEndowment;
-
     emit UpdateEndowment(id, state.ENDOWMENTS[id]);
     // emit UpdateEndowmentState(id, state.STATES[id]);
   }

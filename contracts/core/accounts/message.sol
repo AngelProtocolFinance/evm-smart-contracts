@@ -137,10 +137,8 @@ library AccountMessages {
     address dao;
     address daoToken;
     string description;
-    AngelCoreStruct.AccountStrategies strategies;
     AngelCoreStruct.EndowmentType endowType;
     uint256 maturityTime;
-    AngelCoreStruct.OneOffVaults oneoffVaults;
     LocalRegistrarLib.RebalanceParams rebalance;
     address donationMatchContract;
     address[] maturityAllowlist;
