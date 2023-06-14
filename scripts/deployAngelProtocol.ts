@@ -27,7 +27,7 @@ import {deployCommonLibraries} from "./deployCommonLibraries";
 import {deployMockUSDC} from "./deployMockUSDC";
 import {updateRegistrarConfig, updateRegistrarNetworkConnections} from "./updateRegistrar";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {ISwapRouter__factory} from "typechain-types";
+import {ERC20__factory, ISwapRouter__factory} from "typechain-types";
 
 export async function deployAngelProtocol(
   verify_contracts: boolean,
@@ -40,7 +40,9 @@ export async function deployAngelProtocol(
   logger.out(`Deploying the contracts with the account: ${proxyAdmin.address}`);
 
   // Mock setup required for testing
-  const mockUSDC = isLocalNetwork(hre) ? await deployMockUSDC(proxyAdmin, hre) : undefined;
+  const usdcToken = isLocalNetwork(hre)
+    ? await deployMockUSDC(proxyAdmin, hre)
+    : await getUSDCToken(proxyAdmin, hre);
 
   const uniswapSwapRouter = isLocalNetwork(hre)
     ? await deployMockUniswapSwapRouter(proxyAdmin, hre)
@@ -131,9 +133,9 @@ export async function deployAngelProtocol(
   // logger.out("halo token balance: ", await haloToken.balanceOf(proxyAdmin.address))
 
   // if (isLocalNetwork(network)) {
-  //     // if network is 'hardhat' then mockUSDC should always be initialized
+  //     // if network is 'hardhat' then usdcToken should always be initialized
   //     // but TS forces us to confirm this is the case
-  //     mockUSDC = mockUSDC!
+  //     usdcToken = usdcToken!
 
   //     const UniswapUtils = new UniswapUtils__factory(proxyAdmin)
   //     const uniswap_utils = await UniswapUtils.deploy()
@@ -141,14 +143,14 @@ export async function deployAngelProtocol(
 
   //     // create a uniswap pool for HALO and USDC
   //     logger.out("halo", haloToken.address.toString())
-  //     logger.out("usdc", mockUSDC.address.toString())
+  //     logger.out("usdc", usdcToken.address.toString())
   //     const sqrtPrice = "79228162514264334008320"
-  //     if (mockUSDC.address < haloToken.address.toString()) {
+  //     if (usdcToken.address < haloToken.address.toString()) {
   //         sqrtPrice = "79228162514264337593543950336000000"
   //     }
   //     const createUniswapPoolParams = {
   //         projectToken: haloToken.address,
-  //         usdcToken: mockUSDC.address,
+  //         usdcToken: usdcToken.address,
   //         uniswapFee: 3000,
   //         amountA: ethers.utils.parseEther("100000000"),
   //         amountB: ethers.utils.parseUnits("100000000", 6),
@@ -157,21 +159,21 @@ export async function deployAngelProtocol(
   //         tickUpper: "506580",
   //     }
   //     haloToken.approve(uniswap_utils.address, ethers.utils.parseEther("100000000"))
-  //     mockUSDC.approve(uniswap_utils.address, ethers.utils.parseUnits("100000000", 6))
+  //     usdcToken.approve(uniswap_utils.address, ethers.utils.parseUnits("100000000", 6))
   //     await uniswap_utils.createPoolAndMintPositionErC20(createUniswapPoolParams)
 
   //     logger.out("Created HALO pool")
 
   //     // create a uniswap pool for WMATIC and USDC
   //     logger.out("WMATIC address: ", config.REGISTRAR_UPDATE_CONFIG.wmaticAddress)
-  //     logger.out("USDC address: ", mockUSDC.address.toString())
+  //     logger.out("USDC address: ", usdcToken.address.toString())
 
   //     sqrtPrice = "79228162514264334008320"
-  //     if (mockUSDC.address < config.REGISTRAR_UPDATE_CONFIG.wmaticAddress) {
+  //     if (usdcToken.address < config.REGISTRAR_UPDATE_CONFIG.wmaticAddress) {
   //         sqrtPrice = "79228162514264337593543950336000000"
   //     }
   //     const createUniswapPoolParams2 = {
-  //         tokenA: mockUSDC.address,
+  //         tokenA: usdcToken.address,
   //         tokenB: config.REGISTRAR_UPDATE_CONFIG.wmaticAddress,
   //         uniswapFee: 3000,
   //         amountA: ethers.utils.parseUnits("1000", 6),
@@ -179,7 +181,7 @@ export async function deployAngelProtocol(
   //         tickLower: "-598680",
   //         tickUpper: "506580",
   //     }
-  //     mockUSDC.approve(uniswap_utils.address, ethers.utils.parseUnits("1000", 6))
+  //     usdcToken.approve(uniswap_utils.address, ethers.utils.parseUnits("1000", 6))
   //     await uniswap_utils.createPoolAndMintPosition(createUniswapPoolParams2, {
   //         value: ethers.utils.parseEther("1000"),
   //     })
@@ -201,12 +203,12 @@ export async function deployAngelProtocol(
 
   //     // create a uniswap pool for DAI and USDC
   //     sqrtPrice = "79228162514264334008320"
-  //     if (mockUSDC.address < dai.address.toString()) {
+  //     if (usdcToken.address < dai.address.toString()) {
   //         sqrtPrice = "79228162514264337593543950336000000"
   //     }
   //     const createUniswapPoolParams3 = {
   //         projectToken: dai.address,
-  //         usdcToken: mockUSDC.address,
+  //         usdcToken: usdcToken.address,
   //         uniswapFee: 3000,
   //         amountA: ethers.utils.parseEther("100000000"),
   //         amountB: ethers.utils.parseUnits("100000000", 6),
@@ -215,7 +217,7 @@ export async function deployAngelProtocol(
   //         tickUpper: "506580",
   //     }
   //     dai.approve(uniswap_utils.address, ethers.utils.parseEther("100000000"))
-  //     mockUSDC.approve(uniswap_utils.address, ethers.utils.parseUnits("100000000", 6))
+  //     usdcToken.approve(uniswap_utils.address, ethers.utils.parseUnits("100000000", 6))
   //     await uniswap_utils.createPoolAndMintPositionErC20(createUniswapPoolParams3)
   //     logger.out("Created DAI pool")
   // }
@@ -236,7 +238,7 @@ export async function deployAngelProtocol(
   //   // donationMatchCharityData.reserveToken = haloToken.address
   //   donationMatchCharityData.uniswapFactory = config.SWAP_ROUTER_DATA.SWAP_FACTORY_ADDRESS;
   //   donationMatchCharityData.poolFee = 3000;
-  //   donationMatchCharityData.usdcAddress = mockUSDC!.address;
+  //   donationMatchCharityData.usdcAddress = usdcToken!.address;
   // }
 
   // transfer 100000000 HALO to donation match charities
@@ -274,11 +276,7 @@ export async function deployAngelProtocol(
       multisigEmitter: endowmentMultiSig.emitter.proxy.address, //address
       charityProposal: charityApplication.proxy.address, //address
       proxyAdmin: proxyAdmin.address, //address
-      usdcAddress: isLocalNetwork(hre)
-        ? mockUSDC
-          ? mockUSDC.address
-          : ADDRESS_ZERO
-        : config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
+      usdcAddress: usdcToken.address,
       wMaticAddress: config.REGISTRAR_UPDATE_CONFIG.wmaticAddress,
     },
     hre
@@ -310,5 +308,11 @@ async function deployMockUniswapSwapRouter(
 async function getUniswapSwapRouter(signer: SignerWithAddress, hre: HardhatRuntimeEnvironment) {
   const addresses = await getAddresses(hre);
   const contract = ISwapRouter__factory.connect(addresses.uniswapSwapRouter, signer);
+  return contract;
+}
+
+async function getUSDCToken(signer: SignerWithAddress, hre: HardhatRuntimeEnvironment) {
+  const addresses = await getAddresses(hre);
+  const contract = ERC20__factory.connect(addresses.tokens.usdc, signer);
   return contract;
 }
