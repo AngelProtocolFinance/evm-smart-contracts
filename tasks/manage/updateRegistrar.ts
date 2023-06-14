@@ -49,7 +49,7 @@ task(
       uniswapSwapRouter: addresses.uniswapSwapRouter,
       multisigFactory: addresses.multiSig.endowment.factory,
       multisigEmitter: addresses.multiSig.endowment.emitter.proxy,
-      charityProposal: ADDRESS_ZERO,
+      charityProposal: addresses.charityApplication.proxy,
       proxyAdmin: proxyAdmin.address,
       usdcAddress: config.REGISTRAR_UPDATE_CONFIG.usdcAddress,
       wMaticAddress: config.REGISTRAR_UPDATE_CONFIG.wmaticAddress,
