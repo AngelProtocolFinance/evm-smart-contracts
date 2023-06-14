@@ -7,6 +7,7 @@ export * from "./keygen";
 export * as logger from "./logger";
 export * from "./manageContractAddressJson";
 export * from "./networkHelpers";
+export * from "./structToObject";
 export * from "./test";
 export * from "./types";
 export * from "./validation";
