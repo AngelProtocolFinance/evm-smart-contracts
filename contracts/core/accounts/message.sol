@@ -6,19 +6,18 @@ import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 
 library AccountMessages {
   struct CreateEndowmentRequest {
-    address owner; // address that originally setup the endowment account
-    bool withdrawBeforeMaturity; // endowment allowed to withdraw funds from locked acct before maturity date
-    uint256 maturityTime; // datetime int of endowment maturity
-    string name; // name of the Endowment
+    address owner;
+    bool withdrawBeforeMaturity;
+    uint256 maturityTime;
+    string name;
     uint256[] sdgs;
-    uint256 tier; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP Team Multisig can set/update)
+    uint256 tier;
     AngelCoreStruct.EndowmentType endowType;
     string logo;
     string image;
     address[] members;
     bool kycDonorsOnly;
     uint256 threshold;
-    AngelCoreStruct.Duration maxVotingPeriod;
     address[] allowlistedBeneficiaries;
     address[] allowlistedContributors;
     uint256 splitMax;
@@ -114,7 +113,7 @@ library AccountMessages {
     string name;
     string logo;
     string image;
-    AngelCoreStruct.Tier tier;
+    uint256 tier;
     uint256[] sdgs;
     string proposalLink;
   }

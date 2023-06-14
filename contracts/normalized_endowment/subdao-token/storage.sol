@@ -21,7 +21,7 @@ library subDaoTokenStorage {
   struct Config {
     /// This is the unbonding period of CS tokens
     /// We need this to only allow claims to be redeemed after this period
-    AngelCoreStruct.Duration unbondingPeriod;
+    uint256 unbondingPeriod;
   }
 
   enum veTypeEnum {

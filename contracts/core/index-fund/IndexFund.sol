@@ -143,7 +143,6 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
    * @param rotatingFund boolean to indicate if index fund is rotating fund
    * @param splitToLiquid split of index fund to liquid fund
    * @param expiryTime expiry time of index fund
-   * @param expiryHeight expiry height of index fund
    */
   function createIndexFund(
     string memory name,
@@ -151,8 +150,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     uint32[] memory members,
     bool rotatingFund,
     uint256 splitToLiquid,
-    uint256 expiryTime,
-    uint256 expiryHeight
+    uint256 expiryTime
   ) public nonReentrant returns (bool) {
     if (msg.sender != state.config.owner) {
       revert("Unauthorized");
@@ -166,8 +164,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
       description: description,
       members: members,
       splitToLiquid: splitToLiquid,
-      expiryTime: expiryTime,
-      expiryHeight: expiryHeight
+      expiryTime: expiryTime
     });
 
     for (uint8 i = 0; i < members.length; i++) {
@@ -203,7 +200,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     require(state.FUNDS[fundId].members.length >= 0, "Invalid Fund");
 
     if (state.state.activeFund == fundId) {
-      state.state.activeFund = rotateFund(fundId, block.number, block.timestamp);
+      state.state.activeFund = rotateFund(fundId, block.timestamp);
       emit UpdateActiveFund(state.state.activeFund);
     }
 
@@ -262,7 +259,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     require(msg.sender == state.config.owner, "Unauthorized");
     require(members.length < state.config.fundMemberLimit, "Fund member limit exceeded");
     require(
-      !fundIsExpired(state.FUNDS[fundId], block.number, block.timestamp),
+      !fundIsExpired(state.FUNDS[fundId], block.timestamp),
       "Index Fund Expired"
     );
 
@@ -301,10 +298,10 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
     uint256 depositAmount = amount;
 
-    // check if block height limit is reached
+    // check if time limit is reached
     if (state.config.fundRotation != 0) {
       if (block.number >= state.state.nextRotationBlock) {
-        uint256 newFundId = rotateFund(state.state.activeFund, block.number, block.timestamp);
+        uint256 newFundId = rotateFund(state.state.activeFund, block.timestamp);
         state.state.activeFund = newFundId;
         emit UpdateActiveFund(state.state.activeFund);
         state.state.roundDonations = 0;
@@ -321,7 +318,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     if (fundId != 0) {
       require(state.FUNDS[fundId].members.length != 0, "Empty Fund");
 
-      require(!fundIsExpired(state.FUNDS[fundId], block.number, block.timestamp), "Expired Fund");
+      require(!fundIsExpired(state.FUNDS[fundId], block.timestamp), "Expired Fund");
 
       updateDonationMessages(
         state.FUNDS[fundId].members,
@@ -342,7 +339,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
           require(state.FUNDS[state.state.activeFund].members.length != 0, "Empty Index Fund");
 
           require(
-            !fundIsExpired(state.FUNDS[state.state.activeFund], block.number, block.timestamp),
+            !fundIsExpired(state.FUNDS[state.state.activeFund], block.timestamp),
             "Expired Fund"
           );
           uint256 goalLeftover = state.config.fundingGoal - state.state.roundDonations;
@@ -355,7 +352,6 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
             state.state.activeFund = rotateFund(
               state.state.activeFund,
-              block.number,
               block.timestamp
             );
 
@@ -383,7 +379,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
         require(state.FUNDS[state.state.activeFund].members.length != 0, "Empty Index Fund");
 
         require(
-          !fundIsExpired(state.FUNDS[state.state.activeFund], block.number, block.timestamp),
+          !fundIsExpired(state.FUNDS[state.state.activeFund], block.timestamp),
           "Expired Fund"
         );
 
@@ -622,29 +618,24 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
   /**
    * @dev Check if fund is expired
    * @param fund Fund
-   * @param envHeight rent block height
    * @param envTime rent block time
    * @return True if fund is expired
    */
   function fundIsExpired(
     AngelCoreStruct.IndexFund memory fund,
-    uint256 envHeight,
     uint256 envTime
   ) internal pure returns (bool) {
-    return ((fund.expiryHeight != 0 && envHeight >= fund.expiryHeight) ||
-      (fund.expiryTime != 0 && envTime >= fund.expiryTime));
+    return ((fund.expiryTime != 0 && envTime >= fund.expiryTime));
   }
 
   /**
    * @dev rotate active based if investment goal is fulfilled
    * @param rFund rent Active fund
-   * @param envHeight rent block height
    * @param envTime rent block time
    * @return New active fund
    */
   function rotateFund(
     uint256 rFund,
-    uint256 envHeight,
     uint256 envTime
   ) internal view returns (uint256) {
     AngelCoreStruct.IndexFund[] memory activeFunds = new AngelCoreStruct.IndexFund[](
@@ -652,7 +643,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     );
 
     for (uint256 i = 0; i < state.rotatingFunds.length; i++) {
-      if (!fundIsExpired(state.FUNDS[state.rotatingFunds[i]], envHeight, envTime)) {
+      if (!fundIsExpired(state.FUNDS[state.rotatingFunds[i]], envTime)) {
         activeFunds[i] = state.FUNDS[state.rotatingFunds[i]];
       }
     }
