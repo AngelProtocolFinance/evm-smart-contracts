@@ -23,8 +23,8 @@
       }
     },
     "charityApplication": {
-      "implementation": "0x7B3Be2dDDdDf9A0a3fE1DC57B98980F662C3a422",
-      "proxy": "0x90352F820342f8BE0012848bCB8aBd37877d7ec2"
+      "implementation": "0xfAB9d4FA5c03Aa5EaccE715d02E6db648cEE91a3",
+      "proxy": "0x715214AeEf7D4C78b9c329cc4D7375cC08670843"
     },
     "donationMatch": {
       "emitter": "",
@@ -103,7 +103,7 @@
     },
     "libraries": {
       "angelCoreStruct": "0xAd5d57aD9bB17d34Debb88566ab2F5dB879Cc46F",
-      "charityApplicationLib": "0x7798A400cBe0Ca14a7D614ECa1CD15adE5055413",
+      "charityApplicationLib": "0x4dcA4bFA0bAa0C8ce741b92B255D967599d994f0",
       "stringArray": "0x130A46b6E41DB6E1e18fb9c759F223c459190e90"
     },
     "multiSig": {
