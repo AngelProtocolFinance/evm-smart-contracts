@@ -63,7 +63,6 @@ task("manage:CharityApplication:updateConfig", "Will update CharityApplication c
       const curConfig = structToObject(struct);
       logger.out(curConfig);
 
-      // data setup
       logger.out("Config data to update:");
       logger.out(taskArgs);
 
