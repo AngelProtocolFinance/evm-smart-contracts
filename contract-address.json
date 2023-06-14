@@ -108,12 +108,12 @@
     },
     "multiSig": {
       "applications": {
-        "implementation": "0x0AFdAcD509e73115EA1654B1a770f1a807e7c9C0",
-        "proxy": "0xc63d2a04762529edB649d7a4cC3E57A0085e8544"
+        "implementation": "0xB6B18cae509Fcf3542FF6975C2Da06CAAc9773c5",
+        "proxy": "0x4060eF0D5a7F0633c5927F7E05041dd7Fcd95f42"
       },
       "apTeam": {
-        "implementation": "0x55cb3b67D9E65F0Cf4eABCAC84564a1bE6E3b06A",
-        "proxy": "0x7290f72B5C67052DDE8e6E179F7803c493e90d3f"
+        "implementation": "0x43dFD957bB91b568176E976A8d4e8ab4E94aeBfD",
+        "proxy": "0xA303374bda3A6Ce7550514E6681228Ca12020BBA"
       },
       "endowment": {
         "emitter": {

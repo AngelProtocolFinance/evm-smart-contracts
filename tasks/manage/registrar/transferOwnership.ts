@@ -20,7 +20,7 @@ task("manage:registrar:transferOwnership")
         addresses.registrar.proxy,
         apTeamMultisigOwners[0]
       );
-      logger.pad(50, "Connected to Registrar at: ", registrar.address);
+      logger.out(`Connected to Registrar at: ${registrar.address}`);
 
       const newOwner = taskArgs.to || addresses.multiSig.apTeam.proxy;
 
@@ -28,7 +28,7 @@ task("manage:registrar:transferOwnership")
       if (curOwner === newOwner) {
         return logger.out(`"${newOwner}" is already the owner.`);
       }
-      logger.pad(50, "Current owner: ", curOwner);
+      logger.out(`Current owner: ${curOwner}`);
 
       const isConfirmed =
         taskArgs.yes || (await confirmAction(`Transfer ownership to: ${newOwner}`));
@@ -36,7 +36,7 @@ task("manage:registrar:transferOwnership")
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      logger.out("Submitting `transferOwnership` transaction to multisig...");
+      logger.out(`Transferring ownership to: ${newOwner}...`);
       const data = registrar.interface.encodeFunctionData("transferOwnership", [newOwner]);
       const apTeamMultiSig = APTeamMultiSig__factory.connect(
         curOwner, // ensure connection to current owning APTeamMultiSig contract
@@ -52,6 +52,9 @@ task("manage:registrar:transferOwnership")
       );
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();
+
+      const updatedOwner = await registrar.owner();
+      logger.out(`New owner: ${updatedOwner}`);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
