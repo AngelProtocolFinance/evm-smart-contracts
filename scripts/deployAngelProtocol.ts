@@ -1,14 +1,7 @@
 // import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {
-  ADDRESS_ZERO,
-  getAddresses,
-  isLocalNetwork,
-  logger,
-  resetAddresses,
-  updateAddresses,
-} from "utils";
+import {ADDRESS_ZERO, getSigners, logger, resetAddresses} from "utils";
 
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
@@ -21,17 +14,8 @@ import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-
 // import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
 // import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
 
-import {getSigners} from "utils/getSigners";
-
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {ERC20__factory, ISwapRouter__factory} from "typechain-types";
 import {deployCommonLibraries} from "./deployCommonLibraries";
-import {
-  deployMockAxelarGateway,
-  deployMockAxelarRecv,
-  deployMockUSDC,
-  deployMockWMatic,
-} from "./mocks";
+import getOrDeployThirdPartyContracts from "./getOrDeployThirdPartyContracts";
 import {updateRegistrarConfig, updateRegistrarNetworkConnections} from "./updateRegistrar";
 
 export async function deployAngelProtocol(
@@ -44,25 +28,7 @@ export async function deployAngelProtocol(
 
   logger.out(`Deploying the contracts with the account: ${proxyAdmin.address}`);
 
-  const uniswapSwapRouter = isLocalNetwork(hre)
-    ? await deployMockUniswapSwapRouter(proxyAdmin, hre)
-    : await getUniswapSwapRouter(proxyAdmin, hre);
-
-  const usdcToken = isLocalNetwork(hre)
-    ? await deployMockUSDC(proxyAdmin, hre)
-    : await getUSDCToken(proxyAdmin, hre);
-
-  const wmaticToken = isLocalNetwork(hre)
-    ? await deployMockWMatic(proxyAdmin, hre)
-    : await getWMaticToken(proxyAdmin, hre);
-
-  const axelarGateway = isLocalNetwork(hre)
-    ? await deployMockAxelarGateway(proxyAdmin, hre)
-    : await getAxelarGateway(proxyAdmin, hre);
-
-  const axelarGasRecv = isLocalNetwork(hre)
-    ? await deployMockAxelarRecv(proxyAdmin, hre)
-    : await getAxelarGasRecv(proxyAdmin, hre);
+  const thirdPartyAddresses = await getOrDeployThirdPartyContracts(proxyAdmin, hre);
 
   const {angelCoreStruct} = await deployCommonLibraries(verify_contracts, hre);
 
@@ -71,8 +37,8 @@ export async function deployAngelProtocol(
   const applicationsMultiSig = await deployApplicationsMultiSig(verify_contracts, hre);
 
   const registrar = await deployRegistrar(
-    axelarGasRecv.address,
-    axelarGateway.address,
+    thirdPartyAddresses.axelarGateway,
+    thirdPartyAddresses.axelarGasRecv,
     ADDRESS_ZERO,
     apTeamMultisig.proxy.address,
     verify_contracts,
@@ -81,8 +47,8 @@ export async function deployAngelProtocol(
 
   // Router deployment will require updating Registrar config's "router" address
   const router = await deployRouter(
-    axelarGateway.address,
-    axelarGasRecv.address,
+    thirdPartyAddresses.axelarGateway,
+    thirdPartyAddresses.axelarGasRecv,
     registrar.proxy.address,
     verify_contracts,
     hre
@@ -101,6 +67,7 @@ export async function deployAngelProtocol(
   const charityApplication = await deployCharityApplication(
     applicationsMultiSig.proxy.address,
     accountsDiamond.address,
+    thirdPartyAddresses.seedAsset,
     verify_contracts,
     hre
   );
@@ -287,13 +254,13 @@ export async function deployAngelProtocol(
       treasury: treasury.address,
       // haloTokenLpContract: addresses.halo.tokenLp,
       applicationsReview: applicationsMultiSig.proxy.address, //address
-      uniswapSwapRouter: uniswapSwapRouter.address, //address
+      uniswapSwapRouter: thirdPartyAddresses.uniswapSwapRouter, //address
       multisigFactory: endowmentMultiSig.factory.address, //address
       multisigEmitter: endowmentMultiSig.emitter.proxy.address, //address
       charityProposal: charityApplication.proxy.address, //address
       proxyAdmin: proxyAdmin.address, //address
-      usdcAddress: usdcToken.address,
-      wMaticAddress: wmaticToken.address,
+      usdcAddress: thirdPartyAddresses.usdcToken,
+      wMaticAddress: thirdPartyAddresses.wmaticToken,
     },
     hre
   );
@@ -307,58 +274,4 @@ export async function deployAngelProtocol(
   );
 
   logger.out("Successfully deployed Angel Protocol contracts.");
-}
-
-async function deployMockUniswapSwapRouter(
-  admin: SignerWithAddress,
-  hre: HardhatRuntimeEnvironment
-) {
-  // just use some placeholder address until actual mock deployment is created
-  const address = admin.address;
-  logger.out("Updating");
-
-  await updateAddresses({uniswapSwapRouter: address}, hre);
-
-  logger.out("Saving uniswap");
-  const contract = ISwapRouter__factory.connect(address, admin);
-  logger.out("Saved");
-  return contract;
-}
-
-async function getUniswapSwapRouter(signer: SignerWithAddress, hre: HardhatRuntimeEnvironment) {
-  const addresses = await getAddresses(hre);
-  const contract = ISwapRouter__factory.connect(addresses.uniswapSwapRouter, signer);
-  return contract;
-}
-
-async function getUSDCToken(signer: SignerWithAddress, hre: HardhatRuntimeEnvironment) {
-  const addresses = await getAddresses(hre);
-  const contract = ERC20__factory.connect(addresses.tokens.usdc, signer);
-  return contract;
-}
-
-async function getWMaticToken(signer: SignerWithAddress, hre: HardhatRuntimeEnvironment) {
-  const addresses = await getAddresses(hre);
-  const contract = ERC20__factory.connect(addresses.tokens.wmatic, signer);
-  return contract;
-}
-
-async function getAxelarGateway(signer: SignerWithAddress, hre: HardhatRuntimeEnvironment) {
-  const addresses = await getAddresses(hre);
-  const contract = await hre.ethers.getContractAt(
-    "AxelarGateway",
-    addresses.axelar.gateway,
-    signer
-  );
-  return contract;
-}
-
-async function getAxelarGasRecv(signer: SignerWithAddress, hre: HardhatRuntimeEnvironment) {
-  const addresses = await getAddresses(hre);
-  const contract = await hre.ethers.getContractAt(
-    "AxelarGasRecv",
-    addresses.axelar.gasRecv,
-    signer
-  );
-  return contract;
 }

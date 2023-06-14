@@ -45,8 +45,8 @@ task(
       const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
       const registrar = await deployRegistrar(
-        addresses.axelar.gasRecv,
         addresses.axelar.gateway,
+        addresses.axelar.gasRecv,
         oldRouterAddress,
         apTeamMultiSig,
         verify_contracts,

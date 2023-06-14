@@ -6,6 +6,7 @@ import {ADDRESS_ZERO, getSigners, logger, updateAddresses, verify} from "utils";
 export async function deployCharityApplication(
   applicationsMultiSig: string,
   accountsDiamond: string,
+  seedAsset: string,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
@@ -47,7 +48,7 @@ export async function deployCharityApplication(
       config.CHARITY_APPLICATION_DATA.newEndowGasMoney,
       config.CHARITY_APPLICATION_DATA.gasAmount,
       config.CHARITY_APPLICATION_DATA.fundSeedAsset,
-      config.CHARITY_APPLICATION_DATA.seedAsset,
+      seedAsset,
       config.CHARITY_APPLICATION_DATA.seedAssetAmount,
     ]);
     const proxyFactory = new ProxyContract__factory(proxyAdmin);

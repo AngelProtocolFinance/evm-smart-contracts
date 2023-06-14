@@ -36,7 +36,6 @@ const config = {
     newEndowGasMoney: false,
     gasAmount: 0,
     fundSeedAsset: false,
-    seedAsset: "0x06499E212Ce9F9D4a2147e82242F137c5e32f8C8",
     seedAssetAmount: 100,
   },
   DONATION_MATCH_CHARITY_DATA: {

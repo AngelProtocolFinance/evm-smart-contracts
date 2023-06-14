@@ -135,6 +135,7 @@ export type AddressObj = {
     implementation: string;
     proxy: string;
   };
+  seedAsset: string;
   subDao: {
     emitter: {
       implementation: string;

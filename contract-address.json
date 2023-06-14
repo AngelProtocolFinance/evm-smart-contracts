@@ -136,6 +136,7 @@
       "implementation": "0x780ABF86d3a8c070b1e8757A961C126c7D88e460",
       "proxy": "0x07F1599D3fCEC400eFf2528f29fD4f00E9A61062"
     },
+    "seedAsset": "",
     "subDao": {
       "emitter": {
         "implementation": "",
@@ -289,6 +290,7 @@
       "implementation": "",
       "proxy": ""
     },
+    "seedAsset": "0x06499E212Ce9F9D4a2147e82242F137c5e32f8C8",
     "subDao": {
       "emitter": {
         "implementation": "0x553752620d6bC348F10579710157524121b2A288",

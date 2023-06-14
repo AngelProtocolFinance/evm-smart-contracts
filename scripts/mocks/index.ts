@@ -1,4 +1,3 @@
-export * from "./deployMockAxelarGasRecv";
-export * from "./deployMockAxelarGateway";
+export * from "./deployMockERC20";
+export * from "./deployMockUniswapSwapRouter";
 export * from "./deployMockUSDC";
-export * from "./deployMockWMatic";

@@ -203,6 +203,7 @@ export function createEmpty(): AddressObj {
       implementation: "",
       proxy: "",
     },
+    seedAsset: "",
     subDao: {
       emitter: {
         implementation: "",

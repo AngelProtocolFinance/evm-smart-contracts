@@ -1,12 +1,12 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {MockUSDC, MockUSDC__factory} from "typechain-types";
+import {MockUSDC__factory} from "typechain-types";
 import {logger, updateAddresses} from "utils";
 
 export async function deployMockUSDC(
   proxyAdmin: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
-): Promise<MockUSDC> {
+): Promise<string> {
   logger.out("Deploying MockUSDC...");
   const factory = new MockUSDC__factory(proxyAdmin);
   const mockUSDC = await factory.deploy("USDC", "USDC", 100);
@@ -22,5 +22,5 @@ export async function deployMockUSDC(
 
   await updateAddresses({tokens: {usdc: mockUSDC.address}}, hre);
 
-  return mockUSDC;
+  return mockUSDC.address;
 }
