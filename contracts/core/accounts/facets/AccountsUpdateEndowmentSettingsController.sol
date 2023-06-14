@@ -273,13 +273,13 @@ contract AccountsUpdateEndowmentSettingsController is ReentrancyGuardFacet, Acco
       tempEndowment.settingsController.logo = details.settingsController.logo;
     }
     if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.categories,
+          tempEndowment.settingsController.sdgs,
           msg.sender,
           tempEndowment.owner,
           block.timestamp
         )
     ) {
-      tempEndowment.settingsController.categories = details.settingsController.categories;
+      tempEndowment.settingsController.sdgs = details.settingsController.sdgs;
     }
     if (AngelCoreStruct.canChange(
           tempEndowment.settingsController.splitToLiquid,
