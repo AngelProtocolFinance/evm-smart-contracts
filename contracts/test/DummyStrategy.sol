@@ -7,11 +7,11 @@ import {IStrategy} from "../core/strategy/IStrategy.sol";
 import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
 
 contract DummyStrategy is Pausable, IStrategy {
-  StrategyConfig stratConfig;
+  StrategyConfig config;
   uint256 dummyAmt; 
   
   constructor(StrategyConfig memory _config) {
-    stratConfig = _config;
+    config = _config;
   }
 
   // Test helpers
@@ -20,22 +20,22 @@ contract DummyStrategy is Pausable, IStrategy {
   }
 
   function getStrategyConfig() external view returns (StrategyConfig memory){
-    return stratConfig;
+    return config;
   }
 
   function setStrategyConfig(StrategyConfig memory _newConfig) external{
-    stratConfig = _newConfig;
+    config = _newConfig;
   }
   
   function deposit(uint256 amt) payable external returns (uint256) {
-    IERC20(stratConfig.baseToken).transferFrom(msg.sender, address(this), amt);
-    IERC20(stratConfig.yieldToken).approve(msg.sender, dummyAmt);
+    IERC20(config.baseToken).transferFrom(msg.sender, address(this), amt);
+    IERC20(config.yieldToken).approve(msg.sender, dummyAmt);
     return dummyAmt;
   }
 
   function withdraw(uint256 amt) payable external returns (uint256){
-    IERC20(stratConfig.yieldToken).transferFrom(msg.sender, address(this), amt);
-    IERC20(stratConfig.baseToken).approve(msg.sender, dummyAmt);
+    IERC20(config.yieldToken).transferFrom(msg.sender, address(this), amt);
+    IERC20(config.baseToken).approve(msg.sender, dummyAmt);
     return dummyAmt;
   }
 
