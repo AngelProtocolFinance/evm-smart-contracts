@@ -7,8 +7,6 @@ interface IStrategy {
     bytes4 strategySelector;
     address baseToken;
     address yieldToken;
-    address lockedVault;
-    address liquidVault;
     address admin;
   }
 
