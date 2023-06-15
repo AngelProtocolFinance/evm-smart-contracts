@@ -1,4 +1,6 @@
+import "./upgradeApplicationsMultiSig";
+import "./upgradeAPTeamMultiSig";
+import "./upgradeCharityApplication";
 import "./upgradeContractsUsingAccountStorage";
 import "./upgradeEndowmentMultiSig";
-// import "./upgradeFacets";
-import "./upgradeMultisigs";
+import "./upgradeFacets";

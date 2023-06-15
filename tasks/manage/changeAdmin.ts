@@ -1,10 +1,10 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {task} from "hardhat/config";
+import {task, types} from "hardhat/config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {ITransparentUpgradeableProxy__factory, OwnershipFacet__factory} from "typechain-types";
 import {AddressObj, confirmAction, getAddresses, logger} from "utils";
 
-type TaskArgs = {current: string; new: string};
+type TaskArgs = {current: string; new: string; yes: boolean};
 
 task("manage:changeAdmin", "Will update the admin for all proxy contracts")
   .addParam("current", "Current admin address.")
@@ -12,13 +12,13 @@ task("manage:changeAdmin", "Will update the admin for all proxy contracts")
     "new",
     "New admin address. Make sure to use an address of an account listed in the hardhat configuration for the target network."
   )
+  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      const isConfirmed = await confirmAction(
-        `You're about to set ${taskArgs.new} as the new admin`
-      );
+      const isConfirmed =
+        taskArgs.yes || (await confirmAction(`Change all contracts' admin to: ${taskArgs.new}`));
       if (!isConfirmed) {
-        return logger.out("Aborting...");
+        return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
       const currentAdmin = await hre.ethers.getSigner(taskArgs.current);

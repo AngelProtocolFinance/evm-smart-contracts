@@ -1,8 +1,20 @@
 import {task, types} from "hardhat/config";
 import {EndowmentMultiSig__factory, MultiSigWalletFactory__factory} from "typechain-types";
-import {getAddresses, getSigners, isLocalNetwork, logger, updateAddresses, verify} from "utils";
+import {
+  confirmAction,
+  getAddresses,
+  getSigners,
+  isLocalNetwork,
+  logger,
+  updateAddresses,
+  verify,
+} from "utils";
 
-type TaskArgs = {factory?: string; verify: boolean};
+type TaskArgs = {
+  factory?: string;
+  verify: boolean;
+  yes: boolean;
+};
 
 task(
   "upgrade:EndowmentMultiSig",
@@ -18,9 +30,15 @@ task(
     true,
     types.boolean
   )
+  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      logger.out("Upgrading EndowmentMultiSig implementation contract...");
+      const isConfirmed =
+        taskArgs.yes ||
+        (await confirmAction("Upgrading EndowmentMultiSig implementation contract..."));
+      if (!isConfirmed) {
+        return logger.out("Confirmation denied.", logger.Level.Warn);
+      }
 
       const {proxyAdmin} = await getSigners(hre);
 

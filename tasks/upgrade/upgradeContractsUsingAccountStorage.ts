@@ -1,5 +1,5 @@
 import {task, types} from "hardhat/config";
-import {logger} from "utils";
+import {confirmAction, logger} from "utils";
 
 task(
   "upgrade:ContractsUsingAccountStorage",
@@ -11,10 +11,17 @@ task(
     true,
     types.boolean
   )
-  .setAction(async (taskArgs: {verify: boolean}, hre) => {
+  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
+  .setAction(async (taskArgs: {verify: boolean; yes: boolean}, hre) => {
     try {
-      await hre.run("upgrade:CharityApplication", {verify: taskArgs.verify});
-      await hre.run("upgrade:facets", {facets: ["all"], verify: taskArgs.verify});
+      const isConfirmed =
+        taskArgs.yes || (await confirmAction("Upgrading all contracts using AccountStorage..."));
+      if (!isConfirmed) {
+        return logger.out("Confirmation denied.", logger.Level.Warn);
+      }
+
+      await hre.run("upgrade:CharityApplication", {verify: taskArgs.verify, yes: true});
+      await hre.run("upgrade:facets", {facets: ["all"], verify: taskArgs.verify, yes: true});
     } catch (error) {
       logger.out(
         `Redeployment of all contracts that use AccountStorage struct failed, reason: ${error}`,

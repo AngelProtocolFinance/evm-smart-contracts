@@ -11,7 +11,7 @@ export function getAddressesByNetworkId(
   const key = String(networkId);
 
   if (!hasKey(addresses, key)) {
-    return createEmpty();
+    throw new Error(`Missing address object for network ${key} in address file`);
   }
 
   return new Proxy(addresses[key], {
@@ -26,7 +26,7 @@ export function getAddressesByNetworkId(
         return Reflect.get(target, prop, receiver);
       }
 
-      if (hasKey(target, contractKey) && !!target[contractKey]) {
+      if (hasKey(target, contractKey)) {
         return target[contractKey];
       }
 
@@ -65,7 +65,7 @@ function hasKey<T extends object>(obj: T, k: keyof any): k is keyof T {
   return k in obj;
 }
 
-export function createEmpty(): AddressObj {
+export function createEmptyAddressObj(): AddressObj {
   return {
     accounts: {
       diamond: "",
@@ -75,7 +75,7 @@ export function createEmpty(): AddressObj {
         accountsDonationMatch: "",
         accountsAllowance: "",
         accountsCreateEndowment: "",
-        AccountsDaoEndowments: "",
+        accountsDaoEndowments: "",
         accountsQueryEndowments: "",
         accountsSwapRouter: "",
         accountsUpdate: "",
@@ -88,6 +88,10 @@ export function createEmpty(): AddressObj {
         diamondLoupeFacet: "",
         ownershipFacet: "",
       },
+    },
+    axelar: {
+      gasService: "",
+      gateway: "",
     },
     charityApplication: {
       implementation: "",
@@ -209,10 +213,16 @@ export function createEmpty(): AddressObj {
       veBondingToken: "",
     },
     tokens: {
+      dai: "",
       halo: "",
+      reserveToken: "",
+      seedAsset: "",
       usdc: "",
       wmatic: "",
     },
-    uniswapSwapRouter: "",
+    uniswap: {
+      factory: "",
+      swapRouter: "",
+    },
   };
 }

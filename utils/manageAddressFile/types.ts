@@ -7,7 +7,7 @@ export type AddressObj = {
       accountsDonationMatch: string;
       accountsAllowance: string;
       accountsCreateEndowment: string;
-      AccountsDaoEndowments: string;
+      accountsDaoEndowments: string;
       accountsQueryEndowments: string;
       accountsSwapRouter: string;
       accountsUpdate: string;
@@ -20,6 +20,10 @@ export type AddressObj = {
       diamondLoupeFacet: string;
       ownershipFacet: string;
     };
+  };
+  axelar: {
+    gasService: string;
+    gateway: string;
   };
   charityApplication: {
     implementation: string;
@@ -141,9 +145,15 @@ export type AddressObj = {
     veBondingToken: string;
   };
   tokens: {
+    dai: string;
     halo: string;
+    reserveToken: string;
+    seedAsset: string;
     usdc: string;
     wmatic: string;
   };
-  uniswapSwapRouter: string;
+  uniswap: {
+    factory: string;
+    swapRouter: string;
+  };
 };

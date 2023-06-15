@@ -1,13 +1,18 @@
-import config from "config";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {updateRegistrarNetworkConnections} from "scripts";
-import {getAddresses, getSigners, isLocalNetwork, logger} from "utils";
+import {
+  confirmAction,
+  getAddresses,
+  isLocalNetwork,
+  logger,
+  updateRegistrarNetworkConnections,
+} from "utils";
 
 type TaskArgs = {
   apTeamMultisig?: string;
   registrar?: string;
   verify: boolean;
+  yes: boolean;
 };
 
 task("deploy:Router", "Will deploy Router contract")
@@ -25,8 +30,14 @@ task("deploy:Router", "Will deploy Router contract")
     true,
     types.boolean
   )
+  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
+      const isConfirmed = taskArgs.yes || (await confirmAction("Deploying Router..."));
+      if (!isConfirmed) {
+        return logger.out("Confirmation denied.", logger.Level.Warn);
+      }
+
       const addresses = await getAddresses(hre);
 
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
@@ -34,8 +45,8 @@ task("deploy:Router", "Will deploy Router contract")
       const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
       const router = await deployRouter(
-        config.REGISTRAR_DATA.axelarGateway,
-        config.REGISTRAR_DATA.axelarGasRecv,
+        addresses.axelar.gateway,
+        addresses.axelar.gasService,
         registrar,
         verify_contracts,
         hre

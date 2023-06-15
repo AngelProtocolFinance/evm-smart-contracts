@@ -1,6 +1,6 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {AngelCoreStruct__factory, StringArray__factory} from "typechain-types";
-import {ADDRESS_ZERO, getSigners, logger, updateAddresses, verify} from "utils";
+import {AngelCoreStruct__factory, StringArray__factory} from "../../typechain-types";
+import {ADDRESS_ZERO, getSigners, logger, updateAddresses, verify} from "..";
 
 export async function deployCommonLibraries(
   verify_contracts: boolean,
@@ -19,7 +19,7 @@ export async function deployCommonLibraries(
     const stringLibFactory = new StringArray__factory(proxyAdmin);
     const stringLib = await stringLibFactory.deploy();
     await stringLib.deployed();
-    logger.out(`Address: ${angelCoreStruct.address}`);
+    logger.out(`Address: ${stringLib.address}`);
 
     // update address file & verify contracts
     await updateAddresses(
