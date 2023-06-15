@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 
 import {IStrategy} from "../../core/strategy/IStrategy.sol";
 import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
+import {IFlux} from "./IFlux.sol";
 
 contract FluxStrategy is IStrategy, Pausable {
 
