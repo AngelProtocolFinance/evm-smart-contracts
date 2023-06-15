@@ -7,7 +7,7 @@
     "format": "prettier --write './{config,contracts,eth-sdk,scripts,tasks,test,utils}/**/*.{ts,js,sol}'",
     "test": "hardhat test",
     "clean-compile": "set -x && mv ./tasks/index.ts ./tasks/temp_index.ts && touch ./tasks/index.ts && hardhat clean && hardhat compile && mv ./tasks/temp_index.ts ./tasks/index.ts && set +x",
-    "deploy": "yarn clean-compile && hardhat deploy:AngelProtocol",
+    "deploy": "hardhat compile && hardhat deploy:AngelProtocol",
     "sdks": "yarn eth-sdk",
     "abi": "hardhat export-abi"
   },
