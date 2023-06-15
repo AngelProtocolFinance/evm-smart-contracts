@@ -16,12 +16,6 @@ library AngelCoreStruct {
     Level3
   }
 
-  struct Pair {
-    //This should be asset info
-    string[] asset;
-    address contractAddress;
-  }
-
   enum EndowmentType {
     Charity,
     Normal
@@ -52,18 +46,9 @@ library AngelCoreStruct {
     uint256 splitToLiquid;
     // Used for one-off funds that have an end date (ex. disaster recovery funds)
     uint256 expiryTime; // datetime int of index fund expiry
-    uint256 expiryHeight; // block equiv of the expiry_datetime
   }
 
   ///TODO: need to test this same names already declared in other libraries
-  struct EndowmentId {
-    uint32 id;
-  }
-
-  struct Wallet {
-    string addr;
-  }
-
   struct BeneficiaryData {
     uint32 endowId;
     uint256 fundId;
@@ -80,15 +65,6 @@ library AngelCoreStruct {
   struct Beneficiary {
     BeneficiaryData data;
     BeneficiaryEnum enumData;
-  }
-
-  function beneficiaryDefault() public pure returns (Beneficiary memory) {
-    Beneficiary memory temp = Beneficiary({
-      enumData: BeneficiaryEnum.None,
-      data: BeneficiaryData({endowId: 0, fundId: 0, addr: address(0)})
-    });
-
-    return temp;
   }
 
   struct SplitDetails {
@@ -131,58 +107,12 @@ library AngelCoreStruct {
     uint256 gasLimit; // Should be used to set gas limit
   }
 
-  struct Ibc {
-    string ica;
-  }
-
   ///TODO: need to check this and have a look at this
   enum VaultType {
     Native, // Juno native Vault contract
     Ibc, // the address of the Vault contract on it's Cosmos(non-Juno) chain
     Evm, // the address of the Vault contract on it's EVM chain
     None
-  }
-
-  enum BoolOptional {
-    False,
-    True,
-    None
-  }
-
-  struct Member {
-    address addr;
-    uint256 weight;
-  }
-
-  struct DurationData {
-    uint256 height;
-    uint256 time;
-  }
-
-  enum DurationEnum {
-    Height,
-    Time
-  }
-
-  struct Duration {
-    DurationEnum enumData;
-    DurationData data;
-  }
-
-  enum ExpirationEnum {
-    atHeight,
-    atTime,
-    Never
-  }
-
-  struct ExpirationData {
-    uint256 height;
-    uint256 time;
-  }
-
-  struct Expiration {
-    ExpirationEnum enumData;
-    ExpirationData data;
   }
 
   enum veTypeEnum {
@@ -348,19 +278,4 @@ library AngelCoreStruct {
   bytes4 constant InterfaceId_Invalid = 0xffffffff;
   bytes4 constant InterfaceId_ERC165 = 0x01ffc9a7;
   bytes4 constant InterfaceId_ERC721 = 0x80ac58cd;
-
-  enum Status {
-    None,
-    Pending,
-    Open,
-    Rejected,
-    Passed,
-    Executed
-  }
-  enum Vote {
-    Yes,
-    No,
-    Abstain,
-    Veto
-  }
 }
