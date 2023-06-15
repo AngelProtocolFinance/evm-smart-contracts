@@ -89,6 +89,7 @@ contract FluxStrategy is IStrategy, Pausable {
   /// @dev This method must: 
   /// 1) Transfer the provided `amt` of `config.yieldToken` to this contract
   /// 2) Convert the yield tokens provided back into the `config.baseToken via integration-specific methods 
+  /// 3) Set the msg.sender as approved() for the returned amt
   /// @param amt the qty of `config.yieldToken` that this contract has been approved to use by msg.sender
   /// @return baseTokenAmt the qty of `config.baseToken` that are approved for transfer by msg.sender 
   function withdraw(uint256 amt) external payable whenNotPaused returns (uint256){
@@ -110,7 +111,7 @@ contract FluxStrategy is IStrategy, Pausable {
   function previewDeposit(uint256 amt) external view returns (uint256){
     // Exchange Rate == (expScale * USDC) / fUSDC
     uint256 exRate = IFlux(config.yieldToken).exchangeRateStored();
-    // Expected fUSDC == (amt * expScale / exRate) / expScale 
+    // Expected fUSDC == (amtUSDC * expScale / exRate) / expScale 
     return amt.mulDivDown(expScale, exRate) / expScale;
   } 
 
@@ -121,7 +122,7 @@ contract FluxStrategy is IStrategy, Pausable {
   function previewWithdraw(uint256 amt) external view returns (uint256){
     // Exchange Rate == (expScale * USDC) / fUSDC
     uint256 exRate = IFlux(config.yieldToken).exchangeRateStored();
-    // Expected fUSDC == (amt * expScale / exRate) / expScale 
+    // Expected USDC == (amtfUSDC * exRate) / expScale 
     return amt.mulDivDown(exRate, expScale);
   }
 

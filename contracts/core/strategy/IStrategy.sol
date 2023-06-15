@@ -45,6 +45,7 @@ interface IStrategy {
   /// @dev This method must: 
   /// 1) Transfer the provided `amt` of `stratConfig.yieldToken` to this contract
   /// 2) Convert the yield tokens provided back into the `stratConfig.baseToken via integration-specific methods 
+  /// 3) Set the msg.sender as approved() for the returned amt
   /// @param amt the qty of `stratConfig.yieldToken` that this contract has been approved to use by msg.sender
   /// @return baseTokenAmt the qty of `stratConfig.baseToken` that are approved for transfer by msg.sender 
   function withdraw(uint256 amt) external payable returns (uint256);
