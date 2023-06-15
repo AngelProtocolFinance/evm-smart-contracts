@@ -46,7 +46,7 @@ export default defineConfig({
           accountsDonationMatch: parseAddress(mumbaiData.accounts.facets.accountsDonationMatch),
           accountsAllowance: parseAddress(mumbaiData.accounts.facets.accountsAllowance),
           accountsCreateEndowment: parseAddress(mumbaiData.accounts.facets.accountsCreateEndowment),
-          accountsDAOEndowments: parseAddress(mumbaiData.accounts.facets.accountsDAOEndowments),
+          accountsDaoEndowments: parseAddress(mumbaiData.accounts.facets.accountsDaoEndowments),
           accountsQueryEndowments: parseAddress(mumbaiData.accounts.facets.accountsQueryEndowments),
           accountsSwapRouter: parseAddress(mumbaiData.accounts.facets.accountsSwapRouter),
           accountsUpdate: parseAddress(mumbaiData.accounts.facets.accountsUpdate),

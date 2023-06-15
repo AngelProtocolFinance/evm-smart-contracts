@@ -75,7 +75,7 @@ export function createEmptyAddressObj(): AddressObj {
         accountsDonationMatch: "",
         accountsAllowance: "",
         accountsCreateEndowment: "",
-        accountsDAOEndowments: "",
+        accountsDaoEndowments: "",
         accountsQueryEndowments: "",
         accountsSwapRouter: "",
         accountsUpdate: "",

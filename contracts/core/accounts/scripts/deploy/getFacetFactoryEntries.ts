@@ -40,7 +40,7 @@ export default async function getFacetFactoryEntries(
       factory: new AccountsDonationMatch__factory(diamondOwner),
     },
     {
-      addressField: "accountsDAOEndowments",
+      addressField: "accountsDaoEndowments",
       factory: new AccountsDaoEndowments__factory(diamondOwner),
     },
     {addressField: "accountsUpdate", factory: new AccountsUpdate__factory(diamondOwner)},
