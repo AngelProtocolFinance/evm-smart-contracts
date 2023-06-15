@@ -7,7 +7,7 @@ export type AddressObj = {
       accountsDonationMatch: string;
       accountsAllowance: string;
       accountsCreateEndowment: string;
-      accountsDaoEndowments: string;
+      accountsDAOEndowments: string;
       accountsQueryEndowments: string;
       accountsSwapRouter: string;
       accountsUpdate: string;

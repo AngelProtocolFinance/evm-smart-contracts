@@ -1,11 +1,7 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 
 import {DEFAULT_CONTRACT_ADDRESS_FILE_PATH, isLocalNetwork} from "..";
-import {
-  createEmpty as createEmptyAddressObj,
-  getAddressesByNetworkId,
-  saveFrontendFiles,
-} from "./helpers";
+import {createEmptyAddressObj, getAddressesByNetworkId, saveFrontendFiles} from "./helpers";
 import {AddressObj} from "./types";
 
 type DeepPartial<T> = {

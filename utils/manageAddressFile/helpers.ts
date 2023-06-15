@@ -65,7 +65,7 @@ function hasKey<T extends object>(obj: T, k: keyof any): k is keyof T {
   return k in obj;
 }
 
-export function createEmpty(): AddressObj {
+export function createEmptyAddressObj(): AddressObj {
   return {
     accounts: {
       diamond: "",
@@ -75,7 +75,7 @@ export function createEmpty(): AddressObj {
         accountsDonationMatch: "",
         accountsAllowance: "",
         accountsCreateEndowment: "",
-        accountsDaoEndowments: "",
+        accountsDAOEndowments: "",
         accountsQueryEndowments: "",
         accountsSwapRouter: "",
         accountsUpdate: "",
