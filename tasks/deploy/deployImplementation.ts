@@ -8,7 +8,7 @@ task("deploy:Implementation", "Will deploy Implementation")
   .addOptionalParam(
     "verify",
     "Flag indicating whether the contract should be verified",
-    false,
+    true,
     types.boolean
   )
   .addParam("registraraddress", "Registrar contract address")

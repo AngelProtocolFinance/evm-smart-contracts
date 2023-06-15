@@ -8,11 +8,10 @@ import {
   DiamondInit__factory,
   Diamond__factory,
 } from "typechain-types";
-import {getSigners, logger, updateAddresses} from "utils";
+import {ADDRESS_ZERO, getSigners, logger, updateAddresses, validateAddress, verify} from "utils";
 
 import cutDiamond from "./cutDiamond";
 import deployFacets from "./deployFacets";
-import verify from "./verify";
 
 export async function deployAccountsDiamond(
   owner: string,
@@ -25,19 +24,35 @@ export async function deployAccountsDiamond(
 
   const {proxyAdmin} = await getSigners(hre);
 
-  const {diamond, diamondCutFacet} = await deployDiamond(proxyAdmin, hre);
+  try {
+    validateAddress(owner, "owner");
+    validateAddress(registrar, "registrar");
+    validateAddress(angelCoreStruct, "angelCoreStruct");
 
-  const diamondInit = await deployDiamondInit(proxyAdmin, hre);
+    const {diamond, diamondCutFacet} = await deployDiamond(proxyAdmin, hre);
 
-  const cuts = await deployFacets(proxyAdmin, angelCoreStruct, hre);
+    const diamondInit = await deployDiamondInit(proxyAdmin, hre);
 
-  await cutDiamond(diamond.address, diamondInit, proxyAdmin, owner, registrar, cuts, hre);
+    const cuts = await deployFacets(proxyAdmin, angelCoreStruct, hre);
 
-  if (verify_contracts) {
-    await verify(diamond.address, diamondCutFacet.address, cuts, proxyAdmin, hre);
+    await cutDiamond(diamond.address, diamondInit, proxyAdmin, owner, registrar, cuts, hre);
+
+    if (verify_contracts) {
+      for (const {facetName, cut} of cuts) {
+        await verify(hre, {address: cut.facetAddress.toString(), contractName: facetName});
+      }
+      await verify(hre, {
+        address: diamond.address,
+        contractName: "Diamond",
+        constructorArguments: [proxyAdmin.address, diamondCutFacet.address],
+      });
+    }
+
+    return diamond;
+  } catch (error) {
+    logger.out(error, logger.Level.Error);
+    return Diamond__factory.connect(ADDRESS_ZERO, proxyAdmin);
   }
-
-  return diamond;
 }
 
 async function deployDiamond(

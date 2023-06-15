@@ -46,7 +46,7 @@ task(
       charitySharesContract: apTeam1.address,
       fundraisingContract: apTeam1.address,
       applicationsReview: addresses.multiSig.applications.proxy,
-      swapsRouter: addresses.swapRouter.proxy,
+      uniswapSwapRouter: addresses.uniswapSwapRouter,
       multisigFactory: addresses.multiSig.endowment.factory,
       multisigEmitter: addresses.multiSig.endowment.emitter.proxy,
       charityProposal: ADDRESS_ZERO,

@@ -25,7 +25,7 @@ task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
   .addOptionalParam(
     "verify",
     "Flag indicating whether the contract should be verified",
-    false,
+    true,
     types.boolean
   )
   .setAction(async (taskArgs: TaskArgs, hre) => {
@@ -46,7 +46,5 @@ task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
       );
     } catch (error) {
       logger.out(`Diamond deployment failed, reason: ${error}`, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

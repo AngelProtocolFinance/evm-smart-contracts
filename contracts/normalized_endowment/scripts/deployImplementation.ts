@@ -1,7 +1,7 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getSigners, logger, updateAddresses} from "utils";
+import {getSigners, logger, updateAddresses, verify} from "utils";
 
 import {DonationMatchMessages} from "typechain-types/contracts/normalized_endowment/donation-match/DonationMatch.sol/DonationMatch";
 
@@ -15,10 +15,7 @@ const deployDonationMatch = async (verify_contracts: boolean, hre: HardhatRuntim
     await donationMatchImplementation.deployed();
 
     if (verify_contracts) {
-      await run("verify:verify", {
-        address: donationMatchImplementation.address,
-        constructorArguments: [],
-      });
+      await verify(hre, {address: donationMatchImplementation.address});
     }
 
     return Promise.resolve(donationMatchImplementation.address);
@@ -39,15 +36,12 @@ const deployCw900lvImplementation = async (
     await IncentivisedVotingLockupImplementation.deployed();
 
     if (verify_contracts) {
-      await run("verify:verify", {
-        address: IncentivisedVotingLockupImplementation.address,
-        constructorArguments: [],
-      });
+      await verify(hre, {address: IncentivisedVotingLockupImplementation.address});
     }
 
     return Promise.resolve(IncentivisedVotingLockupImplementation.address);
   } catch (error) {
-    console.log(error);
+    logger.out(error, logger.Level.Error);
     return Promise.reject(error);
   }
 };
@@ -84,15 +78,12 @@ const deployDonationMatchCharity = async (
 
     await DonationMatchProxy.deployed();
 
-    console.log("DonationMatchCharityProxy Address (Proxy):", DonationMatchProxy.address);
+    logger.out(`DonationMatchCharityProxy Address (Proxy): ${DonationMatchProxy.address}`);
 
     if (verify_contracts) {
-      await run("verify:verify", {
-        address: DonationMatchImplementation.address,
-        constructorArguments: [],
-      });
+      await verify(hre, {address: DonationMatchImplementation.address});
 
-      await run("verify:verify", {
+      await verify(hre, {
         address: DonationMatchProxy.address,
         constructorArguments: [DonationMatchImplementation.address, proxyAdmin, DonationMatchData],
       });
@@ -128,15 +119,9 @@ const deploySubDao = async (
     await SubDaoImplementation.deployed();
 
     if (verify_contracts) {
-      await run("verify:verify", {
-        address: SUB_DAO_LIB.address,
-        constructorArguments: [],
-      });
+      await verify(hre, {address: SUB_DAO_LIB.address});
 
-      await run("verify:verify", {
-        address: SubDaoImplementation.address,
-        constructorArguments: [],
-      });
+      await verify(hre, {address: SubDaoImplementation.address});
     }
 
     return Promise.resolve(SubDaoImplementation.address);
@@ -154,10 +139,7 @@ const deploySubDaoERC20 = async (verify_contracts: boolean, hre: HardhatRuntimeE
     await subDaoERC20Implementation.deployed();
 
     if (verify_contracts) {
-      await run("verify:verify", {
-        address: subDaoERC20Implementation.address,
-        constructorArguments: [],
-      });
+      await verify(hre, {address: subDaoERC20Implementation.address});
     }
 
     return Promise.resolve(subDaoERC20Implementation.address);
@@ -179,10 +161,7 @@ const deploySubDaoVeBondingToken = async (
     await subDaoVeBondingTokenImpl.deployed();
 
     if (verify_contracts) {
-      await run("verify:verify", {
-        address: subDaoVeBondingTokenImpl.address,
-        constructorArguments: [],
-      });
+      await verify(hre, {address: subDaoVeBondingTokenImpl.address});
     }
 
     return Promise.resolve(subDaoVeBondingTokenImpl.address);
@@ -217,10 +196,7 @@ const deployIncentivisedVotingLockup = async (
     await IncentivisedVotingLockupImplementation.deployed();
 
     if (verify_contracts) {
-      await run("verify:verify", {
-        address: IncentivisedVotingLockupImplementation.address,
-        constructorArguments: [],
-      });
+      await verify(hre, {address: IncentivisedVotingLockupImplementation.address});
     }
 
     return Promise.resolve(IncentivisedVotingLockupImplementation.address);
@@ -264,6 +240,7 @@ export async function deployImplementation(
     const {cw900lv, feeDistributor, ...toUpdate} = implementations;
 
     logger.out("Saving addresses to contract-address.json...");
+    // update address file
     await updateAddresses(toUpdate, hre);
 
     return Promise.resolve(implementations);

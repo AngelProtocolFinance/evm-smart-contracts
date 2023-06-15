@@ -1,10 +1,10 @@
+import {FacetCutAction} from "contracts/core/accounts/scripts/libraries/diamond";
 import {task, types} from "hardhat/config";
-import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger} from "utils";
+import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 import {ALL_FACET_NAMES} from "./constants";
 import createFacetCuts from "./createFacetCuts";
 import cutDiamond from "./cutDiamond";
 import deployFacets from "./deployFacets";
-import verify from "./verify";
 
 type TaskArgs = {
   accountsDiamond?: string;
@@ -29,7 +29,7 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
   .addOptionalParam(
     "verify",
     "Flag indicating whether the contract should be verified",
-    false,
+    true,
     types.boolean
   )
   .setAction(async (taskArgs: TaskArgs, hre) => {
@@ -61,11 +61,12 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
       await cutDiamond(accountsDiamond, proxyAdmin, facetCuts, hre);
 
       if (!isLocalNetwork(hre) && taskArgs.verify) {
-        await verify(facetCuts, hre);
+        const facetsToVerify = facetCuts.filter((cut) => cut.cut.action !== FacetCutAction.Remove);
+        for (const {facetName, cut} of facetsToVerify) {
+          await verify(hre, {address: cut.facetAddress.toString(), contractName: facetName});
+        }
       }
     } catch (error) {
       logger.out(`Upgrade facets failed, reason: ${error}`, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

@@ -17,7 +17,7 @@ task("deploy:SwapRouter", "Will deploy SwapRouter contract")
   .addOptionalParam(
     "verify",
     "Flag indicating whether the contract should be verified",
-    false,
+    true,
     types.boolean
   )
   .setAction(async (taskArgs: TaskArgs, hre) => {
@@ -38,7 +38,5 @@ task("deploy:SwapRouter", "Will deploy SwapRouter contract")
       );
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

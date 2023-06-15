@@ -103,9 +103,9 @@
       "proxy": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
     },
     "libraries": {
-      "angelCoreStruct": "0x948B3c65b89DF0B4894ABE91E6D02FE579834F8F",
-      "charityApplicationLib": "0xcEC91d876E8f003110D43381359b1bAd124e7F2b",
-      "stringArray": "0x712516e61C8B383dF4A63CFe83d7701Bce54B03e"
+      "angelCoreStruct": "",
+      "charityApplicationLib": "",
+      "stringArray": ""
     },
     "multiSig": {
       "applications": {
@@ -142,15 +142,12 @@
       "token": "",
       "veBondingToken": ""
     },
-    "swapRouter": {
-      "implementation": "",
-      "proxy": ""
-    },
     "tokens": {
       "halo": "",
       "usdc": "0x8464135c8F25Da09e49BC8782676a84730C318bC",
       "wmatic": ""
-    }
+    },
+    "uniswapSwapRouter": ""
   },
   "80001": {
     "accounts": {
@@ -293,14 +290,11 @@
       "token": "0x4Bc5366E4e5c60ed383Cdc8cBD9180791Ae572f2",
       "veBondingToken": "0x9DDFfa45bD8B04ba10b5d291f9D80c56A711637A"
     },
-    "swapRouter": {
-      "implementation": "0x4Cec8D5d3877FAA9Ebd040d1cFc1DA947D92fe36",
-      "proxy": "0x5F3BB40873856B7a8dB666e26E3EF73015C6b9aD"
-    },
     "tokens": {
       "halo": "",
       "usdc": "",
       "wmatic": ""
-    }
+    },
+    "uniswapSwapRouter": "0xE592427A0AEce92De3Edee1F18E0157C05861564"
   }
 }

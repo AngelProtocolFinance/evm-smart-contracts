@@ -15,7 +15,7 @@ task("deploy:Libraries", "Will deploy Libraries")
   .addOptionalParam(
     "verify",
     "Flag indicating whether the contract should be verified",
-    false,
+    true,
     types.boolean
   )
   .setAction(async (taskArgs: TaskArgs, hre) => {
@@ -38,7 +38,5 @@ task("deploy:Libraries", "Will deploy Libraries")
       }
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

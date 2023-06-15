@@ -3,7 +3,7 @@
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import path from "path";
-import {getSigners} from "utils";
+import {getSigners, verify} from "utils";
 
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
@@ -103,32 +103,23 @@ export async function deployGov(
     const revokerole = await revokeTx.wait(1);
 
     if (verify_contracts) {
-      await hre.run("verify:verify", {
-        address: TimeLockInstance.address,
-        constructorArguments: [],
-      });
+      await verify(hre, {address: TimeLockInstance.address});
 
-      await hre.run("verify:verify", {
+      await verify(hre, {
         address: TimeLockProxy.address,
         constructorArguments: [TimeLockInstance.address, proxyAdmin, TimeLockData],
       });
 
-      await hre.run("verify:verify", {
-        address: VotingERC20Instance.address,
-        constructorArguments: [],
-      });
+      await verify(hre, {address: VotingERC20Instance.address});
 
-      await hre.run("verify:verify", {
+      await verify(hre, {
         address: VotingERC20Proxy.address,
         constructorArguments: [VotingERC20Instance.address, proxyAdmin, VotingERC20Data],
       });
 
-      await hre.run("verify:verify", {
-        address: GovInstance.address,
-        constructorArguments: [],
-      });
+      await verify(hre, {address: GovInstance.address});
 
-      await hre.run("verify:verify", {
+      await verify(hre, {
         address: GovProxy.address,
         constructorArguments: [GovInstance.address, proxyAdmin, GovData],
       });

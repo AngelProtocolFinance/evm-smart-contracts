@@ -140,13 +140,10 @@ export type AddressObj = {
     token: string;
     veBondingToken: string;
   };
-  swapRouter: {
-    implementation: string;
-    proxy: string;
-  };
   tokens: {
     halo: string;
     usdc: string;
     wmatic: string;
   };
+  uniswapSwapRouter: string;
 };

@@ -6,7 +6,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
   .addOptionalParam(
     "verify",
     "Flag indicating whether the contract should be verified",
-    false,
+    true,
     types.boolean
   )
   .setAction(async (taskArgs: {verify: boolean}, hre) => {
@@ -15,7 +15,5 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       await deployAngelProtocol(verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

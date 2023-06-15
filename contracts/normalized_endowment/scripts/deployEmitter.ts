@@ -1,7 +1,7 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getSigners, logger, updateAddresses} from "utils";
+import {getSigners, logger, updateAddresses, verify} from "utils";
 
 const deploySubDaoEmitter = async (
   proxyAdmin: string,
@@ -18,7 +18,7 @@ const deploySubDaoEmitter = async (
     const SubdaoEmitterImplementation = await SubdaoEmitter.deploy();
     await SubdaoEmitterImplementation.deployed();
 
-    console.log("SubdaoEmitterAddress (Implementation):", SubdaoEmitterImplementation.address);
+    logger.out(`SubdaoEmitterAddress (Implementation): ${SubdaoEmitterImplementation.address}"`);
 
     const SubdaoEmitterData = SubdaoEmitterImplementation.interface.encodeFunctionData(
       "initEmitter",
@@ -33,9 +33,10 @@ const deploySubDaoEmitter = async (
 
     await SubdaoEmitterProxy.deployed();
 
-    console.log("SubdaoEmitterProxy Address (Proxy):", SubdaoEmitterProxy.address);
+    logger.out(`SubdaoEmitterProxy Address (Proxy): ${SubdaoEmitterProxy.address}"`);
 
     logger.out("Saving addresses to contract-address.json...");
+    // update address file & verify contracts
     await updateAddresses(
       {
         subDao: {
@@ -49,11 +50,8 @@ const deploySubDaoEmitter = async (
     );
 
     if (verify_contracts) {
-      await run(`verify:verify`, {
-        address: SubdaoEmitterImplementation.address,
-        constructorArguments: [],
-      });
-      await run(`verify:verify`, {
+      await verify(hre, {address: SubdaoEmitterImplementation.address});
+      await verify(hre, {
         address: SubdaoEmitterProxy.address,
         constructorArguments: [SubdaoEmitterImplementation.address, proxyAdmin, SubdaoEmitterData],
       });
@@ -94,11 +92,8 @@ const deployDonationMatchEmitter = async (
     await DonationMatchEmitterProxy.deployed();
 
     if (verify_contracts) {
-      await run(`verify:verify`, {
-        address: DonationMatchEmitterImplementation.address,
-        constructorArguments: [],
-      });
-      await run(`verify:verify`, {
+      await verify(hre, {address: DonationMatchEmitterImplementation.address});
+      await verify(hre, {
         address: DonationMatchEmitterProxy.address,
         constructorArguments: [
           DonationMatchEmitterImplementation.address,
@@ -108,7 +103,7 @@ const deployDonationMatchEmitter = async (
       });
     }
 
-    console.log("DonationMatchEmitterProxy Address (Proxy):", DonationMatchEmitterProxy.address);
+    logger.out(`DonationMatchEmitterProxy Address (Proxy): ${DonationMatchEmitterProxy.address}"`);
 
     return Promise.resolve(DonationMatchEmitterProxy.address);
   } catch (error) {

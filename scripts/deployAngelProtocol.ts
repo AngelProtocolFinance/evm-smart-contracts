@@ -1,8 +1,7 @@
 // import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
-import {cleanAddresses, isLocalNetwork, logger} from "utils";
+import {ADDRESS_ZERO, cleanAddresses, getAddresses, isLocalNetwork, logger} from "utils";
 
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
@@ -15,41 +14,39 @@ import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-
 // import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
 // import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
 
-import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-
 import {getSigners} from "utils/getSigners";
 
 import {deployCommonLibraries} from "./deployCommonLibraries";
 import {deployMockUSDC} from "./deployMockUSDC";
-import {updateRegistrarNetworkConnection} from "./updateRegistrar";
+import {updateRegistrarConfig, updateRegistrarNetworkConnections} from "./updateRegistrar";
 
 export async function deployAngelProtocol(
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ): Promise<void> {
-  const {proxyAdmin, treasury, apTeamMultisigOwners} = await getSigners(hre);
+  const {proxyAdmin, treasury} = await getSigners(hre);
 
   await cleanAddresses(hre);
 
-  console.log("Deploying the contracts with the account:", proxyAdmin.address);
+  logger.out(`Deploying the contracts with the account: ${proxyAdmin.address}`);
 
   // Mock setup required for testing
   const mockUSDC = isLocalNetwork(hre) ? await deployMockUSDC(proxyAdmin, hre) : undefined;
 
-  const {angelCoreStruct, stringLib} = await deployCommonLibraries(verify_contracts, hre);
+  const {angelCoreStruct} = await deployCommonLibraries(verify_contracts, hre);
 
   const apTeamMultisig = await deployAPTeamMultiSig(verify_contracts, hre);
 
   const applicationsMultiSig = await deployApplicationsMultiSig(verify_contracts, hre);
 
   const registrar = await deployRegistrar(
-    hre.ethers.constants.AddressZero,
+    ADDRESS_ZERO,
     apTeamMultisig.proxy.address,
     verify_contracts,
     hre
   );
 
-  // Router deployment includes updating Registrar config's "router" address
+  // Router deployment will require updating Registrar config's "router" address
   const router = await deployRouter(
     config.REGISTRAR_DATA.axelarGateway,
     config.REGISTRAR_DATA.axelarGasRecv,
@@ -84,7 +81,7 @@ export async function deployAngelProtocol(
 
   const endowmentMultiSig = await deployEndowmentMultiSig(verify_contracts, hre);
 
-  // console.log('implementations deployed at:', implementations);
+  // logger.out('implementations deployed at:', implementations);
 
   // const GiftCardDataInput = {
   //     keeper: apTeamMultisig.proxy.address,
@@ -116,9 +113,9 @@ export async function deployAngelProtocol(
 
   // const haloToken = ERC20__factory.connect(haloAddress.Halo, proxyAdmin)
 
-  // console.log("halo token deployed at: ", haloToken.address)
+  // logger.out("halo token deployed at: ", haloToken.address)
 
-  // console.log("halo token balance: ", await haloToken.balanceOf(proxyAdmin.address))
+  // logger.out("halo token balance: ", await haloToken.balanceOf(proxyAdmin.address))
 
   // if (isLocalNetwork(network)) {
   //     // if network is 'hardhat' then mockUSDC should always be initialized
@@ -130,8 +127,8 @@ export async function deployAngelProtocol(
   //     await uniswap_utils.deployed()
 
   //     // create a uniswap pool for HALO and USDC
-  //     console.log("halo", haloToken.address.toString())
-  //     console.log("usdc", mockUSDC.address.toString())
+  //     logger.out("halo", haloToken.address.toString())
+  //     logger.out("usdc", mockUSDC.address.toString())
   //     const sqrtPrice = "79228162514264334008320"
   //     if (mockUSDC.address < haloToken.address.toString()) {
   //         sqrtPrice = "79228162514264337593543950336000000"
@@ -150,11 +147,11 @@ export async function deployAngelProtocol(
   //     mockUSDC.approve(uniswap_utils.address, ethers.utils.parseUnits("100000000", 6))
   //     await uniswap_utils.createPoolAndMintPositionErC20(createUniswapPoolParams)
 
-  //     console.log("Created HALO pool")
+  //     logger.out("Created HALO pool")
 
   //     // create a uniswap pool for WMATIC and USDC
-  //     console.log("WMATIC address: ", config.REGISTRAR_UPDATE_CONFIG.wmaticAddress)
-  //     console.log("USDC address: ", mockUSDC.address.toString())
+  //     logger.out("WMATIC address: ", config.REGISTRAR_UPDATE_CONFIG.wmaticAddress)
+  //     logger.out("USDC address: ", mockUSDC.address.toString())
 
   //     sqrtPrice = "79228162514264334008320"
   //     if (mockUSDC.address < config.REGISTRAR_UPDATE_CONFIG.wmaticAddress) {
@@ -174,7 +171,7 @@ export async function deployAngelProtocol(
   //         value: ethers.utils.parseEther("1000"),
   //     })
 
-  //     console.log("Created WMATIC pool")
+  //     logger.out("Created WMATIC pool")
 
   //     // deploy DAI
   //     const DAI = new MockERC20__factory(proxyAdmin)
@@ -187,7 +184,7 @@ export async function deployAngelProtocol(
   //     // mint DAI
   //     await dai.mint(proxyAdmin.address, ethers.utils.parseEther("100000000"))
 
-  //     console.log(dai.address)
+  //     logger.out(dai.address)
 
   //     // create a uniswap pool for DAI and USDC
   //     sqrtPrice = "79228162514264334008320"
@@ -207,7 +204,7 @@ export async function deployAngelProtocol(
   //     dai.approve(uniswap_utils.address, ethers.utils.parseEther("100000000"))
   //     mockUSDC.approve(uniswap_utils.address, ethers.utils.parseUnits("100000000", 6))
   //     await uniswap_utils.createPoolAndMintPositionErC20(createUniswapPoolParams3)
-  //     console.log("Created DAI pool")
+  //     logger.out("Created DAI pool")
   // }
 
   //  requires setting up of a HALO - MockUSDC pool on forked uniswap in deployment
@@ -244,75 +241,42 @@ export async function deployAngelProtocol(
 
   // config.REGISTRAR_DATA.acceptedTokens.cw20.push(haloToken.address)
 
-  const updateConfig: RegistrarMessages.UpdateConfigRequestStruct = {
-    accountsContract: accountsDiamond.address, //Address
-    approved_charities: [], //string[]
-    splitMax: config.REGISTRAR_DATA.splitToLiquid.max, //uint256
-    splitMin: config.REGISTRAR_DATA.splitToLiquid.min, //uint256
-    splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit, //uint256
-    collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
-    subdaoGovContract: hre.ethers.constants.AddressZero, //address
-    subdaoTokenContract: hre.ethers.constants.AddressZero, //address
-    subdaoBondingTokenContract: hre.ethers.constants.AddressZero, //address
-    subdaoCw900Contract: hre.ethers.constants.AddressZero, //address
-    subdaoDistributorContract: hre.ethers.constants.AddressZero,
-    subdaoEmitter: hre.ethers.constants.AddressZero, //TODO:
-    donationMatchContract: hre.ethers.constants.AddressZero, //address
-    indexFundContract: indexFund.proxy.address, //address
-    govContract: hre.ethers.constants.AddressZero, //address
-    treasury: treasury.address,
-    donationMatchCharitesContract: hre.ethers.constants.AddressZero, // once uniswap is setup //address
-    donationMatchEmitter: hre.ethers.constants.AddressZero,
-    haloToken: hre.ethers.constants.AddressZero, //address
-    haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
-    charitySharesContract: hre.ethers.constants.AddressZero, //TODO: //address
-    fundraisingContract: hre.ethers.constants.AddressZero, //TODO: //address
-    applicationsReview: applicationsMultiSig.proxy.address, //address
-    uniswapSwapRouter: config.SWAP_ROUTER_DATA.UNISWAP_ROUTER_ADDRESS, //address
-    multisigFactory: endowmentMultiSig.factory.address, //address
-    multisigEmitter: endowmentMultiSig.emitter.proxy.contract.address, //address
-    charityProposal: charityApplication.proxy.address, //address
-    lockedWithdrawal: hre.ethers.constants.AddressZero,
-    proxyAdmin: proxyAdmin.address, //address
-    usdcAddress: mockUSDC ? mockUSDC.address : config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
-    wMaticAddress: config.REGISTRAR_UPDATE_CONFIG.wmaticAddress,
-    cw900lvAddress: hre.ethers.constants.AddressZero,
-  };
-
-  console.log("Updating Registrar config with new addresses...");
-  const registrarContract = Registrar__factory.connect(
+  const addresses = await getAddresses(hre);
+  await updateRegistrarConfig(
     registrar.proxy.address,
-    apTeamMultisigOwners[0]
-  );
-  const updateConfigData = registrarContract.interface.encodeFunctionData("updateConfig", [
-    updateConfig,
-  ]);
-  const apTeamMultisigContract = APTeamMultiSig__factory.connect(
     apTeamMultisig.proxy.address,
-    apTeamMultisigOwners[0]
-  );
-  const tx = await apTeamMultisigContract.submitTransaction(
-    "Update Registrar config",
-    "Update Registrar config",
-    registrar.proxy.address,
-    0,
-    updateConfigData,
-    "0x"
-  );
-  await tx.wait();
-  console.log("Successfully updated config:-", tx.hash);
-
-  // Registrar NetworkInfo's Router address must be updated for the current network
-  const network = await hre.ethers.provider.getNetwork();
-  logger.out(
-    `Fetching current Registrar's network connection data for chain ID:${network.chainId}...`
-  );
-  const curNetworkConnection = await registrarContract.queryNetworkConnection(network.chainId);
-  logger.out(JSON.stringify(curNetworkConnection, undefined, 2));
-  await updateRegistrarNetworkConnection(
-    registrar.proxy.address,
-    {...curNetworkConnection, router: router.proxy.address},
-    apTeamMultisig.proxy.address,
+    {
+      accountsContract: accountsDiamond.address, //Address
+      splitMax: config.REGISTRAR_DATA.splitToLiquid.max, //uint256
+      splitMin: config.REGISTRAR_DATA.splitToLiquid.min, //uint256
+      splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit, //uint256
+      collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
+      indexFundContract: indexFund.proxy.address, //address
+      treasury: treasury.address,
+      haloTokenLpContract: config.REGISTRAR_UPDATE_CONFIG.haloTokenLpContract, //address
+      applicationsReview: applicationsMultiSig.proxy.address, //address
+      uniswapSwapRouter: addresses.uniswapSwapRouter, //address
+      multisigFactory: endowmentMultiSig.factory.address, //address
+      multisigEmitter: endowmentMultiSig.emitter.proxy.address, //address
+      charityProposal: charityApplication.proxy.address, //address
+      proxyAdmin: proxyAdmin.address, //address
+      usdcAddress: isLocalNetwork(hre)
+        ? mockUSDC
+          ? mockUSDC.address
+          : ADDRESS_ZERO
+        : config.REGISTRAR_UPDATE_CONFIG.usdcAddress, //address
+      wMaticAddress: config.REGISTRAR_UPDATE_CONFIG.wmaticAddress,
+    },
     hre
   );
+
+  // Registrar NetworkInfo's Router address must be updated for the current network
+  await updateRegistrarNetworkConnections(
+    registrar.proxy.address,
+    apTeamMultisig.proxy.address,
+    {router: router.proxy.address},
+    hre
+  );
+
+  logger.out("Successfully deployed Angel Protocol contracts.");
 }

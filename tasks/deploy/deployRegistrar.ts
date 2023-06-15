@@ -2,9 +2,8 @@ import config from "config";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {updateRegistrarNetworkConnection} from "scripts";
-import {Registrar__factory} from "typechain-types";
-import {getAddresses, getSigners, isLocalNetwork, logger} from "utils";
+import {updateRegistrarNetworkConnections} from "scripts";
+import {getAddresses, isLocalNetwork, logger} from "utils";
 
 type TaskArgs = {
   apTeamMultisig?: string;
@@ -27,7 +26,7 @@ task(
   .addOptionalParam(
     "verify",
     "Flag indicating whether the contract should be verified",
-    false,
+    true,
     types.boolean
   )
   .setAction(async (taskArgs: TaskArgs, hre) => {
@@ -54,23 +53,13 @@ task(
       );
 
       // Registrar NetworkInfo's Router address must be updated for the current network
-      const {deployer} = await getSigners(hre);
-      const network = await hre.ethers.provider.getNetwork();
-      const registrarContract = Registrar__factory.connect(registrar.proxy.address, deployer);
-      logger.out(
-        `Fetching current Registrar's network connection data for chain ID:${network.chainId}...`
-      );
-      const curNetworkConnection = await registrarContract.queryNetworkConnection(network.chainId);
-      logger.out(JSON.stringify(curNetworkConnection, undefined, 2));
-      await updateRegistrarNetworkConnection(
+      await updateRegistrarNetworkConnections(
         registrar.proxy.address,
-        {...curNetworkConnection, router: router.proxy.address},
         apTeamMultiSig,
+        {router: router.proxy.address},
         hre
       );
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });
