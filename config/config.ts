@@ -16,7 +16,7 @@ const config: Config = {
   REGISTRAR_DATA: {
     taxRate: 1,
     acceptedTokens: {
-      cw20: ["usdc"],
+      erc20: ["usdc"],
     },
     rebalance: {
       rebalanceLiquidInvestedProfits: false,
