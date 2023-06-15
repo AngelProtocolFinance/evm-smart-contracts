@@ -11,7 +11,7 @@ library AccountMessages {
     uint256 maturityTime;
     string name;
     uint256[] sdgs;
-    uint256 tier;
+    AngelCoreStruct.Tier tier;
     AngelCoreStruct.EndowmentType endowType;
     string logo;
     string image;
@@ -133,7 +133,7 @@ library AccountMessages {
     string image;
     string name;
     uint256[] sdgs;
-    uint256 tier;
+    AngelCoreStruct.Tier tier;
     uint256 copycatStrategy;
     uint256 proposalLink;
     uint256 parent;

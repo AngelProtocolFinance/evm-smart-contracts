@@ -9,6 +9,13 @@ library AngelCoreStruct {
     Liquid
   }
 
+  enum Tier {
+    None,
+    Level1,
+    Level2,
+    Level3
+  }
+
   enum EndowmentType {
     Charity,
     Normal

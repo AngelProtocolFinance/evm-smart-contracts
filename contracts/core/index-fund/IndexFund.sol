@@ -625,7 +625,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     AngelCoreStruct.IndexFund memory fund,
     uint256 envTime
   ) internal pure returns (bool) {
-    return ((fund.expiryTime != 0 && envTime >= fund.expiryTime));
+    return (fund.expiryTime != 0 && envTime >= fund.expiryTime);
   }
 
   /**
