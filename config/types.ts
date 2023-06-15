@@ -13,7 +13,7 @@ export type Config = {
   REGISTRAR_DATA: {
     taxRate: number;
     acceptedTokens: {
-      cw20: (keyof AddressObj["tokens"])[];
+      erc20: (keyof AddressObj["tokens"])[];
     };
     rebalance: {
       rebalanceLiquidInvestedProfits: boolean;
