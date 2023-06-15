@@ -13,16 +13,14 @@ import {
   ISwapRouter__factory,
   IUniswapV3Factory,
   IUniswapV3Factory__factory,
-} from "../typechain-types";
+} from "typechain-types";
+import {getAddresses, isLocalNetwork, updateAddresses} from "utils";
 import {
   deployDummyERC20,
   deployDummyGasService,
   deployDummyGateway,
   deployDummyUniswap,
-  getAddresses,
-  isLocalNetwork,
-  updateAddresses,
-} from ".";
+} from "./deploy";
 
 type Result = {
   axelarGasService: DummyGasService | IAxelarGasService;

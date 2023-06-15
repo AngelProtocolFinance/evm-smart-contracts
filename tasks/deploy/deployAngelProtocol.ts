@@ -20,7 +20,7 @@ import {
   getOrDeployThirdPartyContracts,
   updateRegistrarConfig,
   updateRegistrarNetworkConnections,
-} from "utils";
+} from "../helpers";
 
 task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
   .addOptionalParam(
