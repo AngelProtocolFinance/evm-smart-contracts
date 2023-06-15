@@ -1,7 +1,6 @@
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {updateRegistrarConfig} from "scripts";
-import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
+import {confirmAction, getAddresses, isLocalNetwork, logger, updateRegistrarConfig} from "utils";
 
 type TaskArgs = {
   angelCoreStruct?: string;

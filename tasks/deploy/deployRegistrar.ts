@@ -1,8 +1,13 @@
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {updateRegistrarNetworkConnections} from "scripts";
-import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
+import {
+  confirmAction,
+  getAddresses,
+  isLocalNetwork,
+  logger,
+  updateRegistrarNetworkConnections,
+} from "utils";
 
 type TaskArgs = {
   apTeamMultisig?: string;

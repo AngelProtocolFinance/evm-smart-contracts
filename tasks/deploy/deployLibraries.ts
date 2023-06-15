@@ -1,7 +1,6 @@
 import {task, types} from "hardhat/config";
-import {deployCommonLibraries} from "scripts";
 import {FACET_NAMES_USING_ANGEL_CORE_STRUCT} from "tasks/upgrade/upgradeFacets/constants";
-import {confirmAction, isLocalNetwork, logger} from "utils";
+import {confirmAction, deployCommonLibraries, isLocalNetwork, logger} from "utils";
 
 task("deploy:Libraries", "Will deploy Libraries")
   .addOptionalParam(

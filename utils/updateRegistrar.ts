@@ -1,8 +1,8 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
-import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-import {AngelCoreStruct} from "typechain-types/contracts/core/registrar/registrar.sol/Registrar";
-import {getSigners, logger, structToObject} from "utils";
+import {APTeamMultiSig__factory, Registrar__factory} from "../typechain-types";
+import {RegistrarMessages} from "../typechain-types/contracts/core/registrar/interfaces/IRegistrar";
+import {AngelCoreStruct} from "../typechain-types/contracts/core/registrar/registrar.sol/Registrar";
+import {getSigners, logger, structToObject} from ".";
 
 export async function updateRegistrarNetworkConnections(
   registrar: string,

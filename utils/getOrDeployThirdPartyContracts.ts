@@ -13,7 +13,7 @@ import {
   ISwapRouter__factory,
   IUniswapV3Factory,
   IUniswapV3Factory__factory,
-} from "typechain-types";
+} from "../typechain-types";
 import {
   deployDummyERC20,
   deployDummyGasService,
@@ -22,7 +22,7 @@ import {
   getAddresses,
   isLocalNetwork,
   updateAddresses,
-} from "utils";
+} from ".";
 
 type Result = {
   axelarGasService: DummyGasService | IAxelarGasService;
@@ -36,7 +36,7 @@ type Result = {
   wmaticToken: ERC20;
 };
 
-export default async function getOrDeployThirdPartyContracts(
+export async function getOrDeployThirdPartyContracts(
   signer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<Result> {

@@ -1,6 +1,6 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {AngelCoreStruct__factory, StringArray__factory} from "typechain-types";
-import {ADDRESS_ZERO, getSigners, logger, updateAddresses, verify} from "utils";
+import {AngelCoreStruct__factory, StringArray__factory} from "../../typechain-types";
+import {ADDRESS_ZERO, getSigners, logger, updateAddresses, verify} from "..";
 
 export async function deployCommonLibraries(
   verify_contracts: boolean,

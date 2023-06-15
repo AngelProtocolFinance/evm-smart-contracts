@@ -1,7 +1,6 @@
 import {deployCharityApplication} from "contracts/multisigs/charity_applications/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {updateRegistrarConfig} from "scripts";
-import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
+import {confirmAction, getAddresses, isLocalNetwork, logger, updateRegistrarConfig} from "utils";
 
 type TaskArgs = {
   accountsDiamond?: string;
@@ -54,6 +53,7 @@ task("deploy:CharityApplication", "Will deploy CharityApplication contract")
       const charityApplication = await deployCharityApplication(
         applications,
         accountsDiamond,
+        addresses.tokens.seedAsset,
         verify_contracts,
         hre
       );
