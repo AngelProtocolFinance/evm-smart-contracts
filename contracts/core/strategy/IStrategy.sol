@@ -13,6 +13,13 @@ interface IStrategy {
   }
 
   event ConfigChanged(StrategyConfig stratConfig);
+  event EnteredPosition(uint256 baseTokenAmt, uint256 yieldTokenAmt);
+  event ExitedPosition(uint256 yieldTokenAmt, uint256 baseTokenAmt);
+  
+  error TransferFailed();
+  error ApproveFailed();
+  error DepositFailed();
+  error WithdrawFailed();
 
   /// @notice Returns the config struct
   /// @return Config the current strategy config

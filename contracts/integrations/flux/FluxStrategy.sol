@@ -5,8 +5,10 @@ pragma solidity >=0.8.0;
 import {IStrategy} from "../../core/strategy/IStrategy.sol";
 import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
 import {IFlux} from "./IFlux.sol";
+import {FixedPointMathLib} from "../../lib/FixedPointMathLib.sol";
 
 contract FluxStrategy is IStrategy, Pausable {
+  using FixedPointMathLib for uint256;
 
   StrategyConfig public config;
 
@@ -67,7 +69,15 @@ contract FluxStrategy is IStrategy, Pausable {
   /// @param amt the qty of `stratConfig.baseToken` that the strategy has been approved to use
   /// @return yieldTokenAmt the qty of `stratConfig.yieldToken` that were yielded from the deposit action
   function deposit(uint256 amt) external payable whenNotPaused returns (uint256){
-    IERC20(config.baseToken).transferFrom(msg.sender, address(this), amt);
+    if(!IERC20(config.baseToken).transferFrom(_msgSender(), address(this), amt)) {
+      revert TransferFailed();
+    }
+    uint256 yieldTokens = _enterPosition(amt);
+    if(!IERC20(config.yieldToken).approve(_msgSender(), yieldTokens)) {
+      revert ApproveFailed();
+    }
+    emit EnteredPosition(amt, yieldTokens);
+    return yieldTokens;
   }
 
 
@@ -78,7 +88,15 @@ contract FluxStrategy is IStrategy, Pausable {
   /// @param amt the qty of `stratConfig.yieldToken` that this contract has been approved to use by msg.sender
   /// @return baseTokenAmt the qty of `stratConfig.baseToken` that are approved for transfer by msg.sender 
   function withdraw(uint256 amt) external payable whenNotPaused returns (uint256){
-
+    if(!IERC20(config.yieldToken).transferFrom(_msgSender(), address(this), amt)) {
+      revert TransferFailed();
+    }
+    uint256 baseTokens = _exitPosition(amt);
+    if(!IERC20(config.baseToken).approve(_msgSender(), baseTokens)) {
+      revert ApproveFailed();
+    }
+    emit ExitedPosition(amt, baseTokens);
+    return baseTokens;
   }
 
   /// @notice Provide an estimate for the current exchange rate for a given deposit
@@ -86,18 +104,50 @@ contract FluxStrategy is IStrategy, Pausable {
   /// @param amt the qty of the `baseToken` that should be checked for conversion rates
   /// @return yieldTokenAmt the expected qty of `yieldToken` if this strategy received `amt` of `baseToken`
   function previewDeposit(uint256 amt) external view returns (uint256){
-
-  }
+    // Exchange Rate == (expScale * USDC) / fUSDC
+    // Accrue interest before calculating to ensure accuracy 
+    uint256 exRate = IFlux(yieldToken).exchangeRateCurrent();
+    // Expected fUSDC == (amt * expScale / exRate) / expScale 
+    return amt.mulDivDown(IFlux.expScale, exRate) / IFlux.expScale;
+  } 
 
   /// @notice Provide an estimate for the current exchange rate for a given withdrawal
   /// @dev This method expects that the `amt` provided is denominated in `yieldToken`
   /// @param amt the qty of the `yieldToken` that should be checked for conversion rates
   /// @return yieldTokenAmt the expected qty of `baseToken` if this strategy received `amt` of `yieldToken`
   function previewWithdraw(uint256 amt) external view returns (uint256){
-
+    // Exchange Rate == (expScale * USDC) / fUSDC
+    // Don't accrue interest before caluclating since withdrawing does the interest accrual 
+    uint256 exRate = IFlux(yieldToken).exchangeRateStored();
+    // Expected fUSDC == (amt * expScale / exRate) / expScale 
+    return amt.mulDivDown(IFlux.expScale, exRate) / IFlux.expScale;
   }
 
   /*//////////////////////////////////////////////////////////////
-                                CONFIG
+                                INTERNAL
   //////////////////////////////////////////////////////////////*/
+
+  function _enterPosition(uint256 amt) internal returns (uint256) {
+    try IFlux(yieldToken).mint(amt) returns (uint256 yieldTokens) {
+      return yieldTokens;
+    } catch Error(string memory reason) {
+      emit LogError(reason);
+      revert DepositFailed();
+    } catch (bytes memory data) {
+      emit LogErrorBytes(reason);
+      revert DepositFailed();
+    }
+  }
+
+  function _withdrawPosition(uint256 amt) internal returns (uint256) {
+    try IFlux(yieldToken).redeem(amt) returns (uint256 baseTokens) {
+      return baseTokens;
+    } catch Error(string memory reason) {
+      emit LogError(reason);
+      revert WithdrawFailed();
+    } catch (bytes memory data) {
+      emit LogErrorBytes(reason);
+      revert WithdrawFailed();
+    }
+  }
 }
