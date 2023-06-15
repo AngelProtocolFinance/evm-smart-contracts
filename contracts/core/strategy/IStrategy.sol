@@ -14,8 +14,10 @@ interface IStrategy {
 
   event ConfigChanged(StrategyConfig stratConfig);
   event EnteredPosition(uint256 baseTokenAmt, uint256 yieldTokenAmt);
-  event ExitedPosition(uint256 yieldTokenAmt, uint256 baseTokenAmt);
-  
+  event WithdrewPosition(uint256 yieldTokenAmt, uint256 baseTokenAmt);
+  event LogError(string message);
+  event LogErrorBytes(bytes data);
+
   error TransferFailed();
   error ApproveFailed();
   error DepositFailed();

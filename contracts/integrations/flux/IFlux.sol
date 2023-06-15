@@ -3,39 +3,25 @@
 // Stripped down interface for Flux fTokens 
 pragma solidity >=0.8.0;
 
-import {CTokenInterface} from "./CTokensInterfacesModified.sol";
-
 interface IFlux {
   
-  /*** CONSTNATS ***/
-  uint constant expScale = 1e18;
-
   /*** CErc20Interface User Interface ***/
 
-  function mint(uint mintAmount) external virtual returns (uint);
+  function mint(uint mintAmount) external  returns (uint);
 
-  function redeem(uint redeemTokens) external virtual returns (uint);
+  function redeem(uint redeemTokens) external  returns (uint);
 
-  function redeemUnderlying(uint redeemAmount) external virtual returns (uint);
+  function redeemUnderlying(uint redeemAmount) external  returns (uint);
 
-  function borrow(uint borrowAmount) external virtual returns (uint);
+  function borrow(uint borrowAmount) external  returns (uint);
 
-  function repayBorrow(uint repayAmount) external virtual returns (uint);
+  function repayBorrow(uint repayAmount) external  returns (uint);
 
   function repayBorrowBehalf(
     address borrower,
     uint repayAmount
-  ) external virtual returns (uint);
+  ) external  returns (uint);
 
-  function liquidateBorrow(
-    address borrower,
-    uint repayAmount,
-    CTokenInterface cTokenCollateral
-  ) external virtual returns (uint);
-
-  function sweepToken(EIP20NonStandardInterface token) external virtual;
-
-  
     /*** CTokenInterface User Interface ***/
   function transfer(address dst, uint amount) external  returns (bool);
 
@@ -88,17 +74,12 @@ interface IFlux {
    * @notice Calculates the exchange rate from the underlying to the CToken
    * @dev This function does not accrue interest before calculating the exchange rate
    * @return Calculated exchange rate scaled by 1e18
+   * Exchange rate == token.supply() / fToken.supply()
    */
   function exchangeRateStored() external view  returns (uint);
 
   function getCash() external view  returns (uint);
 
   function accrueInterest() external  returns (uint);
-
-  function seize(
-    address liquidator,
-    address borrower,
-    uint seizeTokens
-  ) external  returns (uint);
 
 }
