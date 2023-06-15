@@ -23,7 +23,7 @@
       }
     },
     "axelar": {
-      "gasRecv": "",
+      "gasService": "",
       "gateway": ""
     },
     "charityApplication": {
@@ -136,7 +136,6 @@
       "implementation": "0x90118d110B07ABB82Ba8980D1c5cC96EeA810d2C",
       "proxy": "0xcA03Dc4665A8C3603cb4Fd5Ce71Af9649dC00d44"
     },
-    "seedAsset": "",
     "subDao": {
       "emitter": {
         "implementation": "",
@@ -150,6 +149,7 @@
       "dai": "",
       "halo": "",
       "reserveToken": "",
+      "seedAsset": "",
       "usdc": "0x8464135c8F25Da09e49BC8782676a84730C318bC",
       "wmatic": "0x948B3c65b89DF0B4894ABE91E6D02FE579834F8F"
     },
@@ -182,7 +182,7 @@
       }
     },
     "axelar": {
-      "gasRecv": "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B",
+      "gasService": "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B",
       "gateway": "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B"
     },
     "charityApplication": {
@@ -294,7 +294,6 @@
       "implementation": "",
       "proxy": ""
     },
-    "seedAsset": "0x06499E212Ce9F9D4a2147e82242F137c5e32f8C8",
     "subDao": {
       "emitter": {
         "implementation": "0x553752620d6bC348F10579710157524121b2A288",
@@ -308,6 +307,7 @@
       "dai": "0xb973d2876c4f161439ad05f1dae184dbd594e04e",
       "halo": "",
       "reserveToken": "",
+      "seedAsset": "0x06499E212Ce9F9D4a2147e82242F137c5e32f8C8",
       "usdc": "0x0fa8781a83e46826621b3bc094ea2a0212e71b23",
       "wmatic": "0x9c3c9283d3e44854697cd22d3faa240cfb032889"
     },

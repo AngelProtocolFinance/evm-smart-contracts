@@ -22,7 +22,7 @@ export type AddressObj = {
     };
   };
   axelar: {
-    gasRecv: string;
+    gasService: string;
     gateway: string;
   };
   charityApplication: {

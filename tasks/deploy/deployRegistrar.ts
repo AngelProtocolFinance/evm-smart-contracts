@@ -46,7 +46,7 @@ task(
 
       const registrar = await deployRegistrar(
         addresses.axelar.gateway,
-        addresses.axelar.gasRecv,
+        addresses.axelar.gasService,
         oldRouterAddress,
         apTeamMultiSig,
         verify_contracts,
@@ -55,7 +55,7 @@ task(
 
       const router = await deployRouter(
         addresses.axelar.gateway,
-        addresses.axelar.gasRecv,
+        addresses.axelar.gasService,
         registrar.proxy.address,
         verify_contracts,
         hre

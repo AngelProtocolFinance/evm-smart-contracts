@@ -5,7 +5,7 @@ import {ADDRESS_ZERO, getSigners, logger, updateAddresses, validateAddress, veri
 
 export async function deployRegistrar(
   axelarGateway: string,
-  axelarGasRecv: string,
+  axelarGasService: string,
   router: string, // no need to verify address validity, as Registrar will be deployed before the router
   owner: string,
   verify_contracts: boolean,
@@ -35,7 +35,7 @@ export async function deployRegistrar(
           splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
           router,
           axelarGateway,
-          axelarGasRecv,
+          axelarGasRecv: axelarGasService,
         },
       ]
     );

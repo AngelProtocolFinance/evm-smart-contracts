@@ -38,7 +38,7 @@ export async function deployAngelProtocol(
 
   const registrar = await deployRegistrar(
     thirdPartyAddresses.axelarGateway.address,
-    thirdPartyAddresses.axelarGasRecv.address,
+    thirdPartyAddresses.axelarGasService.address,
     ADDRESS_ZERO,
     apTeamMultisig.proxy.address,
     verify_contracts,
@@ -48,7 +48,7 @@ export async function deployAngelProtocol(
   // Router deployment will require updating Registrar config's "router" address
   const router = await deployRouter(
     thirdPartyAddresses.axelarGateway.address,
-    thirdPartyAddresses.axelarGasRecv.address,
+    thirdPartyAddresses.axelarGasService.address,
     registrar.proxy.address,
     verify_contracts,
     hre

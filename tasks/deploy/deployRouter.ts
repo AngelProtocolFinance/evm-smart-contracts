@@ -41,7 +41,7 @@ task("deploy:Router", "Will deploy Router contract")
 
       const router = await deployRouter(
         addresses.axelar.gateway,
-        addresses.axelar.gasRecv,
+        addresses.axelar.gasService,
         registrar,
         verify_contracts,
         hre

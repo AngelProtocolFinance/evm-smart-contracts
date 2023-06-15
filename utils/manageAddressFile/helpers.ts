@@ -90,7 +90,7 @@ export function createEmptyAddressObj(): AddressObj {
       },
     },
     axelar: {
-      gasRecv: "",
+      gasService: "",
       gateway: "",
     },
     charityApplication: {

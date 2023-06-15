@@ -25,7 +25,7 @@ import {
 } from "utils";
 
 type Result = {
-  axelarGasRecv: DummyGasService | IAxelarGasService;
+  axelarGasService: DummyGasService | IAxelarGasService;
   axelarGateway: DummyGateway | IAxelarGateway;
   seedAsset: ERC20;
   uniswap: {
@@ -41,8 +41,8 @@ export default async function getOrDeployThirdPartyContracts(
   hre: HardhatRuntimeEnvironment
 ): Promise<Result> {
   if (isLocalNetwork(hre)) {
-    const result = {
-      axelarGasRecv: await deployDummyGasService(signer),
+    const result: Result = {
+      axelarGasService: await deployDummyGasService(signer),
       axelarGateway: await deployDummyGateway(signer),
       seedAsset: await deployDummyERC20(signer, [signer.address], [100]),
       uniswap: await deployDummyUniswap(signer, hre),
@@ -52,7 +52,10 @@ export default async function getOrDeployThirdPartyContracts(
 
     await updateAddresses(
       {
-        axelar: {gasRecv: result.axelarGasRecv.address, gateway: result.axelarGateway.address},
+        axelar: {
+          gasService: result.axelarGasService.address,
+          gateway: result.axelarGateway.address,
+        },
         uniswap: {
           factory: result.uniswap.factory.address,
           swapRouter: result.uniswap.swapRouter.address,
@@ -72,7 +75,7 @@ export default async function getOrDeployThirdPartyContracts(
   const addresses = await getAddresses(hre);
 
   return {
-    axelarGasRecv: IAxelarGasService__factory.connect(addresses.axelar.gasRecv, signer),
+    axelarGasService: IAxelarGasService__factory.connect(addresses.axelar.gasService, signer),
     axelarGateway: IAxelarGateway__factory.connect(addresses.axelar.gateway, signer),
     seedAsset: ERC20__factory.connect(addresses.tokens.seedAsset, signer),
     uniswap: {
