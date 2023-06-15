@@ -106,18 +106,6 @@ library AccountMessages {
     AngelCoreStruct.Beneficiary closingBeneficiary;
   }
 
-  struct EndowmentEntry {
-    uint32 id;
-    address owner;
-    AngelCoreStruct.EndowmentType endowType;
-    string name;
-    string logo;
-    string image;
-    uint256 tier;
-    uint256[] sdgs;
-    string proposalLink;
-  }
-
   struct EndowmentDetailsResponse {
     address owner;
     address dao;
