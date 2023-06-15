@@ -26,7 +26,6 @@ export async function resetAddresses(
   const cleaned: AddressObj = {
     ...createEmptyAddressObj(),
     axelar: currentAddressObj.axelar,
-    seedAsset: currentAddressObj.seedAsset,
     tokens: {...currentAddressObj.tokens, halo: "", reserveToken: ""},
     uniswap: currentAddressObj.uniswap,
   };

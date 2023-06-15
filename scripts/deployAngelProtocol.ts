@@ -37,8 +37,8 @@ export async function deployAngelProtocol(
   const applicationsMultiSig = await deployApplicationsMultiSig(verify_contracts, hre);
 
   const registrar = await deployRegistrar(
-    thirdPartyAddresses.axelarGateway,
-    thirdPartyAddresses.axelarGasRecv,
+    thirdPartyAddresses.axelarGateway.address,
+    thirdPartyAddresses.axelarGasRecv.address,
     ADDRESS_ZERO,
     apTeamMultisig.proxy.address,
     verify_contracts,
@@ -47,8 +47,8 @@ export async function deployAngelProtocol(
 
   // Router deployment will require updating Registrar config's "router" address
   const router = await deployRouter(
-    thirdPartyAddresses.axelarGateway,
-    thirdPartyAddresses.axelarGasRecv,
+    thirdPartyAddresses.axelarGateway.address,
+    thirdPartyAddresses.axelarGasRecv.address,
     registrar.proxy.address,
     verify_contracts,
     hre
@@ -67,7 +67,7 @@ export async function deployAngelProtocol(
   const charityApplication = await deployCharityApplication(
     applicationsMultiSig.proxy.address,
     accountsDiamond.address,
-    thirdPartyAddresses.seedAsset,
+    thirdPartyAddresses.seedAsset.address,
     verify_contracts,
     hre
   );
@@ -254,13 +254,13 @@ export async function deployAngelProtocol(
       treasury: treasury.address,
       // haloTokenLpContract: addresses.halo.tokenLp,
       applicationsReview: applicationsMultiSig.proxy.address, //address
-      uniswapSwapRouter: thirdPartyAddresses.uniswap.swapRouter, //address
+      uniswapSwapRouter: thirdPartyAddresses.uniswap.swapRouter.address, //address
       multisigFactory: endowmentMultiSig.factory.address, //address
       multisigEmitter: endowmentMultiSig.emitter.proxy.address, //address
       charityProposal: charityApplication.proxy.address, //address
       proxyAdmin: proxyAdmin.address, //address
-      usdcAddress: thirdPartyAddresses.usdcToken,
-      wMaticAddress: thirdPartyAddresses.wmaticToken,
+      usdcAddress: thirdPartyAddresses.usdcToken.address,
+      wMaticAddress: thirdPartyAddresses.wmaticToken.address,
     },
     hre
   );

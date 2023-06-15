@@ -203,7 +203,6 @@ export function createEmptyAddressObj(): AddressObj {
       implementation: "",
       proxy: "",
     },
-    seedAsset: "",
     subDao: {
       emitter: {
         implementation: "",
@@ -217,6 +216,7 @@ export function createEmptyAddressObj(): AddressObj {
       dai: "",
       halo: "",
       reserveToken: "",
+      seedAsset: "",
       usdc: "",
       wmatic: "",
     },

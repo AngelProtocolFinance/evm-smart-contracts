@@ -1,56 +1,85 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {getAddresses, isLocalNetwork} from "utils";
-import {deployMockERC20, deployMockUSDC, deployUniswapMocks} from "./mocks";
+import {
+  DummyGasService,
+  DummyGateway,
+  ERC20,
+  ERC20__factory,
+  IAxelarGasService,
+  IAxelarGasService__factory,
+  IAxelarGateway,
+  IAxelarGateway__factory,
+  ISwapRouter,
+  ISwapRouter__factory,
+  IUniswapV3Factory,
+  IUniswapV3Factory__factory,
+} from "typechain-types";
+import {
+  deployDummyERC20,
+  deployDummyGasService,
+  deployDummyGateway,
+  deployDummyUniswap,
+  getAddresses,
+  isLocalNetwork,
+  updateAddresses,
+} from "utils";
 
 type Result = {
+  axelarGasRecv: DummyGasService | IAxelarGasService;
+  axelarGateway: DummyGateway | IAxelarGateway;
+  seedAsset: ERC20;
   uniswap: {
-    factory: string;
-    swapRouter: string;
+    factory: IUniswapV3Factory;
+    swapRouter: ISwapRouter;
   };
-  usdcToken: string;
-  wmaticToken: string;
-  axelarGateway: string;
-  axelarGasRecv: string;
-  seedAsset: string;
+  usdcToken: ERC20;
+  wmaticToken: ERC20;
 };
 
 export default async function getOrDeployThirdPartyContracts(
-  admin: SignerWithAddress,
+  signer: SignerWithAddress,
   hre: HardhatRuntimeEnvironment
 ): Promise<Result> {
   if (isLocalNetwork(hre)) {
-    return {
-      axelarGasRecv: await deployMockContract(admin, hre),
-      axelarGateway: await deployMockContract(admin, hre),
-      seedAsset: await deployMockContract(admin, hre),
-      uniswap: await deployUniswapMocks(admin, hre),
-      usdcToken: await deployMockUSDC(admin, hre),
-      wmaticToken: await deployMockERC20("WMatic", "WMatic", admin, hre),
+    const result = {
+      axelarGasRecv: await deployDummyGasService(signer),
+      axelarGateway: await deployDummyGateway(signer),
+      seedAsset: await deployDummyERC20(signer, [signer.address], [100]),
+      uniswap: await deployDummyUniswap(signer, hre),
+      usdcToken: await deployDummyERC20(signer, [signer.address], [100]),
+      wmaticToken: await deployDummyERC20(signer, [signer.address], [1]),
     };
+
+    await updateAddresses(
+      {
+        axelar: {gasRecv: result.axelarGasRecv.address, gateway: result.axelarGateway.address},
+        uniswap: {
+          factory: result.uniswap.factory.address,
+          swapRouter: result.uniswap.swapRouter.address,
+        },
+        tokens: {
+          seedAsset: result.seedAsset.address,
+          usdc: result.usdcToken.address,
+          wmatic: result.wmaticToken.address,
+        },
+      },
+      hre
+    );
+
+    return result;
   }
 
   const addresses = await getAddresses(hre);
 
   return {
-    axelarGasRecv: addresses.axelar.gasRecv,
-    axelarGateway: addresses.axelar.gateway,
-    seedAsset: addresses.seedAsset,
+    axelarGasRecv: IAxelarGasService__factory.connect(addresses.axelar.gasRecv, signer),
+    axelarGateway: IAxelarGateway__factory.connect(addresses.axelar.gateway, signer),
+    seedAsset: ERC20__factory.connect(addresses.tokens.seedAsset, signer),
     uniswap: {
-      factory: addresses.uniswap.factory,
-      swapRouter: addresses.uniswap.swapRouter,
+      factory: IUniswapV3Factory__factory.connect(addresses.uniswap.factory, signer),
+      swapRouter: ISwapRouter__factory.connect(addresses.uniswap.swapRouter, signer),
     },
-    usdcToken: addresses.tokens.usdc,
-    wmaticToken: addresses.tokens.wmatic,
+    usdcToken: ERC20__factory.connect(addresses.tokens.usdc, signer),
+    wmaticToken: ERC20__factory.connect(addresses.tokens.wmatic, signer),
   };
-}
-
-/**
- * Placeholder function until real mock deploy functions are created
- */
-async function deployMockContract(
-  admin: SignerWithAddress,
-  hre: HardhatRuntimeEnvironment
-): Promise<string> {
-  return (await deployUniswapMocks(admin, hre)).factory;
 }

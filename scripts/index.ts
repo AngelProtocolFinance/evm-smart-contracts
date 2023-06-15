@@ -1,4 +1,4 @@
 export * from "./deployAngelProtocol";
 export * from "./deployCommonLibraries";
-export * from "./mocks";
+export * from "../utils/deploy";
 export * from "./updateRegistrar";

@@ -135,7 +135,6 @@ export type AddressObj = {
     implementation: string;
     proxy: string;
   };
-  seedAsset: string;
   subDao: {
     emitter: {
       implementation: string;
@@ -149,6 +148,7 @@ export type AddressObj = {
     dai: string;
     halo: string;
     reserveToken: string;
+    seedAsset: string;
     usdc: string;
     wmatic: string;
   };
