@@ -37,7 +37,8 @@ library RegistrarMessages {
     address charitySharesContract;
     address fundraisingContract;
     address applicationsReview;
-    address uniswapSwapRouter;
+    address uniswapRouter;
+    address uniswapFactory;
     address multisigFactory;
     address multisigEmitter;
     address charityProposal;
@@ -86,6 +87,7 @@ library RegistrarMessages {
     uint256 endowmentMultisigContract;
     // AngelCoreStruct.AcceptedTokens acceptedTokens;
     address applicationsReview;
-    address uniswapSwapRouter;
+    address uniswapRouter;
+    address uniswapFactory;
   }
 }
