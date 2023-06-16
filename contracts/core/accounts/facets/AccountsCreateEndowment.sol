@@ -47,11 +47,7 @@ contract AccountsCreateEndowment is IAccountsCreateEndowment, ReentrancyGuardFac
     AngelCoreStruct.validateFee(details.depositFee);
     AngelCoreStruct.validateFee(details.balanceFee);
 
-    if (details.members.length == 0) {
-      details.members = new address[](1);
-      details.members[0] = msg.sender;
-    }
-
+    require(details.members.length >= 1, "No members provided for Endowment multisig");
     require(details.threshold > 0, "Threshold must be a positive number");
 
     if (AngelCoreStruct.EndowmentType.Normal == details.endowType) {
