@@ -258,10 +258,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
   ) public nonReentrant returns (bool) {
     require(msg.sender == state.config.owner, "Unauthorized");
     require(members.length < state.config.fundMemberLimit, "Fund member limit exceeded");
-    require(
-      !fundIsExpired(state.FUNDS[fundId], block.timestamp),
-      "Index Fund Expired"
-    );
+    require(!fundIsExpired(state.FUNDS[fundId], block.timestamp), "Index Fund Expired");
 
     // set members on fund
     state.FUNDS[fundId].members = members;
@@ -350,10 +347,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
             state.state.roundDonations = 0;
             // set state active fund to next fund for next loop iteration
 
-            state.state.activeFund = rotateFund(
-              state.state.activeFund,
-              block.timestamp
-            );
+            state.state.activeFund = rotateFund(state.state.activeFund, block.timestamp);
 
             emit UpdateActiveFund(state.state.activeFund);
             loopDonation = goalLeftover;
@@ -634,10 +628,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
    * @param envTime rent block time
    * @return New active fund
    */
-  function rotateFund(
-    uint256 rFund,
-    uint256 envTime
-  ) internal view returns (uint256) {
+  function rotateFund(uint256 rFund, uint256 envTime) internal view returns (uint256) {
     AngelCoreStruct.IndexFund[] memory activeFunds = new AngelCoreStruct.IndexFund[](
       state.rotatingFunds.length
     );
