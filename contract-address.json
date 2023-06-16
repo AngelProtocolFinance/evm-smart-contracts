@@ -266,6 +266,7 @@
     },
     "libraries": {
       "angelCoreStruct": "0x44c5de21354FE3B468ec9b53cF8570D0Eec463C1",
+      "charityApplicationLib": "",
       "stringArray": "0x92276194Dd0986ED43A9402C20A4275C2c4DB89c"
     },
     "multiSig": {
