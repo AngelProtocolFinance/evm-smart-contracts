@@ -68,15 +68,15 @@ export default defineConfig({
       },
       axelar: {
         gasService: parseAddress(mumbaiData.axelar.gasService),
-        gateway: parseAddress(mumbaiData.axelar.gateway)
+        gateway: parseAddress(mumbaiData.axelar.gateway),
       },
       charityApplication: {
         implementation: parseAddress(mumbaiData.charityApplication.implementation),
-        // proxy: parseAddress(mumbaiData.charityApplication.proxy),
+        proxy: parseAddress(mumbaiData.charityApplication.proxy),
       },
       donationMatch: {
         implementation: parseAddress(mumbaiData.donationMatch.implementation),
-      //   emitter: parseAddress(mumbaiData.donationMatch.emitter),
+        //   emitter: parseAddress(mumbaiData.donationMatch.emitter),
       },
       donationMatchCharity: {
         implementation: parseAddress(mumbaiData.donationMatchCharity.implementation),
@@ -88,6 +88,7 @@ export default defineConfig({
       },
       libraries: {
         angelCoreStruct: parseAddress(mumbaiData.libraries.angelCoreStruct),
+        charityApplicationLib: parseAddress(mumbaiData.libraries.charityApplicationLib),
         stringArray: parseAddress(mumbaiData.libraries.stringArray),
       },
       multiSig: {
