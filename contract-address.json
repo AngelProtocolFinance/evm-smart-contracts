@@ -292,8 +292,8 @@
       "proxy": "0x74f62eE5330EE95B72c6CDFA301Be106bDe5D454"
     },
     "router": {
-      "implementation": "",
-      "proxy": ""
+      "implementation": "0x52F717838bae444AB9F4aC9f648A32286D88404E",
+      "proxy": "0xdf05B770A292480e50172217Ec9b80B1C150103B"
     },
     "subDao": {
       "emitter": {
