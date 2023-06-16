@@ -216,14 +216,15 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
 
     // find the lowest fee pool available, if any, to swap tokens
     IUniswapV3Factory factory = IUniswapV3Factory(uniswapFactory);
-    uint24 poolFee = 0;
+    uint24 poolFee;
     // UniSwap V3 Pools support fees of 0.05%(500 bps), 0.3%(3000 bps), or 1%(10000 bps)
-    if (factory.getPool(tokenIn, tokenOut, 500) != address(0)) {
-        poolFee = 500;
-    } else if (factory.getPool(tokenIn, tokenOut, 3000) != address(0)) {
-        poolFee = 3000;
+    // 3000 is the default tier today, so we start with that to hopefully save some gas
+    if (factory.getPool(tokenIn, tokenOut, 3000) != address(0)) {
+      poolFee = 3000;
+    } else if (factory.getPool(tokenIn, tokenOut, 500) != address(0)) {
+      poolFee = 500;
     } else if (factory.getPool(tokenIn, tokenOut, 10000) != address(0)) {
-        poolFee = 10000;
+      poolFee = 10000;
     }
     require(poolFee > 0, "No pool found to swap");
 
