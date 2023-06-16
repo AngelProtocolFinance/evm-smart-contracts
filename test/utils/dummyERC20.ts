@@ -9,17 +9,12 @@ export async function mint(token: DummyERC20, to: string, amt: number) {
 }
 
 export async function deployDummyERC20(
-  deployer: SignerWithAddress, 
-  recipients?: string[], 
-  amounts?: number[]
-) {
+  deployer : SignerWithAddress,
+  decimals? : number
+) : Promise<DummyERC20> {
+  const decs = decimals? decimals : 0
   let Token = new DummyERC20__factory(deployer);
-  const token = await Token.deploy();
+  const token = await Token.deploy(decs);
   await token.deployed();
-  if (recipients && amounts) {
-    for (var i in recipients) {
-      await mint(token, recipients[i], amounts[i]);
-    }
-  }
   return token;
 }

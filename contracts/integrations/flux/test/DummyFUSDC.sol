@@ -10,7 +10,9 @@ contract DummyFUSDC is IFlux, ERC20 {
   
   ERC20 underlying;
   uint256 responseAmt;
-  uint256 exRate; 
+  uint256 exRate;
+  bool approveAllowed;
+  bool transferAllowed;
 
   constructor(address _underlying) ERC20("fUSDC", "fUSDC") {
     underlying = ERC20(_underlying);
@@ -25,6 +27,12 @@ contract DummyFUSDC is IFlux, ERC20 {
   function setExRate(uint256 _exRate) external {
     exRate = _exRate;
   } 
+  function setApproveAllowed(bool _allowed) external {
+    approveAllowed = _allowed;
+  }
+  function setTransferAllowed(bool _allowed) external {
+    transferAllowed = _allowed;
+  }
 
   /*//////////////////////////////////////////////////////////////
                         METHODS USED IN INTEGRATION
@@ -49,6 +57,10 @@ contract DummyFUSDC is IFlux, ERC20 {
     return exRate;
   }
 
+  function decimals() public override view returns (uint8) {
+    return 8;
+  }
+
   /*//////////////////////////////////////////////////////////////
                   IFACE METHODS SHARED WITH ERC20 
   //////////////////////////////////////////////////////////////*/
@@ -57,7 +69,9 @@ contract DummyFUSDC is IFlux, ERC20 {
   }
 
   function approve(address spender, uint256 amount) public override(IFlux,ERC20) returns (bool) {
-    return super.approve(spender, amount);
+    if(approveAllowed) {
+      return super.approve(spender, amount);
+    } else {return false;}
   } 
 
   function balanceOf(address account) public view override(IFlux,ERC20) returns (uint256) {
@@ -65,7 +79,9 @@ contract DummyFUSDC is IFlux, ERC20 {
   } 
 
   function transfer(address to, uint256 amount) public override(IFlux,ERC20) returns (bool) {
-    return super.transfer(to, amount);
+    if(transferAllowed) {
+      return super.transfer(to, amount);
+    } else {return false;}
   }
 
   function transferFrom(
@@ -73,7 +89,9 @@ contract DummyFUSDC is IFlux, ERC20 {
         address to,
         uint256 amount
   ) public override(IFlux,ERC20) returns (bool) {
+    if(transferAllowed) {
       return super.transferFrom(from, to, amount);
+    } else {return false;}
   }
 
   /*//////////////////////////////////////////////////////////////

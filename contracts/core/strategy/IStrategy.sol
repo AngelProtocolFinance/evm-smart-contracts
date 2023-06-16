@@ -16,6 +16,7 @@ interface IStrategy {
   event LogError(string message);
   event LogErrorBytes(bytes data);
 
+  error AdminOnly();
   error TransferFailed();
   error ApproveFailed();
   error DepositFailed();

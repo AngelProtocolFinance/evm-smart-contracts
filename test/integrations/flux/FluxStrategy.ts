@@ -6,7 +6,8 @@ import {
   DummyVault,
   IStrategy,
   FluxStrategy,
-  FluxStrategy__factory
+  FluxStrategy__factory,
+  DummyFUSDC
 } from "typechain-types";
 import {
   deployDummyFUSDC,
@@ -44,4 +45,123 @@ describe("FluxStrategy", function () {
     await flux.deployed();
     return flux;
   }
+
+  describe("during deployment", async function () {
+    let flux : FluxStrategy
+    before(async function (){
+      [owner, user, collector] = await ethers.getSigners()
+    })
+    it("deploys", async function () {
+      flux = await deployFluxStrategy({baseToken: user.address, yieldToken: user.address, admin: owner.address})
+      expect(flux) 
+    })
+    it("sets the config according to the input params", async function () {
+      flux = await deployFluxStrategy({baseToken: user.address, yieldToken: collector.address, admin: owner.address})
+      let config = await flux.getStrategyConfig()
+      expect(config.baseToken).to.equal(user.address)
+      expect(config.yieldToken).to.equal(collector.address)
+      expect(config.strategySelector).to.equal(DEFAULT_STRATEGY_SELECTOR)
+      expect(config.admin).to.equal(owner.address)
+    })
+  })
+
+  describe("pause extension", async function () {
+    let flux: FluxStrategy
+    beforeEach(async function () {
+      flux = await deployFluxStrategy({baseToken: user.address, yieldToken: user.address, admin: owner.address})
+    })
+    it("reverts if a non-admin calls the `pause` method", async function () {
+      await expect(flux.connect(user).pause()).to.be.revertedWithCustomError(flux, "AdminOnly")
+    })
+    it("reverts if a non-admin calls the `unpause` method", async function () {
+      await flux.pause()
+      await expect(flux.connect(user).unpause()).to.be.revertedWithCustomError(flux, "AdminOnly")
+    })
+    it("pauses and unpauses when called by the admin", async function () {
+      await flux.pause()
+      let status = await flux.paused()
+      expect(status).to.be.true
+      await flux.unpause()
+      status = await flux.paused()
+      expect(status).to.be.false
+    })
+  })
+  describe("upon get and set config", async function () {
+    let flux: FluxStrategy
+    beforeEach(async function () {
+      flux = await deployFluxStrategy({baseToken: user.address, yieldToken: user.address, admin: owner.address})
+    })
+    it("reverts if set is called by a non-admin", async function () {
+      await expect(flux.connect(user).setStrategyConfig({
+        baseToken: ethers.constants.AddressZero,
+        yieldToken: ethers.constants.AddressZero,
+        strategySelector: "0xffffffff",
+        admin: user.address
+      }))
+      .to.be.revertedWithCustomError(flux, "AdminOnly")
+    })
+    it("sets the config and emits the config changed event", async function () {
+      await expect(flux.setStrategyConfig({
+        baseToken: ethers.constants.AddressZero,
+        yieldToken: ethers.constants.AddressZero,
+        strategySelector: "0xffffffff",
+        admin: user.address
+      }))
+      .to.emit(flux, "ConfigChanged")
+      let config = await flux.getStrategyConfig()
+      expect(config.baseToken).to.equal(ethers.constants.AddressZero)
+      expect(config.yieldToken).to.equal(ethers.constants.AddressZero)
+      expect(config.strategySelector).to.equal("0xffffffff")
+      expect(config.admin).to.equal(user.address)
+    })
+  })
+  describe("upon Deposit", async function () {
+    let flux: FluxStrategy
+    let baseToken: DummyERC20
+    let yieldToken: DummyFUSDC
+    before(async function () {
+      baseToken = await deployDummyERC20(owner, 6)
+      yieldToken = await deployDummyFUSDC(owner, baseToken.address)
+    })
+    beforeEach(async function () {
+      flux = await deployFluxStrategy({
+        baseToken: baseToken.address, 
+        yieldToken: yieldToken.address,  
+        admin: owner.address
+      })
+    })
+    it("reverts when paused", async function () {
+      await flux.pause()
+      await expect(flux.deposit(1)).to.revertedWith("Pausable: paused")
+    })
+    it("reverts if the baseToken transfer fails", async function () {
+      await baseToken.mint(owner.address, 1)
+      await baseToken.setTransferAllowed(false)
+      await expect(flux.deposit(1)).to.be.revertedWithCustomError(flux, "TransferFailed")
+      await baseToken.setTransferAllowed(true)
+    })
+    it("reverts if the yieldToken approve fails", async function () {
+      await baseToken.mint(owner.address, 1)
+      await baseToken.approve(flux.address, 1)
+      await yieldToken.setResponseAmt(1)
+      await yieldToken.setApproveAllowed(false)
+      await expect(flux.deposit(1)).to.be.revertedWithCustomError(flux, "ApproveFailed")
+      await yieldToken.setApproveAllowed(true)
+    })
+    it("correctly executes the deposit", async function () {
+      await baseToken.mint(owner.address, 10)
+      await baseToken.approve(flux.address, 10)
+      await yieldToken.setResponseAmt(10)
+      expect(await flux.deposit(10))
+      let baseTokenBal = await baseToken.balanceOf(yieldToken.address)
+      let yieldBal = await yieldToken.balanceOf(flux.address)
+      let vaultBalApproved = await yieldToken.allowance(flux.address, owner.address)
+      expect(baseTokenBal).to.equal(10)
+      expect(yieldBal).to.equal(10)
+      expect(vaultBalApproved).to.equal(yieldBal)
+    })
+  })
+  describe("upon Withdrawal", async function () {
+
+  })
 })

@@ -5,11 +5,18 @@ pragma solidity >=0.8.0;
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract DummyERC20 is ERC20 {
-  uint8 tokenDecimals = 18; // default for erc20
   bool approveAllowed = true;
   bool transferAllowed = true;
+  uint8 tokenDecimals;
 
-  constructor() ERC20("Token", "TKN") {}
+  constructor(uint8 _decimals) ERC20("Token", "TKN") {
+    if(_decimals == 0) {
+      tokenDecimals = 18;
+    }
+    else {
+      tokenDecimals = _decimals;
+    }
+  }
 
   function mint(address account, uint256 amount) external {
     _mint(account, amount);

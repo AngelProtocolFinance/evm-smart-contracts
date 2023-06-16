@@ -25,7 +25,9 @@ contract FluxStrategy is IStrategy, Pausable {
   //////////////////////////////////////////////////////////////*/
 
   modifier onlyAdmin() {
-    require(_msgSender() == config.admin);
+    if(_msgSender() != config.admin) {
+      revert AdminOnly();
+    }
     _;
   }
 
