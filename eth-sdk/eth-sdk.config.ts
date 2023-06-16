@@ -3,7 +3,7 @@ import type {Opaque} from "ts-essentials";
 import type {ZodTypeDef} from "zod";
 import {z} from "zod";
 
-import {DEFAULT_CONTRACT_ADDRESS_FILE_PATH, AddressObj, getAddressesByNetworkId} from "utils";
+import {DEFAULT_CONTRACT_ADDRESS_FILE_PATH, getAddressesByNetworkId, AddressObj} from "../utils";
 
 type AddressInput = `0x${string}`;
 type Address = Opaque<AddressInput, "Address">;
@@ -31,7 +31,7 @@ export function parseAddress(address: string): Address {
  * file based on the network ID passed
  */
 const mumbaiData: AddressObj = getAddressesByNetworkId(80001, DEFAULT_CONTRACT_ADDRESS_FILE_PATH);
-const polygonData: AddressObj = getAddressesByNetworkId(137, DEFAULT_CONTRACT_ADDRESS_FILE_PATH);
+// const polygonData: AddressObj = getAddressesByNetworkId(137, DEFAULT_CONTRACT_ADDRESS_FILE_PATH);
 
 export default defineConfig({
   contracts: {
@@ -66,13 +66,17 @@ export default defineConfig({
           ownershipFacet: parseAddress(mumbaiData.accounts.facets.ownershipFacet),
         },
       },
+      axelar: {
+        gasService: parseAddress(mumbaiData.axelar.gasService),
+        gateway: parseAddress(mumbaiData.axelar.gateway)
+      },
       charityApplication: {
         implementation: parseAddress(mumbaiData.charityApplication.implementation),
-        proxy: parseAddress(mumbaiData.charityApplication.proxy),
+        // proxy: parseAddress(mumbaiData.charityApplication.proxy),
       },
       donationMatch: {
         implementation: parseAddress(mumbaiData.donationMatch.implementation),
-        emitter: parseAddress(mumbaiData.donationMatch.emitter),
+      //   emitter: parseAddress(mumbaiData.donationMatch.emitter),
       },
       donationMatchCharity: {
         implementation: parseAddress(mumbaiData.donationMatchCharity.implementation),
@@ -83,9 +87,8 @@ export default defineConfig({
         proxy: parseAddress(mumbaiData.indexFund.proxy),
       },
       libraries: {
-        angelCoreStructLibrary: parseAddress(mumbaiData.libraries.angelCoreStruct),
-        charityApplicationLib: parseAddress(mumbaiData.libraries.charityApplicationLib),
-        stringLibrary: parseAddress(mumbaiData.libraries.stringArray),
+        angelCoreStruct: parseAddress(mumbaiData.libraries.angelCoreStruct),
+        stringArray: parseAddress(mumbaiData.libraries.stringArray),
       },
       multiSig: {
         applications: {
