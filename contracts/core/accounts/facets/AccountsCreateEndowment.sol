@@ -28,7 +28,7 @@ contract AccountsCreateEndowment is IAccountsCreateEndowment, ReentrancyGuardFac
    */
   function createEndowment(
     AccountMessages.CreateEndowmentRequest memory details
-  ) public nonReentrant returns (uint32) {
+  ) public nonReentrant returns (uint32 newEndowId) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
     address registrarAddress = state.config.registrarContract;
@@ -49,7 +49,7 @@ contract AccountsCreateEndowment is IAccountsCreateEndowment, ReentrancyGuardFac
 
     if (details.members.length == 0) {
       details.members = new address[](1);
-      details.members[0] = details.owner;
+      details.members[0] = msg.sender;
     }
 
     require(details.threshold > 0, "Threshold must be a positive number");
@@ -73,18 +73,23 @@ contract AccountsCreateEndowment is IAccountsCreateEndowment, ReentrancyGuardFac
       donationMatchContract = registrar_config.donationMatchCharitesContract;
     }
 
-    require(Validator.addressChecker(details.owner), "Invalid owner address");
+    uint32 newEndowId = state.config.nextAccountId;
+    address owner = IEndowmentMultiSigFactory(registrar_config.multisigFactory).create(
+      newEndowId,
+      registrar_config.multisigEmitter,
+      details.members,
+      details.threshold
+    );
 
-    state.ENDOWMENTS[state.config.nextAccountId] = AccountStorage.Endowment({
-      owner: details.owner,
+    state.ENDOWMENTS[newEndowId] = AccountStorage.Endowment({
+      owner: owner,
       name: details.name,
       sdgs: details.sdgs,
       endowType: details.endowType,
       maturityTime: details.maturityTime,
       rebalance: IRegistrar(registrarAddress).getRebalanceParams(),
-      kycDonorsOnly: details.kycDonorsOnly,
       pendingRedemptions: 0,
-      multisig: details.owner,
+      multisig: owner,
       dao: address(0),
       daoToken: address(0),
       donationMatchActive: false,
@@ -107,53 +112,12 @@ contract AccountsCreateEndowment is IAccountsCreateEndowment, ReentrancyGuardFac
       referralId: details.referralId
     });
 
-    state.STATES[state.config.nextAccountId].closingEndowment = false;
-
-    state.ENDOWMENTS[state.config.nextAccountId].owner = IEndowmentMultiSigFactory(
-      registrar_config.multisigFactory
-    ).create(
-        state.config.nextAccountId,
-        registrar_config.multisigEmitter,
-        details.members,
-        details.threshold
-      );
-    state.ENDOWMENTS[state.config.nextAccountId].multisig = state
-      .ENDOWMENTS[state.config.nextAccountId]
-      .owner;
-
-    if (details.createDao) {
-      subDaoMessage.InstantiateMsg memory createDaoMessage = subDaoMessage.InstantiateMsg({
-        id: state.config.nextAccountId,
-        quorum: details.dao.quorum,
-        owner: state.ENDOWMENTS[state.config.nextAccountId].owner,
-        threshold: details.dao.threshold,
-        votingPeriod: details.dao.votingPeriod,
-        timelockPeriod: details.dao.timelockPeriod,
-        expirationPeriod: details.dao.expirationPeriod,
-        proposalDeposit: details.dao.proposalDeposit,
-        snapshotPeriod: details.dao.snapshotPeriod,
-        token: details.dao.token,
-        endowType: state.ENDOWMENTS[state.config.nextAccountId].endowType,
-        endowOwner: state.ENDOWMENTS[state.config.nextAccountId].owner,
-        registrarContract: registrarAddress
-      });
-
-      address daoAddress = IAccountsDeployContract(address(this)).createDaoContract(
-        createDaoMessage
-      );
-      state.ENDOWMENTS[state.config.nextAccountId].dao = daoAddress;
-
-      subDaoMessage.QueryConfigResponse memory subDaoConfid = ISubDao(daoAddress).queryConfig();
-
-      state.ENDOWMENTS[state.config.nextAccountId].daoToken = subDaoConfid.daoToken;
-    }
-
+    state.STATES[newEndowId].closingEndowment = false;
     state.config.nextAccountId += 1;
 
     emit EndowmentCreated(
-      state.config.nextAccountId - 1,
-      state.ENDOWMENTS[state.config.nextAccountId - 1]
+      newEndowId,
+      state.ENDOWMENTS[newEndowId]
     );
-    return state.config.nextAccountId - 1;
   }
 }
