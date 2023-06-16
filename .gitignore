@@ -10,6 +10,7 @@ yarn-error.log
 .nvmrc
 dist
 tasks/temp_index.ts
+tasks/temp_task.ts
 
 #Hardhat files
 cache
