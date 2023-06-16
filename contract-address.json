@@ -186,8 +186,8 @@
       "gateway": "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B"
     },
     "charityApplication": {
-      "implementation": "0x79eB828d1bBdfBC2c8415435676433572E1b2C55",
-      "proxy": ""
+      "implementation": "0x0531efd3161c06014cB7a89B222BD0035e1A0E96",
+      "proxy": "0x6c2336467Ba4056313F8c8a3399531D4b652d042"
     },
     "donationMatch": {
       "emitter": "",
@@ -266,6 +266,7 @@
     },
     "libraries": {
       "angelCoreStruct": "0x44c5de21354FE3B468ec9b53cF8570D0Eec463C1",
+      "charityApplicationLib": "0xc61C8dD504798e8a6080e3B20C6aC9E71C686865",
       "stringArray": "0x92276194Dd0986ED43A9402C20A4275C2c4DB89c"
     },
     "multiSig": {
@@ -279,11 +280,11 @@
       },
       "endowment": {
         "emitter": {
-          "implementation": "0xD4ec4051656694b3bBF192A0586C230409c2d7F2",
-          "proxy": "0xa202fD0C8c173cd76cb3AFdfbD7C91eE23E7390C"
+          "implementation": "0xf63Ba726a364a8c9264d8E755e72a1130137C338",
+          "proxy": "0xf51e68c4548bb42d11DD14F32957F348B0d5778A"
         },
-        "factory": "0xde994AefC603D69Fcb57A8C68D4B507303F7633b",
-        "implementation": "0x55579664531e806956a9183cC7a8bc8ae58C438F"
+        "factory": "0xBCB725c55e729d39BFD16eB4eC735A39BC0550DD",
+        "implementation": "0x7aCD96e54E176f29362F4b284c836e1ae0cA1d73"
       }
     },
     "registrar": {
@@ -291,8 +292,8 @@
       "proxy": "0x74f62eE5330EE95B72c6CDFA301Be106bDe5D454"
     },
     "router": {
-      "implementation": "",
-      "proxy": ""
+      "implementation": "0x52F717838bae444AB9F4aC9f648A32286D88404E",
+      "proxy": "0xdf05B770A292480e50172217Ec9b80B1C150103B"
     },
     "subDao": {
       "emitter": {
