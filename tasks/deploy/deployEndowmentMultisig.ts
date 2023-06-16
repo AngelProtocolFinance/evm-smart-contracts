@@ -1,6 +1,7 @@
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {confirmAction, getAddresses, isLocalNetwork, logger, updateRegistrarConfig} from "utils";
+import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
+import {updateRegistrarConfig} from "../helpers";
 
 type TaskArgs = {
   apTeamMultisig?: string;

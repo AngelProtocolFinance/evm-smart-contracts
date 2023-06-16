@@ -4,8 +4,8 @@ import {
   DummyGateway,
   DummyGasService__factory,
   DummyGasService,
-} from "../../typechain-types";
-import {logger} from "..";
+} from "typechain-types";
+import {logger} from "utils";
 
 export async function deployDummyGateway(deployer: SignerWithAddress): Promise<DummyGateway> {
   logger.out("Deploying DummyGateway...");

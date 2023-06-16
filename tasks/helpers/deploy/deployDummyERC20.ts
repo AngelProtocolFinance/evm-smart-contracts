@@ -1,6 +1,6 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {DummyERC20__factory, DummyERC20} from "../../typechain-types";
-import {AddressObj, logger} from "..";
+import {DummyERC20__factory, DummyERC20} from "typechain-types";
+import {logger} from "utils";
 
 export async function mint(token: DummyERC20, to: string, amt: number) {
   await token.mint(to, amt);

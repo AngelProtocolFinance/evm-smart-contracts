@@ -1,6 +1,7 @@
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {confirmAction, getAddresses, isLocalNetwork, logger, updateRegistrarConfig} from "utils";
+import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
+import {updateRegistrarConfig} from "../helpers";
 
 type TaskArgs = {
   apTeamMultisig?: string;

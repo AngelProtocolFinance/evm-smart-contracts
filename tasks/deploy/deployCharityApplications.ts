@@ -1,6 +1,7 @@
 import {deployCharityApplication} from "contracts/multisigs/charity_applications/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {confirmAction, getAddresses, isLocalNetwork, logger, updateRegistrarConfig} from "utils";
+import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
+import {updateRegistrarConfig} from "../helpers";
 
 type TaskArgs = {
   accountsDiamond?: string;

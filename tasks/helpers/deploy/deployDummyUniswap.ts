@@ -5,8 +5,8 @@ import {
   ISwapRouter__factory,
   IUniswapV3Factory,
   IUniswapV3Factory__factory,
-} from "../../typechain-types";
-import {logger} from "..";
+} from "typechain-types";
+import {logger} from "utils";
 
 export async function deployDummyUniswap(
   signer: SignerWithAddress,

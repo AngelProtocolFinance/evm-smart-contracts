@@ -1,6 +1,7 @@
 import {task, types} from "hardhat/config";
 import {FACET_NAMES_USING_ANGEL_CORE_STRUCT} from "tasks/upgrade/upgradeFacets/constants";
-import {confirmAction, deployCommonLibraries, isLocalNetwork, logger} from "utils";
+import {confirmAction, isLocalNetwork, logger} from "utils";
+import {deployCommonLibraries} from "../helpers";
 
 task("deploy:Libraries", "Will deploy Libraries")
   .addOptionalParam(
@@ -21,11 +22,11 @@ task("deploy:Libraries", "Will deploy Libraries")
 
       await deployCommonLibraries(verify_contracts, hre);
 
-      await hre.run("upgrade:facets", {
-        facets: FACET_NAMES_USING_ANGEL_CORE_STRUCT,
-        verify: taskArgs.verify,
-        yes: true,
-      });
+      // await hre.run("upgrade:facets", {
+      //   facets: FACET_NAMES_USING_ANGEL_CORE_STRUCT,
+      //   verify: taskArgs.verify,
+      //   yes: true,
+      // });
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
