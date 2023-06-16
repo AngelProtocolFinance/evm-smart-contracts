@@ -113,6 +113,10 @@ export default defineConfig({
         implementation: parseAddress(mumbaiData.registrar.implementation),
         proxy: parseAddress(mumbaiData.registrar.proxy),
       },
+      router: {
+        implementation: parseAddress(mumbaiData.router.implementation),
+        proxy: parseAddress(mumbaiData.router.proxy),
+      },
       subDao: {
         emitter: {
           implementation: parseAddress(mumbaiData.subDao.emitter.implementation),
