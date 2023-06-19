@@ -218,6 +218,43 @@ contract AccountsDepositWithdrawEndowments is
     bool mature = (tempEndowment.maturityTime != 0 &&
       block.timestamp >= tempEndowment.maturityTime);
 
+    // ** NORMAL TYPE WITHDRAWAL RULES **
+    // In both balance types:
+    //      The endowment multisig OR beneficiaries allowlist addresses [if populated] can withdraw. After
+    //      maturity has been reached, only addresses in Maturity Allowlist may withdraw. If the Maturity
+    //      Allowlist is not populated, then only the endowment multisig is allowed to withdraw.
+    if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Normal) {
+      // determine if msg sender is allowed to withdraw based on rules and maturity status
+      bool senderAllowed = false;
+      if (mature) {
+        if (tempEndowment.maturityAllowlist.length > 0) {
+          for (uint256 i = 0; i < tempEndowment.maturityAllowlist.length; i++) {
+            if (tempEndowment.maturityAllowlist[i] == msg.sender) {
+              senderAllowed = true;
+            }
+          }
+          require(senderAllowed, "Sender address is not listed in maturityAllowlist.");
+        } else {
+          require(
+            msg.sender == tempEndowment.owner,
+            "Sender address is not the Endowment Multisig."
+          );
+        }
+      } else {
+        if (tempEndowment.allowlistedBeneficiaries.length > 0) {
+          for (uint256 i = 0; i < tempEndowment.allowlistedBeneficiaries.length; i++) {
+            if (tempEndowment.allowlistedBeneficiaries[i] == msg.sender) {
+              senderAllowed = true;
+            }
+          }
+        }
+        require(
+          senderAllowed || msg.sender == tempEndowment.owner,
+          "Sender address is not listed in allowlistedBeneficiaries or the Endowment Multisig."
+        );
+      }
+    }
+
     for (uint256 t = 0; t < tokens.length; t++) {
       // ** SHARED LOCKED WITHDRAWAL RULES **
       // Can withdraw early for a (possible) penalty fee
@@ -238,43 +275,6 @@ contract AccountsDepositWithdrawEndowments is
                 .bps
             )
           ).div(AngelCoreStruct.FEE_BASIS);
-        }
-      }
-
-      // ** NORMAL TYPE WITHDRAWAL RULES **
-      // In both balance types:
-      //      The endowment multisig OR beneficiaries allowlist addresses [if populated] can withdraw. After
-      //      maturity has been reached, only addresses in Maturity Allowlist may withdraw. If the Maturity
-      //      Allowlist is not populated, then only the endowment multisig is allowed to withdraw.
-      if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Normal) {
-        // determine if msg sender is allowed to withdraw based on rules and maturity status
-        bool senderAllowed = false;
-        if (mature) {
-          if (tempEndowment.maturityAllowlist.length > 0) {
-            for (uint256 i = 0; i < tempEndowment.maturityAllowlist.length; i++) {
-              if (tempEndowment.maturityAllowlist[i] == msg.sender) {
-                senderAllowed = true;
-              }
-            }
-            require(senderAllowed, "Sender address is not listed in maturityAllowlist.");
-          } else {
-            require(
-              msg.sender == tempEndowment.owner,
-              "Sender address is not the Endowment Multisig."
-            );
-          }
-        } else {
-          if (tempEndowment.allowlistedBeneficiaries.length > 0) {
-            for (uint256 i = 0; i < tempEndowment.allowlistedBeneficiaries.length; i++) {
-              if (tempEndowment.allowlistedBeneficiaries[i] == msg.sender) {
-                senderAllowed = true;
-              }
-            }
-          }
-          require(
-            senderAllowed || msg.sender == tempEndowment.owner,
-            "Sender address is not listed in allowlistedBeneficiaries or the Endowment Multisig."
-          );
         }
       }
 
