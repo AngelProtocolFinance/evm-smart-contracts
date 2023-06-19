@@ -69,7 +69,7 @@ contract AccountsCreateEndowment is IAccountsCreateEndowment, ReentrancyGuardFac
       donationMatchContract = registrar_config.donationMatchCharitesContract;
     }
 
-    uint32 newEndowId = state.config.nextAccountId;
+    newEndowId = state.config.nextAccountId;
     address owner = IEndowmentMultiSigFactory(registrar_config.multisigFactory).create(
       newEndowId,
       registrar_config.multisigEmitter,
