@@ -35,9 +35,7 @@ library CharityApplicationLib {
 
     // check all sdgs id
     for (uint256 i = 0; i < charityApplication.sdgs.length; i++) {
-      if (
-        charityApplication.sdgs[i] > 17 || charityApplication.sdgs[i] == 0
-      ) {
+      if (charityApplication.sdgs[i] > 17 || charityApplication.sdgs[i] == 0) {
         revert("Invalid UN SDG inputs given");
       }
     }
