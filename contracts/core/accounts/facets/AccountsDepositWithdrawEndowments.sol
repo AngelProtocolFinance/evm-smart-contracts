@@ -223,36 +223,31 @@ contract AccountsDepositWithdrawEndowments is
     //      The endowment multisig OR beneficiaries allowlist addresses [if populated] can withdraw. After
     //      maturity has been reached, only addresses in Maturity Allowlist may withdraw. If the Maturity
     //      Allowlist is not populated, then only the endowment multisig is allowed to withdraw.
-    if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Normal) {
-      // determine if msg sender is allowed to withdraw based on rules and maturity status
-      bool senderAllowed = false;
-      if (mature) {
-        if (tempEndowment.maturityAllowlist.length > 0) {
-          for (uint256 i = 0; i < tempEndowment.maturityAllowlist.length; i++) {
-            if (tempEndowment.maturityAllowlist[i] == msg.sender) {
-              senderAllowed = true;
-            }
-          }
-          require(senderAllowed, "Sender address is not listed in maturityAllowlist.");
-        } else {
-          require(
-            msg.sender == tempEndowment.owner,
-            "Sender address is not the Endowment Multisig."
-          );
-        }
-      } else {
-        if (tempEndowment.allowlistedBeneficiaries.length > 0) {
-          for (uint256 i = 0; i < tempEndowment.allowlistedBeneficiaries.length; i++) {
-            if (tempEndowment.allowlistedBeneficiaries[i] == msg.sender) {
-              senderAllowed = true;
-            }
+    // ** CHARITY TYPE WITHDRAW RULES **
+    // Since charity endowments do not mature, they can be treated the same as Normal endowments
+    bool senderAllowed = false;
+    // determine if msg sender is allowed to withdraw based on rules and maturity status
+    if (mature) {
+      if (tempEndowment.maturityAllowlist.length > 0) {
+        for (uint256 i = 0; i < tempEndowment.maturityAllowlist.length; i++) {
+          if (tempEndowment.maturityAllowlist[i] == msg.sender) {
+            senderAllowed = true;
           }
         }
-        require(
-          senderAllowed || msg.sender == tempEndowment.owner,
-          "Sender address is not listed in allowlistedBeneficiaries or the Endowment Multisig."
-        );
+        require(senderAllowed, "Sender address is not listed in maturityAllowlist.");
       }
+    } else {
+      if (tempEndowment.allowlistedBeneficiaries.length > 0) {
+        for (uint256 i = 0; i < tempEndowment.allowlistedBeneficiaries.length; i++) {
+          if (tempEndowment.allowlistedBeneficiaries[i] == msg.sender) {
+            senderAllowed = true;
+          }
+        }
+      }
+      require(
+        senderAllowed || msg.sender == tempEndowment.owner,
+        "Sender address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner."
+      );
     }
 
     for (uint256 t = 0; t < tokens.length; t++) {
