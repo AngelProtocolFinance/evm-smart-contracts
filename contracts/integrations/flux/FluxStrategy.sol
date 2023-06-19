@@ -116,18 +116,18 @@ contract FluxStrategy is IStrategy, Pausable {
   /// @dev This method expects that the `amt` provided is denominated in `baseToken`
   /// @param amt the qty of the `baseToken` that should be checked for conversion rates
   /// @return yieldTokenAmt the expected qty of `yieldToken` if this strategy received `amt` of `baseToken`
-  function previewDeposit(uint256 amt) external view returns (uint256){
+  function previewDeposit(uint256 amt) external view returns (uint256) {
     // Exchange Rate == (expScale * USDC) / fUSDC
     uint256 exRate = IFlux(config.yieldToken).exchangeRateStored();
-    // Expected fUSDC == (amtUSDC * expScale / exRate) / expScale 
-    return amt.mulDivDown(expScale, exRate) / expScale;
+    // Expected fUSDC == (amtUSDC * expScale / exRate) 
+    return amt.mulDivDown(expScale, exRate);
   } 
 
   /// @notice Provide an estimate for the current exchange rate for a given withdrawal
   /// @dev This method expects that the `amt` provided is denominated in `yieldToken`
   /// @param amt the qty of the `yieldToken` that should be checked for conversion rates
   /// @return yieldTokenAmt the expected qty of `baseToken` if this strategy received `amt` of `yieldToken`
-  function previewWithdraw(uint256 amt) external view returns (uint256){
+  function previewWithdraw(uint256 amt) external view returns (uint256) {
     // Exchange Rate == (expScale * USDC) / fUSDC
     uint256 exRate = IFlux(config.yieldToken).exchangeRateStored();
     // Expected USDC == (amtfUSDC * exRate) / expScale 

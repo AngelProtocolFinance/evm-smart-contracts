@@ -3,7 +3,6 @@ import {ethers, upgrades} from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   DummyERC20,
-  DummyVault,
   IStrategy,
   FluxStrategy,
   FluxStrategy__factory,
@@ -11,10 +10,10 @@ import {
 } from "typechain-types";
 import {
   deployDummyFUSDC,
-  deployDummyVault,
   deployDummyERC20,
   DEFAULT_STRATEGY_SELECTOR
 } from "test/utils"
+import { BigNumber } from "ethers";
 
 describe("FluxStrategy", function () {
   let owner: SignerWithAddress;
@@ -235,6 +234,41 @@ describe("FluxStrategy", function () {
       let baseTokenBal = await baseToken.balanceOf(flux.address)
       expect(baseTokenBal).to.equal(10)
       expect(await baseToken.transferFrom(flux.address, owner.address, 10))
+    })
+  })
+  describe("upon previewDeposit and previewWithdraw", async function () {
+    let flux: FluxStrategy
+    let baseToken: DummyERC20
+    let yieldToken: DummyFUSDC
+    const DECIMAL_MAG = 100 // fUSDC: 8, USDC: 6
+    const EXP_SCALE = BigNumber.from(10).pow(18) // 10**18 = expScale in fUSDC contract
+    const ONE_THOUSAND = BigNumber.from("1000000000") // 1,000,000,000 = $1000
+    before(async function () {
+      baseToken = await deployDummyERC20(owner, 6)
+      yieldToken = await deployDummyFUSDC(owner, baseToken.address)
+    })
+    beforeEach(async function () {
+      flux = await deployFluxStrategy({
+        baseToken: baseToken.address, 
+        yieldToken: yieldToken.address,  
+        admin: owner.address
+      })
+    })
+    it("correctly applies the exchange rate for previewDeposit", async function () {     
+      await yieldToken.setExRate(EXP_SCALE.div(DECIMAL_MAG)) // test 1:1
+      let previewedDeposit = await flux.previewDeposit(ONE_THOUSAND)
+      expect(previewedDeposit).to.equal(ONE_THOUSAND.mul(DECIMAL_MAG))
+      await yieldToken.setExRate(EXP_SCALE.div(2).div(DECIMAL_MAG)) // test 2 : 1
+      previewedDeposit = await flux.previewDeposit(ONE_THOUSAND)
+      expect(previewedDeposit).to.equal(ONE_THOUSAND.mul(DECIMAL_MAG).mul(2))
+    })
+    it("correctly applies the exchange rate for previewWithdraw", async function ()  {
+      await yieldToken.setExRate(EXP_SCALE.div(DECIMAL_MAG)) // test 1:1 
+      let previewedWithdraw = await flux.previewWithdraw(ONE_THOUSAND.mul(DECIMAL_MAG))
+      expect(previewedWithdraw).to.equal(ONE_THOUSAND)
+      await yieldToken.setExRate(EXP_SCALE.mul(2).div(DECIMAL_MAG)) // test 2 : 1
+      previewedWithdraw = await flux.previewWithdraw(ONE_THOUSAND.mul(DECIMAL_MAG))
+      expect(previewedWithdraw).to.equal(ONE_THOUSAND.mul(2))
     })
   })
 })
