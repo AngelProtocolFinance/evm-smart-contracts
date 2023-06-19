@@ -10,6 +10,7 @@ import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
+import {IAccountsSwapRouter} from "../interfaces/IAccountsSwapRouter.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
@@ -20,7 +21,7 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
  * @title AccountsSwapRouter
  * @dev This contract manages the swaps for endowments
  */
-contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
+contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents, IAccountsSwapRouter {
   using SafeMath for uint256;
 
   /**
@@ -49,8 +50,12 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
       .queryConfig();
 
     require(
-      registrar_config.uniswapRouter != address(0) && registrar_config.uniswapFactory != address(0),
-      "Uniswap Router & Uniswap Factory addresses are not set in Registrar"
+      registrar_config.uniswapRouter != address(0),
+      "Uniswap Router address is not set in Registrar"
+    );
+    require(
+      registrar_config.uniswapFactory != address(0),
+      "Uniswap Factory addresses is not set in Registrar"
     );
     require(amountIn > 0, "Invalid Swap Input: Zero Amount");
     require(tokenIn != address(0) && tokenOut != address(0), "Invalid Swap Input: Zero Address");
