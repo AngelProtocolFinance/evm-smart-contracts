@@ -140,6 +140,22 @@ describe("FluxStrategy", function () {
       await expect(flux.deposit(1)).to.be.revertedWithCustomError(flux, "TransferFailed")
       await baseToken.setTransferAllowed(true)
     })
+    it("reverts if the baseToken approve fails", async function () {
+      await baseToken.mint(owner.address, 1)
+      await baseToken.approve(flux.address, 1)
+      await baseToken.setApproveAllowed(false)
+      await yieldToken.setResponseAmt(1)
+      await expect(flux.deposit(1)).to.be.revertedWithCustomError(flux, "ApproveFailed")
+      await baseToken.setApproveAllowed(true)
+    })
+    it("reverts if the deposit fails", async function () {
+      await baseToken.mint(owner.address, 1)
+      await baseToken.approve(flux.address, 1)
+      await yieldToken.setResponseAmt(1)
+      await yieldToken.setMintAllowed(false)
+      await expect(flux.deposit(1)).to.be.revertedWithCustomError(flux, "DepositFailed")
+      await yieldToken.setMintAllowed(true)
+    })
     it("reverts if the yieldToken approve fails", async function () {
       await baseToken.mint(owner.address, 1)
       await baseToken.approve(flux.address, 1)
@@ -155,13 +171,70 @@ describe("FluxStrategy", function () {
       expect(await flux.deposit(10))
       let baseTokenBal = await baseToken.balanceOf(yieldToken.address)
       let yieldBal = await yieldToken.balanceOf(flux.address)
-      let vaultBalApproved = await yieldToken.allowance(flux.address, owner.address)
+      expect(await yieldToken.transferFrom(flux.address, owner.address, yieldBal))
       expect(baseTokenBal).to.equal(10)
       expect(yieldBal).to.equal(10)
-      expect(vaultBalApproved).to.equal(yieldBal)
     })
   })
   describe("upon Withdrawal", async function () {
-
+    let flux: FluxStrategy
+    let baseToken: DummyERC20
+    let yieldToken: DummyFUSDC
+    const DEPOSIT_AMT = 10;
+    before(async function () {
+      baseToken = await deployDummyERC20(owner, 6)
+      yieldToken = await deployDummyFUSDC(owner, baseToken.address)
+    })
+    beforeEach(async function () {
+      flux = await deployFluxStrategy({
+        baseToken: baseToken.address, 
+        yieldToken: yieldToken.address,  
+        admin: owner.address
+      })
+      await baseToken.mint(owner.address, DEPOSIT_AMT)
+      await baseToken.approve(flux.address, DEPOSIT_AMT)
+      await yieldToken.setResponseAmt(DEPOSIT_AMT)
+      await flux.deposit(DEPOSIT_AMT)
+      await yieldToken.transferFrom(flux.address, owner.address, DEPOSIT_AMT)
+    })
+    it("reverts when paused", async function () {
+      await flux.pause()
+      await expect(flux.withdraw(1)).to.revertedWith("Pausable: paused")
+    })
+    it("reverts if the yieldToken transfer fails", async function () {
+      await yieldToken.approve(flux.address, 1)
+      await yieldToken.setTransferAllowed(false)
+      await expect(flux.withdraw(1)).to.be.revertedWithCustomError(flux, "TransferFailed")
+      await yieldToken.setTransferAllowed(true)
+    })
+    it("reverts if the yieldToken approve fails", async function () {
+      await yieldToken.approve(flux.address, 1)
+      await yieldToken.setApproveAllowed(false)
+      await yieldToken.setResponseAmt(1)
+      await expect(flux.withdraw(1)).to.be.revertedWithCustomError(flux, "ApproveFailed")
+      await yieldToken.setApproveAllowed(true)
+    })
+    it("reverts if the withdraw fails", async function () {
+      await yieldToken.approve(flux.address, 1)
+      await yieldToken.setResponseAmt(1)
+      await yieldToken.setRedeemAllowed(false)
+      await expect(flux.withdraw(1)).to.be.revertedWithCustomError(flux, "WithdrawFailed")
+      await yieldToken.setRedeemAllowed(true)
+    })
+    it("reverts if the baseToken approve fails", async function () {
+      await yieldToken.approve(flux.address, 1)
+      await yieldToken.setResponseAmt(1)
+      await baseToken.setApproveAllowed(false)
+      await expect(flux.withdraw(1)).to.be.revertedWithCustomError(flux, "ApproveFailed")
+      await baseToken.setApproveAllowed(true)
+    })
+    it("correctly executes the redemption", async function () {
+      await yieldToken.approve(flux.address, 10)
+      await yieldToken.setResponseAmt(10)
+      expect(await flux.withdraw(10))
+      let baseTokenBal = await baseToken.balanceOf(flux.address)
+      expect(baseTokenBal).to.equal(10)
+      expect(await baseToken.transferFrom(flux.address, owner.address, 10))
+    })
   })
 })

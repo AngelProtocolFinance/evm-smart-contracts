@@ -11,8 +11,10 @@ contract DummyFUSDC is IFlux, ERC20 {
   ERC20 underlying;
   uint256 responseAmt;
   uint256 exRate;
-  bool approveAllowed;
-  bool transferAllowed;
+  bool approveAllowed = true;
+  bool transferAllowed= true;
+  bool mintAllowed = true;
+  bool redeemAllowed = true;
 
   constructor(address _underlying) ERC20("fUSDC", "fUSDC") {
     underlying = ERC20(_underlying);
@@ -33,18 +35,32 @@ contract DummyFUSDC is IFlux, ERC20 {
   function setTransferAllowed(bool _allowed) external {
     transferAllowed = _allowed;
   }
+  function setMintAllowed(bool _allowed) external {
+    mintAllowed = _allowed;
+  }
+  function setRedeemAllowed(bool _allowed) external {
+    redeemAllowed = _allowed;
+  }
 
   /*//////////////////////////////////////////////////////////////
                         METHODS USED IN INTEGRATION
   //////////////////////////////////////////////////////////////*/
   function mint(uint mintAmount) external  returns (uint) {
+    if (!mintAllowed) {
+      revert();
+    }
     underlying.transferFrom(msg.sender, address(this), mintAmount);
     _mint(msg.sender, responseAmt);
+    return responseAmt;
   }
 
   function redeem(uint redeemTokens) external  returns (uint) {
+    if (!redeemAllowed) {
+      revert();
+    }
     _burn(msg.sender, redeemTokens);
     underlying.transfer(msg.sender, responseAmt);
+    return responseAmt;
   }
 
   /**

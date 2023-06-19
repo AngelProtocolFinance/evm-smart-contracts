@@ -78,6 +78,9 @@ contract FluxStrategy is IStrategy, Pausable {
     if(!IFlux(config.baseToken).transferFrom(_msgSender(), address(this), amt)) {
       revert TransferFailed();
     }
+    if(!IFlux(config.baseToken).approve(config.yieldToken, amt)) {
+      revert ApproveFailed();
+    }
     uint256 yieldTokens = _enterPosition(amt);
     if(!IFlux(config.yieldToken).approve(_msgSender(), yieldTokens)) {
       revert ApproveFailed();
@@ -97,6 +100,9 @@ contract FluxStrategy is IStrategy, Pausable {
   function withdraw(uint256 amt) external payable whenNotPaused returns (uint256){
     if(!IFlux(config.yieldToken).transferFrom(_msgSender(), address(this), amt)) {
       revert TransferFailed();
+    }
+    if(!IFlux(config.yieldToken).approve(config.yieldToken, amt)) {
+      revert ApproveFailed();
     }
     uint256 baseTokens = _withdrawPosition(amt);
     if(!IFlux(config.baseToken).approve(_msgSender(), baseTokens)) {
