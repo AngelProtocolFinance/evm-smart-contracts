@@ -51,7 +51,7 @@ contract EndowmentMultiSigEmitter {
   event EndowmentDeposit(uint256 endowmentId, address sender, uint256 value);
   event EndowmentOwnerAddition(uint256 endowmentId, address owner);
   event EndowmentOwnerRemoval(uint256 endowmentId, address owner);
-  event EndowmentRequirementChange(uint256 endowmentId, uint256 required);
+  event EndowmentApprovalsRequirementChange(uint256 endowmentId, uint256 approvalsRequired);
 
   /**
    * @notice emits MultisigCreated event
@@ -147,7 +147,7 @@ contract EndowmentMultiSigEmitter {
   /**
    * @notice emits the EndowmentOwnerAddition event
    * @param endowmentId the endowment id
-   * @param owner the owner of the endowment
+   * @param owner the added owner of the endowment
    */
   function addOwnerEndowment(uint256 endowmentId, address owner) public isEmitter {
     emit EndowmentOwnerAddition(endowmentId, owner);
@@ -156,18 +156,21 @@ contract EndowmentMultiSigEmitter {
   /**
    * @notice emits the EndowmentOwnerRemoval event
    * @param endowmentId the endowment id
-   * @param owner the owner of the endowment
+   * @param owner the removed owner of the endowment
    */
   function removeOwnerEndowment(uint256 endowmentId, address owner) public isEmitter {
     emit EndowmentOwnerRemoval(endowmentId, owner);
   }
 
   /**
-   * @notice emits the EndowmentRequirementChange event
+   * @notice emits the EndowmentApprovalsRequirementChange event
    * @param endowmentId the endowment id
-   * @param required the required number of confirmations
+   * @param approvalsRequired the required number of confirmations
    */
-  function requirementChangeEndowment(uint256 endowmentId, uint256 required) public isEmitter {
-    emit EndowmentRequirementChange(endowmentId, required);
+  function approvalsRequirementChangeEndowment(
+    uint256 endowmentId,
+    uint256 approvalsRequired
+  ) public isEmitter {
+    emit EndowmentApprovalsRequirementChange(endowmentId, approvalsRequired);
   }
 }

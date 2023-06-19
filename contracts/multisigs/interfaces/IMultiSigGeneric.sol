@@ -16,7 +16,7 @@ abstract contract IMultiSigGeneric is IERC165 {
   event Deposit(address indexed sender, uint256 value);
   event OwnerAddition(address indexed owner);
   event OwnerRemoval(address indexed owner);
-  event RequirementChange(uint256 required);
+  event ApprovalsRequirementChange(uint256 approvalsRequired);
   event ExecutionRequiredChange(bool requireExecution);
 
   /// @dev Receive function allows to deposit ether.
@@ -29,22 +29,22 @@ abstract contract IMultiSigGeneric is IERC165 {
   //     public
   //     virtual;
 
-  /// @dev Allows to add a new owner. Transaction has to be sent by wallet.
-  /// @param owner Address of new owner.
-  function addOwner(address owner) public virtual;
+  /// @dev Allows to add new owners. Transaction has to be sent by wallet.
+  /// @param owners Addresses of new owners.
+  function addOwners(address[] memory owners) public virtual;
 
-  /// @dev Allows to remove an owner. Transaction has to be sent by wallet.
-  /// @param owner Address of owner.
-  function removeOwner(address owner) public virtual;
+  /// @dev Allows to remove owners. Transaction has to be sent by wallet.
+  /// @param owners Addresses of ousted owners.
+  function removeOwners(address[] memory owners) public virtual;
 
   /// @dev Allows to replace an owner with a new owner. Transaction has to be sent by wallet.
-  /// @param owner Address of owner to be replaced.
+  /// @param currOwner Address of owner to be replaced.
   /// @param newOwner Address of new owner.
-  function replaceOwner(address owner, address newOwner) public virtual;
+  function replaceOwner(address currOwner, address newOwner) public virtual;
 
   /// @dev Allows to change the number of required confirmations. Transaction has to be sent by wallet.
-  /// @param required Number of required confirmations.
-  function changeRequirement(uint256 required) public virtual;
+  /// @param approvalsRequired Number of required confirmations.
+  function changeApprovalsRequirement(uint256 approvalsRequired) public virtual;
 
   /// @dev Allows to change whether explicit execution step is needed once the required number of confirmations is met. Transaction has to be sent by wallet.
   /// @param requireExecution Explicit execution step is needed
@@ -108,36 +108,16 @@ abstract contract IMultiSigGeneric is IERC165 {
   /// @return count
   function getConfirmationCount(uint256 transactionId) public view virtual returns (uint256 count);
 
-  /// @dev Returns total number of transactions after filers are applied.
-  /// @param pending Include pending transactions.
-  /// @param executed Include executed transactions.
-  /// @return count Total number of transactions after filters are applied.
-  function getTransactionCount(
-    bool pending,
-    bool executed
-  ) public view virtual returns (uint256 count);
-
-  /// @dev Returns list of owners.
-  /// @return List of owner addresses.
-  function getOwners() public view virtual returns (address[] memory);
-
-  /// @dev Returns array with owner addresses, which confirmed transaction.
+  /// @dev Returns status of confirmations of a transaction for a given owner.
   /// @param transactionId Transaction ID.
-  /// @return confirmations Returns array of owner addresses.
-  function getConfirmations(
-    uint256 transactionId
-  ) public view virtual returns (address[] memory confirmations);
+  /// @param ownerAddr address of an owner
+  /// @return bool
+  function getConfirmationStatus(
+    uint256 transactionId,
+    address ownerAddr
+  ) public view virtual returns (bool);
 
-  /// @dev Returns list of transaction IDs in defined range.
-  /// @param from Index start position of transaction array.
-  /// @param to Index end position of transaction array.
-  /// @param pending Include pending transactions.
-  /// @param executed Include executed transactions.
-  /// @return transactionids Returns array of transaction IDs.
-  function getTransactionIds(
-    uint256 from,
-    uint256 to,
-    bool pending,
-    bool executed
-  ) public view virtual returns (uint256[] memory transactionids);
+  /// @dev Returns whether an address is an active owner.
+  /// @return Bool. True if owner is an active owner.
+  function getOwnerStatus(address ownerAddr) public view virtual returns (bool);
 }

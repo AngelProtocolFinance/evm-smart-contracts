@@ -23,7 +23,10 @@ interface IEndowmentMultiSigEmitter {
 
   function removeOwnerEndowment(uint256 endowmentId, address owner) external;
 
-  function requirementChangeEndowment(uint256 endowmentId, uint256 required) external;
+  function approvalsRequirementChangeEndowment(
+    uint256 endowmentId,
+    uint256 approvalsRequired
+  ) external;
 
   function requireExecutionChangeEndowment(uint256 endowmentId, bool requireExecution) external;
 
