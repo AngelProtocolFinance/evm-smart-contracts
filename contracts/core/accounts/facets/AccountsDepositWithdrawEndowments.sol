@@ -270,11 +270,11 @@ contract AccountsDepositWithdrawEndowments is
                 senderAllowed = true;
               }
             }
-            require(
-              senderAllowed || msg.sender == tempEndowment.owner,
-              "Sender address is not listed in allowlistedBeneficiaries or the Endowment Multisig."
-            );
           }
+          require(
+            senderAllowed || msg.sender == tempEndowment.owner,
+            "Sender address is not listed in allowlistedBeneficiaries or the Endowment Multisig."
+          );
         }
       }
 
