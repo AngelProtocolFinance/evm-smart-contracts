@@ -147,7 +147,7 @@ contract CharityApplication is CharityStorage, ICharityApplication, ERC165, Reen
       config.proposalExpiry = 4 * 24 * 60 * 60; // 4 days in seconds
     else config.proposalExpiry = expiry;
 
-    emit InitilizedCharityApplication(config);
+    emit InitilizedCharityApplication();
   }
 
   /**

@@ -10,14 +10,9 @@ abstract contract ICharityApplication is IERC165 {
    * Events
    */
 
-  event InitilizedCharityApplication(CharityApplicationsStorage.Config updatedConfig);
+  event InitilizedCharityApplication();
 
-  event CharityProposed(
-    address indexed proposer,
-    uint256 indexed proposalId,
-    AccountMessages.CreateEndowmentRequest charityApplication,
-    string meta
-  );
+  event CharityProposed(address indexed proposer, uint256 indexed proposalId, string meta);
 
   event CharityApproved(uint256 indexed proposalId, uint256 indexed endowmentId);
 
