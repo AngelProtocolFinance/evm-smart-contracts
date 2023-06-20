@@ -1,4 +1,4 @@
-import {createInterface} from "node:readline/promises";
+import {createInterface} from "readline/promises";
 
 export async function confirmAction(actionDescription: string): Promise<boolean> {
   const readline = createInterface({input: process.stdin, output: process.stdout});

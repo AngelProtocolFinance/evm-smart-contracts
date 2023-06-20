@@ -168,7 +168,7 @@ contract CharityApplication is CharityStorage, ICharityApplication, ERC165, Reen
       config
     );
     proposalCounter++;
-    emit CharityProposed(msg.sender, proposalCounter - 1, charityApplication, meta);
+    emit CharityProposed(msg.sender, proposalCounter - 1, meta);
   }
 
   /**
