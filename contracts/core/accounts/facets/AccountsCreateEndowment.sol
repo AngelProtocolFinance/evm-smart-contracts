@@ -111,6 +111,6 @@ contract AccountsCreateEndowment is IAccountsCreateEndowment, ReentrancyGuardFac
     state.STATES[newEndowId].closingEndowment = false;
     state.config.nextAccountId += 1;
 
-    emit EndowmentCreated(newEndowId, state.ENDOWMENTS[newEndowId]);
+    emit EndowmentCreated(newEndowId);
   }
 }

@@ -76,7 +76,7 @@ contract AccountsUpdateStatusEndowments is ReentrancyGuardFacet, AccountsEvents 
 
     require(checkFullyExited(uint32(id)), "Not fully exited");
     state.ENDOWMENTS[id] = tempEndowment;
-    emit UpdateEndowment(id, state.ENDOWMENTS[id]);
+    emit UpdateEndowment(id);
     // emit UpdateEndowmentState(id, state.STATES[id]);
   }
 

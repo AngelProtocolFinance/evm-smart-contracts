@@ -101,7 +101,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
     }
 
     state.ENDOWMENTS[details.id] = tempEndowment;
-    emit UpdateEndowment(details.id, tempEndowment);
+    emit UpdateEndowment(details.id);
   }
 
   /**
@@ -314,7 +314,7 @@ contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
       revert("Invalid setting input");
     }
     state.ENDOWMENTS[id] = tempEndowment;
-    emit UpdateEndowment(id, tempEndowment);
+    emit UpdateEndowment(id);
   }
 
   /**

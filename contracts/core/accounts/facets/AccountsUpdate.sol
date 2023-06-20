@@ -26,7 +26,7 @@ contract AccountsUpdate is ReentrancyGuardFacet, AccountsEvents {
     require(Validator.addressChecker(newOwner), "Enter a valid owner address");
 
     state.config.owner = newOwner;
-    emit UpdateConfig(state.config);
+    emit UpdateConfig();
   }
 
   /**

@@ -55,6 +55,6 @@ contract AccountsDaoEndowments is ReentrancyGuardFacet, AccountsEvents {
     tempEndowment.daoToken = subDaoConfid.daoToken;
 
     state.ENDOWMENTS[id] = tempEndowment;
-    emit UpdateEndowment(id, tempEndowment);
+    emit UpdateEndowment(id);
   }
 }

@@ -131,7 +131,7 @@ contract AccountsUpdateEndowmentSettingsController is ReentrancyGuardFacet, Acco
       emit EndowmentSettingUpdated(details.id, "ignoreUserSplits");
     }
     state.ENDOWMENTS[details.id] = tempEndowment;
-    emit UpdateEndowment(details.id, tempEndowment);
+    emit UpdateEndowment(details.id);
   }
 
   /**
@@ -323,7 +323,7 @@ contract AccountsUpdateEndowmentSettingsController is ReentrancyGuardFacet, Acco
     }
     state.ENDOWMENTS[details.id] = tempEndowment;
     emit EndowmentSettingUpdated(details.id, "endowmentController");
-    emit UpdateEndowment(details.id, tempEndowment);
+    emit UpdateEndowment(details.id);
   }
 
   /**
@@ -394,6 +394,6 @@ contract AccountsUpdateEndowmentSettingsController is ReentrancyGuardFacet, Acco
     }
 
     state.ENDOWMENTS[details.id] = tempEndowment;
-    emit UpdateEndowment(details.id, tempEndowment);
+    emit UpdateEndowment(details.id);
   }
 }
