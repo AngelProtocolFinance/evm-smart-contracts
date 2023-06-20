@@ -7,7 +7,8 @@ type ABI = {abi: any[]};
 
 const angelCoreStruct = "./artifacts/contracts/core/struct.sol/AngelCoreStruct.json";
 const basePath = "/contracts/core/accounts/facets/";
-const diamondAbiPath = "./diamondABI/diamond.json";
+const diamondABIDir = "./diamondABI";
+const diamondAbiPath = `${diamondABIDir}/diamond.json`;
 
 task(
   "manage:accounts:generateDiamondABI",
@@ -31,6 +32,7 @@ task(
 
   // save file
   const finalAbi = JSON.stringify(abi, undefined, 2);
+  fs.mkdirSync(diamondABIDir);
   fs.writeFileSync(diamondAbiPath, finalAbi);
   logger.out(`ABI written to ${diamondAbiPath}`);
 });
