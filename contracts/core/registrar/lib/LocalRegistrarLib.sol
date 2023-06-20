@@ -56,6 +56,8 @@ library LocalRegistrarLib {
   }
 
   struct LocalRegistrarStorage {
+    address uniswapRouter;
+    address uniswapFactory;
     RebalanceParams rebalanceParams;
     AngelProtocolParams angelProtocolParams;
     mapping(bytes32 => string) AccountsContractByChain;

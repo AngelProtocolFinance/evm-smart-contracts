@@ -115,6 +115,16 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     return lrs.FeeSettingsByFeeType[_feeType];
   }
 
+  function getUniswapFactoryAddress() public view returns (address) {
+    LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
+    return lrs.uniswapFactory;
+  }
+
+  function getUniswapRouterAddress() public view returns (address) {
+    LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
+    return lrs.uniswapRouter;
+  }
+
   /*////////////////////////////////////////////////
                     RESTRICTED SETTERS
     */ ////////////////////////////////////////////////
@@ -211,6 +221,12 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
       bps: _rate
     });
     emit FeeUpdated(_feeType, _rate, _payout);
+  }
+
+  function setUniswapAddresses(address _uniswapRouter, address _uniswapFactory) external onlyOwner {
+    LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
+    lrs.uniswapRouter = _uniswapRouter;
+    lrs.uniswapFactory = _uniswapFactory;
   }
 
   /*////////////////////////////////////////////////
