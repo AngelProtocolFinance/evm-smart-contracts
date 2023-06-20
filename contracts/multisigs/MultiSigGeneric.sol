@@ -38,12 +38,12 @@ contract MultiSigGeneric is
   }
 
   modifier confirmed(uint256 transactionId, address _owner) {
-    require(confirmations[transactionId].owners[_owner]);
+    require(confirmations[transactionId].confirmationsByOwner[_owner]);
     _;
   }
 
   modifier notConfirmed(uint256 transactionId, address _owner) {
-    require(!confirmations[transactionId].owners[_owner]);
+    require(!confirmations[transactionId].confirmationsByOwner[_owner]);
     _;
   }
 
@@ -194,7 +194,7 @@ contract MultiSigGeneric is
     transactionExists(transactionId)
     notConfirmed(transactionId, msg.sender)
   {
-    confirmations[transactionId].owners[msg.sender] = true;
+    confirmations[transactionId].confirmationsByOwner[msg.sender] = true;
     confirmations[transactionId].count += 1;
     emit Confirmation(msg.sender, transactionId);
     // if execution is required, do not auto execute
@@ -216,7 +216,7 @@ contract MultiSigGeneric is
     confirmed(transactionId, msg.sender)
     notExecuted(transactionId)
   {
-    confirmations[transactionId].owners[msg.sender] = false;
+    confirmations[transactionId].confirmationsByOwner[msg.sender] = false;
     confirmations[transactionId].count -= 1;
     emit Revocation(msg.sender, transactionId);
   }
@@ -262,7 +262,7 @@ contract MultiSigGeneric is
     uint256 transactionId,
     address ownerAddr
   ) public view override transactionExists(transactionId) returns (bool) {
-    return confirmations[transactionId].owners[ownerAddr];
+    return confirmations[transactionId].confirmationsByOwner[ownerAddr];
   }
 
   /// @dev Returns whether an address is an active owner.

@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 
 library MultiSigStorage {
   struct Confirmations {
-    mapping(address => bool) owners;
+    mapping(address => bool) confirmationsByOwner;
     uint256 count;
   }
 
