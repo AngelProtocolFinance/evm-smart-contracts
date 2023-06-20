@@ -3,7 +3,7 @@ import {AbiCoder} from "@ethersproject/abi";
 import {task} from "hardhat/config";
 import {logger} from "utils";
 
-type ABI = {abi: any[]};
+type ABI = {abi: AbiCoder[]};
 
 const angelCoreStruct = "./artifacts/contracts/core/struct.sol/AngelCoreStruct.json";
 const basePath = "/contracts/core/accounts/facets/";
