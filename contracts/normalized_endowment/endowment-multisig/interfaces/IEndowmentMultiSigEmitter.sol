@@ -19,9 +19,11 @@ interface IEndowmentMultiSigEmitter {
 
   function depositEndowment(uint256 endowmentId, address sender, uint256 value) external;
 
-  function addOwnerEndowment(uint256 endowmentId, address owner) external;
+  function addOwnersEndowment(uint256 endowmentId, address[] memory owners) external;
 
-  function removeOwnerEndowment(uint256 endowmentId, address owner) external;
+  function removeOwnersEndowment(uint256 endowmentId, address[] memory owners) external;
+
+  function replaceOwnerEndowment(uint256 endowmentId, address currOwner, address newOwner) external;
 
   function approvalsRequirementChangeEndowment(
     uint256 endowmentId,

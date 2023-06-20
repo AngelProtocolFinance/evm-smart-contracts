@@ -43,32 +43,15 @@ contract EndowmentMultiSig is MultiSigGeneric {
   /// @dev Allows to add new owners. Transaction has to be sent by wallet.
   /// @param owners Addresses of new owners.
   function addOwners(address[] memory owners) public override onlyWallet {
-    require(owners.length > 0, "Empty new owners list passed");
-    for (uint256 o = 0; o < owners.length; o++) {
-      require(!isOwner[owners[o]], "New owner already exists");
-      // increment active owners count by 1
-      activeOwnersCount += 1;
-      // set the owner address to false in mapping
-      isOwner[owners[o]] = true;
-      IEndowmentMultiSigEmitter(EMITTER_ADDRESS).addOwnerEndowment(ENDOWMENT_ID, owners[o]);
-    }
+    super.addOwners(owners);
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).addOwnersEndowment(ENDOWMENT_ID, owners);
   }
 
   /// @dev Allows to remove owners. Transaction has to be sent by wallet.
   /// @param owners Addresses of removed owners.
   function removeOwners(address[] memory owners) public override onlyWallet {
-    // check that all ousted owners are current, existing owners
-    for (uint256 oo = 0; oo < owners.length; oo++) {
-      require(isOwner[owners[oo]], "Ousted owner is not a current owner");
-      // decrement active owners count by 1
-      activeOwnersCount -= 1;
-      // set the owner address to false in mapping
-      isOwner[owners[oo]] = false;
-      IEndowmentMultiSigEmitter(EMITTER_ADDRESS).removeOwnerEndowment(ENDOWMENT_ID, owners[oo]);
-    }
-    // adjust the approval threshold downward if we've removed more members than can meet the currently
-    // set threshold level. (ex. Prevent 10 owners total needing 15 approvals to execute txs)
-    if (approvalsRequired > activeOwnersCount) changeApprovalsRequirement(activeOwnersCount);
+    super.removeOwners(owners);
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).removeOwnersEndowment(ENDOWMENT_ID, owners);
   }
 
   /**
@@ -79,8 +62,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
    */
   function replaceOwner(address currOwner, address newOwner) public override {
     super.replaceOwner(currOwner, newOwner);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).removeOwnerEndowment(ENDOWMENT_ID, currOwner);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).addOwnerEndowment(ENDOWMENT_ID, newOwner);
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).replaceOwnerEndowment(ENDOWMENT_ID, currOwner, newOwner);
   }
 
   /**
