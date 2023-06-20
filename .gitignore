@@ -9,8 +9,11 @@ yarn-error.log
 .prettierrc
 .nvmrc
 dist
+
+# temp files
 tasks/temp_index.ts
 tasks/temp_task.ts
+diamondABI
 
 #Hardhat files
 cache
