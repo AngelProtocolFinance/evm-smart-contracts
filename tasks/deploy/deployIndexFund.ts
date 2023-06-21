@@ -47,10 +47,14 @@ task("deploy:IndexFund", "Will deploy IndexFund contract")
 
       const indexFund = await deployIndexFund(registrar, owner, verify_contracts, hre);
 
+      if (!indexFund) {
+        return;
+      }
+
       await updateRegistrarConfig(
         registrar,
         apTeamMultiSig,
-        {indexFundContract: indexFund.proxy.address},
+        {indexFundContract: indexFund.address},
         hre
       );
     } catch (error) {

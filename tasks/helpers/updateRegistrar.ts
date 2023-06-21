@@ -2,11 +2,11 @@ import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 import {AngelCoreStruct} from "typechain-types/contracts/core/registrar/registrar.sol/Registrar";
-import {getSigners, logger, structToObject} from "utils";
+import {getSigners, logger, structToObject, validateAddress} from "utils";
 
 export async function updateRegistrarNetworkConnections(
-  registrar: string,
-  apTeamMultisig: string,
+  registrar = "",
+  apTeamMultisig = "",
   newNetworkInfo: Partial<AngelCoreStruct.NetworkInfoStructOutput>,
   hre: HardhatRuntimeEnvironment
 ) {
@@ -14,6 +14,9 @@ export async function updateRegistrarNetworkConnections(
   logger.out("Updating Registrar config...");
 
   try {
+    validateAddress(registrar, "registrar");
+    validateAddress(apTeamMultisig, "apTeamMultisig");
+
     const network = await hre.ethers.provider.getNetwork();
 
     const {apTeamMultisigOwners} = await getSigners(hre);
@@ -57,14 +60,17 @@ export async function updateRegistrarNetworkConnections(
 }
 
 export async function updateRegistrarConfig(
-  registrar: string,
-  apTeamMultisig: string,
+  registrar = "",
+  apTeamMultisig = "",
   updateConfigRequest: Partial<RegistrarMessages.UpdateConfigRequestStruct>,
   hre: HardhatRuntimeEnvironment
 ) {
   try {
     logger.divider();
     logger.out("Updating Registrar config with new addresses...");
+
+    validateAddress(registrar, "registrar");
+    validateAddress(apTeamMultisig, "apTeamMultisig");
 
     const {apTeamMultisigOwners} = await getSigners(hre);
 

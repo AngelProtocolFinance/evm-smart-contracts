@@ -55,16 +55,12 @@ task(
         hre
       );
 
-      const router = await deployRouter(
-        addresses.axelar.gateway,
-        addresses.axelar.gasService,
-        registrar.proxy.address,
-        verify_contracts,
-        hre
-      );
+      if (!registrar) {
+        return;
+      }
 
       await updateRegistrarConfig(
-        registrar.proxy.address,
+        registrar.address,
         apTeamMultiSig,
         {
           accountsContract: addresses.accounts.diamond,
@@ -87,20 +83,30 @@ task(
         hre
       );
 
-      // Registrar NetworkInfo's Router address must be updated for the current network
-      await updateRegistrarNetworkConnections(
-        registrar.proxy.address,
-        apTeamMultiSig,
-        {router: router.proxy.address},
+      const router = await deployRouter(
+        addresses.axelar.gateway,
+        addresses.axelar.gasService,
+        registrar.address,
+        verify_contracts,
         hre
       );
 
+      // Registrar NetworkInfo's Router address must be updated for the current network
+      if (router) {
+        await updateRegistrarNetworkConnections(
+          registrar.address,
+          apTeamMultiSig,
+          {router: router.address},
+          hre
+        );
+      }
+
       await hre.run("manage:accounts:updateConfig", {
-        newRegistrar: registrar.proxy.address,
+        newRegistrar: registrar.address,
         yes: true,
       });
       await hre.run("manage:IndexFund:updateOwner", {
-        to: registrar.proxy.address,
+        to: registrar.address,
         yes: true,
       });
     } catch (error) {

@@ -20,16 +20,20 @@ task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
       const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
       const apTeamMultiSig = await deployAPTeamMultiSig(verify_contracts, hre);
 
+      if (!apTeamMultiSig) {
+        return;
+      }
+
       await hre.run("manage:registrar:transferOwnership", {
-        to: apTeamMultiSig.proxy.address,
+        to: apTeamMultiSig.address,
         yes: true,
       });
       await hre.run("manage:AccountsDiamond:updateOwner", {
-        to: apTeamMultiSig.proxy.address,
+        to: apTeamMultiSig.address,
         yes: true,
       });
       await hre.run("manage:IndexFund:updateOwner", {
-        to: apTeamMultiSig.proxy.address,
+        to: apTeamMultiSig.address,
         yes: true,
       });
     } catch (error) {

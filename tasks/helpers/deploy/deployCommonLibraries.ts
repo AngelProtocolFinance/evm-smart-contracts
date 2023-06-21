@@ -1,11 +1,17 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {AngelCoreStruct__factory, StringArray__factory} from "typechain-types";
-import {ADDRESS_ZERO, getSigners, logger, updateAddresses, verify} from "utils";
+import {Deployment, getContractName, getSigners, logger, updateAddresses, verify} from "utils";
 
 export async function deployCommonLibraries(
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
-) {
+): Promise<
+  | {
+      angelCoreStruct: Deployment;
+      stringLib: Deployment;
+    }
+  | undefined
+> {
   const {proxyAdmin} = await getSigners(hre);
 
   try {
@@ -37,12 +43,17 @@ export async function deployCommonLibraries(
       await verify(hre, {address: stringLib.address});
     }
 
-    return {angelCoreStruct, stringLib};
+    return {
+      angelCoreStruct: {
+        address: angelCoreStruct.address,
+        contractName: getContractName(angelCoreStructFactory),
+      },
+      stringLib: {
+        address: stringLib.address,
+        contractName: getContractName(stringLibFactory),
+      },
+    };
   } catch (error) {
     logger.out(error, logger.Level.Error);
-    return {
-      angelCoreStruct: AngelCoreStruct__factory.connect(ADDRESS_ZERO, proxyAdmin),
-      stringLib: StringArray__factory.connect(ADDRESS_ZERO, proxyAdmin),
-    };
   }
 }

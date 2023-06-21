@@ -5,12 +5,19 @@ import {
   MultiSigWalletFactory__factory,
   ProxyContract__factory,
 } from "typechain-types";
-import {ADDRESS_ZERO, getContractName, getSigners, logger, updateAddresses, verify} from "utils";
+import {Deployment, getContractName, getSigners, logger, updateAddresses, verify} from "utils";
 
 export async function deployEndowmentMultiSig(
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
-) {
+): Promise<
+  | {
+      emitter: Deployment;
+      factory: Deployment;
+      implementation: Deployment;
+    }
+  | undefined
+> {
   const {proxyAdmin} = await getSigners(hre);
 
   try {
@@ -84,28 +91,25 @@ export async function deployEndowmentMultiSig(
       });
       await verify(hre, {
         address: multiSigWalletFactory.address,
-        constructorArguments: [endowmentMultiSig.address, proxyAdmin.address],
-        contractName: getContractName(multiSigWalletFactoryFactory),
       });
     }
 
     return {
       emitter: {
-        implementation: emitter,
-        proxy: emitterProxy,
+        address: emitterProxy.address,
+        contractName: getContractName(emitterFactory),
       },
-      factory: multiSigWalletFactory,
-      implementation: endowmentMultiSig,
+      factory: {
+        address: multiSigWalletFactory.address,
+        constructorArguments: [endowmentMultiSig.address, proxyAdmin.address],
+        contractName: getContractName(multiSigWalletFactoryFactory),
+      },
+      implementation: {
+        address: endowmentMultiSig.address,
+        contractName: getContractName(endowmentMultiSigFactory),
+      },
     };
   } catch (error) {
     logger.out(error, logger.Level.Error);
-    return {
-      emitter: {
-        implementation: EndowmentMultiSigEmitter__factory.connect(ADDRESS_ZERO, proxyAdmin),
-        proxy: ProxyContract__factory.connect(ADDRESS_ZERO, proxyAdmin),
-      },
-      factory: MultiSigWalletFactory__factory.connect(ADDRESS_ZERO, proxyAdmin),
-      implementation: EndowmentMultiSig__factory.connect(ADDRESS_ZERO, proxyAdmin),
-    };
   }
 }

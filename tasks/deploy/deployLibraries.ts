@@ -20,13 +20,17 @@ task("deploy:Libraries", "Will deploy Libraries")
 
       const verify_contracts = taskArgs.verify && !isLocalNetwork(hre);
 
-      await deployCommonLibraries(verify_contracts, hre);
+      const commonLibraries = await deployCommonLibraries(verify_contracts, hre);
 
-      // await hre.run("upgrade:facets", {
-      //   facets: FACET_NAMES_USING_ANGEL_CORE_STRUCT,
-      //   verify: taskArgs.verify,
-      //   yes: true,
-      // });
+      if (!commonLibraries) {
+        return;
+      }
+
+      await hre.run("upgrade:facets", {
+        facets: FACET_NAMES_USING_ANGEL_CORE_STRUCT,
+        verify: taskArgs.verify,
+        yes: true,
+      });
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

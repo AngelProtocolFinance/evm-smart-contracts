@@ -41,12 +41,16 @@ task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
 
       const endowmentMultiSig = await deployEndowmentMultiSig(verify_contracts, hre);
 
+      if (!endowmentMultiSig) {
+        return;
+      }
+
       await updateRegistrarConfig(
         registrar,
         apTeamMultiSig,
         {
           multisigFactory: endowmentMultiSig.factory.address,
-          multisigEmitter: endowmentMultiSig.emitter.proxy.address,
+          multisigEmitter: endowmentMultiSig.emitter.address,
         },
         hre
       );

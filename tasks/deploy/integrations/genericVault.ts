@@ -8,7 +8,7 @@ task("Deploy:genericVault", "Will deploy a generic vault with the provided param
   .addParam("verify", "Want to verify contract")
   .setAction(async (taskArgs, hre) => {
     try {
-      const {deployer} = await getSigners(hre.ethers);
+      const {deployer} = await getSigners(hre);
       let network = await hre.ethers.provider.getNetwork();
       let addresses = await getAddresses(hre);
 

@@ -47,11 +47,15 @@ task("deploy:Router", "Will deploy Router contract")
         hre
       );
 
+      if (!router) {
+        return;
+      }
+
       // Registrar NetworkInfo's Router address must be updated for the current network
       await updateRegistrarNetworkConnections(
         registrar,
         apTeamMultiSig,
-        {router: router.proxy.address},
+        {router: router.address},
         hre
       );
     } catch (error) {

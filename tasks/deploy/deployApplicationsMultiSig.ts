@@ -43,13 +43,17 @@ task("deploy:ApplicationsMultiSig", "Will deploy ApplicationsMultiSig contract")
 
       const applicationsMultisig = await deployApplicationsMultiSig(verify_contracts, hre);
 
+      if (!applicationsMultisig) {
+        return;
+      }
+
       await hre.run("manage:CharityApplication:updateConfig", {
-        applicationsMultisig: applicationsMultisig.proxy.address,
+        applicationsMultisig: applicationsMultisig.address,
       });
       await updateRegistrarConfig(
         registrar,
         apTeamMultiSig,
-        {applicationsReview: applicationsMultisig.proxy.address},
+        {applicationsReview: applicationsMultisig.address},
         hre
       );
     } catch (error) {

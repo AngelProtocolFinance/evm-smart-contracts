@@ -59,10 +59,14 @@ task("deploy:CharityApplication", "Will deploy CharityApplication contract")
         hre
       );
 
+      if (!charityApplication) {
+        return;
+      }
+
       await updateRegistrarConfig(
         registrar,
         apTeamMultiSig,
-        {charityProposal: charityApplication.proxy.address},
+        {charityProposal: charityApplication.charityApplication.address},
         hre
       );
     } catch (error) {
