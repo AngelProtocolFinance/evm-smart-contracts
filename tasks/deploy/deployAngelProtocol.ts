@@ -272,7 +272,8 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
           treasury: treasury.address,
           // haloTokenLpContract: addresses.halo.tokenLp,
           applicationsReview: applicationsMultiSig.proxy.address, //address
-          uniswapSwapRouter: thirdPartyAddresses.uniswap.swapRouter.address, //address
+          uniswapRouter: thirdPartyAddresses.uniswap.swapRouter.address, //address
+          uniswapFactory: thirdPartyAddresses.uniswap.factory.address, //address
           multisigFactory: endowmentMultiSig.factory.address, //address
           multisigEmitter: endowmentMultiSig.emitter.proxy.address, //address
           charityProposal: charityApplication.proxy.address, //address

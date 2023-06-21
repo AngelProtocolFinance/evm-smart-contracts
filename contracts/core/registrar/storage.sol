@@ -30,7 +30,8 @@ library RegistrarStorage {
     //PROTOCOL LEVEL
     address fundraisingContract;
     // AngelCoreStruct.RebalanceDetails rebalance;
-    address uniswapSwapRouter;
+    address uniswapRouter;
+    address uniswapFactory;
     address multisigFactory;
     address multisigEmitter;
     address charityProposal;
