@@ -221,6 +221,27 @@ contract MultiSigGeneric is
     emit Revocation(msg.sender, transactionId);
   }
 
+  /// @dev Allows current owners to revoke a confirmation for a non-executed transaction from a removed/non-current owner.
+  /// @param transactionId Transaction ID.
+  /// @param formerOwner Address of the non-current owner, whos confirmation is being revoked
+  function revokeConfirmationOfFormerOwner(
+    uint256 transactionId,
+    address formerOwner
+  )
+    public
+    virtual
+    override
+    nonReentrant
+    ownerExists(msg.sender)
+    confirmed(transactionId, formerOwner)
+    notExecuted(transactionId)
+  {
+    require(!isOwner[formerOwner], "Attempting to revert confirmation of a current owner");
+    confirmations[transactionId].confirmationsByOwner[formerOwner] = false;
+    confirmations[transactionId].count -= 1;
+    emit Revocation(formerOwner, transactionId);
+  }
+
   /// @dev Allows anyone to execute a confirmed transaction.
   /// @param transactionId Transaction ID.
   function executeTransaction(

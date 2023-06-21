@@ -139,6 +139,21 @@ contract EndowmentMultiSig is MultiSigGeneric {
   }
 
   /**
+   * @notice overrides the generic multisig revokeConfirmationOfFormerOwner function
+   * @dev emits the revokeEndowment event
+   * @param transactionId the transaction id
+   * @param formerOwner Address of the non-current owner, whos confirmation is being revoked
+   */
+  function revokeConfirmationOfFormerOwner(uint256 transactionId, address formerOwner) public override {
+    super.revokeConfirmationOfFormerOwner(transactionId, formerOwner);
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).revokeEndowment(
+      ENDOWMENT_ID,
+      formerOwner,
+      transactionId
+    );
+  }
+
+  /**
    * @notice function called when a proposal has to be explicity executed
    * @dev emits the executeEndowment event, overrides underlying execute function
    * @param transactionId the transaction id

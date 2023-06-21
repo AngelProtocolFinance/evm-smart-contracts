@@ -73,6 +73,11 @@ abstract contract IMultiSigGeneric is IERC165 {
   /// @param transactionId Transaction ID.
   function revokeConfirmation(uint256 transactionId) public virtual;
 
+  /// @dev Allows current owners to revoke a confirmation for a non-executed transaction from a removed/non-current owner.
+  /// @param transactionId Transaction ID.
+  /// @param formerOwner Address of the non-current owner, whos confirmation is being revoked
+  function revokeConfirmationOfFormerOwner(uint256 transactionId, address formerOwner) public virtual;
+
   /// @dev Allows anyone to execute a confirmed transaction.
   /// @param transactionId Transaction ID.
   function executeTransaction(uint256 transactionId) public virtual;
