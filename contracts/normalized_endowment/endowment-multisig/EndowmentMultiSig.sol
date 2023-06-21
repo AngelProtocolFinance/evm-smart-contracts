@@ -40,45 +40,42 @@ contract EndowmentMultiSig is MultiSigGeneric {
     super.initialize(_owners, _required, _requireExecution);
   }
 
-  /**
-   * @notice overrides the generic multisig addOwner function
-   * @dev emits the addOwnerEndowment event
-   * @param _owner the owner to be added
-   */
-  function addOwner(address _owner) public override {
-    super.addOwner(_owner);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).addOwnerEndowment(ENDOWMENT_ID, _owner);
+  /// @dev Allows to add new owners. Transaction has to be sent by wallet.
+  /// @param owners Addresses of new owners.
+  function addOwners(address[] memory owners) public override onlyWallet {
+    super.addOwners(owners);
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).addOwnersEndowment(ENDOWMENT_ID, owners);
   }
 
-  /**
-   * @notice overrides the generic multisig removeOwner function
-   * @dev emits the removeOwnerEndowment event
-   * @param _owner the owner to be removed
-   */
-  function removeOwner(address _owner) public override {
-    super.removeOwner(_owner);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).removeOwnerEndowment(ENDOWMENT_ID, _owner);
+  /// @dev Allows to remove owners. Transaction has to be sent by wallet.
+  /// @param owners Addresses of removed owners.
+  function removeOwners(address[] memory owners) public override onlyWallet {
+    super.removeOwners(owners);
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).removeOwnersEndowment(ENDOWMENT_ID, owners);
   }
 
   /**
    * @notice overrides the generic multisig replaceOwner function
    * @dev emits the removeOwnerEndowment and addOwnerEndowment events
-   * @param _owner the owner to be replaced
+   * @param currOwner the owner to be replaced
+   * @param newOwner the new owner to add
    */
-  function replaceOwner(address _owner, address _newOwner) public override {
-    super.replaceOwner(_owner, _newOwner);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).removeOwnerEndowment(ENDOWMENT_ID, _owner);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).addOwnerEndowment(ENDOWMENT_ID, _newOwner);
+  function replaceOwner(address currOwner, address newOwner) public override {
+    super.replaceOwner(currOwner, newOwner);
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).replaceOwnerEndowment(ENDOWMENT_ID, currOwner, newOwner);
   }
 
   /**
    * @notice overrides the generic multisig changeRequirement function
    * @dev emits the requirementChangeEndowment event
-   * @param _required the new required number of signatures
+   * @param _approvalsRequired the new required number of signatures
    */
-  function changeRequirement(uint256 _required) public override {
-    super.changeRequirement(_required);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).requirementChangeEndowment(ENDOWMENT_ID, _required);
+  function changeApprovalsRequirement(uint256 _approvalsRequired) public override {
+    super.changeApprovalsRequirement(_approvalsRequired);
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).approvalsRequirementChangeEndowment(
+      ENDOWMENT_ID,
+      _approvalsRequired
+    );
   }
 
   /**
@@ -95,21 +92,17 @@ contract EndowmentMultiSig is MultiSigGeneric {
   }
 
   /// @dev Allows an owner to submit and confirm a transaction.
-  /// @param title title related to txn
-  /// @param description description related to txn
   /// @param destination Transaction target address.
   /// @param value Transaction ether value.
   /// @param data Transaction data payload.
   /// @return transactionId transaction ID.
   function submitTransaction(
-    string memory title,
-    string memory description,
     address destination,
     uint256 value,
     bytes memory data,
     bytes memory metadata
   ) public virtual override returns (uint256 transactionId) {
-    transactionId = addTransaction(title, description, destination, value, data, metadata);
+    transactionId = addTransaction(destination, value, data, metadata);
     confirmTransaction(transactionId);
   }
 
@@ -142,6 +135,21 @@ contract EndowmentMultiSig is MultiSigGeneric {
   }
 
   /**
+   * @notice overrides the generic multisig revokeConfirmationOfFormerOwner function
+   * @dev emits the revokeEndowment event
+   * @param transactionId the transaction id
+   * @param formerOwner Address of the non-current owner, whos confirmation is being revoked
+   */
+  function revokeConfirmationOfFormerOwner(uint256 transactionId, address formerOwner) public override {
+    super.revokeConfirmationOfFormerOwner(transactionId, formerOwner);
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).revokeEndowment(
+      ENDOWMENT_ID,
+      formerOwner,
+      transactionId
+    );
+  }
+
+  /**
    * @notice function called when a proposal has to be explicity executed
    * @dev emits the executeEndowment event, overrides underlying execute function
    * @param transactionId the transaction id
@@ -167,28 +175,22 @@ contract EndowmentMultiSig is MultiSigGeneric {
   /**
    * @notice overrides the generic multisig addTransaction function
    * @dev emits the submitEndowment event
-   * @param title the title of the transaction
-   * @param description the description of the transaction
    * @param destination the destination of the transaction
    * @param value the value of the transaction
    * @param data the data of the transaction
    * @param metadata Encoded transaction metadata, can contain dynamic content.
    */
   function addTransaction(
-    string memory title,
-    string memory description,
     address destination,
     uint256 value,
     bytes memory data,
     bytes memory metadata
   ) internal override returns (uint256 transactionId) {
-    transactionId = super.addTransaction(title, description, destination, value, data, metadata);
+    transactionId = super.addTransaction(destination, value, data, metadata);
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).submitEndowment(
       ENDOWMENT_ID,
       transactionId,
       MultiSigStorage.Transaction({
-        title: title,
-        description: description,
         destination: destination,
         value: value,
         data: data,
