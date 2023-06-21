@@ -8,14 +8,12 @@ import {
   logger,
   updateAddresses,
   validateAddress,
-  verify,
 } from "utils";
 
 export async function deployRouter(
   axelarGateway = "",
   gasReceiver = "",
   registrar = "",
-  verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ): Promise<Deployment | undefined> {
   logger.out("Deploying Router...");
@@ -58,11 +56,6 @@ export async function deployRouter(
       {router: {implementation: router.address, proxy: routerProxy.address}},
       hre
     );
-
-    if (verify_contracts) {
-      await verify(hre, {address: router.address});
-      await verify(hre, {address: routerProxy.address, constructorArguments});
-    }
 
     return {address: routerProxy.address, contractName: getContractName(routerFactory)};
   } catch (error) {

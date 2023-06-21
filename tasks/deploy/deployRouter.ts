@@ -1,6 +1,6 @@
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
+import {confirmAction, getAddresses, isLocalNetwork, logger, verify} from "utils";
 import {updateRegistrarNetworkConnections} from "../helpers";
 
 type TaskArgs = {
@@ -37,17 +37,15 @@ task("deploy:Router", "Will deploy Router contract")
 
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
-      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
-      const router = await deployRouter(
+      const deployment = await deployRouter(
         addresses.axelar.gateway,
         addresses.axelar.gasService,
         registrar,
-        verify_contracts,
         hre
       );
 
-      if (!router) {
+      if (!deployment) {
         return;
       }
 
@@ -55,9 +53,13 @@ task("deploy:Router", "Will deploy Router contract")
       await updateRegistrarNetworkConnections(
         registrar,
         apTeamMultiSig,
-        {router: router.address},
+        {router: deployment.address},
         hre
       );
+
+      if (!isLocalNetwork(hre) && taskArgs.verify) {
+        await verify(hre, deployment);
+      }
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

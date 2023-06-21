@@ -2,10 +2,7 @@ import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {AngelCoreStruct__factory, StringArray__factory} from "typechain-types";
 import {Deployment, getContractName, getSigners, logger, updateAddresses, verify} from "utils";
 
-export async function deployCommonLibraries(
-  verify_contracts: boolean,
-  hre: HardhatRuntimeEnvironment
-): Promise<
+export async function deployCommonLibraries(hre: HardhatRuntimeEnvironment): Promise<
   | {
       angelCoreStruct: Deployment;
       stringLib: Deployment;
@@ -37,11 +34,6 @@ export async function deployCommonLibraries(
       },
       hre
     );
-
-    if (verify_contracts) {
-      await verify(hre, {address: angelCoreStruct.address});
-      await verify(hre, {address: stringLib.address});
-    }
 
     return {
       angelCoreStruct: {

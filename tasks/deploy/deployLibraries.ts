@@ -1,6 +1,6 @@
 import {task, types} from "hardhat/config";
 import {FACET_NAMES_USING_ANGEL_CORE_STRUCT} from "tasks/upgrade/upgradeFacets/constants";
-import {confirmAction, isLocalNetwork, logger} from "utils";
+import {confirmAction, isLocalNetwork, logger, verify} from "utils";
 import {deployCommonLibraries} from "../helpers";
 
 task("deploy:Libraries", "Will deploy Libraries")
@@ -18,15 +18,19 @@ task("deploy:Libraries", "Will deploy Libraries")
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const verify_contracts = taskArgs.verify && !isLocalNetwork(hre);
+      const deployData = await deployCommonLibraries(hre);
 
-      const commonLibraries = await deployCommonLibraries(verify_contracts, hre);
-
-      if (!commonLibraries) {
+      if (!deployData) {
         return;
       }
 
+      if (taskArgs.verify && !isLocalNetwork(hre)) {
+        await verify(hre, deployData.angelCoreStruct);
+        await verify(hre, deployData.stringLib);
+      }
+
       await hre.run("upgrade:facets", {
+        angelCoreStruct: deployData.angelCoreStruct.address,
         facets: FACET_NAMES_USING_ANGEL_CORE_STRUCT,
         verify: taskArgs.verify,
         yes: true,

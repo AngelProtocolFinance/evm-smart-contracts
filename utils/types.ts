@@ -14,5 +14,5 @@ export type Deployment = {
   address: string;
   contractName?: string;
   constructorArguments?: readonly any[];
-  contractPath?: string;
+  contract?: string;
 };

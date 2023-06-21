@@ -1,6 +1,6 @@
 import {deployCharityApplication} from "contracts/multisigs/charity_applications/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
+import {confirmAction, getAddresses, isLocalNetwork, logger, verify} from "utils";
 import {updateRegistrarConfig} from "../helpers";
 
 type TaskArgs = {
@@ -49,26 +49,29 @@ task("deploy:CharityApplication", "Will deploy CharityApplication contract")
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const applications = taskArgs.applications || addresses.multiSig.applications.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
-      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
-      const charityApplication = await deployCharityApplication(
+      const deployData = await deployCharityApplication(
         applications,
         accountsDiamond,
         addresses.tokens.seedAsset,
-        verify_contracts,
         hre
       );
 
-      if (!charityApplication) {
+      if (!deployData) {
         return;
       }
 
       await updateRegistrarConfig(
         registrar,
         apTeamMultiSig,
-        {charityProposal: charityApplication.charityApplication.address},
+        {charityProposal: deployData.charityApplication.address},
         hre
       );
+
+      if (!isLocalNetwork(hre) && taskArgs.verify) {
+        await verify(hre, deployData.charityApplicationLib);
+        await verify(hre, deployData.charityApplication);
+      }
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

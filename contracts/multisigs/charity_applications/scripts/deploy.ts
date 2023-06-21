@@ -8,14 +8,12 @@ import {
   logger,
   updateAddresses,
   validateAddress,
-  verify,
 } from "utils";
 
 export async function deployCharityApplication(
   applicationsMultiSig = "",
   accountsDiamond = "",
   seedAsset = "",
-  verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ): Promise<{charityApplication: Deployment; charityApplicationLib: Deployment} | undefined> {
   const {proxyAdmin} = await getSigners(hre);
@@ -85,14 +83,6 @@ export async function deployCharityApplication(
       },
       hre
     );
-
-    if (verify_contracts) {
-      await verify(hre, {address: charityApplication.address});
-      await verify(hre, {
-        address: charityApplicationProxy.address,
-        constructorArguments: [charityApplication.address, proxyAdmin.address, initData],
-      });
-    }
 
     return {
       charityApplication: {

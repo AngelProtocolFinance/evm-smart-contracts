@@ -1,6 +1,6 @@
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
+import {confirmAction, getAddresses, isLocalNetwork, logger, verify} from "utils";
 import {updateRegistrarConfig} from "../helpers";
 
 type TaskArgs = {
@@ -41,31 +41,31 @@ task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
       const addresses = await getAddresses(hre);
 
       const angelCoreStruct = taskArgs.angelCoreStruct || addresses.libraries.angelCoreStruct;
-      const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
+      const apTeam = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
-      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
-      const accounts = await deployAccountsDiamond(
-        apTeamMultiSig,
-        registrar,
-        angelCoreStruct,
-        verify_contracts,
-        hre
-      );
+      const deployData = await deployAccountsDiamond(apTeam, registrar, angelCoreStruct, hre);
 
-      if (!accounts) {
+      if (!deployData) {
         return;
       }
 
       await updateRegistrarConfig(
         registrar,
-        apTeamMultiSig,
-        {accountsContract: accounts.diamond.address},
+        apTeam,
+        {accountsContract: deployData.diamond.address},
         hre
       );
       await hre.run("manage:CharityApplication:updateConfig", {
-        accountsDiamond: accounts.diamond.address,
+        accountsDiamond: deployData.diamond.address,
       });
+
+      if (!isLocalNetwork(hre) && taskArgs.verify) {
+        for (const deployment of deployData.facets) {
+          await verify(hre, deployment);
+        }
+        await verify(hre, deployData.diamond);
+      }
     } catch (error) {
       logger.out(`Diamond deployment failed, reason: ${error}`, logger.Level.Error);
     }

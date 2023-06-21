@@ -8,11 +8,9 @@ import {
   getSigners,
   logger,
   updateAddresses,
-  verify,
 } from "utils";
 
 export async function deployApplicationsMultiSig(
-  verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ): Promise<Deployment | undefined> {
   logger.out("Deploying ApplicationsMultiSig...");
@@ -59,17 +57,6 @@ export async function deployApplicationsMultiSig(
       },
       hre
     );
-
-    if (verify_contracts) {
-      await verify(hre, {
-        address: applicationsMultiSig.address,
-        contract: "contracts/multisigs/ApplicationsMultiSig.sol:ApplicationsMultiSig",
-      });
-      await verify(hre, {
-        address: applicationsMultiSigProxy.address,
-        constructorArguments,
-      });
-    }
 
     return {
       address: applicationsMultiSigProxy.address,

@@ -8,7 +8,6 @@ import {
   logger,
   updateAddresses,
   validateAddress,
-  verify,
 } from "utils";
 
 export async function deployRegistrar(
@@ -16,7 +15,6 @@ export async function deployRegistrar(
   axelarGasService = "",
   router = "", // no need to verify address validity, as Registrar will be deployed before the router
   owner = "",
-  verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ): Promise<Deployment | undefined> {
   logger.out("Deploying Registrar...");
@@ -70,14 +68,6 @@ export async function deployRegistrar(
       },
       hre
     );
-
-    if (verify_contracts) {
-      await verify(hre, {address: registrar.address});
-      await verify(hre, {
-        address: proxy.address,
-        constructorArguments: [registrar.address, proxyAdmin.address, data],
-      });
-    }
 
     return {address: proxy.address, contractName: getContractName(factory)};
   } catch (error) {

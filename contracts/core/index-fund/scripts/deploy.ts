@@ -8,13 +8,11 @@ import {
   logger,
   updateAddresses,
   validateAddress,
-  verify,
 } from "utils";
 
 export async function deployIndexFund(
   registrar = "",
   owner = "",
-  verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ): Promise<Deployment | undefined> {
   logger.out("Deploying IndexFund...");
@@ -67,14 +65,6 @@ export async function deployIndexFund(
       },
       hre
     );
-
-    if (verify_contracts) {
-      await verify(hre, {address: indexFund.address});
-      await verify(hre, {
-        address: indexFundProxy.address,
-        constructorArguments: [indexFund.address, proxyAdmin.address, initData],
-      });
-    }
 
     return {address: indexFundProxy.address, contractName: getContractName(indexFundFactory)};
   } catch (error) {

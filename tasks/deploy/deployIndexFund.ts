@@ -1,6 +1,6 @@
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
+import {confirmAction, getAddresses, isLocalNetwork, logger, verify} from "utils";
 import {updateRegistrarConfig} from "../helpers";
 
 type TaskArgs = {
@@ -43,20 +43,23 @@ task("deploy:IndexFund", "Will deploy IndexFund contract")
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
       const owner = taskArgs.owner || addresses.multiSig.apTeam.proxy;
-      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
-      const indexFund = await deployIndexFund(registrar, owner, verify_contracts, hre);
+      const deployment = await deployIndexFund(registrar, owner, hre);
 
-      if (!indexFund) {
+      if (!deployment) {
         return;
       }
 
       await updateRegistrarConfig(
         registrar,
         apTeamMultiSig,
-        {indexFundContract: indexFund.address},
+        {indexFundContract: deployment.address},
         hre
       );
+
+      if (!isLocalNetwork(hre) && taskArgs.verify) {
+        await verify(hre, deployment);
+      }
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

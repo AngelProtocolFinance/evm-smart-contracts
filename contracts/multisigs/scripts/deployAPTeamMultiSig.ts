@@ -8,11 +8,9 @@ import {
   getSigners,
   logger,
   updateAddresses,
-  verify,
 } from "utils";
 
 export async function deployAPTeamMultiSig(
-  verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ): Promise<Deployment | undefined> {
   logger.out("Deploying APTeamMultiSig...");
@@ -56,17 +54,6 @@ export async function deployAPTeamMultiSig(
       },
       hre
     );
-
-    if (verify_contracts) {
-      await verify(hre, {
-        address: apTeamMultiSig.address,
-        contract: "contracts/multisigs/APTeamMultiSig.sol:APTeamMultiSig",
-      });
-      await verify(hre, {
-        address: apTeamMultiSigProxy.address,
-        constructorArguments,
-      });
-    }
 
     return {
       address: apTeamMultiSigProxy.address,

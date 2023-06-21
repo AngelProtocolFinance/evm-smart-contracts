@@ -1,17 +1,10 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {logger} from ".";
+import {Deployment, logger} from ".";
 
-type Args = {
-  address: string;
-  constructorArguments?: readonly any[];
-  contractName?: string;
-  contract?: string;
-};
-
-export async function verify(hre: HardhatRuntimeEnvironment, args: Args) {
+export async function verify(hre: HardhatRuntimeEnvironment, deployment: Deployment) {
   try {
-    logger.out(`Verifying ${args.contractName ?? "contract"} at: ${args.address}...`);
-    await hre.run("verify:verify", args);
+    logger.out(`Verifying ${deployment.contractName ?? "contract"} at: ${deployment.address}...`);
+    await hre.run("verify:verify", deployment);
   } catch (error) {
     logger.out(error, logger.Level.Warn);
   }

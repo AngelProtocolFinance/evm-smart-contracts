@@ -1,5 +1,5 @@
 import {task, types} from "hardhat/config";
-import {confirmAction, isLocalNetwork, logger} from "utils";
+import {Deployment, confirmAction, isLocalNetwork, logger, verify} from "utils";
 // import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
 import config from "config";
 import {ADDRESS_ZERO, getSigners, resetAddresses} from "utils";
@@ -48,18 +48,17 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       const thirdPartyAddresses = await getOrDeployThirdPartyContracts(proxyAdmin, hre);
 
-      const commonLibraries = await deployCommonLibraries(verify_contracts, hre);
+      const commonLibraries = await deployCommonLibraries(hre);
 
-      const apTeamMultisig = await deployAPTeamMultiSig(verify_contracts, hre);
+      const apTeamMultisig = await deployAPTeamMultiSig(hre);
 
-      const applicationsMultiSig = await deployApplicationsMultiSig(verify_contracts, hre);
+      const applicationsMultiSig = await deployApplicationsMultiSig(hre);
 
       const registrar = await deployRegistrar(
         thirdPartyAddresses.axelarGateway.address,
         thirdPartyAddresses.axelarGasService.address,
         ADDRESS_ZERO,
         apTeamMultisig?.address,
-        verify_contracts,
         hre
       );
 
@@ -68,7 +67,6 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         thirdPartyAddresses.axelarGateway.address,
         thirdPartyAddresses.axelarGasService.address,
         registrar?.address,
-        verify_contracts,
         hre
       );
 
@@ -76,28 +74,21 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         apTeamMultisig?.address,
         registrar?.address,
         commonLibraries?.angelCoreStruct.address,
-        verify_contracts,
         hre
       );
 
-      // const emitters = await deployEmitters(accountsDiamond.address, verify_contracts, hre);
+      // const emitters = await deployEmitters(accountsDiamond.address, hre);
 
       const charityApplication = await deployCharityApplication(
         applicationsMultiSig?.address,
         accounts?.diamond.address,
         thirdPartyAddresses.seedAsset.address,
-        verify_contracts,
         hre
       );
 
-      const indexFund = await deployIndexFund(
-        registrar?.address,
-        apTeamMultisig?.address,
-        verify_contracts,
-        hre
-      );
+      const indexFund = await deployIndexFund(registrar?.address, apTeamMultisig?.address, hre);
 
-      const endowmentMultiSig = await deployEndowmentMultiSig(verify_contracts, hre);
+      const endowmentMultiSig = await deployEndowmentMultiSig(hre);
 
       // logger.out('implementations deployed at:', implementations);
 
@@ -106,7 +97,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       //     registrarContract: REGISTRAR_ADDRESS,
       // }
 
-      // const giftCardAddress = await giftCard(GiftCardDataInput, commonLibraries?.angelCoreStruct.address, verify_contracts, hre)
+      // const giftCardAddress = await giftCard(GiftCardDataInput, commonLibraries?.angelCoreStruct.address, hre)
 
       // const FundraisingDataInput = {
       //     registrarContract: REGISTRAR_ADDRESS,
@@ -125,7 +116,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       // TODO:
       // UNCOMMENT WHEN HALO CONTRACTS ARE READY FOR DEPLOYMENT
       //
-      // var haloAddress = await deployHaloImplementation(SWAP_ROUTER.UNISWAP_ROUTER_ADDRESS, verify_contracts, hre)
+      // var haloAddress = await deployHaloImplementation(SWAP_ROUTER.UNISWAP_ROUTER_ADDRESS, hre)
 
       // addressWriter.haloAddress = haloAddress
 
@@ -292,6 +283,31 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
           {router: router.address},
           hre
         );
+      }
+
+      if (verify_contracts) {
+        const deployments: Array<Deployment | undefined> = [
+          commonLibraries?.angelCoreStruct,
+          commonLibraries?.stringLib,
+          apTeamMultisig,
+          applicationsMultiSig,
+          registrar,
+          router,
+          accounts?.diamond,
+          ...(accounts?.facets || []),
+          charityApplication?.charityApplication,
+          charityApplication?.charityApplicationLib,
+          indexFund,
+          endowmentMultiSig?.emitter,
+          endowmentMultiSig?.factory,
+          endowmentMultiSig?.implementation,
+        ];
+
+        for (const deployment of deployments) {
+          if (deployment) {
+            await verify(hre, deployment);
+          }
+        }
       }
 
       logger.out("Successfully deployed Angel Protocol contracts.");

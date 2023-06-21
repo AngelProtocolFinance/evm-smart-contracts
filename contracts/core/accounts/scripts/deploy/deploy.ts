@@ -8,7 +8,7 @@ import {
   DiamondInit__factory,
   Diamond__factory,
 } from "typechain-types";
-import {Deployment, getSigners, logger, updateAddresses, validateAddress, verify} from "utils";
+import {Deployment, getSigners, logger, updateAddresses, validateAddress} from "utils";
 
 import cutDiamond from "./cutDiamond";
 import deployFacets from "./deployFacets";
@@ -17,7 +17,6 @@ export async function deployAccountsDiamond(
   owner = "",
   registrar = "",
   angelCoreStruct = "",
-  verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ): Promise<
   | {
@@ -42,17 +41,6 @@ export async function deployAccountsDiamond(
     const cuts = await deployFacets(proxyAdmin, angelCoreStruct, hre);
 
     await cutDiamond(diamond.address, diamondInit, proxyAdmin, owner, registrar, cuts, hre);
-
-    if (verify_contracts) {
-      for (const {facetName, cut} of cuts) {
-        await verify(hre, {address: cut.facetAddress.toString(), contractName: facetName});
-      }
-      await verify(hre, {
-        address: diamond.address,
-        contractName: "Diamond",
-        constructorArguments: [proxyAdmin.address, diamondCutFacet.address],
-      });
-    }
 
     return {
       diamond: {

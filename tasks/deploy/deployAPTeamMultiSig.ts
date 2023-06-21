@@ -1,6 +1,6 @@
 import {deployAPTeamMultiSig} from "contracts/multisigs/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {confirmAction, isLocalNetwork, logger} from "utils";
+import {confirmAction, isLocalNetwork, logger, verify} from "utils";
 
 task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
   .addOptionalParam(
@@ -17,25 +17,28 @@ task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
-      const apTeamMultiSig = await deployAPTeamMultiSig(verify_contracts, hre);
+      const deployment = await deployAPTeamMultiSig(hre);
 
-      if (!apTeamMultiSig) {
+      if (!deployment) {
         return;
       }
 
       await hre.run("manage:registrar:transferOwnership", {
-        to: apTeamMultiSig.address,
+        to: deployment.address,
         yes: true,
       });
       await hre.run("manage:AccountsDiamond:updateOwner", {
-        to: apTeamMultiSig.address,
+        to: deployment.address,
         yes: true,
       });
       await hre.run("manage:IndexFund:updateOwner", {
-        to: apTeamMultiSig.address,
+        to: deployment.address,
         yes: true,
       });
+
+      if (!isLocalNetwork(hre) && taskArgs.verify) {
+        await verify(hre, deployment);
+      }
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

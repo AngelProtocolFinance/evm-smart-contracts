@@ -1,6 +1,6 @@
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
+import {confirmAction, getAddresses, isLocalNetwork, logger, verify} from "utils";
 import {updateRegistrarConfig} from "../helpers";
 
 type TaskArgs = {
@@ -37,11 +37,10 @@ task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
 
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
-      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
-      const endowmentMultiSig = await deployEndowmentMultiSig(verify_contracts, hre);
+      const deployData = await deployEndowmentMultiSig(hre);
 
-      if (!endowmentMultiSig) {
+      if (!deployData) {
         return;
       }
 
@@ -49,11 +48,17 @@ task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
         registrar,
         apTeamMultiSig,
         {
-          multisigFactory: endowmentMultiSig.factory.address,
-          multisigEmitter: endowmentMultiSig.emitter.address,
+          multisigFactory: deployData.factory.address,
+          multisigEmitter: deployData.emitter.address,
         },
         hre
       );
+
+      if (!isLocalNetwork(hre) && taskArgs.verify) {
+        await verify(hre, deployData.emitter);
+        await verify(hre, deployData.factory);
+        await verify(hre, deployData.implementation);
+      }
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
