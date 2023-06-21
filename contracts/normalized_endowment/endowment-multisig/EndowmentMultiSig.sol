@@ -92,21 +92,17 @@ contract EndowmentMultiSig is MultiSigGeneric {
   }
 
   /// @dev Allows an owner to submit and confirm a transaction.
-  /// @param title title related to txn
-  /// @param description description related to txn
   /// @param destination Transaction target address.
   /// @param value Transaction ether value.
   /// @param data Transaction data payload.
   /// @return transactionId transaction ID.
   function submitTransaction(
-    string memory title,
-    string memory description,
     address destination,
     uint256 value,
     bytes memory data,
     bytes memory metadata
   ) public virtual override returns (uint256 transactionId) {
-    transactionId = addTransaction(title, description, destination, value, data, metadata);
+    transactionId = addTransaction(destination, value, data, metadata);
     confirmTransaction(transactionId);
   }
 
@@ -179,28 +175,22 @@ contract EndowmentMultiSig is MultiSigGeneric {
   /**
    * @notice overrides the generic multisig addTransaction function
    * @dev emits the submitEndowment event
-   * @param title the title of the transaction
-   * @param description the description of the transaction
    * @param destination the destination of the transaction
    * @param value the value of the transaction
    * @param data the data of the transaction
    * @param metadata Encoded transaction metadata, can contain dynamic content.
    */
   function addTransaction(
-    string memory title,
-    string memory description,
     address destination,
     uint256 value,
     bytes memory data,
     bytes memory metadata
   ) internal override returns (uint256 transactionId) {
-    transactionId = super.addTransaction(title, description, destination, value, data, metadata);
+    transactionId = super.addTransaction(destination, value, data, metadata);
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).submitEndowment(
       ENDOWMENT_ID,
       transactionId,
       MultiSigStorage.Transaction({
-        title: title,
-        description: description,
         destination: destination,
         value: value,
         data: data,

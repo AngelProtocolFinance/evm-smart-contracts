@@ -8,8 +8,6 @@ library MultiSigStorage {
   }
 
   struct Transaction {
-    string title;
-    string description;
     address destination;
     uint256 value;
     bytes data;

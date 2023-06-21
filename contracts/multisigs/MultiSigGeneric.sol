@@ -162,22 +162,18 @@ contract MultiSigGeneric is
   }
 
   /// @dev Allows an owner to submit and confirm a transaction.
-  /// @param title title related to txn
-  /// @param description description related to txn
   /// @param destination Transaction target address.
   /// @param value Transaction ether value.
   /// @param data Transaction data payload.
   /// @param metadata Encoded transaction metadata, can contain dynamic content.
   /// @return transactionId transaction ID.
   function submitTransaction(
-    string memory title,
-    string memory description,
     address destination,
     uint256 value,
     bytes memory data,
     bytes memory metadata
   ) public virtual override returns (uint256 transactionId) {
-    transactionId = addTransaction(title, description, destination, value, data, metadata);
+    transactionId = addTransaction(destination, value, data, metadata);
     confirmTransaction(transactionId);
   }
 
@@ -296,16 +292,12 @@ contract MultiSigGeneric is
    * Internal functions
    */
   /// @dev Adds a new transaction to the transaction mapping, if transaction does not exist yet.
-  /// @param title title for submitted transaction
-  /// @param description description for submitted transaction.
   /// @param destination Transaction target address.
   /// @param value Transaction ether value.
   /// @param data Transaction data payload.
   /// @param metadata Encoded transaction metadata, can contain dynamic content.
   /// @return transactionId Returns transaction ID.
   function addTransaction(
-    string memory title,
-    string memory description,
     address destination,
     uint256 value,
     bytes memory data,
@@ -313,8 +305,6 @@ contract MultiSigGeneric is
   ) internal virtual override notNull(destination) returns (uint256 transactionId) {
     transactionId = transactionCount;
     transactions[transactionId] = MultiSigStorage.Transaction({
-      title: title,
-      description: description,
       destination: destination,
       value: value,
       data: data,
