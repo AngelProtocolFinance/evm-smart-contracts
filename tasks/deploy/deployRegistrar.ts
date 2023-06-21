@@ -1,8 +1,9 @@
+import config from "config";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
-import {updateRegistrarNetworkConnections} from "../helpers";
+import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger} from "utils";
+import {updateRegistrarConfig, updateRegistrarNetworkConnections} from "../helpers";
 
 type TaskArgs = {
   apTeamMultisig?: string;
@@ -38,6 +39,7 @@ task(
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
+      const {treasury, proxyAdmin} = await getSigners(hre);
       const addresses = await getAddresses(hre);
 
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
@@ -58,6 +60,29 @@ task(
         addresses.axelar.gasService,
         registrar.proxy.address,
         verify_contracts,
+        hre
+      );
+
+      await updateRegistrarConfig(
+        registrar.proxy.address,
+        apTeamMultiSig,
+        {
+          accountsContract: addresses.accounts.diamond,
+          splitMax: config.REGISTRAR_DATA.splitToLiquid.max,
+          splitMin: config.REGISTRAR_DATA.splitToLiquid.min,
+          splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit,
+          collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare,
+          indexFundContract: addresses.indexFund.proxy,
+          treasury: treasury.address,
+          applicationsReview: addresses.multiSig.applications.proxy,
+          uniswapSwapRouter: addresses.uniswap.swapRouter,
+          multisigFactory: addresses.multiSig.endowment.factory,
+          multisigEmitter: addresses.multiSig.endowment.emitter.proxy,
+          charityProposal: addresses.charityApplication.proxy,
+          proxyAdmin: proxyAdmin.address,
+          usdcAddress: addresses.tokens.usdc,
+          wMaticAddress: addresses.tokens.wmatic,
+        },
         hre
       );
 

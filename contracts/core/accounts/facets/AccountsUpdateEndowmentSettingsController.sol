@@ -40,24 +40,18 @@ contract AccountsUpdateEndowmentSettingsController is ReentrancyGuardFacet, Acco
     require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
 
     if (tempEndowment.endowType != AngelCoreStruct.EndowmentType.Charity) {
-      // when maturity time is <= 0 it means it's not set, i.e. the AST is perpetual
+      if (
+        AngelCoreStruct.canChange(
+          tempEndowment.settingsController.maturityTime,
+          msg.sender,
+          tempEndowment.owner,
+          block.timestamp
+        )
+      ) {
+        tempEndowment.maturityTime = details.maturityTime;
+        emit EndowmentSettingUpdated(details.id, "maturityTime");
+      }
       if (tempEndowment.maturityTime <= 0 || tempEndowment.maturityTime > block.timestamp) {
-        if (
-          AngelCoreStruct.canChange(
-            tempEndowment.settingsController.maturityTime,
-            msg.sender,
-            tempEndowment.owner,
-            block.timestamp
-          )
-        ) {
-          // Changes must be to a future time OR changing to a perpetual maturity
-          require(
-            details.maturityTime > block.timestamp || details.maturityTime == 0,
-            "Invalid maturity time input"
-          );
-          tempEndowment.maturityTime = details.maturityTime;
-          emit EndowmentSettingUpdated(details.id, "maturityTime");
-        }
         if (
           AngelCoreStruct.canChange(
             tempEndowment.settingsController.allowlistedBeneficiaries,
@@ -155,149 +149,177 @@ contract AccountsUpdateEndowmentSettingsController is ReentrancyGuardFacet, Acco
     require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
     require(msg.sender == tempEndowment.owner, "Unauthorized");
 
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.lockedInvestmentManagement,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      AngelCoreStruct.canChange(
+        tempEndowment.settingsController.lockedInvestmentManagement,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
-      tempEndowment.settingsController.lockedInvestmentManagement = details.settingsController.lockedInvestmentManagement;
+      tempEndowment.settingsController.lockedInvestmentManagement = details
+        .settingsController
+        .lockedInvestmentManagement;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.liquidInvestmentManagement,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      AngelCoreStruct.canChange(
+        tempEndowment.settingsController.liquidInvestmentManagement,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
-      tempEndowment.settingsController.liquidInvestmentManagement = details.settingsController.liquidInvestmentManagement;
+      tempEndowment.settingsController.liquidInvestmentManagement = details
+        .settingsController
+        .liquidInvestmentManagement;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.acceptedTokens,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      AngelCoreStruct.canChange(
+        tempEndowment.settingsController.acceptedTokens,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
       tempEndowment.settingsController.acceptedTokens = details.settingsController.acceptedTokens;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.allowlistedBeneficiaries,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      AngelCoreStruct.canChange(
+        tempEndowment.settingsController.allowlistedBeneficiaries,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
-      tempEndowment.settingsController.allowlistedBeneficiaries = details.settingsController.allowlistedBeneficiaries;
+      tempEndowment.settingsController.allowlistedBeneficiaries = details
+        .settingsController
+        .allowlistedBeneficiaries;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.allowlistedContributors,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      AngelCoreStruct.canChange(
+        tempEndowment.settingsController.allowlistedContributors,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
-      tempEndowment.settingsController.allowlistedContributors = details.settingsController.allowlistedContributors;
+      tempEndowment.settingsController.allowlistedContributors = details
+        .settingsController
+        .allowlistedContributors;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.maturityAllowlist,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      AngelCoreStruct.canChange(
+        tempEndowment.settingsController.maturityAllowlist,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
-      tempEndowment.settingsController.maturityAllowlist = details.settingsController.maturityAllowlist;
+      tempEndowment.settingsController.maturityAllowlist = details
+        .settingsController
+        .maturityAllowlist;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.maturityTime,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      AngelCoreStruct.canChange(
+        tempEndowment.settingsController.maturityTime,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
       tempEndowment.settingsController.maturityTime = details.settingsController.maturityTime;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.withdrawFee,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      AngelCoreStruct.canChange(
+        tempEndowment.settingsController.withdrawFee,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
       tempEndowment.settingsController.withdrawFee = details.settingsController.withdrawFee;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.depositFee,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      AngelCoreStruct.canChange(
+        tempEndowment.settingsController.depositFee,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
       tempEndowment.settingsController.depositFee = details.settingsController.depositFee;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.balanceFee,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      AngelCoreStruct.canChange(
+        tempEndowment.settingsController.balanceFee,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
       tempEndowment.settingsController.balanceFee = details.settingsController.balanceFee;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.name,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      AngelCoreStruct.canChange(
+        tempEndowment.settingsController.name,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
       tempEndowment.settingsController.name = details.settingsController.name;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.image,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      AngelCoreStruct.canChange(
+        tempEndowment.settingsController.image,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
       tempEndowment.settingsController.image = details.settingsController.image;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.logo,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      AngelCoreStruct.canChange(
+        tempEndowment.settingsController.logo,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
       tempEndowment.settingsController.logo = details.settingsController.logo;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.sdgs,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      AngelCoreStruct.canChange(
+        tempEndowment.settingsController.sdgs,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
       tempEndowment.settingsController.sdgs = details.settingsController.sdgs;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.splitToLiquid,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      AngelCoreStruct.canChange(
+        tempEndowment.settingsController.splitToLiquid,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
       tempEndowment.settingsController.splitToLiquid = details.settingsController.splitToLiquid;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.ignoreUserSplits,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      AngelCoreStruct.canChange(
+        tempEndowment.settingsController.ignoreUserSplits,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
-      tempEndowment.settingsController.ignoreUserSplits = details.settingsController.ignoreUserSplits;
+      tempEndowment.settingsController.ignoreUserSplits = details
+        .settingsController
+        .ignoreUserSplits;
     }
     state.ENDOWMENTS[details.id] = tempEndowment;
     emit EndowmentSettingUpdated(details.id, "endowmentController");
