@@ -27,6 +27,11 @@ describe("Local Registrar", function () {
     refundAddr: ethers.constants.AddressZero,
   };
 
+  let mockUniswapAddresses = {
+    router:  "0x0000000000000000000000000000000000router",
+    factory: "0x000000000000000000000000000000000factory",
+  };
+
   let originatingChain = "polygon";
   let accountsContract = "0x000000000000000000000000000000000000dead";
 
@@ -117,6 +122,20 @@ describe("Local Registrar", function () {
         await registrar.setAngelProtocolParams(newValues);
         let returnedValues = await registrar.getAngelProtocolParams();
         expect(returnedValues.routerAddr).to.equal(newValues.routerAddr);
+      });
+    });
+
+    describe("get and set UniswapFactoryAddress & UniswapRouterAddress", async function () {
+      it("Should be an owner restricted method", async function () {
+        await expect(registrar.connect(user).setUniswapAddresses(mockUniswapAddresses.router, mockUniswapAddresses.factory)).to.be.reverted;
+      });
+
+      it("Should accept and set the values", async function () {
+        await registrar.setUniswapAddresses(mockUniswapAddresses.router, mockUniswapAddresses.factory);
+        let newRouterAddr = await registrar.getUniswapRouterAddress();
+        expect(newFactoryAddr).to.equal(mockUniswapAddresses.factory);
+        let newFactoryAddr = await registrar.getUniswapFactoryAddress();
+        expect(newRouterAddr).to.equal(mockUniswapAddresses.router);
       });
     });
 
