@@ -18,8 +18,8 @@ import {LocalRegistrarLib} from "./lib/LocalRegistrarLib.sol";
  * @dev Contract for Registrar
  */
 contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
-  event UpdateRegistrarConfig(RegistrarStorage.Config details);
-  event PostNetworkConnection(uint256 chainId, AngelCoreStruct.NetworkInfo networkInfo);
+  event UpdateRegistrarConfig();
+  event PostNetworkConnection(uint256 chainId);
   event DeleteNetworkConnection(uint256 chainId);
 
   /// @custom:oz-upgrades-unsafe-allow constructor
@@ -68,7 +68,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       wMaticAddress: address(0),
       cw900lvAddress: address(0)
     });
-    emit UpdateRegistrarConfig(state.config);
+    emit UpdateRegistrarConfig();
 
     state.NETWORK_CONNECTIONS[block.chainid] = AngelCoreStruct.NetworkInfo({
       name: "Polygon",
@@ -80,7 +80,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       gasReceiver: details.axelarGasRecv,
       gasLimit: 0
     });
-    emit PostNetworkConnection(block.chainid, state.NETWORK_CONNECTIONS[block.chainid]);
+    emit PostNetworkConnection(block.chainid);
   }
 
   // Executor functions for registrar
@@ -229,7 +229,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     //     native: details.accepted_tokens_native,
     //     cw20: details.accepted_tokens_cw20
     // });
-    emit UpdateRegistrarConfig(state.config);
+    emit UpdateRegistrarConfig();
   }
 
   /**
@@ -252,7 +252,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
   ) public nonReentrant onlyOwner {
     if (Validator.compareStrings(action, "post")) {
       state.NETWORK_CONNECTIONS[networkInfo.chainId] = networkInfo;
-      emit PostNetworkConnection(networkInfo.chainId, networkInfo);
+      emit PostNetworkConnection(networkInfo.chainId);
     } else if (Validator.compareStrings(action, "delete")) {
       delete state.NETWORK_CONNECTIONS[networkInfo.chainId];
       emit DeleteNetworkConnection(networkInfo.chainId);

@@ -6,8 +6,8 @@ import {RegistrarMessages} from "../message.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 
 library RegistrarEventsLib {
-  event UpdateRegistrarConfig(RegistrarStorage.Config details);
+  event UpdateRegistrarConfig();
   event UpdateRegistrarOwner(address newOwner);
-  event PostNetworkConnection(uint256 chainId, AngelCoreStruct.NetworkInfo networkInfo);
+  event PostNetworkConnection(uint256 chainId);
   event DeleteNetworkConnection(uint256 chainId);
 }

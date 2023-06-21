@@ -10,8 +10,8 @@ interface ILocalRegistrar {
   /*////////////////////////////////////////////////
                         EVENTS
     */ ////////////////////////////////////////////////
-  event RebalanceParamsChanged(LocalRegistrarLib.RebalanceParams _newRebalanceParams);
-  event AngelProtocolParamsChanged(LocalRegistrarLib.AngelProtocolParams _newAngelProtocolParams);
+  event RebalanceParamsChanged();
+  event AngelProtocolParamsChanged();
   event AccountsContractStorageChanged(
     string indexed _chainName,
     string indexed _accountsContractAddress
