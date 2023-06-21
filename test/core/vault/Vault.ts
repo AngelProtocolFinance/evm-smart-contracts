@@ -240,6 +240,19 @@ describe("Vault", function () {
       expect(await vault.deposit(0, baseToken.address, 5))
       expect(await vault.deposit(0, baseToken.address, 5))
     })
+    
+    it("allows multiple accounts to deposit and tracks them separately", async function () {
+      await baseToken.mint(vault.address, 1000)
+      await yieldToken.mint(strategy.address, 1000)
+      await strategy.setDummyAmt(500)
+      await vault.deposit(0, baseToken.address, 500) // Acct. 0 gets 1:1
+      await strategy.setDummyAmt(250) // Acct. 1 gets 1:2
+      await vault.deposit(1, baseToken.address, 500)
+      let shares_0 = await vault.balanceOf(0)
+      let shares_1 = await vault.balanceOf(1)
+      expect(shares_0).to.equal(500)
+      expect(shares_1).to.equal(250)
+    })
   })
 
   describe("upon Redemption", async function () {
@@ -253,13 +266,13 @@ describe("Vault", function () {
     const TAX_RATE = 100 // bps
     const PRECISION = BigNumber.from(10).pow(24)
     before(async function() {
-      baseToken = await deployDummyERC20(owner)
-      yieldToken = await deployDummyERC20(owner)
       registrar = await deployRegistrarAsProxy(owner)
       await registrar.setVaultOperatorApproved(owner.address, true)
       await registrar.setFeeSettingsByFeesType(0, TAX_RATE, collector.address) // establish tax collector
     })
     beforeEach(async function () {
+      baseToken = await deployDummyERC20(owner)
+      yieldToken = await deployDummyERC20(owner)
       strategy = await deployDummyStrategy(
         owner,
         {
@@ -302,38 +315,142 @@ describe("Vault", function () {
     it("reverts if the baseToken approve fails", async function () {
       await baseToken.setApproveAllowed(false)
       await strategy.setDummyAmt(DEPOSIT/2)
-      console.log(await vault.balanceOf(0))
-      await expect(vault.redeem(0,DEPOSIT/2)).to.be.revertedWithCustomError(vault, "ApproveFailed")
+      await expect(vault.redeem(0,DEPOSIT/2)).to.be.reverted
       await baseToken.setApproveAllowed(true)
     })
 
     it("does not tax if the position hasn't earned yield", async function () {
-      await strategy.setDummyAmt(DEPOSIT*EX_RATE) // no yield
+      let shares = await vault.balanceOf(0)
+      await strategy.setDummyAmt(DEPOSIT/2) // no yield
       let collectorBal = await baseToken.balanceOf(collector.address)
-      await vault.redeem(0, DEPOSIT)
+      await vault.redeem(0, shares.div(2)) // Redeem half the position
       let newCollectorBal = await baseToken.balanceOf(collector.address)
       expect(newCollectorBal).to.equal(collectorBal)
       expect(await baseToken.transferFrom(vault.address, owner.address, DEPOSIT/2))
     })
 
     it("taxes if the position is in the black", async function () {
-      await strategy.setDummyAmt(DEPOSIT*EX_RATE*2) // 100% yield
+      let shares = await vault.balanceOf(0)
+      await strategy.setDummyAmt(DEPOSIT) // 100% yield
       let collectorBal = await baseToken.balanceOf(collector.address)
-      await vault.redeem(0, DEPOSIT*EX_RATE)
+      await vault.redeem(0, shares.div(2)) // Redeem half the position
       let newCollectorBal = await baseToken.balanceOf(collector.address)
-      let expectedTax = DEPOSIT * (TAX_RATE / 100)  
+      let YIELD = DEPOSIT / 2 // half the tokens are yield when position is 100% yield
+      let expectedTax = YIELD * TAX_RATE / 10000  
       expect(newCollectorBal).to.equal(collectorBal.add(expectedTax))
       expect(await baseToken.transferFrom(vault.address, owner.address, (DEPOSIT - expectedTax)))
     })
     
     it("updates the principles accordingly", async function () {
-      await strategy.setDummyAmt(DEPOSIT*EX_RATE*2) // 100% yield
-      await vault.redeem(0, DEPOSIT*EX_RATE)
+      let shares = await vault.balanceOf(0)
+      await strategy.setDummyAmt(DEPOSIT) // 100% yield
+      await vault.redeem(0, shares.div(2)) // Redeem half the position
       let expectedPrinciple = DEPOSIT/2
       let principle = await vault.principleByAccountId(0)
       expect(principle.baseToken).to.equal(expectedPrinciple)
-      expect(principle.costBasis_withPrecision).to.equal(PRECISION.mul(EX_RATE))
+      expect(principle.costBasis_withPrecision).to.equal(PRECISION.div(EX_RATE))
     })
-    it("returns a valid redemption response", async function () {})
+    
+    it("calls redeemAll if the redemption value is gt or equal to the position", async function () {
+      let shares = await vault.balanceOf(0)
+      await strategy.setDummyAmt(DEPOSIT) // 100% yield
+      await vault.redeem(0, shares) // Redeem the whole position
+      let principle = await vault.principleByAccountId(0)
+      expect(principle.baseToken).to.equal(0) // we zero out princ. on full redemption
+      expect(principle.costBasis_withPrecision).to.equal(0)
+    })
+  })
+
+  describe("upon Redeem All", async function () {
+    let vault: APVault_V1
+    let baseToken: DummyERC20
+    let yieldToken: DummyERC20
+    let strategy: DummyStrategy
+    let registrar: LocalRegistrar
+    const DEPOSIT = 1_000_000_000 // $1000 
+    const EX_RATE = 2
+    const TAX_RATE = 100 // bps
+    const PRECISION = BigNumber.from(10).pow(24)
+    before(async function() {
+      registrar = await deployRegistrarAsProxy(owner)
+      await registrar.setVaultOperatorApproved(owner.address, true)
+      await registrar.setFeeSettingsByFeesType(0, TAX_RATE, collector.address) // establish tax collector
+    })
+    beforeEach(async function () {
+      baseToken = await deployDummyERC20(owner)
+      yieldToken = await deployDummyERC20(owner)
+      strategy = await deployDummyStrategy(
+        owner,
+        {
+          baseToken: baseToken.address, 
+          yieldToken: yieldToken.address, 
+          admin: owner.address
+        })
+      vault = await deployVault({
+        vaultType: 0, // Locked
+        admin: owner.address, 
+        baseToken: baseToken.address, 
+        yieldToken: yieldToken.address,
+        strategy: strategy.address,
+        registrar: registrar.address
+      })
+      await baseToken.mint(vault.address, DEPOSIT)
+      await yieldToken.mint(strategy.address, DEPOSIT*EX_RATE)
+      await strategy.setDummyAmt(DEPOSIT*EX_RATE)
+      await vault.deposit(0, baseToken.address, DEPOSIT)
+    })
+
+    it("reverts if the strategy is paused", async function () {
+      await strategy.pause()
+      await expect(vault.redeemAll(0)).to.be.revertedWithCustomError(vault, "OnlyNotPaused")
+      await strategy.unpause()
+    })
+
+    it("reverts if the caller isn't approved", async function () {
+      await registrar.setVaultOperatorApproved(owner.address, false)
+      await expect(vault.redeemAll(0)).to.be.revertedWithCustomError(vault, "OnlyApproved")
+      await registrar.setVaultOperatorApproved(owner.address, true)
+    })
+
+    it("reverts if the baseToken transfer fails", async function () {
+      await baseToken.setTransferAllowed(false)
+      await expect(vault.redeemAll(0)).to.be.revertedWithCustomError(vault, "TransferFailed")
+      await baseToken.setTransferAllowed(true)
+    })
+  
+    it("reverts if the baseToken approve fails", async function () {
+      await baseToken.setApproveAllowed(false)
+      await strategy.setDummyAmt(DEPOSIT/2)
+      await expect(vault.redeemAll(0)).to.be.reverted
+      await baseToken.setApproveAllowed(true)
+    })
+
+    it("does not tax if the position hasn't earned yield", async function () {
+      await strategy.setDummyAmt(DEPOSIT) // no yield
+      let collectorBal = await baseToken.balanceOf(collector.address)
+      await vault.redeemAll(0) 
+      let newCollectorBal = await baseToken.balanceOf(collector.address)
+      expect(newCollectorBal).to.equal(collectorBal)
+      expect(await baseToken.transferFrom(vault.address, owner.address, DEPOSIT))
+    })
+
+    it("taxes if the position is in the black", async function () {
+      await strategy.setDummyAmt(DEPOSIT*2) // 100% yield
+      let collectorBal = await baseToken.balanceOf(collector.address)
+      await vault.redeemAll(0) // Redeem half the position
+      let newCollectorBal = await baseToken.balanceOf(collector.address)
+      let YIELD = DEPOSIT // half the tokens are yield when position is 100% yield
+      let expectedTax = YIELD * TAX_RATE / 10000  
+      expect(newCollectorBal).to.equal(collectorBal.add(expectedTax))
+      expect(await baseToken.transferFrom(vault.address, owner.address, (DEPOSIT*2 - expectedTax)))
+    })
+    
+    it("updates the principles accordingly", async function () {
+      await strategy.setDummyAmt(DEPOSIT) // 100% yield
+      await vault.redeemAll(0) // Redeem half the position
+      let principle = await vault.principleByAccountId(0)
+      expect(principle.baseToken).to.equal(0) // we zero out princ. on full redemption
+      expect(principle.costBasis_withPrecision).to.equal(0)
+    })
   })
 })

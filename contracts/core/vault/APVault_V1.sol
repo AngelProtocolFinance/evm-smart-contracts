@@ -99,7 +99,7 @@ contract APVault_V1 is IVault, ERC4626AP {
     uint256 amt
   ) public payable virtual override notPaused onlyApproved returns (RedemptionResponse memory) {
     // check against requested amt
-    if (balanceOf(accountId) < amt) {
+    if (balanceOf(accountId) <= amt) {
       // redeemAll if less
       return redeemAll(accountId);
     } else if (amt == 0) {
@@ -120,7 +120,7 @@ contract APVault_V1 is IVault, ERC4626AP {
       // apply tax and deduct from returned amt
       returnAmt -= _taxIfNecessary(accountId, amt, returnAmt);
       // update principles and approve txfer of redeemed tokens
-      _updatePrincipleRedemption(accountId, amt, returnAmt);
+      _updatePrincipleRedemption(accountId, amt);
       if (!IERC20Metadata(vaultConfig.baseToken).approve(_msgSender(), returnAmt)) {
         revert ApproveFailed();
       }
@@ -159,9 +159,8 @@ contract APVault_V1 is IVault, ERC4626AP {
 
   function harvest(uint32[] calldata accountIds) public virtual override notPaused onlyApproved {
     for (uint32 acct; acct < accountIds.length; acct++) {
-      uint256 baseTokenValue = IStrategy(vaultConfig.strategy).previewWithdraw(
-        _yieldTokenBalance(acct)
-      );
+      uint256 baseTokenValue = IStrategy(vaultConfig.strategy)
+        .previewWithdraw(_yieldTokenBalance(acct));
       // no yield, no harvest
       if (baseTokenValue < principleByAccountId[acct].baseToken) {
         return;
@@ -243,8 +242,11 @@ contract APVault_V1 is IVault, ERC4626AP {
     uint256 sharesRedeemedAmt,
     uint256 baseTokensReturnedAmt
   ) internal returns (uint256) {
-    uint256 p = principleByAccountId[accountId].baseToken;
     uint256 redemptionCostBasis = baseTokensReturnedAmt.mulDivDown(PRECISION, sharesRedeemedAmt);
+    console.log("Redemption Cost basis");
+    console.log(redemptionCostBasis);
+    console.log("Stored cost basis");
+    console.log(principleByAccountId[accountId].costBasis_withPrecision);
     // no yield, no tax
     if (redemptionCostBasis <= principleByAccountId[accountId].costBasis_withPrecision) {
       return 0;
@@ -296,8 +298,7 @@ contract APVault_V1 is IVault, ERC4626AP {
 
   function _updatePrincipleRedemption(
     uint32 accountId,
-    uint256 sharesRedeemed,
-    uint256 yieldAmt
+    uint256 sharesRedeemed
   ) internal {
     uint256 currentPrinciple = principleByAccountId[accountId].baseToken;
     uint256 portionOfPositionRedeemed_withPrecision = sharesRedeemed.mulDivDown(
