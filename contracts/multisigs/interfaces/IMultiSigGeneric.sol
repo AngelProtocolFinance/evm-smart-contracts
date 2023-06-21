@@ -10,7 +10,7 @@ abstract contract IMultiSigGeneric is IERC165 {
    */
   event Confirmation(address indexed sender, uint256 indexed transactionId);
   event Revocation(address indexed sender, uint256 indexed transactionId);
-  event Submission(uint256 indexed transactionId, MultiSigStorage.Transaction transaction);
+  event Submission(uint256 indexed transactionId);
   event Execution(uint256 indexed transactionId);
   event ExecutionFailure(uint256 indexed transactionId);
   event Deposit(address indexed sender, uint256 value);

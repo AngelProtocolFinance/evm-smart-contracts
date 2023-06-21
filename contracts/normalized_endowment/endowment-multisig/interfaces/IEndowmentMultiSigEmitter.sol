@@ -7,11 +7,7 @@ interface IEndowmentMultiSigEmitter {
 
   function revokeEndowment(uint256 endowmentId, address sender, uint256 transactionId) external;
 
-  function submitEndowment(
-    uint256 endowmentId,
-    uint256 transactionId,
-    MultiSigStorage.Transaction memory transaction
-  ) external;
+  function submitEndowment(uint256 endowmentId, uint256 transactionId) external;
 
   function executeEndowment(uint256 endowmentId, uint256 transactionId) external;
 
