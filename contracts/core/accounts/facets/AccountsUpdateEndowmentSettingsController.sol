@@ -40,24 +40,18 @@ contract AccountsUpdateEndowmentSettingsController is ReentrancyGuardFacet, Acco
     require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
 
     if (tempEndowment.endowType != AngelCoreStruct.EndowmentType.Charity) {
-      // when maturity time is <= 0 it means it's not set, i.e. the AST is perpetual
+      if (
+        AngelCoreStruct.canChange(
+          tempEndowment.settingsController.maturityTime,
+          msg.sender,
+          tempEndowment.owner,
+          block.timestamp
+        )
+      ) {
+        tempEndowment.maturityTime = details.maturityTime;
+        emit EndowmentSettingUpdated(details.id, "maturityTime");
+      }
       if (tempEndowment.maturityTime <= 0 || tempEndowment.maturityTime > block.timestamp) {
-        if (
-          AngelCoreStruct.canChange(
-            tempEndowment.settingsController.maturityTime,
-            msg.sender,
-            tempEndowment.owner,
-            block.timestamp
-          )
-        ) {
-          // Changes must be to a future time OR changing to a perpetual maturity
-          require(
-            details.maturityTime > block.timestamp || details.maturityTime == 0,
-            "Invalid maturity time input"
-          );
-          tempEndowment.maturityTime = details.maturityTime;
-          emit EndowmentSettingUpdated(details.id, "maturityTime");
-        }
         if (
           AngelCoreStruct.canChange(
             tempEndowment.settingsController.allowlistedBeneficiaries,

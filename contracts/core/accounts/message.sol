@@ -6,7 +6,6 @@ import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 
 library AccountMessages {
   struct CreateEndowmentRequest {
-    address owner;
     bool withdrawBeforeMaturity;
     uint256 maturityTime;
     string name;
@@ -16,19 +15,13 @@ library AccountMessages {
     string logo;
     string image;
     address[] members;
-    bool kycDonorsOnly;
     uint256 threshold;
     address[] allowlistedBeneficiaries;
     address[] allowlistedContributors;
-    uint256 splitMax;
-    uint256 splitMin;
-    uint256 splitDefault;
     AngelCoreStruct.FeeSetting earlyLockedWithdrawFee;
     AngelCoreStruct.FeeSetting withdrawFee;
     AngelCoreStruct.FeeSetting depositFee;
     AngelCoreStruct.FeeSetting balanceFee;
-    AngelCoreStruct.DaoSetup dao;
-    bool createDao;
     uint256 proposalLink;
     AngelCoreStruct.SettingsController settingsController;
     uint32 parent;
