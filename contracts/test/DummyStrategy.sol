@@ -9,6 +9,7 @@ import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
 contract DummyStrategy is Pausable, IStrategy {
   StrategyConfig config;
   uint256 dummyAmt; 
+  uint256 dummyPreviewAmt;
   
   constructor(StrategyConfig memory _config) {
     config = _config;
@@ -17,6 +18,10 @@ contract DummyStrategy is Pausable, IStrategy {
   // Test helpers
   function setDummyAmt(uint256 amt) external {
     dummyAmt = amt;
+  }
+  // Test helpers
+  function setDummyPreviewAmt(uint256 amt) external {
+    dummyPreviewAmt = amt;
   }
 
   function getStrategyConfig() external view returns (StrategyConfig memory){
@@ -40,11 +45,11 @@ contract DummyStrategy is Pausable, IStrategy {
   }
 
   function previewDeposit(uint256 amt) external view returns (uint256) {
-    return dummyAmt;
+    return dummyPreviewAmt;
   }
   
   function previewWithdraw(uint256 amt) external view returns (uint256) {
-    return dummyAmt;
+    return dummyPreviewAmt;
   }
 
   function paused() public override(IStrategy, Pausable) view returns (bool) {

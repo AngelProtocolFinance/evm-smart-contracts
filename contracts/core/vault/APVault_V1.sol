@@ -10,6 +10,7 @@ import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 import {AngelCoreStruct} from "../struct.sol";
 import {FixedPointMathLib} from "../../lib/FixedPointMathLib.sol";
+import "hardhat/console.sol";
 
 contract APVault_V1 is IVault, ERC4626AP {
   using FixedPointMathLib for uint256;
@@ -106,7 +107,13 @@ contract APVault_V1 is IVault, ERC4626AP {
     } else {
       // redeem shares for yieldToken -> approve strategy -> strategy withdraw -> base token
       uint256 yieldTokenAmt = super.redeemERC4626(amt, vaultConfig.strategy, accountId);
+      console.log("YieldTokenAmt");
+      console.log(yieldTokenAmt);
       uint256 returnAmt = IStrategy(vaultConfig.strategy).withdraw(yieldTokenAmt);
+      console.log("returnAmt");
+      console.log(returnAmt);
+      uint256 approvedAmt = IERC20Metadata(vaultConfig.baseToken).allowance(vaultConfig.strategy, address(this));
+      console.log(approvedAmt);
       if(!IERC20Metadata(vaultConfig.baseToken).transferFrom(vaultConfig.strategy, address(this), returnAmt)){
         revert TransferFailed();
       }
