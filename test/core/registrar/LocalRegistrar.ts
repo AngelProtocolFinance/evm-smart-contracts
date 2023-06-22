@@ -28,7 +28,7 @@ describe("Local Registrar", function () {
   };
 
   let mockUniswapAddresses = {
-    router:  "0x0000000000000000000000000000000000router",
+    router: "0x0000000000000000000000000000000000router",
     factory: "0x000000000000000000000000000000000factory",
   };
 
@@ -127,11 +127,18 @@ describe("Local Registrar", function () {
 
     describe("get and set UniswapFactoryAddress & UniswapRouterAddress", async function () {
       it("Should be an owner restricted method", async function () {
-        await expect(registrar.connect(user).setUniswapAddresses(mockUniswapAddresses.router, mockUniswapAddresses.factory)).to.be.reverted;
+        await expect(
+          registrar
+            .connect(user)
+            .setUniswapAddresses(mockUniswapAddresses.router, mockUniswapAddresses.factory)
+        ).to.be.reverted;
       });
 
       it("Should accept and set the values", async function () {
-        await registrar.setUniswapAddresses(mockUniswapAddresses.router, mockUniswapAddresses.factory);
+        await registrar.setUniswapAddresses(
+          mockUniswapAddresses.router,
+          mockUniswapAddresses.factory
+        );
         let newRouterAddr = await registrar.getUniswapRouterAddress();
         expect(newFactoryAddr).to.equal(mockUniswapAddresses.factory);
         let newFactoryAddr = await registrar.getUniswapFactoryAddress();

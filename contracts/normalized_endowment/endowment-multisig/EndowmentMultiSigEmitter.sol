@@ -160,7 +160,11 @@ contract EndowmentMultiSigEmitter {
    * @param currOwner the removed owner of the endowment
    * @param newOwner the added owner of the endowment
    */
-  function replaceOwnerEndowment(uint256 endowmentId, address currOwner, address newOwner) public isEmitter {
+  function replaceOwnerEndowment(
+    uint256 endowmentId,
+    address currOwner,
+    address newOwner
+  ) public isEmitter {
     emit EndowmentOwnerReplace(endowmentId, currOwner, newOwner);
   }
 
