@@ -16,10 +16,10 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
  * The `Distributor` contract manages the distribution of the token
  */
 contract Distributor is Storage, Initializable, ReentrancyGuard {
-  event DistributorConfigUpdated(DistributorStorage.Config config);
+  event ConfigUpdated(DistributorStorage.Config config);
   event DistributorAdded(address distributor);
   event DistributorRemoved(address distributor);
-  event DistributorSpend(address recipient, uint256 amount);
+  event HaloSpent(address recipient, uint256 amount);
 
   /**
    * @dev Initialize contract
@@ -32,7 +32,7 @@ contract Distributor is Storage, Initializable, ReentrancyGuard {
       spendLimit: details.spendLimit,
       haloToken: details.haloToken
     });
-    emit DistributorConfigUpdated(state.config);
+    emit ConfigUpdated(state.config);
   }
 
   /**
@@ -44,7 +44,7 @@ contract Distributor is Storage, Initializable, ReentrancyGuard {
     require(state.config.timelockContract == msg.sender, "Unauthorized");
     state.config.timelockContract = timelockContract;
     state.config.spendLimit = spendLimit;
-    emit DistributorConfigUpdated(state.config);
+    emit ConfigUpdated(state.config);
   }
 
   /**
@@ -90,7 +90,7 @@ contract Distributor is Storage, Initializable, ReentrancyGuard {
       IERC20Upgradeable(state.config.haloToken).transfer(recipient, amount),
       "Transfer failed"
     );
-    emit DistributorSpend(recipient, amount);
+    emit HaloSpent(recipient, amount);
   }
 
   /**
