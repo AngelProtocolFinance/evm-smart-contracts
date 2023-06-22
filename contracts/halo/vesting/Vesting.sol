@@ -14,8 +14,8 @@ import {VestingMessage} from "./message.sol";
  */
 contract Vesting is Ownable, ReentrancyGuard {
   event VestingInitialized(address haloToken);
-  event VestingDeposit(address user, uint256 amount);
-  event VestingWithdraw(address user, uint256 amount, uint256 vestingId);
+  event HaloDeposited(address user, uint256 amount);
+  event HaloWithdrawn(address user, uint256 amount, uint256 vestingId);
   event VestingDurationModified(uint256 vestingDuration);
 
   address public haloToken;
@@ -61,7 +61,7 @@ contract Vesting is Ownable, ReentrancyGuard {
     });
     vestingNumber[msg.sender] += 1;
     totalVested += amount;
-    emit VestingDeposit(msg.sender, amount);
+    emit HaloDeposited(msg.sender, amount);
   }
 
   /**
@@ -88,7 +88,7 @@ contract Vesting is Ownable, ReentrancyGuard {
     );
     totalVested -= (claimable - vesting[msg.sender][vestingId].claimed);
     vesting[msg.sender][vestingId].claimed = claimable;
-    emit VestingWithdraw(msg.sender, claimable - vesting[msg.sender][vestingId].claimed, vestingId);
+    emit HaloWithdrawn(msg.sender, claimable - vesting[msg.sender][vestingId].claimed, vestingId);
   }
 
   /**
