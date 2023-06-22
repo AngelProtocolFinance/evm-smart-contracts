@@ -15,8 +15,8 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
  * address, and provides a method to claim Halo tokens.
  */
 contract GovHodler is Storage, Initializable, ReentrancyGuard {
-  event GovHolderConfigUpdated(GovHodlerStorage.Config config);
-  event GovHolderHaloClaimed(address recipient, uint amount);
+  event ConfigUpdated(GovHodlerStorage.Config config);
+  event HaloClaimed(address recipient, uint amount);
 
   /**
    * @dev Initialize contract
@@ -28,7 +28,7 @@ contract GovHodler is Storage, Initializable, ReentrancyGuard {
       timelockContract: details.timelockContract,
       haloToken: details.haloToken
     });
-    emit GovHolderConfigUpdated(state.config);
+    emit ConfigUpdated(state.config);
   }
 
   /**
@@ -42,7 +42,7 @@ contract GovHodler is Storage, Initializable, ReentrancyGuard {
     );
 
     state.config.timelockContract = timelockContract;
-    emit GovHolderConfigUpdated(state.config);
+    emit ConfigUpdated(state.config);
   }
 
   /**
@@ -56,6 +56,6 @@ contract GovHodler is Storage, Initializable, ReentrancyGuard {
       IERC20Upgradeable(state.config.haloToken).transfer(recipient, amount),
       "Transfer failed"
     );
-    emit GovHolderHaloClaimed(recipient, amount);
+    emit HaloClaimed(recipient, amount);
   }
 }
