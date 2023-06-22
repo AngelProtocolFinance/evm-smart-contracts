@@ -2,7 +2,6 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.0;
 
-import {IVault} from "../../vault/interfaces/IVault.sol";
 import {LocalRegistrarLib} from "../lib/LocalRegistrarLib.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 
