@@ -22,14 +22,14 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
  * 3) Spend a gift card
  */
 contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuard {
-  event GiftCardsUpdateConfig(GiftCardsStorage.Config config);
-  event GiftCardsUpdateBalances(
+  event ConfigUpdated(GiftCardsStorage.Config config);
+  event BalancesUpdated(
     address addr,
     address token,
     uint256 amt,
     AngelCoreStruct.AllowanceAction action
   );
-  event GiftCardsUpdateDeposit(uint256 depositId, GiftCardsStorage.Deposit deposit);
+  event DepositUpdated(uint256 depositId, GiftCardsStorage.Deposit deposit);
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
@@ -46,7 +46,7 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
     state.config.registrarContract = details.registrarContract;
     state.config.keeper = details.keeper;
     state.config.nextDeposit = 1;
-    emit GiftCardsUpdateConfig(state.config);
+    emit ConfigUpdated(state.config);
   }
 
   /**
@@ -72,7 +72,7 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
   //         deposit.claimed = true;
   //         state.BALANCES[toAddress].coinNativeAmount += deposit.token.amount;
 
-  //         emit GiftCardsUpdateBalances(toAddress, state.BALANCES[toAddress]);
+  //         emit BalancesUpdated(toAddress, state.BALANCES[toAddress]);
 
   //         state.DEPOSITS[depositId] = deposit;
   //     } else {
@@ -81,8 +81,8 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
 
   //     state.config.nextDeposit += 1;
 
-  //     emit GiftCardsUpdateDeposit(depositId, deposit);
-  //     emit GiftCardsUpdateConfig(state.config);
+  //     emit DepositUpdated(depositId, deposit);
+  //     emit ConfigUpdated(state.config);
   // }
 
   /**
@@ -127,17 +127,12 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
     if (toAddress != address(0)) {
       deposit.claimed = true;
       state.BALANCES[toAddress][tokenAddress] += amount;
-      emit GiftCardsUpdateBalances(
-        toAddress,
-        tokenAddress,
-        amount,
-        AngelCoreStruct.AllowanceAction.Add
-      );
+      emit BalancesUpdated(toAddress, tokenAddress, amount, AngelCoreStruct.AllowanceAction.Add);
     }
 
     // save the deposit information
     state.DEPOSITS[state.config.nextDeposit] = deposit;
-    emit GiftCardsUpdateDeposit(state.config.nextDeposit, deposit);
+    emit DepositUpdated(state.config.nextDeposit, deposit);
     state.config.nextDeposit += 1;
   }
 
@@ -152,13 +147,13 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
 
     // mark deposit as claimed
     state.DEPOSITS[depositId].claimed = true;
-    emit GiftCardsUpdateDeposit(depositId, state.DEPOSITS[depositId]);
+    emit DepositUpdated(depositId, state.DEPOSITS[depositId]);
 
     // add the claimed amount for the target token to the recipient's balance
     state.BALANCES[recipient][state.DEPOSITS[depositId].tokenAddress] += state
       .DEPOSITS[depositId]
       .amount;
-    emit GiftCardsUpdateBalances(
+    emit BalancesUpdated(
       recipient,
       state.DEPOSITS[depositId].tokenAddress,
       state.DEPOSITS[depositId].amount,
@@ -208,12 +203,7 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
 
     // deduct balance by amount deposited with Accounts contract
     state.BALANCES[msg.sender][tokenAddress] -= amount;
-    emit GiftCardsUpdateBalances(
-      msg.sender,
-      tokenAddress,
-      amount,
-      AngelCoreStruct.AllowanceAction.Remove
-    );
+    emit BalancesUpdated(msg.sender, tokenAddress, amount, AngelCoreStruct.AllowanceAction.Remove);
   }
 
   /**
@@ -233,7 +223,7 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
     if (registrarContract != address(0)) {
       state.config.registrarContract = registrarContract;
     }
-    emit GiftCardsUpdateConfig(state.config);
+    emit ConfigUpdated(state.config);
   }
 
   function queryConfig() public view returns (GiftCardsStorage.Config memory) {
