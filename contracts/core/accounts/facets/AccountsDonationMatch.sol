@@ -131,6 +131,7 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
     // TODO: add donation match address?? :
     state.ENDOWMENTS[id].donationMatchContract = donationMatch;
 
+    // Shouldn't this be emitted from contracts/normalized_endowment/donation-match/DonationMatch.sol > initialize ?
     IDonationMatchEmitter(registrar_config.donationMatchEmitter).initializeDonationMatch(
       id,
       donationMatch,
@@ -142,6 +143,6 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
         usdcAddress: registrar_config.usdcAddress
       })
     );
-    emit DonationMatchSetup(id, state.ENDOWMENTS[id].donationMatchContract);
+    emit DonationMatchCreated(id, state.ENDOWMENTS[id].donationMatchContract);
   }
 }
