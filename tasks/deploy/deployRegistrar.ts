@@ -2,7 +2,7 @@ import config from "config";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger} from "utils";
+import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 import {updateRegistrarConfig, updateRegistrarNetworkConnections} from "../helpers";
 
 type TaskArgs = {
@@ -44,27 +44,21 @@ task(
 
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const oldRouterAddress = taskArgs.router || addresses.router.proxy;
-      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
-      const registrar = await deployRegistrar(
+      const registrarDeployment = await deployRegistrar(
         addresses.axelar.gateway,
         addresses.axelar.gasService,
         oldRouterAddress,
         apTeamMultiSig,
-        verify_contracts,
         hre
       );
 
-      const router = await deployRouter(
-        addresses.axelar.gateway,
-        addresses.axelar.gasService,
-        registrar.proxy.address,
-        verify_contracts,
-        hre
-      );
+      if (!registrarDeployment) {
+        return;
+      }
 
       await updateRegistrarConfig(
-        registrar.proxy.address,
+        registrarDeployment.address,
         apTeamMultiSig,
         {
           accountsContract: addresses.accounts.diamond,
@@ -87,22 +81,38 @@ task(
         hre
       );
 
-      // Registrar NetworkInfo's Router address must be updated for the current network
-      await updateRegistrarNetworkConnections(
-        registrar.proxy.address,
-        apTeamMultiSig,
-        {router: router.proxy.address},
+      const routerDeployment = await deployRouter(
+        addresses.axelar.gateway,
+        addresses.axelar.gasService,
+        registrarDeployment.address,
         hre
       );
 
+      // Registrar NetworkInfo's Router address must be updated for the current network
+      if (routerDeployment) {
+        await updateRegistrarNetworkConnections(
+          registrarDeployment.address,
+          apTeamMultiSig,
+          {router: routerDeployment.address},
+          hre
+        );
+      }
+
       await hre.run("manage:accounts:updateConfig", {
-        newRegistrar: registrar.proxy.address,
+        newRegistrar: registrarDeployment.address,
         yes: true,
       });
       await hre.run("manage:IndexFund:updateOwner", {
-        to: registrar.proxy.address,
+        to: registrarDeployment.address,
         yes: true,
       });
+
+      if (!isLocalNetwork(hre) && taskArgs.verify) {
+        await verify(hre, registrarDeployment);
+        if (routerDeployment) {
+          await verify(hre, routerDeployment);
+        }
+      }
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

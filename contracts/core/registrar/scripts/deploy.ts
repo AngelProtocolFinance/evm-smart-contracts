@@ -1,21 +1,29 @@
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {ProxyContract__factory, Registrar__factory} from "typechain-types";
-import {ADDRESS_ZERO, getSigners, logger, updateAddresses, validateAddress, verify} from "utils";
+import {
+  Deployment,
+  getContractName,
+  getSigners,
+  logger,
+  updateAddresses,
+  validateAddress,
+} from "utils";
 
 export async function deployRegistrar(
-  axelarGateway: string,
-  axelarGasService: string,
-  router: string, // no need to verify address validity, as Registrar will be deployed before the router
-  owner: string,
-  verify_contracts: boolean,
+  axelarGateway = "",
+  axelarGasService = "",
+  router = "", // no need to verify address validity, as Registrar will be deployed before the router
+  owner = "",
   hre: HardhatRuntimeEnvironment
-) {
+): Promise<Deployment | undefined> {
   logger.out("Deploying Registrar...");
 
   const {deployer, proxyAdmin, treasury} = await getSigners(hre);
 
   try {
+    validateAddress(axelarGateway, "axelarGateway");
+    validateAddress(axelarGasService, "axelarGasService");
     validateAddress(owner, "owner");
 
     // deploy implementation
@@ -61,20 +69,8 @@ export async function deployRegistrar(
       hre
     );
 
-    if (verify_contracts) {
-      await verify(hre, {address: registrar.address});
-      await verify(hre, {
-        address: proxy.address,
-        constructorArguments: [registrar.address, proxyAdmin.address, data],
-      });
-    }
-
-    return {implementation: registrar, proxy};
+    return {address: proxy.address, contractName: getContractName(factory)};
   } catch (error) {
     logger.out(error, logger.Level.Error);
-    return {
-      implementation: Registrar__factory.connect(ADDRESS_ZERO, proxyAdmin),
-      proxy: ProxyContract__factory.connect(ADDRESS_ZERO, proxyAdmin),
-    };
   }
 }

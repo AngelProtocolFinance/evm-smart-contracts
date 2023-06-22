@@ -1,18 +1,28 @@
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {CharityApplication__factory, ProxyContract__factory} from "typechain-types";
-import {ADDRESS_ZERO, getSigners, logger, updateAddresses, verify} from "utils";
+import {
+  Deployment,
+  getContractName,
+  getSigners,
+  logger,
+  updateAddresses,
+  validateAddress,
+} from "utils";
 
 export async function deployCharityApplication(
-  applicationsMultiSig: string,
-  accountsDiamond: string,
-  seedAsset: string,
-  verify_contracts: boolean,
+  applicationsMultiSig = "",
+  accountsDiamond = "",
+  seedAsset = "",
   hre: HardhatRuntimeEnvironment
-) {
+): Promise<{charityApplication: Deployment; charityApplicationLib: Deployment} | undefined> {
   const {proxyAdmin} = await getSigners(hre);
 
   try {
+    validateAddress(applicationsMultiSig, "applicationsMultiSig");
+    validateAddress(accountsDiamond, "accountsDiamond");
+    validateAddress(seedAsset, "seedAsset");
+
     // deploy library
     logger.out("Deploying CharityApplicationLib...");
     const charityApplicationLibFactory = await hre.ethers.getContractFactory(
@@ -74,29 +84,17 @@ export async function deployCharityApplication(
       hre
     );
 
-    if (verify_contracts) {
-      await verify(hre, {address: charityApplication.address});
-      await verify(hre, {
-        address: charityApplicationProxy.address,
-        constructorArguments: [charityApplication.address, proxyAdmin.address, initData],
-      });
-    }
-
     return {
-      implementation: charityApplication,
-      proxy: charityApplicationProxy,
-      charityApplicationLib,
+      charityApplication: {
+        address: charityApplicationProxy.address,
+        contractName: getContractName(charityApplicationFactory),
+      },
+      charityApplicationLib: {
+        address: charityApplicationLib.address,
+        contractName: getContractName(charityApplicationLibFactory),
+      },
     };
   } catch (error) {
     logger.out(error, logger.Level.Error);
-    return {
-      implementation: CharityApplication__factory.connect(ADDRESS_ZERO, proxyAdmin),
-      proxy: ProxyContract__factory.connect(ADDRESS_ZERO, proxyAdmin),
-      charityApplicationLib: await hre.ethers.getContractAt(
-        "CharityApplicationLib",
-        ADDRESS_ZERO,
-        proxyAdmin
-      ),
-    };
   }
 }

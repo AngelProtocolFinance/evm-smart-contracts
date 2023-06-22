@@ -1,26 +1,30 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
+import {ProxyContract__factory, Router__factory} from "typechain-types";
 import {
-  ADDRESS_ZERO,
   ContractFunctionParams,
+  Deployment,
+  getContractName,
   getSigners,
   logger,
   updateAddresses,
-  verify,
+  validateAddress,
 } from "utils";
-import {ProxyContract__factory, Router__factory} from "typechain-types";
 
 export async function deployRouter(
-  axelarGateway: string,
-  gasReceiver: string,
-  registrar: string,
-  verify_contracts: boolean,
+  axelarGateway = "",
+  gasReceiver = "",
+  registrar = "",
   hre: HardhatRuntimeEnvironment
-) {
+): Promise<Deployment | undefined> {
   logger.out("Deploying Router...");
 
   const {proxyAdmin} = await getSigners(hre);
 
   try {
+    validateAddress(axelarGateway, "axelarGateway");
+    validateAddress(gasReceiver, "gasReceiver");
+    validateAddress(registrar, "registrar");
+
     // deploy implementation
     logger.out("Deploying implementation...");
     const routerFactory = new Router__factory(proxyAdmin);
@@ -53,17 +57,8 @@ export async function deployRouter(
       hre
     );
 
-    if (verify_contracts) {
-      await verify(hre, {address: router.address});
-      await verify(hre, {address: routerProxy.address, constructorArguments});
-    }
-
-    return {implementation: router, proxy: routerProxy};
+    return {address: routerProxy.address, contractName: getContractName(routerFactory)};
   } catch (error) {
     logger.out(error, logger.Level.Error);
-    return {
-      implementation: Router__factory.connect(ADDRESS_ZERO, proxyAdmin),
-      proxy: ProxyContract__factory.connect(ADDRESS_ZERO, proxyAdmin),
-    };
   }
 }

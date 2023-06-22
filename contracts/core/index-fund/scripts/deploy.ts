@@ -1,14 +1,20 @@
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {IndexFund__factory, ProxyContract__factory} from "typechain-types";
-import {ADDRESS_ZERO, getSigners, logger, updateAddresses, validateAddress, verify} from "utils";
+import {
+  Deployment,
+  getContractName,
+  getSigners,
+  logger,
+  updateAddresses,
+  validateAddress,
+} from "utils";
 
 export async function deployIndexFund(
-  registrar: string,
-  owner: string,
-  verify_contracts: boolean,
+  registrar = "",
+  owner = "",
   hre: HardhatRuntimeEnvironment
-) {
+): Promise<Deployment | undefined> {
   logger.out("Deploying IndexFund...");
 
   const {deployer, proxyAdmin} = await getSigners(hre);
@@ -60,20 +66,8 @@ export async function deployIndexFund(
       hre
     );
 
-    if (verify_contracts) {
-      await verify(hre, {address: indexFund.address});
-      await verify(hre, {
-        address: indexFundProxy.address,
-        constructorArguments: [indexFund.address, proxyAdmin.address, initData],
-      });
-    }
-
-    return {implementation: indexFund, proxy: indexFundProxy};
+    return {address: indexFundProxy.address, contractName: getContractName(indexFundFactory)};
   } catch (error) {
     logger.out(error, logger.Level.Error);
-    return {
-      implementation: IndexFund__factory.connect(ADDRESS_ZERO, proxyAdmin),
-      proxy: ProxyContract__factory.connect(ADDRESS_ZERO, proxyAdmin),
-    };
   }
 }

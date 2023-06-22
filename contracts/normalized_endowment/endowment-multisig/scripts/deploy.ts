@@ -5,12 +5,16 @@ import {
   MultiSigWalletFactory__factory,
   ProxyContract__factory,
 } from "typechain-types";
-import {ADDRESS_ZERO, getContractName, getSigners, logger, updateAddresses, verify} from "utils";
+import {Deployment, getContractName, getSigners, logger, updateAddresses} from "utils";
 
-export async function deployEndowmentMultiSig(
-  verify_contracts: boolean,
-  hre: HardhatRuntimeEnvironment
-) {
+export async function deployEndowmentMultiSig(hre: HardhatRuntimeEnvironment): Promise<
+  | {
+      emitter: Deployment;
+      factory: Deployment;
+      implementation: Deployment;
+    }
+  | undefined
+> {
   const {proxyAdmin} = await getSigners(hre);
 
   try {
@@ -68,44 +72,22 @@ export async function deployEndowmentMultiSig(
       hre
     );
 
-    if (verify_contracts) {
-      await verify(hre, {
-        address: emitter.address,
-        contractName: getContractName(emitterFactory),
-      });
-      await verify(hre, {
+    return {
+      emitter: {
         address: emitterProxy.address,
-        constructorArguments: [emitter.address, proxyAdmin.address, initData],
-        contractName: `${getContractName(emitterFactory)} proxy`,
-      });
-      await verify(hre, {
-        address: endowmentMultiSig.address,
-        contractName: getContractName(endowmentMultiSigFactory),
-      });
-      await verify(hre, {
+        contractName: getContractName(emitterFactory),
+      },
+      factory: {
         address: multiSigWalletFactory.address,
         constructorArguments: [endowmentMultiSig.address, proxyAdmin.address],
         contractName: getContractName(multiSigWalletFactoryFactory),
-      });
-    }
-
-    return {
-      emitter: {
-        implementation: emitter,
-        proxy: emitterProxy,
       },
-      factory: multiSigWalletFactory,
-      implementation: endowmentMultiSig,
+      implementation: {
+        address: endowmentMultiSig.address,
+        contractName: getContractName(endowmentMultiSigFactory),
+      },
     };
   } catch (error) {
     logger.out(error, logger.Level.Error);
-    return {
-      emitter: {
-        implementation: EndowmentMultiSigEmitter__factory.connect(ADDRESS_ZERO, proxyAdmin),
-        proxy: ProxyContract__factory.connect(ADDRESS_ZERO, proxyAdmin),
-      },
-      factory: MultiSigWalletFactory__factory.connect(ADDRESS_ZERO, proxyAdmin),
-      implementation: EndowmentMultiSig__factory.connect(ADDRESS_ZERO, proxyAdmin),
-    };
   }
 }

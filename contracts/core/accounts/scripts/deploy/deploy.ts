@@ -8,18 +8,23 @@ import {
   DiamondInit__factory,
   Diamond__factory,
 } from "typechain-types";
-import {ADDRESS_ZERO, getSigners, logger, updateAddresses, validateAddress, verify} from "utils";
+import {Deployment, getSigners, logger, updateAddresses, validateAddress} from "utils";
 
 import cutDiamond from "./cutDiamond";
 import deployFacets from "./deployFacets";
 
 export async function deployAccountsDiamond(
-  owner: string,
-  registrar: string,
-  angelCoreStruct: string,
-  verify_contracts: boolean,
+  owner = "",
+  registrar = "",
+  angelCoreStruct = "",
   hre: HardhatRuntimeEnvironment
-) {
+): Promise<
+  | {
+      diamond: Deployment;
+      facets: Array<Deployment>;
+    }
+  | undefined
+> {
   logger.out("Deploying and setting up Accounts Diamond and all its facets...");
 
   const {proxyAdmin} = await getSigners(hre);
@@ -37,21 +42,19 @@ export async function deployAccountsDiamond(
 
     await cutDiamond(diamond.address, diamondInit, proxyAdmin, owner, registrar, cuts, hre);
 
-    if (verify_contracts) {
-      for (const {facetName, cut} of cuts) {
-        await verify(hre, {address: cut.facetAddress.toString(), contractName: facetName});
-      }
-      await verify(hre, {
+    return {
+      diamond: {
         address: diamond.address,
-        contractName: "Diamond",
+        contractName: "Accounts Diamond",
         constructorArguments: [proxyAdmin.address, diamondCutFacet.address],
-      });
-    }
-
-    return diamond;
+      },
+      facets: cuts.map<Deployment>(({cut, facetName}) => ({
+        address: cut.facetAddress.toString(),
+        contractName: facetName,
+      })),
+    };
   } catch (error) {
     logger.out(error, logger.Level.Error);
-    return Diamond__factory.connect(ADDRESS_ZERO, proxyAdmin);
   }
 }
 
