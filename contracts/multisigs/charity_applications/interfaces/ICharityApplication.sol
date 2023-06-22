@@ -12,19 +12,19 @@ abstract contract ICharityApplication is IERC165 {
 
   event InitilizedCharityApplication();
 
-  event CharityProposed(address indexed proposer, uint256 indexed proposalId, string meta);
+  event CharityProposed(address proposer, uint256 proposalId, string meta);
 
-  event CharityApproved(uint256 indexed proposalId, uint256 indexed endowmentId);
+  event CharityApproved(uint256 proposalId, uint256 endowmentId);
 
-  event CharityRejected(uint256 indexed proposalId);
+  event CharityRejected(uint256 proposalId);
 
-  event Deposit(address indexed sender, uint256 value);
+  event Deposit(address sender, uint256 value);
 
   // event emitted when gas is sent to endowments first member
-  event GasSent(uint256 indexed endowmentId, address indexed member, uint256 amount);
+  event GasSent(uint256 endowmentId, address member, uint256 amount);
 
   // event emitted when seed funding is given to endowment
-  event SeedAssetSent(uint256 indexed endowmentId, address indexed asset, uint256 amount);
+  event SeedAssetSent(uint256 endowmentId, address asset, uint256 amount);
 
   // For storing mattic to send gas fees
   /// @dev Receive function allows to deposit ether.

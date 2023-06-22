@@ -43,8 +43,8 @@ interface IStakingHalo {
  * The `Staking` contract enables users to stake their Halo token in exchange for rewards in form of additional tokens.
  */
 contract Staking is Initializable, ERC20, Pausable, ReentrancyGuard, Ownable {
-  event Staked(address indexed user, uint256 amount, uint256 total, bytes data);
-  event Unstaked(address indexed user, uint256 amount, uint256 total, bytes data);
+  event Staked(address user, uint256 amount, uint256 total, bytes data);
+  event Unstaked(address user, uint256 amount, uint256 total, bytes data);
   address public haloToken;
   uint256 public interestRate;
   uint256 public totalStaked;

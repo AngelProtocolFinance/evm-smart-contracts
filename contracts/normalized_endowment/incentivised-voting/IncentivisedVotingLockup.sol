@@ -32,19 +32,13 @@ contract IncentivisedVotingLockup is IIncentivisedVotingLockup, ReentrancyGuard 
   using SafeERC20 for IERC20;
 
   /** Shared Events */
-  event Deposit(
-    address indexed provider,
-    uint256 value,
-    uint256 locktime,
-    LockAction indexed action,
-    uint256 ts
-  );
-  event Withdraw(address indexed provider, uint256 value, uint256 ts);
-  event WithdrawVested(address indexed provider, uint256 value, uint256 ts);
-  event Ejected(address indexed ejected, address ejector, uint256 ts);
+  event Deposit(address provider, uint256 value, uint256 locktime, LockAction action, uint256 ts);
+  event Withdraw(address provider, uint256 value, uint256 ts);
+  event WithdrawVested(address provider, uint256 value, uint256 ts);
+  event Ejected(address ejected, address ejector, uint256 ts);
   event Expired();
   event RewardAdded(uint256 reward);
-  event RewardPaid(address indexed user, uint256 reward);
+  event RewardPaid(address user, uint256 reward);
 
   /** Shared Globals */
   IERC20 public stakingToken;
