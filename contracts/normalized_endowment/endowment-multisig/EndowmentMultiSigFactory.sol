@@ -11,7 +11,7 @@ contract Factory {
   /*
    *  Events
    */
-  event ContractInstantiation(address sender, address instantiation);
+  event ContractInstantiated(address sender, address instantiation);
 
   /*
    *  Storage
@@ -38,7 +38,7 @@ contract Factory {
   function register(address instantiation) internal {
     isInstantiation[instantiation] = true;
     instantiations[msg.sender].push(instantiation);
-    emit ContractInstantiation(msg.sender, instantiation);
+    emit ContractInstantiated(msg.sender, instantiation);
   }
 }
 
