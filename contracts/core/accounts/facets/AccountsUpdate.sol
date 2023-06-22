@@ -7,13 +7,14 @@ import {AccountStorage} from "../storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {AccountsEvents} from "./AccountsEvents.sol";
+import {IAccountsUpdate} from "../interfaces/IAccountsUpdate.sol";
 
 /**
  * @title AccountsUpdate
  * @notice This contract facet updates the accounts config and owner
  * @dev This contract facet updates the accounts config and owner
  */
-contract AccountsUpdate is ReentrancyGuardFacet, AccountsEvents {
+contract AccountsUpdate is ReentrancyGuardFacet, AccountsEvents, IAccountsUpdate {
   /**
    * @notice This function updates the owner of the contract
    * @dev This function updates the owner of the contract

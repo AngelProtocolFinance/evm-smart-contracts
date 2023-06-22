@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
-import {subDaoMessage} from "./../../../normalized_endowment/subdao/subdao.sol";
+
+import {subDaoMessage} from "../../../normalized_endowment/subdao/subdao.sol";
 import {AccountStorage} from "../storage.sol";
 import {LibAccounts} from "../lib/LibAccounts.sol";
-import {ProxyContract} from "./../../proxy.sol";
+import {ProxyContract} from "../../proxy.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
