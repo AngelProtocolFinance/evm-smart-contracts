@@ -43,7 +43,10 @@ contract MultiSigGeneric is
   }
 
   modifier notConfirmed(uint256 transactionId, address _owner) {
-    require(!confirmations[transactionId].confirmationsByOwner[_owner], "Transaction is not confirmed");
+    require(
+      !confirmations[transactionId].confirmationsByOwner[_owner],
+      "Transaction is not confirmed"
+    );
     _;
   }
 
@@ -69,12 +72,12 @@ contract MultiSigGeneric is
 
   /// @dev Receive function allows to deposit ether.
   receive() external payable override {
-    if (msg.value > 0) emit Deposit(msg.sender, msg.value);
+    if (msg.value > 0) emit GasDeposited(msg.sender, msg.value);
   }
 
   /// @dev Fallback function allows to deposit ether.
   fallback() external payable override {
-    if (msg.value > 0) emit Deposit(msg.sender, msg.value);
+    if (msg.value > 0) emit GasDeposited(msg.sender, msg.value);
   }
 
   /*
@@ -111,7 +114,7 @@ contract MultiSigGeneric is
       activeOwnersCount += 1;
       // set the owner address to false in mapping
       isOwner[owners[o]] = true;
-      emit OwnerAddition(owners[o]);
+      emit OwnerAdded(owners[o]);
     }
   }
 
@@ -129,7 +132,7 @@ contract MultiSigGeneric is
       activeOwnersCount -= 1;
       // set the owner address to false in mapping
       isOwner[owners[oo]] = false;
-      emit OwnerRemoval(owners[oo]);
+      emit OwnerRemoved(owners[oo]);
     }
     // adjust the approval threshold downward if we've removed more members than can meet the currently
     // set threshold level. (ex. Prevent 10 owners total needing 15 approvals to execute txs)
@@ -145,8 +148,8 @@ contract MultiSigGeneric is
   ) public virtual override onlyWallet ownerExists(currOwner) ownerDoesNotExist(newOwner) {
     isOwner[currOwner] = false;
     isOwner[newOwner] = true;
-    emit OwnerRemoval(currOwner);
-    emit OwnerAddition(newOwner);
+    emit OwnerRemoved(currOwner);
+    emit OwnerAdded(newOwner);
   }
 
   /// @dev Allows to change the number of required confirmations. Transaction has to be sent by wallet.
@@ -161,14 +164,14 @@ contract MultiSigGeneric is
     validApprovalsRequirement(activeOwnersCount, _approvalsRequired)
   {
     approvalsRequired = _approvalsRequired;
-    emit ApprovalsRequirementChange(_approvalsRequired);
+    emit ApprovalsRequirementChanged(_approvalsRequired);
   }
 
   /// @dev Allows to change whether explicit execution step is needed once the required number of confirmations is met. Transaction has to be sent by wallet.
   /// @param _requireExecution Is an explicit execution step is needed
   function changeRequireExecution(bool _requireExecution) public virtual override onlyWallet {
     requireExecution = _requireExecution;
-    emit ExecutionRequiredChange(_requireExecution);
+    emit RequireExecutionChanged(_requireExecution);
   }
 
   /// @dev Allows to change the expiry time for transactions.
@@ -210,7 +213,7 @@ contract MultiSigGeneric is
   {
     confirmations[transactionId].confirmationsByOwner[msg.sender] = true;
     confirmations[transactionId].count += 1;
-    emit Confirmation(msg.sender, transactionId);
+    emit TransactionConfirmed(msg.sender, transactionId);
     // if execution is required, do not auto execute
     if (!requireExecution) {
       executeTransaction(transactionId);
@@ -233,7 +236,7 @@ contract MultiSigGeneric is
   {
     confirmations[transactionId].confirmationsByOwner[msg.sender] = false;
     confirmations[transactionId].count -= 1;
-    emit Revocation(msg.sender, transactionId);
+    emit ConfirmationRevoked(msg.sender, transactionId);
   }
 
   /// @dev Allows current owners to revoke a confirmation for a non-executed transaction from a removed/non-current owner.
@@ -255,7 +258,7 @@ contract MultiSigGeneric is
     require(!isOwner[formerOwner], "Attempting to revert confirmation of a current owner");
     confirmations[transactionId].confirmationsByOwner[formerOwner] = false;
     confirmations[transactionId].count -= 1;
-    emit Revocation(formerOwner, transactionId);
+    emit ConfirmationRevoked(formerOwner, transactionId);
   }
 
   /// @dev Allows anyone to execute a confirmed transaction.
@@ -275,7 +278,7 @@ contract MultiSigGeneric is
       MultiSigStorage.Transaction storage txn = transactions[transactionId];
       txn.executed = true;
       Utils._execute(txn.destination, txn.value, txn.data);
-      emit Execution(transactionId);
+      emit TransactionExecuted(transactionId);
     }
   }
 
@@ -334,6 +337,6 @@ contract MultiSigGeneric is
       metadata: metadata
     });
     transactionCount += 1;
-    emit Submission(transactionId);
+    emit TransactionSubmitted(transactionId);
   }
 }

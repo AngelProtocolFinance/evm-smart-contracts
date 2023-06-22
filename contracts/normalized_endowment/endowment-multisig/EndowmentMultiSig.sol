@@ -189,7 +189,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
       MultiSigStorage.Transaction storage txn = transactions[transactionId];
       txn.executed = true;
       Utils._execute(txn.destination, txn.value, txn.data);
-      emit Execution(transactionId);
+      emit TransactionExecuted(transactionId);
       IEndowmentMultiSigEmitter(EMITTER_ADDRESS).executeEndowment(ENDOWMENT_ID, transactionId);
     }
   }
