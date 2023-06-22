@@ -9,7 +9,7 @@ interface ILocalRegistrar {
   /*////////////////////////////////////////////////
                         EVENTS
     */ ////////////////////////////////////////////////
-  event RebalanceParamsChanged();
+  event RebalanceParamsChanged(); // USE 'Updated' INSTEAD OF 'Changed'
   event AngelProtocolParamsChanged();
   event AccountsContractStorageChanged(string _chainName, string _accountsContractAddress);
   event TokenAcceptanceChanged(address _tokenAddr, bool _isAccepted);
@@ -24,7 +24,7 @@ interface ILocalRegistrar {
     LocalRegistrarLib.StrategyApprovalState _approvalState
   );
   event GasFeeUpdated(address _tokenAddr, uint256 _gasFee);
-  event FeeUpdated(AngelCoreStruct.FeeTypes _fee, uint256 _rate, address _payout);
+  event FeeUpdated(AngelCoreStruct.FeeTypes _fee, uint256 _rate, address _payout); // RENAME TO FeeSettingsUpdated
 
   /*////////////////////////////////////////////////
                     EXTERNAL METHODS
