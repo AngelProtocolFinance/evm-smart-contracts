@@ -10,13 +10,13 @@ interface IRouter is IAxelarExecutable {
                         EVENTS
     */ ////////////////////////////////////////////////
 
-  event TokensSent(IVault.VaultActionData action, uint256 amount);
-  event FallbackRefund(IVault.VaultActionData action, uint256 amount);
-  event Deposit(IVault.VaultActionData action);
-  event Redemption(IVault.VaultActionData action, uint256 amount);
-  event Harvest(IVault.VaultActionData action);
-  event LogError(IVault.VaultActionData action, string message);
-  event LogErrorBytes(IVault.VaultActionData action, bytes data);
+  event TokenSent(IVault.VaultActionData action, uint256 amount);
+  event TokenRefunded(IVault.VaultActionData action, uint256 amount);
+  event TokenDeposited(IVault.VaultActionData action);
+  event TokenRedeemed(IVault.VaultActionData action, uint256 amount);
+  event RewardsHarvested(IVault.VaultActionData action);
+  event ErrorLogged(IVault.VaultActionData action, string message);
+  event ErrorBytesLogged(IVault.VaultActionData action, bytes data);
 
   /*////////////////////////////////////////////////
                     CUSTOM TYPES
