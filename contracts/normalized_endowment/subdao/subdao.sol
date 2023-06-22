@@ -389,7 +389,7 @@ contract SubDao is Storage, ReentrancyGuard {
 
     if (depositamount > 0) {
       IERC20(config.daoToken).transferFrom(msg.sender, address(this), depositamount);
-      ISubdaoEmitter(emitterAddress).transferFromSubdao(
+      ISubdaoEmitter(emitterAddress).transferSubdao(
         config.daoToken,
         msg.sender,
         address(this),
@@ -494,6 +494,7 @@ contract SubDao is Storage, ReentrancyGuard {
           );
           ISubdaoEmitter(emitterAddress).transferSubdao(
             config.daoToken,
+            address(this),
             a_poll.creator,
             a_poll.depositAmount
           );

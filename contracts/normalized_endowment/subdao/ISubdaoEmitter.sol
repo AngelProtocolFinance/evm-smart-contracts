@@ -12,18 +12,11 @@ interface ISubdaoEmitter {
 
   function updateSubdaoConfig(subDaoStorage.Config memory config) external;
 
-  function transferFromSubdao(
-    address tokenAddress,
-    address from,
-    address to,
-    uint256 amount
-  ) external;
+  function transferSubdao(address tokenAddress, address from, address to, uint256 amount) external;
 
   function updateSubdaoState(subDaoStorage.State memory state) external;
 
   function updateSubdaoPoll(uint256 id, subDaoStorage.Poll memory poll) external;
-
-  function transferSubdao(address tokenAddress, address recipient, uint amount) external;
 
   function updateVotingStatus(
     uint256 pollId,
