@@ -2,7 +2,6 @@
 pragma solidity ^0.8.16;
 
 //Libraries
-import "hardhat/console.sol";
 import "./storage.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -12,10 +11,8 @@ import {IndexFundMessage} from "./message.sol";
 import {AngelCoreStruct} from "../struct.sol";
 import {Array, Array32} from "../../lib/array.sol";
 import {Utils} from "../../lib/utils.sol";
-import {AddressArray} from "../../lib/address/array.sol";
 import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../registrar/storage.sol";
-import {Validator} from "../registrar/lib/validator.sol";
 import {AccountMessages} from "../accounts/message.sol";
 
 // TODO: Edit Query functions with start and limit to optimise the size of data being returned
