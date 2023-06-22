@@ -43,8 +43,8 @@ interface IStakingHalo {
  * The `Staking` contract enables users to stake their Halo token in exchange for rewards in form of additional tokens.
  */
 contract Staking is Initializable, ERC20, Pausable, ReentrancyGuard, Ownable {
-  event Staked(address user, uint256 amount, uint256 total, bytes data);
-  event Unstaked(address user, uint256 amount, uint256 total, bytes data);
+  event HaloStaked(address user, uint256 amount, uint256 total, bytes data);
+  event HaloUnstaked(address user, uint256 amount, uint256 total, bytes data);
   address public haloToken;
   uint256 public interestRate;
   uint256 public totalStaked;
@@ -112,7 +112,7 @@ contract Staking is Initializable, ERC20, Pausable, ReentrancyGuard, Ownable {
 
     _mint(msg.sender, amount);
 
-    emit Staked(msg.sender, amount, totalStakedFor[msg.sender], data);
+    emit HaloStaked(msg.sender, amount, totalStakedFor[msg.sender], data);
     return stakeNumber[msg.sender];
   }
 
@@ -142,7 +142,7 @@ contract Staking is Initializable, ERC20, Pausable, ReentrancyGuard, Ownable {
     _mint(user, amount);
     // emit Staked event
 
-    emit Staked(user, amount, totalStakedFor[user], data);
+    emit HaloStaked(user, amount, totalStakedFor[user], data);
 
     return stakeNumber[user];
   }
@@ -178,7 +178,7 @@ contract Staking is Initializable, ERC20, Pausable, ReentrancyGuard, Ownable {
     totalStaked -= amount;
 
     // emit Unstaked event
-    emit Unstaked(msg.sender, amount, totalStakedFor[msg.sender], data);
+    emit HaloUnstaked(msg.sender, amount, totalStakedFor[msg.sender], data);
   }
 
   /**
