@@ -35,19 +35,19 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 
 contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
   event DonationMatchCharityInitialized(address donationMatch, DonationMatchStorage.Config config);
-  event DonationMatchCharityErc20ApprovalGiven(
+  event DonationMatchCharityTokenApprovalGiven(
     uint32 endowmentId,
     address tokenAddress,
     address spender,
     uint256 amount
   );
-  event DonationMatchCharityErc20Transfer(
+  event TokenTransferred(
     uint32 endowmentId,
     address tokenAddress,
     address recipient,
     uint256 amount
   );
-  event DonationMatchCharityErc20Burned(uint32 endowmentId, address tokenAddress, uint256 amount);
+  event TokenBurned(uint32 endowmentId, address tokenAddress, uint256 amount);
   event DonationMatchCharityExecuted(
     address donationMatch,
     address tokenAddress,
@@ -55,7 +55,7 @@ contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
     address accountsContract,
     uint32 endowmentId,
     address donor
-  );
+  ); // >> RENAME TO 'DonationMatchExecuted'
 
   function initialize(DonationMatchMessages.InstantiateMessage memory details) public initializer {
     require(details.reserveToken != address(0), "Invalid Address");
@@ -130,7 +130,7 @@ contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
 
     require(success, "Token transfer failed");
 
-    emit DonationMatchCharityErc20ApprovalGiven(
+    emit DonationMatchCharityTokenApprovalGiven(
       endowmentId,
       token,
       state.config.reserveToken,
@@ -146,7 +146,7 @@ contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
 
       IERC20Burnable(token).transfer(donor, donorAmount);
 
-      emit DonationMatchCharityErc20Transfer(endowmentId, token, donor, donorAmount);
+      emit TokenTransferred(endowmentId, token, donor, donorAmount);
 
       success = IERC20(token).approve(registrar_config.accountsContract, endowmentAmount);
       require(success, "Approve failed");
@@ -157,15 +157,10 @@ contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
         endowmentAmount
       );
 
-      emit DonationMatchCharityErc20Transfer(
-        endowmentId,
-        token,
-        registrar_config.accountsContract,
-        endowmentAmount
-      );
+      emit TokenTransferred(endowmentId, token, registrar_config.accountsContract, endowmentAmount);
 
       IERC20Burnable(token).burn(burnAmount);
-      emit DonationMatchCharityErc20Burned(endowmentId, token, burnAmount);
+      emit TokenBurned(endowmentId, token, burnAmount);
     } else {
       // approve reserve rency to dao token contract [GIvE approval]
 
