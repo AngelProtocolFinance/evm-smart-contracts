@@ -7,7 +7,6 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import "./storage.sol";
 import {GovHodlerMessage} from "./message.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import {GovHodlerEvents} from "./events.sol";
 
 /**
  *@title GovHodler
