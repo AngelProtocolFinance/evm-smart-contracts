@@ -21,8 +21,8 @@ contract Collector is Storage {
   /*///////////////////////////////////////////////
                     EVENTS
     */ ///////////////////////////////////////////////
-  event CollecterInitialized(CollectorMessage.InstantiateMsg details);
-  event CollectedConfigUpdated(CollectorStorage.Config config);
+  event CollectorInitialized(CollectorMessage.InstantiateMsg details);
+  event ConfigUpdated(CollectorStorage.Config config);
   event CollectorSweeped(address tokenSwept, uint256 amountSwept, uint256 haloOut);
 
   IERC20Upgradeable token;
@@ -50,7 +50,7 @@ contract Collector is Storage {
       haloToken: details.haloToken
     });
     token = IERC20Upgradeable(details.haloToken);
-    emit CollecterInitialized(details);
+    emit CollectorInitialized(details);
   }
 
   /**
@@ -70,7 +70,7 @@ contract Collector is Storage {
     state.config.registrarContract = registrarContract;
     state.config.rewardFactor = rewardFactor;
     state.config.timelockContract = timelockContract;
-    emit CollectedConfigUpdated(state.config);
+    emit ConfigUpdated(state.config);
     return true;
   }
 
