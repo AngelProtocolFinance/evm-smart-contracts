@@ -54,6 +54,7 @@ library CharityApplicationLib {
   }
 }
 
+// SHOULD THIS INHERIT "Initializable"??
 /**
  * @title CharityApplication
  * @notice Contract for managing charity applications, sent by public to open a charity endowment on AP
@@ -95,12 +96,12 @@ contract CharityApplication is CharityStorage, ICharityApplication, ERC165, Reen
 
   /// @dev Receive function allows to deposit ether.
   receive() external payable override {
-    if (msg.value > 0) emit Deposit(msg.sender, msg.value);
+    if (msg.value > 0) emit GasDeposited(msg.sender, msg.value);
   }
 
   /// @dev Fallback function allows to deposit ether.
   fallback() external payable override {
-    if (msg.value > 0) emit Deposit(msg.sender, msg.value);
+    if (msg.value > 0) emit GasDeposited(msg.sender, msg.value);
   }
 
   // seed asset will always be USDC
@@ -147,7 +148,7 @@ contract CharityApplication is CharityStorage, ICharityApplication, ERC165, Reen
       config.proposalExpiry = 4 * 24 * 60 * 60; // 4 days in seconds
     else config.proposalExpiry = expiry;
 
-    emit InitilizedCharityApplication();
+    emit Initialized();
   }
 
   /**

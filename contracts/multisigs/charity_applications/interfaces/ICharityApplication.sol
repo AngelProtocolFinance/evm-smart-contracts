@@ -9,7 +9,7 @@ abstract contract ICharityApplication is IERC165 {
    * Events
    */
 
-  event InitilizedCharityApplication();
+  event Initialized();
 
   event CharityProposed(address proposer, uint256 proposalId, string meta);
 
@@ -17,7 +17,7 @@ abstract contract ICharityApplication is IERC165 {
 
   event CharityRejected(uint256 proposalId);
 
-  event Deposit(address sender, uint256 value);
+  event GasDeposited(address sender, uint256 value);
 
   // event emitted when gas is sent to endowments first member
   event GasSent(uint256 endowmentId, address member, uint256 amount);
