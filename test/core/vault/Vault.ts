@@ -370,7 +370,6 @@ describe("Vault", function () {
     const DEPOSIT = 1_000_000_000 // $1000 
     const EX_RATE = 2
     const TAX_RATE = 100 // bps
-    const PRECISION = BigNumber.from(10).pow(24)
     before(async function() {
       registrar = await deployRegistrarAsProxy(owner)
       await registrar.setVaultOperatorApproved(owner.address, true)
@@ -452,5 +451,94 @@ describe("Vault", function () {
       expect(principle.baseToken).to.equal(0) // we zero out princ. on full redemption
       expect(principle.costBasis_withPrecision).to.equal(0)
     })
+  })
+
+  describe("upon Harvest", async function () {
+    let vault: APVault_V1
+    let baseToken: DummyERC20
+    let yieldToken: DummyERC20
+    let strategy: DummyStrategy
+    let registrar: LocalRegistrar
+    const DEPOSIT = 1_000_000_000 // $1000 
+    const EX_RATE = 1
+    const TAX_RATE = 100 // bps
+    const PRECISION = BigNumber.from(10).pow(24)
+    before(async function() {
+      registrar = await deployRegistrarAsProxy(owner)
+      await registrar.setVaultOperatorApproved(owner.address, true)
+      await registrar.setFeeSettingsByFeesType(1, TAX_RATE, collector.address) // harvest fee type, establish tax collector
+    })
+
+    describe("For liquid vaults", async function () {
+      beforeEach(async function () {
+        baseToken = await deployDummyERC20(owner)
+        yieldToken = await deployDummyERC20(owner)
+        strategy = await deployDummyStrategy(
+          owner,
+          {
+            baseToken: baseToken.address, 
+            yieldToken: yieldToken.address, 
+            admin: owner.address
+          })
+        vault = await deployVault({
+          vaultType: 1, // Locked
+          admin: owner.address, 
+          baseToken: baseToken.address, 
+          yieldToken: yieldToken.address,
+          strategy: strategy.address,
+          registrar: registrar.address
+        })
+        await baseToken.mint(vault.address, DEPOSIT)
+        await yieldToken.mint(strategy.address, DEPOSIT*EX_RATE)
+        await strategy.setDummyAmt(DEPOSIT*EX_RATE)
+        await vault.deposit(0, baseToken.address, DEPOSIT)
+      })
+
+      it("reverts if the strategy is paused", async function () {
+        await strategy.pause()
+        await expect(vault.harvest([0])).to.be.revertedWithCustomError(vault, "OnlyNotPaused")
+        await strategy.unpause()
+      })
+  
+      it("reverts if the caller isn't approved", async function () {
+        await registrar.setVaultOperatorApproved(owner.address, false)
+        await expect(vault.harvest([0])).to.be.revertedWithCustomError(vault, "OnlyApproved")
+        await registrar.setVaultOperatorApproved(owner.address, true)
+      })
+
+      it("does not harvest if the position hasn't earned yield", async function () {
+        await strategy.setDummyPreviewAmt(DEPOSIT)
+        let collectorBal = await baseToken.balanceOf(collector.address)
+        await vault.harvest([0]) 
+        let newCollectorBal = await baseToken.balanceOf(collector.address)
+        expect(newCollectorBal).to.equal(collectorBal)
+      })
+  
+      it("reverts if the yieldToken approve to strategy fails", async function () {
+        await strategy.setDummyPreviewAmt(DEPOSIT * 2) // 100% yield
+        await yieldToken.setApproveAllowed(false)
+        await expect(vault.harvest([0])).to.be.revertedWithCustomError(vault, "ApproveFailed")
+        await baseToken.setTransferAllowed(true)
+      })
+    
+      it("reverts if the baseToken transfer fails", async function () {
+        await strategy.setDummyPreviewAmt(DEPOSIT * 2) // 100% yield
+        await baseToken.setTransferAllowed(false)
+        await expect(vault.harvest([0])).to.be.revertedWithCustomError(vault, "TransferFailed")
+        await baseToken.setTransferAllowed(true)
+      })
+    
+      it("appropriately harevests yield", async function () {
+        await strategy.setDummyPreviewAmt(DEPOSIT * 2) // 100% yield
+        let expectedHarvestAmt = DEPOSIT * TAX_RATE / 10000 // DEPOSIT = position in yield, apply tax 
+        await strategy.setDummyAmt(expectedHarvestAmt) // no yield
+        await vault.harvest([0])
+        let newCollectorBal = await baseToken.balanceOf(collector.address)
+        expect(newCollectorBal).to.equal(expectedHarvestAmt)
+      })
+    })
+
+
+
   })
 })
