@@ -38,16 +38,16 @@ contract EndowmentMultiSigEmitter {
     bool requireExecution,
     uint256 transactionExpiry
   );
-  event EndowmentConfirmation(uint256 endowmentId, address sender, uint256 transactionId);
-  event EndowmentRevocation(uint256 endowmentId, address sender, uint256 transactionId);
-  event EndowmentSubmission(uint256 endowmentId, uint256 transactionId);
-  event EndowmentExecution(uint256 endowmentId, uint256 transactionId);
-  event EndowmentExecutionFailure(uint256 endowmentId, uint256 transactionId);
-  event EndowmentDeposit(uint256 endowmentId, address sender, uint256 value);
-  event EndowmentOwnersAddition(uint256 endowmentId, address[] owners);
-  event EndowmentOwnersRemoval(uint256 endowmentId, address[] owners);
-  event EndowmentOwnerReplace(uint256 endowmentId, address currOwner, address newOwner);
-  event EndowmentApprovalsRequirementChange(uint256 endowmentId, uint256 approvalsRequired);
+  event EndowmentConfirmed(uint256 endowmentId, address sender, uint256 transactionId);
+  event ConfirmationRevoked(uint256 endowmentId, address sender, uint256 transactionId);
+  event EndowmentSubmitted(uint256 endowmentId, uint256 transactionId);
+  event TransactionExecuted(uint256 endowmentId, uint256 transactionId);
+  event TransactionExecutionFailed(uint256 endowmentId, uint256 transactionId);
+  event GasDeposited(uint256 endowmentId, address sender, uint256 value);
+  event OwnersAdded(uint256 endowmentId, address[] owners);
+  event OwnersRemoved(uint256 endowmentId, address[] owners);
+  event OwnerReplaced(uint256 endowmentId, address currOwner, address newOwner);
+  event ApprovalRequirementsUpdated(uint256 endowmentId, uint256 approvalsRequired);
   event EndowmentTransactionExpiryChange(uint256 endowmentId, uint256 transactionExpiry);
 
   /**
@@ -70,11 +70,19 @@ contract EndowmentMultiSigEmitter {
     uint256 transactionExpiry
   ) public isOwner {
     isMultisig[multisigAddress] = true;
-    emit MultisigCreated(multisigAddress, endowmentId, emitter, owners, required, requireExecution, transactionExpiry);
+    emit MultisigCreated(
+      multisigAddress,
+      endowmentId,
+      emitter,
+      owners,
+      required,
+      requireExecution,
+      transactionExpiry
+    );
   }
 
   /**
-   * @notice emits the EndowmentConfirmation event
+   * @notice emits the EndowmentConfirmed event
    * @param endowmentId the endowment id
    * @param sender the sender of the transaction
    * @param transactionId the transaction id
@@ -84,11 +92,11 @@ contract EndowmentMultiSigEmitter {
     address sender,
     uint256 transactionId
   ) public isEmitter {
-    emit EndowmentConfirmation(endowmentId, sender, transactionId);
+    emit EndowmentConfirmed(endowmentId, sender, transactionId);
   }
 
   /**
-   * @notice emits the EndowmentRevocation event
+   * @notice emits the ConfirmationRevoked event
    * @param endowmentId the endowment id
    * @param sender the sender of the transaction
    * @param transactionId the transaction id
@@ -98,66 +106,66 @@ contract EndowmentMultiSigEmitter {
     address sender,
     uint256 transactionId
   ) public isEmitter {
-    emit EndowmentRevocation(endowmentId, sender, transactionId);
+    emit ConfirmationRevoked(endowmentId, sender, transactionId);
   }
 
   /**
-   * @notice emits the EndowmentSubmission event
+   * @notice emits the EndowmentSubmitted event
    * @param endowmentId the endowment id
    * @param transactionId the transaction id
    */
   function submitEndowment(uint256 endowmentId, uint256 transactionId) public isEmitter {
-    emit EndowmentSubmission(endowmentId, transactionId);
+    emit EndowmentSubmitted(endowmentId, transactionId);
   }
 
   /**
-   * @notice emits the EndowmentExecution event
+   * @notice emits the TransactionExecuted event
    * @param endowmentId the endowment id
    * @param transactionId the transaction id
    */
   function executeEndowment(uint256 endowmentId, uint256 transactionId) public isEmitter {
-    emit EndowmentExecution(endowmentId, transactionId);
+    emit TransactionExecuted(endowmentId, transactionId);
   }
 
   /**
-   * @notice emits the EndowmentExecutionFailure event
+   * @notice emits the TransactionExecutionFailed event
    * @param endowmentId the endowment id
    * @param transactionId the transaction id
    */
   function executeFailureEndowment(uint256 endowmentId, uint256 transactionId) public isEmitter {
-    emit EndowmentExecutionFailure(endowmentId, transactionId);
+    emit TransactionExecutionFailed(endowmentId, transactionId);
   }
 
   /**
-   * @notice emits the EndowmentDeposit event
+   * @notice emits the GasDeposited event
    * @param endowmentId the endowment id
    * @param sender the sender of the transaction
    * @param value the value of the transaction
    */
   function depositEndowment(uint256 endowmentId, address sender, uint256 value) public isEmitter {
-    emit EndowmentDeposit(endowmentId, sender, value);
+    emit GasDeposited(endowmentId, sender, value);
   }
 
   /**
-   * @notice emits the EndowmentOwnersAddition event
+   * @notice emits the OwnersAdded event
    * @param endowmentId the endowment id
    * @param owners the added owners of the endowment
    */
   function addOwnersEndowment(uint256 endowmentId, address[] memory owners) public isEmitter {
-    emit EndowmentOwnersAddition(endowmentId, owners);
+    emit OwnersAdded(endowmentId, owners);
   }
 
   /**
-   * @notice emits the EndowmentOwnersRemoval event
+   * @notice emits the OwnersRemoved event
    * @param endowmentId the endowment id
    * @param owners the removed owners of the endowment
    */
   function removeOwnersEndowment(uint256 endowmentId, address[] memory owners) public isEmitter {
-    emit EndowmentOwnersRemoval(endowmentId, owners);
+    emit OwnersRemoved(endowmentId, owners);
   }
 
   /**
-   * @notice emits the EndowmentOwnerReplace event
+   * @notice emits the OwnerReplaced event
    * @param endowmentId the endowment id
    * @param currOwner the removed owner of the endowment
    * @param newOwner the added owner of the endowment
@@ -167,19 +175,19 @@ contract EndowmentMultiSigEmitter {
     address currOwner,
     address newOwner
   ) public isEmitter {
-    emit EndowmentOwnerReplace(endowmentId, currOwner, newOwner);
+    emit OwnerReplaced(endowmentId, currOwner, newOwner);
   }
 
   /**
-   * @notice emits the EndowmentApprovalsRequirementChange event
+   * @notice emits the ApprovalRequirementsUpdated event
    * @param endowmentId the endowment id
    * @param approvalsRequired the required number of confirmations
    */
-  function approvalsRequirementChangeEndowment(
+  function changeApprovalRequirements(
     uint256 endowmentId,
     uint256 approvalsRequired
   ) public isEmitter {
-    emit EndowmentApprovalsRequirementChange(endowmentId, approvalsRequired);
+    emit ApprovalRequirementsUpdated(endowmentId, approvalsRequired);
   }
 
   /**

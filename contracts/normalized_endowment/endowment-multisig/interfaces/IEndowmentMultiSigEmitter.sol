@@ -12,7 +12,7 @@ interface IEndowmentMultiSigEmitter {
 
   function executeFailureEndowment(uint256 endowmentId, uint256 transactionId) external;
 
-  function depositEndowment(uint256 endowmentId, address sender, uint256 value) external;
+  function depositEndowment(uint256 endowmentId, address sender, uint256 value) external; // UNUSED
 
   function addOwnersEndowment(uint256 endowmentId, address[] memory owners) external;
 
@@ -20,10 +20,7 @@ interface IEndowmentMultiSigEmitter {
 
   function replaceOwnerEndowment(uint256 endowmentId, address currOwner, address newOwner) external;
 
-  function approvalsRequirementChangeEndowment(
-    uint256 endowmentId,
-    uint256 approvalsRequired
-  ) external;
+  function changeApprovalRequirements(uint256 endowmentId, uint256 approvalsRequired) external;
 
   function requireExecutionChangeEndowment(uint256 endowmentId, bool requireExecution) external;
 

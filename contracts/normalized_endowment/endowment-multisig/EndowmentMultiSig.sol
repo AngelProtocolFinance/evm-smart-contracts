@@ -78,7 +78,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
    */
   function changeApprovalsRequirement(uint256 _approvalsRequired) public override {
     super.changeApprovalsRequirement(_approvalsRequired);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).approvalsRequirementChangeEndowment(
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).changeApprovalRequirements(
       ENDOWMENT_ID,
       _approvalsRequired
     );
@@ -190,7 +190,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
       txn.executed = true;
       Utils._execute(txn.destination, txn.value, txn.data);
       emit TransactionExecuted(transactionId);
-      IEndowmentMultiSigEmitter(EMITTER_ADDRESS).executeEndowment(ENDOWMENT_ID, transactionId);
+      IEndowmentMultiSigEmitter(EMITTER_ADDRESS).executeEndowment(ENDOWMENT_ID, transactionId); // >> WHAT'S THE USE OF THIS CALL IF A "TransactionExecuted" IS EMITTED?
     }
   }
 
