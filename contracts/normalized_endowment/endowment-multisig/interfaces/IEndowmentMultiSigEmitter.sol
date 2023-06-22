@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
-import {MultiSigStorage} from "../../../multisigs/storage.sol";
 
 interface IEndowmentMultiSigEmitter {
   function confirmEndowment(uint256 endowmentId, address sender, uint256 transactionId) external;
