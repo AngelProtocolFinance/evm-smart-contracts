@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {MultiSigStorage} from "../storage.sol";
 import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 abstract contract IMultiSigGeneric is IERC165 {
