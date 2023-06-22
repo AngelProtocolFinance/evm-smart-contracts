@@ -8,7 +8,7 @@ import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
-import {AccountsEvents} from "./AccountsEvents.sol";
+import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsUpdateEndowmentSettingsController} from "../interfaces/IAccountsUpdateEndowmentSettingsController.sol";
 
 /**
@@ -19,7 +19,7 @@ import {IAccountsUpdateEndowmentSettingsController} from "../interfaces/IAccount
 contract AccountsUpdateEndowmentSettingsController is
   IAccountsUpdateEndowmentSettingsController,
   ReentrancyGuardFacet,
-  AccountsEvents
+  IAccountsEvents
 {
   /**
     @dev Updates the settings of an endowment.

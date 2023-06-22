@@ -8,7 +8,7 @@ import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {IIndexFund} from "../../index-fund/Iindex-fund.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
-import {AccountsEvents} from "./AccountsEvents.sol";
+import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsUpdateStatusEndowments} from "../interfaces/IAccountsUpdateStatusEndowments.sol";
 
 /**
@@ -19,7 +19,7 @@ import {IAccountsUpdateStatusEndowments} from "../interfaces/IAccountsUpdateStat
 contract AccountsUpdateStatusEndowments is
   IAccountsUpdateStatusEndowments,
   ReentrancyGuardFacet,
-  AccountsEvents
+  IAccountsEvents
 {
   /**
    * @notice Closes an endowment, setting the endowment state to "closingEndowment" and the closing beneficiary to the provided beneficiary.

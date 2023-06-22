@@ -8,7 +8,7 @@ import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {Array} from "../../../lib/array.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
-import {AccountsEvents} from "./AccountsEvents.sol";
+import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 import {IAccountsUpdateEndowments} from "../interfaces/IAccountsUpdateEndowments.sol";
 
@@ -20,7 +20,7 @@ import {IAccountsUpdateEndowments} from "../interfaces/IAccountsUpdateEndowments
 contract AccountsUpdateEndowments is
   IAccountsUpdateEndowments,
   ReentrancyGuardFacet,
-  AccountsEvents
+  IAccountsEvents
 {
   /**
     @notice Updates the endowment details.

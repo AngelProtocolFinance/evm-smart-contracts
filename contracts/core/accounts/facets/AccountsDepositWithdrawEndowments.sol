@@ -12,7 +12,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {IDonationMatching} from "../../../normalized_endowment/donation-match/IDonationMatching.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
-import {AccountsEvents} from "./AccountsEvents.sol";
+import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsDepositWithdrawEndowments} from "../interfaces/IAccountsDepositWithdrawEndowments.sol";
 import {Utils} from "../../../lib/utils.sol";
 
@@ -24,7 +24,7 @@ import {Utils} from "../../../lib/utils.sol";
 
 contract AccountsDepositWithdrawEndowments is
   ReentrancyGuardFacet,
-  AccountsEvents,
+  IAccountsEvents,
   IAccountsDepositWithdrawEndowments
 {
   using SafeMath for uint256;

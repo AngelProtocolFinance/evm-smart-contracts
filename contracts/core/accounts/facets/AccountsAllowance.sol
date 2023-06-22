@@ -6,14 +6,14 @@ import {AccountStorage} from "../storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
-import {AccountsEvents} from "./AccountsEvents.sol";
+import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsAllowance} from "../interfaces/IAccountsAllowance.sol";
 
 /**
  * @title AccountsAllowance
  * @dev This contract manages the allowances for accounts
  */
-contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, AccountsEvents {
+contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccountsEvents {
   /**
    * @notice Endowment owner adds allowance to spend
    * @dev This function adds or removes allowances for an account

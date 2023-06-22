@@ -6,7 +6,7 @@ import {Validator} from "../lib/validator.sol";
 import {AccountStorage} from "../storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
-import {AccountsEvents} from "./AccountsEvents.sol";
+import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsUpdate} from "../interfaces/IAccountsUpdate.sol";
 
 /**
@@ -14,7 +14,7 @@ import {IAccountsUpdate} from "../interfaces/IAccountsUpdate.sol";
  * @notice This contract facet updates the accounts config and owner
  * @dev This contract facet updates the accounts config and owner
  */
-contract AccountsUpdate is ReentrancyGuardFacet, AccountsEvents, IAccountsUpdate {
+contract AccountsUpdate is ReentrancyGuardFacet, IAccountsEvents, IAccountsUpdate {
   /**
    * @notice This function updates the owner of the contract
    * @dev This function updates the owner of the contract
