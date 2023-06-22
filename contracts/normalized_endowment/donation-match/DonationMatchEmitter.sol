@@ -29,7 +29,7 @@ contract DonationMatchEmitter {
     DonationMatchStorage.Config config
   );
   event Erc20ApprovalGiven(uint32 endowmentId, address tokenAddress, address spender, uint amount);
-  event Erc20Transfer(uint32 endowmentId, address tokenAddress, address recipient, uint amount);
+  event Erc20Transferred(uint32 endowmentId, address tokenAddress, address recipient, uint amount);
   event Erc20Burned(uint32 endowmentId, address tokenAddress, uint amount);
   event DonationMatchExecuted(
     address donationMatch,
@@ -64,7 +64,7 @@ contract DonationMatchEmitter {
     address recipient,
     uint amount
   ) public isEmitter {
-    emit Erc20Transfer(endowmentId, tokenAddress, recipient, amount);
+    emit Erc20Transferred(endowmentId, tokenAddress, recipient, amount);
   }
 
   function burnErC20(uint32 endowmentId, address tokenAddress, uint amount) public isEmitter {
