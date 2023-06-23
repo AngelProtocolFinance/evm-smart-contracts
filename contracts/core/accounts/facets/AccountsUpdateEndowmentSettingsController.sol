@@ -65,6 +65,8 @@ contract AccountsUpdateEndowmentSettingsController is
           )
         ) {
           tempEndowment.allowlistedBeneficiaries = details.allowlistedBeneficiaries;
+          // IS EMITTING THIS EVENT FOR EACH UPDATED FIELD A GENERAL PRACTICE?
+          // I SEE THE BENEFIT, JUST NOT SURE ABOUT GAS EFFICIENCY AND USEFULNESS
           emit EndowmentSettingUpdated(details.id, "allowlistedBeneficiaries");
         }
 

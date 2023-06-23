@@ -44,7 +44,7 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
     require(IERC20(token).transferFrom(msg.sender, address(this), amount), "TransferFrom failed");
 
     state.DAOTOKENBALANCE[id] += amount;
-    emit DonationDeposited(id, amount);
+    emit DonationDeposited(id, amount); // >> SHOULD HAVE TOKEN ADDRESS AS PARAMETER?
   }
 
   /**

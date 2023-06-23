@@ -113,7 +113,7 @@ contract AccountsVaultFacet is IAccountsVaultFacet, ReentrancyGuardFacet, IAccou
       state.STATES[id].balances.locked[tokenAddress] -= response.lockAmt;
       state.STATES[id].balances.liquid[tokenAddress] -= response.liqAmt;
       state.STATES[id].activeStrategies[strategy] == true;
-      // emit EndowmentStateUpdated(id, state.STATES[id]);
+      // emit EndowmentStateUpdated(id);
     }
   }
 
@@ -195,7 +195,7 @@ contract AccountsVaultFacet is IAccountsVaultFacet, ReentrancyGuardFacet, IAccou
     if (response.status == IVault.VaultActionStatus.SUCCESS) {
       state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
       state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
-      // emit EndowmentStateUpdated(id, state.STATES[id]);
+      // emit EndowmentStateUpdated(id);
     }
     if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
       state.STATES[id].activeStrategies[strategy] == false;
@@ -250,7 +250,7 @@ contract AccountsVaultFacet is IAccountsVaultFacet, ReentrancyGuardFacet, IAccou
     if (response.status == IVault.VaultActionStatus.SUCCESS) {
       state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
       state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
-      // emit EndowmentStateUpdated(id, state.STATES[id]);
+      // emit EndowmentStateUpdated(id);
     }
     if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
       state.STATES[id].activeStrategies[strategy] == false;
