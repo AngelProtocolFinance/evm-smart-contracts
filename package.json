@@ -67,7 +67,6 @@
     "@uniswap/v3-core": "github:AngelProtocolFinance/uniswap-v3-core#fullmath-fix",
     "@uniswap/v3-periphery": "^1.4.3",
     "dotenv": "^16.0.3",
-    "hardhat-abi-exporter": "^2.10.1",
     "hardhat-interface-generator": "^0.0.6",
     "keccak256": "^1.0.6",
     "merkletreejs": "^0.3.9",
