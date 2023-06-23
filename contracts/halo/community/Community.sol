@@ -18,7 +18,7 @@ import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20
  * and retrieve the rent configuration.
  */
 contract Community is Storage, Initializable, ReentrancyGuard {
-  event ConfigUpdated(CommunityStorage.Config config);
+  event ConfigUpdated();
   event HaloSpent(address recipient, uint amount);
 
   /**
@@ -31,7 +31,7 @@ contract Community is Storage, Initializable, ReentrancyGuard {
       spendLimit: details.spendLimit,
       haloToken: details.haloToken
     });
-    emit ConfigUpdated(state.config);
+    emit ConfigUpdated();
   }
 
   /**
@@ -44,7 +44,7 @@ contract Community is Storage, Initializable, ReentrancyGuard {
 
     state.config.timelockContract = timelockContract;
     state.config.spendLimit = spendLimit;
-    emit ConfigUpdated(state.config);
+    emit ConfigUpdated();
   }
 
   /**
