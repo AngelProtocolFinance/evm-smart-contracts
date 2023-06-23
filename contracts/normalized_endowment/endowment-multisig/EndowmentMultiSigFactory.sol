@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {ProxyContract} from "../../core/proxy.sol";
 import {IEndowmentMultiSigEmitter} from "./interfaces/IEndowmentMultiSigEmitter.sol";
 
+// >> THIS CONTRACT CAN BE MERGED WITH `MultiSigWalletFactory`
 contract Factory {
   /*
    *  Events
@@ -48,6 +47,9 @@ contract MultiSigWalletFactory is Factory, Ownable {
   address IMPLEMENTATION_ADDRESS;
   address PROXY_ADMIN;
 
+  event ImplementationUpdated(address oldImplementation, address newImplementation);
+  event ProxyAdminUpdated(address oldAdmin, address newAdmin);
+
   constructor(address implementationAddress, address proxyAdmin) {
     require(implementationAddress != address(0), "Invalid Address");
     require(proxyAdmin != address(0), "Invalid Address");
@@ -60,7 +62,9 @@ contract MultiSigWalletFactory is Factory, Ownable {
    * @param implementationAddress The address of the new implementation
    */
   function updateImplementation(address implementationAddress) public onlyOwner {
+    address oldAddress = IMPLEMENTATION_ADDRESS;
     IMPLEMENTATION_ADDRESS = implementationAddress;
+    emit ImplementationUpdated(oldAddress, implementationAddress);
   }
 
   /**
@@ -68,7 +72,9 @@ contract MultiSigWalletFactory is Factory, Ownable {
    * @param proxyAdmin The address of the new proxy admin
    */
   function updateProxyAdmin(address proxyAdmin) public onlyOwner {
+    address oldAdmin = PROXY_ADMIN;
     PROXY_ADMIN = proxyAdmin;
+    emit ProxyAdminUpdated(oldAdmin, proxyAdmin);
   }
 
   /** @dev Create a new multisig wallet for an endowment 
@@ -96,6 +102,7 @@ contract MultiSigWalletFactory is Factory, Ownable {
     );
     wallet = address(new ProxyContract(IMPLEMENTATION_ADDRESS, PROXY_ADMIN, EndowmentData));
 
+    // >> A BETTER PLACE TO CALL THIS MIGHT BE INSIDE `EndowmentMultiSig > initialize` FUNCTION
     IEndowmentMultiSigEmitter(emitterAddress).createMultisig(
       wallet,
       endowmentId,
