@@ -6,6 +6,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {VestingMessage} from "./message.sol";
 
+// >> SHOULD INHERIT `Initializable`?
 /**
  *@title Vesting
  * @dev Vesting contract
@@ -13,10 +14,10 @@ import {VestingMessage} from "./message.sol";
  * Vesting is the process of gradually unlocking an amount of tokens over a set period of time.
  */
 contract Vesting is Ownable, ReentrancyGuard {
-  event VestingInitialized(address haloToken);
   event HaloDeposited(address user, uint256 amount);
   event HaloWithdrawn(address user, uint256 amount, uint256 vestingId);
-  event VestingDurationModified(uint256 vestingDuration);
+  event Initialized();
+  event VestingDurationModified(uint256 oldValue, uint256 newValue);
 
   address public haloToken;
   uint256 public totalVested;
@@ -40,7 +41,7 @@ contract Vesting is Ownable, ReentrancyGuard {
     require(haloToken == address(0), "Already initialized");
     haloToken = details.haloToken;
     totalVested = 0;
-    emit VestingInitialized(details.haloToken);
+    emit Initialized();
   }
 
   /**
@@ -96,8 +97,9 @@ contract Vesting is Ownable, ReentrancyGuard {
    * @param vestingduration uint
    */
   function modifyVestingDuration(uint256 vestingduration) public onlyOwner {
+    uint256 oldValue = vestingDuration;
     vestingDuration = vestingduration;
-    emit VestingDurationModified(vestingduration);
+    emit VestingDurationModified(oldValue, vestingduration);
   }
 
   function min(uint256 a, uint256 b) internal pure returns (uint256) {
