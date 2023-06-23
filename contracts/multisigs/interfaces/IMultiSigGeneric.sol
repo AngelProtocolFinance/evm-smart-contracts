@@ -9,14 +9,14 @@ abstract contract IMultiSigGeneric is IERC165 {
    */
   event TransactionConfirmed(address sender, uint256 transactionId);
   event ConfirmationRevoked(address sender, uint256 transactionId);
-  event TransactionSubmitted(uint256 transactionId);
+  event TransactionSubmitted(address sender, uint256 transactionId);
   event TransactionExecuted(uint256 transactionId);
   event ExecutionFailed(uint256 transactionId);
   event GasDeposited(address sender, uint256 value);
   event OwnerAdded(address owner);
   event OwnerRemoved(address owner);
-  event ApprovalsRequirementChanged(uint256 approvalsRequired);
-  event RequireExecutionChanged(bool requireExecution);
+  event ApprovalsRequirementChanged(uint256 oldValue, uint256 newValue);
+  event RequireExecutionChanged(bool oldValue, bool newValue);
   event TransactionExpiryChange(uint256 transactionExpiry);
 
   /// @dev Receive function allows to deposit ether.

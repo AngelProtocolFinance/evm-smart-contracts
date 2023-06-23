@@ -163,15 +163,17 @@ contract MultiSigGeneric is
     onlyWallet
     validApprovalsRequirement(activeOwnersCount, _approvalsRequired)
   {
+    uint256 oldValue = approvalsRequired;
     approvalsRequired = _approvalsRequired;
-    emit ApprovalsRequirementChanged(_approvalsRequired);
+    emit ApprovalsRequirementChanged(oldValue, _approvalsRequired);
   }
 
   /// @dev Allows to change whether explicit execution step is needed once the required number of confirmations is met. Transaction has to be sent by wallet.
   /// @param _requireExecution Is an explicit execution step is needed
   function changeRequireExecution(bool _requireExecution) public virtual override onlyWallet {
+    bool oldValue = requireExecution;
     requireExecution = _requireExecution;
-    emit RequireExecutionChanged(_requireExecution);
+    emit RequireExecutionChanged(oldValue, _requireExecution);
   }
 
   /// @dev Allows to change the expiry time for transactions.
@@ -337,6 +339,6 @@ contract MultiSigGeneric is
       metadata: metadata
     });
     transactionCount += 1;
-    emit TransactionSubmitted(transactionId);
+    emit TransactionSubmitted(msg.sender, transactionId);
   }
 }
