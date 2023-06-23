@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
+// >> SHOULD INHERIT `IEndowmentMultiSigEmitter`? Has missing `requireExecutionChangeEndowment` implementation
 /**
  * @notice the endowment multisig emitter contract
  * @dev the endowment multisig emitter contract is a contract that emits events for all the endowment multisigs across AP
@@ -19,6 +20,7 @@ contract EndowmentMultiSigEmitter {
     require(!isInitialized, "Already initialized");
     isInitialized = true;
     multisigFactory = _multisigFactory;
+    // >> SHOULD EMIT `Initialized()` EVENT?
   }
 
   modifier isEmitter() {
@@ -47,7 +49,7 @@ contract EndowmentMultiSigEmitter {
   event OwnersAdded(uint256 endowmentId, address[] owners);
   event OwnersRemoved(uint256 endowmentId, address[] owners);
   event OwnerReplaced(uint256 endowmentId, address currOwner, address newOwner);
-  event ApprovalRequirementsUpdated(uint256 endowmentId, uint256 approvalsRequired);
+  event ApprovalRequirementsUpdated(uint256 endowmentId, uint256 oldValue, uint256 newValue);
   event EndowmentTransactionExpiryChange(uint256 endowmentId, uint256 transactionExpiry);
 
   /**
@@ -181,13 +183,15 @@ contract EndowmentMultiSigEmitter {
   /**
    * @notice emits the ApprovalRequirementsUpdated event
    * @param endowmentId the endowment id
-   * @param approvalsRequired the required number of confirmations
+   * @param oldApprovalsRequired old required number of confirmations
+   * @param newApprovalsRequired new required number of confirmations
    */
   function changeApprovalRequirements(
     uint256 endowmentId,
-    uint256 approvalsRequired
+    uint256 oldApprovalsRequired,
+    uint256 newApprovalsRequired
   ) public isEmitter {
-    emit ApprovalRequirementsUpdated(endowmentId, approvalsRequired);
+    emit ApprovalRequirementsUpdated(endowmentId, oldApprovalsRequired, newApprovalsRequired);
   }
 
   /**
