@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import {ERC20Upgrade} from "../ERC20Upgrade.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./storage.sol";
@@ -15,7 +14,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
  * address, and provides a method to claim Halo tokens.
  */
 contract GovHodler is Storage, Initializable, ReentrancyGuard {
-  event ConfigUpdated(GovHodlerStorage.Config config);
+  event ConfigUpdated();
   event HaloClaimed(address recipient, uint amount);
 
   /**
@@ -28,7 +27,6 @@ contract GovHodler is Storage, Initializable, ReentrancyGuard {
       timelockContract: details.timelockContract,
       haloToken: details.haloToken
     });
-    emit ConfigUpdated(state.config);
   }
 
   /**
@@ -42,7 +40,7 @@ contract GovHodler is Storage, Initializable, ReentrancyGuard {
     );
 
     state.config.timelockContract = timelockContract;
-    emit ConfigUpdated(state.config);
+    emit ConfigUpdated();
   }
 
   /**
