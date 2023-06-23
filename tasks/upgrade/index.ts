@@ -1,4 +1,3 @@
-import "./upgradeApplicationsMultiSig";
 import "./upgradeAPTeamMultiSig";
 import "./upgradeCharityApplication";
 import "./upgradeContractsUsingAccountStorage";

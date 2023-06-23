@@ -10,7 +10,7 @@ import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 // import { deployHaloImplementation } from "contracts/halo/scripts/deploy"
 import {deployCharityApplication} from "contracts/multisigs/charity_applications/scripts/deploy";
-import {deployAPTeamMultiSig, deployApplicationsMultiSig} from "contracts/multisigs/scripts/deploy";
+import {deployAPTeamMultiSig} from "contracts/multisigs/scripts/deploy";
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
 // import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
 // import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
@@ -52,8 +52,6 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       const apTeamMultisig = await deployAPTeamMultiSig(hre);
 
-      const applicationsMultiSig = await deployApplicationsMultiSig(hre);
-
       const registrar = await deployRegistrar(
         thirdPartyAddresses.axelarGateway.address,
         thirdPartyAddresses.axelarGasService.address,
@@ -80,7 +78,6 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       // const emitters = await deployEmitters(accountsDiamond.address, hre);
 
       const charityApplication = await deployCharityApplication(
-        applicationsMultiSig?.address,
         accounts?.diamond.address,
         thirdPartyAddresses.seedAsset.address,
         hre

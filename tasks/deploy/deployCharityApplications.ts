@@ -22,10 +22,6 @@ task("deploy:CharityApplication", "Will deploy CharityApplication contract")
     "APTeamMultiSig contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
-    "applications",
-    "ApplicationsMultiSig contract address. Will do a local lookup from contract-address.json if none is provided."
-  )
-  .addOptionalParam(
     "registrar",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )

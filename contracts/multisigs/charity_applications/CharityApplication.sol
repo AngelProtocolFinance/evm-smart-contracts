@@ -2,9 +2,6 @@
 pragma solidity ^0.8.16;
 import "./storage.sol";
 import {ICharityApplication} from "./interfaces/ICharityApplication.sol";
-import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {AngelCoreStruct} from "../../core/struct.sol";
 import {IAccountsCreateEndowment} from "../../core/accounts/interfaces/IAccountsCreateEndowment.sol";
@@ -12,47 +9,7 @@ import {IAccountsQueryEndowments} from "../../core/accounts/interfaces/IAccounts
 import {IAccountsDepositWithdrawEndowments} from "../../core/accounts/interfaces/IAccountsDepositWithdrawEndowments.sol";
 import {AccountStorage} from "../../core/accounts/storage.sol";
 import {AccountMessages} from "../../core/accounts/message.sol";
-
-/**
- * @title IMultiSig
- * @dev Interface for MultiSig contract
- */
-interface IMultiSig {
-  function getOwners() external view returns (address[] memory);
-}
-
-library CharityApplicationLib {
-  function proposeCharity(
-    AccountMessages.CreateEndowmentRequest memory charityApplication,
-    string memory meta,
-    uint256 proposalCounter,
-    mapping(uint256 => CharityApplicationsStorage.CharityApplicationProposal) storage proposals,
-    CharityApplicationsStorage.Config storage config
-  ) public {
-    require(proposals[proposalCounter].proposer == address(0), "Proposal already exists");
-    require(charityApplication.endowType == AngelCoreStruct.EndowmentType.Charity, "Unauthorized");
-    require(charityApplication.sdgs.length > 0, "No UN SDGs given");
-
-    // check all sdgs id
-    for (uint256 i = 0; i < charityApplication.sdgs.length; i++) {
-      if (charityApplication.sdgs[i] > 17 || charityApplication.sdgs[i] == 0) {
-        revert("Invalid UN SDG inputs given");
-      }
-    }
-
-    // Maturity always set to zero (None) for all Charity Endowments
-    charityApplication.maturityTime = 0;
-    // save new proposal
-    proposals[proposalCounter] = CharityApplicationsStorage.CharityApplicationProposal({
-      proposalId: proposalCounter,
-      proposer: msg.sender,
-      charityApplication: charityApplication,
-      meta: meta,
-      expiry: block.timestamp + config.proposalExpiry,
-      status: CharityApplicationsStorage.Status.Pending
-    });
-  }
-}
+import {MultiSigGeneric} from "../MultiSigGeneric.sol";
 
 /**
  * @title CharityApplication
@@ -60,51 +17,39 @@ library CharityApplicationLib {
  * @dev Charity Applications have to be approved by AP Team multisig
  * @dev Contract for managing charity applications
  */
-contract CharityApplication is CharityStorage, ICharityApplication, ERC165, ReentrancyGuard {
+contract CharityApplication is MultiSigGeneric, StorageApplications, ICharityApplication {
   /*
    * Modifiers
    */
-  modifier onlyApplicationsMultisig() {
-    require(config.applicationMultisig == msg.sender, "Only Applications Team");
-    _;
-  }
-
+  
   // Check if proposal is not expired
-  modifier notExpired(uint256 proposalId) {
-    require(proposals[proposalId].expiry > block.timestamp, "is expired");
+  modifier proposalNotExpired(uint256 proposalId) {
+    require(proposals[proposalId].expiry > block.timestamp, "Proposal is expired");
     _;
   }
 
   // Check if proposal is pending
-  modifier isPending(uint256 proposalId) {
+  modifier proposalIsPending(uint256 proposalId) {
     require(
-      proposals[proposalId].status == CharityApplicationsStorage.Status.Pending,
-      "not pending"
+      proposals[proposalId].status == ApplicationsStorage.Status.Pending,
+      "Proposal is not pending"
     );
     _;
   }
 
   // Check if proposal is approved
-  modifier isApproved(uint256 proposalId) {
+  modifier proposalIsApproved(uint256 proposalId) {
     require(
-      proposals[proposalId].status == CharityApplicationsStorage.Status.Approved,
-      "not approved"
+      proposals[proposalId].status == ApplicationsStorage.Status.Approved,
+      "Proposal is not approved"
     );
     _;
   }
 
-  /// @dev Receive function allows to deposit ether.
-  receive() external payable override {
-    if (msg.value > 0) emit Deposit(msg.sender, msg.value);
+  // @dev overrides the generic multisig initializer and restricted function
+  function initialize(address[] memory, uint256, bool, uint256) public override initializer {
+    revert("Not Implemented");
   }
-
-  /// @dev Fallback function allows to deposit ether.
-  fallback() external payable override {
-    if (msg.value > 0) emit Deposit(msg.sender, msg.value);
-  }
-
-  // seed asset will always be USDC
-  bool initialized = false;
 
   /**
    * @notice Initialize the charity applications contract
@@ -112,7 +57,6 @@ contract CharityApplication is CharityStorage, ICharityApplication, ERC165, Reen
    * @dev seed asset will always be USDC
    * @dev Initialize the contract
    * @param expiry Proposal expiry time in seconds
-   * @param applicationmultisig AP Team multisig address
    * @param accountscontract Accounts contract address
    * @param seedsplittoliquid Seed split to liquid
    * @param newendowgasmoney New endow gas money
@@ -123,7 +67,6 @@ contract CharityApplication is CharityStorage, ICharityApplication, ERC165, Reen
    */
   function initialize(
     uint256 expiry,
-    address applicationmultisig,
     address accountscontract,
     uint256 seedsplittoliquid,
     bool newendowgasmoney,
@@ -131,11 +74,9 @@ contract CharityApplication is CharityStorage, ICharityApplication, ERC165, Reen
     bool fundseedasset,
     address seedasset,
     uint256 seedassetamount
-  ) public {
-    require(!initialized, "already initialized");
-    initialized = true;
-    proposalCounter = 1;
-    config.applicationMultisig = applicationmultisig;
+  ) public initializer {
+    proposalCount = 1;
+    transactionExpiry = expiry;
     config.accountsContract = accountscontract;
     config.seedSplitToLiquid = seedsplittoliquid;
     config.newEndowGasMoney = newendowgasmoney;
@@ -143,32 +84,54 @@ contract CharityApplication is CharityStorage, ICharityApplication, ERC165, Reen
     config.fundSeedAsset = fundseedasset;
     config.seedAsset = seedasset;
     config.seedAssetAmount = seedassetamount;
-    if (expiry == 0)
-      config.proposalExpiry = 4 * 24 * 60 * 60; // 4 days in seconds
-    else config.proposalExpiry = expiry;
-
-    emit InitilizedCharityApplication();
   }
 
   /**
-   * @notice propose a charity to be opened on AP
-   * @dev propose a charity to be opened on AP
-   * @param charityApplication Charity application
-   * @param meta Meta (URL of Metadata)
+   * @notice propose a charity to be opened on Accounts
+   * @dev propose a charity to be opened on Accounts
+   * @param _application.Charity application
+   * @param _meta Meta (URL of Metadata)
    */
-  function proposeCharity(
-    AccountMessages.CreateEndowmentRequest memory charityApplication,
-    string memory meta
-  ) public override nonReentrant {
-    CharityApplicationLib.proposeCharity(
-      charityApplication,
-      meta,
-      proposalCounter,
-      proposals,
-      config
-    );
-    proposalCounter++;
-    emit CharityProposed(msg.sender, proposalCounter - 1, meta);
+  function proposeApplication(
+    AccountMessages.CreateEndowmentRequest memory _application,
+    string memory _meta
+  ) public override {
+    require(proposals[proposalCount].proposer == address(0), "Proposal already exists");
+    require(_application.endowType == AngelCoreStruct.EndowmentType.Charity, "Unauthorized");
+    require(_application.sdgs.length > 0, "No UN SDGs given");
+
+    // check all sdgs id
+    for (uint256 i = 0; i < _application.sdgs.length; i++) {
+      if (_application.sdgs[i] > 17 || _application.sdgs[i] == 0) {
+        revert("Invalid UN SDG inputs given");
+      }
+    }
+
+    // Maturity always set to zero (None) for all Charity Endowments
+    _application.maturityTime = 0;
+    // save new proposal
+    proposals[proposalCount] = ApplicationsStorage.ApplicationProposal({
+      proposer: msg.sender,
+      application: _application,
+      meta: _meta,
+      expiry: block.timestamp + transactionExpiry,
+      status: ApplicationsStorage.Status.Pending
+    });
+
+    emit ApplicationProposed(msg.sender, proposalCount, _meta);
+    proposalCount++;
+  }
+
+  /// @dev Allows an owner to confirm a proposal.
+  /// @param proposalId Proposal ID.
+  function confirmProposal(uint256 proposalId) public override ownerExists(msg.sender) proposalNotExpired(proposalId) {
+    
+  }
+
+  /// @dev Allows an owner to revoke a confirmation for a proposal.
+  /// @param proposalId Proposal ID.
+  function revokeProposalConfirmation(uint256 proposalId) public override ownerExists(msg.sender) proposalNotExpired(proposalId) {
+
   }
 
   /**
@@ -176,92 +139,35 @@ contract CharityApplication is CharityStorage, ICharityApplication, ERC165, Reen
    * @dev function called by AP Team to approve a charity application
    * @param proposalId id of the proposal to be approved
    */
-
-  function approveCharity(
+  function executeProposal(
     uint256 proposalId
   )
-    public
-    override
-    nonReentrant
-    onlyApplicationsMultisig
-    isPending(proposalId)
-    notExpired(proposalId)
-  {
-    proposals[proposalId].status = CharityApplicationsStorage.Status.Approved;
-
-    uint32 endowmentId = _executeCharity(proposalId);
-
-    emit CharityApproved(proposalId, endowmentId);
-  }
-
-  /**
-   * @notice function called by AP Team to reject a charity application
-   * @dev function called by AP Team to reject a charity application
-   * @param proposalId id of the proposal to be rejected
-   */
-  function rejectCharity(
-    uint256 proposalId
-  )
-    public
-    override
-    nonReentrant
-    onlyApplicationsMultisig
-    isPending(proposalId)
-    notExpired(proposalId)
-  {
-    proposals[proposalId].status = CharityApplicationsStorage.Status.Rejected;
-
-    emit CharityRejected(proposalId);
-  }
-
-  // Internal function that executes create endowment request based on proposal data
-  /**
-   * @notice Internal function that executes create endowment request based on proposal data
-   * @dev Internal function that executes create endowment request based on proposal data
-   * @param proposalId id of the proposal to be executed
-   */
-  function _executeCharity(
-    uint256 proposalId
-  ) internal isApproved(proposalId) notExpired(proposalId) returns (uint32) {
+    public override
+    ownerExists(msg.sender)
+    proposalIsApproved(proposalId)
+    nonReentrant 
+    returns (uint32) {
     uint32 endowmentId = IAccountsCreateEndowment(config.accountsContract).createEndowment(
-      proposals[proposalId].charityApplication
+      proposals[proposalId].application
     );
 
     if (config.newEndowGasMoney) {
-      //query endowments from accounts contract and get the owner address
-      AccountStorage.Endowment memory endowDetails = IAccountsQueryEndowments(
-        config.accountsContract
-      ).queryEndowmentDetails(endowmentId);
-
-      // TODO: Test this in remix
-      // query owner multisig to find the first signer
-      address payable signer = payable(IMultiSig(endowDetails.owner).getOwners()[0]);
-
-      require(signer != address(0), "SignNotSet");
+      // get the first member of the new endowment
+      address payable signer = payable(proposals[proposalId].application.members[0]);
+      require(signer != address(0), "Endowment Member not set");
 
       // check ethereum balance on this contract
-      uint256 balance = address(this).balance;
-
-      if (balance > config.gasAmount) {
-        // transfer ether to them and emit gas fee event
-        (bool success, ) = signer.call{value: config.gasAmount}("FailedGas");
-
-        if (!success) {
-          revert("FailedGas");
-        }
-      } else {
-        revert("FailedGas");
+      if (address(this).balance >= config.gasAmount) {
+        // transfer matic to them and emit gas fee payment event
+        (bool success, ) = signer.call{value: config.gasAmount}("Failed gas payment");
+        if (success) emit GasSent(endowmentId, signer, config.gasAmount);
       }
-      emit GasSent(endowmentId, signer, config.gasAmount);
     }
 
     if (config.fundSeedAsset) {
       // check seed asset balance
-      uint256 bal = IERC20(config.seedAsset).balanceOf(address(this));
-
-      if (bal > config.seedAssetAmount) {
-        // call deposit on accounts
-
+      if (IERC20(config.seedAsset).balanceOf(address(this)) >= config.seedAssetAmount) {
+        // call deposit on Accounts for the new Endowment ID 
         require(
           IERC20(config.seedAsset).approve(config.accountsContract, config.seedAssetAmount),
           "Approve failed"
@@ -280,7 +186,6 @@ contract CharityApplication is CharityStorage, ICharityApplication, ERC165, Reen
         emit SeedAssetSent(endowmentId, config.seedAsset, config.seedAssetAmount);
       }
     }
-
     return endowmentId;
   }
 
@@ -289,7 +194,6 @@ contract CharityApplication is CharityStorage, ICharityApplication, ERC165, Reen
    * @notice update config function which updates config if the supplied input parameter is not null or 0
    * @dev update config function which updates config if the supplied input parameter is not null or 0
    * @param expiry expiry time for proposals
-   * @param applicationmultisig address of AP Team multisig
    * @param accountscontract address of accounts contract
    * @param seedsplittoliquid percentage of seed asset to be sent to liquid
    * @param newendowgasmoney boolean to check if gas money is to be sent
@@ -300,7 +204,6 @@ contract CharityApplication is CharityStorage, ICharityApplication, ERC165, Reen
    */
   function updateConfig(
     uint256 expiry,
-    address applicationmultisig,
     address accountscontract,
     uint256 seedsplittoliquid,
     bool newendowgasmoney,
@@ -308,9 +211,8 @@ contract CharityApplication is CharityStorage, ICharityApplication, ERC165, Reen
     bool fundseedasset,
     address seedasset,
     uint256 seedassetamount
-  ) public override nonReentrant onlyApplicationsMultisig {
-    if (expiry != 0) config.proposalExpiry = expiry;
-    if (applicationmultisig != address(0)) config.applicationMultisig = applicationmultisig;
+  ) public override ownerExists(msg.sender) {
+    transactionExpiry = expiry;
     if (accountscontract != address(0)) config.accountsContract = accountscontract;
     if (seedsplittoliquid != 0 && seedsplittoliquid <= 100)
       config.seedSplitToLiquid = seedsplittoliquid;
@@ -322,7 +224,7 @@ contract CharityApplication is CharityStorage, ICharityApplication, ERC165, Reen
     if (seedassetamount != 0) config.seedAssetAmount = seedassetamount;
   }
 
-  function queryConfig() public view returns (CharityApplicationsStorage.Config memory) {
+  function queryConfig() public view override returns (ApplicationsStorage.Config memory) {
     return config;
   }
 }

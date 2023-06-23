@@ -2,49 +2,36 @@
 pragma solidity ^0.8.16;
 
 import {AccountMessages} from "../../../core/accounts/message.sol";
-import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import {ApplicationsStorage} from "../storage.sol";
 
-abstract contract ICharityApplication is IERC165 {
+abstract contract ICharityApplication {
   /*
    * Events
    */
-
-  event InitilizedCharityApplication();
-
-  event CharityProposed(address proposer, uint256 proposalId, string meta);
-
-  event CharityApproved(uint256 proposalId, uint256 endowmentId);
-
-  event CharityRejected(uint256 proposalId);
-
-  event Deposit(address sender, uint256 value);
-
+  event ApplicationProposed(address proposer, uint256 proposalId, string meta);
+  event ApplicationExecuted(uint256 proposalId);
+  event ApplicaitonConfirmed(uint256 proposalId, address owner);
+  event ApplicaitonConfirmationRevoked(uint256 proposalId, address owner);
   // event emitted when gas is sent to endowments first member
   event GasSent(uint256 endowmentId, address member, uint256 amount);
-
   // event emitted when seed funding is given to endowment
   event SeedAssetSent(uint256 endowmentId, address asset, uint256 amount);
 
-  // For storing mattic to send gas fees
-  /// @dev Receive function allows to deposit ether.
-  receive() external payable virtual;
-
-  // For storing mattic to send gas fees
-  /// @dev Fallback function allows to deposit ether.
-  fallback() external payable virtual;
-
-  function proposeCharity(
-    AccountMessages.CreateEndowmentRequest memory charityApplication,
+  function proposeApplication(
+    AccountMessages.CreateEndowmentRequest memory application,
     string memory meta
   ) public virtual;
 
-  function approveCharity(uint256 proposalId) public virtual;
+  function confirmProposal(uint256 proposalId) public virtual;
 
-  function rejectCharity(uint256 proposalId) public virtual;
+  /// @dev Allows an owner to revoke a confirmation for an application proposal.
+  /// @param proposalId Proposal ID.
+  function revokeProposalConfirmation(uint256 proposalId) public virtual;
+
+  function executeProposal(uint256 proposalId) public virtual returns (uint32);
 
   function updateConfig(
     uint256 expiry,
-    address apteammultisig,
     address accountscontract,
     uint256 seedsplittoliquid,
     bool newendowgasmoney,
@@ -53,4 +40,6 @@ abstract contract ICharityApplication is IERC165 {
     address seedasset,
     uint256 seedassetamount
   ) public virtual;
+
+  function queryConfig() public view virtual returns (ApplicationsStorage.Config memory);
 }

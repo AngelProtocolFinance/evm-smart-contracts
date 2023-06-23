@@ -25,10 +25,6 @@ abstract contract IMultiSigGeneric is IERC165 {
   /// @dev Fallback function allows to deposit ether.
   fallback() external payable virtual;
 
-  // function initialize(address[] memory owners, uint256 required)
-  //     public
-  //     virtual;
-
   /// @dev Allows to add new owners. Transaction has to be sent by wallet.
   /// @param owners Addresses of new owners.
   function addOwners(address[] memory owners) public virtual;

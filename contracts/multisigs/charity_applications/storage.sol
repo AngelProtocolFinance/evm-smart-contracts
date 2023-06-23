@@ -1,27 +1,25 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
-import {AccountMessages} from "../../core/accounts/message.sol";
 
-library CharityApplicationsStorage {
+import {AccountMessages} from "../../core/accounts/message.sol";
+import {MultiSigStorage} from "../storage.sol";
+
+library ApplicationsStorage {
   enum Status {
-    None,
     Pending,
     Approved,
     Rejected
   }
 
-  struct CharityApplicationProposal {
-    uint256 proposalId;
+  struct ApplicationProposal {
     address proposer;
-    AccountMessages.CreateEndowmentRequest charityApplication;
+    AccountMessages.CreateEndowmentRequest application;
     string meta;
     uint256 expiry;
     Status status;
   }
 
   struct Config {
-    uint256 proposalExpiry;
-    address applicationMultisig;
     address accountsContract;
     uint256 seedSplitToLiquid;
     bool newEndowGasMoney;
@@ -32,11 +30,9 @@ library CharityApplicationsStorage {
   }
 }
 
-contract CharityStorage {
-  /*
-   *  Storage
-   */
-  mapping(uint256 => CharityApplicationsStorage.CharityApplicationProposal) public proposals;
-  CharityApplicationsStorage.Config public config;
-  uint256 proposalCounter;
+contract StorageApplications {
+  mapping(uint256 => ApplicationsStorage.ApplicationProposal) public proposals;
+  mapping (uint256 => MultiSigStorage.Confirmations) proposalConfirmations;
+  ApplicationsStorage.Config public config;
+  uint256 proposalCount;
 }

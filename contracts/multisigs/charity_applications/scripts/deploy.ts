@@ -11,7 +11,6 @@ import {
 } from "utils";
 
 export async function deployCharityApplication(
-  applicationsMultiSig = "",
   accountsDiamond = "",
   seedAsset = "",
   hre: HardhatRuntimeEnvironment
@@ -19,7 +18,6 @@ export async function deployCharityApplication(
   const {proxyAdmin} = await getSigners(hre);
 
   try {
-    validateAddress(applicationsMultiSig, "applicationsMultiSig");
     validateAddress(accountsDiamond, "accountsDiamond");
     validateAddress(seedAsset, "seedAsset");
 
@@ -52,7 +50,6 @@ export async function deployCharityApplication(
     logger.out("Deploying proxy...");
     const initData = charityApplication.interface.encodeFunctionData("initialize", [
       config.CHARITY_APPLICATION_DATA.expiry,
-      applicationsMultiSig,
       accountsDiamond,
       config.CHARITY_APPLICATION_DATA.seedSplitToLiquid,
       config.CHARITY_APPLICATION_DATA.newEndowGasMoney,

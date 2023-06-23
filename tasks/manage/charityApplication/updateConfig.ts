@@ -1,5 +1,5 @@
 import {task, types} from "hardhat/config";
-import {ApplicationsMultiSig__factory, CharityApplication__factory} from "typechain-types";
+import {CharityApplication__factory} from "typechain-types";
 import {getAddresses, getSigners, logger, structToObject} from "utils";
 
 type TaskArgs = {
@@ -20,10 +20,6 @@ task("manage:CharityApplication:updateConfig", "Will update CharityApplication c
     "Accounts Diamond contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
-    "applicationsMultisig",
-    "ApplicationsMultiSig contract address. Will do a local lookup from contract-address.json if none is provided."
-  )
-  .addOptionalParam(
     "fundSeedAsset",
     "Boolean to check if seed asset is to be sent.",
     undefined,
@@ -36,7 +32,7 @@ task("manage:CharityApplication:updateConfig", "Will update CharityApplication c
     undefined,
     types.boolean
   )
-  .addOptionalParam("proposalExpiry", "Expiry time for proposals.", undefined, types.int)
+  .addOptionalParam("expiry", "Expiry time for proposals.", undefined, types.int)
   .addOptionalParam("seedAsset", "Address of seed asset.")
   .addOptionalParam("seedAssetAmount", "Amount of seed asset to be sent.", undefined, types.int)
   .addOptionalParam(
@@ -50,11 +46,11 @@ task("manage:CharityApplication:updateConfig", "Will update CharityApplication c
       logger.out("Updating CharityApplication config...");
 
       const addresses = await getAddresses(hre);
-      const {applicationsMultisigOwners} = await getSigners(hre);
+      const {charityApplicationsOwners} = await getSigners(hre);
 
       const charityApplication = CharityApplication__factory.connect(
         addresses.charityApplication.proxy,
-        applicationsMultisigOwners[0]
+        charityApplicationsOwners[0]
       );
 
       // fetch current config
@@ -69,8 +65,7 @@ task("manage:CharityApplication:updateConfig", "Will update CharityApplication c
       // update config
       logger.out("Updating config...");
       const updateConfigData = charityApplication.interface.encodeFunctionData("updateConfig", [
-        taskArgs.proposalExpiry || curConfig.proposalExpiry,
-        taskArgs.applicationsMultisig || addresses.multiSig.applications.proxy,
+        taskArgs.expiry || curConfig.expiry,
         taskArgs.accountsDiamond || curConfig.accountsContract,
         taskArgs.seedSplitToLiquid || curConfig.seedSplitToLiquid,
         taskArgs.newEndowGasMoney || curConfig.newEndowGasMoney,
@@ -81,7 +76,7 @@ task("manage:CharityApplication:updateConfig", "Will update CharityApplication c
       ]);
       const applicationMultiSigContract = ApplicationsMultiSig__factory.connect(
         curConfig.applicationMultisig, // we need to use current config's ApplicationsMultiSig address
-        applicationsMultisigOwners[0]
+        charityApplicationsOwners[0]
       );
       const tx = await applicationMultiSigContract.submitTransaction(
         "CharityApplication: Update Config",
