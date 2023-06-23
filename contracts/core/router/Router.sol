@@ -401,6 +401,9 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     string calldata sourceAddress,
     bytes calldata payload,
     string calldata tokenSymbol,
+    // we could remove this amount as it's only used to check if liq + locked amounts
+    // passed in inside payload add up to 'amount'
+    // and if we need this for 'catch' statements we can just calculate it from said values
     uint256 amount
   )
     internal
