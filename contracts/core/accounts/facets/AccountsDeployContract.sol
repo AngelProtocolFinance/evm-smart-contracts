@@ -38,13 +38,13 @@ contract AccountsDeployContract is IAccountsDeployContract, ReentrancyGuardFacet
     address admin = registrar_config.proxyAdmin;
 
     bytes memory subDaoData = abi.encodeWithSignature(
-      "initializeSubDao((uint256,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address),address)",
-      createDaoMessage,
+      "initializeSubDao(address)",
       registrar_config.subdaoEmitter
     );
 
     daoAddress = address(new ProxyContract(implementation, admin, subDaoData));
-    ISubdaoEmitter(registrar_config.subdaoEmitter).initializeSubdao(daoAddress, createDaoMessage);
+    // >> SHOULD IT BE CALLED INSIDE SubDao.initializeSubDao?
+    ISubdaoEmitter(registrar_config.subdaoEmitter).initializeSubdao(daoAddress);
 
     ISubDao(daoAddress).buildDaoTokenMesage(createDaoMessage);
     emit DaoContractCreated(createDaoMessage.id, daoAddress);

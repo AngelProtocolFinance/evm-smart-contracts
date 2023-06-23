@@ -2,21 +2,20 @@
 pragma solidity ^0.8.16;
 
 import {subDaoMessage} from "./message.sol";
-import {subDaoStorage} from "./storage.sol";
 import {AngelCoreStruct} from "../../core/struct.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
 import {Array} from "../../lib/array.sol";
 import {ProxyContract} from "./../../core/proxy.sol";
 import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
-import {SubDaoToken, SubDaoTokenMessage, subDaoTokenStorage} from "./../subdao-token/subdao-token.sol";
+import {SubDaoTokenMessage} from "./../subdao-token/subdao-token.sol";
 import {QueryIIncentivisedVotingLockup} from "./../incentivised-voting/interfaces/QueryIIncentivisedVotingLockup.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {ISubdaoEmitter} from "./ISubdaoEmitter.sol";
 import "./Token/ERC20.sol";
 import "./storage.sol";
-import "hardhat/console.sol";
 
+// >> SHOULD BE MOVED INTO SEPARATE FILE?
 library SubDaoLib {
   uint256 constant MIN_TITLE_LENGTH = 4;
   uint256 constant MAX_TITLE_LENGTH = 64;
@@ -245,7 +244,7 @@ library SubDaoLib {
     );
 
     //TODO: handle on sub graph if there is no entry create one for the subgraph
-    ISubdaoEmitter(emitterAddress).updateSubdaoConfig(config);
+    ISubdaoEmitter(emitterAddress).updateSubdaoConfig();
   }
 }
 
@@ -256,6 +255,7 @@ contract SubDao is Storage, ReentrancyGuard {
   address emitterAddress;
   address accountAddress;
 
+  // >> SHOULD INHERIT `Initializable`?
   /**
    * @notice function used to initialize the contract
    * @dev Initialize the contract
@@ -321,7 +321,7 @@ contract SubDao is Storage, ReentrancyGuard {
 
     config.veToken = vetoken;
     config.swapFactory = swapfactory;
-    ISubdaoEmitter(emitterAddress).updateSubdaoConfig(config);
+    ISubdaoEmitter(emitterAddress).updateSubdaoConfig();
   }
 
   /**
@@ -362,7 +362,7 @@ contract SubDao is Storage, ReentrancyGuard {
     config.expirationPeriod = expirationperiod;
     config.proposalDeposit = proposaldeposit;
     config.snapshotPeriod = snapshotperiod;
-    ISubdaoEmitter(emitterAddress).updateSubdaoConfig(config);
+    ISubdaoEmitter(emitterAddress).updateSubdaoConfig();
   }
 
   /**
@@ -402,7 +402,7 @@ contract SubDao is Storage, ReentrancyGuard {
     state.pollCount += 1;
     state.totalDeposit += depositamount;
 
-    ISubdaoEmitter(emitterAddress).updateSubdaoState(state);
+    ISubdaoEmitter(emitterAddress).updateSubdaoState();
 
     uint256 stakedAmount = SubDaoLib.queryTotalVotingBalanceAtBlock(config.veToken, block.number);
 
@@ -425,10 +425,12 @@ contract SubDao is Storage, ReentrancyGuard {
     });
 
     poll[pollId] = a_poll;
+    subDaoStorage.PollStatus oldPollStatus = poll_status[pollId];
     poll_status[pollId] = subDaoStorage.PollStatus.InProgress;
     ISubdaoEmitter(emitterAddress).updateSubdaoPollAndStatus(
       pollId,
-      poll[pollId],
+      msg.sender,
+      oldPollStatus,
       poll_status[pollId]
     );
 
@@ -509,13 +511,15 @@ contract SubDao is Storage, ReentrancyGuard {
 
     a_poll.status = temp_poll_status;
 
+    subDaoStorage.PollStatus oldPollStatus = poll_status[pollid];
     poll[pollid] = a_poll;
 
     _execute(target, value, callData);
-    ISubdaoEmitter(emitterAddress).updateSubdaoState(state);
+    ISubdaoEmitter(emitterAddress).updateSubdaoState();
     ISubdaoEmitter(emitterAddress).updateSubdaoPollAndStatus(
       pollid,
-      poll[pollid],
+      msg.sender,
+      oldPollStatus,
       poll_status[pollid]
     );
   }
@@ -585,10 +589,12 @@ contract SubDao is Storage, ReentrancyGuard {
 
     a_poll.status = subDaoStorage.PollStatus.Expired;
 
+    subDaoStorage.PollStatus oldPollStatus = poll_status[pollid];
     poll[pollid] = a_poll;
     ISubdaoEmitter(emitterAddress).updateSubdaoPollAndStatus(
       pollid,
-      poll[pollid],
+      msg.sender,
+      oldPollStatus,
       poll_status[pollid]
     );
   }
@@ -625,14 +631,10 @@ contract SubDao is Storage, ReentrancyGuard {
     voting_status[pollid][msg.sender].voted = true;
     voting_status[pollid][msg.sender].balance = amount;
     voting_status[pollid][msg.sender].vote = vote;
-    ISubdaoEmitter(emitterAddress).updateVotingStatus(
-      pollid,
-      msg.sender,
-      voting_status[pollid][msg.sender]
-    );
+    ISubdaoEmitter(emitterAddress).updateVotingStatus(pollid, msg.sender);
 
     poll[pollid] = a_poll;
-    ISubdaoEmitter(emitterAddress).updateSubdaoPoll(pollid, poll[pollid]);
+    ISubdaoEmitter(emitterAddress).updateSubdaoPoll(pollid, msg.sender);
   }
 
   /**

@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {subDaoMessage} from "./message.sol";
 import {subDaoStorage} from "./storage.sol";
 
-// SHOULD INHERIT 'Initializable'?
-// SHOULD INHERIT 'ISubdaoEmitter'
+// >> SHOULD INHERIT 'Initializable'?
+// >> SHOULD INHERIT 'ISubdaoEmitter'
 contract SubdaoEmitter {
   bool initialized = false;
   address accountsContract;
@@ -26,37 +25,34 @@ contract SubdaoEmitter {
     require(isSubdao[msg.sender], "Unauthorized");
     _;
   }
-  event SubdaoInitialized(address subdao, subDaoMessage.InstantiateMsg instantiateMsg);
-  event ConfigUpdated(address subdao, subDaoStorage.Config config);
+  event SubdaoInitialized(address subdao);
+  event ConfigUpdated(address subdao);
   event Transfer(address subdao, address tokenAddress, address from, address to, uint256 amount);
-  event StateUpdated(address subdao, subDaoStorage.State state);
-  event PollUpdated(address subdao, uint256 id, subDaoStorage.Poll poll);
-  event PollStatusUpdated(address subdao, uint256 id, subDaoStorage.PollStatus pollStatus);
-  event VotingStatusUpdated(
+  event StateUpdated(address subdao);
+  event PollUpdated(address subdao, uint256 id, address sender);
+  event PollStatusUpdated(
     address subdao,
-    uint256 pollId,
-    address voter,
-    subDaoStorage.VoterInfo voterInfo
+    uint256 id,
+    subDaoStorage.PollStatus prevPollStatus,
+    subDaoStorage.PollStatus newPollStatus
   );
+  event VotingStatusUpdated(address subdao, uint256 pollId, address voter);
 
-  function initializeSubdao(
-    address subdao,
-    subDaoMessage.InstantiateMsg memory instantiateMsg
-  ) public isOwner {
+  function initializeSubdao(address subdao) public isOwner {
     isSubdao[subdao] = true;
-    emit SubdaoInitialized(msg.sender, instantiateMsg);
+    emit SubdaoInitialized(msg.sender);
   }
 
-  function updateSubdaoConfig(subDaoStorage.Config memory config) public isEmitter {
-    emit ConfigUpdated(msg.sender, config);
+  function updateSubdaoConfig() public isEmitter {
+    emit ConfigUpdated(msg.sender);
   }
 
-  function updateSubdaoState(subDaoStorage.State memory state) public isEmitter {
-    emit StateUpdated(msg.sender, state);
+  function updateSubdaoState() public isEmitter {
+    emit StateUpdated(msg.sender);
   }
 
-  function updateSubdaoPoll(uint256 id, subDaoStorage.Poll memory poll) public isEmitter {
-    emit PollUpdated(msg.sender, id, poll);
+  function updateSubdaoPoll(uint256 pollId, address voter) public isEmitter {
+    emit PollUpdated(msg.sender, pollId, voter);
   }
 
   function transferSubdao(
@@ -68,20 +64,17 @@ contract SubdaoEmitter {
     emit Transfer(msg.sender, tokenAddress, from, to, amount);
   }
 
-  function updateVotingStatus(
-    uint256 pollId,
-    address voter,
-    subDaoStorage.VoterInfo memory voterInfo
-  ) public isEmitter {
-    emit VotingStatusUpdated(msg.sender, pollId, voter, voterInfo);
+  function updateVotingStatus(uint256 pollId, address voter) public isEmitter {
+    emit VotingStatusUpdated(msg.sender, pollId, voter);
   }
 
   function updateSubdaoPollAndStatus(
-    uint256 id,
-    subDaoStorage.Poll memory poll,
-    subDaoStorage.PollStatus pollStatus
+    uint256 pollId,
+    address voter,
+    subDaoStorage.PollStatus prevPollStatus,
+    subDaoStorage.PollStatus newPollStatus
   ) public isEmitter {
-    emit PollUpdated(msg.sender, id, poll);
-    emit PollStatusUpdated(msg.sender, id, pollStatus);
+    emit PollUpdated(msg.sender, pollId, voter);
+    emit PollStatusUpdated(msg.sender, pollId, prevPollStatus, newPollStatus);
   }
 }
