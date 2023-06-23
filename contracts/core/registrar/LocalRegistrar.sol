@@ -134,7 +134,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
 
     lrs.rebalanceParams = _rebalanceParams;
-    emit RebalanceParamsChanged(_rebalanceParams);
+    emit RebalanceParamsChanged();
   }
 
   function setAngelProtocolParams(
@@ -143,7 +143,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
 
     lrs.angelProtocolParams = _angelProtocolParams;
-    emit AngelProtocolParamsChanged(_angelProtocolParams);
+    emit AngelProtocolParamsChanged();
   }
 
   function setAccountsContractAddressByChain(

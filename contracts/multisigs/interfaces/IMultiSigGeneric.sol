@@ -1,21 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {MultiSigStorage} from "../storage.sol";
 import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 abstract contract IMultiSigGeneric is IERC165 {
   /*
    *  Events
    */
-  event Confirmation(address indexed sender, uint256 indexed transactionId);
-  event Revocation(address indexed sender, uint256 indexed transactionId);
-  event Submission(uint256 indexed transactionId, MultiSigStorage.Transaction transaction);
-  event Execution(uint256 indexed transactionId);
-  event ExecutionFailure(uint256 indexed transactionId);
-  event Deposit(address indexed sender, uint256 value);
-  event OwnerAddition(address indexed owner);
-  event OwnerRemoval(address indexed owner);
+  event Confirmation(address sender, uint256 transactionId);
+  event Revocation(address sender, uint256 transactionId);
+  event Submission(uint256 transactionId);
+  event Execution(uint256 transactionId);
+  event ExecutionFailure(uint256 transactionId);
+  event Deposit(address sender, uint256 value);
+  event OwnerAddition(address owner);
+  event OwnerRemoval(address owner);
   event ApprovalsRequirementChange(uint256 approvalsRequired);
   event ExecutionRequiredChange(bool requireExecution);
 
@@ -74,7 +73,10 @@ abstract contract IMultiSigGeneric is IERC165 {
   /// @dev Allows current owners to revoke a confirmation for a non-executed transaction from a removed/non-current owner.
   /// @param transactionId Transaction ID.
   /// @param formerOwner Address of the non-current owner, whos confirmation is being revoked
-  function revokeConfirmationOfFormerOwner(uint256 transactionId, address formerOwner) public virtual;
+  function revokeConfirmationOfFormerOwner(
+    uint256 transactionId,
+    address formerOwner
+  ) public virtual;
 
   /// @dev Allows anyone to execute a confirmed transaction.
   /// @param transactionId Transaction ID.

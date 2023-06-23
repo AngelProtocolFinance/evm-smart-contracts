@@ -111,7 +111,10 @@ contract MultiSigGeneric is
   /// @dev Allows to remove owners. Transaction has to be sent by wallet.
   /// @param owners Addresses of removed owners.
   function removeOwners(address[] memory owners) public virtual override onlyWallet {
-    require(owners.length < activeOwnersCount, "Must have at least one owner left after all removals");
+    require(
+      owners.length < activeOwnersCount,
+      "Must have at least one owner left after all removals"
+    );
     // check that all ousted owners are current, existing owners
     for (uint256 oo = 0; oo < owners.length; oo++) {
       require(isOwner[owners[oo]], "Ousted owner is not a current owner");
@@ -312,6 +315,6 @@ contract MultiSigGeneric is
       metadata: metadata
     });
     transactionCount += 1;
-    emit Submission(transactionId, transactions[transactionId]);
+    emit Submission(transactionId);
   }
 }

@@ -26,7 +26,8 @@ contract AccountsUpdate is ReentrancyGuardFacet, AccountsEvents {
     require(Validator.addressChecker(newOwner), "Enter a valid owner address");
 
     state.config.owner = newOwner;
-    emit UpdateConfig(state.config);
+
+    emit UpdateConfig();
   }
 
   /**
@@ -48,5 +49,7 @@ contract AccountsUpdate is ReentrancyGuardFacet, AccountsEvents {
     state.config.registrarContract = newRegistrar;
     state.config.maxGeneralCategoryId = maxGeneralCategoryId;
     state.config.earlyLockedWithdrawFee = earlyLockedWithdrawFee;
+
+    emit UpdateConfig();
   }
 }

@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
-import {MultiSigGeneric} from "../../multisigs/MultiSigGeneric.sol";
-import {MultiSigStorage} from "../../multisigs/storage.sol";
 
 /**
  * @notice the endowment multisig emitter contract
@@ -41,11 +39,7 @@ contract EndowmentMultiSigEmitter {
   );
   event EndowmentConfirmation(uint256 endowmentId, address sender, uint256 transactionId);
   event EndowmentRevocation(uint256 endowmentId, address sender, uint256 transactionId);
-  event EndowmentSubmission(
-    uint256 endowmentId,
-    uint256 transactionId,
-    MultiSigStorage.Transaction transaction
-  );
+  event EndowmentSubmission(uint256 endowmentId, uint256 transactionId);
   event EndowmentExecution(uint256 endowmentId, uint256 transactionId);
   event EndowmentExecutionFailure(uint256 endowmentId, uint256 transactionId);
   event EndowmentDeposit(uint256 endowmentId, address sender, uint256 value);
@@ -107,14 +101,9 @@ contract EndowmentMultiSigEmitter {
    * @notice emits the EndowmentSubmission event
    * @param endowmentId the endowment id
    * @param transactionId the transaction id
-   * @param transaction the transaction
    */
-  function submitEndowment(
-    uint256 endowmentId,
-    uint256 transactionId,
-    MultiSigStorage.Transaction memory transaction
-  ) public isEmitter {
-    emit EndowmentSubmission(endowmentId, transactionId, transaction);
+  function submitEndowment(uint256 endowmentId, uint256 transactionId) public isEmitter {
+    emit EndowmentSubmission(endowmentId, transactionId);
   }
 
   /**
@@ -169,7 +158,11 @@ contract EndowmentMultiSigEmitter {
    * @param currOwner the removed owner of the endowment
    * @param newOwner the added owner of the endowment
    */
-  function replaceOwnerEndowment(uint256 endowmentId, address currOwner, address newOwner) public isEmitter {
+  function replaceOwnerEndowment(
+    uint256 endowmentId,
+    address currOwner,
+    address newOwner
+  ) public isEmitter {
     emit EndowmentOwnerReplace(endowmentId, currOwner, newOwner);
   }
 

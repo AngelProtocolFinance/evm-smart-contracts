@@ -13,7 +13,7 @@ interface IERC20AP {
    *
    * Note that `value` may be zero.
    */
-  event Transfer(uint32 indexed from, uint32 indexed to, uint256 value);
+  event Transfer(uint32 from, uint32 to, uint256 value);
 
   /**
    * @dev Returns the amount of tokens in existence.

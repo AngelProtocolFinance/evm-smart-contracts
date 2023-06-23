@@ -2,7 +2,6 @@
 pragma solidity ^0.8.16;
 
 //Libraries
-import "hardhat/console.sol";
 import "./storage.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -12,10 +11,8 @@ import {IndexFundMessage} from "./message.sol";
 import {AngelCoreStruct} from "../struct.sol";
 import {Array, Array32} from "../../lib/array.sol";
 import {Utils} from "../../lib/utils.sol";
-import {AddressArray} from "../../lib/address/array.sol";
 import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../registrar/storage.sol";
-import {Validator} from "../registrar/lib/validator.sol";
 import {AccountMessages} from "../accounts/message.sol";
 
 // TODO: Edit Query functions with start and limit to optimise the size of data being returned
@@ -30,14 +27,15 @@ import {AccountMessages} from "../accounts/message.sol";
 contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
   event OwnerUpdated(address newOwner);
   event RegistrarUpdated(address newRegistrar);
-  event ConfigUpdated(IndexFundStorage.Config config);
-  event IndexFundCreated(uint256 id, AngelCoreStruct.IndexFund fund);
+  event ConfigUpdated();
+  event IndexFundCreated(uint256 id);
   event IndexFundRemoved(uint256 id);
   event MemberRemoved(uint256 fundId, uint32 memberId);
   event MemberAdded(uint256 fundId, uint32 memberId);
-  event DonationMessagesUpdated(IndexFundStorage.DonationMessages messages);
+  event DonationMessagesUpdated();
   event UpdateActiveFund(uint256 fundId);
-  event UpdateIndexFundState(IndexFundStorage._State state);
+  event UpdateIndexFundState();
+
   uint256 maxLimit;
   uint256 defaultLimit;
 
@@ -61,7 +59,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
       fundMemberLimit: details.fundMemberLimit,
       fundingGoal: details.fundingGoal
     });
-    emit ConfigUpdated(state.config);
+    emit ConfigUpdated();
 
     state.state = IndexFundStorage._State({
       totalFunds: 0,
@@ -70,7 +68,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
       roundDonations: 0,
       nextRotationBlock: block.number + state.config.fundRotation
     });
-    emit UpdateIndexFundState(state.state);
+    emit UpdateIndexFundState();
   }
 
   /**
@@ -130,7 +128,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
     state.config.fundRotation = details.fundRotation;
     state.config.fundMemberLimit = details.fundMemberLimit;
-    emit ConfigUpdated(state.config);
+    emit ConfigUpdated();
     return true;
   }
 
@@ -171,7 +169,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
       state.FUNDS_BY_ENDOWMENT[members[i]].push(state.state.nextFundId);
     }
 
-    emit IndexFundCreated(state.state.nextFundId, state.FUNDS[state.state.nextFundId]);
+    emit IndexFundCreated(state.state.nextFundId);
 
     // If there are no funds created or no active funds yet, set the new
     // fund being created now to be the active fund
@@ -417,7 +415,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     delete state.donationMessages.lockedSplit;
     delete state.donationMessages.liquidSplit;
 
-    emit UpdateIndexFundState(state.state);
+    emit UpdateIndexFundState();
   }
 
   /**
@@ -473,7 +471,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
         );
       }
     }
-    emit DonationMessagesUpdated(donationMessages);
+    emit DonationMessagesUpdated();
   }
 
   /**

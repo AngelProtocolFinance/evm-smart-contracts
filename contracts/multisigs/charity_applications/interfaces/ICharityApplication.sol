@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
-// import {MultiSigStorage} from "../storage.sol";
+
 import {AccountMessages} from "../../../core/accounts/message.sol";
-import "./../storage.sol";
 import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 abstract contract ICharityApplication is IERC165 {
@@ -10,26 +9,21 @@ abstract contract ICharityApplication is IERC165 {
    * Events
    */
 
-  event InitilizedCharityApplication(CharityApplicationsStorage.Config updatedConfig);
+  event InitilizedCharityApplication();
 
-  event CharityProposed(
-    address indexed proposer,
-    uint256 indexed proposalId,
-    AccountMessages.CreateEndowmentRequest charityApplication,
-    string meta
-  );
+  event CharityProposed(address proposer, uint256 proposalId, string meta);
 
-  event CharityApproved(uint256 indexed proposalId, uint256 indexed endowmentId);
+  event CharityApproved(uint256 proposalId, uint256 endowmentId);
 
-  event CharityRejected(uint256 indexed proposalId);
+  event CharityRejected(uint256 proposalId);
 
-  event Deposit(address indexed sender, uint256 value);
+  event Deposit(address sender, uint256 value);
 
   // event emitted when gas is sent to endowments first member
-  event GasSent(uint256 indexed endowmentId, address indexed member, uint256 amount);
+  event GasSent(uint256 endowmentId, address member, uint256 amount);
 
   // event emitted when seed funding is given to endowment
-  event SeedAssetSent(uint256 indexed endowmentId, address indexed asset, uint256 amount);
+  event SeedAssetSent(uint256 endowmentId, address asset, uint256 amount);
 
   // For storing mattic to send gas fees
   /// @dev Receive function allows to deposit ether.

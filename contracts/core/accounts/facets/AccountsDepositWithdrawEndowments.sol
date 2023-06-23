@@ -176,7 +176,7 @@ contract AccountsDepositWithdrawEndowments is
     state.STATES[details.id].balances.liquid[tokenAddress] += liquidAmount;
 
     state.ENDOWMENTS[details.id] = tempEndowment;
-    emit UpdateEndowment(details.id, tempEndowment);
+    emit UpdateEndowment(details.id);
   }
 
   /**
