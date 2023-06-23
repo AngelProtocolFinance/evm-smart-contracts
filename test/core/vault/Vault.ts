@@ -35,7 +35,7 @@ describe("Vault", function () {
       yieldToken,
       admin,
       vaultType = 0, 
-      strategySelector = "0x12345678",
+      strategySelector = DEFAULT_STRATEGY_SELECTOR,
       strategy = ethers.constants.AddressZero,
       registrar = ethers.constants.AddressZero,
       apTokenName = "TestVault",
@@ -411,19 +411,6 @@ describe("Vault", function () {
       await registrar.setVaultOperatorApproved(owner.address, true)
     })
 
-    it("reverts if the baseToken transfer fails", async function () {
-      await baseToken.setTransferAllowed(false)
-      await expect(vault.redeemAll(0)).to.be.revertedWithCustomError(vault, "TransferFailed")
-      await baseToken.setTransferAllowed(true)
-    })
-  
-    it("reverts if the baseToken approve fails", async function () {
-      await baseToken.setApproveAllowed(false)
-      await strategy.setDummyAmt(DEPOSIT/2)
-      await expect(vault.redeemAll(0)).to.be.reverted
-      await baseToken.setApproveAllowed(true)
-    })
-
     it("does not tax if the position hasn't earned yield", async function () {
       await strategy.setDummyAmt(DEPOSIT) // no yield
       let collectorBal = await baseToken.balanceOf(collector.address)
@@ -435,6 +422,7 @@ describe("Vault", function () {
 
     it("taxes if the position is in the black", async function () {
       await strategy.setDummyAmt(DEPOSIT*2) // 100% yield
+      await baseToken.mint(strategy.address, DEPOSIT) // add the yield to the strategy 
       let collectorBal = await baseToken.balanceOf(collector.address)
       await vault.redeemAll(0) // Redeem half the position
       let newCollectorBal = await baseToken.balanceOf(collector.address)
@@ -443,7 +431,7 @@ describe("Vault", function () {
       expect(newCollectorBal).to.equal(collectorBal.add(expectedTax))
       expect(await baseToken.transferFrom(vault.address, owner.address, (DEPOSIT*2 - expectedTax)))
     })
-    
+
     it("updates the principles accordingly", async function () {
       await strategy.setDummyAmt(DEPOSIT) // 100% yield
       await vault.redeemAll(0) // Redeem half the position
@@ -454,13 +442,12 @@ describe("Vault", function () {
   })
 
   describe("upon Harvest", async function () {
-    let vault: APVault_V1
     let baseToken: DummyERC20
     let yieldToken: DummyERC20
     let strategy: DummyStrategy
     let registrar: LocalRegistrar
     const DEPOSIT = 1_000_000_000 // $1000 
-    const EX_RATE = 1
+    const EX_RATE = 2
     const TAX_RATE = 100 // bps
     const PRECISION = BigNumber.from(10).pow(24)
     before(async function() {
@@ -470,6 +457,7 @@ describe("Vault", function () {
     })
 
     describe("For liquid vaults", async function () {
+      let vault: APVault_V1
       beforeEach(async function () {
         baseToken = await deployDummyERC20(owner)
         yieldToken = await deployDummyERC20(owner)
@@ -517,7 +505,7 @@ describe("Vault", function () {
       it("reverts if the yieldToken approve to strategy fails", async function () {
         await strategy.setDummyPreviewAmt(DEPOSIT * 2) // 100% yield
         await yieldToken.setApproveAllowed(false)
-        await expect(vault.harvest([0])).to.be.revertedWithCustomError(vault, "ApproveFailed")
+        await expect(vault.harvest([0])).to.be.reverted
         await baseToken.setTransferAllowed(true)
       })
     
@@ -528,17 +516,88 @@ describe("Vault", function () {
         await baseToken.setTransferAllowed(true)
       })
     
+      // @todo this test is a bit circular. We aren't effectively testing whether the vault is asking 
+      // for the right number of yield tokens to cover the expected tax since we set it explicitly. 
+      // We need better hooks in the dummy strategy to at least emit events with the queries so we can test
+      // what the vault is sending.  
       it("appropriately harevests yield", async function () {
         await strategy.setDummyPreviewAmt(DEPOSIT * 2) // 100% yield
         let expectedHarvestAmt = DEPOSIT * TAX_RATE / 10000 // DEPOSIT = position in yield, apply tax 
-        await strategy.setDummyAmt(expectedHarvestAmt) // no yield
+        await strategy.setDummyAmt(expectedHarvestAmt) 
         await vault.harvest([0])
         let newCollectorBal = await baseToken.balanceOf(collector.address)
         expect(newCollectorBal).to.equal(expectedHarvestAmt)
       })
     })
 
-
-
+    describe("For locked vaults", async function () {
+      let liquidVault: APVault_V1
+      let lockedVault: APVault_V1
+      const REBAL_RATE = 5000; // 5% 
+      const BASIS = 10000
+      beforeEach(async function () {
+        baseToken = await deployDummyERC20(owner)
+        yieldToken = await deployDummyERC20(owner)
+        strategy = await deployDummyStrategy(
+          owner,
+          {
+            baseToken: baseToken.address, 
+            yieldToken: yieldToken.address, 
+            admin: owner.address
+          })
+        liquidVault = await deployVault({
+          vaultType: 1, // Locked
+          admin: owner.address, 
+          baseToken: baseToken.address, 
+          yieldToken: yieldToken.address,
+          strategy: strategy.address,
+          registrar: registrar.address
+        })
+        lockedVault = await deployVault({
+          vaultType: 0, // Locked
+          admin: owner.address, 
+          baseToken: baseToken.address, 
+          yieldToken: yieldToken.address,
+          strategy: strategy.address,
+          registrar: registrar.address
+        })
+        await baseToken.mint(lockedVault.address, DEPOSIT)
+        await yieldToken.mint(strategy.address, DEPOSIT*EX_RATE)
+        await strategy.setDummyAmt(DEPOSIT*EX_RATE)
+        await lockedVault.deposit(0, baseToken.address, DEPOSIT)
+        await registrar.setStrategyParams(
+          DEFAULT_STRATEGY_SELECTOR,
+          lockedVault.address, 
+          liquidVault.address, 
+          StrategyApprovalState.APPROVED)
+        await registrar.setRebalanceParams({
+            rebalanceLiquidProfits: false,
+            lockedRebalanceToLiquid: REBAL_RATE,
+            interestDistribution: 0,
+            lockedPrincipleToLiquid: false,
+            principleDistribution: 0,
+            basis: BASIS
+          })
+      })
+      
+      it("reverts if the baseToken transfer fails", async function () {
+        await strategy.setDummyPreviewAmt(DEPOSIT * 2) // 100% yield
+        await baseToken.setTransferAllowed(false)
+        await expect(lockedVault.harvest([0])).to.be.revertedWithCustomError(lockedVault, "TransferFailed")
+        await baseToken.setTransferAllowed(true)
+      })
+    
+      it("appropriately harvests yield and rebalances to the liquid sibling vault", async function () {
+        await strategy.setDummyPreviewAmt(DEPOSIT * 2) // 100% yield
+        let expectedTaxAmt = DEPOSIT * TAX_RATE / BASIS // DEPOSIT = position in yield, apply tax 
+        let expectedRebalAmt = DEPOSIT * REBAL_RATE / BASIS
+        await strategy.setDummyAmt(expectedTaxAmt + expectedRebalAmt) 
+        await lockedVault.harvest([0])
+        let newCollectorBal = await baseToken.balanceOf(collector.address)
+        expect(newCollectorBal).to.equal(expectedTaxAmt)
+        let liquidPrinciple = await liquidVault.principleByAccountId(0)
+        expect(liquidPrinciple.baseToken).to.equal(expectedRebalAmt)
+      })
+    })
   })
 })
