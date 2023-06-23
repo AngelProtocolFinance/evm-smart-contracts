@@ -35,7 +35,8 @@ contract EndowmentMultiSigEmitter {
     address emitter,
     address[] owners,
     uint256 required,
-    bool requireExecution
+    bool requireExecution,
+    uint256 transactionExpiry
   );
   event EndowmentConfirmation(uint256 endowmentId, address sender, uint256 transactionId);
   event EndowmentRevocation(uint256 endowmentId, address sender, uint256 transactionId);
@@ -47,6 +48,7 @@ contract EndowmentMultiSigEmitter {
   event EndowmentOwnersRemoval(uint256 endowmentId, address[] owners);
   event EndowmentOwnerReplace(uint256 endowmentId, address currOwner, address newOwner);
   event EndowmentApprovalsRequirementChange(uint256 endowmentId, uint256 approvalsRequired);
+  event EndowmentTransactionExpiryChange(uint256 endowmentId, uint256 transactionExpiry);
 
   /**
    * @notice emits MultisigCreated event
@@ -56,6 +58,7 @@ contract EndowmentMultiSigEmitter {
    * @param owners the owners of the multisig
    * @param required the required number of signatures
    * @param requireExecution the require execution flag
+   * @param transactionExpiry duration of validity for newly created transactions
    */
   function createMultisig(
     address multisigAddress,
@@ -63,10 +66,11 @@ contract EndowmentMultiSigEmitter {
     address emitter,
     address[] memory owners,
     uint256 required,
-    bool requireExecution
+    bool requireExecution,
+    uint256 transactionExpiry
   ) public isOwner {
     isMultisig[multisigAddress] = true;
-    emit MultisigCreated(multisigAddress, endowmentId, emitter, owners, required, requireExecution);
+    emit MultisigCreated(multisigAddress, endowmentId, emitter, owners, required, requireExecution, transactionExpiry);
   }
 
   /**
@@ -176,5 +180,17 @@ contract EndowmentMultiSigEmitter {
     uint256 approvalsRequired
   ) public isEmitter {
     emit EndowmentApprovalsRequirementChange(endowmentId, approvalsRequired);
+  }
+
+  /**
+   * @notice emits the EndowmentTransactionExpiryChange event
+   * @param endowmentId the endowment id
+   * @param transactionExpiry the duration a newly created transaction is valid for
+   */
+  function transactionExpiryChangeEndowment(
+    uint256 endowmentId,
+    uint256 transactionExpiry
+  ) public isEmitter {
+    emit EndowmentTransactionExpiryChange(endowmentId, transactionExpiry);
   }
 }

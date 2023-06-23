@@ -71,23 +71,28 @@ contract MultiSigWalletFactory is Factory, Ownable {
     PROXY_ADMIN = proxyAdmin;
   }
 
-  /// @dev Allows verified creation of multisignature wallet.
-  /// @param owners List of initial owners.
-  /// @param required Number of required confirmations.
-  /// @return wallet Returns wallet address.
+  /** @dev Create a new multisig wallet for an endowment 
+   * @param endowmentId the endowment id
+   * @param emitterAddress the emitter of the multisig
+   * @param owners the owners of the multisig
+   * @param required the required number of signatures
+   * @param transactionExpiry duration of validity for newly created transactions
+   */
   function create(
     uint256 endowmentId,
     address emitterAddress,
     address[] memory owners,
-    uint256 required
+    uint256 required,
+    uint256 transactionExpiry
   ) public returns (address wallet) {
     bytes memory EndowmentData = abi.encodeWithSignature(
-      "initialize(uint256,address,address[],uint256,bool)",
+      "initialize(uint256,address,address[],uint256,bool,uint256)",
       endowmentId,
       emitterAddress,
       owners,
       required,
-      false
+      false,
+      transactionExpiry
     );
     wallet = address(new ProxyContract(IMPLEMENTATION_ADDRESS, PROXY_ADMIN, EndowmentData));
 
@@ -97,7 +102,8 @@ contract MultiSigWalletFactory is Factory, Ownable {
       emitterAddress,
       owners,
       required,
-      false
+      false,
+      transactionExpiry
     );
     register(wallet);
     // also store address of multisig in endowmentIdToMultisig
