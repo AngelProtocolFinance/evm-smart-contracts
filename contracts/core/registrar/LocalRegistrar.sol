@@ -134,7 +134,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
 
     lrs.rebalanceParams = _rebalanceParams;
-    emit RebalanceParamsChanged();
+    emit RebalanceParamsUpdated();
   }
 
   function setAngelProtocolParams(
@@ -143,7 +143,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
 
     lrs.angelProtocolParams = _angelProtocolParams;
-    emit AngelProtocolParamsChanged();
+    emit AngelProtocolParamsUpdated();
   }
 
   function setAccountsContractAddressByChain(
@@ -153,14 +153,14 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
 
     lrs.AccountsContractByChain[keccak256(bytes(_chainName))] = _accountsContractAddress;
-    emit AccountsContractStorageChanged(_chainName, _accountsContractAddress);
+    emit AccountsContractStorageUpdated(_chainName, _accountsContractAddress);
   }
 
   function setTokenAccepted(address _tokenAddr, bool _isAccepted) external onlyOwner {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
 
     lrs.AcceptedTokens[_tokenAddr] = _isAccepted;
-    emit TokenAcceptanceChanged(_tokenAddr, _isAccepted);
+    emit TokenAcceptanceUpdated(_tokenAddr, _isAccepted);
   }
 
   function setGasByToken(address _tokenAddr, uint256 _gasFee) external onlyOwner {
@@ -177,7 +177,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
 
     lrs.VaultsByStrategyId[_strategyId].approvalState = _approvalState;
-    emit StrategyApprovalChanged(_strategyId, _approvalState);
+    emit StrategyApprovalUpdated(_strategyId, _approvalState);
   }
 
   function setStrategyParams(
@@ -202,7 +202,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
       lockedParams,
       liquidParams
     );
-    emit StrategyParamsChanged(_strategyId, _lockAddr, _liqAddr, _approvalState);
+    emit StrategyParamsUpdated(_strategyId, _lockAddr, _liqAddr, _approvalState);
   }
 
   function setVaultOperatorApproved(address _operator, bool _isApproved) external override {
@@ -220,7 +220,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
       payoutAddress: _payout,
       bps: _rate
     });
-    emit FeeUpdated(_feeType, _rate, _payout);
+    emit FeeSettingsUpdated(_feeType, _rate, _payout);
   }
 
   function setUniswapAddresses(address _uniswapRouter, address _uniswapFactory) external onlyOwner {
