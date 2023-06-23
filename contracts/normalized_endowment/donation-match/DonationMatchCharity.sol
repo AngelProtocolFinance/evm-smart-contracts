@@ -5,18 +5,16 @@ import "./storage.sol";
 import {DonationMatchMessages} from "./message.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
 import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
-import {AccountMessages} from "../../core/accounts/message.sol";
 import {AccountStorage} from "../../core/accounts/storage.sol";
 import {IAccounts} from "../../core/accounts/interfaces/IAccounts.sol";
 import {AngelCoreStruct} from "../../core/struct.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
 import "@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol";
-import "@uniswap/v3-core/contracts/libraries/FullMath.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
-import {IDonationMatchEmitter} from "./IDonationMatchEmitter.sol";
-import {IAccountsDonationMatch} from "./../../core/accounts/interfaces/IAccountsDonationMatch.sol";
+// import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import {IAccountsDonationMatch} from "../../core/accounts/interfaces/IAccountsDonationMatch.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 interface SubdaoToken {
   function executeDonorMatch(
@@ -31,11 +29,10 @@ interface IERC20Burnable is IERC20 {
   function burn(uint256 amount) external;
 }
 
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-
+// >> SHOULD INHERIT contracts/normalized_endowment/donation-match/IDonationMatching.sol ?
 contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
-  event DonationMatchCharityInitialized(address donationMatch, DonationMatchStorage.Config config);
-  event DonationMatchCharityTokenApprovalGiven(
+  event DonationMatchCharityInitialized(address donationMatch);
+  event TokenApprovalGiven(
     uint32 endowmentId,
     address tokenAddress,
     address spender,
@@ -48,14 +45,14 @@ contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
     uint256 amount
   );
   event TokenBurned(uint32 endowmentId, address tokenAddress, uint256 amount);
-  event DonationMatchCharityExecuted(
+  event DonationMatchExecuted(
     address donationMatch,
     address tokenAddress,
     uint256 amount,
     address accountsContract,
     uint32 endowmentId,
     address donor
-  ); // >> RENAME TO 'DonationMatchExecuted'
+  );
 
   function initialize(DonationMatchMessages.InstantiateMessage memory details) public initializer {
     require(details.reserveToken != address(0), "Invalid Address");
@@ -73,7 +70,7 @@ contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
     require(details.usdcAddress != address(0), "Invalid Address");
     state.config.usdcAddress = details.usdcAddress;
 
-    emit DonationMatchCharityInitialized(address(this), state.config);
+    emit DonationMatchCharityInitialized(address(this));
   }
 
   function executeDonorMatch(
@@ -130,12 +127,7 @@ contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
 
     require(success, "Token transfer failed");
 
-    emit DonationMatchCharityTokenApprovalGiven(
-      endowmentId,
-      token,
-      state.config.reserveToken,
-      reserveTokenAmount
-    );
+    emit TokenApprovalGiven(endowmentId, token, state.config.reserveToken, reserveTokenAmount);
 
     if (token == state.config.reserveToken) {
       uint256 donorAmount = (reserveTokenAmount * 40) / (100);
@@ -174,7 +166,7 @@ contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
         endowmentId,
         donor
       );
-      emit DonationMatchCharityExecuted(
+      emit DonationMatchExecuted(
         address(this),
         token,
         reserveTokenAmount,
