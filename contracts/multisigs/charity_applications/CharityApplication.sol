@@ -321,6 +321,8 @@ contract CharityApplication is CharityStorage, ICharityApplication, ERC165, Reen
     if (fundseedasset) config.fundSeedAsset = fundseedasset;
     if (seedasset != address(0)) config.seedAsset = seedasset;
     if (seedassetamount != 0) config.seedAssetAmount = seedassetamount;
+
+    emit ConfigUpdated();
   }
 
   function queryConfig() public view returns (CharityApplicationsStorage.Config memory) {

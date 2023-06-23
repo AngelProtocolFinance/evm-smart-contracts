@@ -17,6 +17,8 @@ abstract contract ICharityApplication is IERC165 {
 
   event CharityRejected(uint256 proposalId);
 
+  event ConfigUpdated();
+
   event GasDeposited(address sender, uint256 value);
 
   // event emitted when gas is sent to endowments first member
