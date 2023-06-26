@@ -93,10 +93,6 @@ export function createEmptyAddressObj(): AddressObj {
       gasService: "",
       gateway: "",
     },
-    charityApplication: {
-      implementation: "",
-      proxy: "",
-    },
     donationMatch: {
       emitter: "",
       implementation: "",
@@ -178,7 +174,7 @@ export function createEmptyAddressObj(): AddressObj {
       stringArray: "",
     },
     multiSig: {
-      applications: {
+      charityApplications: {
         implementation: "",
         proxy: "",
       },

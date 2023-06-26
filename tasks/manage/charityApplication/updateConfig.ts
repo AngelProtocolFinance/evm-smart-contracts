@@ -4,7 +4,6 @@ import {getAddresses, getSigners, logger, structToObject} from "utils";
 
 type TaskArgs = {
   accountsDiamond?: string;
-  applicationsMultisig?: string;
   fundSeedAsset?: boolean;
   gasAmount?: number;
   newEndowGasMoney?: boolean;
@@ -74,13 +73,7 @@ task("manage:CharityApplication:updateConfig", "Will update CharityApplication c
         taskArgs.seedAsset || curConfig.seedAsset,
         taskArgs.seedAssetAmount || curConfig.seedAssetAmount,
       ]);
-      const applicationMultiSigContract = ApplicationsMultiSig__factory.connect(
-        curConfig.applicationMultisig, // we need to use current config's ApplicationsMultiSig address
-        charityApplicationsOwners[0]
-      );
-      const tx = await applicationMultiSigContract.submitTransaction(
-        "CharityApplication: Update Config",
-        "CharityApplication: Update Config",
+      const tx = await charityApplicationsOwners[0].submitTransaction(
         charityApplication.address,
         0,
         updateConfigData,

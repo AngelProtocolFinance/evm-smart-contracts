@@ -22,10 +22,6 @@ task(
     logger.out("Setting up data...");
     let newConfig: RegistrarMessages.UpdateConfigRequestStruct = {
       accountsContract: addresses.accounts.diamond,
-      approved_charities: [],
-      splitMax: config.REGISTRAR_DATA.splitToLiquid.max,
-      splitMin: config.REGISTRAR_DATA.splitToLiquid.min,
-      splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit,
       collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare,
       subdaoGovContract: addresses.subDao.implementation, // subdao gov
       subdaoTokenContract: addresses.subDao.token, // subdao gov token (basic CW20)
@@ -34,7 +30,6 @@ task(
       subdaoDistributorContract: apTeam1.address, // subdao gov fee distributor
       subdaoEmitter: addresses.subDao.emitter.proxy,
       donationMatchContract: addresses.donationMatch.implementation, // donation matching contract
-
       // CONTRACT ADSRESSES
       indexFundContract: addresses.indexFund.proxy,
       govContract: apTeam1.address,
@@ -46,11 +41,11 @@ task(
       // haloTokenLpContract: addresses.halo.tokenLp, -> TODO: when implemented
       charitySharesContract: apTeam1.address,
       fundraisingContract: apTeam1.address,
-      applicationsReview: addresses.multiSig.applications.proxy,
-      uniswapSwapRouter: addresses.uniswapSwapRouter,
+      uniswapRouter: addresses.uniswap.SwapRouter,
+      uniswapFactory: addresses.uniswap.Factory,
       multisigFactory: addresses.multiSig.endowment.factory,
       multisigEmitter: addresses.multiSig.endowment.emitter.proxy,
-      charityProposal: addresses.charityApplication.proxy,
+      charityApplications: addresses.charityApplications.proxy,
       proxyAdmin: proxyAdmin.address,
       usdcAddress: addresses.tokens.usdc,
       wMaticAddress: addresses.tokens.wmatic,
