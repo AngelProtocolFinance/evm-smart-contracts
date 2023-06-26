@@ -50,7 +50,7 @@ contract EndowmentMultiSigEmitter {
   event OwnersRemoved(uint256 endowmentId, address[] owners);
   event OwnerReplaced(uint256 endowmentId, address currOwner, address newOwner);
   event ApprovalRequirementsUpdated(uint256 endowmentId, uint256 oldValue, uint256 newValue);
-  event EndowmentTransactionExpiryChange(uint256 endowmentId, uint256 transactionExpiry);
+  event EndowmentTransactionExpiryChanged(uint256 endowmentId, uint256 transactionExpiry);
 
   /**
    * @notice emits MultisigCreated event
@@ -203,6 +203,6 @@ contract EndowmentMultiSigEmitter {
     uint256 endowmentId,
     uint256 transactionExpiry
   ) public isEmitter {
-    emit EndowmentTransactionExpiryChange(endowmentId, transactionExpiry);
+    emit EndowmentTransactionExpiryChanged(endowmentId, transactionExpiry);
   }
 }
