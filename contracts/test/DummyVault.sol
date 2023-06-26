@@ -29,7 +29,7 @@ contract DummyVault is IVault {
   }
 
   function deposit(uint32 accountId, address token, uint256 amt) public payable override {
-    emit DepositMade(accountId, vaultConfig.vaultType, token, amt);
+    emit Deposit(accountId, vaultConfig.vaultType, token, amt);
   }
 
   function redeem(
@@ -37,18 +37,18 @@ contract DummyVault is IVault {
     uint256 amt
   ) public payable override returns (RedemptionResponse memory) {
     IERC20(vaultConfig.baseToken).approve(msg.sender, amt);
-    emit Redemption(accountId, vaultConfig.vaultType, vaultConfig.baseToken, amt);
+    emit Redeem(accountId, vaultConfig.vaultType, vaultConfig.baseToken, amt);
     return RedemptionResponse({amount: amt, status: VaultActionStatus.SUCCESS});
   }
 
   function redeemAll(uint32 accountId) public payable override returns (RedemptionResponse memory) {
     IERC20(vaultConfig.baseToken).approve(msg.sender, dummyAmt);
-    emit Redemption(accountId, vaultConfig.vaultType, address(this), dummyAmt);
+    emit Redeem(accountId, vaultConfig.vaultType, address(this), dummyAmt);
     return RedemptionResponse({amount: dummyAmt, status: VaultActionStatus.POSITION_EXITED});
   }
 
   function harvest(uint32[] calldata accountIds) public override {
-    emit Harvest(accountIds);
+    emit RewardsHarvested(accountIds);
   }
 
   function _isApprovedRouter() internal view override returns (bool) {}

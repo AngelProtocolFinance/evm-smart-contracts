@@ -76,7 +76,7 @@ abstract contract IVault {
 
   /// @notice Event emited on each Deposit call
   /// @dev Upon deposit, emit this event. Index the account and staking contract for analytics
-  event DepositMade(
+  event Deposit(
     uint32 accountId,
     VaultType vaultType,
     address tokenDeposited,
@@ -85,19 +85,14 @@ abstract contract IVault {
 
   /// @notice Event emited on each Redemption call
   /// @dev Upon redemption, emit this event. Index the account and staking contract for analytics
-  event Redemption(
-    uint32 accountId,
-    VaultType vaultType,
-    address tokenRedeemed,
-    uint256 amtRedeemed
-  );
+  event Redeem(uint32 accountId, VaultType vaultType, address tokenRedeemed, uint256 amtRedeemed);
 
   /// @notice Event emited on each Harvest call
   /// @dev Upon harvest, emit this event. Index the accounts harvested for.
   /// Rewards that are re-staked or otherwise reinvested will call other methods which will emit events
   /// with specific yield/value details
   /// @param accountIds a list of the Accounts harvested for
-  event Harvest(uint32[] accountIds);
+  event RewardsHarvested(uint32[] accountIds);
 
   /*////////////////////////////////////////////////
                         ERRORS

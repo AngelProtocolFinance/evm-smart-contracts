@@ -43,11 +43,14 @@ interface IStakingHalo {
  * The `Staking` contract enables users to stake their Halo token in exchange for rewards in form of additional tokens.
  */
 contract Staking is Initializable, ERC20, Pausable, ReentrancyGuard, Ownable {
-  event Staked(address user, uint256 amount, uint256 total, bytes data);
-  event Unstaked(address user, uint256 amount, uint256 total, bytes data);
+  event HaloStaked(address caller, address targetUser, uint256 amount, uint256 total, bytes data);
+  event HaloUnstaked(address user, uint256 amount, uint256 total, bytes data);
+  event InterestRateUpdated(uint256 interestRate);
+
   address public haloToken;
   uint256 public interestRate;
   uint256 public totalStaked;
+
   struct StakeInfo {
     bool started;
     uint256 startTs;
@@ -80,13 +83,15 @@ contract Staking is Initializable, ERC20, Pausable, ReentrancyGuard, Ownable {
 
   /**
    * @dev Allows the contract owner to update the interest rate applied to staked tokens.
-   * @param interestRate uint256
+   * @param _interestRate uint256
    */
-  function updateInterestRate(uint256 interestRate) public nonReentrant onlyOwner {
-    require(0 <= interestRate && interestRate <= 100, "Invalid interest rate");
-    interestRate = interestRate;
+  function updateInterestRate(uint256 _interestRate) public nonReentrant onlyOwner {
+    require(0 <= _interestRate && _interestRate <= 100, "Invalid interest rate");
+    interestRate = _interestRate;
+    emit InterestRateUpdated(interestRate);
   }
 
+  // >> CAN CALL `stakeFor` INTERNALLY, REDUCES CODE DUPLICATION
   /**
    * @dev Allows a user to stake their Halo token in exchange for rewards.
    * @param data bytes
@@ -112,7 +117,7 @@ contract Staking is Initializable, ERC20, Pausable, ReentrancyGuard, Ownable {
 
     _mint(msg.sender, amount);
 
-    emit Staked(msg.sender, amount, totalStakedFor[msg.sender], data);
+    emit HaloStaked(msg.sender, msg.sender, amount, totalStakedFor[msg.sender], data);
     return stakeNumber[msg.sender];
   }
 
@@ -142,7 +147,7 @@ contract Staking is Initializable, ERC20, Pausable, ReentrancyGuard, Ownable {
     _mint(user, amount);
     // emit Staked event
 
-    emit Staked(user, amount, totalStakedFor[user], data);
+    emit HaloStaked(msg.sender, user, amount, totalStakedFor[user], data);
 
     return stakeNumber[user];
   }
@@ -178,7 +183,7 @@ contract Staking is Initializable, ERC20, Pausable, ReentrancyGuard, Ownable {
     totalStaked -= amount;
 
     // emit Unstaked event
-    emit Unstaked(msg.sender, amount, totalStakedFor[msg.sender], data);
+    emit HaloUnstaked(msg.sender, amount, totalStakedFor[msg.sender], data);
   }
 
   /**

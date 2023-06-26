@@ -183,7 +183,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     _action.lockAmt = _redemptionLock.amount;
     _action.liqAmt = _redemptionLiquid.amount;
     _action = _prepareToSendTokens(_action, _redeemedAmt);
-    emit Redemption(_action, _redeemedAmt);
+    emit Redeem(_action, _redeemedAmt);
     if (
       (_redemptionLock.status == IVault.VaultActionStatus.POSITION_EXITED) &&
       (_redemptionLiquid.status == IVault.VaultActionStatus.POSITION_EXITED)
@@ -231,7 +231,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     // Pack and send the tokens back
     uint256 _redeemedAmt = lockResponse.amount + liqResponse.amount;
     _action = _prepareToSendTokens(_action, _redeemedAmt);
-    emit Redemption(_action, _redeemedAmt);
+    emit Redeem(_action, _redeemedAmt);
     _action.status = IVault.VaultActionStatus.POSITION_EXITED;
     return _action;
   }
@@ -245,7 +245,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     IVault lockedVault = IVault(_params.Locked.vaultAddr);
     liquidVault.harvest(_action.accountIds);
     lockedVault.harvest(_action.accountIds);
-    emit Harvest(_action);
+    emit RewardsHarvested(_action);
     return _action;
   }
 
@@ -315,7 +315,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
       StringToAddress.toAddress(accountsContractAddress),
       _sendAmt
     );
-    emit TokensSent(_action, _sendAmt);
+    emit Transfer(_action, _sendAmt);
     return _action;
   }
 
@@ -349,16 +349,16 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         gasFee
       )
     {
-      emit TokensSent(_action, amtLessGasFee);
+      emit Transfer(_action, amtLessGasFee);
     } catch Error(string memory reason) {
-      emit LogError(_action, reason);
+      emit ErrorLogged(_action, reason);
       IERC20Metadata(_action.token).transfer(apParams.refundAddr, _sendAmt);
-      emit FallbackRefund(_action, _sendAmt);
+      emit Refund(_action, _sendAmt);
       _action.status = IVault.VaultActionStatus.FAIL_TOKENS_FALLBACK;
     } catch (bytes memory data) {
-      emit LogErrorBytes(_action, data);
+      emit ErrorBytesLogged(_action, data);
       IERC20Metadata(_action.token).transfer(apParams.refundAddr, _sendAmt);
-      emit FallbackRefund(_action, _sendAmt);
+      emit Refund(_action, _sendAmt);
       _action.status = IVault.VaultActionStatus.FAIL_TOKENS_FALLBACK;
     }
     return _action;
@@ -401,6 +401,9 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     string calldata sourceAddress,
     bytes calldata payload,
     string calldata tokenSymbol,
+    // we could remove this amount as it's only used to check if liq + locked amounts
+    // passed in inside payload add up to 'amount'
+    // and if we need this for 'catch' statements we can just calculate it from said values
     uint256 amount
   )
     internal
@@ -418,11 +421,11 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
       action.status = IVault.VaultActionStatus.SUCCESS;
       return action;
     } catch Error(string memory reason) {
-      emit LogError(action, reason);
+      emit ErrorLogged(action, reason);
       action.status = IVault.VaultActionStatus.FAIL_TOKENS_RETURNED; // Optimistically set to RETURN status, FALLBACK changes if necessary
       return _prepareToSendTokens(action, amount);
     } catch (bytes memory data) {
-      emit LogErrorBytes(action, data);
+      emit ErrorBytesLogged(action, data);
       action.status = IVault.VaultActionStatus.FAIL_TOKENS_RETURNED;
       return _prepareToSendTokens(action, amount);
     }

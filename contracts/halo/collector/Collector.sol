@@ -9,6 +9,7 @@ import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
 import "./storage.sol";
 
+// >> SHOULD INHERIT `Initializable`?
 /**
  *@title Collector
  * @dev Collector contract
@@ -21,8 +22,8 @@ contract Collector is Storage {
   /*///////////////////////////////////////////////
                     EVENTS
     */ ///////////////////////////////////////////////
-  event CollecterInitialized(CollectorMessage.InstantiateMsg details);
-  event CollectedConfigUpdated(CollectorStorage.Config config);
+  event CollectorInitialized();
+  event ConfigUpdated();
   event CollectorSweeped(address tokenSwept, uint256 amountSwept, uint256 haloOut);
 
   IERC20Upgradeable token;
@@ -50,7 +51,7 @@ contract Collector is Storage {
       haloToken: details.haloToken
     });
     token = IERC20Upgradeable(details.haloToken);
-    emit CollecterInitialized(details);
+    emit CollectorInitialized();
   }
 
   /**
@@ -70,7 +71,7 @@ contract Collector is Storage {
     state.config.registrarContract = registrarContract;
     state.config.rewardFactor = rewardFactor;
     state.config.timelockContract = timelockContract;
-    emit CollectedConfigUpdated(state.config);
+    emit ConfigUpdated();
     return true;
   }
 

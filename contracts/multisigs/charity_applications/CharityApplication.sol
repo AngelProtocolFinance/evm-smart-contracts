@@ -54,6 +54,7 @@ library CharityApplicationLib {
   }
 }
 
+// SHOULD THIS INHERIT "Initializable"??
 /**
  * @title CharityApplication
  * @notice Contract for managing charity applications, sent by public to open a charity endowment on AP
@@ -147,7 +148,7 @@ contract CharityApplication is CharityStorage, ICharityApplication, ERC165, Reen
       config.proposalExpiry = 4 * 24 * 60 * 60; // 4 days in seconds
     else config.proposalExpiry = expiry;
 
-    emit InitilizedCharityApplication();
+    emit Initialized();
   }
 
   /**
@@ -277,7 +278,7 @@ contract CharityApplication is CharityStorage, ICharityApplication, ERC165, Reen
           config.seedAssetAmount
         );
         // emit seed asset event
-        emit SeedAssetSent(endowmentId, config.seedAsset, config.seedAssetAmount);
+        emit SeedAssetTransfer(endowmentId, config.seedAsset, config.seedAssetAmount);
       }
     }
 
@@ -320,6 +321,8 @@ contract CharityApplication is CharityStorage, ICharityApplication, ERC165, Reen
     if (fundseedasset) config.fundSeedAsset = fundseedasset;
     if (seedasset != address(0)) config.seedAsset = seedasset;
     if (seedassetamount != 0) config.seedAssetAmount = seedassetamount;
+
+    emit ConfigUpdated();
   }
 
   function queryConfig() public view returns (CharityApplicationsStorage.Config memory) {

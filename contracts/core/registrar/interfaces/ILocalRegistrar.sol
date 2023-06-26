@@ -9,22 +9,26 @@ interface ILocalRegistrar {
   /*////////////////////////////////////////////////
                         EVENTS
     */ ////////////////////////////////////////////////
-  event RebalanceParamsChanged();
-  event AngelProtocolParamsChanged();
-  event AccountsContractStorageChanged(string _chainName, string _accountsContractAddress);
-  event TokenAcceptanceChanged(address _tokenAddr, bool _isAccepted);
-  event StrategyApprovalChanged(
+  event RebalanceParamsUpdated();
+  event AngelProtocolParamsUpdated();
+  event AccountsContractStorageUpdated(string _chainName, string _accountsContractAddress);
+  event TokenAcceptanceUpdated(address _tokenAddr, bool _isAccepted);
+  event StrategyApprovalUpdated(
     bytes4 _strategyId,
     LocalRegistrarLib.StrategyApprovalState _approvalState
   );
-  event StrategyParamsChanged(
+  event StrategyParamsUpdated(
     bytes4 _strategyId,
     address _lockAddr,
     address _liqAddr,
     LocalRegistrarLib.StrategyApprovalState _approvalState
   );
   event GasFeeUpdated(address _tokenAddr, uint256 _gasFee);
-  event FeeUpdated(AngelCoreStruct.FeeTypes _fee, uint256 _rate, address _payout);
+  event FeeSettingsUpdated(
+    AngelCoreStruct.FeeTypes _feeType,
+    uint256 _bpsRate,
+    address _payoutAddress
+  );
 
   /*////////////////////////////////////////////////
                     EXTERNAL METHODS

@@ -1,17 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {ProxyContract} from "../../core/proxy.sol";
 import {IEndowmentMultiSigEmitter} from "./interfaces/IEndowmentMultiSigEmitter.sol";
 
+// >> THIS CONTRACT CAN BE MERGED WITH `MultiSigWalletFactory`
 contract Factory {
   /*
    *  Events
    */
-  event ContractInstantiation(address sender, address instantiation);
+  event ContractInstantiated(address sender, address instantiation);
 
   /*
    *  Storage
@@ -38,21 +37,28 @@ contract Factory {
   function register(address instantiation) internal {
     isInstantiation[instantiation] = true;
     instantiations[msg.sender].push(instantiation);
-    emit ContractInstantiation(msg.sender, instantiation);
+    emit ContractInstantiated(msg.sender, instantiation);
   }
 }
 
 /// @title Multisignature wallet factory - Allows creation of multisigs wallet.
 /// @author Stefan George - <stefan.george@consensys.net>
 contract MultiSigWalletFactory is Factory, Ownable {
+  event ImplementationUpdated(address implementationAddress);
+  event ProxyAdminUpdated(address admin);
+
   address IMPLEMENTATION_ADDRESS;
   address PROXY_ADMIN;
 
   constructor(address implementationAddress, address proxyAdmin) {
     require(implementationAddress != address(0), "Invalid Address");
     require(proxyAdmin != address(0), "Invalid Address");
+
     IMPLEMENTATION_ADDRESS = implementationAddress;
+    emit ImplementationUpdated(implementationAddress);
+
     PROXY_ADMIN = proxyAdmin;
+    emit ProxyAdminUpdated(proxyAdmin);
   }
 
   /**
@@ -61,6 +67,7 @@ contract MultiSigWalletFactory is Factory, Ownable {
    */
   function updateImplementation(address implementationAddress) public onlyOwner {
     IMPLEMENTATION_ADDRESS = implementationAddress;
+    emit ImplementationUpdated(implementationAddress);
   }
 
   /**
@@ -69,9 +76,10 @@ contract MultiSigWalletFactory is Factory, Ownable {
    */
   function updateProxyAdmin(address proxyAdmin) public onlyOwner {
     PROXY_ADMIN = proxyAdmin;
+    emit ProxyAdminUpdated(proxyAdmin);
   }
 
-  /** @dev Create a new multisig wallet for an endowment 
+  /** @dev Create a new multisig wallet for an endowment
    * @param endowmentId the endowment id
    * @param emitterAddress the emitter of the multisig
    * @param owners the owners of the multisig
@@ -96,6 +104,7 @@ contract MultiSigWalletFactory is Factory, Ownable {
     );
     wallet = address(new ProxyContract(IMPLEMENTATION_ADDRESS, PROXY_ADMIN, EndowmentData));
 
+    // >> A BETTER PLACE TO CALL THIS MIGHT BE INSIDE `EndowmentMultiSig > initialize` FUNCTION
     IEndowmentMultiSigEmitter(emitterAddress).createMultisig(
       wallet,
       endowmentId,

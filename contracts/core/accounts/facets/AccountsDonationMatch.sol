@@ -44,7 +44,7 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
     require(IERC20(token).transferFrom(msg.sender, address(this), amount), "TransferFrom failed");
 
     state.DAOTOKENBALANCE[id] += amount;
-    emit DonationDeposited(id, amount);
+    emit DonationDeposited(id, token, amount);
   }
 
   /**
@@ -68,7 +68,7 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
     state.DAOTOKENBALANCE[id] -= amount;
 
     require(IERC20(tempEndowment.daoToken).transfer(recipient, amount), "Transfer failed");
-    emit DonationWithdrawn(id, recipient, amount);
+    emit DonationWithdrawn(id, recipient, tempEndowment.daoToken, amount);
   }
 
   /**
@@ -131,6 +131,7 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
     // TODO: add donation match address?? :
     state.ENDOWMENTS[id].donationMatchContract = donationMatch;
 
+    // Shouldn't this be emitted from contracts/normalized_endowment/donation-match/DonationMatch.sol > initialize ?
     IDonationMatchEmitter(registrar_config.donationMatchEmitter).initializeDonationMatch(
       id,
       donationMatch,
@@ -142,6 +143,6 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
         usdcAddress: registrar_config.usdcAddress
       })
     );
-    emit DonationMatchSetup(id, state.ENDOWMENTS[id].donationMatchContract);
+    emit DonationMatchCreated(id, state.ENDOWMENTS[id].donationMatchContract);
   }
 }

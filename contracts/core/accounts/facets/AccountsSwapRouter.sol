@@ -149,7 +149,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
       state.STATES[id].balances.liquid[tokenOut] += amountOut;
     }
 
-    emit SwapToken(id, accountType, tokenIn, amountIn, tokenOut, amountOut);
+    emit TokenSwapped(id, accountType, tokenIn, amountIn, tokenOut, amountOut);
   }
 
   /*///////////////////////////////////////////////
