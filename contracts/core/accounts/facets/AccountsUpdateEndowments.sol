@@ -121,7 +121,7 @@ contract AccountsUpdateEndowments is
     */
   function updateDelegate(
     uint32 id,
-    AngelCoreStruct.ControllerSettingOption setting,
+    ControllerSettingOption setting,
     AngelCoreStruct.DelegateAction action,
     address delegateAddress,
     uint256 delegateExpiry
@@ -140,7 +140,7 @@ contract AccountsUpdateEndowments is
       revert("Invalid action passed");
     }
 
-    if (setting == AngelCoreStruct.ControllerSettingOption.LockedInvestmentManagement) {
+    if (setting == ControllerSettingOption.LockedInvestmentManagement) {
       require(
         Validator.canChange(
           tempEndowment.settingsController.lockedInvestmentManagement,
@@ -151,7 +151,7 @@ contract AccountsUpdateEndowments is
         "Unauthorized"
       );
       tempEndowment.settingsController.lockedInvestmentManagement.delegate = newDelegate;
-    } else if (setting == AngelCoreStruct.ControllerSettingOption.LiquidInvestmentManagement) {
+    } else if (setting == ControllerSettingOption.LiquidInvestmentManagement) {
       require(
         Validator.canChange(
           tempEndowment.settingsController.liquidInvestmentManagement,
@@ -162,7 +162,7 @@ contract AccountsUpdateEndowments is
         "Unauthorized"
       );
       tempEndowment.settingsController.liquidInvestmentManagement.delegate = newDelegate;
-    } else if (setting == AngelCoreStruct.ControllerSettingOption.AcceptedTokens) {
+    } else if (setting == ControllerSettingOption.AcceptedTokens) {
       require(
         Validator.canChange(
           tempEndowment.settingsController.acceptedTokens,
@@ -173,7 +173,7 @@ contract AccountsUpdateEndowments is
         "Unauthorized"
       );
       tempEndowment.settingsController.acceptedTokens.delegate = newDelegate;
-    } else if (setting == AngelCoreStruct.ControllerSettingOption.AllowlistedBeneficiaries) {
+    } else if (setting == ControllerSettingOption.AllowlistedBeneficiaries) {
       require(
         Validator.canChange(
           tempEndowment.settingsController.allowlistedBeneficiaries,
@@ -184,7 +184,7 @@ contract AccountsUpdateEndowments is
         "Unauthorized"
       );
       tempEndowment.settingsController.allowlistedBeneficiaries.delegate = newDelegate;
-    } else if (setting == AngelCoreStruct.ControllerSettingOption.AllowlistedContributors) {
+    } else if (setting == ControllerSettingOption.AllowlistedContributors) {
       require(
         Validator.canChange(
           tempEndowment.settingsController.allowlistedContributors,
@@ -195,7 +195,7 @@ contract AccountsUpdateEndowments is
         "Unauthorized"
       );
       tempEndowment.settingsController.allowlistedContributors.delegate = newDelegate;
-    } else if (setting == AngelCoreStruct.ControllerSettingOption.MaturityAllowlist) {
+    } else if (setting == ControllerSettingOption.MaturityAllowlist) {
       require(
         Validator.canChange(
           tempEndowment.settingsController.maturityAllowlist,
@@ -206,7 +206,7 @@ contract AccountsUpdateEndowments is
         "Unauthorized"
       );
       tempEndowment.settingsController.maturityAllowlist.delegate = newDelegate;
-    } else if (setting == AngelCoreStruct.ControllerSettingOption.MaturityTime) {
+    } else if (setting == ControllerSettingOption.MaturityTime) {
       require(
         Validator.canChange(
           tempEndowment.settingsController.maturityTime,
@@ -217,7 +217,7 @@ contract AccountsUpdateEndowments is
         "Unauthorized"
       );
       tempEndowment.settingsController.maturityTime.delegate = newDelegate;
-    } else if (setting == AngelCoreStruct.ControllerSettingOption.WithdrawFee) {
+    } else if (setting == ControllerSettingOption.WithdrawFee) {
       require(
         Validator.canChange(
           tempEndowment.settingsController.withdrawFee,
@@ -228,7 +228,7 @@ contract AccountsUpdateEndowments is
         "Unauthorized"
       );
       tempEndowment.settingsController.withdrawFee.delegate = newDelegate;
-    } else if (setting == AngelCoreStruct.ControllerSettingOption.DepositFee) {
+    } else if (setting == ControllerSettingOption.DepositFee) {
       require(
         Validator.canChange(
           tempEndowment.settingsController.depositFee,
@@ -239,7 +239,7 @@ contract AccountsUpdateEndowments is
         "Unauthorized"
       );
       tempEndowment.settingsController.depositFee.delegate = newDelegate;
-    } else if (setting == AngelCoreStruct.ControllerSettingOption.BalanceFee) {
+    } else if (setting == ControllerSettingOption.BalanceFee) {
       require(
         Validator.canChange(
           tempEndowment.settingsController.balanceFee,
@@ -250,7 +250,7 @@ contract AccountsUpdateEndowments is
         "Unauthorized"
       );
       tempEndowment.settingsController.balanceFee.delegate = newDelegate;
-    } else if (setting == AngelCoreStruct.ControllerSettingOption.Name) {
+    } else if (setting == ControllerSettingOption.Name) {
       require(
         Validator.canChange(
           tempEndowment.settingsController.name,
@@ -261,7 +261,7 @@ contract AccountsUpdateEndowments is
         "Unauthorized"
       );
       tempEndowment.settingsController.name.delegate = newDelegate;
-    } else if (setting == AngelCoreStruct.ControllerSettingOption.Image) {
+    } else if (setting == ControllerSettingOption.Image) {
       require(
         Validator.canChange(
           tempEndowment.settingsController.image,
@@ -272,7 +272,7 @@ contract AccountsUpdateEndowments is
         "Unauthorized"
       );
       tempEndowment.settingsController.image.delegate = newDelegate;
-    } else if (setting == AngelCoreStruct.ControllerSettingOption.Logo) {
+    } else if (setting == ControllerSettingOption.Logo) {
       require(
         Validator.canChange(
           tempEndowment.settingsController.logo,
@@ -283,7 +283,7 @@ contract AccountsUpdateEndowments is
         "Unauthorized"
       );
       tempEndowment.settingsController.logo.delegate = newDelegate;
-    } else if (setting == AngelCoreStruct.ControllerSettingOption.Sdgs) {
+    } else if (setting == ControllerSettingOption.Sdgs) {
       require(
         Validator.canChange(
           tempEndowment.settingsController.sdgs,
@@ -294,7 +294,7 @@ contract AccountsUpdateEndowments is
         "Unauthorized"
       );
       tempEndowment.settingsController.sdgs.delegate = newDelegate;
-    } else if (setting == AngelCoreStruct.ControllerSettingOption.SplitToLiquid) {
+    } else if (setting == ControllerSettingOption.SplitToLiquid) {
       require(
         Validator.canChange(
           tempEndowment.settingsController.splitToLiquid,
@@ -305,7 +305,7 @@ contract AccountsUpdateEndowments is
         "Unauthorized"
       );
       tempEndowment.settingsController.splitToLiquid.delegate = newDelegate;
-    } else if (setting == AngelCoreStruct.ControllerSettingOption.IgnoreUserSplits) {
+    } else if (setting == ControllerSettingOption.IgnoreUserSplits) {
       require(
         Validator.canChange(
           tempEndowment.settingsController.ignoreUserSplits,
