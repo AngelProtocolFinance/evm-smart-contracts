@@ -15,7 +15,7 @@ import {IERC173} from "../interfaces/IERC173.sol";
 import {IERC165} from "../interfaces/IERC165.sol";
 
 import {LibAccounts} from "./../../lib/LibAccounts.sol";
-import {Validator} from "./../../lib/validator.sol";
+import {Validator} from "../../../validator.sol";
 import {AccountStorage} from "./../../storage.sol";
 import {AngelCoreStruct} from "../../../struct.sol";
 

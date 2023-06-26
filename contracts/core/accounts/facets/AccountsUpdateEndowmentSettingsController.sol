@@ -2,7 +2,7 @@
 pragma solidity ^0.8.16;
 
 import {LibAccounts} from "../lib/LibAccounts.sol";
-import {Validator} from "../lib/validator.sol";
+import {Validator} from "../../validator.sol";
 import {AddressArray} from "../../../lib/address/array.sol";
 import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
@@ -45,7 +45,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
     if (tempEndowment.endowType != AngelCoreStruct.EndowmentType.Charity) {
       if (
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.maturityTime,
           msg.sender,
           tempEndowment.owner,
@@ -57,7 +57,7 @@ contract AccountsUpdateEndowmentSettingsController is
       }
       if (tempEndowment.maturityTime <= 0 || tempEndowment.maturityTime > block.timestamp) {
         if (
-          AngelCoreStruct.canChange(
+          Validator.canChange(
             tempEndowment.settingsController.allowlistedBeneficiaries,
             msg.sender,
             tempEndowment.owner,
@@ -71,7 +71,7 @@ contract AccountsUpdateEndowmentSettingsController is
         }
 
         if (
-          AngelCoreStruct.canChange(
+          Validator.canChange(
             tempEndowment.settingsController.allowlistedContributors,
             msg.sender,
             tempEndowment.owner,
@@ -82,7 +82,7 @@ contract AccountsUpdateEndowmentSettingsController is
           emit EndowmentSettingUpdated(details.id, "allowlistedContributors");
         }
         if (
-          AngelCoreStruct.canChange(
+          Validator.canChange(
             tempEndowment.settingsController.maturityAllowlist,
             msg.sender,
             tempEndowment.owner,
@@ -114,7 +114,7 @@ contract AccountsUpdateEndowmentSettingsController is
     }
 
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.splitToLiquid,
         msg.sender,
         tempEndowment.owner,
@@ -126,7 +126,7 @@ contract AccountsUpdateEndowmentSettingsController is
     }
 
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.ignoreUserSplits,
         msg.sender,
         tempEndowment.owner,
@@ -156,7 +156,7 @@ contract AccountsUpdateEndowmentSettingsController is
     require(msg.sender == tempEndowment.owner, "Unauthorized");
 
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.lockedInvestmentManagement,
         msg.sender,
         tempEndowment.owner,
@@ -168,7 +168,7 @@ contract AccountsUpdateEndowmentSettingsController is
         .lockedInvestmentManagement;
     }
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.liquidInvestmentManagement,
         msg.sender,
         tempEndowment.owner,
@@ -180,7 +180,7 @@ contract AccountsUpdateEndowmentSettingsController is
         .liquidInvestmentManagement;
     }
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.acceptedTokens,
         msg.sender,
         tempEndowment.owner,
@@ -190,7 +190,7 @@ contract AccountsUpdateEndowmentSettingsController is
       tempEndowment.settingsController.acceptedTokens = details.settingsController.acceptedTokens;
     }
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.allowlistedBeneficiaries,
         msg.sender,
         tempEndowment.owner,
@@ -202,7 +202,7 @@ contract AccountsUpdateEndowmentSettingsController is
         .allowlistedBeneficiaries;
     }
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.allowlistedContributors,
         msg.sender,
         tempEndowment.owner,
@@ -214,7 +214,7 @@ contract AccountsUpdateEndowmentSettingsController is
         .allowlistedContributors;
     }
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.maturityAllowlist,
         msg.sender,
         tempEndowment.owner,
@@ -226,7 +226,7 @@ contract AccountsUpdateEndowmentSettingsController is
         .maturityAllowlist;
     }
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.maturityTime,
         msg.sender,
         tempEndowment.owner,
@@ -236,7 +236,7 @@ contract AccountsUpdateEndowmentSettingsController is
       tempEndowment.settingsController.maturityTime = details.settingsController.maturityTime;
     }
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.withdrawFee,
         msg.sender,
         tempEndowment.owner,
@@ -246,7 +246,7 @@ contract AccountsUpdateEndowmentSettingsController is
       tempEndowment.settingsController.withdrawFee = details.settingsController.withdrawFee;
     }
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.depositFee,
         msg.sender,
         tempEndowment.owner,
@@ -256,7 +256,7 @@ contract AccountsUpdateEndowmentSettingsController is
       tempEndowment.settingsController.depositFee = details.settingsController.depositFee;
     }
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.balanceFee,
         msg.sender,
         tempEndowment.owner,
@@ -266,7 +266,7 @@ contract AccountsUpdateEndowmentSettingsController is
       tempEndowment.settingsController.balanceFee = details.settingsController.balanceFee;
     }
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.name,
         msg.sender,
         tempEndowment.owner,
@@ -276,7 +276,7 @@ contract AccountsUpdateEndowmentSettingsController is
       tempEndowment.settingsController.name = details.settingsController.name;
     }
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.image,
         msg.sender,
         tempEndowment.owner,
@@ -286,7 +286,7 @@ contract AccountsUpdateEndowmentSettingsController is
       tempEndowment.settingsController.image = details.settingsController.image;
     }
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.logo,
         msg.sender,
         tempEndowment.owner,
@@ -296,7 +296,7 @@ contract AccountsUpdateEndowmentSettingsController is
       tempEndowment.settingsController.logo = details.settingsController.logo;
     }
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.sdgs,
         msg.sender,
         tempEndowment.owner,
@@ -306,7 +306,7 @@ contract AccountsUpdateEndowmentSettingsController is
       tempEndowment.settingsController.sdgs = details.settingsController.sdgs;
     }
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.splitToLiquid,
         msg.sender,
         tempEndowment.owner,
@@ -316,7 +316,7 @@ contract AccountsUpdateEndowmentSettingsController is
       tempEndowment.settingsController.splitToLiquid = details.settingsController.splitToLiquid;
     }
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.ignoreUserSplits,
         msg.sender,
         tempEndowment.owner,
@@ -352,50 +352,50 @@ contract AccountsUpdateEndowmentSettingsController is
     require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
 
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.earlyLockedWithdrawFee,
         msg.sender,
         tempEndowment.owner,
         block.timestamp
       )
     ) {
-      AngelCoreStruct.validateFee(details.earlyLockedWithdrawFee);
+      Validator.validateFee(details.earlyLockedWithdrawFee);
       tempEndowment.earlyLockedWithdrawFee = details.earlyLockedWithdrawFee;
     }
 
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.depositFee,
         msg.sender,
         tempEndowment.owner,
         block.timestamp
       )
     ) {
-      AngelCoreStruct.validateFee(details.depositFee);
+      Validator.validateFee(details.depositFee);
       tempEndowment.depositFee = details.depositFee;
     }
 
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.withdrawFee,
         msg.sender,
         tempEndowment.owner,
         block.timestamp
       )
     ) {
-      AngelCoreStruct.validateFee(details.withdrawFee);
+      Validator.validateFee(details.withdrawFee);
       tempEndowment.withdrawFee = details.withdrawFee;
     }
 
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.balanceFee,
         msg.sender,
         tempEndowment.owner,
         block.timestamp
       )
     ) {
-      AngelCoreStruct.validateFee(details.balanceFee);
+      Validator.validateFee(details.balanceFee);
       tempEndowment.balanceFee = details.balanceFee;
     }
 

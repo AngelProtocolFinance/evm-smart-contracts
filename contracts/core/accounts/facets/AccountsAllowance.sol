@@ -2,8 +2,8 @@
 pragma solidity ^0.8.16;
 
 import {LibAccounts} from "../lib/LibAccounts.sol";
+import {Validator} from "../../validator.sol";
 import {AccountStorage} from "../storage.sol";
-import {AngelCoreStruct} from "../../struct.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
@@ -25,7 +25,7 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
    */
   function manageAllowances(
     uint32 endowId,
-    AngelCoreStruct.AllowanceAction action,
+    AllowanceAction action,
     address spender,
     address token,
     uint256 amount
@@ -41,7 +41,7 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
     bool inAllowlist = false;
     if (tempEndowment.maturityTime >= block.timestamp) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.allowlistedBeneficiaries,
           msg.sender,
           tempEndowment.owner,
@@ -57,7 +57,7 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
       }
     } else {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.maturityAllowlist,
           msg.sender,
           tempEndowment.owner,
@@ -74,10 +74,10 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
     }
     require(inAllowlist, "Invalid Spender");
 
-    if (action == AngelCoreStruct.AllowanceAction.Remove) {
+    if (action == AllowanceAction.Remove) {
       delete state.ALLOWANCES[endowId][spender][token];
       emit AllowanceRemoved(msg.sender, spender, token);
-    } else if (action == AngelCoreStruct.AllowanceAction.Add) {
+    } else if (action == AllowanceAction.Add) {
       require(amount > 0, "Zero amount");
       state.ALLOWANCES[endowId][spender][token] = amount;
       emit AllowanceUpdated(msg.sender, spender, token, state.ALLOWANCES[endowId][spender][token]);

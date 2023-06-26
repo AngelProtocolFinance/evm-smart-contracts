@@ -2,7 +2,7 @@
 pragma solidity ^0.8.16;
 
 import {LibAccounts} from "../lib/LibAccounts.sol";
-import {Validator} from "../lib/validator.sol";
+import {Validator} from "../../validator.sol";
 import {AccountStorage} from "../storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";

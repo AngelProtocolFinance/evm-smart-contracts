@@ -5,6 +5,7 @@ import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {AngelCoreStruct} from "../../struct.sol";
+import {Validator} from "../../validator.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {Array} from "../../../lib/array.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
@@ -51,7 +52,7 @@ contract AccountsUpdateEndowments is
     }
 
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.name,
         msg.sender,
         tempEndowment.owner,
@@ -62,7 +63,7 @@ contract AccountsUpdateEndowments is
     }
 
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.sdgs,
         msg.sender,
         tempEndowment.owner,
@@ -84,7 +85,7 @@ contract AccountsUpdateEndowments is
     }
 
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.logo,
         msg.sender,
         tempEndowment.owner,
@@ -95,7 +96,7 @@ contract AccountsUpdateEndowments is
     }
 
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.image,
         msg.sender,
         tempEndowment.owner,
@@ -141,7 +142,7 @@ contract AccountsUpdateEndowments is
 
     if (setting == AngelCoreStruct.ControllerSettingOption.LockedInvestmentManagement) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.lockedInvestmentManagement,
           msg.sender,
           tempEndowment.owner,
@@ -152,7 +153,7 @@ contract AccountsUpdateEndowments is
       tempEndowment.settingsController.lockedInvestmentManagement.delegate = newDelegate;
     } else if (setting == AngelCoreStruct.ControllerSettingOption.LiquidInvestmentManagement) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.liquidInvestmentManagement,
           msg.sender,
           tempEndowment.owner,
@@ -163,7 +164,7 @@ contract AccountsUpdateEndowments is
       tempEndowment.settingsController.liquidInvestmentManagement.delegate = newDelegate;
     } else if (setting == AngelCoreStruct.ControllerSettingOption.AcceptedTokens) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.acceptedTokens,
           msg.sender,
           tempEndowment.owner,
@@ -174,7 +175,7 @@ contract AccountsUpdateEndowments is
       tempEndowment.settingsController.acceptedTokens.delegate = newDelegate;
     } else if (setting == AngelCoreStruct.ControllerSettingOption.AllowlistedBeneficiaries) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.allowlistedBeneficiaries,
           msg.sender,
           tempEndowment.owner,
@@ -185,7 +186,7 @@ contract AccountsUpdateEndowments is
       tempEndowment.settingsController.allowlistedBeneficiaries.delegate = newDelegate;
     } else if (setting == AngelCoreStruct.ControllerSettingOption.AllowlistedContributors) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.allowlistedContributors,
           msg.sender,
           tempEndowment.owner,
@@ -196,7 +197,7 @@ contract AccountsUpdateEndowments is
       tempEndowment.settingsController.allowlistedContributors.delegate = newDelegate;
     } else if (setting == AngelCoreStruct.ControllerSettingOption.MaturityAllowlist) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.maturityAllowlist,
           msg.sender,
           tempEndowment.owner,
@@ -207,7 +208,7 @@ contract AccountsUpdateEndowments is
       tempEndowment.settingsController.maturityAllowlist.delegate = newDelegate;
     } else if (setting == AngelCoreStruct.ControllerSettingOption.MaturityTime) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.maturityTime,
           msg.sender,
           tempEndowment.owner,
@@ -218,7 +219,7 @@ contract AccountsUpdateEndowments is
       tempEndowment.settingsController.maturityTime.delegate = newDelegate;
     } else if (setting == AngelCoreStruct.ControllerSettingOption.WithdrawFee) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.withdrawFee,
           msg.sender,
           tempEndowment.owner,
@@ -229,7 +230,7 @@ contract AccountsUpdateEndowments is
       tempEndowment.settingsController.withdrawFee.delegate = newDelegate;
     } else if (setting == AngelCoreStruct.ControllerSettingOption.DepositFee) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.depositFee,
           msg.sender,
           tempEndowment.owner,
@@ -240,7 +241,7 @@ contract AccountsUpdateEndowments is
       tempEndowment.settingsController.depositFee.delegate = newDelegate;
     } else if (setting == AngelCoreStruct.ControllerSettingOption.BalanceFee) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.balanceFee,
           msg.sender,
           tempEndowment.owner,
@@ -251,7 +252,7 @@ contract AccountsUpdateEndowments is
       tempEndowment.settingsController.balanceFee.delegate = newDelegate;
     } else if (setting == AngelCoreStruct.ControllerSettingOption.Name) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.name,
           msg.sender,
           tempEndowment.owner,
@@ -262,7 +263,7 @@ contract AccountsUpdateEndowments is
       tempEndowment.settingsController.name.delegate = newDelegate;
     } else if (setting == AngelCoreStruct.ControllerSettingOption.Image) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.image,
           msg.sender,
           tempEndowment.owner,
@@ -273,7 +274,7 @@ contract AccountsUpdateEndowments is
       tempEndowment.settingsController.image.delegate = newDelegate;
     } else if (setting == AngelCoreStruct.ControllerSettingOption.Logo) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.logo,
           msg.sender,
           tempEndowment.owner,
@@ -284,7 +285,7 @@ contract AccountsUpdateEndowments is
       tempEndowment.settingsController.logo.delegate = newDelegate;
     } else if (setting == AngelCoreStruct.ControllerSettingOption.Sdgs) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.sdgs,
           msg.sender,
           tempEndowment.owner,
@@ -295,7 +296,7 @@ contract AccountsUpdateEndowments is
       tempEndowment.settingsController.sdgs.delegate = newDelegate;
     } else if (setting == AngelCoreStruct.ControllerSettingOption.SplitToLiquid) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.splitToLiquid,
           msg.sender,
           tempEndowment.owner,
@@ -306,7 +307,7 @@ contract AccountsUpdateEndowments is
       tempEndowment.settingsController.splitToLiquid.delegate = newDelegate;
     } else if (setting == AngelCoreStruct.ControllerSettingOption.IgnoreUserSplits) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.ignoreUserSplits,
           msg.sender,
           tempEndowment.owner,
@@ -342,7 +343,7 @@ contract AccountsUpdateEndowments is
     require((tokenAddr != address(0) && priceFeedAddr != address(0)), "Zero address passed");
     require(!state.STATES[endowId].closingEndowment, "UpdatesAfterClosed");
     require(
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.acceptedTokens,
         msg.sender,
         tempEndowment.owner,

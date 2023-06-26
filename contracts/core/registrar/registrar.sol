@@ -2,7 +2,7 @@
 pragma solidity ^0.8.16;
 
 import {RegistrarStorage} from "./storage.sol";
-import {Validator} from "./lib/validator.sol";
+import {Validator} from "../validator.sol";
 import {RegistrarMessages} from "./message.sol";
 import {AngelCoreStruct} from "../struct.sol";
 import "./storage.sol";

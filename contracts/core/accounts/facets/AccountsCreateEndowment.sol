@@ -2,7 +2,7 @@
 pragma solidity ^0.8.16;
 
 import {LibAccounts} from "../lib/LibAccounts.sol";
-import {Validator} from "../lib/validator.sol";
+import {Validator} from "../../validator.sol";
 import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
@@ -43,13 +43,13 @@ contract AccountsCreateEndowment is
     if (AngelCoreStruct.EndowmentType.Charity == details.endowType) {
       require(msg.sender == registrar_config.charityProposal, "Unauthorized");
     } else {
-      AngelCoreStruct.validateFee(details.earlyLockedWithdrawFee);
+      Validator.validateFee(details.earlyLockedWithdrawFee);
       earlyLockedWithdrawFee = details.earlyLockedWithdrawFee;
     }
     // check all of the other fees
-    AngelCoreStruct.validateFee(details.withdrawFee);
-    AngelCoreStruct.validateFee(details.depositFee);
-    AngelCoreStruct.validateFee(details.balanceFee);
+    Validator.validateFee(details.withdrawFee);
+    Validator.validateFee(details.depositFee);
+    Validator.validateFee(details.balanceFee);
 
     require(details.members.length >= 1, "No members provided for Endowment multisig");
     require(details.threshold > 0, "Threshold must be a positive number");

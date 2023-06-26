@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 
 import "./message.sol";
 import "./storage.sol";
-import {AngelCoreStruct} from "../../core/struct.sol";
+import {IAccountsAllowance} from "../../core/accounts/interfaces/IAccountsAllowance.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
 import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 import {IAccountsDepositWithdrawEndowments} from "../../core/accounts/interfaces/IAccountsDepositWithdrawEndowments.sol";
@@ -26,7 +26,7 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
     address addr,
     address token,
     uint256 amt,
-    AngelCoreStruct.AllowanceAction action
+    IAccountsAllowance.AllowanceAction action
   );
   event DepositUpdated(uint256 depositId);
 
@@ -126,7 +126,7 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
     if (toAddress != address(0)) {
       deposit.claimed = true;
       state.BALANCES[toAddress][tokenAddress] += amount;
-      emit BalancesUpdated(toAddress, tokenAddress, amount, AngelCoreStruct.AllowanceAction.Add);
+      emit BalancesUpdated(toAddress, tokenAddress, amount, IAccountsAllowance.AllowanceAction.Add);
     }
 
     // save the deposit information
@@ -156,7 +156,7 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
       recipient,
       state.DEPOSITS[depositId].tokenAddress,
       state.DEPOSITS[depositId].amount,
-      AngelCoreStruct.AllowanceAction.Add
+      IAccountsAllowance.AllowanceAction.Add
     );
   }
 
@@ -202,7 +202,7 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
 
     // deduct balance by amount deposited with Accounts contract
     state.BALANCES[msg.sender][tokenAddress] -= amount;
-    emit BalancesUpdated(msg.sender, tokenAddress, amount, AngelCoreStruct.AllowanceAction.Remove);
+    emit BalancesUpdated(msg.sender, tokenAddress, amount, IAccountsAllowance.AllowanceAction.Remove);
   }
 
   /**

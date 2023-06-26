@@ -5,6 +5,7 @@ import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
+import {Validator} from "../../validator.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
@@ -42,8 +43,6 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
     uint256 slippage
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
-
     RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
       .queryConfig();
 
@@ -74,7 +73,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
     // that they have the power to manage the investments for an account balance
     if (accountType == AngelCoreStruct.AccountType.Locked) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           state.ENDOWMENTS[id].settingsController.lockedInvestmentManagement,
           msg.sender,
           state.ENDOWMENTS[id].owner,
@@ -84,7 +83,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
       );
     } else if (accountType == AngelCoreStruct.AccountType.Locked) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           state.ENDOWMENTS[id].settingsController.liquidInvestmentManagement,
           msg.sender,
           state.ENDOWMENTS[id].owner,
@@ -161,7 +160,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
    * @param tokenFeed address
    * @return answer Returns the oracle answer of current price as an int
    */
-  function getLatestPriceData(address tokenFeed) internal returns (uint256) {
+  function getLatestPriceData(address tokenFeed) internal view returns (uint256) {
     AggregatorV3Interface chainlinkFeed = AggregatorV3Interface(tokenFeed);
     (
       uint80 roundID,
