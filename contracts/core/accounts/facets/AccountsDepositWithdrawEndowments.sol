@@ -16,6 +16,7 @@ import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsDepositWithdrawEndowments} from "../interfaces/IAccountsDepositWithdrawEndowments.sol";
 import {Utils} from "../../../lib/utils.sol";
+import {IVault} from "../../vault/interfaces/IVault.sol";
 
 /**
  * @title AccountsDepositWithdrawEndowments
@@ -189,7 +190,7 @@ contract AccountsDepositWithdrawEndowments is
    */
   function withdraw(
     uint32 id,
-    AngelCoreStruct.AccountType acctType,
+    IVault.VaultType acctType,
     address beneficiaryAddress,
     uint32 beneficiaryEndowId,
     AngelCoreStruct.TokenInfo[] memory tokens
@@ -253,7 +254,7 @@ contract AccountsDepositWithdrawEndowments is
       // ** SHARED LOCKED WITHDRAWAL RULES **
       // Can withdraw early for a (possible) penalty fee
       uint256 earlyLockedWithdrawPenalty = 0;
-      if (acctType == AngelCoreStruct.AccountType.Locked && !mature) {
+      if (acctType == IVault.VaultType.LOCKED && !mature) {
         // Calculate the early withdraw penalty based on the earlyLockedWithdrawFee setting
         // Normal: Endowment specific setting that owners can (optionally) set
         // Charity: Registrar based setting for all Charity Endowments
@@ -284,7 +285,7 @@ contract AccountsDepositWithdrawEndowments is
       }
 
       uint256 current_bal;
-      if (acctType == AngelCoreStruct.AccountType.Locked) {
+      if (acctType == IVault.VaultType.LOCKED) {
         current_bal = state.STATES[id].balances.locked[tokens[t].addr];
       } else {
         current_bal = state.STATES[id].balances.liquid[tokens[t].addr];
@@ -349,7 +350,7 @@ contract AccountsDepositWithdrawEndowments is
       }
 
       // reduce the orgs balance by the withdrawn token amount
-      if (acctType == AngelCoreStruct.AccountType.Locked) {
+      if (acctType == IVault.VaultType.LOCKED) {
         state.STATES[id].balances.locked[tokens[t].addr] -= tokens[t].amnt;
       } else {
         state.STATES[id].balances.liquid[tokens[t].addr] -= tokens[t].amnt;

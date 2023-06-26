@@ -10,6 +10,7 @@ import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsSwapRouter} from "../interfaces/IAccountsSwapRouter.sol";
+import {IVault} from "../../vault/interfaces/IVault.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
@@ -36,7 +37,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
 
   function swapToken(
     uint32 id,
-    AngelCoreStruct.AccountType accountType,
+    IVault.VaultType accountType,
     address tokenIn,
     uint256 amountIn,
     address tokenOut,
@@ -71,7 +72,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
 
     // check if the msg sender is either the owner or their delegate address and
     // that they have the power to manage the investments for an account balance
-    if (accountType == AngelCoreStruct.AccountType.Locked) {
+    if (accountType == IVault.VaultType.LOCKED) {
       require(
         Validator.canChange(
           state.ENDOWMENTS[id].settingsController.lockedInvestmentManagement,
@@ -81,7 +82,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
         ),
         "Unauthorized"
       );
-    } else if (accountType == AngelCoreStruct.AccountType.Locked) {
+    } else if (accountType == IVault.VaultType.LIQUID) {
       require(
         Validator.canChange(
           state.ENDOWMENTS[id].settingsController.liquidInvestmentManagement,
@@ -95,7 +96,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
       revert("Invalid AccountType");
     }
 
-    if (accountType == AngelCoreStruct.AccountType.Locked) {
+    if (accountType == IVault.VaultType.LOCKED) {
       require(
         state.STATES[id].balances.locked[tokenIn] >= amountIn,
         "Requested swap amount is greater than Endowment Locked balance"
@@ -142,7 +143,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
     );
 
     // Allocate the newly swapped tokens to the correct endowment balance
-    if (accountType == AngelCoreStruct.AccountType.Locked) {
+    if (accountType == IVault.VaultType.LOCKED) {
       state.STATES[id].balances.locked[tokenOut] += amountOut;
     } else {
       state.STATES[id].balances.liquid[tokenOut] += amountOut;

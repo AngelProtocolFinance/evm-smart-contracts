@@ -3,6 +3,7 @@ pragma solidity ^0.8.16;
 
 import {AccountMessages} from "../message.sol";
 import {AngelCoreStruct} from "../../struct.sol";
+import {IVault} from "../../vault/interfaces/IVault.sol";
 
 interface IAccountsDepositWithdrawEndowments {
   function depositMatic(AccountMessages.DepositRequest memory details) external payable;
@@ -16,7 +17,7 @@ interface IAccountsDepositWithdrawEndowments {
 
   function withdraw(
     uint32 id,
-    AngelCoreStruct.AccountType acctType,
+    IVault.VaultType acctType,
     address beneficiaryAddress,
     uint32 beneficiaryEndowId,
     AngelCoreStruct.TokenInfo[] memory tokens

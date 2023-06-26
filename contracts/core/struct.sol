@@ -2,10 +2,10 @@
 pragma solidity ^0.8.16;
 
 library AngelCoreStruct {
-  
-  enum AccountType {
-    Locked,
-    Liquid
+
+  enum EndowmentType {
+    Charity,
+    Normal
   }
 
   enum Tier {
@@ -13,11 +13,6 @@ library AngelCoreStruct {
     Level1,
     Level2,
     Level3
-  }
-
-  enum EndowmentType {
-    Charity,
-    Normal
   }
 
   struct TokenInfo {
@@ -30,19 +25,6 @@ library AngelCoreStruct {
     mapping(address => uint256) liquid;
   }
 
-  struct IndexFund {
-    uint256 id;
-    string name;
-    string description;
-    uint32[] members;
-    //Fund Specific: over-riding SC level setting to handle a fixed split value
-    // Defines the % to split off into liquid account, and if defined overrides all other splits
-    uint256 splitToLiquid;
-    // Used for one-off funds that have an end date (ex. disaster recovery funds)
-    uint256 expiryTime; // datetime int of index fund expiry
-  }
-
-  ///TODO: need to test this same names already declared in other libraries
   struct BeneficiaryData {
     uint32 endowId;
     uint256 fundId;
@@ -66,17 +48,6 @@ library AngelCoreStruct {
     uint256 min;
     uint256 defaultSplit; // for when a user splits are not used
   }  
-
-  struct NetworkInfo {
-    string name;
-    uint256 chainId;
-    address router; //SHARED
-    address axelarGateway;
-    string ibcChannel; // Should be removed
-    string transferChannel;
-    address gasReceiver; // Should be removed
-    uint256 gasLimit; // Should be used to set gas limit
-  }
 
   ///TODO: need to check this and have a look at this
   enum VaultType {
@@ -173,26 +144,6 @@ library AngelCoreStruct {
     SettingsPermission sdgs;
     SettingsPermission splitToLiquid;
     SettingsPermission ignoreUserSplits;
-  }
-
-  enum ControllerSettingOption {
-    AcceptedTokens,
-    LockedInvestmentManagement,
-    LiquidInvestmentManagement,
-    AllowlistedBeneficiaries,
-    AllowlistedContributors,
-    MaturityAllowlist,
-    EarlyLockedWithdrawFee,
-    MaturityTime,
-    WithdrawFee,
-    DepositFee,
-    BalanceFee,
-    Name,
-    Image,
-    Logo,
-    Sdgs,
-    SplitToLiquid,
-    IgnoreUserSplits
   }
 
   enum FeeTypes {

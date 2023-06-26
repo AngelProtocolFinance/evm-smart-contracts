@@ -4,11 +4,12 @@ pragma solidity ^0.8.16;
 import {AccountMessages} from "../message.sol";
 import {AccountStorage} from "../storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
+import {IVault} from "../../vault/interfaces/IVault.sol";
 
 interface IAccountsQueryEndowments {
   function queryTokenAmount(
     uint32 id,
-    AngelCoreStruct.AccountType accountType,
+    IVault.VaultType accountType,
     address tokenaddress
   ) external view returns (uint256 tokenAmount);
 

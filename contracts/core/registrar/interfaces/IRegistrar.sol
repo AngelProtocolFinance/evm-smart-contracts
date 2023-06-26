@@ -14,18 +14,8 @@ interface IRegistrar is ILocalRegistrar {
 
   function updateTokenPriceFeed(address token, address priceFeed) external;
 
-  function vaultAdd(RegistrarMessages.VaultAddRequest memory details) external;
-
-  function vaultRemove(string memory _stratagyName) external;
-
-  function vaultUpdate(
-    string memory _stratagyName,
-    bool approved,
-    AngelCoreStruct.EndowmentType[] memory restrictedfrom
-  ) external;
-
   function updateNetworkConnections(
-    AngelCoreStruct.NetworkInfo memory networkInfo,
+    IAccountsVaultFacet.NetworkInfo memory networkInfo,
     string memory action
   ) external;
 

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.16;
 
 import {AngelCoreStruct} from "../struct.sol";
+import {IVault} from "../vault/interfaces/IVault.sol";
 
 library RegistrarMessages {
   struct InstantiateRequest {
@@ -54,17 +55,6 @@ library RegistrarMessages {
     address subdaoEmitter;
     address donationMatchContract;
     address cw900lvAddress;
-  }
-
-  struct VaultAddRequest {
-    // chainid of network
-    uint256 network;
-    string stratagyName;
-    address inputDenom;
-    address yieldToken;
-    AngelCoreStruct.EndowmentType[] restrictedFrom;
-    AngelCoreStruct.AccountType acctType;
-    AngelCoreStruct.VaultType vaultType;
   }
 
   struct UpdateFeeRequest {

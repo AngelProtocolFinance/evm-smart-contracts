@@ -2,6 +2,7 @@
 pragma solidity ^0.8.16;
 
 import {AngelCoreStruct} from "../../struct.sol";
+import {IVault} from "../../vault/interfaces/IVault.sol";
 
 interface IAccountsEvents {
   event DaoContractCreated(uint32 endowId, address daoAddress);
@@ -16,12 +17,11 @@ interface IAccountsEvents {
   event DonationMatchCreated(uint256 endowId, address donationMatchContract);
   event TokenSwapped(
     uint256 endowId,
-    AngelCoreStruct.AccountType accountType,
+    IVault.VaultType accountType,
     address tokenIn,
     uint256 amountIn,
     address tokenOut,
     uint256 amountOut
   );
   event EndowmentSettingUpdated(uint256 endowId, string setting);
-  // event EndowmentStateUpdated(uint256 endowId);
 }
