@@ -11,14 +11,15 @@ import {RouterLib} from "../../router/RouterLib.sol";
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
 import {AddressToString} from "../../../lib/StringAddressUtils.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
-import {AccountsEvents} from "./AccountsEvents.sol";
+import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
+import {IAccountsVaultFacet} from "../interfaces/IAccountsVaultFacet.sol";
 
 /**
  * @title AccountsVaultFacet
  * @dev This contract manages the vaults for endowments
  */
-contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
+contract AccountsVaultFacet is IAccountsVaultFacet, ReentrancyGuardFacet, IAccountsEvents {
   /**
    * @notice This function that allows users to deposit into a yield strategy using tokens from their locked or liquid account in an endowment.
    * @dev Allows the owner of an endowment to invest tokens into specified yield vaults.

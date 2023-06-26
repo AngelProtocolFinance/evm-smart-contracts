@@ -4,16 +4,15 @@ pragma solidity ^0.8.16;
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
-import {AccountsEvents} from "./AccountsEvents.sol";
 import {AccountStorage} from "../storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import {IDonationMatching} from "./../../../normalized_endowment/donation-match/IDonationMatching.sol";
+import {IDonationMatching} from "../../../normalized_endowment/donation-match/IDonationMatching.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
-import {AccountsEvents} from "./AccountsEvents.sol";
+import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsDepositWithdrawEndowments} from "../interfaces/IAccountsDepositWithdrawEndowments.sol";
 import {Utils} from "../../../lib/utils.sol";
 
@@ -25,11 +24,10 @@ import {Utils} from "../../../lib/utils.sol";
 
 contract AccountsDepositWithdrawEndowments is
   ReentrancyGuardFacet,
-  AccountsEvents,
+  IAccountsEvents,
   IAccountsDepositWithdrawEndowments
 {
   using SafeMath for uint256;
-  event SwappedToken(uint256 amountOut);
 
   /**
    * @notice Deposit MATIC into the endowment. Wraps first to ERC20 before processing.

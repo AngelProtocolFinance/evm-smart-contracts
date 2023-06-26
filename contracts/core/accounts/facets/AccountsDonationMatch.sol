@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
+
 import {AccountStorage} from "../storage.sol";
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
-import {AccountsEvents} from "./AccountsEvents.sol";
+import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {AccountMessages} from "../message.sol";
-import {IDonationMatchEmitter} from "./../../../normalized_endowment/donation-match/IDonationMatchEmitter.sol";
-import {DonationMatchStorage} from "./../../../normalized_endowment/donation-match/storage.sol";
-import {DonationMatchMessages} from "./../../../normalized_endowment/donation-match/message.sol";
+import {IDonationMatchEmitter} from "../../../normalized_endowment/donation-match/IDonationMatchEmitter.sol";
+import {DonationMatchStorage} from "../../../normalized_endowment/donation-match/storage.sol";
+import {DonationMatchMessages} from "../../../normalized_endowment/donation-match/message.sol";
 import {ProxyContract} from "../../proxy.sol";
 import {IAccountsDonationMatch} from "../interfaces/IAccountsDonationMatch.sol";
 
@@ -20,7 +21,7 @@ import {IAccountsDonationMatch} from "../interfaces/IAccountsDonationMatch.sol";
  * @dev Created so that deploying facets (which call this) don't have size conflicts
  * @dev Is always going to be called by address(this)
  */
-contract AccountsDonationMatch is ReentrancyGuardFacet, AccountsEvents, IAccountsDonationMatch {
+contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccountsDonationMatch {
   /**
    * @notice Deposit DAOToken(or Halo) to the endowment and store its balance
    * @dev Function manages reserve token sent by donation matching contract
