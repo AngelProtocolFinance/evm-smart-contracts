@@ -23,37 +23,42 @@ contract MultiSigGeneric is
   }
 
   modifier ownerDoesNotExist(address _owner) {
-    require(!isOwner[_owner]);
+    require(!isOwner[_owner], "Owner address dne");
     _;
   }
 
   modifier ownerExists(address _owner) {
-    require(isOwner[_owner]);
+    require(isOwner[_owner], "Owner address already exists");
     _;
   }
 
   modifier transactionExists(uint256 transactionId) {
-    require(transactions[transactionId].destination != address(0));
+    require(transactions[transactionId].destination != address(0), "Transaction dne");
     _;
   }
 
   modifier confirmed(uint256 transactionId, address _owner) {
-    require(confirmations[transactionId].confirmationsByOwner[_owner]);
+    require(confirmations[transactionId].confirmationsByOwner[_owner], "Transaction is confirmed");
     _;
   }
 
   modifier notConfirmed(uint256 transactionId, address _owner) {
-    require(!confirmations[transactionId].confirmationsByOwner[_owner]);
+    require(!confirmations[transactionId].confirmationsByOwner[_owner], "Transaction is not confirmed");
     _;
   }
 
   modifier notExecuted(uint256 transactionId) {
-    require(!transactions[transactionId].executed);
+    require(!transactions[transactionId].executed, "Transaction is executed");
+    _;
+  }
+
+  modifier notExpired(uint256 transactionId) {
+    require(transactions[transactionId].expiry > block.timestamp, "Transaction is expired");
     _;
   }
 
   modifier notNull(address addr) {
-    require(addr != address(0));
+    require(addr != address(0), "Address cannot be a zero address");
     _;
   }
 
@@ -82,7 +87,8 @@ contract MultiSigGeneric is
   function initialize(
     address[] memory owners,
     uint256 _approvalsRequired,
-    bool _requireExecution
+    bool _requireExecution,
+    uint256 _transactionExpiry
   ) public virtual initializer validApprovalsRequirement(owners.length, _approvalsRequired) {
     require(owners.length > 0, "Must pass at least one owner address");
     for (uint256 i = 0; i < owners.length; i++) {
@@ -92,6 +98,7 @@ contract MultiSigGeneric is
     // set storage variables
     approvalsRequired = _approvalsRequired;
     requireExecution = _requireExecution;
+    transactionExpiry = _transactionExpiry;
   }
 
   /// @dev Allows to add new owners. Transaction has to be sent by wallet.
@@ -164,6 +171,13 @@ contract MultiSigGeneric is
     emit ExecutionRequiredChange(_requireExecution);
   }
 
+  /// @dev Allows to change the expiry time for transactions.
+  /// @param _transactionExpiry time that a newly created transaction is valid for
+  function changeTransactionExpiry(uint256 _transactionExpiry) public virtual override onlyWallet {
+    transactionExpiry = _transactionExpiry;
+    emit TransactionExpiryChange(_transactionExpiry);
+  }
+
   /// @dev Allows an owner to submit and confirm a transaction.
   /// @param destination Transaction target address.
   /// @param value Transaction ether value.
@@ -192,6 +206,7 @@ contract MultiSigGeneric is
     ownerExists(msg.sender)
     transactionExists(transactionId)
     notConfirmed(transactionId, msg.sender)
+    notExpired(transactionId)
   {
     confirmations[transactionId].confirmationsByOwner[msg.sender] = true;
     confirmations[transactionId].count += 1;
@@ -214,6 +229,7 @@ contract MultiSigGeneric is
     ownerExists(msg.sender)
     confirmed(transactionId, msg.sender)
     notExecuted(transactionId)
+    notExpired(transactionId)
   {
     confirmations[transactionId].confirmationsByOwner[msg.sender] = false;
     confirmations[transactionId].count -= 1;
@@ -234,6 +250,7 @@ contract MultiSigGeneric is
     ownerExists(msg.sender)
     confirmed(transactionId, formerOwner)
     notExecuted(transactionId)
+    notExpired(transactionId)
   {
     require(!isOwner[formerOwner], "Attempting to revert confirmation of a current owner");
     confirmations[transactionId].confirmationsByOwner[formerOwner] = false;
@@ -252,6 +269,7 @@ contract MultiSigGeneric is
     ownerExists(msg.sender)
     confirmed(transactionId, msg.sender)
     notExecuted(transactionId)
+    notExpired(transactionId)
   {
     if (isConfirmed(transactionId)) {
       MultiSigStorage.Transaction storage txn = transactions[transactionId];
@@ -311,6 +329,7 @@ contract MultiSigGeneric is
       destination: destination,
       value: value,
       data: data,
+      expiry: block.timestamp + transactionExpiry,
       executed: false,
       metadata: metadata
     });

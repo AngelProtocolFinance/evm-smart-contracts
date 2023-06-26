@@ -12,6 +12,7 @@ library MultiSigStorage {
     uint256 value;
     bytes data;
     bool executed;
+    uint256 expiry;
     bytes metadata;
   }
 }
@@ -20,6 +21,7 @@ contract StorageMultiSig {
   mapping(uint256 => MultiSigStorage.Transaction) public transactions;
   mapping(uint256 => MultiSigStorage.Confirmations) public confirmations;
   mapping(address => bool) public isOwner;
+  uint256 public transactionExpiry;
   uint256 public activeOwnersCount;
   uint256 public approvalsRequired;
   uint256 public transactionCount;

@@ -78,7 +78,8 @@ contract AccountsCreateEndowment is
       newEndowId,
       registrar_config.multisigEmitter,
       details.members,
-      details.threshold
+      details.threshold,
+      details.duration
     );
 
     state.ENDOWMENTS[newEndowId] = AccountStorage.Endowment({

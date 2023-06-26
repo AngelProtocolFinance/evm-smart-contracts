@@ -8,10 +8,12 @@ const config: Config = {
   AP_TEAM_MULTISIG_DATA: {
     threshold: 1,
     requireExecution: false,
+    transactionExpiry: 100000,
   },
   APPLICATION_MULTISIG_DATA: {
     threshold: 1,
     requireExecution: false,
+    transactionExpiry: 100000,
   },
   REGISTRAR_DATA: {
     taxRate: 1,

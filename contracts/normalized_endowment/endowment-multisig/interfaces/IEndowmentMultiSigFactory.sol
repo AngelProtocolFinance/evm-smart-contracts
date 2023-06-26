@@ -6,7 +6,8 @@ interface IEndowmentMultiSigFactory {
     uint256 endowmentId,
     address emitterAddress,
     address[] memory owners,
-    uint256 required
+    uint256 required,
+    uint256 transactionExpiry
   ) external returns (address);
 
   function updateImplementation(address implementationAddress) external;

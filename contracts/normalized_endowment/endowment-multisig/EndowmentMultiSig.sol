@@ -14,7 +14,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
   address public EMITTER_ADDRESS;
 
   // @dev overrides the generic multisig initializer and restricted function
-  function initialize(address[] memory, uint256, bool) public override initializer {
+  function initialize(address[] memory, uint256, bool, uint256) public override initializer {
     revert("Not Implemented");
   }
 
@@ -26,18 +26,20 @@ contract EndowmentMultiSig is MultiSigGeneric {
    * @param _owners the owners of the multisig
    * @param _required the required number of signatures
    * @param _requireExecution the require execution flag
+   * @param _transactionExpiry the duration of validity for newly created transactions
    */
   function initialize(
     uint256 _endowmentId,
     address _emitter,
     address[] memory _owners,
     uint256 _required,
-    bool _requireExecution
+    bool _requireExecution,
+    uint256 _transactionExpiry
   ) public initializer {
     require(_emitter != address(0), "Invalid Address");
     ENDOWMENT_ID = _endowmentId;
     EMITTER_ADDRESS = _emitter;
-    super.initialize(_owners, _required, _requireExecution);
+    super.initialize(_owners, _required, _requireExecution, _transactionExpiry);
   }
 
   /// @dev Allows to add new owners. Transaction has to be sent by wallet.
@@ -79,6 +81,19 @@ contract EndowmentMultiSig is MultiSigGeneric {
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).approvalsRequirementChangeEndowment(
       ENDOWMENT_ID,
       _approvalsRequired
+    );
+  }
+
+  /**
+   * @notice overrides the generic multisig changeTransactionExpiry function
+   * @dev emits the transactionExpiryChangeEndowment event
+   * @param _transactionExpiry the new validity for newly created transactions
+   */
+  function changeTransactionExpiry(uint256 _transactionExpiry) public override {
+    super.changeTransactionExpiry(_transactionExpiry);
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).transactionExpiryChangeEndowment(
+      ENDOWMENT_ID,
+      _transactionExpiry
     );
   }
 

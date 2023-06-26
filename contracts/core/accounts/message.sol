@@ -16,6 +16,7 @@ library AccountMessages {
     string image;
     address[] members;
     uint256 threshold;
+    uint256 duration;
     address[] allowlistedBeneficiaries;
     address[] allowlistedContributors;
     AngelCoreStruct.FeeSetting earlyLockedWithdrawFee;

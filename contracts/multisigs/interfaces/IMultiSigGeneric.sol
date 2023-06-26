@@ -17,6 +17,7 @@ abstract contract IMultiSigGeneric is IERC165 {
   event OwnerRemoval(address owner);
   event ApprovalsRequirementChange(uint256 approvalsRequired);
   event ExecutionRequiredChange(bool requireExecution);
+  event TransactionExpiryChange(uint256 transactionExpiry);
 
   /// @dev Receive function allows to deposit ether.
   receive() external payable virtual;
@@ -48,6 +49,10 @@ abstract contract IMultiSigGeneric is IERC165 {
   /// @dev Allows to change whether explicit execution step is needed once the required number of confirmations is met. Transaction has to be sent by wallet.
   /// @param requireExecution Explicit execution step is needed
   function changeRequireExecution(bool requireExecution) public virtual;
+
+  /// @dev Allows to change the expiry time for transactions.
+  /// @param _transactionExpiry time that a newly created transaction is valid for
+  function changeTransactionExpiry(uint256 _transactionExpiry) public virtual;
 
   /// @dev Allows an owner to submit and confirm a transaction.
   /// @param destination Transaction target address.
