@@ -44,17 +44,21 @@ contract Factory {
 /// @title Multisignature wallet factory - Allows creation of multisigs wallet.
 /// @author Stefan George - <stefan.george@consensys.net>
 contract MultiSigWalletFactory is Factory, Ownable {
+  event ImplementationUpdated(address implementationAddress);
+  event ProxyAdminUpdated(address admin);
+
   address IMPLEMENTATION_ADDRESS;
   address PROXY_ADMIN;
-
-  event ImplementationUpdated(address oldImplementation, address newImplementation);
-  event ProxyAdminUpdated(address oldAdmin, address newAdmin);
 
   constructor(address implementationAddress, address proxyAdmin) {
     require(implementationAddress != address(0), "Invalid Address");
     require(proxyAdmin != address(0), "Invalid Address");
+
     IMPLEMENTATION_ADDRESS = implementationAddress;
+    emit ImplementationUpdated(implementationAddress);
+
     PROXY_ADMIN = proxyAdmin;
+    emit ProxyAdminUpdated(proxyAdmin);
   }
 
   /**
@@ -62,9 +66,8 @@ contract MultiSigWalletFactory is Factory, Ownable {
    * @param implementationAddress The address of the new implementation
    */
   function updateImplementation(address implementationAddress) public onlyOwner {
-    address oldAddress = IMPLEMENTATION_ADDRESS;
     IMPLEMENTATION_ADDRESS = implementationAddress;
-    emit ImplementationUpdated(oldAddress, implementationAddress);
+    emit ImplementationUpdated(implementationAddress);
   }
 
   /**
@@ -72,12 +75,11 @@ contract MultiSigWalletFactory is Factory, Ownable {
    * @param proxyAdmin The address of the new proxy admin
    */
   function updateProxyAdmin(address proxyAdmin) public onlyOwner {
-    address oldAdmin = PROXY_ADMIN;
     PROXY_ADMIN = proxyAdmin;
-    emit ProxyAdminUpdated(oldAdmin, proxyAdmin);
+    emit ProxyAdminUpdated(proxyAdmin);
   }
 
-  /** @dev Create a new multisig wallet for an endowment 
+  /** @dev Create a new multisig wallet for an endowment
    * @param endowmentId the endowment id
    * @param emitterAddress the emitter of the multisig
    * @param owners the owners of the multisig

@@ -33,7 +33,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
   event MemberRemoved(uint256 fundId, uint32 memberId);
   event MembersUpdated(uint256 fundId, uint32[] members);
   event DonationMessagesUpdated(uint256 fundId);
-  event ActiveFundUpdated(uint256 newFundId);
+  event ActiveFundUpdated(uint256 fundId);
   event StateUpdated();
 
   uint256 maxLimit;

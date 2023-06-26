@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
+
 import "./storage.sol";
 import {IMultiSigGeneric} from "./interfaces/IMultiSigGeneric.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
@@ -97,11 +98,17 @@ contract MultiSigGeneric is
     for (uint256 i = 0; i < owners.length; i++) {
       require(!isOwner[owners[i]] && owners[i] != address(0));
       isOwner[owners[i]] = true;
+      emit OwnerAdded(owners[i]);
     }
     // set storage variables
     approvalsRequired = _approvalsRequired;
+    emit ApprovalsRequiredChanged(_approvalsRequired);
+
     requireExecution = _requireExecution;
+    emit RequireExecutionChanged(requireExecution);
+
     transactionExpiry = _transactionExpiry;
+    emit TransactionExpiryChanged(transactionExpiry);
   }
 
   /// @dev Allows to add new owners. Transaction has to be sent by wallet.
@@ -163,17 +170,15 @@ contract MultiSigGeneric is
     onlyWallet
     validApprovalsRequirement(activeOwnersCount, _approvalsRequired)
   {
-    uint256 oldValue = approvalsRequired;
     approvalsRequired = _approvalsRequired;
-    emit ApprovalsRequirementChanged(oldValue, _approvalsRequired);
+    emit ApprovalsRequiredChanged(_approvalsRequired);
   }
 
   /// @dev Allows to change whether explicit execution step is needed once the required number of confirmations is met. Transaction has to be sent by wallet.
   /// @param _requireExecution Is an explicit execution step is needed
   function changeRequireExecution(bool _requireExecution) public virtual override onlyWallet {
-    bool oldValue = requireExecution;
     requireExecution = _requireExecution;
-    emit RequireExecutionChanged(oldValue, _requireExecution);
+    emit RequireExecutionChanged(_requireExecution);
   }
 
   /// @dev Allows to change the expiry time for transactions.

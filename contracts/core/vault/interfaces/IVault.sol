@@ -97,7 +97,7 @@ abstract contract IVault {
   /// Rewards that are re-staked or otherwise reinvested will call other methods which will emit events
   /// with specific yield/value details
   /// @param accountIds a list of the Accounts harvested for
-  event RewardsHarvested(uint32[] accountIds); // >> TODO: UNUSED. REMOVE.
+  event RewardsHarvested(uint32[] accountIds);
 
   /*////////////////////////////////////////////////
                         ERRORS

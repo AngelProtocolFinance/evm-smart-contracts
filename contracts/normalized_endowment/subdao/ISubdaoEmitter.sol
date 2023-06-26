@@ -19,7 +19,6 @@ interface ISubdaoEmitter {
   function updateSubdaoPollAndStatus(
     uint256 pollId,
     address voter,
-    subDaoStorage.PollStatus prevPollStatus,
-    subDaoStorage.PollStatus newPollStatus
+    subDaoStorage.PollStatus pollStatus
   ) external;
 }

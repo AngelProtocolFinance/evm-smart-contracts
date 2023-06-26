@@ -45,7 +45,7 @@ interface IStakingHalo {
 contract Staking is Initializable, ERC20, Pausable, ReentrancyGuard, Ownable {
   event HaloStaked(address caller, address targetUser, uint256 amount, uint256 total, bytes data);
   event HaloUnstaked(address user, uint256 amount, uint256 total, bytes data);
-  event InterestRateUpdated(uint256 oldValue, uint256 newValue);
+  event InterestRateUpdated(uint256 interestRate);
 
   address public haloToken;
   uint256 public interestRate;
@@ -87,9 +87,8 @@ contract Staking is Initializable, ERC20, Pausable, ReentrancyGuard, Ownable {
    */
   function updateInterestRate(uint256 _interestRate) public nonReentrant onlyOwner {
     require(0 <= _interestRate && _interestRate <= 100, "Invalid interest rate");
-    uint256 oldValue = interestRate;
     interestRate = _interestRate;
-    emit InterestRateUpdated(oldValue, interestRate);
+    emit InterestRateUpdated(interestRate);
   }
 
   // >> CAN CALL `stakeFor` INTERNALLY, REDUCES CODE DUPLICATION

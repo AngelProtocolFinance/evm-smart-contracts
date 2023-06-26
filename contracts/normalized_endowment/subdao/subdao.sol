@@ -425,12 +425,10 @@ contract SubDao is Storage, ReentrancyGuard {
     });
 
     poll[pollId] = a_poll;
-    subDaoStorage.PollStatus oldPollStatus = poll_status[pollId];
     poll_status[pollId] = subDaoStorage.PollStatus.InProgress;
     ISubdaoEmitter(emitterAddress).updateSubdaoPollAndStatus(
       pollId,
       msg.sender,
-      oldPollStatus,
       poll_status[pollId]
     );
 
@@ -511,7 +509,6 @@ contract SubDao is Storage, ReentrancyGuard {
 
     a_poll.status = temp_poll_status;
 
-    subDaoStorage.PollStatus oldPollStatus = poll_status[pollid];
     poll[pollid] = a_poll;
 
     _execute(target, value, callData);
@@ -519,7 +516,6 @@ contract SubDao is Storage, ReentrancyGuard {
     ISubdaoEmitter(emitterAddress).updateSubdaoPollAndStatus(
       pollid,
       msg.sender,
-      oldPollStatus,
       poll_status[pollid]
     );
   }
@@ -589,12 +585,10 @@ contract SubDao is Storage, ReentrancyGuard {
 
     a_poll.status = subDaoStorage.PollStatus.Expired;
 
-    subDaoStorage.PollStatus oldPollStatus = poll_status[pollid];
     poll[pollid] = a_poll;
     ISubdaoEmitter(emitterAddress).updateSubdaoPollAndStatus(
       pollid,
       msg.sender,
-      oldPollStatus,
       poll_status[pollid]
     );
   }

@@ -30,12 +30,7 @@ contract SubdaoEmitter {
   event Transfer(address subdao, address tokenAddress, address from, address to, uint256 amount);
   event StateUpdated(address subdao);
   event PollUpdated(address subdao, uint256 id, address sender);
-  event PollStatusUpdated(
-    address subdao,
-    uint256 id,
-    subDaoStorage.PollStatus prevPollStatus,
-    subDaoStorage.PollStatus newPollStatus
-  );
+  event PollStatusUpdated(address subdao, uint256 id, subDaoStorage.PollStatus pollStatus);
   event VotingStatusUpdated(address subdao, uint256 pollId, address voter);
 
   function initializeSubdao(address subdao) public isOwner {
@@ -71,10 +66,9 @@ contract SubdaoEmitter {
   function updateSubdaoPollAndStatus(
     uint256 pollId,
     address voter,
-    subDaoStorage.PollStatus prevPollStatus,
-    subDaoStorage.PollStatus newPollStatus
+    subDaoStorage.PollStatus pollStatus
   ) public isEmitter {
     emit PollUpdated(msg.sender, pollId, voter);
-    emit PollStatusUpdated(msg.sender, pollId, prevPollStatus, newPollStatus);
+    emit PollStatusUpdated(msg.sender, pollId, pollStatus);
   }
 }

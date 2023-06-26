@@ -12,23 +12,25 @@ interface IEndowmentMultiSigEmitter {
 
   function executeFailureEndowment(uint256 endowmentId, uint256 transactionId) external;
 
-  function depositEndowment(uint256 endowmentId, address sender, uint256 value) external; // UNUSED
+  function depositEndowment(uint256 endowmentId, address sender, uint256 value) external;
 
   function addOwnersEndowment(uint256 endowmentId, address[] memory owners) external;
 
   function removeOwnersEndowment(uint256 endowmentId, address[] memory owners) external;
 
-  function replaceOwnerEndowment(uint256 endowmentId, address currOwner, address newOwner) external;
+  function replaceOwnerEndowment(uint256 endowmentId, address owner) external;
 
-  function changeApprovalRequirements(
+  function approvalsRequirementChangeEndowment(
     uint256 endowmentId,
-    uint256 oldApprovalsRequired,
-    uint256 newApprovalsRequired
+    uint256 approvalsRequired
   ) external;
 
   function requireExecutionChangeEndowment(uint256 endowmentId, bool requireExecution) external;
 
-  function transactionExpiryChangeEndowment(uint256 endowmentId, uint256 transactionExpiry) external;
+  function transactionExpiryChangeEndowment(
+    uint256 endowmentId,
+    uint256 transactionExpiry
+  ) external;
 
   function createMultisig(
     address multisigAddress,

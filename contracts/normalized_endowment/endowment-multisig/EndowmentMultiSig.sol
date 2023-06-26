@@ -64,11 +64,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
    */
   function replaceOwner(address currOwner, address newOwner) public override {
     super.replaceOwner(currOwner, newOwner);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).replaceOwnerEndowment(
-      ENDOWMENT_ID,
-      currOwner,
-      newOwner
-    );
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).replaceOwnerEndowment(ENDOWMENT_ID, newOwner);
   }
 
   /**
@@ -77,11 +73,9 @@ contract EndowmentMultiSig is MultiSigGeneric {
    * @param _approvalsRequired the new required number of signatures
    */
   function changeApprovalsRequirement(uint256 _approvalsRequired) public override {
-    uint256 oldValue = approvalsRequired;
     super.changeApprovalsRequirement(_approvalsRequired);
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).changeApprovalRequirements(
       ENDOWMENT_ID,
-      oldValue,
       _approvalsRequired
     );
   }
@@ -192,7 +186,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
       txn.executed = true;
       Utils._execute(txn.destination, txn.value, txn.data);
       emit TransactionExecuted(transactionId);
-      IEndowmentMultiSigEmitter(EMITTER_ADDRESS).executeEndowment(ENDOWMENT_ID, transactionId); // >> WHAT'S THE USE OF THIS CALL IF A "TransactionExecuted" IS EMITTED?
+      IEndowmentMultiSigEmitter(EMITTER_ADDRESS).executeEndowment(ENDOWMENT_ID, transactionId);
     }
   }
 

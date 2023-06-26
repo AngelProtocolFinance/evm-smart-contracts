@@ -12,7 +12,7 @@ interface IAccountsEvents {
   event EndowmentCreated(uint256 endowId);
   event EndowmentUpdated(uint256 endowId);
   event ConfigUpdated();
-  event OwnerUpdated(address newOwner);
+  event OwnerUpdated(address owner);
   event DonationMatchCreated(uint256 endowId, address donationMatchContract);
   event TokenSwapped(
     uint256 endowId,

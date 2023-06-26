@@ -2,6 +2,7 @@
 pragma solidity ^0.8.16;
 
 // >> SHOULD INHERIT `IEndowmentMultiSigEmitter`? Has missing `requireExecutionChangeEndowment` implementation
+// >> SHOULD INHERIT `Initializable`?
 /**
  * @notice the endowment multisig emitter contract
  * @dev the endowment multisig emitter contract is a contract that emits events for all the endowment multisigs across AP
@@ -10,6 +11,7 @@ contract EndowmentMultiSigEmitter {
   /*
    * Events
    */
+  event Initialized();
 
   bool isInitialized;
   address multisigFactory;
@@ -20,7 +22,7 @@ contract EndowmentMultiSigEmitter {
     require(!isInitialized, "Already initialized");
     isInitialized = true;
     multisigFactory = _multisigFactory;
-    // >> SHOULD EMIT `Initialized()` EVENT?
+    emit Initialized();
   }
 
   modifier isEmitter() {
@@ -45,11 +47,11 @@ contract EndowmentMultiSigEmitter {
   event EndowmentSubmitted(uint256 endowmentId, uint256 transactionId);
   event TransactionExecuted(uint256 endowmentId, uint256 transactionId);
   event TransactionExecutionFailed(uint256 endowmentId, uint256 transactionId);
-  event GasDeposited(uint256 endowmentId, address sender, uint256 value);
+  event GasDeposited(uint256 endowmentId, address sender, uint256 amount);
   event OwnersAdded(uint256 endowmentId, address[] owners);
   event OwnersRemoved(uint256 endowmentId, address[] owners);
   event OwnerReplaced(uint256 endowmentId, address currOwner, address newOwner);
-  event ApprovalRequirementsUpdated(uint256 endowmentId, uint256 oldValue, uint256 newValue);
+  event ApprovalRequirementsUpdated(uint256 endowmentId, uint256 approvalsRequired);
   event EndowmentTransactionExpiryChanged(uint256 endowmentId, uint256 transactionExpiry);
 
   /**
@@ -169,7 +171,6 @@ contract EndowmentMultiSigEmitter {
   /**
    * @notice emits the OwnerReplaced event
    * @param endowmentId the endowment id
-   * @param currOwner the removed owner of the endowment
    * @param newOwner the added owner of the endowment
    */
   function replaceOwnerEndowment(
@@ -183,15 +184,13 @@ contract EndowmentMultiSigEmitter {
   /**
    * @notice emits the ApprovalRequirementsUpdated event
    * @param endowmentId the endowment id
-   * @param oldApprovalsRequired old required number of confirmations
-   * @param newApprovalsRequired new required number of confirmations
+   * @param approvalsRequired the required number of confirmations
    */
-  function changeApprovalRequirements(
+  function approvalsRequirementChangeEndowment(
     uint256 endowmentId,
-    uint256 oldApprovalsRequired,
-    uint256 newApprovalsRequired
+    uint256 approvalsRequired
   ) public isEmitter {
-    emit ApprovalRequirementsUpdated(endowmentId, oldApprovalsRequired, newApprovalsRequired);
+    emit ApprovalRequirementsUpdated(endowmentId, approvalsRequired);
   }
 
   /**

@@ -15,9 +15,9 @@ import {VestingMessage} from "./message.sol";
  */
 contract Vesting is Ownable, ReentrancyGuard {
   event HaloDeposited(address user, uint256 amount);
-  event HaloWithdrawn(address user, uint256 amount, uint256 vestingId);
+  event HaloWithdrawn(address user, uint256 vestingId, uint256 amount);
   event Initialized();
-  event VestingDurationModified(uint256 oldValue, uint256 newValue);
+  event VestingDurationModified(uint256 vestingDuration);
 
   address public haloToken;
   uint256 public totalVested;
@@ -89,7 +89,7 @@ contract Vesting is Ownable, ReentrancyGuard {
     );
     totalVested -= (claimable - vesting[msg.sender][vestingId].claimed);
     vesting[msg.sender][vestingId].claimed = claimable;
-    emit HaloWithdrawn(msg.sender, claimable - vesting[msg.sender][vestingId].claimed, vestingId);
+    emit HaloWithdrawn(msg.sender, vestingId, claimable - vesting[msg.sender][vestingId].claimed);
   }
 
   /**
@@ -97,9 +97,8 @@ contract Vesting is Ownable, ReentrancyGuard {
    * @param vestingduration uint
    */
   function modifyVestingDuration(uint256 vestingduration) public onlyOwner {
-    uint256 oldValue = vestingDuration;
     vestingDuration = vestingduration;
-    emit VestingDurationModified(oldValue, vestingduration);
+    emit VestingDurationModified(vestingduration);
   }
 
   function min(uint256 a, uint256 b) internal pure returns (uint256) {
