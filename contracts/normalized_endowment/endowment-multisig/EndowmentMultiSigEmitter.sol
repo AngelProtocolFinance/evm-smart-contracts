@@ -47,7 +47,7 @@ contract EndowmentMultiSigEmitter {
   event EndowmentSubmitted(uint256 endowmentId, uint256 transactionId);
   event TransactionExecuted(uint256 endowmentId, uint256 transactionId);
   event TransactionExecutionFailed(uint256 endowmentId, uint256 transactionId);
-  event GasDeposited(uint256 endowmentId, address sender, uint256 amount);
+  event Deposit(uint256 endowmentId, address sender, uint256 amount);
   event OwnersAdded(uint256 endowmentId, address[] owners);
   event OwnersRemoved(uint256 endowmentId, address[] owners);
   event OwnerReplaced(uint256 endowmentId, address currOwner, address newOwner);
@@ -141,13 +141,13 @@ contract EndowmentMultiSigEmitter {
   }
 
   /**
-   * @notice emits the GasDeposited event
+   * @notice emits the Deposit event
    * @param endowmentId the endowment id
    * @param sender the sender of the transaction
    * @param value the value of the transaction
    */
   function depositEndowment(uint256 endowmentId, address sender, uint256 value) public isEmitter {
-    emit GasDeposited(endowmentId, sender, value);
+    emit Deposit(endowmentId, sender, value);
   }
 
   /**

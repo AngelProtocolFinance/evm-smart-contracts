@@ -32,14 +32,8 @@ contract IncentivisedVotingLockup is IIncentivisedVotingLockup, ReentrancyGuard 
   using SafeERC20 for IERC20;
 
   /** Shared Events */
-  event StakeDeposited(
-    address provider,
-    uint256 value,
-    uint256 locktime,
-    LockAction action,
-    uint256 ts
-  );
-  event StakeWithdrawn(address provider, uint256 value, uint256 ts);
+  event Deposit(address provider, uint256 value, uint256 locktime, LockAction action, uint256 ts);
+  event Withdraw(address provider, uint256 value, uint256 ts);
   // event VestedTokensWithdrawn(address provider, uint256 value, uint256 ts);
   event UserEjected(address ejected, address ejector, uint256 ts);
   event ContractExpired(address contractAddress);
@@ -384,7 +378,7 @@ contract IncentivisedVotingLockup is IIncentivisedVotingLockup, ReentrancyGuard 
     if (value != 0) {
       stakingToken.safeTransferFrom(addr, address(this), value);
     }
-    emit StakeDeposited(addr, value, newLocked.end, action, block.timestamp);
+    emit Deposit(addr, value, newLocked.end, action, block.timestamp);
   }
 
   /**
@@ -493,7 +487,7 @@ contract IncentivisedVotingLockup is IIncentivisedVotingLockup, ReentrancyGuard 
     }
     stakingToken.safeTransfer(addr, value);
 
-    emit StakeWithdrawn(addr, value, block.timestamp);
+    emit Withdraw(addr, value, block.timestamp);
   }
 
   /**

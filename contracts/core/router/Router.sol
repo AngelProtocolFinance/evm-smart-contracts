@@ -183,7 +183,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     _action.lockAmt = _redemptionLock.amount;
     _action.liqAmt = _redemptionLiquid.amount;
     _action = _prepareToSendTokens(_action, _redeemedAmt);
-    emit TokenRedeemed(_action, _redeemedAmt);
+    emit Redeem(_action, _redeemedAmt);
     if (
       (_redemptionLock.status == IVault.VaultActionStatus.POSITION_EXITED) &&
       (_redemptionLiquid.status == IVault.VaultActionStatus.POSITION_EXITED)
@@ -231,7 +231,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     // Pack and send the tokens back
     uint256 _redeemedAmt = lockResponse.amount + liqResponse.amount;
     _action = _prepareToSendTokens(_action, _redeemedAmt);
-    emit TokenRedeemed(_action, _redeemedAmt);
+    emit Redeem(_action, _redeemedAmt);
     _action.status = IVault.VaultActionStatus.POSITION_EXITED;
     return _action;
   }
@@ -315,7 +315,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
       StringToAddress.toAddress(accountsContractAddress),
       _sendAmt
     );
-    emit TokenSent(_action, _sendAmt);
+    emit Transfer(_action, _sendAmt);
     return _action;
   }
 
@@ -349,16 +349,16 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
         gasFee
       )
     {
-      emit TokenSent(_action, amtLessGasFee);
+      emit Transfer(_action, amtLessGasFee);
     } catch Error(string memory reason) {
       emit ErrorLogged(_action, reason);
       IERC20Metadata(_action.token).transfer(apParams.refundAddr, _sendAmt);
-      emit TokenRefunded(_action, _sendAmt);
+      emit Refund(_action, _sendAmt);
       _action.status = IVault.VaultActionStatus.FAIL_TOKENS_FALLBACK;
     } catch (bytes memory data) {
       emit ErrorBytesLogged(_action, data);
       IERC20Metadata(_action.token).transfer(apParams.refundAddr, _sendAmt);
-      emit TokenRefunded(_action, _sendAmt);
+      emit Refund(_action, _sendAmt);
       _action.status = IVault.VaultActionStatus.FAIL_TOKENS_FALLBACK;
     }
     return _action;
@@ -417,7 +417,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
 
     // Leverage this.call() to enable try/catch logic
     try this.deposit(action, tokenSymbol, amount) {
-      emit TokenDeposited(action);
+      emit Deposit(action);
       action.status = IVault.VaultActionStatus.SUCCESS;
       return action;
     } catch Error(string memory reason) {

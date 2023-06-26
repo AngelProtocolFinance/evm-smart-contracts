@@ -74,7 +74,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
    */
   function changeApprovalsRequirement(uint256 _approvalsRequired) public override {
     super.changeApprovalsRequirement(_approvalsRequired);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).changeApprovalRequirements(
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).approvalsRequirementChangeEndowment(
       ENDOWMENT_ID,
       _approvalsRequired
     );

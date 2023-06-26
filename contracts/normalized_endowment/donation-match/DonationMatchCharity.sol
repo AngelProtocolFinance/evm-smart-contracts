@@ -32,19 +32,9 @@ interface IERC20Burnable is IERC20 {
 // >> SHOULD INHERIT contracts/normalized_endowment/donation-match/IDonationMatching.sol ?
 contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
   event DonationMatchCharityInitialized(address donationMatch);
-  event TokenApprovalGiven(
-    uint32 endowmentId,
-    address tokenAddress,
-    address spender,
-    uint256 amount
-  );
-  event TokenTransferred(
-    uint32 endowmentId,
-    address tokenAddress,
-    address recipient,
-    uint256 amount
-  );
-  event TokenBurned(uint32 endowmentId, address tokenAddress, uint256 amount);
+  event Approval(uint32 endowmentId, address tokenAddress, address spender, uint256 amount);
+  event Transfer(uint32 endowmentId, address tokenAddress, address recipient, uint256 amount);
+  event Burn(uint32 endowmentId, address tokenAddress, uint256 amount);
   event DonationMatchExecuted(
     address donationMatch,
     address tokenAddress,
@@ -127,7 +117,7 @@ contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
 
     require(success, "Token transfer failed");
 
-    emit TokenApprovalGiven(endowmentId, token, state.config.reserveToken, reserveTokenAmount);
+    emit Approval(endowmentId, token, state.config.reserveToken, reserveTokenAmount);
 
     if (token == state.config.reserveToken) {
       uint256 donorAmount = (reserveTokenAmount * 40) / (100);
@@ -138,7 +128,7 @@ contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
 
       IERC20Burnable(token).transfer(donor, donorAmount);
 
-      emit TokenTransferred(endowmentId, token, donor, donorAmount);
+      emit Transfer(endowmentId, token, donor, donorAmount);
 
       success = IERC20(token).approve(registrar_config.accountsContract, endowmentAmount);
       require(success, "Approve failed");
@@ -149,10 +139,10 @@ contract DonationMatchCharity is Storage, Initializable, ReentrancyGuard {
         endowmentAmount
       );
 
-      emit TokenTransferred(endowmentId, token, registrar_config.accountsContract, endowmentAmount);
+      emit Transfer(endowmentId, token, registrar_config.accountsContract, endowmentAmount);
 
       IERC20Burnable(token).burn(burnAmount);
-      emit TokenBurned(endowmentId, token, burnAmount);
+      emit Burn(endowmentId, token, burnAmount);
     } else {
       // approve reserve rency to dao token contract [GIvE approval]
 

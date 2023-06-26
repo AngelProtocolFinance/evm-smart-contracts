@@ -73,12 +73,12 @@ contract MultiSigGeneric is
 
   /// @dev Receive function allows to deposit ether.
   receive() external payable override {
-    if (msg.value > 0) emit GasDeposited(msg.sender, msg.value);
+    if (msg.value > 0) emit Deposit(msg.sender, msg.value);
   }
 
   /// @dev Fallback function allows to deposit ether.
   fallback() external payable override {
-    if (msg.value > 0) emit GasDeposited(msg.sender, msg.value);
+    if (msg.value > 0) emit Deposit(msg.sender, msg.value);
   }
 
   /*

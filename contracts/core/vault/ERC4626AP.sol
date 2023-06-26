@@ -17,15 +17,9 @@ abstract contract ERC4626AP is ERC20AP {
                                  EVENTS
     //////////////////////////////////////////////////////////////*/
 
-  event AssetDeposited(address caller, uint32 owner, uint256 assets, uint256 shares);
+  event Deposit(address caller, uint32 owner, uint256 assets, uint256 shares);
 
-  event AssetWithdrawn(
-    address caller,
-    address receiver,
-    uint32 owner,
-    uint256 assets,
-    uint256 shares
-  );
+  event Withdraw(address caller, address receiver, uint32 owner, uint256 assets, uint256 shares);
 
   /*//////////////////////////////////////////////////////////////
                                IMMUTABLES
@@ -57,7 +51,7 @@ abstract contract ERC4626AP is ERC20AP {
 
     _mint(receiver, shares);
 
-    emit AssetDeposited(_msgSender(), receiver, assets, shares);
+    emit Deposit(_msgSender(), receiver, assets, shares);
 
     _afterDeposit(assets, shares);
   }
@@ -73,7 +67,7 @@ abstract contract ERC4626AP is ERC20AP {
 
     _mint(receiver, shares);
 
-    emit AssetDeposited(_msgSender(), receiver, assets, shares);
+    emit Deposit(_msgSender(), receiver, assets, shares);
 
     _afterDeposit(assets, shares);
   }
@@ -95,7 +89,7 @@ abstract contract ERC4626AP is ERC20AP {
 
     _burn(owner, shares);
 
-    emit AssetWithdrawn(_msgSender(), receiver, owner, assets, shares);
+    emit Withdraw(_msgSender(), receiver, owner, assets, shares);
 
     asset.safeTransfer(receiver, assets);
   }
@@ -112,7 +106,7 @@ abstract contract ERC4626AP is ERC20AP {
 
     _burn(owner, shares);
 
-    emit AssetWithdrawn(_msgSender(), receiver, owner, assets, shares);
+    emit Withdraw(_msgSender(), receiver, owner, assets, shares);
 
     asset.approve(receiver, assets);
   }
