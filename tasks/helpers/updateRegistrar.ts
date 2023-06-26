@@ -40,8 +40,6 @@ export async function updateRegistrarNetworkConnections(
       apTeamMultisigOwners[0]
     );
     const tx = await apTeamMultisigContract.submitTransaction(
-      "Registrar: Update Network Connections",
-      "Registrar: Update Network Connections",
       registrar,
       0,
       updateNetworkConnectionsData,
@@ -100,8 +98,6 @@ export async function updateRegistrarConfig(
       apTeamMultisigOwners[0]
     );
     const tx = await apTeamMultisigContract.submitTransaction(
-      "Registrar: Update Config",
-      "Registrar: Update Config",
       registrar,
       0,
       updateConfigData,
