@@ -11,7 +11,6 @@ abstract contract IMultiSigGeneric is IERC165 {
   event ConfirmationRevoked(address sender, uint256 transactionId);
   event TransactionSubmitted(address sender, uint256 transactionId);
   event TransactionExecuted(uint256 transactionId);
-  event ExecutionFailed(uint256 transactionId);
   event Deposit(address sender, uint256 amount);
   event OwnerAdded(address owner);
   event OwnerRemoved(address owner);
