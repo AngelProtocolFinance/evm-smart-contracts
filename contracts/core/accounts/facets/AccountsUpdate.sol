@@ -28,7 +28,7 @@ contract AccountsUpdate is ReentrancyGuardFacet, IAccountsEvents, IAccountsUpdat
 
     state.config.owner = newOwner;
 
-    emit OwnerUpdated(msg.sender, newOwner);
+    emit OwnerUpdated(newOwner);
   }
 
   /**

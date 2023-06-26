@@ -5,14 +5,14 @@ import {AngelCoreStruct} from "../../struct.sol";
 
 interface IAccountsEvents {
   event DaoContractCreated(uint32 endowId, address daoAddress);
-  event DonationDeposited(uint256 endowId, uint256 amount);
-  event DonationWithdrawn(uint256 endowId, address recipient, uint256 amount);
+  event DonationDeposited(uint256 endowId, address tokenAddress, uint256 amount);
+  event DonationWithdrawn(uint256 endowId, address recipient, address tokenAddress, uint256 amount);
   event AllowanceRemoved(address sender, address spender, address tokenAddress);
   event AllowanceUpdated(address sender, address spender, address tokenAddress, uint256 allowance);
   event EndowmentCreated(uint256 endowId);
   event EndowmentUpdated(uint256 endowId);
   event ConfigUpdated();
-  event OwnerUpdated(address oldOwner, address newOwner);
+  event OwnerUpdated(address newOwner);
   event DonationMatchCreated(uint256 endowId, address donationMatchContract);
   event TokenSwapped(
     uint256 endowId,
