@@ -5,6 +5,7 @@ import {RegistrarStorage} from "../storage.sol";
 import {RegistrarMessages} from "../message.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 import {ILocalRegistrar} from "./ILocalRegistrar.sol";
+import {IAccountsVaultFacet} from "../../accounts/interfaces/IAccountsVaultFacet.sol";
 
 interface IRegistrar is ILocalRegistrar {
   function updateConfig(RegistrarMessages.UpdateConfigRequest memory details) external;
@@ -38,7 +39,7 @@ interface IRegistrar is ILocalRegistrar {
 
   function queryNetworkConnection(
     uint256 chainId
-  ) external view returns (AngelCoreStruct.NetworkInfo memory response);
+  ) external view returns (IAccountsVaultFacet.NetworkInfo memory response);
 
   function owner() external view returns (address);
 }

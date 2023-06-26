@@ -71,7 +71,7 @@ contract AccountsVaultFacet is IAccountsVaultFacet, ReentrancyGuardFacet, IAccou
       "Vault is not approved"
     );
 
-    AngelCoreStruct.NetworkInfo memory network = IRegistrar(state.config.registrarContract)
+    NetworkInfo memory network = IRegistrar(state.config.registrarContract)
       .queryNetworkConnection(block.chainid);
 
     address tokenAddress = IAxelarGateway(network.axelarGateway).tokenAddresses(token);
@@ -168,7 +168,7 @@ contract AccountsVaultFacet is IAccountsVaultFacet, ReentrancyGuardFacet, IAccou
         LocalRegistrarLib.StrategyApprovalState.APPROVED,
       "Vault is not approved"
     );
-    AngelCoreStruct.NetworkInfo memory network = IRegistrar(state.config.registrarContract)
+    NetworkInfo memory network = IRegistrar(state.config.registrarContract)
       .queryNetworkConnection(block.chainid);
 
     address tokenAddress = IAxelarGateway(network.axelarGateway).tokenAddresses(token);
@@ -223,7 +223,7 @@ contract AccountsVaultFacet is IAccountsVaultFacet, ReentrancyGuardFacet, IAccou
         LocalRegistrarLib.StrategyApprovalState.APPROVED,
       "Vault is not approved"
     );
-    AngelCoreStruct.NetworkInfo memory network = IRegistrar(state.config.registrarContract)
+    NetworkInfo memory network = IRegistrar(state.config.registrarContract)
       .queryNetworkConnection(block.chainid);
 
     address tokenAddress = IAxelarGateway(network.axelarGateway).tokenAddresses(token);

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.16;
 
 import {AngelCoreStruct} from "../struct.sol";
+import {IAccountsVaultFacet} from "../accounts/interfaces/IAccountsVaultFacet.sol";
 
 library RegistrarStorage {
   struct Config {
@@ -26,10 +27,8 @@ library RegistrarStorage {
     address govContract; // AP governance contract
     uint256 collectorShare;
     address charitySharesContract;
-    // AngelCoreStruct.AcceptedTokens acceptedTokens; // list of approved native and CW20 coins can accept inward
     //PROTOCOL LEVEL
     address fundraisingContract;
-    // AngelCoreStruct.RebalanceDetails rebalance;
     address uniswapRouter;
     address uniswapFactory;
     address multisigFactory;
@@ -46,7 +45,7 @@ library RegistrarStorage {
     Config config;
     bytes4[] STRATEGIES;
     mapping(AngelCoreStruct.FeeTypes => AngelCoreStruct.FeeSetting) FeeSettingsByFeeType;
-    mapping(uint256 => AngelCoreStruct.NetworkInfo) NETWORK_CONNECTIONS;
+    mapping(uint256 => IAccountsVaultFacet.NetworkInfo) NETWORK_CONNECTIONS;
     mapping(address => address) PriceFeeds;
   }
 }

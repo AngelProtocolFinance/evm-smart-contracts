@@ -67,7 +67,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     });
     emit ConfigUpdated();
 
-    state.NETWORK_CONNECTIONS[block.chainid] = AngelCoreStruct.NetworkInfo({
+    state.NETWORK_CONNECTIONS[block.chainid] = IAccountsVaultFacet.NetworkInfo({
       name: "Polygon",
       chainId: block.chainid,
       router: details.router,
@@ -244,7 +244,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
    * @param action The action to perform (post or delete)
    */
   function updateNetworkConnections(
-    AngelCoreStruct.NetworkInfo memory networkInfo,
+    IAccountsVaultFacet.NetworkInfo memory networkInfo,
     string memory action
   ) public nonReentrant onlyOwner {
     if (Validator.compareStrings(action, "post")) {
@@ -274,7 +274,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
    */
   function queryNetworkConnection(
     uint256 chainId
-  ) public view returns (AngelCoreStruct.NetworkInfo memory response) {
+  ) public view returns (IAccountsVaultFacet.NetworkInfo memory response) {
     response = state.NETWORK_CONNECTIONS[chainId];
   }
 
