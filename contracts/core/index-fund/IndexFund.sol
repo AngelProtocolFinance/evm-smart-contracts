@@ -25,15 +25,15 @@ import {AccountMessages} from "../accounts/message.sol";
  * distributing funds to members
  */
 contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
-  event OwnerUpdated(address oldOwner, address newOwner);
-  event RegistrarUpdated(address oldRegistrar, address newRegistrar);
+  event OwnerUpdated(address newOwner);
+  event RegistrarUpdated(address newRegistrar);
   event ConfigUpdated();
   event IndexFundCreated(uint256 id);
   event IndexFundRemoved(uint256 id);
   event MemberRemoved(uint256 fundId, uint32 memberId);
   event MembersUpdated(uint256 fundId, uint32[] members);
   event DonationMessagesUpdated(uint256 fundId);
-  event ActiveFundUpdated(uint256 oldFundId, uint256 newFundId);
+  event ActiveFundUpdated(uint256 newFundId);
   event StateUpdated();
 
   uint256 maxLimit;
@@ -60,6 +60,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
       fundingGoal: details.fundingGoal
     });
     emit ConfigUpdated();
+    emit OwnerUpdated(msg.sender);
 
     state.state = IndexFundStorage._State({
       totalFunds: 0,
@@ -84,7 +85,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     require(newOwner != address(0), "invalid input address");
 
     state.config.owner = newOwner;
-    emit OwnerUpdated(msg.sender, newOwner);
+    emit OwnerUpdated(newOwner);
     return true;
   }
 
@@ -100,11 +101,9 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
     require(newRegistrar != address(0), "invalid input address");
 
-    address oldRegistrar = state.config.registrarContract;
-
     state.config.registrarContract = newRegistrar;
 
-    emit RegistrarUpdated(oldRegistrar, newRegistrar);
+    emit RegistrarUpdated(newRegistrar);
     return true;
   }
 
@@ -177,9 +176,8 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     // If there are no funds created or no active funds yet, set the new
     // fund being created now to be the active fund
     if (state.state.totalFunds == 0 || state.state.activeFund == 0) {
-      uint256 oldActiveFund = state.state.activeFund;
       state.state.activeFund = state.state.nextFundId;
-      emit ActiveFundUpdated(oldActiveFund, state.state.activeFund);
+      emit ActiveFundUpdated(state.state.activeFund);
     }
 
     if (rotatingFund) {
@@ -202,9 +200,8 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     require(state.FUNDS[fundId].members.length >= 0, "Invalid Fund");
 
     if (state.state.activeFund == fundId) {
-      uint256 oldActiveFund = state.state.activeFund;
       state.state.activeFund = rotateFund(fundId, block.timestamp);
-      emit ActiveFundUpdated(oldActiveFund, state.state.activeFund);
+      emit ActiveFundUpdated(state.state.activeFund);
     }
 
     // remove from rotating funds list
@@ -303,10 +300,9 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     // check if time limit is reached
     if (state.config.fundRotation != 0) {
       if (block.number >= state.state.nextRotationBlock) {
-        uint256 oldActiveFund = state.state.activeFund;
         uint256 newFundId = rotateFund(state.state.activeFund, block.timestamp);
         state.state.activeFund = newFundId;
-        emit ActiveFundUpdated(oldActiveFund, state.state.activeFund);
+        emit ActiveFundUpdated(state.state.activeFund);
         state.state.roundDonations = 0;
 
         while (block.number >= state.state.nextRotationBlock) {
@@ -353,10 +349,9 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
             state.state.roundDonations = 0;
             // set state active fund to next fund for next loop iteration
 
-            uint256 oldActiveFund = state.state.activeFund;
             state.state.activeFund = rotateFund(state.state.activeFund, block.timestamp);
 
-            emit ActiveFundUpdated(oldActiveFund, state.state.activeFund);
+            emit ActiveFundUpdated(state.state.activeFund);
             loopDonation = goalLeftover;
           } else {
             state.state.roundDonations += depositAmount;
