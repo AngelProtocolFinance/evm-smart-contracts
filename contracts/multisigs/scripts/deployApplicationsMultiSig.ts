@@ -33,6 +33,7 @@ export async function deployApplicationsMultiSig(
         applicationsMultisigOwners.map((x) => x.address),
         config.APPLICATION_MULTISIG_DATA.threshold,
         config.APPLICATION_MULTISIG_DATA.requireExecution,
+        config.APPLICATION_MULTISIG_DATA.transactionExpiry,
       ]
     );
     const constructorArguments: ContractFunctionParams<ProxyContract__factory["deploy"]> = [
