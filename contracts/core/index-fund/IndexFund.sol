@@ -8,6 +8,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {IndexFundMessage} from "./message.sol";
+import {IIndexFund} from "./IIndexFund.sol";
 import {AngelCoreStruct} from "../struct.sol";
 import {Array, Array32} from "../../lib/array.sol";
 import {Utils} from "../../lib/utils.sol";
@@ -24,7 +25,7 @@ import {AccountMessages} from "../accounts/message.sol";
  * It is responsible for creating new funds, adding members to funds, and
  * distributing funds to members
  */
-contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
+contract IndexFund is IIndexFund, StorageIndexFund, ReentrancyGuard, Initializable {
   event OwnerUpdated(address newOwner);
   event RegistrarUpdated(address newRegistrar);
   event ConfigUpdated();
@@ -158,7 +159,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
     require(splitToLiquid <= 100, "invalid split, must be less or equal to 100");
 
-    state.FUNDS[state.state.nextFundId] = AngelCoreStruct.IndexFund({
+    state.FUNDS[state.state.nextFundId] = IndexFund({
       id: state.state.nextFundId,
       name: name,
       description: description,
@@ -580,7 +581,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
    * @param fundId Fund id
    * @return Fund details
    */
-  function queryFundDetails(uint256 fundId) public view returns (AngelCoreStruct.IndexFund memory) {
+  function queryFundDetails(uint256 fundId) public view returns (IndexFund memory) {
     return state.FUNDS[fundId];
   }
 
@@ -591,9 +592,9 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
    */
   function queryInvolvedFunds(
     uint32 endowmentId
-  ) public view returns (AngelCoreStruct.IndexFund[] memory) {
+  ) public view returns (IndexFund[] memory) {
     // make memory and allocate to response object
-    AngelCoreStruct.IndexFund[] memory resp = new AngelCoreStruct.IndexFund[](
+    IndexFund[] memory resp = new IndexFund[](
       state.FUNDS_BY_ENDOWMENT[endowmentId].length
     );
 
@@ -608,7 +609,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
    * @dev Query active fund details
    * @return Fund details
    */
-  function queryActiveFundDetails() public view returns (AngelCoreStruct.IndexFund memory) {
+  function queryActiveFundDetails() public view returns (IndexFund memory) {
     return state.FUNDS[state.state.activeFund];
   }
 
@@ -620,7 +621,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
    * @return True if fund is expired
    */
   function fundIsExpired(
-    AngelCoreStruct.IndexFund memory fund,
+    IndexFund memory fund,
     uint256 envTime
   ) internal pure returns (bool) {
     return (fund.expiryTime != 0 && envTime >= fund.expiryTime);
@@ -633,7 +634,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
    * @return New active fund
    */
   function rotateFund(uint256 rFund, uint256 envTime) internal view returns (uint256) {
-    AngelCoreStruct.IndexFund[] memory activeFunds = new AngelCoreStruct.IndexFund[](
+    IndexFund[] memory activeFunds = new IndexFund[](
       state.rotatingFunds.length
     );
 

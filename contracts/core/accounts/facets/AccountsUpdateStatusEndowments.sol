@@ -6,7 +6,7 @@ import {AccountStorage} from "../storage.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
-import {IIndexFund} from "../../index-fund/Iindex-fund.sol";
+import {IIndexFund} from "../../index-fund/IIndexFund.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsUpdateStatusEndowments} from "../interfaces/IAccountsUpdateStatusEndowments.sol";
@@ -50,7 +50,7 @@ contract AccountsUpdateStatusEndowments is
 
     // If NONE was passed for beneficiary, send balance to the AP Treasury (if not in any funds)
     // or send to the first index fund if it is in one.
-    AngelCoreStruct.IndexFund[] memory funds = IIndexFund(registrar_config.indexFundContract)
+    IIndexFund.IndexFund[] memory funds = IIndexFund(registrar_config.indexFundContract)
       .queryInvolvedFunds(id);
     if (beneficiary.enumData == AngelCoreStruct.BeneficiaryEnum.None) {
       if (funds.length == 0) {

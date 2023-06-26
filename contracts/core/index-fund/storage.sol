@@ -2,6 +2,7 @@
 pragma solidity ^0.8.16;
 
 import {AngelCoreStruct} from "../struct.sol";
+import {IIndexFund} from "./IIndexFund.sol";
 
 library IndexFundStorage {
   struct Config {
@@ -31,7 +32,7 @@ library IndexFundStorage {
   struct State {
     Config config;
     _State state;
-    mapping(uint256 => AngelCoreStruct.IndexFund) FUNDS;
+    mapping(uint256 => IIndexFund.IndexFund) FUNDS;
     mapping(uint32 => uint256[]) FUNDS_BY_ENDOWMENT; // Endow ID >> [Fund IDs]
     uint256[] rotatingFunds; // list of active, rotating funds (ex. 17 funds, 1 for each of the UNSDGs)
     DonationMessages donationMessages;
