@@ -17,7 +17,7 @@ abstract contract IMultiSigGeneric is IERC165 {
   event OwnerRemoved(address owner);
   event ApprovalsRequirementChanged(uint256 oldValue, uint256 newValue);
   event RequireExecutionChanged(bool oldValue, bool newValue);
-  event TransactionExpiryChange(uint256 transactionExpiry);
+  event TransactionExpiryChanged(uint256 transactionExpiry);
 
   /// @dev Receive function allows to deposit ether.
   receive() external payable virtual;

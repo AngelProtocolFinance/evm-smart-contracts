@@ -180,7 +180,7 @@ contract MultiSigGeneric is
   /// @param _transactionExpiry time that a newly created transaction is valid for
   function changeTransactionExpiry(uint256 _transactionExpiry) public virtual override onlyWallet {
     transactionExpiry = _transactionExpiry;
-    emit TransactionExpiryChange(_transactionExpiry);
+    emit TransactionExpiryChanged(_transactionExpiry);
   }
 
   /// @dev Allows an owner to submit and confirm a transaction.
