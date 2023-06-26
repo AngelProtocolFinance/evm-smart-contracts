@@ -31,6 +31,7 @@ export async function deployAPTeamMultiSig(
       apTeamMultisigOwners.map((x) => x.address),
       config.AP_TEAM_MULTISIG_DATA.threshold,
       config.AP_TEAM_MULTISIG_DATA.requireExecution,
+      config.AP_TEAM_MULTISIG_DATA.transactionExpiry
     ]);
     const constructorArguments: ContractFunctionParams<ProxyContract__factory["deploy"]> = [
       apTeamMultiSig.address,

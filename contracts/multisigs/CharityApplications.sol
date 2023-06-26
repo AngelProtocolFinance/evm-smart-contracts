@@ -1,23 +1,23 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
-import "./storage.sol";
-import {ICharityApplication} from "./interfaces/ICharityApplication.sol";
+import "./CharityApplicationsStorage.sol";
+import {ICharityApplications} from "./interfaces/ICharityApplications.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {AngelCoreStruct} from "../../core/struct.sol";
-import {IAccountsCreateEndowment} from "../../core/accounts/interfaces/IAccountsCreateEndowment.sol";
-import {IAccountsQueryEndowments} from "../../core/accounts/interfaces/IAccountsQueryEndowments.sol";
-import {IAccountsDepositWithdrawEndowments} from "../../core/accounts/interfaces/IAccountsDepositWithdrawEndowments.sol";
-import {AccountStorage} from "../../core/accounts/storage.sol";
-import {AccountMessages} from "../../core/accounts/message.sol";
-import {MultiSigGeneric} from "../MultiSigGeneric.sol";
+import {AngelCoreStruct} from "../core/struct.sol";
+import {IAccountsCreateEndowment} from "../core/accounts/interfaces/IAccountsCreateEndowment.sol";
+import {IAccountsQueryEndowments} from "../core/accounts/interfaces/IAccountsQueryEndowments.sol";
+import {IAccountsDepositWithdrawEndowments} from "../core/accounts/interfaces/IAccountsDepositWithdrawEndowments.sol";
+import {AccountStorage} from "../core/accounts/storage.sol";
+import {AccountMessages} from "../core/accounts/message.sol";
+import {MultiSigGeneric} from "./MultiSigGeneric.sol";
 
 /**
- * @title CharityApplication
+ * @title CharityApplications
  * @notice Contract for managing charity applications, sent by public to open a charity endowment on AP
  * @dev Charity Applications have to be approved by AP Team multisig
  * @dev Contract for managing charity applications
  */
-contract CharityApplication is MultiSigGeneric, StorageApplications, ICharityApplication {
+contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityApplications {
   /*
    * Modifiers
    */
@@ -53,37 +53,52 @@ contract CharityApplication is MultiSigGeneric, StorageApplications, ICharityApp
 
   /**
    * @notice Initialize the charity applications contract
-   * where people can send applications to open a charity endowment on AP
+   * where anyone can submit applications to open a charity endowment on AP for review and approval
    * @dev seed asset will always be USDC
    * @dev Initialize the contract
-   * @param expiry Proposal expiry time in seconds
-   * @param accountscontract Accounts contract address
-   * @param seedsplittoliquid Seed split to liquid
-   * @param newendowgasmoney New endow gas money
-   * @param gasamount Gas amount
-   * @param fundseedasset Fund seed asset
-   * @param seedasset Seed asset
-   * @param seedassetamount Seed asset amount
+   * @param owners List of initial owners.
+   * @param _approvalsRequired Number of required confirmations.
+   * @param _requireExecution setting for if an explicit execution call is required
+   * @param _transactionExpiry Proposal expiry time in seconds
+   * @param _accountscontract Accounts contract address
+   * @param _newendowgasmoney New endow gas money
+   * @param _gasamount Gas amount
+   * @param _fundseedasset Fund seed asset
+   * @param _seedsplittoliquid Seed split to liquid
+   * @param _seedasset Seed asset
+   * @param _seedassetamount Seed asset amount
    */
-  function initialize(
-    uint256 expiry,
-    address accountscontract,
-    uint256 seedsplittoliquid,
-    bool newendowgasmoney,
-    uint256 gasamount,
-    bool fundseedasset,
-    address seedasset,
-    uint256 seedassetamount
-  ) public initializer {
+  function initializeApplications(
+    address[] memory owners,
+    uint256 _approvalsRequired,
+    bool _requireExecution,
+    uint256 _transactionExpiry,
+    address _accountscontract,
+    bool _newendowgasmoney,
+    uint256 _gasamount,
+    bool _fundseedasset,
+    uint256 _seedsplittoliquid,
+    address _seedasset,
+    uint256 _seedassetamount
+  ) public override initializer {
+    require(owners.length > 0, "Must pass at least one owner address");
+    for (uint256 i = 0; i < owners.length; i++) {
+      require(!isOwner[owners[i]] && owners[i] != address(0));
+      isOwner[owners[i]] = true;
+    }
+    // set Generic Multisig storage variables
+    approvalsRequired = _approvalsRequired;
+    requireExecution = _requireExecution;
+    transactionExpiry = _transactionExpiry;
+    // set Applications Multisig storage items
     proposalCount = 1;
-    transactionExpiry = expiry;
-    config.accountsContract = accountscontract;
-    config.seedSplitToLiquid = seedsplittoliquid;
-    config.newEndowGasMoney = newendowgasmoney;
-    config.gasAmount = gasamount;
-    config.fundSeedAsset = fundseedasset;
-    config.seedAsset = seedasset;
-    config.seedAssetAmount = seedassetamount;
+    config.accountsContract = _accountscontract;
+    config.seedSplitToLiquid = _seedsplittoliquid;
+    config.newEndowGasMoney = _newendowgasmoney;
+    config.gasAmount = _gasamount;
+    config.fundSeedAsset = _fundseedasset;
+    config.seedAsset = _seedasset;
+    config.seedAssetAmount = _seedassetamount;
   }
 
   /**
@@ -193,7 +208,7 @@ contract CharityApplication is MultiSigGeneric, StorageApplications, ICharityApp
   /**
    * @notice update config function which updates config if the supplied input parameter is not null or 0
    * @dev update config function which updates config if the supplied input parameter is not null or 0
-   * @param expiry expiry time for proposals
+   * @param _transactionExpiry expiry time for proposals
    * @param accountscontract address of accounts contract
    * @param seedsplittoliquid percentage of seed asset to be sent to liquid
    * @param newendowgasmoney boolean to check if gas money is to be sent
@@ -203,7 +218,7 @@ contract CharityApplication is MultiSigGeneric, StorageApplications, ICharityApp
    * @param seedassetamount amount of seed asset to be sent
    */
   function updateConfig(
-    uint256 expiry,
+    uint256 _transactionExpiry,
     address accountscontract,
     uint256 seedsplittoliquid,
     bool newendowgasmoney,
@@ -212,7 +227,7 @@ contract CharityApplication is MultiSigGeneric, StorageApplications, ICharityApp
     address seedasset,
     uint256 seedassetamount
   ) public override ownerExists(msg.sender) {
-    transactionExpiry = expiry;
+    transactionExpiry = _transactionExpiry;
     if (accountscontract != address(0)) config.accountsContract = accountscontract;
     if (seedsplittoliquid != 0 && seedsplittoliquid <= 100)
       config.seedSplitToLiquid = seedsplittoliquid;

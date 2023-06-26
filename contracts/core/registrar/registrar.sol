@@ -32,7 +32,6 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
   function initialize(RegistrarMessages.InstantiateRequest memory details) public initializer {
     __LocalRegistrar_init();
     state.config = RegistrarStorage.Config({
-      applicationsReview: msg.sender,
       indexFundContract: address(0),
       accountsContract: address(0),
       treasury: details.treasury,
@@ -43,7 +42,6 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       subdaoDistributorContract: address(0),
       subdaoEmitter: address(0),
       donationMatchContract: address(0),
-      // rebalance: details.rebalance,
       splitToLiquid: details.splitToLiquid,
       haloToken: address(0),
       haloTokenLpContract: address(0),
@@ -52,13 +50,12 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       donationMatchEmitter: address(0),
       collectorShare: 50,
       charitySharesContract: address(0),
-      // acceptedTokens: details.acceptedTokens,
       fundraisingContract: address(0),
       uniswapRouter: address(0),
       uniswapFactory: address(0),
       multisigFactory: address(0),
       multisigEmitter: address(0),
-      charityProposal: address(0),
+      charityApplications: address(0),
       lockedWithdrawal: address(0),
       proxyAdmin: address(0),
       usdcAddress: address(0),
@@ -90,11 +87,6 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
   function updateConfig(
     RegistrarMessages.UpdateConfigRequest memory details
   ) public onlyOwner nonReentrant {
-    // Set applications review
-    if (Validator.addressChecker(details.applicationsReview)) {
-      state.config.applicationsReview = details.applicationsReview;
-    }
-
     if (Validator.addressChecker(details.accountsContract)) {
       state.config.accountsContract = details.accountsContract;
     }
@@ -199,8 +191,8 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       state.config.multisigFactory = details.multisigFactory;
     }
 
-    if (Validator.addressChecker(details.charityProposal)) {
-      state.config.charityProposal = details.charityProposal;
+    if (Validator.addressChecker(details.charityApplications)) {
+      state.config.charityApplications = details.charityApplications;
     }
 
     if (Validator.addressChecker(details.lockedWithdrawal)) {

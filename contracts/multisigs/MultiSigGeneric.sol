@@ -84,6 +84,7 @@ contract MultiSigGeneric is
   /// @param owners List of initial owners.
   /// @param _approvalsRequired Number of required confirmations.
   /// @param _requireExecution setting for if an explicit execution call is required
+  /// @param _transactionExpiry Proposal expiry time in seconds
   function initialize(
     address[] memory owners,
     uint256 _approvalsRequired,

@@ -5,8 +5,6 @@ import {AngelCoreStruct} from "../struct.sol";
 
 library RegistrarStorage {
   struct Config {
-    //Application review multisig
-    address applicationsReview; // Endowment application review team's multisig (set as owner to start). Owner can set and change/revoke.
     address indexFundContract;
     address accountsContract;
     address treasury;
@@ -26,15 +24,13 @@ library RegistrarStorage {
     address govContract; // AP governance contract
     uint256 collectorShare;
     address charitySharesContract;
-    // AngelCoreStruct.AcceptedTokens acceptedTokens; // list of approved native and CW20 coins can accept inward
     //PROTOCOL LEVEL
     address fundraisingContract;
-    // AngelCoreStruct.RebalanceDetails rebalance;
     address uniswapRouter;
     address uniswapFactory;
     address multisigFactory;
     address multisigEmitter;
-    address charityProposal;
+    address charityApplications;
     address lockedWithdrawal;
     address proxyAdmin;
     address usdcAddress;

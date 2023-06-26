@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {AccountMessages} from "../../core/accounts/message.sol";
-import {MultiSigStorage} from "../storage.sol";
+import {AccountMessages} from "../core/accounts/message.sol";
+import {MultiSigStorage} from "./storage.sol";
 
 library ApplicationsStorage {
   enum Status {
