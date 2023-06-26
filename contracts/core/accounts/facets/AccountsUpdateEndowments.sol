@@ -8,15 +8,20 @@ import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {Array} from "../../../lib/array.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
-import {AccountsEvents} from "./AccountsEvents.sol";
+import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
+import {IAccountsUpdateEndowments} from "../interfaces/IAccountsUpdateEndowments.sol";
 
 /**
  * @title AccountsUpdateEndowments
  * @notice This contract facet updates the endowments
  * @dev This contract facet updates the endowments, updates rights are with owner of accounts contracts (AP Team Multisig) and the endowment owner
  */
-contract AccountsUpdateEndowments is ReentrancyGuardFacet, AccountsEvents {
+contract AccountsUpdateEndowments is
+  IAccountsUpdateEndowments,
+  ReentrancyGuardFacet,
+  IAccountsEvents
+{
   /**
     @notice Updates the endowment details.
     @dev This function allows the Endowment owner to update the endowment details like owner & rebalance and allows them or their Delegate(s) to update name, sdgs, logo, and image.

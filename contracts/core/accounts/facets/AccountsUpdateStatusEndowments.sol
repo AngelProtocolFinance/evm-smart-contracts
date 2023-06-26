@@ -8,14 +8,19 @@ import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {IIndexFund} from "../../index-fund/Iindex-fund.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
-import {AccountsEvents} from "./AccountsEvents.sol";
+import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
+import {IAccountsUpdateStatusEndowments} from "../interfaces/IAccountsUpdateStatusEndowments.sol";
 
 /**
  * @title AccountsUpdateStatusEndowments
  * @notice This contract facet updates the endowments status
  * @dev This contract facet updates the endowments status, updates rights are with owner of accounts contracts (AP Team Multisig)
  */
-contract AccountsUpdateStatusEndowments is ReentrancyGuardFacet, AccountsEvents {
+contract AccountsUpdateStatusEndowments is
+  IAccountsUpdateStatusEndowments,
+  ReentrancyGuardFacet,
+  IAccountsEvents
+{
   /**
    * @notice Closes an endowment, setting the endowment state to "closingEndowment" and the closing beneficiary to the provided beneficiary.
    * @param id The ID of the endowment to be closed.

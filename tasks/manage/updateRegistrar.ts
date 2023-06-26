@@ -60,8 +60,6 @@ task(
     );
     logger.out("Submitting 'updateConfig' transaction...");
     const tx = await apTeamMultiSig.submitTransaction(
-      "Update Registrar config",
-      "Update Registrar config from a 'manage:updateRegistrar' task",
       addresses.registrar.proxy,
       0,
       updateConfigData,

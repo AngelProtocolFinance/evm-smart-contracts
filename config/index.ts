@@ -8,10 +8,7 @@ const config: Config = {
   AP_TEAM_MULTISIG_DATA: {
     threshold: 1,
     requireExecution: false,
-  },
-  APPLICATION_MULTISIG_DATA: {
-    threshold: 1,
-    requireExecution: false,
+    transactionExpiry: 100000,
   },
   REGISTRAR_DATA: {
     taxRate: 1,
@@ -31,8 +28,10 @@ const config: Config = {
       defaultSplit: 50,
     },
   },
-  CHARITY_APPLICATION_DATA: {
-    expiry: 0,
+  CHARITY_APPLICATIONS_DATA: {
+    threshold: 1,
+    requireExecution: false,
+    transactionExpiry: 100000,
     seedSplitToLiquid: 0,
     newEndowGasMoney: false,
     gasAmount: 0,

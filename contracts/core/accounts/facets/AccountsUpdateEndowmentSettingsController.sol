@@ -7,16 +7,20 @@ import {AddressArray} from "../../../lib/address/array.sol";
 import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {AngelCoreStruct} from "../../struct.sol";
-import {Array} from "../../../lib/array.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
-import {AccountsEvents} from "./AccountsEvents.sol";
+import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
+import {IAccountsUpdateEndowmentSettingsController} from "../interfaces/IAccountsUpdateEndowmentSettingsController.sol";
 
 /**
  * @title AccountsUpdateEndowmentSettingsController
  * @notice This contract facet is used to manage updates via the endowment settings controller
  * @dev This contract facet is used to manage updates via the endowment settings controller
  */
-contract AccountsUpdateEndowmentSettingsController is ReentrancyGuardFacet, AccountsEvents {
+contract AccountsUpdateEndowmentSettingsController is
+  IAccountsUpdateEndowmentSettingsController,
+  ReentrancyGuardFacet,
+  IAccountsEvents
+{
   /**
     @dev Updates the settings of an endowment.
     @param details Object containing the updated details of the endowment settings.

@@ -6,10 +6,9 @@
     "preinstall": "npx only-allow yarn",
     "format": "prettier --write './{config,contracts,eth-sdk,scripts,tasks,test,utils}/**/*.{ts,js,sol}'",
     "test": "hardhat test",
-    "compile": "set -x && mv ./tasks/index.ts ./tasks/temp_index.ts && touch ./tasks/index.ts && hardhat clean && hardhat compile && mv ./tasks/temp_index.ts ./tasks/index.ts && set +x",
+    "compile": "set -x && mv -n ./tasks/index.ts ./tasks/temp_index.ts && touch ./tasks/index.ts; hardhat clean && hardhat compile && mv ./tasks/temp_index.ts ./tasks/index.ts && set +x",
     "deploy": "hardhat compile && hardhat deploy:AngelProtocol",
-    "sdks": "yarn eth-sdk",
-    "abi": "hardhat export-abi"
+    "sdks": "yarn eth-sdk"
   },
   "engines": {
     "node": "18.x",
@@ -68,7 +67,6 @@
     "@uniswap/v3-core": "github:AngelProtocolFinance/uniswap-v3-core#fullmath-fix",
     "@uniswap/v3-periphery": "^1.4.3",
     "dotenv": "^16.0.3",
-    "hardhat-abi-exporter": "^2.10.1",
     "hardhat-interface-generator": "^0.0.6",
     "keccak256": "^1.0.6",
     "merkletreejs": "^0.3.9",

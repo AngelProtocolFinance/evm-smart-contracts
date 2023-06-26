@@ -34,16 +34,16 @@ export async function deployCharityApplications(
     logger.out("Deploying proxy...");
     const initData = charityApplications.interface.encodeFunctionData("initializeApplications", [
       apTeamMultisigOwners.map((x) => x.address),
-      config.CHARITY_APPLICATION_DATA.threshold,
-      config.CHARITY_APPLICATION_DATA.requireExecution,
-      config.CHARITY_APPLICATION_DATA.transactionExpiry,
+      config.CHARITY_APPLICATIONS_DATA.threshold,
+      config.CHARITY_APPLICATIONS_DATA.requireExecution,
+      config.CHARITY_APPLICATIONS_DATA.transactionExpiry,
       accountsDiamond,
-      config.CHARITY_APPLICATION_DATA.newEndowGasMoney,
-      config.CHARITY_APPLICATION_DATA.gasAmount,
-      config.CHARITY_APPLICATION_DATA.fundSeedAsset,
-      config.CHARITY_APPLICATION_DATA.seedSplitToLiquid,
+      config.CHARITY_APPLICATIONS_DATA.newEndowGasMoney,
+      config.CHARITY_APPLICATIONS_DATA.gasAmount,
+      config.CHARITY_APPLICATIONS_DATA.fundSeedAsset,
+      config.CHARITY_APPLICATIONS_DATA.seedSplitToLiquid,
       seedAsset,
-      config.CHARITY_APPLICATION_DATA.seedAssetAmount,
+      config.CHARITY_APPLICATIONS_DATA.seedAssetAmount,
     ]);
     const proxyFactory = new ProxyContract__factory(proxyAdmin);
     const charityApplicationsProxy = await proxyFactory.deploy(
