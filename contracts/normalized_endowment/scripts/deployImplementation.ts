@@ -99,7 +99,6 @@ const deployDonationMatchCharity = async (
 };
 
 const deploySubDao = async (
-  angelCoreStruct: string,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) => {
@@ -207,7 +206,6 @@ const deployIncentivisedVotingLockup = async (
 };
 
 export async function deployImplementation(
-  angelCoreStruct: string,
   donationMatchCharityData: DonationMatchMessages.InstantiateMessageStruct,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
@@ -231,7 +229,7 @@ export async function deployImplementation(
         implementation: await deployIncentivisedVotingLockup(verify_contracts, hre),
       },
       subDao: {
-        implementation: await deploySubDao(angelCoreStruct, verify_contracts, hre),
+        implementation: await deploySubDao(verify_contracts, hre),
         token: await deploySubDaoERC20(verify_contracts, hre),
         veBondingToken: await deploySubDaoVeBondingToken(verify_contracts, hre),
       },
