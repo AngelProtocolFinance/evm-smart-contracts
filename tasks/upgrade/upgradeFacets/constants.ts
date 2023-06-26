@@ -17,29 +17,25 @@ import {getContractName} from "utils";
 
 export const FACET_NAMES_USING_ANGEL_CORE_STRUCT: string[] = [
   getContractName(
-    new AccountsDepositWithdrawEndowments__factory({
-      "contracts/core/struct.sol:AngelCoreStruct": "",
-    })
+    new AccountsDepositWithdrawEndowments__factory()
   ),
   getContractName(
-    new AccountsAllowance__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
+    new AccountsAllowance__factory()
   ),
   getContractName(
-    new AccountsCreateEndowment__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
+    new AccountsCreateEndowment__factory()
   ),
   getContractName(
-    new AccountsSwapRouter__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
+    new AccountsSwapRouter__factory()
   ),
   getContractName(
-    new AccountsUpdateEndowmentSettingsController__factory({
-      "contracts/core/struct.sol:AngelCoreStruct": "",
-    })
+    new AccountsUpdateEndowmentSettingsController__factory()
   ),
   getContractName(
-    new AccountsUpdateEndowments__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
+    new AccountsUpdateEndowments__factory()
   ),
   getContractName(
-    new AccountsVaultFacet__factory({"contracts/core/struct.sol:AngelCoreStruct": ""})
+    new AccountsVaultFacet__factory()
   ),
 ];
 

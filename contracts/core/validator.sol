@@ -59,4 +59,27 @@ library Validator {
       revert("Invalid fee basis points given. Should be between 0 and 10000.");
     }
   }
+
+  function checkSplits(
+    AngelCoreStruct.SplitDetails memory splits,
+    uint256 userLocked,
+    uint256 userLiquid,
+    bool userOverride
+  ) internal pure returns (uint256, uint256) {
+    // check that the split provided by a user meets the endowment's
+    // requirements for splits (set per Endowment)
+    if (userOverride) {
+      // ignore user splits and use the endowment's default split
+      return (100 - splits.defaultSplit, splits.defaultSplit);
+    } else if (userLiquid > splits.max) {
+      // adjust upper range up within the max split threshold
+      return (splits.max, 100 - splits.max);
+    } else if (userLiquid < splits.min) {
+      // adjust lower range up within the min split threshold
+      return (100 - splits.min, splits.min);
+    } else {
+      // use the user entered split as is
+      return (userLocked, userLiquid);
+    }
+  }
 }

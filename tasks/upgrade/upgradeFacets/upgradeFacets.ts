@@ -8,7 +8,6 @@ import deployFacets from "./deployFacets";
 
 type TaskArgs = {
   accountsDiamond?: string;
-  angelCoreStruct?: string;
   facets: string[];
   verify: boolean;
   yes: boolean;
@@ -19,10 +18,7 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
     "accountsDiamond",
     "Accounts Diamond contract address. Will do a local lookup from contract-address.json if none is provided."
   )
-  .addOptionalParam(
-    "angelCoreStruct",
-    "AngelCoreStruct library address. Will do a local lookup from contract-address.json if none is provided."
-  )
+
   .addVariadicPositionalParam(
     "facets",
     "List of facets to upgrade. If set to 'all', will upgrade all facets."
@@ -54,9 +50,8 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
       const addresses = await getAddresses(hre);
 
       const accountsDiamond = taskArgs.accountsDiamond || addresses.accounts.diamond;
-      const angelCoreStruct = taskArgs.angelCoreStruct || addresses.libraries.angelCoreStruct;
 
-      const facets = await deployFacets(facetsToUpgrade, proxyAdmin, angelCoreStruct, hre);
+      const facets = await deployFacets(facetsToUpgrade, proxyAdmin, hre);
 
       const facetCuts = await createFacetCuts(facets, accountsDiamond, proxyAdmin);
 

@@ -6,6 +6,7 @@ import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {AccountStorage} from "../storage.sol";
 import {AngelCoreStruct} from "../../struct.sol";
+import {Validator} from "../../validator.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -124,7 +125,7 @@ contract AccountsDepositWithdrawEndowments is
     if (msg.sender != registrar_config.indexFundContract) {
       if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Charity) {
         // use the Registrar default split for Charities
-        (lockedSplitPercent, liquidSplitPercent) = _checkSplits(
+        (lockedSplitPercent, liquidSplitPercent) = Validator.checkSplits(
           registrar_split_configs,
           lockedSplitPercent,
           liquidSplitPercent,
@@ -132,7 +133,7 @@ contract AccountsDepositWithdrawEndowments is
         );
       } else {
         // use the Endowment's SplitDetails for ASTs
-        (lockedSplitPercent, liquidSplitPercent) = _checkSplits(
+        (lockedSplitPercent, liquidSplitPercent) = Validator.checkSplits(
           tempEndowment.splitToLiquid,
           lockedSplitPercent,
           liquidSplitPercent,
@@ -353,29 +354,6 @@ contract AccountsDepositWithdrawEndowments is
       } else {
         state.STATES[id].balances.liquid[tokens[t].addr] -= tokens[t].amnt;
       }
-    }
-  }
-  
-  function _checkSplits(
-    AngelCoreStruct.SplitDetails memory splits,
-    uint256 userLocked,
-    uint256 userLiquid,
-    bool userOverride
-  ) internal pure returns (uint256, uint256) {
-    // check that the split provided by a user meets the endowment's
-    // requirements for splits (set per Endowment)
-    if (userOverride) {
-      // ignore user splits and use the endowment's default split
-      return (100 - splits.defaultSplit, splits.defaultSplit);
-    } else if (userLiquid > splits.max) {
-      // adjust upper range up within the max split threshold
-      return (splits.max, 100 - splits.max);
-    } else if (userLiquid < splits.min) {
-      // adjust lower range up within the min split threshold
-      return (100 - splits.min, splits.min);
-    } else {
-      // use the user entered split as is
-      return (userLocked, userLiquid);
     }
   }
 }
