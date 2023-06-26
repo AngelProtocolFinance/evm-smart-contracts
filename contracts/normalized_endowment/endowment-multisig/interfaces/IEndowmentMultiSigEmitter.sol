@@ -18,7 +18,7 @@ interface IEndowmentMultiSigEmitter {
 
   function removeOwnersEndowment(uint256 endowmentId, address[] memory owners) external;
 
-  function replaceOwnerEndowment(uint256 endowmentId, address owner) external;
+  function replaceOwnerEndowment(uint256 endowmentId, address currOwner, address newOwner) external;
 
   function approvalsRequirementChangeEndowment(
     uint256 endowmentId,

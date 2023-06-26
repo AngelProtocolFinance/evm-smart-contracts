@@ -64,7 +64,11 @@ contract EndowmentMultiSig is MultiSigGeneric {
    */
   function replaceOwner(address currOwner, address newOwner) public override {
     super.replaceOwner(currOwner, newOwner);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).replaceOwnerEndowment(ENDOWMENT_ID, newOwner);
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).replaceOwnerEndowment(
+      ENDOWMENT_ID,
+      currOwner,
+      newOwner
+    );
   }
 
   /**
