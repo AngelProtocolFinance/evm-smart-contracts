@@ -94,7 +94,6 @@ task(
 
       if (taskArgs.acceptedTokens.length > 0) {
         logger.divider();
-
         logger.out("Updating accepted tokens...");
         for (let i = 0; i < taskArgs.acceptedTokens.length; i++) {
           try {
