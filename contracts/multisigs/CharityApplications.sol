@@ -21,27 +21,43 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
   /*
    * Modifiers
    */
-  
+
+  modifier proposalExists(uint256 proposalId) {
+    require(proposals[proposalId].proposer != address(0), "Proposal dne");
+    _;
+  }
+
   // Check if proposal is not expired
   modifier proposalNotExpired(uint256 proposalId) {
     require(proposals[proposalId].expiry > block.timestamp, "Proposal is expired");
     _;
   }
 
-  // Check if proposal is pending
-  modifier proposalIsPending(uint256 proposalId) {
+  modifier proposalConfirmed(uint256 proposalId, address _owner) {
     require(
-      proposals[proposalId].status == ApplicationsStorage.Status.Pending,
-      "Proposal is not pending"
+      proposalConfirmations[proposalId].confirmationsByOwner[_owner],
+      "Proposal is confirmed"
     );
     _;
   }
 
-  // Check if proposal is approved
-  modifier proposalIsApproved(uint256 proposalId) {
+  modifier proposalNotConfirmed(uint256 proposalId, address _owner) {
     require(
-      proposals[proposalId].status == ApplicationsStorage.Status.Approved,
-      "Proposal is not approved"
+      !proposalConfirmations[proposalId].confirmationsByOwner[_owner],
+      "Proposal is not confirmed"
+    );
+    _;
+  }
+
+  modifier proposalNotExecuted(uint256 proposalId) {
+    require(!proposals[proposalId].executed, "Proposal is executed");
+    _;
+  }
+
+  modifier proposalApprovalsThresholdMet(uint256 proposalId) {
+    require(
+      proposalConfirmations[proposalId].count >= approvalsRequired,
+      "Not enough confirmations to execute"
     );
     _;
   }
@@ -60,45 +76,31 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
    * @param _approvalsRequired Number of required confirmations.
    * @param _requireExecution setting for if an explicit execution call is required
    * @param _transactionExpiry Proposal expiry time in seconds
-   * @param _accountscontract Accounts contract address
-   * @param _newendowgasmoney New endow gas money
-   * @param _gasamount Gas amount
-   * @param _fundseedasset Fund seed asset
-   * @param _seedsplittoliquid Seed split to liquid
-   * @param _seedasset Seed asset
-   * @param _seedassetamount Seed asset amount
+   * @param _accountsContract Accounts contract address
+   * @param _gasAmount Gas amount
+   * @param _seedSplitToLiquid Seed split to liquid
+   * @param _seedAsset Seed asset
+   * @param _seedAmount Seed asset amount
    */
   function initializeApplications(
     address[] memory owners,
     uint256 _approvalsRequired,
     bool _requireExecution,
     uint256 _transactionExpiry,
-    address _accountscontract,
-    bool _newendowgasmoney,
-    uint256 _gasamount,
-    bool _fundseedasset,
-    uint256 _seedsplittoliquid,
-    address _seedasset,
-    uint256 _seedassetamount
+    address _accountsContract,
+    uint256 _gasAmount,
+    uint256 _seedSplitToLiquid,
+    address _seedAsset,
+    uint256 _seedAmount
   ) public override initializer {
-    require(owners.length > 0, "Must pass at least one owner address");
-    for (uint256 i = 0; i < owners.length; i++) {
-      require(!isOwner[owners[i]] && owners[i] != address(0));
-      isOwner[owners[i]] = true;
-    }
-    // set Generic Multisig storage variables
-    approvalsRequired = _approvalsRequired;
-    requireExecution = _requireExecution;
-    transactionExpiry = _transactionExpiry;
+    super.initialize(owners, _approvalsRequired, _requireExecution, _transactionExpiry);
     // set Applications Multisig storage items
     proposalCount = 1;
-    config.accountsContract = _accountscontract;
-    config.seedSplitToLiquid = _seedsplittoliquid;
-    config.newEndowGasMoney = _newendowgasmoney;
-    config.gasAmount = _gasamount;
-    config.fundSeedAsset = _fundseedasset;
-    config.seedAsset = _seedasset;
-    config.seedAssetAmount = _seedassetamount;
+    config.accountsContract = _accountsContract;
+    config.seedSplitToLiquid = _seedSplitToLiquid;
+    config.gasAmount = _gasAmount;
+    config.seedAsset = _seedAsset;
+    config.seedAmount = _seedAmount;
   }
 
   /**
@@ -112,7 +114,10 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
     string memory _meta
   ) public override {
     require(proposals[proposalCount].proposer == address(0), "Proposal already exists");
-    require(_application.endowType == AngelCoreStruct.EndowmentType.Charity, "Unauthorized");
+    require(
+      _application.endowType == AngelCoreStruct.EndowmentType.Charity,
+      "Only Charity endowments can be proposed"
+    );
     require(_application.sdgs.length > 0, "No UN SDGs given");
 
     // check all sdgs id
@@ -130,61 +135,91 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
       application: _application,
       meta: _meta,
       expiry: block.timestamp + transactionExpiry,
-      status: ApplicationsStorage.Status.Pending
+      executed: false
     });
 
-    emit ApplicationProposed(msg.sender, proposalCount, _meta);
+    emit ApplicationProposed(proposalCount);
     proposalCount++;
   }
 
   /// @dev Allows an owner to confirm a proposal.
   /// @param proposalId Proposal ID.
-  function confirmProposal(uint256 proposalId) public override ownerExists(msg.sender) proposalNotExpired(proposalId) {
-    
+  function confirmProposal(
+    uint256 proposalId
+  )
+    public
+    override
+    ownerExists(msg.sender)
+    proposalExists(proposalId)
+    proposalNotConfirmed(proposalId, msg.sender)
+    proposalNotExpired(proposalId)
+    proposalNotExecuted(proposalId)
+  {
+    proposalConfirmations[proposalId].confirmationsByOwner[msg.sender] = true;
+    proposalConfirmations[proposalId].count += 1;
+    emit ApplicationConfirmed(proposalId, msg.sender);
   }
 
   /// @dev Allows an owner to revoke a confirmation for a proposal.
   /// @param proposalId Proposal ID.
-  function revokeProposalConfirmation(uint256 proposalId) public override ownerExists(msg.sender) proposalNotExpired(proposalId) {
-
+  function revokeProposalConfirmation(
+    uint256 proposalId
+  )
+    public
+    override
+    ownerExists(msg.sender)
+    proposalExists(proposalId)
+    proposalConfirmed(proposalId, msg.sender)
+    proposalNotExpired(proposalId)
+    proposalNotExecuted(proposalId)
+  {
+    proposalConfirmations[proposalId].confirmationsByOwner[msg.sender] = false;
+    proposalConfirmations[proposalId].count -= 1;
+    emit ApplicationConfirmationRevoked(proposalId, msg.sender);
   }
 
   /**
-   * @notice function called by AP Team to approve a charity application
-   * @dev function called by AP Team to approve a charity application
-   * @param proposalId id of the proposal to be approved
+   * @notice function called by Applications Review Team to execute an approved charity application
+   * @dev function called by Applications Review Team to execute an approved charity application
+   * @param proposalId id of the proposal to be executed
    */
   function executeProposal(
     uint256 proposalId
   )
-    public override
+    public
+    override
     ownerExists(msg.sender)
-    proposalIsApproved(proposalId)
-    nonReentrant 
-    returns (uint32) {
+    proposalApprovalsThresholdMet(proposalId)
+    proposalNotExecuted(proposalId)
+    proposalNotExpired(proposalId)
+    nonReentrant
+    returns (uint32)
+  {
+    // create the new endowment with proposal's applicaiton
     uint32 endowmentId = IAccountsCreateEndowment(config.accountsContract).createEndowment(
       proposals[proposalId].application
     );
 
-    if (config.newEndowGasMoney) {
+    if (config.gasAmount > 0) {
       // get the first member of the new endowment
       address payable signer = payable(proposals[proposalId].application.members[0]);
       require(signer != address(0), "Endowment Member not set");
 
-      // check ethereum balance on this contract
+      // check matic balance on this contract
       if (address(this).balance >= config.gasAmount) {
         // transfer matic to them and emit gas fee payment event
-        (bool success, ) = signer.call{value: config.gasAmount}("Failed gas payment");
-        if (success) emit GasSent(endowmentId, signer, config.gasAmount);
+        (bool success, ) = signer.call{value: config.gasAmount}("");
+        require(success, "Failed gas payment");
+        emit GasSent(endowmentId, signer, config.gasAmount);
       }
     }
 
-    if (config.fundSeedAsset) {
+    if (config.seedAmount > 0) {
       // check seed asset balance
-      if (IERC20(config.seedAsset).balanceOf(address(this)) >= config.seedAssetAmount) {
-        // call deposit on Accounts for the new Endowment ID 
+      if (IERC20(config.seedAsset).balanceOf(address(this)) >= config.seedAmount) {
+        // call deposit on Accounts for the new Endowment ID
         require(
-          IERC20(config.seedAsset).approve(config.accountsContract, config.seedAssetAmount),
+          IERC20(config.seedAsset).approve(config.accountsContract, config.seedAmount),
           "Approve failed"
         );
 
@@ -195,12 +230,16 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
             liquidPercentage: config.seedSplitToLiquid
           }),
           config.seedAsset,
-          config.seedAssetAmount
+          config.seedAmount
         );
         // emit seed asset event
-        emit SeedAssetSent(endowmentId, config.seedAsset, config.seedAssetAmount);
+        emit SeedAssetSent(endowmentId, config.seedAsset, config.seedAmount);
       }
     }
+    // mark the proposal as executed
+    proposals[proposalId].executed = true;
+    emit ApplicationExecuted(proposalId);
+
     return endowmentId;
   }
 
@@ -209,34 +248,32 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
    * @notice update config function which updates config if the supplied input parameter is not null or 0
    * @dev update config function which updates config if the supplied input parameter is not null or 0
    * @param _transactionExpiry expiry time for proposals
-   * @param accountscontract address of accounts contract
-   * @param seedsplittoliquid percentage of seed asset to be sent to liquid
-   * @param newendowgasmoney boolean to check if gas money is to be sent
-   * @param gasamount amount of gas to be sent
-   * @param fundseedasset boolean to check if seed asset is to be sent
-   * @param seedasset address of seed asset
-   * @param seedassetamount amount of seed asset to be sent
+   * @param accountsContract address of accounts contract
+   * @param seedSplitToLiquid percentage of seed asset to be sent to liquid
+   * @param gasAmount amount of gas to be sent
+   * @param seedAsset address of seed asset
+   * @param seedAmount amount of seed asset to be sent
    */
   function updateConfig(
     uint256 _transactionExpiry,
-    address accountscontract,
-    uint256 seedsplittoliquid,
-    bool newendowgasmoney,
-    uint256 gasamount,
-    bool fundseedasset,
-    address seedasset,
-    uint256 seedassetamount
+    address accountsContract,
+    uint256 seedSplitToLiquid,
+    uint256 gasAmount,
+    address seedAsset,
+    uint256 seedAmount
   ) public override ownerExists(msg.sender) {
+    require(seedAsset != address(0), "Seed Asset is not a valid address");
+    require(accountsContract != address(0), "Accounts Contract is not a valid address");
+    require(
+      seedSplitToLiquid >= 0 && seedSplitToLiquid <= 100,
+      "Seed split to liquid must be between 0 & 100"
+    );
     transactionExpiry = _transactionExpiry;
-    if (accountscontract != address(0)) config.accountsContract = accountscontract;
-    if (seedsplittoliquid != 0 && seedsplittoliquid <= 100)
-      config.seedSplitToLiquid = seedsplittoliquid;
-    if (newendowgasmoney || (newendowgasmoney == false && config.newEndowGasMoney == true))
-      config.newEndowGasMoney = newendowgasmoney;
-    if (gasamount != 0) config.gasAmount = gasamount;
-    if (fundseedasset) config.fundSeedAsset = fundseedasset;
-    if (seedasset != address(0)) config.seedAsset = seedasset;
-    if (seedassetamount != 0) config.seedAssetAmount = seedassetamount;
+    config.accountsContract = accountsContract;
+    config.seedSplitToLiquid = seedSplitToLiquid;
+    config.gasAmount = gasAmount;
+    config.seedAsset = seedAsset;
+    config.seedAmount = seedAmount;
   }
 
   function queryConfig() public view override returns (ApplicationsStorage.Config memory) {

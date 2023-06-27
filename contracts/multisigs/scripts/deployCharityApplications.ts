@@ -38,12 +38,10 @@ export async function deployCharityApplications(
       config.CHARITY_APPLICATIONS_DATA.requireExecution,
       config.CHARITY_APPLICATIONS_DATA.transactionExpiry,
       accountsDiamond,
-      config.CHARITY_APPLICATIONS_DATA.newEndowGasMoney,
       config.CHARITY_APPLICATIONS_DATA.gasAmount,
-      config.CHARITY_APPLICATIONS_DATA.fundSeedAsset,
       config.CHARITY_APPLICATIONS_DATA.seedSplitToLiquid,
       seedAsset,
-      config.CHARITY_APPLICATIONS_DATA.seedAssetAmount,
+      config.CHARITY_APPLICATIONS_DATA.seedAmount,
     ]);
     const proxyFactory = new ProxyContract__factory(proxyAdmin);
     const charityApplicationsProxy = await proxyFactory.deploy(

@@ -33,10 +33,8 @@ const config: Config = {
     requireExecution: false,
     transactionExpiry: 100000,
     seedSplitToLiquid: 0,
-    newEndowGasMoney: false,
     gasAmount: 0,
-    fundSeedAsset: false,
-    seedAssetAmount: 100,
+    seedAmount: 100,
   },
   DONATION_MATCH_CHARITY_DATA: {
     poolFee: 300,

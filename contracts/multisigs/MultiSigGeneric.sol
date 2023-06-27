@@ -43,7 +43,10 @@ contract MultiSigGeneric is
   }
 
   modifier notConfirmed(uint256 transactionId, address _owner) {
-    require(!confirmations[transactionId].confirmationsByOwner[_owner], "Transaction is not confirmed");
+    require(
+      !confirmations[transactionId].confirmationsByOwner[_owner],
+      "Transaction is not confirmed"
+    );
     _;
   }
 
@@ -54,6 +57,14 @@ contract MultiSigGeneric is
 
   modifier notExpired(uint256 transactionId) {
     require(transactions[transactionId].expiry > block.timestamp, "Transaction is expired");
+    _;
+  }
+
+  modifier approvalsThresholdMet(uint256 transactionId) {
+    require(
+      confirmations[transactionId].count >= approvalsRequired,
+      "Not enough confirmations to execute"
+    );
     _;
   }
 
@@ -267,17 +278,14 @@ contract MultiSigGeneric is
     public
     virtual
     override
-    ownerExists(msg.sender)
-    confirmed(transactionId, msg.sender)
+    approvalsThresholdMet(transactionId)
     notExecuted(transactionId)
     notExpired(transactionId)
   {
-    if (isConfirmed(transactionId)) {
-      MultiSigStorage.Transaction storage txn = transactions[transactionId];
-      txn.executed = true;
-      Utils._execute(txn.destination, txn.value, txn.data);
-      emit Execution(transactionId);
-    }
+    MultiSigStorage.Transaction storage txn = transactions[transactionId];
+    txn.executed = true;
+    Utils._execute(txn.destination, txn.value, txn.data);
+    emit Execution(transactionId);
   }
 
   /// @dev Returns the confirmation status of a transaction.
