@@ -94,15 +94,13 @@ task(
 
       if (taskArgs.acceptedTokens.length > 0) {
         logger.divider();
+
         logger.out("Updating accepted tokens...");
         for (let i = 0; i < taskArgs.acceptedTokens.length; i++) {
           try {
-            const token = taskArgs.acceptedTokens[i];
-            const isAccepted = taskArgs.acceptanceStates.at(i) ?? true;
-            logger.out(`Updating token at address "${token}" to state "${isAccepted}...`);
-            const tx2 = await registrar.setTokenAccepted(token, isAccepted);
-            logger.out(`Tx hash: ${tx2.hash}`);
-            await tx2.wait();
+            const tokenAddress = taskArgs.acceptedTokens[i];
+            const acceptanceState = taskArgs.acceptanceStates.at(i) ?? true;
+            await hre.run("manage:registrar:setTokenAccepted", {tokenAddress, acceptanceState});
           } catch (error) {
             logger.out(error, logger.Level.Error);
           }
