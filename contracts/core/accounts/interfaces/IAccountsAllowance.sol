@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {AngelCoreStruct} from "../../struct.sol";
-
 /**
  * @title AccountsAllowance
  * @dev This contract manages the allowances for accounts
