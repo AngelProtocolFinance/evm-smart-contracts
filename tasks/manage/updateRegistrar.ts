@@ -1,7 +1,7 @@
 import config from "config";
 import {task} from "hardhat/config";
-import {updateRegistrarConfig} from "tasks/helpers";
 import {cliTypes} from "tasks/types";
+import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 import {ADDRESS_ZERO, getAddresses, getSigners, logger} from "utils";
 
@@ -23,12 +23,18 @@ task(
   )
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      const {proxyAdmin, apTeam1, treasury} = await getSigners(hre);
+      const {deployer, proxyAdmin, apTeam1, treasury, apTeamMultisigOwners} = await getSigners(hre);
 
       const addresses = await getAddresses(hre);
 
-      // update config
-      const newConfig: RegistrarMessages.UpdateConfigRequestStruct = {
+      const registrar = Registrar__factory.connect(addresses.registrar.proxy, deployer);
+
+      logger.out("Current config");
+      let currentConfig = await registrar.queryConfig();
+      logger.out(JSON.stringify(currentConfig, undefined, 2));
+
+      logger.out("Setting up data...");
+      let newConfig: RegistrarMessages.UpdateConfigRequestStruct = {
         accountsContract: addresses.accounts.diamond,
         approved_charities: [],
         splitMax: config.REGISTRAR_DATA.splitToLiquid.max,
@@ -66,14 +72,26 @@ task(
         cw900lvAddress: apTeam1.address,
         lockedWithdrawal: ADDRESS_ZERO,
       };
-      await updateRegistrarConfig(
-        addresses.registrar.proxy,
-        addresses.multiSig.apTeam.proxy,
-        newConfig,
-        hre
-      );
+      const updateConfigData = registrar.interface.encodeFunctionData("updateConfig", [newConfig]);
 
-      // update accepted tokens
+      const apTeamMultiSig = APTeamMultiSig__factory.connect(
+        addresses.multiSig.apTeam.proxy,
+        apTeamMultisigOwners[0]
+      );
+      logger.out("Submitting 'updateConfig' transaction...");
+      const tx = await apTeamMultiSig.submitTransaction(
+        addresses.registrar.proxy,
+        0,
+        updateConfigData,
+        "0x"
+      );
+      logger.out(`Tx hash: ${tx.hash}`);
+      await tx.wait();
+
+      let updatedConfig = await registrar.queryConfig();
+      logger.out("New config:");
+      logger.out(JSON.stringify(updatedConfig, undefined, 2));
+
       if (taskArgs.acceptedTokens.length > 0) {
         logger.divider();
 
