@@ -27,7 +27,10 @@ interface IEndowmentMultiSigEmitter {
 
   function requireExecutionChangeEndowment(uint256 endowmentId, bool requireExecution) external;
 
-  function transactionExpiryChangeEndowment(uint256 endowmentId, uint256 transactionExpiry) external;
+  function transactionExpiryChangeEndowment(
+    uint256 endowmentId,
+    uint256 transactionExpiry
+  ) external;
 
   function createMultisig(
     address multisigAddress,

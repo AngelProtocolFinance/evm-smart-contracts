@@ -71,7 +71,7 @@ contract MultiSigWalletFactory is Factory, Ownable {
     PROXY_ADMIN = proxyAdmin;
   }
 
-  /** @dev Create a new multisig wallet for an endowment 
+  /** @dev Create a new multisig wallet for an endowment
    * @param endowmentId the endowment id
    * @param emitterAddress the emitter of the multisig
    * @param owners the owners of the multisig

@@ -93,12 +93,7 @@ export async function updateRegistrarConfig(
       apTeamMultisig,
       apTeamMultisigOwners[0]
     );
-    const tx = await apTeamMultisigContract.submitTransaction(
-      registrar,
-      0,
-      updateConfigData,
-      "0x"
-    );
+    const tx = await apTeamMultisigContract.submitTransaction(registrar, 0, updateConfigData, "0x");
     logger.out(`Tx hash: ${tx.hash}`);
     await tx.wait();
 

@@ -18,7 +18,6 @@ library RegistrarMessages {
     uint256 splitMin;
     uint256 splitDefault;
     uint256 collectorShare;
-
     // CONTRACT ADDRESSES
     address indexFundContract;
     address govContract;

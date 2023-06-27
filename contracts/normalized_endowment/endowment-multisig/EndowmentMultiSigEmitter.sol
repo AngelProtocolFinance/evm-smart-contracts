@@ -70,7 +70,15 @@ contract EndowmentMultiSigEmitter {
     uint256 transactionExpiry
   ) public isOwner {
     isMultisig[multisigAddress] = true;
-    emit MultisigCreated(multisigAddress, endowmentId, emitter, owners, required, requireExecution, transactionExpiry);
+    emit MultisigCreated(
+      multisigAddress,
+      endowmentId,
+      emitter,
+      owners,
+      required,
+      requireExecution,
+      transactionExpiry
+    );
   }
 
   /**
