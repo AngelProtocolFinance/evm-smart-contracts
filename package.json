@@ -79,5 +79,6 @@
   "main": "hardhat.config.ts",
   "directories": {
     "test": "test"
-  }
+  },
+  "packageManager": "yarn@3.6.0"
 }
