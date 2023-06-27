@@ -49,14 +49,6 @@ library AngelCoreStruct {
     uint256 defaultSplit; // for when a user splits are not used
   }  
 
-  ///TODO: need to check this and have a look at this
-  enum VaultType {
-    Native, // Juno native Vault contract
-    Ibc, // the address of the Vault contract on it's Cosmos(non-Juno) chain
-    Evm, // the address of the Vault contract on it's EVM chain
-    None
-  }
-
   enum veTypeEnum {
     Constant,
     Linear,
