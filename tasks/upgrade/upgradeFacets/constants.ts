@@ -15,32 +15,14 @@ import {
 } from "typechain-types";
 import {getContractName} from "utils";
 
-export const FACET_NAMES_USING_ANGEL_CORE_STRUCT: string[] = [
-  getContractName(
-    new AccountsDepositWithdrawEndowments__factory()
-  ),
-  getContractName(
-    new AccountsAllowance__factory()
-  ),
-  getContractName(
-    new AccountsCreateEndowment__factory()
-  ),
-  getContractName(
-    new AccountsSwapRouter__factory()
-  ),
-  getContractName(
-    new AccountsUpdateEndowmentSettingsController__factory()
-  ),
-  getContractName(
-    new AccountsUpdateEndowments__factory()
-  ),
-  getContractName(
-    new AccountsVaultFacet__factory()
-  ),
-];
-
 export const ALL_FACET_NAMES: string[] = [
-  ...FACET_NAMES_USING_ANGEL_CORE_STRUCT,
+  getContractName(new AccountsDepositWithdrawEndowments__factory()),
+  getContractName(new AccountsAllowance__factory()),
+  getContractName(new AccountsCreateEndowment__factory()),
+  getContractName(new AccountsSwapRouter__factory()),
+  getContractName(new AccountsUpdateEndowmentSettingsController__factory()),
+  getContractName(new AccountsUpdateEndowments__factory()),
+  getContractName(new AccountsVaultFacet__factory()),
   getContractName(new AccountsDeployContract__factory()),
   getContractName(new AccountsDonationMatch__factory()),
   getContractName(new AccountsDaoEndowments__factory()),

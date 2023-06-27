@@ -3,8 +3,8 @@ pragma solidity ^0.8.16;
 import {AngelCoreStruct} from "./struct.sol";
 
 library Validator {
-  function addressChecker(address addr1) internal pure returns (bool) {
-    if (addr1 == address(0)) {
+  function addressChecker(address addr) internal pure returns (bool) {
+    if (addr == address(0)) {
       return false;
     }
     return true;
