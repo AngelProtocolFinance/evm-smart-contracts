@@ -16,9 +16,9 @@ import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20
  * The `Airdrop` contract manages the airdrop process of a token.
  */
 contract Airdrop is Storage, Initializable, ReentrancyGuard {
-  event AirdropUpdateConfig(address owner);
-  event AirdropRegisterMerkleRoot(uint256 stage, bytes32 merkleRoot);
-  event AirdropClaim(uint256 stage, address sender, uint256 amount);
+  event ConfigUpdated();
+  event MerkleRootRegistered(uint256 stage, bytes32 merkleRoot);
+  event AirdropClaimed(uint256 stage, address sender, uint256 amount);
   event AirdropInitialized(address owner, address haloToken);
 
   /**
@@ -39,7 +39,7 @@ contract Airdrop is Storage, Initializable, ReentrancyGuard {
     require(state.config.owner == msg.sender, "only owner can update config");
     require(owner != address(0), "Invalid address");
     state.config.owner = owner;
-    emit AirdropUpdateConfig(owner);
+    emit ConfigUpdated();
   }
 
   /**
@@ -50,7 +50,7 @@ contract Airdrop is Storage, Initializable, ReentrancyGuard {
     require(state.config.owner == msg.sender, "only owner can register merkle root");
     state.MerkleRoots[state.latestStage] = merkleRoot;
     state.latestStage += 1;
-    emit AirdropRegisterMerkleRoot(state.latestStage - 1, merkleRoot);
+    emit MerkleRootRegistered(state.latestStage - 1, merkleRoot);
   }
 
   /**
@@ -75,7 +75,7 @@ contract Airdrop is Storage, Initializable, ReentrancyGuard {
       IERC20Upgradeable(state.config.haloToken).transfer(msg.sender, amount),
       "Transfer failed."
     );
-    emit AirdropClaim(state.latestStage, msg.sender, amount);
+    emit AirdropClaimed(state.latestStage, msg.sender, amount);
   }
 
   /**

@@ -28,7 +28,7 @@ contract AccountsUpdate is ReentrancyGuardFacet, IAccountsEvents, IAccountsUpdat
 
     state.config.owner = newOwner;
 
-    emit UpdateConfig();
+    emit OwnerUpdated(newOwner);
   }
 
   /**
@@ -51,6 +51,6 @@ contract AccountsUpdate is ReentrancyGuardFacet, IAccountsEvents, IAccountsUpdat
     state.config.maxGeneralCategoryId = maxGeneralCategoryId;
     state.config.earlyLockedWithdrawFee = earlyLockedWithdrawFee;
 
-    emit UpdateConfig();
+    emit ConfigUpdated();
   }
 }

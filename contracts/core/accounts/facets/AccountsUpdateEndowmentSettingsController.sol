@@ -32,7 +32,7 @@ contract AccountsUpdateEndowmentSettingsController is
     @param details.splitToLiquid The updated split to liquid ratio.
     @param details.ignoreUserSplits Whether or not to ignore user splits.
     Emits a EndowmentSettingUpdated event for each setting that has been updated.
-    Emits an UpdateEndowment event after the endowment has been updated.
+    Emits an EndowmentUpdated event after the endowment has been updated.
     Throws an error if the endowment is closing.
     */
   function updateEndowmentSettings(
@@ -65,6 +65,8 @@ contract AccountsUpdateEndowmentSettingsController is
           )
         ) {
           tempEndowment.allowlistedBeneficiaries = details.allowlistedBeneficiaries;
+          // IS EMITTING THIS EVENT FOR EACH UPDATED FIELD A GENERAL PRACTICE?
+          // I SEE THE BENEFIT, JUST NOT SURE ABOUT GAS EFFICIENCY AND USEFULNESS
           emit EndowmentSettingUpdated(details.id, "allowlistedBeneficiaries");
         }
 
@@ -135,7 +137,7 @@ contract AccountsUpdateEndowmentSettingsController is
       emit EndowmentSettingUpdated(details.id, "ignoreUserSplits");
     }
     state.ENDOWMENTS[details.id] = tempEndowment;
-    emit UpdateEndowment(details.id);
+    emit EndowmentUpdated(details.id);
   }
 
   /**
@@ -327,14 +329,14 @@ contract AccountsUpdateEndowmentSettingsController is
     }
     state.ENDOWMENTS[details.id] = tempEndowment;
     emit EndowmentSettingUpdated(details.id, "endowmentController");
-    emit UpdateEndowment(details.id);
+    emit EndowmentUpdated(details.id);
   }
 
   /**
     @notice Allows the owner or DAO to update the fees for a given endowment.
     @dev Only the fees that the caller is authorized to update will be updated.
     @param details The details of the fee update request, including the endowment ID, new fees, and the caller's signature.
-    @dev Emits an UpdateEndowment event containing the updated endowment details.
+    @dev Emits an EndowmentUpdated event containing the updated endowment details.
     @dev Reverts if the endowment is of type Charity, as charity endowments may not change fees.
     */
   function updateFeeSettings(
@@ -398,6 +400,6 @@ contract AccountsUpdateEndowmentSettingsController is
     }
 
     state.ENDOWMENTS[details.id] = tempEndowment;
-    emit UpdateEndowment(details.id);
+    emit EndowmentUpdated(details.id);
   }
 }

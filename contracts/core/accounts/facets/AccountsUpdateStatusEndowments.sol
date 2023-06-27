@@ -26,7 +26,7 @@ contract AccountsUpdateStatusEndowments is
    * @param id The ID of the endowment to be closed.
    * @param beneficiary The beneficiary that will receive any remaining funds in the endowment.
    * @dev The function will revert if a redemption is rently in progress.
-   * @dev Emits an `UpdateEndowmentState` event with the updated state of the endowment.
+   * @dev Emits an `EndowmentStateUpdated` event with the updated state of the endowment.
    */
   function closeEndowment(
     uint32 id,
@@ -81,8 +81,8 @@ contract AccountsUpdateStatusEndowments is
 
     require(checkFullyExited(uint32(id)), "Not fully exited");
     state.ENDOWMENTS[id] = tempEndowment;
-    emit UpdateEndowment(id);
-    // emit UpdateEndowmentState(id, state.STATES[id]);
+    emit EndowmentUpdated(id);
+    // emit EndowmentStateUpdated(id);
   }
 
   function checkFullyExited(uint32 id) internal view returns (bool) {

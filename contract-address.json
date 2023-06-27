@@ -156,25 +156,25 @@
   },
   "80001": {
     "accounts": {
-      "diamond": "0x8657f7a1512905FCabF6053c187881Fd4264117b",
+      "diamond": "0x04227A153068bA4d19Ed3fA16b9f6Feede52fFf4",
       "facets": {
-        "accountsDeployContract": "0x45648548055c144dA296c2d3A59C728c8dEE8F76",
-        "accountsDepositWithdrawEndowments": "0xF97d1780a1E831a15ED7e4B85f33BA65C5ca90DB",
-        "accountsDonationMatch": "0x1F5138e5c700622Cb1f62FbDB0404206B46df81E",
-        "accountsAllowance": "0x0047BbA1FdDC23b80d90B5D0D599Ea9cc203cF23",
-        "accountsCreateEndowment": "0xAD64c502cE25EC2f4b0AF5f3c4e8241AE4bA1F31",
-        "accountsDaoEndowments": "0x448413D671ce2c8E0261FcDB03818E468BF8bB10",
-        "accountsQueryEndowments": "0x3AC210FF4A2c55ab979a9aB2B59596fC127Bda1f",
-        "accountsSwapRouter": "0x62B8eD6D2fF84aC2b7aF96dDFFacC707cC565A66",
-        "accountsUpdate": "0x1eb0d8ebB0093AC743338a7DD3e2BC65f3b3788a",
-        "accountsUpdateEndowments": "0xE61022c3C08a9f428e54dAd0a1dE76e10e3220B5",
-        "accountsUpdateEndowmentSettingsController": "0xA471433ad9910417aC900eA5b9f68Cd6b9F1fe39",
-        "accountsUpdateStatusEndowments": "0xe3A4bC3e180F761B06838294DaD836cDDE6bfBe5",
-        "accountsVaultFacet": "0x7eEB95B9A00563c069C3034D5b4062e098413E6F",
-        "diamondCutFacet": "0xDd5E1C7DEbF96aE56B11b66FBD324Af94ab870bC",
-        "diamondInitFacet": "0x05eaaf9131359C0B0467BB776C15ea2D5bA57eab",
-        "diamondLoupeFacet": "0x6471cf157c4f5a6b3Cc68045E9575aF544A896F6",
-        "ownershipFacet": "0xCc6670Cb0690699b1Bb3fe5C0de358d0fE83B48c"
+        "accountsDeployContract": "0xFEdF746F4b05dE0A27043cC81A4A82140687dD58",
+        "accountsDepositWithdrawEndowments": "0xB139935A5CaF22FfAD5b8adBe7288ea996F0e5d9",
+        "accountsDonationMatch": "0x45aD503D96c3E489fA3990cF28f1B2a5c9c98Cae",
+        "accountsAllowance": "0x656003De25AfEd97693c91561E9fC4Ff1a234f14",
+        "accountsCreateEndowment": "0x2be36e83eca722d2477A5eec7eA16c35424cAb58",
+        "accountsDaoEndowments": "0x8b1BB3B8686154C247F08EA2F7Cc26857c851fC4",
+        "accountsQueryEndowments": "0xc1df7fb4655057f62F81E660843BA0c5bcC6c6cA",
+        "accountsSwapRouter": "0xa7436009b26c5dD6ad8f9076E87090C37bC4D2c7",
+        "accountsUpdate": "0xf288ECBbd10A9E77A91c84e42c91e8c2317b3003",
+        "accountsUpdateEndowments": "0x318F42d015c2D869b81845A8c36c607F6fb1Fc90",
+        "accountsUpdateEndowmentSettingsController": "0x6D4D5B836FC7cD3E57E14240f5c6aaf8FAd83F8e",
+        "accountsUpdateStatusEndowments": "0xA5d5dA0272083b52D97B32fEBFB7516473E44008",
+        "accountsVaultFacet": "0x36aca379674c2c4eD5939d87BDEeDb993063b165",
+        "diamondCutFacet": "0x426247AB883E2D411Dca229F8FCd2562c43CC8F0",
+        "diamondInitFacet": "0xB788374acEAA4478944B617a64641f1F5cCcE2Ac",
+        "diamondLoupeFacet": "0x9b96CaA43148C8B6596790A44aB5109FD1E7F336",
+        "ownershipFacet": "0x0A97e424f62a6ca099d93852e53995F61DbF7F0A"
       }
     },
     "axelar": {
@@ -183,11 +183,11 @@
     },
     "donationMatch": {
       "emitter": "",
-      "implementation": "0x927B1123a2A9085B1f6272Fab7ae2ed479daFc10"
+      "implementation": ""
     },
     "donationMatchCharity": {
-      "implementation": "0x7affbc77A46656AaF061800fb6A7B58671535Ac9",
-      "proxy": "0x42b9F95DF569C25eD259d8b4B7a17791952996E7"
+      "implementation": "",
+      "proxy": ""
     },
     "fundraising": {
       "implementation": "",
@@ -250,11 +250,11 @@
       }
     },
     "incentivisedVotingLockup": {
-      "implementation": "0x8A36A27738d528C700De5C17cfcD07fDE27FAFE4"
+      "implementation": ""
     },
     "indexFund": {
-      "implementation": "0xA952197Ef88111e5415538a75F228A6Fb3ff266f",
-      "proxy": "0xE036D1034640fa16280682fd8CC00Ccf3D42e8E4"
+      "implementation": "0x82FE80E71fFb5A915Ff491345C67C38d280845A5",
+      "proxy": "0xcf0cA88b8BF985032b27aE4c7488F7A6ad90D643"
     },
     "libraries": {
       "angelCoreStruct": "0x44c5de21354FE3B468ec9b53cF8570D0Eec463C1",
@@ -266,34 +266,34 @@
         "proxy": "0xaDC97799AAC1430e297edb86136579710B081e0A"
       },
       "apTeam": {
-        "implementation": "0x2CDa428C76e83fcf3B9763a7C992563c897cc85C",
-        "proxy": "0xD812901336D4f1c910a2Ac51921E0105BD980887"
+        "implementation": "0xD6B7de2CD27754aaD13164C5B11bA8244a8b960d",
+        "proxy": "0x5ffD7a356AaF24c47C230077c851ec25DcD2eaD9"
       },
       "endowment": {
         "emitter": {
-          "implementation": "0xf63Ba726a364a8c9264d8E755e72a1130137C338",
-          "proxy": "0xf51e68c4548bb42d11DD14F32957F348B0d5778A"
+          "implementation": "0x1cff63e51cB23b9DC1cCd35A1A2d4e7b60b4d465",
+          "proxy": "0x1B2b3f45997bBB0462Ba59B013d0606ea2433D99"
         },
-        "factory": "0xBCB725c55e729d39BFD16eB4eC735A39BC0550DD",
-        "implementation": "0x7aCD96e54E176f29362F4b284c836e1ae0cA1d73"
+        "factory": "0x415749DaF6b3cC6E54439333dbf1c6780F3a2a77",
+        "implementation": "0xE39fc37a96Df1E80A90c5F2fcb39F63733A87E02"
       }
     },
     "registrar": {
-      "implementation": "0xF3A5B4Eb01612c6E8195c9bd8A2E3e15AB11a5ff",
-      "proxy": "0x74f62eE5330EE95B72c6CDFA301Be106bDe5D454"
+      "implementation": "0xB2d5f1F64c1822d8c863525337c66f5B1A6926e5",
+      "proxy": "0xa93b02DAD1bC3Ab4177FB3F2bFCbD2d2CA27Fda9"
     },
     "router": {
-      "implementation": "0x52F717838bae444AB9F4aC9f648A32286D88404E",
-      "proxy": "0xdf05B770A292480e50172217Ec9b80B1C150103B"
+      "implementation": "0x075167F864d17f192dfe9f719b2DB3A56bc89EBD",
+      "proxy": "0x316E6F804D5Dd748E8dC225643Fc277A55AdFe92"
     },
     "subDao": {
       "emitter": {
-        "implementation": "0x553752620d6bC348F10579710157524121b2A288",
-        "proxy": "0x736339a50Fe24EFd6cf0277f7F5fcdedf6fe3f6A"
+        "implementation": "",
+        "proxy": ""
       },
-      "implementation": "0x94F8102524FF55852D15a6A7cDbFB4A3aB22b7C1",
-      "token": "0x4Bc5366E4e5c60ed383Cdc8cBD9180791Ae572f2",
-      "veBondingToken": "0x9DDFfa45bD8B04ba10b5d291f9D80c56A711637A"
+      "implementation": "",
+      "token": "",
+      "veBondingToken": ""
     },
     "tokens": {
       "dai": "0xb973d2876c4f161439ad05f1dae184dbd594e04e",

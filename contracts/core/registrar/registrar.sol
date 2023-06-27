@@ -15,9 +15,9 @@ import {LocalRegistrarLib} from "./lib/LocalRegistrarLib.sol";
  * @dev Contract for Registrar
  */
 contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
-  event UpdateRegistrarConfig();
-  event PostNetworkConnection(uint256 chainId);
-  event DeleteNetworkConnection(uint256 chainId);
+  event ConfigUpdated();
+  event NetworkConnectionPosted(uint256 chainId);
+  event NetworkConnectionRemoved(uint256 chainId);
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
@@ -62,7 +62,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       wMaticAddress: address(0),
       cw900lvAddress: address(0)
     });
-    emit UpdateRegistrarConfig();
+    emit ConfigUpdated();
 
     state.NETWORK_CONNECTIONS[block.chainid] = AngelCoreStruct.NetworkInfo({
       name: "Polygon",
@@ -74,7 +74,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       gasReceiver: details.axelarGasRecv,
       gasLimit: 0
     });
-    emit PostNetworkConnection(block.chainid);
+    emit NetworkConnectionPosted(block.chainid);
   }
 
   // Executor functions for registrar
@@ -218,7 +218,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     //     native: details.accepted_tokens_native,
     //     cw20: details.accepted_tokens_cw20
     // });
-    emit UpdateRegistrarConfig();
+    emit ConfigUpdated();
   }
 
   /**
@@ -241,10 +241,10 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
   ) public nonReentrant onlyOwner {
     if (Validator.compareStrings(action, "post")) {
       state.NETWORK_CONNECTIONS[networkInfo.chainId] = networkInfo;
-      emit PostNetworkConnection(networkInfo.chainId);
+      emit NetworkConnectionPosted(networkInfo.chainId);
     } else if (Validator.compareStrings(action, "delete")) {
       delete state.NETWORK_CONNECTIONS[networkInfo.chainId];
-      emit DeleteNetworkConnection(networkInfo.chainId);
+      emit NetworkConnectionRemoved(networkInfo.chainId);
     } else {
       revert("Invalid inputs");
     }

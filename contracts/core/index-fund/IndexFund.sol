@@ -31,10 +31,10 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
   event IndexFundCreated(uint256 id);
   event IndexFundRemoved(uint256 id);
   event MemberRemoved(uint256 fundId, uint32 memberId);
-  event MemberAdded(uint256 fundId, uint32 memberId);
-  event DonationMessagesUpdated();
-  event UpdateActiveFund(uint256 fundId);
-  event UpdateIndexFundState();
+  event MembersUpdated(uint256 fundId, uint32[] members);
+  event DonationMessagesUpdated(uint256 fundId);
+  event ActiveFundUpdated(uint256 fundId);
+  event StateUpdated();
 
   uint256 maxLimit;
   uint256 defaultLimit;
@@ -60,6 +60,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
       fundingGoal: details.fundingGoal
     });
     emit ConfigUpdated();
+    emit OwnerUpdated(msg.sender);
 
     state.state = IndexFundStorage._State({
       totalFunds: 0,
@@ -68,7 +69,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
       roundDonations: 0,
       nextRotationBlock: block.number + state.config.fundRotation
     });
-    emit UpdateIndexFundState();
+    emit StateUpdated();
   }
 
   /**
@@ -101,6 +102,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     require(newRegistrar != address(0), "invalid input address");
 
     state.config.registrarContract = newRegistrar;
+
     emit RegistrarUpdated(newRegistrar);
     return true;
   }
@@ -154,7 +156,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
       revert("Unauthorized");
     }
 
-    require(splitToLiquid <= 100, "invalid split");
+    require(splitToLiquid <= 100, "invalid split, must be less or equal to 100");
 
     state.FUNDS[state.state.nextFundId] = AngelCoreStruct.IndexFund({
       id: state.state.nextFundId,
@@ -175,7 +177,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     // fund being created now to be the active fund
     if (state.state.totalFunds == 0 || state.state.activeFund == 0) {
       state.state.activeFund = state.state.nextFundId;
-      emit UpdateActiveFund(state.state.activeFund);
+      emit ActiveFundUpdated(state.state.activeFund);
     }
 
     if (rotatingFund) {
@@ -199,7 +201,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
     if (state.state.activeFund == fundId) {
       state.state.activeFund = rotateFund(fundId, block.timestamp);
-      emit UpdateActiveFund(state.state.activeFund);
+      emit ActiveFundUpdated(state.state.activeFund);
     }
 
     // remove from rotating funds list
@@ -272,6 +274,8 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
       }
     }
 
+    emit MembersUpdated(fundId, members);
+
     return true;
   }
 
@@ -298,7 +302,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
       if (block.number >= state.state.nextRotationBlock) {
         uint256 newFundId = rotateFund(state.state.activeFund, block.timestamp);
         state.state.activeFund = newFundId;
-        emit UpdateActiveFund(state.state.activeFund);
+        emit ActiveFundUpdated(state.state.activeFund);
         state.state.roundDonations = 0;
 
         while (block.number >= state.state.nextRotationBlock) {
@@ -316,7 +320,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
       require(!fundIsExpired(state.FUNDS[fundId], block.timestamp), "Expired Fund");
 
       updateDonationMessages(
-        state.FUNDS[fundId].members,
+        fundId,
         calculateSplit(
           registrar_config.splitToLiquid,
           state.FUNDS[fundId].splitToLiquid,
@@ -347,7 +351,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
             state.state.activeFund = rotateFund(state.state.activeFund, block.timestamp);
 
-            emit UpdateActiveFund(state.state.activeFund);
+            emit ActiveFundUpdated(state.state.activeFund);
             loopDonation = goalLeftover;
           } else {
             state.state.roundDonations += depositAmount;
@@ -355,7 +359,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
           }
 
           updateDonationMessages(
-            state.FUNDS[activeFund].members,
+            activeFund,
             calculateSplit(
               registrar_config.splitToLiquid,
               state.FUNDS[activeFund].splitToLiquid,
@@ -376,7 +380,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
         );
 
         updateDonationMessages(
-          state.FUNDS[state.state.activeFund].members,
+          state.state.activeFund,
           calculateSplit(
             registrar_config.splitToLiquid,
             state.FUNDS[state.state.activeFund].splitToLiquid,
@@ -415,23 +419,25 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     delete state.donationMessages.lockedSplit;
     delete state.donationMessages.liquidSplit;
 
-    emit UpdateIndexFundState();
+    emit StateUpdated();
   }
 
   /**
    * @dev Update donation messages
-   * @param members Array of members
+   * @param fundId index fund ID
    * @param liquidSplit Split to liquid
    * @param balance Balance of fund
    * @param donationMessages Donation messages
    */
   function updateDonationMessages(
-    uint32[] memory members,
+    uint256 fundId,
     uint256 liquidSplit,
     uint256 balance,
     IndexFundStorage.DonationMessages storage donationMessages
   ) internal {
     uint256 memberPortion = balance;
+
+    uint32[] memory members = state.FUNDS[fundId].members;
 
     if (members.length > 0) {
       memberPortion = memberPortion.div(members.length);
@@ -471,7 +477,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
         );
       }
     }
-    emit DonationMessagesUpdated();
+    emit DonationMessagesUpdated(fundId);
   }
 
   /**
