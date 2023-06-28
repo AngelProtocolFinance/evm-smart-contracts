@@ -14,13 +14,9 @@ interface IIndexFund {
     uint256 expiryTime; // datetime int of index fund expiry
   }
 
-  function queryFundDetails(
-    uint256 fundId
-  ) external view returns (IndexFund memory);
+  function queryFundDetails(uint256 fundId) external view returns (IndexFund memory);
 
-  function queryInvolvedFunds(
-    uint32 endowmentId
-  ) external view returns (IndexFund[] memory);
+  function queryInvolvedFunds(uint32 endowmentId) external view returns (IndexFund[] memory);
 
   function removeMember(uint32 member) external returns (bool);
 }

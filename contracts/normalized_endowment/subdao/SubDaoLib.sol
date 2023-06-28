@@ -4,7 +4,6 @@ pragma solidity ^0.8.16;
 import {QueryIIncentivisedVotingLockup} from "./../incentivised-voting/interfaces/QueryIIncentivisedVotingLockup.sol";
 
 library SubDaoLib {
-
   enum veTypeEnum {
     Constant,
     Linear,
@@ -58,7 +57,7 @@ library SubDaoLib {
     uint256 snapshotPeriod; //: u64,
     DaoToken token; //: DaoToken,
   }
-  
+
   uint256 constant MIN_TITLE_LENGTH = 4;
   uint256 constant MAX_TITLE_LENGTH = 64;
   uint256 constant MIN_DESC_LENGTH = 4;

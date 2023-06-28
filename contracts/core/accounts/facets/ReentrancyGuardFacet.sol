@@ -8,7 +8,7 @@ import {AccountStorage} from "../storage.sol";
 
 /**
  * @title ReentrancyGuardFacet
- * 
+ *
  * @notice This contract facet prevents reentrancy attacks
  * @dev Uses a global mutex and prevents reentrancy.
  */

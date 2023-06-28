@@ -294,9 +294,7 @@ contract AccountsDepositWithdrawEndowments is
       require(current_bal > tokens[t].amnt, "InsufficientFunds");
 
       // calculate AP Protocol fee owed on withdrawn token amount
-      uint256 withdrawFeeAp = (tokens[t].amnt.mul(withdrawFeeRateAp)).div(
-        LibAccounts.FEE_BASIS
-      );
+      uint256 withdrawFeeAp = (tokens[t].amnt.mul(withdrawFeeRateAp)).div(LibAccounts.FEE_BASIS);
 
       // Transfer AP Protocol fee to treasury
       // (ie. standard Withdraw Fee + any early Locked Withdraw Penalty)

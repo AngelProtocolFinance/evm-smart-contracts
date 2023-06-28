@@ -590,13 +590,9 @@ contract IndexFund is IIndexFund, StorageIndexFund, ReentrancyGuard, Initializab
    * @param endowmentId Endowment id
    * @return Fund details
    */
-  function queryInvolvedFunds(
-    uint32 endowmentId
-  ) public view returns (IndexFund[] memory) {
+  function queryInvolvedFunds(uint32 endowmentId) public view returns (IndexFund[] memory) {
     // make memory and allocate to response object
-    IndexFund[] memory resp = new IndexFund[](
-      state.FUNDS_BY_ENDOWMENT[endowmentId].length
-    );
+    IndexFund[] memory resp = new IndexFund[](state.FUNDS_BY_ENDOWMENT[endowmentId].length);
 
     for (uint256 i = 0; i < state.FUNDS_BY_ENDOWMENT[endowmentId].length; i++) {
       resp[i] = state.FUNDS[state.FUNDS_BY_ENDOWMENT[endowmentId][i]];
@@ -620,10 +616,7 @@ contract IndexFund is IIndexFund, StorageIndexFund, ReentrancyGuard, Initializab
    * @param envTime rent block time
    * @return True if fund is expired
    */
-  function fundIsExpired(
-    IndexFund memory fund,
-    uint256 envTime
-  ) internal pure returns (bool) {
+  function fundIsExpired(IndexFund memory fund, uint256 envTime) internal pure returns (bool) {
     return (fund.expiryTime != 0 && envTime >= fund.expiryTime);
   }
 
@@ -634,9 +627,7 @@ contract IndexFund is IIndexFund, StorageIndexFund, ReentrancyGuard, Initializab
    * @return New active fund
    */
   function rotateFund(uint256 rFund, uint256 envTime) internal view returns (uint256) {
-    IndexFund[] memory activeFunds = new IndexFund[](
-      state.rotatingFunds.length
-    );
+    IndexFund[] memory activeFunds = new IndexFund[](state.rotatingFunds.length);
 
     for (uint256 i = 0; i < state.rotatingFunds.length; i++) {
       if (!fundIsExpired(state.FUNDS[state.rotatingFunds[i]], envTime)) {

@@ -98,10 +98,7 @@ const deployDonationMatchCharity = async (
   }
 };
 
-const deploySubDao = async (
-  verify_contracts: boolean,
-  hre: HardhatRuntimeEnvironment
-) => {
+const deploySubDao = async (verify_contracts: boolean, hre: HardhatRuntimeEnvironment) => {
   try {
     const {network, run, ethers} = hre;
     const SubDaoLib = await ethers.getContractFactory("SubDaoLib");
