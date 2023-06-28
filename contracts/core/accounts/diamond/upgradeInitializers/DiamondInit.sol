@@ -15,9 +15,8 @@ import {IERC173} from "../interfaces/IERC173.sol";
 import {IERC165} from "../interfaces/IERC165.sol";
 
 import {LibAccounts} from "./../../lib/LibAccounts.sol";
-import {Validator} from "./../../lib/validator.sol";
+import {Validator} from "../../../validator.sol";
 import {AccountStorage} from "./../../storage.sol";
-import {AngelCoreStruct} from "../../../struct.sol";
 
 // It is expected that this contract is customized if you want to deploy your diamond
 // with data from a deployment script. Use the init function to initialize state variables
@@ -42,7 +41,7 @@ contract DiamondInit {
     state.config.registrarContract = registrar;
     state.config.nextAccountId = 1;
     state.config.maxGeneralCategoryId = 1;
-    state.config.earlyLockedWithdrawFee = AngelCoreStruct.FeeSetting({
+    state.config.earlyLockedWithdrawFee = LibAccounts.FeeSetting({
       payoutAddress: address(0),
       bps: 1000 // 10% fee placeholder. Can always change later if needed
     });

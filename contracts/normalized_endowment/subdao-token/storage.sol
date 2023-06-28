@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {AngelCoreStruct} from "../../core/struct.sol";
+import {SubDaoLib} from "../subdao/SubDaoLib.sol";
 
 library subDaoTokenStorage {
   struct MinterData {
@@ -40,10 +40,10 @@ library subDaoTokenStorage {
     claimInfo[] details;
   }
 
-  function getReserveRatio(AngelCoreStruct.veTypeEnum curveType) internal pure returns (uint256) {
-    if (curveType == AngelCoreStruct.veTypeEnum.Linear) {
+  function getReserveRatio(SubDaoLib.veTypeEnum curveType) internal pure returns (uint256) {
+    if (curveType == SubDaoLib.veTypeEnum.Linear) {
       return 500000;
-    } else if (curveType == AngelCoreStruct.veTypeEnum.SquarRoot) {
+    } else if (curveType == SubDaoLib.veTypeEnum.SquarRoot) {
       return 660000;
     } else {
       return 1000000;

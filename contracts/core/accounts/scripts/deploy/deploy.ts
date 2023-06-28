@@ -16,7 +16,6 @@ import deployFacets from "./deployFacets";
 export async function deployAccountsDiamond(
   owner = "",
   registrar = "",
-  angelCoreStruct = "",
   hre: HardhatRuntimeEnvironment
 ): Promise<
   | {
@@ -32,13 +31,12 @@ export async function deployAccountsDiamond(
   try {
     validateAddress(owner, "owner");
     validateAddress(registrar, "registrar");
-    validateAddress(angelCoreStruct, "angelCoreStruct");
 
     const {diamond, diamondCutFacet} = await deployDiamond(proxyAdmin, hre);
 
     const diamondInit = await deployDiamondInit(proxyAdmin, hre);
 
-    const cuts = await deployFacets(proxyAdmin, angelCoreStruct, hre);
+    const cuts = await deployFacets(proxyAdmin, hre);
 
     await cutDiamond(diamond.address, diamondInit, proxyAdmin, owner, registrar, cuts, hre);
 

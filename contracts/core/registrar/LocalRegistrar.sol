@@ -7,7 +7,7 @@ import {LocalRegistrarLib} from "./lib/LocalRegistrarLib.sol";
 import {IVault} from "../vault/interfaces/IVault.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import {AngelCoreStruct} from "../struct.sol";
+import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 
 // Import integrations here
 import {APGoldfinchConfigLib} from "../../integrations/goldfinch/APGoldfinchConfig.sol";
@@ -109,8 +109,8 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
   }
 
   function getFeeSettingsByFeeType(
-    AngelCoreStruct.FeeTypes _feeType
-  ) external view returns (AngelCoreStruct.FeeSetting memory) {
+    LibAccounts.FeeTypes _feeType
+  ) external view returns (LibAccounts.FeeSetting memory) {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
     return lrs.FeeSettingsByFeeType[_feeType];
   }
@@ -211,12 +211,12 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
   }
 
   function setFeeSettingsByFeesType(
-    AngelCoreStruct.FeeTypes _feeType,
+    LibAccounts.FeeTypes _feeType,
     uint256 _rate,
     address _payout
   ) external {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
-    lrs.FeeSettingsByFeeType[_feeType] = AngelCoreStruct.FeeSetting({
+    lrs.FeeSettingsByFeeType[_feeType] = LibAccounts.FeeSetting({
       payoutAddress: _payout,
       bps: _rate
     });

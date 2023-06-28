@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";
-import {AngelCoreStruct} from "../../struct.sol";
+import {Validator} from "../../validator.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {LocalRegistrarLib} from "../../registrar/lib/LocalRegistrarLib.sol";
 import {IRouter} from "../../router/IRouter.sol";
@@ -43,7 +43,7 @@ contract AccountsVaultFacet is IAccountsVaultFacet, ReentrancyGuardFacet, IAccou
     // that they have the power to manage the investments for an account balance
     if (lockAmt > 0) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.lockedInvestmentManagement,
           msg.sender,
           tempEndowment.owner,
@@ -54,7 +54,7 @@ contract AccountsVaultFacet is IAccountsVaultFacet, ReentrancyGuardFacet, IAccou
     }
     if (liquidAmt > 0) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.liquidInvestmentManagement,
           msg.sender,
           tempEndowment.owner,
@@ -70,7 +70,7 @@ contract AccountsVaultFacet is IAccountsVaultFacet, ReentrancyGuardFacet, IAccou
       "Vault is not approved"
     );
 
-    AngelCoreStruct.NetworkInfo memory network = IRegistrar(state.config.registrarContract)
+    NetworkInfo memory network = IRegistrar(state.config.registrarContract)
       .queryNetworkConnection(block.chainid);
 
     address tokenAddress = IAxelarGateway(network.axelarGateway).tokenAddresses(token);
@@ -139,7 +139,7 @@ contract AccountsVaultFacet is IAccountsVaultFacet, ReentrancyGuardFacet, IAccou
     // that they have the power to manage the investments for an account balance
     if (lockAmt > 0) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.lockedInvestmentManagement,
           msg.sender,
           tempEndowment.owner,
@@ -150,7 +150,7 @@ contract AccountsVaultFacet is IAccountsVaultFacet, ReentrancyGuardFacet, IAccou
     }
     if (liquidAmt > 0) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.liquidInvestmentManagement,
           msg.sender,
           tempEndowment.owner,
@@ -167,7 +167,7 @@ contract AccountsVaultFacet is IAccountsVaultFacet, ReentrancyGuardFacet, IAccou
         LocalRegistrarLib.StrategyApprovalState.APPROVED,
       "Vault is not approved"
     );
-    AngelCoreStruct.NetworkInfo memory network = IRegistrar(state.config.registrarContract)
+    NetworkInfo memory network = IRegistrar(state.config.registrarContract)
       .queryNetworkConnection(block.chainid);
 
     address tokenAddress = IAxelarGateway(network.axelarGateway).tokenAddresses(token);
@@ -222,7 +222,7 @@ contract AccountsVaultFacet is IAccountsVaultFacet, ReentrancyGuardFacet, IAccou
         LocalRegistrarLib.StrategyApprovalState.APPROVED,
       "Vault is not approved"
     );
-    AngelCoreStruct.NetworkInfo memory network = IRegistrar(state.config.registrarContract)
+    NetworkInfo memory network = IRegistrar(state.config.registrarContract)
       .queryNetworkConnection(block.chainid);
 
     address tokenAddress = IAxelarGateway(network.axelarGateway).tokenAddresses(token);

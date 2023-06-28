@@ -10,11 +10,6 @@ const config: Config = {
     requireExecution: false,
     transactionExpiry: 100000,
   },
-  APPLICATION_MULTISIG_DATA: {
-    threshold: 1,
-    requireExecution: false,
-    transactionExpiry: 100000,
-  },
   REGISTRAR_DATA: {
     taxRate: 1,
     acceptedTokens: {
@@ -33,13 +28,13 @@ const config: Config = {
       defaultSplit: 50,
     },
   },
-  CHARITY_APPLICATION_DATA: {
-    expiry: 0,
+  CHARITY_APPLICATIONS_DATA: {
+    threshold: 1,
+    requireExecution: false,
+    transactionExpiry: 100000,
     seedSplitToLiquid: 0,
-    newEndowGasMoney: false,
     gasAmount: 0,
-    fundSeedAsset: false,
-    seedAssetAmount: 100,
+    seedAmount: 100,
   },
   DONATION_MATCH_CHARITY_DATA: {
     poolFee: 300,

@@ -58,8 +58,8 @@ export async function updateRegistrarNetworkConnections(
 }
 
 export async function updateRegistrarConfig(
-  registrar = "",
-  apTeamMultisig = "",
+  registrar: string,
+  apTeamMultisig: string,
   updateConfigRequest: Partial<RegistrarMessages.UpdateConfigRequestStruct>,
   hre: HardhatRuntimeEnvironment
 ) {
@@ -86,10 +86,6 @@ export async function updateRegistrarConfig(
     const updateConfigData = registrarContract.interface.encodeFunctionData("updateConfig", [
       {
         ...otherConfig,
-        splitDefault: splitToLiquid.defaultSplit,
-        splitMin: splitToLiquid.min,
-        splitMax: splitToLiquid.max,
-        approved_charities: [],
         ...updateConfigRequest,
       },
     ]);
@@ -97,12 +93,7 @@ export async function updateRegistrarConfig(
       apTeamMultisig,
       apTeamMultisigOwners[0]
     );
-    const tx = await apTeamMultisigContract.submitTransaction(
-      registrar,
-      0,
-      updateConfigData,
-      "0x"
-    );
+    const tx = await apTeamMultisigContract.submitTransaction(registrar, 0, updateConfigData, "0x");
     logger.out(`Tx hash: ${tx.hash}`);
     await tx.wait();
 

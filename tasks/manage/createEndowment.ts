@@ -2,7 +2,6 @@ import {task, types} from "hardhat/config";
 import {
   AccountsCreateEndowment__factory,
   AccountsQueryEndowments__factory,
-  ApplicationsMultiSig__factory,
   CharityApplication__factory,
 } from "typechain-types";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/IAccounts";
@@ -138,12 +137,12 @@ task("manage:createEndowment", "Will create a new endowment")
       };
 
       if (taskArgs.endowType == 0) {
-        logger.out("Creating a charity proposal...");
-        const charityApplication = CharityApplication__factory.connect(
-          addresses.charityApplication.proxy,
+        logger.out("Creating a charity applications proposal...");
+        const charityApplications = CharityApplications__factory.connect(
+          addresses.multiSig.charityApplications.proxy,
           apTeam1
         );
-        const tx = await charityApplication.proposeCharity(createEndowmentRequest, "");
+        const tx = await charityApplications.proposeCharity(createEndowmentRequest, "");
         const receipt = await tx.wait();
 
         if (!receipt.events?.length) {
@@ -161,22 +160,9 @@ task("manage:createEndowment", "Will create a new endowment")
         const proposalId = charityProposedEvent.args[1];
 
         logger.out(`Approving the new charity endowment with proposal ID: ${proposalId}...`);
-        const applicationMultisig = ApplicationsMultiSig__factory.connect(
-          addresses.multiSig.applications.proxy,
-          apTeam2
-        );
-        const data = charityApplication.interface.encodeFunctionData("approveCharity", [
+        const data = charityApplications.interface.encodeFunctionData("approveCharity", [
           proposalId,
         ]);
-        const submitTransactionTx = await applicationMultisig.submitTransaction(
-          `Approve endowment with proposal ID: ${proposalId}`,
-          `Approve endowment with proposal ID: ${proposalId}`,
-          addresses.charityApplication.proxy,
-          0,
-          data,
-          "0x"
-        );
-        await submitTransactionTx.wait();
       } else {
         const createEndowFacet = AccountsCreateEndowment__factory.connect(
           addresses.accounts.diamond,

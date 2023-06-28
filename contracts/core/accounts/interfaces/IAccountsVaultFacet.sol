@@ -6,6 +6,18 @@ pragma solidity ^0.8.16;
  * @dev This contract manages the vaults for endowments
  */
 interface IAccountsVaultFacet {
+
+  struct NetworkInfo {
+    string name;
+    uint256 chainId;
+    address router; //SHARED
+    address axelarGateway;
+    string ibcChannel; // Should be removed
+    string transferChannel;
+    address gasReceiver; // Should be removed
+    uint256 gasLimit; // Should be used to set gas limit
+  }
+
   /**
    * @notice This function that allows users to deposit into a yield strategy using tokens from their locked or liquid account in an endowment.
    * @dev Allows the owner of an endowment to invest tokens into specified yield vaults.

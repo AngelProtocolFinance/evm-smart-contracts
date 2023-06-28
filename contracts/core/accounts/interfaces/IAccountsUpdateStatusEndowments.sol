@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {AngelCoreStruct} from "../../struct.sol";
+import {LibAccounts} from "../lib/LibAccounts.sol";
 
 /**
  * @title AccountsUpdateStatusEndowments
@@ -16,5 +16,5 @@ interface IAccountsUpdateStatusEndowments {
    * @dev The function will revert if a redemption is rently in progress.
    * @dev Emits an `UpdateEndowmentState` event with the updated state of the endowment.
    */
-  function closeEndowment(uint32 id, AngelCoreStruct.Beneficiary memory beneficiary) external;
+  function closeEndowment(uint32 id, LibAccounts.Beneficiary memory beneficiary) external;
 }

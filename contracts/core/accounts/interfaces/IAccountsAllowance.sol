@@ -1,13 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {AngelCoreStruct} from "../../struct.sol";
-
 /**
  * @title AccountsAllowance
  * @dev This contract manages the allowances for accounts
  */
 interface IAccountsAllowance {
+
+  enum AllowanceAction {
+    Add,
+    Remove
+  }
+
   /**
    * @notice Endowment owner adds allowance to spend
    * @dev This function adds or removes allowances for an account
@@ -19,7 +23,7 @@ interface IAccountsAllowance {
    */
   function manageAllowances(
     uint32 endowId,
-    AngelCoreStruct.AllowanceAction action,
+    AllowanceAction action,
     address spender,
     address token,
     uint256 amount
