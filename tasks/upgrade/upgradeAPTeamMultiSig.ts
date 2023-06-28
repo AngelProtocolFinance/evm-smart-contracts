@@ -1,4 +1,4 @@
-import {task, types} from "hardhat/config";
+import {task} from "hardhat/config";
 import {APTeamMultiSig__factory, ITransparentUpgradeableProxy__factory} from "typechain-types";
 import {
   confirmAction,
@@ -12,7 +12,7 @@ import {
 
 task("upgrade:APTeamMultiSig", "Will upgrade the APTeamMultiSig")
   .addFlag("skipVerify", "Skip contract verification")
-  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
+  .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: {skipVerify: boolean; yes: boolean}, hre) => {
     try {
       const isConfirmed = taskArgs.yes || (await confirmAction("Upgrading APTeamMultiSig..."));

@@ -1,5 +1,5 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {task, types} from "hardhat/config";
+import {task} from "hardhat/config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {ITransparentUpgradeableProxy__factory, OwnershipFacet__factory} from "typechain-types";
 import {AddressObj, confirmAction, getAddresses, logger} from "utils";
@@ -12,7 +12,7 @@ task("manage:changeAdmin", "Will update the admin for all proxy contracts")
     "new",
     "New admin address. Make sure to use an address of an account listed in the hardhat configuration for the target network."
   )
-  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
+  .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const isConfirmed =

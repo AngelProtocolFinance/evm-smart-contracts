@@ -1,4 +1,4 @@
-import {task, types} from "hardhat/config";
+import {task} from "hardhat/config";
 import {confirmAction, logger} from "utils";
 
 task(
@@ -6,7 +6,7 @@ task(
   "Will redeploy all contracts that use AccountStorage struct"
 )
   .addFlag("skipVerify", "Skip contract verification")
-  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
+  .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: {skipVerify: boolean; yes: boolean}, hre) => {
     try {
       const isConfirmed =

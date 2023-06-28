@@ -1,5 +1,5 @@
 import {deployCharityApplications} from "contracts/multisigs/scripts/deployCharityApplications";
-import {task, types} from "hardhat/config";
+import {task} from "hardhat/config";
 import {confirmAction, getAddresses, isLocalNetwork, logger, verify} from "utils";
 import {updateRegistrarConfig} from "../helpers";
 
@@ -26,7 +26,7 @@ task("deploy:CharityApplication", "Will deploy CharityApplication contract")
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addFlag("skipVerify", "Skip contract verification")
-  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
+  .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const isConfirmed = taskArgs.yes || (await confirmAction("Deploying CharityApplications..."));

@@ -1,4 +1,4 @@
-import {task, types} from "hardhat/config";
+import {task} from "hardhat/config";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
 import {confirmAction, getAddresses, getSigners, logger} from "utils";
 
@@ -9,7 +9,7 @@ task("manage:registrar:transferOwnership")
     "to",
     "Address of the new owner. Ensure at least one of `apTeamMultisigOwners` is the controller of this address. Will default to `contract-address.json > multiSig.apTeam.proxy` if none is provided."
   )
-  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
+  .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       logger.divider();

@@ -1,4 +1,4 @@
-import {task, types} from "hardhat/config";
+import {task} from "hardhat/config";
 import {CharityApplication__factory, ITransparentUpgradeableProxy__factory} from "typechain-types";
 import {
   confirmAction,
@@ -17,7 +17,7 @@ type TaskArgs = {
 
 task("upgrade:CharityApplications", "Will upgrade the implementation of CharityApplications")
   .addFlag("skipVerify", "Skip contract verification")
-  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
+  .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const isConfirmed =

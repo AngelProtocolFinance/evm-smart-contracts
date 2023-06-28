@@ -1,10 +1,10 @@
 import {deployAPTeamMultiSig} from "contracts/multisigs/scripts/deploy";
-import {task, types} from "hardhat/config";
+import {task} from "hardhat/config";
 import {confirmAction, isLocalNetwork, logger, verify} from "utils";
 
 task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
   .addFlag("skipVerify", "Skip contract verification")
-  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
+  .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: {skipVerify: boolean; yes: boolean}, hre) => {
     try {
       const isConfirmed = taskArgs.yes || (await confirmAction("Deploying APTeamMultiSig..."));

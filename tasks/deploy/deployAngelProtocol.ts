@@ -1,4 +1,4 @@
-import {task, types} from "hardhat/config";
+import {task} from "hardhat/config";
 import {Deployment, confirmAction, isLocalNetwork, logger, verify} from "utils";
 // import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
 import config from "config";
@@ -23,7 +23,7 @@ import {
 
 task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
   .addFlag("skipVerify", "Skip contract verification")
-  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
+  .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: {skipVerify: boolean; yes: boolean}, hre) => {
     try {
       const isConfirmed =

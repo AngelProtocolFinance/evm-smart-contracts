@@ -1,5 +1,5 @@
 import {FacetCutAction} from "contracts/core/accounts/scripts/libraries/diamond";
-import {task, types} from "hardhat/config";
+import {task} from "hardhat/config";
 import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 import {ALL_FACET_NAMES} from "./constants";
 import createFacetCuts from "./createFacetCuts";
@@ -24,7 +24,7 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
     "List of facets to upgrade. If set to 'all', will upgrade all facets."
   )
   .addFlag("skipVerify", "Skip contract verification")
-  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
+  .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       if (taskArgs.facets.length === 0) {

@@ -1,4 +1,4 @@
-import {task, types} from "hardhat/config";
+import {task} from "hardhat/config";
 import {EndowmentMultiSig__factory, MultiSigWalletFactory__factory} from "typechain-types";
 import {
   confirmAction,
@@ -25,7 +25,7 @@ task(
     "MultiSigFactory contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addFlag("skipVerify", "Skip contract verification")
-  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
+  .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const isConfirmed =
