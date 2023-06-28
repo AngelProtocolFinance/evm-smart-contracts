@@ -33,7 +33,7 @@ task("manage:CharityApplications:updateConfig", "Will update CharityApplications
       const addresses = await getAddresses(hre);
       const {charityApplicationsOwners} = await getSigners(hre);
 
-      const charityApplications = CharityApplication__factory.connect(
+      const charityApplications = CharityApplications__factory.connect(
         addresses.multiSig.charityApplications.proxy,
         charityApplicationsOwners[0]
       );
@@ -42,30 +42,28 @@ task("manage:CharityApplications:updateConfig", "Will update CharityApplications
       logger.out("Querying current config...");
       const struct = await charityApplications.queryConfig();
       const curConfig = structToObject(struct);
-      logger.out(curConfig);
+      const transactionExpiry = await charityApplications.transactionExpiry();
+      logger.out(structToObject({transactionExpiry, ...curConfig}));
+
       logger.out("Config data to update:");
       logger.out(taskArgs);
 
       // update config
       logger.out("Updating config...");
-      const updateConfigData = charityApplications.interface.encodeFunctionData("updateConfig", [
-        taskArgs.expiry || curConfig.expiry,
+      const tx = await charityApplications.updateConfig(
+        taskArgs.expiry || transactionExpiry,
         taskArgs.accountsDiamond || curConfig.accountsContract,
         taskArgs.seedSplitToLiquid || curConfig.seedSplitToLiquid,
         taskArgs.gasAmount || curConfig.gasAmount,
         taskArgs.seedAsset || curConfig.seedAsset,
-        taskArgs.seedAmount || curConfig.seedAmount,
-      ]);
-      const tx = await charityApplicationsOwners[0].submitTransaction(
-        charityApplications.address,
-        0,
-        updateConfigData,
-        "0x"
+        taskArgs.seedAmount || curConfig.seedAmount
       );
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();
 
-      logger.out("Config updated.");
+      logger.out("New config:");
+      const newConfig = await charityApplications.queryConfig();
+      logger.out(structToObject(newConfig));
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
