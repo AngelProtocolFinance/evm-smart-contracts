@@ -4,7 +4,6 @@ pragma solidity ^0.8.16;
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
-import {AngelCoreStruct} from "../../struct.sol";
 import {Validator} from "../../validator.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {Array} from "../../../lib/array.sol";
@@ -46,7 +45,7 @@ contract AccountsUpdateEndowments is
         tempEndowment.owner = details.owner;
       }
 
-      if (tempEndowment.endowType != AngelCoreStruct.EndowmentType.Charity) {
+      if (tempEndowment.endowType != LibAccounts.EndowmentType.Charity) {
         tempEndowment.rebalance = details.rebalance;
       }
     }
@@ -70,7 +69,7 @@ contract AccountsUpdateEndowments is
         block.timestamp
       )
     ) {
-      if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Charity) {
+      if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
         if (details.sdgs.length == 0) {
           revert("InvalidInputs");
         }
@@ -122,7 +121,7 @@ contract AccountsUpdateEndowments is
   function updateDelegate(
     uint32 id,
     ControllerSettingOption setting,
-    AngelCoreStruct.DelegateAction action,
+    LibAccounts.DelegateAction action,
     address delegateAddress,
     uint256 delegateExpiry
   ) public nonReentrant {
@@ -131,11 +130,11 @@ contract AccountsUpdateEndowments is
 
     require(!state.STATES[id].closingEndowment, "UpdatesAfterClosed");
 
-    AngelCoreStruct.Delegate memory newDelegate;
-    if (action == AngelCoreStruct.DelegateAction.Set) {
-      newDelegate = AngelCoreStruct.Delegate({addr: delegateAddress, expires: delegateExpiry});
-    } else if (action == AngelCoreStruct.DelegateAction.Revoke) {
-      newDelegate = AngelCoreStruct.Delegate({addr: address(0), expires: 0});
+    LibAccounts.Delegate memory newDelegate;
+    if (action == LibAccounts.DelegateAction.Set) {
+      newDelegate = LibAccounts.Delegate({addr: delegateAddress, expires: delegateExpiry});
+    } else if (action == LibAccounts.DelegateAction.Revoke) {
+      newDelegate = LibAccounts.Delegate({addr: address(0), expires: 0});
     } else {
       revert("Invalid action passed");
     }
@@ -359,7 +358,7 @@ contract AccountsUpdateEndowments is
     );
     // check that the price feed contract address supports ERC-165
     require(
-      ERC165Checker.supportsInterface(priceFeedAddr, AngelCoreStruct.InterfaceId_ERC165),
+      ERC165Checker.supportsInterface(priceFeedAddr, LibAccounts.InterfaceId_ERC165),
       "Price Feed contract is not a valid ERC-165 interface"
     );
     state.PriceFeeds[endowId][tokenAddr] = priceFeedAddr;

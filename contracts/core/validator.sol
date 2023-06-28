@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
-import {AngelCoreStruct} from "./struct.sol";
+import {LibAccounts} from "./accounts/lib/LibAccounts.sol";
 
 library Validator {
   function addressChecker(address addr) internal pure returns (bool) {
@@ -10,7 +10,7 @@ library Validator {
     return true;
   }
 
-  function splitChecker(AngelCoreStruct.SplitDetails memory split) internal pure returns (bool) {
+  function splitChecker(LibAccounts.SplitDetails memory split) internal pure returns (bool) {
     if ((split.max > 100) || (split.min > 100) || (split.defaultSplit > 100)) {
       return false;
     } else if (
@@ -29,7 +29,7 @@ library Validator {
   }
 
   function delegateIsValid(
-    AngelCoreStruct.Delegate memory delegate,
+    LibAccounts.Delegate memory delegate,
     address sender,
     uint256 envTime
   ) internal pure returns (bool) {
@@ -39,7 +39,7 @@ library Validator {
   }
 
   function canChange(
-    AngelCoreStruct.SettingsPermission memory permissions,
+    LibAccounts.SettingsPermission memory permissions,
     address sender,
     address owner,
     uint256 envTime
@@ -52,16 +52,16 @@ library Validator {
       (delegateIsValid(permissions.delegate, sender, envTime) || sender == owner));
   }
 
-  function validateFee(AngelCoreStruct.FeeSetting memory fee) internal pure {
+  function validateFee(LibAccounts.FeeSetting memory fee) internal pure {
     if (fee.bps > 0 && fee.payoutAddress == address(0)) {
       revert("Invalid fee payout zero address given");
-    } else if (fee.bps > AngelCoreStruct.FEE_BASIS) {
+    } else if (fee.bps > LibAccounts.FEE_BASIS) {
       revert("Invalid fee basis points given. Should be between 0 and 10000.");
     }
   }
 
   function checkSplits(
-    AngelCoreStruct.SplitDetails memory splits,
+    LibAccounts.SplitDetails memory splits,
     uint256 userLocked,
     uint256 userLiquid,
     bool userOverride

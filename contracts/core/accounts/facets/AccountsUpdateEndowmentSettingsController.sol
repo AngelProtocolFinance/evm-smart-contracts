@@ -6,7 +6,6 @@ import {Validator} from "../../validator.sol";
 import {AddressArray} from "../../../lib/address/array.sol";
 import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
-import {AngelCoreStruct} from "../../struct.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsUpdateEndowmentSettingsController} from "../interfaces/IAccountsUpdateEndowmentSettingsController.sol";
@@ -43,7 +42,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
     require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
 
-    if (tempEndowment.endowType != AngelCoreStruct.EndowmentType.Charity) {
+    if (tempEndowment.endowType != LibAccounts.EndowmentType.Charity) {
       if (
         Validator.canChange(
           tempEndowment.settingsController.maturityTime,
@@ -346,7 +345,7 @@ contract AccountsUpdateEndowmentSettingsController is
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
 
     require(
-      tempEndowment.endowType != AngelCoreStruct.EndowmentType.Charity,
+      tempEndowment.endowType != LibAccounts.EndowmentType.Charity,
       "Charity Endowments may not change endowment fees"
     );
     require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");

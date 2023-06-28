@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
-import {AngelCoreStruct} from "../../core/struct.sol";
 
 library GiftCardsStorage {
   struct Config {

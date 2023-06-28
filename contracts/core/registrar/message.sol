@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {AngelCoreStruct} from "../struct.sol";
+import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {IVault} from "../vault/interfaces/IVault.sol";
 
 library RegistrarMessages {
   struct InstantiateRequest {
     address treasury;
     // uint256 taxRate;
-    // AngelCoreStruct.RebalanceDetails rebalance;
-    AngelCoreStruct.SplitDetails splitToLiquid;
-    // AngelCoreStruct.AcceptedTokens acceptedTokens;
+    // LibAccounts.RebalanceDetails rebalance;
+    LibAccounts.SplitDetails splitToLiquid;
+    // LibAccounts.AcceptedTokens acceptedTokens;
     address router;
     address axelarGateway;
     address axelarGasRecv;
@@ -19,13 +19,13 @@ library RegistrarMessages {
   struct UpdateConfigRequest {
     address accountsContract;
     // uint256 taxRate;
-    // AngelCoreStruct.RebalanceDetails rebalance;
+    // LibAccounts.RebalanceDetails rebalance;
     string[] approved_charities;
     uint256 splitMax;
     uint256 splitMin;
     uint256 splitDefault;
     uint256 collectorShare;
-    // AngelCoreStruct.AcceptedTokens acceptedTokens;
+    // LibAccounts.AcceptedTokens acceptedTokens;
 
     // CONTRACT ADDRESSES
     address indexFundContract;
@@ -58,7 +58,7 @@ library RegistrarMessages {
   }
 
   struct UpdateFeeRequest {
-    AngelCoreStruct.FeeTypes feeType;
+    LibAccounts.FeeTypes feeType;
     address payout;
     uint256 rate;
   }
@@ -68,14 +68,14 @@ library RegistrarMessages {
     address accountsContract;
     address treasury;
     // uint256 taxRate;
-    // AngelCoreStruct.RebalanceDetails rebalance;
+    // LibAccounts.RebalanceDetails rebalance;
     address indexFund;
-    // AngelCoreStruct.SplitDetails splitToLiquid;
+    // LibAccounts.SplitDetails splitToLiquid;
     address haloToken;
     address govContract;
     address charitySharesContract;
     uint256 endowmentMultisigContract;
-    // AngelCoreStruct.AcceptedTokens acceptedTokens;
+    // LibAccounts.AcceptedTokens acceptedTokens;
     address applicationsReview;
     address uniswapRouter;
     address uniswapFactory;

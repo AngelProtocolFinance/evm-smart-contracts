@@ -4,7 +4,6 @@ pragma solidity ^0.8.16;
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {Validator} from "../../validator.sol";
 import {AccountStorage} from "../storage.sol";
-import {AngelCoreStruct} from "../../struct.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsUpdate} from "../interfaces/IAccountsUpdate.sol";
@@ -40,7 +39,7 @@ contract AccountsUpdate is ReentrancyGuardFacet, IAccountsEvents, IAccountsUpdat
   function updateConfig(
     address newRegistrar,
     uint256 maxGeneralCategoryId,
-    AngelCoreStruct.FeeSetting memory earlyLockedWithdrawFee
+    LibAccounts.FeeSetting memory earlyLockedWithdrawFee
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
 

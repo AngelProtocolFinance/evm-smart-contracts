@@ -4,7 +4,6 @@ pragma solidity ^0.8.16;
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
-import {AngelCoreStruct} from "../../struct.sol";
 import {Validator} from "../../validator.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
@@ -58,7 +57,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
     require(amountIn > 0, "Invalid Swap Input: Zero Amount");
     require(tokenIn != address(0) && tokenOut != address(0), "Invalid Swap Input: Zero Address");
     require(
-      slippage < AngelCoreStruct.FEE_BASIS,
+      slippage < LibAccounts.FEE_BASIS,
       "Invalid Swap Input: Token Out slippage set too high"
     );
     // Check that the desired output token from the swap is either:
@@ -209,12 +208,12 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
     address uniswapRouter,
     address uniswapFactory
   ) internal returns (uint256 amountOut) {
-    uint256 priceRatio = getLatestPriceData(priceFeedOut).mul(AngelCoreStruct.BIG_NUMBA_BASIS).div(
+    uint256 priceRatio = getLatestPriceData(priceFeedOut).mul(LibAccounts.BIG_NUMBA_BASIS).div(
       getLatestPriceData(priceFeedIn)
     );
-    uint256 estAmountOut = amountIn.mul(priceRatio).div(AngelCoreStruct.BIG_NUMBA_BASIS);
+    uint256 estAmountOut = amountIn.mul(priceRatio).div(LibAccounts.BIG_NUMBA_BASIS);
     uint256 minAmountOut = estAmountOut.sub(
-      estAmountOut.mul(slippage).div(AngelCoreStruct.FEE_BASIS)
+      estAmountOut.mul(slippage).div(LibAccounts.FEE_BASIS)
     );
 
     // find the lowest fee pool available, if any, to swap tokens

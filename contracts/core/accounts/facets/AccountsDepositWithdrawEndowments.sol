@@ -5,7 +5,6 @@ import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {AccountStorage} from "../storage.sol";
-import {AngelCoreStruct} from "../../struct.sol";
 import {Validator} from "../../validator.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
@@ -106,7 +105,7 @@ contract AccountsDepositWithdrawEndowments is
 
     if (tempEndowment.depositFee.bps != 0) {
       uint256 depositFeeAmount = (amount.mul(tempEndowment.depositFee.bps)).div(
-        AngelCoreStruct.FEE_BASIS
+        LibAccounts.FEE_BASIS
       );
       amount = amount.sub(depositFeeAmount);
 
@@ -119,12 +118,12 @@ contract AccountsDepositWithdrawEndowments is
     uint256 lockedSplitPercent = details.lockedPercentage;
     uint256 liquidSplitPercent = details.liquidPercentage;
 
-    AngelCoreStruct.SplitDetails memory registrar_split_configs = registrar_config.splitToLiquid;
+    LibAccounts.SplitDetails memory registrar_split_configs = registrar_config.splitToLiquid;
 
     require(registrar_config.indexFundContract != address(0), "No Index Fund");
 
     if (msg.sender != registrar_config.indexFundContract) {
-      if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Charity) {
+      if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
         // use the Registrar default split for Charities
         (lockedSplitPercent, liquidSplitPercent) = Validator.checkSplits(
           registrar_split_configs,
@@ -143,14 +142,14 @@ contract AccountsDepositWithdrawEndowments is
       }
     }
 
-    uint256 lockedAmount = (amount.mul(lockedSplitPercent)).div(AngelCoreStruct.PERCENT_BASIS);
-    uint256 liquidAmount = (amount.mul(liquidSplitPercent)).div(AngelCoreStruct.PERCENT_BASIS);
+    uint256 lockedAmount = (amount.mul(lockedSplitPercent)).div(LibAccounts.PERCENT_BASIS);
+    uint256 liquidAmount = (amount.mul(liquidSplitPercent)).div(LibAccounts.PERCENT_BASIS);
 
     //donation matching flow
     //execute donor match will always be called on an EOA
     if (lockedAmount > 0) {
       if (
-        tempEndowment.endowType == AngelCoreStruct.EndowmentType.Charity &&
+        tempEndowment.endowType == LibAccounts.EndowmentType.Charity &&
         registrar_config.donationMatchCharitesContract != address(0)
       ) {
         IDonationMatching(registrar_config.donationMatchCharitesContract).executeDonorMatch(
@@ -160,7 +159,7 @@ contract AccountsDepositWithdrawEndowments is
           registrar_config.haloToken
         );
       } else if (
-        tempEndowment.endowType == AngelCoreStruct.EndowmentType.Normal &&
+        tempEndowment.endowType == LibAccounts.EndowmentType.Normal &&
         tempEndowment.donationMatchContract != address(0)
       ) {
         IDonationMatching(tempEndowment.donationMatchContract).executeDonorMatch(
@@ -193,7 +192,7 @@ contract AccountsDepositWithdrawEndowments is
     IVault.VaultType acctType,
     address beneficiaryAddress,
     uint32 beneficiaryEndowId,
-    AngelCoreStruct.TokenInfo[] memory tokens
+    IAccountsDepositWithdrawEndowments.TokenInfo[] memory tokens
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
@@ -258,29 +257,29 @@ contract AccountsDepositWithdrawEndowments is
         // Calculate the early withdraw penalty based on the earlyLockedWithdrawFee setting
         // Normal: Endowment specific setting that owners can (optionally) set
         // Charity: Registrar based setting for all Charity Endowments
-        if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Normal) {
+        if (tempEndowment.endowType == LibAccounts.EndowmentType.Normal) {
           earlyLockedWithdrawPenalty = (
             tokens[t].amnt.mul(tempEndowment.earlyLockedWithdrawFee.bps)
-          ).div(AngelCoreStruct.FEE_BASIS);
+          ).div(LibAccounts.FEE_BASIS);
         } else {
           earlyLockedWithdrawPenalty = (
             tokens[t].amnt.mul(
               IRegistrar(state.config.registrarContract)
-                .getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes.EarlyLockedWithdrawCharity)
+                .getFeeSettingsByFeeType(LibAccounts.FeeTypes.EarlyLockedWithdrawCharity)
                 .bps
             )
-          ).div(AngelCoreStruct.FEE_BASIS);
+          ).div(LibAccounts.FEE_BASIS);
         }
       }
 
       uint256 withdrawFeeRateAp;
-      if (tempEndowment.endowType == AngelCoreStruct.EndowmentType.Charity) {
+      if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
         withdrawFeeRateAp = IRegistrar(state.config.registrarContract)
-          .getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes.WithdrawCharity)
+          .getFeeSettingsByFeeType(LibAccounts.FeeTypes.WithdrawCharity)
           .bps;
       } else {
         withdrawFeeRateAp = IRegistrar(state.config.registrarContract)
-          .getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes.WithdrawNormal)
+          .getFeeSettingsByFeeType(LibAccounts.FeeTypes.WithdrawNormal)
           .bps;
       }
 
@@ -296,7 +295,7 @@ contract AccountsDepositWithdrawEndowments is
 
       // calculate AP Protocol fee owed on withdrawn token amount
       uint256 withdrawFeeAp = (tokens[t].amnt.mul(withdrawFeeRateAp)).div(
-        AngelCoreStruct.FEE_BASIS
+        LibAccounts.FEE_BASIS
       );
 
       // Transfer AP Protocol fee to treasury
@@ -316,7 +315,7 @@ contract AccountsDepositWithdrawEndowments is
       uint256 withdrawFeeEndow = 0;
       if (amountLeftover > 0 && tempEndowment.withdrawFee.bps != 0) {
         withdrawFeeEndow = (amountLeftover.mul(tempEndowment.withdrawFee.bps)).div(
-          AngelCoreStruct.FEE_BASIS
+          LibAccounts.FEE_BASIS
         );
 
         // transfer endowment withdraw fee to beneficiary address

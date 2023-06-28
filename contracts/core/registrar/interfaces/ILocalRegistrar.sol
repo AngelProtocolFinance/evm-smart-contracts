@@ -3,7 +3,7 @@
 pragma solidity >=0.8.0;
 
 import {LocalRegistrarLib} from "../lib/LocalRegistrarLib.sol";
-import {AngelCoreStruct} from "../../struct.sol";
+import {LibAccounts} from "../../accounts/lib/LibAccounts.sol";
 
 interface ILocalRegistrar {
   /*////////////////////////////////////////////////
@@ -25,7 +25,7 @@ interface ILocalRegistrar {
   );
   event GasFeeUpdated(address _tokenAddr, uint256 _gasFee);
   event FeeSettingsUpdated(
-    AngelCoreStruct.FeeTypes _feeType,
+    LibAccounts.FeeTypes _feeType,
     uint256 _bpsRate,
     address _payoutAddress
   );
@@ -59,8 +59,8 @@ interface ILocalRegistrar {
   ) external view returns (LocalRegistrarLib.StrategyApprovalState);
 
   function getFeeSettingsByFeeType(
-    AngelCoreStruct.FeeTypes _feeType
-  ) external view returns (AngelCoreStruct.FeeSetting memory);
+    LibAccounts.FeeTypes _feeType
+  ) external view returns (LibAccounts.FeeSetting memory);
 
   function getVaultOperatorApproved(address _operator) external view returns (bool);
 
@@ -103,7 +103,7 @@ interface ILocalRegistrar {
   function setGasByToken(address _tokenAddr, uint256 _gasFee) external;
 
   function setFeeSettingsByFeesType(
-    AngelCoreStruct.FeeTypes _feeType,
+    LibAccounts.FeeTypes _feeType,
     uint256 _rate,
     address _payout
   ) external;

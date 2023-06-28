@@ -4,7 +4,6 @@ pragma solidity ^0.8.16;
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
-import {AngelCoreStruct} from "../../struct.sol";
 import {IAccountsQueryEndowments} from "../interfaces/IAccountsQueryEndowments.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
 

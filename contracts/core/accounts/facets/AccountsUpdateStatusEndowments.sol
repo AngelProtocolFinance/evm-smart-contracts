@@ -4,7 +4,6 @@ pragma solidity ^0.8.16;
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
-import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {IIndexFund} from "../../index-fund/IIndexFund.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
@@ -30,7 +29,7 @@ contract AccountsUpdateStatusEndowments is
    */
   function closeEndowment(
     uint32 id,
-    AngelCoreStruct.Beneficiary memory beneficiary
+    LibAccounts.Beneficiary memory beneficiary
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
@@ -43,7 +42,7 @@ contract AccountsUpdateStatusEndowments is
       .queryConfig();
 
     require(
-      beneficiary.enumData != AngelCoreStruct.BeneficiaryEnum.None ||
+      beneficiary.enumData != LibAccounts.BeneficiaryEnum.None ||
         registrar_config.indexFundContract != address(0),
       "Beneficiary is NONE & Index Fund Contract is not configured in Registrar"
     );
@@ -52,24 +51,24 @@ contract AccountsUpdateStatusEndowments is
     // or send to the first index fund if it is in one.
     IIndexFund.IndexFund[] memory funds = IIndexFund(registrar_config.indexFundContract)
       .queryInvolvedFunds(id);
-    if (beneficiary.enumData == AngelCoreStruct.BeneficiaryEnum.None) {
+    if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.None) {
       if (funds.length == 0) {
-        beneficiary = AngelCoreStruct.Beneficiary({
-          data: AngelCoreStruct.BeneficiaryData({
+        beneficiary = LibAccounts.Beneficiary({
+          data: LibAccounts.BeneficiaryData({
             endowId: 0,
             fundId: 0,
             addr: registrar_config.treasury
           }),
-          enumData: AngelCoreStruct.BeneficiaryEnum.Wallet
+          enumData: LibAccounts.BeneficiaryEnum.Wallet
         });
       } else {
-        beneficiary = AngelCoreStruct.Beneficiary({
-          data: AngelCoreStruct.BeneficiaryData({
+        beneficiary = LibAccounts.Beneficiary({
+          data: LibAccounts.BeneficiaryData({
             endowId: 0,
             fundId: funds[0].id,
             addr: address(0)
           }),
-          enumData: AngelCoreStruct.BeneficiaryEnum.IndexFund
+          enumData: LibAccounts.BeneficiaryEnum.IndexFund
         });
         // remove closing endowment from all Index Funds that it is in
         IIndexFund(registrar_config.indexFundContract).removeMember(id);

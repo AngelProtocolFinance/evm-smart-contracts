@@ -3,8 +3,8 @@ pragma solidity ^0.8.16;
 
 import {RegistrarStorage} from "./storage.sol";
 import {Validator} from "../validator.sol";
+import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {RegistrarMessages} from "./message.sol";
-import {AngelCoreStruct} from "../struct.sol";
 import "./storage.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {LocalRegistrar} from "./LocalRegistrar.sol";
@@ -125,7 +125,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     // state.config.rebalance = details.rebalance;
 
     // check splits
-    AngelCoreStruct.SplitDetails memory split_details = AngelCoreStruct.SplitDetails({
+    LibAccounts.SplitDetails memory split_details = LibAccounts.SplitDetails({
       max: details.splitMax,
       min: details.splitMin,
       defaultSplit: details.splitDefault
@@ -222,7 +222,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     if (Validator.addressChecker(details.cw900lvAddress)) {
       state.config.cw900lvAddress = details.cw900lvAddress;
     }
-    // state.config.acceptedTokens = AngelCoreStruct.AcceptedTokens({
+    // state.config.acceptedTokens = LibAccounts.AcceptedTokens({
     //     native: details.accepted_tokens_native,
     //     cw20: details.accepted_tokens_cw20
     // });

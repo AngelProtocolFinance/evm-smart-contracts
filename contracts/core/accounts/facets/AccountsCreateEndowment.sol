@@ -6,7 +6,6 @@ import {Validator} from "../../validator.sol";
 import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
-import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {subDaoMessage} from "../../../normalized_endowment/subdao/message.sol";
 import {ISubDao} from "../../../normalized_endowment/subdao/ISubDao.sol";
@@ -39,8 +38,8 @@ contract AccountsCreateEndowment is
 
     RegistrarStorage.Config memory registrar_config = IRegistrar(registrarAddress).queryConfig();
 
-    AngelCoreStruct.FeeSetting memory earlyLockedWithdrawFee = state.config.earlyLockedWithdrawFee;
-    if (AngelCoreStruct.EndowmentType.Charity == details.endowType) {
+    LibAccounts.FeeSetting memory earlyLockedWithdrawFee = state.config.earlyLockedWithdrawFee;
+    if (LibAccounts.EndowmentType.Charity == details.endowType) {
       require(msg.sender == registrar_config.charityProposal, "Unauthorized");
     } else {
       Validator.validateFee(details.earlyLockedWithdrawFee);
@@ -54,14 +53,14 @@ contract AccountsCreateEndowment is
     require(details.members.length >= 1, "No members provided for Endowment multisig");
     require(details.threshold > 0, "Threshold must be a positive number");
 
-    if (AngelCoreStruct.EndowmentType.Normal == details.endowType) {
+    if (LibAccounts.EndowmentType.Normal == details.endowType) {
       require(details.threshold <= details.members.length, "Threshold greater than member count");
     }
 
-    AngelCoreStruct.SplitDetails memory splitSettings;
+    LibAccounts.SplitDetails memory splitSettings;
     bool ignoreUserSplit;
 
-    if (AngelCoreStruct.EndowmentType.Charity == details.endowType) {
+    if (LibAccounts.EndowmentType.Charity == details.endowType) {
       ignoreUserSplit = false;
     } else {
       splitSettings = details.splitToLiquid;
@@ -69,7 +68,7 @@ contract AccountsCreateEndowment is
     }
 
     address donationMatchContract = address(0);
-    if (AngelCoreStruct.EndowmentType.Charity == details.endowType) {
+    if (LibAccounts.EndowmentType.Charity == details.endowType) {
       donationMatchContract = registrar_config.donationMatchCharitesContract;
     }
 

@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 
 import {subDaoMessage} from "./message.sol";
 import {SubDaoLib} from "./SubDaoLib.sol";
-import {AngelCoreStruct} from "../../core/struct.sol";
+import {LibAccounts} from "../../core/accounts/lib/LibAccounts.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
 import {Array} from "../../lib/array.sol";
 import {ProxyContract} from "./../../core/proxy.sol";
@@ -71,7 +71,7 @@ contract SubDao is Storage, ReentrancyGuard {
 
     if (
       details.token.token == SubDaoLib.TokenType.Existing &&
-      details.endowType == AngelCoreStruct.EndowmentType.Normal
+      details.endowType == LibAccounts.EndowmentType.Normal
     ) {
       require(
         IRegistrar(config.registrarContract).isTokenAccepted(details.token.data.existingData),
@@ -80,7 +80,7 @@ contract SubDao is Storage, ReentrancyGuard {
       config.daoToken = details.token.data.existingData;
     } else if (
       details.token.token == SubDaoLib.TokenType.New &&
-      details.endowType == AngelCoreStruct.EndowmentType.Normal
+      details.endowType == LibAccounts.EndowmentType.Normal
     ) {
       bytes memory callData = abi.encodeWithSignature(
         "initErC20(string,string,address,uint256,address)",
@@ -99,7 +99,7 @@ contract SubDao is Storage, ReentrancyGuard {
       );
     } else if (
       details.token.token == SubDaoLib.TokenType.VeBonding &&
-      details.endowType == AngelCoreStruct.EndowmentType.Normal
+      details.endowType == LibAccounts.EndowmentType.Normal
     ) {
       SubDaoTokenMessage.InstantiateMsg memory temp = SubDaoTokenMessage.InstantiateMsg({
         name: details.token.data.veBondingName,
@@ -122,7 +122,7 @@ contract SubDao is Storage, ReentrancyGuard {
       );
     } else if (
       details.token.token == SubDaoLib.TokenType.VeBonding &&
-      details.endowType == AngelCoreStruct.EndowmentType.Charity
+      details.endowType == LibAccounts.EndowmentType.Charity
     ) {
       require(registrar_config.haloToken != address(0), "Registrar's HALO token address is empty");
 

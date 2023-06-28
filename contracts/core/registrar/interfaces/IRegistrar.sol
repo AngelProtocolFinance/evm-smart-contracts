@@ -3,7 +3,6 @@
 pragma solidity ^0.8.16;
 import {RegistrarStorage} from "../storage.sol";
 import {RegistrarMessages} from "../message.sol";
-import {AngelCoreStruct} from "../../struct.sol";
 import {ILocalRegistrar} from "./ILocalRegistrar.sol";
 import {IAccountsVaultFacet} from "../../accounts/interfaces/IAccountsVaultFacet.sol";
 

@@ -9,7 +9,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {IndexFundMessage} from "./message.sol";
 import {IIndexFund} from "./IIndexFund.sol";
-import {AngelCoreStruct} from "../struct.sol";
+import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {Array, Array32} from "../../lib/array.sol";
 import {Utils} from "../../lib/utils.sol";
 import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
@@ -524,7 +524,7 @@ contract IndexFund is IIndexFund, StorageIndexFund, ReentrancyGuard, Initializab
    */
 
   function calculateSplit(
-    AngelCoreStruct.SplitDetails memory registrar_split,
+    LibAccounts.SplitDetails memory registrar_split,
     uint256 fundSplit,
     uint256 userSplit
   ) internal pure returns (uint256) {

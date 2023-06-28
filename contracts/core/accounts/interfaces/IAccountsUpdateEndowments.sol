@@ -2,7 +2,7 @@
 pragma solidity ^0.8.16;
 
 import {AccountMessages} from "../message.sol";
-import {AngelCoreStruct} from "../../struct.sol";
+import {LibAccounts} from "../lib/LibAccounts.sol";
 
 /**
  * @title AccountsUpdateEndowments
@@ -51,7 +51,7 @@ interface IAccountsUpdateEndowments {
   function updateDelegate(
     uint32 id,
     ControllerSettingOption setting,
-    AngelCoreStruct.DelegateAction action,
+    LibAccounts.DelegateAction action,
     address delegateAddress,
     uint256 delegateExpiry
   ) external;

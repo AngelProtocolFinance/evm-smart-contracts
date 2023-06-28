@@ -3,7 +3,6 @@ pragma solidity ^0.8.16;
 
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";
-import {AngelCoreStruct} from "../../struct.sol";
 import {Validator} from "../../validator.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {LocalRegistrarLib} from "../../registrar/lib/LocalRegistrarLib.sol";
