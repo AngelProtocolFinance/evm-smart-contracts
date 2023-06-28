@@ -28,8 +28,8 @@ describe("Local Registrar", function () {
   };
 
   let mockUniswapAddresses = {
-    router: "0x0000000000000000000000000000000000router",
-    factory: "0x000000000000000000000000000000000factory",
+    router: "0x0000000000000000000000000000000000111111",
+    factory: "0x0000000000000000000000000000000002222222",
   };
 
   let originatingChain = "polygon";
@@ -139,9 +139,9 @@ describe("Local Registrar", function () {
           mockUniswapAddresses.router,
           mockUniswapAddresses.factory
         );
+        let newFactoryAddr = await registrar.getUniswapFactoryAddress();
         let newRouterAddr = await registrar.getUniswapRouterAddress();
         expect(newFactoryAddr).to.equal(mockUniswapAddresses.factory);
-        let newFactoryAddr = await registrar.getUniswapFactoryAddress();
         expect(newRouterAddr).to.equal(mockUniswapAddresses.router);
       });
     });
@@ -270,34 +270,34 @@ describe("Local Registrar", function () {
       },
     };
 
-    it("should emit RebalanceParamsChanged", async function () {
+    it("should emit RebalanceParamsUpdated", async function () {
       await expect(registrar.setRebalanceParams(defaultRebalParams)).to.emit(
         registrar,
-        "RebalanceParamsChanged"
+        "RebalanceParamsUpdated"
       );
     });
 
-    it("should emit AngelProtocolParamsChanged", async function () {
+    it("should emit AngelProtocolParamsUpdated", async function () {
       await expect(registrar.setAngelProtocolParams(defaultApParams)).to.emit(
         registrar,
-        "AngelProtocolParamsChanged"
+        "AngelProtocolParamsUpdated"
       );
     });
 
-    it("should emit TokenAcceptanceChanged", async function () {
+    it("should emit TokenAcceptanceUpdated", async function () {
       await expect(registrar.setTokenAccepted(user.address, true)).to.emit(
         registrar,
-        "TokenAcceptanceChanged"
+        "TokenAcceptanceUpdated"
       );
     });
 
-    it("should emit StrategyApprovalChanged", async function () {
+    it("should emit StrategyApprovalUpdated", async function () {
       await expect(
         registrar.setStrategyApprovalState(strategyId, StrategyApprovalState.APPROVED)
-      ).to.emit(registrar, "StrategyApprovalChanged");
+      ).to.emit(registrar, "StrategyApprovalUpdated");
     });
 
-    it("should emit StrategyParams Changed", async function () {
+    it("should emit StrategyParamsUpdated", async function () {
       await expect(
         registrar.setStrategyParams(
           strategyId,
@@ -305,7 +305,7 @@ describe("Local Registrar", function () {
           strategyParams.Locked.vaultAddr,
           strategyParams.approvalState
         )
-      ).to.emit(registrar, "StrategyParamsChanged");
+      ).to.emit(registrar, "StrategyParamsUpdated");
     });
 
     it("should emit GasFeeUpdated", async function () {

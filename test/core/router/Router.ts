@@ -6,6 +6,7 @@ import {
   DummyGasService,
   DummyGateway,
   DummyVault,
+  IRouter,
   LocalRegistrar,
   LocalRegistrar__factory,
   Router,
@@ -295,7 +296,7 @@ describe("Router", function () {
             333
           )
         )
-          .to.emit(router, "LogError")
+          .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Only one account allowed");
         let gatewayAllowance = await token.allowance(router.address, gateway.address);
         expect(gatewayAllowance).to.equal(333);
@@ -316,7 +317,7 @@ describe("Router", function () {
             333
           )
         )
-          .to.emit(router, "LogError")
+          .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Only deposit accepts tokens");
         let gatewayAllowance = await token.allowance(router.address, gateway.address);
         expect(gatewayAllowance).to.equal(333);
@@ -337,7 +338,7 @@ describe("Router", function () {
             333
           )
         )
-          .to.emit(router, "LogError")
+          .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Token mismatch");
         let gatewayAllowance = await token.allowance(router.address, gateway.address);
         expect(gatewayAllowance).to.equal(333);
@@ -358,7 +359,7 @@ describe("Router", function () {
             332
           )
         )
-          .to.emit(router, "LogError")
+          .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Amount mismatch");
         let gatewayAllowance = await token.allowance(router.address, gateway.address);
         expect(gatewayAllowance).to.equal(332);
@@ -381,7 +382,7 @@ describe("Router", function () {
             0
           )
         )
-          .to.emit(router, "LogError")
+          .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "No vault deposit specified").to.be.reverted;
       });
 
@@ -401,7 +402,7 @@ describe("Router", function () {
             333
           )
         )
-          .to.emit(router, "LogError")
+          .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Token not accepted");
         let gatewayAllowance = await token.allowance(router.address, gateway.address);
         expect(gatewayAllowance).to.equal(333);
@@ -423,7 +424,7 @@ describe("Router", function () {
             333
           )
         )
-          .to.emit(router, "LogError")
+          .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Strategy not approved");
         let gatewayAllowance = await token.allowance(router.address, gateway.address);
         expect(gatewayAllowance).to.equal(333);
@@ -498,7 +499,7 @@ describe("Router", function () {
             333
           )
         )
-          .to.emit(router, "LogError")
+          .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Only one account allowed");
         let collectorBal = await token.balanceOf(collector.address);
         expect(collectorBal).to.equal(333);
@@ -520,7 +521,7 @@ describe("Router", function () {
             333
           )
         )
-          .to.emit(router, "LogError")
+          .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Only deposit accepts tokens");
         let collectorBal = await token.balanceOf(collector.address);
         expect(collectorBal).to.equal(333);
@@ -541,7 +542,7 @@ describe("Router", function () {
             333
           )
         )
-          .to.emit(router, "LogError")
+          .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Token mismatch");
         let collectorBal = await token.balanceOf(collector.address);
         expect(collectorBal).to.equal(333);
@@ -562,7 +563,7 @@ describe("Router", function () {
             332
           )
         )
-          .to.emit(router, "LogError")
+          .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Amount mismatch");
         let collectorBal = await token.balanceOf(collector.address);
         expect(collectorBal).to.equal(332);
@@ -585,7 +586,7 @@ describe("Router", function () {
             0
           )
         )
-          .to.emit(router, "LogError")
+          .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "No vault deposit specified").to.be.reverted;
       });
 
@@ -605,7 +606,7 @@ describe("Router", function () {
             333
           )
         )
-          .to.emit(router, "LogError")
+          .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Token not accepted");
         let collectorBal = await token.balanceOf(collector.address);
         expect(collectorBal).to.equal(333);
@@ -627,7 +628,7 @@ describe("Router", function () {
             333
           )
         )
-          .to.emit(router, "LogError")
+          .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Strategy not approved");
         let collectorBal = await token.balanceOf(collector.address);
         expect(collectorBal).to.equal(333);
@@ -725,7 +726,7 @@ describe("Router", function () {
           token.symbol(),
           333
         )
-      ).to.emit(liquidVault, "DepositMade");
+      ).to.emit(liquidVault, "Deposit");
     });
 
     it("correctly calls redeem via execute", async function () {
@@ -753,8 +754,8 @@ describe("Router", function () {
           packedData
         )
       )
-        .to.emit(liquidVault, "Redemption")
-        .to.emit(lockedVault, "Redemption");
+        .to.emit(liquidVault, "Redeem")
+        .to.emit(lockedVault, "Redeem");
     });
 
     it("correctly calls redeemAll via execute", async function () {
@@ -785,7 +786,7 @@ describe("Router", function () {
           accountsContract,
           packedData
         )
-      ).to.emit(liquidVault, "Redemption");
+      ).to.emit(liquidVault, "Redeem");
     });
 
     it("correctly calls harvest via execute", async function () {
@@ -798,7 +799,7 @@ describe("Router", function () {
           accountsContract,
           packedData
         )
-      ).to.emit(liquidVault, "Harvest");
+      ).to.emit(liquidVault, "RewardsHarvested");
     });
   });
 
