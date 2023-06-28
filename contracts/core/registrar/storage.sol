@@ -6,8 +6,6 @@ import {IAccountsVaultFacet} from "../accounts/interfaces/IAccountsVaultFacet.so
 
 library RegistrarStorage {
   struct Config {
-    //Application review multisig
-    address applicationsReview; // Endowment application review team's multisig (set as owner to start). Owner can set and change/revoke.
     address indexFundContract;
     address accountsContract;
     address treasury;
@@ -33,7 +31,7 @@ library RegistrarStorage {
     address uniswapFactory;
     address multisigFactory;
     address multisigEmitter;
-    address charityProposal;
+    address charityApplications;
     address lockedWithdrawal;
     address proxyAdmin;
     address usdcAddress;

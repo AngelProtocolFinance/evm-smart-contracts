@@ -1,4 +1,4 @@
-import {deployCharityApplication} from "contracts/multisigs/charity_applications/scripts/deploy";
+import {deployCharityApplications} from "contracts/multisigs/scripts/deployCharityApplications";
 import {task, types} from "hardhat/config";
 import {confirmAction, getAddresses, isLocalNetwork, logger, verify} from "utils";
 import {updateRegistrarConfig} from "../helpers";
@@ -6,7 +6,7 @@ import {updateRegistrarConfig} from "../helpers";
 type TaskArgs = {
   accountsDiamond?: string;
   apTeamMultisig?: string;
-  applications?: string;
+  charityApplications?: string;
   registrar?: string;
   verify: boolean;
   yes: boolean;
@@ -22,10 +22,6 @@ task("deploy:CharityApplication", "Will deploy CharityApplication contract")
     "APTeamMultiSig contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addOptionalParam(
-    "applications",
-    "ApplicationsMultiSig contract address. Will do a local lookup from contract-address.json if none is provided."
-  )
-  .addOptionalParam(
     "registrar",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
@@ -38,7 +34,7 @@ task("deploy:CharityApplication", "Will deploy CharityApplication contract")
   .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      const isConfirmed = taskArgs.yes || (await confirmAction("Deploying CharityApplication..."));
+      const isConfirmed = taskArgs.yes || (await confirmAction("Deploying CharityApplications..."));
       if (!isConfirmed) {
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
@@ -47,11 +43,9 @@ task("deploy:CharityApplication", "Will deploy CharityApplication contract")
 
       const accountsDiamond = taskArgs.accountsDiamond || addresses.accounts.diamond;
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
-      const applications = taskArgs.applications || addresses.multiSig.applications.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
 
-      const deployData = await deployCharityApplication(
-        applications,
+      const deployData = await deployCharityApplications(
         accountsDiamond,
         addresses.tokens.seedAsset,
         hre
@@ -64,13 +58,12 @@ task("deploy:CharityApplication", "Will deploy CharityApplication contract")
       await updateRegistrarConfig(
         registrar,
         apTeamMultiSig,
-        {charityProposal: deployData.charityApplication.address},
+        {charityApplications: deployData.charityApplications.address},
         hre
       );
 
       if (!isLocalNetwork(hre) && taskArgs.verify) {
-        await verify(hre, deployData.charityApplicationLib);
-        await verify(hre, deployData.charityApplication);
+        await verify(hre, deployData.charityApplications);
       }
     } catch (error) {
       logger.out(error, logger.Level.Error);

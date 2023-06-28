@@ -9,8 +9,7 @@ import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 // import { deployHaloImplementation } from "contracts/halo/scripts/deploy"
-import {deployCharityApplication} from "contracts/multisigs/charity_applications/scripts/deploy";
-import {deployAPTeamMultiSig, deployApplicationsMultiSig} from "contracts/multisigs/scripts/deploy";
+import {deployAPTeamMultiSig, deployCharityApplications} from "contracts/multisigs/scripts/deploy";
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
 // import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
 // import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
@@ -50,8 +49,6 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       const apTeamMultisig = await deployAPTeamMultiSig(hre);
 
-      const applicationsMultiSig = await deployApplicationsMultiSig(hre);
-
       const registrar = await deployRegistrar(
         thirdPartyAddresses.axelarGateway.address,
         thirdPartyAddresses.axelarGasService.address,
@@ -76,8 +73,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       // const emitters = await deployEmitters(accountsDiamond.address, hre);
 
-      const charityApplication = await deployCharityApplication(
-        applicationsMultiSig?.address,
+      const charityApplications = await deployCharityApplications(
         accounts?.diamond.address,
         thirdPartyAddresses.seedAsset.address,
         hre
@@ -259,12 +255,11 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
           indexFundContract: indexFund?.address, //address
           treasury: treasury.address,
           // haloTokenLpContract: addresses.halo.tokenLp,
-          applicationsReview: applicationsMultiSig?.address, //address
           uniswapRouter: thirdPartyAddresses.uniswap.swapRouter.address, //address
           uniswapFactory: thirdPartyAddresses.uniswap.factory.address, //address
           multisigFactory: endowmentMultiSig?.factory.address, //address
           multisigEmitter: endowmentMultiSig?.emitter.address, //address
-          charityProposal: charityApplication?.charityApplication.address, //address
+          charityApplications: charityApplications?.address, //address
           proxyAdmin: proxyAdmin.address, //address
           usdcAddress: thirdPartyAddresses.usdcToken.address,
           wMaticAddress: thirdPartyAddresses.wmaticToken.address,
@@ -285,13 +280,11 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       if (verify_contracts) {
         const deployments: Array<Deployment | undefined> = [
           apTeamMultisig,
-          applicationsMultiSig,
           registrar,
           router,
           accounts?.diamond,
           ...(accounts?.facets || []),
-          charityApplication?.charityApplication,
-          charityApplication?.charityApplicationLib,
+          charityApplications?.address,
           indexFund,
           endowmentMultiSig?.emitter,
           endowmentMultiSig?.factory,

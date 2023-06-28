@@ -44,14 +44,14 @@ contract EndowmentMultiSig is MultiSigGeneric {
 
   /// @dev Allows to add new owners. Transaction has to be sent by wallet.
   /// @param owners Addresses of new owners.
-  function addOwners(address[] memory owners) public override onlyWallet {
+  function addOwners(address[] memory owners) public override {
     super.addOwners(owners);
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).addOwnersEndowment(ENDOWMENT_ID, owners);
   }
 
   /// @dev Allows to remove owners. Transaction has to be sent by wallet.
   /// @param owners Addresses of removed owners.
-  function removeOwners(address[] memory owners) public override onlyWallet {
+  function removeOwners(address[] memory owners) public override {
     super.removeOwners(owners);
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).removeOwnersEndowment(ENDOWMENT_ID, owners);
   }
@@ -121,8 +121,8 @@ contract EndowmentMultiSig is MultiSigGeneric {
     bytes memory data,
     bytes memory metadata
   ) public virtual override returns (uint256 transactionId) {
-    transactionId = addTransaction(destination, value, data, metadata);
-    confirmTransaction(transactionId);
+    transactionId = super.submitTransaction(destination, value, data, metadata);
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).submitEndowment(ENDOWMENT_ID, transactionId);
   }
 
   /**
@@ -176,39 +176,8 @@ contract EndowmentMultiSig is MultiSigGeneric {
    * @dev emits the executeEndowment event, overrides underlying execute function
    * @param transactionId the transaction id
    */
-  function executeTransaction(
-    uint256 transactionId
-  )
-    public
-    override
-    ownerExists(msg.sender)
-    confirmed(transactionId, msg.sender)
-    notExecuted(transactionId)
-  {
-    if (isConfirmed(transactionId)) {
-      MultiSigStorage.Transaction storage txn = transactions[transactionId];
-      txn.executed = true;
-      Utils._execute(txn.destination, txn.value, txn.data);
-      IEndowmentMultiSigEmitter(EMITTER_ADDRESS).executeEndowment(ENDOWMENT_ID, transactionId);
-    }
-  }
-
-  /**
-   * @notice overrides the generic multisig addTransaction function
-   * @dev emits the submitEndowment event
-   * @param destination the destination of the transaction
-   * @param value the value of the transaction
-   * @param data the data of the transaction
-   * @param metadata Encoded transaction metadata, can contain dynamic content.
-   */
-  function addTransaction(
-    address destination,
-    uint256 value,
-    bytes memory data,
-    bytes memory metadata
-  ) internal override returns (uint256 transactionId) {
-    transactionId = super.addTransaction(destination, value, data, metadata);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).submitEndowment(ENDOWMENT_ID, transactionId);
-    return transactionId;
+  function executeTransaction(uint256 transactionId) public override {
+    super.executeTransaction(transactionId);
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).executeEndowment(ENDOWMENT_ID, transactionId);
   }
 }

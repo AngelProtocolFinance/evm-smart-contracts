@@ -61,6 +61,14 @@ contract MultiSigGeneric is
     _;
   }
 
+  modifier approvalsThresholdMet(uint256 transactionId) {
+    require(
+      confirmations[transactionId].count >= approvalsRequired,
+      "Not enough confirmations to execute"
+    );
+    _;
+  }
+
   modifier notNull(address addr) {
     require(addr != address(0), "Address cannot be a zero address");
     _;
@@ -88,6 +96,7 @@ contract MultiSigGeneric is
   /// @param owners List of initial owners.
   /// @param _approvalsRequired Number of required confirmations.
   /// @param _requireExecution setting for if an explicit execution call is required
+  /// @param _transactionExpiry Proposal expiry time in seconds
   function initialize(
     address[] memory owners,
     uint256 _approvalsRequired,
@@ -276,17 +285,14 @@ contract MultiSigGeneric is
     public
     virtual
     override
-    ownerExists(msg.sender)
-    confirmed(transactionId, msg.sender)
+    approvalsThresholdMet(transactionId)
     notExecuted(transactionId)
     notExpired(transactionId)
   {
-    if (isConfirmed(transactionId)) {
-      MultiSigStorage.Transaction storage txn = transactions[transactionId];
-      txn.executed = true;
-      Utils._execute(txn.destination, txn.value, txn.data);
-      emit TransactionExecuted(transactionId);
-    }
+    MultiSigStorage.Transaction storage txn = transactions[transactionId];
+    txn.executed = true;
+    Utils._execute(txn.destination, txn.value, txn.data);
+    emit TransactionExecuted(transactionId);
   }
 
   /// @dev Returns the confirmation status of a transaction.

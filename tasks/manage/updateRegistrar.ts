@@ -48,7 +48,6 @@ task(
         subdaoDistributorContract: apTeam1.address, // subdao gov fee distributor
         subdaoEmitter: addresses.subDao.emitter.proxy,
         donationMatchContract: addresses.donationMatch.implementation, // donation matching contract
-
         // CONTRACT ADSRESSES
         indexFundContract: addresses.indexFund.proxy,
         govContract: apTeam1.address,
@@ -60,54 +59,39 @@ task(
         // haloTokenLpContract: addresses.halo.tokenLp, -> TODO: when implemented
         charitySharesContract: apTeam1.address,
         fundraisingContract: apTeam1.address,
-        applicationsReview: addresses.multiSig.applications.proxy,
-        uniswapRouter: addresses.uniswap.swapRouter,
-        uniswapFactory: addresses.uniswap.factory,
+        uniswapRouter: addresses.uniswap.SwapRouter,
+        uniswapFactory: addresses.uniswap.Factory,
         multisigFactory: addresses.multiSig.endowment.factory,
         multisigEmitter: addresses.multiSig.endowment.emitter.proxy,
-        charityProposal: addresses.charityApplication.proxy,
+        charityApplications: addresses.charityApplications.proxy,
         proxyAdmin: proxyAdmin.address,
         usdcAddress: addresses.tokens.usdc,
         wMaticAddress: addresses.tokens.wmatic,
         cw900lvAddress: apTeam1.address,
         lockedWithdrawal: ADDRESS_ZERO,
-      };
-      const updateConfigData = registrar.interface.encodeFunctionData("updateConfig", [newConfig]);
+    };
+    const updateConfigData = registrar.interface.encodeFunctionData("updateConfig", [newConfig]);
 
-      const apTeamMultiSig = APTeamMultiSig__factory.connect(
-        addresses.multiSig.apTeam.proxy,
-        apTeamMultisigOwners[0]
-      );
-      logger.out("Submitting 'updateConfig' transaction...");
-      const tx = await apTeamMultiSig.submitTransaction(
-        addresses.registrar.proxy,
-        0,
-        updateConfigData,
-        "0x"
-      );
-      logger.out(`Tx hash: ${tx.hash}`);
-      await tx.wait();
+    let updatedConfig = await registrar.queryConfig();
+    logger.out("New config:");
+    logger.out(JSON.stringify(updatedConfig, undefined, 2));
 
-      let updatedConfig = await registrar.queryConfig();
-      logger.out("New config:");
-      logger.out(JSON.stringify(updatedConfig, undefined, 2));
-
-      if (taskArgs.acceptedTokens.length > 0) {
-        logger.divider();
-        logger.out("Updating accepted tokens...");
-        for (let i = 0; i < taskArgs.acceptedTokens.length; i++) {
-          try {
-            const tokenAddress = taskArgs.acceptedTokens[i];
-            const acceptanceState = taskArgs.acceptanceStates.at(i) ?? true;
-            await hre.run("manage:registrar:setTokenAccepted", {tokenAddress, acceptanceState});
-          } catch (error) {
-            logger.out(error, logger.Level.Error);
-          }
+    if (taskArgs.acceptedTokens.length > 0) {
+      logger.divider();
+      logger.out("Updating accepted tokens...");
+      for (let i = 0; i < taskArgs.acceptedTokens.length; i++) {
+        try {
+          const tokenAddress = taskArgs.acceptedTokens[i];
+          const acceptanceState = taskArgs.acceptanceStates.at(i) ?? true;
+          await hre.run("manage:registrar:setTokenAccepted", {tokenAddress, acceptanceState});
+        } catch (error) {
+          logger.out(error, logger.Level.Error);
         }
       }
-    } catch (error) {
-      logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done");
     }
-  });
+  } catch (error) {
+    logger.out(error, logger.Level.Error);
+  } finally {
+    logger.out("Done");
+  }
+});
