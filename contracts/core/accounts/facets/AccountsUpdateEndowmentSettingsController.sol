@@ -2,21 +2,24 @@
 pragma solidity ^0.8.16;
 
 import {LibAccounts} from "../lib/LibAccounts.sol";
-import {Validator} from "../lib/validator.sol";
+import {Validator} from "../../validator.sol";
 import {AddressArray} from "../../../lib/address/array.sol";
 import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
-import {AngelCoreStruct} from "../../struct.sol";
-import {Array} from "../../../lib/array.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
-import {AccountsEvents} from "./AccountsEvents.sol";
+import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
+import {IAccountsUpdateEndowmentSettingsController} from "../interfaces/IAccountsUpdateEndowmentSettingsController.sol";
 
 /**
  * @title AccountsUpdateEndowmentSettingsController
  * @notice This contract facet is used to manage updates via the endowment settings controller
  * @dev This contract facet is used to manage updates via the endowment settings controller
  */
-contract AccountsUpdateEndowmentSettingsController is ReentrancyGuardFacet, AccountsEvents {
+contract AccountsUpdateEndowmentSettingsController is
+  IAccountsUpdateEndowmentSettingsController,
+  ReentrancyGuardFacet,
+  IAccountsEvents
+{
   /**
     @dev Updates the settings of an endowment.
     @param details Object containing the updated details of the endowment settings.
@@ -28,7 +31,7 @@ contract AccountsUpdateEndowmentSettingsController is ReentrancyGuardFacet, Acco
     @param details.splitToLiquid The updated split to liquid ratio.
     @param details.ignoreUserSplits Whether or not to ignore user splits.
     Emits a EndowmentSettingUpdated event for each setting that has been updated.
-    Emits an UpdateEndowment event after the endowment has been updated.
+    Emits an EndowmentUpdated event after the endowment has been updated.
     Throws an error if the endowment is closing.
     */
   function updateEndowmentSettings(
@@ -39,27 +42,21 @@ contract AccountsUpdateEndowmentSettingsController is ReentrancyGuardFacet, Acco
 
     require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
 
-    if (tempEndowment.endowType != AngelCoreStruct.EndowmentType.Charity) {
-      // when maturity time is <= 0 it means it's not set, i.e. the AST is perpetual
+    if (tempEndowment.endowType != LibAccounts.EndowmentType.Charity) {
+      if (
+        Validator.canChange(
+          tempEndowment.settingsController.maturityTime,
+          msg.sender,
+          tempEndowment.owner,
+          block.timestamp
+        )
+      ) {
+        tempEndowment.maturityTime = details.maturityTime;
+        emit EndowmentSettingUpdated(details.id, "maturityTime");
+      }
       if (tempEndowment.maturityTime <= 0 || tempEndowment.maturityTime > block.timestamp) {
         if (
-          AngelCoreStruct.canChange(
-            tempEndowment.settingsController.maturityTime,
-            msg.sender,
-            tempEndowment.owner,
-            block.timestamp
-          )
-        ) {
-          // Changes must be to a future time OR changing to a perpetual maturity
-          require(
-            details.maturityTime > block.timestamp || details.maturityTime == 0,
-            "Invalid maturity time input"
-          );
-          tempEndowment.maturityTime = details.maturityTime;
-          emit EndowmentSettingUpdated(details.id, "maturityTime");
-        }
-        if (
-          AngelCoreStruct.canChange(
+          Validator.canChange(
             tempEndowment.settingsController.allowlistedBeneficiaries,
             msg.sender,
             tempEndowment.owner,
@@ -67,11 +64,13 @@ contract AccountsUpdateEndowmentSettingsController is ReentrancyGuardFacet, Acco
           )
         ) {
           tempEndowment.allowlistedBeneficiaries = details.allowlistedBeneficiaries;
+          // IS EMITTING THIS EVENT FOR EACH UPDATED FIELD A GENERAL PRACTICE?
+          // I SEE THE BENEFIT, JUST NOT SURE ABOUT GAS EFFICIENCY AND USEFULNESS
           emit EndowmentSettingUpdated(details.id, "allowlistedBeneficiaries");
         }
 
         if (
-          AngelCoreStruct.canChange(
+          Validator.canChange(
             tempEndowment.settingsController.allowlistedContributors,
             msg.sender,
             tempEndowment.owner,
@@ -82,7 +81,7 @@ contract AccountsUpdateEndowmentSettingsController is ReentrancyGuardFacet, Acco
           emit EndowmentSettingUpdated(details.id, "allowlistedContributors");
         }
         if (
-          AngelCoreStruct.canChange(
+          Validator.canChange(
             tempEndowment.settingsController.maturityAllowlist,
             msg.sender,
             tempEndowment.owner,
@@ -114,7 +113,7 @@ contract AccountsUpdateEndowmentSettingsController is ReentrancyGuardFacet, Acco
     }
 
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.splitToLiquid,
         msg.sender,
         tempEndowment.owner,
@@ -126,7 +125,7 @@ contract AccountsUpdateEndowmentSettingsController is ReentrancyGuardFacet, Acco
     }
 
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.ignoreUserSplits,
         msg.sender,
         tempEndowment.owner,
@@ -137,7 +136,7 @@ contract AccountsUpdateEndowmentSettingsController is ReentrancyGuardFacet, Acco
       emit EndowmentSettingUpdated(details.id, "ignoreUserSplits");
     }
     state.ENDOWMENTS[details.id] = tempEndowment;
-    emit UpdateEndowment(details.id, tempEndowment);
+    emit EndowmentUpdated(details.id);
   }
 
   /**
@@ -155,160 +154,188 @@ contract AccountsUpdateEndowmentSettingsController is ReentrancyGuardFacet, Acco
     require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
     require(msg.sender == tempEndowment.owner, "Unauthorized");
 
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.lockedInvestmentManagement,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      Validator.canChange(
+        tempEndowment.settingsController.lockedInvestmentManagement,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
-      tempEndowment.settingsController.lockedInvestmentManagement = details.settingsController.lockedInvestmentManagement;
+      tempEndowment.settingsController.lockedInvestmentManagement = details
+        .settingsController
+        .lockedInvestmentManagement;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.liquidInvestmentManagement,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      Validator.canChange(
+        tempEndowment.settingsController.liquidInvestmentManagement,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
-      tempEndowment.settingsController.liquidInvestmentManagement = details.settingsController.liquidInvestmentManagement;
+      tempEndowment.settingsController.liquidInvestmentManagement = details
+        .settingsController
+        .liquidInvestmentManagement;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.acceptedTokens,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      Validator.canChange(
+        tempEndowment.settingsController.acceptedTokens,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
       tempEndowment.settingsController.acceptedTokens = details.settingsController.acceptedTokens;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.allowlistedBeneficiaries,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      Validator.canChange(
+        tempEndowment.settingsController.allowlistedBeneficiaries,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
-      tempEndowment.settingsController.allowlistedBeneficiaries = details.settingsController.allowlistedBeneficiaries;
+      tempEndowment.settingsController.allowlistedBeneficiaries = details
+        .settingsController
+        .allowlistedBeneficiaries;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.allowlistedContributors,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      Validator.canChange(
+        tempEndowment.settingsController.allowlistedContributors,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
-      tempEndowment.settingsController.allowlistedContributors = details.settingsController.allowlistedContributors;
+      tempEndowment.settingsController.allowlistedContributors = details
+        .settingsController
+        .allowlistedContributors;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.maturityAllowlist,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      Validator.canChange(
+        tempEndowment.settingsController.maturityAllowlist,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
-      tempEndowment.settingsController.maturityAllowlist = details.settingsController.maturityAllowlist;
+      tempEndowment.settingsController.maturityAllowlist = details
+        .settingsController
+        .maturityAllowlist;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.maturityTime,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      Validator.canChange(
+        tempEndowment.settingsController.maturityTime,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
       tempEndowment.settingsController.maturityTime = details.settingsController.maturityTime;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.withdrawFee,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      Validator.canChange(
+        tempEndowment.settingsController.withdrawFee,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
       tempEndowment.settingsController.withdrawFee = details.settingsController.withdrawFee;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.depositFee,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      Validator.canChange(
+        tempEndowment.settingsController.depositFee,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
       tempEndowment.settingsController.depositFee = details.settingsController.depositFee;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.balanceFee,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      Validator.canChange(
+        tempEndowment.settingsController.balanceFee,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
       tempEndowment.settingsController.balanceFee = details.settingsController.balanceFee;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.name,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      Validator.canChange(
+        tempEndowment.settingsController.name,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
       tempEndowment.settingsController.name = details.settingsController.name;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.image,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      Validator.canChange(
+        tempEndowment.settingsController.image,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
       tempEndowment.settingsController.image = details.settingsController.image;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.logo,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      Validator.canChange(
+        tempEndowment.settingsController.logo,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
       tempEndowment.settingsController.logo = details.settingsController.logo;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.sdgs,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      Validator.canChange(
+        tempEndowment.settingsController.sdgs,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
       tempEndowment.settingsController.sdgs = details.settingsController.sdgs;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.splitToLiquid,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      Validator.canChange(
+        tempEndowment.settingsController.splitToLiquid,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
       tempEndowment.settingsController.splitToLiquid = details.settingsController.splitToLiquid;
     }
-    if (AngelCoreStruct.canChange(
-          tempEndowment.settingsController.ignoreUserSplits,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        )
+    if (
+      Validator.canChange(
+        tempEndowment.settingsController.ignoreUserSplits,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
     ) {
-      tempEndowment.settingsController.ignoreUserSplits = details.settingsController.ignoreUserSplits;
+      tempEndowment.settingsController.ignoreUserSplits = details
+        .settingsController
+        .ignoreUserSplits;
     }
     state.ENDOWMENTS[details.id] = tempEndowment;
     emit EndowmentSettingUpdated(details.id, "endowmentController");
-    emit UpdateEndowment(details.id, tempEndowment);
+    emit EndowmentUpdated(details.id);
   }
 
   /**
     @notice Allows the owner or DAO to update the fees for a given endowment.
     @dev Only the fees that the caller is authorized to update will be updated.
     @param details The details of the fee update request, including the endowment ID, new fees, and the caller's signature.
-    @dev Emits an UpdateEndowment event containing the updated endowment details.
+    @dev Emits an EndowmentUpdated event containing the updated endowment details.
     @dev Reverts if the endowment is of type Charity, as charity endowments may not change fees.
     */
   function updateFeeSettings(
@@ -318,60 +345,60 @@ contract AccountsUpdateEndowmentSettingsController is ReentrancyGuardFacet, Acco
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
 
     require(
-      tempEndowment.endowType != AngelCoreStruct.EndowmentType.Charity,
+      tempEndowment.endowType != LibAccounts.EndowmentType.Charity,
       "Charity Endowments may not change endowment fees"
     );
     require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
 
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.earlyLockedWithdrawFee,
         msg.sender,
         tempEndowment.owner,
         block.timestamp
       )
     ) {
-      AngelCoreStruct.validateFee(details.earlyLockedWithdrawFee);
+      Validator.validateFee(details.earlyLockedWithdrawFee);
       tempEndowment.earlyLockedWithdrawFee = details.earlyLockedWithdrawFee;
     }
 
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.depositFee,
         msg.sender,
         tempEndowment.owner,
         block.timestamp
       )
     ) {
-      AngelCoreStruct.validateFee(details.depositFee);
+      Validator.validateFee(details.depositFee);
       tempEndowment.depositFee = details.depositFee;
     }
 
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.withdrawFee,
         msg.sender,
         tempEndowment.owner,
         block.timestamp
       )
     ) {
-      AngelCoreStruct.validateFee(details.withdrawFee);
+      Validator.validateFee(details.withdrawFee);
       tempEndowment.withdrawFee = details.withdrawFee;
     }
 
     if (
-      AngelCoreStruct.canChange(
+      Validator.canChange(
         tempEndowment.settingsController.balanceFee,
         msg.sender,
         tempEndowment.owner,
         block.timestamp
       )
     ) {
-      AngelCoreStruct.validateFee(details.balanceFee);
+      Validator.validateFee(details.balanceFee);
       tempEndowment.balanceFee = details.balanceFee;
     }
 
     state.ENDOWMENTS[details.id] = tempEndowment;
-    emit UpdateEndowment(details.id, tempEndowment);
+    emit EndowmentUpdated(details.id);
   }
 }

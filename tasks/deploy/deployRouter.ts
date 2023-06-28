@@ -1,14 +1,13 @@
-import config from "config";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {updateRegistrarNetworkConnection} from "scripts";
-import {Registrar__factory} from "typechain-types";
-import {getAddresses, getSigners, isLocalNetwork, logger} from "utils";
+import {confirmAction, getAddresses, isLocalNetwork, logger, verify} from "utils";
+import {updateRegistrarNetworkConnections} from "../helpers";
 
 type TaskArgs = {
   apTeamMultisig?: string;
   registrar?: string;
   verify: boolean;
+  yes: boolean;
 };
 
 task("deploy:Router", "Will deploy Router contract")
@@ -23,43 +22,45 @@ task("deploy:Router", "Will deploy Router contract")
   .addOptionalParam(
     "verify",
     "Flag indicating whether the contract should be verified",
-    false,
+    true,
     types.boolean
   )
+  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
+      const isConfirmed = taskArgs.yes || (await confirmAction("Deploying Router..."));
+      if (!isConfirmed) {
+        return logger.out("Confirmation denied.", logger.Level.Warn);
+      }
+
       const addresses = await getAddresses(hre);
-      const {proxyAdmin} = await getSigners(hre);
 
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
-      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
-      const router = await deployRouter(
-        config.REGISTRAR_DATA.axelarGateway,
-        config.REGISTRAR_DATA.axelarGasRecv,
+      const deployment = await deployRouter(
+        addresses.axelar.gateway,
+        addresses.axelar.gasService,
         registrar,
-        verify_contracts,
         hre
       );
+
+      if (!deployment) {
+        return;
+      }
 
       // Registrar NetworkInfo's Router address must be updated for the current network
-      const network = await hre.ethers.provider.getNetwork();
-      const registrarContract = Registrar__factory.connect(registrar, proxyAdmin);
-      logger.out(
-        `Fetching current Registrar's network connection data for chain ID:${network.chainId}...`
-      );
-      const curNetworkConnection = await registrarContract.queryNetworkConnection(network.chainId);
-      logger.out(JSON.stringify(curNetworkConnection, undefined, 2));
-      await updateRegistrarNetworkConnection(
+      await updateRegistrarNetworkConnections(
         registrar,
-        {...curNetworkConnection, router: router.proxy.address},
         apTeamMultiSig,
+        {router: deployment.address},
         hre
       );
+
+      if (!isLocalNetwork(hre) && taskArgs.verify) {
+        await verify(hre, deployment);
+      }
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

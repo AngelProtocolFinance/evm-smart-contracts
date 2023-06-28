@@ -17,15 +17,9 @@ abstract contract ERC4626AP is ERC20AP {
                                  EVENTS
     //////////////////////////////////////////////////////////////*/
 
-  event Deposit(address indexed caller, uint32 indexed owner, uint256 assets, uint256 shares);
+  event Deposit(address caller, uint32 owner, uint256 assets, uint256 shares);
 
-  event Withdraw(
-    address indexed caller,
-    address indexed receiver,
-    uint32 indexed owner,
-    uint256 assets,
-    uint256 shares
-  );
+  event Withdraw(address caller, address receiver, uint32 owner, uint256 assets, uint256 shares);
 
   /*//////////////////////////////////////////////////////////////
                                IMMUTABLES

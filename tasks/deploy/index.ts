@@ -1,7 +1,6 @@
 import "./deployAPTeamMultiSig";
 import "./deployAccountsDiamond";
 import "./deployAngelProtocol";
-import "./deployApplicationsMultiSig";
 import "./deployCharityApplications";
 import "./deployEmitters";
 import "./deployEndowmentMultisig";
@@ -10,7 +9,6 @@ import "./deployGiftcard";
 import "./deployHaloImplementation";
 import "./deployImplementation";
 import "./deployIndexFund";
-import "./deployLibraries";
 import "./deployRegistrar";
 import "./deployRouter";
 import "./integrations";

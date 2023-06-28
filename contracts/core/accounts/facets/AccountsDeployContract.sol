@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
-import {subDaoMessage} from "./../../../normalized_endowment/subdao/subdao.sol";
+
+import {subDaoMessage} from "../../../normalized_endowment/subdao/message.sol";
 import {AccountStorage} from "../storage.sol";
 import {LibAccounts} from "../lib/LibAccounts.sol";
-import {ProxyContract} from "./../../proxy.sol";
+import {ProxyContract} from "../../proxy.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
-import {AccountsEvents} from "./AccountsEvents.sol";
+import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {ISubdaoEmitter} from "../../../normalized_endowment/subdao/ISubdaoEmitter.sol";
-import {ISubDao} from "../../../normalized_endowment/subdao/Isubdao.sol";
+import {ISubDao} from "../../../normalized_endowment/subdao/ISubDao.sol";
 import {IAccountsDeployContract} from "../interfaces/IAccountsDeployContract.sol";
 
 /**
@@ -18,7 +19,7 @@ import {IAccountsDeployContract} from "../interfaces/IAccountsDeployContract.sol
  * @dev Created so that deploying facets (which call this) don't have size conflicts
  * @dev Is always going to be called by address(this)
  */
-contract AccountsDeployContract is IAccountsDeployContract, ReentrancyGuardFacet, AccountsEvents {
+contract AccountsDeployContract is IAccountsDeployContract, ReentrancyGuardFacet, IAccountsEvents {
   /**
    * @notice Create a new Dao for endowment
    * @param createDaoMessage Dao creation message with initial configuration
@@ -37,15 +38,15 @@ contract AccountsDeployContract is IAccountsDeployContract, ReentrancyGuardFacet
     address admin = registrar_config.proxyAdmin;
 
     bytes memory subDaoData = abi.encodeWithSignature(
-      "initializeSubDao((uint256,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,(uint8,(address,uint256,string,string,(uint8,(uint128,uint256,uint128,uint128)),string,string,uint256,address,uint256,uint256)),uint8,address,address),address)",
-      createDaoMessage,
+      "initializeSubDao(address)",
       registrar_config.subdaoEmitter
     );
 
     daoAddress = address(new ProxyContract(implementation, admin, subDaoData));
-    ISubdaoEmitter(registrar_config.subdaoEmitter).initializeSubdao(daoAddress, createDaoMessage);
+    // >> SHOULD IT BE CALLED INSIDE SubDao.initializeSubDao?
+    ISubdaoEmitter(registrar_config.subdaoEmitter).initializeSubdao(daoAddress);
 
     ISubDao(daoAddress).buildDaoTokenMesage(createDaoMessage);
-    emit DaoContractCreated(createDaoMessage, daoAddress);
+    emit DaoContractCreated(createDaoMessage.id, daoAddress);
   }
 }

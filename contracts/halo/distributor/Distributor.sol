@@ -3,8 +3,6 @@ pragma solidity ^0.8.16;
 
 import "./storage.sol";
 import {DistributorMessage} from "./message.sol";
-
-import {ERC20Upgrade} from "../ERC20Upgrade.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {AddressArray} from "../../lib/address/array.sol";
@@ -16,10 +14,10 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
  * The `Distributor` contract manages the distribution of the token
  */
 contract Distributor is Storage, Initializable, ReentrancyGuard {
-  event DistributorConfigUpdated(DistributorStorage.Config config);
+  event ConfigUpdated();
   event DistributorAdded(address distributor);
   event DistributorRemoved(address distributor);
-  event DistributorSpend(address recipient, uint256 amount);
+  event HaloSpent(address recipient, uint256 amount);
 
   /**
    * @dev Initialize contract
@@ -32,7 +30,6 @@ contract Distributor is Storage, Initializable, ReentrancyGuard {
       spendLimit: details.spendLimit,
       haloToken: details.haloToken
     });
-    emit DistributorConfigUpdated(state.config);
   }
 
   /**
@@ -44,7 +41,7 @@ contract Distributor is Storage, Initializable, ReentrancyGuard {
     require(state.config.timelockContract == msg.sender, "Unauthorized");
     state.config.timelockContract = timelockContract;
     state.config.spendLimit = spendLimit;
-    emit DistributorConfigUpdated(state.config);
+    emit ConfigUpdated();
   }
 
   /**
@@ -90,7 +87,7 @@ contract Distributor is Storage, Initializable, ReentrancyGuard {
       IERC20Upgradeable(state.config.haloToken).transfer(recipient, amount),
       "Transfer failed"
     );
-    emit DistributorSpend(recipient, amount);
+    emit HaloSpent(recipient, amount);
   }
 
   /**

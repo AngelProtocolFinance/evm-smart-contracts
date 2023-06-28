@@ -1,41 +1,34 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {AngelCoreStruct} from "../struct.sol";
+import {LibAccounts} from "./lib/LibAccounts.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 
 library AccountMessages {
   struct CreateEndowmentRequest {
-    address owner; // address that originally setup the endowment account
-    bool withdrawBeforeMaturity; // endowment allowed to withdraw funds from locked acct before maturity date
-    uint256 maturityTime; // datetime int of endowment maturity
-    string name; // name of the Endowment
+    bool withdrawBeforeMaturity;
+    uint256 maturityTime;
+    string name;
     uint256[] sdgs;
-    uint256 tier; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP Team Multisig can set/update)
-    AngelCoreStruct.EndowmentType endowType;
+    LibAccounts.Tier tier;
+    LibAccounts.EndowmentType endowType;
     string logo;
     string image;
     address[] members;
-    bool kycDonorsOnly;
     uint256 threshold;
-    AngelCoreStruct.Duration maxVotingPeriod;
+    uint256 duration;
     address[] allowlistedBeneficiaries;
     address[] allowlistedContributors;
-    uint256 splitMax;
-    uint256 splitMin;
-    uint256 splitDefault;
-    AngelCoreStruct.FeeSetting earlyLockedWithdrawFee;
-    AngelCoreStruct.FeeSetting withdrawFee;
-    AngelCoreStruct.FeeSetting depositFee;
-    AngelCoreStruct.FeeSetting balanceFee;
-    AngelCoreStruct.DaoSetup dao;
-    bool createDao;
+    LibAccounts.FeeSetting earlyLockedWithdrawFee;
+    LibAccounts.FeeSetting withdrawFee;
+    LibAccounts.FeeSetting depositFee;
+    LibAccounts.FeeSetting balanceFee;
     uint256 proposalLink;
-    AngelCoreStruct.SettingsController settingsController;
+    LibAccounts.SettingsController settingsController;
     uint32 parent;
     address[] maturityAllowlist;
     bool ignoreUserSplits;
-    AngelCoreStruct.SplitDetails splitToLiquid;
+    LibAccounts.SplitDetails splitToLiquid;
     uint256 referralId;
   }
 
@@ -47,13 +40,13 @@ library AccountMessages {
     address[] allowlistedContributors;
     address[] maturity_allowlist_add;
     address[] maturity_allowlist_remove;
-    AngelCoreStruct.SplitDetails splitToLiquid;
+    LibAccounts.SplitDetails splitToLiquid;
     bool ignoreUserSplits;
   }
 
   struct UpdateEndowmentControllerRequest {
     uint32 id;
-    AngelCoreStruct.SettingsController settingsController;
+    LibAccounts.SettingsController settingsController;
   }
 
   struct UpdateEndowmentDetailsRequest {
@@ -99,24 +92,12 @@ library AccountMessages {
     address subDao;
     address gateway;
     address gasReceiver;
-    AngelCoreStruct.FeeSetting earlyLockedWithdrawFee;
+    LibAccounts.FeeSetting earlyLockedWithdrawFee;
   }
 
   struct StateResponse {
     bool closingEndowment;
-    AngelCoreStruct.Beneficiary closingBeneficiary;
-  }
-
-  struct EndowmentEntry {
-    uint32 id;
-    address owner;
-    AngelCoreStruct.EndowmentType endowType;
-    string name;
-    string logo;
-    string image;
-    AngelCoreStruct.Tier tier;
-    uint256[] sdgs;
-    string proposalLink;
+    LibAccounts.Beneficiary closingBeneficiary;
   }
 
   struct EndowmentDetailsResponse {
@@ -124,7 +105,7 @@ library AccountMessages {
     address dao;
     address daoToken;
     string description;
-    AngelCoreStruct.EndowmentType endowType;
+    LibAccounts.EndowmentType endowType;
     uint256 maturityTime;
     LocalRegistrarLib.RebalanceParams rebalance;
     address donationMatchContract;
@@ -134,11 +115,11 @@ library AccountMessages {
     string image;
     string name;
     uint256[] sdgs;
-    uint256 tier;
+    LibAccounts.Tier tier;
     uint256 copycatStrategy;
     uint256 proposalLink;
     uint256 parent;
-    AngelCoreStruct.SettingsController settingsController;
+    LibAccounts.SettingsController settingsController;
   }
 
   struct DepositRequest {
@@ -149,10 +130,10 @@ library AccountMessages {
 
   struct UpdateFeeSettingRequest {
     uint32 id;
-    AngelCoreStruct.FeeSetting earlyLockedWithdrawFee;
-    AngelCoreStruct.FeeSetting depositFee;
-    AngelCoreStruct.FeeSetting withdrawFee;
-    AngelCoreStruct.FeeSetting balanceFee;
+    LibAccounts.FeeSetting earlyLockedWithdrawFee;
+    LibAccounts.FeeSetting depositFee;
+    LibAccounts.FeeSetting withdrawFee;
+    LibAccounts.FeeSetting balanceFee;
   }
 
   enum DonationMatchEnum {

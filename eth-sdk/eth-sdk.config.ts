@@ -3,9 +3,7 @@ import type {Opaque} from "ts-essentials";
 import type {ZodTypeDef} from "zod";
 import {z} from "zod";
 
-import {DEFAULT_CONTRACT_ADDRESS_FILE_PATH} from "../utils/constants";
-import {readAllAddresses, getAddressesByNetworkId} from "../utils/manageAddressFile/helpers";
-import {AddressObj} from "../utils/manageAddressFile/types";
+import {DEFAULT_CONTRACT_ADDRESS_FILE_PATH, getAddressesByNetworkId, AddressObj} from "../utils";
 
 type AddressInput = `0x${string}`;
 type Address = Opaque<AddressInput, "Address">;
@@ -33,7 +31,7 @@ export function parseAddress(address: string): Address {
  * file based on the network ID passed
  */
 const mumbaiData: AddressObj = getAddressesByNetworkId(80001, DEFAULT_CONTRACT_ADDRESS_FILE_PATH);
-const polygonData: AddressObj = getAddressesByNetworkId(137, DEFAULT_CONTRACT_ADDRESS_FILE_PATH);
+// const polygonData: AddressObj = getAddressesByNetworkId(137, DEFAULT_CONTRACT_ADDRESS_FILE_PATH);
 
 export default defineConfig({
   contracts: {
@@ -41,16 +39,16 @@ export default defineConfig({
       accounts: {
         diamond: parseAddress(mumbaiData.accounts.diamond),
         facets: {
-          accountDeployContract: parseAddress(mumbaiData.accounts.facets.accountDeployContract),
-          accountDepositWithdrawEndowments: parseAddress(
-            mumbaiData.accounts.facets.accountDepositWithdrawEndowments
+          accountsDeployContract: parseAddress(mumbaiData.accounts.facets.accountsDeployContract),
+          accountsDepositWithdrawEndowments: parseAddress(
+            mumbaiData.accounts.facets.accountsDepositWithdrawEndowments
           ),
-          accountDonationMatch: parseAddress(mumbaiData.accounts.facets.accountDonationMatch),
+          accountsDonationMatch: parseAddress(mumbaiData.accounts.facets.accountsDonationMatch),
           accountsAllowance: parseAddress(mumbaiData.accounts.facets.accountsAllowance),
           accountsCreateEndowment: parseAddress(mumbaiData.accounts.facets.accountsCreateEndowment),
-          accountsDAOEndowments: parseAddress(mumbaiData.accounts.facets.accountsDAOEndowments),
+          accountsDaoEndowments: parseAddress(mumbaiData.accounts.facets.accountsDaoEndowments),
           accountsQueryEndowments: parseAddress(mumbaiData.accounts.facets.accountsQueryEndowments),
-          accountsSwapEndowments: parseAddress(mumbaiData.accounts.facets.accountsSwapEndowments),
+          accountsSwapRouter: parseAddress(mumbaiData.accounts.facets.accountsSwapRouter),
           accountsUpdate: parseAddress(mumbaiData.accounts.facets.accountsUpdate),
           accountsUpdateEndowments: parseAddress(
             mumbaiData.accounts.facets.accountsUpdateEndowments
@@ -68,13 +66,17 @@ export default defineConfig({
           ownershipFacet: parseAddress(mumbaiData.accounts.facets.ownershipFacet),
         },
       },
+      axelar: {
+        gasService: parseAddress(mumbaiData.axelar.gasService),
+        gateway: parseAddress(mumbaiData.axelar.gateway),
+      },
       charityApplication: {
         implementation: parseAddress(mumbaiData.charityApplication.implementation),
         proxy: parseAddress(mumbaiData.charityApplication.proxy),
       },
       donationMatch: {
         implementation: parseAddress(mumbaiData.donationMatch.implementation),
-        proxy: parseAddress(mumbaiData.donationMatch.proxy),
+        //   emitter: parseAddress(mumbaiData.donationMatch.emitter),
       },
       donationMatchCharity: {
         implementation: parseAddress(mumbaiData.donationMatchCharity.implementation),
@@ -85,8 +87,9 @@ export default defineConfig({
         proxy: parseAddress(mumbaiData.indexFund.proxy),
       },
       libraries: {
-        angelCoreStructLibrary: parseAddress(mumbaiData.libraries.ANGEL_CORE_STRUCT_LIBRARY),
-        stringLibrary: parseAddress(mumbaiData.libraries.STRING_LIBRARY),
+        angelCoreStruct: parseAddress(mumbaiData.libraries.angelCoreStruct),
+        charityApplicationLib: parseAddress(mumbaiData.libraries.charityApplicationLib),
+        stringArray: parseAddress(mumbaiData.libraries.stringArray),
       },
       multiSig: {
         applications: {
@@ -110,6 +113,10 @@ export default defineConfig({
         implementation: parseAddress(mumbaiData.registrar.implementation),
         proxy: parseAddress(mumbaiData.registrar.proxy),
       },
+      router: {
+        implementation: parseAddress(mumbaiData.router.implementation),
+        proxy: parseAddress(mumbaiData.router.proxy),
+      },
       subDao: {
         emitter: {
           implementation: parseAddress(mumbaiData.subDao.emitter.implementation),
@@ -119,6 +126,9 @@ export default defineConfig({
         token: parseAddress(mumbaiData.subDao.token),
         veBondingToken: parseAddress(mumbaiData.subDao.veBondingToken),
       },
+      // tokens: {
+      //   halo: parseAddress(mumbaiData.tokens.halo),
+      // },
     },
     polygon: {},
   },

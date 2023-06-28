@@ -49,10 +49,7 @@ contract SubDaoToken is Storage, ContinuousToken {
 
     reserveDenom = message.reserveDenom;
 
-    config.unbondingPeriod = AngelCoreStruct.Duration({
-      enumData: AngelCoreStruct.DurationEnum.Time,
-      data: AngelCoreStruct.DurationData({height: 0, time: message.unbondingPeriod})
-    });
+    config.unbondingPeriod = message.unbondingPeriod;
     // ISubdaoTokenEmitter(emitterAddress).initializeSubdaoToken(msg);
   }
 
@@ -148,7 +145,7 @@ contract SubDaoToken is Storage, ContinuousToken {
 
     CLAIM_AMOUNT[msg.sender].details.push(
       subDaoTokenStorage.claimInfo({
-        releaseTime: (config.unbondingPeriod.data.time + block.timestamp),
+        releaseTime: (config.unbondingPeriod + block.timestamp),
         amount: burnedAmount,
         isClaimed: false
       })
@@ -158,7 +155,7 @@ contract SubDaoToken is Storage, ContinuousToken {
     // ISubdaoTokenEmitter(emitterAddress).addClaimSt(
     //     msg.sender,
     //     subDaoTokenStorage.claimInfo({
-    //         releaseTime: (config.unbondingPeriod.data.time +
+    //         releaseTime: (config.unbondingPeriod +
     //             block.timestamp),
     //         amount: burnedAmount,
     //         isClaimed: false

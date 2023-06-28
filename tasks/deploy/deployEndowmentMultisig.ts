@@ -1,21 +1,65 @@
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {isLocalNetwork, logger} from "utils";
+import {confirmAction, getAddresses, isLocalNetwork, logger, verify} from "utils";
+import {updateRegistrarConfig} from "../helpers";
+
+type TaskArgs = {
+  apTeamMultisig?: string;
+  registrar?: string;
+  verify: boolean;
+  yes: boolean;
+};
 
 task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
   .addOptionalParam(
+    "apTeamMultisig",
+    "APTeamMultiSig contract address. Will do a local lookup from contract-address.json if none is provided."
+  )
+  .addOptionalParam(
+    "registrar",
+    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
+  )
+  .addOptionalParam(
     "verify",
     "Flag indicating whether the contract should be verified",
-    false,
+    true,
     types.boolean
   )
-  .setAction(async (taskArgs: {verify: boolean}, hre) => {
+  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
+  .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
-      await deployEndowmentMultiSig(verify_contracts, hre);
+      const isConfirmed = taskArgs.yes || (await confirmAction("Deploying EndowmentMultiSig..."));
+      if (!isConfirmed) {
+        return logger.out("Confirmation denied.", logger.Level.Warn);
+      }
+
+      const addresses = await getAddresses(hre);
+
+      const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
+      const registrar = taskArgs.registrar || addresses.registrar.proxy;
+
+      const deployData = await deployEndowmentMultiSig(hre);
+
+      if (!deployData) {
+        return;
+      }
+
+      await updateRegistrarConfig(
+        registrar,
+        apTeamMultiSig,
+        {
+          multisigFactory: deployData.factory.address,
+          multisigEmitter: deployData.emitter.address,
+        },
+        hre
+      );
+
+      if (!isLocalNetwork(hre) && taskArgs.verify) {
+        await verify(hre, deployData.emitter);
+        await verify(hre, deployData.factory);
+        await verify(hre, deployData.implementation);
+      }
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

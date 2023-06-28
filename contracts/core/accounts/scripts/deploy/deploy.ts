@@ -8,36 +8,52 @@ import {
   DiamondInit__factory,
   Diamond__factory,
 } from "typechain-types";
-import {getSigners, logger, updateAddresses} from "utils";
+import {Deployment, getSigners, logger, updateAddresses, validateAddress} from "utils";
 
 import cutDiamond from "./cutDiamond";
 import deployFacets from "./deployFacets";
-import verify from "./verify";
 
 export async function deployAccountsDiamond(
-  owner: string,
-  registrar: string,
-  angelCoreStruct: string,
-  verify_contracts: boolean,
+  owner = "",
+  registrar = "",
   hre: HardhatRuntimeEnvironment
-) {
+): Promise<
+  | {
+      diamond: Deployment;
+      facets: Array<Deployment>;
+    }
+  | undefined
+> {
   logger.out("Deploying and setting up Accounts Diamond and all its facets...");
 
   const {proxyAdmin} = await getSigners(hre);
 
-  const {diamond, diamondCutFacet} = await deployDiamond(proxyAdmin, hre);
+  try {
+    validateAddress(owner, "owner");
+    validateAddress(registrar, "registrar");
 
-  const diamondInit = await deployDiamondInit(proxyAdmin, hre);
+    const {diamond, diamondCutFacet} = await deployDiamond(proxyAdmin, hre);
 
-  const cuts = await deployFacets(proxyAdmin, angelCoreStruct, hre);
+    const diamondInit = await deployDiamondInit(proxyAdmin, hre);
 
-  await cutDiamond(diamond.address, diamondInit, proxyAdmin, owner, registrar, cuts, hre);
+    const cuts = await deployFacets(proxyAdmin, hre);
 
-  if (verify_contracts) {
-    await verify(diamond.address, diamondCutFacet.address, cuts, proxyAdmin, hre);
+    await cutDiamond(diamond.address, diamondInit, proxyAdmin, owner, registrar, cuts, hre);
+
+    return {
+      diamond: {
+        address: diamond.address,
+        contractName: "Accounts Diamond",
+        constructorArguments: [proxyAdmin.address, diamondCutFacet.address],
+      },
+      facets: cuts.map<Deployment>(({cut, facetName}) => ({
+        address: cut.facetAddress.toString(),
+        contractName: facetName,
+      })),
+    };
+  } catch (error) {
+    logger.out(error, logger.Level.Error);
   }
-
-  return diamond;
 }
 
 async function deployDiamond(

@@ -2,33 +2,29 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.0;
 
-import {IVault} from "../../vault/interfaces/IVault.sol";
 import {LocalRegistrarLib} from "../lib/LocalRegistrarLib.sol";
-import {AngelCoreStruct} from "../../struct.sol";
+import {LibAccounts} from "../../accounts/lib/LibAccounts.sol";
 
 interface ILocalRegistrar {
   /*////////////////////////////////////////////////
                         EVENTS
     */ ////////////////////////////////////////////////
-  event RebalanceParamsChanged(LocalRegistrarLib.RebalanceParams _newRebalanceParams);
-  event AngelProtocolParamsChanged(LocalRegistrarLib.AngelProtocolParams _newAngelProtocolParams);
-  event AccountsContractStorageChanged(
-    string indexed _chainName,
-    string indexed _accountsContractAddress
-  );
-  event TokenAcceptanceChanged(address indexed _tokenAddr, bool _isAccepted);
-  event StrategyApprovalChanged(
-    bytes4 indexed _strategyId,
+  event RebalanceParamsUpdated();
+  event AngelProtocolParamsUpdated();
+  event AccountsContractStorageUpdated(string _chainName, string _accountsContractAddress);
+  event TokenAcceptanceUpdated(address _tokenAddr, bool _isAccepted);
+  event StrategyApprovalUpdated(
+    bytes4 _strategyId,
     LocalRegistrarLib.StrategyApprovalState _approvalState
   );
-  event StrategyParamsChanged(
-    bytes4 indexed _strategyId,
-    address indexed _lockAddr,
-    address indexed _liqAddr,
+  event StrategyParamsUpdated(
+    bytes4 _strategyId,
+    address _lockAddr,
+    address _liqAddr,
     LocalRegistrarLib.StrategyApprovalState _approvalState
   );
-  event GasFeeUpdated(address indexed _tokenAddr, uint256 _gasFee);
-  event FeeUpdated(AngelCoreStruct.FeeTypes _fee, uint256 _rate, address _payout);
+  event GasFeeUpdated(address _tokenAddr, uint256 _gasFee);
+  event FeeSettingsUpdated(LibAccounts.FeeTypes _feeType, uint256 _bpsRate, address _payoutAddress);
 
   /*////////////////////////////////////////////////
                     EXTERNAL METHODS
@@ -59,8 +55,8 @@ interface ILocalRegistrar {
   ) external view returns (LocalRegistrarLib.StrategyApprovalState);
 
   function getFeeSettingsByFeeType(
-    AngelCoreStruct.FeeTypes _feeType
-  ) external view returns (AngelCoreStruct.FeeSetting memory);
+    LibAccounts.FeeTypes _feeType
+  ) external view returns (LibAccounts.FeeSetting memory);
 
   function getVaultOperatorApproved(address _operator) external view returns (bool);
 
@@ -103,7 +99,7 @@ interface ILocalRegistrar {
   function setGasByToken(address _tokenAddr, uint256 _gasFee) external;
 
   function setFeeSettingsByFeesType(
-    AngelCoreStruct.FeeTypes _feeType,
+    LibAccounts.FeeTypes _feeType,
     uint256 _rate,
     address _payout
   ) external;

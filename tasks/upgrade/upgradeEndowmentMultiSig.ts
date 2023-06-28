@@ -1,8 +1,20 @@
 import {task, types} from "hardhat/config";
 import {EndowmentMultiSig__factory, MultiSigWalletFactory__factory} from "typechain-types";
-import {getAddresses, getSigners, isLocalNetwork, logger, updateAddresses} from "utils";
+import {
+  confirmAction,
+  getAddresses,
+  getSigners,
+  isLocalNetwork,
+  logger,
+  updateAddresses,
+  verify,
+} from "utils";
 
-type TaskArgs = {factory?: string; verify: boolean};
+type TaskArgs = {
+  factory?: string;
+  verify: boolean;
+  yes: boolean;
+};
 
 task(
   "upgrade:EndowmentMultiSig",
@@ -15,12 +27,18 @@ task(
   .addOptionalParam(
     "verify",
     "Flag indicating whether the contract should be verified",
-    false,
+    true,
     types.boolean
   )
+  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      logger.out("Upgrading EndowmentMultiSig implementation contract...");
+      const isConfirmed =
+        taskArgs.yes ||
+        (await confirmAction("Upgrading EndowmentMultiSig implementation contract..."));
+      if (!isConfirmed) {
+        return logger.out("Confirmation denied.", logger.Level.Warn);
+      }
 
       const {proxyAdmin} = await getSigners(hre);
 
@@ -46,15 +64,9 @@ task(
       await updateAddresses({multiSig: {endowment: {implementation: contract.address}}}, hre);
 
       if (!isLocalNetwork(hre) && taskArgs.verify) {
-        logger.out("Verifying...");
-        await hre.run("verify:verify", {
-          address: contract.address,
-          constructorArguments: [],
-        });
+        await verify(hre, {address: contract.address});
       }
     } catch (error) {
       logger.out(`EndowmentMultiSig upgrade failed, reason: ${error}`, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

@@ -1,9 +1,14 @@
 import config from "config";
 import {deployFundraising} from "contracts/accessory/fundraising/scripts/deploy";
 import {task, types} from "hardhat/config";
-import {getAddresses, isLocalNetwork, logger} from "utils";
+import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
 
-type TaskArgs = {angelCoreStruct?: string; registrar?: string; verify: boolean};
+type TaskArgs = {
+  angelCoreStruct?: string;
+  registrar?: string;
+  verify: boolean;
+  yes: boolean;
+};
 
 task("deploy:Fundraising", "Will deploy Fundraising contract")
   .addOptionalParam(
@@ -17,14 +22,19 @@ task("deploy:Fundraising", "Will deploy Fundraising contract")
   .addOptionalParam(
     "verify",
     "Flag indicating whether the contract should be verified",
-    false,
+    true,
     types.boolean
   )
+  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
+      const isConfirmed = taskArgs.yes || (await confirmAction("Deploying Fundraising..."));
+      if (!isConfirmed) {
+        return logger.out("Confirmation denied.", logger.Level.Warn);
+      }
+
       const addresses = await getAddresses(hre);
 
-      const angelCoreStruct = taskArgs.angelCoreStruct || addresses.libraries.angelCoreStruct;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
       const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
@@ -36,7 +46,7 @@ task("deploy:Fundraising", "Will deploy Fundraising contract")
         acceptedTokens: config.FundraisingDataInput.acceptedTokens,
       };
 
-      await deployFundraising(FundraisingDataInput, angelCoreStruct, verify_contracts, hre);
+      await deployFundraising(FundraisingDataInput, verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

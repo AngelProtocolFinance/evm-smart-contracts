@@ -1,2 +1,2 @@
 export * from "./deployAPTeamMultiSig";
-export * from "./deployApplicationsMultiSig";
+export * from "./deployCharityApplications";

@@ -2,20 +2,18 @@
 pragma solidity ^0.8.16;
 
 //Libraries
-import "hardhat/console.sol";
 import "./storage.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {IndexFundMessage} from "./message.sol";
-import {AngelCoreStruct} from "../struct.sol";
+import {IIndexFund} from "./IIndexFund.sol";
+import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {Array, Array32} from "../../lib/array.sol";
 import {Utils} from "../../lib/utils.sol";
-import {AddressArray} from "../../lib/address/array.sol";
 import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../registrar/storage.sol";
-import {Validator} from "../registrar/lib/validator.sol";
 import {AccountMessages} from "../accounts/message.sol";
 
 // TODO: Edit Query functions with start and limit to optimise the size of data being returned
@@ -27,17 +25,18 @@ import {AccountMessages} from "../accounts/message.sol";
  * It is responsible for creating new funds, adding members to funds, and
  * distributing funds to members
  */
-contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
+contract IndexFund is IIndexFund, StorageIndexFund, ReentrancyGuard, Initializable {
   event OwnerUpdated(address newOwner);
   event RegistrarUpdated(address newRegistrar);
-  event ConfigUpdated(IndexFundStorage.Config config);
-  event IndexFundCreated(uint256 id, AngelCoreStruct.IndexFund fund);
+  event ConfigUpdated();
+  event IndexFundCreated(uint256 id);
   event IndexFundRemoved(uint256 id);
   event MemberRemoved(uint256 fundId, uint32 memberId);
-  event MemberAdded(uint256 fundId, uint32 memberId);
-  event DonationMessagesUpdated(IndexFundStorage.DonationMessages messages);
-  event UpdateActiveFund(uint256 fundId);
-  event UpdateIndexFundState(IndexFundStorage._State state);
+  event MembersUpdated(uint256 fundId, uint32[] members);
+  event DonationMessagesUpdated(uint256 fundId);
+  event ActiveFundUpdated(uint256 fundId);
+  event StateUpdated();
+
   uint256 maxLimit;
   uint256 defaultLimit;
 
@@ -61,7 +60,8 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
       fundMemberLimit: details.fundMemberLimit,
       fundingGoal: details.fundingGoal
     });
-    emit ConfigUpdated(state.config);
+    emit ConfigUpdated();
+    emit OwnerUpdated(msg.sender);
 
     state.state = IndexFundStorage._State({
       totalFunds: 0,
@@ -70,7 +70,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
       roundDonations: 0,
       nextRotationBlock: block.number + state.config.fundRotation
     });
-    emit UpdateIndexFundState(state.state);
+    emit StateUpdated();
   }
 
   /**
@@ -103,6 +103,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     require(newRegistrar != address(0), "invalid input address");
 
     state.config.registrarContract = newRegistrar;
+
     emit RegistrarUpdated(newRegistrar);
     return true;
   }
@@ -130,7 +131,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
     state.config.fundRotation = details.fundRotation;
     state.config.fundMemberLimit = details.fundMemberLimit;
-    emit ConfigUpdated(state.config);
+    emit ConfigUpdated();
     return true;
   }
 
@@ -143,7 +144,6 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
    * @param rotatingFund boolean to indicate if index fund is rotating fund
    * @param splitToLiquid split of index fund to liquid fund
    * @param expiryTime expiry time of index fund
-   * @param expiryHeight expiry height of index fund
    */
   function createIndexFund(
     string memory name,
@@ -151,36 +151,34 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     uint32[] memory members,
     bool rotatingFund,
     uint256 splitToLiquid,
-    uint256 expiryTime,
-    uint256 expiryHeight
+    uint256 expiryTime
   ) public nonReentrant returns (bool) {
     if (msg.sender != state.config.owner) {
       revert("Unauthorized");
     }
 
-    require(splitToLiquid <= 100, "invalid split");
+    require(splitToLiquid <= 100, "invalid split, must be less or equal to 100");
 
-    state.FUNDS[state.state.nextFundId] = AngelCoreStruct.IndexFund({
+    state.FUNDS[state.state.nextFundId] = IndexFund({
       id: state.state.nextFundId,
       name: name,
       description: description,
       members: members,
       splitToLiquid: splitToLiquid,
-      expiryTime: expiryTime,
-      expiryHeight: expiryHeight
+      expiryTime: expiryTime
     });
 
     for (uint8 i = 0; i < members.length; i++) {
       state.FUNDS_BY_ENDOWMENT[members[i]].push(state.state.nextFundId);
     }
 
-    emit IndexFundCreated(state.state.nextFundId, state.FUNDS[state.state.nextFundId]);
+    emit IndexFundCreated(state.state.nextFundId);
 
     // If there are no funds created or no active funds yet, set the new
     // fund being created now to be the active fund
     if (state.state.totalFunds == 0 || state.state.activeFund == 0) {
       state.state.activeFund = state.state.nextFundId;
-      emit UpdateActiveFund(state.state.activeFund);
+      emit ActiveFundUpdated(state.state.activeFund);
     }
 
     if (rotatingFund) {
@@ -203,8 +201,8 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     require(state.FUNDS[fundId].members.length >= 0, "Invalid Fund");
 
     if (state.state.activeFund == fundId) {
-      state.state.activeFund = rotateFund(fundId, block.number, block.timestamp);
-      emit UpdateActiveFund(state.state.activeFund);
+      state.state.activeFund = rotateFund(fundId, block.timestamp);
+      emit ActiveFundUpdated(state.state.activeFund);
     }
 
     // remove from rotating funds list
@@ -261,10 +259,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
   ) public nonReentrant returns (bool) {
     require(msg.sender == state.config.owner, "Unauthorized");
     require(members.length < state.config.fundMemberLimit, "Fund member limit exceeded");
-    require(
-      !fundIsExpired(state.FUNDS[fundId], block.number, block.timestamp),
-      "Index Fund Expired"
-    );
+    require(!fundIsExpired(state.FUNDS[fundId], block.timestamp), "Index Fund Expired");
 
     // set members on fund
     state.FUNDS[fundId].members = members;
@@ -279,6 +274,8 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
         state.FUNDS_BY_ENDOWMENT[members[i]].push(fundId);
       }
     }
+
+    emit MembersUpdated(fundId, members);
 
     return true;
   }
@@ -301,12 +298,12 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
 
     uint256 depositAmount = amount;
 
-    // check if block height limit is reached
+    // check if time limit is reached
     if (state.config.fundRotation != 0) {
       if (block.number >= state.state.nextRotationBlock) {
-        uint256 newFundId = rotateFund(state.state.activeFund, block.number, block.timestamp);
+        uint256 newFundId = rotateFund(state.state.activeFund, block.timestamp);
         state.state.activeFund = newFundId;
-        emit UpdateActiveFund(state.state.activeFund);
+        emit ActiveFundUpdated(state.state.activeFund);
         state.state.roundDonations = 0;
 
         while (block.number >= state.state.nextRotationBlock) {
@@ -321,10 +318,10 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     if (fundId != 0) {
       require(state.FUNDS[fundId].members.length != 0, "Empty Fund");
 
-      require(!fundIsExpired(state.FUNDS[fundId], block.number, block.timestamp), "Expired Fund");
+      require(!fundIsExpired(state.FUNDS[fundId], block.timestamp), "Expired Fund");
 
       updateDonationMessages(
-        state.FUNDS[fundId].members,
+        fundId,
         calculateSplit(
           registrar_config.splitToLiquid,
           state.FUNDS[fundId].splitToLiquid,
@@ -342,7 +339,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
           require(state.FUNDS[state.state.activeFund].members.length != 0, "Empty Index Fund");
 
           require(
-            !fundIsExpired(state.FUNDS[state.state.activeFund], block.number, block.timestamp),
+            !fundIsExpired(state.FUNDS[state.state.activeFund], block.timestamp),
             "Expired Fund"
           );
           uint256 goalLeftover = state.config.fundingGoal - state.state.roundDonations;
@@ -353,13 +350,9 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
             state.state.roundDonations = 0;
             // set state active fund to next fund for next loop iteration
 
-            state.state.activeFund = rotateFund(
-              state.state.activeFund,
-              block.number,
-              block.timestamp
-            );
+            state.state.activeFund = rotateFund(state.state.activeFund, block.timestamp);
 
-            emit UpdateActiveFund(state.state.activeFund);
+            emit ActiveFundUpdated(state.state.activeFund);
             loopDonation = goalLeftover;
           } else {
             state.state.roundDonations += depositAmount;
@@ -367,7 +360,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
           }
 
           updateDonationMessages(
-            state.FUNDS[activeFund].members,
+            activeFund,
             calculateSplit(
               registrar_config.splitToLiquid,
               state.FUNDS[activeFund].splitToLiquid,
@@ -383,12 +376,12 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
         require(state.FUNDS[state.state.activeFund].members.length != 0, "Empty Index Fund");
 
         require(
-          !fundIsExpired(state.FUNDS[state.state.activeFund], block.number, block.timestamp),
+          !fundIsExpired(state.FUNDS[state.state.activeFund], block.timestamp),
           "Expired Fund"
         );
 
         updateDonationMessages(
-          state.FUNDS[state.state.activeFund].members,
+          state.state.activeFund,
           calculateSplit(
             registrar_config.splitToLiquid,
             state.FUNDS[state.state.activeFund].splitToLiquid,
@@ -427,23 +420,25 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
     delete state.donationMessages.lockedSplit;
     delete state.donationMessages.liquidSplit;
 
-    emit UpdateIndexFundState(state.state);
+    emit StateUpdated();
   }
 
   /**
    * @dev Update donation messages
-   * @param members Array of members
+   * @param fundId index fund ID
    * @param liquidSplit Split to liquid
    * @param balance Balance of fund
    * @param donationMessages Donation messages
    */
   function updateDonationMessages(
-    uint32[] memory members,
+    uint256 fundId,
     uint256 liquidSplit,
     uint256 balance,
     IndexFundStorage.DonationMessages storage donationMessages
   ) internal {
     uint256 memberPortion = balance;
+
+    uint32[] memory members = state.FUNDS[fundId].members;
 
     if (members.length > 0) {
       memberPortion = memberPortion.div(members.length);
@@ -483,7 +478,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
         );
       }
     }
-    emit DonationMessagesUpdated(donationMessages);
+    emit DonationMessagesUpdated(fundId);
   }
 
   /**
@@ -529,7 +524,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
    */
 
   function calculateSplit(
-    AngelCoreStruct.SplitDetails memory registrar_split,
+    LibAccounts.SplitDetails memory registrar_split,
     uint256 fundSplit,
     uint256 userSplit
   ) internal pure returns (uint256) {
@@ -586,7 +581,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
    * @param fundId Fund id
    * @return Fund details
    */
-  function queryFundDetails(uint256 fundId) public view returns (AngelCoreStruct.IndexFund memory) {
+  function queryFundDetails(uint256 fundId) public view returns (IndexFund memory) {
     return state.FUNDS[fundId];
   }
 
@@ -595,13 +590,9 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
    * @param endowmentId Endowment id
    * @return Fund details
    */
-  function queryInvolvedFunds(
-    uint32 endowmentId
-  ) public view returns (AngelCoreStruct.IndexFund[] memory) {
+  function queryInvolvedFunds(uint32 endowmentId) public view returns (IndexFund[] memory) {
     // make memory and allocate to response object
-    AngelCoreStruct.IndexFund[] memory resp = new AngelCoreStruct.IndexFund[](
-      state.FUNDS_BY_ENDOWMENT[endowmentId].length
-    );
+    IndexFund[] memory resp = new IndexFund[](state.FUNDS_BY_ENDOWMENT[endowmentId].length);
 
     for (uint256 i = 0; i < state.FUNDS_BY_ENDOWMENT[endowmentId].length; i++) {
       resp[i] = state.FUNDS[state.FUNDS_BY_ENDOWMENT[endowmentId][i]];
@@ -614,7 +605,7 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
    * @dev Query active fund details
    * @return Fund details
    */
-  function queryActiveFundDetails() public view returns (AngelCoreStruct.IndexFund memory) {
+  function queryActiveFundDetails() public view returns (IndexFund memory) {
     return state.FUNDS[state.state.activeFund];
   }
 
@@ -622,37 +613,24 @@ contract IndexFund is StorageIndexFund, ReentrancyGuard, Initializable {
   /**
    * @dev Check if fund is expired
    * @param fund Fund
-   * @param envHeight rent block height
    * @param envTime rent block time
    * @return True if fund is expired
    */
-  function fundIsExpired(
-    AngelCoreStruct.IndexFund memory fund,
-    uint256 envHeight,
-    uint256 envTime
-  ) internal pure returns (bool) {
-    return ((fund.expiryHeight != 0 && envHeight >= fund.expiryHeight) ||
-      (fund.expiryTime != 0 && envTime >= fund.expiryTime));
+  function fundIsExpired(IndexFund memory fund, uint256 envTime) internal pure returns (bool) {
+    return (fund.expiryTime != 0 && envTime >= fund.expiryTime);
   }
 
   /**
    * @dev rotate active based if investment goal is fulfilled
    * @param rFund rent Active fund
-   * @param envHeight rent block height
    * @param envTime rent block time
    * @return New active fund
    */
-  function rotateFund(
-    uint256 rFund,
-    uint256 envHeight,
-    uint256 envTime
-  ) internal view returns (uint256) {
-    AngelCoreStruct.IndexFund[] memory activeFunds = new AngelCoreStruct.IndexFund[](
-      state.rotatingFunds.length
-    );
+  function rotateFund(uint256 rFund, uint256 envTime) internal view returns (uint256) {
+    IndexFund[] memory activeFunds = new IndexFund[](state.rotatingFunds.length);
 
     for (uint256 i = 0; i < state.rotatingFunds.length; i++) {
-      if (!fundIsExpired(state.FUNDS[state.rotatingFunds[i]], envHeight, envTime)) {
+      if (!fundIsExpired(state.FUNDS[state.rotatingFunds[i]], envTime)) {
         activeFunds[i] = state.FUNDS[state.rotatingFunds[i]];
       }
     }

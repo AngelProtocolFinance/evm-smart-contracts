@@ -7,14 +7,14 @@ import {RegistrarStorage} from "../../core/registrar/storage.sol";
 import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 import {AccountMessages} from "../../core/accounts/message.sol";
 import {AccountStorage} from "../../core/accounts/storage.sol";
-import {IAccounts} from "../../core/accounts/IAccounts.sol";
-import {AngelCoreStruct} from "../../core/struct.sol";
+import {IAccounts} from "../../core/accounts/interfaces/IAccounts.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
 import "@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol";
 import {IDonationMatchEmitter} from "./IDonationMatchEmitter.sol";
 import {IAccountsDonationMatch} from "./../../core/accounts/interfaces/IAccountsDonationMatch.sol";
+import {LibAccounts} from "../../core/accounts/lib/LibAccounts.sol";
 
 interface SubdaoToken {
   function executeDonorMatch(
@@ -89,9 +89,9 @@ contract DonationMatch is Storage, Initializable {
     AccountStorage.Endowment memory endow_detail = IAccounts(registrar_config.accountsContract)
       .queryEndowmentDetails(endowmentId);
 
-    if (endow_detail.endowType == AngelCoreStruct.EndowmentType.Charity) {
+    if (endow_detail.endowType == LibAccounts.EndowmentType.Charity) {
       require(address(this) == registrar_config.donationMatchCharitesContract, "Unauthorized");
-    } else if (endow_detail.endowType == AngelCoreStruct.EndowmentType.Normal) {
+    } else if (endow_detail.endowType == LibAccounts.EndowmentType.Normal) {
       require(address(this) == endow_detail.donationMatchContract, "Unauthorized");
     }
 

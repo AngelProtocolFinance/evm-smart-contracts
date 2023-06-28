@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {AngelCoreStruct} from "../struct.sol";
+import {LibAccounts} from "./lib/LibAccounts.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 
 library AccountStorage {
@@ -15,20 +15,19 @@ library AccountStorage {
     address gateway;
     address gasReceiver;
     bool reentrancyGuardLocked;
-    AngelCoreStruct.FeeSetting earlyLockedWithdrawFee;
+    LibAccounts.FeeSetting earlyLockedWithdrawFee;
   }
 
   struct Endowment {
     address owner;
     string name; // name of the Endowment
     uint256[] sdgs;
-    uint256 tier; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP Team Multisig can set/update)
-    AngelCoreStruct.EndowmentType endowType;
+    LibAccounts.Tier tier; // SHOULD NOT be editable for now (only the Config.owner, ie via the Gov contract or AP Team Multisig can set/update)
+    LibAccounts.EndowmentType endowType;
     string logo;
     string image;
     uint256 maturityTime; // datetime int of endowment maturity
     LocalRegistrarLib.RebalanceParams rebalance; // parameters to guide rebalancing & harvesting of gains from locked/liquid accounts
-    bool kycDonorsOnly; // allow owner to state a preference for receiving only kyc'd donations (where possible) //TODO:
     uint256 pendingRedemptions; // number of vault redemptions rently pending for this endowment
     uint256 proposalLink; // link back the Applications Team Multisig Proposal that created an endowment (if a Charity)
     address multisig;
@@ -39,21 +38,21 @@ library AccountStorage {
     address[] allowlistedBeneficiaries;
     address[] allowlistedContributors;
     address[] maturityAllowlist;
-    AngelCoreStruct.FeeSetting earlyLockedWithdrawFee;
-    AngelCoreStruct.FeeSetting withdrawFee;
-    AngelCoreStruct.FeeSetting depositFee;
-    AngelCoreStruct.FeeSetting balanceFee;
-    AngelCoreStruct.SettingsController settingsController;
+    LibAccounts.FeeSetting earlyLockedWithdrawFee;
+    LibAccounts.FeeSetting withdrawFee;
+    LibAccounts.FeeSetting depositFee;
+    LibAccounts.FeeSetting balanceFee;
+    LibAccounts.SettingsController settingsController;
     uint32 parent;
     bool ignoreUserSplits;
-    AngelCoreStruct.SplitDetails splitToLiquid;
+    LibAccounts.SplitDetails splitToLiquid;
     uint256 referralId;
   }
 
   struct EndowmentState {
-    AngelCoreStruct.BalanceInfo balances;
+    LibAccounts.BalanceInfo balances;
     bool closingEndowment;
-    AngelCoreStruct.Beneficiary closingBeneficiary;
+    LibAccounts.Beneficiary closingBeneficiary;
     mapping(bytes4 => bool) activeStrategies;
   }
 

@@ -7,7 +7,7 @@ import {LocalRegistrarLib} from "./lib/LocalRegistrarLib.sol";
 import {IVault} from "../vault/interfaces/IVault.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import {AngelCoreStruct} from "../struct.sol";
+import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 
 // Import integrations here
 import {APGoldfinchConfigLib} from "../../integrations/goldfinch/APGoldfinchConfig.sol";
@@ -109,10 +109,20 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
   }
 
   function getFeeSettingsByFeeType(
-    AngelCoreStruct.FeeTypes _feeType
-  ) external view returns (AngelCoreStruct.FeeSetting memory) {
+    LibAccounts.FeeTypes _feeType
+  ) external view returns (LibAccounts.FeeSetting memory) {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
     return lrs.FeeSettingsByFeeType[_feeType];
+  }
+
+  function getUniswapFactoryAddress() public view returns (address) {
+    LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
+    return lrs.uniswapFactory;
+  }
+
+  function getUniswapRouterAddress() public view returns (address) {
+    LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
+    return lrs.uniswapRouter;
   }
 
   /*////////////////////////////////////////////////
@@ -124,7 +134,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
 
     lrs.rebalanceParams = _rebalanceParams;
-    emit RebalanceParamsChanged(_rebalanceParams);
+    emit RebalanceParamsUpdated();
   }
 
   function setAngelProtocolParams(
@@ -133,7 +143,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
 
     lrs.angelProtocolParams = _angelProtocolParams;
-    emit AngelProtocolParamsChanged(_angelProtocolParams);
+    emit AngelProtocolParamsUpdated();
   }
 
   function setAccountsContractAddressByChain(
@@ -143,14 +153,14 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
 
     lrs.AccountsContractByChain[keccak256(bytes(_chainName))] = _accountsContractAddress;
-    emit AccountsContractStorageChanged(_chainName, _accountsContractAddress);
+    emit AccountsContractStorageUpdated(_chainName, _accountsContractAddress);
   }
 
   function setTokenAccepted(address _tokenAddr, bool _isAccepted) external onlyOwner {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
 
     lrs.AcceptedTokens[_tokenAddr] = _isAccepted;
-    emit TokenAcceptanceChanged(_tokenAddr, _isAccepted);
+    emit TokenAcceptanceUpdated(_tokenAddr, _isAccepted);
   }
 
   function setGasByToken(address _tokenAddr, uint256 _gasFee) external onlyOwner {
@@ -167,7 +177,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
 
     lrs.VaultsByStrategyId[_strategyId].approvalState = _approvalState;
-    emit StrategyApprovalChanged(_strategyId, _approvalState);
+    emit StrategyApprovalUpdated(_strategyId, _approvalState);
   }
 
   function setStrategyParams(
@@ -192,7 +202,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
       lockedParams,
       liquidParams
     );
-    emit StrategyParamsChanged(_strategyId, _lockAddr, _liqAddr, _approvalState);
+    emit StrategyParamsUpdated(_strategyId, _lockAddr, _liqAddr, _approvalState);
   }
 
   function setVaultOperatorApproved(address _operator, bool _isApproved) external override {
@@ -201,16 +211,22 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
   }
 
   function setFeeSettingsByFeesType(
-    AngelCoreStruct.FeeTypes _feeType,
+    LibAccounts.FeeTypes _feeType,
     uint256 _rate,
     address _payout
   ) external {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
-    lrs.FeeSettingsByFeeType[_feeType] = AngelCoreStruct.FeeSetting({
+    lrs.FeeSettingsByFeeType[_feeType] = LibAccounts.FeeSetting({
       payoutAddress: _payout,
       bps: _rate
     });
-    emit FeeUpdated(_feeType, _rate, _payout);
+    emit FeeSettingsUpdated(_feeType, _rate, _payout);
+  }
+
+  function setUniswapAddresses(address _uniswapRouter, address _uniswapFactory) external onlyOwner {
+    LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
+    lrs.uniswapRouter = _uniswapRouter;
+    lrs.uniswapFactory = _uniswapFactory;
   }
 
   /*////////////////////////////////////////////////

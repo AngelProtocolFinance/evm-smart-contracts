@@ -1,7 +1,7 @@
 import {task, types} from "hardhat/config";
 import type {TaskArguments} from "hardhat/types";
 import {GoldfinchVault, GoldfinchVault__factory, Registrar} from "typechain-types";
-import {getAddresses, isLocalNetwork, logger, updateAddresses} from "utils";
+import {getAddresses, isLocalNetwork, logger, updateAddresses, verify} from "utils";
 
 // Goerli addresses
 
@@ -27,7 +27,7 @@ task("deploy:integrations:Goldfinch")
   .addOptionalParam(
     "verify",
     "Flag indicating whether the contract should be verified",
-    false,
+    true,
     types.boolean
   )
   .setAction(async function (taskArguments: TaskArguments, hre) {
@@ -83,6 +83,7 @@ task("deploy:integrations:Goldfinch")
     logger.divider();
     logger.out("Writing to contract-address.json", logger.Level.Info);
 
+    // update address file & verify contracts
     await updateAddresses(
       {
         goldfinch: {
@@ -96,29 +97,15 @@ task("deploy:integrations:Goldfinch")
     if (taskArguments.verify && !isLocalNetwork(hre)) {
       logger.divider();
       logger.out("Verifying contracts on etherscan");
-      try {
-        await hre.run("verify:verify", {
-          address: lockedVault.address,
-          constructorArguments: lockedVaultArgs,
-        });
-      } catch (error) {
-        logger.out(
-          "Caught the following error while trying to verify locked Vault:",
-          logger.Level.Warn
-        );
-        logger.out(error, logger.Level.Error);
-      }
-      try {
-        await hre.run("verify:verify", {
-          address: liquidVault.address,
-          constructorArguments: liquidVaultArgs,
-        });
-      } catch (error) {
-        logger.out(
-          "Caught the following error while trying to verify liquid Vault:",
-          logger.Level.Warn
-        );
-        logger.out(error, logger.Level.Error);
-      }
+      await verify(hre, {
+        address: lockedVault.address,
+        constructorArguments: lockedVaultArgs,
+        contractName: "Locked Vault",
+      });
+      await verify(hre, {
+        address: liquidVault.address,
+        constructorArguments: liquidVaultArgs,
+        contractName: "Liquid Vault",
+      });
     }
   });

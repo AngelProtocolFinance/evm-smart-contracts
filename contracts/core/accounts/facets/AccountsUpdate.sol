@@ -2,18 +2,18 @@
 pragma solidity ^0.8.16;
 
 import {LibAccounts} from "../lib/LibAccounts.sol";
-import {Validator} from "../lib/validator.sol";
+import {Validator} from "../../validator.sol";
 import {AccountStorage} from "../storage.sol";
-import {AngelCoreStruct} from "../../struct.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
-import {AccountsEvents} from "./AccountsEvents.sol";
+import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
+import {IAccountsUpdate} from "../interfaces/IAccountsUpdate.sol";
 
 /**
  * @title AccountsUpdate
  * @notice This contract facet updates the accounts config and owner
  * @dev This contract facet updates the accounts config and owner
  */
-contract AccountsUpdate is ReentrancyGuardFacet, AccountsEvents {
+contract AccountsUpdate is ReentrancyGuardFacet, IAccountsEvents, IAccountsUpdate {
   /**
    * @notice This function updates the owner of the contract
    * @dev This function updates the owner of the contract
@@ -26,7 +26,8 @@ contract AccountsUpdate is ReentrancyGuardFacet, AccountsEvents {
     require(Validator.addressChecker(newOwner), "Enter a valid owner address");
 
     state.config.owner = newOwner;
-    emit UpdateConfig(state.config);
+
+    emit OwnerUpdated(newOwner);
   }
 
   /**
@@ -38,7 +39,7 @@ contract AccountsUpdate is ReentrancyGuardFacet, AccountsEvents {
   function updateConfig(
     address newRegistrar,
     uint256 maxGeneralCategoryId,
-    AngelCoreStruct.FeeSetting memory earlyLockedWithdrawFee
+    LibAccounts.FeeSetting memory earlyLockedWithdrawFee
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
@@ -48,5 +49,7 @@ contract AccountsUpdate is ReentrancyGuardFacet, AccountsEvents {
     state.config.registrarContract = newRegistrar;
     state.config.maxGeneralCategoryId = maxGeneralCategoryId;
     state.config.earlyLockedWithdrawFee = earlyLockedWithdrawFee;
+
+    emit ConfigUpdated();
   }
 }

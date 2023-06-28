@@ -11,6 +11,14 @@
     "declaration": true,
     "skipLibCheck": true
   },
-  "include": ["./contracts", "./scripts", "./utils", "./tasks/*", "./test", "./typechain-types"],
+  "include": [
+    "./contracts",
+    "./scripts",
+    "./eth-sdk",
+    "./utils",
+    "./tasks/*",
+    "./test",
+    "./typechain-types"
+  ],
   "files": ["./hardhat.config.ts"]
 }

@@ -8,7 +8,7 @@ import {ERC4626AP} from "./ERC4626AP.sol";
 import {IStrategy} from "../strategy/IStrategy.sol";
 import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
-import {AngelCoreStruct} from "../struct.sol";
+import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {FixedPointMathLib} from "../../lib/FixedPointMathLib.sol";
 import "hardhat/console.sol";
 
@@ -174,8 +174,8 @@ contract APVault_V1 is IVault, ERC4626AP {
       uint256 yieldBaseTokens = baseTokenValue -
         principleByAccountId[accountId].costBasis_withPrecision.mulDivDown(balanceOf(accountId), PRECISION);
 
-      AngelCoreStruct.FeeSetting memory feeSetting = IRegistrar(vaultConfig.registrar)
-        .getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes.Harvest);
+      LibAccounts.FeeSetting memory feeSetting = IRegistrar(vaultConfig.registrar)
+        .getFeeSettingsByFeeType(LibAccounts.FeeTypes.Harvest);
 
       // Call appropriate harvest method
       if (vaultConfig.vaultType == VaultType.LIQUID) {
@@ -190,13 +190,13 @@ contract APVault_V1 is IVault, ERC4626AP {
     uint32 accountId,
     uint256 yield,
     uint256 exchageRate,
-    AngelCoreStruct.FeeSetting memory feeSetting
+    LibAccounts.FeeSetting memory feeSetting
   ) internal {
     // Determine tax denominated in shares
     // tax (shares) = yield * exchangeRate * feeRate
     uint256 taxShares = yield.mulDivDown(exchageRate, PRECISION).mulDivDown(
       feeSetting.bps,
-      AngelCoreStruct.FEE_BASIS
+      LibAccounts.FEE_BASIS
     );
     // Redeem shares to cover fee
     uint256 dYieldToken = super.redeemERC4626(taxShares, vaultConfig.strategy, accountId);
@@ -214,7 +214,7 @@ contract APVault_V1 is IVault, ERC4626AP {
     uint32 accountId,
     uint256 yield,
     uint256 exchageRate,
-    AngelCoreStruct.FeeSetting memory feeSetting
+    LibAccounts.FeeSetting memory feeSetting
   ) internal {
     // Get rebal params
     LocalRegistrarLib.RebalanceParams memory rbParams = IRegistrar(vaultConfig.registrar)
@@ -223,7 +223,7 @@ contract APVault_V1 is IVault, ERC4626AP {
     // Determine rebal + tax denominated in yield token
     uint256 taxShares = yield.mulDivDown(exchageRate, PRECISION).mulDivDown(
       feeSetting.bps,
-      AngelCoreStruct.FEE_BASIS
+      LibAccounts.FEE_BASIS
     );
     uint256 rebalShares = yield.mulDivDown(exchageRate, PRECISION).mulDivDown(
       rbParams.lockedRebalanceToLiquid,
@@ -264,10 +264,10 @@ contract APVault_V1 is IVault, ERC4626AP {
         PRECISION
       );
 
-    AngelCoreStruct.FeeSetting memory feeSetting = IRegistrar(vaultConfig.registrar)
-      .getFeeSettingsByFeeType(AngelCoreStruct.FeeTypes.Default);
+    LibAccounts.FeeSetting memory feeSetting = IRegistrar(vaultConfig.registrar)
+      .getFeeSettingsByFeeType(LibAccounts.FeeTypes.Default);
     // tax = taxableAmt * yieldRate * feeRate
-    uint256 tax = yieldBaseTokens.mulDivDown(feeSetting.bps, AngelCoreStruct.FEE_BASIS);
+    uint256 tax = yieldBaseTokens.mulDivDown(feeSetting.bps, LibAccounts.FEE_BASIS);
 
     if (!IERC20Metadata(vaultConfig.baseToken).transfer(feeSetting.payoutAddress, tax)) {
       revert TransferFailed();

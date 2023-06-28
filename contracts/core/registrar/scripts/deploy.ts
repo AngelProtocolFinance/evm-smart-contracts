@@ -1,65 +1,76 @@
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {ProxyContract__factory, Registrar__factory} from "typechain-types";
-import {getSigners, updateAddresses} from "utils";
+import {
+  Deployment,
+  getContractName,
+  getSigners,
+  logger,
+  updateAddresses,
+  validateAddress,
+} from "utils";
 
 export async function deployRegistrar(
-  router: string,
-  owner: string,
-  verify_contracts: boolean,
+  axelarGateway = "",
+  axelarGasService = "",
+  router = "", // no need to verify address validity, as Registrar will be deployed before the router
+  owner = "",
   hre: HardhatRuntimeEnvironment
-) {
+): Promise<Deployment | undefined> {
+  logger.out("Deploying Registrar...");
+
   const {deployer, proxyAdmin, treasury} = await getSigners(hre);
 
-  const factory = new Registrar__factory(proxyAdmin);
-  const registrar = await factory.deploy();
-  await registrar.deployed();
-  console.log("Registrar implementation deployed at: ", registrar.address);
+  try {
+    validateAddress(axelarGateway, "axelarGateway");
+    validateAddress(axelarGasService, "axelarGasService");
+    validateAddress(owner, "owner");
 
-  // Deploy proxy contract
-  const data = registrar.interface.encodeFunctionData(
-    "initialize((address,(uint256,uint256,uint256),address,address,address))",
-    [
+    // deploy implementation
+    logger.out("Deploying implementation...");
+    const factory = new Registrar__factory(proxyAdmin);
+    const registrar = await factory.deploy();
+    await registrar.deployed();
+    logger.out(`Address: ${registrar.address}`);
+
+    // deploy proxy
+    logger.out("Deploying proxy...");
+    const data = registrar.interface.encodeFunctionData(
+      "initialize((address,(uint256,uint256,uint256),address,address,address))",
+      [
+        {
+          treasury: treasury.address,
+          splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
+          router,
+          axelarGateway,
+          axelarGasRecv: axelarGasService,
+        },
+      ]
+    );
+    const proxyFactory = new ProxyContract__factory(deployer);
+    const proxy = await proxyFactory.deploy(registrar.address, proxyAdmin.address, data);
+    await proxy.deployed();
+    logger.out(`Address: ${proxy.address}`);
+
+    // update owner
+    logger.out(`Updating Registrar owner to '${owner}'..."`);
+    const proxiedRegistrar = Registrar__factory.connect(proxy.address, deployer);
+    const tx = await proxiedRegistrar.transferOwnership(owner);
+    await tx.wait();
+
+    // update address file & verify contracts
+    await updateAddresses(
       {
-        treasury: treasury.address,
-        splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
-        router,
-        axelarGateway: config.REGISTRAR_DATA.axelarGateway,
-        axelarGasRecv: config.REGISTRAR_DATA.axelarGasRecv,
+        registrar: {
+          implementation: registrar.address,
+          proxy: proxy.address,
+        },
       },
-    ]
-  );
-  const proxyFactory = new ProxyContract__factory(deployer);
-  const proxy = await proxyFactory.deploy(registrar.address, proxyAdmin.address, data);
-  await proxy.deployed();
-  console.log("Registrar Proxy deployed at: ", proxy.address);
+      hre
+    );
 
-  console.log("Updating Registrar owner to: ", owner, "...");
-  const proxiedRegistrar = Registrar__factory.connect(proxy.address, deployer);
-  const tx = await proxiedRegistrar.transferOwnership(owner);
-  await tx.wait();
-
-  await updateAddresses(
-    {
-      registrar: {
-        implementation: registrar.address,
-        proxy: proxy.address,
-      },
-    },
-    hre
-  );
-
-  if (verify_contracts) {
-    console.log("Verifying...");
-    await hre.run("verify:verify", {
-      address: registrar.address,
-      constructorArguments: [],
-    });
-    await hre.run("verify:verify", {
-      address: proxy.address,
-      constructorArguments: [registrar.address, proxyAdmin.address, data],
-    });
+    return {address: proxy.address, contractName: getContractName(factory)};
+  } catch (error) {
+    logger.out(error, logger.Level.Error);
   }
-
-  return {implementation: registrar, proxy};
 }
