@@ -20,9 +20,7 @@ import {
 import {AddressObj} from "utils";
 
 // Getting factories instantiated in bulk as they share the deploy/cut creation logic.
-export default async function getFacetFactoryEntries(
-  diamondOwner: SignerWithAddress
-): Promise<
+export default async function getFacetFactoryEntries(diamondOwner: SignerWithAddress): Promise<
   {
     factory: ContractFactory;
     addressField: keyof AddressObj["accounts"]["facets"];
@@ -42,8 +40,8 @@ export default async function getFacetFactoryEntries(
       factory: new AccountsDaoEndowments__factory(diamondOwner),
     },
     {
-      addressField: "accountsUpdate", 
-      factory: new AccountsUpdate__factory(diamondOwner)
+      addressField: "accountsUpdate",
+      factory: new AccountsUpdate__factory(diamondOwner),
     },
     {
       addressField: "accountsQueryEndowments",
@@ -54,24 +52,24 @@ export default async function getFacetFactoryEntries(
       factory: new AccountsUpdateStatusEndowments__factory(diamondOwner),
     },
     {
-      addressField: "diamondLoupeFacet", 
-      factory: new DiamondLoupeFacet__factory(diamondOwner)
+      addressField: "diamondLoupeFacet",
+      factory: new DiamondLoupeFacet__factory(diamondOwner),
     },
     {
-      addressField: "ownershipFacet", 
-      factory: new OwnershipFacet__factory(diamondOwner)
+      addressField: "ownershipFacet",
+      factory: new OwnershipFacet__factory(diamondOwner),
     },
     {
       addressField: "accountsDepositWithdrawEndowments",
-      factory: new AccountsDepositWithdrawEndowments__factory(diamondOwner)
+      factory: new AccountsDepositWithdrawEndowments__factory(diamondOwner),
     },
     {
       addressField: "accountsAllowance",
-      factory: new AccountsAllowance__factory(diamondOwner)
+      factory: new AccountsAllowance__factory(diamondOwner),
     },
     {
       addressField: "accountsCreateEndowment",
-      factory: new AccountsCreateEndowment__factory(diamondOwner)
+      factory: new AccountsCreateEndowment__factory(diamondOwner),
     },
     {
       addressField: "accountsSwapRouter",

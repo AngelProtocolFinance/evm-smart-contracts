@@ -12,19 +12,18 @@ library LibAccounts {
       ds.slot := position
     }
   }
-  
+
   enum EndowmentType {
     Charity,
     Normal
   }
-  
+
   enum Tier {
     None,
     Level1,
     Level2,
     Level3
   }
-
 
   struct BalanceInfo {
     mapping(address => uint256) locked;
@@ -53,7 +52,7 @@ library LibAccounts {
     uint256 max;
     uint256 min;
     uint256 defaultSplit; // for when a user splits are not used
-  }  
+  }
 
   struct Delegate {
     address addr;
@@ -112,5 +111,4 @@ library LibAccounts {
   bytes4 constant InterfaceId_Invalid = 0xffffffff;
   bytes4 constant InterfaceId_ERC165 = 0x01ffc9a7;
   bytes4 constant InterfaceId_ERC721 = 0x80ac58cd;
-
 }

@@ -29,11 +29,7 @@ task("deploy:Implementation", "Will deploy Implementation")
         usdcAddress: addresses.tokens.usdc,
       };
 
-      await deployImplementation(
-        donationMatchCharityData,
-        verify_contracts,
-        hre
-      );
+      await deployImplementation(donationMatchCharityData, verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

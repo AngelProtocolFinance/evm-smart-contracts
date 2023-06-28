@@ -69,29 +69,29 @@ task(
         wMaticAddress: addresses.tokens.wmatic,
         cw900lvAddress: apTeam1.address,
         lockedWithdrawal: ADDRESS_ZERO,
-    };
-    const updateConfigData = registrar.interface.encodeFunctionData("updateConfig", [newConfig]);
+      };
+      const updateConfigData = registrar.interface.encodeFunctionData("updateConfig", [newConfig]);
 
-    let updatedConfig = await registrar.queryConfig();
-    logger.out("New config:");
-    logger.out(JSON.stringify(updatedConfig, undefined, 2));
+      let updatedConfig = await registrar.queryConfig();
+      logger.out("New config:");
+      logger.out(JSON.stringify(updatedConfig, undefined, 2));
 
-    if (taskArgs.acceptedTokens.length > 0) {
-      logger.divider();
-      logger.out("Updating accepted tokens...");
-      for (let i = 0; i < taskArgs.acceptedTokens.length; i++) {
-        try {
-          const tokenAddress = taskArgs.acceptedTokens[i];
-          const acceptanceState = taskArgs.acceptanceStates.at(i) ?? true;
-          await hre.run("manage:registrar:setTokenAccepted", {tokenAddress, acceptanceState});
-        } catch (error) {
-          logger.out(error, logger.Level.Error);
+      if (taskArgs.acceptedTokens.length > 0) {
+        logger.divider();
+        logger.out("Updating accepted tokens...");
+        for (let i = 0; i < taskArgs.acceptedTokens.length; i++) {
+          try {
+            const tokenAddress = taskArgs.acceptedTokens[i];
+            const acceptanceState = taskArgs.acceptanceStates.at(i) ?? true;
+            await hre.run("manage:registrar:setTokenAccepted", {tokenAddress, acceptanceState});
+          } catch (error) {
+            logger.out(error, logger.Level.Error);
+          }
         }
       }
+    } catch (error) {
+      logger.out(error, logger.Level.Error);
+    } finally {
+      logger.out("Done");
     }
-  } catch (error) {
-    logger.out(error, logger.Level.Error);
-  } finally {
-    logger.out("Done");
-  }
-});
+  });

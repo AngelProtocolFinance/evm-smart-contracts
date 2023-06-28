@@ -212,9 +212,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
       getLatestPriceData(priceFeedIn)
     );
     uint256 estAmountOut = amountIn.mul(priceRatio).div(LibAccounts.BIG_NUMBA_BASIS);
-    uint256 minAmountOut = estAmountOut.sub(
-      estAmountOut.mul(slippage).div(LibAccounts.FEE_BASIS)
-    );
+    uint256 minAmountOut = estAmountOut.sub(estAmountOut.mul(slippage).div(LibAccounts.FEE_BASIS));
 
     // find the lowest fee pool available, if any, to swap tokens
     IUniswapV3Factory factory = IUniswapV3Factory(uniswapFactory);

@@ -63,11 +63,7 @@ contract AccountsUpdateStatusEndowments is
         });
       } else {
         beneficiary = LibAccounts.Beneficiary({
-          data: LibAccounts.BeneficiaryData({
-            endowId: 0,
-            fundId: funds[0].id,
-            addr: address(0)
-          }),
+          data: LibAccounts.BeneficiaryData({endowId: 0, fundId: funds[0].id, addr: address(0)}),
           enumData: LibAccounts.BeneficiaryEnum.IndexFund
         });
         // remove closing endowment from all Index Funds that it is in

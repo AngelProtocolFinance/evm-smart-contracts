@@ -7,7 +7,6 @@ import {AccountMessages} from "../message.sol";
 import {IAccountsQueryEndowments} from "../interfaces/IAccountsQueryEndowments.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
 
-
 /**
  * @title AccountsQueryEndowments
  * @notice This contract facet queries for endowment and accounts config

@@ -35,10 +35,7 @@ export default async function deployFacets(
   return facets;
 }
 
-async function getFacetsToUpgrade(
-  facetNames: string[],
-  diamondOwner: SignerWithAddress
-) {
+async function getFacetsToUpgrade(facetNames: string[], diamondOwner: SignerWithAddress) {
   const factoryEntries = await getFacetFactoryEntries(diamondOwner);
   const facetsToUpgrade = facetNames.map((facetName) => {
     const factoryEntry = factoryEntries.find(

@@ -202,7 +202,12 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
 
     // deduct balance by amount deposited with Accounts contract
     state.BALANCES[msg.sender][tokenAddress] -= amount;
-    emit BalancesUpdated(msg.sender, tokenAddress, amount, IAccountsAllowance.AllowanceAction.Remove);
+    emit BalancesUpdated(
+      msg.sender,
+      tokenAddress,
+      amount,
+      IAccountsAllowance.AllowanceAction.Remove
+    );
   }
 
   /**
