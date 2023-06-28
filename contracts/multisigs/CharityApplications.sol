@@ -143,7 +143,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
     proposalCount++;
 
     if (isOwner[msg.sender]) {
-      confirmProposal(proposalCount);
+      confirmProposal(proposalCount - 1);
     }
   }
 
