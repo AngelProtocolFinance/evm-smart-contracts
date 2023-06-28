@@ -34,7 +34,7 @@ task("manage:CharityApplications:updateConfig", "Will update CharityApplications
       const {charityApplicationsOwners} = await getSigners(hre);
 
       const charityApplications = CharityApplication__factory.connect(
-        addresses.multisigs.charityApplications.proxy,
+        addresses.multiSig.charityApplications.proxy,
         charityApplicationsOwners[0]
       );
 
