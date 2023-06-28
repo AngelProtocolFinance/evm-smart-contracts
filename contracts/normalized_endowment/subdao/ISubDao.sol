@@ -3,8 +3,6 @@ pragma solidity ^0.8.16;
 
 import {subDaoMessage} from "./message.sol";
 import {subDaoStorage} from "./storage.sol";
-import {AngelCoreStruct} from "../../core/struct.sol";
-import {RegistrarStorage} from "../../core/registrar/storage.sol";
 import {Array} from "../../lib/array.sol";
 
 import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";

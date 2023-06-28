@@ -2,6 +2,7 @@
 pragma solidity ^0.8.16;
 
 import {subDaoMessage} from "./message.sol";
+import {SubDaoLib} from "./SubDaoLib.sol";
 import {AngelCoreStruct} from "../../core/struct.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
 import {Array} from "../../lib/array.sol";
@@ -9,244 +10,10 @@ import {ProxyContract} from "./../../core/proxy.sol";
 import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import {SubDaoTokenMessage} from "./../subdao-token/subdao-token.sol";
-import {QueryIIncentivisedVotingLockup} from "./../incentivised-voting/interfaces/QueryIIncentivisedVotingLockup.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {ISubdaoEmitter} from "./ISubdaoEmitter.sol";
 import "./Token/ERC20.sol";
 import "./storage.sol";
-
-// >> SHOULD BE MOVED INTO SEPARATE FILE?
-library SubDaoLib {
-  uint256 constant MIN_TITLE_LENGTH = 4;
-  uint256 constant MAX_TITLE_LENGTH = 64;
-  uint256 constant MIN_DESC_LENGTH = 4;
-  uint256 constant MAX_DESC_LENGTH = 1024;
-  uint256 constant MIN_LINK_LENGTH = 12;
-  uint256 constant MAX_LINK_LENGTH = 128;
-
-  /**
-   * @dev internal function returns length of utf string
-   * @param str string to be checked
-   */
-  function utfStringLength(string memory str) public pure returns (uint256 length) {
-    uint256 i = 0;
-    bytes memory string_rep = bytes(str);
-
-    while (i < string_rep.length) {
-      if (string_rep[i] >> 7 == 0) i += 1;
-      else if (string_rep[i] >> 5 == bytes1(uint8(0x6))) i += 2;
-      else if (string_rep[i] >> 4 == bytes1(uint8(0xE))) i += 3;
-      else if (string_rep[i] >> 3 == bytes1(uint8(0x1E))) i += 4;
-      else i += 1;
-
-      length++;
-    }
-  }
-
-  /**
-   * @notice function used to validate title
-   * @dev validate title
-   * @param title title to be validated
-   */
-  function validateTitle(string memory title) public pure returns (bool) {
-    require(utfStringLength(title) > MIN_TITLE_LENGTH, "Title too short");
-
-    require(utfStringLength(title) < MAX_TITLE_LENGTH, "Title too long");
-
-    return true;
-  }
-
-  /**
-   * @notice function used to validate description
-   * @dev validate description
-   * @param description description to be validated
-   */
-  function validateDescription(string memory description) public pure returns (bool) {
-    require(utfStringLength(description) > MIN_DESC_LENGTH, "Description too short");
-
-    require(utfStringLength(description) < MAX_DESC_LENGTH, "Description too long");
-
-    return true;
-  }
-
-  /**
-   * @notice function used to validate link
-   * @dev validate link
-   * @param link link to be validated
-   */
-
-  function validateLink(string memory link) public pure returns (bool) {
-    require(utfStringLength(link) > MIN_LINK_LENGTH, "Link too short");
-
-    require(utfStringLength(link) < MAX_LINK_LENGTH, "Link too long");
-
-    return true;
-  }
-
-  /**
-   * @notice function used to validate quorum
-   * @dev validate quorum
-   * @param quorum quorum to be validated
-   */
-  function validateQuorum(uint256 quorum) public pure returns (bool) {
-    require(quorum < 100, "quorum must be 0 to 100");
-
-    return true;
-  }
-
-  /**
-   * @notice function used to validate threshold
-   * @dev validate threshold
-   * @param threshold threshold to be validated
-   */
-  function validateThreshold(uint256 threshold) public pure returns (bool) {
-    require(threshold < 100, "threshold must be 0 to 100");
-
-    return true;
-  }
-
-  /**
-   * @notice function used to query voting balance of an address
-   * @dev query voting balance of an address
-   * @param veAddr ve address
-   * @param targetAddr address to be queried
-   * @param blocknumber block number to be queried
-   */
-  function queryAddressVotingBalanceAtBlock(
-    address veAddr,
-    address targetAddr,
-    uint256 blocknumber
-  ) public view returns (uint256) {
-    // return IERC20(veaddr).balanceOf(addr);
-    return QueryIIncentivisedVotingLockup(veAddr).balanceOfAt(targetAddr, blocknumber);
-  }
-
-  /**
-   * @notice function used to query total voting balance
-   * @dev query total voting balance
-   * @param veaddr ve address
-   * @param blocknumber block number to be queried
-   */
-  function queryTotalVotingBalanceAtBlock(
-    address veaddr,
-    uint256 blocknumber
-  ) public view returns (uint256) {
-    return QueryIIncentivisedVotingLockup(veaddr).totalSupplyAt(blocknumber);
-  }
-
-  /**
-   * @notice function used to build the dao token deployment message
-   * @dev Build the dao token deployment message
-   * @param token The token used to build the dao token
-   * @param endowType The endowment type used to build the dao token
-   * @param endowowner The endowment owner used to build the dao token
-   */
-  function buildDaoTokenMesage(
-    AngelCoreStruct.DaoToken memory token,
-    AngelCoreStruct.EndowmentType endowType,
-    address endowowner,
-    subDaoStorage.Config storage config,
-    address emitterAddress
-  ) public {
-    RegistrarStorage.Config memory registrar_config = IRegistrar(config.registrarContract)
-      .queryConfig();
-
-    if (
-      token.token == AngelCoreStruct.TokenType.Existing &&
-      endowType == AngelCoreStruct.EndowmentType.Normal
-    ) {
-      require(
-        IRegistrar(config.registrarContract).isTokenAccepted(token.data.existingData),
-        "NotInApprovedCoins"
-      );
-      config.daoToken = token.data.existingData;
-    } else if (
-      token.token == AngelCoreStruct.TokenType.New &&
-      endowType == AngelCoreStruct.EndowmentType.Normal
-    ) {
-      bytes memory callData = abi.encodeWithSignature(
-        "initErC20(string,string,address,uint256,address)",
-        token.data.newName,
-        token.data.newSymbol,
-        endowowner,
-        token.data.newInitialSupply,
-        address(0)
-      );
-      config.daoToken = address(
-        new ProxyContract(
-          registrar_config.subdaoTokenContract,
-          registrar_config.proxyAdmin,
-          callData
-        )
-      );
-    } else if (
-      token.token == AngelCoreStruct.TokenType.VeBonding &&
-      endowType == AngelCoreStruct.EndowmentType.Normal
-    ) {
-      SubDaoTokenMessage.InstantiateMsg memory temp = SubDaoTokenMessage.InstantiateMsg({
-        name: token.data.veBondingName,
-        symbol: token.data.veBondingSymbol,
-        reserveDenom: token.data.veBondingReserveDenom,
-        ve_type: token.data.veBondingType.ve_type,
-        unbondingPeriod: token.data.veBondingPeriod
-      });
-      bytes memory callData = abi.encodeWithSignature(
-        "continuosToken((string,string,address,uint8,uint256),address)",
-        temp,
-        emitterAddress
-      );
-      config.daoToken = address(
-        new ProxyContract(
-          registrar_config.subdaoBondingTokenContract,
-          registrar_config.proxyAdmin,
-          callData
-        )
-      );
-    } else if (
-      token.token == AngelCoreStruct.TokenType.VeBonding &&
-      endowType == AngelCoreStruct.EndowmentType.Charity
-    ) {
-      require(registrar_config.haloToken != address(0), "Registrar's HALO token address is empty");
-
-      SubDaoTokenMessage.InstantiateMsg memory temp = SubDaoTokenMessage.InstantiateMsg({
-        name: token.data.veBondingName,
-        symbol: token.data.veBondingSymbol,
-        reserveDenom: registrar_config.haloToken,
-        ve_type: token.data.veBondingType.ve_type,
-        unbondingPeriod: 21 days
-      });
-
-      bytes memory callData = abi.encodeWithSignature(
-        "continuosToken((string,string,address,uint8,uint256),address)",
-        temp,
-        emitterAddress
-      );
-      config.daoToken = address(
-        new ProxyContract(
-          registrar_config.subdaoBondingTokenContract,
-          registrar_config.proxyAdmin,
-          callData
-        )
-      );
-    } else {
-      revert("InvalidInputs");
-    }
-
-    bytes memory cw900lvData = abi.encodeWithSignature(
-      "initialize(address,string,string)",
-      config.daoToken,
-      "LV900",
-      "LV900"
-    );
-
-    config.veToken = address(
-      new ProxyContract(registrar_config.cw900lvAddress, registrar_config.proxyAdmin, cw900lvData)
-    );
-
-    //TODO: handle on sub graph if there is no entry create one for the subgraph
-    ISubdaoEmitter(emitterAddress).updateSubdaoConfig();
-  }
-}
 
 contract SubDao is Storage, ReentrancyGuard {
   // using SafeMath for uint256;
@@ -295,16 +62,107 @@ contract SubDao is Storage, ReentrancyGuard {
    * @dev Build the dao token message
    * @param details The message used to build the dao token message
    */
-  function buildDaoTokenMesage(subDaoMessage.InstantiateMsg memory details) public {
+  function buildDaoTokenMesage(
+    subDaoMessage.InstantiateMsg memory details
+  ) public {
     require(msg.sender == accountAddress, "Unauthorized");
+    RegistrarStorage.Config memory registrar_config = IRegistrar(config.registrarContract)
+      .queryConfig();
 
-    SubDaoLib.buildDaoTokenMesage(
-      details.token,
-      details.endowType,
-      details.endowOwner,
-      config,
-      emitterAddress
+    if (
+      details.token.token == SubDaoLib.TokenType.Existing &&
+      details.endowType == AngelCoreStruct.EndowmentType.Normal
+    ) {
+      require(
+        IRegistrar(config.registrarContract).isTokenAccepted(details.token.data.existingData),
+        "NotInApprovedCoins"
+      );
+      config.daoToken = details.token.data.existingData;
+    } else if (
+      details.token.token == SubDaoLib.TokenType.New &&
+      details.endowType == AngelCoreStruct.EndowmentType.Normal
+    ) {
+      bytes memory callData = abi.encodeWithSignature(
+        "initErC20(string,string,address,uint256,address)",
+        details.token.data.newName,
+        details.token.data.newSymbol,
+        details.endowOwner,
+        details.token.data.newInitialSupply,
+        address(0)
+      );
+      config.daoToken = address(
+        new ProxyContract(
+          registrar_config.subdaoTokenContract,
+          registrar_config.proxyAdmin,
+          callData
+        )
+      );
+    } else if (
+      details.token.token == SubDaoLib.TokenType.VeBonding &&
+      details.endowType == AngelCoreStruct.EndowmentType.Normal
+    ) {
+      SubDaoTokenMessage.InstantiateMsg memory temp = SubDaoTokenMessage.InstantiateMsg({
+        name: details.token.data.veBondingName,
+        symbol: details.token.data.veBondingSymbol,
+        reserveDenom: details.token.data.veBondingReserveDenom,
+        ve_type: details.token.data.veBondingType.ve_type,
+        unbondingPeriod: details.token.data.veBondingPeriod
+      });
+      bytes memory callData = abi.encodeWithSignature(
+        "continuosToken((string,string,address,uint8,uint256),address)",
+        temp,
+        emitterAddress
+      );
+      config.daoToken = address(
+        new ProxyContract(
+          registrar_config.subdaoBondingTokenContract,
+          registrar_config.proxyAdmin,
+          callData
+        )
+      );
+    } else if (
+      details.token.token == SubDaoLib.TokenType.VeBonding &&
+      details.endowType == AngelCoreStruct.EndowmentType.Charity
+    ) {
+      require(registrar_config.haloToken != address(0), "Registrar's HALO token address is empty");
+
+      SubDaoTokenMessage.InstantiateMsg memory temp = SubDaoTokenMessage.InstantiateMsg({
+        name: details.token.data.veBondingName,
+        symbol: details.token.data.veBondingSymbol,
+        reserveDenom: registrar_config.haloToken,
+        ve_type: details.token.data.veBondingType.ve_type,
+        unbondingPeriod: 21 days
+      });
+
+      bytes memory callData = abi.encodeWithSignature(
+        "continuosToken((string,string,address,uint8,uint256),address)",
+        temp,
+        emitterAddress
+      );
+      config.daoToken = address(
+        new ProxyContract(
+          registrar_config.subdaoBondingTokenContract,
+          registrar_config.proxyAdmin,
+          callData
+        )
+      );
+    } else {
+      revert("InvalidInputs");
+    }
+
+    bytes memory cw900lvData = abi.encodeWithSignature(
+      "initialize(address,string,string)",
+      config.daoToken,
+      "LV900",
+      "LV900"
     );
+
+    config.veToken = address(
+      new ProxyContract(registrar_config.cw900lvAddress, registrar_config.proxyAdmin, cw900lvData)
+    );
+
+    //TODO: handle on sub graph if there is no entry create one for the subgraph
+    ISubdaoEmitter(emitterAddress).updateSubdaoConfig();
   }
 
   /**
