@@ -1,17 +1,13 @@
 import {expect} from "chai";
-import {ethers, upgrades} from "hardhat";
+import {ethers} from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   DummyERC20,
-  DummyGasService,
-  DummyGateway,
   IVault,
   APVault_V1,
   APVault_V1__factory,
   LocalRegistrar,
-  Router,
   DummyStrategy,
-  IStrategy,
 } from "typechain-types";
 import {
   deployDummyStrategy,
