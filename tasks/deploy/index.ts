@@ -9,7 +9,6 @@ import "./deployGiftcard";
 import "./deployHaloImplementation";
 import "./deployImplementation";
 import "./deployIndexFund";
-import "./deployLibraries";
 import "./deployRegistrar";
 import "./deployRouter";
 import "./integrations";

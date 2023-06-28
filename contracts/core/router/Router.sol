@@ -2,7 +2,7 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.8;
 
-import {AngelCoreStruct} from "../struct.sol";
+import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {IRouter} from "./IRouter.sol";
 import {RouterLib} from "./RouterLib.sol";
 import {IVault} from "../vault/interfaces/IVault.sol";
@@ -377,8 +377,8 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     require(IERC20Metadata(tokenAddress).approve(address(gateway), amount));
     require(IERC20Metadata(gasToken).approve(address(gasReceiver), gasFeeAmt));
 
-    AngelCoreStruct.FeeSetting memory feeSetting = registrar.getFeeSettingsByFeeType(
-      AngelCoreStruct.FeeTypes.Default
+    LibAccounts.FeeSetting memory feeSetting = registrar.getFeeSettingsByFeeType(
+      LibAccounts.FeeTypes.Default
     );
 
     gasReceiver.payGasForContractCallWithToken(

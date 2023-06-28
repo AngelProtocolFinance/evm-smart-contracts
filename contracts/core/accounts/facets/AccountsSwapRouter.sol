@@ -4,11 +4,12 @@ pragma solidity ^0.8.16;
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
-import {AngelCoreStruct} from "../../struct.sol";
+import {Validator} from "../../validator.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsSwapRouter} from "../interfaces/IAccountsSwapRouter.sol";
+import {IVault} from "../../vault/interfaces/IVault.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
@@ -35,15 +36,13 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
 
   function swapToken(
     uint32 id,
-    AngelCoreStruct.AccountType accountType,
+    IVault.VaultType accountType,
     address tokenIn,
     uint256 amountIn,
     address tokenOut,
     uint256 slippage
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
-
     RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
       .queryConfig();
 
@@ -58,7 +57,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
     require(amountIn > 0, "Invalid Swap Input: Zero Amount");
     require(tokenIn != address(0) && tokenOut != address(0), "Invalid Swap Input: Zero Address");
     require(
-      slippage < AngelCoreStruct.FEE_BASIS,
+      slippage < LibAccounts.FEE_BASIS,
       "Invalid Swap Input: Token Out slippage set too high"
     );
     // Check that the desired output token from the swap is either:
@@ -72,9 +71,9 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
 
     // check if the msg sender is either the owner or their delegate address and
     // that they have the power to manage the investments for an account balance
-    if (accountType == AngelCoreStruct.AccountType.Locked) {
+    if (accountType == IVault.VaultType.LOCKED) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           state.ENDOWMENTS[id].settingsController.lockedInvestmentManagement,
           msg.sender,
           state.ENDOWMENTS[id].owner,
@@ -82,9 +81,9 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
         ),
         "Unauthorized"
       );
-    } else if (accountType == AngelCoreStruct.AccountType.Locked) {
+    } else if (accountType == IVault.VaultType.LIQUID) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           state.ENDOWMENTS[id].settingsController.liquidInvestmentManagement,
           msg.sender,
           state.ENDOWMENTS[id].owner,
@@ -96,7 +95,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
       revert("Invalid AccountType");
     }
 
-    if (accountType == AngelCoreStruct.AccountType.Locked) {
+    if (accountType == IVault.VaultType.LOCKED) {
       require(
         state.STATES[id].balances.locked[tokenIn] >= amountIn,
         "Requested swap amount is greater than Endowment Locked balance"
@@ -143,7 +142,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
     );
 
     // Allocate the newly swapped tokens to the correct endowment balance
-    if (accountType == AngelCoreStruct.AccountType.Locked) {
+    if (accountType == IVault.VaultType.LOCKED) {
       state.STATES[id].balances.locked[tokenOut] += amountOut;
     } else {
       state.STATES[id].balances.liquid[tokenOut] += amountOut;
@@ -161,7 +160,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
    * @param tokenFeed address
    * @return answer Returns the oracle answer of current price as an int
    */
-  function getLatestPriceData(address tokenFeed) internal returns (uint256) {
+  function getLatestPriceData(address tokenFeed) internal view returns (uint256) {
     AggregatorV3Interface chainlinkFeed = AggregatorV3Interface(tokenFeed);
     (
       uint80 roundID,
@@ -209,12 +208,12 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
     address uniswapRouter,
     address uniswapFactory
   ) internal returns (uint256 amountOut) {
-    uint256 priceRatio = getLatestPriceData(priceFeedOut).mul(AngelCoreStruct.BIG_NUMBA_BASIS).div(
+    uint256 priceRatio = getLatestPriceData(priceFeedOut).mul(LibAccounts.BIG_NUMBA_BASIS).div(
       getLatestPriceData(priceFeedIn)
     );
-    uint256 estAmountOut = amountIn.mul(priceRatio).div(AngelCoreStruct.BIG_NUMBA_BASIS);
+    uint256 estAmountOut = amountIn.mul(priceRatio).div(LibAccounts.BIG_NUMBA_BASIS);
     uint256 minAmountOut = estAmountOut.sub(
-      estAmountOut.mul(slippage).div(AngelCoreStruct.FEE_BASIS)
+      estAmountOut.mul(slippage).div(LibAccounts.FEE_BASIS)
     );
 
     // find the lowest fee pool available, if any, to swap tokens

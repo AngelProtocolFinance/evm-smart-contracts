@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {AngelCoreStruct} from "../struct.sol";
+import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
+import {IVault} from "../vault/interfaces/IVault.sol";
 
 library RegistrarMessages {
   struct InstantiateRequest {
     address treasury;
-    AngelCoreStruct.SplitDetails splitToLiquid;
+    LibAccounts.SplitDetails splitToLiquid;
     address router;
     address axelarGateway;
     address axelarGasRecv;
@@ -47,19 +48,8 @@ library RegistrarMessages {
     address cw900lvAddress;
   }
 
-  struct VaultAddRequest {
-    // chainid of network
-    uint256 network;
-    string stratagyName;
-    address inputDenom;
-    address yieldToken;
-    AngelCoreStruct.EndowmentType[] restrictedFrom;
-    AngelCoreStruct.AccountType acctType;
-    AngelCoreStruct.VaultType vaultType;
-  }
-
   struct UpdateFeeRequest {
-    AngelCoreStruct.FeeTypes feeType;
+    LibAccounts.FeeTypes feeType;
     address payout;
     uint256 rate;
   }

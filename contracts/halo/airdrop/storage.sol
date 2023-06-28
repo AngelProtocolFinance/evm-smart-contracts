@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-// import {AngelCoreStruct} from "../../core/struct.sol";
-
-// import {MultiSigStruct} from "../struct.sol";
-
 library AirdropStorage {
   struct Config {
     address owner;

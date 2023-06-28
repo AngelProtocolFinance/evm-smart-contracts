@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 import "./CharityApplicationsStorage.sol";
 import {ICharityApplications} from "./interfaces/ICharityApplications.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {AngelCoreStruct} from "../core/struct.sol";
+import {LibAccounts} from "../core/accounts/lib/LibAccounts.sol";
 import {IAccountsCreateEndowment} from "../core/accounts/interfaces/IAccountsCreateEndowment.sol";
 import {IAccountsQueryEndowments} from "../core/accounts/interfaces/IAccountsQueryEndowments.sol";
 import {IAccountsDepositWithdrawEndowments} from "../core/accounts/interfaces/IAccountsDepositWithdrawEndowments.sol";
@@ -115,7 +115,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
   ) public override {
     require(proposals[proposalCount].proposer == address(0), "Proposal already exists");
     require(
-      _application.endowType == AngelCoreStruct.EndowmentType.Charity,
+      _application.endowType == LibAccounts.EndowmentType.Charity,
       "Only Charity endowments can be proposed"
     );
     require(_application.sdgs.length > 0, "No UN SDGs given");

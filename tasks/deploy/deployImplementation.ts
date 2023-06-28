@@ -12,7 +12,6 @@ task("deploy:Implementation", "Will deploy Implementation")
     types.boolean
   )
   .addParam("registraraddress", "Registrar contract address")
-  .addParam("angelcorestruct", "AngelCoreStruct library address")
   .addParam("accountaddress", "Address of the Account")
   .addParam("apteammultisigaddress", "Address of the APTeam multisig")
   .addParam("endowmentmultisigaddress", "Address of the Endowment multisig")
@@ -31,7 +30,6 @@ task("deploy:Implementation", "Will deploy Implementation")
       };
 
       await deployImplementation(
-        taskArgs.angelcorestruct,
         donationMatchCharityData,
         verify_contracts,
         hre

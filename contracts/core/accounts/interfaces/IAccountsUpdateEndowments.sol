@@ -2,7 +2,7 @@
 pragma solidity ^0.8.16;
 
 import {AccountMessages} from "../message.sol";
-import {AngelCoreStruct} from "../../struct.sol";
+import {LibAccounts} from "../lib/LibAccounts.sol";
 
 /**
  * @title AccountsUpdateEndowments
@@ -10,6 +10,26 @@ import {AngelCoreStruct} from "../../struct.sol";
  * @dev This contract facet updates the endowments, updates rights are with owner of accounts contracts (AP Team Multisig) and the endowment owner
  */
 interface IAccountsUpdateEndowments {
+  enum ControllerSettingOption {
+    AcceptedTokens,
+    LockedInvestmentManagement,
+    LiquidInvestmentManagement,
+    AllowlistedBeneficiaries,
+    AllowlistedContributors,
+    MaturityAllowlist,
+    EarlyLockedWithdrawFee,
+    MaturityTime,
+    WithdrawFee,
+    DepositFee,
+    BalanceFee,
+    Name,
+    Image,
+    Logo,
+    Sdgs,
+    SplitToLiquid,
+    IgnoreUserSplits
+  }
+
   /**
     @notice Updates the endowment details.
     @dev This function allows the Endowment owner to update the endowment details like owner & rebalance and allows them or their Delegate(s) to update name, sdgs, logo, and image.
@@ -30,8 +50,8 @@ interface IAccountsUpdateEndowments {
     */
   function updateDelegate(
     uint32 id,
-    AngelCoreStruct.ControllerSettingOption setting,
-    AngelCoreStruct.DelegateAction action,
+    ControllerSettingOption setting,
+    LibAccounts.DelegateAction action,
     address delegateAddress,
     uint256 delegateExpiry
   ) external;

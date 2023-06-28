@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {AngelCoreStruct} from "../../struct.sol";
+import {LibAccounts} from "../lib/LibAccounts.sol";
 
 /**
  * @title AccountsUpdate
@@ -25,6 +25,6 @@ interface IAccountsUpdate {
   function updateConfig(
     address newRegistrar,
     uint256 maxGeneralCategoryId,
-    AngelCoreStruct.FeeSetting memory earlyLockedWithdrawFee
+    LibAccounts.FeeSetting memory earlyLockedWithdrawFee
   ) external;
 }

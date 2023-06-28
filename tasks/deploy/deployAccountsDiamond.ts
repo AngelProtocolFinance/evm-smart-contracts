@@ -4,7 +4,6 @@ import {confirmAction, getAddresses, isLocalNetwork, logger, verify} from "utils
 import {updateRegistrarConfig} from "../helpers";
 
 type TaskArgs = {
-  angelCoreStruct?: string;
   apTeamMultisig?: string;
   registrar?: string;
   verify: boolean;
@@ -12,10 +11,7 @@ type TaskArgs = {
 };
 
 task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
-  .addOptionalParam(
-    "angelCoreStruct",
-    "AngelCoreStruct library address. Will do a local lookup from contract-address.json if none is provided."
-  )
+
   .addOptionalParam(
     "apTeamMultisig",
     "APTeamMultiSig contract address. Will do a local lookup from contract-address.json if none is provided."
@@ -39,12 +35,10 @@ task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
       }
 
       const addresses = await getAddresses(hre);
-
-      const angelCoreStruct = taskArgs.angelCoreStruct || addresses.libraries.angelCoreStruct;
       const apTeam = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
 
-      const deployData = await deployAccountsDiamond(apTeam, registrar, angelCoreStruct, hre);
+      const deployData = await deployAccountsDiamond(apTeam, registrar, hre);
 
       if (!deployData) {
         return;

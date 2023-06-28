@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {AngelCoreStruct} from "../struct.sol";
+import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
+import {IAccountsVaultFacet} from "../accounts/interfaces/IAccountsVaultFacet.sol";
 
 library RegistrarStorage {
   struct Config {
@@ -17,7 +18,7 @@ library RegistrarStorage {
     address donationMatchContract; // donation matching contract wasm code
     address donationMatchCharitesContract; // donation matching contract address for "Charities" endowments
     address donationMatchEmitter;
-    AngelCoreStruct.SplitDetails splitToLiquid; // set of max, min, and default Split paramenters to check user defined split input against
+    LibAccounts.SplitDetails splitToLiquid; // set of max, min, and default Split paramenters to check user defined split input against
     //TODO: pending check
     address haloToken; // TerraSwap HALO token addr
     address haloTokenLpContract;
@@ -41,8 +42,8 @@ library RegistrarStorage {
   struct State {
     Config config;
     bytes4[] STRATEGIES;
-    mapping(AngelCoreStruct.FeeTypes => AngelCoreStruct.FeeSetting) FeeSettingsByFeeType;
-    mapping(uint256 => AngelCoreStruct.NetworkInfo) NETWORK_CONNECTIONS;
+    mapping(LibAccounts.FeeTypes => LibAccounts.FeeSetting) FeeSettingsByFeeType;
+    mapping(uint256 => IAccountsVaultFacet.NetworkInfo) NETWORK_CONNECTIONS;
     mapping(address => address) PriceFeeds;
   }
 }

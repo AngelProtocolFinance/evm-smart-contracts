@@ -81,11 +81,4 @@ contract Storage {
   mapping(uint256 => subDaoStorage.PollStatus) poll_status;
 
   mapping(uint256 => mapping(address => subDaoStorage.VoterInfo)) voting_status;
-
-  uint256 constant MIN_TITLE_LENGTH = 4;
-  uint256 constant MAX_TITLE_LENGTH = 64;
-  uint256 constant MIN_DESC_LENGTH = 4;
-  uint256 constant MAX_DESC_LENGTH = 1024;
-  uint256 constant MIN_LINK_LENGTH = 12;
-  uint256 constant MAX_LINK_LENGTH = 128;
 }
