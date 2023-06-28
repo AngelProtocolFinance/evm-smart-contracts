@@ -6,7 +6,6 @@ pragma solidity ^0.8.16;
  * @dev This contract manages the allowances for accounts
  */
 interface IAccountsAllowance {
-
   enum AllowanceAction {
     Add,
     Remove

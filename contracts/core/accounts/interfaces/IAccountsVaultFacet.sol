@@ -6,7 +6,6 @@ pragma solidity ^0.8.16;
  * @dev This contract manages the vaults for endowments
  */
 interface IAccountsVaultFacet {
-
   struct NetworkInfo {
     string name;
     uint256 chainId;

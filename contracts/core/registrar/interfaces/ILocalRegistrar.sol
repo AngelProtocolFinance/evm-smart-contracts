@@ -24,11 +24,7 @@ interface ILocalRegistrar {
     LocalRegistrarLib.StrategyApprovalState _approvalState
   );
   event GasFeeUpdated(address _tokenAddr, uint256 _gasFee);
-  event FeeSettingsUpdated(
-    LibAccounts.FeeTypes _feeType,
-    uint256 _bpsRate,
-    address _payoutAddress
-  );
+  event FeeSettingsUpdated(LibAccounts.FeeTypes _feeType, uint256 _bpsRate, address _payoutAddress);
 
   /*////////////////////////////////////////////////
                     EXTERNAL METHODS

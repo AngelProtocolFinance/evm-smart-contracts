@@ -62,9 +62,7 @@ contract SubDao is Storage, ReentrancyGuard {
    * @dev Build the dao token message
    * @param details The message used to build the dao token message
    */
-  function buildDaoTokenMesage(
-    subDaoMessage.InstantiateMsg memory details
-  ) public {
+  function buildDaoTokenMesage(subDaoMessage.InstantiateMsg memory details) public {
     require(msg.sender == accountAddress, "Unauthorized");
     RegistrarStorage.Config memory registrar_config = IRegistrar(config.registrarContract)
       .queryConfig();
