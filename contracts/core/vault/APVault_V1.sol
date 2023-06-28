@@ -10,7 +10,6 @@ import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {FixedPointMathLib} from "../../lib/FixedPointMathLib.sol";
-import "hardhat/console.sol";
 
 contract APVault_V1 is IVault, ERC4626AP {
   using FixedPointMathLib for uint256;
@@ -137,10 +136,6 @@ contract APVault_V1 is IVault, ERC4626AP {
     if(!IERC20Metadata(vaultConfig.baseToken).transferFrom(vaultConfig.strategy, address(this), returnAmt)) {
       revert TransferFailed();
     }
-    console.log("YieldTokenAmt");
-    console.log(yieldTokenAmt);
-    console.log("returnAmt");
-    console.log(returnAmt);
     // apply tax
     returnAmt -= _taxIfNecessary(accountId, balance, returnAmt);
     // zero out principles
@@ -248,13 +243,8 @@ contract APVault_V1 is IVault, ERC4626AP {
     uint256 baseTokensReturnedAmt
   ) internal returns (uint256) {
     uint256 redemptionCostBasis = baseTokensReturnedAmt.mulDivDown(PRECISION, sharesRedeemedAmt);
-    console.log("Redemption Cost basis");
-    console.log(redemptionCostBasis);
-    console.log("Stored cost basis");
-    console.log(principleByAccountId[accountId].costBasis_withPrecision);
     // no yield, no tax
     if (redemptionCostBasis <= principleByAccountId[accountId].costBasis_withPrecision) {
-      console.log("No yield");
       return 0;
     }
     // tokens of yield denominated in base token
@@ -334,17 +324,15 @@ contract APVault_V1 is IVault, ERC4626AP {
     if(!IERC20Metadata(vaultConfig.baseToken).transferFrom(vaultConfig.strategy, address(this), redemption)) {
       revert TransferFailed();
     }
-
     // Determine proportion owed in tax and send to payee
     uint256 taxProportion_withPrecision = taxShares.mulDivDown(
       PRECISION,
       (taxShares + rebalShares)
     );
-    uint256 tax = redemption.mulDivDown(taxProportion_withPrecision, PRECISION);
+    uint256 tax = redemption.mulDivUp(taxProportion_withPrecision, PRECISION);
     if (!IERC20Metadata(vaultConfig.baseToken).transfer(feeRecipient, tax)) {
       revert TransferFailed();
     }
-
     // Rebalance remainder to liquid
     LocalRegistrarLib.StrategyParams memory stratParams = IRegistrar(vaultConfig.registrar)
       .getStrategyParamsById(vaultConfig.strategySelector);

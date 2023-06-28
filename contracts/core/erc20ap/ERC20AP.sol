@@ -97,7 +97,7 @@ abstract contract ERC20AP is Context, IERC20AP {
    * - `to` cannot be the zero address.
    * - the caller must have a balance of at least `amount`.
    */
-  function transfer(uint32 to, uint256 amount) public virtual override returns (bool) {
+  function transfer(uint32, uint256) public virtual override returns (bool) {
     revert("transfer() not supported");
   }
 
@@ -240,7 +240,9 @@ abstract contract ERC20AP is Context, IERC20AP {
   function _afterTokenTransfer(uint32 from, uint32 to, uint256 amount) internal virtual {}
 
   modifier operatorOnly() {
-    require(_isOperator(_msgSender()));
+    if(!_isOperator(_msgSender())) {
+      revert ERC20APOperatorOnly();
+    }
     _;
   }
 

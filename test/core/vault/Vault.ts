@@ -533,6 +533,7 @@ describe("Vault", function () {
     describe("For locked vaults", async function () {
       let liquidVault: APVault_V1
       let lockedVault: APVault_V1
+      let liquidStrategy: DummyStrategy
       const REBAL_RATE = 5000; // 5% 
       const BASIS = 10000
       beforeEach(async function () {
@@ -545,12 +546,21 @@ describe("Vault", function () {
             yieldToken: yieldToken.address, 
             admin: owner.address
           })
+        // establish second strategy for liquid vault responses 
+        liquidStrategy = await deployDummyStrategy(
+          owner,
+          {
+          baseToken: baseToken.address, 
+          yieldToken: yieldToken.address,
+          admin: owner.address
+          }
+        )
         liquidVault = await deployVault({
           vaultType: 1, // Locked
           admin: owner.address, 
           baseToken: baseToken.address, 
           yieldToken: yieldToken.address,
-          strategy: strategy.address,
+          strategy: liquidStrategy.address,
           registrar: registrar.address
         })
         lockedVault = await deployVault({
@@ -563,6 +573,7 @@ describe("Vault", function () {
         })
         await baseToken.mint(lockedVault.address, DEPOSIT)
         await yieldToken.mint(strategy.address, DEPOSIT*EX_RATE)
+        await yieldToken.mint(liquidStrategy.address, DEPOSIT*EX_RATE)
         await strategy.setDummyAmt(DEPOSIT*EX_RATE)
         await lockedVault.deposit(0, baseToken.address, DEPOSIT)
         await registrar.setStrategyParams(
@@ -592,6 +603,7 @@ describe("Vault", function () {
         let expectedTaxAmt = DEPOSIT * TAX_RATE / BASIS // DEPOSIT = position in yield, apply tax 
         let expectedRebalAmt = DEPOSIT * REBAL_RATE / BASIS
         await strategy.setDummyAmt(expectedTaxAmt + expectedRebalAmt) 
+        await liquidStrategy.setDummyAmt(expectedRebalAmt * 2)
         await lockedVault.harvest([0])
         let newCollectorBal = await baseToken.balanceOf(collector.address)
         expect(newCollectorBal).to.equal(expectedTaxAmt)
