@@ -70,10 +70,6 @@ export default defineConfig({
         gasService: parseAddress(mumbaiData.axelar.gasService),
         gateway: parseAddress(mumbaiData.axelar.gateway),
       },
-      charityApplication: {
-        implementation: parseAddress(mumbaiData.charityApplication.implementation),
-        proxy: parseAddress(mumbaiData.charityApplication.proxy),
-      },
       donationMatch: {
         implementation: parseAddress(mumbaiData.donationMatch.implementation),
         //   emitter: parseAddress(mumbaiData.donationMatch.emitter),
@@ -88,17 +84,16 @@ export default defineConfig({
       },
       libraries: {
         angelCoreStruct: parseAddress(mumbaiData.libraries.angelCoreStruct),
-        charityApplicationLib: parseAddress(mumbaiData.libraries.charityApplicationLib),
         stringArray: parseAddress(mumbaiData.libraries.stringArray),
       },
       multiSig: {
-        applications: {
-          implementation: parseAddress(mumbaiData.multiSig.applications.implementation),
-          proxy: parseAddress(mumbaiData.multiSig.applications.proxy),
-        },
         apTeam: {
           implementation: parseAddress(mumbaiData.multiSig.apTeam.implementation),
           proxy: parseAddress(mumbaiData.multiSig.apTeam.proxy),
+        },
+        charityApplications: {
+          implementation: parseAddress(mumbaiData.multiSig.charityApplications.implementation),
+          proxy: parseAddress(mumbaiData.multiSig.charityApplications.proxy),
         },
         endowment: {
           emitter: {
