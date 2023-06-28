@@ -2,9 +2,9 @@
 pragma solidity ^0.8.16;
 
 import {RegistrarStorage} from "./storage.sol";
-import {Validator} from "./lib/validator.sol";
+import {Validator} from "../validator.sol";
+import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {RegistrarMessages} from "./message.sol";
-import {AngelCoreStruct} from "../struct.sol";
 import "./storage.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {LocalRegistrar} from "./LocalRegistrar.sol";
@@ -67,7 +67,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     });
     emit ConfigUpdated();
 
-    state.NETWORK_CONNECTIONS[block.chainid] = AngelCoreStruct.NetworkInfo({
+    state.NETWORK_CONNECTIONS[block.chainid] = IAccountsVaultFacet.NetworkInfo({
       name: "Polygon",
       chainId: block.chainid,
       router: details.router,
@@ -125,7 +125,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     // state.config.rebalance = details.rebalance;
 
     // check splits
-    AngelCoreStruct.SplitDetails memory split_details = AngelCoreStruct.SplitDetails({
+    LibAccounts.SplitDetails memory split_details = LibAccounts.SplitDetails({
       max: details.splitMax,
       min: details.splitMin,
       defaultSplit: details.splitDefault
@@ -222,7 +222,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     if (Validator.addressChecker(details.cw900lvAddress)) {
       state.config.cw900lvAddress = details.cw900lvAddress;
     }
-    // state.config.acceptedTokens = AngelCoreStruct.AcceptedTokens({
+    // state.config.acceptedTokens = LibAccounts.AcceptedTokens({
     //     native: details.accepted_tokens_native,
     //     cw20: details.accepted_tokens_cw20
     // });
@@ -244,7 +244,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
    * @param action The action to perform (post or delete)
    */
   function updateNetworkConnections(
-    AngelCoreStruct.NetworkInfo memory networkInfo,
+    IAccountsVaultFacet.NetworkInfo memory networkInfo,
     string memory action
   ) public nonReentrant onlyOwner {
     if (Validator.compareStrings(action, "post")) {
@@ -274,7 +274,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
    */
   function queryNetworkConnection(
     uint256 chainId
-  ) public view returns (AngelCoreStruct.NetworkInfo memory response) {
+  ) public view returns (IAccountsVaultFacet.NetworkInfo memory response) {
     response = state.NETWORK_CONNECTIONS[chainId];
   }
 

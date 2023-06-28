@@ -3,10 +3,10 @@ pragma solidity ^0.8.16;
 
 import "./message.sol";
 import "./storage.sol";
-import {AngelCoreStruct} from "../../core/struct.sol";
+import {IAccounts} from "../../core/accounts/interfaces/IAccounts.sol";
+import {IAccountsAllowance} from "../../core/accounts/interfaces/IAccountsAllowance.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
 import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
-import {IAccountsDepositWithdrawEndowments} from "../../core/accounts/interfaces/IAccountsDepositWithdrawEndowments.sol";
 import {AccountMessages} from "../../core/accounts/message.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -26,7 +26,7 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
     address addr,
     address token,
     uint256 amt,
-    AngelCoreStruct.AllowanceAction action
+    IAccountsAllowance.AllowanceAction action
   );
   event DepositUpdated(uint256 depositId);
 
@@ -126,7 +126,7 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
     if (toAddress != address(0)) {
       deposit.claimed = true;
       state.BALANCES[toAddress][tokenAddress] += amount;
-      emit BalancesUpdated(toAddress, tokenAddress, amount, AngelCoreStruct.AllowanceAction.Add);
+      emit BalancesUpdated(toAddress, tokenAddress, amount, IAccountsAllowance.AllowanceAction.Add);
     }
 
     // save the deposit information
@@ -156,7 +156,7 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
       recipient,
       state.DEPOSITS[depositId].tokenAddress,
       state.DEPOSITS[depositId].amount,
-      AngelCoreStruct.AllowanceAction.Add
+      IAccountsAllowance.AllowanceAction.Add
     );
   }
 
@@ -190,7 +190,7 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
     );
 
     // call deposit endpoint on the Accounts contract for ERC20s
-    IAccountsDepositWithdrawEndowments(registrarConfig.accountsContract).depositERC20(
+    IAccounts(registrarConfig.accountsContract).depositERC20(
       AccountMessages.DepositRequest({
         id: endowmentId,
         lockedPercentage: lockedPercentage,
@@ -202,7 +202,7 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
 
     // deduct balance by amount deposited with Accounts contract
     state.BALANCES[msg.sender][tokenAddress] -= amount;
-    emit BalancesUpdated(msg.sender, tokenAddress, amount, AngelCoreStruct.AllowanceAction.Remove);
+    emit BalancesUpdated(msg.sender, tokenAddress, amount, IAccountsAllowance.AllowanceAction.Remove);
   }
 
   /**

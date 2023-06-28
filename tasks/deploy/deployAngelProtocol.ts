@@ -48,8 +48,6 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       const thirdPartyAddresses = await getOrDeployThirdPartyContracts(proxyAdmin, hre);
 
-      const commonLibraries = await deployCommonLibraries(hre);
-
       const apTeamMultisig = await deployAPTeamMultiSig(hre);
 
       const applicationsMultiSig = await deployApplicationsMultiSig(hre);
@@ -73,7 +71,6 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       const accounts = await deployAccountsDiamond(
         apTeamMultisig?.address,
         registrar?.address,
-        commonLibraries?.angelCoreStruct.address,
         hre
       );
 
@@ -287,8 +284,6 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       if (verify_contracts) {
         const deployments: Array<Deployment | undefined> = [
-          commonLibraries?.angelCoreStruct,
-          commonLibraries?.stringLib,
           apTeamMultisig,
           applicationsMultiSig,
           registrar,

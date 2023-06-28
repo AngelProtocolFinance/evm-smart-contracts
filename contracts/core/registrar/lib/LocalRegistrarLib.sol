@@ -3,7 +3,7 @@
 pragma solidity >=0.8.0;
 
 import {IVault} from "../../vault/interfaces/IVault.sol";
-import {AngelCoreStruct} from "../../struct.sol";
+import {LibAccounts} from "../../accounts/lib/LibAccounts.sol";
 
 library LocalRegistrarLib {
   /*////////////////////////////////////////////////
@@ -64,7 +64,7 @@ library LocalRegistrarLib {
     mapping(bytes4 => StrategyParams) VaultsByStrategyId;
     mapping(address => bool) AcceptedTokens;
     mapping(address => uint256) GasFeeByToken;
-    mapping(AngelCoreStruct.FeeTypes => AngelCoreStruct.FeeSetting) FeeSettingsByFeeType;
+    mapping(LibAccounts.FeeTypes => LibAccounts.FeeSetting) FeeSettingsByFeeType;
     mapping(address => bool) ApprovedVaultOperators;
   }
 

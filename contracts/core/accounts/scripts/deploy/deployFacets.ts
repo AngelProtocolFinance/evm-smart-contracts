@@ -8,14 +8,13 @@ import {FacetCut} from "./types";
 
 export default async function deployFacets(
   diamondOwner: SignerWithAddress,
-  corestruct: string,
   hre: HardhatRuntimeEnvironment
 ): Promise<FacetCut[]> {
   logger.out("Deploying facets...");
 
   const cuts: FacetCut[] = [];
 
-  const factoryEntries = await getFacetFactoryEntries(diamondOwner, corestruct);
+  const factoryEntries = await getFacetFactoryEntries(diamondOwner);
 
   for (const entry of factoryEntries) {
     const contractName = getContractName(entry.factory);

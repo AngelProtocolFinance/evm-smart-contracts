@@ -6,12 +6,12 @@ import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {AngelCoreStruct} from "../../core/struct.sol";
 import {IAccountsCreateEndowment} from "../../core/accounts/interfaces/IAccountsCreateEndowment.sol";
 import {IAccountsQueryEndowments} from "../../core/accounts/interfaces/IAccountsQueryEndowments.sol";
 import {IAccountsDepositWithdrawEndowments} from "../../core/accounts/interfaces/IAccountsDepositWithdrawEndowments.sol";
 import {AccountStorage} from "../../core/accounts/storage.sol";
 import {AccountMessages} from "../../core/accounts/message.sol";
+import {LibAccounts} from "../../core/accounts/lib/LibAccounts.sol";
 
 /**
  * @title IMultiSig
@@ -30,7 +30,7 @@ library CharityApplicationLib {
     CharityApplicationsStorage.Config storage config
   ) public {
     require(proposals[proposalCounter].proposer == address(0), "Proposal already exists");
-    require(charityApplication.endowType == AngelCoreStruct.EndowmentType.Charity, "Unauthorized");
+    require(charityApplication.endowType == LibAccounts.EndowmentType.Charity, "Unauthorized");
     require(charityApplication.sdgs.length > 0, "No UN SDGs given");
 
     // check all sdgs id

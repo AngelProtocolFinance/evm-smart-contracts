@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {AngelCoreStruct} from "../../struct.sol";
+import {SubDaoLib} from "../../../normalized_endowment/subdao/message.sol";
 
 /**
  * @title AccountsDaoEndowments
@@ -14,5 +14,5 @@ interface IAccountsDaoEndowments {
    * @param id The id of the endowment
    * @param details The details of the DAO
    */
-  function setupDao(uint32 id, AngelCoreStruct.DaoSetup memory details) external;
+  function setupDao(uint32 id, SubDaoLib.DaoSetup memory details) external;
 }

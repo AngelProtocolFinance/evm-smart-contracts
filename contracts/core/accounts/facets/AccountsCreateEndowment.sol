@@ -2,14 +2,13 @@
 pragma solidity ^0.8.16;
 
 import {LibAccounts} from "../lib/LibAccounts.sol";
-import {Validator} from "../lib/validator.sol";
+import {Validator} from "../../validator.sol";
 import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
-import {AngelCoreStruct} from "../../struct.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
-import {subDaoMessage} from "../../../normalized_endowment/subdao/subdao.sol";
-import {ISubDao} from "../../../normalized_endowment/subdao/Isubdao.sol";
+import {subDaoMessage} from "../../../normalized_endowment/subdao/message.sol";
+import {ISubDao} from "../../../normalized_endowment/subdao/ISubDao.sol";
 import {IAccountsDeployContract} from "../interfaces/IAccountsDeployContract.sol";
 import {IEndowmentMultiSigFactory} from "../../../normalized_endowment/endowment-multisig/interfaces/IEndowmentMultiSigFactory.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
@@ -39,29 +38,29 @@ contract AccountsCreateEndowment is
 
     RegistrarStorage.Config memory registrar_config = IRegistrar(registrarAddress).queryConfig();
 
-    AngelCoreStruct.FeeSetting memory earlyLockedWithdrawFee = state.config.earlyLockedWithdrawFee;
-    if (AngelCoreStruct.EndowmentType.Charity == details.endowType) {
+    LibAccounts.FeeSetting memory earlyLockedWithdrawFee = state.config.earlyLockedWithdrawFee;
+    if (LibAccounts.EndowmentType.Charity == details.endowType) {
       require(msg.sender == registrar_config.charityProposal, "Unauthorized");
     } else {
-      AngelCoreStruct.validateFee(details.earlyLockedWithdrawFee);
+      Validator.validateFee(details.earlyLockedWithdrawFee);
       earlyLockedWithdrawFee = details.earlyLockedWithdrawFee;
     }
     // check all of the other fees
-    AngelCoreStruct.validateFee(details.withdrawFee);
-    AngelCoreStruct.validateFee(details.depositFee);
-    AngelCoreStruct.validateFee(details.balanceFee);
+    Validator.validateFee(details.withdrawFee);
+    Validator.validateFee(details.depositFee);
+    Validator.validateFee(details.balanceFee);
 
     require(details.members.length >= 1, "No members provided for Endowment multisig");
     require(details.threshold > 0, "Threshold must be a positive number");
 
-    if (AngelCoreStruct.EndowmentType.Normal == details.endowType) {
+    if (LibAccounts.EndowmentType.Normal == details.endowType) {
       require(details.threshold <= details.members.length, "Threshold greater than member count");
     }
 
-    AngelCoreStruct.SplitDetails memory splitSettings;
+    LibAccounts.SplitDetails memory splitSettings;
     bool ignoreUserSplit;
 
-    if (AngelCoreStruct.EndowmentType.Charity == details.endowType) {
+    if (LibAccounts.EndowmentType.Charity == details.endowType) {
       ignoreUserSplit = false;
     } else {
       splitSettings = details.splitToLiquid;
@@ -69,7 +68,7 @@ contract AccountsCreateEndowment is
     }
 
     address donationMatchContract = address(0);
-    if (AngelCoreStruct.EndowmentType.Charity == details.endowType) {
+    if (LibAccounts.EndowmentType.Charity == details.endowType) {
       donationMatchContract = registrar_config.donationMatchCharitesContract;
     }
 

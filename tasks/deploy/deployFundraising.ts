@@ -35,7 +35,6 @@ task("deploy:Fundraising", "Will deploy Fundraising contract")
 
       const addresses = await getAddresses(hre);
 
-      const angelCoreStruct = taskArgs.angelCoreStruct || addresses.libraries.angelCoreStruct;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
       const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
@@ -47,7 +46,7 @@ task("deploy:Fundraising", "Will deploy Fundraising contract")
         acceptedTokens: config.FundraisingDataInput.acceptedTokens,
       };
 
-      await deployFundraising(FundraisingDataInput, angelCoreStruct, verify_contracts, hre);
+      await deployFundraising(FundraisingDataInput, verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

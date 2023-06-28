@@ -9,7 +9,6 @@ const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
 export async function deployFundraising(
   FundraisingDataInput: FundraisingMessage.InstantiateMsgStruct,
-  AngelCoreStruct: string,
   verify_contracts: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
@@ -18,16 +17,13 @@ export async function deployFundraising(
 
     const {proxyAdmin} = await getSigners(hre);
 
-    const FundraisingLib = await ethers.getContractFactory("FundraisingLib", {
-      libraries: {AngelCoreStruct},
-    });
+    const FundraisingLib = await ethers.getContractFactory("FundraisingLib");
     const FundraisingLibInstance = await FundraisingLib.deploy();
     await FundraisingLibInstance.deployed();
     logger.out(`FundraisingLib address: ${FundraisingLibInstance.address}`);
 
     const Fundraising = await ethers.getContractFactory("Fundraising", {
       libraries: {
-        AngelCoreStruct,
         FundraisingLib: FundraisingLibInstance.address,
       },
     });

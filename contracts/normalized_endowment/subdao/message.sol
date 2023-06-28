@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {AngelCoreStruct} from "../../core/struct.sol";
-
-import {subDaoStorage} from "./storage.sol";
+import {LibAccounts} from "../../core/accounts/lib/LibAccounts.sol";
+import {SubDaoLib} from "./SubDaoLib.sol";
 
 library subDaoMessage {
   struct InstantiateMsg {
@@ -16,8 +15,8 @@ library subDaoMessage {
     uint256 expirationPeriod;
     uint256 proposalDeposit;
     uint256 snapshotPeriod;
-    AngelCoreStruct.DaoToken token;
-    AngelCoreStruct.EndowmentType endowType;
+    SubDaoLib.DaoToken token;
+    LibAccounts.EndowmentType endowType;
     address endowOwner;
     address registrarContract;
   }

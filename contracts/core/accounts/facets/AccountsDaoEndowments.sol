@@ -3,11 +3,11 @@ pragma solidity ^0.8.16;
 
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";
-import {AngelCoreStruct} from "../../struct.sol";
+import {SubDaoLib} from "../../../normalized_endowment/subdao/message.sol";
 import {IAccountsDeployContract} from "../interfaces/IAccountsDeployContract.sol";
 import {IAccountsDaoEndowments} from "../interfaces/IAccountsDaoEndowments.sol";
-import {subDaoMessage} from "../../../normalized_endowment/subdao/subdao.sol";
-import {ISubDao} from "../../../normalized_endowment/subdao/Isubdao.sol";
+import {subDaoMessage} from "../../../normalized_endowment/subdao/message.sol";
+import {ISubDao} from "../../../normalized_endowment/subdao/ISubDao.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 
@@ -22,7 +22,7 @@ contract AccountsDaoEndowments is IAccountsDaoEndowments, ReentrancyGuardFacet, 
    * @param id The id of the endowment
    * @param details The details of the DAO
    */
-  function setupDao(uint32 id, AngelCoreStruct.DaoSetup memory details) public nonReentrant {
+  function setupDao(uint32 id, SubDaoLib.DaoSetup memory details) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
     AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];

@@ -4,8 +4,9 @@ pragma solidity ^0.8.16;
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
-import {AngelCoreStruct} from "../../struct.sol";
 import {IAccountsQueryEndowments} from "../interfaces/IAccountsQueryEndowments.sol";
+import {IVault} from "../../vault/interfaces/IVault.sol";
+
 
 /**
  * @title AccountsQueryEndowments
@@ -23,13 +24,13 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments {
    */
   function queryTokenAmount(
     uint32 id,
-    AngelCoreStruct.AccountType accountType,
+    IVault.VaultType accountType,
     address tokenAddress
   ) public view returns (uint256 tokenAmount) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     require(address(0) != tokenAddress, "Invalid token address");
 
-    if (accountType == AngelCoreStruct.AccountType.Locked) {
+    if (accountType == IVault.VaultType.LOCKED) {
       tokenAmount = state.STATES[id].balances.locked[tokenAddress];
     } else {
       tokenAmount = state.STATES[id].balances.liquid[tokenAddress];
