@@ -163,15 +163,6 @@ task("manage:createEndowment", "Will create a new endowment")
         const data = charityApplications.interface.encodeFunctionData("approveCharity", [
           proposalId,
         ]);
-        // const submitTransactionTx = await applicationMultisig.submitTransaction(
-        //   `Approve endowment with proposal ID: ${proposalId}`,
-        //   `Approve endowment with proposal ID: ${proposalId}`,
-        //   addresses.charityApplication.proxy,
-        //   0,
-        //   data,
-        //   "0x"
-        // );
-        // await submitTransactionTx.wait();
       } else {
         const createEndowFacet = AccountsCreateEndowment__factory.connect(
           addresses.accounts.diamond,

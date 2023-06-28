@@ -158,6 +158,10 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
     proposalConfirmations[proposalId].confirmationsByOwner[msg.sender] = true;
     proposalConfirmations[proposalId].count += 1;
     emit ApplicationConfirmed(proposalId, msg.sender);
+    // if execution is required, do not auto-execute
+    if (!requireExecution) {
+      executeProposal(proposalId);
+    }
   }
 
   /// @dev Allows an owner to revoke a confirmation for a proposal.

@@ -25,10 +25,6 @@ export type AddressObj = {
     gasService: string;
     gateway: string;
   };
-  charityApplication: {
-    implementation: string;
-    proxy: string;
-  };
   donationMatch: {
     emitter: string;
     implementation: string;
@@ -106,11 +102,10 @@ export type AddressObj = {
   };
   libraries: {
     angelCoreStruct: string;
-    charityApplicationLib: string;
     stringArray: string;
   };
   multiSig: {
-    applications: {
+    charityApplications: {
       implementation: string;
       proxy: string;
     };

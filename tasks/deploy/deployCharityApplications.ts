@@ -34,7 +34,7 @@ task("deploy:CharityApplication", "Will deploy CharityApplication contract")
   .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      const isConfirmed = taskArgs.yes || (await confirmAction("Deploying CharityApplication..."));
+      const isConfirmed = taskArgs.yes || (await confirmAction("Deploying CharityApplications..."));
       if (!isConfirmed) {
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
@@ -45,7 +45,7 @@ task("deploy:CharityApplication", "Will deploy CharityApplication contract")
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
 
-      const deployData = await deployCharityApplication(
+      const deployData = await deployCharityApplications(
         accountsDiamond,
         addresses.tokens.seedAsset,
         hre
