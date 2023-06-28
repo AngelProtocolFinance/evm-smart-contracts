@@ -12,7 +12,7 @@ import {
 
 type TaskArgs = {
   factory?: string;
-  verify: boolean;
+  skipVerify: boolean;
   yes: boolean;
 };
 
@@ -24,12 +24,7 @@ task(
     "factory",
     "MultiSigFactory contract address. Will do a local lookup from contract-address.json if none is provided."
   )
-  .addOptionalParam(
-    "verify",
-    "Flag indicating whether the contract should be verified",
-    true,
-    types.boolean
-  )
+  .addFlag("skipVerify", "Skip contract verification")
   .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
@@ -63,7 +58,7 @@ task(
 
       await updateAddresses({multiSig: {endowment: {implementation: contract.address}}}, hre);
 
-      if (!isLocalNetwork(hre) && taskArgs.verify) {
+      if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         await verify(hre, {address: contract.address});
       }
     } catch (error) {

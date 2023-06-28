@@ -3,14 +3,9 @@ import {task, types} from "hardhat/config";
 import {confirmAction, isLocalNetwork, logger, verify} from "utils";
 
 task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
-  .addOptionalParam(
-    "verify",
-    "Flag indicating whether the contract should be verified",
-    true,
-    types.boolean
-  )
+  .addFlag("skipVerify", "Skip contract verification")
   .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
-  .setAction(async (taskArgs: {verify: boolean; yes: boolean}, hre) => {
+  .setAction(async (taskArgs: {skipVerify: boolean; yes: boolean}, hre) => {
     try {
       const isConfirmed = taskArgs.yes || (await confirmAction("Deploying APTeamMultiSig..."));
       if (!isConfirmed) {
@@ -36,7 +31,7 @@ task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
         yes: true,
       });
 
-      if (!isLocalNetwork(hre) && taskArgs.verify) {
+      if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         await verify(hre, deployment);
       }
     } catch (error) {

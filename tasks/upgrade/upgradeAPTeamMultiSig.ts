@@ -11,14 +11,9 @@ import {
 } from "utils";
 
 task("upgrade:APTeamMultiSig", "Will upgrade the APTeamMultiSig")
-  .addOptionalParam(
-    "verify",
-    "Flag indicating whether the contract should be verified",
-    true,
-    types.boolean
-  )
+  .addFlag("skipVerify", "Skip contract verification")
   .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
-  .setAction(async (taskArgs: {verify: boolean; yes: boolean}, hre) => {
+  .setAction(async (taskArgs: {skipVerify: boolean; yes: boolean}, hre) => {
     try {
       const isConfirmed = taskArgs.yes || (await confirmAction("Upgrading APTeamMultiSig..."));
       if (!isConfirmed) {
@@ -56,7 +51,7 @@ task("upgrade:APTeamMultiSig", "Will upgrade the APTeamMultiSig")
         hre
       );
 
-      if (!isLocalNetwork(hre) && taskArgs.verify) {
+      if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         await verify(hre, {
           address: apTeamMultiSig.address,
           contract: "contracts/multisigs/APTeamMultiSig.sol:APTeamMultiSig",

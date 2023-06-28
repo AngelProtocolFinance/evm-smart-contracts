@@ -6,7 +6,7 @@ import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
 type TaskArgs = {
   angelCoreStruct?: string;
   registrar?: string;
-  verify: boolean;
+  skipVerify: boolean;
   yes: boolean;
 };
 
@@ -19,12 +19,7 @@ task("deploy:Fundraising", "Will deploy Fundraising contract")
     "registrar",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
-  .addOptionalParam(
-    "verify",
-    "Flag indicating whether the contract should be verified",
-    true,
-    types.boolean
-  )
+  .addFlag("skipVerify", "Skip contract verification")
   .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
@@ -36,7 +31,7 @@ task("deploy:Fundraising", "Will deploy Fundraising contract")
       const addresses = await getAddresses(hre);
 
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
-      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
+      const verify_contracts = !isLocalNetwork(hre) && !taskArgs.skipVerify;
 
       let FundraisingDataInput = {
         registrarContract: registrar,

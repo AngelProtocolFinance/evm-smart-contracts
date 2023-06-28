@@ -1,16 +1,11 @@
 import config from "config";
-import {task, types} from "hardhat/config";
+import {task} from "hardhat/config";
 import {getAddresses, isLocalNetwork, logger} from "utils";
 
 import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
 
 task("deploy:Implementation", "Will deploy Implementation")
-  .addOptionalParam(
-    "verify",
-    "Flag indicating whether the contract should be verified",
-    true,
-    types.boolean
-  )
+  .addFlag("skipVerify", "Skip contract verification")
   .addParam("registraraddress", "Registrar contract address")
   .addParam("accountaddress", "Address of the Account")
   .addParam("apteammultisigaddress", "Address of the APTeam multisig")
@@ -19,7 +14,7 @@ task("deploy:Implementation", "Will deploy Implementation")
     try {
       const addresses = await getAddresses(hre);
 
-      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
+      const verify_contracts = !isLocalNetwork(hre) && !taskArgs.skipVerify;
 
       let donationMatchCharityData = {
         reserveToken: addresses.tokens.reserveToken,

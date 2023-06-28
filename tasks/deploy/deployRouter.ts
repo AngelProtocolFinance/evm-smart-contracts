@@ -6,7 +6,7 @@ import {updateRegistrarNetworkConnections} from "../helpers";
 type TaskArgs = {
   apTeamMultisig?: string;
   registrar?: string;
-  verify: boolean;
+  skipVerify: boolean;
   yes: boolean;
 };
 
@@ -19,12 +19,7 @@ task("deploy:Router", "Will deploy Router contract")
     "registrar",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
-  .addOptionalParam(
-    "verify",
-    "Flag indicating whether the contract should be verified",
-    true,
-    types.boolean
-  )
+  .addFlag("skipVerify", "Skip contract verification")
   .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
@@ -57,7 +52,7 @@ task("deploy:Router", "Will deploy Router contract")
         hre
       );
 
-      if (!isLocalNetwork(hre) && taskArgs.verify) {
+      if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         await verify(hre, deployment);
       }
     } catch (error) {
