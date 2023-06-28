@@ -103,7 +103,6 @@
     },
     "libraries": {
       "angelCoreStruct": "",
-      "charityApplicationLib": "",
       "stringArray": ""
     },
     "multiSig": {
