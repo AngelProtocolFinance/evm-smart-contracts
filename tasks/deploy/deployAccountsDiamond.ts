@@ -46,6 +46,7 @@ task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
       );
       await hre.run("manage:CharityApplication:updateConfig", {
         accountsDiamond: deployData.diamond.address,
+        yes: true,
       });
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
