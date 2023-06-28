@@ -139,7 +139,12 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
     });
 
     emit ApplicationProposed(proposalCount);
+
     proposalCount++;
+
+    if (isOwner[msg.sender]) {
+      confirmProposal(proposalCount);
+    }
   }
 
   /// @dev Allows an owner to confirm a proposal.
