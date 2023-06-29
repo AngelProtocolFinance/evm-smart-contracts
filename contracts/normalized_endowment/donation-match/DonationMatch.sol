@@ -15,6 +15,7 @@ import "@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol";
 import {IDonationMatchEmitter} from "./IDonationMatchEmitter.sol";
 import {IAccountsDonationMatch} from "./../../core/accounts/interfaces/IAccountsDonationMatch.sol";
 import {LibAccounts} from "../../core/accounts/lib/LibAccounts.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 interface SubDaoToken {
   function executeDonorMatch(
@@ -28,8 +29,6 @@ interface SubDaoToken {
 interface IERC20Burnable is IERC20 {
   function burn(uint256 amount) external;
 }
-
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  *@title DonationMatch
