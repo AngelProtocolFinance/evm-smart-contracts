@@ -55,7 +55,7 @@ Updating the common config for AP Accounts contract
 - Update Endowment Status
 - Close Endowment
 
-### AccountsVaultFacet
+### AccountsStrategy
 
 - Distribute To Beneficiary
 - Validate Deposit Fund
