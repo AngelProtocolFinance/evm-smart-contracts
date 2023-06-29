@@ -2,10 +2,10 @@ import {task, types} from "hardhat/config";
 import {
   AccountsCreateEndowment__factory,
   AccountsQueryEndowments__factory,
-  CharityApplication__factory,
+  CharityApplications__factory,
 } from "typechain-types";
-import {AccountMessages} from "typechain-types/contracts/core/accounts/IAccounts";
-import {getAddresses, getSigners, logger} from "utils";
+import {AccountMessages} from "typechain-types/contracts/multisigs/CharityApplications";
+import {getAddresses, getSigners, logger, structToObject} from "utils";
 
 type TaskArgs = {endowType: 0 | 1};
 
@@ -13,7 +13,7 @@ task("manage:createEndowment", "Will create a new endowment")
   .addParam("endowType", "0 - charity, 1 - normal", 0, types.int)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      const {apTeam1, apTeam2} = await getSigners(hre);
+      const {apTeam1} = await getSigners(hre);
 
       const addresses = await getAddresses(hre);
 
@@ -42,13 +42,11 @@ task("manage:createEndowment", "Will create a new endowment")
       };
 
       const createEndowmentRequest: AccountMessages.CreateEndowmentRequestStruct = {
-        owner: apTeam1.address,
+        duration: 3600, // 1h
         withdrawBeforeMaturity: false,
         maturityTime: 0,
-        maturityHeight: 0,
         name: `Test Charity Endowment #${config.nextAccountId}`,
-        sdgs: [],
-        kycDonorsOnly: false,
+        sdgs: [1],
         referralId: 0,
         tier: 0,
         endowType: taskArgs.endowType, // Charity
@@ -56,56 +54,12 @@ task("manage:createEndowment", "Will create a new endowment")
         image: "",
         members: [apTeam1.address],
         threshold: 1,
-        maxVotingPeriod: {
-          enumData: 1,
-          data: {
-            height: 0,
-            time: 0,
-          },
-        },
         allowlistedBeneficiaries: [],
         allowlistedContributors: [],
-        splitMax: 100,
-        splitMin: 0,
-        splitDefault: 50,
         earlyLockedWithdrawFee: defaultFeeStruct,
         withdrawFee: defaultFeeStruct,
         depositFee: defaultFeeStruct,
         balanceFee: defaultFeeStruct,
-        dao: {
-          quorum: 1,
-          threshold: 1,
-          votingPeriod: 0,
-          timelockPeriod: 0,
-          expirationPeriod: 0,
-          proposalDeposit: 0,
-          snapshotPeriod: 0,
-          token: {
-            token: 0,
-            data: {
-              existingData: apTeam1.address,
-              newInitialSupply: 0,
-              newName: "",
-              newSymbol: "",
-              veBondingType: {
-                ve_type: 0,
-                data: {
-                  value: 0,
-                  scale: 0,
-                  slope: 0,
-                  power: 0,
-                },
-              },
-              veBondingName: "",
-              veBondingSymbol: "",
-              veBondingDecimals: 18,
-              veBondingReserveDenom: apTeam1.address,
-              veBondingReserveDecimals: 18,
-              veBondingPeriod: 0,
-            },
-          },
-        },
-        createDao: false,
         proposalLink: 0,
         settingsController: {
           acceptedTokens: defaultSettingsPermissionsStruct,
@@ -142,7 +96,7 @@ task("manage:createEndowment", "Will create a new endowment")
           addresses.multiSig.charityApplications.proxy,
           apTeam1
         );
-        const tx = await charityApplications.proposeCharity(createEndowmentRequest, "");
+        const tx = await charityApplications.proposeApplication(createEndowmentRequest, "");
         const receipt = await tx.wait();
 
         if (!receipt.events?.length) {
@@ -151,18 +105,18 @@ task("manage:createEndowment", "Will create a new endowment")
 
         const charityProposedEvent = receipt.events[0];
         if (!charityProposedEvent.args?.length) {
-          throw new Error("Unexpected behaviour: no args in CharityProposed event.");
+          throw new Error("Unexpected behaviour: no args in ApplicationProposed event.");
         }
-        if (!charityProposedEvent.args.at(1)) {
-          throw new Error("Unexpected behaviour: no proposalId in CharityProposed args.");
+        if (!charityProposedEvent.args.at(0)) {
+          throw new Error("Unexpected behaviour: no proposalId in ApplicationProposed args.");
         }
 
-        const proposalId = charityProposedEvent.args[1];
+        const proposalId = charityProposedEvent.args.at(0);
 
-        logger.out(`Approving the new charity endowment with proposal ID: ${proposalId}...`);
-        const data = charityApplications.interface.encodeFunctionData("approveCharity", [
-          proposalId,
-        ]);
+        logger.out(`Confirm the new charity endowment with proposal ID: ${proposalId}...`);
+        const tx2 = await charityApplications.confirmProposal(proposalId);
+        logger.out(`Confirm proposal tx hash: ${tx2.hash}`);
+        await tx2.wait();
       } else {
         const createEndowFacet = AccountsCreateEndowment__factory.connect(
           addresses.accounts.diamond,
@@ -176,7 +130,8 @@ task("manage:createEndowment", "Will create a new endowment")
       const newEndowmentDetails = await queryEndowmentFacet.queryEndowmentDetails(
         config.nextAccountId
       );
-      logger.out(`Added endowment: ${JSON.stringify(newEndowmentDetails, undefined, 2)}`);
+      logger.out("Added endowment:");
+      logger.out(JSON.stringify(structToObject(newEndowmentDetails), undefined, 2));
       logger.out();
     } catch (error) {
       logger.out(error, logger.Level.Error);

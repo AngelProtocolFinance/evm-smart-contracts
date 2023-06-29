@@ -1,5 +1,5 @@
-import {task} from "hardhat/config";
-import {CharityApplication__factory, ITransparentUpgradeableProxy__factory} from "typechain-types";
+import {task, types} from "hardhat/config";
+import {CharityApplications__factory, ITransparentUpgradeableProxy__factory} from "typechain-types";
 import {
   confirmAction,
   getAddresses,
@@ -40,7 +40,7 @@ task("upgrade:CharityApplications", "Will upgrade the implementation of CharityA
       // upgrade proxy
       logger.out("Upgrading proxy...");
       const apTeamProxy = ITransparentUpgradeableProxy__factory.connect(
-        addresses.multisigs.charityApplications.proxy,
+        addresses.multiSig.charityApplications.proxy,
         proxyAdmin
       );
       const tx1 = await apTeamProxy.upgradeTo(charityApplications.address);
@@ -50,7 +50,7 @@ task("upgrade:CharityApplications", "Will upgrade the implementation of CharityA
       // update address & verify
       await updateAddresses(
         {
-          multisigs: {
+          multiSig: {
             charityApplications: {
               implementation: charityApplications.address,
             },

@@ -170,7 +170,6 @@ export function createEmptyAddressObj(): AddressObj {
     },
     libraries: {
       angelCoreStruct: "",
-      charityApplicationLib: "",
       stringArray: "",
     },
     multiSig: {
