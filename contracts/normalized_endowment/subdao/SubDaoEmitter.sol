@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {subDaoStorage} from "./storage.sol";
+import {SubDaoStorage} from "./storage.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import {ISubdaoEmitter} from "./ISubdaoEmitter.sol";
+import {ISubDaoEmitter} from "./ISubDaoEmitter.sol";
 
-contract SubdaoEmitter is ISubdaoEmitter, Initializable {
-  event SubdaoInitialized(address subdao);
+contract SubDaoEmitter is ISubDaoEmitter, Initializable {
+  event SubDaoInitialized(address subdao);
   event ConfigUpdated(address subdao);
   event Transfer(address subdao, address tokenAddress, address from, address to, uint256 amount);
   event StateUpdated(address subdao);
   event PollUpdated(address subdao, uint256 id, address sender);
-  event PollStatusUpdated(address subdao, uint256 id, subDaoStorage.PollStatus pollStatus);
+  event PollStatusUpdated(address subdao, uint256 id, SubDaoStorage.PollStatus pollStatus);
   event VotingStatusUpdated(address subdao, uint256 pollId, address voter);
 
   address accountsContract;
-  mapping(address => bool) isSubdao;
+  mapping(address => bool) isSubDao;
 
   function initEmitter(address _accountsContract) public initializer {
     require(_accountsContract != address(0), "Invalid accounts contract address");
@@ -27,28 +27,28 @@ contract SubdaoEmitter is ISubdaoEmitter, Initializable {
     _;
   }
   modifier isEmitter() {
-    require(isSubdao[msg.sender], "Unauthorized");
+    require(isSubDao[msg.sender], "Unauthorized");
     _;
   }
 
-  function initializeSubdao(address subdao) public isOwner {
-    isSubdao[subdao] = true;
-    emit SubdaoInitialized(subdao);
+  function initializeSubDao(address subdao) public isOwner {
+    isSubDao[subdao] = true;
+    emit SubDaoInitialized(subdao);
   }
 
-  function updateSubdaoConfig() public isEmitter {
+  function updateSubDaoConfig() public isEmitter {
     emit ConfigUpdated(msg.sender);
   }
 
-  function updateSubdaoState() public isEmitter {
+  function updateSubDaoState() public isEmitter {
     emit StateUpdated(msg.sender);
   }
 
-  function updateSubdaoPoll(uint256 pollId, address voter) public isEmitter {
+  function updateSubDaoPoll(uint256 pollId, address voter) public isEmitter {
     emit PollUpdated(msg.sender, pollId, voter);
   }
 
-  function transferSubdao(
+  function transferSubDao(
     address tokenAddress,
     address from,
     address to,
@@ -61,10 +61,10 @@ contract SubdaoEmitter is ISubdaoEmitter, Initializable {
     emit VotingStatusUpdated(msg.sender, pollId, voter);
   }
 
-  function updateSubdaoPollAndStatus(
+  function updateSubDaoPollAndStatus(
     uint256 pollId,
     address voter,
-    subDaoStorage.PollStatus pollStatus
+    SubDaoStorage.PollStatus pollStatus
   ) public isEmitter {
     emit PollUpdated(msg.sender, pollId, voter);
     emit PollStatusUpdated(msg.sender, pollId, pollStatus);

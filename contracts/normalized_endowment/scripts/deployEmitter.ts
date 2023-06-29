@@ -14,26 +14,26 @@ const deploySubDaoEmitter = async (
     // Getting Proxy contract
     const ProxyContract = await ethers.getContractFactory("ProxyContract");
 
-    const SubdaoEmitter = await ethers.getContractFactory("SubdaoEmitter");
-    const SubdaoEmitterImplementation = await SubdaoEmitter.deploy();
-    await SubdaoEmitterImplementation.deployed();
+    const SubDaoEmitter = await ethers.getContractFactory("SubDaoEmitter");
+    const SubDaoEmitterImplementation = await SubDaoEmitter.deploy();
+    await SubDaoEmitterImplementation.deployed();
 
-    logger.out(`SubdaoEmitterAddress (Implementation): ${SubdaoEmitterImplementation.address}"`);
+    logger.out(`SubDaoEmitterAddress (Implementation): ${SubDaoEmitterImplementation.address}"`);
 
-    const SubdaoEmitterData = SubdaoEmitterImplementation.interface.encodeFunctionData(
+    const SubDaoEmitterData = SubDaoEmitterImplementation.interface.encodeFunctionData(
       "initEmitter",
       [accountAddress]
     );
 
-    const SubdaoEmitterProxy = await ProxyContract.deploy(
-      SubdaoEmitterImplementation.address,
+    const SubDaoEmitterProxy = await ProxyContract.deploy(
+      SubDaoEmitterImplementation.address,
       proxyAdmin,
-      SubdaoEmitterData
+      SubDaoEmitterData
     );
 
-    await SubdaoEmitterProxy.deployed();
+    await SubDaoEmitterProxy.deployed();
 
-    logger.out(`SubdaoEmitterProxy Address (Proxy): ${SubdaoEmitterProxy.address}"`);
+    logger.out(`SubDaoEmitterProxy Address (Proxy): ${SubDaoEmitterProxy.address}"`);
 
     logger.out("Saving addresses to contract-address.json...");
     // update address file & verify contracts
@@ -41,8 +41,8 @@ const deploySubDaoEmitter = async (
       {
         subDao: {
           emitter: {
-            implementation: SubdaoEmitterImplementation.address,
-            proxy: SubdaoEmitterProxy.address,
+            implementation: SubDaoEmitterImplementation.address,
+            proxy: SubDaoEmitterProxy.address,
           },
         },
       },
@@ -50,14 +50,14 @@ const deploySubDaoEmitter = async (
     );
 
     if (verify_contracts) {
-      await verify(hre, {address: SubdaoEmitterImplementation.address});
+      await verify(hre, {address: SubDaoEmitterImplementation.address});
       await verify(hre, {
-        address: SubdaoEmitterProxy.address,
-        constructorArguments: [SubdaoEmitterImplementation.address, proxyAdmin, SubdaoEmitterData],
+        address: SubDaoEmitterProxy.address,
+        constructorArguments: [SubDaoEmitterImplementation.address, proxyAdmin, SubDaoEmitterData],
       });
     }
 
-    return Promise.resolve(SubdaoEmitterProxy.address);
+    return Promise.resolve(SubDaoEmitterProxy.address);
   } catch (error) {
     return Promise.reject(error);
   }

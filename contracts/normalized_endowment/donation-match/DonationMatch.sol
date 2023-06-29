@@ -16,7 +16,7 @@ import {IDonationMatchEmitter} from "./IDonationMatchEmitter.sol";
 import {IAccountsDonationMatch} from "./../../core/accounts/interfaces/IAccountsDonationMatch.sol";
 import {LibAccounts} from "../../core/accounts/lib/LibAccounts.sol";
 
-interface SubdaoToken {
+interface SubDaoToken {
   function executeDonorMatch(
     uint256 amount,
     address accountscontract,
@@ -163,7 +163,7 @@ contract DonationMatch is Storage, Initializable {
         "Approve failed"
       );
 
-      SubdaoToken(token).executeDonorMatch(
+      SubDaoToken(token).executeDonorMatch(
         reserveTokenAmount,
         registrar_config.accountsContract,
         endowmentId,

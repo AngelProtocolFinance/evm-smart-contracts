@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {IAccountsDonationMatch} from "../../core/accounts/interfaces/IAccountsDonationMatch.sol";
 import {SubDaoTokenMessage} from "./message.sol";
 import {subDaoTokenStorage} from "./storage.sol";
-// import {ISubdaoTokenEmitter} from "./ISubdaoTokenEmitter.sol";
+// import {ISubDaoTokenEmitter} from "./ISubDaoTokenEmitter.sol";
 import {ContinuousToken} from "./Token/Continous.sol";
 
 /**
@@ -50,7 +50,7 @@ contract SubDaoToken is Storage, ContinuousToken {
     reserveDenom = message.reserveDenom;
 
     config.unbondingPeriod = message.unbondingPeriod;
-    // ISubdaoTokenEmitter(emitterAddress).initializeSubdaoToken(msg);
+    // ISubDaoTokenEmitter(emitterAddress).initializeSubDaoToken(msg);
   }
 
   //TODO: check we have a un used parameter
@@ -107,7 +107,7 @@ contract SubDaoToken is Storage, ContinuousToken {
       IERC20(reserveDenom).transferFrom(msg.sender, address(this), amount),
       "TransferFrom failed"
     );
-    // ISubdaoTokenEmitter(emitterAddress).transferFromSt(
+    // ISubDaoTokenEmitter(emitterAddress).transferFromSt(
     //     reserveDenom,
     //     msg.sender,
     //     address(this),
@@ -115,7 +115,7 @@ contract SubDaoToken is Storage, ContinuousToken {
     // );
 
     mint(amount, msg.sender);
-    // ISubdaoTokenEmitter(emitterAddress).mintSt(
+    // ISubDaoTokenEmitter(emitterAddress).mintSt(
     //     address(this),
     //     amount,
     //     msg.sender
@@ -138,7 +138,7 @@ contract SubDaoToken is Storage, ContinuousToken {
    */
   function doSell(address reciver, uint256 amount) internal {
     uint256 burnedAmount = burn(amount, reciver);
-    // ISubdaoTokenEmitter(emitterAddress).burnSt(
+    // ISubDaoTokenEmitter(emitterAddress).burnSt(
     //     address(this),
     //     burnedAmount
     // );
@@ -152,7 +152,7 @@ contract SubDaoToken is Storage, ContinuousToken {
     );
 
     // emit event
-    // ISubdaoTokenEmitter(emitterAddress).addClaimSt(
+    // ISubDaoTokenEmitter(emitterAddress).addClaimSt(
     //     msg.sender,
     //     subDaoTokenStorage.claimInfo({
     //         releaseTime: (config.unbondingPeriod +
@@ -172,7 +172,7 @@ contract SubDaoToken is Storage, ContinuousToken {
     require(amount > 0, "NothingToClaim");
 
     require(IERC20(reserveDenom).transfer(msg.sender, amount), "Transfer failed");
-    // ISubdaoTokenEmitter(emitterAddress).transferSt(
+    // ISubDaoTokenEmitter(emitterAddress).transferSt(
     //     reserveDenom,
     //     msg.sender,
     //     amount
@@ -194,7 +194,7 @@ contract SubDaoToken is Storage, ContinuousToken {
       ) {
         amount += CLAIM_AMOUNT[sender].details[i].amount;
         CLAIM_AMOUNT[sender].details[i].isClaimed = true;
-        // ISubdaoTokenEmitter(emitterAddress).claimSt(sender, i);
+        // ISubDaoTokenEmitter(emitterAddress).claimSt(sender, i);
       }
     }
 

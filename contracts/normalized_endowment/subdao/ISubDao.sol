@@ -2,7 +2,7 @@
 pragma solidity ^0.8.16;
 
 import {SubDaoMessages} from "./message.sol";
-import {subDaoStorage} from "./storage.sol";
+import {SubDaoStorage} from "./storage.sol";
 import {Array} from "../../lib/array.sol";
 
 import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
@@ -27,7 +27,7 @@ interface ISubDao {
     string memory title,
     string memory description,
     string memory link,
-    subDaoStorage.ExecuteData memory executeMsgs
+    SubDaoStorage.ExecuteData memory executeMsgs
   ) external;
 
   function endPoll(uint256 pollid) external;
@@ -36,11 +36,11 @@ interface ISubDao {
 
   function expirePoll(uint256 pollid) external;
 
-  function castVote(uint256 pollid, subDaoStorage.VoteOption vote) external;
+  function castVote(uint256 pollid, SubDaoStorage.VoteOption vote) external;
 
   function queryConfig() external view returns (SubDaoMessages.QueryConfigResponse memory);
 
-  function queryState() external view returns (subDaoStorage.State memory);
+  function queryState() external view returns (SubDaoStorage.State memory);
 
   function buildDaoTokenMesage(SubDaoMessages.InstantiateMsg memory msg) external;
 }

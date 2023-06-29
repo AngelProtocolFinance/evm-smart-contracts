@@ -16,7 +16,7 @@ import {IAccountsDonationMatch} from "../../core/accounts/interfaces/IAccountsDo
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-interface SubdaoToken {
+interface SubDaoToken {
   function executeDonorMatch(
     uint256 amount,
     address accountscontract,
@@ -149,7 +149,7 @@ contract DonationMatchCharity is IDonationMatching, Storage, Initializable, Reen
       require(success, "Approve failed");
 
       // call execute donor match on dao token contract
-      SubdaoToken(token).executeDonorMatch(
+      SubDaoToken(token).executeDonorMatch(
         reserveTokenAmount,
         registrar_config.accountsContract,
         endowmentId,

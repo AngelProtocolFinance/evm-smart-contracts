@@ -12,7 +12,7 @@ import "@openzeppelin/contracts/utils/Address.sol";
 import {SubDaoTokenMessage} from "./../subdao-token/subdao-token.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import {ISubdaoEmitter} from "./ISubdaoEmitter.sol";
+import {ISubDaoEmitter} from "./ISubDaoEmitter.sol";
 import "./Token/ERC20.sol";
 import "./storage.sol";
 
@@ -34,7 +34,7 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
 
     emitterAddress = _emitterAddress;
 
-    config = subDaoStorage.Config({
+    config = SubDaoStorage.Config({
       registrarContract: details.registrarContract,
       owner: details.owner,
       daoToken: address(0),
@@ -50,7 +50,7 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
     });
     accountAddress = msg.sender;
 
-    state = subDaoStorage.State({pollCount: 0, totalShare: 0, totalDeposit: 0});
+    state = SubDaoStorage.State({pollCount: 0, totalShare: 0, totalDeposit: 0});
   }
 
   /**
@@ -156,7 +156,7 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
     );
 
     //TODO: handle on sub graph if there is no entry create one for the subgraph
-    ISubdaoEmitter(emitterAddress).updateSubdaoConfig();
+    ISubDaoEmitter(emitterAddress).updateSubDaoConfig();
   }
 
   /**
@@ -173,7 +173,7 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
 
     config.veToken = vetoken;
     config.swapFactory = swapfactory;
-    ISubdaoEmitter(emitterAddress).updateSubdaoConfig();
+    ISubDaoEmitter(emitterAddress).updateSubDaoConfig();
   }
 
   /**
@@ -214,7 +214,7 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
     config.expirationPeriod = expirationperiod;
     config.proposalDeposit = proposaldeposit;
     config.snapshotPeriod = snapshotperiod;
-    ISubdaoEmitter(emitterAddress).updateSubdaoConfig();
+    ISubDaoEmitter(emitterAddress).updateSubDaoConfig();
   }
 
   /**
@@ -231,7 +231,7 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
     string memory title,
     string memory description,
     string memory link,
-    subDaoStorage.ExecuteData memory executeMsgs
+    SubDaoStorage.ExecuteData memory executeMsgs
   ) external nonReentrant returns (uint256) {
     require(SubDaoLib.validateDescription(description));
     require(SubDaoLib.validateTitle(title));
@@ -241,7 +241,7 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
 
     if (depositamount > 0) {
       IERC20(config.daoToken).transferFrom(msg.sender, address(this), depositamount);
-      ISubdaoEmitter(emitterAddress).transferSubdao(
+      ISubDaoEmitter(emitterAddress).transferSubDao(
         config.daoToken,
         msg.sender,
         address(this),
@@ -254,14 +254,14 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
     state.pollCount += 1;
     state.totalDeposit += depositamount;
 
-    ISubdaoEmitter(emitterAddress).updateSubdaoState();
+    ISubDaoEmitter(emitterAddress).updateSubDaoState();
 
     uint256 stakedAmount = SubDaoLib.queryTotalVotingBalanceAtBlock(config.veToken, block.number);
 
-    subDaoStorage.Poll memory a_poll = subDaoStorage.Poll({
+    SubDaoStorage.Poll memory a_poll = SubDaoStorage.Poll({
       id: pollId,
       creator: msg.sender,
-      status: subDaoStorage.PollStatus.InProgress,
+      status: SubDaoStorage.PollStatus.InProgress,
       yesVotes: 0,
       noVotes: 0,
       startTime: block.timestamp,
@@ -277,8 +277,8 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
     });
 
     poll[pollId] = a_poll;
-    poll_status[pollId] = subDaoStorage.PollStatus.InProgress;
-    ISubdaoEmitter(emitterAddress).updateSubdaoPollAndStatus(
+    poll_status[pollId] = SubDaoStorage.PollStatus.InProgress;
+    ISubDaoEmitter(emitterAddress).updateSubDaoPollAndStatus(
       pollId,
       msg.sender,
       poll_status[pollId]
@@ -297,15 +297,15 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
     uint256[] memory value;
     bytes[] memory callData;
 
-    subDaoStorage.Poll memory a_poll = poll[pollid];
+    SubDaoStorage.Poll memory a_poll = poll[pollid];
 
-    require(a_poll.status == subDaoStorage.PollStatus.InProgress, "PollNotInProgress");
+    require(a_poll.status == SubDaoStorage.PollStatus.InProgress, "PollNotInProgress");
 
     require(a_poll.endHeight < block.number, "PollVotingPeriod");
 
     uint256 talliedWeight = a_poll.noVotes + a_poll.yesVotes;
 
-    subDaoStorage.PollStatus temp_poll_status = subDaoStorage.PollStatus.Rejected;
+    SubDaoStorage.PollStatus temp_poll_status = SubDaoStorage.PollStatus.Rejected;
     string memory rejected_reason = "";
     bool passed = false;
 
@@ -326,7 +326,7 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
         rejected_reason = "Quorum not reached";
       } else {
         if ((a_poll.yesVotes * 100) / talliedWeight > config.threshold) {
-          temp_poll_status = subDaoStorage.PollStatus.Passed;
+          temp_poll_status = SubDaoStorage.PollStatus.Passed;
           passed = true;
         } else {
           rejected_reason = "Threshold not reached";
@@ -344,7 +344,7 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
             a_poll.creator,
             a_poll.depositAmount
           );
-          ISubdaoEmitter(emitterAddress).transferSubdao(
+          ISubDaoEmitter(emitterAddress).transferSubDao(
             config.daoToken,
             address(this),
             a_poll.creator,
@@ -364,8 +364,8 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
     poll[pollid] = a_poll;
 
     _execute(target, value, callData);
-    ISubdaoEmitter(emitterAddress).updateSubdaoState();
-    ISubdaoEmitter(emitterAddress).updateSubdaoPollAndStatus(
+    ISubDaoEmitter(emitterAddress).updateSubDaoState();
+    ISubDaoEmitter(emitterAddress).updateSubDaoPollAndStatus(
       pollid,
       msg.sender,
       poll_status[pollid]
@@ -379,15 +379,15 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
    * @param pollid The poll id
    */
   function executePoll(uint256 pollid) external nonReentrant {
-    subDaoStorage.Poll memory a_poll = poll[pollid];
+    SubDaoStorage.Poll memory a_poll = poll[pollid];
 
-    require(a_poll.status == subDaoStorage.PollStatus.Passed, "PollNotPassed");
+    require(a_poll.status == SubDaoStorage.PollStatus.Passed, "PollNotPassed");
 
     require(a_poll.endHeight + config.timelockPeriod < block.number, "TimelockNotExpired");
 
-    poll_status[pollid] = subDaoStorage.PollStatus.Executed;
+    poll_status[pollid] = SubDaoStorage.PollStatus.Executed;
 
-    a_poll.status = subDaoStorage.PollStatus.Executed;
+    a_poll.status = SubDaoStorage.PollStatus.Executed;
 
     poll[pollid] = a_poll;
 
@@ -426,19 +426,19 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
    * @param pollid The poll id
    */
   function expirePoll(uint256 pollid) external {
-    subDaoStorage.Poll memory a_poll = poll[pollid];
+    SubDaoStorage.Poll memory a_poll = poll[pollid];
 
-    require(a_poll.status == subDaoStorage.PollStatus.Passed, "PollNotPassed");
+    require(a_poll.status == SubDaoStorage.PollStatus.Passed, "PollNotPassed");
 
     require(a_poll.executeData.order.length != 0, "NoExecuteData");
     require(a_poll.endHeight + config.expirationPeriod < block.number, "PollNotExpired");
 
-    poll_status[pollid] = subDaoStorage.PollStatus.Expired;
+    poll_status[pollid] = SubDaoStorage.PollStatus.Expired;
 
-    a_poll.status = subDaoStorage.PollStatus.Expired;
+    a_poll.status = SubDaoStorage.PollStatus.Expired;
 
     poll[pollid] = a_poll;
-    ISubdaoEmitter(emitterAddress).updateSubdaoPollAndStatus(
+    ISubDaoEmitter(emitterAddress).updateSubDaoPollAndStatus(
       pollid,
       msg.sender,
       poll_status[pollid]
@@ -450,13 +450,13 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
    * @dev cast vote on a poll
    * @param pollid The poll id
    */
-  function castVote(uint256 pollid, subDaoStorage.VoteOption vote) external {
+  function castVote(uint256 pollid, SubDaoStorage.VoteOption vote) external {
     require(pollid != 0, "PollNotFound");
     require(state.pollCount >= pollid, "PollNotFound");
 
-    subDaoStorage.Poll memory a_poll = poll[pollid];
+    SubDaoStorage.Poll memory a_poll = poll[pollid];
 
-    require(a_poll.status == subDaoStorage.PollStatus.InProgress, "PollNotInProgress");
+    require(a_poll.status == SubDaoStorage.PollStatus.InProgress, "PollNotInProgress");
 
     require(a_poll.endHeight >= block.number, "PollNotInProgress");
 
@@ -468,7 +468,7 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
       a_poll.startBlock
     );
 
-    if (subDaoStorage.VoteOption.Yes == vote) {
+    if (SubDaoStorage.VoteOption.Yes == vote) {
       a_poll.yesVotes += amount;
     } else {
       a_poll.noVotes += amount;
@@ -477,10 +477,10 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
     voting_status[pollid][msg.sender].voted = true;
     voting_status[pollid][msg.sender].balance = amount;
     voting_status[pollid][msg.sender].vote = vote;
-    ISubdaoEmitter(emitterAddress).updateVotingStatus(pollid, msg.sender);
+    ISubDaoEmitter(emitterAddress).updateVotingStatus(pollid, msg.sender);
 
     poll[pollid] = a_poll;
-    ISubdaoEmitter(emitterAddress).updateSubdaoPoll(pollid, msg.sender);
+    ISubDaoEmitter(emitterAddress).updateSubDaoPoll(pollid, msg.sender);
   }
 
   /**
@@ -509,7 +509,7 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
    * @notice function used to query state of contract
    * @dev query contract state
    */
-  function queryState() public view returns (subDaoStorage.State memory) {
+  function queryState() public view returns (SubDaoStorage.State memory) {
     return state;
   }
 
