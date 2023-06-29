@@ -7,7 +7,7 @@ import {IEndowmentMultiSigEmitter} from "./interfaces/IEndowmentMultiSigEmitter.
 
 /// @title Multisignature wallet factory - Allows creation of multisigs wallet.
 /// @author Stefan George - <stefan.george@consensys.net>
-contract MultiSigWalletFactory is Ownable {
+contract EndowmentMultiSigFactory is Ownable {
   /*
    *  Events
    */
