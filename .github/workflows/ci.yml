@@ -1,7 +1,7 @@
 name: "CI"
 
 env:
-  DOTENV_CONFIG_PATH: "./.env.example"
+  DOTENV_CONFIG_PATH: "./.env.template"
 
 on:
   workflow_dispatch:
@@ -33,9 +33,9 @@ jobs:
         with: 
           cmd: "format"
 
-      - name: "Create dummy .env file from .env.example"
-        shell: bash
-        run: cp ./.env.example ./.env
+      # - name: "Create dummy .env file from template"
+      #  shell: bash
+      #  run: cp ./.env.template ./.env
 
       - name: "Compile the contracts and generate the TypeChain bindings"
         uses: "borales/actions-yarn@v4"
