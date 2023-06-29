@@ -1,38 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-// >> SHOULD INHERIT `IEndowmentMultiSigEmitter`? Has missing `requireExecutionChangeEndowment` implementation
-// >> SHOULD INHERIT `Initializable`?
+import {IEndowmentMultiSigEmitter} from "./interfaces/IEndowmentMultiSigEmitter.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+
 /**
  * @notice the endowment multisig emitter contract
  * @dev the endowment multisig emitter contract is a contract that emits events for all the endowment multisigs across AP
  */
-contract EndowmentMultiSigEmitter {
+contract EndowmentMultiSigEmitter is IEndowmentMultiSigEmitter, Initializable {
   /*
    * Events
    */
-  event Initialized();
-
-  bool isInitialized;
-  address multisigFactory;
-  mapping(address => bool) isMultisig;
-
-  function initEndowmentMultiSigEmitter(address _multisigFactory) public {
-    require(_multisigFactory != address(0), "Invalid Address");
-    require(!isInitialized, "Already initialized");
-    isInitialized = true;
-    multisigFactory = _multisigFactory;
-    emit Initialized();
-  }
-
-  modifier isEmitter() {
-    require(isMultisig[msg.sender], "Unauthorized");
-    _;
-  }
-  modifier isOwner() {
-    require(msg.sender == multisigFactory, "Not multisig factory");
-    _;
-  }
   event MultisigCreated(
     address multisigAddress,
     uint256 endowmentId,
@@ -52,7 +31,25 @@ contract EndowmentMultiSigEmitter {
   event OwnersRemoved(uint256 endowmentId, address[] owners);
   event OwnerReplaced(uint256 endowmentId, address currOwner, address newOwner);
   event ApprovalRequirementsUpdated(uint256 endowmentId, uint256 approvalsRequired);
+  event RequireExecutionUpdated(uint256 endowmentId, bool requireExecution);
   event EndowmentTransactionExpiryChanged(uint256 endowmentId, uint256 transactionExpiry);
+
+  address multisigFactory;
+  mapping(address => bool) isMultisig;
+
+  function initEndowmentMultiSigEmitter(address _multisigFactory) public initializer {
+    require(_multisigFactory != address(0), "Invalid Address");
+    multisigFactory = _multisigFactory;
+  }
+
+  modifier isEmitter() {
+    require(isMultisig[msg.sender], "Unauthorized");
+    _;
+  }
+  modifier isOwner() {
+    require(msg.sender == multisigFactory, "Not multisig factory");
+    _;
+  }
 
   /**
    * @notice emits MultisigCreated event
@@ -191,6 +188,18 @@ contract EndowmentMultiSigEmitter {
     uint256 approvalsRequired
   ) public isEmitter {
     emit ApprovalRequirementsUpdated(endowmentId, approvalsRequired);
+  }
+
+  /**
+   * @notice emits the ApprovalRequirementsUpdated event
+   * @param endowmentId the endowment id
+   * @param requireExecution Explicit execution step is needed
+   */
+  function requireExecutionChangeEndowment(
+    uint256 endowmentId,
+    bool requireExecution
+  ) public isEmitter {
+    emit RequireExecutionUpdated(endowmentId, requireExecution);
   }
 
   /**
