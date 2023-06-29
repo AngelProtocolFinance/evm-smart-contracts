@@ -3,25 +3,26 @@ pragma solidity ^0.8.16;
 
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";
-import {AngelCoreStruct} from "../../struct.sol";
-import {IAccountsDeployContract} from "./../interfaces/IAccountsDeployContract.sol";
-import {subDaoMessage} from "./../../../normalized_endowment/subdao/subdao.sol";
-import {ISubDao} from "./../../../normalized_endowment/subdao/Isubdao.sol";
+import {SubDaoLib} from "../../../normalized_endowment/subdao/message.sol";
+import {IAccountsDeployContract} from "../interfaces/IAccountsDeployContract.sol";
+import {IAccountsDaoEndowments} from "../interfaces/IAccountsDaoEndowments.sol";
+import {subDaoMessage} from "../../../normalized_endowment/subdao/message.sol";
+import {ISubDao} from "../../../normalized_endowment/subdao/ISubDao.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
-import {AccountsEvents} from "./AccountsEvents.sol";
+import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 
 /**
  * @title AccountsDaoEndowments
  * @dev This contract facet manages the creation contracts required for DAO Functioning
  */
-contract AccountsDaoEndowments is ReentrancyGuardFacet, AccountsEvents {
+contract AccountsDaoEndowments is IAccountsDaoEndowments, ReentrancyGuardFacet, IAccountsEvents {
   /**
    * @notice This function creates a DAO for an endowment
    * @dev creates a DAO for an endowment based on parameters
    * @param id The id of the endowment
    * @param details The details of the DAO
    */
-  function setupDao(uint32 id, AngelCoreStruct.DaoSetup memory details) public nonReentrant {
+  function setupDao(uint32 id, SubDaoLib.DaoSetup memory details) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
     AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];
@@ -55,6 +56,6 @@ contract AccountsDaoEndowments is ReentrancyGuardFacet, AccountsEvents {
     tempEndowment.daoToken = subDaoConfid.daoToken;
 
     state.ENDOWMENTS[id] = tempEndowment;
-    emit UpdateEndowment(id, tempEndowment);
+    emit EndowmentUpdated(id);
   }
 }

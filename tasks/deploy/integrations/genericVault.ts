@@ -5,10 +5,10 @@ import {logger, getSigners, getAddresses} from "utils";
 
 task("Deploy:genericVault", "Will deploy a generic vault with the provided params")
   .addOptionalParam("yieldtoken", "The address of the yield token")
-  .addParam("verify", "Want to verify contract")
+  .addFlag("skipVerify", "Skip contract verification")
   .setAction(async (taskArgs, hre) => {
     try {
-      const {deployer} = await getSigners(hre.ethers);
+      const {deployer} = await getSigners(hre);
       let network = await hre.ethers.provider.getNetwork();
       let addresses = await getAddresses(hre);
 

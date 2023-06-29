@@ -1,64 +1,73 @@
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {IndexFund__factory, ProxyContract__factory} from "typechain-types";
-import {getSigners, logger, updateAddresses} from "utils";
+import {
+  Deployment,
+  getContractName,
+  getSigners,
+  logger,
+  updateAddresses,
+  validateAddress,
+} from "utils";
 
 export async function deployIndexFund(
-  registrar: string,
-  owner: string,
-  verify_contracts: boolean,
+  registrar = "",
+  owner = "",
   hre: HardhatRuntimeEnvironment
-) {
+): Promise<Deployment | undefined> {
   logger.out("Deploying IndexFund...");
 
   const {deployer, proxyAdmin} = await getSigners(hre);
 
-  logger.out("Deploying Implementation...");
-  const indexFundFactory = new IndexFund__factory(proxyAdmin);
-  const indexFund = await indexFundFactory.deploy();
-  await indexFund.deployed();
-  logger.out(`Address: ${indexFund.address}`);
+  try {
+    validateAddress(registrar, "registrar");
+    validateAddress(owner, "owner");
 
-  logger.out("Deploying Proxy...");
-  const initData = indexFund.interface.encodeFunctionData("initIndexFund", [
-    {
-      registrarContract: registrar,
-      fundRotation: config.INDEX_FUND_DATA.fundRotation,
-      fundMemberLimit: config.INDEX_FUND_DATA.fundMemberLimit,
-      fundingGoal: config.INDEX_FUND_DATA.fundingGoal,
-    },
-  ]);
-  const proxyFactory = new ProxyContract__factory(deployer);
-  const indexFundProxy = await proxyFactory.deploy(indexFund.address, proxyAdmin.address, initData);
-  await indexFundProxy.deployed();
-  logger.out(`Address: ${indexFund.address}`);
+    // deploy implementation
+    logger.out("Deploying implementation...");
+    const indexFundFactory = new IndexFund__factory(proxyAdmin);
+    const indexFund = await indexFundFactory.deploy();
+    await indexFund.deployed();
+    logger.out(`Address: ${indexFund.address}`);
 
-  logger.out(`Updating IndexFund owner to: ${owner}...`);
-  const proxiedIndexFund = IndexFund__factory.connect(indexFundProxy.address, deployer);
-  const tx = await proxiedIndexFund.updateOwner(owner);
-  await tx.wait();
-
-  await updateAddresses(
-    {
-      indexFund: {
-        proxy: indexFundProxy.address,
-        implementation: indexFund.address,
+    // deploy proxy
+    logger.out("Deploying proxy...");
+    const initData = indexFund.interface.encodeFunctionData("initIndexFund", [
+      {
+        registrarContract: registrar,
+        fundRotation: config.INDEX_FUND_DATA.fundRotation,
+        fundMemberLimit: config.INDEX_FUND_DATA.fundMemberLimit,
+        fundingGoal: config.INDEX_FUND_DATA.fundingGoal,
       },
-    },
-    hre
-  );
+    ]);
+    const proxyFactory = new ProxyContract__factory(deployer);
+    const indexFundProxy = await proxyFactory.deploy(
+      indexFund.address,
+      proxyAdmin.address,
+      initData
+    );
+    await indexFundProxy.deployed();
+    logger.out(`Address: ${indexFundProxy.address}`);
 
-  if (verify_contracts) {
-    logger.out("Verifying...");
-    await hre.run("verify:verify", {
-      address: indexFund.address,
-      constructorArguments: [],
-    });
-    await hre.run("verify:verify", {
-      address: indexFundProxy.address,
-      constructorArguments: [indexFund.address, proxyAdmin.address, initData],
-    });
+    // update owner
+    logger.out(`Updating IndexFund owner to: ${owner}...`);
+    const proxiedIndexFund = IndexFund__factory.connect(indexFundProxy.address, deployer);
+    const tx = await proxiedIndexFund.updateOwner(owner);
+    await tx.wait();
+
+    // update address file & verify contracts
+    await updateAddresses(
+      {
+        indexFund: {
+          proxy: indexFundProxy.address,
+          implementation: indexFund.address,
+        },
+      },
+      hre
+    );
+
+    return {address: indexFundProxy.address, contractName: getContractName(indexFundFactory)};
+  } catch (error) {
+    logger.out(error, logger.Level.Error);
   }
-
-  return {implementation: indexFund, proxy: indexFundProxy};
 }

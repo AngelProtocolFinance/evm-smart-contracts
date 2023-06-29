@@ -15,21 +15,15 @@ abstract contract ERC4626AP is ERC20AP {
 
   /*//////////////////////////////////////////////////////////////
                                  EVENTS
-    //////////////////////////////////////////////////////////////*/
+  //////////////////////////////////////////////////////////////*/
 
-  event Deposit(address indexed caller, uint32 indexed owner, uint256 assets, uint256 shares);
+  event DepositERC4626(address caller, uint32 owner, uint256 assets, uint256 shares);
 
-  event Withdraw(
-    address indexed caller,
-    address indexed receiver,
-    uint32 indexed owner,
-    uint256 assets,
-    uint256 shares
-  );
+  event WithdrawERC4626(address caller, address receiver, uint32 owner, uint256 assets, uint256 shares);
 
   /*//////////////////////////////////////////////////////////////
                                IMMUTABLES
-    //////////////////////////////////////////////////////////////*/
+  //////////////////////////////////////////////////////////////*/
 
   IERC20Metadata public immutable asset;
 
@@ -43,21 +37,22 @@ abstract contract ERC4626AP is ERC20AP {
 
   /*//////////////////////////////////////////////////////////////
                         DEPOSIT/WITHDRAWAL LOGIC
-    //////////////////////////////////////////////////////////////*/
+  //////////////////////////////////////////////////////////////*/
 
-  function deposit(
+  function depositERC4626(
+    address strategy, 
     uint256 assets,
     uint32 receiver
-  ) public virtual operatorOnly returns (uint256 shares) {
+  ) public virtual returns (uint256 shares) {
     // Check for rounding error since we round down in previewDeposit.
     require((shares = previewDeposit(assets)) != 0, "ZERO_SHARES");
 
     // Need to transfer before minting or ERC777s could reenter.
-    asset.transferFrom(_msgSender(), address(this), assets);
+    asset.transferFrom(strategy, address(this), assets);
 
     _mint(receiver, shares);
 
-    emit Deposit(_msgSender(), receiver, assets, shares);
+    emit DepositERC4626(_msgSender(), receiver, assets, shares);
 
     _afterDeposit(assets, shares);
   }
@@ -73,7 +68,7 @@ abstract contract ERC4626AP is ERC20AP {
 
     _mint(receiver, shares);
 
-    emit Deposit(_msgSender(), receiver, assets, shares);
+    emit DepositERC4626(_msgSender(), receiver, assets, shares);
 
     _afterDeposit(assets, shares);
   }
@@ -95,12 +90,12 @@ abstract contract ERC4626AP is ERC20AP {
 
     _burn(owner, shares);
 
-    emit Withdraw(_msgSender(), receiver, owner, assets, shares);
+    emit WithdrawERC4626(_msgSender(), receiver, owner, assets, shares);
 
     asset.safeTransfer(receiver, assets);
   }
 
-  function redeem(
+  function redeemERC4626(
     uint256 shares,
     address receiver,
     uint32 owner
@@ -112,14 +107,14 @@ abstract contract ERC4626AP is ERC20AP {
 
     _burn(owner, shares);
 
-    emit Withdraw(_msgSender(), receiver, owner, assets, shares);
+    emit WithdrawERC4626(_msgSender(), receiver, owner, assets, shares);
 
     asset.approve(receiver, assets);
   }
 
   /*//////////////////////////////////////////////////////////////
                             ACCOUNTING LOGIC
-    //////////////////////////////////////////////////////////////*/
+  //////////////////////////////////////////////////////////////*/
 
   function totalAssets() public view virtual returns (uint256) {
     return asset.balanceOf(address(this));
@@ -166,7 +161,7 @@ abstract contract ERC4626AP is ERC20AP {
 
   /*//////////////////////////////////////////////////////////////
                      DEPOSIT/WITHDRAWAL LIMIT LOGIC
-    //////////////////////////////////////////////////////////////*/
+  //////////////////////////////////////////////////////////////*/
 
   function maxDeposit(uint32) public view virtual returns (uint256) {
     return type(uint256).max;
@@ -186,7 +181,7 @@ abstract contract ERC4626AP is ERC20AP {
 
   /*//////////////////////////////////////////////////////////////
                           INTERNAL HOOKS LOGIC
-    //////////////////////////////////////////////////////////////*/
+  //////////////////////////////////////////////////////////////*/
 
   function _beforeWithdraw(uint256 assets, uint256 shares) internal virtual {}
 

@@ -6,12 +6,9 @@ import "@openzeppelin/hardhat-upgrades";
 import "@nomiclabs/hardhat-ethers";
 import "@typechain/hardhat";
 require("tsconfig-paths/register"); // must use `require`, otherwise TS complains about missing declaration files
-// import "hardhat-abi-exporter"
 import "./tasks";
 
 var accounts = [
-  envConfig.DEPLOYER.key,
-  envConfig.PROXY_ADMIN.key,
   envConfig.AP_TEAM_1.key,
   envConfig.AP_TEAM_2.key,
   envConfig.AP_TEAM_3.key,

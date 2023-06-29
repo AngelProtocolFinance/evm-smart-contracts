@@ -1,9 +1,14 @@
 import config from "config";
 import {deployFundraising} from "contracts/accessory/fundraising/scripts/deploy";
-import {task, types} from "hardhat/config";
-import {getAddresses, isLocalNetwork, logger} from "utils";
+import {task} from "hardhat/config";
+import {confirmAction, getAddresses, isLocalNetwork, logger} from "utils";
 
-type TaskArgs = {angelCoreStruct?: string; registrar?: string; verify: boolean};
+type TaskArgs = {
+  angelCoreStruct?: string;
+  registrar?: string;
+  skipVerify: boolean;
+  yes: boolean;
+};
 
 task("deploy:Fundraising", "Will deploy Fundraising contract")
   .addOptionalParam(
@@ -14,19 +19,19 @@ task("deploy:Fundraising", "Will deploy Fundraising contract")
     "registrar",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
-  .addOptionalParam(
-    "verify",
-    "Flag indicating whether the contract should be verified",
-    false,
-    types.boolean
-  )
+  .addFlag("skipVerify", "Skip contract verification")
+  .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
+      const isConfirmed = taskArgs.yes || (await confirmAction("Deploying Fundraising..."));
+      if (!isConfirmed) {
+        return logger.out("Confirmation denied.", logger.Level.Warn);
+      }
+
       const addresses = await getAddresses(hre);
 
-      const angelCoreStruct = taskArgs.angelCoreStruct || addresses.libraries.angelCoreStruct;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
-      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
+      const verify_contracts = !isLocalNetwork(hre) && !taskArgs.skipVerify;
 
       let FundraisingDataInput = {
         registrarContract: registrar,
@@ -36,7 +41,7 @@ task("deploy:Fundraising", "Will deploy Fundraising contract")
         acceptedTokens: config.FundraisingDataInput.acceptedTokens,
       };
 
-      await deployFundraising(FundraisingDataInput, angelCoreStruct, verify_contracts, hre);
+      await deployFundraising(FundraisingDataInput, verify_contracts, hre);
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

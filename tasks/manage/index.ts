@@ -1,8 +1,11 @@
+import "./accounts";
 import "./addMultisigOwner";
 import "./changeAdmin";
 import "./changeOwner";
+import "./charityApplications";
 import "./createEndowment";
 import "./createIndexFund";
+import "./indexFund";
 import "./registrar";
 import "./updateRegistrar";
 import "./verifyRegistrar";

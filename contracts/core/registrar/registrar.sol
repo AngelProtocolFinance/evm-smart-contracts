@@ -1,14 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
+
 import {RegistrarStorage} from "./storage.sol";
-import {Validator} from "./lib/validator.sol";
+import {Validator} from "../validator.sol";
+import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {RegistrarMessages} from "./message.sol";
-import {AngelCoreStruct} from "../struct.sol";
-import {Array} from "../../lib/array.sol";
-import {AddressArray} from "../../lib/address/array.sol";
-import {StringArray} from "./../../lib/Strings/string.sol";
 import "./storage.sol";
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {LocalRegistrar} from "./LocalRegistrar.sol";
 import {LocalRegistrarLib} from "./lib/LocalRegistrarLib.sol";
@@ -18,9 +15,9 @@ import {LocalRegistrarLib} from "./lib/LocalRegistrarLib.sol";
  * @dev Contract for Registrar
  */
 contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
-  event UpdateRegistrarConfig(RegistrarStorage.Config details);
-  event PostNetworkConnection(uint256 chainId, AngelCoreStruct.NetworkInfo networkInfo);
-  event DeleteNetworkConnection(uint256 chainId);
+  event ConfigUpdated();
+  event NetworkConnectionPosted(uint256 chainId);
+  event NetworkConnectionRemoved(uint256 chainId);
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
@@ -35,7 +32,6 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
   function initialize(RegistrarMessages.InstantiateRequest memory details) public initializer {
     __LocalRegistrar_init();
     state.config = RegistrarStorage.Config({
-      applicationsReview: msg.sender,
       indexFundContract: address(0),
       accountsContract: address(0),
       treasury: details.treasury,
@@ -46,7 +42,6 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       subdaoDistributorContract: address(0),
       subdaoEmitter: address(0),
       donationMatchContract: address(0),
-      // rebalance: details.rebalance,
       splitToLiquid: details.splitToLiquid,
       haloToken: address(0),
       haloTokenLpContract: address(0),
@@ -55,21 +50,21 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       donationMatchEmitter: address(0),
       collectorShare: 50,
       charitySharesContract: address(0),
-      // acceptedTokens: details.acceptedTokens,
       fundraisingContract: address(0),
-      uniswapSwapRouter: address(0),
+      uniswapRouter: address(0),
+      uniswapFactory: address(0),
       multisigFactory: address(0),
       multisigEmitter: address(0),
-      charityProposal: address(0),
+      charityApplications: address(0),
       lockedWithdrawal: address(0),
       proxyAdmin: address(0),
       usdcAddress: address(0),
       wMaticAddress: address(0),
       cw900lvAddress: address(0)
     });
-    emit UpdateRegistrarConfig(state.config);
+    emit ConfigUpdated();
 
-    state.NETWORK_CONNECTIONS[block.chainid] = AngelCoreStruct.NetworkInfo({
+    state.NETWORK_CONNECTIONS[block.chainid] = IAccountsVaultFacet.NetworkInfo({
       name: "Polygon",
       chainId: block.chainid,
       router: details.router,
@@ -79,7 +74,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       gasReceiver: details.axelarGasRecv,
       gasLimit: 0
     });
-    emit PostNetworkConnection(block.chainid, state.NETWORK_CONNECTIONS[block.chainid]);
+    emit NetworkConnectionPosted(block.chainid);
   }
 
   // Executor functions for registrar
@@ -92,17 +87,16 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
   function updateConfig(
     RegistrarMessages.UpdateConfigRequest memory details
   ) public onlyOwner nonReentrant {
-    // Set applications review
-    if (Validator.addressChecker(details.applicationsReview)) {
-      state.config.applicationsReview = details.applicationsReview;
-    }
-
     if (Validator.addressChecker(details.accountsContract)) {
       state.config.accountsContract = details.accountsContract;
     }
 
-    if (Validator.addressChecker(details.uniswapSwapRouter)) {
-      state.config.uniswapSwapRouter = details.uniswapSwapRouter;
+    if (Validator.addressChecker(details.uniswapRouter)) {
+      state.config.uniswapRouter = details.uniswapRouter;
+    }
+
+    if (Validator.addressChecker(details.uniswapFactory)) {
+      state.config.uniswapFactory = details.uniswapFactory;
     }
 
     if (Validator.addressChecker(details.charitySharesContract)) {
@@ -123,7 +117,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     // state.config.rebalance = details.rebalance;
 
     // check splits
-    AngelCoreStruct.SplitDetails memory split_details = AngelCoreStruct.SplitDetails({
+    LibAccounts.SplitDetails memory split_details = LibAccounts.SplitDetails({
       max: details.splitMax,
       min: details.splitMin,
       defaultSplit: details.splitDefault
@@ -197,8 +191,8 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       state.config.multisigFactory = details.multisigFactory;
     }
 
-    if (Validator.addressChecker(details.charityProposal)) {
-      state.config.charityProposal = details.charityProposal;
+    if (Validator.addressChecker(details.charityApplications)) {
+      state.config.charityApplications = details.charityApplications;
     }
 
     if (Validator.addressChecker(details.lockedWithdrawal)) {
@@ -220,11 +214,11 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     if (Validator.addressChecker(details.cw900lvAddress)) {
       state.config.cw900lvAddress = details.cw900lvAddress;
     }
-    // state.config.acceptedTokens = AngelCoreStruct.AcceptedTokens({
+    // state.config.acceptedTokens = LibAccounts.AcceptedTokens({
     //     native: details.accepted_tokens_native,
     //     cw20: details.accepted_tokens_cw20
     // });
-    emit UpdateRegistrarConfig(state.config);
+    emit ConfigUpdated();
   }
 
   /**
@@ -242,15 +236,15 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
    * @param action The action to perform (post or delete)
    */
   function updateNetworkConnections(
-    AngelCoreStruct.NetworkInfo memory networkInfo,
+    IAccountsVaultFacet.NetworkInfo memory networkInfo,
     string memory action
   ) public nonReentrant onlyOwner {
     if (Validator.compareStrings(action, "post")) {
       state.NETWORK_CONNECTIONS[networkInfo.chainId] = networkInfo;
-      emit PostNetworkConnection(networkInfo.chainId, networkInfo);
+      emit NetworkConnectionPosted(networkInfo.chainId);
     } else if (Validator.compareStrings(action, "delete")) {
       delete state.NETWORK_CONNECTIONS[networkInfo.chainId];
-      emit DeleteNetworkConnection(networkInfo.chainId);
+      emit NetworkConnectionRemoved(networkInfo.chainId);
     } else {
       revert("Invalid inputs");
     }
@@ -272,7 +266,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
    */
   function queryNetworkConnection(
     uint256 chainId
-  ) public view returns (AngelCoreStruct.NetworkInfo memory response) {
+  ) public view returns (IAccountsVaultFacet.NetworkInfo memory response) {
     response = state.NETWORK_CONNECTIONS[chainId];
   }
 
@@ -345,216 +339,4 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       state.STRATEGIES.pop();
     }
   }
-
-  // /**
-  //  * @dev Add a new vault to the registrar
-  //  * @param details The details of the vault to add
-  //  */
-  // function vaultAdd(
-  //     RegistrarMessages.VaultAddRequest memory details
-  // ) public nonReentrant onlyOwner {
-
-  //     uint256 vaultNetwork;
-  //     if (details.network == 0) {
-  //         vaultNetwork = block.chainid;
-  //     } else {
-  //         vaultNetwork = details.network;
-  //     }
-
-  //     if (!(Validator.addressChecker(details.yieldToken))) {
-  //         revert("Failed to validate yield token address");
-  //     }
-
-  //     state.VAULTS[details.stratagyName] = AngelCoreStruct.YieldVault({
-  //         network: vaultNetwork,
-  //         addr: details.stratagyName,
-  //         inputDenom: details.inputDenom,
-  //         yieldToken: details.yieldToken,
-  //         approved: true,
-  //         restrictedFrom: details.restrictedFrom,
-  //         acctType: details.acctType,
-  //         vaultType: details.vaultType
-  //     });
-  //     state.VAULT_POINTERS.push(details.stratagyName);
-  //     emit AddVault(
-  //         details.stratagyName,
-  //         state.VAULTS[details.stratagyName]
-  //     );
-  // }
-
-  // /**
-  //  * @dev Remove a vault from the registrar
-  //  * @param _stratagyName The name of the vault to remove
-  //  */
-  // function vaultRemove(string memory _stratagyName) public nonReentrant onlyOwner {
-
-  //     delete state.VAULTS[_stratagyName];
-  //     uint256 delIndex;
-  //     bool indexFound;
-  //     (delIndex, indexFound) = StringArray.stringIndexOf(
-  //         state.VAULT_POINTERS,
-  //         _stratagyName
-  //     );
-
-  //     if (indexFound) {
-  //         state.VAULT_POINTERS = StringArray.stringRemove(
-  //             state.VAULT_POINTERS,
-  //             delIndex
-  //         );
-  //     }
-  //     emit RemoveVault(_stratagyName);
-  // }
-
-  // /**
-  //  * @dev Update a vault in the registrar
-  //  * @param _stratagyName The name of the vault to update
-  //  * @param approved Whether the vault is approved or not
-  //  * @param restrictedfrom The list of endowments that are restricted from using this vault
-  //  */
-  // function vaultUpdate(
-  //     string memory _stratagyName,
-  //     bool approved,
-  //     AngelCoreStruct.EndowmentType[] memory restrictedfrom
-  // ) public nonReentrant onlyOwner {
-
-  //     state.VAULTS[_stratagyName].approved = approved;
-  //     state.VAULTS[_stratagyName].restrictedFrom = restrictedfrom;
-  //     emit UpdateVault(_stratagyName, approved, restrictedfrom);
-  // }
-
-  // /**
-  //  * @dev Query the vaults in the registrar
-  //  * @param network The network to query
-  //  * @param endowmentType The endowment type to query
-  //  * @param accountType The account type to query
-  //  * @param vaultType The vault type to query
-  //  * @param approved Whether the vault is approved or not
-  //  * @param startAfter The index to start the query from
-  //  * @param limit The number of vaults to return
-  //  * @return The list of vaults
-  //  */
-  // function queryVaultListDep(
-  //     uint256 network,
-  //     AngelCoreStruct.EndowmentType endowmentType,
-  //     AngelCoreStruct.AccountType accountType,
-  //     AngelCoreStruct.VaultType vaultType,
-  //     AngelCoreStruct.BoolOptional approved,
-  //     uint256 startAfter,
-  //     uint256 limit
-  // ) public view returns (AngelCoreStruct.YieldVault[] memory) {
-  //     uint256 lengthResponse = 0;
-  //     if (limit != 0) {
-  //         lengthResponse = limit;
-  //     } else {
-  //         lengthResponse = state.VAULT_POINTERS.length;
-  //     }
-  //     AngelCoreStruct.YieldVault[]
-  //         memory response = new AngelCoreStruct.YieldVault[](lengthResponse);
-
-  //     if (startAfter >= state.VAULT_POINTERS.length) {
-  //         revert("Invalid start value");
-  //     }
-
-  //     for (uint256 i = startAfter; i < state.VAULT_POINTERS.length; i++) {
-  //         //check filters here
-  //         if (
-  //             RegistrarLib.filterVault(
-  //                 state.VAULTS[state.VAULT_POINTERS[i]],
-  //                 network,
-  //                 endowmentType,
-  //                 accountType,
-  //                 vaultType,
-  //                 approved
-  //             )
-  //         ) {
-  //             response[i] = state.VAULTS[state.VAULT_POINTERS[i]];
-  //         }
-
-  //         if (limit != 0) {
-  //             if (response.length == limit) {
-  //                 break;
-  //             }
-  //         }
-  //     }
-  //     return response;
-  // }
-
-  // /**
-  //  * @dev Query the vaults in the registrar
-  //  * @param network The network to query
-  //  * @param endowmentType The endowment type to query
-  //  * @param accountType The account type to query
-  //  * @param vaultType The vault type to query
-  //  * @param approved Whether the vault is approved or not
-  //  * @param startAfter The index to start the query from
-  //  * @param limit The number of vaults to return
-  //  * @return The list of vaults
-  //  */
-  // function queryVaultList(
-  //     uint256 network,
-  //     AngelCoreStruct.EndowmentType endowmentType,
-  //     AngelCoreStruct.AccountType accountType,
-  //     AngelCoreStruct.VaultType vaultType,
-  //     AngelCoreStruct.BoolOptional approved,
-  //     uint256 startAfter,
-  //     uint256 limit
-  // ) public view returns (AngelCoreStruct.YieldVault[] memory) {
-  //     uint256 lengthResponse = 0;
-
-  //     if (limit != 0) {
-  //         lengthResponse = limit;
-  //     } else {
-  //         lengthResponse = state.VAULT_POINTERS.length;
-  //     }
-
-  //     AngelCoreStruct.YieldVault[]
-  //         memory response = new AngelCoreStruct.YieldVault[](lengthResponse);
-
-  //     if (startAfter >= state.VAULT_POINTERS.length) {
-  //         revert("Invalid start value");
-  //     }
-
-  //     uint256 count = 0;
-  //     string[] memory indexArr = new string[](state.VAULT_POINTERS.length);
-
-  //     for (uint256 i = startAfter; i < state.VAULT_POINTERS.length; i++) {
-  //         //check filters here
-  //         if (
-  //             RegistrarLib.filterVault(
-  //                 state.VAULTS[state.VAULT_POINTERS[i]],
-  //                 network,
-  //                 endowmentType,
-  //                 accountType,
-  //                 vaultType,
-  //                 approved
-  //             )
-  //         ) {
-  //             response[i] = state.VAULTS[state.VAULT_POINTERS[i]];
-  //             indexArr[count] = state.VAULT_POINTERS[i];
-  //             count++;
-  //         }
-  //     }
-
-  //     AngelCoreStruct.YieldVault[]
-  //         memory responseFinal = new AngelCoreStruct.YieldVault[](count);
-
-  //     for (uint256 i = 0; i < count; i++) {
-  //         responseFinal[i] = state.VAULTS[indexArr[i]];
-  //     }
-
-  //     return responseFinal;
-  // }
-
-  // /**
-  //  * @dev Query the vaults in the registrar
-  //  * @param _stratagyName The name of the vault to query
-  //  * @return response The vault
-  //  */
-  // function queryVaultDetails(
-  //     string memory _stratagyName
-  // ) public view returns (AngelCoreStruct.YieldVault memory response) {
-  //     response = state.VAULTS[_stratagyName];
-  // }
-
-  // returns true if the vault satisfies the given conditions
 }

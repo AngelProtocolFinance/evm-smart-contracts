@@ -1,15 +1,15 @@
 import config from "config";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
-import {task, types} from "hardhat/config";
-import {updateRegistrarNetworkConnection} from "scripts";
-import {Registrar__factory} from "typechain-types";
-import {getAddresses, getSigners, isLocalNetwork, logger} from "utils";
+import {task} from "hardhat/config";
+import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
+import {updateRegistrarConfig, updateRegistrarNetworkConnections} from "../helpers";
 
 type TaskArgs = {
   apTeamMultisig?: string;
   router?: string;
-  verify: boolean;
+  skipVerify: boolean;
+  yes: boolean;
 };
 
 task(
@@ -24,53 +24,90 @@ task(
     "router",
     "Router contract address. Will do a local lookup from contract-address.json if none is provided."
   )
-  .addOptionalParam(
-    "verify",
-    "Flag indicating whether the contract should be verified",
-    false,
-    types.boolean
-  )
+  .addFlag("skipVerify", "Skip contract verification")
+  .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
+      const isConfirmed =
+        taskArgs.yes || (await confirmAction("Deploying Registrar (and Router)..."));
+      if (!isConfirmed) {
+        return logger.out("Confirmation denied.", logger.Level.Warn);
+      }
+
+      const {treasury, proxyAdmin} = await getSigners(hre);
       const addresses = await getAddresses(hre);
 
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const oldRouterAddress = taskArgs.router || addresses.router.proxy;
-      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
 
-      const registrar = await deployRegistrar(
+      const registrarDeployment = await deployRegistrar(
+        addresses.axelar.gateway,
+        addresses.axelar.gasService,
         oldRouterAddress,
         apTeamMultiSig,
-        verify_contracts,
         hre
       );
 
-      const router = await deployRouter(
-        config.REGISTRAR_DATA.axelarGateway,
-        config.REGISTRAR_DATA.axelarGasRecv,
-        registrar.proxy.address,
-        verify_contracts,
+      if (!registrarDeployment) {
+        return;
+      }
+
+      await updateRegistrarConfig(
+        registrarDeployment.address,
+        apTeamMultiSig,
+        {
+          accountsContract: addresses.accounts.diamond,
+          splitMax: config.REGISTRAR_DATA.splitToLiquid.max,
+          splitMin: config.REGISTRAR_DATA.splitToLiquid.min,
+          splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit,
+          collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare,
+          indexFundContract: addresses.indexFund.proxy,
+          treasury: treasury.address,
+          uniswapRouter: addresses.uniswap.swapRouter,
+          uniswapFactory: addresses.uniswap.factory,
+          multisigFactory: addresses.multiSig.endowment.factory,
+          multisigEmitter: addresses.multiSig.endowment.emitter.proxy,
+          charityApplications: addresses.charityApplications.proxy,
+          proxyAdmin: proxyAdmin.address,
+          usdcAddress: addresses.tokens.usdc,
+          wMaticAddress: addresses.tokens.wmatic,
+        },
+        hre
+      );
+
+      const routerDeployment = await deployRouter(
+        addresses.axelar.gateway,
+        addresses.axelar.gasService,
+        registrarDeployment.address,
         hre
       );
 
       // Registrar NetworkInfo's Router address must be updated for the current network
-      const {deployer} = await getSigners(hre);
-      const network = await hre.ethers.provider.getNetwork();
-      const registrarContract = Registrar__factory.connect(registrar.proxy.address, deployer);
-      logger.out(
-        `Fetching current Registrar's network connection data for chain ID:${network.chainId}...`
-      );
-      const curNetworkConnection = await registrarContract.queryNetworkConnection(network.chainId);
-      logger.out(JSON.stringify(curNetworkConnection, undefined, 2));
-      await updateRegistrarNetworkConnection(
-        registrar.proxy.address,
-        {...curNetworkConnection, router: router.proxy.address},
-        apTeamMultiSig,
-        hre
-      );
+      if (routerDeployment) {
+        await updateRegistrarNetworkConnections(
+          registrarDeployment.address,
+          apTeamMultiSig,
+          {router: routerDeployment.address},
+          hre
+        );
+      }
+
+      await hre.run("manage:accounts:updateConfig", {
+        newRegistrar: registrarDeployment.address,
+        yes: true,
+      });
+      await hre.run("manage:IndexFund:updateOwner", {
+        to: registrarDeployment.address,
+        yes: true,
+      });
+
+      if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
+        await verify(hre, registrarDeployment);
+        if (routerDeployment) {
+          await verify(hre, routerDeployment);
+        }
+      }
     } catch (error) {
       logger.out(error, logger.Level.Error);
-    } finally {
-      logger.out("Done.");
     }
   });

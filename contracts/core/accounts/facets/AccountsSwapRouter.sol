@@ -2,26 +2,26 @@
 pragma solidity ^0.8.16;
 
 import {LibAccounts} from "../lib/LibAccounts.sol";
-import {Validator} from "../lib/validator.sol";
 import {AccountStorage} from "../storage.sol";
-import {AccountMessages} from "../message.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
-import {AngelCoreStruct} from "../../struct.sol";
+import {Validator} from "../../validator.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
-import {AccountsEvents} from "./AccountsEvents.sol";
+import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
+import {IAccountsSwapRouter} from "../interfaces/IAccountsSwapRouter.sol";
+import {IVault} from "../../vault/interfaces/IVault.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
+import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 /**
  * @title AccountsSwapRouter
  * @dev This contract manages the swaps for endowments
  */
-contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
+contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsSwapRouter {
   using SafeMath for uint256;
-  uint24 public constant poolFee = 3000; // constant pool fee of 0.3%
 
   /**
    * @notice This function swaps tokens for an endowment
@@ -36,26 +36,28 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
 
   function swapToken(
     uint32 id,
-    AngelCoreStruct.AccountType accountType,
+    IVault.VaultType accountType,
     address tokenIn,
     uint256 amountIn,
     address tokenOut,
     uint256 slippage
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
-
     RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
       .queryConfig();
 
     require(
-      registrar_config.uniswapSwapRouter != address(0),
-      "Uniswap Swap Router address is not set in Registrar"
+      registrar_config.uniswapRouter != address(0),
+      "Uniswap Router address is not set in Registrar"
+    );
+    require(
+      registrar_config.uniswapFactory != address(0),
+      "Uniswap Factory addresses is not set in Registrar"
     );
     require(amountIn > 0, "Invalid Swap Input: Zero Amount");
     require(tokenIn != address(0) && tokenOut != address(0), "Invalid Swap Input: Zero Address");
     require(
-      slippage < AngelCoreStruct.FEE_BASIS,
+      slippage < LibAccounts.FEE_BASIS,
       "Invalid Swap Input: Token Out slippage set too high"
     );
     // Check that the desired output token from the swap is either:
@@ -69,9 +71,9 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
 
     // check if the msg sender is either the owner or their delegate address and
     // that they have the power to manage the investments for an account balance
-    if (accountType == AngelCoreStruct.AccountType.Locked) {
+    if (accountType == IVault.VaultType.LOCKED) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           state.ENDOWMENTS[id].settingsController.lockedInvestmentManagement,
           msg.sender,
           state.ENDOWMENTS[id].owner,
@@ -79,9 +81,9 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
         ),
         "Unauthorized"
       );
-    } else if (accountType == AngelCoreStruct.AccountType.Locked) {
+    } else if (accountType == IVault.VaultType.LIQUID) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           state.ENDOWMENTS[id].settingsController.liquidInvestmentManagement,
           msg.sender,
           state.ENDOWMENTS[id].owner,
@@ -93,7 +95,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
       revert("Invalid AccountType");
     }
 
-    if (accountType == AngelCoreStruct.AccountType.Locked) {
+    if (accountType == IVault.VaultType.LOCKED) {
       require(
         state.STATES[id].balances.locked[tokenIn] >= amountIn,
         "Requested swap amount is greater than Endowment Locked balance"
@@ -123,7 +125,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
     );
 
     require(
-      IERC20(tokenIn).approve(address(registrar_config.uniswapSwapRouter), amountIn),
+      IERC20(tokenIn).approve(address(registrar_config.uniswapRouter), amountIn),
       "Approval failed"
     );
 
@@ -135,17 +137,18 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
       tokenOut,
       priceFeedOut,
       slippage,
-      registrar_config.uniswapSwapRouter
+      registrar_config.uniswapRouter,
+      registrar_config.uniswapFactory
     );
 
     // Allocate the newly swapped tokens to the correct endowment balance
-    if (accountType == AngelCoreStruct.AccountType.Locked) {
+    if (accountType == IVault.VaultType.LOCKED) {
       state.STATES[id].balances.locked[tokenOut] += amountOut;
     } else {
       state.STATES[id].balances.liquid[tokenOut] += amountOut;
     }
 
-    emit SwapToken(id, accountType, tokenIn, amountIn, tokenOut, amountOut);
+    emit TokenSwapped(id, accountType, tokenIn, amountIn, tokenOut, amountOut);
   }
 
   /*///////////////////////////////////////////////
@@ -157,7 +160,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
    * @param tokenFeed address
    * @return answer Returns the oracle answer of current price as an int
    */
-  function getLatestPriceData(address tokenFeed) internal returns (uint256) {
+  function getLatestPriceData(address tokenFeed) internal view returns (uint256) {
     AggregatorV3Interface chainlinkFeed = AggregatorV3Interface(tokenFeed);
     (
       uint80 roundID,
@@ -183,39 +186,16 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
     require(token0 != address(0), "UniswapV3Library: ZERO_ADDRESS");
   }
 
-  // /**
-  //  * @dev This function checks the pool and returns the fee for a swap between the two given tokens.
-  //  * @param tokenIn address
-  //  * @param tokenOut address
-  //  * @return fees Returns the fee for swapping
-  //  */
-  // function checkPoolAndReturnFee(
-  //     address tokenA,
-  //     address tokenB
-  // ) internal view returns (uint24) {
-  //     require(tokenA != address(0) && tokenB != address(0), "Invalid Token Inputs");
-  //     (token1, token2) = sortTokens(tokenA, tokenB);
-  //     uint24 fees = 0;
-  //     address tempAddress = address(0);
-  //     for (uint256 i = 0; i < 3; i++) {
-  //         tempAddress = swapRouter.getPool(
-  //             token1,
-  //             token2,
-  //             swappingFees[i]
-  //         );
-  //         if (tempAddress != address(0)) {
-  //             fees = swappingFees[i];
-  //             break;
-  //         }
-  //     }
-  //     return fees;
-  // }
-
   /**
    * @dev This function swaps the given amount of tokenA for tokenB and transfers it to the specified recipient address.
    * @param tokenIn address
-   * @param tokenOut address
    * @param amountIn uint256
+   * @param priceFeedIn address
+   * @param tokenOut address
+   * @param priceFeedOut address
+   * @param slippage uint256
+   * @param uniswapRouter address
+   * @param uniswapFactory address
    * @return amountOut Returns the amount of token received fom pool after swapping to specific address
    */
   function swap(
@@ -225,18 +205,28 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
     address tokenOut,
     address priceFeedOut,
     uint256 slippage,
-    address uniswapSwapRouter
+    address uniswapRouter,
+    address uniswapFactory
   ) internal returns (uint256 amountOut) {
-    //Get pool fee
-    // uint24 fees = checkPoolAndReturnFee(tokenIn, tokenOut);
-    require(poolFee > 0, "Invalid Token sent to swap");
-    uint256 priceRatio = getLatestPriceData(priceFeedOut).mul(AngelCoreStruct.BIG_NUMBA_BASIS).div(
+    uint256 priceRatio = getLatestPriceData(priceFeedOut).mul(LibAccounts.BIG_NUMBA_BASIS).div(
       getLatestPriceData(priceFeedIn)
     );
-    uint256 estAmountOut = amountIn.mul(priceRatio).div(AngelCoreStruct.BIG_NUMBA_BASIS);
-    uint256 minAmountOut = estAmountOut.sub(
-      estAmountOut.mul(slippage).div(AngelCoreStruct.FEE_BASIS)
-    );
+    uint256 estAmountOut = amountIn.mul(priceRatio).div(LibAccounts.BIG_NUMBA_BASIS);
+    uint256 minAmountOut = estAmountOut.sub(estAmountOut.mul(slippage).div(LibAccounts.FEE_BASIS));
+
+    // find the lowest fee pool available, if any, to swap tokens
+    IUniswapV3Factory factory = IUniswapV3Factory(uniswapFactory);
+    uint24 poolFee;
+    // UniSwap V3 Pools support fees of 0.05%(500 bps), 0.3%(3000 bps), or 1%(10000 bps)
+    // 3000 is the default tier today, so we start with that to hopefully save some gas
+    if (factory.getPool(tokenIn, tokenOut, 3000) != address(0)) {
+      poolFee = 3000;
+    } else if (factory.getPool(tokenIn, tokenOut, 500) != address(0)) {
+      poolFee = 500;
+    } else if (factory.getPool(tokenIn, tokenOut, 10000) != address(0)) {
+      poolFee = 10000;
+    }
+    require(poolFee > 0, "No pool found to swap");
 
     ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
       tokenIn: tokenIn,
@@ -249,7 +239,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, AccountsEvents {
       sqrtPriceLimitX96: 0 // ensures that we swap our exact input amount
     });
     // execute the swap on the router
-    amountOut = ISwapRouter(uniswapSwapRouter).exactInputSingle(params);
+    amountOut = ISwapRouter(uniswapRouter).exactInputSingle(params);
 
     require(amountOut >= minAmountOut, "Output funds less than the minimum output");
   }

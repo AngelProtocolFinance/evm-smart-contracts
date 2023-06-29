@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import {ERC20Upgrade} from "../ERC20Upgrade.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./storage.sol";
 import {GovHodlerMessage} from "./message.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import {GovHodlerEvents} from "./events.sol";
 
 /**
  *@title GovHodler
@@ -16,8 +14,8 @@ import {GovHodlerEvents} from "./events.sol";
  * address, and provides a method to claim Halo tokens.
  */
 contract GovHodler is Storage, Initializable, ReentrancyGuard {
-  event GovHolderConfigUpdated(GovHodlerStorage.Config config);
-  event GovHolderHaloClaimed(address recipient, uint amount);
+  event ConfigUpdated();
+  event HaloClaimed(address recipient, uint amount);
 
   /**
    * @dev Initialize contract
@@ -29,7 +27,6 @@ contract GovHodler is Storage, Initializable, ReentrancyGuard {
       timelockContract: details.timelockContract,
       haloToken: details.haloToken
     });
-    emit GovHolderConfigUpdated(state.config);
   }
 
   /**
@@ -43,7 +40,7 @@ contract GovHodler is Storage, Initializable, ReentrancyGuard {
     );
 
     state.config.timelockContract = timelockContract;
-    emit GovHolderConfigUpdated(state.config);
+    emit ConfigUpdated();
   }
 
   /**
@@ -57,6 +54,6 @@ contract GovHodler is Storage, Initializable, ReentrancyGuard {
       IERC20Upgradeable(state.config.haloToken).transfer(recipient, amount),
       "Transfer failed"
     );
-    emit GovHolderHaloClaimed(recipient, amount);
+    emit HaloClaimed(recipient, amount);
   }
 }

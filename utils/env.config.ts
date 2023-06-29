@@ -21,16 +21,6 @@ const AP_TEAM_3: Signer = {
   address: extractString("AP_TEAM_3_ADDRESS"),
 };
 
-const DEPLOYER: Signer = {
-  key: extractString("DEPLOYER_KEY"),
-  address: extractString("DEPLOYER_ADDRESS"),
-};
-
-const PROXY_ADMIN: Signer = {
-  key: extractString("PROXY_ADMIN_KEY"),
-  address: extractString("PROXY_ADMIN_ADDRESS"),
-};
-
 const ETHERSCAN_API_KEY = extractString("ETHERSCAN_API_KEY");
 const GOERLI_RPC_URL = extractString("GOERLI_RPC_URL");
 const GANACHE_PRIVATE_KEY = extractString("GANACHE_PRIVATE_KEY");
@@ -42,8 +32,6 @@ const OPTIMIZER_FLAG = extractString("OPTIMIZER_FLAG");
 const OPTIMIZER_RUNS = extractNumber("OPTIMIZER_RUNS");
 const POLYGON_RPC_URL = extractString("POLYGON_RPC_URL");
 const POLYSCAN_API_KEY = extractString("POLYSCAN_API_KEY");
-const PROD_NETWORK_ID = extractNumber("PROD_NETWORK_ID");
-const ROUTER_ADDRESS = extractString("ROUTER_ADDRESS");
 const VERIFY_CONTRACTS = extractString("VERIFY_CONTRACTS");
 
 function extractNumber(name: string): number {
@@ -69,8 +57,6 @@ export var envConfig = {
   AP_TEAM_1,
   AP_TEAM_2,
   AP_TEAM_3,
-  DEPLOYER,
-  PROXY_ADMIN,
   ETHERSCAN_API_KEY,
   GANACHE_PRIVATE_KEY,
   GANACHE_RPC_URL,
@@ -82,7 +68,5 @@ export var envConfig = {
   OPTIMIZER_RUNS,
   POLYGON_RPC_URL,
   POLYSCAN_API_KEY,
-  PROD_NETWORK_ID,
-  ROUTER_ADDRESS,
   VERIFY_CONTRACTS,
 };

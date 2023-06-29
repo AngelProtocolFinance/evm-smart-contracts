@@ -6,6 +6,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {VestingMessage} from "./message.sol";
 
+// >> SHOULD INHERIT `Initializable`?
 /**
  *@title Vesting
  * @dev Vesting contract
@@ -13,9 +14,9 @@ import {VestingMessage} from "./message.sol";
  * Vesting is the process of gradually unlocking an amount of tokens over a set period of time.
  */
 contract Vesting is Ownable, ReentrancyGuard {
-  event VestingInitialized(address haloToken);
-  event VestingDeposit(address user, uint256 amount);
-  event VestingWithdraw(address user, uint256 amount, uint256 vestingId);
+  event HaloDeposited(address user, uint256 amount);
+  event HaloWithdrawn(address user, uint256 vestingId, uint256 amount);
+  event Initialized();
   event VestingDurationModified(uint256 vestingDuration);
 
   address public haloToken;
@@ -40,7 +41,7 @@ contract Vesting is Ownable, ReentrancyGuard {
     require(haloToken == address(0), "Already initialized");
     haloToken = details.haloToken;
     totalVested = 0;
-    emit VestingInitialized(details.haloToken);
+    emit Initialized();
   }
 
   /**
@@ -61,7 +62,7 @@ contract Vesting is Ownable, ReentrancyGuard {
     });
     vestingNumber[msg.sender] += 1;
     totalVested += amount;
-    emit VestingDeposit(msg.sender, amount);
+    emit HaloDeposited(msg.sender, amount);
   }
 
   /**
@@ -88,7 +89,7 @@ contract Vesting is Ownable, ReentrancyGuard {
     );
     totalVested -= (claimable - vesting[msg.sender][vestingId].claimed);
     vesting[msg.sender][vestingId].claimed = claimable;
-    emit VestingWithdraw(msg.sender, claimable - vesting[msg.sender][vestingId].claimed, vestingId);
+    emit HaloWithdrawn(msg.sender, vestingId, claimable - vesting[msg.sender][vestingId].claimed);
   }
 
   /**

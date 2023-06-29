@@ -1,0 +1,2 @@
+import "./updateConfig";
+import "./updateOwner";

@@ -1,20 +1,26 @@
-import {task, types} from "hardhat/config";
-import {logger} from "utils";
+import {task} from "hardhat/config";
+import {confirmAction, logger} from "utils";
 
 task(
   "upgrade:ContractsUsingAccountStorage",
   "Will redeploy all contracts that use AccountStorage struct"
 )
-  .addOptionalParam(
-    "verify",
-    "Flag indicating whether the contract should be verified",
-    false,
-    types.boolean
-  )
-  .setAction(async (taskArgs: {verify: boolean}, hre) => {
+  .addFlag("skipVerify", "Skip contract verification")
+  .addFlag("yes", "Automatic yes to prompt.")
+  .setAction(async (taskArgs: {skipVerify: boolean; yes: boolean}, hre) => {
     try {
-      await hre.run("upgrade:CharityApplication", {verify: taskArgs.verify});
-      await hre.run("upgrade:facets", {facets: ["all"], verify: taskArgs.verify});
+      const isConfirmed =
+        taskArgs.yes || (await confirmAction("Upgrading all contracts using AccountStorage..."));
+      if (!isConfirmed) {
+        return logger.out("Confirmation denied.", logger.Level.Warn);
+      }
+
+      await hre.run("upgrade:CharityApplication", {skipVerify: taskArgs.skipVerify, yes: true});
+      await hre.run("upgrade:facets", {
+        facets: ["all"],
+        skipVerify: taskArgs.skipVerify,
+        yes: true,
+      });
     } catch (error) {
       logger.out(
         `Redeployment of all contracts that use AccountStorage struct failed, reason: ${error}`,

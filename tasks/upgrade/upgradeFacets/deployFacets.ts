@@ -9,14 +9,13 @@ import {Facet} from "./types";
 export default async function deployFacets(
   facetNames: string[],
   diamondOwner: SignerWithAddress,
-  corestruct: string,
   hre: HardhatRuntimeEnvironment
 ): Promise<Facet[]> {
   logger.out("Deploying facets...");
 
   const facets: Facet[] = [];
 
-  const facetEntries = await getFacetsToUpgrade(facetNames, diamondOwner, corestruct);
+  const facetEntries = await getFacetsToUpgrade(facetNames, diamondOwner);
 
   for (const entry of facetEntries) {
     const facetName = getContractName(entry.factory);
@@ -36,12 +35,8 @@ export default async function deployFacets(
   return facets;
 }
 
-async function getFacetsToUpgrade(
-  facetNames: string[],
-  diamondOwner: SignerWithAddress,
-  corestruct: string
-) {
-  const factoryEntries = await getFacetFactoryEntries(diamondOwner, corestruct);
+async function getFacetsToUpgrade(facetNames: string[], diamondOwner: SignerWithAddress) {
+  const factoryEntries = await getFacetFactoryEntries(diamondOwner);
   const facetsToUpgrade = facetNames.map((facetName) => {
     const factoryEntry = factoryEntries.find(
       (entry) => getContractName(entry.factory) === facetName

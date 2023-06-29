@@ -6,7 +6,7 @@ type Result = {
   apTeam1: SignerWithAddress;
   apTeam2: SignerWithAddress;
   apTeam3: SignerWithAddress;
-  applicationsMultisigOwners: SignerWithAddress[];
+  charityApplicationsOwners: SignerWithAddress[];
   apTeamMultisigOwners: SignerWithAddress[];
   deployer: SignerWithAddress;
   proxyAdmin: SignerWithAddress;
@@ -22,7 +22,7 @@ export async function getSigners(hre: HardhatRuntimeEnvironment): Promise<Result
     apTeam1,
     apTeam2,
     apTeam3,
-    applicationsMultisigOwners: [apTeam2, apTeam3],
+    charityApplicationsOwners: [apTeam2, apTeam3],
     apTeamMultisigOwners: [apTeam1, apTeam2],
     deployer,
     proxyAdmin,

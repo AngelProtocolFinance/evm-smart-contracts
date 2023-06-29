@@ -2,8 +2,7 @@
 // yours, or create new ones.
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import path from "path";
-import {envConfig, getSigners} from "utils";
+import {getSigners, verify} from "utils";
 
 import {Airdrop} from "../halo/airdrop";
 import {Collector} from "../halo/collector";
@@ -40,11 +39,8 @@ const deployERC20 = async (verify_contracts: boolean, hre: HardhatRuntimeEnviron
     await ERC20UpgradeProxy.deployed();
 
     if (verify_contracts) {
-      await hre.run("verify:verify", {
-        address: ERC20UpgradeInstance.address,
-        constructorArguments: [],
-      });
-      await hre.run("verify:verify", {
+      await verify(hre, {address: ERC20UpgradeInstance.address});
+      await verify(hre, {
         address: ERC20UpgradeProxy.address,
         constructorArguments: [ERC20UpgradeInstance.address, proxyAdmin.address, ERC20UpgradeData],
       });
@@ -76,12 +72,10 @@ export async function deployHaloImplementation(
 
     let halo_code = await ethers.getContractAt("ERC20Upgrade", halo);
 
-    if (network.config.chainId !== envConfig.PROD_NETWORK_ID) {
-      await halo_code.mint(
-        proxyAdmin.address,
-        ethers.utils.parseEther("100000000000000000000000000")
-      );
-    }
+    await halo_code.mint(
+      proxyAdmin.address,
+      ethers.utils.parseEther("100000000000000000000000000")
+    );
 
     await halo_code.transferOwnership(gov.GovProxy); // TODO: uncomment this before deploying to prod. Keep this commented while testing
 

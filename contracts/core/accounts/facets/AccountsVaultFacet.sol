@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";
-import {AngelCoreStruct} from "../../struct.sol";
+import {Validator} from "../../validator.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {LocalRegistrarLib} from "../../registrar/lib/LocalRegistrarLib.sol";
 import {IRouter} from "../../router/IRouter.sol";
@@ -11,14 +11,15 @@ import {RouterLib} from "../../router/RouterLib.sol";
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
 import {AddressToString} from "../../../lib/StringAddressUtils.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
-import {AccountsEvents} from "./AccountsEvents.sol";
+import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
+import {IAccountsVaultFacet} from "../interfaces/IAccountsVaultFacet.sol";
 
 /**
  * @title AccountsVaultFacet
  * @dev This contract manages the vaults for endowments
  */
-contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
+contract AccountsVaultFacet is IAccountsVaultFacet, ReentrancyGuardFacet, IAccountsEvents {
   /**
    * @notice This function that allows users to deposit into a yield strategy using tokens from their locked or liquid account in an endowment.
    * @dev Allows the owner of an endowment to invest tokens into specified yield vaults.
@@ -42,7 +43,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
     // that they have the power to manage the investments for an account balance
     if (lockAmt > 0) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.lockedInvestmentManagement,
           msg.sender,
           tempEndowment.owner,
@@ -53,7 +54,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
     }
     if (liquidAmt > 0) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.liquidInvestmentManagement,
           msg.sender,
           tempEndowment.owner,
@@ -69,8 +70,9 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
       "Vault is not approved"
     );
 
-    AngelCoreStruct.NetworkInfo memory network = IRegistrar(state.config.registrarContract)
-      .queryNetworkConnection(block.chainid);
+    NetworkInfo memory network = IRegistrar(state.config.registrarContract).queryNetworkConnection(
+      block.chainid
+    );
 
     address tokenAddress = IAxelarGateway(network.axelarGateway).tokenAddresses(token);
 
@@ -112,7 +114,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
       state.STATES[id].balances.locked[tokenAddress] -= response.lockAmt;
       state.STATES[id].balances.liquid[tokenAddress] -= response.liqAmt;
       state.STATES[id].activeStrategies[strategy] == true;
-      // emit UpdateEndowmentState(id, state.STATES[id]);
+      // emit EndowmentStateUpdated(id);
     }
   }
 
@@ -138,7 +140,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
     // that they have the power to manage the investments for an account balance
     if (lockAmt > 0) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.lockedInvestmentManagement,
           msg.sender,
           tempEndowment.owner,
@@ -149,7 +151,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
     }
     if (liquidAmt > 0) {
       require(
-        AngelCoreStruct.canChange(
+        Validator.canChange(
           tempEndowment.settingsController.liquidInvestmentManagement,
           msg.sender,
           tempEndowment.owner,
@@ -166,8 +168,9 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
         LocalRegistrarLib.StrategyApprovalState.APPROVED,
       "Vault is not approved"
     );
-    AngelCoreStruct.NetworkInfo memory network = IRegistrar(state.config.registrarContract)
-      .queryNetworkConnection(block.chainid);
+    NetworkInfo memory network = IRegistrar(state.config.registrarContract).queryNetworkConnection(
+      block.chainid
+    );
 
     address tokenAddress = IAxelarGateway(network.axelarGateway).tokenAddresses(token);
 
@@ -194,7 +197,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
     if (response.status == IVault.VaultActionStatus.SUCCESS) {
       state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
       state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
-      // emit UpdateEndowmentState(id, state.STATES[id]);
+      // emit EndowmentStateUpdated(id);
     }
     if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
       state.STATES[id].activeStrategies[strategy] == false;
@@ -221,8 +224,9 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
         LocalRegistrarLib.StrategyApprovalState.APPROVED,
       "Vault is not approved"
     );
-    AngelCoreStruct.NetworkInfo memory network = IRegistrar(state.config.registrarContract)
-      .queryNetworkConnection(block.chainid);
+    NetworkInfo memory network = IRegistrar(state.config.registrarContract).queryNetworkConnection(
+      block.chainid
+    );
 
     address tokenAddress = IAxelarGateway(network.axelarGateway).tokenAddresses(token);
 
@@ -249,7 +253,7 @@ contract AccountsVaultFacet is ReentrancyGuardFacet, AccountsEvents {
     if (response.status == IVault.VaultActionStatus.SUCCESS) {
       state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
       state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
-      // emit UpdateEndowmentState(id, state.STATES[id]);
+      // emit EndowmentStateUpdated(id);
     }
     if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
       state.STATES[id].activeStrategies[strategy] == false;
