@@ -1,0 +1,46 @@
+name: "CI"
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  ci:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v3"
+
+      - name: "Install Node.js"
+        uses: "actions/setup-node@v3"
+        with:
+          cache: "yarn"
+          node-version: "18.x"
+
+      - name: "Install the dependencies"
+        uses: "borales/actions-yarn@v4"
+        with: 
+          cmd: "install"
+
+      - name: "Lint the code"
+        uses: "borales/actions-yarn@v4"
+        with: 
+          cmd: "format"
+
+      - name: "Create dummy .env file from template"
+        shell: bash
+        run: cp ./.env.template ./.env
+
+      - name: "Compile the contracts and generate the TypeChain bindings"
+        uses: "borales/actions-yarn@v4"
+        with: 
+          cmd: "compile"
+
+      - name: "Test the contracts"
+        uses: "borales/actions-yarn@v4"
+        with: 
+          cmd: "test"
+
