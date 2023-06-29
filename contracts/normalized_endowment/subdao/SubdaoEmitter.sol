@@ -2,21 +2,26 @@
 pragma solidity ^0.8.16;
 
 import {subDaoStorage} from "./storage.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {ISubdaoEmitter} from "./ISubdaoEmitter.sol";
 
-// >> SHOULD INHERIT 'Initializable'?
-// >> SHOULD INHERIT 'ISubdaoEmitter'
-contract SubdaoEmitter {
-  bool initialized = false;
+contract SubdaoEmitter is ISubdaoEmitter, Initializable {
+  event SubdaoInitialized(address subdao);
+  event ConfigUpdated(address subdao);
+  event Transfer(address subdao, address tokenAddress, address from, address to, uint256 amount);
+  event StateUpdated(address subdao);
+  event PollUpdated(address subdao, uint256 id, address sender);
+  event PollStatusUpdated(address subdao, uint256 id, subDaoStorage.PollStatus pollStatus);
+  event VotingStatusUpdated(address subdao, uint256 pollId, address voter);
+
   address accountsContract;
+  mapping(address => bool) isSubdao;
 
-  function initEmitter(address accountscontract) public {
-    require(accountscontract != address(0), "Invalid accounts contract address");
-    require(!initialized, "Already Initialized");
-    initialized = true;
-    accountsContract = accountscontract;
+  function initEmitter(address _accountsContract) public initializer {
+    require(_accountsContract != address(0), "Invalid accounts contract address");
+    accountsContract = _accountsContract;
   }
 
-  mapping(address => bool) isSubdao;
   modifier isOwner() {
     require(msg.sender == accountsContract, "Unauthorized");
     _;
@@ -25,13 +30,6 @@ contract SubdaoEmitter {
     require(isSubdao[msg.sender], "Unauthorized");
     _;
   }
-  event SubdaoInitialized(address subdao);
-  event ConfigUpdated(address subdao);
-  event Transfer(address subdao, address tokenAddress, address from, address to, uint256 amount);
-  event StateUpdated(address subdao);
-  event PollUpdated(address subdao, uint256 id, address sender);
-  event PollStatusUpdated(address subdao, uint256 id, subDaoStorage.PollStatus pollStatus);
-  event VotingStatusUpdated(address subdao, uint256 pollId, address voter);
 
   function initializeSubdao(address subdao) public isOwner {
     isSubdao[subdao] = true;
