@@ -4,7 +4,6 @@ pragma solidity ^0.8.16;
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {LibAccounts} from  "../../core/accounts/lib/LibAccounts.sol";
 import {AccountStorage} from "../../core/accounts/storage.sol";
-import {AngelCoreStruct} from "../../core/struct.sol";
 
 /**
  * @dev This contract implements a proxy that is upgradeable by an admin.
@@ -49,7 +48,7 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy {
     }
   }
 
-  function getDaoTokenBalance(uint32 accountId) external returns (uint256) {
+  function getDaoTokenBalance(uint32 accountId) external view returns (uint256) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     return state.DAOTOKENBALANCE[accountId];
   }
@@ -70,7 +69,7 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy {
     state.STATES[accountId].balances.liquid[_token] = _liqBal;
   }
 
-  function getEndowmentTokenBalance(uint32 accountId, address _token) external returns (uint256, uint256) {
+  function getEndowmentTokenBalance(uint32 accountId, address _token) external view returns (uint256, uint256) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     return (
       state.STATES[accountId].balances.locked[_token], 
@@ -81,7 +80,7 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy {
   function setClosingEndowmentState(
     uint32 accountId, 
     bool _closing, 
-    AngelCoreStruct.Beneficiary memory _closingBeneficiary
+    LibAccounts.Beneficiary memory _closingBeneficiary
   ) external {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     state.STATES[accountId].closingEndowment = _closing;
@@ -90,8 +89,8 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy {
 
   function getClosingEndowmentState(
     uint32 accountId
-    ) external 
-    returns (bool, AngelCoreStruct.Beneficiary memory) {
+    ) external view
+    returns (bool, LibAccounts.Beneficiary memory) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     return (
       state.STATES[accountId].closingEndowment,
@@ -104,7 +103,7 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy {
     state.STATES[accountId].activeStrategies[_strategy] = _accepted;
   }
 
-  function getActiveStrategyEndowmentState(uint32 accountId, bytes4 _strategy) external returns (bool) {
+  function getActiveStrategyEndowmentState(uint32 accountId, bytes4 _strategy) external view returns (bool) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     return state.STATES[accountId].activeStrategies[_strategy];
   }
@@ -114,7 +113,7 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy {
     state.ENDOWMENTS[accountId] = _endowment;
   }
 
-  function getEndowmentDetails(uint32 accountId) external returns (AccountStorage.Endowment memory) {
+  function getEndowmentDetails(uint32 accountId) external view returns (AccountStorage.Endowment memory) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     return state.ENDOWMENTS[accountId];
   }
@@ -124,7 +123,7 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy {
     state.ALLOWANCES[accountId][_spender][_token] = _allowance;
   }
 
-  function getTokenAllowance(uint32 accountId, address _spender, address _token) external returns (uint256) {
+  function getTokenAllowance(uint32 accountId, address _spender, address _token) external view returns (uint256) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     return state.ALLOWANCES[accountId][_spender][_token];
   }
@@ -134,7 +133,7 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy {
     state.AcceptedTokens[accountId][_token] = _accepted;
   }
   
-  function getTokenAccepted(uint32 accountId, address _token) external returns (bool) {
+  function getTokenAccepted(uint32 accountId, address _token) external view returns (bool) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     return state.AcceptedTokens[accountId][_token];
   }
@@ -144,7 +143,7 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy {
     state.PriceFeeds[accountId][_token] = _feed;
   }
 
-  function getPriceFeed(uint32 accountId, address _token) external returns (address) {
+  function getPriceFeed(uint32 accountId, address _token) external view returns (address) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     return state.PriceFeeds[accountId][_token];
   }
@@ -154,7 +153,7 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy {
     state.config = _config;
   }
 
-  function getConfig() external returns (AccountStorage.Config memory) {
+  function getConfig() external view returns (AccountStorage.Config memory) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     return state.config;
   }
