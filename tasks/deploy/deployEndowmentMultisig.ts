@@ -1,12 +1,12 @@
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
-import {task, types} from "hardhat/config";
+import {task} from "hardhat/config";
 import {confirmAction, getAddresses, isLocalNetwork, logger, verify} from "utils";
 import {updateRegistrarConfig} from "../helpers";
 
 type TaskArgs = {
   apTeamMultisig?: string;
   registrar?: string;
-  verify: boolean;
+  skipVerify: boolean;
   yes: boolean;
 };
 
@@ -19,13 +19,8 @@ task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
     "registrar",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
-  .addOptionalParam(
-    "verify",
-    "Flag indicating whether the contract should be verified",
-    true,
-    types.boolean
-  )
-  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
+  .addFlag("skipVerify", "Skip contract verification")
+  .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const isConfirmed = taskArgs.yes || (await confirmAction("Deploying EndowmentMultiSig..."));
@@ -54,7 +49,7 @@ task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
         hre
       );
 
-      if (!isLocalNetwork(hre) && taskArgs.verify) {
+      if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         await verify(hre, deployData.emitter);
         await verify(hre, deployData.factory);
         await verify(hre, deployData.implementation);

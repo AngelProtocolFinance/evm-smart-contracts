@@ -11,18 +11,13 @@ import {
 } from "utils";
 
 type TaskArgs = {
-  verify: boolean;
+  skipVerify: boolean;
   yes: boolean;
 };
 
 task("upgrade:CharityApplications", "Will upgrade the implementation of CharityApplications")
-  .addOptionalParam(
-    "verify",
-    "Flag indicating whether the contract should be verified",
-    true,
-    types.boolean
-  )
-  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
+  .addFlag("skipVerify", "Skip contract verification")
+  .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const isConfirmed =
@@ -64,7 +59,7 @@ task("upgrade:CharityApplications", "Will upgrade the implementation of CharityA
         hre
       );
 
-      if (taskArgs.verify && !isLocalNetwork(hre)) {
+      if (!taskArgs.skipVerify && !isLocalNetwork(hre)) {
         await verify(hre, {address: charityApplications.address});
       }
     } catch (error) {

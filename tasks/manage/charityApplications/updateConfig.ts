@@ -1,6 +1,6 @@
 import {task, types} from "hardhat/config";
 import {CharityApplications__factory} from "typechain-types";
-import {getAddresses, getSigners, logger, structToObject} from "utils";
+import {confirmAction, getAddresses, getSigners, logger, structToObject} from "utils";
 
 type TaskArgs = {
   accountsDiamond?: string;
@@ -9,6 +9,7 @@ type TaskArgs = {
   seedAsset?: string;
   seedSplitToLiquid?: number;
   seedAmount?: number;
+  yes: boolean;
 };
 
 task("manage:CharityApplications:updateConfig", "Will update CharityApplications config")
@@ -26,6 +27,7 @@ task("manage:CharityApplications:updateConfig", "Will update CharityApplications
     undefined,
     types.int
   )
+  .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       logger.out("Updating CharityApplications config...");
@@ -42,11 +44,17 @@ task("manage:CharityApplications:updateConfig", "Will update CharityApplications
       logger.out("Querying current config...");
       const struct = await charityApplications.queryConfig();
       const curConfig = structToObject(struct);
+      logger.out(curConfig);
       const transactionExpiry = await charityApplications.transactionExpiry();
       logger.out(structToObject({transactionExpiry, ...curConfig}));
 
       logger.out("Config data to update:");
       logger.out(taskArgs);
+
+      const isConfirmed = taskArgs.yes || (await confirmAction(`Updating config...`));
+      if (!isConfirmed) {
+        return logger.out("Confirmation denied.", logger.Level.Warn);
+      }
 
       // update config
       logger.out("Updating config...");

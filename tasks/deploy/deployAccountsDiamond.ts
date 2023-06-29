@@ -1,12 +1,12 @@
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
-import {task, types} from "hardhat/config";
+import {task} from "hardhat/config";
 import {confirmAction, getAddresses, isLocalNetwork, logger, verify} from "utils";
 import {updateRegistrarConfig} from "../helpers";
 
 type TaskArgs = {
   apTeamMultisig?: string;
   registrar?: string;
-  verify: boolean;
+  skipVerify: boolean;
   yes: boolean;
 };
 
@@ -19,13 +19,8 @@ task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
     "registrar",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
-  .addOptionalParam(
-    "verify",
-    "Flag indicating whether the contract should be verified",
-    true,
-    types.boolean
-  )
-  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
+  .addFlag("skipVerify", "Skip contract verification")
+  .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const isConfirmed = taskArgs.yes || (await confirmAction("Deploying Accounts Diamond..."));
@@ -51,9 +46,10 @@ task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
       );
       await hre.run("manage:CharityApplication:updateConfig", {
         accountsDiamond: deployData.diamond.address,
+        yes: true,
       });
 
-      if (!isLocalNetwork(hre) && taskArgs.verify) {
+      if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         for (const deployment of deployData.facets) {
           await verify(hre, deployment);
         }

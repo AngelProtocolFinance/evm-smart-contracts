@@ -1,5 +1,5 @@
 import {FacetCutAction} from "contracts/core/accounts/scripts/libraries/diamond";
-import {task, types} from "hardhat/config";
+import {task} from "hardhat/config";
 import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 import {ALL_FACET_NAMES} from "./constants";
 import createFacetCuts from "./createFacetCuts";
@@ -9,7 +9,7 @@ import deployFacets from "./deployFacets";
 type TaskArgs = {
   accountsDiamond?: string;
   facets: string[];
-  verify: boolean;
+  skipVerify: boolean;
   yes: boolean;
 };
 
@@ -23,13 +23,8 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
     "facets",
     "List of facets to upgrade. If set to 'all', will upgrade all facets."
   )
-  .addOptionalParam(
-    "verify",
-    "Flag indicating whether the contract should be verified",
-    true,
-    types.boolean
-  )
-  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
+  .addFlag("skipVerify", "Skip contract verification")
+  .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       if (taskArgs.facets.length === 0) {
@@ -57,7 +52,7 @@ task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountSto
 
       await cutDiamond(accountsDiamond, proxyAdmin, facetCuts, hre);
 
-      if (!isLocalNetwork(hre) && taskArgs.verify) {
+      if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         const facetsToVerify = facetCuts.filter((cut) => cut.cut.action !== FacetCutAction.Remove);
         for (const {facetName, cut} of facetsToVerify) {
           await verify(hre, {address: cut.facetAddress.toString(), contractName: facetName});

@@ -30,7 +30,7 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
     "newRegistrar",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
-  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
+  .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const {yes, ...newConfig} = taskArgs;

@@ -24,12 +24,7 @@ task("deploy:integrations:Goldfinch")
     "",
     types.string
   )
-  .addOptionalParam(
-    "verify",
-    "Flag indicating whether the contract should be verified",
-    true,
-    types.boolean
-  )
+  .addFlag("skipVerify", "Skip contract verification")
   .setAction(async function (taskArguments: TaskArguments, hre) {
     logger.divider();
     let registrarAddress;

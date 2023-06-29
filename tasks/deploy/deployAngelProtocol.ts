@@ -1,4 +1,4 @@
-import {task, types} from "hardhat/config";
+import {task} from "hardhat/config";
 import {Deployment, confirmAction, isLocalNetwork, logger, verify} from "utils";
 // import { deployFundraising } from "contracts/accessory/fundraising/scripts/deploy"
 import config from "config";
@@ -22,14 +22,9 @@ import {
 } from "../helpers";
 
 task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
-  .addOptionalParam(
-    "verify",
-    "Flag indicating whether the contract should be verified",
-    true,
-    types.boolean
-  )
-  .addOptionalParam("yes", "Automatic yes to prompt.", false, types.boolean)
-  .setAction(async (taskArgs: {verify: boolean; yes: boolean}, hre) => {
+  .addFlag("skipVerify", "Skip contract verification")
+  .addFlag("yes", "Automatic yes to prompt.")
+  .setAction(async (taskArgs: {skipVerify: boolean; yes: boolean}, hre) => {
     try {
       const isConfirmed =
         taskArgs.yes || (await confirmAction("Deploying all Angel Protocol contracts..."));
@@ -37,7 +32,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const verify_contracts = !isLocalNetwork(hre) && taskArgs.verify;
+      const verify_contracts = !isLocalNetwork(hre) && !taskArgs.skipVerify;
 
       const {proxyAdmin, treasury} = await getSigners(hre);
 
@@ -102,7 +97,6 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       // const fundraisingAddress = await deployFundraising(
       //     FundraisingDataInput,
       //     commonLibraries?.angelCoreStruct.address,
-      //     verify_contracts,
       //     hre
       // )
 
@@ -233,7 +227,6 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       // const implementations = await deployImplementation(
       //   commonLibraries?.angelCoreStruct.address,
       //   donationMatchCharityData,
-      //   verify_contracts,
       //   hre
       // );
 
