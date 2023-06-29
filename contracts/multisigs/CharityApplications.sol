@@ -139,6 +139,11 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
     });
 
     emit ApplicationProposed(proposalCount);
+
+    if (isOwner[msg.sender]) {
+      confirmProposal(proposalCount);
+    }
+
     proposalCount++;
   }
 

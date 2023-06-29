@@ -98,12 +98,11 @@
       "implementation": ""
     },
     "indexFund": {
-      "implementation": "",
-      "proxy": ""
+      "implementation": "0x8613A4029EaA95dA61AE65380aC2e7366451bF2b",
+      "proxy": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
     },
     "libraries": {
       "angelCoreStruct": "",
-      "charityApplicationLib": "",
       "stringArray": ""
     },
     "multiSig": {
@@ -117,11 +116,11 @@
       },
       "endowment": {
         "emitter": {
-          "implementation": "",
-          "proxy": ""
+          "implementation": "0xE5BD5bDC03371fB239956dbbF40bD185D6c2ea28",
+          "proxy": "0xAd5d57aD9bB17d34Debb88566ab2F5dB879Cc46F"
         },
-        "factory": "",
-        "implementation": ""
+        "factory": "0xe0B39353F69b54e945364ffcdDD7901697Ca0166",
+        "implementation": "0x20Fbd46DeEd5EEDEB6e5c87eeB31924e9CA312ad"
       }
     },
     "registrar": {
