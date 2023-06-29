@@ -7,9 +7,9 @@ import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20
 import {CollectorMessage} from "./message.sol";
 import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./storage.sol";
 
-// >> SHOULD INHERIT `Initializable`?
 /**
  *@title Collector
  * @dev Collector contract
@@ -18,16 +18,14 @@ import "./storage.sol";
  * 3) It also has a sweep function to swap asset tokens to HALO tokens and distribute the result HALO tokens to the gov contract.
  * 4) Lastly, there is a queryConfig function to return the configuration details.
  */
-contract Collector is Storage {
+contract Collector is Storage, Initializable {
   /*///////////////////////////////////////////////
                     EVENTS
     */ ///////////////////////////////////////////////
-  event CollectorInitialized();
   event ConfigUpdated();
   event CollectorSweeped(address tokenSwept, uint256 amountSwept, uint256 haloOut);
 
   IERC20Upgradeable token;
-  bool initialized = false;
   ISwapRouter public immutable swapRouter;
   uint256 constant SWEEP_REPLY_ID = 1;
 
@@ -39,9 +37,7 @@ contract Collector is Storage {
    * @dev Initialize contract
    * @param details CollectorMessage.InstantiateMsg used to initialize contract
    */
-  function initialize(CollectorMessage.InstantiateMsg memory details) public {
-    require(!initialized, "Contract instance has already been initialized");
-    initialized = true;
+  function initialize(CollectorMessage.InstantiateMsg memory details) public initializer {
     state.config = CollectorStorage.Config({
       owner: msg.sender,
       registrarContract: details.registrarContract,
@@ -51,7 +47,6 @@ contract Collector is Storage {
       haloToken: details.haloToken
     });
     token = IERC20Upgradeable(details.haloToken);
-    emit CollectorInitialized();
   }
 
   /**

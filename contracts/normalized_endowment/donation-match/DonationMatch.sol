@@ -15,8 +15,9 @@ import "@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol";
 import {IDonationMatchEmitter} from "./IDonationMatchEmitter.sol";
 import {IAccountsDonationMatch} from "./../../core/accounts/interfaces/IAccountsDonationMatch.sol";
 import {LibAccounts} from "../../core/accounts/lib/LibAccounts.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-interface SubdaoToken {
+interface SubDaoToken {
   function executeDonorMatch(
     uint256 amount,
     address accountscontract,
@@ -28,8 +29,6 @@ interface SubdaoToken {
 interface IERC20Burnable is IERC20 {
   function burn(uint256 amount) external;
 }
-
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  *@title DonationMatch
@@ -113,7 +112,7 @@ contract DonationMatch is Storage, Initializable {
       "Token transfer failed"
     );
 
-    IDonationMatchEmitter(emitterAddress).giveApprovalErC20(
+    IDonationMatchEmitter(emitterAddress).giveApprovalErc20(
       endowmentId,
       token,
       state.config.reserveToken,
@@ -128,7 +127,7 @@ contract DonationMatch is Storage, Initializable {
       uint256 burnAmount = reserveTokenAmount - (donorAmount + endowmentAmount);
 
       require(IERC20Burnable(token).transfer(donor, donorAmount), "Transfer failed");
-      IDonationMatchEmitter(emitterAddress).transferErC20(endowmentId, token, donor, donorAmount);
+      IDonationMatchEmitter(emitterAddress).transferErc20(endowmentId, token, donor, donorAmount);
       // IERC20Burnable(token).transfer(
       //     registrar_config.accountsContract,
       //     endowmentAmount
@@ -145,14 +144,14 @@ contract DonationMatch is Storage, Initializable {
         endowmentAmount
       );
 
-      IDonationMatchEmitter(emitterAddress).transferErC20(
+      IDonationMatchEmitter(emitterAddress).transferErc20(
         endowmentId,
         token,
         registrar_config.accountsContract,
         endowmentAmount
       );
       IERC20Burnable(token).burn(burnAmount);
-      IDonationMatchEmitter(emitterAddress).burnErC20(endowmentId, token, burnAmount);
+      IDonationMatchEmitter(emitterAddress).burnErc20(endowmentId, token, burnAmount);
     } else {
       // call execute donor match on dao token contract
 
@@ -163,7 +162,7 @@ contract DonationMatch is Storage, Initializable {
         "Approve failed"
       );
 
-      SubdaoToken(token).executeDonorMatch(
+      SubDaoToken(token).executeDonorMatch(
         reserveTokenAmount,
         registrar_config.accountsContract,
         endowmentId,

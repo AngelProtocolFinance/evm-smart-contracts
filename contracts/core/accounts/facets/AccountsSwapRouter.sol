@@ -162,13 +162,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
    */
   function getLatestPriceData(address tokenFeed) internal view returns (uint256) {
     AggregatorV3Interface chainlinkFeed = AggregatorV3Interface(tokenFeed);
-    (
-      uint80 roundID,
-      int256 answer,
-      uint256 startedAt,
-      uint256 timeStamp,
-      uint80 answeredInRound
-    ) = chainlinkFeed.latestRoundData();
+    (, int256 answer, , , ) = chainlinkFeed.latestRoundData();
     return uint256(answer);
   }
 

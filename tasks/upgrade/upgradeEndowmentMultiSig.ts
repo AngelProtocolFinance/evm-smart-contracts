@@ -47,7 +47,7 @@ task(
       await contract.deployed();
       logger.out(`Address: ${contract.address}`);
 
-      logger.out("Upgrading MultiSigWalletFactory's implementation address...");
+      logger.out("Upgrading EndowmentMultiSigFactory's implementation address...");
       const multisigWalletFactory = MultiSigWalletFactory__factory.connect(
         multisigWalletFactoryAddress,
         proxyAdmin

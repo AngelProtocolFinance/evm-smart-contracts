@@ -88,7 +88,7 @@ contract UniswapUtils {
     {
       uint256 tokenAAmount = isPtLower ? details.amountA : details.amountB;
       uint256 tokenBAmount = isPtLower ? details.amountB : details.amountA;
-      uint160 decimalDiff;
+      // uint160 decimalDiff;
       // if(tokenA < tokenB) {
       //     decimalDiff = IERC20Decimals(tokenB).decimals() - IERC20Decimals(tokenA).decimals();
       // }
@@ -124,7 +124,7 @@ contract UniswapUtils {
     bytes[] memory res;
     res = nonfungiblePositionManager.multicall{value: 0}(data);
     address pool = abi.decode(res[0], (address));
-    (uint256 tokenId, uint128 liquidity, uint256 amount0, uint256 amount1) = abi.decode(
+    (, , uint256 amount0, uint256 amount1) = abi.decode(
       res[1],
       (uint256, uint128, uint256, uint256)
     );
@@ -214,7 +214,7 @@ contract UniswapUtils {
     // create and mint new position
     bytes[] memory res;
     res = nonfungiblePositionManager.multicall{value: msg.value}(data);
-    (uint256 tokenId, uint128 liquidity, uint256 amount0, uint256 amount1) = abi.decode(
+    (, , uint256 amount0, uint256 amount1) = abi.decode(
       res[1],
       (uint256, uint128, uint256, uint256)
     );
