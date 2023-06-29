@@ -25,7 +25,7 @@ import {AccountMessages} from "../accounts/message.sol";
  * It is responsible for creating new funds, adding members to funds, and
  * distributing funds to members
  */
-contract IndexFund is IIndexFund, StorageIndexFund, ReentrancyGuard, Initializable {
+contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
   event OwnerUpdated(address newOwner);
   event RegistrarUpdated(address newRegistrar);
   event ConfigUpdated();

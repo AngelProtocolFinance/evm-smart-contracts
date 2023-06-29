@@ -38,6 +38,6 @@ library IndexFundStorage {
   }
 }
 
-contract StorageIndexFund {
+contract Storage {
   IndexFundStorage.State state;
 }
