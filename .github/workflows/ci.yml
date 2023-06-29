@@ -24,12 +24,12 @@ jobs:
           node-version: "18.x"
 
       - name: "Install the dependencies"
-        uses: "borales/actions-yarn"
+        uses: "borales/actions-yarn@v4"
         with: 
           cmd: "install"
 
       - name: "Lint the code"
-        uses: "borales/actions-yarn"
+        uses: "borales/actions-yarn@v4"
         with: 
           cmd: "format"
 
@@ -39,13 +39,12 @@ jobs:
           echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
       - name: "Compile the contracts and generate the TypeChain bindings"
-        run: "yarn compile"
-        uses: "borales/actions-yarn"
+        uses: "borales/actions-yarn@v4"
         with: 
           cmd: "compile"
 
       - name: "Test the contracts"
-        uses: "borales/actions-yarn"
+        uses: "borales/actions-yarn@v4"
         with: 
           cmd: "test"
 
