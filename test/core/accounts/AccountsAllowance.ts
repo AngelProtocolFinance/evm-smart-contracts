@@ -8,7 +8,7 @@ import {
   AccountsAllowance,
 } from "typechain-types"
 
-import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet"
+import {deployFacetAsProxy} from "test/utils"
 
 describe("AccountsAllowance", function () {
   const {ethers} = hre
