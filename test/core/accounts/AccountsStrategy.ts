@@ -17,23 +17,47 @@ describe("AccountsStrategy", function () {
   let admin: SignerWithAddress;
   let user: SignerWithAddress;
 
-  describe("Revert cases for `manageAllowances`", async function () {
+  before(async function () {
+    const {deployer, proxyAdmin, apTeam1} = await getSigners(hre)
+    owner = deployer
+    admin = proxyAdmin
+    user = apTeam1
+  })
+
+  describe("upon strategyInvest", async function () {
     let facet: AccountsStrategy
     let proxy: TestFacetProxyContract
-
-    before(async function () {
-      const {deployer, proxyAdmin, apTeam1} = await getSigners(hre)
-      owner = deployer
-      admin = proxyAdmin
-      user = apTeam1
-    })
-
+    
     beforeEach(async function () {
       let Facet = new AccountsStrategy__factory(owner)
       let facetImpl = await Facet.deploy()
       proxy = await deployFacetAsProxy(hre, owner, admin, facetImpl.address)
       facet = AccountsStrategy__factory.connect(proxy.address, owner)
     })
-    
   })
+  
+  describe("upon strategyRedeem", async function () {
+    let facet: AccountsStrategy
+    let proxy: TestFacetProxyContract
+    
+    beforeEach(async function () {
+      let Facet = new AccountsStrategy__factory(owner)
+      let facetImpl = await Facet.deploy()
+      proxy = await deployFacetAsProxy(hre, owner, admin, facetImpl.address)
+      facet = AccountsStrategy__factory.connect(proxy.address, owner)
+    })
+  })
+
+  describe("upon strategyRedeemAll", async function () {
+    let facet: AccountsStrategy
+    let proxy: TestFacetProxyContract
+    
+    beforeEach(async function () {
+      let Facet = new AccountsStrategy__factory(owner)
+      let facetImpl = await Facet.deploy()
+      proxy = await deployFacetAsProxy(hre, owner, admin, facetImpl.address)
+      facet = AccountsStrategy__factory.connect(proxy.address, owner)
+    })
+  })
+
 })
