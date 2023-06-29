@@ -7,6 +7,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {SafeCast} from "@openzeppelin/contracts/utils/math/SafeCast.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {StableMath} from "./lib/StableMath.sol";
 import {Root} from "./lib/Root.sol";
 
@@ -27,7 +28,7 @@ import {Root} from "./lib/Root.sol";
  *            5) Migration of points to v2 (used as multiplier in future) ***** (rewardsPaid)
  *            6) Closure of contract (expire)
  */
-contract IncentivisedVotingLockup is IIncentivisedVotingLockup, ReentrancyGuard {
+contract IncentivisedVotingLockup is IIncentivisedVotingLockup, ReentrancyGuard, Initializable {
   using StableMath for uint256;
   using SafeERC20 for IERC20;
 
@@ -45,7 +46,6 @@ contract IncentivisedVotingLockup is IIncentivisedVotingLockup, ReentrancyGuard 
   uint256 public END;
   bool public expired = false;
   address public admin = address(0);
-  bool private initialized = false;
   /** Lockup */
   uint256 public globalEpoch;
   Point[] public pointHistory;
@@ -95,9 +95,11 @@ contract IncentivisedVotingLockup is IIncentivisedVotingLockup, ReentrancyGuard 
     WITHDRAW
   }
 
-  function initialize(address stakingtoken, string memory name, string memory symbol) public {
-    require(!initialized, "Already initialized");
-    initialized = true;
+  function initialize(
+    address stakingtoken,
+    string memory _name,
+    string memory _symbol
+  ) public initializer {
     stakingToken = IERC20(stakingtoken);
     Point memory init = Point({
       bias: int128(0),
@@ -110,8 +112,8 @@ contract IncentivisedVotingLockup is IIncentivisedVotingLockup, ReentrancyGuard 
     decimals = IBasicToken(stakingtoken).decimals();
     require(decimals <= 18, "Cannot have more than 18 decimals");
 
-    name = name;
-    symbol = symbol;
+    name = _name;
+    symbol = _symbol;
 
     END = block.timestamp + MAXTIME;
 
@@ -592,18 +594,18 @@ contract IncentivisedVotingLockup is IIncentivisedVotingLockup, ReentrancyGuard 
 
   /**
    * @dev Uses binarysearch to find the most recent point history preceeding block
-   * @param block Find the most recent point history before this block
-   * @param maxepoch Do not search pointHistories past this index
+   * @param _block Find the most recent point history before this block
+   * @param maxEpoch Do not search pointHistories past this index
    */
-  function _findBlockEpoch(uint256 block, uint256 maxepoch) internal view returns (uint256) {
+  function _findBlockEpoch(uint256 _block, uint256 maxEpoch) internal view returns (uint256) {
     // Binary search
     uint256 min = 0;
-    uint256 max = maxepoch;
+    uint256 max = maxEpoch;
     // Will be always enough for 128-bit numbers
     for (uint256 i = 0; i < 128; i++) {
       if (min >= max) break;
       uint256 mid = (min + max + 1) / 2;
-      if (pointHistory[mid].blk <= block) {
+      if (pointHistory[mid].blk <= _block) {
         min = mid;
       } else {
         max = mid - 1;
@@ -615,9 +617,9 @@ contract IncentivisedVotingLockup is IIncentivisedVotingLockup, ReentrancyGuard 
   /**
    * @dev Uses binarysearch to find the most recent user point history preceeding block
    * @param addr User for which to search
-   * @param block Find the most recent point history before this block
+   * @param _block Find the most recent point history before this block
    */
-  function _findUserBlockEpoch(address addr, uint256 block) internal view returns (uint256) {
+  function _findUserBlockEpoch(address addr, uint256 _block) internal view returns (uint256) {
     uint256 min = 0;
     uint256 max = userPointEpoch[addr];
     for (uint256 i = 0; i < 128; i++) {
@@ -625,7 +627,7 @@ contract IncentivisedVotingLockup is IIncentivisedVotingLockup, ReentrancyGuard 
         break;
       }
       uint256 mid = (min + max + 1) / 2;
-      if (userPointHistory[addr][mid].blk <= block) {
+      if (userPointHistory[addr][mid].blk <= _block) {
         min = mid;
       } else {
         max = mid - 1;
