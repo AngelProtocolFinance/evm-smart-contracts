@@ -2,7 +2,7 @@
 // yours, or create new ones.
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {envConfig, getSigners, verify} from "utils";
+import {getSigners, verify} from "utils";
 
 import {Airdrop} from "../halo/airdrop";
 import {Collector} from "../halo/collector";
@@ -72,12 +72,10 @@ export async function deployHaloImplementation(
 
     let halo_code = await ethers.getContractAt("ERC20Upgrade", halo);
 
-    if (network.config.chainId !== envConfig.PROD_NETWORK_ID) {
-      await halo_code.mint(
-        proxyAdmin.address,
-        ethers.utils.parseEther("100000000000000000000000000")
-      );
-    }
+    await halo_code.mint(
+      proxyAdmin.address,
+      ethers.utils.parseEther("100000000000000000000000000")
+    );
 
     await halo_code.transferOwnership(gov.GovProxy); // TODO: uncomment this before deploying to prod. Keep this commented while testing
 

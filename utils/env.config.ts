@@ -42,8 +42,6 @@ const OPTIMIZER_FLAG = extractString("OPTIMIZER_FLAG");
 const OPTIMIZER_RUNS = extractNumber("OPTIMIZER_RUNS");
 const POLYGON_RPC_URL = extractString("POLYGON_RPC_URL");
 const POLYSCAN_API_KEY = extractString("POLYSCAN_API_KEY");
-const PROD_NETWORK_ID = extractNumber("PROD_NETWORK_ID");
-const ROUTER_ADDRESS = extractString("ROUTER_ADDRESS");
 const VERIFY_CONTRACTS = extractString("VERIFY_CONTRACTS");
 
 function extractNumber(name: string): number {
@@ -82,7 +80,5 @@ export var envConfig = {
   OPTIMIZER_RUNS,
   POLYGON_RPC_URL,
   POLYSCAN_API_KEY,
-  PROD_NETWORK_ID,
-  ROUTER_ADDRESS,
   VERIFY_CONTRACTS,
 };
