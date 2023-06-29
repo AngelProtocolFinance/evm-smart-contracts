@@ -7,13 +7,13 @@ import {
   AccountsAllowance__factory,
   AccountsAllowance,
 } from "typechain-types"
-
+import { getSigners } from "utils";
 import {deployFacetAsProxy} from "test/utils"
 
 describe("AccountsAllowance", function () {
   const {ethers} = hre
   let owner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress;
+  let admin: SignerWithAddress;
   let user: SignerWithAddress;
 
   describe("Revert cases for `manageAllowances`", async function () {
@@ -21,13 +21,16 @@ describe("AccountsAllowance", function () {
     let proxy: TestFacetProxyContract
 
     before(async function () {
-      [owner, proxyAdmin, user] = await ethers.getSigners()
+      const {deployer, proxyAdmin, apTeam1} = await getSigners(hre)
+      owner = deployer
+      admin = proxyAdmin
+      user = apTeam1
     })
 
     beforeEach(async function () {
       let Facet = new AccountsAllowance__factory(owner)
       let facetImpl = await Facet.deploy()
-      proxy = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address)
+      proxy = await deployFacetAsProxy(hre, owner, admin, facetImpl.address)
       facet = AccountsAllowance__factory.connect(proxy.address, owner)
     })
     
