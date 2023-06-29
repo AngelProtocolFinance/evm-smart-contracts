@@ -8,6 +8,12 @@ pragma solidity ^0.8.0;
  */
 interface IERC20AP {
   /**
+   * @dev Emitted when `msg.sender` is not an approved operator. Required 
+   * because of our account abstraction model 
+   */
+  error ERC20APOperatorOnly();
+
+  /**
    * @dev Emitted when `value` tokens are moved from one account (`from`) to
    * another (`to`).
    *
