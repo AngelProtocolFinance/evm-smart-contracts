@@ -5,12 +5,15 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import {ProxyContract} from "../../core/proxy.sol";
 import {IEndowmentMultiSigEmitter} from "./interfaces/IEndowmentMultiSigEmitter.sol";
 
-// >> THIS CONTRACT CAN BE MERGED WITH `MultiSigWalletFactory`
-contract Factory {
+/// @title Multisignature wallet factory - Allows creation of multisigs wallet.
+/// @author Stefan George - <stefan.george@consensys.net>
+contract MultiSigWalletFactory is Ownable {
   /*
    *  Events
    */
   event ContractInstantiated(address sender, address instantiation);
+  event ImplementationUpdated(address implementationAddress);
+  event ProxyAdminUpdated(address admin);
 
   /*
    *  Storage
@@ -18,34 +21,6 @@ contract Factory {
   mapping(address => bool) public isInstantiation;
   mapping(address => address[]) public instantiations;
   mapping(uint256 => address) public endowmentIdToMultisig;
-
-  /*
-   * Public functions
-   */
-  /// @dev Returns number of instantiations by creator.
-  /// @param creator Contract creator.
-  /// @return Returns number of instantiations by creator.
-  function getInstantiationCount(address creator) public view returns (uint256) {
-    return instantiations[creator].length;
-  }
-
-  /*
-   * Internal functions
-   */
-  /// @dev Registers contract in factory registry.
-  /// @param instantiation Address of contract instantiation.
-  function register(address instantiation) internal {
-    isInstantiation[instantiation] = true;
-    instantiations[msg.sender].push(instantiation);
-    emit ContractInstantiated(msg.sender, instantiation);
-  }
-}
-
-/// @title Multisignature wallet factory - Allows creation of multisigs wallet.
-/// @author Stefan George - <stefan.george@consensys.net>
-contract MultiSigWalletFactory is Factory, Ownable {
-  event ImplementationUpdated(address implementationAddress);
-  event ProxyAdminUpdated(address admin);
 
   address IMPLEMENTATION_ADDRESS;
   address PROXY_ADMIN;
@@ -59,6 +34,16 @@ contract MultiSigWalletFactory is Factory, Ownable {
 
     PROXY_ADMIN = proxyAdmin;
     emit ProxyAdminUpdated(proxyAdmin);
+  }
+
+  /*
+   * Public functions
+   */
+  /// @dev Returns number of instantiations by creator.
+  /// @param creator Contract creator.
+  /// @return Returns number of instantiations by creator.
+  function getInstantiationCount(address creator) public view returns (uint256) {
+    return instantiations[creator].length;
   }
 
   /**
@@ -117,5 +102,16 @@ contract MultiSigWalletFactory is Factory, Ownable {
     register(wallet);
     // also store address of multisig in endowmentIdToMultisig
     endowmentIdToMultisig[endowmentId] = wallet;
+  }
+
+  /*
+   * Internal functions
+   */
+  /// @dev Registers contract in factory registry.
+  /// @param instantiation Address of contract instantiation.
+  function register(address instantiation) internal {
+    isInstantiation[instantiation] = true;
+    instantiations[msg.sender].push(instantiation);
+    emit ContractInstantiated(msg.sender, instantiation);
   }
 }
