@@ -6,8 +6,6 @@ import {
   TestFacetProxyContract,
   AccountsAllowance__factory,
   AccountsAllowance,
-  AngelCoreStruct,
-  AngelCoreStruct__factory,
 } from "typechain-types"
 
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet"
@@ -18,27 +16,16 @@ describe("AccountsAllowance", function () {
   let proxyAdmin: SignerWithAddress;
   let user: SignerWithAddress;
 
-  async function deployCoreStruct() : Promise<AngelCoreStruct> {
-    let CoreStruct = new AngelCoreStruct__factory(owner)
-    let corestruct = await CoreStruct.deploy()
-    return await corestruct.deployed()
-  }
-
   describe("Revert cases for `manageAllowances`", async function () {
     let facet: AccountsAllowance
     let proxy: TestFacetProxyContract
-    let corestruct: AngelCoreStruct
 
     before(async function () {
       [owner, proxyAdmin, user] = await ethers.getSigners()
-      corestruct = await deployCoreStruct()
     })
 
     beforeEach(async function () {
-      let Facet = new AccountsAllowance__factory(
-        {"contracts/core/struct.sol:AngelCoreStruct": corestruct.address},
-        owner
-      )
+      let Facet = new AccountsAllowance__factory(owner)
       let facetImpl = await Facet.deploy()
       proxy = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address)
       facet = AccountsAllowance__factory.connect(proxy.address, owner)
