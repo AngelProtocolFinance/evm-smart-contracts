@@ -16,9 +16,6 @@ jobs:
     steps:
       - name: "Check out the repo"
         uses: "actions/checkout@v3"
-      
-      - name: "Install Yarn"
-        uses: "berry/actions-yarn@v3"
 
       - name: "Install Node.js"
         uses: "actions/setup-node@v3"
