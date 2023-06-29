@@ -17,8 +17,6 @@ import "./Token/ERC20.sol";
 import "./storage.sol";
 
 contract SubDao is Storage, ReentrancyGuard, Initializable {
-  // using SafeMath for uint256;
-
   address emitterAddress;
   address accountAddress;
 
@@ -26,14 +24,15 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
    * @notice function used to initialize the contract
    * @dev Initialize the contract
    * @param details The message used to initialize the contract
+   * @param _emitterAddress The address of the SubDao event emitter contract
    */
   function initializeSubDao(
     SubDaoMessages.InstantiateMsg memory details,
-    address emitteraddress
+    address _emitterAddress
   ) public initializer {
-    require(emitteraddress != address(0), "InvalidEmitterAddress");
+    require(_emitterAddress != address(0), "InvalidEmitterAddress");
 
-    emitterAddress = emitteraddress;
+    emitterAddress = _emitterAddress;
 
     config = subDaoStorage.Config({
       registrarContract: details.registrarContract,
@@ -516,19 +515,19 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
 
   /**
    * @notice internal function used to execute external calls
-   * @dev sends external calls to target addresses with values and calldatas
+   * @dev sends external calls to target addresses with values and calldata
    * @param targets target addresses
    * @param values values to be sent with call
-   * @param calldatas calldatas to be sent with call
+   * @param callData calldata to be sent with call
    */
   function _execute(
     address[] memory targets,
     uint256[] memory values,
-    bytes[] memory calldatas
+    bytes[] memory callData
   ) internal {
     string memory errorMessage = "call reverted without message";
     for (uint256 i = 0; i < targets.length; ++i) {
-      (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
+      (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(callData[i]);
       Address.verifyCallResult(success, returndata, errorMessage);
     }
   }
