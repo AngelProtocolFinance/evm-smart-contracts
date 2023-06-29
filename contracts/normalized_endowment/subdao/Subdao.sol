@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {subDaoMessage} from "./message.sol";
+import {SubDaoMessages} from "./message.sol";
 import {SubDaoLib} from "./SubDaoLib.sol";
 import {LibAccounts} from "../../core/accounts/lib/LibAccounts.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
@@ -28,7 +28,7 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
    * @param details The message used to initialize the contract
    */
   function initializeSubDao(
-    subDaoMessage.InstantiateMsg memory details,
+    SubDaoMessages.InstantiateMsg memory details,
     address emitteraddress
   ) public initializer {
     require(emitteraddress != address(0), "InvalidEmitterAddress");
@@ -59,7 +59,7 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
    * @dev Build the dao token message
    * @param details The message used to build the dao token message
    */
-  function buildDaoTokenMesage(subDaoMessage.InstantiateMsg memory details) public {
+  function buildDaoTokenMesage(SubDaoMessages.InstantiateMsg memory details) public {
     require(msg.sender == accountAddress, "Unauthorized");
     RegistrarStorage.Config memory registrar_config = IRegistrar(config.registrarContract)
       .queryConfig();
@@ -488,8 +488,8 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
    * @notice function used to query config
    * @dev query config
    */
-  function queryConfig() public view returns (subDaoMessage.QueryConfigResponse memory) {
-    subDaoMessage.QueryConfigResponse memory response = subDaoMessage.QueryConfigResponse({
+  function queryConfig() public view returns (SubDaoMessages.QueryConfigResponse memory) {
+    SubDaoMessages.QueryConfigResponse memory response = SubDaoMessages.QueryConfigResponse({
       owner: config.owner,
       daoToken: config.daoToken,
       veToken: config.veToken,

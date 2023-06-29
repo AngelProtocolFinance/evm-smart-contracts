@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {subDaoMessage} from "../../../normalized_endowment/subdao/message.sol";
+import {SubDaoMessages} from "../../../normalized_endowment/subdao/message.sol";
 import {AccountStorage} from "../storage.sol";
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {ProxyContract} from "../../proxy.sol";
@@ -25,7 +25,7 @@ contract AccountsDeployContract is IAccountsDeployContract, ReentrancyGuardFacet
    * @param createDaoMessage Dao creation message with initial configuration
    */
   function createDaoContract(
-    subDaoMessage.InstantiateMsg memory createDaoMessage
+    SubDaoMessages.InstantiateMsg memory createDaoMessage
   ) public nonReentrant returns (address daoAddress) {
     // will be called by self, as this is deployment facet
     require(msg.sender == address(this), "Unauthorized");

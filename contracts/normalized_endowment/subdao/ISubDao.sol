@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {subDaoMessage} from "./message.sol";
+import {SubDaoMessages} from "./message.sol";
 import {subDaoStorage} from "./storage.sol";
 import {Array} from "../../lib/array.sol";
 
@@ -38,9 +38,9 @@ interface ISubDao {
 
   function castVote(uint256 pollid, subDaoStorage.VoteOption vote) external;
 
-  function queryConfig() external view returns (subDaoMessage.QueryConfigResponse memory);
+  function queryConfig() external view returns (SubDaoMessages.QueryConfigResponse memory);
 
   function queryState() external view returns (subDaoStorage.State memory);
 
-  function buildDaoTokenMesage(subDaoMessage.InstantiateMsg memory msg) external;
+  function buildDaoTokenMesage(SubDaoMessages.InstantiateMsg memory msg) external;
 }

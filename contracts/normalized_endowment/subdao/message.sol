@@ -4,7 +4,7 @@ pragma solidity ^0.8.16;
 import {LibAccounts} from "../../core/accounts/lib/LibAccounts.sol";
 import {SubDaoLib} from "./SubDaoLib.sol";
 
-library subDaoMessage {
+library SubDaoMessages {
   struct InstantiateMsg {
     uint32 id;
     address owner;
