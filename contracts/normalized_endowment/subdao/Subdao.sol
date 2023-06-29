@@ -11,18 +11,17 @@ import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import {SubDaoTokenMessage} from "./../subdao-token/subdao-token.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ISubdaoEmitter} from "./ISubdaoEmitter.sol";
 import "./Token/ERC20.sol";
 import "./storage.sol";
 
-contract SubDao is Storage, ReentrancyGuard {
+contract SubDao is Storage, ReentrancyGuard, Initializable {
   // using SafeMath for uint256;
 
-  bool private initFlag = false;
   address emitterAddress;
   address accountAddress;
 
-  // >> SHOULD INHERIT `Initializable`?
   /**
    * @notice function used to initialize the contract
    * @dev Initialize the contract
@@ -31,10 +30,8 @@ contract SubDao is Storage, ReentrancyGuard {
   function initializeSubDao(
     subDaoMessage.InstantiateMsg memory details,
     address emitteraddress
-  ) public {
+  ) public initializer {
     require(emitteraddress != address(0), "InvalidEmitterAddress");
-    require(!initFlag, "Already initialised");
-    initFlag = true;
 
     emitterAddress = emitteraddress;
 
