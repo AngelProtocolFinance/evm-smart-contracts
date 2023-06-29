@@ -112,7 +112,7 @@ contract DonationMatch is Storage, Initializable {
       "Token transfer failed"
     );
 
-    IDonationMatchEmitter(emitterAddress).giveApprovalErC20(
+    IDonationMatchEmitter(emitterAddress).giveApprovalErc20(
       endowmentId,
       token,
       state.config.reserveToken,
@@ -127,7 +127,7 @@ contract DonationMatch is Storage, Initializable {
       uint256 burnAmount = reserveTokenAmount - (donorAmount + endowmentAmount);
 
       require(IERC20Burnable(token).transfer(donor, donorAmount), "Transfer failed");
-      IDonationMatchEmitter(emitterAddress).transferErC20(endowmentId, token, donor, donorAmount);
+      IDonationMatchEmitter(emitterAddress).transferErc20(endowmentId, token, donor, donorAmount);
       // IERC20Burnable(token).transfer(
       //     registrar_config.accountsContract,
       //     endowmentAmount
@@ -144,14 +144,14 @@ contract DonationMatch is Storage, Initializable {
         endowmentAmount
       );
 
-      IDonationMatchEmitter(emitterAddress).transferErC20(
+      IDonationMatchEmitter(emitterAddress).transferErc20(
         endowmentId,
         token,
         registrar_config.accountsContract,
         endowmentAmount
       );
       IERC20Burnable(token).burn(burnAmount);
-      IDonationMatchEmitter(emitterAddress).burnErC20(endowmentId, token, burnAmount);
+      IDonationMatchEmitter(emitterAddress).burnErc20(endowmentId, token, burnAmount);
     } else {
       // call execute donor match on dao token contract
 
