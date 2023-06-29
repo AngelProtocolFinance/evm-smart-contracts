@@ -33,7 +33,7 @@ contract SubdaoEmitter is ISubdaoEmitter, Initializable {
 
   function initializeSubdao(address subdao) public isOwner {
     isSubdao[subdao] = true;
-    emit SubdaoInitialized(msg.sender);
+    emit SubdaoInitialized(subdao);
   }
 
   function updateSubdaoConfig() public isEmitter {
