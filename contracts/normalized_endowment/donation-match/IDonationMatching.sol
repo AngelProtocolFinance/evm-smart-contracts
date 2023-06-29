@@ -5,7 +5,7 @@ import "./storage.sol";
 
 interface IDonationMatching {
   function executeDonorMatch(
-    uint256 endowmentId,
+    uint32 endowmentId,
     uint256 amount,
     address donor,
     address token

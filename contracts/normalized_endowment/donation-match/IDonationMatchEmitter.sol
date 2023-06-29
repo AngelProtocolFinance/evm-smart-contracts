@@ -30,7 +30,7 @@ interface IDonationMatchEmitter {
     address tokenAddress,
     uint256 amount,
     address accountsContract,
-    uint256 endowmentId,
+    uint32 endowmentId,
     address donor
   ) external;
 }
