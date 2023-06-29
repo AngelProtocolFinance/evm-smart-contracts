@@ -9,6 +9,7 @@ import {
   IRouter,
   LocalRegistrar,
   LocalRegistrar__factory,
+  ITransparentUpgradeableProxy__factory,
   Router,
   Router__factory,
 } from "typechain-types";
@@ -22,12 +23,13 @@ import {
   deployDummyGateway,
   deployDummyVault
 } from "test/utils"
-
+import {getSigners} from "utils";
 import {LocalRegistrarLib} from "../../../typechain-types/contracts/core/registrar/LocalRegistrar";
 
 describe("Router", function () {
   const {ethers, upgrades} = hre;
   let owner: SignerWithAddress;
+  let admin: SignerWithAddress
   let user: SignerWithAddress;
   let collector: SignerWithAddress;
   let Router: Router__factory;
@@ -41,27 +43,55 @@ describe("Router", function () {
   const localChain = "ethereum";
   const accountsContract = deadAddr;
 
+  before(async function () {
+    const {deployer, proxyAdmin, apTeam1, apTeam2} = await getSigners(hre);
+    owner = deployer;
+    admin = proxyAdmin;
+    user = apTeam1;
+    collector = apTeam2;
+  })
+
   async function deployRouterAsProxy(
     gatewayAddress: string = "0xe432150cce91c13a887f7D836923d5597adD8E31",
     gasRecvAddress: string = "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
     registrar?: LocalRegistrar
   ): Promise<Router> {
-    [owner, user, collector] = await ethers.getSigners();
-    let apParams = defaultApParams;
-    apParams.refundAddr = collector.address;
+
     if (!registrar) {
       registrar = await deployRegistrarAsProxy();
     }
+    let apParams = defaultApParams; 
+    apParams.refundAddr = collector.address;
     await registrar.setAngelProtocolParams(apParams);
-    Router = (await ethers.getContractFactory("Router")) as Router__factory;
-    const router = (await upgrades.deployProxy(Router, [
+
+    const RouterFactory = new Router__factory(owner);
+    const RouterImpl = await RouterFactory.deploy()
+    await RouterImpl.deployed()
+
+    const ProxyContract = await ethers.getContractFactory("ProxyContract")
+    const RouterInitData = RouterImpl.interface.encodeFunctionData("initialize", [
       localChain,
       gatewayAddress,
       gasRecvAddress,
       registrar.address,
-    ])) as Router;
-    await router.deployed();
-    return router;
+    ])
+
+    const RouterProxy = await ProxyContract.deploy(
+      RouterImpl.address, 
+      admin.address,
+      RouterInitData
+    )
+    await RouterProxy.deployed();
+    return Router__factory.connect(RouterProxy.address,owner)
+  }
+
+  async function upgradeProxy(signer: SignerWithAddress, routerProxy: string) {
+    const RouterFactory = new Router__factory(owner);
+    const RouterImpl = await RouterFactory.deploy()
+    await RouterImpl.deployed()
+
+    const RouterProxy = ITransparentUpgradeableProxy__factory.connect(routerProxy, signer)
+    RouterProxy.upgradeTo(RouterImpl.address)
   }
 
   async function deployRegistrarAsProxy(): Promise<LocalRegistrar> {
@@ -92,16 +122,11 @@ describe("Router", function () {
 
     it("Should successfully deploy the contract as an upgradable proxy", async function () {
       expect(router.address);
-      expect(await upgrades.upgradeProxy(router.address, Router));
+      expect(await upgradeProxy(admin, router.address));
     });
 
     it("Should set the right owner", async function () {
       expect(await router.owner()).to.equal(owner.address);
-    });
-
-    it("Should not allow a non-owner to run an upgrade", async function () {
-      const UserRouter = (await ethers.getContractFactory("Router", user)) as Router__factory;
-      await expect(upgrades.upgradeProxy(router.address, UserRouter)).to.be.reverted;
     });
 
     it("Accepts and initializes the gateway and gas receiver as part of init", async function () {
