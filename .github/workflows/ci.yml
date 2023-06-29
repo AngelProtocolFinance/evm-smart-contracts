@@ -33,10 +33,9 @@ jobs:
         with: 
           cmd: "format"
 
-      - name: "Add lint summary"
-        run: |
-          echo "## Lint results" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+      - name: "Create dummy .env file from .env.example"
+        shell: bash
+        run: cp ./.env.example ./.env
 
       - name: "Compile the contracts and generate the TypeChain bindings"
         uses: "borales/actions-yarn@v4"
@@ -47,9 +46,4 @@ jobs:
         uses: "borales/actions-yarn@v4"
         with: 
           cmd: "test"
-
-      - name: "Add test summary"
-        run: |
-          echo "## Test results" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
 
