@@ -44,7 +44,7 @@ export async function getOrDeployThirdPartyContracts(
       axelarGateway: await deployDummyGateway(signer),
       uniswap: await deployDummyUniswap(signer, hre),
       seedAsset: await deployDummyERC20(signer, [signer.address], [100]),
-      usdcToken: await deployDummyERC20(signer, [signer.address], [100]),
+      usdcToken: await deployDummyERC20(signer, [signer.address], [100], 6),
       wmaticToken: await deployDummyERC20(signer, [signer.address], [1]),
     };
 
