@@ -41,6 +41,7 @@ task(
         splitMin: config.REGISTRAR_DATA.splitToLiquid.min,
         splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit,
         collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare,
+        // CONTRACT ADDRESSES
         subdaoGovContract: addresses.subDao.implementation, // subdao gov
         subdaoTokenContract: addresses.subDao.token, // subdao gov token (basic CW20)
         subdaoBondingTokenContract: addresses.subDao.veBondingToken, // subdao gov token (w/ bonding-curve)
@@ -48,17 +49,16 @@ task(
         subdaoDistributorContract: apTeam1.address, // subdao gov fee distributor
         subdaoEmitter: addresses.subDao.emitter.proxy,
         donationMatchContract: addresses.donationMatch.implementation, // donation matching contract
-        // CONTRACT ADSRESSES
         indexFundContract: addresses.indexFund.proxy,
-        govContract: apTeam1.address,
+        govContract: ADDRESS_ZERO,
         treasury: treasury.address,
         donationMatchCharitesContract: addresses.donationMatchCharity.proxy,
         donationMatchEmitter: ADDRESS_ZERO,
-        haloToken: apTeam1.address,
+        haloToken: ADDRESS_ZERO,
         haloTokenLpContract: ADDRESS_ZERO,
         // haloTokenLpContract: addresses.halo.tokenLp, -> TODO: when implemented
-        charitySharesContract: apTeam1.address,
-        fundraisingContract: apTeam1.address,
+        charitySharesContract: ADDRESS_ZERO,
+        fundraisingContract: ADDRESS_ZERO,
         uniswapRouter: addresses.uniswap.SwapRouter,
         uniswapFactory: addresses.uniswap.Factory,
         multisigFactory: addresses.multiSig.endowment.factory,
@@ -67,7 +67,7 @@ task(
         proxyAdmin: proxyAdmin.address,
         usdcAddress: addresses.tokens.usdc,
         wMaticAddress: addresses.tokens.wmatic,
-        cw900lvAddress: apTeam1.address,
+        cw900lvAddress: ADDRESS_ZERO,
         lockedWithdrawal: ADDRESS_ZERO,
       };
       const updateConfigData = registrar.interface.encodeFunctionData("updateConfig", [newConfig]);
