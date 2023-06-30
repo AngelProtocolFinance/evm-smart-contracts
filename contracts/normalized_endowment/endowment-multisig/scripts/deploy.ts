@@ -2,7 +2,7 @@ import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {
   EndowmentMultiSigEmitter__factory,
   EndowmentMultiSig__factory,
-  MultiSigWalletFactory__factory,
+  EndowmentMultiSigFactory__factory,
   ProxyContract__factory,
 } from "typechain-types";
 import {Deployment, getContractName, getSigners, logger, updateAddresses} from "utils";
@@ -29,13 +29,13 @@ export async function deployEndowmentMultiSig(hre: HardhatRuntimeEnvironment): P
 
     // deploy factory
     logger.out("Deploying EndowmentMultiSigFactory...");
-    const multiSigWalletFactoryFactory = new MultiSigWalletFactory__factory(proxyAdmin);
-    const multiSigWalletFactory = await multiSigWalletFactoryFactory.deploy(
+    const EndowmentMultiSigFactoryFactory = new EndowmentMultiSigFactory__factory(proxyAdmin);
+    const EndowmentMultiSigFactory = await EndowmentMultiSigFactoryFactory.deploy(
       endowmentMultiSig.address,
       proxyAdmin.address
     );
-    await multiSigWalletFactory.deployed();
-    logger.out(`Address: ${multiSigWalletFactory.address}`);
+    await EndowmentMultiSigFactory.deployed();
+    logger.out(`Address: ${EndowmentMultiSigFactory.address}`);
 
     // deploy emitter
     logger.out("Deploying EndowmentMultiSigEmitter...");
@@ -48,7 +48,7 @@ export async function deployEndowmentMultiSig(hre: HardhatRuntimeEnvironment): P
 
     logger.out("Deploying proxy...");
     const initData = emitter.interface.encodeFunctionData("initEndowmentMultiSigEmitter", [
-      multiSigWalletFactory.address,
+      EndowmentMultiSigFactory.address,
     ]);
     const proxyFactory = new ProxyContract__factory(proxyAdmin);
     const emitterProxy = await proxyFactory.deploy(emitter.address, proxyAdmin.address, initData);
@@ -64,7 +64,7 @@ export async function deployEndowmentMultiSig(hre: HardhatRuntimeEnvironment): P
               implementation: emitter.address,
               proxy: emitterProxy.address,
             },
-            factory: multiSigWalletFactory.address,
+            factory: EndowmentMultiSigFactory.address,
             implementation: endowmentMultiSig.address,
           },
         },
@@ -78,9 +78,9 @@ export async function deployEndowmentMultiSig(hre: HardhatRuntimeEnvironment): P
         contractName: getContractName(emitterFactory),
       },
       factory: {
-        address: multiSigWalletFactory.address,
+        address: EndowmentMultiSigFactory.address,
         constructorArguments: [endowmentMultiSig.address, proxyAdmin.address],
-        contractName: getContractName(multiSigWalletFactoryFactory),
+        contractName: getContractName(EndowmentMultiSigFactoryFactory),
       },
       implementation: {
         address: endowmentMultiSig.address,
