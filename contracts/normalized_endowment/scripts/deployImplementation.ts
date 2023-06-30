@@ -4,7 +4,7 @@ import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {getSigners, logger, updateAddresses, verify} from "utils";
 
 import {DonationMatchMessages} from "typechain-types/contracts/normalized_endowment/donation-match/DonationMatch.sol/DonationMatch";
-import {SubDaoToken__factory} from "typechain-types/factories/contracts/normalized_endowment/subdao-token/subdao-token.sol";
+import {SubDaoToken__factory} from "typechain-types";
 
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
