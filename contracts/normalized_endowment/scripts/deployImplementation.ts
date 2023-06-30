@@ -4,6 +4,7 @@ import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {getSigners, logger, updateAddresses, verify} from "utils";
 
 import {DonationMatchMessages} from "typechain-types/contracts/normalized_endowment/donation-match/DonationMatch.sol/DonationMatch";
+import {SubDaoToken__factory} from "typechain-types";
 
 const ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
 
@@ -152,7 +153,7 @@ const deploySubDaoVeBondingToken = async (
   try {
     const {network, run, ethers} = hre;
 
-    const subDaoVeBondingToken = await ethers.getContractFactory("SubDaoToken");
+    const subDaoVeBondingToken = new SubDaoToken__factory();
     const subDaoVeBondingTokenImpl = await subDaoVeBondingToken.deploy();
     await subDaoVeBondingTokenImpl.deployed();
 

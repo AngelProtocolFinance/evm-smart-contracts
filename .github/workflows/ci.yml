@@ -22,12 +22,12 @@ jobs:
 
       - name: "Install the dependencies"
         uses: "borales/actions-yarn@v4"
-        with: 
+        with:
           cmd: "install"
 
       - name: "Lint the code"
         uses: "borales/actions-yarn@v4"
-        with: 
+        with:
           cmd: "format"
 
       - name: "Create dummy .env file from template"
@@ -36,11 +36,15 @@ jobs:
 
       - name: "Compile the contracts and generate the TypeChain bindings"
         uses: "borales/actions-yarn@v4"
-        with: 
+        with:
           cmd: "compile"
+
+      - name: "Check typescript files for compilation errors"
+        uses: "borales/actions-yarn@v4"
+        with:
+          cmd: "tsc"
 
       - name: "Test the contracts"
         uses: "borales/actions-yarn@v4"
-        with: 
+        with:
           cmd: "test"
-
