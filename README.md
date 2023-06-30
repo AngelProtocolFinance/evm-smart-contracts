@@ -90,3 +90,11 @@ To run coverage
 ```sh
 npx hardhat coverage
 ```
+
+## Deployment steps
+
+1. (Optional) mention the network you want your contracts to deploy into `.env` in `NETWORK` variable. Options are `[polygon, mumbai, goerli, hardhat]`
+2. You will need three accounts (wallets & private keys) under the `AP_TEAM_<#>_<WALLET | KEY>` variables in the `.env`.
+4. Run `yarn compile` before deployment to ensure you're deploying correct artifacts.
+5. Run `yarn deploy` to deploy the contracts
+6. Additional tasks are also created to break the deployment process into sub task. All the task are listed under the `/tasks` folder.

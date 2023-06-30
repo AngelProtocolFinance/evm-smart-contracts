@@ -47,16 +47,6 @@ const config: Config = {
     fundMemberLimit: 30,
     fundingGoal: ethers.utils.parseUnits("10000", 6),
   },
-  FundraisingDataInput: {
-    nextId: 0,
-    campaignPeriodSeconds: 10 * 24 * 60 * 60,
-    taxRate: 10,
-    acceptedTokens: {
-      coinNativeAmount: 0,
-      Cw20CoinVerified_amount: [],
-      Cw20CoinVerified_addr: [],
-    },
-  },
   HALO_IMPLEMENTATION_DATA: {
     // curTimelock: "0x8747cF2bd9BB0F46ced4adA1b472E995d1A3174A",
     GovHodlerOwner: "0x8B1386F6fE42995Db5F7f7018af90496103CD39e",

@@ -78,28 +78,6 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       const endowmentMultiSig = await deployEndowmentMultiSig(hre);
 
-      // logger.out('implementations deployed at:', implementations);
-
-      // const GiftCardDataInput = {
-      //     keeper: apTeamMultisig?.address,
-      //     registrarContract: REGISTRAR_ADDRESS,
-      // }
-
-      // const giftCardAddress = await giftCard(GiftCardDataInput, commonLibraries?.angelCoreStruct.address, hre)
-
-      // const FundraisingDataInput = {
-      //     registrarContract: REGISTRAR_ADDRESS,
-      //     nextId: config.FundraisingDataInput.nextId,
-      //     campaignPeriodSeconds: config.FundraisingDataInput.campaignPeriodSeconds,
-      //     taxRate: config.FundraisingDataInput.taxRate,
-      //     acceptedTokens: config.FundraisingDataInput.acceptedTokens,
-      // }
-      // const fundraisingAddress = await deployFundraising(
-      //     FundraisingDataInput,
-      //     commonLibraries?.angelCoreStruct.address,
-      //     hre
-      // )
-
       // TODO:
       // UNCOMMENT WHEN HALO CONTRACTS ARE READY FOR DEPLOYMENT
       //

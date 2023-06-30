@@ -42,8 +42,8 @@ export async function getOrDeployThirdPartyContracts(
     const result: Result = {
       axelarGasService: await deployDummyGasService(signer),
       axelarGateway: await deployDummyGateway(signer),
-      seedAsset: await deployDummyERC20(signer, [signer.address], [100]),
       uniswap: await deployDummyUniswap(signer, hre),
+      seedAsset: await deployDummyERC20(signer, [signer.address], [100]),
       usdcToken: await deployDummyERC20(signer, [signer.address], [100]),
       wmaticToken: await deployDummyERC20(signer, [signer.address], [1]),
     };
