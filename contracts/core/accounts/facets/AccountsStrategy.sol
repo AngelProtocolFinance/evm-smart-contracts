@@ -67,7 +67,7 @@ contract AccountsStrategy is IAccountsStrategy, ReentrancyGuardFacet, IAccountsE
     require(
       IRegistrar(state.config.registrarContract).getStrategyApprovalState(strategy) ==
         LocalRegistrarLib.StrategyApprovalState.APPROVED,
-      "Vault is not approved"
+      "Strategy is not approved"
     );
 
     NetworkInfo memory network = IRegistrar(state.config.registrarContract).queryNetworkConnection(

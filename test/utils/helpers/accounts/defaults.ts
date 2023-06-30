@@ -1,6 +1,7 @@
 import { ethers } from "hardhat"
 import { AccountStorage } from "typechain-types/contracts/test/accounts/TestFacetProxyContract"
 import { LibAccounts } from "typechain-types/contracts/multisigs/CharityApplications"
+import { IAccountsStrategy } from "typechain-types";
 
 export const DEFAULT_PERMISSIONS_STRUCT: LibAccounts.SettingsPermissionStruct = {
   locked: false,
@@ -14,6 +15,12 @@ export const DEFAULT_FEE_STRUCT: LibAccounts.FeeSettingStruct = {
   payoutAddress: ethers.constants.AddressZero,
   bps: 0,
 };
+
+export const DEFAULT_SPLIT_STRUCT: LibAccounts.SplitDetailsStruct = {
+    max: 100,
+    min: 0,
+    defaultSplit: 50,
+}
 
 export const DEFAULT_CHARITY_ENDOWMENT: AccountStorage.EndowmentStruct = {  
   owner: ethers.constants.AddressZero,
@@ -67,10 +74,30 @@ export const DEFAULT_CHARITY_ENDOWMENT: AccountStorage.EndowmentStruct = {
   },
   parent: 0,
   ignoreUserSplits: false,
-  splitToLiquid: {
-    max: 100,
-    min: 0,
-    defaultSplit: 50,
-  },
+  splitToLiquid: DEFAULT_SPLIT_STRUCT,
   referralId: 0
 };
+
+export const DEFAULT_ACCOUNTS_CONFIG : AccountStorage.ConfigStruct = {
+  owner: ethers.constants.AddressZero,
+  version: "",
+  registrarContract: ethers.constants.AddressZero, 
+  nextAccountId: 0,
+  maxGeneralCategoryId: 0,
+  subDao: ethers.constants.AddressZero, 
+  gateway: ethers.constants.AddressZero, 
+  gasReceiver: ethers.constants.AddressZero, 
+  reentrancyGuardLocked: false, 
+  earlyLockedWithdrawFee: DEFAULT_FEE_STRUCT
+}
+
+export const DEFAULT_NETWORK_INFO = {
+  name: "polygon",
+  chainId: 1337,
+  router: ethers.constants.AddressZero,
+  axelarGateway: ethers.constants.AddressZero,
+  ibcChannel: "",
+  transferChannel: "",
+  gasReceiver: ethers.constants.AddressZero,
+  gasLimit: 0
+}

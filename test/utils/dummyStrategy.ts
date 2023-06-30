@@ -30,9 +30,7 @@ export async function deployDummyStrategy(
     baseToken: baseToken, 
     yieldToken: yieldToken,
     admin: admin,
-    strategySelector: strategySelector,
-    lockedVault: lockedVault,
-    liquidVault: liquidVault,
+    strategySelector: strategySelector
   }
   const strategy = await Strategy.deploy(stratInitConfig);
   await strategy.deployed();
