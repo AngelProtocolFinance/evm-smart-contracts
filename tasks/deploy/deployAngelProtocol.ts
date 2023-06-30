@@ -116,7 +116,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
           router,
           accounts?.diamond,
           ...(accounts?.facets || []),
-          charityApplications?.address,
+          charityApplications,
           indexFund,
           endowmentMultiSig?.emitter,
           endowmentMultiSig?.factory,

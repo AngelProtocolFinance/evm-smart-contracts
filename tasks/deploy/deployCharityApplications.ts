@@ -40,25 +40,25 @@ task("deploy:CharityApplication", "Will deploy CharityApplication contract")
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
 
-      const deployData = await deployCharityApplications(
+      const charityApplications = await deployCharityApplications(
         accountsDiamond,
         addresses.tokens.seedAsset,
         hre
       );
 
-      if (!deployData) {
+      if (!charityApplications) {
         return;
       }
 
       await updateRegistrarConfig(
         registrar,
         apTeamMultiSig,
-        {charityApplications: deployData.charityApplications.address},
+        {charityApplications: charityApplications.address},
         hre
       );
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
-        await verify(hre, deployData.charityApplications);
+        await verify(hre, charityApplications);
       }
     } catch (error) {
       logger.out(error, logger.Level.Error);
