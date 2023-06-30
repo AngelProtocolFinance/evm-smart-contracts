@@ -107,7 +107,13 @@ contract APVault_V1 is IVault, ERC4626AP {
       // redeem shares for yieldToken -> approve strategy -> strategy withdraw -> base token
       uint256 yieldTokenAmt = super.redeemERC4626(amt, vaultConfig.strategy, accountId);
       uint256 returnAmt = IStrategy(vaultConfig.strategy).withdraw(yieldTokenAmt);
-      if(!IERC20Metadata(vaultConfig.baseToken).transferFrom(vaultConfig.strategy, address(this), returnAmt)){
+      if (
+        !IERC20Metadata(vaultConfig.baseToken).transferFrom(
+          vaultConfig.strategy,
+          address(this),
+          returnAmt
+        )
+      ) {
         revert TransferFailed();
       }
       // apply tax and deduct from returned amt
@@ -133,7 +139,13 @@ contract APVault_V1 is IVault, ERC4626AP {
     uint256 yieldTokenAmt = super.redeemERC4626(balance, vaultConfig.strategy, accountId);
     // withdraw all baseToken
     uint256 returnAmt = IStrategy(vaultConfig.strategy).withdraw(yieldTokenAmt);
-    if(!IERC20Metadata(vaultConfig.baseToken).transferFrom(vaultConfig.strategy, address(this), returnAmt)) {
+    if (
+      !IERC20Metadata(vaultConfig.baseToken).transferFrom(
+        vaultConfig.strategy,
+        address(this),
+        returnAmt
+      )
+    ) {
       revert TransferFailed();
     }
     // apply tax
@@ -156,18 +168,25 @@ contract APVault_V1 is IVault, ERC4626AP {
   function harvest(uint32[] calldata accountIds) public virtual override notPaused onlyApproved {
     for (uint32 i; i < accountIds.length; i++) {
       uint32 accountId = accountIds[i];
-      uint256 baseTokenValue = IStrategy(vaultConfig.strategy)
-        .previewWithdraw(_yieldTokenBalance(accountId));
+      uint256 baseTokenValue = IStrategy(vaultConfig.strategy).previewWithdraw(
+        _yieldTokenBalance(accountId)
+      );
       // no yield, no harvest
       if (baseTokenValue <= principleByAccountId[accountId].baseToken) {
         return;
       }
       // Determine going exchange rate (shares / baseToken)
-      uint256 currentExRate_withPrecision = balanceOf(accountId).mulDivDown(PRECISION, baseTokenValue);
+      uint256 currentExRate_withPrecision = balanceOf(accountId).mulDivDown(
+        PRECISION,
+        baseTokenValue
+      );
 
       // tokens of yield denominated in base token
       uint256 yieldBaseTokens = baseTokenValue -
-        principleByAccountId[accountId].costBasis_withPrecision.mulDivDown(balanceOf(accountId), PRECISION);
+        principleByAccountId[accountId].costBasis_withPrecision.mulDivDown(
+          balanceOf(accountId),
+          PRECISION
+        );
 
       LibAccounts.FeeSetting memory feeSetting = IRegistrar(vaultConfig.registrar)
         .getFeeSettingsByFeeType(LibAccounts.FeeTypes.Harvest);
@@ -196,7 +215,13 @@ contract APVault_V1 is IVault, ERC4626AP {
     // Redeem shares to cover fee
     uint256 dYieldToken = super.redeemERC4626(taxShares, vaultConfig.strategy, accountId);
     uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dYieldToken);
-    if(!IERC20Metadata(vaultConfig.baseToken).transferFrom(vaultConfig.strategy, address(this), redemption)) {
+    if (
+      !IERC20Metadata(vaultConfig.baseToken).transferFrom(
+        vaultConfig.strategy,
+        address(this),
+        redemption
+      )
+    ) {
       revert TransferFailed();
     }
     // Pay tax to tax collector
@@ -292,10 +317,7 @@ contract APVault_V1 is IVault, ERC4626AP {
     }
   }
 
-  function _updatePrincipleRedemption(
-    uint32 accountId,
-    uint256 sharesRedeemed
-  ) internal {
+  function _updatePrincipleRedemption(uint32 accountId, uint256 sharesRedeemed) internal {
     uint256 currentPrinciple = principleByAccountId[accountId].baseToken;
     uint256 portionOfPositionRedeemed_withPrecision = sharesRedeemed.mulDivDown(
       PRECISION,
@@ -319,9 +341,19 @@ contract APVault_V1 is IVault, ERC4626AP {
     address feeRecipient
   ) internal {
     // Shares -> Yield Asset -> Base Asset
-    uint256 dYieldToken = super.redeemERC4626((taxShares + rebalShares), vaultConfig.strategy, accountId);
+    uint256 dYieldToken = super.redeemERC4626(
+      (taxShares + rebalShares),
+      vaultConfig.strategy,
+      accountId
+    );
     uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dYieldToken);
-    if(!IERC20Metadata(vaultConfig.baseToken).transferFrom(vaultConfig.strategy, address(this), redemption)) {
+    if (
+      !IERC20Metadata(vaultConfig.baseToken).transferFrom(
+        vaultConfig.strategy,
+        address(this),
+        redemption
+      )
+    ) {
       revert TransferFailed();
     }
     // Determine proportion owed in tax and send to payee

@@ -47,16 +47,6 @@ export type Config = {
     fundMemberLimit: number;
     fundingGoal: BigNumber;
   };
-  FundraisingDataInput: {
-    nextId: number;
-    campaignPeriodSeconds: number;
-    taxRate: number;
-    acceptedTokens: {
-      coinNativeAmount: number;
-      Cw20CoinVerified_amount: number[];
-      Cw20CoinVerified_addr: string[];
-    };
-  };
   HALO_IMPLEMENTATION_DATA: {
     GovHodlerOwner: string;
     CommunitySpendLimit: number;

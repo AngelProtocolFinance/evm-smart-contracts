@@ -25,7 +25,7 @@ contract FluxStrategy is IStrategy, Pausable {
   //////////////////////////////////////////////////////////////*/
 
   modifier onlyAdmin() {
-    if(_msgSender() != config.admin) {
+    if (_msgSender() != config.admin) {
       revert AdminOnly();
     }
     _;
@@ -40,12 +40,11 @@ contract FluxStrategy is IStrategy, Pausable {
   }
 
   /// @notice Check whether the contract is paused
-  /// @dev Make public the state of the Pausable contract's `paused` state 
-  /// @return paused the current state of the paused boolean 
+  /// @dev Make public the state of the Pausable contract's `paused` state
+  /// @return paused the current state of the paused boolean
   function paused() public view override(IStrategy, Pausable) returns (bool) {
     return super.paused();
   }
-
 
   /*//////////////////////////////////////////////////////////////
                                 CONFIG
@@ -56,9 +55,9 @@ contract FluxStrategy is IStrategy, Pausable {
     return config;
   }
 
-  /// @notice Set the strategy config 
-  /// @dev This method must be access controlled. The config overwrites the stored config in its entirety 
-  /// @param _newConfig The StrategyConfig that willbe stored and referenced within the strategy contract 
+  /// @notice Set the strategy config
+  /// @dev This method must be access controlled. The config overwrites the stored config in its entirety
+  /// @param _newConfig The StrategyConfig that willbe stored and referenced within the strategy contract
   function setStrategyConfig(StrategyConfig memory _newConfig) external onlyAdmin {
     config = _newConfig;
     emit ConfigChanged(config);
@@ -74,38 +73,37 @@ contract FluxStrategy is IStrategy, Pausable {
   /// 3) Set the msg.sender as approved() for the returned amt
   /// @param amt the qty of `config.baseToken` that the strategy has been approved to use
   /// @return yieldTokenAmt the qty of `config.yieldToken` that were yielded from the deposit action
-  function deposit(uint256 amt) external payable whenNotPaused returns (uint256){
-    if(!IFlux(config.baseToken).transferFrom(_msgSender(), address(this), amt)) {
+  function deposit(uint256 amt) external payable whenNotPaused returns (uint256) {
+    if (!IFlux(config.baseToken).transferFrom(_msgSender(), address(this), amt)) {
       revert TransferFailed();
     }
-    if(!IFlux(config.baseToken).approve(config.yieldToken, amt)) {
+    if (!IFlux(config.baseToken).approve(config.yieldToken, amt)) {
       revert ApproveFailed();
     }
     uint256 yieldTokens = _enterPosition(amt);
-    if(!IFlux(config.yieldToken).approve(_msgSender(), yieldTokens)) {
+    if (!IFlux(config.yieldToken).approve(_msgSender(), yieldTokens)) {
       revert ApproveFailed();
     }
     emit EnteredPosition(amt, yieldTokens);
     return yieldTokens;
   }
 
-
   /// @notice Accepts `yieldTokens` and converts them back into `baseToken`
-  /// @dev This method must: 
+  /// @dev This method must:
   /// 1) Transfer the provided `amt` of `config.yieldToken` to this contract
-  /// 2) Convert the yield tokens provided back into the `config.baseToken via integration-specific methods 
+  /// 2) Convert the yield tokens provided back into the `config.baseToken via integration-specific methods
   /// 3) Set the msg.sender as approved() for the returned amt
   /// @param amt the qty of `config.yieldToken` that this contract has been approved to use by msg.sender
-  /// @return baseTokenAmt the qty of `config.baseToken` that are approved for transfer by msg.sender 
-  function withdraw(uint256 amt) external payable whenNotPaused returns (uint256){
-    if(!IFlux(config.yieldToken).transferFrom(_msgSender(), address(this), amt)) {
+  /// @return baseTokenAmt the qty of `config.baseToken` that are approved for transfer by msg.sender
+  function withdraw(uint256 amt) external payable whenNotPaused returns (uint256) {
+    if (!IFlux(config.yieldToken).transferFrom(_msgSender(), address(this), amt)) {
       revert TransferFailed();
     }
-    if(!IFlux(config.yieldToken).approve(config.yieldToken, amt)) {
+    if (!IFlux(config.yieldToken).approve(config.yieldToken, amt)) {
       revert ApproveFailed();
     }
     uint256 baseTokens = _withdrawPosition(amt);
-    if(!IFlux(config.baseToken).approve(_msgSender(), baseTokens)) {
+    if (!IFlux(config.baseToken).approve(_msgSender(), baseTokens)) {
       revert ApproveFailed();
     }
     emit WithdrewPosition(amt, baseTokens);
@@ -119,9 +117,9 @@ contract FluxStrategy is IStrategy, Pausable {
   function previewDeposit(uint256 amt) external view returns (uint256) {
     // Exchange Rate == (expScale * USDC) / fUSDC
     uint256 exRate = IFlux(config.yieldToken).exchangeRateStored();
-    // Expected fUSDC == (amtUSDC * expScale / exRate) 
+    // Expected fUSDC == (amtUSDC * expScale / exRate)
     return amt.mulDivDown(expScale, exRate);
-  } 
+  }
 
   /// @notice Provide an estimate for the current exchange rate for a given withdrawal
   /// @dev This method expects that the `amt` provided is denominated in `yieldToken`
@@ -130,7 +128,7 @@ contract FluxStrategy is IStrategy, Pausable {
   function previewWithdraw(uint256 amt) external view returns (uint256) {
     // Exchange Rate == (expScale * USDC) / fUSDC
     uint256 exRate = IFlux(config.yieldToken).exchangeRateStored();
-    // Expected USDC == (amtfUSDC * exRate) / expScale 
+    // Expected USDC == (amtfUSDC * exRate) / expScale
     return amt.mulDivDown(exRate, expScale);
   }
 

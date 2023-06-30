@@ -1,2 +1,2 @@
-import "./utils"
-import "./core/accounts/utils/deployTestFacet"
+import "./utils";
+import "./core/accounts/utils/deployTestFacet";

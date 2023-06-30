@@ -1,16 +1,8 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import { ADDRESS_ZERO } from "utils";
-import {
-  DummyVault,
-  DummyVault__factory,
-  IVault
-} from "typechain-types"
+import {ADDRESS_ZERO} from "utils";
+import {DummyVault, DummyVault__factory, IVault} from "typechain-types";
 
-import {
-  DEFAULT_STRATEGY_SELECTOR,
-  DEFAULT_VAULT_NAME,
-  DEFAULT_VAULT_SYMBOL
-} from "./constants"
+import {DEFAULT_STRATEGY_SELECTOR, DEFAULT_VAULT_NAME, DEFAULT_VAULT_SYMBOL} from "./constants";
 
 export async function deployDummyVault(
   deployer: SignerWithAddress,
@@ -32,7 +24,8 @@ export async function deployDummyVault(
     yieldToken: string;
     apTokenName?: string;
     apTokenSymbol?: string;
-}): Promise<DummyVault> {
+  }
+): Promise<DummyVault> {
   let Vault = new DummyVault__factory(deployer);
   let vaultInitConfig: IVault.VaultConfigStruct = {
     vaultType: vaultType,
@@ -45,7 +38,7 @@ export async function deployDummyVault(
     apTokenSymbol: apTokenSymbol,
     admin: deployer.address,
   };
-  const vault = await Vault.deploy(vaultInitConfig); 
+  const vault = await Vault.deploy(vaultInitConfig);
   await vault.deployed();
   return vault;
 }

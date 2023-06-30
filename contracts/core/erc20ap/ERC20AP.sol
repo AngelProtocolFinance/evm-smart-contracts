@@ -240,7 +240,7 @@ abstract contract ERC20AP is Context, IERC20AP {
   function _afterTokenTransfer(uint32 from, uint32 to, uint256 amount) internal virtual {}
 
   modifier operatorOnly() {
-    if(!_isOperator(_msgSender())) {
+    if (!_isOperator(_msgSender())) {
       revert ERC20APOperatorOnly();
     }
     _;
