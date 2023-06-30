@@ -15,15 +15,7 @@ import "@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol";
 import {IAccountsDonationMatch} from "../../core/accounts/interfaces/IAccountsDonationMatch.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-
-interface SubDaoToken {
-  function executeDonorMatch(
-    uint256 amount,
-    address accountscontract,
-    uint32 endowmentid,
-    address donor
-  ) external;
-}
+import {ISubDaoToken} from "../../normalized_endowment/subdao-token/ISubDaoToken.sol";
 
 interface IERC20Burnable is IERC20 {
   function burn(uint256 amount) external;
@@ -149,7 +141,7 @@ contract DonationMatchCharity is IDonationMatching, Storage, Initializable, Reen
       require(success, "Approve failed");
 
       // call execute donor match on dao token contract
-      SubDaoToken(token).executeDonorMatch(
+      ISubDaoToken(token).executeDonorMatch(
         reserveTokenAmount,
         registrar_config.accountsContract,
         endowmentId,

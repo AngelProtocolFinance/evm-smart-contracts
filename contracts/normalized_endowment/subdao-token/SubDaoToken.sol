@@ -10,7 +10,8 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 import {IAccountsDonationMatch} from "../../core/accounts/interfaces/IAccountsDonationMatch.sol";
 import {SubDaoTokenMessage} from "./message.sol";
-import {subDaoTokenStorage} from "./storage.sol";
+import {SubDaoTokenStorage} from "./storage.sol";
+import {ISubDaoToken} from "./ISubDaoToken.sol";
 // import {ISubDaoTokenEmitter} from "./ISubDaoTokenEmitter.sol";
 import {ContinuousToken} from "./Token/Continous.sol";
 
@@ -18,7 +19,7 @@ import {ContinuousToken} from "./Token/Continous.sol";
  *@title SubDaoToken
  * @dev SubDaoToken contract
  */
-contract SubDaoToken is Storage, ContinuousToken {
+contract SubDaoToken is ISubDaoToken, Storage, ContinuousToken {
   using SafeMath for uint256;
 
   // bool initFlag = false;
@@ -38,14 +39,14 @@ contract SubDaoToken is Storage, ContinuousToken {
     initveToken(
       message.name,
       message.symbol,
-      subDaoTokenStorage.getReserveRatio(message.ve_type),
+      SubDaoTokenStorage.getReserveRatio(message.ve_type),
       message.reserveDenom
     );
 
     tokenInfo.name = message.name;
     tokenInfo.symbol = message.symbol;
     tokenInfo.decimals = 18; //Equivalue to message.decimals
-    tokenInfo.mint = subDaoTokenStorage.MinterData({minter: address(this), cap: 0, hasCap: false});
+    tokenInfo.mint = SubDaoTokenStorage.MinterData({minter: address(this), cap: 0, hasCap: false});
 
     reserveDenom = message.reserveDenom;
 
@@ -144,7 +145,7 @@ contract SubDaoToken is Storage, ContinuousToken {
     // );
 
     CLAIM_AMOUNT[msg.sender].details.push(
-      subDaoTokenStorage.claimInfo({
+      SubDaoTokenStorage.claimInfo({
         releaseTime: (config.unbondingPeriod + block.timestamp),
         amount: burnedAmount,
         isClaimed: false
@@ -154,7 +155,7 @@ contract SubDaoToken is Storage, ContinuousToken {
     // emit event
     // ISubDaoTokenEmitter(emitterAddress).addClaimSt(
     //     msg.sender,
-    //     subDaoTokenStorage.claimInfo({
+    //     SubDaoTokenStorage.claimInfo({
     //         releaseTime: (config.unbondingPeriod +
     //             block.timestamp),
     //         amount: burnedAmount,

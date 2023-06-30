@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {RegistrarStorage} from "./storage.sol";
 import {Validator} from "../validator.sol";
 import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {RegistrarMessages} from "./message.sol";

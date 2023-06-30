@@ -42,14 +42,7 @@ task("manage:registrar:transferOwnership")
         curOwner, // ensure connection to current owning APTeamMultiSig contract
         apTeamMultisigOwners[0]
       );
-      const tx = await apTeamMultiSig.submitTransaction(
-        "Registrar: transfer ownership",
-        `Transfer ownership to ${newOwner}`,
-        registrar.address,
-        0,
-        data,
-        "0x"
-      );
+      const tx = await apTeamMultiSig.submitTransaction(registrar.address, 0, data, "0x");
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();
 

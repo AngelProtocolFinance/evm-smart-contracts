@@ -41,14 +41,7 @@ task("manage:IndexFund:updateOwner", "Will update the owner of the IndexFund")
         curOwner, // ensure connection to current owning APTeamMultiSig contract
         apTeamMultisigOwners[0]
       );
-      const tx = await apTeamMultiSig.submitTransaction(
-        "IndexFund: transfer ownership",
-        `Transfer ownership to ${newOwner}`,
-        indexFund.address,
-        0,
-        data,
-        "0x"
-      );
+      const tx = await apTeamMultiSig.submitTransaction(indexFund.address, 0, data, "0x");
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();
 

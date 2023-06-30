@@ -1,13 +1,11 @@
-export function structToObject<T extends object>(struct: T): T {
+export function structToObject<T>(struct: T): T {
+  if (!struct || typeof struct !== "object") {
+    return struct;
+  }
   return (Object.keys(struct) as (keyof T)[])
     .filter((key) => isNaN(Number(key)))
     .reduce((res, key) => {
-      const value = struct[key];
-      if (typeof value === "object") {
-        res[key] = structToObject(value);
-      } else {
-        res[key] = value;
-      }
+      res[key] = structToObject(struct[key]);
       return res;
     }, {} as T);
 }

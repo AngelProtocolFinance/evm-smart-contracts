@@ -13,28 +13,34 @@ task("manage:addMultisigOwner", "Will add the specified address to the multisig 
 
       const multisig = MultiSigGeneric__factory.connect(taskArguments.multisig, apTeam2);
 
-      logger.out("Current owners");
-      let currentOwners = await multisig.getOwners();
-      logger.out(currentOwners);
+      const alreadyOwner = await multisig.isOwner(taskArguments.owner);
+      if (alreadyOwner) {
+        return logger.out(
+          `Account with address ${taskArguments.owner} is already an owner`,
+          logger.Level.Warn
+        );
+      }
 
       logger.out("Adding new owner:");
       logger.out(taskArguments.owner);
-      const {data} = await multisig.populateTransaction.addOwner(taskArguments.owner);
+      const {data} = await multisig.populateTransaction.addOwners([taskArguments.owner]);
       const addOwnerData = hre.ethers.utils.toUtf8Bytes(data!);
 
-      let tx = await multisig.submitTransaction(
-        "add owner", //title
-        `add ${taskArguments.owner} as owner`, //description
+      const tx = await multisig.submitTransaction(
         multisig.address, //destination,
         0, //value
         addOwnerData, //data)
         "0x"
       );
-      await hre.ethers.provider.waitForTransaction(tx.hash);
+      logger.out(`Tx hash: ${tx.hash}`);
+      await tx.wait();
 
-      logger.out("Owner addition successful. New owner list:");
-      currentOwners = await multisig.getOwners();
-      logger.out(currentOwners);
+      logger.out("Owner addition successful.");
+      if (await multisig.isOwner(taskArguments.owner)) {
+        logger.out(`Account with address ${taskArguments.owner} is one of the owners.`);
+      }
+
+      throw new Error("Adding new owner failed");
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }

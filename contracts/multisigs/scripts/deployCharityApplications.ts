@@ -14,7 +14,7 @@ export async function deployCharityApplications(
   accountsDiamond = "",
   seedAsset = "",
   hre: HardhatRuntimeEnvironment
-): Promise<{charityApplications: Deployment} | undefined> {
+): Promise<Deployment | undefined> {
   const {apTeamMultisigOwners, proxyAdmin} = await getSigners(hre);
 
   try {

@@ -16,15 +16,7 @@ import {IDonationMatchEmitter} from "./IDonationMatchEmitter.sol";
 import {IAccountsDonationMatch} from "./../../core/accounts/interfaces/IAccountsDonationMatch.sol";
 import {LibAccounts} from "../../core/accounts/lib/LibAccounts.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-
-interface SubDaoToken {
-  function executeDonorMatch(
-    uint256 amount,
-    address accountscontract,
-    uint32 endowmentid,
-    address donor
-  ) external;
-}
+import {ISubDaoToken} from "../../normalized_endowment/subdao-token/ISubDaoToken.sol";
 
 interface IERC20Burnable is IERC20 {
   function burn(uint256 amount) external;
@@ -162,7 +154,7 @@ contract DonationMatch is Storage, Initializable {
         "Approve failed"
       );
 
-      SubDaoToken(token).executeDonorMatch(
+      ISubDaoToken(token).executeDonorMatch(
         reserveTokenAmount,
         registrar_config.accountsContract,
         endowmentId,

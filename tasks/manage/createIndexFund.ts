@@ -20,24 +20,16 @@ task("manage:createIndexFund", "Will create a new index fund").setAction(
         [1],
         true,
         50,
-        Math.floor(new Date().getTime() / 1000) + 24 * 60 * 60,
-        34316408 + 1_000_000
+        Math.floor(new Date().getTime() / 1000) + 24 * 60 * 60
       );
       let txData: BytesLike = data!;
 
-      let submission = await multisig.submitTransaction(
-        "create IF",
-        "create a new index fund",
-        indexfund.address,
-        0,
-        txData,
-        "0x"
-      );
+      let submission = await multisig.submitTransaction(indexfund.address, 0, txData, "0x");
       logger.out(`Tx hash: ${submission.hash}`);
       await submission.wait();
 
       let txId = (await multisig.transactionCount()).sub(1);
-      let confirmations = await multisig.getConfirmations(txId);
+      let confirmations = await multisig.confirmations(txId);
       logger.out(confirmations);
 
       let execution = await multisig.executeTransaction(txId);

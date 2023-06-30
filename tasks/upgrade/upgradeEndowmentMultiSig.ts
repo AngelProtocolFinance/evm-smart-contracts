@@ -39,7 +39,8 @@ task(
 
       const addresses = await getAddresses(hre);
 
-      const EndowmentMultiSigFactoryAddress = taskArgs.factory || addresses.multiSig.endowment.factory;
+      const EndowmentMultiSigFactoryAddress =
+        taskArgs.factory || addresses.multiSig.endowment.factory;
 
       logger.out("Deploying a new EndowmentMultiSig contract...");
       const factory = new EndowmentMultiSig__factory(proxyAdmin);

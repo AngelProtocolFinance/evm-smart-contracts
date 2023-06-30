@@ -13,7 +13,6 @@ import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-
 // import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
 
 import {
-  deployCommonLibraries,
   getOrDeployThirdPartyContracts,
   updateRegistrarConfig,
   updateRegistrarNetworkConnections,
@@ -116,7 +115,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
           router,
           accounts?.diamond,
           ...(accounts?.facets || []),
-          charityApplications?.address,
+          charityApplications,
           indexFund,
           endowmentMultiSig?.emitter,
           endowmentMultiSig?.factory,
