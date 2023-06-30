@@ -11,6 +11,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {IAccountsDonationMatch} from "../../core/accounts/interfaces/IAccountsDonationMatch.sol";
 import {SubDaoTokenMessage} from "./message.sol";
 import {subDaoTokenStorage} from "./storage.sol";
+import {ISubDaoToken} from "./ISubDaoToken.sol";
 // import {ISubDaoTokenEmitter} from "./ISubDaoTokenEmitter.sol";
 import {ContinuousToken} from "./Token/Continous.sol";
 
@@ -18,7 +19,7 @@ import {ContinuousToken} from "./Token/Continous.sol";
  *@title SubDaoToken
  * @dev SubDaoToken contract
  */
-contract SubDaoToken is Storage, ContinuousToken {
+contract SubDaoToken is ISubDaoToken, Storage, ContinuousToken {
   using SafeMath for uint256;
 
   // bool initFlag = false;
