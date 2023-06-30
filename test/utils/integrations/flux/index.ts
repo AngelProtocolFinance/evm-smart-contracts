@@ -1,1 +1,1 @@
-export * from "./dummyFUSDC"
+export * from "./dummyFUSDC";
