@@ -103,7 +103,6 @@ export function createEmptyAddressObj(): AddressObj {
     },
     fundraising: {
       implementation: "",
-      library: "",
       proxy: "",
     },
     giftcards: {
