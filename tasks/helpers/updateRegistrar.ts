@@ -1,13 +1,15 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
-import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-import {AngelCoreStruct} from "typechain-types/contracts/core/registrar/registrar.sol/Registrar";
+import {
+  IAccountsVaultFacet,
+  RegistrarMessages,
+} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 import {getSigners, logger, structToObject, validateAddress} from "utils";
 
 export async function updateRegistrarNetworkConnections(
   registrar = "",
   apTeamMultisig = "",
-  newNetworkInfo: Partial<AngelCoreStruct.NetworkInfoStructOutput>,
+  newNetworkInfo: Partial<IAccountsVaultFacet.NetworkInfoStruct>,
   hre: HardhatRuntimeEnvironment
 ) {
   logger.divider();
@@ -58,8 +60,8 @@ export async function updateRegistrarNetworkConnections(
 }
 
 export async function updateRegistrarConfig(
-  registrar: string,
-  apTeamMultisig: string,
+  registrar = "",
+  apTeamMultisig = "",
   updateConfigRequest: Partial<RegistrarMessages.UpdateConfigRequestStruct>,
   hre: HardhatRuntimeEnvironment
 ) {
@@ -86,6 +88,9 @@ export async function updateRegistrarConfig(
     const updateConfigData = registrarContract.interface.encodeFunctionData("updateConfig", [
       {
         ...otherConfig,
+        splitMax: splitToLiquid.max,
+        splitMin: splitToLiquid.min,
+        splitDefault: splitToLiquid.defaultSplit,
         ...updateConfigRequest,
       },
     ]);
