@@ -60,8 +60,8 @@ export async function updateRegistrarNetworkConnections(
 }
 
 export async function updateRegistrarConfig(
-  registrar = "",
-  apTeamMultisig = "",
+  registrar: string,
+  apTeamMultisig: string,
   updateConfigRequest: Partial<RegistrarMessages.UpdateConfigRequestStruct>,
   hre: HardhatRuntimeEnvironment
 ) {
