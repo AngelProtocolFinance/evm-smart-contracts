@@ -13,7 +13,6 @@ import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-
 // import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
 
 import {
-  deployCommonLibraries,
   getOrDeployThirdPartyContracts,
   updateRegistrarConfig,
   updateRegistrarNetworkConnections,
