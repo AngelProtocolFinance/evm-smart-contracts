@@ -192,7 +192,6 @@ describe("AccountsStrategy", function () {
         await state.setEndowmentDetails(1, endowDetails)
       })
     })
-    
   })
   
   describe("upon strategyRedeem", async function () {

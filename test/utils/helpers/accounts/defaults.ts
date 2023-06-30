@@ -92,8 +92,8 @@ export const DEFAULT_ACCOUNTS_CONFIG : AccountStorage.ConfigStruct = {
 }
 
 export const DEFAULT_NETWORK_INFO = {
-  name: "polygon",
-  chainId: 1337,
+  name: "",
+  chainId: 0,
   router: ethers.constants.AddressZero,
   axelarGateway: ethers.constants.AddressZero,
   ibcChannel: "",
