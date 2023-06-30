@@ -49,14 +49,7 @@ task("manage:AccountsDiamond:updateOwner", "Will update the owner of the Account
         curOwner, // ensure connection to current owning APTeamMultiSig contract
         apTeamMultisigOwners[0]
       );
-      const tx = await apTeamMultiSig.submitTransaction(
-        "Accounts Diamond: transfer ownership",
-        `Transfer ownership to ${newOwner}`,
-        addresses.accounts.diamond,
-        0,
-        data,
-        "0x"
-      );
+      const tx = await apTeamMultiSig.submitTransaction(addresses.accounts.diamond, 0, data, "0x");
       logger.out(`Tx hash: ${tx.hash}`);
 
       const updatedOwner = (await accountsQueryEndowments.queryConfig()).owner;
