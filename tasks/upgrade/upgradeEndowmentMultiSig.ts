@@ -1,5 +1,5 @@
 import {task} from "hardhat/config";
-import {EndowmentMultiSig__factory, MultiSigWalletFactory__factory} from "typechain-types";
+import {EndowmentMultiSig__factory, EndowmentMultiSigFactory__factory} from "typechain-types";
 import {
   confirmAction,
   getAddresses,
@@ -39,7 +39,7 @@ task(
 
       const addresses = await getAddresses(hre);
 
-      const multisigWalletFactoryAddress = taskArgs.factory || addresses.multiSig.endowment.factory;
+      const EndowmentMultiSigFactoryAddress = taskArgs.factory || addresses.multiSig.endowment.factory;
 
       logger.out("Deploying a new EndowmentMultiSig contract...");
       const factory = new EndowmentMultiSig__factory(proxyAdmin);
@@ -48,11 +48,11 @@ task(
       logger.out(`Address: ${contract.address}`);
 
       logger.out("Upgrading EndowmentMultiSigFactory's implementation address...");
-      const multisigWalletFactory = MultiSigWalletFactory__factory.connect(
-        multisigWalletFactoryAddress,
+      const EndowmentMultiSigFactory = EndowmentMultiSigFactory__factory.connect(
+        EndowmentMultiSigFactoryAddress,
         proxyAdmin
       );
-      const tx = await multisigWalletFactory.updateImplementation(contract.address);
+      const tx = await EndowmentMultiSigFactory.updateImplementation(contract.address);
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();
 
