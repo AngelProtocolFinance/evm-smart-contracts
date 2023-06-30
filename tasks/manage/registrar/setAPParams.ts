@@ -54,25 +54,10 @@ task(
     logger.divider();
     logger.out("Fetching current AP params...");
     let currentAPParams = await registrar.getAngelProtocolParams();
-    logger.pad(50, "Current tax rate: ", currentAPParams.protocolTaxRate);
-    logger.pad(50, "Current tax basis: ", currentAPParams.protocolTaxBasis);
-    logger.pad(50, "Current tax collector: ", currentAPParams.protocolTaxCollector);
     logger.pad(50, "Current router address: ", currentAPParams.routerAddr);
     logger.pad(50, "Current refund address: ", currentAPParams.refundAddr);
 
     logger.divider();
-    let newTaxRate = checkIfDefaultAndSet(
-      taskArguments.protocolTaxRate,
-      currentAPParams.protocolTaxRate
-    );
-    let newTaxBasis = checkIfDefaultAndSet(
-      taskArguments.protocolTaxBasis,
-      currentAPParams.protocolTaxBasis
-    );
-    let newTaxCollector = checkIfDefaultAndSet(
-      taskArguments.protocolTaxCollector,
-      currentAPParams.protocolTaxCollector
-    );
     let newRouterAddress = checkIfDefaultAndSet(
       taskArguments.routerAddress,
       currentAPParams.routerAddr
@@ -83,15 +68,9 @@ task(
     );
 
     logger.out("Setting AP params to:");
-    logger.pad(50, "New tax rate: ", newTaxRate);
-    logger.pad(50, "New tax basis: ", newTaxBasis);
-    logger.pad(50, "New tax collector: ", newTaxCollector);
     logger.pad(50, "New router address: ", newRouterAddress);
     logger.pad(50, "New refund address: ", newRefundAddress);
     await registrar.setAngelProtocolParams({
-      protocolTaxRate: newTaxRate,
-      protocolTaxBasis: newTaxBasis,
-      protocolTaxCollector: newTaxCollector,
       routerAddr: newRouterAddress,
       refundAddr: newRefundAddress,
     });
