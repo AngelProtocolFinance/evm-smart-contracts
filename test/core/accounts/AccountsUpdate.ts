@@ -34,13 +34,13 @@ describe("AccountsUpdate", function () {
     await proxy.setConfig({
       owner: owner.address,
       version: "1",
-      registrarContract: hre.ethers.constants.AddressZero,
+      registrarContract: ethers.constants.AddressZero,
       nextAccountId: 1,
       maxGeneralCategoryId: 1,
-      subDao: hre.ethers.constants.AddressZero,
-      gateway: hre.ethers.constants.AddressZero,
-      gasReceiver: hre.ethers.constants.AddressZero,
-      earlyLockedWithdrawFee: {bps: 1000, payoutAddress: hre.ethers.constants.AddressZero},
+      subDao: ethers.constants.AddressZero,
+      gateway: ethers.constants.AddressZero,
+      gasReceiver: ethers.constants.AddressZero,
+      earlyLockedWithdrawFee: {bps: 1000, payoutAddress: ethers.constants.AddressZero},
       reentrancyGuardLocked: false,
     });
 
