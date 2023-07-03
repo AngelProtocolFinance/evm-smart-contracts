@@ -24,7 +24,7 @@ library ApplicationsStorage {
 
 contract StorageApplications {
   mapping(uint256 => ApplicationsStorage.ApplicationProposal) public proposals;
-  mapping(uint256 => MultiSigStorage.Confirmations) proposalConfirmations;
+  mapping(uint256 => MultiSigStorage.Confirmations) public proposalConfirmations;
   ApplicationsStorage.Config public config;
   uint256 proposalCount;
 }
