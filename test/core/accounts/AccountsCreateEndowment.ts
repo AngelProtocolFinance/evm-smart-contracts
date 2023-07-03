@@ -317,6 +317,11 @@ describe("AccountsCreateEndowment", function () {
       ...createEndowmentRequest,
       endowType: 0, // Charity
       ignoreUserSplits: true,
+      // `earlyLockedWithdrawFee` is not validated
+      earlyLockedWithdrawFee: {
+        bps: 1000,
+        payoutAddress: ethers.constants.AddressZero,
+      },
     };
 
     const tx = await facet.connect(charityApplications).createEndowment(details);
@@ -332,28 +337,8 @@ describe("AccountsCreateEndowment", function () {
     const newEndowment = await proxy.getEndowmentDetails(endowmentId);
 
     // `ignoreUserSplits` is set to `false` by default
-    expect(newEndowment.ignoreUserSplits).to.equal(false);
+    expect(newEndowment.ignoreUserSplits).to.be.false;
     // `donationMatchContract` is read from `registrar config > donationMatchCharitesContract`
     expect(newEndowment.donationMatchContract).to.equal(donationMatchCharitesContract.address);
-  });
-
-  it("should set `ignoreUserSplit` to `false` by default when creating a charity endowment", async () => {
-    const details: AccountMessages.CreateEndowmentRequestStruct = {
-      ...createEndowmentRequest,
-      endowType: 0, // Charity
-      ignoreUserSplits: true,
-    };
-
-    // create charity
-    const tx = await facet.connect(charityApplications).createEndowment(details);
-    const createEndowmentReceipt = await tx.wait();
-
-    // Get the endowment ID from the event emitted in the transaction receipt
-    const event = createEndowmentReceipt.events?.find((e) => e.event === "EndowmentCreated");
-    const endowmentId = BigNumber.from(event!.args!.endowId);
-
-    // verify `ignoreUserSplits === false`
-    const newEndowment = await proxy.getEndowmentDetails(endowmentId);
-    expect(newEndowment.ignoreUserSplits).to.equal(false);
   });
 });
