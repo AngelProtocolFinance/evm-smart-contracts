@@ -115,16 +115,16 @@
       },
       "endowment": {
         "emitter": {
-          "implementation": "0xE5BD5bDC03371fB239956dbbF40bD185D6c2ea28",
-          "proxy": "0xAd5d57aD9bB17d34Debb88566ab2F5dB879Cc46F"
+          "implementation": "0xDeBD0Bc00932E8b5bEfF65053989B0687c894b5F",
+          "proxy": "0xB0748F8B73C53aB94b3DD1109f3427B7Bb2907F5"
         },
-        "factory": "0xe0B39353F69b54e945364ffcdDD7901697Ca0166",
-        "implementation": "0x20Fbd46DeEd5EEDEB6e5c87eeB31924e9CA312ad"
+        "factory": "0x87F850cbC2cFfac086F20d0d7307E12d06fA2127",
+        "implementation": "0x650aEF4b63095e4EDe581BC79CdeA927e3ba553A"
       }
     },
     "registrar": {
-      "implementation": "0x0f5D1ef48f12b6f691401bfe88c2037c690a6afe",
-      "proxy": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+      "implementation": "0x9Fe28b717aDE38BA99E32c45BE3Ee4291f2E338B",
+      "proxy": "0x42a0dC23D711690D487Ff8C8716134cE01105968"
     },
     "router": {
       "implementation": "0x90118d110B07ABB82Ba8980D1c5cC96EeA810d2C",
