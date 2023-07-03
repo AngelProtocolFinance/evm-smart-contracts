@@ -30,6 +30,20 @@ describe("AccountsUpdate", function () {
     let Facet = new AccountsUpdate__factory(owner);
     let facetImpl = await Facet.deploy();
     proxy = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
+
+    await proxy.setConfig({
+      owner: owner.address,
+      version: "1",
+      registrarContract: hre.ethers.constants.AddressZero,
+      nextAccountId: 1,
+      maxGeneralCategoryId: 1,
+      subDao: hre.ethers.constants.AddressZero,
+      gateway: hre.ethers.constants.AddressZero,
+      gasReceiver: hre.ethers.constants.AddressZero,
+      earlyLockedWithdrawFee: {bps: 1000, payoutAddress: hre.ethers.constants.AddressZero},
+      reentrancyGuardLocked: false,
+    });
+
     facet = AccountsUpdate__factory.connect(proxy.address, owner);
   });
 
