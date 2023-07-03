@@ -11,8 +11,8 @@ import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsCreateEndowment";
-import {logger} from "utils";
 import {BigNumber} from "ethers";
+import "../../utils/setup";
 
 describe("AccountsCreateEndowment", function () {
   const {ethers} = hre;
@@ -28,8 +28,6 @@ describe("AccountsCreateEndowment", function () {
   let createEndowmentRequest: AccountMessages.CreateEndowmentRequestStruct;
 
   before(async function () {
-    logger.off();
-
     [
       owner,
       proxyAdmin,
@@ -148,10 +146,6 @@ describe("AccountsCreateEndowment", function () {
     });
 
     facet = AccountsCreateEndowment__factory.connect(proxy.address, owner);
-  });
-
-  after(() => {
-    logger.on();
   });
 
   it("should revert if the caller is not authorized to create a charity endowment", async () => {
