@@ -19,6 +19,7 @@ import {
   DEFAULT_STRATEGY_SELECTOR,
   DEFAULT_VAULT_NAME,
   DEFAULT_VAULT_SYMBOL,
+  DEFAULT_NETWORK
 } from "test/utils";
 import {BigNumber} from "ethers";
 
@@ -206,6 +207,7 @@ describe("Vault", function () {
       await registrar.setVaultOperatorApproved(owner.address, false);
       await registrar.setStrategyParams(
         DEFAULT_STRATEGY_SELECTOR,
+        DEFAULT_NETWORK,
         user.address,
         vault.address,
         StrategyApprovalState.APPROVED
@@ -602,6 +604,7 @@ describe("Vault", function () {
         await lockedVault.deposit(0, baseToken.address, DEPOSIT);
         await registrar.setStrategyParams(
           DEFAULT_STRATEGY_SELECTOR,
+          DEFAULT_NETWORK,
           lockedVault.address,
           liquidVault.address,
           StrategyApprovalState.APPROVED

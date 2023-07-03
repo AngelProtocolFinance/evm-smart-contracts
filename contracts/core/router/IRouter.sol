@@ -8,7 +8,7 @@ import {IVault} from "../vault/interfaces/IVault.sol";
 interface IRouter is IAxelarExecutable {
   /*////////////////////////////////////////////////
                         EVENTS
-    */ ////////////////////////////////////////////////
+  */ ////////////////////////////////////////////////
 
   event Transfer(IVault.VaultActionData action, uint256 amount);
   event Refund(IVault.VaultActionData action, uint256 amount);
@@ -20,7 +20,7 @@ interface IRouter is IAxelarExecutable {
 
   /*////////////////////////////////////////////////
                     CUSTOM TYPES
-    */ ////////////////////////////////////////////////
+  */ ////////////////////////////////////////////////
 
   function executeLocal(
     string calldata sourceChain,

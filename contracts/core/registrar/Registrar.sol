@@ -289,6 +289,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
 
   function setStrategyParams(
     bytes4 _strategyId,
+    string memory _network,
     address _lockAddr,
     address _liqAddr,
     LocalRegistrarLib.StrategyApprovalState _approvalState
@@ -298,7 +299,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     } else {
       _maybeAddStrategy(_strategyId);
     }
-    super.setStrategyParams(_strategyId, _lockAddr, _liqAddr, _approvalState);
+    super.setStrategyParams(_strategyId, _network, _lockAddr, _liqAddr, _approvalState);
   }
 
   function setStrategyApprovalState(

@@ -182,6 +182,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
 
   function setStrategyParams(
     bytes4 _strategyId,
+    string memory _network, 
     address _lockAddr,
     address _liqAddr,
     LocalRegistrarLib.StrategyApprovalState _approvalState
@@ -199,10 +200,11 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
 
     lrs.VaultsByStrategyId[_strategyId] = LocalRegistrarLib.StrategyParams(
       _approvalState,
+      _network,
       lockedParams,
       liquidParams
     );
-    emit StrategyParamsUpdated(_strategyId, _lockAddr, _liqAddr, _approvalState);
+    emit StrategyParamsUpdated(_strategyId, _network, _lockAddr, _liqAddr, _approvalState);
   }
 
   function setVaultOperatorApproved(address _operator, bool _isApproved) external override {

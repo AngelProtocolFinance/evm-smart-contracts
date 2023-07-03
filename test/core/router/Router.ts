@@ -702,6 +702,7 @@ describe("Router", function () {
       });
       await registrar.setStrategyParams(
         actionData.strategyId,
+        originatingChain,
         lockedVault.address,
         liquidVault.address,
         StrategyApprovalState.APPROVED
@@ -846,6 +847,7 @@ describe("Router", function () {
       });
       await registrar.setStrategyParams(
         actionData.strategyId,
+        originatingChain,
         lockedVault.address,
         liquidVault.address,
         StrategyApprovalState.APPROVED
@@ -914,6 +916,7 @@ describe("Router", function () {
       await registrar.setTokenAccepted(token.address, true);
       await registrar.setStrategyParams(
         actionData.strategyId,
+        originatingChain,
         lockedVault.address,
         liquidVault.address,
         StrategyApprovalState.APPROVED
@@ -1061,6 +1064,7 @@ describe("Router", function () {
       });
       await registrar.setStrategyParams(
         actionData.strategyId,
+        originatingChain,
         lockedVault.address,
         liquidVault.address,
         StrategyApprovalState.APPROVED
