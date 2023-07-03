@@ -40,7 +40,7 @@ describe("AccountsQueryEndowments", function () {
     },
   };
   const defaultFeeStruct = {
-    payoutAddress: hre.ethers.constants.AddressZero,
+    payoutAddress: ethers.constants.AddressZero,
     bps: 0,
   };
   const endowment: AccountStorage.EndowmentStruct = {
