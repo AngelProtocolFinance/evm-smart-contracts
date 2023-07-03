@@ -26,11 +26,10 @@ interface IStrategy {
   /// @return Config the current strategy config
   function getStrategyConfig() external view returns (StrategyConfig memory);
 
-  /// @notice Set the strategy config 
-  /// @dev This method must be access controlled. The config overwrites the stored config in its entirety 
-  /// @param _newConfig The StrategyConfig that willbe stored and referenced within the strategy contract 
+  /// @notice Set the strategy config
+  /// @dev This method must be access controlled. The config overwrites the stored config in its entirety
+  /// @param _newConfig The StrategyConfig that willbe stored and referenced within the strategy contract
   function setStrategyConfig(StrategyConfig memory _newConfig) external;
-
 
   /// @notice Accepts deposits of `baseToken` and converts/trades/interacts to achieve `yieldToken`
   /// @dev This method must:
@@ -41,14 +40,13 @@ interface IStrategy {
   /// @return yieldTokenAmt the qty of `stratConfig.yieldToken` that were yielded from the deposit action
   function deposit(uint256 amt) external payable returns (uint256);
 
-
   /// @notice Accepts `yieldTokens` and converts them back into `baseToken`
-  /// @dev This method must: 
+  /// @dev This method must:
   /// 1) Transfer the provided `amt` of `stratConfig.yieldToken` to this contract
-  /// 2) Convert the yield tokens provided back into the `stratConfig.baseToken via integration-specific methods 
+  /// 2) Convert the yield tokens provided back into the `stratConfig.baseToken via integration-specific methods
   /// 3) Set the msg.sender as approved() for the returned amt
   /// @param amt the qty of `stratConfig.yieldToken` that this contract has been approved to use by msg.sender
-  /// @return baseTokenAmt the qty of `stratConfig.baseToken` that are approved for transfer by msg.sender 
+  /// @return baseTokenAmt the qty of `stratConfig.baseToken` that are approved for transfer by msg.sender
   function withdraw(uint256 amt) external payable returns (uint256);
 
   /// @notice Provide an estimate for the current exchange rate for a given deposit
@@ -64,7 +62,7 @@ interface IStrategy {
   function previewWithdraw(uint256 amt) external view returns (uint256);
 
   /// @notice Check whether the contract is paused
-  /// @dev Make public the state of the Pausable contract's `paused` state 
-  /// @return paused the current state of the paused boolean 
+  /// @dev Make public the state of the Pausable contract's `paused` state
+  /// @return paused the current state of the paused boolean
   function paused() external view returns (bool);
 }

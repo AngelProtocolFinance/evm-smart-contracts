@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {subDaoMessage} from "../../../normalized_endowment/subdao/message.sol";
+import {SubDaoMessages} from "../../../normalized_endowment/subdao/message.sol";
 import {AccountStorage} from "../storage.sol";
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {ProxyContract} from "../../proxy.sol";
@@ -9,7 +9,7 @@ import {RegistrarStorage} from "../../registrar/storage.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
-import {ISubdaoEmitter} from "../../../normalized_endowment/subdao/ISubdaoEmitter.sol";
+import {ISubDaoEmitter} from "../../../normalized_endowment/subdao/ISubDaoEmitter.sol";
 import {ISubDao} from "../../../normalized_endowment/subdao/ISubDao.sol";
 import {IAccountsDeployContract} from "../interfaces/IAccountsDeployContract.sol";
 
@@ -25,7 +25,7 @@ contract AccountsDeployContract is IAccountsDeployContract, ReentrancyGuardFacet
    * @param createDaoMessage Dao creation message with initial configuration
    */
   function createDaoContract(
-    subDaoMessage.InstantiateMsg memory createDaoMessage
+    SubDaoMessages.InstantiateMsg memory createDaoMessage
   ) public nonReentrant returns (address daoAddress) {
     // will be called by self, as this is deployment facet
     require(msg.sender == address(this), "Unauthorized");
@@ -44,7 +44,7 @@ contract AccountsDeployContract is IAccountsDeployContract, ReentrancyGuardFacet
 
     daoAddress = address(new ProxyContract(implementation, admin, subDaoData));
     // >> SHOULD IT BE CALLED INSIDE SubDao.initializeSubDao?
-    ISubdaoEmitter(registrar_config.subdaoEmitter).initializeSubdao(daoAddress);
+    ISubDaoEmitter(registrar_config.subdaoEmitter).initializeSubDao(daoAddress);
 
     ISubDao(daoAddress).buildDaoTokenMesage(createDaoMessage);
     emit DaoContractCreated(createDaoMessage.id, daoAddress);

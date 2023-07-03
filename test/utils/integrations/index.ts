@@ -1,1 +1,1 @@
-export * from "./flux"
+export * from "./flux";

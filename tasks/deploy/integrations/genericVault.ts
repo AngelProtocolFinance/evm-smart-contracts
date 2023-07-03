@@ -1,5 +1,4 @@
 import {task} from "hardhat/config";
-import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {APVault_V1__factory, DummyERC20__factory} from "typechain-types";
 import {logger, getSigners, getAddresses} from "utils";
 
@@ -17,10 +16,10 @@ task("Deploy:genericVault", "Will deploy a generic vault with the provided param
       // For localhost/hardhat, we deploy 2 dummy tokens so that the ERC20 interface calls dont revert
       if (network.chainId == 31337) {
         let BaseToken = new DummyERC20__factory(deployer);
-        let baseToken = await BaseToken.deploy();
+        let baseToken = await BaseToken.deploy(0);
         baseTokenAddress = baseToken.address;
         let YieldToken = new DummyERC20__factory(deployer);
-        let yieldToken = await YieldToken.deploy();
+        let yieldToken = await YieldToken.deploy(0);
         yieldTokenAddress = yieldToken.address;
       } else {
         baseTokenAddress = addresses.tokens.usdc;

@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 
 import {SubDaoLib} from "../subdao/SubDaoLib.sol";
 
-library subDaoTokenStorage {
+library SubDaoTokenStorage {
   struct MinterData {
     address minter;
     /// cap is how many more tokens can be issued by the minter
@@ -52,8 +52,8 @@ library subDaoTokenStorage {
 }
 
 contract Storage {
-  mapping(address => subDaoTokenStorage.ClaimConfig) CLAIM_AMOUNT;
-  subDaoTokenStorage.TokenInfo tokenInfo;
-  subDaoTokenStorage.Config config;
+  mapping(address => SubDaoTokenStorage.ClaimConfig) CLAIM_AMOUNT;
+  SubDaoTokenStorage.TokenInfo tokenInfo;
+  SubDaoTokenStorage.Config config;
   address reserveDenom;
 }

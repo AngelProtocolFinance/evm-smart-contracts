@@ -76,14 +76,7 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
         owner, // ensure connection to current owning APTeamMultiSig contract
         apTeamMultisigOwners[0]
       );
-      const tx = await apTeamMultiSig.submitTransaction(
-        "Accounts Diamond: update config",
-        `Update config`,
-        addresses.accounts.diamond,
-        0,
-        data,
-        "0x"
-      );
+      const tx = await apTeamMultiSig.submitTransaction(addresses.accounts.diamond, 0, data, "0x");
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();
     } catch (error) {

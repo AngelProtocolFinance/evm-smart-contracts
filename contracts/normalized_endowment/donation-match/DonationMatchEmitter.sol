@@ -2,27 +2,10 @@
 pragma solidity ^0.8.16;
 
 import {DonationMatchStorage} from "./storage.sol";
+import {IDonationMatchEmitter} from "./IDonationMatchEmitter.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract DonationMatchEmitter {
-  bool initialized = false;
-  address accountsContract;
-  mapping(address => bool) public isDonationMatch;
-
-  function initDonationMatchEmiiter(address accountscontract) public {
-    require(accountscontract != address(0), "Invalid accounts contract address");
-    require(!initialized, "Already initialized");
-    initialized = true;
-    accountsContract = accountscontract;
-  }
-
-  modifier isOwner() {
-    require(msg.sender == accountsContract, "Unauthorized");
-    _;
-  }
-  modifier isEmitter() {
-    require(isDonationMatch[msg.sender], "Unauthorized");
-    _;
-  }
+contract DonationMatchEmitter is Initializable, IDonationMatchEmitter {
   event DonationMatchInitialized(
     uint32 endowmentId,
     address donationMatch,
@@ -40,6 +23,23 @@ contract DonationMatchEmitter {
     address donor
   );
 
+  address accountsContract;
+  mapping(address => bool) public isDonationMatch;
+
+  function initDonationMatchEmiiter(address _accountsContract) public initializer {
+    require(_accountsContract != address(0), "Invalid accounts contract address");
+    accountsContract = _accountsContract;
+  }
+
+  modifier isOwner() {
+    require(msg.sender == accountsContract, "Unauthorized");
+    _;
+  }
+  modifier isEmitter() {
+    require(isDonationMatch[msg.sender], "Unauthorized");
+    _;
+  }
+
   function initializeDonationMatch(
     uint32 endowmentId,
     address donationMatch,
@@ -49,7 +49,7 @@ contract DonationMatchEmitter {
     emit DonationMatchInitialized(endowmentId, donationMatch, config);
   }
 
-  function giveApprovalErC20(
+  function giveApprovalErc20(
     uint32 endowmentId,
     address tokenAddress,
     address recipient,
@@ -58,7 +58,7 @@ contract DonationMatchEmitter {
     emit Approval(endowmentId, tokenAddress, recipient, amount);
   }
 
-  function transferErC20(
+  function transferErc20(
     uint32 endowmentId,
     address tokenAddress,
     address recipient,
@@ -67,14 +67,14 @@ contract DonationMatchEmitter {
     emit Transfer(endowmentId, tokenAddress, recipient, amount);
   }
 
-  function burnErC20(uint32 endowmentId, address tokenAddress, uint amount) public isEmitter {
+  function burnErc20(uint32 endowmentId, address tokenAddress, uint amount) public isEmitter {
     emit Burn(endowmentId, tokenAddress, amount);
   }
 
   function executeDonorMatch(
     address tokenAddress,
     uint256 amount,
-    address accountsContract,
+    address _accountsContract,
     uint32 endowmentId,
     address donor
   ) public isEmitter {
@@ -82,7 +82,7 @@ contract DonationMatchEmitter {
       msg.sender,
       tokenAddress,
       amount,
-      accountsContract,
+      _accountsContract,
       endowmentId,
       donor
     );

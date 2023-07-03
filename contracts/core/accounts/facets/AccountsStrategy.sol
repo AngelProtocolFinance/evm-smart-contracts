@@ -17,7 +17,7 @@ import {IAccountsStrategy} from "../interfaces/IAccountsStrategy.sol";
 
 /**
  * @title AccountsStrategy
- * @dev This contract manages interacting with Angel Protocol strategy integrations 
+ * @dev This contract manages interacting with Angel Protocol strategy integrations
  */
 contract AccountsStrategy is IAccountsStrategy, ReentrancyGuardFacet, IAccountsEvents {
   /**

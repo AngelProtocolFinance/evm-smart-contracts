@@ -10,10 +10,9 @@ contract DummyERC20 is ERC20 {
   uint8 tokenDecimals;
 
   constructor(uint8 _decimals) ERC20("Token", "TKN") {
-    if(_decimals == 0) {
+    if (_decimals == 0) {
       tokenDecimals = 18;
-    }
-    else {
+    } else {
       tokenDecimals = _decimals;
     }
   }
@@ -27,27 +26,22 @@ contract DummyERC20 is ERC20 {
   }
 
   function approveFor(address owner, address spender, uint256 amount) external {
-    if(approveAllowed) {
+    if (approveAllowed) {
       _approve(owner, spender, amount);
     }
   }
 
-  function transferFrom(
-      address from,
-      address to,
-      uint256 amount
-  ) public override returns (bool) {
-    if(transferAllowed){
+  function transferFrom(address from, address to, uint256 amount) public override returns (bool) {
+    if (transferAllowed) {
       address spender = _msgSender();
       _spendAllowance(from, spender, amount);
       _transfer(from, to, amount);
       return true;
-    }
-    else {
+    } else {
       return false;
     }
   }
-  
+
   function setTransferAllowed(bool allowed) external {
     transferAllowed = allowed;
   }
@@ -57,10 +51,9 @@ contract DummyERC20 is ERC20 {
   }
 
   function approve(address spender, uint256 amount) public override returns (bool) {
-    if(approveAllowed) {
+    if (approveAllowed) {
       return super.approve(spender, amount);
-    }
-    else {
+    } else {
       return false;
     }
   }

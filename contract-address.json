@@ -36,7 +36,6 @@
     },
     "fundraising": {
       "implementation": "",
-      "library": "",
       "proxy": ""
     },
     "giftcards": {
@@ -190,7 +189,6 @@
     },
     "fundraising": {
       "implementation": "",
-      "library": "",
       "proxy": ""
     },
     "giftcards": {

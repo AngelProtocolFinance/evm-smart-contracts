@@ -4,19 +4,18 @@ pragma solidity ^0.8.16;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {VestingMessage} from "./message.sol";
 
-// >> SHOULD INHERIT `Initializable`?
 /**
  *@title Vesting
  * @dev Vesting contract
  * The `Vesting` contract implements a vesting mechanism for the Halo Token.
  * Vesting is the process of gradually unlocking an amount of tokens over a set period of time.
  */
-contract Vesting is Ownable, ReentrancyGuard {
+contract Vesting is Ownable, ReentrancyGuard, Initializable {
   event HaloDeposited(address user, uint256 amount);
   event HaloWithdrawn(address user, uint256 vestingId, uint256 amount);
-  event Initialized();
   event VestingDurationModified(uint256 vestingDuration);
 
   address public haloToken;
@@ -37,11 +36,9 @@ contract Vesting is Ownable, ReentrancyGuard {
    * @param details instantiate message containing halo token address
    */
 
-  function initialize(VestingMessage.InstantiateMsg memory details) public {
-    require(haloToken == address(0), "Already initialized");
+  function initialize(VestingMessage.InstantiateMsg memory details) public initializer {
     haloToken = details.haloToken;
     totalVested = 0;
-    emit Initialized();
   }
 
   /**

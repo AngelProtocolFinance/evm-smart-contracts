@@ -1,35 +1,34 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import { ethers } from "hardhat";
-import { hrtime } from "process";
+import {ethers} from "hardhat";
 import {
-  LocalRegistrar, 
+  LocalRegistrar,
   LocalRegistrar__factory,
   Registrar,
   Registrar__factory,
-  ProxyContract__factory
-} from "typechain-types"
-import { DEFAULT_SPLIT_STRUCT } from "./helpers";
+  ProxyContract__factory,
+} from "typechain-types";
+import {DEFAULT_SPLIT_STRUCT} from "./helpers";
 
 export async function deployLocalRegistrarAsProxy(
-  owner: SignerWithAddress, 
+  owner: SignerWithAddress,
   proxyAdmin: SignerWithAddress
 ): Promise<LocalRegistrar> {
-  const LocalRegistrar = new LocalRegistrar__factory(proxyAdmin)
-  const localRegistrarImpl = await LocalRegistrar.deploy()
+  const LocalRegistrar = new LocalRegistrar__factory(proxyAdmin);
+  const localRegistrarImpl = await LocalRegistrar.deploy();
   const data = localRegistrarImpl.interface.encodeFunctionData("initialize");
   const proxyFactory = new ProxyContract__factory(owner);
   let proxy = await proxyFactory.deploy(localRegistrarImpl.address, proxyAdmin.address, data);
-  await proxy.deployed()
+  await proxy.deployed();
   return LocalRegistrar__factory.connect(proxy.address, owner);
 }
 
 export async function deployRegistrarAsProxy(
-  owner: SignerWithAddress, 
+  owner: SignerWithAddress,
   proxyAdmin: SignerWithAddress
 ): Promise<Registrar> {
-  const Registrar = new Registrar__factory(proxyAdmin)
-  const registrarImpl = await Registrar.deploy()
-  await registrarImpl.deployed()
+  const Registrar = new Registrar__factory(proxyAdmin);
+  const registrarImpl = await Registrar.deploy();
+  await registrarImpl.deployed();
   const data = registrarImpl.interface.encodeFunctionData(
     "initialize((address,(uint256,uint256,uint256),address,address,address))",
     [
@@ -42,8 +41,8 @@ export async function deployRegistrarAsProxy(
       },
     ]
   );
-  let proxyFactory = new ProxyContract__factory(owner)
-  let proxy = await proxyFactory.deploy(registrarImpl.address, proxyAdmin.address, data)
-  await proxy.deployed()
-  return Registrar__factory.connect(proxy.address, owner)
+  let proxyFactory = new ProxyContract__factory(owner);
+  let proxy = await proxyFactory.deploy(registrarImpl.address, proxyAdmin.address, data);
+  await proxy.deployed();
+  return Registrar__factory.connect(proxy.address, owner);
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-library subDaoStorage {
+library SubDaoStorage {
   struct Config {
     address registrarContract;
     address owner;
@@ -74,11 +74,11 @@ library subDaoStorage {
 }
 
 contract Storage {
-  subDaoStorage.Config config;
-  subDaoStorage.State state;
+  SubDaoStorage.Config config;
+  SubDaoStorage.State state;
 
-  mapping(uint256 => subDaoStorage.Poll) poll;
-  mapping(uint256 => subDaoStorage.PollStatus) poll_status;
+  mapping(uint256 => SubDaoStorage.Poll) poll;
+  mapping(uint256 => SubDaoStorage.PollStatus) poll_status;
 
-  mapping(uint256 => mapping(address => subDaoStorage.VoterInfo)) voting_status;
+  mapping(uint256 => mapping(address => SubDaoStorage.VoterInfo)) voting_status;
 }

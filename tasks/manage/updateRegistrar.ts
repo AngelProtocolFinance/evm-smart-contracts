@@ -1,7 +1,7 @@
 import config from "config";
 import {task} from "hardhat/config";
+import {updateRegistrarConfig} from "tasks/helpers";
 import {cliTypes} from "tasks/types";
-import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 import {ADDRESS_ZERO, getAddresses, getSigners, logger} from "utils";
 
@@ -23,24 +23,17 @@ task(
   )
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      const {deployer, proxyAdmin, apTeam1, treasury, apTeamMultisigOwners} = await getSigners(hre);
+      const {proxyAdmin, apTeam1, treasury} = await getSigners(hre);
 
       const addresses = await getAddresses(hre);
 
-      const registrar = Registrar__factory.connect(addresses.registrar.proxy, deployer);
-
-      logger.out("Current config");
-      let currentConfig = await registrar.queryConfig();
-      logger.out(JSON.stringify(currentConfig, undefined, 2));
-
-      logger.out("Setting up data...");
       let newConfig: RegistrarMessages.UpdateConfigRequestStruct = {
         accountsContract: addresses.accounts.diamond,
-        approved_charities: [],
         splitMax: config.REGISTRAR_DATA.splitToLiquid.max,
         splitMin: config.REGISTRAR_DATA.splitToLiquid.min,
         splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit,
         collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare,
+        // CONTRACT ADDRESSES
         subdaoGovContract: addresses.subDao.implementation, // subdao gov
         subdaoTokenContract: addresses.subDao.token, // subdao gov token (basic CW20)
         subdaoBondingTokenContract: addresses.subDao.veBondingToken, // subdao gov token (w/ bonding-curve)
@@ -48,33 +41,33 @@ task(
         subdaoDistributorContract: apTeam1.address, // subdao gov fee distributor
         subdaoEmitter: addresses.subDao.emitter.proxy,
         donationMatchContract: addresses.donationMatch.implementation, // donation matching contract
-        // CONTRACT ADSRESSES
         indexFundContract: addresses.indexFund.proxy,
-        govContract: apTeam1.address,
+        govContract: ADDRESS_ZERO,
         treasury: treasury.address,
         donationMatchCharitesContract: addresses.donationMatchCharity.proxy,
         donationMatchEmitter: ADDRESS_ZERO,
-        haloToken: apTeam1.address,
+        haloToken: ADDRESS_ZERO,
         haloTokenLpContract: ADDRESS_ZERO,
         // haloTokenLpContract: addresses.halo.tokenLp, -> TODO: when implemented
-        charitySharesContract: apTeam1.address,
-        fundraisingContract: apTeam1.address,
-        uniswapRouter: addresses.uniswap.SwapRouter,
-        uniswapFactory: addresses.uniswap.Factory,
+        charitySharesContract: ADDRESS_ZERO,
+        fundraisingContract: ADDRESS_ZERO,
+        uniswapRouter: addresses.uniswap.swapRouter,
+        uniswapFactory: addresses.uniswap.factory,
         multisigFactory: addresses.multiSig.endowment.factory,
         multisigEmitter: addresses.multiSig.endowment.emitter.proxy,
-        charityApplications: addresses.charityApplications.proxy,
+        charityApplications: addresses.multiSig.charityApplications.proxy,
         proxyAdmin: proxyAdmin.address,
         usdcAddress: addresses.tokens.usdc,
         wMaticAddress: addresses.tokens.wmatic,
-        cw900lvAddress: apTeam1.address,
+        cw900lvAddress: ADDRESS_ZERO,
         lockedWithdrawal: ADDRESS_ZERO,
       };
-      const updateConfigData = registrar.interface.encodeFunctionData("updateConfig", [newConfig]);
-
-      let updatedConfig = await registrar.queryConfig();
-      logger.out("New config:");
-      logger.out(JSON.stringify(updatedConfig, undefined, 2));
+      await updateRegistrarConfig(
+        addresses.registrar.proxy,
+        addresses.multiSig.apTeam.proxy,
+        newConfig,
+        hre
+      );
 
       if (taskArgs.acceptedTokens.length > 0) {
         logger.divider();

@@ -7,7 +7,7 @@ import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
-import {subDaoMessage} from "../../../normalized_endowment/subdao/message.sol";
+import {SubDaoMessages} from "../../../normalized_endowment/subdao/message.sol";
 import {ISubDao} from "../../../normalized_endowment/subdao/ISubDao.sol";
 import {IAccountsDeployContract} from "../interfaces/IAccountsDeployContract.sol";
 import {IEndowmentMultiSigFactory} from "../../../normalized_endowment/endowment-multisig/interfaces/IEndowmentMultiSigFactory.sol";

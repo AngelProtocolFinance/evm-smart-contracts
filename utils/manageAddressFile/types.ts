@@ -35,7 +35,6 @@ export type AddressObj = {
   };
   fundraising: {
     implementation: string;
-    library: string;
     proxy: string;
   };
   giftcards: {

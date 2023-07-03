@@ -67,7 +67,7 @@ task(
           uniswapFactory: addresses.uniswap.factory,
           multisigFactory: addresses.multiSig.endowment.factory,
           multisigEmitter: addresses.multiSig.endowment.emitter.proxy,
-          charityApplications: addresses.charityApplications.proxy,
+          charityApplications: addresses.multiSig.charityApplications.proxy,
           proxyAdmin: proxyAdmin.address,
           usdcAddress: addresses.tokens.usdc,
           wMaticAddress: addresses.tokens.wmatic,

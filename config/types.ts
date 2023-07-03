@@ -5,10 +5,7 @@ export type Config = {
   AP_TEAM_MULTISIG_DATA: {
     threshold: number;
     requireExecution: boolean;
-  };
-  APPLICATION_MULTISIG_DATA: {
-    threshold: number;
-    requireExecution: boolean;
+    transactionExpiry: number;
   };
   REGISTRAR_DATA: {
     taxRate: number;
@@ -28,13 +25,13 @@ export type Config = {
       defaultSplit: number;
     };
   };
-  CHARITY_APPLICATION_DATA: {
-    expiry: number;
+  CHARITY_APPLICATIONS_DATA: {
+    threshold: number;
+    requireExecution: boolean;
+    transactionExpiry: number;
     seedSplitToLiquid: number;
-    newEndowGasMoney: boolean;
     gasAmount: number;
-    fundSeedAsset: boolean;
-    seedAssetAmount: number;
+    seedAmount: number;
   };
   DONATION_MATCH_CHARITY_DATA: {
     poolFee: number;
@@ -46,16 +43,6 @@ export type Config = {
     fundRotation: number;
     fundMemberLimit: number;
     fundingGoal: BigNumber;
-  };
-  FundraisingDataInput: {
-    nextId: number;
-    campaignPeriodSeconds: number;
-    taxRate: number;
-    acceptedTokens: {
-      coinNativeAmount: number;
-      Cw20CoinVerified_amount: number[];
-      Cw20CoinVerified_addr: string[];
-    };
   };
   HALO_IMPLEMENTATION_DATA: {
     GovHodlerOwner: string;

@@ -10,15 +10,16 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 import {IAccountsDonationMatch} from "../../core/accounts/interfaces/IAccountsDonationMatch.sol";
 import {SubDaoTokenMessage} from "./message.sol";
-import {subDaoTokenStorage} from "./storage.sol";
-// import {ISubdaoTokenEmitter} from "./ISubdaoTokenEmitter.sol";
+import {SubDaoTokenStorage} from "./storage.sol";
+import {ISubDaoToken} from "./ISubDaoToken.sol";
+// import {ISubDaoTokenEmitter} from "./ISubDaoTokenEmitter.sol";
 import {ContinuousToken} from "./Token/Continous.sol";
 
 /**
  *@title SubDaoToken
  * @dev SubDaoToken contract
  */
-contract SubDaoToken is Storage, ContinuousToken {
+contract SubDaoToken is ISubDaoToken, Storage, ContinuousToken {
   using SafeMath for uint256;
 
   // bool initFlag = false;
@@ -38,19 +39,19 @@ contract SubDaoToken is Storage, ContinuousToken {
     initveToken(
       message.name,
       message.symbol,
-      subDaoTokenStorage.getReserveRatio(message.ve_type),
+      SubDaoTokenStorage.getReserveRatio(message.ve_type),
       message.reserveDenom
     );
 
     tokenInfo.name = message.name;
     tokenInfo.symbol = message.symbol;
     tokenInfo.decimals = 18; //Equivalue to message.decimals
-    tokenInfo.mint = subDaoTokenStorage.MinterData({minter: address(this), cap: 0, hasCap: false});
+    tokenInfo.mint = SubDaoTokenStorage.MinterData({minter: address(this), cap: 0, hasCap: false});
 
     reserveDenom = message.reserveDenom;
 
     config.unbondingPeriod = message.unbondingPeriod;
-    // ISubdaoTokenEmitter(emitterAddress).initializeSubdaoToken(msg);
+    // ISubDaoTokenEmitter(emitterAddress).initializeSubDaoToken(msg);
   }
 
   //TODO: check we have a un used parameter
@@ -107,7 +108,7 @@ contract SubDaoToken is Storage, ContinuousToken {
       IERC20(reserveDenom).transferFrom(msg.sender, address(this), amount),
       "TransferFrom failed"
     );
-    // ISubdaoTokenEmitter(emitterAddress).transferFromSt(
+    // ISubDaoTokenEmitter(emitterAddress).transferFromSt(
     //     reserveDenom,
     //     msg.sender,
     //     address(this),
@@ -115,7 +116,7 @@ contract SubDaoToken is Storage, ContinuousToken {
     // );
 
     mint(amount, msg.sender);
-    // ISubdaoTokenEmitter(emitterAddress).mintSt(
+    // ISubDaoTokenEmitter(emitterAddress).mintSt(
     //     address(this),
     //     amount,
     //     msg.sender
@@ -138,13 +139,13 @@ contract SubDaoToken is Storage, ContinuousToken {
    */
   function doSell(address reciver, uint256 amount) internal {
     uint256 burnedAmount = burn(amount, reciver);
-    // ISubdaoTokenEmitter(emitterAddress).burnSt(
+    // ISubDaoTokenEmitter(emitterAddress).burnSt(
     //     address(this),
     //     burnedAmount
     // );
 
     CLAIM_AMOUNT[msg.sender].details.push(
-      subDaoTokenStorage.claimInfo({
+      SubDaoTokenStorage.claimInfo({
         releaseTime: (config.unbondingPeriod + block.timestamp),
         amount: burnedAmount,
         isClaimed: false
@@ -152,9 +153,9 @@ contract SubDaoToken is Storage, ContinuousToken {
     );
 
     // emit event
-    // ISubdaoTokenEmitter(emitterAddress).addClaimSt(
+    // ISubDaoTokenEmitter(emitterAddress).addClaimSt(
     //     msg.sender,
-    //     subDaoTokenStorage.claimInfo({
+    //     SubDaoTokenStorage.claimInfo({
     //         releaseTime: (config.unbondingPeriod +
     //             block.timestamp),
     //         amount: burnedAmount,
@@ -172,7 +173,7 @@ contract SubDaoToken is Storage, ContinuousToken {
     require(amount > 0, "NothingToClaim");
 
     require(IERC20(reserveDenom).transfer(msg.sender, amount), "Transfer failed");
-    // ISubdaoTokenEmitter(emitterAddress).transferSt(
+    // ISubDaoTokenEmitter(emitterAddress).transferSt(
     //     reserveDenom,
     //     msg.sender,
     //     amount
@@ -194,7 +195,7 @@ contract SubDaoToken is Storage, ContinuousToken {
       ) {
         amount += CLAIM_AMOUNT[sender].details[i].amount;
         CLAIM_AMOUNT[sender].details[i].isClaimed = true;
-        // ISubdaoTokenEmitter(emitterAddress).claimSt(sender, i);
+        // ISubDaoTokenEmitter(emitterAddress).claimSt(sender, i);
       }
     }
 

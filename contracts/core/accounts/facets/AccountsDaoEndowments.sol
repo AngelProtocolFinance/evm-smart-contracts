@@ -6,7 +6,7 @@ import {AccountStorage} from "../storage.sol";
 import {SubDaoLib} from "../../../normalized_endowment/subdao/message.sol";
 import {IAccountsDeployContract} from "../interfaces/IAccountsDeployContract.sol";
 import {IAccountsDaoEndowments} from "../interfaces/IAccountsDaoEndowments.sol";
-import {subDaoMessage} from "../../../normalized_endowment/subdao/message.sol";
+import {SubDaoMessages} from "../../../normalized_endowment/subdao/message.sol";
 import {ISubDao} from "../../../normalized_endowment/subdao/ISubDao.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
@@ -31,7 +31,7 @@ contract AccountsDaoEndowments is IAccountsDaoEndowments, ReentrancyGuardFacet, 
     require(tempEndowment.owner == msg.sender, "Unauthorized");
     require(tempEndowment.dao == address(0), "AD E01"); // A DAO already exists for this Endowment
 
-    subDaoMessage.InstantiateMsg memory createDaoMessage = subDaoMessage.InstantiateMsg({
+    SubDaoMessages.InstantiateMsg memory createDaoMessage = SubDaoMessages.InstantiateMsg({
       id: id,
       quorum: details.quorum,
       owner: tempEndowment.owner,
@@ -51,7 +51,7 @@ contract AccountsDaoEndowments is IAccountsDaoEndowments, ReentrancyGuardFacet, 
 
     tempEndowment.dao = daoAddress;
 
-    subDaoMessage.QueryConfigResponse memory subDaoConfid = ISubDao(daoAddress).queryConfig();
+    SubDaoMessages.QueryConfigResponse memory subDaoConfid = ISubDao(daoAddress).queryConfig();
 
     tempEndowment.daoToken = subDaoConfid.daoToken;
 
