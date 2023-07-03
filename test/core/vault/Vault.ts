@@ -1,5 +1,6 @@
 import {expect} from "chai";
 import {ethers} from "hardhat";
+import hre from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {
   DummyERC20,
@@ -9,10 +10,11 @@ import {
   LocalRegistrar,
   DummyStrategy,
 } from "typechain-types";
+import { getSigners } from "utils";
 import {
   deployDummyStrategy,
   deployDummyERC20,
-  deployRegistrarAsProxy,
+  deployLocalRegistrarAsProxy,
   StrategyApprovalState,
   DEFAULT_STRATEGY_SELECTOR,
   DEFAULT_VAULT_NAME,
@@ -23,6 +25,7 @@ import { BigNumber } from "ethers";
 describe("Vault", function () {
   let owner: SignerWithAddress;
   let user: SignerWithAddress;
+  let admin: SignerWithAddress;
   let collector: SignerWithAddress;
 
   async function deployVault(
@@ -65,11 +68,18 @@ describe("Vault", function () {
     return vault;
   }
 
+  before(async function() {
+    const {deployer, proxyAdmin, apTeam1, apTeam2} = await getSigners(hre)
+    owner = deployer
+    admin = proxyAdmin
+    user = apTeam1
+    collector = apTeam2
+  })
+
   describe("Upon deployment", function() {
     let vault: APVault_V1
     let token: DummyERC20
     before(async function() {
-      [owner, user, collector] = await ethers.getSigners()
       token = await deployDummyERC20(owner)
     })
     beforeEach(async function () {
@@ -165,7 +175,7 @@ describe("Vault", function () {
           yieldToken: yieldToken.address, 
           admin: owner.address
         })
-      registrar = await deployRegistrarAsProxy(owner)
+      registrar = await deployLocalRegistrarAsProxy(owner, admin)
       await registrar.setVaultOperatorApproved(owner.address, true)
     })
     beforeEach(async function () {
@@ -262,7 +272,7 @@ describe("Vault", function () {
     const TAX_RATE = 100 // bps
     const PRECISION = BigNumber.from(10).pow(24)
     before(async function() {
-      registrar = await deployRegistrarAsProxy(owner)
+      registrar = await deployLocalRegistrarAsProxy(owner, admin)
       await registrar.setVaultOperatorApproved(owner.address, true)
       await registrar.setFeeSettingsByFeesType(0, TAX_RATE, collector.address) // establish tax collector
     })
@@ -367,7 +377,7 @@ describe("Vault", function () {
     const EX_RATE = 2
     const TAX_RATE = 100 // bps
     before(async function() {
-      registrar = await deployRegistrarAsProxy(owner)
+      registrar = await deployLocalRegistrarAsProxy(owner, admin)
       await registrar.setVaultOperatorApproved(owner.address, true)
       await registrar.setFeeSettingsByFeesType(0, TAX_RATE, collector.address) // establish tax collector
     })
@@ -447,7 +457,7 @@ describe("Vault", function () {
     const TAX_RATE = 100 // bps
     const PRECISION = BigNumber.from(10).pow(24)
     before(async function() {
-      registrar = await deployRegistrarAsProxy(owner)
+      registrar = await deployLocalRegistrarAsProxy(owner, admin)
       await registrar.setVaultOperatorApproved(owner.address, true)
       await registrar.setFeeSettingsByFeesType(1, TAX_RATE, collector.address) // harvest fee type, establish tax collector
     })
