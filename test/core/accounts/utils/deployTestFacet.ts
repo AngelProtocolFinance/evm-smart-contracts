@@ -1,7 +1,6 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {TestFacetProxyContract__factory, TestFacetProxyContract} from "typechain-types";
-import {ADDRESS_ZERO} from "utils";
 
 export async function deployFacetAsProxy(
   hre: HardhatRuntimeEnvironment,
@@ -15,13 +14,13 @@ export async function deployFacetAsProxy(
   await proxy.setConfig({
     owner: deployer.address,
     version: "1",
-    registrarContract: ADDRESS_ZERO,
+    registrarContract: hre.ethers.constants.AddressZero,
     nextAccountId: 1,
     maxGeneralCategoryId: 1,
-    subDao: ADDRESS_ZERO,
-    gateway: ADDRESS_ZERO,
-    gasReceiver: ADDRESS_ZERO,
-    earlyLockedWithdrawFee: {bps: 1000, payoutAddress: ADDRESS_ZERO},
+    subDao: hre.ethers.constants.AddressZero,
+    gateway: hre.ethers.constants.AddressZero,
+    gasReceiver: hre.ethers.constants.AddressZero,
+    earlyLockedWithdrawFee: {bps: 1000, payoutAddress: hre.ethers.constants.AddressZero},
     reentrancyGuardLocked: false,
   });
   return proxy;

@@ -1,10 +1,8 @@
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import hre from "hardhat";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-
-import {TestFacetProxyContract, AccountsUpdate__factory, AccountsUpdate} from "typechain-types";
-
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
+import {AccountsUpdate, AccountsUpdate__factory, TestFacetProxyContract} from "typechain-types";
 import {LibAccounts} from "typechain-types/contracts/core/accounts/facets/AccountsCreateEndowment";
 
 describe("AccountsUpdate", function () {
