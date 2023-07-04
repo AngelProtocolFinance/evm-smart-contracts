@@ -2,6 +2,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import hre from "hardhat";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
+import {DEFAULT_ACCOUNTS_CONFIG, DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
 import {
   AccountsQueryEndowments,
   AccountsQueryEndowments__factory,
@@ -32,76 +33,6 @@ describe("AccountsQueryEndowments", function () {
       },
     },
   };
-  const defaultSettingsPermissionsStruct = {
-    locked: false,
-    delegate: {
-      addr: ethers.constants.AddressZero,
-      expires: 0,
-    },
-  };
-  const defaultFeeStruct = {
-    payoutAddress: ethers.constants.AddressZero,
-    bps: 0,
-  };
-  const endowment: AccountStorage.EndowmentStruct = {
-    maturityTime: 0,
-    name: `Test Charity Endowment #${accountId}`,
-    sdgs: [1],
-    referralId: 0,
-    tier: 0,
-    endowType: 1, // Charity
-    logo: "",
-    image: "",
-    allowlistedBeneficiaries: [],
-    allowlistedContributors: [],
-    earlyLockedWithdrawFee: defaultFeeStruct,
-    withdrawFee: defaultFeeStruct,
-    depositFee: defaultFeeStruct,
-    balanceFee: defaultFeeStruct,
-    proposalLink: 0,
-    settingsController: {
-      acceptedTokens: defaultSettingsPermissionsStruct,
-      lockedInvestmentManagement: defaultSettingsPermissionsStruct,
-      liquidInvestmentManagement: defaultSettingsPermissionsStruct,
-      allowlistedBeneficiaries: defaultSettingsPermissionsStruct,
-      allowlistedContributors: defaultSettingsPermissionsStruct,
-      maturityAllowlist: defaultSettingsPermissionsStruct,
-      maturityTime: defaultSettingsPermissionsStruct,
-      earlyLockedWithdrawFee: defaultSettingsPermissionsStruct,
-      withdrawFee: defaultSettingsPermissionsStruct,
-      depositFee: defaultSettingsPermissionsStruct,
-      balanceFee: defaultSettingsPermissionsStruct,
-      name: defaultSettingsPermissionsStruct,
-      image: defaultSettingsPermissionsStruct,
-      logo: defaultSettingsPermissionsStruct,
-      sdgs: defaultSettingsPermissionsStruct,
-      splitToLiquid: defaultSettingsPermissionsStruct,
-      ignoreUserSplits: defaultSettingsPermissionsStruct,
-    },
-    parent: 0,
-    maturityAllowlist: [],
-    ignoreUserSplits: false,
-    splitToLiquid: {
-      max: 100,
-      min: 0,
-      defaultSplit: 50,
-    },
-    dao: ethers.constants.AddressZero,
-    daoToken: ethers.constants.AddressZero,
-    donationMatchActive: false,
-    donationMatchContract: ethers.constants.AddressZero,
-    multisig: ethers.constants.AddressZero,
-    owner: ethers.constants.AddressZero,
-    pendingRedemptions: 0,
-    rebalance: {
-      basis: 100,
-      interestDistribution: 20,
-      lockedPrincipleToLiquid: false,
-      lockedRebalanceToLiquid: 75,
-      principleDistribution: 0,
-      rebalanceLiquidProfits: false,
-    },
-  };
 
   before(async function () {
     [owner, proxyAdmin, {address: tokenAddress}] = await ethers.getSigners();
@@ -111,20 +42,13 @@ describe("AccountsQueryEndowments", function () {
     proxy = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
     facet = AccountsQueryEndowments__factory.connect(proxy.address, owner);
 
-    await proxy.setEndowmentDetails(accountId, endowment);
+    await proxy.setEndowmentDetails(accountId, DEFAULT_CHARITY_ENDOWMENT);
     await proxy.setEndowmentTokenBalance(accountId, tokenAddress, lockBal, liqBal);
 
     config = {
+      ...DEFAULT_ACCOUNTS_CONFIG,
       owner: owner.address,
-      version: "1",
-      registrarContract: ethers.constants.AddressZero,
-      nextAccountId: 2, // endowment was created in previous step
-      maxGeneralCategoryId: 1,
-      subDao: ethers.constants.AddressZero,
-      gateway: ethers.constants.AddressZero,
-      gasReceiver: ethers.constants.AddressZero,
-      earlyLockedWithdrawFee: {bps: 1000, payoutAddress: ethers.constants.AddressZero},
-      reentrancyGuardLocked: false,
+      nextAccountId: 1, // endowment was created in previous step
     };
 
     await proxy.setConfig(config);
@@ -168,8 +92,8 @@ describe("AccountsQueryEndowments", function () {
       const endowmentDetails = await facet.queryEndowmentDetails(accountId);
 
       // Assert the expected endowment details
-      expect(endowmentDetails.owner).to.equal(endowment.owner);
-      expect(endowmentDetails.name).to.equal(endowment.name);
+      expect(endowmentDetails.owner).to.equal(DEFAULT_CHARITY_ENDOWMENT.owner);
+      expect(endowmentDetails.name).to.equal(DEFAULT_CHARITY_ENDOWMENT.name);
       // ...
     });
   });
