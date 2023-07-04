@@ -6,14 +6,17 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 contract GasFwd is IGasFwd, Initializable {
-  
+  error OnlyAccounts();
+
   address accounts;
   function initialize(address _accounts) public initializer {
     accounts = _accounts;
   }
 
   modifier onlyAccounts() {
-    require(msg.sender == accounts, "Only Accounts");
+    if(msg.sender != accounts){
+      revert OnlyAccounts();
+    }
     _;
   }
 
