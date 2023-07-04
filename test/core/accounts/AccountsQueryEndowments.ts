@@ -10,19 +10,25 @@ import {
 } from "typechain-types";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsQueryEndowments";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
+import {getSigners} from "utils";
 
 describe("AccountsQueryEndowments", function () {
   const {ethers} = hre;
+
   let owner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
+
   let facet: AccountsQueryEndowments;
-  let proxy: TestFacetProxyContract;
+  let state: TestFacetProxyContract;
+
   let tokenAddress: string;
   const accountId = 1;
-  const lockBal = 20;
-  const liqBal = 50;
+  const lockedBal = 20;
+  const liquidBal = 50;
+
   let config: AccountStorage.ConfigStruct;
-  const state: AccountMessages.StateResponseStruct = {
+
+  const endowState: AccountMessages.StateResponseStruct = {
     closingEndowment: false,
     closingBeneficiary: {
       enumData: 3, // BeneficiaryEnum.None
@@ -35,15 +41,18 @@ describe("AccountsQueryEndowments", function () {
   };
 
   before(async function () {
-    [owner, proxyAdmin, {address: tokenAddress}] = await ethers.getSigners();
+    const signers = await getSigners(hre);
+    owner = signers.apTeam1;
+    proxyAdmin = signers.proxyAdmin;
+    tokenAddress = signers.deployer.address;
 
     const Facet = new AccountsQueryEndowments__factory(owner);
     const facetImpl = await Facet.deploy();
-    proxy = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
-    facet = AccountsQueryEndowments__factory.connect(proxy.address, owner);
+    state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
+    facet = AccountsQueryEndowments__factory.connect(state.address, owner);
 
-    await proxy.setEndowmentDetails(accountId, DEFAULT_CHARITY_ENDOWMENT);
-    await proxy.setEndowmentTokenBalance(accountId, tokenAddress, lockBal, liqBal);
+    await state.setEndowmentDetails(accountId, DEFAULT_CHARITY_ENDOWMENT);
+    await state.setEndowmentTokenBalance(accountId, tokenAddress, lockedBal, liquidBal);
 
     config = {
       ...DEFAULT_ACCOUNTS_CONFIG,
@@ -51,12 +60,12 @@ describe("AccountsQueryEndowments", function () {
       nextAccountId: 1, // endowment was created in previous step
     };
 
-    await proxy.setConfig(config);
+    await state.setConfig(config);
 
-    await proxy.setClosingEndowmentState(
+    await state.setClosingEndowmentState(
       accountId,
-      state.closingEndowment,
-      state.closingBeneficiary
+      endowState.closingEndowment,
+      endowState.closingBeneficiary
     );
   });
 
@@ -66,7 +75,7 @@ describe("AccountsQueryEndowments", function () {
 
       const lockTokenAmount = await facet.queryTokenAmount(accountId, accountType, tokenAddress);
 
-      expect(lockTokenAmount).to.equal(lockBal);
+      expect(lockTokenAmount).to.equal(lockedBal);
     });
 
     it("should return the balance of a token for a liquid endowment", async () => {
@@ -74,7 +83,7 @@ describe("AccountsQueryEndowments", function () {
 
       const liqTokenAmount = await facet.queryTokenAmount(accountId, accountType, tokenAddress);
 
-      expect(liqTokenAmount).to.equal(liqBal);
+      expect(liqTokenAmount).to.equal(liquidBal);
     });
 
     it("should revert if the token address is invalid", async () => {
@@ -123,16 +132,18 @@ describe("AccountsQueryEndowments", function () {
       const stateResponse = await facet.queryState(accountId);
 
       // Assert the expected endowment state
-      expect(stateResponse.closingEndowment).to.equal(state.closingEndowment);
-      expect(stateResponse.closingBeneficiary.enumData).to.equal(state.closingBeneficiary.enumData);
+      expect(stateResponse.closingEndowment).to.equal(endowState.closingEndowment);
+      expect(stateResponse.closingBeneficiary.enumData).to.equal(
+        endowState.closingBeneficiary.enumData
+      );
       expect(stateResponse.closingBeneficiary.data.addr).to.equal(
-        state.closingBeneficiary.data.addr
+        endowState.closingBeneficiary.data.addr
       );
       expect(stateResponse.closingBeneficiary.data.endowId).to.equal(
-        state.closingBeneficiary.data.endowId
+        endowState.closingBeneficiary.data.endowId
       );
       expect(stateResponse.closingBeneficiary.data.fundId).to.equal(
-        state.closingBeneficiary.data.fundId
+        endowState.closingBeneficiary.data.fundId
       );
     });
   });
