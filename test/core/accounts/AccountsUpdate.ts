@@ -4,6 +4,7 @@ import hre from "hardhat";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {AccountsUpdate, AccountsUpdate__factory, TestFacetProxyContract} from "typechain-types";
 import {LibAccounts} from "typechain-types/contracts/core/accounts/facets/AccountsCreateEndowment";
+import {getSigners} from "utils";
 
 describe("AccountsUpdate", function () {
   const {ethers} = hre;
@@ -17,7 +18,11 @@ describe("AccountsUpdate", function () {
   let earlyLockedWithdrawFee: LibAccounts.FeeSettingStruct;
 
   before(async function () {
-    [owner, proxyAdmin, user] = await ethers.getSigners();
+    const signers = await getSigners(hre);
+    owner = signers.apTeam1;
+    proxyAdmin = signers.proxyAdmin;
+    user = signers.deployer;
+
     newRegistrar = user.address;
     maxGeneralCategoryId = 2;
     earlyLockedWithdrawFee = {
