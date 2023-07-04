@@ -11,7 +11,7 @@ describe("AccountsUpdate", function () {
   let proxyAdmin: SignerWithAddress;
   let user: SignerWithAddress;
   let facet: AccountsUpdate;
-  let proxy: TestFacetProxyContract;
+  let state: TestFacetProxyContract;
   let newRegistrar: string;
   let maxGeneralCategoryId: number;
   let earlyLockedWithdrawFee: LibAccounts.FeeSettingStruct;
@@ -29,9 +29,9 @@ describe("AccountsUpdate", function () {
   beforeEach(async function () {
     let Facet = new AccountsUpdate__factory(owner);
     let facetImpl = await Facet.deploy();
-    proxy = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
+    state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
 
-    await proxy.setConfig({
+    await state.setConfig({
       owner: owner.address,
       version: "1",
       registrarContract: ethers.constants.AddressZero,
@@ -44,14 +44,14 @@ describe("AccountsUpdate", function () {
       reentrancyGuardLocked: false,
     });
 
-    facet = AccountsUpdate__factory.connect(proxy.address, owner);
+    facet = AccountsUpdate__factory.connect(state.address, owner);
   });
 
   describe("updateOwner", () => {
     it("should update the owner when called by the current owner", async () => {
       await facet.updateOwner(user.address);
 
-      const {owner} = await proxy.getConfig();
+      const {owner} = await state.getConfig();
       expect(owner).to.equal(user.address);
     });
 
@@ -74,7 +74,7 @@ describe("AccountsUpdate", function () {
     it("should update the config when called by the owner", async () => {
       await facet.updateConfig(newRegistrar, maxGeneralCategoryId, earlyLockedWithdrawFee);
 
-      const config = await proxy.getConfig();
+      const config = await state.getConfig();
       expect(config.registrarContract).to.equal(newRegistrar);
       expect(config.maxGeneralCategoryId).to.equal(maxGeneralCategoryId);
       expect(config.earlyLockedWithdrawFee.bps).to.equal(earlyLockedWithdrawFee.bps);
