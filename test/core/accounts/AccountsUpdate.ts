@@ -23,7 +23,7 @@ describe("AccountsUpdate", function () {
     proxyAdmin = signers.proxyAdmin;
     user = signers.deployer;
 
-    newRegistrar = user.address;
+    newRegistrar = signers.airdropOwner.address;
     maxGeneralCategoryId = 2;
     earlyLockedWithdrawFee = {
       bps: 2000,
