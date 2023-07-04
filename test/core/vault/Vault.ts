@@ -1,27 +1,28 @@
-import {expect} from "chai";
-import {ethers} from "hardhat";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {expect} from "chai";
+import {BigNumber} from "ethers";
+import {ethers} from "hardhat";
 import {
-  DummyERC20,
-  IVault,
-  APVault_V1,
-  APVault_V1__factory,
-  LocalRegistrar,
-  DummyStrategy,
-} from "typechain-types";
-import {
-  deployDummyStrategy,
-  deployDummyERC20,
-  deployRegistrarAsProxy,
-  StrategyApprovalState,
   DEFAULT_STRATEGY_SELECTOR,
   DEFAULT_VAULT_NAME,
   DEFAULT_VAULT_SYMBOL,
+  StrategyApprovalState,
+  deployDummyERC20,
+  deployDummyStrategy,
+  deployRegistrarAsProxy,
 } from "test/utils";
-import {BigNumber} from "ethers";
+import {
+  APVault_V1,
+  APVault_V1__factory,
+  DummyERC20,
+  DummyStrategy,
+  IVault,
+  Registrar,
+} from "typechain-types";
 
 describe("Vault", function () {
   let owner: SignerWithAddress;
+  let proxyAdmin: SignerWithAddress;
   let user: SignerWithAddress;
   let collector: SignerWithAddress;
 
@@ -67,7 +68,7 @@ describe("Vault", function () {
     let vault: APVault_V1;
     let token: DummyERC20;
     before(async function () {
-      [owner, user, collector] = await ethers.getSigners();
+      [owner, user, collector, proxyAdmin] = await ethers.getSigners();
       token = await deployDummyERC20(owner);
     });
     beforeEach(async function () {
@@ -169,7 +170,7 @@ describe("Vault", function () {
     let baseToken: DummyERC20;
     let yieldToken: DummyERC20;
     let strategy: DummyStrategy;
-    let registrar: LocalRegistrar;
+    let registrar: Registrar;
     before(async function () {
       baseToken = await deployDummyERC20(owner);
       yieldToken = await deployDummyERC20(owner);
@@ -178,7 +179,7 @@ describe("Vault", function () {
         yieldToken: yieldToken.address,
         admin: owner.address,
       });
-      registrar = await deployRegistrarAsProxy(owner);
+      registrar = await deployRegistrarAsProxy(owner, proxyAdmin);
       await registrar.setVaultOperatorApproved(owner.address, true);
     });
     beforeEach(async function () {
@@ -276,13 +277,13 @@ describe("Vault", function () {
     let baseToken: DummyERC20;
     let yieldToken: DummyERC20;
     let strategy: DummyStrategy;
-    let registrar: LocalRegistrar;
+    let registrar: Registrar;
     const DEPOSIT = 1_000_000_000; // $1000
     const EX_RATE = 2;
     const TAX_RATE = 100; // bps
     const PRECISION = BigNumber.from(10).pow(24);
     before(async function () {
-      registrar = await deployRegistrarAsProxy(owner);
+      registrar = await deployRegistrarAsProxy(owner, proxyAdmin);
       await registrar.setVaultOperatorApproved(owner.address, true);
       await registrar.setFeeSettingsByFeesType(0, TAX_RATE, collector.address); // establish tax collector
     });
@@ -389,12 +390,12 @@ describe("Vault", function () {
     let baseToken: DummyERC20;
     let yieldToken: DummyERC20;
     let strategy: DummyStrategy;
-    let registrar: LocalRegistrar;
+    let registrar: Registrar;
     const DEPOSIT = 1_000_000_000; // $1000
     const EX_RATE = 2;
     const TAX_RATE = 100; // bps
     before(async function () {
-      registrar = await deployRegistrarAsProxy(owner);
+      registrar = await deployRegistrarAsProxy(owner, proxyAdmin);
       await registrar.setVaultOperatorApproved(owner.address, true);
       await registrar.setFeeSettingsByFeesType(0, TAX_RATE, collector.address); // establish tax collector
     });
@@ -466,13 +467,13 @@ describe("Vault", function () {
     let baseToken: DummyERC20;
     let yieldToken: DummyERC20;
     let strategy: DummyStrategy;
-    let registrar: LocalRegistrar;
+    let registrar: Registrar;
     const DEPOSIT = 1_000_000_000; // $1000
     const EX_RATE = 2;
     const TAX_RATE = 100; // bps
     const PRECISION = BigNumber.from(10).pow(24);
     before(async function () {
-      registrar = await deployRegistrarAsProxy(owner);
+      registrar = await deployRegistrarAsProxy(owner, proxyAdmin);
       await registrar.setVaultOperatorApproved(owner.address, true);
       await registrar.setFeeSettingsByFeesType(1, TAX_RATE, collector.address); // harvest fee type, establish tax collector
     });

@@ -1,7 +1,6 @@
 import {ethers} from "hardhat";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {LibAccounts} from "typechain-types/contracts/multisigs/CharityApplications";
-import {IAccountsStrategy} from "typechain-types";
 
 export const DEFAULT_PERMISSIONS_STRUCT: LibAccounts.SettingsPermissionStruct = {
   locked: false,
