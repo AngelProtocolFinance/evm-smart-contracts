@@ -9,7 +9,8 @@
     "allowSyntheticDefaultImports": true,
     "outDir": "dist",
     "declaration": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "typeRoots": ["./types"]
   },
   "include": [
     "./contracts",
@@ -18,7 +19,8 @@
     "./utils",
     "./tasks/*",
     "./test",
-    "./typechain-types"
+    "./typechain-types",
+    "chai.d.ts"
   ],
   "files": ["./hardhat.config.ts"]
 }
