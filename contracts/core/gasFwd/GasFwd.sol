@@ -9,12 +9,13 @@ contract GasFwd is IGasFwd, Initializable {
   error OnlyAccounts();
 
   address accounts;
+
   function initialize(address _accounts) public initializer {
     accounts = _accounts;
   }
 
   modifier onlyAccounts() {
-    if(msg.sender != accounts){
+    if (msg.sender != accounts) {
       revert OnlyAccounts();
     }
     _;
