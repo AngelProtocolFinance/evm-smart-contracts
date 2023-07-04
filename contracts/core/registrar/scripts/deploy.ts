@@ -1,30 +1,38 @@
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {ProxyContract__factory, Registrar__factory} from "typechain-types";
-import {
-  Deployment,
-  getContractName,
-  getSigners,
-  logger,
-  updateAddresses,
-  validateAddress,
-} from "utils";
+import {Deployment, getContractName, logger, updateAddresses, validateAddress} from "utils";
+
+type Data = {
+  axelarGateway: string;
+  axelarGasService: string;
+  router: string;
+  owner?: string;
+  deployer: SignerWithAddress;
+  proxyAdmin: SignerWithAddress;
+  treasuryAddress: string;
+};
 
 export async function deployRegistrar(
-  axelarGateway = "",
-  axelarGasService = "",
-  router = "", // no need to verify address validity, as Registrar will be deployed before the router
-  owner = "",
+  {
+    axelarGateway,
+    axelarGasService,
+    router,
+    owner = "",
+    deployer,
+    proxyAdmin,
+    treasuryAddress,
+  }: Data,
   hre: HardhatRuntimeEnvironment
 ): Promise<Deployment | undefined> {
   logger.out("Deploying Registrar...");
-
-  const {deployer, proxyAdmin, treasury} = await getSigners(hre);
 
   try {
     validateAddress(axelarGateway, "axelarGateway");
     validateAddress(axelarGasService, "axelarGasService");
     validateAddress(owner, "owner");
+    // no need to verify router address validity, as Registrar will be deployed before the router
 
     // deploy implementation
     logger.out("Deploying implementation...");
@@ -35,20 +43,20 @@ export async function deployRegistrar(
 
     // deploy proxy
     logger.out("Deploying proxy...");
-    const data = registrar.interface.encodeFunctionData(
+    const initData = registrar.interface.encodeFunctionData(
       "initialize((address,(uint256,uint256,uint256),address,address,address))",
       [
         {
-          treasury: treasury.address,
+          treasury: treasuryAddress,
           splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
-          router,
-          axelarGateway,
+          router: router,
+          axelarGateway: axelarGateway,
           axelarGasRecv: axelarGasService,
         },
       ]
     );
     const proxyFactory = new ProxyContract__factory(deployer);
-    const proxy = await proxyFactory.deploy(registrar.address, proxyAdmin.address, data);
+    const proxy = await proxyFactory.deploy(registrar.address, proxyAdmin.address, initData);
     await proxy.deployed();
     logger.out(`Address: ${proxy.address}`);
 

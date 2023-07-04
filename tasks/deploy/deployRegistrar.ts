@@ -34,17 +34,22 @@ task(
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const {treasury, proxyAdmin} = await getSigners(hre);
+      const {treasury, proxyAdmin, deployer} = await getSigners(hre);
       const addresses = await getAddresses(hre);
 
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const oldRouterAddress = taskArgs.router || addresses.router.proxy;
 
       const registrarDeployment = await deployRegistrar(
-        addresses.axelar.gateway,
-        addresses.axelar.gasService,
-        oldRouterAddress,
-        apTeamMultiSig,
+        {
+          axelarGateway: addresses.axelar.gateway,
+          axelarGasService: addresses.axelar.gasService,
+          router: oldRouterAddress,
+          owner: apTeamMultiSig,
+          deployer,
+          proxyAdmin,
+          treasuryAddress: treasury.address,
+        },
         hre
       );
 

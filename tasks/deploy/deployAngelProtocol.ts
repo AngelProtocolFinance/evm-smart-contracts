@@ -31,7 +31,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       const verify_contracts = !isLocalNetwork(hre) && !taskArgs.skipVerify;
 
-      const {proxyAdmin, treasury} = await getSigners(hre);
+      const {deployer, proxyAdmin, treasury} = await getSigners(hre);
 
       await resetAddresses(hre);
 
@@ -42,10 +42,15 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       const apTeamMultisig = await deployAPTeamMultiSig(hre);
 
       const registrar = await deployRegistrar(
-        thirdPartyAddresses.axelarGateway.address,
-        thirdPartyAddresses.axelarGasService.address,
-        ADDRESS_ZERO,
-        apTeamMultisig?.address,
+        {
+          axelarGateway: thirdPartyAddresses.axelarGateway.address,
+          axelarGasService: thirdPartyAddresses.axelarGasService.address,
+          router: ADDRESS_ZERO,
+          owner: apTeamMultisig?.address,
+          deployer,
+          proxyAdmin,
+          treasuryAddress: treasury.address,
+        },
         hre
       );
 
