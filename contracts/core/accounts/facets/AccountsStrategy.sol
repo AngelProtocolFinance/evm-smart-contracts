@@ -9,17 +9,19 @@ import {LocalRegistrarLib} from "../../registrar/lib/LocalRegistrarLib.sol";
 import {IRouter} from "../../router/IRouter.sol";
 import {RouterLib} from "../../router/RouterLib.sol";
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
-import {AddressToString} from "../../../lib/StringAddressUtils.sol";
+import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService.sol";
+import {AddressToString, StringToAddress} from "../../../lib/StringAddressUtils.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
 import {IAccountsStrategy} from "../interfaces/IAccountsStrategy.sol";
+import {AxelarExecutable} from "../../../axelar/AxelarExecutable.sol";
 
 /**
  * @title AccountsStrategy
  * @dev This contract manages interacting with Angel Protocol strategy integrations
  */
-contract AccountsStrategy is IAccountsStrategy, ReentrancyGuardFacet, IAccountsEvents {
+contract AccountsStrategy is IAccountsStrategy, AxelarExecutable, ReentrancyGuardFacet, IAccountsEvents {
   /**
    * @notice This function that allows users to deposit into a yield strategy using tokens from their locked or liquid account in an endowment.
    * @dev Allows the owner of an endowment to invest tokens into specified yield vaults.
@@ -34,7 +36,8 @@ contract AccountsStrategy is IAccountsStrategy, ReentrancyGuardFacet, IAccountsE
     bytes4 strategy,
     string memory token,
     uint256 lockAmt,
-    uint256 liquidAmt
+    uint256 liquidAmt,
+    uint256 gasFee
   ) public payable nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
@@ -64,17 +67,17 @@ contract AccountsStrategy is IAccountsStrategy, ReentrancyGuardFacet, IAccountsE
       );
     }
 
+    LocalRegistrarLib.StrategyParams memory stratParams = IRegistrar(state.config.registrarContract)
+      .getStrategyParamsById(strategy);
     require(
-      IRegistrar(state.config.registrarContract).getStrategyApprovalState(strategy) ==
-        LocalRegistrarLib.StrategyApprovalState.APPROVED,
-      "Strategy is not approved"
+      stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.APPROVED,
+      "Vault is not approved"
     );
 
-    NetworkInfo memory network = IRegistrar(state.config.registrarContract).queryNetworkConnection(
-      block.chainid
-    );
+    NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)
+      .queryNetworkConnection(state.config.networkName);
 
-    address tokenAddress = IAxelarGateway(network.axelarGateway).tokenAddresses(token);
+    address tokenAddress = IAxelarGateway(thisNetwork.axelarGateway).tokenAddresses(token);
 
     require(state.STATES[id].balances.locked[tokenAddress] >= lockAmt, "Insufficient Balance");
     require(state.STATES[id].balances.liquid[tokenAddress] >= liquidAmt, "Insufficient Balance");
@@ -87,34 +90,70 @@ contract AccountsStrategy is IAccountsStrategy, ReentrancyGuardFacet, IAccountsE
     uint32[] memory accts = new uint32[](1);
     accts[0] = id;
 
-    IVault.VaultActionData memory payload = IVault.VaultActionData({
-      destinationChain: network.name,
-      strategyId: strategy,
-      selector: IVault.deposit.selector,
-      accountIds: accts,
-      token: tokenAddress,
-      lockAmt: lockAmt,
-      liqAmt: liquidAmt,
-      status: IVault.VaultActionStatus.UNPROCESSED
-    });
-    bytes memory packedPayload = RouterLib.packCallData(payload);
+    // Strategy exists on the local network
+    if(Validator.compareStrings(state.config.networkName, stratParams.network)) {
+      IVault.VaultActionData memory payload = IVault.VaultActionData({
+        destinationChain: state.config.networkName,
+        strategyId: strategy,
+        selector: IVault.deposit.selector,
+        accountIds: accts,
+        token: tokenAddress,
+        lockAmt: lockAmt,
+        liqAmt: liquidAmt,
+        status: IVault.VaultActionStatus.UNPROCESSED
+      });
+      bytes memory packedPayload = RouterLib.packCallData(payload);
 
-    IVault.VaultActionData memory response = IRouter(network.router).executeWithTokenLocal(
-      network.name,
-      AddressToString.toString(address(this)),
-      packedPayload,
-      token,
-      (lockAmt + liquidAmt)
-    );
+      IVault.VaultActionData memory response = IRouter(thisNetwork.router).executeWithTokenLocal(
+        state.config.networkName,
+        AddressToString.toString(address(this)),
+        packedPayload,
+        token,
+        (lockAmt + liquidAmt)
+      );
 
-    if (
-      response.status == IVault.VaultActionStatus.SUCCESS ||
-      response.status == IVault.VaultActionStatus.FAIL_TOKENS_FALLBACK
-    ) {
-      state.STATES[id].balances.locked[tokenAddress] -= response.lockAmt;
-      state.STATES[id].balances.liquid[tokenAddress] -= response.liqAmt;
-      state.STATES[id].activeStrategies[strategy] == true;
-      // emit EndowmentStateUpdated(id);
+      if (
+        response.status == IVault.VaultActionStatus.SUCCESS ||
+        response.status == IVault.VaultActionStatus.FAIL_TOKENS_FALLBACK
+      ) {
+        state.STATES[id].balances.locked[tokenAddress] -= response.lockAmt;
+        state.STATES[id].balances.liquid[tokenAddress] -= response.liqAmt;
+        state.STATES[id].activeStrategies[strategy] == true;
+      }
+    }
+
+    // Strategy lives on another chain
+    else {
+      NetworkInfo memory network = IRegistrar(state.config.registrarContract).queryNetworkConnection(stratParams.network);
+      IVault.VaultActionData memory payload = IVault.VaultActionData({
+        destinationChain: stratParams.network,
+        strategyId: strategy,
+        selector: IVault.deposit.selector,
+        accountIds: accts,
+        token: tokenAddress,
+        lockAmt: lockAmt,
+        liqAmt: liquidAmt,
+        status: IVault.VaultActionStatus.UNPROCESSED
+      });
+      bytes memory packedPayload = RouterLib.packCallData(payload);
+      IAxelarGasService(thisNetwork.gasReceiver).payGasForContractCallWithToken(
+        address(this),
+        stratParams.network,
+        AddressToString.toString(network.router),
+        packedPayload,
+        token,
+        (lockAmt + liquidAmt - gasFee),
+        StringToAddress.toAddress(token),
+        gasFee,
+        state.ENDOWMENTS[id].owner
+      );
+      IAxelarGateway(network.axelarGateway).callContractWithToken(
+        stratParams.network,
+        AddressToString.toString(network.router),
+        packedPayload,
+        token, 
+        (lockAmt + liquidAmt - gasFee)
+      );
     }
   }
 
@@ -125,13 +164,15 @@ contract AccountsStrategy is IAccountsStrategy, ReentrancyGuardFacet, IAccountsE
    * @param token The vaults to redeem from
    * @param lockAmt The amt to remdeem from the locked component
    * @param liquidAmt The amt to redeem from the liquid component
+   * @param gasFee for cross-chain calls, this should be the expected gas cost to fwd
    */
   function strategyRedeem(
     uint32 id,
     bytes4 strategy,
     string memory token,
     uint256 lockAmt,
-    uint256 liquidAmt
+    uint256 liquidAmt,
+    uint256 gasFee
   ) public payable nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
@@ -170,40 +211,69 @@ contract AccountsStrategy is IAccountsStrategy, ReentrancyGuardFacet, IAccountsE
       stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.APPROVED,
       "Vault is not approved"
     );
-    
-    NetworkInfo memory network = IRegistrar(state.config.registrarContract).queryNetworkConnection(
-      block.chainid
-    );
 
-    address tokenAddress = IAxelarGateway(network.axelarGateway).tokenAddresses(token);
-
+    NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)
+      .queryNetworkConnection(state.config.networkName);
+    address tokenAddress = IAxelarGateway(thisNetwork.axelarGateway).tokenAddresses(token);
     uint32[] memory accts = new uint32[](1);
     accts[0] = id;
-    IVault.VaultActionData memory payload = IVault.VaultActionData({
-      destinationChain: network.name,
-      strategyId: strategy,
-      selector: IVault.redeem.selector,
-      accountIds: accts,
-      token: tokenAddress,
-      lockAmt: lockAmt,
-      liqAmt: liquidAmt,
-      status: IVault.VaultActionStatus.UNPROCESSED
-    });
-
-    bytes memory packedPayload = RouterLib.packCallData(payload);
-
-    IVault.VaultActionData memory response = IRouter(network.router).executeLocal(
-      network.name,
-      AddressToString.toString(address(this)),
-      packedPayload
-    );
-    if (response.status == IVault.VaultActionStatus.SUCCESS) {
-      state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
-      state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
-      // emit EndowmentStateUpdated(id);
+  
+    // Strategy exists on the local network
+    if(Validator.compareStrings(state.config.networkName, stratParams.network)) {
+       IVault.VaultActionData memory payload = IVault.VaultActionData({
+        destinationChain: state.config.networkName,
+        strategyId: strategy,
+        selector: IVault.redeem.selector,
+        accountIds: accts,
+        token: tokenAddress,
+        lockAmt: lockAmt,
+        liqAmt: liquidAmt,
+        status: IVault.VaultActionStatus.UNPROCESSED
+      });
+      bytes memory packedPayload = RouterLib.packCallData(payload);
+      IVault.VaultActionData memory response = IRouter(thisNetwork.router).executeLocal(
+        state.config.networkName,
+        AddressToString.toString(address(this)),
+        packedPayload
+      );
+      if (response.status == IVault.VaultActionStatus.SUCCESS) {
+        state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
+        state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
+        // emit EndowmentStateUpdated(id);
+      }
+      if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
+        state.STATES[id].activeStrategies[strategy] == false;
+      }
     }
-    if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
-      state.STATES[id].activeStrategies[strategy] == false;
+
+    // Strategy lives on another chain
+    else {
+      NetworkInfo memory network = IRegistrar(state.config.registrarContract).queryNetworkConnection(stratParams.network);
+      IVault.VaultActionData memory payload = IVault.VaultActionData({
+        destinationChain: stratParams.network,
+        strategyId: strategy,
+        selector: IVault.redeem.selector,
+        accountIds: accts,
+        token: tokenAddress,
+        lockAmt: lockAmt,
+        liqAmt: liquidAmt,
+        status: IVault.VaultActionStatus.UNPROCESSED
+      });
+      bytes memory packedPayload = RouterLib.packCallData(payload);
+      IAxelarGasService(thisNetwork.gasReceiver).payGasForContractCall(
+        address(this),
+        stratParams.network,
+        AddressToString.toString(network.router),
+        packedPayload,
+        tokenAddress,
+        gasFee,
+        state.ENDOWMENTS[id].owner
+      );
+      IAxelarGateway(network.axelarGateway).callContract(
+        stratParams.network,
+        AddressToString.toString(network.router),
+        packedPayload
+      );
     }
   }
 
@@ -216,50 +286,108 @@ contract AccountsStrategy is IAccountsStrategy, ReentrancyGuardFacet, IAccountsE
   function strategyRedeemAll(
     uint32 id,
     bytes4 strategy,
-    string memory token
+    string memory token,
+    uint256 gasFee
   ) public payable nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
     require(tempEndowment.owner == msg.sender, "Unauthorized");
     require(tempEndowment.pendingRedemptions == 0, "RedemptionInProgress");
+
+    LocalRegistrarLib.StrategyParams memory stratParams = IRegistrar(state.config.registrarContract)
+      .getStrategyParamsById(strategy);
     require(
-      IRegistrar(state.config.registrarContract).getStrategyApprovalState(strategy) ==
-        LocalRegistrarLib.StrategyApprovalState.APPROVED,
+      stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.APPROVED,
       "Vault is not approved"
     );
-    NetworkInfo memory network = IRegistrar(state.config.registrarContract).queryNetworkConnection(
-      block.chainid
+
+    NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract).queryNetworkConnection(
+      state.config.networkName
     );
-
-    address tokenAddress = IAxelarGateway(network.axelarGateway).tokenAddresses(token);
-
+    address tokenAddress = IAxelarGateway(thisNetwork.axelarGateway).tokenAddresses(token);
     uint32[] memory accts = new uint32[](1);
     accts[0] = id;
-    IVault.VaultActionData memory payload = IVault.VaultActionData({
-      destinationChain: network.name,
-      strategyId: strategy,
-      selector: IVault.redeemAll.selector,
-      accountIds: accts,
-      token: tokenAddress,
-      lockAmt: 0,
-      liqAmt: 0,
-      status: IVault.VaultActionStatus.UNPROCESSED
-    });
-    bytes memory packedPayload = RouterLib.packCallData(payload);
 
-    IVault.VaultActionData memory response = IRouter(network.router).executeLocal(
-      network.name,
-      AddressToString.toString(address(this)),
-      packedPayload
-    );
+    if(Validator.compareStrings(state.config.networkName, stratParams.network)) {
 
-    if (response.status == IVault.VaultActionStatus.SUCCESS) {
-      state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
-      state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
-      // emit EndowmentStateUpdated(id);
+      IVault.VaultActionData memory payload = IVault.VaultActionData({
+        destinationChain: state.config.networkName,
+        strategyId: strategy,
+        selector: IVault.redeemAll.selector,
+        accountIds: accts,
+        token: tokenAddress,
+        lockAmt: 0,
+        liqAmt: 0,
+        status: IVault.VaultActionStatus.UNPROCESSED
+      });
+      bytes memory packedPayload = RouterLib.packCallData(payload);
+
+      IVault.VaultActionData memory response = IRouter(thisNetwork.router).executeLocal(
+        state.config.networkName,
+        AddressToString.toString(address(this)),
+        packedPayload
+      );
+
+      if (response.status == IVault.VaultActionStatus.SUCCESS) {
+        state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
+        state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
+        // emit EndowmentStateUpdated(id);
+      }
+      if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
+        state.STATES[id].activeStrategies[strategy] == false;
+      }
     }
-    if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
-      state.STATES[id].activeStrategies[strategy] == false;
+    else {
+      NetworkInfo memory network = IRegistrar(state.config.registrarContract).queryNetworkConnection(stratParams.network);
+      IVault.VaultActionData memory payload = IVault.VaultActionData({
+        destinationChain: stratParams.network,
+        strategyId: strategy,
+        selector: IVault.redeemAll.selector,
+        accountIds: accts,
+        token: tokenAddress,
+        lockAmt: 0,
+        liqAmt: 0,
+        status: IVault.VaultActionStatus.UNPROCESSED
+      });
+      bytes memory packedPayload = RouterLib.packCallData(payload);
+      IAxelarGasService(thisNetwork.gasReceiver).payGasForContractCall(
+        address(this),
+        stratParams.network,
+        AddressToString.toString(network.router),
+        packedPayload,
+        tokenAddress,
+        gasFee,
+        state.ENDOWMENTS[id].owner
+      );
+      IAxelarGateway(network.axelarGateway).callContract(
+        stratParams.network,
+        AddressToString.toString(network.router),
+        packedPayload
+      );
     }
   }
+
+  
+  // axelar endpoints
+  function _executeWithToken(
+    string calldata sourceChain,
+    string calldata sourceAddress,
+    bytes calldata payload,
+    string calldata tokenSymbol,
+    uint256 amount
+  )
+    internal
+    override returns (IVault.VaultActionData memory) {
+
+  }
+
+  function _execute(
+    string calldata sourceChain,
+    string calldata sourceAddress,
+    bytes calldata payload
+  ) internal override returns (IVault.VaultActionData memory) {
+
+  }
+
+
 }

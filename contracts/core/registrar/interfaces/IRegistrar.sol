@@ -14,6 +14,7 @@ interface IRegistrar is ILocalRegistrar {
   function updateTokenPriceFeed(address token, address priceFeed) external;
 
   function updateNetworkConnections(
+    string memory networkName,
     IAccountsStrategy.NetworkInfo memory networkInfo,
     string memory action
   ) external;
@@ -27,7 +28,7 @@ interface IRegistrar is ILocalRegistrar {
   function queryAllStrategies() external view returns (bytes4[] memory allStrategies);
 
   function queryNetworkConnection(
-    uint256 chainId
+    string memory networkName
   ) external view returns (IAccountsStrategy.NetworkInfo memory response);
 
   function owner() external view returns (address);

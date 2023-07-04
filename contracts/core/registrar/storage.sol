@@ -43,7 +43,7 @@ library RegistrarStorage {
     Config config;
     bytes4[] STRATEGIES;
     mapping(LibAccounts.FeeTypes => LibAccounts.FeeSetting) FeeSettingsByFeeType;
-    mapping(uint256 => IAccountsStrategy.NetworkInfo) NETWORK_CONNECTIONS;
+    mapping(string => IAccountsStrategy.NetworkInfo) NETWORK_CONNECTIONS;
     mapping(address => address) PriceFeeds;
   }
 }

@@ -6,13 +6,12 @@ pragma solidity ^0.8.16;
  */
 interface IAccountsStrategy {
   struct NetworkInfo {
-    string name;
     uint256 chainId;
     address router; //SHARED
     address axelarGateway;
     string ibcChannel; // Should be removed
     string transferChannel;
-    address gasReceiver; // Should be removed
+    address gasReceiver; 
     uint256 gasLimit; // Should be used to set gas limit
   }
 
@@ -30,7 +29,8 @@ interface IAccountsStrategy {
     bytes4 strategy,
     string memory token,
     uint256 lockAmt,
-    uint256 liquidAmt
+    uint256 liquidAmt,
+    uint256 gasFee
   ) external payable;
 
   /**
@@ -46,7 +46,8 @@ interface IAccountsStrategy {
     bytes4 strategy,
     string memory token,
     uint256 lockAmt,
-    uint256 liquidAmt
+    uint256 liquidAmt,
+    uint256 gasFee
   ) external payable;
 
   /**
@@ -55,5 +56,10 @@ interface IAccountsStrategy {
    * @param strategy The strategy to redeem from
    * @param token The vaults to redeem from
    */
-  function strategyRedeemAll(uint32 id, bytes4 strategy, string memory token) external payable;
+  function strategyRedeemAll(
+    uint32 id, 
+    bytes4 strategy, 
+    string memory token, 
+    uint256 gasFee
+    ) external payable;
 }

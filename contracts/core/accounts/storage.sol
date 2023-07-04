@@ -8,6 +8,7 @@ library AccountStorage {
   struct Config {
     address owner;
     string version;
+    string networkName;
     address registrarContract;
     uint32 nextAccountId;
     uint256 maxGeneralCategoryId;

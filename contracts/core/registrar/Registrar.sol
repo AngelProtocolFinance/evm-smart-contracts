@@ -63,8 +63,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     });
     emit ConfigUpdated();
 
-    state.NETWORK_CONNECTIONS[block.chainid] = IAccountsStrategy.NetworkInfo({
-      name: "Polygon",
+    state.NETWORK_CONNECTIONS["Polygon"] = IAccountsStrategy.NetworkInfo({
       chainId: block.chainid,
       router: details.router,
       axelarGateway: details.axelarGateway,
@@ -235,14 +234,15 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
    * @param action The action to perform (post or delete)
    */
   function updateNetworkConnections(
+    string memory networkName,
     IAccountsStrategy.NetworkInfo memory networkInfo,
     string memory action
   ) public nonReentrant onlyOwner {
     if (Validator.compareStrings(action, "post")) {
-      state.NETWORK_CONNECTIONS[networkInfo.chainId] = networkInfo;
+      state.NETWORK_CONNECTIONS[networkName] = networkInfo;
       emit NetworkConnectionPosted(networkInfo.chainId);
     } else if (Validator.compareStrings(action, "delete")) {
-      delete state.NETWORK_CONNECTIONS[networkInfo.chainId];
+      delete state.NETWORK_CONNECTIONS[networkName];
       emit NetworkConnectionRemoved(networkInfo.chainId);
     } else {
       revert("Invalid inputs");
@@ -260,13 +260,13 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
 
   /**
    * @dev Query the network connection in registrar
-   * @param chainId The chain id of the network to query
+   * @param networkName The chain name to query
    * @return response The network connection
    */
   function queryNetworkConnection(
-    uint256 chainId
+    string memory networkName
   ) public view returns (IAccountsStrategy.NetworkInfo memory response) {
-    response = state.NETWORK_CONNECTIONS[chainId];
+    response = state.NETWORK_CONNECTIONS[networkName];
   }
 
   // Query functions for contract
