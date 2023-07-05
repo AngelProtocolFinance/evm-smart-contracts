@@ -29,6 +29,7 @@ contract AccountsUpdateStatusEndowments is
    */
   function closeEndowment(
     uint32 id,
+    // IT'S POSSIBLE TO PASS A DIFFERENT `beneficiary.data.endowId` FROM `uint32 id` ABOVE
     LibAccounts.Beneficiary memory beneficiary
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
