@@ -220,7 +220,7 @@ contract AccountsStrategy is
       .getStrategyParamsById(strategy);
     require(
       stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.APPROVED,
-      "Vault is not approved"
+      "Strategy is not approved"
     );
 
     NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)
@@ -251,9 +251,12 @@ contract AccountsStrategy is
         state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
         state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
         // emit EndowmentStateUpdated(id);
-      }
-      if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
+      } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
+        state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
+        state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
         state.STATES[id].activeStrategies[strategy] == false;
+      } else {
+        revert RedeemFailed(response.status);
       }
     }
     // Strategy lives on another chain
@@ -309,7 +312,7 @@ contract AccountsStrategy is
       .getStrategyParamsById(strategy);
     require(
       stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.APPROVED,
-      "Vault is not approved"
+      "Strategy is not approved"
     );
 
     NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)

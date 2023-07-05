@@ -24,4 +24,5 @@ interface IAccountsEvents {
   );
   event EndowmentSettingUpdated(uint256 endowId, string setting);
   event EndowmentInvested(IVault.VaultActionStatus);
+  event EndowmentRedeemed(IVault.VaultActionStatus);
 }
