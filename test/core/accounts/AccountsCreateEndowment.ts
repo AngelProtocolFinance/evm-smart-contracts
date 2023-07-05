@@ -1,7 +1,6 @@
 import {smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
-import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
@@ -10,10 +9,13 @@ import {
   AccountsCreateEndowment__factory,
   EndowmentMultiSigFactory,
   EndowmentMultiSigFactory__factory,
+  Registrar,
   Registrar__factory,
   TestFacetProxyContract,
 } from "typechain-types";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsCreateEndowment";
+import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
+import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import "../../utils/setup";
 
 use(smock.matchers);
@@ -23,25 +25,23 @@ describe("AccountsCreateEndowment", function () {
   let owner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
   let charityApplications: SignerWithAddress;
-  let axelarGateway: SignerWithAddress;
-  let deployer: SignerWithAddress;
-  let treasury: SignerWithAddress;
   let donationMatchCharitesContract: SignerWithAddress;
   let facet: AccountsCreateEndowment;
   let proxy: TestFacetProxyContract;
   let createEndowmentRequest: AccountMessages.CreateEndowmentRequestStruct;
   let endowmentOwner: string;
+  let endowFactoryAddress: string;
+  let registrarFakeAddress: string;
 
   before(async function () {
     [
       owner,
       proxyAdmin,
       charityApplications,
-      axelarGateway,
-      deployer,
-      treasury,
       donationMatchCharitesContract,
       {address: endowmentOwner},
+      {address: endowFactoryAddress},
+      {address: registrarFakeAddress},
     ] = await ethers.getSigners();
 
     const defaultSettingsPermissionsStruct = {
@@ -108,38 +108,58 @@ describe("AccountsCreateEndowment", function () {
   });
 
   beforeEach(async function () {
-    const registrarDeployment = await deployRegistrar(
-      {
-        axelarGateway: axelarGateway.address,
-        axelarGasService: proxyAdmin.address,
-        router: ethers.constants.AddressZero,
-        owner: owner.address,
-        deployer,
-        proxyAdmin,
-        treasuryAddress: treasury.address,
-      },
-      hre
-    );
     const endowmentFactoryFake = await smock.fake<EndowmentMultiSigFactory>(
       new EndowmentMultiSigFactory__factory(),
       {
-        address: deployer.address,
+        address: endowFactoryAddress,
       }
     );
     endowmentFactoryFake.create.returns(endowmentOwner);
 
-    const Registrar = Registrar__factory.connect(registrarDeployment!.address, owner);
-    const {splitToLiquid, ...curConfig} = await Registrar.queryConfig();
-    await Registrar.updateConfig({
-      ...curConfig,
-      splitDefault: splitToLiquid.defaultSplit,
-      splitMax: splitToLiquid.max,
-      splitMin: splitToLiquid.min,
+    const registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
+      address: registrarFakeAddress,
+    });
+    const rebParams: Partial<LocalRegistrarLib.RebalanceParamsStructOutput> = {
+      basis: 100,
+      rebalanceLiquidProfits: false,
+      lockedRebalanceToLiquid: 75,
+      interestDistribution: 20,
+      lockedPrincipleToLiquid: false,
+      principleDistribution: 0,
+    };
+    registrarFake.getRebalanceParams.returns(rebParams);
+    const config: Partial<RegistrarStorage.ConfigStructOutput> = {
+      indexFundContract: ethers.constants.AddressZero,
+      accountsContract: ethers.constants.AddressZero,
+      treasury: ethers.constants.AddressZero,
+      subdaoGovContract: ethers.constants.AddressZero, // Sub dao implementation
+      subdaoTokenContract: ethers.constants.AddressZero, // NewERC20 implementation
+      subdaoBondingTokenContract: ethers.constants.AddressZero, // Continous Token implementation
+      subdaoCw900Contract: ethers.constants.AddressZero,
+      subdaoDistributorContract: ethers.constants.AddressZero,
+      subdaoEmitter: ethers.constants.AddressZero,
+      donationMatchContract: ethers.constants.AddressZero,
+      splitToLiquid: {max: 0, min: 0, defaultSplit: 0} as any,
+      haloToken: ethers.constants.AddressZero,
+      haloTokenLpContract: ethers.constants.AddressZero,
+      govContract: ethers.constants.AddressZero,
+      donationMatchEmitter: ethers.constants.AddressZero,
+      collectorShare: BigNumber.from(50),
+      charitySharesContract: ethers.constants.AddressZero,
+      fundraisingContract: ethers.constants.AddressZero,
+      uniswapRouter: ethers.constants.AddressZero,
+      uniswapFactory: ethers.constants.AddressZero,
+      lockedWithdrawal: ethers.constants.AddressZero,
+      proxyAdmin: ethers.constants.AddressZero,
+      usdcAddress: ethers.constants.AddressZero,
+      wMaticAddress: ethers.constants.AddressZero,
+      cw900lvAddress: ethers.constants.AddressZero,
       charityApplications: charityApplications.address,
       multisigFactory: endowmentFactoryFake.address,
       multisigEmitter: ethers.constants.AddressZero,
       donationMatchCharitesContract: donationMatchCharitesContract.address,
-    });
+    };
+    registrarFake.queryConfig.returns(config);
 
     let Facet = new AccountsCreateEndowment__factory(owner);
     let facetImpl = await Facet.deploy();
@@ -148,7 +168,7 @@ describe("AccountsCreateEndowment", function () {
     await proxy.setConfig({
       owner: owner.address,
       version: "1",
-      registrarContract: Registrar.address,
+      registrarContract: registrarFake.address,
       nextAccountId: 1,
       maxGeneralCategoryId: 1,
       subDao: ethers.constants.AddressZero,
