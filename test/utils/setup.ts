@@ -1,4 +1,5 @@
 import {logger} from "utils";
+import {LibAccounts} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {Assertion, util} from "chai";
 import {BigNumber} from "ethers";
 
@@ -10,17 +11,8 @@ after(() => {
   logger.on();
 });
 
-Assertion.addMethod("equalStruct", function (struct: any) {
-  var obj = util.flag(this, "object");
-  Object.keys(obj)
-    .filter((key) => isNaN(Number(key)))
-    .forEach((key) => {
-      const structVal = typeof struct[key] === "number" ? BigNumber.from(struct[key]) : struct[key];
-      new Assertion(obj[key]).to.equal(structVal);
-    });
-  // we need to check whether `struct` has the same fields as `obj`
-  Object.keys(struct).forEach((key) => {
-    const structVal = typeof struct[key] === "number" ? BigNumber.from(struct[key]) : struct[key];
-    new Assertion(obj[key]).to.equal(structVal);
-  });
+Assertion.addMethod("equalFee", function (fee: LibAccounts.FeeSettingStruct) {
+  var obj: LibAccounts.FeeSettingStructOutput = util.flag(this, "object");
+  new Assertion(obj.bps).to.equal(BigNumber.from(fee.bps));
+  new Assertion(obj.payoutAddress).to.equal(fee.payoutAddress);
 });
