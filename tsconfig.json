@@ -20,7 +20,7 @@
     "./tasks/*",
     "./test",
     "./typechain-types",
-    "chai.d.ts"
+    "./types"
   ],
   "files": ["./hardhat.config.ts"]
 }
