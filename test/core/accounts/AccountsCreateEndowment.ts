@@ -1,4 +1,4 @@
-import {smock} from "@defi-wonderland/smock";
+import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import {BigNumber} from "ethers";
@@ -30,18 +30,17 @@ describe("AccountsCreateEndowment", function () {
   let proxy: TestFacetProxyContract;
   let createEndowmentRequest: AccountMessages.CreateEndowmentRequestStruct;
   let endowmentOwner: string;
-  let endowFactoryAddress: string;
-  let registrarFakeAddress: string;
+  let registrarFake: FakeContract<Registrar>;
 
   before(async function () {
+    let signers: SignerWithAddress[];
     [
       owner,
       proxyAdmin,
       charityApplications,
       donationMatchCharitesContract,
       {address: endowmentOwner},
-      {address: endowFactoryAddress},
-      {address: registrarFakeAddress},
+      ...signers
     ] = await ethers.getSigners();
 
     const defaultSettingsPermissionsStruct = {
@@ -105,19 +104,17 @@ describe("AccountsCreateEndowment", function () {
         defaultSplit: 50,
       },
     };
-  });
 
-  beforeEach(async function () {
     const endowmentFactoryFake = await smock.fake<EndowmentMultiSigFactory>(
       new EndowmentMultiSigFactory__factory(),
       {
-        address: endowFactoryAddress,
+        address: signers[0].address,
       }
     );
     endowmentFactoryFake.create.returns(endowmentOwner);
 
-    const registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
-      address: registrarFakeAddress,
+    registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
+      address: signers[1].address,
     });
     const rebParams: Partial<LocalRegistrarLib.RebalanceParamsStructOutput> = {
       basis: 100,
@@ -160,7 +157,9 @@ describe("AccountsCreateEndowment", function () {
       donationMatchCharitesContract: donationMatchCharitesContract.address,
     };
     registrarFake.queryConfig.returns(config);
+  });
 
+  beforeEach(async function () {
     let Facet = new AccountsCreateEndowment__factory(owner);
     let facetImpl = await Facet.deploy();
     proxy = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
