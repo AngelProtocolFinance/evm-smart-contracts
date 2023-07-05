@@ -2,9 +2,10 @@ import * as crypto from "crypto";
 import {ethers} from "ethers";
 
 import {pad} from "./logger";
+import {logger} from ".";
 
 export function genWallet(printToConsole: Boolean = false) {
-  console.log("Generating a new wallet");
+  logger.out("Generating a new wallet");
   var id = crypto.randomBytes(32).toString("hex");
   var privateKey = "0x" + id;
   var wallet = new ethers.Wallet(privateKey);
