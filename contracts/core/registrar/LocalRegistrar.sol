@@ -182,7 +182,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
 
   function setStrategyParams(
     bytes4 _strategyId,
-    string memory _network, 
+    string memory _network,
     address _lockAddr,
     address _liqAddr,
     LocalRegistrarLib.StrategyApprovalState _approvalState

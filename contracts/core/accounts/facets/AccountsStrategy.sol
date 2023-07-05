@@ -16,12 +16,18 @@ import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
 import {IAccountsStrategy} from "../interfaces/IAccountsStrategy.sol";
 import {AxelarExecutable} from "../../../axelar/AxelarExecutable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title AccountsStrategy
  * @dev This contract manages interacting with Angel Protocol strategy integrations
  */
-contract AccountsStrategy is IAccountsStrategy, AxelarExecutable, ReentrancyGuardFacet, IAccountsEvents {
+contract AccountsStrategy is
+  IAccountsStrategy,
+  AxelarExecutable,
+  ReentrancyGuardFacet,
+  IAccountsEvents
+{
   /**
    * @notice This function that allows users to deposit into a yield strategy using tokens from their locked or liquid account in an endowment.
    * @dev Allows the owner of an endowment to invest tokens into specified yield vaults.
@@ -71,7 +77,7 @@ contract AccountsStrategy is IAccountsStrategy, AxelarExecutable, ReentrancyGuar
       .getStrategyParamsById(strategy);
     require(
       stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.APPROVED,
-      "Vault is not approved"
+      "Strategy is not approved"
     );
 
     NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)
@@ -91,7 +97,7 @@ contract AccountsStrategy is IAccountsStrategy, AxelarExecutable, ReentrancyGuar
     accts[0] = id;
 
     // Strategy exists on the local network
-    if(Validator.compareStrings(state.config.networkName, stratParams.network)) {
+    if (Validator.compareStrings(state.config.networkName, stratParams.network)) {
       IVault.VaultActionData memory payload = IVault.VaultActionData({
         destinationChain: state.config.networkName,
         strategyId: strategy,
@@ -104,6 +110,7 @@ contract AccountsStrategy is IAccountsStrategy, AxelarExecutable, ReentrancyGuar
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
 
+      IERC20(tokenAddress).transfer(thisNetwork.router, (lockAmt + liquidAmt));
       IVault.VaultActionData memory response = IRouter(thisNetwork.router).executeWithTokenLocal(
         state.config.networkName,
         AddressToString.toString(address(this)),
@@ -112,19 +119,19 @@ contract AccountsStrategy is IAccountsStrategy, AxelarExecutable, ReentrancyGuar
         (lockAmt + liquidAmt)
       );
 
-      if (
-        response.status == IVault.VaultActionStatus.SUCCESS ||
-        response.status == IVault.VaultActionStatus.FAIL_TOKENS_FALLBACK
-      ) {
+      if (response.status == IVault.VaultActionStatus.SUCCESS) {
         state.STATES[id].balances.locked[tokenAddress] -= response.lockAmt;
         state.STATES[id].balances.liquid[tokenAddress] -= response.liqAmt;
         state.STATES[id].activeStrategies[strategy] == true;
+        emit EndowmentInvested(response.status);
+      } else {
+        revert InvestFailed(response.status);
       }
     }
-
     // Strategy lives on another chain
     else {
-      NetworkInfo memory network = IRegistrar(state.config.registrarContract).queryNetworkConnection(stratParams.network);
+      NetworkInfo memory network = IRegistrar(state.config.registrarContract)
+        .queryNetworkConnection(stratParams.network);
       IVault.VaultActionData memory payload = IVault.VaultActionData({
         destinationChain: stratParams.network,
         strategyId: strategy,
@@ -151,9 +158,13 @@ contract AccountsStrategy is IAccountsStrategy, AxelarExecutable, ReentrancyGuar
         stratParams.network,
         AddressToString.toString(network.router),
         packedPayload,
-        token, 
+        token,
         (lockAmt + liquidAmt - gasFee)
       );
+      (uint256 lockGas, uint256 liqGas) = _gasSplit(lockAmt, liquidAmt, gasFee);
+      state.STATES[id].balances.locked[tokenAddress] -= (lockAmt - lockGas);
+      state.STATES[id].balances.liquid[tokenAddress] -= (liquidAmt - liqGas);
+      state.STATES[id].activeStrategies[strategy] == true;
     }
   }
 
@@ -217,10 +228,10 @@ contract AccountsStrategy is IAccountsStrategy, AxelarExecutable, ReentrancyGuar
     address tokenAddress = IAxelarGateway(thisNetwork.axelarGateway).tokenAddresses(token);
     uint32[] memory accts = new uint32[](1);
     accts[0] = id;
-  
+
     // Strategy exists on the local network
-    if(Validator.compareStrings(state.config.networkName, stratParams.network)) {
-       IVault.VaultActionData memory payload = IVault.VaultActionData({
+    if (Validator.compareStrings(state.config.networkName, stratParams.network)) {
+      IVault.VaultActionData memory payload = IVault.VaultActionData({
         destinationChain: state.config.networkName,
         strategyId: strategy,
         selector: IVault.redeem.selector,
@@ -245,10 +256,10 @@ contract AccountsStrategy is IAccountsStrategy, AxelarExecutable, ReentrancyGuar
         state.STATES[id].activeStrategies[strategy] == false;
       }
     }
-
     // Strategy lives on another chain
     else {
-      NetworkInfo memory network = IRegistrar(state.config.registrarContract).queryNetworkConnection(stratParams.network);
+      NetworkInfo memory network = IRegistrar(state.config.registrarContract)
+        .queryNetworkConnection(stratParams.network);
       IVault.VaultActionData memory payload = IVault.VaultActionData({
         destinationChain: stratParams.network,
         strategyId: strategy,
@@ -301,15 +312,13 @@ contract AccountsStrategy is IAccountsStrategy, AxelarExecutable, ReentrancyGuar
       "Vault is not approved"
     );
 
-    NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract).queryNetworkConnection(
-      state.config.networkName
-    );
+    NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)
+      .queryNetworkConnection(state.config.networkName);
     address tokenAddress = IAxelarGateway(thisNetwork.axelarGateway).tokenAddresses(token);
     uint32[] memory accts = new uint32[](1);
     accts[0] = id;
 
-    if(Validator.compareStrings(state.config.networkName, stratParams.network)) {
-
+    if (Validator.compareStrings(state.config.networkName, stratParams.network)) {
       IVault.VaultActionData memory payload = IVault.VaultActionData({
         destinationChain: state.config.networkName,
         strategyId: strategy,
@@ -336,9 +345,9 @@ contract AccountsStrategy is IAccountsStrategy, AxelarExecutable, ReentrancyGuar
       if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.STATES[id].activeStrategies[strategy] == false;
       }
-    }
-    else {
-      NetworkInfo memory network = IRegistrar(state.config.registrarContract).queryNetworkConnection(stratParams.network);
+    } else {
+      NetworkInfo memory network = IRegistrar(state.config.registrarContract)
+        .queryNetworkConnection(stratParams.network);
       IVault.VaultActionData memory payload = IVault.VaultActionData({
         destinationChain: stratParams.network,
         strategyId: strategy,
@@ -367,7 +376,20 @@ contract AccountsStrategy is IAccountsStrategy, AxelarExecutable, ReentrancyGuar
     }
   }
 
-  
+  /**
+   * @notice Split gas proportionally between liquid and lock amts
+   */
+  function _gasSplit(
+    uint256 _lockAmt,
+    uint256 _liqAmt,
+    uint256 _gasFee
+  ) internal pure returns (uint256, uint256) {
+    uint256 liqGas = (_gasFee * ((_liqAmt * LibAccounts.BIG_NUMBA_BASIS) / (_lockAmt + _liqAmt))) /
+      LibAccounts.BIG_NUMBA_BASIS;
+    uint256 lockGas = _gasFee - liqGas;
+    return (lockGas, liqGas);
+  }
+
   // axelar endpoints
   function _executeWithToken(
     string calldata sourceChain,
@@ -375,19 +397,11 @@ contract AccountsStrategy is IAccountsStrategy, AxelarExecutable, ReentrancyGuar
     bytes calldata payload,
     string calldata tokenSymbol,
     uint256 amount
-  )
-    internal
-    override returns (IVault.VaultActionData memory) {
-
-  }
+  ) internal override returns (IVault.VaultActionData memory) {}
 
   function _execute(
     string calldata sourceChain,
     string calldata sourceAddress,
     bytes calldata payload
-  ) internal override returns (IVault.VaultActionData memory) {
-
-  }
-
-
+  ) internal override returns (IVault.VaultActionData memory) {}
 }

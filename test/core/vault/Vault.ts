@@ -19,7 +19,7 @@ import {
   DEFAULT_STRATEGY_SELECTOR,
   DEFAULT_VAULT_NAME,
   DEFAULT_VAULT_SYMBOL,
-  DEFAULT_NETWORK
+  DEFAULT_NETWORK,
 } from "test/utils";
 import {BigNumber} from "ethers";
 

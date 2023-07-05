@@ -1,7 +1,8 @@
 import {ethers} from "hardhat";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {LibAccounts} from "typechain-types/contracts/multisigs/CharityApplications";
-import {IAccountsStrategy} from "typechain-types";
+import {IAccountsStrategy, IRegistrar} from "typechain-types";
+import {NetworkInfoStruct} from "../types";
 
 export const DEFAULT_PERMISSIONS_STRUCT: LibAccounts.SettingsPermissionStruct = {
   locked: false,
@@ -80,6 +81,7 @@ export const DEFAULT_CHARITY_ENDOWMENT: AccountStorage.EndowmentStruct = {
 
 export const DEFAULT_ACCOUNTS_CONFIG: AccountStorage.ConfigStruct = {
   owner: ethers.constants.AddressZero,
+  networkName: "",
   version: "",
   registrarContract: ethers.constants.AddressZero,
   nextAccountId: 0,
@@ -91,8 +93,7 @@ export const DEFAULT_ACCOUNTS_CONFIG: AccountStorage.ConfigStruct = {
   earlyLockedWithdrawFee: DEFAULT_FEE_STRUCT,
 };
 
-export const DEFAULT_NETWORK_INFO = {
-  name: "",
+export const DEFAULT_NETWORK_INFO: NetworkInfoStruct = {
   chainId: 0,
   router: ethers.constants.AddressZero,
   axelarGateway: ethers.constants.AddressZero,

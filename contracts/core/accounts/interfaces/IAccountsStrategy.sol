@@ -1,17 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
+import {IVault} from "../../vault/interfaces/IVault.sol";
+
 /**
  * @title AccountsStrategy
  */
 interface IAccountsStrategy {
+  error InvestFailed(IVault.VaultActionStatus);
+
   struct NetworkInfo {
     uint256 chainId;
     address router; //SHARED
     address axelarGateway;
     string ibcChannel; // Should be removed
     string transferChannel;
-    address gasReceiver; 
+    address gasReceiver;
     uint256 gasLimit; // Should be used to set gas limit
   }
 
@@ -57,9 +61,9 @@ interface IAccountsStrategy {
    * @param token The vaults to redeem from
    */
   function strategyRedeemAll(
-    uint32 id, 
-    bytes4 strategy, 
-    string memory token, 
+    uint32 id,
+    bytes4 strategy,
+    string memory token,
     uint256 gasFee
-    ) external payable;
+  ) external payable;
 }
