@@ -16,10 +16,12 @@
     "yarn": "1.22.x"
   },
   "devDependencies": {
+    "@defi-wonderland/smock": "^2.3.5",
     "@dethcrypto/eth-sdk": "^0.3.4",
     "@dethcrypto/eth-sdk-client": "^0.1.6",
     "@ethersproject/abi": "^5.7.0",
     "@ethersproject/abstract-provider": "^5.7.0",
+    "@ethersproject/abstract-signer": "^5.7.0",
     "@ethersproject/bignumber": "^5.7.0",
     "@ethersproject/bytes": "^5.6.1",
     "@ethersproject/providers": "^5.6.6",
