@@ -340,14 +340,17 @@ contract AccountsStrategy is
         packedPayload
       );
 
-      if (response.status == IVault.VaultActionStatus.SUCCESS) {
+      if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
         state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
-        // emit EndowmentStateUpdated(id);
-      }
-      if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.STATES[id].activeStrategies[strategy] == false;
+        emit EndowmentRedeemed(response.status);
       }
+      else{
+        revert RedeemAllFailed(response.status);
+      }
+
+    // Strategy lives on another chain
     } else {
       NetworkInfo memory network = IRegistrar(state.config.registrarContract)
         .queryNetworkConnection(stratParams.network);

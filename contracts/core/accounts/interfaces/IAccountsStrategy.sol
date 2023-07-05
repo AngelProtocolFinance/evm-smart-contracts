@@ -9,6 +9,7 @@ import {IVault} from "../../vault/interfaces/IVault.sol";
 interface IAccountsStrategy {
   error InvestFailed(IVault.VaultActionStatus);
   error RedeemFailed(IVault.VaultActionStatus);
+  error RedeemAllFailed(IVault.VaultActionStatus);
 
   struct NetworkInfo {
     uint256 chainId;

@@ -511,13 +511,194 @@ describe("AccountsStrategy", function () {
 
   describe("upon strategyRedeemAll", async function () {
     let facet: AccountsStrategy;
+    let facetImpl: AccountsStrategy;
     let state: TestFacetProxyContract;
+    let registrar: Registrar;
+    let token: DummyERC20;
+    let gateway: DummyGateway;
+    let network: NetworkInfoStruct;
+    const ACCOUNT_ID = 1;
+
+    before(async function () {
+      let Facet = new AccountsStrategy__factory(owner);
+      facetImpl = await Facet.deploy();
+      registrar = await deployRegistrarAsProxy(owner, admin);
+
+      token = await deployDummyERC20(owner);
+      gateway = await deployDummyGateway(owner);
+      await gateway.setTestTokenAddress(token.address);
+
+      network = DEFAULT_NETWORK_INFO;
+      network.chainId = (await ethers.provider.getNetwork()).chainId;
+      network.axelarGateway = gateway.address;
+      await registrar.updateNetworkConnections("", network, "post");
+    });
 
     beforeEach(async function () {
-      let Facet = new AccountsStrategy__factory(owner);
-      let facetImpl = await Facet.deploy();
       state = await deployFacetAsProxy(hre, owner, admin, facetImpl.address);
       facet = AccountsStrategy__factory.connect(state.address, owner);
+    });
+
+    describe("reverts when", async function () {
+      // it("the caller is not approved for locked fund mgmt", async function () {
+      //   await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
+      //   await expect(
+      //     facet.strategyRedeemAll(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, "TKN", 0)
+      //   ).to.be.revertedWith("Unauthorized");
+      // });
+
+      // it("the caller is not approved for liquid fund mgmt", async function () {
+      //   await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
+      //   await expect(
+      //     facet.strategyRedeemAll(
+      //       ACCOUNT_ID,
+      //       DEFAULT_STRATEGY_SELECTOR,
+      //       ethers.constants.AddressZero,
+      //       0
+      //     )
+      //   ).to.be.revertedWith("Unauthorized");
+      // });
+
+      it("the caller is not the owner", async function () {
+        let endowDetails = DEFAULT_CHARITY_ENDOWMENT
+        endowDetails.owner = user.address
+        await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
+        await expect(
+          facet.strategyRedeemAll(
+            ACCOUNT_ID,
+            DEFAULT_STRATEGY_SELECTOR,
+            "TKN",
+            0
+          )
+        ).to.be.revertedWith("Unauthorized");
+      });
+
+      // it("there are pending redemptions", async function () {
+      //   await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT)
+      //   await expect(
+      //     facet.strategyRedeemAll(
+      //       ACCOUNT_ID,
+      //       DEFAULT_STRATEGY_SELECTOR,
+      //       "TKN",
+      //       0
+      //     )
+      //   ).to.be.revertedWith("Unauthorized");
+      // })
+
+      it("the strategy is not approved", async function () {
+        let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
+        endowDetails.owner = owner.address;
+        await state.setEndowmentDetails(1, endowDetails);
+        let config = DEFAULT_ACCOUNTS_CONFIG;
+        config.registrarContract = registrar.address;
+        await state.setConfig(config);
+        await expect(
+          facet.strategyRedeemAll(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, "TKN", 0)
+        ).to.be.revertedWith("Strategy is not approved");
+      });
+
+      describe("and calls the local router", async function () {
+        let router: DummyRouter;
+        let config: AccountStorage.ConfigStruct;
+        const LOCK_AMT = 300;
+        const LIQ_AMT = 200;
+
+        before(async function () {
+          router = await deployDummyRouter(owner);
+          network.router = router.address;
+          await registrar.updateNetworkConnections("", network, "post");
+          await registrar.setStrategyApprovalState(
+            DEFAULT_STRATEGY_SELECTOR,
+            StrategyApprovalState.APPROVED
+          );
+          config = DEFAULT_ACCOUNTS_CONFIG;
+          config.registrarContract = registrar.address;
+        });
+
+        beforeEach(async function () {
+          await state.setConfig(config);
+          let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
+          endowDetails.owner = owner.address;
+          endowDetails.settingsController.liquidInvestmentManagement = {
+            locked: false,
+            delegate: {
+              addr: owner.address,
+              expires: 0,
+            },
+          };
+          endowDetails.settingsController.lockedInvestmentManagement = {
+            locked: false,
+            delegate: {
+              addr: owner.address,
+              expires: 0,
+            },
+          };
+          await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
+
+          token.mint(facet.address, LOCK_AMT + LIQ_AMT);
+          await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true);
+        });
+
+        it("and the response is POSITION_EXITED", async function () {
+          await router.setResponseStruct({
+            destinationChain: "",
+            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            selector: DEFAULT_METHOD_SELECTOR,
+            accountIds: [ACCOUNT_ID],
+            token: token.address,
+            lockAmt: LOCK_AMT,
+            liqAmt: LIQ_AMT,
+            status: VaultActionStatus.POSITION_EXITED,
+          });
+
+          expect(
+            await facet.strategyRedeemAll(
+              ACCOUNT_ID,
+              DEFAULT_STRATEGY_SELECTOR,
+              "TKN",
+              0
+            )
+          )
+            .to.emit(facet, "EndowmentRedeemed")
+            .withArgs(VaultActionStatus.POSITION_EXITED);
+
+          const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+          expect(lockBal).to.equal(LOCK_AMT);
+          expect(liqBal).to.equal(LIQ_AMT);
+          let strategyActive = await state.getActiveStrategyEndowmentState(
+            ACCOUNT_ID,
+            DEFAULT_STRATEGY_SELECTOR
+          );
+          expect(!strategyActive);
+        });
+
+        it("and the response is anything else", async function () {
+          await router.setResponseStruct({
+            destinationChain: "",
+            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            selector: DEFAULT_METHOD_SELECTOR,
+            accountIds: [ACCOUNT_ID],
+            token: token.address,
+            lockAmt: LOCK_AMT,
+            liqAmt: LIQ_AMT,
+            status: VaultActionStatus.FAIL_TOKENS_FALLBACK,
+          });
+          await expect(
+            facet.strategyRedeem(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, "TKN", LOCK_AMT, LIQ_AMT, 0)
+          )
+            .to.be.revertedWithCustomError(facet, "RedeemFailed")
+            .withArgs(VaultActionStatus.FAIL_TOKENS_FALLBACK);
+
+          const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+          expect(lockBal).to.equal(0);
+          expect(liqBal).to.equal(0);
+          let strategyActive = await state.getActiveStrategyEndowmentState(
+            ACCOUNT_ID,
+            DEFAULT_STRATEGY_SELECTOR
+          );
+          expect(strategyActive);
+        });
+      });
     });
   });
 });
