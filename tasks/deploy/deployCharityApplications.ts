@@ -12,7 +12,7 @@ type TaskArgs = {
   yes: boolean;
 };
 
-task("deploy:CharityApplication", "Will deploy CharityApplication contract")
+task("deploy:CharityApplications", "Will deploy CharityApplication contract")
   .addOptionalParam(
     "accountsDiamond",
     "Accounts Diamond contract address. Will do a local lookup from contract-address.json if none is provided."
