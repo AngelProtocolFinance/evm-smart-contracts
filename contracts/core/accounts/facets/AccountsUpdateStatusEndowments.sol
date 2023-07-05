@@ -46,7 +46,7 @@ contract AccountsUpdateStatusEndowments is
       beneficiary.enumData != LibAccounts.BeneficiaryEnum.None ||
         registrar_config.indexFundContract != address(0),
       "Beneficiary is NONE & Index Fund Contract is not configured in Registrar"
-    ); // >> SHOULD THIS CONDITION BE UPDATED FROM '||' TO '&&' (JUDGING BY THE ERR MESSAGE)?
+    );
 
     // If NONE was passed for beneficiary, send balance to the AP Treasury (if not in any funds)
     // or send to the first index fund if it is in one.
