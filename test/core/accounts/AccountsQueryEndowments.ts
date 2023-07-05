@@ -22,7 +22,7 @@ describe("AccountsQueryEndowments", function () {
   let state: TestFacetProxyContract;
 
   let tokenAddress: string;
-  const accountId = 1;
+  const accountId = 0;
   const lockedBal = 20;
   const liquidBal = 50;
 
@@ -57,7 +57,7 @@ describe("AccountsQueryEndowments", function () {
     config = {
       ...DEFAULT_ACCOUNTS_CONFIG,
       owner: owner.address,
-      nextAccountId: 1, // endowment was created in previous step
+      nextAccountId: accountId + 1, // endowment was created in previous step
     };
 
     await state.setConfig(config);
