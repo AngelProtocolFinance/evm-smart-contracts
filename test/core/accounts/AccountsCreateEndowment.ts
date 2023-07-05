@@ -27,7 +27,7 @@ describe("AccountsCreateEndowment", function () {
   let charityApplications: SignerWithAddress;
   let donationMatchCharitesContract: SignerWithAddress;
   let facet: AccountsCreateEndowment;
-  let proxy: TestFacetProxyContract;
+  let state: TestFacetProxyContract;
   let createEndowmentRequest: AccountMessages.CreateEndowmentRequestStruct;
   let endowmentOwner: string;
   let registrarFake: FakeContract<Registrar>;
@@ -162,9 +162,9 @@ describe("AccountsCreateEndowment", function () {
   beforeEach(async function () {
     let Facet = new AccountsCreateEndowment__factory(owner);
     let facetImpl = await Facet.deploy();
-    proxy = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
+    state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
 
-    await proxy.setConfig({
+    await state.setConfig({
       owner: owner.address,
       version: "1",
       registrarContract: registrarFake.address,
@@ -177,7 +177,7 @@ describe("AccountsCreateEndowment", function () {
       reentrancyGuardLocked: false,
     });
 
-    facet = AccountsCreateEndowment__factory.connect(proxy.address, owner);
+    facet = AccountsCreateEndowment__factory.connect(state.address, owner);
   });
 
   it("should revert if the caller is not authorized to create a charity endowment", async () => {
@@ -360,7 +360,7 @@ describe("AccountsCreateEndowment", function () {
     // verify endowment was created by checking the emitted event's parameter
     expect(endowmentId).to.exist;
 
-    const newEndowment = await proxy.getEndowmentDetails(endowmentId);
+    const newEndowment = await state.getEndowmentDetails(endowmentId);
 
     // `ignoreUserSplits` is set to `false` by default
     expect(newEndowment.ignoreUserSplits).to.be.false;
