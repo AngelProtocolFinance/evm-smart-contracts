@@ -1,6 +1,8 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
+import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
+import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
@@ -16,6 +18,7 @@ import {
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsCreateEndowment";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
+import {genWallet, getSigners} from "utils";
 import "../../utils/setup";
 
 use(smock.matchers);
@@ -25,23 +28,29 @@ describe("AccountsCreateEndowment", function () {
   let owner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
   let charityApplications: SignerWithAddress;
+  let axelarGateway: SignerWithAddress;
+  let axelarGasService: SignerWithAddress;
+  let deployer: SignerWithAddress;
+  let treasury: SignerWithAddress;
   let donationMatchCharitesContract: SignerWithAddress;
   let facet: AccountsCreateEndowment;
   let state: TestFacetProxyContract;
+  let Registrar: Registrar;
   let createEndowmentRequest: AccountMessages.CreateEndowmentRequestStruct;
   let endowmentOwner: string;
   let registrarFake: FakeContract<Registrar>;
 
   before(async function () {
-    let signers: SignerWithAddress[];
-    [
-      owner,
-      proxyAdmin,
-      charityApplications,
-      donationMatchCharitesContract,
-      {address: endowmentOwner},
-      ...signers
-    ] = await ethers.getSigners();
+    const signers = await getSigners(hre);
+    owner = signers.apTeam1;
+    proxyAdmin = signers.proxyAdmin;
+    charityApplications = signers.signer1;
+    axelarGateway = signers.apTeam2;
+    axelarGasService = signers.apTeam3;
+    deployer = signers.deployer;
+    treasury = signers.signer2;
+    donationMatchCharitesContract = signers.signer3;
+    endowmentOwner = genWallet().address;
 
     const defaultSettingsPermissionsStruct = {
       locked: false,
@@ -108,13 +117,13 @@ describe("AccountsCreateEndowment", function () {
     const endowmentFactoryFake = await smock.fake<EndowmentMultiSigFactory>(
       new EndowmentMultiSigFactory__factory(),
       {
-        address: signers[0].address,
+        address: genWallet().address,
       }
     );
     endowmentFactoryFake.create.returns(endowmentOwner);
 
     registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
-      address: signers[1].address,
+      address: genWallet().address,
     });
     const rebParams: Partial<LocalRegistrarLib.RebalanceParamsStructOutput> = {
       basis: 100,
@@ -160,6 +169,32 @@ describe("AccountsCreateEndowment", function () {
   });
 
   beforeEach(async function () {
+    const registrarDeployment = await deployRegistrar(
+      {
+        axelarGateway: axelarGateway.address,
+        axelarGasService: axelarGasService.address,
+        router: ethers.constants.AddressZero,
+        owner: owner.address,
+        deployer,
+        proxyAdmin,
+        treasuryAddress: treasury.address,
+      },
+      hre
+    );
+    const endowDeployments = await deployEndowmentMultiSig(hre);
+    Registrar = Registrar__factory.connect(registrarDeployment!.address, owner);
+    const {splitToLiquid, ...curConfig} = await Registrar.queryConfig();
+    await Registrar.updateConfig({
+      ...curConfig,
+      splitDefault: splitToLiquid.defaultSplit,
+      splitMax: splitToLiquid.max,
+      splitMin: splitToLiquid.min,
+      charityApplications: charityApplications.address,
+      multisigFactory: endowDeployments!.factory.address,
+      multisigEmitter: endowDeployments!.emitter.address,
+      donationMatchCharitesContract: donationMatchCharitesContract.address,
+    });
+
     let Facet = new AccountsCreateEndowment__factory(owner);
     let facetImpl = await Facet.deploy();
     state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
@@ -185,7 +220,6 @@ describe("AccountsCreateEndowment", function () {
       ...createEndowmentRequest,
       endowType: 0, // Charity
     };
-
     await expect(facet.createEndowment(details)).to.be.revertedWith("Unauthorized");
   });
 
@@ -335,11 +369,105 @@ describe("AccountsCreateEndowment", function () {
   });
 
   it("should create a normal endowment if the caller is authorized and input parameters are valid", async () => {
-    await expect(facet.createEndowment(createEndowmentRequest)).to.emit(facet, "EndowmentCreated");
+    const request = {...createEndowmentRequest};
+
+    const tx = await facet.connect(charityApplications).createEndowment(request);
+    const createEndowmentReceipt = await tx.wait();
+
+    // Get the endowment ID from the event emitted in the transaction receipt
+    const event = createEndowmentReceipt.events?.find((e) => e.event === "EndowmentCreated");
+    let endowmentId = event?.args?.endowId ? BigNumber.from(event.args.endowId) : undefined;
+
+    // verify endowment was created by checking the emitted event's parameter
+    expect(endowmentId).to.exist;
+    endowmentId = endowmentId!;
+
+    const result = await state.getEndowmentDetails(endowmentId);
+
+    expect(result.allowlistedBeneficiaries).to.have.same.members(request.allowlistedBeneficiaries);
+    expect(result.allowlistedContributors).to.have.same.members(request.allowlistedContributors);
+    expect(result.balanceFee).to.equalFee(request.balanceFee);
+    expect(result.dao).to.equal(ethers.constants.AddressZero);
+    expect(result.daoToken).to.equal(ethers.constants.AddressZero);
+    expect(result.depositFee).to.equalFee(request.depositFee);
+    expect(result.donationMatchActive).to.equal(false);
+    expect(result.donationMatchContract).to.equal(ethers.constants.AddressZero);
+    expect(result.earlyLockedWithdrawFee).to.equalFee(request.earlyLockedWithdrawFee);
+    expect(result.endowType).to.equal(request.endowType);
+    expect(result.ignoreUserSplits).to.equal(request.ignoreUserSplits);
+    expect(result.image).to.equal(request.image);
+    expect(result.logo).to.equal(request.logo);
+    expect(result.maturityAllowlist).to.have.same.members(request.maturityAllowlist);
+    expect(result.maturityTime).to.equal(request.maturityTime);
+    expect(result.multisig).to.equal(result.owner);
+    expect(result.multisig).to.not.equal(ethers.constants.AddressZero);
+    expect(result.name).to.equal(request.name);
+    expect(result.parent).to.equal(request.parent);
+    expect(result.pendingRedemptions).to.equal(0);
+    expect(result.proposalLink).to.equal(request.proposalLink);
+    expect(result.rebalance).to.deep.equal(await Registrar.getRebalanceParams());
+    expect(result.referralId).to.equal(request.referralId);
+    expect(result.sdgs).to.have.same.deep.members(request.sdgs.map((x) => BigNumber.from(x)));
+    expect(result.settingsController.acceptedTokens).to.equalSettingsPermission(
+      request.settingsController.acceptedTokens
+    );
+    expect(result.settingsController.lockedInvestmentManagement).to.equalSettingsPermission(
+      request.settingsController.lockedInvestmentManagement
+    );
+    expect(result.settingsController.liquidInvestmentManagement).to.equalSettingsPermission(
+      request.settingsController.liquidInvestmentManagement
+    );
+    expect(result.settingsController.allowlistedBeneficiaries).to.equalSettingsPermission(
+      request.settingsController.allowlistedBeneficiaries
+    );
+    expect(result.settingsController.allowlistedContributors).to.equalSettingsPermission(
+      request.settingsController.allowlistedContributors
+    );
+    expect(result.settingsController.maturityAllowlist).to.equalSettingsPermission(
+      request.settingsController.maturityAllowlist
+    );
+    expect(result.settingsController.maturityTime).to.equalSettingsPermission(
+      request.settingsController.maturityTime
+    );
+    expect(result.settingsController.earlyLockedWithdrawFee).to.equalSettingsPermission(
+      request.settingsController.earlyLockedWithdrawFee
+    );
+    expect(result.settingsController.withdrawFee).to.equalSettingsPermission(
+      request.settingsController.withdrawFee
+    );
+    expect(result.settingsController.depositFee).to.equalSettingsPermission(
+      request.settingsController.depositFee
+    );
+    expect(result.settingsController.balanceFee).to.equalSettingsPermission(
+      request.settingsController.balanceFee
+    );
+    expect(result.settingsController.name).to.equalSettingsPermission(
+      request.settingsController.name
+    );
+    expect(result.settingsController.image).to.equalSettingsPermission(
+      request.settingsController.image
+    );
+    expect(result.settingsController.logo).to.equalSettingsPermission(
+      request.settingsController.logo
+    );
+    expect(result.settingsController.sdgs).to.equalSettingsPermission(
+      request.settingsController.sdgs
+    );
+    expect(result.settingsController.splitToLiquid).to.equalSettingsPermission(
+      request.settingsController.splitToLiquid
+    );
+    expect(result.settingsController.ignoreUserSplits).to.equalSettingsPermission(
+      request.settingsController.ignoreUserSplits
+    );
+    expect(result.splitToLiquid.defaultSplit).to.equal(request.splitToLiquid.defaultSplit);
+    expect(result.splitToLiquid.max).to.equal(request.splitToLiquid.max);
+    expect(result.splitToLiquid.min).to.equal(request.splitToLiquid.min);
+    expect(result.tier).to.equal(request.tier);
+    expect(result.withdrawFee).to.equalFee(request.withdrawFee);
   });
 
   it("should create a charity endowment if the caller is authorized and input parameters are valid", async () => {
-    const details: AccountMessages.CreateEndowmentRequestStruct = {
+    const request: AccountMessages.CreateEndowmentRequestStruct = {
       ...createEndowmentRequest,
       endowType: 0, // Charity
       ignoreUserSplits: true,
@@ -350,23 +478,102 @@ describe("AccountsCreateEndowment", function () {
       },
     };
 
-    const tx = await facet.connect(charityApplications).createEndowment(details);
+    const tx = await facet.connect(charityApplications).createEndowment(request);
     const createEndowmentReceipt = await tx.wait();
 
     // Get the endowment ID from the event emitted in the transaction receipt
     const event = createEndowmentReceipt.events?.find((e) => e.event === "EndowmentCreated");
-    const endowmentId = BigNumber.from(event!.args!.endowId);
+    let endowmentId = event?.args?.endowId ? BigNumber.from(event.args.endowId) : undefined;
 
     // verify endowment was created by checking the emitted event's parameter
     expect(endowmentId).to.exist;
+    endowmentId = endowmentId!;
 
-    const newEndowment = await state.getEndowmentDetails(endowmentId);
+    const result = await state.getEndowmentDetails(endowmentId);
 
-    // `ignoreUserSplits` is set to `false` by default
-    expect(newEndowment.ignoreUserSplits).to.be.false;
+    expect(result.allowlistedBeneficiaries).to.have.same.members(request.allowlistedBeneficiaries);
+    expect(result.allowlistedContributors).to.have.same.members(request.allowlistedContributors);
+    expect(result.balanceFee).to.equalFee(request.balanceFee);
+    expect(result.dao).to.equal(ethers.constants.AddressZero);
+    expect(result.daoToken).to.equal(ethers.constants.AddressZero);
+    expect(result.depositFee).to.equalFee(request.depositFee);
+    expect(result.donationMatchActive).to.equal(false);
     // `donationMatchContract` is read from `registrar config > donationMatchCharitesContract`
-    expect(newEndowment.donationMatchContract).to.equal(donationMatchCharitesContract.address);
-    expect(newEndowment.owner).to.equal(endowmentOwner);
-    expect(newEndowment.multisig).to.equal(newEndowment.owner);
+    expect(result.donationMatchContract).to.equal(donationMatchCharitesContract.address);
+    expect(result.earlyLockedWithdrawFee).to.equalFee(
+      (await state.getConfig()).earlyLockedWithdrawFee
+    );
+    expect(result.endowType).to.equal(request.endowType);
+    // `ignoreUserSplits` is set to `false` by default
+    expect(result.ignoreUserSplits).to.equal(false);
+    expect(result.image).to.equal(request.image);
+    expect(result.logo).to.equal(request.logo);
+    expect(result.maturityAllowlist).to.have.same.members(request.maturityAllowlist);
+    expect(result.maturityTime).to.equal(request.maturityTime);
+    expect(result.multisig).to.equal(result.owner);
+    expect(result.multisig).to.not.equal(ethers.constants.AddressZero);
+    expect(result.name).to.equal(request.name);
+    expect(result.parent).to.equal(request.parent);
+    expect(result.pendingRedemptions).to.equal(0);
+    expect(result.proposalLink).to.equal(request.proposalLink);
+    expect(result.rebalance).to.deep.equal(await Registrar.getRebalanceParams());
+    expect(result.referralId).to.equal(request.referralId);
+    expect(result.sdgs).to.have.same.deep.members(request.sdgs.map((x) => BigNumber.from(x)));
+    expect(result.settingsController.acceptedTokens).to.equalSettingsPermission(
+      request.settingsController.acceptedTokens
+    );
+    expect(result.settingsController.lockedInvestmentManagement).to.equalSettingsPermission(
+      request.settingsController.lockedInvestmentManagement
+    );
+    expect(result.settingsController.liquidInvestmentManagement).to.equalSettingsPermission(
+      request.settingsController.liquidInvestmentManagement
+    );
+    expect(result.settingsController.allowlistedBeneficiaries).to.equalSettingsPermission(
+      request.settingsController.allowlistedBeneficiaries
+    );
+    expect(result.settingsController.allowlistedContributors).to.equalSettingsPermission(
+      request.settingsController.allowlistedContributors
+    );
+    expect(result.settingsController.maturityAllowlist).to.equalSettingsPermission(
+      request.settingsController.maturityAllowlist
+    );
+    expect(result.settingsController.maturityTime).to.equalSettingsPermission(
+      request.settingsController.maturityTime
+    );
+    expect(result.settingsController.earlyLockedWithdrawFee).to.equalSettingsPermission(
+      request.settingsController.earlyLockedWithdrawFee
+    );
+    expect(result.settingsController.withdrawFee).to.equalSettingsPermission(
+      request.settingsController.withdrawFee
+    );
+    expect(result.settingsController.depositFee).to.equalSettingsPermission(
+      request.settingsController.depositFee
+    );
+    expect(result.settingsController.balanceFee).to.equalSettingsPermission(
+      request.settingsController.balanceFee
+    );
+    expect(result.settingsController.name).to.equalSettingsPermission(
+      request.settingsController.name
+    );
+    expect(result.settingsController.image).to.equalSettingsPermission(
+      request.settingsController.image
+    );
+    expect(result.settingsController.logo).to.equalSettingsPermission(
+      request.settingsController.logo
+    );
+    expect(result.settingsController.sdgs).to.equalSettingsPermission(
+      request.settingsController.sdgs
+    );
+    expect(result.settingsController.splitToLiquid).to.equalSettingsPermission(
+      request.settingsController.splitToLiquid
+    );
+    expect(result.settingsController.ignoreUserSplits).to.equalSettingsPermission(
+      request.settingsController.ignoreUserSplits
+    );
+    expect(result.splitToLiquid.defaultSplit).to.equal(0);
+    expect(result.splitToLiquid.max).to.equal(0);
+    expect(result.splitToLiquid.min).to.equal(0);
+    expect(result.tier).to.equal(request.tier);
+    expect(result.withdrawFee).to.equalFee(request.withdrawFee);
   });
 });
