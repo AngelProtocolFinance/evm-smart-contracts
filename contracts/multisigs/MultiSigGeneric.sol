@@ -305,10 +305,10 @@ contract MultiSigGeneric is
 
   /// @dev Returns number of confirmations of a transaction.
   /// @param transactionId Transaction ID.
-  /// @return count
+  /// @return uint256
   function getConfirmationCount(
     uint256 transactionId
-  ) public view override transactionExists(transactionId) returns (uint256 count) {
+  ) public view override transactionExists(transactionId) returns (uint256) {
     return confirmations[transactionId].count;
   }
 
