@@ -15,6 +15,7 @@ import "../../utils/setup";
 import {genWallet, getSigners} from "utils";
 import {LibAccounts} from "typechain-types/contracts/core/accounts/facets/AccountsUpdateStatusEndowments";
 import {DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
+import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 
 use(smock.matchers);
 
@@ -33,14 +34,19 @@ describe("AccountsUpdateStatusEndowments", function () {
 
   let owner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
+  let endowOwner: SignerWithAddress;
   let facet: AccountsUpdateStatusEndowments;
   let state: TestFacetProxyContract;
   let registrarFake: FakeContract<Registrar>;
+  let endowment: AccountStorage.EndowmentStruct;
 
   before(async function () {
     const signers = await getSigners(hre);
     owner = signers.apTeam1;
     proxyAdmin = signers.proxyAdmin;
+    endowOwner = signers.deployer;
+
+    endowment = {...DEFAULT_CHARITY_ENDOWMENT, owner: endowOwner.address};
   });
 
   beforeEach(async function () {
@@ -52,7 +58,7 @@ describe("AccountsUpdateStatusEndowments", function () {
       address: genWallet().address,
     });
 
-    await state.setEndowmentDetails(accountId, DEFAULT_CHARITY_ENDOWMENT);
+    await state.setEndowmentDetails(accountId, endowment);
     await state.setConfig({
       owner: owner.address,
       version: "1",
