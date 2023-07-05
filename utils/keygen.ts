@@ -2,7 +2,7 @@ import * as crypto from "crypto";
 import {ethers} from "ethers";
 
 import {pad} from "./logger";
-import {logger} from ".";
+import {logger} from "utils";
 
 export function genWallet(printToConsole: Boolean = false) {
   logger.out("Generating a new wallet");
