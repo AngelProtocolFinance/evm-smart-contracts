@@ -198,6 +198,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
     public
     override
     ownerExists(msg.sender)
+    proposalExists(proposalId)
     proposalApprovalsThresholdMet(proposalId)
     proposalNotExecuted(proposalId)
     proposalNotExpired(proposalId)
@@ -287,5 +288,14 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
 
   function queryConfig() public view override returns (ApplicationsStorage.Config memory) {
     return config;
+  }
+
+  /// @dev Returns number of confirmations of a proposal.
+  /// @param proposalId Proposal ID.
+  /// @return count
+  function getProposalConfirmationCount(
+    uint256 proposalId
+  ) public view override proposalExists(proposalId) returns (uint256 count) {
+    return proposalConfirmations[proposalId].count;
   }
 }
