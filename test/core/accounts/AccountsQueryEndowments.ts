@@ -235,10 +235,7 @@ describe("AccountsQueryEndowments", function () {
       const configResponse = await facet.queryConfig();
 
       // Assert the expected config
-      expect(configResponse.earlyLockedWithdrawFee.bps).to.equal(config.earlyLockedWithdrawFee.bps);
-      expect(configResponse.earlyLockedWithdrawFee.payoutAddress).to.equal(
-        config.earlyLockedWithdrawFee.payoutAddress
-      );
+      expect(configResponse.earlyLockedWithdrawFee).to.equalFee(config.earlyLockedWithdrawFee);
       expect(configResponse.gasReceiver).to.equal(config.gasReceiver);
       expect(configResponse.gateway).to.equal(config.gateway);
       expect(configResponse.maxGeneralCategoryId).to.equal(config.maxGeneralCategoryId);
