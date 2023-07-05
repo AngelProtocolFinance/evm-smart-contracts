@@ -12,14 +12,10 @@ type Result = {
   proxyAdmin: SignerWithAddress;
   timeLockAdmin: SignerWithAddress;
   treasury: SignerWithAddress;
-  signer1: SignerWithAddress;
-  signer2: SignerWithAddress;
-  signer3: SignerWithAddress;
 };
 
 export async function getSigners(hre: HardhatRuntimeEnvironment): Promise<Result> {
-  const [deployer, proxyAdmin, apTeam1, apTeam2, apTeam3, signer1, signer2, signer3] =
-    await hre.ethers.getSigners();
+  const [deployer, proxyAdmin, apTeam1, apTeam2, apTeam3] = await hre.ethers.getSigners();
 
   return {
     airdropOwner: apTeam1,
@@ -32,8 +28,5 @@ export async function getSigners(hre: HardhatRuntimeEnvironment): Promise<Result
     proxyAdmin,
     treasury: apTeam1,
     timeLockAdmin: apTeam1,
-    signer1,
-    signer2,
-    signer3,
   };
 }

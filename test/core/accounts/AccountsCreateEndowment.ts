@@ -45,12 +45,12 @@ describe("AccountsCreateEndowment", function () {
     const signers = await getSigners(hre);
     owner = signers.apTeam1;
     proxyAdmin = signers.proxyAdmin;
-    charityApplications = signers.signer1;
+    charityApplications = signers.deployer;
     axelarGateway = signers.apTeam2;
     axelarGasService = signers.apTeam3;
     deployer = signers.deployer;
-    treasury = signers.signer2;
-    donationMatchCharitesContract = signers.signer3;
+    treasury = signers.deployer;
+    donationMatchCharitesContract = signers.deployer;
     endowmentOwner = genWallet().address;
 
     const defaultSettingsPermissionsStruct = {
