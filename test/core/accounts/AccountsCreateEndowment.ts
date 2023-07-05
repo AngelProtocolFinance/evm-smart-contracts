@@ -1,18 +1,22 @@
-import {expect} from "chai";
-import hre from "hardhat";
+import {smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {
-  TestFacetProxyContract,
-  AccountsCreateEndowment__factory,
-  AccountsCreateEndowment,
-  Registrar__factory,
-} from "typechain-types";
-import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
+import {expect, use} from "chai";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
-import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
-import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsCreateEndowment";
 import {BigNumber} from "ethers";
+import hre from "hardhat";
+import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
+import {
+  AccountsCreateEndowment,
+  AccountsCreateEndowment__factory,
+  EndowmentMultiSigFactory,
+  EndowmentMultiSigFactory__factory,
+  Registrar__factory,
+  TestFacetProxyContract,
+} from "typechain-types";
+import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsCreateEndowment";
 import "../../utils/setup";
+
+use(smock.matchers);
 
 describe("AccountsCreateEndowment", function () {
   const {ethers} = hre;
@@ -26,6 +30,7 @@ describe("AccountsCreateEndowment", function () {
   let facet: AccountsCreateEndowment;
   let proxy: TestFacetProxyContract;
   let createEndowmentRequest: AccountMessages.CreateEndowmentRequestStruct;
+  let endowmentOwner: string;
 
   before(async function () {
     [
@@ -36,6 +41,7 @@ describe("AccountsCreateEndowment", function () {
       deployer,
       treasury,
       donationMatchCharitesContract,
+      {address: endowmentOwner},
     ] = await ethers.getSigners();
 
     const defaultSettingsPermissionsStruct = {
@@ -114,7 +120,14 @@ describe("AccountsCreateEndowment", function () {
       },
       hre
     );
-    const endowDeployments = await deployEndowmentMultiSig(hre);
+    const endowmentFactoryFake = await smock.fake<EndowmentMultiSigFactory>(
+      new EndowmentMultiSigFactory__factory(),
+      {
+        address: deployer.address,
+      }
+    );
+    endowmentFactoryFake.create.returns(endowmentOwner);
+
     const Registrar = Registrar__factory.connect(registrarDeployment!.address, owner);
     const {splitToLiquid, ...curConfig} = await Registrar.queryConfig();
     await Registrar.updateConfig({
@@ -123,8 +136,8 @@ describe("AccountsCreateEndowment", function () {
       splitMax: splitToLiquid.max,
       splitMin: splitToLiquid.min,
       charityApplications: charityApplications.address,
-      multisigFactory: endowDeployments!.factory.address,
-      multisigEmitter: endowDeployments!.emitter.address,
+      multisigFactory: endowmentFactoryFake.address,
+      multisigEmitter: ethers.constants.AddressZero,
       donationMatchCharitesContract: donationMatchCharitesContract.address,
     });
 
@@ -334,5 +347,7 @@ describe("AccountsCreateEndowment", function () {
     expect(newEndowment.ignoreUserSplits).to.be.false;
     // `donationMatchContract` is read from `registrar config > donationMatchCharitesContract`
     expect(newEndowment.donationMatchContract).to.equal(donationMatchCharitesContract.address);
+    expect(newEndowment.owner).to.equal(endowmentOwner);
+    expect(newEndowment.multisig).to.equal(newEndowment.owner);
   });
 });
