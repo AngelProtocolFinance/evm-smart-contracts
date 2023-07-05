@@ -292,10 +292,10 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
 
   /// @dev Returns number of confirmations of a proposal.
   /// @param proposalId Proposal ID.
-  /// @return count
+  /// @return uint256
   function getProposalConfirmationCount(
     uint256 proposalId
-  ) public view override proposalExists(proposalId) returns (uint256 count) {
+  ) public view override proposalExists(proposalId) returns (uint256) {
     return proposalConfirmations[proposalId].count;
   }
 }
