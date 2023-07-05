@@ -1,5 +1,6 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
+import {BigNumber} from "ethers";
 import hre from "hardhat";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {DEFAULT_ACCOUNTS_CONFIG, DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
@@ -100,10 +101,132 @@ describe("AccountsQueryEndowments", function () {
     it("should return the endowment details", async () => {
       const endowmentDetails = await facet.queryEndowmentDetails(accountId);
 
-      // Assert the expected endowment details
-      expect(endowmentDetails.owner).to.equal(DEFAULT_CHARITY_ENDOWMENT.owner);
+      expect(endowmentDetails.allowlistedBeneficiaries).to.have.same.members(
+        DEFAULT_CHARITY_ENDOWMENT.allowlistedBeneficiaries
+      );
+      expect(endowmentDetails.allowlistedContributors).to.have.same.members(
+        DEFAULT_CHARITY_ENDOWMENT.allowlistedContributors
+      );
+      expect(endowmentDetails.balanceFee).to.equalFee(DEFAULT_CHARITY_ENDOWMENT.balanceFee);
+      expect(endowmentDetails.dao).to.equal(DEFAULT_CHARITY_ENDOWMENT.dao);
+      expect(endowmentDetails.daoToken).to.equal(DEFAULT_CHARITY_ENDOWMENT.daoToken);
+      expect(endowmentDetails.depositFee).to.equalFee(DEFAULT_CHARITY_ENDOWMENT.depositFee);
+      expect(endowmentDetails.donationMatchActive).to.equal(
+        DEFAULT_CHARITY_ENDOWMENT.donationMatchActive
+      );
+      expect(endowmentDetails.donationMatchContract).to.equal(ethers.constants.AddressZero);
+      expect(endowmentDetails.earlyLockedWithdrawFee).to.equalFee(
+        DEFAULT_CHARITY_ENDOWMENT.earlyLockedWithdrawFee
+      );
+      expect(endowmentDetails.endowType).to.equal(DEFAULT_CHARITY_ENDOWMENT.endowType);
+      expect(endowmentDetails.ignoreUserSplits).to.equal(
+        DEFAULT_CHARITY_ENDOWMENT.ignoreUserSplits
+      );
+      expect(endowmentDetails.image).to.equal(DEFAULT_CHARITY_ENDOWMENT.image);
+      expect(endowmentDetails.logo).to.equal(DEFAULT_CHARITY_ENDOWMENT.logo);
+      expect(endowmentDetails.maturityAllowlist).to.have.same.members(
+        DEFAULT_CHARITY_ENDOWMENT.maturityAllowlist
+      );
+      expect(endowmentDetails.maturityTime).to.equal(DEFAULT_CHARITY_ENDOWMENT.maturityTime);
+      expect(endowmentDetails.multisig).to.equal(DEFAULT_CHARITY_ENDOWMENT.multisig);
       expect(endowmentDetails.name).to.equal(DEFAULT_CHARITY_ENDOWMENT.name);
-      // ...
+      expect(endowmentDetails.parent).to.equal(DEFAULT_CHARITY_ENDOWMENT.parent);
+      expect(endowmentDetails.pendingRedemptions).to.equal(
+        DEFAULT_CHARITY_ENDOWMENT.pendingRedemptions
+      );
+      expect(endowmentDetails.proposalLink).to.equal(DEFAULT_CHARITY_ENDOWMENT.proposalLink);
+      expect(endowmentDetails.rebalance.basis).to.deep.equal(
+        DEFAULT_CHARITY_ENDOWMENT.rebalance.basis
+      );
+      expect(endowmentDetails.rebalance.interestDistribution).to.deep.equal(
+        DEFAULT_CHARITY_ENDOWMENT.rebalance.interestDistribution
+      );
+      expect(endowmentDetails.rebalance.lockedPrincipleToLiquid).to.deep.equal(
+        DEFAULT_CHARITY_ENDOWMENT.rebalance.lockedPrincipleToLiquid
+      );
+      expect(endowmentDetails.rebalance.lockedRebalanceToLiquid).to.deep.equal(
+        DEFAULT_CHARITY_ENDOWMENT.rebalance.lockedRebalanceToLiquid
+      );
+      expect(endowmentDetails.rebalance.principleDistribution).to.deep.equal(
+        DEFAULT_CHARITY_ENDOWMENT.rebalance.principleDistribution
+      );
+      expect(endowmentDetails.rebalance.rebalanceLiquidProfits).to.deep.equal(
+        DEFAULT_CHARITY_ENDOWMENT.rebalance.rebalanceLiquidProfits
+      );
+      expect(endowmentDetails.referralId).to.equal(DEFAULT_CHARITY_ENDOWMENT.referralId);
+      expect(endowmentDetails.sdgs).to.have.same.deep.members(
+        DEFAULT_CHARITY_ENDOWMENT.sdgs.map((x) => BigNumber.from(x))
+      );
+      expect(endowmentDetails.settingsController.acceptedTokens).to.equalSettingsPermission(
+        DEFAULT_CHARITY_ENDOWMENT.settingsController.acceptedTokens
+      );
+      expect(
+        endowmentDetails.settingsController.lockedInvestmentManagement
+      ).to.equalSettingsPermission(
+        DEFAULT_CHARITY_ENDOWMENT.settingsController.lockedInvestmentManagement
+      );
+      expect(
+        endowmentDetails.settingsController.liquidInvestmentManagement
+      ).to.equalSettingsPermission(
+        DEFAULT_CHARITY_ENDOWMENT.settingsController.liquidInvestmentManagement
+      );
+      expect(
+        endowmentDetails.settingsController.allowlistedBeneficiaries
+      ).to.equalSettingsPermission(
+        DEFAULT_CHARITY_ENDOWMENT.settingsController.allowlistedBeneficiaries
+      );
+      expect(
+        endowmentDetails.settingsController.allowlistedContributors
+      ).to.equalSettingsPermission(
+        DEFAULT_CHARITY_ENDOWMENT.settingsController.allowlistedContributors
+      );
+      expect(endowmentDetails.settingsController.maturityAllowlist).to.equalSettingsPermission(
+        DEFAULT_CHARITY_ENDOWMENT.settingsController.maturityAllowlist
+      );
+      expect(endowmentDetails.settingsController.maturityTime).to.equalSettingsPermission(
+        DEFAULT_CHARITY_ENDOWMENT.settingsController.maturityTime
+      );
+      expect(endowmentDetails.settingsController.earlyLockedWithdrawFee).to.equalSettingsPermission(
+        DEFAULT_CHARITY_ENDOWMENT.settingsController.earlyLockedWithdrawFee
+      );
+      expect(endowmentDetails.settingsController.withdrawFee).to.equalSettingsPermission(
+        DEFAULT_CHARITY_ENDOWMENT.settingsController.withdrawFee
+      );
+      expect(endowmentDetails.settingsController.depositFee).to.equalSettingsPermission(
+        DEFAULT_CHARITY_ENDOWMENT.settingsController.depositFee
+      );
+      expect(endowmentDetails.settingsController.balanceFee).to.equalSettingsPermission(
+        DEFAULT_CHARITY_ENDOWMENT.settingsController.balanceFee
+      );
+      expect(endowmentDetails.settingsController.name).to.equalSettingsPermission(
+        DEFAULT_CHARITY_ENDOWMENT.settingsController.name
+      );
+      expect(endowmentDetails.settingsController.image).to.equalSettingsPermission(
+        DEFAULT_CHARITY_ENDOWMENT.settingsController.image
+      );
+      expect(endowmentDetails.settingsController.logo).to.equalSettingsPermission(
+        DEFAULT_CHARITY_ENDOWMENT.settingsController.logo
+      );
+      expect(endowmentDetails.settingsController.sdgs).to.equalSettingsPermission(
+        DEFAULT_CHARITY_ENDOWMENT.settingsController.sdgs
+      );
+      expect(endowmentDetails.settingsController.splitToLiquid).to.equalSettingsPermission(
+        DEFAULT_CHARITY_ENDOWMENT.settingsController.splitToLiquid
+      );
+      expect(endowmentDetails.settingsController.ignoreUserSplits).to.equalSettingsPermission(
+        DEFAULT_CHARITY_ENDOWMENT.settingsController.ignoreUserSplits
+      );
+      expect(endowmentDetails.splitToLiquid.defaultSplit).to.equal(
+        DEFAULT_CHARITY_ENDOWMENT.splitToLiquid.defaultSplit
+      );
+      expect(endowmentDetails.splitToLiquid.max).to.equal(
+        DEFAULT_CHARITY_ENDOWMENT.splitToLiquid.max
+      );
+      expect(endowmentDetails.splitToLiquid.min).to.equal(
+        DEFAULT_CHARITY_ENDOWMENT.splitToLiquid.min
+      );
+      expect(endowmentDetails.tier).to.equal(DEFAULT_CHARITY_ENDOWMENT.tier);
+      expect(endowmentDetails.withdrawFee).to.equalFee(DEFAULT_CHARITY_ENDOWMENT.withdrawFee);
     });
   });
 
