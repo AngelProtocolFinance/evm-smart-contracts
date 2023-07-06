@@ -40,6 +40,7 @@ describe("AccountsUpdateStatusEndowments", function () {
   let facet: AccountsUpdateStatusEndowments;
   let state: TestFacetProxyContract;
   let endowment: AccountStorage.EndowmentStruct;
+  let treasuryAddress: string;
 
   let registrarFake: FakeContract<Registrar>;
   let indexFundFake: FakeContract<IndexFund>;
@@ -49,6 +50,7 @@ describe("AccountsUpdateStatusEndowments", function () {
     accOwner = signers.apTeam1;
     proxyAdmin = signers.proxyAdmin;
     endowOwner = signers.deployer;
+    treasuryAddress = signers.apTeam2.address;
 
     endowment = {...DEFAULT_CHARITY_ENDOWMENT, owner: endowOwner.address};
   });
@@ -67,6 +69,7 @@ describe("AccountsUpdateStatusEndowments", function () {
     const config: RegistrarStorage.ConfigStruct = {
       ...DEFAULT_REGISTRAR_CONFIG,
       indexFundContract: indexFundFake.address,
+      treasury: treasuryAddress,
     };
     registrarFake.queryConfig.returns(config);
 
@@ -143,6 +146,28 @@ describe("AccountsUpdateStatusEndowments", function () {
     expect(endowState[1].data.addr).to.equal(beneficiary.data.addr);
     expect(endowState[1].data.endowId).to.equal(beneficiary.data.endowId);
     expect(endowState[1].data.fundId).to.equal(beneficiary.data.fundId);
+  });
+
+  it("updates the beneficiary to the treasury address if the beneficiary is set to 'None' and the endowment is not involved in any funds", async () => {
+    indexFundFake.queryInvolvedFunds.returns([]);
+    const beneficiaryNone: LibAccounts.BeneficiaryStruct = {...beneficiary, enumData: 3};
+
+    const tx = await facet.closeEndowment(accountId, beneficiaryNone);
+    const receipt = await tx.wait();
+
+    // Get the endowment ID from the event emitted in the transaction receipt
+    const event = receipt.events?.find((e) => e.event === "EndowmentUpdated");
+    const endowmentId = BigNumber.from(event!.args!.endowId);
+
+    // verify endowment was created by checking the emitted event's parameter
+    expect(endowmentId).to.exist;
+
+    const endowState = await state.getClosingEndowmentState(accountId);
+    expect(endowState[0]).to.equal(true);
+    expect(endowState[1].enumData).to.equal(2);
+    expect(endowState[1].data.addr).to.equal(treasuryAddress);
+    expect(endowState[1].data.endowId).to.equal(0);
+    expect(endowState[1].data.fundId).to.equal(0);
   });
 
   // it("updates the beneficiary to the first index fund if the beneficiary is set to 'None' and the endowment is involved in one or more funds", async () => {
