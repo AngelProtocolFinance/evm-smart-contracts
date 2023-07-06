@@ -37,7 +37,7 @@ describe("AccountsAllowance", function () {
         enumData: 0,
       });
       await expect(
-        facet.manageAllowances(0, 0, user.address, ethers.constants.AddressZero, 1)
+        facet.manageAllowances(0, user.address, ethers.constants.AddressZero, 1)
       ).to.be.revertedWith("Endowment is closed");
     });
 
@@ -47,7 +47,7 @@ describe("AccountsAllowance", function () {
         enumData: 0,
       });
       await expect(
-        facet.manageAllowances(0, 0, user.address, ethers.constants.AddressZero, 1)
+        facet.manageAllowances(0, user.address, ethers.constants.AddressZero, 1)
       ).to.be.revertedWith("Invalid Token");
     });
   });

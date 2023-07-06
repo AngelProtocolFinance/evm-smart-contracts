@@ -47,6 +47,5 @@ contract AccountsDeployContract is IAccountsDeployContract, ReentrancyGuardFacet
     ISubDaoEmitter(registrar_config.subdaoEmitter).initializeSubDao(daoAddress);
 
     ISubDao(daoAddress).buildDaoTokenMesage(createDaoMessage);
-    emit DaoContractCreated(createDaoMessage.id, daoAddress);
   }
 }

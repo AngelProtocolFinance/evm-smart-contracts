@@ -52,7 +52,6 @@ contract AccountsUpdateEndowmentSettingsController is
         )
       ) {
         tempEndowment.maturityTime = details.maturityTime;
-        emit EndowmentSettingUpdated(details.id, "maturityTime");
       }
       if (tempEndowment.maturityTime <= 0 || tempEndowment.maturityTime > block.timestamp) {
         if (
@@ -66,7 +65,6 @@ contract AccountsUpdateEndowmentSettingsController is
           tempEndowment.allowlistedBeneficiaries = details.allowlistedBeneficiaries;
           // IS EMITTING THIS EVENT FOR EACH UPDATED FIELD A GENERAL PRACTICE?
           // I SEE THE BENEFIT, JUST NOT SURE ABOUT GAS EFFICIENCY AND USEFULNESS
-          emit EndowmentSettingUpdated(details.id, "allowlistedBeneficiaries");
         }
 
         if (
@@ -78,7 +76,6 @@ contract AccountsUpdateEndowmentSettingsController is
           )
         ) {
           tempEndowment.allowlistedContributors = details.allowlistedContributors;
-          emit EndowmentSettingUpdated(details.id, "allowlistedContributors");
         }
         if (
           Validator.canChange(
@@ -107,7 +104,6 @@ contract AccountsUpdateEndowmentSettingsController is
                 index
               );
           }
-          emit EndowmentSettingUpdated(details.id, "maturityAllowlist");
         }
       }
     }
@@ -121,7 +117,6 @@ contract AccountsUpdateEndowmentSettingsController is
       )
     ) {
       tempEndowment.splitToLiquid = details.splitToLiquid;
-      emit EndowmentSettingUpdated(details.id, "splitToLiquid");
     }
 
     if (
@@ -133,10 +128,8 @@ contract AccountsUpdateEndowmentSettingsController is
       )
     ) {
       tempEndowment.ignoreUserSplits = details.ignoreUserSplits;
-      emit EndowmentSettingUpdated(details.id, "ignoreUserSplits");
     }
     state.ENDOWMENTS[details.id] = tempEndowment;
-    emit EndowmentUpdated(details.id);
   }
 
   /**
@@ -327,8 +320,6 @@ contract AccountsUpdateEndowmentSettingsController is
         .ignoreUserSplits;
     }
     state.ENDOWMENTS[details.id] = tempEndowment;
-    emit EndowmentSettingUpdated(details.id, "endowmentController");
-    emit EndowmentUpdated(details.id);
   }
 
   /**
@@ -399,6 +390,5 @@ contract AccountsUpdateEndowmentSettingsController is
     }
 
     state.ENDOWMENTS[details.id] = tempEndowment;
-    emit EndowmentUpdated(details.id);
   }
 }

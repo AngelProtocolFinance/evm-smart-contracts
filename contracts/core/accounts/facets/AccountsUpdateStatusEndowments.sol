@@ -76,8 +76,6 @@ contract AccountsUpdateStatusEndowments is
 
     require(checkFullyExited(uint32(id)), "Not fully exited");
     state.ENDOWMENTS[id] = tempEndowment;
-    emit EndowmentUpdated(id);
-    // emit EndowmentStateUpdated(id);
   }
 
   function checkFullyExited(uint32 id) internal view returns (bool) {

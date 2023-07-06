@@ -106,7 +106,6 @@ contract AccountsUpdateEndowments is
     }
 
     state.ENDOWMENTS[details.id] = tempEndowment;
-    emit EndowmentUpdated(details.id);
   }
 
   /**
@@ -319,7 +318,6 @@ contract AccountsUpdateEndowments is
       revert("Invalid setting input");
     }
     state.ENDOWMENTS[id] = tempEndowment;
-    emit EndowmentUpdated(id);
   }
 
   /**

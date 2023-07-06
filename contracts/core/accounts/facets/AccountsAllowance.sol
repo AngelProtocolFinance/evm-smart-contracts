@@ -18,14 +18,12 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
    * @notice Endowment owner adds allowance to spend
    * @dev This function adds or removes allowances for an account
    * @param endowId The id of the endowment
-   * @param action The action to be performed
    * @param spender The address of the spender
    * @param token The address of the token
    * @param amount The allowance amount
    */
   function manageAllowances(
     uint32 endowId,
-    AllowanceAction action,
     address spender,
     address token,
     uint256 amount
@@ -74,16 +72,28 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
     }
     require(inAllowlist, "Invalid Spender");
 
-    if (action == AllowanceAction.Remove) {
-      delete state.ALLOWANCES[endowId][spender][token];
-      emit AllowanceRemoved(msg.sender, spender, token);
-    } else if (action == AllowanceAction.Add) {
-      require(amount > 0, "Zero amount");
-      state.ALLOWANCES[endowId][spender][token] = amount;
-      emit AllowanceUpdated(msg.sender, spender, token, state.ALLOWANCES[endowId][spender][token]);
-    } else {
-      revert("Invalid Operation");
+    uint256 amountDelta;
+    uint256 currSpenderBal = state.ALLOWANCES[endowId][token].bySpender[spender];
+    if (amount > currSpenderBal) {
+      amountDelta = amount - currSpenderBal;
+      // check if liquid balance is sufficient for any proposed increase to spender allocation
+      require(
+        state.STATES[endowId].balances.liquid[token] >= amountDelta,
+        "Insufficient liquid balance to allocate"
+      );
+      // increase total outstanding allocation & reduce liquid balance by AmountDelta
+      state.ALLOWANCES[endowId][token].totalOutstanding += amountDelta;
+      state.STATES[endowId].balances.liquid[token] -= amountDelta;
+      emit AllowanceUpdated(endowId, spender, token, amount, amountDelta, 0);
+    } else if (amount < currSpenderBal) {
+      amountDelta = currSpenderBal - amount;
+      // decrease total outstanding allocation & increase liquid balance by AmountDelta
+      state.ALLOWANCES[endowId][token].totalOutstanding -= amountDelta;
+      state.STATES[endowId].balances.liquid[token] += amountDelta;
+      emit AllowanceUpdated(endowId, spender, token, amount, 0, amountDelta);
     }
+    // set the allocation for spender to the amount specified
+    state.ALLOWANCES[endowId][token].bySpender[spender] = amount;
   }
 
   /**
@@ -105,16 +115,16 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
     require(amount != 0, "Zero Amount");
 
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    require(state.ALLOWANCES[endowId][msg.sender][token] > 0, "Allowance does not exist");
+    require(state.ALLOWANCES[endowId][token].bySpender[msg.sender] > 0, "Allowance does not exist");
     require(
-      state.ALLOWANCES[endowId][msg.sender][token] > amount,
-      "Amount reqested exceeds allowance balance"
+      state.ALLOWANCES[endowId][token].bySpender[msg.sender] >= amount,
+      "Amount requested exceeds Allowance balance"
     );
-    require(state.STATES[endowId].balances.liquid[token] >= amount, "InsufficientFunds");
 
-    state.ALLOWANCES[endowId][msg.sender][token] -= amount;
-    state.STATES[endowId].balances.liquid[token] -= amount;
+    state.ALLOWANCES[endowId][token].bySpender[msg.sender] -= amount;
+    state.ALLOWANCES[endowId][token].totalOutstanding -= amount;
 
     require(IERC20(token).transfer(recipient, amount), "Transfer failed");
+    emit AllowanceSpent(endowId, msg.sender, token, amount);
   }
 }

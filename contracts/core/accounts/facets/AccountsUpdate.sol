@@ -22,12 +22,9 @@ contract AccountsUpdate is ReentrancyGuardFacet, IAccountsEvents, IAccountsUpdat
   function updateOwner(address newOwner) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     require(msg.sender == state.config.owner, "Unauthorized");
-
     require(Validator.addressChecker(newOwner), "Enter a valid owner address");
 
     state.config.owner = newOwner;
-
-    emit OwnerUpdated(newOwner);
   }
 
   /**
@@ -49,7 +46,5 @@ contract AccountsUpdate is ReentrancyGuardFacet, IAccountsEvents, IAccountsUpdat
     state.config.registrarContract = newRegistrar;
     state.config.maxGeneralCategoryId = maxGeneralCategoryId;
     state.config.earlyLockedWithdrawFee = earlyLockedWithdrawFee;
-
-    emit ConfigUpdated();
   }
 }
