@@ -11,7 +11,7 @@ import {
   Registrar__factory,
 } from "typechain-types";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
-import { DEFAULT_REGISTRAR_CONFIG } from "test/utils";
+import {DEFAULT_REGISTRAR_CONFIG} from "test/utils";
 
 use(smock.matchers);
 
@@ -25,7 +25,7 @@ describe("GasFwdFactory", function () {
   async function deployGasFwdFactory(
     owner: SignerWithAddress,
     admin: SignerWithAddress,
-    impl?: string,
+    impl?: string
   ): Promise<GasFwdFactory> {
     let implementation;
     if (impl) {
@@ -38,11 +38,7 @@ describe("GasFwdFactory", function () {
     }
 
     let GFF = new GasFwdFactory__factory(owner);
-    let gff = await GFF.deploy(
-      implementation,
-      admin.address,
-      registrarFake.address
-    );
+    let gff = await GFF.deploy(implementation, admin.address, registrarFake.address);
     await gff.deployed();
     return gff;
   }

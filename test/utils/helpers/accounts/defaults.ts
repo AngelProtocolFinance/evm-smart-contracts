@@ -77,7 +77,7 @@ export const DEFAULT_CHARITY_ENDOWMENT: AccountStorage.EndowmentStruct = {
   ignoreUserSplits: false,
   splitToLiquid: DEFAULT_SPLIT_STRUCT,
   referralId: 0,
-  gasFwd: ethers.constants.AddressZero
+  gasFwd: ethers.constants.AddressZero,
 };
 
 export const DEFAULT_ACCOUNTS_CONFIG: AccountStorage.ConfigStruct = {
@@ -134,5 +134,5 @@ export const DEFAULT_REGISTRAR_CONFIG: RegistrarStorage.ConfigStruct = {
   multisigFactory: ethers.constants.AddressZero,
   multisigEmitter: ethers.constants.AddressZero,
   donationMatchCharitesContract: ethers.constants.AddressZero,
-  gasFwdFactoryAddress: ethers.constants.AddressZero
+  gasFwdFactoryAddress: ethers.constants.AddressZero,
 };
