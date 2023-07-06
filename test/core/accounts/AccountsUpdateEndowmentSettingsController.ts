@@ -129,5 +129,36 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       expect(newEndow.splitToLiquid.max).to.equal(oldEndowment.splitToLiquid.max);
       expect(newEndow.splitToLiquid.min).to.equal(oldEndowment.splitToLiquid.min);
     });
+
+    it("changes nothing in normal endowment settings if sender doesn't have necessary permissions", async () => {
+      const tx = await facet.connect(owner).updateEndowmentSettings(updateEndowmentSettingsRequest);
+      const createEndowmentReceipt = await tx.wait();
+
+      // Get the endowment ID from the event emitted in the transaction receipt
+      const event = createEndowmentReceipt.events?.find((e) => e.event === "EndowmentUpdated");
+
+      // verify endowment was created by checking the emitted event's parameter
+      expect(event).to.exist;
+      expect(event?.args).to.exist;
+      expect(BigNumber.from(event!.args!.endowId)).to.equal(endowId);
+
+      const newEndow = await state.getEndowmentDetails(endowId);
+
+      expect(newEndow.allowlistedBeneficiaries).to.have.same.members(
+        oldEndowment.allowlistedBeneficiaries.map((x) => x.toString())
+      );
+      expect(newEndow.allowlistedContributors).to.have.same.members(
+        oldEndowment.allowlistedContributors.map((x) => x.toString())
+      );
+      expect(newEndow.donationMatchActive).to.equal(oldEndowment.donationMatchActive);
+      expect(newEndow.ignoreUserSplits).to.equal(oldEndowment.ignoreUserSplits);
+      expect(newEndow.maturityAllowlist).to.have.same.members(
+        oldEndowment.maturityAllowlist.map((x) => x.toString())
+      );
+      expect(newEndow.maturityTime).to.equal(oldEndowment.maturityTime);
+      expect(newEndow.splitToLiquid.defaultSplit).to.equal(oldEndowment.splitToLiquid.defaultSplit);
+      expect(newEndow.splitToLiquid.max).to.equal(oldEndowment.splitToLiquid.max);
+      expect(newEndow.splitToLiquid.min).to.equal(oldEndowment.splitToLiquid.min);
+    });
   });
 });
