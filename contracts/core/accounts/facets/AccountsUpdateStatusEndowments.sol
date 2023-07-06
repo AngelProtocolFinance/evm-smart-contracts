@@ -76,7 +76,7 @@ contract AccountsUpdateStatusEndowments is
     state.STATES[id].closingBeneficiary = beneficiary;
 
     require(checkFullyExited(id), "Not fully exited");
-    state.ENDOWMENTS[id] = tempEndowment;
+
     emit EndowmentUpdated(id);
     // emit EndowmentStateUpdated(id);
   }
