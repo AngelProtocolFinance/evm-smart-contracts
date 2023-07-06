@@ -9,7 +9,6 @@ import {
   AccountsCreateEndowment__factory,
   EndowmentMultiSigFactory,
   EndowmentMultiSigFactory__factory,
-  GasFwd,
   GasFwdFactory,
   GasFwdFactory__factory,
   Registrar,
@@ -20,7 +19,6 @@ import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/Ac
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import "../../utils/setup";
-import { gasFwd } from "typechain-types/contracts/core";
 
 use(smock.matchers);
 
