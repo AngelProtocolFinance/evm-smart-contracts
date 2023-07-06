@@ -79,15 +79,11 @@ contract MultiSigGeneric is
     _;
   }
 
-  /// @dev Receive function allows to deposit ether.
-  receive() external payable override {
-    if (msg.value > 0) emit Deposit(msg.sender, msg.value);
-  }
+  /// @dev Receive function allows to deposit matic.
+  receive() external payable override {}
 
-  /// @dev Fallback function allows to deposit ether.
-  fallback() external payable override {
-    if (msg.value > 0) emit Deposit(msg.sender, msg.value);
-  }
+  /// @dev Fallback function allows to deposit matic.
+  fallback() external payable override {}
 
   /*
    * Public functions
@@ -111,13 +107,9 @@ contract MultiSigGeneric is
     }
     // set storage variables
     approvalsRequired = _approvalsRequired;
-    emit ApprovalsRequiredChanged(_approvalsRequired);
-
     requireExecution = _requireExecution;
-    emit RequireExecutionChanged(requireExecution);
-
     transactionExpiry = _transactionExpiry;
-    emit TransactionExpiryChanged(transactionExpiry);
+    emit Initialized(owners, approvalsRequired, requireExecution, transactionExpiry);
   }
 
   /// @dev Allows to add new owners. Transaction has to be sent by wallet.
@@ -194,7 +186,7 @@ contract MultiSigGeneric is
   /// @param _transactionExpiry time that a newly created transaction is valid for
   function changeTransactionExpiry(uint256 _transactionExpiry) public virtual override onlyWallet {
     transactionExpiry = _transactionExpiry;
-    emit TransactionExpiryChanged(_transactionExpiry);
+    emit ExpiryChanged(_transactionExpiry);
   }
 
   /// @dev Allows an owner to submit and confirm a transaction.
@@ -252,7 +244,7 @@ contract MultiSigGeneric is
   {
     confirmations[transactionId].confirmationsByOwner[msg.sender] = false;
     confirmations[transactionId].count -= 1;
-    emit ConfirmationRevoked(msg.sender, transactionId);
+    emit TransactionConfirmationRevoked(msg.sender, transactionId);
   }
 
   /// @dev Allows current owners to revoke a confirmation for a non-executed transaction from a removed/non-current owner.
@@ -274,7 +266,7 @@ contract MultiSigGeneric is
     require(!isOwner[formerOwner], "Attempting to revert confirmation of a current owner");
     confirmations[transactionId].confirmationsByOwner[formerOwner] = false;
     confirmations[transactionId].count -= 1;
-    emit ConfirmationRevoked(formerOwner, transactionId);
+    emit TransactionConfirmationRevoked(formerOwner, transactionId);
   }
 
   /// @dev Allows anyone to execute a confirmed transaction.

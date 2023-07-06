@@ -12,10 +12,6 @@ abstract contract ICharityApplications {
   event ApplicationExecuted(uint256 proposalId);
   event ApplicationConfirmed(uint256 proposalId, address owner);
   event ApplicationConfirmationRevoked(uint256 proposalId, address owner);
-  // event emitted when gas is sent to endowments first member
-  event GasSent(uint256 endowmentId, address member, uint256 amount);
-  // event emitted when seed funding is given to endowment
-  event SeedAssetSent(uint256 endowmentId, address asset, uint256 amount);
 
   /**
    * @notice Initialize the charity applications contract

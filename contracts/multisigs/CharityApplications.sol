@@ -220,7 +220,6 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
         // transfer matic to them and emit gas fee payment event
         (bool success, ) = signer.call{value: config.gasAmount}("");
         require(success, "Failed gas payment");
-        emit GasSent(endowmentId, signer, config.gasAmount);
       }
     }
 
@@ -242,8 +241,6 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
           config.seedAsset,
           config.seedAmount
         );
-        // emit seed asset event
-        emit SeedAssetSent(endowmentId, config.seedAsset, config.seedAmount);
       }
     }
     // mark the proposal as executed
