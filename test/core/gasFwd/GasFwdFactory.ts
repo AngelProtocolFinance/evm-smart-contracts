@@ -11,6 +11,7 @@ import {
   Registrar__factory,
 } from "typechain-types";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
+import { DEFAULT_REGISTRAR_CONFIG } from "test/utils";
 
 use(smock.matchers);
 
@@ -25,7 +26,6 @@ describe("GasFwdFactory", function () {
     owner: SignerWithAddress,
     admin: SignerWithAddress,
     impl?: string,
-    registrar?: SignerWithAddress
   ): Promise<GasFwdFactory> {
     let implementation;
     if (impl) {
@@ -41,7 +41,7 @@ describe("GasFwdFactory", function () {
     let gff = await GFF.deploy(
       implementation,
       admin.address,
-      registrar ? registrar.address : owner.address
+      registrarFake.address
     );
     await gff.deployed();
     return gff;
@@ -57,7 +57,8 @@ describe("GasFwdFactory", function () {
       address: owner.address,
     });
 
-    const config: Partial<RegistrarStorage.ConfigStructOutput> = {
+    const config = {
+      ...DEFAULT_REGISTRAR_CONFIG,
       accountsContract: user.address,
     };
     registrarFake.queryConfig.returns(config);

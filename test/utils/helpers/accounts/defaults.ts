@@ -1,6 +1,8 @@
 import {ethers} from "hardhat";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {LibAccounts} from "typechain-types/contracts/multisigs/CharityApplications";
+import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
+import {BigNumber} from "ethers";
 
 export const DEFAULT_PERMISSIONS_STRUCT: LibAccounts.SettingsPermissionStruct = {
   locked: false,
@@ -75,7 +77,7 @@ export const DEFAULT_CHARITY_ENDOWMENT: AccountStorage.EndowmentStruct = {
   ignoreUserSplits: false,
   splitToLiquid: DEFAULT_SPLIT_STRUCT,
   referralId: 0,
-  gasFwd: ethers.constants.AddressZero,
+  gasFwd: ethers.constants.AddressZero
 };
 
 export const DEFAULT_ACCOUNTS_CONFIG: AccountStorage.ConfigStruct = {
@@ -100,4 +102,37 @@ export const DEFAULT_NETWORK_INFO = {
   transferChannel: "",
   gasReceiver: ethers.constants.AddressZero,
   gasLimit: 0,
+};
+
+export const DEFAULT_REGISTRAR_CONFIG: RegistrarStorage.ConfigStruct = {
+  indexFundContract: ethers.constants.AddressZero,
+  accountsContract: ethers.constants.AddressZero,
+  treasury: ethers.constants.AddressZero,
+  subdaoGovContract: ethers.constants.AddressZero, // Sub dao implementation
+  subdaoTokenContract: ethers.constants.AddressZero, // NewERC20 implementation
+  subdaoBondingTokenContract: ethers.constants.AddressZero, // Continous Token implementation
+  subdaoCw900Contract: ethers.constants.AddressZero,
+  subdaoDistributorContract: ethers.constants.AddressZero,
+  subdaoEmitter: ethers.constants.AddressZero,
+  donationMatchContract: ethers.constants.AddressZero,
+  splitToLiquid: {max: 0, min: 0, defaultSplit: 0} as any,
+  haloToken: ethers.constants.AddressZero,
+  haloTokenLpContract: ethers.constants.AddressZero,
+  govContract: ethers.constants.AddressZero,
+  donationMatchEmitter: ethers.constants.AddressZero,
+  collectorShare: BigNumber.from(50),
+  charitySharesContract: ethers.constants.AddressZero,
+  fundraisingContract: ethers.constants.AddressZero,
+  uniswapRouter: ethers.constants.AddressZero,
+  uniswapFactory: ethers.constants.AddressZero,
+  lockedWithdrawal: ethers.constants.AddressZero,
+  proxyAdmin: ethers.constants.AddressZero,
+  usdcAddress: ethers.constants.AddressZero,
+  wMaticAddress: ethers.constants.AddressZero,
+  cw900lvAddress: ethers.constants.AddressZero,
+  charityApplications: ethers.constants.AddressZero,
+  multisigFactory: ethers.constants.AddressZero,
+  multisigEmitter: ethers.constants.AddressZero,
+  donationMatchCharitesContract: ethers.constants.AddressZero,
+  gasFwdFactoryAddress: ethers.constants.AddressZero
 };
