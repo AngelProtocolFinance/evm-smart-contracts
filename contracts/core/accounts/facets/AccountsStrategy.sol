@@ -128,10 +128,12 @@ contract AccountsStrategy is
         revert InvestFailed(response.status);
       }
     }
+    
     // Strategy lives on another chain
     else {
       NetworkInfo memory network = IRegistrar(state.config.registrarContract)
         .queryNetworkConnection(stratParams.network);
+      // @todo get gas from gasFwd
       IVault.VaultActionData memory payload = IVault.VaultActionData({
         destinationChain: stratParams.network,
         strategyId: strategy,
@@ -143,28 +145,31 @@ contract AccountsStrategy is
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
+
+      IERC20(tokenAddress).approve(thisNetwork.gasReceiver, gasFee);
       IAxelarGasService(thisNetwork.gasReceiver).payGasForContractCallWithToken(
         address(this),
         stratParams.network,
         AddressToString.toString(network.router),
         packedPayload,
         token,
-        (lockAmt + liquidAmt - gasFee),
+        (lockAmt + liquidAmt),
         StringToAddress.toAddress(token),
         gasFee,
         state.ENDOWMENTS[id].owner
       );
-      IAxelarGateway(network.axelarGateway).callContractWithToken(
+
+      IERC20(tokenAddress).approve(thisNetwork.axelarGateway, (lockAmt + liquidAmt));
+      IAxelarGateway(thisNetwork.axelarGateway).callContractWithToken(
         stratParams.network,
         AddressToString.toString(network.router),
         packedPayload,
         token,
-        (lockAmt + liquidAmt - gasFee)
+        (lockAmt + liquidAmt)
       );
-      (uint256 lockGas, uint256 liqGas) = _gasSplit(lockAmt, liquidAmt, gasFee);
-      state.STATES[id].balances.locked[tokenAddress] -= (lockAmt - lockGas);
-      state.STATES[id].balances.liquid[tokenAddress] -= (liquidAmt - liqGas);
-      state.STATES[id].activeStrategies[strategy] == true;
+      
+      state.STATES[id].balances.locked[tokenAddress] -= lockAmt;
+      state.STATES[id].balances.liquid[tokenAddress] -= liquidAmt;
     }
   }
 
@@ -274,6 +279,8 @@ contract AccountsStrategy is
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
+
+      IERC20(tokenAddress).approve(thisNetwork.gasReceiver, gasFee);
       IAxelarGasService(thisNetwork.gasReceiver).payGasForContractCall(
         address(this),
         stratParams.network,
@@ -283,7 +290,7 @@ contract AccountsStrategy is
         gasFee,
         state.ENDOWMENTS[id].owner
       );
-      IAxelarGateway(network.axelarGateway).callContract(
+      IAxelarGateway(thisNetwork.axelarGateway).callContract(
         stratParams.network,
         AddressToString.toString(network.router),
         packedPayload
@@ -365,6 +372,8 @@ contract AccountsStrategy is
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
+
+      IERC20(tokenAddress).approve(thisNetwork.gasReceiver, gasFee);
       IAxelarGasService(thisNetwork.gasReceiver).payGasForContractCall(
         address(this),
         stratParams.network,
@@ -374,7 +383,7 @@ contract AccountsStrategy is
         gasFee,
         state.ENDOWMENTS[id].owner
       );
-      IAxelarGateway(network.axelarGateway).callContract(
+      IAxelarGateway(thisNetwork.axelarGateway).callContract(
         stratParams.network,
         AddressToString.toString(network.router),
         packedPayload
@@ -382,27 +391,13 @@ contract AccountsStrategy is
     }
   }
 
-  /**
-   * @notice Split gas proportionally between liquid and lock amts
-   */
-  function _gasSplit(
-    uint256 _lockAmt,
-    uint256 _liqAmt,
-    uint256 _gasFee
-  ) internal pure returns (uint256, uint256) {
-    uint256 liqGas = (_gasFee * ((_liqAmt * LibAccounts.BIG_NUMBA_BASIS) / (_lockAmt + _liqAmt))) /
-      LibAccounts.BIG_NUMBA_BASIS;
-    uint256 lockGas = _gasFee - liqGas;
-    return (lockGas, liqGas);
-  }
-
   // axelar endpoints
   function _executeWithToken(
-    string calldata sourceChain,
-    string calldata sourceAddress,
+    string calldata,
+    string calldata,
     bytes calldata payload,
-    string calldata tokenSymbol,
-    uint256 amount
+    string calldata,
+    uint256
   ) internal override returns (IVault.VaultActionData memory) {
     IVault.VaultActionData memory response = RouterLib.unpackCalldata(payload);
     uint32 id = response.accountIds[0];
@@ -468,8 +463,8 @@ contract AccountsStrategy is
   }
 
   function _execute(
-    string calldata sourceChain,
-    string calldata sourceAddress,
+    string calldata,
+    string calldata,
     bytes calldata payload
   ) internal override returns (IVault.VaultActionData memory) {
     IVault.VaultActionData memory response = RouterLib.unpackCalldata(payload);
@@ -488,7 +483,7 @@ contract AccountsStrategy is
       state.STATES[id].activeStrategies[response.strategyId] == true;
       return response;
     }
-    
+
     // Fallback  
     revert UnexpectedResponse(response);
   }
