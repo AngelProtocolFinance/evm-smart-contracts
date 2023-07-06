@@ -8,6 +8,7 @@ import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG} from "test/utils";
 import {
   AccountsUpdateStatusEndowments,
   AccountsUpdateStatusEndowments__factory,
+  IIndexFund,
   IndexFund,
   IndexFund__factory,
   Registrar,
@@ -170,7 +171,43 @@ describe("AccountsUpdateStatusEndowments", function () {
     expect(endowState[1].data.fundId).to.equal(0);
   });
 
-  // it("updates the beneficiary to the first index fund if the beneficiary is set to 'None' and the endowment is involved in one or more funds", async () => {
-  //   // test case
-  // });
+  it("updates the beneficiary to the first index fund if the beneficiary is set to 'None' and the endowment is involved in one or more funds", async () => {
+    const funds: IIndexFund.IndexFundStruct[] = [
+      {
+        description: "d1",
+        expiryTime: BigNumber.from(100),
+        id: BigNumber.from(1),
+        name: "if1",
+        members: [accountId],
+        splitToLiquid: 50,
+      },
+      {
+        description: "d2",
+        expiryTime: BigNumber.from(100),
+        id: BigNumber.from(2),
+        name: "if2",
+        members: [accountId],
+        splitToLiquid: 50,
+      },
+    ];
+    indexFundFake.queryInvolvedFunds.returns(funds);
+    const beneficiaryNone: LibAccounts.BeneficiaryStruct = {...beneficiary, enumData: 3};
+
+    const tx = await facet.closeEndowment(accountId, beneficiaryNone);
+    const receipt = await tx.wait();
+
+    // Get the endowment ID from the event emitted in the transaction receipt
+    const event = receipt.events?.find((e) => e.event === "EndowmentUpdated");
+    const endowmentId = BigNumber.from(event!.args!.endowId);
+
+    // verify endowment was created by checking the emitted event's parameter
+    expect(endowmentId).to.exist;
+
+    const endowState = await state.getClosingEndowmentState(accountId);
+    expect(endowState[0]).to.equal(true);
+    expect(endowState[1].enumData).to.equal(1);
+    expect(endowState[1].data.addr).to.equal(ethers.constants.AddressZero);
+    expect(endowState[1].data.endowId).to.equal(0);
+    expect(endowState[1].data.fundId).to.equal(funds[0].id);
+  });
 });
