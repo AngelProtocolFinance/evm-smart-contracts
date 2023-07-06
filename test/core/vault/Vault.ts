@@ -1,15 +1,8 @@
 import {expect} from "chai";
+import {BigNumber} from "ethers";
 import {ethers} from "hardhat";
 import hre from "hardhat";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {
-  DummyERC20,
-  IVault,
-  APVault_V1,
-  APVault_V1__factory,
-  LocalRegistrar,
-  DummyStrategy,
-} from "typechain-types";
 import {getSigners} from "utils";
 import {
   deployDummyStrategy,
@@ -21,10 +14,18 @@ import {
   DEFAULT_VAULT_SYMBOL,
   DEFAULT_NETWORK,
 } from "test/utils";
-import {BigNumber} from "ethers";
+import {
+  APVault_V1,
+  APVault_V1__factory,
+  DummyERC20,
+  DummyStrategy,
+  IVault,
+  LocalRegistrar,
+} from "typechain-types";
 
 describe("Vault", function () {
   let owner: SignerWithAddress;
+  let proxyAdmin: SignerWithAddress;
   let user: SignerWithAddress;
   let admin: SignerWithAddress;
   let collector: SignerWithAddress;

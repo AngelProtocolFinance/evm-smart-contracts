@@ -108,8 +108,8 @@ abstract contract IMultiSigGeneric is IERC165 {
    */
   /// @dev Returns number of confirmations of a transaction.
   /// @param transactionId Transaction ID.
-  /// @return count
-  function getConfirmationCount(uint256 transactionId) public view virtual returns (uint256 count);
+  /// @return uint256
+  function getConfirmationCount(uint256 transactionId) public view virtual returns (uint256);
 
   /// @dev Returns status of confirmations of a transaction for a given owner.
   /// @param transactionId Transaction ID.

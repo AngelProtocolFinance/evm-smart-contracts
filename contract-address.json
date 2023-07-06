@@ -115,16 +115,16 @@
       },
       "endowment": {
         "emitter": {
-          "implementation": "0xE5BD5bDC03371fB239956dbbF40bD185D6c2ea28",
-          "proxy": "0xAd5d57aD9bB17d34Debb88566ab2F5dB879Cc46F"
+          "implementation": "0x90352F820342f8BE0012848bCB8aBd37877d7ec2",
+          "proxy": "0x82B642D9deDb3Ad19b8E99FF3792A49d4d9d85Bf"
         },
-        "factory": "0xe0B39353F69b54e945364ffcdDD7901697Ca0166",
-        "implementation": "0x20Fbd46DeEd5EEDEB6e5c87eeB31924e9CA312ad"
+        "factory": "0x7B3Be2dDDdDf9A0a3fE1DC57B98980F662C3a422",
+        "implementation": "0x7798A400cBe0Ca14a7D614ECa1CD15adE5055413"
       }
     },
     "registrar": {
-      "implementation": "0x0f5D1ef48f12b6f691401bfe88c2037c690a6afe",
-      "proxy": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+      "implementation": "0x1dBDba33dfA381bCC89FCe74DFF69Aa96B53b503",
+      "proxy": "0x4C3bE443B62c1C2B0b87A5D47cE4837B81772790"
     },
     "router": {
       "implementation": "0x90118d110B07ABB82Ba8980D1c5cC96EeA810d2C",
@@ -260,7 +260,7 @@
     },
     "multiSig": {
       "charityApplications": {
-        "implementation": "0x633e94F4cdF9C0F584B96eaA96e03B0C4876209D",
+        "implementation": "0x48777884b980Bfe6e7Bf841Cc3F3F56ECc921136",
         "proxy": "0x824F03DdEB9a7cd6852AA156392e358ACC79924b"
       },
       "apTeam": {

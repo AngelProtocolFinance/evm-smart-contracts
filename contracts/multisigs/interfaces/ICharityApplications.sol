@@ -67,4 +67,11 @@ abstract contract ICharityApplications {
   ) public virtual;
 
   function queryConfig() public view virtual returns (ApplicationsStorage.Config memory);
+
+  function getProposalConfirmationCount(uint256 proposalId) public view virtual returns (uint256);
+
+  function getProposalConfirmationStatus(
+    uint256 proposalId,
+    address ownerAddr
+  ) public view virtual returns (bool);
 }

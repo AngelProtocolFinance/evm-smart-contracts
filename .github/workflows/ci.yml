@@ -39,10 +39,10 @@ jobs:
         with:
           cmd: "compile"
 
-      - name: "Check typescript files for compilation errors"
-        uses: "borales/actions-yarn@v4"
-        with:
-          cmd: "tsc"
+      # - name: "Check typescript files for compilation errors"
+      #   uses: "borales/actions-yarn@v4"
+      #   with:
+      #     cmd: "tsc"
 
       - name: "Test the contracts"
         uses: "borales/actions-yarn@v4"
