@@ -10,6 +10,7 @@ interface IAccountsStrategy {
   error InvestFailed(IVault.VaultActionStatus);
   error RedeemFailed(IVault.VaultActionStatus);
   error RedeemAllFailed(IVault.VaultActionStatus);
+  error UnexpectedResponse(IVault.VaultActionData);
 
   struct NetworkInfo {
     uint256 chainId;

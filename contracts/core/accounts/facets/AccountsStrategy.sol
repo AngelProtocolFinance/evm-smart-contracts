@@ -403,11 +403,93 @@ contract AccountsStrategy is
     bytes calldata payload,
     string calldata tokenSymbol,
     uint256 amount
-  ) internal override returns (IVault.VaultActionData memory) {}
+  ) internal override returns (IVault.VaultActionData memory) {
+    IVault.VaultActionData memory response = RouterLib.unpackCalldata(payload);
+    uint32 id = response.accountIds[0];
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    
+    // Invest Cases
+    // FAIL_TOKENS_RETURNED => Refund upon failed invest call
+    // ALL ELSE => Unexpected cases; all other responses should not have tokens
+    if (response.selector == IVault.deposit.selector) {
+      if (response.status == IVault.VaultActionStatus.FAIL_TOKENS_RETURNED) {
+        state.STATES[id].balances.locked[response.token] += response.lockAmt;
+        state.STATES[id].balances.liquid[response.token] += response.liqAmt;
+      }
+      else {
+        revert UnexpectedResponse(response);
+      }
+    }
+
+    // Redeem Cases
+    // SUCCESS => Tokens returning from successful redemption call
+    // POSITION_EXITED => Specified amounts led to a full, successful redemption
+    // ALL ELSE => Unexpected; all other responses should not have tokens
+    else if (response.selector == IVault.redeem.selector) {
+      if (response.status == IVault.VaultActionStatus.SUCCESS) {
+        state.STATES[id].balances.locked[response.token] += response.lockAmt;
+        state.STATES[id].balances.liquid[response.token] += response.liqAmt;
+      }
+      else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
+        state.STATES[id].balances.locked[response.token] += response.lockAmt;
+        state.STATES[id].balances.liquid[response.token] += response.liqAmt;
+        state.STATES[id].activeStrategies[response.strategyId] == false;
+      }
+      else {
+        revert UnexpectedResponse(response);
+      }
+    }
+
+    // RedeemAll Cases
+    // POSITION_EXITED => Successful full redemption
+    // SUCCESS => Should not happen, but need to reflect acct balances anyway
+    // ALL ELSE => Unexpected; all other responses should not have tokens
+    else if (response.selector == IVault.redeemAll.selector) {
+      if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
+        state.STATES[id].balances.locked[response.token] += response.lockAmt;
+        state.STATES[id].balances.liquid[response.token] += response.liqAmt;
+        state.STATES[id].activeStrategies[response.strategyId] == false;
+      }
+      else if (response.status == IVault.VaultActionStatus.SUCCESS) {
+        state.STATES[id].balances.locked[response.token] += response.lockAmt;
+        state.STATES[id].balances.liquid[response.token] += response.liqAmt;
+      }
+      else {
+        revert UnexpectedResponse(response);
+      }
+    }
+
+    // Fallback  
+    else {
+      revert UnexpectedResponse(response);
+    }
+
+    return response;
+  }
 
   function _execute(
     string calldata sourceChain,
     string calldata sourceAddress,
     bytes calldata payload
-  ) internal override returns (IVault.VaultActionData memory) {}
+  ) internal override returns (IVault.VaultActionData memory) {
+    IVault.VaultActionData memory response = RouterLib.unpackCalldata(payload);
+    uint32 id = response.accountIds[0];
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+
+    // FAIL_TOKENS_FALLBACK => Call failed and tokens could not be returned, manual refund needed
+    if (response.status == IVault.VaultActionStatus.FAIL_TOKENS_FALLBACK) {
+      emit RefundNeeded(response);
+      return response;
+    }
+
+    // Only unique case
+    // Invest selector && SUCCESS => Invest call happy path
+    if ((response.selector == IVault.deposit.selector) && (response.status == IVault.VaultActionStatus.SUCCESS)) {
+      state.STATES[id].activeStrategies[response.strategyId] == true;
+      return response;
+    }
+    
+    // Fallback  
+    revert UnexpectedResponse(response);
+  }
 }
