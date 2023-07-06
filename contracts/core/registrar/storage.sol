@@ -37,6 +37,7 @@ library RegistrarStorage {
     address usdcAddress;
     address wMaticAddress;
     address cw900lvAddress;
+    address gasFwdFactoryAddress;
   }
 
   struct State {

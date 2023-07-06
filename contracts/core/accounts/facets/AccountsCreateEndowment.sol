@@ -11,6 +11,7 @@ import {IEndowmentMultiSigFactory} from "../../../normalized_endowment/endowment
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsCreateEndowment} from "../interfaces/IAccountsCreateEndowment.sol";
+import {IGasFwdFactory} from "../../gasFwd/IGasFwdFactory.sol";
 
 /**
  * @title AccountsCreateEndowment

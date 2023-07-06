@@ -59,7 +59,8 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       proxyAdmin: address(0),
       usdcAddress: address(0),
       wMaticAddress: address(0),
-      cw900lvAddress: address(0)
+      cw900lvAddress: address(0),
+      gasFwdFactoryAddress: address(0)
     });
     emit ConfigUpdated();
 

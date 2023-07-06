@@ -3,11 +3,9 @@ pragma solidity ^0.8.16;
 
 import {ProxyContract} from "../proxy.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IGasFwdFactory} from "./IGasFwdFactory.sol";
 
-contract GasFwdFactory is Ownable {
-  error InvalidAddress(string param);
-  event GasFwdCreated(address addr);
-
+contract GasFwdFactory is IGasFwdFactory, Ownable {
   address impl;
   address admin;
   address accounts;
