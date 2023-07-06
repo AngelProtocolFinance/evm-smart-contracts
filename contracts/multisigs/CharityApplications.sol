@@ -298,10 +298,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
     uint256 proposalId,
     address ownerAddr
   ) public view override proposalExists(proposalId) returns (bool) {
-    if (proposalConfirmations[proposalId].confirmationsByOwner[ownerAddr]) {
-      return proposalConfirmations[proposalId].confirmationsByOwner[ownerAddr];
-    }
-    return false;
+    return proposalConfirmations[proposalId].confirmationsByOwner[ownerAddr];
   }
 
   /// @dev Returns number of confirmations of a proposal.
