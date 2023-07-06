@@ -79,6 +79,8 @@ contract AccountsCreateEndowment is
       details.duration
     );
 
+    address gasFwd = IGasFwdFactory(registrar_config.gasFwdFactoryAddress).create();
+
     state.ENDOWMENTS[newEndowId] = AccountStorage.Endowment({
       owner: owner,
       name: details.name,
@@ -107,7 +109,8 @@ contract AccountsCreateEndowment is
       parent: details.parent,
       ignoreUserSplits: ignoreUserSplit,
       splitToLiquid: splitSettings,
-      referralId: details.referralId
+      referralId: details.referralId,
+      gasFwd: gasFwd
     });
 
     state.STATES[newEndowId].closingEndowment = false;

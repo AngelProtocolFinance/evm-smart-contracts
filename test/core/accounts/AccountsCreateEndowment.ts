@@ -9,6 +9,9 @@ import {
   AccountsCreateEndowment__factory,
   EndowmentMultiSigFactory,
   EndowmentMultiSigFactory__factory,
+  GasFwd,
+  GasFwdFactory,
+  GasFwdFactory__factory,
   Registrar,
   Registrar__factory,
   TestFacetProxyContract,
@@ -17,6 +20,7 @@ import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/Ac
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import "../../utils/setup";
+import { gasFwd } from "typechain-types/contracts/core";
 
 use(smock.matchers);
 
@@ -31,6 +35,7 @@ describe("AccountsCreateEndowment", function () {
   let createEndowmentRequest: AccountMessages.CreateEndowmentRequestStruct;
   let endowmentOwner: string;
   let registrarFake: FakeContract<Registrar>;
+  let gasFwdFactoryFake: FakeContract<GasFwdFactory>;
 
   before(async function () {
     let signers: SignerWithAddress[];
@@ -113,6 +118,9 @@ describe("AccountsCreateEndowment", function () {
     );
     endowmentFactoryFake.create.returns(endowmentOwner);
 
+    gasFwdFactoryFake = await smock.fake<GasFwdFactory>(new GasFwdFactory__factory())
+    gasFwdFactoryFake.create.returns(ethers.constants.AddressZero)
+
     registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
       address: signers[1].address,
     });
@@ -155,6 +163,7 @@ describe("AccountsCreateEndowment", function () {
       multisigFactory: endowmentFactoryFake.address,
       multisigEmitter: ethers.constants.AddressZero,
       donationMatchCharitesContract: donationMatchCharitesContract.address,
+      gasFwdFactoryAddress: gasFwdFactoryFake.address
     };
     registrarFake.queryConfig.returns(config);
   });
