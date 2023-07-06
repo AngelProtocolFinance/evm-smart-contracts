@@ -1,6 +1,7 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
+import {BigNumber} from "ethers";
 import hre from "hardhat";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG} from "test/utils";
@@ -14,11 +15,10 @@ import {
   TestFacetProxyContract,
 } from "typechain-types";
 import {LibAccounts} from "typechain-types/contracts/core/accounts/facets/AccountsUpdateStatusEndowments";
+import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet, getSigners} from "utils";
 import "../../utils/setup";
-import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
-import {BigNumber} from "ethers";
 
 use(smock.matchers);
 
@@ -110,7 +110,9 @@ describe("AccountsUpdateStatusEndowments", function () {
   });
 
   it("reverts if the beneficiary is set to 'None' and no index fund is configured in the registrar", async () => {
-    const beneficiaryNone = {...beneficiary, enumData: 3};
+    registrarFake.queryConfig.returns(DEFAULT_REGISTRAR_CONFIG);
+    const beneficiaryNone: LibAccounts.BeneficiaryStruct = {...beneficiary, enumData: 3};
+
     await expect(facet.closeEndowment(accountId, beneficiaryNone)).to.be.revertedWith(
       "Beneficiary is NONE & Index Fund Contract is not configured in Registrar"
     );
@@ -142,14 +144,6 @@ describe("AccountsUpdateStatusEndowments", function () {
     expect(endowState[1].data.endowId).to.equal(beneficiary.data.endowId);
     expect(endowState[1].data.fundId).to.equal(beneficiary.data.fundId);
   });
-
-  // it("closes an endowment and update the endowment state with the provided beneficiary", async () => {
-  //   // test case
-  // });
-
-  // it("updates the beneficiary to the treasury address if the beneficiary is set to 'None' and the endowment is not involved in any funds", async () => {
-  //   // test case
-  // });
 
   // it("updates the beneficiary to the first index fund if the beneficiary is set to 'None' and the endowment is involved in one or more funds", async () => {
   //   // test case
