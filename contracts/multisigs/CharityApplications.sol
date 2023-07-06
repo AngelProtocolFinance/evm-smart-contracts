@@ -290,6 +290,20 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
     return config;
   }
 
+  /// @dev Returns status of owner confirmation of a given proposal.
+  /// @param proposalId Proposal ID.
+  /// @param ownerAddr Owner's Address.
+  /// @return bool
+  function getProposalConfirmationStatus(
+    uint256 proposalId,
+    address ownerAddr
+  ) public view override proposalExists(proposalId) returns (bool) {
+    if (proposalConfirmations[proposalId].confirmationsByOwner[ownerAddr]) {
+      return proposalConfirmations[proposalId].confirmationsByOwner[ownerAddr];
+    }
+    return false;
+  }
+
   /// @dev Returns number of confirmations of a proposal.
   /// @param proposalId Proposal ID.
   /// @return uint256
