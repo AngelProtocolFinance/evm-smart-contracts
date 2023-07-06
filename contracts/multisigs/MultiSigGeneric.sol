@@ -316,7 +316,10 @@ contract MultiSigGeneric is
     uint256 transactionId,
     address ownerAddr
   ) public view override transactionExists(transactionId) returns (bool) {
-    return confirmations[transactionId].confirmationsByOwner[ownerAddr];
+    if (confirmations[transactionId].confirmationsByOwner[ownerAddr]) {
+      return confirmations[transactionId].confirmationsByOwner[ownerAddr];
+    }
+    return false;
   }
 
   /// @dev Returns whether an address is an active owner.
