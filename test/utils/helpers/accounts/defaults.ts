@@ -75,7 +75,7 @@ export const DEFAULT_CHARITY_ENDOWMENT: AccountStorage.EndowmentStruct = {
   ignoreUserSplits: false,
   splitToLiquid: DEFAULT_SPLIT_STRUCT,
   referralId: 0,
-  gasFwd: ethers.constants.AddressZero
+  gasFwd: ethers.constants.AddressZero,
 };
 
 export const DEFAULT_ACCOUNTS_CONFIG: AccountStorage.ConfigStruct = {

@@ -61,7 +61,7 @@ task(
         wMaticAddress: addresses.tokens.wmatic,
         cw900lvAddress: ADDRESS_ZERO,
         lockedWithdrawal: ADDRESS_ZERO,
-        gasFwdFactory: addresses.gasFwd.factory
+        gasFwdFactory: addresses.gasFwd.factory,
       };
       await updateRegistrarConfig(
         addresses.registrar.proxy,

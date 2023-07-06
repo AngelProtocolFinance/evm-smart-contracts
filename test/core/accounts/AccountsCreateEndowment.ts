@@ -116,8 +116,8 @@ describe("AccountsCreateEndowment", function () {
     );
     endowmentFactoryFake.create.returns(endowmentOwner);
 
-    gasFwdFactoryFake = await smock.fake<GasFwdFactory>(new GasFwdFactory__factory())
-    gasFwdFactoryFake.create.returns(ethers.constants.AddressZero)
+    gasFwdFactoryFake = await smock.fake<GasFwdFactory>(new GasFwdFactory__factory());
+    gasFwdFactoryFake.create.returns(ethers.constants.AddressZero);
 
     registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
       address: signers[1].address,
@@ -161,7 +161,7 @@ describe("AccountsCreateEndowment", function () {
       multisigFactory: endowmentFactoryFake.address,
       multisigEmitter: ethers.constants.AddressZero,
       donationMatchCharitesContract: donationMatchCharitesContract.address,
-      gasFwdFactoryAddress: gasFwdFactoryFake.address
+      gasFwdFactoryAddress: gasFwdFactoryFake.address,
     };
     registrarFake.queryConfig.returns(config);
   });

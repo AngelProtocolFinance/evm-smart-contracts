@@ -4,6 +4,7 @@ import "./deployAngelProtocol";
 import "./deployCharityApplications";
 import "./deployEmitters";
 import "./deployEndowmentMultisig";
+import "./deployGasFwd";
 // import "./deployGiftcard";
 // import "./deployHaloImplementation";
 import "./deployImplementation"; // TODO: Rename to something more clear that pertains to Normalized Endowments
