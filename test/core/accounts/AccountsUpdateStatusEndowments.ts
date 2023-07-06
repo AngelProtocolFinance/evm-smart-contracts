@@ -18,6 +18,7 @@ import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetP
 import {genWallet, getSigners} from "utils";
 import "../../utils/setup";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
+import {BigNumber} from "ethers";
 
 use(smock.matchers);
 
@@ -29,6 +30,9 @@ describe("AccountsUpdateStatusEndowments", function () {
     enumData: 0,
     data: {addr: genWallet().address, endowId: accountId, fundId: 1},
   };
+  const strategies = ["strategy1", "strategy2", "strategy3"].map((x) =>
+    ethers.utils.id(x).slice(0, 10)
+  );
 
   let accOwner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
@@ -54,9 +58,19 @@ describe("AccountsUpdateStatusEndowments", function () {
     let facetImpl = await Facet.deploy();
     state = await deployFacetAsProxy(hre, accOwner, proxyAdmin, facetImpl.address);
 
+    indexFundFake = await smock.fake<IndexFund>(new IndexFund__factory(), {
+      address: genWallet().address,
+    });
     registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
       address: genWallet().address,
     });
+    const config: RegistrarStorage.ConfigStruct = {
+      ...DEFAULT_REGISTRAR_CONFIG,
+      indexFundContract: indexFundFake.address,
+    };
+    registrarFake.queryConfig.returns(config);
+
+    registrarFake.queryAllStrategies.returns(strategies);
 
     await state.setEndowmentDetails(accountId, endowment);
     await state.setConfig({
@@ -103,24 +117,30 @@ describe("AccountsUpdateStatusEndowments", function () {
   });
 
   it("reverts if the endowment has active strategies", async () => {
-    indexFundFake = await smock.fake<IndexFund>(new IndexFund__factory(), {
-      address: genWallet().address,
-    });
-    const config: RegistrarStorage.ConfigStruct = {
-      ...DEFAULT_REGISTRAR_CONFIG,
-      indexFundContract: indexFundFake.address,
-    };
-    registrarFake.queryConfig.returns(config);
-
-    const strategies = ["strategy1", "strategy2", "strategy3"].map((x) =>
-      ethers.utils.id(x).slice(0, 10)
-    );
-    registrarFake.queryAllStrategies.returns(strategies);
     await state.setActiveStrategyEndowmentState(accountId, strategies[0], true);
 
     await expect(facet.closeEndowment(accountId, beneficiary)).to.be.revertedWith(
       "Not fully exited"
     );
+  });
+
+  it("removes the closing endowment from all index funds it is involved in", async () => {
+    const tx = await facet.closeEndowment(accountId, beneficiary);
+    const receipt = await tx.wait();
+
+    // Get the endowment ID from the event emitted in the transaction receipt
+    const event = receipt.events?.find((e) => e.event === "EndowmentUpdated");
+    const endowmentId = BigNumber.from(event!.args!.endowId);
+
+    // verify endowment was created by checking the emitted event's parameter
+    expect(endowmentId).to.exist;
+
+    const endowState = await state.getClosingEndowmentState(accountId);
+    expect(endowState[0]).to.equal(true);
+    expect(endowState[1].enumData).to.equal(beneficiary.enumData);
+    expect(endowState[1].data.addr).to.equal(beneficiary.data.addr);
+    expect(endowState[1].data.endowId).to.equal(beneficiary.data.endowId);
+    expect(endowState[1].data.fundId).to.equal(beneficiary.data.fundId);
   });
 
   // it("closes an endowment and update the endowment state with the provided beneficiary", async () => {
@@ -132,10 +152,6 @@ describe("AccountsUpdateStatusEndowments", function () {
   // });
 
   // it("updates the beneficiary to the first index fund if the beneficiary is set to 'None' and the endowment is involved in one or more funds", async () => {
-  //   // test case
-  // });
-
-  // it("removes the closing endowment from all index funds it is involved in", async () => {
   //   // test case
   // });
 });
