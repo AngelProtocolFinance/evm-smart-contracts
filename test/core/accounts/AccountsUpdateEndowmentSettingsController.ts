@@ -10,6 +10,9 @@ import {
 } from "typechain-types";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsUpdateEndowmentSettingsController";
 import "../../utils/setup";
+import {DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
+import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
+import {genWallet} from "utils";
 
 use(smock.matchers);
 
@@ -17,17 +20,6 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
   const {ethers} = hre;
 
   const endowId = 1;
-  const updateEndowmentSettingsRequest: AccountMessages.UpdateEndowmentSettingsRequestStruct = {
-    id: endowId,
-    allowlistedBeneficiaries: [],
-    allowlistedContributors: [],
-    donationMatchActive: false,
-    ignoreUserSplits: false,
-    maturity_allowlist_add: [],
-    maturity_allowlist_remove: [],
-    maturityTime: 0,
-    splitToLiquid: {defaultSplit: 50, max: 100, min: 0},
-  };
 
   let owner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
@@ -61,6 +53,22 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
   });
 
   describe("updateEndowmentSettings", () => {
+    let updateEndowmentSettingsRequest: AccountMessages.UpdateEndowmentSettingsRequestStruct;
+
+    beforeEach(() => {
+      updateEndowmentSettingsRequest = {
+        id: endowId,
+        allowlistedBeneficiaries: [genWallet().address],
+        allowlistedContributors: [genWallet().address],
+        donationMatchActive: false,
+        ignoreUserSplits: false,
+        maturity_allowlist_add: [genWallet().address],
+        maturity_allowlist_remove: [genWallet().address],
+        maturityTime: 0,
+        splitToLiquid: {defaultSplit: 50, max: 100, min: 0},
+      };
+    });
+
     it("reverts if the endowment is closed", async () => {
       await state.setClosingEndowmentState(endowId, true, {
         enumData: 0,
@@ -69,6 +77,22 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       await expect(
         facet.updateEndowmentSettings(updateEndowmentSettingsRequest)
       ).to.be.revertedWith("UpdatesAfterClosed");
+    });
+
+    it("reverts if a normal endowment is updating its maturityAllowlist with a zero address value", async () => {
+      const details: AccountStorage.EndowmentStruct = {
+        ...DEFAULT_CHARITY_ENDOWMENT,
+        endowType: 1,
+        maturityTime: updateEndowmentSettingsRequest.maturityTime,
+        owner: owner.address,
+      };
+      await state.setEndowmentDetails(endowId, details);
+
+      updateEndowmentSettingsRequest.maturity_allowlist_add = [ethers.constants.AddressZero];
+
+      await expect(
+        facet.updateEndowmentSettings(updateEndowmentSettingsRequest)
+      ).to.be.revertedWith("InvalidAddress");
     });
   });
 });
