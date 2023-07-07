@@ -435,6 +435,68 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       );
     });
 
+    it("updates all charity's controllers", async () => {
+      await expect(facet.updateEndowmentController(charityReq))
+        .to.emit(facet, "EndowmentSettingUpdated")
+        .withArgs(charityReq.id, "endowmentController")
+        .to.emit(facet, "EndowmentUpdated")
+        .withArgs(charityReq.id);
+
+      const updated = await state.getEndowmentDetails(charityReq.id);
+
+      expect(updated.settingsController.acceptedTokens).to.equalSettingsPermission(
+        charityReq.settingsController.acceptedTokens
+      );
+      expect(updated.settingsController.lockedInvestmentManagement).to.equalSettingsPermission(
+        charityReq.settingsController.lockedInvestmentManagement
+      );
+      expect(updated.settingsController.liquidInvestmentManagement).to.equalSettingsPermission(
+        charityReq.settingsController.liquidInvestmentManagement
+      );
+      expect(updated.settingsController.allowlistedBeneficiaries).to.equalSettingsPermission(
+        charityReq.settingsController.allowlistedBeneficiaries
+      );
+      expect(updated.settingsController.allowlistedContributors).to.equalSettingsPermission(
+        charityReq.settingsController.allowlistedContributors
+      );
+      expect(updated.settingsController.maturityAllowlist).to.equalSettingsPermission(
+        charityReq.settingsController.maturityAllowlist
+      );
+      expect(updated.settingsController.maturityTime).to.equalSettingsPermission(
+        charityReq.settingsController.maturityTime
+      );
+      expect(updated.settingsController.earlyLockedWithdrawFee).to.equalSettingsPermission(
+        oldCharity.settingsController.earlyLockedWithdrawFee
+      );
+      expect(updated.settingsController.withdrawFee).to.equalSettingsPermission(
+        charityReq.settingsController.withdrawFee
+      );
+      expect(updated.settingsController.depositFee).to.equalSettingsPermission(
+        charityReq.settingsController.depositFee
+      );
+      expect(updated.settingsController.balanceFee).to.equalSettingsPermission(
+        charityReq.settingsController.balanceFee
+      );
+      expect(updated.settingsController.name).to.equalSettingsPermission(
+        charityReq.settingsController.name
+      );
+      expect(updated.settingsController.image).to.equalSettingsPermission(
+        charityReq.settingsController.image
+      );
+      expect(updated.settingsController.logo).to.equalSettingsPermission(
+        charityReq.settingsController.logo
+      );
+      expect(updated.settingsController.sdgs).to.equalSettingsPermission(
+        charityReq.settingsController.sdgs
+      );
+      expect(updated.settingsController.splitToLiquid).to.equalSettingsPermission(
+        charityReq.settingsController.splitToLiquid
+      );
+      expect(updated.settingsController.ignoreUserSplits).to.equalSettingsPermission(
+        charityReq.settingsController.ignoreUserSplits
+      );
+    });
+
     it("updates all normal endowment's controllers", async () => {
       await expect(facet.updateEndowmentController(normalEndowReq))
         .to.emit(facet, "EndowmentSettingUpdated")
