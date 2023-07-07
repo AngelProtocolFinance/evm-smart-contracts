@@ -19,6 +19,7 @@ import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/Ac
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import "../../utils/setup";
+import {DEFAULT_REGISTRAR_CONFIG} from "test/utils";
 
 use(smock.matchers);
 
@@ -131,35 +132,10 @@ describe("AccountsCreateEndowment", function () {
       principleDistribution: 0,
     };
     registrarFake.getRebalanceParams.returns(rebParams);
-    const config: Partial<RegistrarStorage.ConfigStructOutput> = {
-      indexFundContract: ethers.constants.AddressZero,
-      accountsContract: ethers.constants.AddressZero,
-      treasury: ethers.constants.AddressZero,
-      subdaoGovContract: ethers.constants.AddressZero, // Sub dao implementation
-      subdaoTokenContract: ethers.constants.AddressZero, // NewERC20 implementation
-      subdaoBondingTokenContract: ethers.constants.AddressZero, // Continous Token implementation
-      subdaoCw900Contract: ethers.constants.AddressZero,
-      subdaoDistributorContract: ethers.constants.AddressZero,
-      subdaoEmitter: ethers.constants.AddressZero,
-      donationMatchContract: ethers.constants.AddressZero,
-      splitToLiquid: {max: 0, min: 0, defaultSplit: 0} as any,
-      haloToken: ethers.constants.AddressZero,
-      haloTokenLpContract: ethers.constants.AddressZero,
-      govContract: ethers.constants.AddressZero,
-      donationMatchEmitter: ethers.constants.AddressZero,
-      collectorShare: BigNumber.from(50),
-      charitySharesContract: ethers.constants.AddressZero,
-      fundraisingContract: ethers.constants.AddressZero,
-      uniswapRouter: ethers.constants.AddressZero,
-      uniswapFactory: ethers.constants.AddressZero,
-      lockedWithdrawal: ethers.constants.AddressZero,
-      proxyAdmin: ethers.constants.AddressZero,
-      usdcAddress: ethers.constants.AddressZero,
-      wMaticAddress: ethers.constants.AddressZero,
-      cw900lvAddress: ethers.constants.AddressZero,
+    const config: RegistrarStorage.ConfigStruct = {
+      ...DEFAULT_REGISTRAR_CONFIG,
       charityApplications: charityApplications.address,
       multisigFactory: endowmentFactoryFake.address,
-      multisigEmitter: ethers.constants.AddressZero,
       donationMatchCharitesContract: donationMatchCharitesContract.address,
       gasFwdFactoryAddress: gasFwdFactoryFake.address,
     };

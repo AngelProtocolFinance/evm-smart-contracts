@@ -1,5 +1,5 @@
 import * as crypto from "crypto";
-import {ethers, logger} from "ethers";
+import {ethers} from "ethers";
 
 import {pad} from "./logger";
 
