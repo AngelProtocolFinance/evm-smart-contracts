@@ -10,7 +10,10 @@ import {
   TestFacetProxyContract,
 } from "typechain-types";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsUpdateEndowmentSettingsController";
-import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
+import {
+  AccountStorage,
+  LibAccounts,
+} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet, getSigners} from "utils";
 import "../../utils/setup";
 
@@ -35,17 +38,6 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     owner = signers.apTeam1;
     proxyAdmin = signers.proxyAdmin;
     endowOwner = signers.deployer;
-
-    oldCharity = {
-      ...DEFAULT_CHARITY_ENDOWMENT,
-      maturityTime: 100,
-      owner: endowOwner.address,
-      maturityAllowlist: [genWallet().address],
-    };
-    oldNormalEndow = {
-      ...oldCharity,
-      endowType: 1,
-    };
   });
 
   beforeEach(async function () {
@@ -68,6 +60,16 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
 
     facet = AccountsUpdateEndowmentSettingsController__factory.connect(state.address, endowOwner);
 
+    oldCharity = {
+      ...DEFAULT_CHARITY_ENDOWMENT,
+      maturityTime: 100,
+      owner: endowOwner.address,
+      maturityAllowlist: [genWallet().address],
+    };
+    oldNormalEndow = {
+      ...oldCharity,
+      endowType: 1,
+    };
     await state.setEndowmentDetails(charityId, oldCharity);
     await state.setEndowmentDetails(normalEndowId, oldNormalEndow);
   });
@@ -230,6 +232,190 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       );
       expect(updated.splitToLiquid.max).to.equal(normalEndowReq.splitToLiquid.max);
       expect(updated.splitToLiquid.min).to.equal(normalEndowReq.splitToLiquid.min);
+    });
+  });
+
+  describe("updateEndowmentController", () => {
+    const settPermStruct: LibAccounts.SettingsPermissionStruct = {
+      locked: true,
+      delegate: {
+        addr: genWallet().address,
+        expires: 100,
+      },
+    };
+    const request: AccountMessages.UpdateEndowmentControllerRequestStruct = {
+      id: charityId,
+      settingsController: {
+        acceptedTokens: settPermStruct,
+        lockedInvestmentManagement: settPermStruct,
+        liquidInvestmentManagement: settPermStruct,
+        allowlistedBeneficiaries: settPermStruct,
+        allowlistedContributors: settPermStruct,
+        maturityAllowlist: settPermStruct,
+        maturityTime: settPermStruct,
+        earlyLockedWithdrawFee: settPermStruct,
+        withdrawFee: settPermStruct,
+        depositFee: settPermStruct,
+        balanceFee: settPermStruct,
+        name: settPermStruct,
+        image: settPermStruct,
+        logo: settPermStruct,
+        sdgs: settPermStruct,
+        splitToLiquid: settPermStruct,
+        ignoreUserSplits: settPermStruct,
+      },
+    };
+
+    it("reverts if the endowment is closed", async () => {
+      await state.setClosingEndowmentState(request.id, true, {
+        enumData: 0,
+        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+      });
+      await expect(facet.updateEndowmentController(request)).to.be.revertedWith(
+        "UpdatesAfterClosed"
+      );
+    });
+
+    it("reverts if the sender is not the owner of the endowment", async () => {
+      await expect(facet.connect(owner).updateEndowmentController(request)).to.be.revertedWith(
+        "Unauthorized"
+      );
+    });
+
+    it("changes nothing in charity controller if fields cannot be changed", async () => {
+      const lockedCharity: AccountStorage.EndowmentStruct = {...oldCharity};
+      Object.values(lockedCharity.settingsController).forEach((setting) => {
+        setting.locked = true;
+      });
+      await state.setEndowmentDetails(charityId, lockedCharity);
+
+      await expect(facet.updateEndowmentController(request))
+        .to.emit(facet, "EndowmentSettingUpdated")
+        .withArgs(charityId, "endowmentController")
+        .to.emit(facet, "EndowmentUpdated")
+        .withArgs(charityId);
+
+      const updated = await state.getEndowmentDetails(charityId);
+
+      expect(updated.settingsController.acceptedTokens).to.equalSettingsPermission(
+        oldCharity.settingsController.acceptedTokens
+      );
+      expect(updated.settingsController.lockedInvestmentManagement).to.equalSettingsPermission(
+        oldCharity.settingsController.lockedInvestmentManagement
+      );
+      expect(updated.settingsController.liquidInvestmentManagement).to.equalSettingsPermission(
+        oldCharity.settingsController.liquidInvestmentManagement
+      );
+      expect(updated.settingsController.allowlistedBeneficiaries).to.equalSettingsPermission(
+        oldCharity.settingsController.allowlistedBeneficiaries
+      );
+      expect(updated.settingsController.allowlistedContributors).to.equalSettingsPermission(
+        oldCharity.settingsController.allowlistedContributors
+      );
+      expect(updated.settingsController.maturityAllowlist).to.equalSettingsPermission(
+        oldCharity.settingsController.maturityAllowlist
+      );
+      expect(updated.settingsController.maturityTime).to.equalSettingsPermission(
+        oldCharity.settingsController.maturityTime
+      );
+      expect(updated.settingsController.earlyLockedWithdrawFee).to.equalSettingsPermission(
+        oldCharity.settingsController.earlyLockedWithdrawFee
+      );
+      expect(updated.settingsController.withdrawFee).to.equalSettingsPermission(
+        oldCharity.settingsController.withdrawFee
+      );
+      expect(updated.settingsController.depositFee).to.equalSettingsPermission(
+        oldCharity.settingsController.depositFee
+      );
+      expect(updated.settingsController.balanceFee).to.equalSettingsPermission(
+        oldCharity.settingsController.balanceFee
+      );
+      expect(updated.settingsController.name).to.equalSettingsPermission(
+        oldCharity.settingsController.name
+      );
+      expect(updated.settingsController.image).to.equalSettingsPermission(
+        oldCharity.settingsController.image
+      );
+      expect(updated.settingsController.logo).to.equalSettingsPermission(
+        oldCharity.settingsController.logo
+      );
+      expect(updated.settingsController.sdgs).to.equalSettingsPermission(
+        oldCharity.settingsController.sdgs
+      );
+      expect(updated.settingsController.splitToLiquid).to.equalSettingsPermission(
+        oldCharity.settingsController.splitToLiquid
+      );
+      expect(updated.settingsController.ignoreUserSplits).to.equalSettingsPermission(
+        oldCharity.settingsController.ignoreUserSplits
+      );
+    });
+
+    it("changes nothing in normal endowment controller if fields cannot be changed", async () => {
+      const lockedNormalEndow: AccountStorage.EndowmentStruct = {...oldNormalEndow};
+      Object.values(lockedNormalEndow.settingsController).forEach((setting) => {
+        setting.locked = true;
+      });
+      await state.setEndowmentDetails(normalEndowId, lockedNormalEndow);
+
+      await expect(facet.updateEndowmentController({...request, id: normalEndowId}))
+        .to.emit(facet, "EndowmentSettingUpdated")
+        .withArgs(normalEndowId, "endowmentController")
+        .to.emit(facet, "EndowmentUpdated")
+        .withArgs(normalEndowId);
+
+      const updated = await state.getEndowmentDetails(normalEndowId);
+
+      expect(updated.settingsController.acceptedTokens).to.equalSettingsPermission(
+        oldNormalEndow.settingsController.acceptedTokens
+      );
+      expect(updated.settingsController.lockedInvestmentManagement).to.equalSettingsPermission(
+        oldNormalEndow.settingsController.lockedInvestmentManagement
+      );
+      expect(updated.settingsController.liquidInvestmentManagement).to.equalSettingsPermission(
+        oldNormalEndow.settingsController.liquidInvestmentManagement
+      );
+      expect(updated.settingsController.allowlistedBeneficiaries).to.equalSettingsPermission(
+        oldNormalEndow.settingsController.allowlistedBeneficiaries
+      );
+      expect(updated.settingsController.allowlistedContributors).to.equalSettingsPermission(
+        oldNormalEndow.settingsController.allowlistedContributors
+      );
+      expect(updated.settingsController.maturityAllowlist).to.equalSettingsPermission(
+        oldNormalEndow.settingsController.maturityAllowlist
+      );
+      expect(updated.settingsController.maturityTime).to.equalSettingsPermission(
+        oldNormalEndow.settingsController.maturityTime
+      );
+      expect(updated.settingsController.earlyLockedWithdrawFee).to.equalSettingsPermission(
+        oldNormalEndow.settingsController.earlyLockedWithdrawFee
+      );
+      expect(updated.settingsController.withdrawFee).to.equalSettingsPermission(
+        oldNormalEndow.settingsController.withdrawFee
+      );
+      expect(updated.settingsController.depositFee).to.equalSettingsPermission(
+        oldNormalEndow.settingsController.depositFee
+      );
+      expect(updated.settingsController.balanceFee).to.equalSettingsPermission(
+        oldNormalEndow.settingsController.balanceFee
+      );
+      expect(updated.settingsController.name).to.equalSettingsPermission(
+        oldNormalEndow.settingsController.name
+      );
+      expect(updated.settingsController.image).to.equalSettingsPermission(
+        oldNormalEndow.settingsController.image
+      );
+      expect(updated.settingsController.logo).to.equalSettingsPermission(
+        oldNormalEndow.settingsController.logo
+      );
+      expect(updated.settingsController.sdgs).to.equalSettingsPermission(
+        oldNormalEndow.settingsController.sdgs
+      );
+      expect(updated.settingsController.splitToLiquid).to.equalSettingsPermission(
+        oldNormalEndow.settingsController.splitToLiquid
+      );
+      expect(updated.settingsController.ignoreUserSplits).to.equalSettingsPermission(
+        oldNormalEndow.settingsController.ignoreUserSplits
+      );
     });
   });
 });
