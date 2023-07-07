@@ -560,4 +560,71 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       );
     });
   });
+
+  describe("updateFeeSettings", () => {
+    const defaultFee: LibAccounts.FeeSettingStruct = {
+      bps: 2000,
+      payoutAddress: genWallet().address,
+    };
+    const request: AccountMessages.UpdateFeeSettingRequestStruct = {
+      id: normalEndowId,
+      earlyLockedWithdrawFee: defaultFee,
+      depositFee: defaultFee,
+      withdrawFee: defaultFee,
+      balanceFee: defaultFee,
+    };
+
+    it("reverts if updating charity fees", async () => {
+      await expect(
+        facet.connect(owner).updateFeeSettings({...request, id: charityId})
+      ).to.be.revertedWith("Charity Endowments may not change endowment fees");
+    });
+
+    it("reverts if the endowment is closed", async () => {
+      await state.setClosingEndowmentState(request.id, true, {
+        enumData: 0,
+        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+      });
+      await expect(facet.updateFeeSettings(request)).to.be.revertedWith("UpdatesAfterClosed");
+    });
+
+    it("changes nothing in endowment fees if fields cannot be changed", async () => {
+      const lockedNormalEndow: AccountStorage.EndowmentStruct = {...oldNormalEndow};
+      lockedNormalEndow.settingsController = (
+        Object.entries(lockedNormalEndow.settingsController) as [
+          keyof LibAccounts.SettingsControllerStruct,
+          LibAccounts.SettingsPermissionStruct
+        ][]
+      ).reduce((controller, [key, curSetting]) => {
+        controller[key] = {locked: true, delegate: {...curSetting.delegate}};
+        return controller;
+      }, {} as LibAccounts.SettingsControllerStruct);
+
+      await state.setEndowmentDetails(normalEndowId, lockedNormalEndow);
+
+      await expect(facet.updateFeeSettings(request))
+        .to.emit(facet, "EndowmentUpdated")
+        .withArgs(request.id);
+
+      const updated = await state.getEndowmentDetails(request.id);
+
+      expect(updated.earlyLockedWithdrawFee).to.equalFee(lockedNormalEndow.earlyLockedWithdrawFee);
+      expect(updated.withdrawFee).to.equalFee(lockedNormalEndow.withdrawFee);
+      expect(updated.depositFee).to.equalFee(lockedNormalEndow.depositFee);
+      expect(updated.balanceFee).to.equalFee(lockedNormalEndow.balanceFee);
+    });
+
+    it("updates all normal endowment's controllers", async () => {
+      await expect(facet.updateFeeSettings(request))
+        .to.emit(facet, "EndowmentUpdated")
+        .withArgs(request.id);
+
+      const updated = await state.getEndowmentDetails(request.id);
+
+      expect(updated.earlyLockedWithdrawFee).to.equalFee(request.earlyLockedWithdrawFee);
+      expect(updated.withdrawFee).to.equalFee(request.withdrawFee);
+      expect(updated.depositFee).to.equalFee(request.depositFee);
+      expect(updated.balanceFee).to.equalFee(request.balanceFee);
+    });
+  });
 });
