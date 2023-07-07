@@ -3,17 +3,16 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import hre from "hardhat";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
+import {DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
 import {
   AccountsUpdateEndowmentSettingsController,
   AccountsUpdateEndowmentSettingsController__factory,
   TestFacetProxyContract,
 } from "typechain-types";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsUpdateEndowmentSettingsController";
-import "../../utils/setup";
-import {DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet} from "utils";
-import {BigNumber} from "ethers";
+import "../../utils/setup";
 
 use(smock.matchers);
 
@@ -118,25 +117,23 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
         .to.emit(facet, "EndowmentUpdated")
         .withArgs(charityId);
 
-      const updatedCharity = await state.getEndowmentDetails(charityId);
+      const updated = await state.getEndowmentDetails(charityId);
 
-      expect(updatedCharity.allowlistedBeneficiaries).to.have.same.members(
+      expect(updated.allowlistedBeneficiaries).to.have.same.members(
         oldCharity.allowlistedBeneficiaries.map((x) => x.toString())
       );
-      expect(updatedCharity.allowlistedContributors).to.have.same.members(
+      expect(updated.allowlistedContributors).to.have.same.members(
         oldCharity.allowlistedContributors.map((x) => x.toString())
       );
-      expect(updatedCharity.donationMatchActive).to.equal(oldCharity.donationMatchActive);
-      expect(updatedCharity.ignoreUserSplits).to.equal(oldCharity.ignoreUserSplits);
-      expect(updatedCharity.maturityAllowlist).to.have.same.members(
+      expect(updated.donationMatchActive).to.equal(oldCharity.donationMatchActive);
+      expect(updated.ignoreUserSplits).to.equal(oldCharity.ignoreUserSplits);
+      expect(updated.maturityAllowlist).to.have.same.members(
         oldCharity.maturityAllowlist.map((x) => x.toString())
       );
-      expect(updatedCharity.maturityTime).to.equal(oldCharity.maturityTime);
-      expect(updatedCharity.splitToLiquid.defaultSplit).to.equal(
-        oldCharity.splitToLiquid.defaultSplit
-      );
-      expect(updatedCharity.splitToLiquid.max).to.equal(oldCharity.splitToLiquid.max);
-      expect(updatedCharity.splitToLiquid.min).to.equal(oldCharity.splitToLiquid.min);
+      expect(updated.maturityTime).to.equal(oldCharity.maturityTime);
+      expect(updated.splitToLiquid.defaultSplit).to.equal(oldCharity.splitToLiquid.defaultSplit);
+      expect(updated.splitToLiquid.max).to.equal(oldCharity.splitToLiquid.max);
+      expect(updated.splitToLiquid.min).to.equal(oldCharity.splitToLiquid.min);
     });
 
     it("changes nothing in normal endowment settings if sender doesn't have necessary permissions", async () => {
@@ -144,25 +141,25 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
         .to.emit(facet, "EndowmentUpdated")
         .withArgs(normalEndowId);
 
-      const newEndow = await state.getEndowmentDetails(normalEndowId);
+      const updated = await state.getEndowmentDetails(normalEndowId);
 
-      expect(newEndow.allowlistedBeneficiaries).to.have.same.members(
+      expect(updated.allowlistedBeneficiaries).to.have.same.members(
         oldNormalEndow.allowlistedBeneficiaries.map((x) => x.toString())
       );
-      expect(newEndow.allowlistedContributors).to.have.same.members(
+      expect(updated.allowlistedContributors).to.have.same.members(
         oldNormalEndow.allowlistedContributors.map((x) => x.toString())
       );
-      expect(newEndow.donationMatchActive).to.equal(oldNormalEndow.donationMatchActive);
-      expect(newEndow.ignoreUserSplits).to.equal(oldNormalEndow.ignoreUserSplits);
-      expect(newEndow.maturityAllowlist).to.have.same.members(
+      expect(updated.donationMatchActive).to.equal(oldNormalEndow.donationMatchActive);
+      expect(updated.ignoreUserSplits).to.equal(oldNormalEndow.ignoreUserSplits);
+      expect(updated.maturityAllowlist).to.have.same.members(
         oldNormalEndow.maturityAllowlist.map((x) => x.toString())
       );
-      expect(newEndow.maturityTime).to.equal(oldNormalEndow.maturityTime);
-      expect(newEndow.splitToLiquid.defaultSplit).to.equal(
+      expect(updated.maturityTime).to.equal(oldNormalEndow.maturityTime);
+      expect(updated.splitToLiquid.defaultSplit).to.equal(
         oldNormalEndow.splitToLiquid.defaultSplit
       );
-      expect(newEndow.splitToLiquid.max).to.equal(oldNormalEndow.splitToLiquid.max);
-      expect(newEndow.splitToLiquid.min).to.equal(oldNormalEndow.splitToLiquid.min);
+      expect(updated.splitToLiquid.max).to.equal(oldNormalEndow.splitToLiquid.max);
+      expect(updated.splitToLiquid.min).to.equal(oldNormalEndow.splitToLiquid.min);
     });
 
     it("updates all charity settings if sender has the necessary permissions", async () => {
@@ -208,28 +205,28 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
         .to.emit(facet, "EndowmentUpdated")
         .withArgs(normalEndowId);
 
-      const newEndow = await state.getEndowmentDetails(normalEndowId);
+      const updated = await state.getEndowmentDetails(normalEndowId);
 
-      expect(newEndow.allowlistedBeneficiaries).to.have.same.members(
+      expect(updated.allowlistedBeneficiaries).to.have.same.members(
         normalEndowReq.allowlistedBeneficiaries.map((x) => x.toString())
       );
-      expect(newEndow.allowlistedContributors).to.have.same.members(
+      expect(updated.allowlistedContributors).to.have.same.members(
         normalEndowReq.allowlistedContributors.map((x) => x.toString())
       );
-      expect(newEndow.donationMatchActive).to.equal(oldNormalEndow.donationMatchActive);
-      expect(newEndow.ignoreUserSplits).to.equal(normalEndowReq.ignoreUserSplits);
-      expect(newEndow.maturityAllowlist).to.contain.members(
+      expect(updated.donationMatchActive).to.equal(oldNormalEndow.donationMatchActive);
+      expect(updated.ignoreUserSplits).to.equal(normalEndowReq.ignoreUserSplits);
+      expect(updated.maturityAllowlist).to.contain.members(
         normalEndowReq.maturity_allowlist_add.map((x) => x.toString())
       );
-      expect(newEndow.maturityAllowlist).to.not.contain.members(
+      expect(updated.maturityAllowlist).to.not.contain.members(
         normalEndowReq.maturity_allowlist_remove.map((x) => x.toString())
       );
-      expect(newEndow.maturityTime).to.equal(normalEndowReq.maturityTime);
-      expect(newEndow.splitToLiquid.defaultSplit).to.equal(
+      expect(updated.maturityTime).to.equal(normalEndowReq.maturityTime);
+      expect(updated.splitToLiquid.defaultSplit).to.equal(
         normalEndowReq.splitToLiquid.defaultSplit
       );
-      expect(newEndow.splitToLiquid.max).to.equal(normalEndowReq.splitToLiquid.max);
-      expect(newEndow.splitToLiquid.min).to.equal(normalEndowReq.splitToLiquid.min);
+      expect(updated.splitToLiquid.max).to.equal(normalEndowReq.splitToLiquid.max);
+      expect(updated.splitToLiquid.min).to.equal(normalEndowReq.splitToLiquid.min);
     });
   });
 });
