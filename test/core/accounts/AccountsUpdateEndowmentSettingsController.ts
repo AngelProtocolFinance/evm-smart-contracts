@@ -40,7 +40,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     endowOwner = signers.deployer;
   });
 
-  beforeEach(async function () {
+  beforeEach(async () => {
     let Facet = new AccountsUpdateEndowmentSettingsController__factory(owner);
     let facetImpl = await Facet.deploy();
     state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
@@ -78,7 +78,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     let charityReq: AccountMessages.UpdateEndowmentSettingsRequestStruct;
     let normalEndowReq: AccountMessages.UpdateEndowmentSettingsRequestStruct;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       charityReq = {
         id: charityId,
         allowlistedBeneficiaries: [genWallet().address],
@@ -243,7 +243,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
         expires: 100,
       },
     };
-    const request: AccountMessages.UpdateEndowmentControllerRequestStruct = {
+    const charityReq: AccountMessages.UpdateEndowmentControllerRequestStruct = {
       id: charityId,
       settingsController: {
         acceptedTokens: settPermStruct,
@@ -265,156 +265,235 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
         ignoreUserSplits: settPermStruct,
       },
     };
+    const normalEndowReq: AccountMessages.UpdateEndowmentControllerRequestStruct = {
+      ...charityReq,
+      id: normalEndowId,
+    };
 
     it("reverts if the endowment is closed", async () => {
-      await state.setClosingEndowmentState(request.id, true, {
+      await state.setClosingEndowmentState(charityReq.id, true, {
         enumData: 0,
         data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
       });
-      await expect(facet.updateEndowmentController(request)).to.be.revertedWith(
+      await expect(facet.updateEndowmentController(charityReq)).to.be.revertedWith(
         "UpdatesAfterClosed"
       );
     });
 
     it("reverts if the sender is not the owner of the endowment", async () => {
-      await expect(facet.connect(owner).updateEndowmentController(request)).to.be.revertedWith(
+      await expect(facet.connect(owner).updateEndowmentController(charityReq)).to.be.revertedWith(
         "Unauthorized"
       );
     });
 
     it("changes nothing in charity controller if fields cannot be changed", async () => {
       const lockedCharity: AccountStorage.EndowmentStruct = {...oldCharity};
-      Object.values(lockedCharity.settingsController).forEach((setting) => {
-        setting.locked = true;
-      });
+      lockedCharity.settingsController = (
+        Object.entries(lockedCharity.settingsController) as [
+          keyof LibAccounts.SettingsControllerStruct,
+          LibAccounts.SettingsPermissionStruct
+        ][]
+      ).reduce((controller, [key, curSetting]) => {
+        controller[key] = {locked: true, delegate: {...curSetting.delegate}};
+        return controller;
+      }, {} as LibAccounts.SettingsControllerStruct);
       await state.setEndowmentDetails(charityId, lockedCharity);
 
-      await expect(facet.updateEndowmentController(request))
+      await expect(facet.updateEndowmentController(charityReq))
         .to.emit(facet, "EndowmentSettingUpdated")
-        .withArgs(charityId, "endowmentController")
+        .withArgs(charityReq.id, "endowmentController")
         .to.emit(facet, "EndowmentUpdated")
-        .withArgs(charityId);
+        .withArgs(charityReq.id);
 
-      const updated = await state.getEndowmentDetails(charityId);
+      const updated = await state.getEndowmentDetails(charityReq.id);
 
       expect(updated.settingsController.acceptedTokens).to.equalSettingsPermission(
-        oldCharity.settingsController.acceptedTokens
+        lockedCharity.settingsController.acceptedTokens
       );
       expect(updated.settingsController.lockedInvestmentManagement).to.equalSettingsPermission(
-        oldCharity.settingsController.lockedInvestmentManagement
+        lockedCharity.settingsController.lockedInvestmentManagement
       );
       expect(updated.settingsController.liquidInvestmentManagement).to.equalSettingsPermission(
-        oldCharity.settingsController.liquidInvestmentManagement
+        lockedCharity.settingsController.liquidInvestmentManagement
       );
       expect(updated.settingsController.allowlistedBeneficiaries).to.equalSettingsPermission(
-        oldCharity.settingsController.allowlistedBeneficiaries
+        lockedCharity.settingsController.allowlistedBeneficiaries
       );
       expect(updated.settingsController.allowlistedContributors).to.equalSettingsPermission(
-        oldCharity.settingsController.allowlistedContributors
+        lockedCharity.settingsController.allowlistedContributors
       );
       expect(updated.settingsController.maturityAllowlist).to.equalSettingsPermission(
-        oldCharity.settingsController.maturityAllowlist
+        lockedCharity.settingsController.maturityAllowlist
       );
       expect(updated.settingsController.maturityTime).to.equalSettingsPermission(
-        oldCharity.settingsController.maturityTime
+        lockedCharity.settingsController.maturityTime
       );
       expect(updated.settingsController.earlyLockedWithdrawFee).to.equalSettingsPermission(
-        oldCharity.settingsController.earlyLockedWithdrawFee
+        lockedCharity.settingsController.earlyLockedWithdrawFee
       );
       expect(updated.settingsController.withdrawFee).to.equalSettingsPermission(
-        oldCharity.settingsController.withdrawFee
+        lockedCharity.settingsController.withdrawFee
       );
       expect(updated.settingsController.depositFee).to.equalSettingsPermission(
-        oldCharity.settingsController.depositFee
+        lockedCharity.settingsController.depositFee
       );
       expect(updated.settingsController.balanceFee).to.equalSettingsPermission(
-        oldCharity.settingsController.balanceFee
+        lockedCharity.settingsController.balanceFee
       );
       expect(updated.settingsController.name).to.equalSettingsPermission(
-        oldCharity.settingsController.name
+        lockedCharity.settingsController.name
       );
       expect(updated.settingsController.image).to.equalSettingsPermission(
-        oldCharity.settingsController.image
+        lockedCharity.settingsController.image
       );
       expect(updated.settingsController.logo).to.equalSettingsPermission(
-        oldCharity.settingsController.logo
+        lockedCharity.settingsController.logo
       );
       expect(updated.settingsController.sdgs).to.equalSettingsPermission(
-        oldCharity.settingsController.sdgs
+        lockedCharity.settingsController.sdgs
       );
       expect(updated.settingsController.splitToLiquid).to.equalSettingsPermission(
-        oldCharity.settingsController.splitToLiquid
+        lockedCharity.settingsController.splitToLiquid
       );
       expect(updated.settingsController.ignoreUserSplits).to.equalSettingsPermission(
-        oldCharity.settingsController.ignoreUserSplits
+        lockedCharity.settingsController.ignoreUserSplits
       );
     });
 
     it("changes nothing in normal endowment controller if fields cannot be changed", async () => {
       const lockedNormalEndow: AccountStorage.EndowmentStruct = {...oldNormalEndow};
-      Object.values(lockedNormalEndow.settingsController).forEach((setting) => {
-        setting.locked = true;
-      });
+      lockedNormalEndow.settingsController = (
+        Object.entries(lockedNormalEndow.settingsController) as [
+          keyof LibAccounts.SettingsControllerStruct,
+          LibAccounts.SettingsPermissionStruct
+        ][]
+      ).reduce((controller, [key, curSetting]) => {
+        controller[key] = {locked: true, delegate: {...curSetting.delegate}};
+        return controller;
+      }, {} as LibAccounts.SettingsControllerStruct);
+
       await state.setEndowmentDetails(normalEndowId, lockedNormalEndow);
 
-      await expect(facet.updateEndowmentController({...request, id: normalEndowId}))
+      await expect(facet.updateEndowmentController(normalEndowReq))
         .to.emit(facet, "EndowmentSettingUpdated")
-        .withArgs(normalEndowId, "endowmentController")
+        .withArgs(normalEndowReq.id, "endowmentController")
         .to.emit(facet, "EndowmentUpdated")
-        .withArgs(normalEndowId);
+        .withArgs(normalEndowReq.id);
 
-      const updated = await state.getEndowmentDetails(normalEndowId);
+      const updated = await state.getEndowmentDetails(normalEndowReq.id);
 
       expect(updated.settingsController.acceptedTokens).to.equalSettingsPermission(
-        oldNormalEndow.settingsController.acceptedTokens
+        lockedNormalEndow.settingsController.acceptedTokens
       );
       expect(updated.settingsController.lockedInvestmentManagement).to.equalSettingsPermission(
-        oldNormalEndow.settingsController.lockedInvestmentManagement
+        lockedNormalEndow.settingsController.lockedInvestmentManagement
       );
       expect(updated.settingsController.liquidInvestmentManagement).to.equalSettingsPermission(
-        oldNormalEndow.settingsController.liquidInvestmentManagement
+        lockedNormalEndow.settingsController.liquidInvestmentManagement
       );
       expect(updated.settingsController.allowlistedBeneficiaries).to.equalSettingsPermission(
-        oldNormalEndow.settingsController.allowlistedBeneficiaries
+        lockedNormalEndow.settingsController.allowlistedBeneficiaries
       );
       expect(updated.settingsController.allowlistedContributors).to.equalSettingsPermission(
-        oldNormalEndow.settingsController.allowlistedContributors
+        lockedNormalEndow.settingsController.allowlistedContributors
       );
       expect(updated.settingsController.maturityAllowlist).to.equalSettingsPermission(
-        oldNormalEndow.settingsController.maturityAllowlist
+        lockedNormalEndow.settingsController.maturityAllowlist
       );
       expect(updated.settingsController.maturityTime).to.equalSettingsPermission(
-        oldNormalEndow.settingsController.maturityTime
+        lockedNormalEndow.settingsController.maturityTime
+      );
+      expect(updated.settingsController.earlyLockedWithdrawFee).to.equalSettingsPermission(
+        lockedNormalEndow.settingsController.earlyLockedWithdrawFee
+      );
+      expect(updated.settingsController.withdrawFee).to.equalSettingsPermission(
+        lockedNormalEndow.settingsController.withdrawFee
+      );
+      expect(updated.settingsController.depositFee).to.equalSettingsPermission(
+        lockedNormalEndow.settingsController.depositFee
+      );
+      expect(updated.settingsController.balanceFee).to.equalSettingsPermission(
+        lockedNormalEndow.settingsController.balanceFee
+      );
+      expect(updated.settingsController.name).to.equalSettingsPermission(
+        lockedNormalEndow.settingsController.name
+      );
+      expect(updated.settingsController.image).to.equalSettingsPermission(
+        lockedNormalEndow.settingsController.image
+      );
+      expect(updated.settingsController.logo).to.equalSettingsPermission(
+        lockedNormalEndow.settingsController.logo
+      );
+      expect(updated.settingsController.sdgs).to.equalSettingsPermission(
+        lockedNormalEndow.settingsController.sdgs
+      );
+      expect(updated.settingsController.splitToLiquid).to.equalSettingsPermission(
+        lockedNormalEndow.settingsController.splitToLiquid
+      );
+      expect(updated.settingsController.ignoreUserSplits).to.equalSettingsPermission(
+        lockedNormalEndow.settingsController.ignoreUserSplits
+      );
+    });
+
+    it("updates all normal endowment's controllers", async () => {
+      await expect(facet.updateEndowmentController(normalEndowReq))
+        .to.emit(facet, "EndowmentSettingUpdated")
+        .withArgs(normalEndowReq.id, "endowmentController")
+        .to.emit(facet, "EndowmentUpdated")
+        .withArgs(normalEndowReq.id);
+
+      const updated = await state.getEndowmentDetails(normalEndowReq.id);
+
+      expect(updated.settingsController.acceptedTokens).to.equalSettingsPermission(
+        normalEndowReq.settingsController.acceptedTokens
+      );
+      expect(updated.settingsController.lockedInvestmentManagement).to.equalSettingsPermission(
+        normalEndowReq.settingsController.lockedInvestmentManagement
+      );
+      expect(updated.settingsController.liquidInvestmentManagement).to.equalSettingsPermission(
+        normalEndowReq.settingsController.liquidInvestmentManagement
+      );
+      expect(updated.settingsController.allowlistedBeneficiaries).to.equalSettingsPermission(
+        normalEndowReq.settingsController.allowlistedBeneficiaries
+      );
+      expect(updated.settingsController.allowlistedContributors).to.equalSettingsPermission(
+        normalEndowReq.settingsController.allowlistedContributors
+      );
+      expect(updated.settingsController.maturityAllowlist).to.equalSettingsPermission(
+        normalEndowReq.settingsController.maturityAllowlist
+      );
+      expect(updated.settingsController.maturityTime).to.equalSettingsPermission(
+        normalEndowReq.settingsController.maturityTime
       );
       expect(updated.settingsController.earlyLockedWithdrawFee).to.equalSettingsPermission(
         oldNormalEndow.settingsController.earlyLockedWithdrawFee
       );
       expect(updated.settingsController.withdrawFee).to.equalSettingsPermission(
-        oldNormalEndow.settingsController.withdrawFee
+        normalEndowReq.settingsController.withdrawFee
       );
       expect(updated.settingsController.depositFee).to.equalSettingsPermission(
-        oldNormalEndow.settingsController.depositFee
+        normalEndowReq.settingsController.depositFee
       );
       expect(updated.settingsController.balanceFee).to.equalSettingsPermission(
-        oldNormalEndow.settingsController.balanceFee
+        normalEndowReq.settingsController.balanceFee
       );
       expect(updated.settingsController.name).to.equalSettingsPermission(
-        oldNormalEndow.settingsController.name
+        normalEndowReq.settingsController.name
       );
       expect(updated.settingsController.image).to.equalSettingsPermission(
-        oldNormalEndow.settingsController.image
+        normalEndowReq.settingsController.image
       );
       expect(updated.settingsController.logo).to.equalSettingsPermission(
-        oldNormalEndow.settingsController.logo
+        normalEndowReq.settingsController.logo
       );
       expect(updated.settingsController.sdgs).to.equalSettingsPermission(
-        oldNormalEndow.settingsController.sdgs
+        normalEndowReq.settingsController.sdgs
       );
       expect(updated.settingsController.splitToLiquid).to.equalSettingsPermission(
-        oldNormalEndow.settingsController.splitToLiquid
+        normalEndowReq.settingsController.splitToLiquid
       );
       expect(updated.settingsController.ignoreUserSplits).to.equalSettingsPermission(
-        oldNormalEndow.settingsController.ignoreUserSplits
+        normalEndowReq.settingsController.ignoreUserSplits
       );
     });
   });
