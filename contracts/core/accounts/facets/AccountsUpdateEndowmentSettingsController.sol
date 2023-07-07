@@ -238,6 +238,20 @@ contract AccountsUpdateEndowmentSettingsController is
     ) {
       tempEndowment.settingsController.maturityTime = details.settingsController.maturityTime;
     }
+    // >> EITHER WE'RE MISSING THIS UPDATE LOGIC
+    // OR THE BELOW FEE UPDATES SHOULD BE REMOVED
+    // IS THIS EXPECTED?
+    // if (
+    //   Validator.canChange(
+    //     tempEndowment.settingsController.earlyLockedWithdrawFee,
+    //     msg.sender,
+    //     tempEndowment.owner,
+    //     block.timestamp
+    //   )
+    // ) {
+    //   Validator.validateFee(details.earlyLockedWithdrawFee);
+    //   tempEndowment.earlyLockedWithdrawFee = details.earlyLockedWithdrawFee;
+    // }
     if (
       Validator.canChange(
         tempEndowment.settingsController.withdrawFee,
