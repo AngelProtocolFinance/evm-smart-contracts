@@ -114,16 +114,9 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     });
 
     it("changes nothing in charity settings if sender doesn't have necessary permissions", async () => {
-      const tx = await facet.connect(owner).updateEndowmentSettings(charityReq);
-      const createEndowmentReceipt = await tx.wait();
-
-      // Get the endowment ID from the event emitted in the transaction receipt
-      const event = createEndowmentReceipt.events?.find((e) => e.event === "EndowmentUpdated");
-
-      // verify endowment was created by checking the emitted event's parameter
-      expect(event).to.exist;
-      expect(event?.args).to.exist;
-      expect(BigNumber.from(event!.args!.endowId)).to.equal(charityId);
+      await expect(facet.connect(owner).updateEndowmentSettings(charityReq))
+        .to.emit(facet, "EndowmentUpdated")
+        .withArgs(charityId);
 
       const updatedCharity = await state.getEndowmentDetails(charityId);
 
@@ -147,16 +140,9 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     });
 
     it("changes nothing in normal endowment settings if sender doesn't have necessary permissions", async () => {
-      const tx = await facet.connect(owner).updateEndowmentSettings(normalEndowReq);
-      const createEndowmentReceipt = await tx.wait();
-
-      // Get the endowment ID from the event emitted in the transaction receipt
-      const event = createEndowmentReceipt.events?.find((e) => e.event === "EndowmentUpdated");
-
-      // verify endowment was created by checking the emitted event's parameter
-      expect(event).to.exist;
-      expect(event?.args).to.exist;
-      expect(BigNumber.from(event!.args!.endowId)).to.equal(normalEndowId);
+      await expect(facet.connect(owner).updateEndowmentSettings(normalEndowReq))
+        .to.emit(facet, "EndowmentUpdated")
+        .withArgs(normalEndowId);
 
       const newEndow = await state.getEndowmentDetails(normalEndowId);
 
