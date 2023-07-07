@@ -41,6 +41,7 @@ contract AccountsUpdateEndowmentSettingsController is
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
 
     require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
+    // require(msg.sender == tempEndowment.owner, "Unauthorized"); // CHECK MIGHT BE NEEDED ??
 
     if (tempEndowment.endowType != LibAccounts.EndowmentType.Charity) {
       if (
@@ -91,6 +92,7 @@ contract AccountsUpdateEndowmentSettingsController is
           )
         ) {
           for (uint256 i = 0; i < details.maturity_allowlist_add.length; i++) {
+            // should this check be performed in other places where an address is being added to a list
             require(Validator.addressChecker(details.maturity_allowlist_add[i]), "InvalidAddress");
             (, bool found) = AddressArray.indexOf(
               tempEndowment.maturityAllowlist,
@@ -236,6 +238,22 @@ contract AccountsUpdateEndowmentSettingsController is
     ) {
       tempEndowment.settingsController.maturityTime = details.settingsController.maturityTime;
     }
+    // >> EITHER WE'RE MISSING THIS UPDATE LOGIC
+    // OR THE BELOW FEE UPDATES SHOULD BE REMOVED
+    // JUDGING BY THE FACT THAT THERE EXISTS AN `updateFeeSettings`
+    // WHICH IS USED TO UPDATE FEES ONLY FOR NORMAL ENDOWS,
+    // IT SEEMS FEE UPDATES SHOULD BE REMOVED FROM HERE
+    // if (
+    //   Validator.canChange(
+    //     tempEndowment.settingsController.earlyLockedWithdrawFee,
+    //     msg.sender,
+    //     tempEndowment.owner,
+    //     block.timestamp
+    //   )
+    // ) {
+    //   Validator.validateFee(details.earlyLockedWithdrawFee);
+    //   tempEndowment.earlyLockedWithdrawFee = details.earlyLockedWithdrawFee;
+    // }
     if (
       Validator.canChange(
         tempEndowment.settingsController.withdrawFee,
@@ -351,6 +369,7 @@ contract AccountsUpdateEndowmentSettingsController is
       "Charity Endowments may not change endowment fees"
     );
     require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
+    // require(msg.sender == tempEndowment.owner, "Unauthorized"); // CHECK MIGHT BE NEEDED ??
 
     if (
       Validator.canChange(
