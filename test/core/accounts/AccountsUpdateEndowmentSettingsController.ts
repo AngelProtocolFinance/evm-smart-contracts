@@ -38,6 +38,17 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     owner = signers.apTeam1;
     proxyAdmin = signers.proxyAdmin;
     endowOwner = signers.deployer;
+
+    oldCharity = {
+      ...DEFAULT_CHARITY_ENDOWMENT,
+      maturityTime: 100,
+      owner: endowOwner.address,
+      maturityAllowlist: [genWallet().address],
+    };
+    oldNormalEndow = {
+      ...oldCharity,
+      endowType: 1,
+    };
   });
 
   beforeEach(async () => {
@@ -60,16 +71,6 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
 
     facet = AccountsUpdateEndowmentSettingsController__factory.connect(state.address, endowOwner);
 
-    oldCharity = {
-      ...DEFAULT_CHARITY_ENDOWMENT,
-      maturityTime: 100,
-      owner: endowOwner.address,
-      maturityAllowlist: [genWallet().address],
-    };
-    oldNormalEndow = {
-      ...oldCharity,
-      endowType: 1,
-    };
     await state.setEndowmentDetails(charityId, oldCharity);
     await state.setEndowmentDetails(normalEndowId, oldNormalEndow);
   });
@@ -78,7 +79,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     let charityReq: AccountMessages.UpdateEndowmentSettingsRequestStruct;
     let normalEndowReq: AccountMessages.UpdateEndowmentSettingsRequestStruct;
 
-    beforeEach(async () => {
+    before(() => {
       charityReq = {
         id: charityId,
         allowlistedBeneficiaries: [genWallet().address],
