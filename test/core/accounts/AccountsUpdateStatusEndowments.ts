@@ -31,8 +31,8 @@ describe("AccountsUpdateStatusEndowments", function () {
     enumData: 0,
     data: {addr: genWallet().address, endowId: accountId, fundId: 1},
   };
-  const strategies = ["strategy1", "strategy2", "strategy3"].map((x) =>
-    ethers.utils.id(x).slice(0, 10)
+  const strategies = ["strategy1", "strategy2", "strategy3"].map(
+    (x) => ethers.utils.id(x).slice(0, 10) // map to bytes4 selectors
   );
 
   let accOwner: SignerWithAddress;
@@ -115,6 +115,7 @@ describe("AccountsUpdateStatusEndowments", function () {
 
   it("reverts if the beneficiary is set to 'None' and no index fund is configured in the registrar", async () => {
     registrarFake.queryConfig.returns(DEFAULT_REGISTRAR_CONFIG);
+
     const beneficiaryNone: LibAccounts.BeneficiaryStruct = {...beneficiary, enumData: 3};
 
     await expect(facet.closeEndowment(accountId, beneficiaryNone)).to.be.revertedWith(
@@ -124,24 +125,18 @@ describe("AccountsUpdateStatusEndowments", function () {
 
   it("reverts if the endowment has active strategies", async () => {
     await state.setActiveStrategyEndowmentState(accountId, strategies[0], true);
-
     await expect(facet.closeEndowment(accountId, beneficiary)).to.be.revertedWith(
       "Not fully exited"
     );
   });
 
   it("removes the closing endowment from all index funds it is involved in", async () => {
-    const tx = await facet.closeEndowment(accountId, beneficiary);
-    const receipt = await tx.wait();
-
-    // Get the endowment ID from the event emitted in the transaction receipt
-    const event = receipt.events?.find((e) => e.event === "EndowmentUpdated");
-    const endowmentId = BigNumber.from(event!.args!.endowId);
-
-    // verify endowment was created by checking the emitted event's parameter
-    expect(endowmentId).to.exist;
+    await expect(facet.closeEndowment(accountId, beneficiary))
+      .to.emit(facet, "EndowmentUpdated")
+      .withArgs(accountId);
 
     const endowState = await state.getClosingEndowmentState(accountId);
+
     expect(endowState[0]).to.equal(true);
     expect(endowState[1].enumData).to.equal(beneficiary.enumData);
     expect(endowState[1].data.addr).to.equal(beneficiary.data.addr);
@@ -153,17 +148,12 @@ describe("AccountsUpdateStatusEndowments", function () {
     indexFundFake.queryInvolvedFunds.returns([]);
     const beneficiaryNone: LibAccounts.BeneficiaryStruct = {...beneficiary, enumData: 3};
 
-    const tx = await facet.closeEndowment(accountId, beneficiaryNone);
-    const receipt = await tx.wait();
-
-    // Get the endowment ID from the event emitted in the transaction receipt
-    const event = receipt.events?.find((e) => e.event === "EndowmentUpdated");
-    const endowmentId = BigNumber.from(event!.args!.endowId);
-
-    // verify endowment was created by checking the emitted event's parameter
-    expect(endowmentId).to.exist;
+    await expect(facet.closeEndowment(accountId, beneficiaryNone))
+      .to.emit(facet, "EndowmentUpdated")
+      .withArgs(accountId);
 
     const endowState = await state.getClosingEndowmentState(accountId);
+
     expect(endowState[0]).to.equal(true);
     expect(endowState[1].enumData).to.equal(2);
     expect(endowState[1].data.addr).to.equal(treasuryAddress);
@@ -193,17 +183,12 @@ describe("AccountsUpdateStatusEndowments", function () {
     indexFundFake.queryInvolvedFunds.returns(funds);
     const beneficiaryNone: LibAccounts.BeneficiaryStruct = {...beneficiary, enumData: 3};
 
-    const tx = await facet.closeEndowment(accountId, beneficiaryNone);
-    const receipt = await tx.wait();
-
-    // Get the endowment ID from the event emitted in the transaction receipt
-    const event = receipt.events?.find((e) => e.event === "EndowmentUpdated");
-    const endowmentId = BigNumber.from(event!.args!.endowId);
-
-    // verify endowment was created by checking the emitted event's parameter
-    expect(endowmentId).to.exist;
+    await expect(facet.closeEndowment(accountId, beneficiaryNone))
+      .to.emit(facet, "EndowmentUpdated")
+      .withArgs(accountId);
 
     const endowState = await state.getClosingEndowmentState(accountId);
+
     expect(endowState[0]).to.equal(true);
     expect(endowState[1].enumData).to.equal(1);
     expect(endowState[1].data.addr).to.equal(ethers.constants.AddressZero);
