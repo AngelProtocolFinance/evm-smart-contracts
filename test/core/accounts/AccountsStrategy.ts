@@ -23,6 +23,8 @@ import {
   DEFAULT_ACCOUNTS_CONFIG,
   DEFAULT_NETWORK_INFO,
   DEFAULT_METHOD_SELECTOR,
+  DEFAULT_PERMISSIONS_STRUCT,
+  DEFAULT_SETTINGS_STRUCT,
   NetworkInfoStruct,
   StrategyApprovalState,
   VaultActionStatus,
@@ -309,14 +311,14 @@ describe("AccountsStrategy", function () {
       it("the caller is not approved for locked fund mgmt", async function () {
         await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
         await expect(
-          facet.strategyRedeem(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, "TKN", 1, 0, 0)
+          facet.connect(user).strategyRedeem(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, "TKN", 1, 0, 0)
         ).to.be.revertedWith("Unauthorized");
       });
 
       it("the caller is not approved for liquid fund mgmt", async function () {
         await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
         await expect(
-          facet.strategyRedeem(
+          facet.connect(user).strategyRedeem(
             ACCOUNT_ID,
             DEFAULT_STRATEGY_SELECTOR,
             ethers.constants.AddressZero,
@@ -326,34 +328,6 @@ describe("AccountsStrategy", function () {
           )
         ).to.be.revertedWith("Unauthorized");
       });
-
-      it("the caller is not the owner", async function () {
-        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
-        await expect(
-          facet.strategyRedeem(
-            ACCOUNT_ID,
-            DEFAULT_STRATEGY_SELECTOR,
-            ethers.constants.AddressZero,
-            0,
-            0,
-            0
-          )
-        ).to.be.revertedWith("Unauthorized");
-      });
-
-      // it("there are pending redemptions", async function () {
-      //   await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT)
-      //   await expect(
-      //     facet.strategyRedeem(
-      //       ACCOUNT_ID,
-      //       DEFAULT_STRATEGY_SELECTOR,
-      //       ethers.constants.AddressZero,
-      //       0,
-      //       0,
-      //       0
-      //     )
-      //   ).to.be.revertedWith("Unauthorized");
-      // })
 
       it("the strategy is not approved", async function () {
         let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
@@ -387,20 +361,25 @@ describe("AccountsStrategy", function () {
 
         beforeEach(async function () {
           await state.setConfig(config);
-          let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
-          endowDetails.owner = owner.address;
-          endowDetails.settingsController.liquidInvestmentManagement = {
-            locked: false,
-            delegate: {
-              addr: owner.address,
-              expires: 0,
-            },
-          };
-          endowDetails.settingsController.lockedInvestmentManagement = {
-            locked: false,
-            delegate: {
-              addr: owner.address,
-              expires: 0,
+          let endowDetails : AccountStorage.EndowmentStruct = {
+            ...DEFAULT_CHARITY_ENDOWMENT, 
+            owner: owner.address,
+            settingsController: {
+              ...DEFAULT_SETTINGS_STRUCT,
+              lockedInvestmentManagement: {
+                ...DEFAULT_PERMISSIONS_STRUCT,
+                delegate: {
+                  expires: 0,
+                  addr: user.address
+                },
+              },
+              liquidInvestmentManagement: {
+                ...DEFAULT_PERMISSIONS_STRUCT,
+                delegate: {
+                  expires: 0,
+                  addr: user.address
+                },
+              },
             },
           };
           await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
@@ -540,54 +519,35 @@ describe("AccountsStrategy", function () {
     });
 
     describe("reverts when", async function () {
-      // it("the caller is not approved for locked fund mgmt", async function () {
-      //   await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
-      //   await expect(
-      //     facet.strategyRedeemAll(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, "TKN", 0)
-      //   ).to.be.revertedWith("Unauthorized");
-      // });
-
-      // it("the caller is not approved for liquid fund mgmt", async function () {
-      //   await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
-      //   await expect(
-      //     facet.strategyRedeemAll(
-      //       ACCOUNT_ID,
-      //       DEFAULT_STRATEGY_SELECTOR,
-      //       ethers.constants.AddressZero,
-      //       0
-      //     )
-      //   ).to.be.revertedWith("Unauthorized");
-      // });
-
-      it("the caller is not the owner", async function () {
-        let endowDetails = DEFAULT_CHARITY_ENDOWMENT
-        endowDetails.owner = user.address
-        await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
+      it("the caller is not approved for locked nor liquid fund mgmt", async function () {
+        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
         await expect(
-          facet.strategyRedeemAll(
-            ACCOUNT_ID,
-            DEFAULT_STRATEGY_SELECTOR,
-            "TKN",
-            0
-          )
+          facet.connect(user).strategyRedeemAll(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, "TKN", 0)
         ).to.be.revertedWith("Unauthorized");
       });
 
-      // it("there are pending redemptions", async function () {
-      //   await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT)
-      //   await expect(
-      //     facet.strategyRedeemAll(
-      //       ACCOUNT_ID,
-      //       DEFAULT_STRATEGY_SELECTOR,
-      //       "TKN",
-      //       0
-      //     )
-      //   ).to.be.revertedWith("Unauthorized");
-      // })
-
       it("the strategy is not approved", async function () {
-        let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
-        endowDetails.owner = owner.address;
+        let endowDetails : AccountStorage.EndowmentStruct = {
+          ...DEFAULT_CHARITY_ENDOWMENT, 
+          owner: owner.address,
+          settingsController: {
+            ...DEFAULT_SETTINGS_STRUCT,
+            lockedInvestmentManagement: {
+              ...DEFAULT_PERMISSIONS_STRUCT,
+              delegate: {
+                expires: 0,
+                addr: user.address
+              },
+            },
+            liquidInvestmentManagement: {
+              ...DEFAULT_PERMISSIONS_STRUCT,
+              delegate: {
+                expires: 0,
+                addr: user.address
+              },
+            },
+          },
+        };
         await state.setEndowmentDetails(1, endowDetails);
         let config = DEFAULT_ACCOUNTS_CONFIG;
         config.registrarContract = registrar.address;
@@ -617,20 +577,25 @@ describe("AccountsStrategy", function () {
 
         beforeEach(async function () {
           await state.setConfig(config);
-          let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
-          endowDetails.owner = owner.address;
-          endowDetails.settingsController.liquidInvestmentManagement = {
-            locked: false,
-            delegate: {
-              addr: owner.address,
-              expires: 0,
-            },
-          };
-          endowDetails.settingsController.lockedInvestmentManagement = {
-            locked: false,
-            delegate: {
-              addr: owner.address,
-              expires: 0,
+          let endowDetails : AccountStorage.EndowmentStruct = {
+            ...DEFAULT_CHARITY_ENDOWMENT, 
+            owner: owner.address,
+            settingsController: {
+              ...DEFAULT_SETTINGS_STRUCT,
+              lockedInvestmentManagement: {
+                ...DEFAULT_PERMISSIONS_STRUCT,
+                delegate: {
+                  expires: 0,
+                  addr: user.address
+                },
+              },
+              liquidInvestmentManagement: {
+                ...DEFAULT_PERMISSIONS_STRUCT,
+                delegate: {
+                  expires: 0,
+                  addr: user.address
+                },
+              },
             },
           };
           await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);

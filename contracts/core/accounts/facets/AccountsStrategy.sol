@@ -17,6 +17,7 @@ import {IVault} from "../../vault/interfaces/IVault.sol";
 import {IAccountsStrategy} from "../interfaces/IAccountsStrategy.sol";
 import {AxelarExecutable} from "../../../axelar/AxelarExecutable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "hardhat/console.sol";
 
 /**
  * @title AccountsStrategy
@@ -195,7 +196,10 @@ contract AccountsStrategy is
 
     // check if the msg sender is either the owner or their delegate address and
     // that they have the power to manage the investments for an account balance
+    console.log("checking lock");
+    console.log(lockAmt);
     if (lockAmt > 0) {
+      console.log("inside lockcheck");
       require(
         Validator.canChange(
           tempEndowment.settingsController.lockedInvestmentManagement,
@@ -206,7 +210,10 @@ contract AccountsStrategy is
         "Unauthorized"
       );
     }
+    console.log("checking liquid");
+    console.log(liquidAmt);
     if (liquidAmt > 0) {
+      console.log("inside liqcheck");
       require(
         Validator.canChange(
           tempEndowment.settingsController.liquidInvestmentManagement,
@@ -217,14 +224,14 @@ contract AccountsStrategy is
         "Unauthorized"
       );
     }
-
-    require(tempEndowment.owner == msg.sender, "Unauthorized");
+    console.log("checking redemptions");
     require(tempEndowment.pendingRedemptions == 0, "RedemptionInProgress");
 
     LocalRegistrarLib.StrategyParams memory stratParams = IRegistrar(state.config.registrarContract)
       .getStrategyParamsById(strategy);
     require(
-      stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.APPROVED,
+      (stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.APPROVED) || 
+      (stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.WITHDRAW_ONLY),
       "Strategy is not approved"
     );
 
@@ -312,13 +319,29 @@ contract AccountsStrategy is
   ) public payable nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
-    require(tempEndowment.owner == msg.sender, "Unauthorized");
+    require(
+      Validator.canChange(
+        tempEndowment.settingsController.lockedInvestmentManagement,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      ) || 
+      Validator.canChange(
+          tempEndowment.settingsController.liquidInvestmentManagement,
+          msg.sender,
+          tempEndowment.owner,
+          block.timestamp
+      ),
+      "Unauthorized"
+    );
+
     require(tempEndowment.pendingRedemptions == 0, "RedemptionInProgress");
 
     LocalRegistrarLib.StrategyParams memory stratParams = IRegistrar(state.config.registrarContract)
       .getStrategyParamsById(strategy);
     require(
-      stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.APPROVED,
+      (stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.APPROVED) || 
+      (stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.WITHDRAW_ONLY),
       "Strategy is not approved"
     );
 
