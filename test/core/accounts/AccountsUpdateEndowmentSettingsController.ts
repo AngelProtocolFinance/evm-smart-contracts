@@ -78,7 +78,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     let charityReq: AccountMessages.UpdateEndowmentSettingsRequestStruct;
     let normalEndowReq: AccountMessages.UpdateEndowmentSettingsRequestStruct;
 
-    before(() => {
+    beforeEach(() => {
       charityReq = {
         id: charityId,
         allowlistedBeneficiaries: [genWallet().address],
