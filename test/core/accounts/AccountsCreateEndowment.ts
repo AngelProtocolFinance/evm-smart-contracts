@@ -30,6 +30,8 @@ describe("AccountsCreateEndowment", function () {
   const endowmentOwner = genWallet().address;
   const treasuryAddress = genWallet().address;
 
+  const expectedNextAccountId = 1;
+
   let owner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
   let charityApplications: SignerWithAddress;
@@ -202,7 +204,7 @@ describe("AccountsCreateEndowment", function () {
       owner: owner.address,
       version: "1",
       registrarContract: registrarFake.address,
-      nextAccountId: 1,
+      nextAccountId: expectedNextAccountId,
       maxGeneralCategoryId: 1,
       subDao: ethers.constants.AddressZero,
       gateway: ethers.constants.AddressZero,
@@ -477,18 +479,11 @@ describe("AccountsCreateEndowment", function () {
       },
     };
 
-    const tx = await facet.connect(charityApplications).createEndowment(request);
-    const createEndowmentReceipt = await tx.wait();
+    await expect(facet.connect(charityApplications).createEndowment(request))
+      .to.emit(facet, "EndowmentCreated")
+      .withArgs(expectedNextAccountId);
 
-    // Get the endowment ID from the event emitted in the transaction receipt
-    const event = createEndowmentReceipt.events?.find((e) => e.event === "EndowmentCreated");
-    let endowmentId = event?.args?.endowId ? BigNumber.from(event.args.endowId) : undefined;
-
-    // verify endowment was created by checking the emitted event's parameter
-    expect(endowmentId).to.exist;
-    endowmentId = endowmentId!;
-
-    const result = await state.getEndowmentDetails(endowmentId);
+    const result = await state.getEndowmentDetails(expectedNextAccountId);
 
     expect(result.allowlistedBeneficiaries).to.have.same.members(request.allowlistedBeneficiaries);
     expect(result.allowlistedContributors).to.have.same.members(request.allowlistedContributors);
@@ -574,5 +569,9 @@ describe("AccountsCreateEndowment", function () {
     expect(result.splitToLiquid.min).to.equal(0);
     expect(result.tier).to.equal(request.tier);
     expect(result.withdrawFee).to.equalFee(request.withdrawFee);
+
+    const updatedConfig = await state.getConfig();
+
+    expect(updatedConfig.nextAccountId).to.equal(expectedNextAccountId + 1);
   });
 });
