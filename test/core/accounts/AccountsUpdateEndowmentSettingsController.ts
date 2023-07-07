@@ -165,6 +165,32 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       expect(newEndow.splitToLiquid.min).to.equal(oldNormalEndow.splitToLiquid.min);
     });
 
+    it("updates all charity settings if sender has the necessary permissions", async () => {
+      await expect(facet.updateEndowmentSettings(charityReq))
+        .to.emit(facet, "EndowmentSettingUpdated")
+        .withArgs(charityId, "splitToLiquid")
+        .to.emit(facet, "EndowmentSettingUpdated")
+        .withArgs(charityId, "ignoreUserSplits")
+        .to.emit(facet, "EndowmentUpdated")
+        .withArgs(charityId);
+
+      const updated = await state.getEndowmentDetails(charityId);
+
+      expect(updated.allowlistedBeneficiaries).to.have.same.members(
+        oldCharity.allowlistedBeneficiaries.map((x) => x.toString())
+      );
+      expect(updated.allowlistedContributors).to.have.same.members(
+        oldCharity.allowlistedContributors.map((x) => x.toString())
+      );
+      expect(updated.donationMatchActive).to.equal(oldCharity.donationMatchActive);
+      expect(updated.ignoreUserSplits).to.equal(charityReq.ignoreUserSplits);
+      expect(updated.maturityAllowlist).to.have.same.members(oldCharity.maturityAllowlist);
+      expect(updated.maturityTime).to.equal(oldCharity.maturityTime);
+      expect(updated.splitToLiquid.defaultSplit).to.equal(charityReq.splitToLiquid.defaultSplit);
+      expect(updated.splitToLiquid.max).to.equal(charityReq.splitToLiquid.max);
+      expect(updated.splitToLiquid.min).to.equal(charityReq.splitToLiquid.min);
+    });
+
     it("updates all normal endowment settings if sender has the necessary permissions", async () => {
       await expect(facet.updateEndowmentSettings(normalEndowReq))
         .to.emit(facet, "EndowmentSettingUpdated")
