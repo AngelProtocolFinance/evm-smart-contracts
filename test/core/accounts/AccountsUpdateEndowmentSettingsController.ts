@@ -11,7 +11,7 @@ import {
 } from "typechain-types";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsUpdateEndowmentSettingsController";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {genWallet} from "utils";
+import {genWallet, getSigners} from "utils";
 import "../../utils/setup";
 
 use(smock.matchers);
@@ -31,8 +31,21 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
   let oldCharity: AccountStorage.EndowmentStruct;
 
   before(async function () {
-    let signers: SignerWithAddress[];
-    [owner, proxyAdmin, endowOwner, ...signers] = await ethers.getSigners();
+    const signers = await getSigners(hre);
+    owner = signers.apTeam1;
+    proxyAdmin = signers.proxyAdmin;
+    endowOwner = signers.deployer;
+
+    oldCharity = {
+      ...DEFAULT_CHARITY_ENDOWMENT,
+      maturityTime: 100,
+      owner: endowOwner.address,
+      maturityAllowlist: [genWallet().address],
+    };
+    oldNormalEndow = {
+      ...oldCharity,
+      endowType: 1,
+    };
   });
 
   beforeEach(async function () {
@@ -54,41 +67,31 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     });
 
     facet = AccountsUpdateEndowmentSettingsController__factory.connect(state.address, endowOwner);
+
+    await state.setEndowmentDetails(charityId, oldCharity);
+    await state.setEndowmentDetails(normalEndowId, oldNormalEndow);
   });
 
   describe("updateEndowmentSettings", () => {
-    const charityReq: AccountMessages.UpdateEndowmentSettingsRequestStruct = {
-      id: charityId,
-      allowlistedBeneficiaries: [genWallet().address],
-      allowlistedContributors: [genWallet().address],
-      donationMatchActive: true,
-      ignoreUserSplits: true,
-      maturity_allowlist_add: [genWallet().address],
-      maturity_allowlist_remove: [genWallet().address],
-      maturityTime: 0,
-      splitToLiquid: {defaultSplit: 40, max: 80, min: 20},
-    };
-    const normalEndowReq: AccountMessages.UpdateEndowmentSettingsRequestStruct = {
-      ...charityReq,
-      id: normalEndowId,
-    };
+    let charityReq: AccountMessages.UpdateEndowmentSettingsRequestStruct;
+    let normalEndowReq: AccountMessages.UpdateEndowmentSettingsRequestStruct;
 
     before(() => {
-      oldCharity = {
-        ...DEFAULT_CHARITY_ENDOWMENT,
-        maturityTime: 100,
-        owner: endowOwner.address,
-        maturityAllowlist: [...normalEndowReq.maturity_allowlist_remove],
+      charityReq = {
+        id: charityId,
+        allowlistedBeneficiaries: [genWallet().address],
+        allowlistedContributors: [genWallet().address],
+        donationMatchActive: true,
+        ignoreUserSplits: true,
+        maturity_allowlist_add: [genWallet().address],
+        maturity_allowlist_remove: [oldCharity.maturityAllowlist[0]],
+        maturityTime: 0,
+        splitToLiquid: {defaultSplit: 40, max: 80, min: 20},
       };
-      oldNormalEndow = {
-        ...oldCharity,
-        endowType: 1,
+      normalEndowReq = {
+        ...charityReq,
+        id: normalEndowId,
       };
-    });
-
-    beforeEach(async () => {
-      await state.setEndowmentDetails(charityId, oldCharity);
-      await state.setEndowmentDetails(normalEndowId, oldNormalEndow);
     });
 
     it("reverts if the endowment is closed", async () => {
