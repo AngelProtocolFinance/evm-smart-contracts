@@ -137,7 +137,7 @@ describe("AccountsCreateEndowment", function () {
       charityApplications: charityApplications.address,
       multisigFactory: endowmentFactoryFake.address,
       donationMatchCharitesContract: donationMatchCharitesContract.address,
-      gasFwdFactoryAddress: gasFwdFactoryFake.address,
+      gasFwdFactory: gasFwdFactoryFake.address,
     };
     registrarFake.queryConfig.returns(config);
   });
