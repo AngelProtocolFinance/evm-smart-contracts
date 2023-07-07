@@ -25,19 +25,21 @@ use(smock.matchers);
 
 describe("AccountsCreateEndowment", function () {
   const {ethers} = hre;
+
+  const donationMatchCharitesAddress = genWallet().address;
+  const endowmentOwner = genWallet().address;
+  const treasuryAddress = genWallet().address;
+
   let owner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
   let charityApplications: SignerWithAddress;
   let axelarGateway: SignerWithAddress;
   let axelarGasService: SignerWithAddress;
   let deployer: SignerWithAddress;
-  let treasury: SignerWithAddress;
-  let donationMatchCharitesContract: SignerWithAddress;
   let facet: AccountsCreateEndowment;
   let state: TestFacetProxyContract;
   let Registrar: Registrar;
   let createEndowmentRequest: AccountMessages.CreateEndowmentRequestStruct;
-  let endowmentOwner: string;
   let registrarFake: FakeContract<Registrar>;
 
   before(async function () {
@@ -48,9 +50,6 @@ describe("AccountsCreateEndowment", function () {
     axelarGateway = signers.apTeam2;
     axelarGasService = signers.apTeam3;
     deployer = signers.deployer;
-    treasury = signers.deployer;
-    donationMatchCharitesContract = signers.deployer;
-    endowmentOwner = genWallet().address;
 
     const defaultSettingsPermissionsStruct = {
       locked: false,
@@ -137,7 +136,7 @@ describe("AccountsCreateEndowment", function () {
     const config: Partial<RegistrarStorage.ConfigStructOutput> = {
       indexFundContract: ethers.constants.AddressZero,
       accountsContract: ethers.constants.AddressZero,
-      treasury: ethers.constants.AddressZero,
+      treasury: treasuryAddress,
       subdaoGovContract: ethers.constants.AddressZero, // Sub dao implementation
       subdaoTokenContract: ethers.constants.AddressZero, // NewERC20 implementation
       subdaoBondingTokenContract: ethers.constants.AddressZero, // Continous Token implementation
@@ -163,7 +162,7 @@ describe("AccountsCreateEndowment", function () {
       charityApplications: charityApplications.address,
       multisigFactory: endowmentFactoryFake.address,
       multisigEmitter: ethers.constants.AddressZero,
-      donationMatchCharitesContract: donationMatchCharitesContract.address,
+      donationMatchCharitesContract: donationMatchCharitesAddress,
     };
     registrarFake.queryConfig.returns(config);
   });
@@ -177,7 +176,7 @@ describe("AccountsCreateEndowment", function () {
         owner: owner.address,
         deployer,
         proxyAdmin,
-        treasuryAddress: treasury.address,
+        treasuryAddress: treasuryAddress,
       },
       hre
     );
@@ -192,7 +191,7 @@ describe("AccountsCreateEndowment", function () {
       charityApplications: charityApplications.address,
       multisigFactory: endowDeployments!.factory.address,
       multisigEmitter: endowDeployments!.emitter.address,
-      donationMatchCharitesContract: donationMatchCharitesContract.address,
+      donationMatchCharitesContract: donationMatchCharitesAddress,
     });
 
     let Facet = new AccountsCreateEndowment__factory(owner);
@@ -499,7 +498,7 @@ describe("AccountsCreateEndowment", function () {
     expect(result.depositFee).to.equalFee(request.depositFee);
     expect(result.donationMatchActive).to.equal(false);
     // `donationMatchContract` is read from `registrar config > donationMatchCharitesContract`
-    expect(result.donationMatchContract).to.equal(donationMatchCharitesContract.address);
+    expect(result.donationMatchContract).to.equal(donationMatchCharitesAddress);
     expect(result.earlyLockedWithdrawFee).to.equalFee(
       (await state.getConfig()).earlyLockedWithdrawFee
     );
