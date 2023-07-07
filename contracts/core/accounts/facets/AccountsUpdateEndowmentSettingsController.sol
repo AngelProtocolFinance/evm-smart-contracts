@@ -240,7 +240,9 @@ contract AccountsUpdateEndowmentSettingsController is
     }
     // >> EITHER WE'RE MISSING THIS UPDATE LOGIC
     // OR THE BELOW FEE UPDATES SHOULD BE REMOVED
-    // IS THIS EXPECTED?
+    // JUDGING BY THE FACT THAT THERE EXISTS AN `updateFeeSettings`
+    // WHICH IS USED TO UPDATE FEES ONLY FOR NORMAL ENDOWS,
+    // IT SEEMS FEE UPDATES SHOULD BE REMOVED FROM HERE
     // if (
     //   Validator.canChange(
     //     tempEndowment.settingsController.earlyLockedWithdrawFee,
