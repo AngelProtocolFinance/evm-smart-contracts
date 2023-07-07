@@ -19,24 +19,19 @@ task("deploy:GasFwd", "Will deploy the GasFwd implementation and factory")
         hre
       );
 
-      if (gasFwdDeployment) {
-        await updateRegistrarConfig(
-          addresses.registrar.proxy,
-          addresses.multiSig.apTeam.proxy,
-          {gasFwdFactory: gasFwdDeployment.address},
-          hre
-        );
-      }
-
       if (!gasFwdDeployment) {
         return;
       }
 
+      await updateRegistrarConfig(
+        addresses.registrar.proxy,
+        addresses.multiSig.apTeam.proxy,
+        {gasFwdFactory: gasFwdDeployment.address},
+        hre
+      );
+
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         await verify(hre, gasFwdDeployment);
-        if (gasFwdDeployment) {
-          await verify(hre, gasFwdDeployment);
-        }
       }
     } catch (error) {
       logger.out(error, logger.Level.Error);

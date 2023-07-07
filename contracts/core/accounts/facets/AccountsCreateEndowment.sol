@@ -79,7 +79,7 @@ contract AccountsCreateEndowment is
       details.duration
     );
 
-    address gasFwd = IGasFwdFactory(registrar_config.gasFwdFactoryAddress).create();
+    address gasFwd = IGasFwdFactory(registrar_config.gasFwdFactory).create();
 
     state.ENDOWMENTS[newEndowId] = AccountStorage.Endowment({
       owner: owner,

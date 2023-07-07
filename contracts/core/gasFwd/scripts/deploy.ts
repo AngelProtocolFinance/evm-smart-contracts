@@ -31,7 +31,6 @@ export async function deployGasFwd(
     await gff.deployed();
     logger.out(`Address: ${gff.address}`);
 
-    logger.out(`Updating contract-address.json...`);
     await updateAddresses(
       {
         gasFwd: {

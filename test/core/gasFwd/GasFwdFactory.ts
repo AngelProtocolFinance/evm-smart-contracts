@@ -2,7 +2,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {expect, use} from "chai";
 import hre from "hardhat";
-import {getSigners} from "utils";
+import {getSigners, genWallet} from "utils";
 import {
   GasFwd__factory,
   GasFwdFactory,
@@ -55,7 +55,7 @@ describe("GasFwdFactory", function () {
 
     const config = {
       ...DEFAULT_REGISTRAR_CONFIG,
-      accountsContract: user.address,
+      accountsContract: genWallet(),
     };
     registrarFake.queryConfig.returns(config);
   });
