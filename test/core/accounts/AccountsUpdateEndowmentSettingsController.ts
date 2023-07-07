@@ -20,14 +20,16 @@ use(smock.matchers);
 describe("AccountsUpdateEndowmentSettingsController", function () {
   const {ethers} = hre;
 
-  const endowId = 1;
+  const charityId = 1;
+  const normalEndowId = 2;
 
   let owner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
   let endowOwner: SignerWithAddress;
   let facet: AccountsUpdateEndowmentSettingsController;
   let state: TestFacetProxyContract;
-  let oldEndowment: AccountStorage.EndowmentStruct;
+  let oldNormalEndow: AccountStorage.EndowmentStruct;
+  let oldCharity: AccountStorage.EndowmentStruct;
 
   before(async function () {
     let signers: SignerWithAddress[];
@@ -56,42 +58,53 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
   });
 
   describe("updateEndowmentSettings", () => {
-    let request: AccountMessages.UpdateEndowmentSettingsRequestStruct;
+    const charityReq: AccountMessages.UpdateEndowmentSettingsRequestStruct = {
+      id: charityId,
+      allowlistedBeneficiaries: [genWallet().address],
+      allowlistedContributors: [genWallet().address],
+      donationMatchActive: true,
+      ignoreUserSplits: true,
+      maturity_allowlist_add: [genWallet().address],
+      maturity_allowlist_remove: [genWallet().address],
+      maturityTime: 0,
+      splitToLiquid: {defaultSplit: 40, max: 80, min: 20},
+    };
+    const normalEndowReq: AccountMessages.UpdateEndowmentSettingsRequestStruct = {
+      ...charityReq,
+      id: normalEndowId,
+    };
 
-    beforeEach(async () => {
-      request = {
-        id: endowId,
-        allowlistedBeneficiaries: [genWallet().address],
-        allowlistedContributors: [genWallet().address],
-        donationMatchActive: true,
-        ignoreUserSplits: true,
-        maturity_allowlist_add: [genWallet().address],
-        maturity_allowlist_remove: [genWallet().address],
-        maturityTime: 0,
-        splitToLiquid: {defaultSplit: 40, max: 80, min: 20},
-      };
-
-      oldEndowment = {
+    before(() => {
+      oldCharity = {
         ...DEFAULT_CHARITY_ENDOWMENT,
-        endowType: 1,
         maturityTime: 100,
         owner: endowOwner.address,
-        maturityAllowlist: [...request.maturity_allowlist_remove],
+        maturityAllowlist: [...normalEndowReq.maturity_allowlist_remove],
       };
-      await state.setEndowmentDetails(endowId, oldEndowment);
+      oldNormalEndow = {
+        ...oldCharity,
+        endowType: 1,
+      };
+    });
+
+    beforeEach(async () => {
+      await state.setEndowmentDetails(charityId, oldCharity);
+      await state.setEndowmentDetails(normalEndowId, oldNormalEndow);
     });
 
     it("reverts if the endowment is closed", async () => {
-      await state.setClosingEndowmentState(endowId, true, {
+      await state.setClosingEndowmentState(normalEndowId, true, {
         enumData: 0,
         data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
       });
-      await expect(facet.updateEndowmentSettings(request)).to.be.revertedWith("UpdatesAfterClosed");
+      await expect(facet.updateEndowmentSettings(normalEndowReq)).to.be.revertedWith(
+        "UpdatesAfterClosed"
+      );
     });
 
     it("reverts if a normal endowment is updating its maturityAllowlist with a zero address value", async () => {
       const invalidRequest: AccountMessages.UpdateEndowmentSettingsRequestStruct = {
-        ...request,
+        ...normalEndowReq,
         maturity_allowlist_add: [ethers.constants.AddressZero],
       };
 
@@ -101,7 +114,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     });
 
     it("changes nothing in charity settings if sender doesn't have necessary permissions", async () => {
-      const tx = await facet.connect(owner).updateEndowmentSettings(request);
+      const tx = await facet.connect(owner).updateEndowmentSettings(charityReq);
       const createEndowmentReceipt = await tx.wait();
 
       // Get the endowment ID from the event emitted in the transaction receipt
@@ -110,35 +123,31 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       // verify endowment was created by checking the emitted event's parameter
       expect(event).to.exist;
       expect(event?.args).to.exist;
-      expect(BigNumber.from(event!.args!.endowId)).to.equal(endowId);
+      expect(BigNumber.from(event!.args!.endowId)).to.equal(charityId);
 
-      const newEndow = await state.getEndowmentDetails(endowId);
+      const updatedCharity = await state.getEndowmentDetails(charityId);
 
-      expect(newEndow.allowlistedBeneficiaries).to.have.same.members(
-        oldEndowment.allowlistedBeneficiaries.map((x) => x.toString())
+      expect(updatedCharity.allowlistedBeneficiaries).to.have.same.members(
+        oldCharity.allowlistedBeneficiaries.map((x) => x.toString())
       );
-      expect(newEndow.allowlistedContributors).to.have.same.members(
-        oldEndowment.allowlistedContributors.map((x) => x.toString())
+      expect(updatedCharity.allowlistedContributors).to.have.same.members(
+        oldCharity.allowlistedContributors.map((x) => x.toString())
       );
-      expect(newEndow.donationMatchActive).to.equal(oldEndowment.donationMatchActive);
-      expect(newEndow.ignoreUserSplits).to.equal(oldEndowment.ignoreUserSplits);
-      expect(newEndow.maturityAllowlist).to.have.same.members(
-        oldEndowment.maturityAllowlist.map((x) => x.toString())
+      expect(updatedCharity.donationMatchActive).to.equal(oldCharity.donationMatchActive);
+      expect(updatedCharity.ignoreUserSplits).to.equal(oldCharity.ignoreUserSplits);
+      expect(updatedCharity.maturityAllowlist).to.have.same.members(
+        oldCharity.maturityAllowlist.map((x) => x.toString())
       );
-      expect(newEndow.maturityTime).to.equal(oldEndowment.maturityTime);
-      expect(newEndow.splitToLiquid.defaultSplit).to.equal(oldEndowment.splitToLiquid.defaultSplit);
-      expect(newEndow.splitToLiquid.max).to.equal(oldEndowment.splitToLiquid.max);
-      expect(newEndow.splitToLiquid.min).to.equal(oldEndowment.splitToLiquid.min);
+      expect(updatedCharity.maturityTime).to.equal(oldCharity.maturityTime);
+      expect(updatedCharity.splitToLiquid.defaultSplit).to.equal(
+        oldCharity.splitToLiquid.defaultSplit
+      );
+      expect(updatedCharity.splitToLiquid.max).to.equal(oldCharity.splitToLiquid.max);
+      expect(updatedCharity.splitToLiquid.min).to.equal(oldCharity.splitToLiquid.min);
     });
 
     it("changes nothing in normal endowment settings if sender doesn't have necessary permissions", async () => {
-      const normalEndow = {
-        ...oldEndowment,
-        endowType: 0,
-      };
-      await state.setEndowmentDetails(endowId, normalEndow);
-
-      const tx = await facet.connect(owner).updateEndowmentSettings(request);
+      const tx = await facet.connect(owner).updateEndowmentSettings(normalEndowReq);
       const createEndowmentReceipt = await tx.wait();
 
       // Get the endowment ID from the event emitted in the transaction receipt
@@ -147,64 +156,68 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       // verify endowment was created by checking the emitted event's parameter
       expect(event).to.exist;
       expect(event?.args).to.exist;
-      expect(BigNumber.from(event!.args!.endowId)).to.equal(endowId);
+      expect(BigNumber.from(event!.args!.endowId)).to.equal(normalEndowId);
 
-      const newEndow = await state.getEndowmentDetails(endowId);
+      const newEndow = await state.getEndowmentDetails(normalEndowId);
 
       expect(newEndow.allowlistedBeneficiaries).to.have.same.members(
-        oldEndowment.allowlistedBeneficiaries.map((x) => x.toString())
+        oldNormalEndow.allowlistedBeneficiaries.map((x) => x.toString())
       );
       expect(newEndow.allowlistedContributors).to.have.same.members(
-        oldEndowment.allowlistedContributors.map((x) => x.toString())
+        oldNormalEndow.allowlistedContributors.map((x) => x.toString())
       );
-      expect(newEndow.donationMatchActive).to.equal(oldEndowment.donationMatchActive);
-      expect(newEndow.ignoreUserSplits).to.equal(oldEndowment.ignoreUserSplits);
+      expect(newEndow.donationMatchActive).to.equal(oldNormalEndow.donationMatchActive);
+      expect(newEndow.ignoreUserSplits).to.equal(oldNormalEndow.ignoreUserSplits);
       expect(newEndow.maturityAllowlist).to.have.same.members(
-        oldEndowment.maturityAllowlist.map((x) => x.toString())
+        oldNormalEndow.maturityAllowlist.map((x) => x.toString())
       );
-      expect(newEndow.maturityTime).to.equal(oldEndowment.maturityTime);
-      expect(newEndow.splitToLiquid.defaultSplit).to.equal(oldEndowment.splitToLiquid.defaultSplit);
-      expect(newEndow.splitToLiquid.max).to.equal(oldEndowment.splitToLiquid.max);
-      expect(newEndow.splitToLiquid.min).to.equal(oldEndowment.splitToLiquid.min);
+      expect(newEndow.maturityTime).to.equal(oldNormalEndow.maturityTime);
+      expect(newEndow.splitToLiquid.defaultSplit).to.equal(
+        oldNormalEndow.splitToLiquid.defaultSplit
+      );
+      expect(newEndow.splitToLiquid.max).to.equal(oldNormalEndow.splitToLiquid.max);
+      expect(newEndow.splitToLiquid.min).to.equal(oldNormalEndow.splitToLiquid.min);
     });
 
     it("updates all normal endowment settings if sender has the necessary permissions", async () => {
-      await expect(facet.updateEndowmentSettings(request))
+      await expect(facet.updateEndowmentSettings(normalEndowReq))
         .to.emit(facet, "EndowmentSettingUpdated")
-        .withArgs(endowId, "maturityTime")
+        .withArgs(normalEndowId, "maturityTime")
         .to.emit(facet, "EndowmentSettingUpdated")
-        .withArgs(endowId, "allowlistedBeneficiaries")
+        .withArgs(normalEndowId, "allowlistedBeneficiaries")
         .to.emit(facet, "EndowmentSettingUpdated")
-        .withArgs(endowId, "allowlistedContributors")
+        .withArgs(normalEndowId, "allowlistedContributors")
         .to.emit(facet, "EndowmentSettingUpdated")
-        .withArgs(endowId, "maturityAllowlist")
+        .withArgs(normalEndowId, "maturityAllowlist")
         .to.emit(facet, "EndowmentSettingUpdated")
-        .withArgs(endowId, "splitToLiquid")
+        .withArgs(normalEndowId, "splitToLiquid")
         .to.emit(facet, "EndowmentSettingUpdated")
-        .withArgs(endowId, "ignoreUserSplits")
+        .withArgs(normalEndowId, "ignoreUserSplits")
         .to.emit(facet, "EndowmentUpdated")
-        .withArgs(endowId);
+        .withArgs(normalEndowId);
 
-      const newEndow = await state.getEndowmentDetails(endowId);
+      const newEndow = await state.getEndowmentDetails(normalEndowId);
 
       expect(newEndow.allowlistedBeneficiaries).to.have.same.members(
-        request.allowlistedBeneficiaries.map((x) => x.toString())
+        normalEndowReq.allowlistedBeneficiaries.map((x) => x.toString())
       );
       expect(newEndow.allowlistedContributors).to.have.same.members(
-        request.allowlistedContributors.map((x) => x.toString())
+        normalEndowReq.allowlistedContributors.map((x) => x.toString())
       );
-      expect(newEndow.donationMatchActive).to.equal(oldEndowment.donationMatchActive);
-      expect(newEndow.ignoreUserSplits).to.equal(request.ignoreUserSplits);
+      expect(newEndow.donationMatchActive).to.equal(oldNormalEndow.donationMatchActive);
+      expect(newEndow.ignoreUserSplits).to.equal(normalEndowReq.ignoreUserSplits);
       expect(newEndow.maturityAllowlist).to.contain.members(
-        request.maturity_allowlist_add.map((x) => x.toString())
+        normalEndowReq.maturity_allowlist_add.map((x) => x.toString())
       );
       expect(newEndow.maturityAllowlist).to.not.contain.members(
-        request.maturity_allowlist_remove.map((x) => x.toString())
+        normalEndowReq.maturity_allowlist_remove.map((x) => x.toString())
       );
-      expect(newEndow.maturityTime).to.equal(request.maturityTime);
-      expect(newEndow.splitToLiquid.defaultSplit).to.equal(request.splitToLiquid.defaultSplit);
-      expect(newEndow.splitToLiquid.max).to.equal(request.splitToLiquid.max);
-      expect(newEndow.splitToLiquid.min).to.equal(request.splitToLiquid.min);
+      expect(newEndow.maturityTime).to.equal(normalEndowReq.maturityTime);
+      expect(newEndow.splitToLiquid.defaultSplit).to.equal(
+        normalEndowReq.splitToLiquid.defaultSplit
+      );
+      expect(newEndow.splitToLiquid.max).to.equal(normalEndowReq.splitToLiquid.max);
+      expect(newEndow.splitToLiquid.min).to.equal(normalEndowReq.splitToLiquid.min);
     });
   });
 });
