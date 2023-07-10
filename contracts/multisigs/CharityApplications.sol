@@ -101,6 +101,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
     config.gasAmount = _gasAmount;
     config.seedAsset = _seedAsset;
     config.seedAmount = _seedAmount;
+    emit InitializedMultiSig(address(this), owners,  _approvalsRequired, _requireExecution, _transactionExpiry);
   }
 
   /**
@@ -138,7 +139,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
       executed: false
     });
 
-    emit ApplicationProposed(proposalCount);
+    emit ApplicationProposed(address(this), proposalCount);
 
     if (isOwner[msg.sender]) {
       confirmProposal(proposalCount);
@@ -162,7 +163,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
   {
     proposalConfirmations[proposalId].confirmationsByOwner[msg.sender] = true;
     proposalConfirmations[proposalId].count += 1;
-    emit ApplicationConfirmed(proposalId, msg.sender);
+    emit ApplicationConfirmed(address(this), proposalId, msg.sender);
     // if execution is required, do not auto-execute
     if (!requireExecution) {
       executeProposal(proposalId);
@@ -184,7 +185,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
   {
     proposalConfirmations[proposalId].confirmationsByOwner[msg.sender] = false;
     proposalConfirmations[proposalId].count -= 1;
-    emit ApplicationConfirmationRevoked(proposalId, msg.sender);
+    emit ApplicationConfirmationRevoked(address(this), proposalId, msg.sender);
   }
 
   /**
@@ -217,7 +218,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
 
       // check matic balance on this contract
       if (address(this).balance >= config.gasAmount) {
-        // transfer matic to them and emit gas fee payment event
+        // transfer matic to them and emit gas address(this), fee payment event
         (bool success, ) = signer.call{value: config.gasAmount}("");
         require(success, "Failed gas payment");
       }
@@ -245,7 +246,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
     }
     // mark the proposal as executed
     proposals[proposalId].executed = true;
-    emit ApplicationExecuted(proposalId);
+    emit ApplicationExecuted(address(this), proposalId);
 
     return endowmentId;
   }
