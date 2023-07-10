@@ -88,17 +88,6 @@ contract EndowmentMultiSigFactory is Ownable {
       transactionExpiry
     );
     wallet = address(new ProxyContract(IMPLEMENTATION_ADDRESS, PROXY_ADMIN, EndowmentData));
-
-    // >> A BETTER PLACE TO CALL THIS MIGHT BE INSIDE `EndowmentMultiSig > initialize` FUNCTION
-    IEndowmentMultiSigEmitter(emitterAddress).createMultisig(
-      wallet,
-      endowmentId,
-      emitterAddress,
-      owners,
-      required,
-      false,
-      transactionExpiry
-    );
     register(wallet);
     // also store address of multisig in endowmentIdToMultisig
     endowmentIdToMultisig[endowmentId] = wallet;
