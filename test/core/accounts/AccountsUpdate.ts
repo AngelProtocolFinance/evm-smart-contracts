@@ -54,9 +54,12 @@ describe("AccountsUpdate", function () {
 
   describe("updateOwner", () => {
     it("should update the owner when called by the current owner", async () => {
-      await facet.updateOwner(user.address);
+      expect(await facet.updateOwner(user.address))
+        .to.emit(facet, "OwnerUpdated")
+        .withArgs(user.address);
 
       const {owner} = await state.getConfig();
+
       expect(owner).to.equal(user.address);
     });
 
@@ -77,15 +80,15 @@ describe("AccountsUpdate", function () {
 
   describe("updateConfig", () => {
     it("should update the config when called by the owner", async () => {
-      await facet.updateConfig(newRegistrar, maxGeneralCategoryId, earlyLockedWithdrawFee);
+      expect(
+        await facet.updateConfig(newRegistrar, maxGeneralCategoryId, earlyLockedWithdrawFee)
+      ).to.emit(facet, "ConfigUpdated");
 
       const config = await state.getConfig();
+
       expect(config.registrarContract).to.equal(newRegistrar);
       expect(config.maxGeneralCategoryId).to.equal(maxGeneralCategoryId);
-      expect(config.earlyLockedWithdrawFee.bps).to.equal(earlyLockedWithdrawFee.bps);
-      expect(config.earlyLockedWithdrawFee.payoutAddress).to.equal(
-        earlyLockedWithdrawFee.payoutAddress
-      );
+      expect(config.earlyLockedWithdrawFee).to.equalFee(earlyLockedWithdrawFee);
     });
 
     it("should revert when called by a non-owner address", async () => {
