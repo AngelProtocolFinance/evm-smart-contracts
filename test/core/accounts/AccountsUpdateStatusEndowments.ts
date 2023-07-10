@@ -14,8 +14,6 @@ import {
   Registrar,
   Registrar__factory,
   TestFacetProxyContract,
-  GasFwdFactory,
-  GasFwdFactory__factory
 } from "typechain-types";
 import {LibAccounts} from "typechain-types/contracts/core/accounts/facets/AccountsUpdateStatusEndowments";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
@@ -44,10 +42,8 @@ describe("AccountsUpdateStatusEndowments", function () {
   let state: TestFacetProxyContract;
   let endowment: AccountStorage.EndowmentStruct;
   let treasuryAddress: string;
-
   let registrarFake: FakeContract<Registrar>;
   let indexFundFake: FakeContract<IndexFund>;
-  let gasFwdFactoryFake: FakeContract<GasFwdFactory>
 
   before(async function () {
     const signers = await getSigners(hre);
@@ -70,14 +66,11 @@ describe("AccountsUpdateStatusEndowments", function () {
     registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
       address: genWallet().address,
     });
-    gasFwdFactoryFake = await smock.fake<GasFwdFactory>(new GasFwdFactory__factory());
-    gasFwdFactoryFake.create.returns(ethers.constants.AddressZero);
 
     const config: RegistrarStorage.ConfigStruct = {
       ...DEFAULT_REGISTRAR_CONFIG,
       indexFundContract: indexFundFake.address,
       treasury: treasuryAddress,
-      gasFwdFactory: gasFwdFactoryFake.address
     };
     registrarFake.queryConfig.returns(config);
 

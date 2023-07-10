@@ -214,6 +214,10 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     if (Validator.addressChecker(details.cw900lvAddress)) {
       state.config.cw900lvAddress = details.cw900lvAddress;
     }
+
+    if (Validator.addressChecker(details.gasFwdFactory)) {
+      state.config.gasFwdFactory = details.gasFwdFactory;
+    }
     // state.config.acceptedTokens = LibAccounts.AcceptedTokens({
     //     native: details.accepted_tokens_native,
     //     cw20: details.accepted_tokens_cw20
