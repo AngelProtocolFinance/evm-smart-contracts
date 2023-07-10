@@ -237,22 +237,6 @@ contract AccountsUpdateEndowmentSettingsController is
     ) {
       tempEndowment.settingsController.maturityTime = details.settingsController.maturityTime;
     }
-    // >> EITHER WE'RE MISSING THIS UPDATE LOGIC
-    // OR THE BELOW FEE UPDATES SHOULD BE REMOVED
-    // JUDGING BY THE FACT THAT THERE EXISTS AN `updateFeeSettings`
-    // WHICH IS USED TO UPDATE FEES ONLY FOR NORMAL ENDOWS,
-    // IT SEEMS FEE UPDATES SHOULD BE REMOVED FROM HERE
-    // if (
-    //   Validator.canChange(
-    //     tempEndowment.settingsController.earlyLockedWithdrawFee,
-    //     msg.sender,
-    //     tempEndowment.owner,
-    //     block.timestamp
-    //   )
-    // ) {
-    //   Validator.validateFee(details.earlyLockedWithdrawFee);
-    //   tempEndowment.earlyLockedWithdrawFee = details.earlyLockedWithdrawFee;
-    // }
     if (
       Validator.canChange(
         tempEndowment.settingsController.withdrawFee,
