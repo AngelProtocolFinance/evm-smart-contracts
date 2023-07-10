@@ -41,7 +41,6 @@ contract AccountsUpdateEndowmentSettingsController is
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
 
     require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
-    // require(msg.sender == tempEndowment.owner, "Unauthorized"); // CHECK MIGHT BE NEEDED ??
 
     if (tempEndowment.endowType != LibAccounts.EndowmentType.Charity) {
       if (
@@ -369,7 +368,6 @@ contract AccountsUpdateEndowmentSettingsController is
       "Charity Endowments may not change endowment fees"
     );
     require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
-    // require(msg.sender == tempEndowment.owner, "Unauthorized"); // CHECK MIGHT BE NEEDED ??
 
     if (
       Validator.canChange(
