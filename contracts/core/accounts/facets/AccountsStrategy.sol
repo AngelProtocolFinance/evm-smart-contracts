@@ -305,6 +305,7 @@ contract AccountsStrategy is
     }
   }
 
+  //@todo fix granularity on redeemAll
   /**
    * @notice Allows an endowment owner to redeem their funds from multiple yield strategies.
    * @param id  The endowment ID
