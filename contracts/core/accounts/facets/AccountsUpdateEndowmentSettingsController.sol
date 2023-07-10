@@ -91,7 +91,6 @@ contract AccountsUpdateEndowmentSettingsController is
           )
         ) {
           for (uint256 i = 0; i < details.maturity_allowlist_add.length; i++) {
-            // should this check be performed in other places where an address is being added to a list
             require(Validator.addressChecker(details.maturity_allowlist_add[i]), "InvalidAddress");
             (, bool found) = AddressArray.indexOf(
               tempEndowment.maturityAllowlist,
