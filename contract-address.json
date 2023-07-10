@@ -119,16 +119,16 @@
       },
       "endowment": {
         "emitter": {
-          "implementation": "0x0AFdAcD509e73115EA1654B1a770f1a807e7c9C0",
-          "proxy": "0xc63d2a04762529edB649d7a4cC3E57A0085e8544"
+          "implementation": "0x90352F820342f8BE0012848bCB8aBd37877d7ec2",
+          "proxy": "0x82B642D9deDb3Ad19b8E99FF3792A49d4d9d85Bf"
         },
-        "factory": "0x7290f72B5C67052DDE8e6E179F7803c493e90d3f",
-        "implementation": "0x55cb3b67D9E65F0Cf4eABCAC84564a1bE6E3b06A"
+        "factory": "0x7B3Be2dDDdDf9A0a3fE1DC57B98980F662C3a422",
+        "implementation": "0x7798A400cBe0Ca14a7D614ECa1CD15adE5055413"
       }
     },
     "registrar": {
-      "implementation": "0x73eccD6288e117cAcA738BDAD4FEC51312166C1A",
-      "proxy": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+      "implementation": "0x1dBDba33dfA381bCC89FCe74DFF69Aa96B53b503",
+      "proxy": "0x9E545E3C0baAB3E08CdfD552C960A1050f373042"
     },
     "router": {
       "implementation": "0x381445710b5e73d34aF196c53A3D5cDa58EDBf7A",
