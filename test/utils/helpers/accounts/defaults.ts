@@ -1,8 +1,8 @@
 import {ethers} from "hardhat";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {LibAccounts} from "typechain-types/contracts/multisigs/CharityApplications";
-import { RegistrarStorage } from "typechain-types/contracts/core/registrar/Registrar";
-import { BigNumber } from "ethers";
+import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
+import {BigNumber} from "ethers";
 
 export const DEFAULT_PERMISSIONS_STRUCT: LibAccounts.SettingsPermissionStruct = {
   locked: false,
