@@ -339,7 +339,8 @@ contract AccountsUpdateEndowments is
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[endowId];
 
-    require((tokenAddr != address(0) && priceFeedAddr != address(0)), "Zero address passed");
+    require(tokenAddr != address(0), "Invalid token address passed");
+    require(priceFeedAddr != address(0), "Invalid priceFeed address passed");
     require(!state.STATES[endowId].closingEndowment, "UpdatesAfterClosed");
     require(
       Validator.canChange(
