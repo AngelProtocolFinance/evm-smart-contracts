@@ -1,6 +1,7 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
+import {BigNumberish} from "ethers";
 import hre from "hardhat";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
@@ -18,7 +19,6 @@ import {
 } from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet, getSigners} from "utils";
 import "../../utils/setup";
-import {BigNumber, BigNumberish} from "ethers";
 
 use(smock.matchers);
 
@@ -75,8 +75,10 @@ describe("AccountsUpdateEndowments", function () {
 
     oldCharity = {
       ...DEFAULT_CHARITY_ENDOWMENT,
+      dao: genWallet().address,
       owner: endowOwner.address,
       maturityAllowlist: [genWallet().address],
+      multisig: endowOwner.address,
     };
     oldNormalEndow = {
       ...oldCharity,
@@ -113,38 +115,43 @@ describe("AccountsUpdateEndowments", function () {
   });
 
   describe("updateEndowmentDetails", () => {
-    const charityReq: AccountMessages.UpdateEndowmentDetailsRequestStruct = {
-      id: charityId,
-      owner: genWallet().address,
-      name: "charity",
-      sdgs: [2, 1],
-      logo: "logo",
-      image: "image",
-      rebalance: {
-        basis: 100,
-        rebalanceLiquidProfits: false,
-        lockedRebalanceToLiquid: 75,
-        interestDistribution: 20,
-        lockedPrincipleToLiquid: false,
-        principleDistribution: 0,
-      },
-    };
-    const normalEndowReq: AccountMessages.UpdateEndowmentDetailsRequestStruct = {
-      id: normalEndowId,
-      owner: genWallet().address,
-      name: "normal",
-      sdgs: [4, 3],
-      logo: "logo2",
-      image: "image2",
-      rebalance: {
-        basis: 100,
-        rebalanceLiquidProfits: true,
-        lockedRebalanceToLiquid: 60,
-        interestDistribution: 19,
-        lockedPrincipleToLiquid: true,
-        principleDistribution: 1,
-      },
-    };
+    let charityReq: AccountMessages.UpdateEndowmentDetailsRequestStruct;
+    let normalEndowReq: AccountMessages.UpdateEndowmentDetailsRequestStruct;
+
+    before(() => {
+      charityReq = {
+        id: charityId,
+        owner: oldCharity.dao,
+        name: "charity",
+        sdgs: [2, 1],
+        logo: "logo",
+        image: "image",
+        rebalance: {
+          basis: 100,
+          rebalanceLiquidProfits: false,
+          lockedRebalanceToLiquid: 75,
+          interestDistribution: 20,
+          lockedPrincipleToLiquid: false,
+          principleDistribution: 0,
+        },
+      };
+      normalEndowReq = {
+        id: normalEndowId,
+        owner: oldNormalEndow.dao,
+        name: "normal",
+        sdgs: [4, 3],
+        logo: "logo2",
+        image: "image2",
+        rebalance: {
+          basis: 100,
+          rebalanceLiquidProfits: true,
+          lockedRebalanceToLiquid: 60,
+          interestDistribution: 19,
+          lockedPrincipleToLiquid: true,
+          principleDistribution: 1,
+        },
+      };
+    });
 
     it("reverts if the endowment is closed", async () => {
       await state.setClosingEndowmentState(normalEndowId, true, {
@@ -264,405 +271,88 @@ describe("AccountsUpdateEndowments", function () {
       expect(updated.sdgs.map((x) => x.toNumber())).to.have.same.members(normalEndowReq.sdgs);
     });
 
-    //   it("updates all normal endowment settings if sender has the necessary permissions", async () => {
-    //     await expect(facet.updateEndowmentDetails(normalEndowReq))
-    //       .to.emit(facet, "EndowmentSettingUpdated")
-    //       .withArgs(normalEndowId, "maturityTime")
-    //       .to.emit(facet, "EndowmentSettingUpdated")
-    //       .withArgs(normalEndowId, "allowlistedBeneficiaries")
-    //       .to.emit(facet, "EndowmentSettingUpdated")
-    //       .withArgs(normalEndowId, "allowlistedContributors")
-    //       .to.emit(facet, "EndowmentSettingUpdated")
-    //       .withArgs(normalEndowId, "maturityAllowlist")
-    //       .to.emit(facet, "EndowmentSettingUpdated")
-    //       .withArgs(normalEndowId, "splitToLiquid")
-    //       .to.emit(facet, "EndowmentSettingUpdated")
-    //       .withArgs(normalEndowId, "ignoreUserSplits")
-    //       .to.emit(facet, "EndowmentUpdated")
-    //       .withArgs(normalEndowId);
+    it("updates all charity settings except rebalance", async () => {
+      await expect(facet.updateEndowmentDetails(charityReq))
+        .to.emit(facet, "EndowmentUpdated")
+        .withArgs(charityReq.id);
 
-    //     const updated = await state.getEndowmentDetails(normalEndowId);
+      const updated = await state.getEndowmentDetails(charityReq.id);
 
-    //     expect(updated.allowlistedBeneficiaries).to.have.same.members(
-    //       normalEndowReq.allowlistedBeneficiaries.map((x) => x.toString())
-    //     );
-    //     expect(updated.allowlistedContributors).to.have.same.members(
-    //       normalEndowReq.allowlistedContributors.map((x) => x.toString())
-    //     );
-    //     expect(updated.donationMatchActive).to.equal(oldNormalEndow.donationMatchActive);
-    //     expect(updated.ignoreUserSplits).to.equal(normalEndowReq.ignoreUserSplits);
-    //     expect(updated.maturityAllowlist).to.contain.members(
-    //       normalEndowReq.maturity_allowlist_add.map((x) => x.toString())
-    //     );
-    //     expect(updated.maturityAllowlist).to.not.contain.members(
-    //       normalEndowReq.maturity_allowlist_remove.map((x) => x.toString())
-    //     );
-    //     expect(updated.maturityTime).to.equal(normalEndowReq.maturityTime);
-    //     expect(updated.splitToLiquid.defaultSplit).to.equal(
-    //       normalEndowReq.splitToLiquid.defaultSplit
-    //     );
-    //     expect(updated.splitToLiquid.max).to.equal(normalEndowReq.splitToLiquid.max);
-    //     expect(updated.splitToLiquid.min).to.equal(normalEndowReq.splitToLiquid.min);
-    //   });
-    // });
+      expect(updated.image).to.equal(charityReq.image);
+      expect(updated.logo).to.equal(charityReq.logo);
+      expect(updated.name).to.equal(charityReq.name);
+      expect(updated.owner).to.equal(charityReq.owner);
+      expect(updated.rebalance).to.equalRebalance(oldCharity.rebalance);
+      expect(updated.sdgs.map((x) => x.toNumber())).to.have.same.ordered.members(
+        [...charityReq.sdgs].sort()
+      );
+    });
 
-    // describe("updateEndowmentController", () => {
-    //   const settPermStruct: LibAccounts.SettingsPermissionStruct = {
-    //     locked: true,
-    //     delegate: {
-    //       addr: genWallet().address,
-    //       expires: 100,
-    //     },
-    //   };
-    //   const charityReq: AccountMessages.UpdateEndowmentControllerRequestStruct = {
-    //     id: charityId,
-    //     settingsController: {
-    //       acceptedTokens: settPermStruct,
-    //       lockedInvestmentManagement: settPermStruct,
-    //       liquidInvestmentManagement: settPermStruct,
-    //       allowlistedBeneficiaries: settPermStruct,
-    //       allowlistedContributors: settPermStruct,
-    //       maturityAllowlist: settPermStruct,
-    //       maturityTime: settPermStruct,
-    //       earlyLockedWithdrawFee: settPermStruct,
-    //       withdrawFee: settPermStruct,
-    //       depositFee: settPermStruct,
-    //       balanceFee: settPermStruct,
-    //       name: settPermStruct,
-    //       image: settPermStruct,
-    //       logo: settPermStruct,
-    //       sdgs: settPermStruct,
-    //       splitToLiquid: settPermStruct,
-    //       ignoreUserSplits: settPermStruct,
-    //     },
-    //   };
-    //   const normalEndowReq: AccountMessages.UpdateEndowmentControllerRequestStruct = {
-    //     ...charityReq,
-    //     id: normalEndowId,
-    //   };
+    it("updates all normal endowment settings including rebalance", async () => {
+      await expect(facet.updateEndowmentDetails(normalEndowReq))
+        .to.emit(facet, "EndowmentUpdated")
+        .withArgs(normalEndowReq.id);
 
-    //   it("reverts if the endowment is closed", async () => {
-    //     await state.setClosingEndowmentState(charityReq.id, true, {
-    //       enumData: 0,
-    //       data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
-    //     });
-    //     await expect(facet.updateEndowmentController(charityReq)).to.be.revertedWith(
-    //       "UpdatesAfterClosed"
-    //     );
-    //   });
+      const updated = await state.getEndowmentDetails(normalEndowReq.id);
 
-    //   it("reverts if the sender is not the owner of the endowment", async () => {
-    //     await expect(facet.connect(owner).updateEndowmentController(charityReq)).to.be.revertedWith(
-    //       "Unauthorized"
-    //     );
-    //   });
+      expect(updated.image).to.equal(normalEndowReq.image);
+      expect(updated.logo).to.equal(normalEndowReq.logo);
+      expect(updated.name).to.equal(normalEndowReq.name);
+      expect(updated.owner).to.equal(normalEndowReq.owner);
+      expect(updated.rebalance).to.equalRebalance(normalEndowReq.rebalance);
+      expect(updated.sdgs.map((x) => x.toNumber())).to.have.same.members(normalEndowReq.sdgs);
+    });
 
-    //   it("changes nothing in charity controller if fields cannot be changed", async () => {
-    //     const lockedCharity = await lockSettings(charityId, oldCharity);
+    it("ignores updates to charity owner when new owner is zero address", async () => {
+      const request: AccountMessages.UpdateEndowmentDetailsRequestStruct = {
+        ...charityReq,
+        owner: ethers.constants.AddressZero,
+      };
 
-    //     await expect(facet.updateEndowmentController(charityReq))
-    //       .to.emit(facet, "EndowmentSettingUpdated")
-    //       .withArgs(charityReq.id, "endowmentController")
-    //       .to.emit(facet, "EndowmentUpdated")
-    //       .withArgs(charityReq.id);
+      await facet.updateEndowmentDetails(request);
 
-    //     const updated = await state.getEndowmentDetails(charityReq.id);
+      const updated = await state.getEndowmentDetails(request.id);
 
-    //     expect(updated.settingsController.acceptedTokens).to.equalSettingsPermission(
-    //       lockedCharity.settingsController.acceptedTokens
-    //     );
-    //     expect(updated.settingsController.lockedInvestmentManagement).to.equalSettingsPermission(
-    //       lockedCharity.settingsController.lockedInvestmentManagement
-    //     );
-    //     expect(updated.settingsController.liquidInvestmentManagement).to.equalSettingsPermission(
-    //       lockedCharity.settingsController.liquidInvestmentManagement
-    //     );
-    //     expect(updated.settingsController.allowlistedBeneficiaries).to.equalSettingsPermission(
-    //       lockedCharity.settingsController.allowlistedBeneficiaries
-    //     );
-    //     expect(updated.settingsController.allowlistedContributors).to.equalSettingsPermission(
-    //       lockedCharity.settingsController.allowlistedContributors
-    //     );
-    //     expect(updated.settingsController.maturityAllowlist).to.equalSettingsPermission(
-    //       lockedCharity.settingsController.maturityAllowlist
-    //     );
-    //     expect(updated.settingsController.maturityTime).to.equalSettingsPermission(
-    //       lockedCharity.settingsController.maturityTime
-    //     );
-    //     expect(updated.settingsController.earlyLockedWithdrawFee).to.equalSettingsPermission(
-    //       lockedCharity.settingsController.earlyLockedWithdrawFee
-    //     );
-    //     expect(updated.settingsController.withdrawFee).to.equalSettingsPermission(
-    //       lockedCharity.settingsController.withdrawFee
-    //     );
-    //     expect(updated.settingsController.depositFee).to.equalSettingsPermission(
-    //       lockedCharity.settingsController.depositFee
-    //     );
-    //     expect(updated.settingsController.balanceFee).to.equalSettingsPermission(
-    //       lockedCharity.settingsController.balanceFee
-    //     );
-    //     expect(updated.settingsController.name).to.equalSettingsPermission(
-    //       lockedCharity.settingsController.name
-    //     );
-    //     expect(updated.settingsController.image).to.equalSettingsPermission(
-    //       lockedCharity.settingsController.image
-    //     );
-    //     expect(updated.settingsController.logo).to.equalSettingsPermission(
-    //       lockedCharity.settingsController.logo
-    //     );
-    //     expect(updated.settingsController.sdgs).to.equalSettingsPermission(
-    //       lockedCharity.settingsController.sdgs
-    //     );
-    //     expect(updated.settingsController.splitToLiquid).to.equalSettingsPermission(
-    //       lockedCharity.settingsController.splitToLiquid
-    //     );
-    //     expect(updated.settingsController.ignoreUserSplits).to.equalSettingsPermission(
-    //       lockedCharity.settingsController.ignoreUserSplits
-    //     );
-    //   });
+      expect(updated.owner).to.equal(oldCharity.owner);
+    });
 
-    //   it("changes nothing in normal endowment controller if fields cannot be changed", async () => {
-    //     const lockedNormalEndow = await lockSettings(normalEndowId, oldNormalEndow);
+    it("ignores updates to charity owner when new owner is neither DAO nor MultiSig address", async () => {
+      const request: AccountMessages.UpdateEndowmentDetailsRequestStruct = {
+        ...charityReq,
+        owner: genWallet().address,
+      };
 
-    //     await expect(facet.updateEndowmentController(normalEndowReq))
-    //       .to.emit(facet, "EndowmentSettingUpdated")
-    //       .withArgs(normalEndowReq.id, "endowmentController")
-    //       .to.emit(facet, "EndowmentUpdated")
-    //       .withArgs(normalEndowReq.id);
+      await facet.updateEndowmentDetails(request);
 
-    //     const updated = await state.getEndowmentDetails(normalEndowReq.id);
+      const updated = await state.getEndowmentDetails(request.id);
 
-    //     expect(updated.settingsController.acceptedTokens).to.equalSettingsPermission(
-    //       lockedNormalEndow.settingsController.acceptedTokens
-    //     );
-    //     expect(updated.settingsController.lockedInvestmentManagement).to.equalSettingsPermission(
-    //       lockedNormalEndow.settingsController.lockedInvestmentManagement
-    //     );
-    //     expect(updated.settingsController.liquidInvestmentManagement).to.equalSettingsPermission(
-    //       lockedNormalEndow.settingsController.liquidInvestmentManagement
-    //     );
-    //     expect(updated.settingsController.allowlistedBeneficiaries).to.equalSettingsPermission(
-    //       lockedNormalEndow.settingsController.allowlistedBeneficiaries
-    //     );
-    //     expect(updated.settingsController.allowlistedContributors).to.equalSettingsPermission(
-    //       lockedNormalEndow.settingsController.allowlistedContributors
-    //     );
-    //     expect(updated.settingsController.maturityAllowlist).to.equalSettingsPermission(
-    //       lockedNormalEndow.settingsController.maturityAllowlist
-    //     );
-    //     expect(updated.settingsController.maturityTime).to.equalSettingsPermission(
-    //       lockedNormalEndow.settingsController.maturityTime
-    //     );
-    //     expect(updated.settingsController.earlyLockedWithdrawFee).to.equalSettingsPermission(
-    //       lockedNormalEndow.settingsController.earlyLockedWithdrawFee
-    //     );
-    //     expect(updated.settingsController.withdrawFee).to.equalSettingsPermission(
-    //       lockedNormalEndow.settingsController.withdrawFee
-    //     );
-    //     expect(updated.settingsController.depositFee).to.equalSettingsPermission(
-    //       lockedNormalEndow.settingsController.depositFee
-    //     );
-    //     expect(updated.settingsController.balanceFee).to.equalSettingsPermission(
-    //       lockedNormalEndow.settingsController.balanceFee
-    //     );
-    //     expect(updated.settingsController.name).to.equalSettingsPermission(
-    //       lockedNormalEndow.settingsController.name
-    //     );
-    //     expect(updated.settingsController.image).to.equalSettingsPermission(
-    //       lockedNormalEndow.settingsController.image
-    //     );
-    //     expect(updated.settingsController.logo).to.equalSettingsPermission(
-    //       lockedNormalEndow.settingsController.logo
-    //     );
-    //     expect(updated.settingsController.sdgs).to.equalSettingsPermission(
-    //       lockedNormalEndow.settingsController.sdgs
-    //     );
-    //     expect(updated.settingsController.splitToLiquid).to.equalSettingsPermission(
-    //       lockedNormalEndow.settingsController.splitToLiquid
-    //     );
-    //     expect(updated.settingsController.ignoreUserSplits).to.equalSettingsPermission(
-    //       lockedNormalEndow.settingsController.ignoreUserSplits
-    //     );
-    //   });
+      expect(updated.owner).to.equal(oldCharity.owner);
+    });
 
-    //   it("updates all charity's controllers", async () => {
-    //     await expect(facet.updateEndowmentController(charityReq))
-    //       .to.emit(facet, "EndowmentSettingUpdated")
-    //       .withArgs(charityReq.id, "endowmentController")
-    //       .to.emit(facet, "EndowmentUpdated")
-    //       .withArgs(charityReq.id);
+    it("ignores updates to normal endowment owner when new owner is zero address", async () => {
+      const request: AccountMessages.UpdateEndowmentDetailsRequestStruct = {
+        ...normalEndowReq,
+        owner: ethers.constants.AddressZero,
+      };
 
-    //     const updated = await state.getEndowmentDetails(charityReq.id);
+      await facet.updateEndowmentDetails(request);
 
-    //     expect(updated.settingsController.acceptedTokens).to.equalSettingsPermission(
-    //       charityReq.settingsController.acceptedTokens
-    //     );
-    //     expect(updated.settingsController.lockedInvestmentManagement).to.equalSettingsPermission(
-    //       charityReq.settingsController.lockedInvestmentManagement
-    //     );
-    //     expect(updated.settingsController.liquidInvestmentManagement).to.equalSettingsPermission(
-    //       charityReq.settingsController.liquidInvestmentManagement
-    //     );
-    //     expect(updated.settingsController.allowlistedBeneficiaries).to.equalSettingsPermission(
-    //       charityReq.settingsController.allowlistedBeneficiaries
-    //     );
-    //     expect(updated.settingsController.allowlistedContributors).to.equalSettingsPermission(
-    //       charityReq.settingsController.allowlistedContributors
-    //     );
-    //     expect(updated.settingsController.maturityAllowlist).to.equalSettingsPermission(
-    //       charityReq.settingsController.maturityAllowlist
-    //     );
-    //     expect(updated.settingsController.maturityTime).to.equalSettingsPermission(
-    //       charityReq.settingsController.maturityTime
-    //     );
-    //     expect(updated.settingsController.earlyLockedWithdrawFee).to.equalSettingsPermission(
-    //       oldCharity.settingsController.earlyLockedWithdrawFee
-    //     );
-    //     expect(updated.settingsController.withdrawFee).to.equalSettingsPermission(
-    //       charityReq.settingsController.withdrawFee
-    //     );
-    //     expect(updated.settingsController.depositFee).to.equalSettingsPermission(
-    //       charityReq.settingsController.depositFee
-    //     );
-    //     expect(updated.settingsController.balanceFee).to.equalSettingsPermission(
-    //       charityReq.settingsController.balanceFee
-    //     );
-    //     expect(updated.settingsController.name).to.equalSettingsPermission(
-    //       charityReq.settingsController.name
-    //     );
-    //     expect(updated.settingsController.image).to.equalSettingsPermission(
-    //       charityReq.settingsController.image
-    //     );
-    //     expect(updated.settingsController.logo).to.equalSettingsPermission(
-    //       charityReq.settingsController.logo
-    //     );
-    //     expect(updated.settingsController.sdgs).to.equalSettingsPermission(
-    //       charityReq.settingsController.sdgs
-    //     );
-    //     expect(updated.settingsController.splitToLiquid).to.equalSettingsPermission(
-    //       charityReq.settingsController.splitToLiquid
-    //     );
-    //     expect(updated.settingsController.ignoreUserSplits).to.equalSettingsPermission(
-    //       charityReq.settingsController.ignoreUserSplits
-    //     );
-    //   });
+      const updated = await state.getEndowmentDetails(request.id);
 
-    //   it("updates all normal endowment's controllers", async () => {
-    //     await expect(facet.updateEndowmentController(normalEndowReq))
-    //       .to.emit(facet, "EndowmentSettingUpdated")
-    //       .withArgs(normalEndowReq.id, "endowmentController")
-    //       .to.emit(facet, "EndowmentUpdated")
-    //       .withArgs(normalEndowReq.id);
+      expect(updated.owner).to.equal(oldCharity.owner);
+    });
 
-    //     const updated = await state.getEndowmentDetails(normalEndowReq.id);
+    it("ignores updates to normal endowment owner when new owner is neither DAO nor MultiSig address", async () => {
+      const request: AccountMessages.UpdateEndowmentDetailsRequestStruct = {
+        ...normalEndowReq,
+        owner: genWallet().address,
+      };
 
-    //     expect(updated.settingsController.acceptedTokens).to.equalSettingsPermission(
-    //       normalEndowReq.settingsController.acceptedTokens
-    //     );
-    //     expect(updated.settingsController.lockedInvestmentManagement).to.equalSettingsPermission(
-    //       normalEndowReq.settingsController.lockedInvestmentManagement
-    //     );
-    //     expect(updated.settingsController.liquidInvestmentManagement).to.equalSettingsPermission(
-    //       normalEndowReq.settingsController.liquidInvestmentManagement
-    //     );
-    //     expect(updated.settingsController.allowlistedBeneficiaries).to.equalSettingsPermission(
-    //       normalEndowReq.settingsController.allowlistedBeneficiaries
-    //     );
-    //     expect(updated.settingsController.allowlistedContributors).to.equalSettingsPermission(
-    //       normalEndowReq.settingsController.allowlistedContributors
-    //     );
-    //     expect(updated.settingsController.maturityAllowlist).to.equalSettingsPermission(
-    //       normalEndowReq.settingsController.maturityAllowlist
-    //     );
-    //     expect(updated.settingsController.maturityTime).to.equalSettingsPermission(
-    //       normalEndowReq.settingsController.maturityTime
-    //     );
-    //     expect(updated.settingsController.earlyLockedWithdrawFee).to.equalSettingsPermission(
-    //       oldNormalEndow.settingsController.earlyLockedWithdrawFee
-    //     );
-    //     expect(updated.settingsController.withdrawFee).to.equalSettingsPermission(
-    //       normalEndowReq.settingsController.withdrawFee
-    //     );
-    //     expect(updated.settingsController.depositFee).to.equalSettingsPermission(
-    //       normalEndowReq.settingsController.depositFee
-    //     );
-    //     expect(updated.settingsController.balanceFee).to.equalSettingsPermission(
-    //       normalEndowReq.settingsController.balanceFee
-    //     );
-    //     expect(updated.settingsController.name).to.equalSettingsPermission(
-    //       normalEndowReq.settingsController.name
-    //     );
-    //     expect(updated.settingsController.image).to.equalSettingsPermission(
-    //       normalEndowReq.settingsController.image
-    //     );
-    //     expect(updated.settingsController.logo).to.equalSettingsPermission(
-    //       normalEndowReq.settingsController.logo
-    //     );
-    //     expect(updated.settingsController.sdgs).to.equalSettingsPermission(
-    //       normalEndowReq.settingsController.sdgs
-    //     );
-    //     expect(updated.settingsController.splitToLiquid).to.equalSettingsPermission(
-    //       normalEndowReq.settingsController.splitToLiquid
-    //     );
-    //     expect(updated.settingsController.ignoreUserSplits).to.equalSettingsPermission(
-    //       normalEndowReq.settingsController.ignoreUserSplits
-    //     );
-    //   });
-    // });
+      await facet.updateEndowmentDetails(request);
 
-    // describe("updateFeeSettings", () => {
-    //   const defaultFee: LibAccounts.FeeSettingStruct = {
-    //     bps: 2000,
-    //     payoutAddress: genWallet().address,
-    //   };
-    //   const request: AccountMessages.UpdateFeeSettingRequestStruct = {
-    //     id: normalEndowId,
-    //     earlyLockedWithdrawFee: defaultFee,
-    //     depositFee: defaultFee,
-    //     withdrawFee: defaultFee,
-    //     balanceFee: defaultFee,
-    //   };
+      const updated = await state.getEndowmentDetails(request.id);
 
-    //   it("reverts if updating charity fees", async () => {
-    //     await expect(
-    //       facet.connect(owner).updateFeeSettings({...request, id: charityId})
-    //     ).to.be.revertedWith("Charity Endowments may not change endowment fees");
-    //   });
-
-    //   it("reverts if the endowment is closed", async () => {
-    //     await state.setClosingEndowmentState(request.id, true, {
-    //       enumData: 0,
-    //       data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
-    //     });
-    //     await expect(facet.updateFeeSettings(request)).to.be.revertedWith("UpdatesAfterClosed");
-    //   });
-
-    //   it("changes nothing in endowment fees if fields cannot be changed", async () => {
-    //     const lockedNormalEndow = await lockSettings(normalEndowId, oldNormalEndow);
-
-    //     await expect(facet.updateFeeSettings(request))
-    //       .to.emit(facet, "EndowmentUpdated")
-    //       .withArgs(request.id);
-
-    //     const updated = await state.getEndowmentDetails(request.id);
-
-    //     expect(updated.earlyLockedWithdrawFee).to.equalFee(lockedNormalEndow.earlyLockedWithdrawFee);
-    //     expect(updated.withdrawFee).to.equalFee(lockedNormalEndow.withdrawFee);
-    //     expect(updated.depositFee).to.equalFee(lockedNormalEndow.depositFee);
-    //     expect(updated.balanceFee).to.equalFee(lockedNormalEndow.balanceFee);
-    //   });
-
-    //   it("updates all normal endowment's controllers", async () => {
-    //     await expect(facet.updateFeeSettings(request))
-    //       .to.emit(facet, "EndowmentUpdated")
-    //       .withArgs(request.id);
-
-    //     const updated = await state.getEndowmentDetails(request.id);
-
-    //     expect(updated.earlyLockedWithdrawFee).to.equalFee(request.earlyLockedWithdrawFee);
-    //     expect(updated.withdrawFee).to.equalFee(request.withdrawFee);
-    //     expect(updated.depositFee).to.equalFee(request.depositFee);
-    //     expect(updated.balanceFee).to.equalFee(request.balanceFee);
-    //   });
+      expect(updated.owner).to.equal(oldCharity.owner);
+    });
   });
 });
