@@ -60,7 +60,6 @@ export const DEFAULT_CHARITY_ENDOWMENT: AccountStorage.EndowmentStruct = {
     principleDistribution: 0,
     basis: 100,
   },
-  pendingRedemptions: 0,
   proposalLink: 0,
   multisig: ethers.constants.AddressZero,
   dao: ethers.constants.AddressZero,

@@ -26,4 +26,5 @@ interface IAccountsEvents {
   event EndowmentInvested(IVault.VaultActionStatus);
   event EndowmentRedeemed(IVault.VaultActionStatus);
   event RefundNeeded(IVault.VaultActionData);
+  event UnexpectedTokens(IVault.VaultActionData);
 }
