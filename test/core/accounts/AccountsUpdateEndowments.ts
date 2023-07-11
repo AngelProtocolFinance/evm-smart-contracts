@@ -121,19 +121,6 @@ describe("AccountsUpdateEndowments", function () {
     return lockedEndow;
   }
 
-  /**
-   * Returns the passed-in endowment with all settings locked
-   * @param endow endowment to copy
-   * @returns the endowment copy with all settings locked
-   */
-  async function getLockedEndow(
-    endow: AccountStorage.EndowmentStruct
-  ): Promise<AccountStorage.EndowmentStruct> {
-    const lockedEndow: AccountStorage.EndowmentStruct = deepCopy(endow);
-    Object.values(lockedEndow.settingsController).forEach((setting) => (setting.locked = true));
-    return lockedEndow;
-  }
-
   before(async function () {
     const signers = await getSigners(hre);
     accOwner = signers.apTeam1;
