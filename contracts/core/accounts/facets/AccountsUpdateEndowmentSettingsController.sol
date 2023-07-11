@@ -152,7 +152,6 @@ contract AccountsUpdateEndowmentSettingsController is
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
 
     require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
-    require(msg.sender == tempEndowment.owner, "Unauthorized");
 
     if (
       Validator.canChange(
