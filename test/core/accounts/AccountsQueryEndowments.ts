@@ -132,24 +132,7 @@ describe("AccountsQueryEndowments", function () {
       expect(endowmentDetails.name).to.equal(DEFAULT_CHARITY_ENDOWMENT.name);
       expect(endowmentDetails.parent).to.equal(DEFAULT_CHARITY_ENDOWMENT.parent);
       expect(endowmentDetails.proposalLink).to.equal(DEFAULT_CHARITY_ENDOWMENT.proposalLink);
-      expect(endowmentDetails.rebalance.basis).to.deep.equal(
-        DEFAULT_CHARITY_ENDOWMENT.rebalance.basis
-      );
-      expect(endowmentDetails.rebalance.interestDistribution).to.deep.equal(
-        DEFAULT_CHARITY_ENDOWMENT.rebalance.interestDistribution
-      );
-      expect(endowmentDetails.rebalance.lockedPrincipleToLiquid).to.deep.equal(
-        DEFAULT_CHARITY_ENDOWMENT.rebalance.lockedPrincipleToLiquid
-      );
-      expect(endowmentDetails.rebalance.lockedRebalanceToLiquid).to.deep.equal(
-        DEFAULT_CHARITY_ENDOWMENT.rebalance.lockedRebalanceToLiquid
-      );
-      expect(endowmentDetails.rebalance.principleDistribution).to.deep.equal(
-        DEFAULT_CHARITY_ENDOWMENT.rebalance.principleDistribution
-      );
-      expect(endowmentDetails.rebalance.rebalanceLiquidProfits).to.deep.equal(
-        DEFAULT_CHARITY_ENDOWMENT.rebalance.rebalanceLiquidProfits
-      );
+      expect(endowmentDetails.rebalance).to.equalRebalance(DEFAULT_CHARITY_ENDOWMENT.rebalance);
       expect(endowmentDetails.referralId).to.equal(DEFAULT_CHARITY_ENDOWMENT.referralId);
       expect(endowmentDetails.sdgs).to.have.same.deep.members(
         DEFAULT_CHARITY_ENDOWMENT.sdgs.map((x) => BigNumber.from(x))

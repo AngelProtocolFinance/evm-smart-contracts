@@ -241,22 +241,7 @@ describe("AccountsUpdateEndowments", function () {
       expect(updated.logo).to.equal(charityReq.logo);
       expect(updated.name).to.equal(charityReq.name);
       expect(updated.owner).to.equal(oldCharity.owner);
-      expect(updated.rebalance.basis).to.equal(oldCharity.rebalance.basis);
-      expect(updated.rebalance.interestDistribution).to.equal(
-        oldCharity.rebalance.interestDistribution
-      );
-      expect(updated.rebalance.lockedPrincipleToLiquid).to.equal(
-        oldCharity.rebalance.lockedPrincipleToLiquid
-      );
-      expect(updated.rebalance.lockedRebalanceToLiquid).to.equal(
-        oldCharity.rebalance.lockedRebalanceToLiquid
-      );
-      expect(updated.rebalance.principleDistribution).to.equal(
-        oldCharity.rebalance.principleDistribution
-      );
-      expect(updated.rebalance.rebalanceLiquidProfits).to.equal(
-        oldCharity.rebalance.rebalanceLiquidProfits
-      );
+      expect(updated.rebalance).to.equalRebalance(oldCharity.rebalance);
       expect(updated.sdgs.map((x) => x.toNumber())).to.have.same.ordered.members(
         [...charityReq.sdgs].sort()
       );
@@ -275,22 +260,7 @@ describe("AccountsUpdateEndowments", function () {
       expect(updated.logo).to.equal(normalEndowReq.logo);
       expect(updated.name).to.equal(normalEndowReq.name);
       expect(updated.owner).to.equal(oldNormalEndow.owner);
-      expect(updated.rebalance.basis).to.equal(oldNormalEndow.rebalance.basis);
-      expect(updated.rebalance.interestDistribution).to.equal(
-        oldNormalEndow.rebalance.interestDistribution
-      );
-      expect(updated.rebalance.lockedPrincipleToLiquid).to.equal(
-        oldNormalEndow.rebalance.lockedPrincipleToLiquid
-      );
-      expect(updated.rebalance.lockedRebalanceToLiquid).to.equal(
-        oldNormalEndow.rebalance.lockedRebalanceToLiquid
-      );
-      expect(updated.rebalance.principleDistribution).to.equal(
-        oldNormalEndow.rebalance.principleDistribution
-      );
-      expect(updated.rebalance.rebalanceLiquidProfits).to.equal(
-        oldNormalEndow.rebalance.rebalanceLiquidProfits
-      );
+      expect(updated.rebalance).to.equalRebalance(oldNormalEndow.rebalance);
       expect(updated.sdgs.map((x) => x.toNumber())).to.have.same.members(normalEndowReq.sdgs);
     });
 
