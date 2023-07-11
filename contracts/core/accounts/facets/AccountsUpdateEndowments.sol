@@ -35,23 +35,6 @@ contract AccountsUpdateEndowments is
 
     require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
 
-    // there are several fields that are restricted to changing only by the Endowment Owner
-    if (msg.sender == tempEndowment.owner) {
-      // An Endowment's owner can be set as the gov dao OR the endowment multisig contract
-      // >> MAYBE IT WOULD BE PREFERRABLE TO HAVE THIS TURNED INTO A `require(..., "InvalidAddress)`
-      // AS OTHERWISE THE CALLER WOULD EXPECT FOR THE `owner` TO BE UPDATED
-      if (
-        details.owner != address(0) &&
-        (details.owner == tempEndowment.dao || details.owner == tempEndowment.multisig)
-      ) {
-        tempEndowment.owner = details.owner;
-      }
-
-      if (tempEndowment.endowType != LibAccounts.EndowmentType.Charity) {
-        tempEndowment.rebalance = details.rebalance;
-      }
-    }
-
     if (
       Validator.canChange(
         tempEndowment.settingsController.name,
@@ -106,6 +89,31 @@ contract AccountsUpdateEndowments is
       )
     ) {
       tempEndowment.image = details.image;
+    }
+
+    // there are several fields that are restricted to changing only by the Endowment Owner
+    if (msg.sender == tempEndowment.owner) {
+      // Field `owner` MUST be updated *last*, as otherwise no other endowment field would be updateable due to following:
+      // 1. Current owner (multisig) sends request to update endowment owner to DAO address and let's say it
+      // also wants to update `image`
+      // 2. Field `image` has no delegate and is unlocked, so only `owner` can update it
+      // 3. Owner update check passes and is updated to DAO address
+      // 4. Contract gets to updating `image`, but first needs to check whether the field can be updated
+      // 5. It sees that the current sender (previous owner, Multisig) is NOT the current owner of the endowment
+      //    (as it was updated in the previous step to DAO address)
+      // 6. Check for `image` fails and the update is skipped
+      if (
+        details.owner != address(0) &&
+        (details.owner == tempEndowment.dao || details.owner == tempEndowment.multisig)
+      ) {
+        tempEndowment.owner = details.owner;
+      }
+      // >> MAYBE IT WOULD BE PREFERRABLE TO HAVE THE PREVIOUS `owner` CHECK TURNED INTO
+      // A `require(..., "InvalidAddress)`, AS OTHERWISE THE CALLER WOULD EXPECT FOR THE `owner` TO BE UPDATED
+
+      if (tempEndowment.endowType != LibAccounts.EndowmentType.Charity) {
+        tempEndowment.rebalance = details.rebalance;
+      }
     }
 
     state.ENDOWMENTS[details.id] = tempEndowment;
