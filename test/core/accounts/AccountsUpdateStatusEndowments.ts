@@ -46,7 +46,6 @@ describe("AccountsUpdateStatusEndowments", function () {
   let state: TestFacetProxyContract;
   let endowment: AccountStorage.EndowmentStruct;
   let treasuryAddress: string;
-
   let registrarFake: FakeContract<Registrar>;
   let indexFundFake: FakeContract<IndexFund>;
 
@@ -71,6 +70,7 @@ describe("AccountsUpdateStatusEndowments", function () {
     registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
       address: genWallet().address,
     });
+
     const config: RegistrarStorage.ConfigStruct = {
       ...DEFAULT_REGISTRAR_CONFIG,
       indexFundContract: indexFundFake.address,

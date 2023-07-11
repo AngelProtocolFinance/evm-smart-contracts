@@ -17,6 +17,7 @@ import {
   updateRegistrarConfig,
   updateRegistrarNetworkConnections,
 } from "../helpers";
+import {deployGasFwd} from "contracts/core/gasFwd/scripts/deploy";
 
 task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
   .addFlag("skipVerify", "Skip contract verification")
@@ -68,6 +69,15 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
         hre
       );
 
+      const gasFwd = await deployGasFwd(
+        {
+          deployer: deployer,
+          admin: proxyAdmin,
+          registrar: registrar?.address,
+        },
+        hre
+      );
+
       // const emitters = await deployEmitters(accountsDiamond.address, hre);
 
       const charityApplications = await deployCharityApplications(
@@ -99,6 +109,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
           proxyAdmin: proxyAdmin.address, //address
           usdcAddress: thirdPartyAddresses.usdcToken.address,
           wMaticAddress: thirdPartyAddresses.wmaticToken.address,
+          gasFwdFactory: gasFwd?.address,
         },
         hre
       );
@@ -125,6 +136,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
           endowmentMultiSig?.emitter,
           endowmentMultiSig?.factory,
           endowmentMultiSig?.implementation,
+          gasFwd,
         ];
 
         for (const deployment of deployments) {

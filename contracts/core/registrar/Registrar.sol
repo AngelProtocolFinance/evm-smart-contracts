@@ -59,7 +59,8 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       proxyAdmin: address(0),
       usdcAddress: address(0),
       wMaticAddress: address(0),
-      cw900lvAddress: address(0)
+      cw900lvAddress: address(0),
+      gasFwdFactory: address(0)
     });
     emit ConfigUpdated();
 
@@ -211,6 +212,10 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
 
     if (Validator.addressChecker(details.cw900lvAddress)) {
       state.config.cw900lvAddress = details.cw900lvAddress;
+    }
+
+    if (Validator.addressChecker(details.gasFwdFactory)) {
+      state.config.gasFwdFactory = details.gasFwdFactory;
     }
     // state.config.acceptedTokens = LibAccounts.AcceptedTokens({
     //     native: details.accepted_tokens_native,
