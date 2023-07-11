@@ -37,6 +37,7 @@ contract AccountsUpdateStatusEndowments is
     require(msg.sender == tempEndowment.owner, "Unauthorized");
     require(!state.STATES[id].closingEndowment, "Endowment is closed");
     require(tempEndowment.pendingRedemptions == 0, "RedemptionInProgress");
+    require(checkFullyExited(uint32(id)), "Not fully exited");
 
     RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
       .queryConfig();
@@ -73,9 +74,6 @@ contract AccountsUpdateStatusEndowments is
 
     state.STATES[id].closingEndowment = true;
     state.STATES[id].closingBeneficiary = beneficiary;
-
-    require(checkFullyExited(uint32(id)), "Not fully exited");
-    state.ENDOWMENTS[id] = tempEndowment;
   }
 
   function checkFullyExited(uint32 id) internal view returns (bool) {
