@@ -62,7 +62,7 @@ describe("AccountsAllowance", function () {
 
     it("reverts when the sender is not the owner", async function () {
       await expect(
-        facet.connect(user).manageAllowances(42, proxyAdmin.address, token.address, 10)
+        facet.connect(user).manageAllowances(42, user.address, token.address, 10)
       ).to.be.revertedWith("Unauthorized");
     });
 
@@ -77,7 +77,7 @@ describe("AccountsAllowance", function () {
     });
 
     it("reverts when the spender is not in allowlist", async function () {
-      await expect(facet.manageAllowances(42, user.address, token.address, 10)).to.be.revertedWith(
+      await expect(facet.manageAllowances(42, proxyAdmin.address, token.address, 10)).to.be.revertedWith(
         "Spender is not in allowlists"
       );
     });
