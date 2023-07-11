@@ -18,6 +18,7 @@ import {
 } from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet, getSigners} from "utils";
 import "../../utils/setup";
+import {BigNumber, BigNumberish} from "ethers";
 
 use(smock.matchers);
 
@@ -27,9 +28,11 @@ describe("AccountsUpdateEndowments", function () {
   const charityId = 1;
   const normalEndowId = 2;
 
-  let owner: SignerWithAddress;
+  let accOwner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
   let endowOwner: SignerWithAddress;
+  let delegate: SignerWithAddress;
+
   let facet: AccountsUpdateEndowments;
   let state: TestFacetProxyContract;
   let oldNormalEndow: AccountStorage.EndowmentStruct;
@@ -38,20 +41,24 @@ describe("AccountsUpdateEndowments", function () {
   let registrarFake: FakeContract<Registrar>;
 
   /**
-   * Locks all endowment's settings in a way that has no side-effects
+   * Updates all endowment's settings' delegate in a way that has no side-effects
    * @param endowId ID of the endowment
-   * @param endow data of the Endowment to store in state
-   * @returns the updated endowment data with all settings locked
+   * @param delegate new delegate to set for all settings
+   * @returns the updated endowment data with all settings' delegates updated
    */
-  async function lockSettings(endowId: number, endow: AccountStorage.EndowmentStruct) {
-    const lockedEndow: AccountStorage.EndowmentStruct = {...endow};
+  async function updateDelegate(endowId: BigNumberish, delegate: string) {
+    const oldEndow = await state.getEndowmentDetails(endowId);
+    const lockedEndow: AccountStorage.EndowmentStruct = {...oldEndow};
     lockedEndow.settingsController = (
       Object.entries(lockedEndow.settingsController) as [
         keyof LibAccounts.SettingsControllerStruct,
         LibAccounts.SettingsPermissionStruct
       ][]
     ).reduce((controller, [key, curSetting]) => {
-      controller[key] = {locked: true, delegate: {...curSetting.delegate}};
+      controller[key] = {
+        locked: curSetting.locked,
+        delegate: {addr: delegate, expires: curSetting.delegate.expires},
+      };
       return controller;
     }, {} as LibAccounts.SettingsControllerStruct);
 
@@ -61,9 +68,10 @@ describe("AccountsUpdateEndowments", function () {
 
   before(async function () {
     const signers = await getSigners(hre);
-    owner = signers.apTeam1;
+    accOwner = signers.apTeam1;
     proxyAdmin = signers.proxyAdmin;
     endowOwner = signers.deployer;
+    delegate = signers.apTeam2;
 
     oldCharity = {
       ...DEFAULT_CHARITY_ENDOWMENT,
@@ -81,12 +89,12 @@ describe("AccountsUpdateEndowments", function () {
       address: genWallet().address,
     });
 
-    let Facet = new AccountsUpdateEndowments__factory(owner);
+    let Facet = new AccountsUpdateEndowments__factory(accOwner);
     let facetImpl = await Facet.deploy();
-    state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
+    state = await deployFacetAsProxy(hre, accOwner, proxyAdmin, facetImpl.address);
 
     await state.setConfig({
-      owner: owner.address,
+      owner: accOwner.address,
       version: "1",
       registrarContract: ethers.constants.AddressZero,
       nextAccountId: 1,
@@ -105,43 +113,38 @@ describe("AccountsUpdateEndowments", function () {
   });
 
   describe("updateEndowmentDetails", () => {
-    let charityReq: AccountMessages.UpdateEndowmentDetailsRequestStruct;
-    let normalEndowReq: AccountMessages.UpdateEndowmentDetailsRequestStruct;
-
-    before(() => {
-      charityReq = {
-        id: charityId,
-        owner: genWallet().address,
-        name: "charity",
-        sdgs: [1, 2],
-        logo: "logo",
-        image: "image",
-        rebalance: {
-          basis: 100,
-          rebalanceLiquidProfits: false,
-          lockedRebalanceToLiquid: 75,
-          interestDistribution: 20,
-          lockedPrincipleToLiquid: false,
-          principleDistribution: 0,
-        },
-      };
-      normalEndowReq = {
-        id: normalEndowId,
-        owner: genWallet().address,
-        name: "normal",
-        sdgs: [3, 4],
-        logo: "logo2",
-        image: "image2",
-        rebalance: {
-          basis: 100,
-          rebalanceLiquidProfits: true,
-          lockedRebalanceToLiquid: 60,
-          interestDistribution: 19,
-          lockedPrincipleToLiquid: true,
-          principleDistribution: 1,
-        },
-      };
-    });
+    const charityReq: AccountMessages.UpdateEndowmentDetailsRequestStruct = {
+      id: charityId,
+      owner: genWallet().address,
+      name: "charity",
+      sdgs: [2, 1],
+      logo: "logo",
+      image: "image",
+      rebalance: {
+        basis: 100,
+        rebalanceLiquidProfits: false,
+        lockedRebalanceToLiquid: 75,
+        interestDistribution: 20,
+        lockedPrincipleToLiquid: false,
+        principleDistribution: 0,
+      },
+    };
+    const normalEndowReq: AccountMessages.UpdateEndowmentDetailsRequestStruct = {
+      id: normalEndowId,
+      owner: genWallet().address,
+      name: "normal",
+      sdgs: [4, 3],
+      logo: "logo2",
+      image: "image2",
+      rebalance: {
+        basis: 100,
+        rebalanceLiquidProfits: true,
+        lockedRebalanceToLiquid: 60,
+        interestDistribution: 19,
+        lockedPrincipleToLiquid: true,
+        principleDistribution: 1,
+      },
+    };
 
     it("reverts if the endowment is closed", async () => {
       await state.setClosingEndowmentState(normalEndowId, true, {
@@ -175,81 +178,121 @@ describe("AccountsUpdateEndowments", function () {
       });
     });
 
-    //   it("changes nothing in charity settings if sender doesn't have necessary permissions", async () => {
-    //     await expect(facet.connect(owner).updateEndowmentDetails(charityReq))
-    //       .to.emit(facet, "EndowmentUpdated")
-    //       .withArgs(charityId);
+    it("changes nothing in charity settings if sender doesn't have necessary permissions", async () => {
+      await expect(facet.connect(accOwner).updateEndowmentDetails(charityReq))
+        .to.emit(facet, "EndowmentUpdated")
+        .withArgs(charityReq.id);
 
-    //     const updated = await state.getEndowmentDetails(charityId);
+      const updated = await state.getEndowmentDetails(charityReq.id);
 
-    //     expect(updated.allowlistedBeneficiaries).to.have.same.members(
-    //       oldCharity.allowlistedBeneficiaries.map((x) => x.toString())
-    //     );
-    //     expect(updated.allowlistedContributors).to.have.same.members(
-    //       oldCharity.allowlistedContributors.map((x) => x.toString())
-    //     );
-    //     expect(updated.donationMatchActive).to.equal(oldCharity.donationMatchActive);
-    //     expect(updated.ignoreUserSplits).to.equal(oldCharity.ignoreUserSplits);
-    //     expect(updated.maturityAllowlist).to.have.same.members(
-    //       oldCharity.maturityAllowlist.map((x) => x.toString())
-    //     );
-    //     expect(updated.maturityTime).to.equal(oldCharity.maturityTime);
-    //     expect(updated.splitToLiquid.defaultSplit).to.equal(oldCharity.splitToLiquid.defaultSplit);
-    //     expect(updated.splitToLiquid.max).to.equal(oldCharity.splitToLiquid.max);
-    //     expect(updated.splitToLiquid.min).to.equal(oldCharity.splitToLiquid.min);
-    //   });
+      expect(updated.allowlistedBeneficiaries).to.have.same.members(
+        oldCharity.allowlistedBeneficiaries.map((x) => x.toString())
+      );
+      expect(updated.allowlistedContributors).to.have.same.members(
+        oldCharity.allowlistedContributors.map((x) => x.toString())
+      );
+      expect(updated.donationMatchActive).to.equal(oldCharity.donationMatchActive);
+      expect(updated.ignoreUserSplits).to.equal(oldCharity.ignoreUserSplits);
+      expect(updated.maturityAllowlist).to.have.same.members(
+        oldCharity.maturityAllowlist.map((x) => x.toString())
+      );
+      expect(updated.maturityTime).to.equal(oldCharity.maturityTime);
+      expect(updated.splitToLiquid.defaultSplit).to.equal(oldCharity.splitToLiquid.defaultSplit);
+      expect(updated.splitToLiquid.max).to.equal(oldCharity.splitToLiquid.max);
+      expect(updated.splitToLiquid.min).to.equal(oldCharity.splitToLiquid.min);
+    });
 
-    //   it("changes nothing in normal endowment settings if sender doesn't have necessary permissions", async () => {
-    //     await expect(facet.connect(owner).updateEndowmentDetails(normalEndowReq))
-    //       .to.emit(facet, "EndowmentUpdated")
-    //       .withArgs(normalEndowId);
+    it("changes nothing in normal endowment settings if sender doesn't have necessary permissions", async () => {
+      await expect(facet.connect(accOwner).updateEndowmentDetails(normalEndowReq))
+        .to.emit(facet, "EndowmentUpdated")
+        .withArgs(normalEndowReq.id);
 
-    //     const updated = await state.getEndowmentDetails(normalEndowId);
+      const updated = await state.getEndowmentDetails(normalEndowReq.id);
 
-    //     expect(updated.allowlistedBeneficiaries).to.have.same.members(
-    //       oldNormalEndow.allowlistedBeneficiaries.map((x) => x.toString())
-    //     );
-    //     expect(updated.allowlistedContributors).to.have.same.members(
-    //       oldNormalEndow.allowlistedContributors.map((x) => x.toString())
-    //     );
-    //     expect(updated.donationMatchActive).to.equal(oldNormalEndow.donationMatchActive);
-    //     expect(updated.ignoreUserSplits).to.equal(oldNormalEndow.ignoreUserSplits);
-    //     expect(updated.maturityAllowlist).to.have.same.members(
-    //       oldNormalEndow.maturityAllowlist.map((x) => x.toString())
-    //     );
-    //     expect(updated.maturityTime).to.equal(oldNormalEndow.maturityTime);
-    //     expect(updated.splitToLiquid.defaultSplit).to.equal(
-    //       oldNormalEndow.splitToLiquid.defaultSplit
-    //     );
-    //     expect(updated.splitToLiquid.max).to.equal(oldNormalEndow.splitToLiquid.max);
-    //     expect(updated.splitToLiquid.min).to.equal(oldNormalEndow.splitToLiquid.min);
-    //   });
+      expect(updated.allowlistedBeneficiaries).to.have.same.members(
+        oldNormalEndow.allowlistedBeneficiaries.map((x) => x.toString())
+      );
+      expect(updated.allowlistedContributors).to.have.same.members(
+        oldNormalEndow.allowlistedContributors.map((x) => x.toString())
+      );
+      expect(updated.donationMatchActive).to.equal(oldNormalEndow.donationMatchActive);
+      expect(updated.ignoreUserSplits).to.equal(oldNormalEndow.ignoreUserSplits);
+      expect(updated.maturityAllowlist).to.have.same.members(
+        oldNormalEndow.maturityAllowlist.map((x) => x.toString())
+      );
+      expect(updated.maturityTime).to.equal(oldNormalEndow.maturityTime);
+      expect(updated.splitToLiquid.defaultSplit).to.equal(
+        oldNormalEndow.splitToLiquid.defaultSplit
+      );
+      expect(updated.splitToLiquid.max).to.equal(oldNormalEndow.splitToLiquid.max);
+      expect(updated.splitToLiquid.min).to.equal(oldNormalEndow.splitToLiquid.min);
+    });
 
-    //   it("updates all charity settings if sender has the necessary permissions", async () => {
-    //     await expect(facet.updateEndowmentDetails(charityReq))
-    //       .to.emit(facet, "EndowmentSettingUpdated")
-    //       .withArgs(charityId, "splitToLiquid")
-    //       .to.emit(facet, "EndowmentSettingUpdated")
-    //       .withArgs(charityId, "ignoreUserSplits")
-    //       .to.emit(facet, "EndowmentUpdated")
-    //       .withArgs(charityId);
+    it("updates all charity settings except those updateable only by owner", async () => {
+      await updateDelegate(await charityReq.id, delegate.address);
 
-    //     const updated = await state.getEndowmentDetails(charityId);
+      await expect(facet.connect(delegate).updateEndowmentDetails(charityReq))
+        .to.emit(facet, "EndowmentUpdated")
+        .withArgs(charityReq.id);
 
-    //     expect(updated.allowlistedBeneficiaries).to.have.same.members(
-    //       oldCharity.allowlistedBeneficiaries.map((x) => x.toString())
-    //     );
-    //     expect(updated.allowlistedContributors).to.have.same.members(
-    //       oldCharity.allowlistedContributors.map((x) => x.toString())
-    //     );
-    //     expect(updated.donationMatchActive).to.equal(oldCharity.donationMatchActive);
-    //     expect(updated.ignoreUserSplits).to.equal(charityReq.ignoreUserSplits);
-    //     expect(updated.maturityAllowlist).to.have.same.members(oldCharity.maturityAllowlist);
-    //     expect(updated.maturityTime).to.equal(oldCharity.maturityTime);
-    //     expect(updated.splitToLiquid.defaultSplit).to.equal(charityReq.splitToLiquid.defaultSplit);
-    //     expect(updated.splitToLiquid.max).to.equal(charityReq.splitToLiquid.max);
-    //     expect(updated.splitToLiquid.min).to.equal(charityReq.splitToLiquid.min);
-    //   });
+      const updated = await state.getEndowmentDetails(charityReq.id);
+
+      expect(updated.image).to.equal(charityReq.image);
+      expect(updated.logo).to.equal(charityReq.logo);
+      expect(updated.name).to.equal(charityReq.name);
+      expect(updated.owner).to.equal(oldCharity.owner);
+      expect(updated.rebalance.basis).to.equal(oldCharity.rebalance.basis);
+      expect(updated.rebalance.interestDistribution).to.equal(
+        oldCharity.rebalance.interestDistribution
+      );
+      expect(updated.rebalance.lockedPrincipleToLiquid).to.equal(
+        oldCharity.rebalance.lockedPrincipleToLiquid
+      );
+      expect(updated.rebalance.lockedRebalanceToLiquid).to.equal(
+        oldCharity.rebalance.lockedRebalanceToLiquid
+      );
+      expect(updated.rebalance.principleDistribution).to.equal(
+        oldCharity.rebalance.principleDistribution
+      );
+      expect(updated.rebalance.rebalanceLiquidProfits).to.equal(
+        oldCharity.rebalance.rebalanceLiquidProfits
+      );
+      expect(updated.sdgs.map((x) => x.toNumber())).to.have.same.ordered.members(
+        [...charityReq.sdgs].sort()
+      );
+    });
+
+    it("updates all normal endowment settings except those updateable only by owner", async () => {
+      await updateDelegate(await normalEndowReq.id, delegate.address);
+
+      await expect(facet.connect(delegate).updateEndowmentDetails(normalEndowReq))
+        .to.emit(facet, "EndowmentUpdated")
+        .withArgs(normalEndowReq.id);
+
+      const updated = await state.getEndowmentDetails(normalEndowReq.id);
+
+      expect(updated.image).to.equal(normalEndowReq.image);
+      expect(updated.logo).to.equal(normalEndowReq.logo);
+      expect(updated.name).to.equal(normalEndowReq.name);
+      expect(updated.owner).to.equal(oldNormalEndow.owner);
+      expect(updated.rebalance.basis).to.equal(oldNormalEndow.rebalance.basis);
+      expect(updated.rebalance.interestDistribution).to.equal(
+        oldNormalEndow.rebalance.interestDistribution
+      );
+      expect(updated.rebalance.lockedPrincipleToLiquid).to.equal(
+        oldNormalEndow.rebalance.lockedPrincipleToLiquid
+      );
+      expect(updated.rebalance.lockedRebalanceToLiquid).to.equal(
+        oldNormalEndow.rebalance.lockedRebalanceToLiquid
+      );
+      expect(updated.rebalance.principleDistribution).to.equal(
+        oldNormalEndow.rebalance.principleDistribution
+      );
+      expect(updated.rebalance.rebalanceLiquidProfits).to.equal(
+        oldNormalEndow.rebalance.rebalanceLiquidProfits
+      );
+      expect(updated.sdgs.map((x) => x.toNumber())).to.have.same.members(normalEndowReq.sdgs);
+    });
 
     //   it("updates all normal endowment settings if sender has the necessary permissions", async () => {
     //     await expect(facet.updateEndowmentDetails(normalEndowReq))
