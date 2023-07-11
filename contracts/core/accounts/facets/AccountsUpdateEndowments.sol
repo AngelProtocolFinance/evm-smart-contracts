@@ -38,6 +38,8 @@ contract AccountsUpdateEndowments is
     // there are several fields that are restricted to changing only by the Endowment Owner
     if (msg.sender == tempEndowment.owner) {
       // An Endowment's owner can be set as the gov dao OR the endowment multisig contract
+      // >> MAYBE IT WOULD BE PREFERRABLE TO HAVE THIS TURNED INTO A `require(..., "InvalidAddress)`
+      // AS OTHERWISE THE CALLER WOULD EXPECT FOR THE `owner` TO BE UPDATED
       if (
         details.owner != address(0) &&
         (details.owner == tempEndowment.dao || details.owner == tempEndowment.multisig)
