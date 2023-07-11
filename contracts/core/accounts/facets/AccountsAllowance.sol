@@ -32,7 +32,10 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[endowId];
 
     require(!state.STATES[endowId].closingEndowment, "Endowment is closed");
-    require(token != address(0) && state.STATES[endowId].balances.liquid[token] > 0, "Invalid Token");
+    require(
+      token != address(0) && state.STATES[endowId].balances.liquid[token] > 0,
+      "Invalid Token"
+    );
 
     // Only the endowment owner or a delegate whom controls the appropriate allowlist can update allowances
     // also need to check that the spender address passed is in an allowlist (based on maturity)
@@ -123,7 +126,10 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
-    require(token != address(0) && state.ALLOWANCES[endowId][token].totalOutstanding > 0, "Invalid Token");
+    require(
+      token != address(0) && state.ALLOWANCES[endowId][token].totalOutstanding > 0,
+      "Invalid Token"
+    );
     require(recipient != address(0), "Invalid recipient address");
     require(amount > 0, "Zero Amount");
     require(
