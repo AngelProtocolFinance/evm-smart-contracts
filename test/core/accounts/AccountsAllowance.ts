@@ -6,8 +6,10 @@ import {
   TestFacetProxyContract,
   AccountsAllowance__factory,
   AccountsAllowance,
+  DummyERC20
 } from "typechain-types";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
+import {getSigners} from "utils";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 
 describe("AccountsAllowance", function () {
@@ -18,15 +20,18 @@ describe("AccountsAllowance", function () {
   let token: DummyERC20;
   let token2: DummyERC20;
 
+  before(async function () {
+    const signers = await getSigners(hre);
+    owner = signers.deployer;
+    proxyAdmin = signers.proxyAdmin;
+    user = signers.apTeam1
+    token = await deployDummyERC20(owner);
+    token2 = await deployDummyERC20(owner);
+  })
+
   describe("Test cases for `manageAllowances`", async function () {
     let facet: AccountsAllowance;
     let proxy: TestFacetProxyContract;
-
-    before(async function () {
-      [owner, proxyAdmin, user] = await ethers.getSigners();
-      token = await deployDummyERC20(owner);
-      token2 = await deployDummyERC20(owner);
-    });
 
     beforeEach(async function () {
       let Facet = new AccountsAllowance__factory(owner);
@@ -105,12 +110,6 @@ describe("AccountsAllowance", function () {
   describe("Test cases for `spendAllowance`", async function () {
     let facet: AccountsAllowance;
     let proxy: TestFacetProxyContract;
-
-    before(async function () {
-      [owner, proxyAdmin, user] = await ethers.getSigners();
-      token = await deployDummyERC20(owner);
-      token2 = await deployDummyERC20(owner);
-    });
 
     beforeEach(async function () {
       let Facet = new AccountsAllowance__factory(owner);
