@@ -22,6 +22,31 @@ import "../../utils/setup";
 import {deepCopy} from "ethers/lib/utils";
 import {PromiseOrValue} from "typechain-types/common";
 
+enum ControllerSettingOption {
+  AcceptedTokens,
+  LockedInvestmentManagement,
+  LiquidInvestmentManagement,
+  AllowlistedBeneficiaries,
+  AllowlistedContributors,
+  MaturityAllowlist,
+  EarlyLockedWithdrawFee,
+  MaturityTime,
+  WithdrawFee,
+  DepositFee,
+  BalanceFee,
+  Name,
+  Image,
+  Logo,
+  Sdgs,
+  SplitToLiquid,
+  IgnoreUserSplits,
+}
+
+enum DelegateAction {
+  Set,
+  Revoke,
+}
+
 use(smock.matchers);
 
 describe("AccountsUpdateEndowments", function () {
@@ -420,6 +445,24 @@ describe("AccountsUpdateEndowments", function () {
       const updated = await state.getEndowmentDetails(request.id);
 
       expect(updated.owner).to.equal(oldCharity.owner);
+    });
+  });
+
+  describe("updateDelegate", () => {
+    it("reverts if the endowment is closed", async () => {
+      await state.setClosingEndowmentState(normalEndowId, true, {
+        enumData: 0,
+        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+      });
+      await expect(
+        facet.updateDelegate(
+          normalEndowId,
+          ControllerSettingOption.AcceptedTokens,
+          DelegateAction.Set,
+          ethers.constants.AddressZero,
+          0
+        )
+      ).to.be.revertedWith("UpdatesAfterClosed");
     });
   });
 });
