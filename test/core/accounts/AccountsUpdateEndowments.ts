@@ -48,7 +48,10 @@ describe("AccountsUpdateEndowments", function () {
    * @param delegate new delegate to set for all settings
    * @returns the updated endowment data with all settings' delegates updated
    */
-  async function updateDelegate(endowId: BigNumberish, delegate: string) {
+  async function updateDelegate(
+    endowId: PromiseOrValue<BigNumberish>,
+    delegate: LibAccounts.DelegateStruct
+  ) {
     const oldEndow = await state.getEndowmentDetails(endowId);
     const lockedEndow: AccountStorage.EndowmentStruct = {...oldEndow};
     lockedEndow.settingsController = (
@@ -59,7 +62,32 @@ describe("AccountsUpdateEndowments", function () {
     ).reduce((controller, [key, curSetting]) => {
       controller[key] = {
         locked: curSetting.locked,
-        delegate: {addr: delegate, expires: curSetting.delegate.expires},
+        delegate: {...delegate},
+      };
+      return controller;
+    }, {} as LibAccounts.SettingsControllerStruct);
+
+    await state.setEndowmentDetails(endowId, lockedEndow);
+    return lockedEndow;
+  }
+
+  /**
+   * Updates all endowment's settings' delegate in a way that has no side-effects
+   * @param endowId ID of the endowment
+   * @returns the updated endowment data with all settings locked
+   */
+  async function lockSettings(endowId: PromiseOrValue<BigNumberish>) {
+    const oldEndow = await state.getEndowmentDetails(endowId);
+    const lockedEndow: AccountStorage.EndowmentStruct = {...oldEndow};
+    lockedEndow.settingsController = (
+      Object.entries(lockedEndow.settingsController) as [
+        keyof LibAccounts.SettingsControllerStruct,
+        LibAccounts.SettingsPermissionStruct
+      ][]
+    ).reduce((controller, [key, curSetting]) => {
+      controller[key] = {
+        locked: true,
+        delegate: {...curSetting.delegate},
       };
       return controller;
     }, {} as LibAccounts.SettingsControllerStruct);
@@ -190,24 +218,92 @@ describe("AccountsUpdateEndowments", function () {
       });
     });
 
-    it("changes nothing in charity settings if sender doesn't have necessary permissions", async () => {
-      await expect(facet.connect(accOwner).updateEndowmentDetails(charityReq))
-        .to.emit(facet, "EndowmentUpdated")
-        .withArgs(charityReq.id);
+    describe("cases with missing permissions", () => {
+      it("changes nothing in charity settings if sender is neither an owner nor delegate", async () => {
+        await expect(facet.connect(accOwner).updateEndowmentDetails(charityReq))
+          .to.emit(facet, "EndowmentUpdated")
+          .withArgs(charityReq.id);
 
-      await expectNothingChanged(state, charityReq.id, oldCharity);
-    });
+        await expectNothingChanged(state, charityReq.id, oldCharity);
+      });
 
-    it("changes nothing in normal endowment settings if sender doesn't have necessary permissions", async () => {
-      await expect(facet.connect(accOwner).updateEndowmentDetails(normalEndowReq))
-        .to.emit(facet, "EndowmentUpdated")
-        .withArgs(normalEndowReq.id);
+      it("changes nothing in normal endowment settings if sender is neither an owner nor delegate", async () => {
+        await expect(facet.connect(accOwner).updateEndowmentDetails(normalEndowReq))
+          .to.emit(facet, "EndowmentUpdated")
+          .withArgs(normalEndowReq.id);
 
-      await expectNothingChanged(state, normalEndowReq.id, oldNormalEndow);
+        await expectNothingChanged(state, normalEndowReq.id, oldNormalEndow);
+      });
+
+      it("changes nothing in charity settings if settings are locked", async () => {
+        const oldEndow = await lockSettings(charityReq.id);
+        await updateDelegate(charityReq.id, {addr: delegate.address, expires: 0});
+
+        // using delegate signer to avoid updating owner and rebalance data
+        // (which uses different logic from other fields)
+        await expect(facet.connect(delegate).updateEndowmentDetails(charityReq))
+          .to.emit(facet, "EndowmentUpdated")
+          .withArgs(charityReq.id);
+
+        await expectNothingChanged(state, charityReq.id, oldEndow);
+      });
+
+      it("changes nothing in normal endowment settings if settings are locked", async () => {
+        const oldEndow = await lockSettings(normalEndowReq.id);
+        await updateDelegate(charityReq.id, {addr: delegate.address, expires: 0});
+
+        // using delegate signer to avoid updating owner and rebalance data
+        // (which uses different logic from other fields)
+        await expect(facet.connect(delegate).updateEndowmentDetails(normalEndowReq))
+          .to.emit(facet, "EndowmentUpdated")
+          .withArgs(normalEndowReq.id);
+
+        await expectNothingChanged(state, normalEndowReq.id, oldEndow);
+      });
+
+      it("changes nothing in charity settings if delegation has expired", async () => {
+        const blockTimestamp = (await ethers.provider.getBlock("latest")).timestamp;
+        await updateDelegate(charityReq.id, {addr: delegate.address, expires: blockTimestamp - 1});
+
+        await expect(facet.connect(delegate).updateEndowmentDetails(charityReq))
+          .to.emit(facet, "EndowmentUpdated")
+          .withArgs(charityReq.id);
+
+        await expectNothingChanged(state, charityReq.id, oldCharity);
+      });
+
+      it("changes nothing in normal endowment settings if delegation has expired", async () => {
+        const blockTimestamp = (await ethers.provider.getBlock("latest")).timestamp;
+        await updateDelegate(normalEndowReq.id, {
+          addr: delegate.address,
+          expires: blockTimestamp - 1,
+        });
+
+        await expect(facet.connect(delegate).updateEndowmentDetails(normalEndowReq))
+          .to.emit(facet, "EndowmentUpdated")
+          .withArgs(normalEndowReq.id);
+
+        await expectNothingChanged(state, normalEndowReq.id, oldNormalEndow);
+      });
+
+      async function expectNothingChanged(
+        state: TestFacetProxyContract,
+        endowId: PromiseOrValue<BigNumberish>,
+        oldEndow: AccountStorage.EndowmentStruct
+      ) {
+        const updated = await state.getEndowmentDetails(endowId);
+
+        expect(updated.image).to.equal(oldEndow.image);
+        expect(updated.logo).to.equal(oldEndow.logo);
+        expect(updated.name).to.equal(oldEndow.name);
+        expect(updated.owner).to.equal(oldEndow.owner);
+        expect(updated.rebalance).to.equalRebalance(oldEndow.rebalance);
+        expect(updated.sdgs.map((x) => x.toNumber())).to.have.same.ordered.members(oldEndow.sdgs);
+      }
     });
 
     it("updates all charity settings except those updateable only by owner", async () => {
-      await updateDelegate(await charityReq.id, delegate.address);
+      await updateDelegate(charityReq.id, {addr: delegate.address, expires: 0});
 
       await expect(facet.connect(delegate).updateEndowmentDetails(charityReq))
         .to.emit(facet, "EndowmentUpdated")
@@ -226,7 +322,7 @@ describe("AccountsUpdateEndowments", function () {
     });
 
     it("updates all normal endowment settings except those updateable only by owner", async () => {
-      await updateDelegate(await normalEndowReq.id, delegate.address);
+      await updateDelegate(normalEndowReq.id, {addr: delegate.address, expires: 0});
 
       await expect(facet.connect(delegate).updateEndowmentDetails(normalEndowReq))
         .to.emit(facet, "EndowmentUpdated")
@@ -325,31 +421,5 @@ describe("AccountsUpdateEndowments", function () {
 
       expect(updated.owner).to.equal(oldCharity.owner);
     });
-
-    [];
   });
 });
-
-async function expectNothingChanged(
-  state: TestFacetProxyContract,
-  endowId: PromiseOrValue<BigNumberish>,
-  oldEndow: AccountStorage.EndowmentStruct
-) {
-  const updated = await state.getEndowmentDetails(endowId);
-
-  expect(updated.allowlistedBeneficiaries).to.have.same.members(
-    oldEndow.allowlistedBeneficiaries.map((x) => x.toString())
-  );
-  expect(updated.allowlistedContributors).to.have.same.members(
-    oldEndow.allowlistedContributors.map((x) => x.toString())
-  );
-  expect(updated.donationMatchActive).to.equal(oldEndow.donationMatchActive);
-  expect(updated.ignoreUserSplits).to.equal(oldEndow.ignoreUserSplits);
-  expect(updated.maturityAllowlist).to.have.same.members(
-    oldEndow.maturityAllowlist.map((x) => x.toString())
-  );
-  expect(updated.maturityTime).to.equal(oldEndow.maturityTime);
-  expect(updated.splitToLiquid.defaultSplit).to.equal(oldEndow.splitToLiquid.defaultSplit);
-  expect(updated.splitToLiquid.max).to.equal(oldEndow.splitToLiquid.max);
-  expect(updated.splitToLiquid.min).to.equal(oldEndow.splitToLiquid.min);
-}
