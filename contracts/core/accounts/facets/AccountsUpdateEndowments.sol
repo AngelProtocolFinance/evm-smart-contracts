@@ -110,6 +110,7 @@ contract AccountsUpdateEndowments is
       }
       // >> MAYBE IT WOULD BE PREFERRABLE TO HAVE THE PREVIOUS `owner` CHECK TURNED INTO
       // A `require(..., "InvalidAddress)`, AS OTHERWISE THE CALLER WOULD EXPECT FOR THE `owner` TO BE UPDATED
+      // AND WOULD BE SURPRISED IT REMAINED UNCHANGED
 
       if (tempEndowment.endowType != LibAccounts.EndowmentType.Charity) {
         tempEndowment.rebalance = details.rebalance;
