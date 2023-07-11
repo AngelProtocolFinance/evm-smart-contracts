@@ -163,10 +163,7 @@ describe("AccountsUpdateEndowments", function () {
       );
     });
 
-    [
-      [0, 5],
-      [5, 18],
-    ].forEach((sdgs) => {
+    [[0], [18], [0, 18], [0, 5], [5, 18]].forEach((sdgs) => {
       it(`reverts if a charity is updating its SDGs with an array containing invalid values: [${sdgs}]`, async () => {
         const invalidRequest: AccountMessages.UpdateEndowmentDetailsRequestStruct = {
           ...charityReq,
