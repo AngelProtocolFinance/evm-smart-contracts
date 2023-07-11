@@ -37,6 +37,10 @@ export type AddressObj = {
     implementation: string;
     proxy: string;
   };
+  gasFwd: {
+    implementation: string;
+    factory: string;
+  };
   giftcards: {
     implementation: string;
     proxy: string;
