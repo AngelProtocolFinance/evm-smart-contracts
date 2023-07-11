@@ -124,7 +124,7 @@
     },
     "registrar": {
       "implementation": "0x1dBDba33dfA381bCC89FCe74DFF69Aa96B53b503",
-      "proxy": "0x4C3bE443B62c1C2B0b87A5D47cE4837B81772790"
+      "proxy": "0x09635F643e140090A9A8Dcd712eD6285858ceBef"
     },
     "router": {
       "implementation": "0x90118d110B07ABB82Ba8980D1c5cC96EeA810d2C",
@@ -255,7 +255,6 @@
     },
     "libraries": {
       "angelCoreStruct": "",
-      "charityApplicationLib": "",
       "stringArray": ""
     },
     "multiSig": {
