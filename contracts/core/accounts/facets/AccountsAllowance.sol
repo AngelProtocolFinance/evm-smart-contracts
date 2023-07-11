@@ -18,14 +18,12 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
    * @notice Endowment owner adds allowance to spend
    * @dev This function adds or removes allowances for an account
    * @param endowId The id of the endowment
-   * @param action The action to be performed
    * @param spender The address of the spender
    * @param token The address of the token
    * @param amount The allowance amount
    */
   function manageAllowances(
     uint32 endowId,
-    AllowanceAction action,
     address spender,
     address token,
     uint256 amount
@@ -34,12 +32,14 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[endowId];
 
     require(!state.STATES[endowId].closingEndowment, "Endowment is closed");
-    require(token != address(0), "Invalid Token");
+    require(token != address(0) && state.STATES[endowId].balances.liquid[token] > 0, "Invalid Token");
 
     // Only the endowment owner or a delegate whom controls the appropriate allowlist can update allowances
-    // Allowances are additionally restricted to existing allowlisted addresses
+    // also need to check that the spender address passed is in an allowlist (based on maturity)
+    bool mature = (tempEndowment.maturityTime != 0 &&
+      block.timestamp >= tempEndowment.maturityTime);
     bool inAllowlist = false;
-    if (tempEndowment.maturityTime >= block.timestamp) {
+    if (!mature) {
       require(
         Validator.canChange(
           tempEndowment.settingsController.allowlistedBeneficiaries,
@@ -49,10 +49,11 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
         ),
         "Unauthorized"
       );
-      for (uint256 i = 0; i < tempEndowment.allowlistedBeneficiaries.length; i++) {
-        if (tempEndowment.allowlistedBeneficiaries[i] == spender) {
-          inAllowlist = true;
-          break;
+      if (tempEndowment.allowlistedBeneficiaries.length > 0) {
+        for (uint256 i = 0; i < tempEndowment.allowlistedBeneficiaries.length; i++) {
+          if (tempEndowment.allowlistedBeneficiaries[i] == spender) {
+            inAllowlist = true;
+          }
         }
       }
     } else {
@@ -65,25 +66,45 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
         ),
         "Unauthorized"
       );
-      for (uint256 i = 0; i < tempEndowment.maturityAllowlist.length; i++) {
-        if (tempEndowment.maturityAllowlist[i] == spender) {
-          inAllowlist = true;
-          break;
+      if (tempEndowment.maturityAllowlist.length > 0) {
+        for (uint256 i = 0; i < tempEndowment.maturityAllowlist.length; i++) {
+          if (tempEndowment.maturityAllowlist[i] == spender) {
+            inAllowlist = true;
+          }
         }
       }
     }
-    require(inAllowlist, "Invalid Spender");
+    require(inAllowlist, "Spender is not in allowlists");
 
-    if (action == AllowanceAction.Remove) {
-      delete state.ALLOWANCES[endowId][spender][token];
-      emit AllowanceRemoved(msg.sender, spender, token);
-    } else if (action == AllowanceAction.Add) {
-      require(amount > 0, "Zero amount");
-      state.ALLOWANCES[endowId][spender][token] = amount;
-      emit AllowanceUpdated(msg.sender, spender, token, state.ALLOWANCES[endowId][spender][token]);
+    uint256 spenderBal = state.ALLOWANCES[endowId][token].bySpender[spender];
+    uint256 amountDelta;
+    if (amount > spenderBal) {
+      amountDelta = amount - spenderBal;
+      // check if liquid balance is sufficient for any proposed increase to spender allocation
+      require(
+        amountDelta <= state.STATES[endowId].balances.liquid[token],
+        "Insufficient liquid balance to allocate"
+      );
+      // increase total outstanding allocation & reduce liquid balance by AmountDelta
+      state.ALLOWANCES[endowId][token].totalOutstanding += amountDelta;
+      state.STATES[endowId].balances.liquid[token] -= amountDelta;
+      emit AllowanceUpdated(endowId, spender, token, amount, amountDelta, 0);
+    } else if (amount < spenderBal) {
+      amountDelta = spenderBal - amount;
+      require(
+        amountDelta <= state.ALLOWANCES[endowId][token].totalOutstanding,
+        "Insufficient allowances outstanding to cover requested reduction"
+      );
+      // decrease total outstanding allocation & increase liquid balance by AmountDelta
+      state.ALLOWANCES[endowId][token].totalOutstanding -= amountDelta;
+      state.STATES[endowId].balances.liquid[token] += amountDelta;
+      emit AllowanceUpdated(endowId, spender, token, amount, 0, amountDelta);
     } else {
-      revert("Invalid Operation");
+      // equal amount and spender balance
+      revert("Spender balance equal to amount. No changes needed");
     }
+    // set the allocation for spender to the amount specified
+    state.ALLOWANCES[endowId][token].bySpender[spender] = amount;
   }
 
   /**
@@ -100,21 +121,20 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
     uint256 amount,
     address recipient
   ) public nonReentrant {
-    require(token != address(0), "Invalid token address");
-    require(recipient != address(0), "Invalid recipient address");
-    require(amount != 0, "Zero Amount");
-
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    require(state.ALLOWANCES[endowId][msg.sender][token] > 0, "Allowance does not exist");
-    require(
-      state.ALLOWANCES[endowId][msg.sender][token] > amount,
-      "Amount reqested exceeds allowance balance"
-    );
-    require(state.STATES[endowId].balances.liquid[token] >= amount, "InsufficientFunds");
 
-    state.ALLOWANCES[endowId][msg.sender][token] -= amount;
-    state.STATES[endowId].balances.liquid[token] -= amount;
+    require(token != address(0) && state.ALLOWANCES[endowId][token].totalOutstanding > 0, "Invalid Token");
+    require(recipient != address(0), "Invalid recipient address");
+    require(amount > 0, "Zero Amount");
+    require(
+      amount <= state.ALLOWANCES[endowId][token].bySpender[msg.sender],
+      "Amount requested exceeds Allowance balance"
+    );
+
+    state.ALLOWANCES[endowId][token].bySpender[msg.sender] -= amount;
+    state.ALLOWANCES[endowId][token].totalOutstanding -= amount;
 
     require(IERC20(token).transfer(recipient, amount), "Transfer failed");
+    emit AllowanceSpent(endowId, msg.sender, token, amount);
   }
 }

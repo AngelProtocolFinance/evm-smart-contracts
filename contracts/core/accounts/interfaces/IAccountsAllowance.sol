@@ -6,23 +6,16 @@ pragma solidity ^0.8.16;
  * @dev This contract manages the allowances for accounts
  */
 interface IAccountsAllowance {
-  enum AllowanceAction {
-    Add,
-    Remove
-  }
-
   /**
    * @notice Endowment owner adds allowance to spend
    * @dev This function adds or removes allowances for an account
    * @param endowId The id of the endowment
-   * @param action The action to be performed
    * @param spender The address of the spender
    * @param token The address of the token
    * @param amount The allowance amount
    */
   function manageAllowances(
     uint32 endowId,
-    AllowanceAction action,
     address spender,
     address token,
     uint256 amount

@@ -56,12 +56,18 @@ library AccountStorage {
     mapping(bytes4 => bool) activeStrategies;
   }
 
+  struct TokenAllowances {
+    uint256 totalOutstanding;
+    // spender Addr -> amount
+    mapping(address => uint256) bySpender;
+  }
+
   struct State {
     mapping(uint32 => uint256) DAOTOKENBALANCE;
     mapping(uint32 => EndowmentState) STATES;
     mapping(uint32 => Endowment) ENDOWMENTS;
-    // endow ID -> spender Addr -> token Addr -> amount
-    mapping(uint32 => mapping(address => mapping(address => uint256))) ALLOWANCES;
+    // endow ID -> token Addr -> TokenAllowances
+    mapping(uint32 => mapping(address => TokenAllowances)) ALLOWANCES;
     // endow ID -> token Addr -> bool
     mapping(uint32 => mapping(address => bool)) AcceptedTokens;
     // endow ID -> token Addr -> Price Feed Addr
