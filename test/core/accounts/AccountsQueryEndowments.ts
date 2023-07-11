@@ -2,7 +2,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import { deployFacetAsProxy } from "./utils/deployTestFacet";
+import {deployFacetAsProxy} from "./utils/deployTestFacet";
 import {DEFAULT_ACCOUNTS_CONFIG, DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
 import {
   AccountsQueryEndowments,

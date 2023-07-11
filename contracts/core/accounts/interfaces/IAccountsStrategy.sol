@@ -29,19 +29,13 @@ interface IAccountsStrategy {
    * @dev Allows the owner of an endowment to invest tokens into specified yield vaults.
    * @param id The endowment id
    */
-  function strategyInvest(
-    uint32 id,
-    AccountMessages.InvestRequest memory investRequest
-  ) external;
+  function strategyInvest(uint32 id, AccountMessages.InvestRequest memory investRequest) external;
 
   /**
    * @notice Allows an endowment owner to redeem their funds from multiple yield strategies.
    * @param id  The endowment ID
    */
-  function strategyRedeem(
-    uint32 id,
-    AccountMessages.RedeemRequest memory redeemRequest
-  ) external;
+  function strategyRedeem(uint32 id, AccountMessages.RedeemRequest memory redeemRequest) external;
 
   /**
    * @notice Allows an endowment owner to redeem their funds from multiple yield strategies.

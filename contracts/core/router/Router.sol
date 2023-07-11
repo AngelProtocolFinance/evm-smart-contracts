@@ -414,7 +414,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
   {
     // decode payload
     IVault.VaultActionData memory action = RouterLib.unpackCalldata(payload);
-    
+
     // Leverage this.call() to enable try/catch logic
     try this.deposit(action, tokenSymbol, amount) {
       emit Deposit(action);

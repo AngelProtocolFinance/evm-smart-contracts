@@ -1,11 +1,11 @@
 import {ethers} from "hardhat";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import { AccountMessages } from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
+import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
 import {LibAccounts} from "typechain-types/contracts/multisigs/CharityApplications";
 import {NetworkInfoStruct} from "../types";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {BigNumber} from "ethers";
-import { DEFAULT_STRATEGY_SELECTOR } from "test/utils/constants";
+import {DEFAULT_STRATEGY_SELECTOR} from "test/utils/constants";
 
 export const DEFAULT_PERMISSIONS_STRUCT: LibAccounts.SettingsPermissionStruct = {
   locked: false,
@@ -16,24 +16,24 @@ export const DEFAULT_PERMISSIONS_STRUCT: LibAccounts.SettingsPermissionStruct = 
 };
 
 export const DEFAULT_SETTINGS_STRUCT: LibAccounts.SettingsControllerStruct = {
-    acceptedTokens: DEFAULT_PERMISSIONS_STRUCT,
-    lockedInvestmentManagement: DEFAULT_PERMISSIONS_STRUCT,
-    liquidInvestmentManagement: DEFAULT_PERMISSIONS_STRUCT,
-    allowlistedBeneficiaries: DEFAULT_PERMISSIONS_STRUCT,
-    allowlistedContributors: DEFAULT_PERMISSIONS_STRUCT,
-    maturityAllowlist: DEFAULT_PERMISSIONS_STRUCT,
-    maturityTime: DEFAULT_PERMISSIONS_STRUCT,
-    earlyLockedWithdrawFee: DEFAULT_PERMISSIONS_STRUCT,
-    withdrawFee: DEFAULT_PERMISSIONS_STRUCT,
-    depositFee: DEFAULT_PERMISSIONS_STRUCT,
-    balanceFee: DEFAULT_PERMISSIONS_STRUCT,
-    name: DEFAULT_PERMISSIONS_STRUCT,
-    image: DEFAULT_PERMISSIONS_STRUCT,
-    logo: DEFAULT_PERMISSIONS_STRUCT,
-    sdgs: DEFAULT_PERMISSIONS_STRUCT,
-    splitToLiquid: DEFAULT_PERMISSIONS_STRUCT,
-    ignoreUserSplits: DEFAULT_PERMISSIONS_STRUCT,
-}
+  acceptedTokens: DEFAULT_PERMISSIONS_STRUCT,
+  lockedInvestmentManagement: DEFAULT_PERMISSIONS_STRUCT,
+  liquidInvestmentManagement: DEFAULT_PERMISSIONS_STRUCT,
+  allowlistedBeneficiaries: DEFAULT_PERMISSIONS_STRUCT,
+  allowlistedContributors: DEFAULT_PERMISSIONS_STRUCT,
+  maturityAllowlist: DEFAULT_PERMISSIONS_STRUCT,
+  maturityTime: DEFAULT_PERMISSIONS_STRUCT,
+  earlyLockedWithdrawFee: DEFAULT_PERMISSIONS_STRUCT,
+  withdrawFee: DEFAULT_PERMISSIONS_STRUCT,
+  depositFee: DEFAULT_PERMISSIONS_STRUCT,
+  balanceFee: DEFAULT_PERMISSIONS_STRUCT,
+  name: DEFAULT_PERMISSIONS_STRUCT,
+  image: DEFAULT_PERMISSIONS_STRUCT,
+  logo: DEFAULT_PERMISSIONS_STRUCT,
+  sdgs: DEFAULT_PERMISSIONS_STRUCT,
+  splitToLiquid: DEFAULT_PERMISSIONS_STRUCT,
+  ignoreUserSplits: DEFAULT_PERMISSIONS_STRUCT,
+};
 
 export const DEFAULT_FEE_STRUCT: LibAccounts.FeeSettingStruct = {
   payoutAddress: ethers.constants.AddressZero,
@@ -145,7 +145,7 @@ export const DEFAULT_INVEST_REQUEST: AccountMessages.InvestRequestStruct = {
   lockAmt: 0,
   liquidAmt: 0,
   gasFee: 0,
-}
+};
 
 export const DEFAULT_REDEEM_REQUEST: AccountMessages.RedeemRequestStruct = {
   strategy: DEFAULT_STRATEGY_SELECTOR,
@@ -153,7 +153,7 @@ export const DEFAULT_REDEEM_REQUEST: AccountMessages.RedeemRequestStruct = {
   lockAmt: 0,
   liquidAmt: 0,
   gasFee: 0,
-}
+};
 
 export const DEFAULT_REDEEM_ALL_REQUEST: AccountMessages.RedeemAllRequestStruct = {
   strategy: DEFAULT_STRATEGY_SELECTOR,
@@ -161,4 +161,4 @@ export const DEFAULT_REDEEM_ALL_REQUEST: AccountMessages.RedeemAllRequestStruct 
   redeemLocked: false,
   redeemLiquid: false,
   gasFee: 0,
-}
+};

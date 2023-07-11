@@ -12,7 +12,7 @@ import {
   DummyRouter,
 } from "typechain-types";
 import {getSigners} from "utils";
-import { deployFacetAsProxy } from "./utils/deployTestFacet";
+import {deployFacetAsProxy} from "./utils/deployTestFacet";
 import {
   deployRegistrarAsProxy,
   deployDummyERC20,
@@ -81,26 +81,23 @@ describe("AccountsStrategy", function () {
       it("the caller is not approved for locked fund mgmt", async function () {
         await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
         let investRequest = {
-          ...DEFAULT_INVEST_REQUEST, 
-          lockAmt: 1
-        }
-        await expect(
-          facet.strategyInvest(ACCOUNT_ID, investRequest)
-        ).to.be.revertedWith("Unauthorized");
+          ...DEFAULT_INVEST_REQUEST,
+          lockAmt: 1,
+        };
+        await expect(facet.strategyInvest(ACCOUNT_ID, investRequest)).to.be.revertedWith(
+          "Unauthorized"
+        );
       });
 
       it("the caller is not approved for liquid fund mgmt", async function () {
         await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
         let investRequest = {
-          ...DEFAULT_INVEST_REQUEST, 
-          liquidAmt: 1
-        }
-        await expect(
-          facet.strategyInvest(
-            ACCOUNT_ID,
-            investRequest
-          )
-        ).to.be.revertedWith("Unauthorized");
+          ...DEFAULT_INVEST_REQUEST,
+          liquidAmt: 1,
+        };
+        await expect(facet.strategyInvest(ACCOUNT_ID, investRequest)).to.be.revertedWith(
+          "Unauthorized"
+        );
       });
 
       it("the strategy is not approved", async function () {
@@ -108,9 +105,9 @@ describe("AccountsStrategy", function () {
         let config = DEFAULT_ACCOUNTS_CONFIG;
         config.registrarContract = registrar.address;
         await state.setConfig(config);
-        await expect(
-          facet.strategyInvest(ACCOUNT_ID, DEFAULT_INVEST_REQUEST)
-        ).to.be.revertedWith("Strategy is not approved");
+        await expect(facet.strategyInvest(ACCOUNT_ID, DEFAULT_INVEST_REQUEST)).to.be.revertedWith(
+          "Strategy is not approved"
+        );
       });
 
       it("the account locked balance is insufficient", async function () {
@@ -133,12 +130,12 @@ describe("AccountsStrategy", function () {
           StrategyApprovalState.APPROVED
         );
         let investRequest = {
-          ...DEFAULT_INVEST_REQUEST, 
-          lockAmt: 1
-        }
-        await expect(
-          facet.strategyInvest(ACCOUNT_ID, investRequest)
-        ).to.be.revertedWith("Insufficient Balance");
+          ...DEFAULT_INVEST_REQUEST,
+          lockAmt: 1,
+        };
+        await expect(facet.strategyInvest(ACCOUNT_ID, investRequest)).to.be.revertedWith(
+          "Insufficient Balance"
+        );
       });
 
       it("the account liquid balance is insufficient", async function () {
@@ -161,12 +158,12 @@ describe("AccountsStrategy", function () {
           StrategyApprovalState.APPROVED
         );
         let investRequest = {
-          ...DEFAULT_INVEST_REQUEST, 
-          liquidAmt: 1
-        }
-        await expect(
-          facet.strategyInvest(ACCOUNT_ID, investRequest)
-        ).to.be.revertedWith("Insufficient Balance");
+          ...DEFAULT_INVEST_REQUEST,
+          liquidAmt: 1,
+        };
+        await expect(facet.strategyInvest(ACCOUNT_ID, investRequest)).to.be.revertedWith(
+          "Insufficient Balance"
+        );
       });
 
       it("the token isn't accepted", async function () {
@@ -178,9 +175,9 @@ describe("AccountsStrategy", function () {
           DEFAULT_STRATEGY_SELECTOR,
           StrategyApprovalState.APPROVED
         );
-        await expect(
-          facet.strategyInvest(ACCOUNT_ID, DEFAULT_INVEST_REQUEST)
-        ).to.be.revertedWith("Token not approved");
+        await expect(facet.strategyInvest(ACCOUNT_ID, DEFAULT_INVEST_REQUEST)).to.be.revertedWith(
+          "Token not approved"
+        );
       });
     });
 
@@ -239,17 +236,12 @@ describe("AccountsStrategy", function () {
         });
 
         let investRequest = {
-          ...DEFAULT_INVEST_REQUEST, 
+          ...DEFAULT_INVEST_REQUEST,
           lockAmt: LOCK_AMT,
-          liquidAmt: LIQ_AMT
-        }
+          liquidAmt: LIQ_AMT,
+        };
 
-        expect(
-          await facet.strategyInvest(
-            ACCOUNT_ID,
-            investRequest
-          )
-        )
+        expect(await facet.strategyInvest(ACCOUNT_ID, investRequest))
           .to.emit(facet, "EndowmentInvested")
           .withArgs(VaultActionStatus.SUCCESS);
 
@@ -277,13 +269,11 @@ describe("AccountsStrategy", function () {
           status: VaultActionStatus.FAIL_TOKENS_FALLBACK,
         });
         let investRequest = {
-          ...DEFAULT_INVEST_REQUEST, 
+          ...DEFAULT_INVEST_REQUEST,
           lockAmt: LOCK_AMT,
-          liquidAmt: LIQ_AMT
-        }
-        await expect(
-          facet.strategyInvest(ACCOUNT_ID, investRequest)
-        )
+          liquidAmt: LIQ_AMT,
+        };
+        await expect(facet.strategyInvest(ACCOUNT_ID, investRequest))
           .to.be.revertedWithCustomError(facet, "InvestFailed")
           .withArgs(VaultActionStatus.FAIL_TOKENS_FALLBACK);
 
@@ -333,9 +323,9 @@ describe("AccountsStrategy", function () {
       it("the caller is not approved for locked fund mgmt", async function () {
         await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
         let redeemRequest = {
-          ...DEFAULT_REDEEM_REQUEST, 
+          ...DEFAULT_REDEEM_REQUEST,
           lockAmt: 1,
-        }
+        };
         await expect(
           facet.connect(user).strategyRedeem(ACCOUNT_ID, redeemRequest)
         ).to.be.revertedWith("Unauthorized");
@@ -344,14 +334,11 @@ describe("AccountsStrategy", function () {
       it("the caller is not approved for liquid fund mgmt", async function () {
         await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
         let redeemRequest = {
-          ...DEFAULT_REDEEM_REQUEST, 
+          ...DEFAULT_REDEEM_REQUEST,
           liquidAmt: 1,
-        }
+        };
         await expect(
-          facet.connect(user).strategyRedeem(
-            ACCOUNT_ID,
-            redeemRequest
-          )
+          facet.connect(user).strategyRedeem(ACCOUNT_ID, redeemRequest)
         ).to.be.revertedWith("Unauthorized");
       });
 
@@ -362,9 +349,9 @@ describe("AccountsStrategy", function () {
         let config = DEFAULT_ACCOUNTS_CONFIG;
         config.registrarContract = registrar.address;
         await state.setConfig(config);
-        await expect(
-          facet.strategyRedeem(ACCOUNT_ID, DEFAULT_REDEEM_REQUEST)
-        ).to.be.revertedWith("Strategy is not approved");
+        await expect(facet.strategyRedeem(ACCOUNT_ID, DEFAULT_REDEEM_REQUEST)).to.be.revertedWith(
+          "Strategy is not approved"
+        );
       });
 
       describe("and calls the local router", async function () {
@@ -373,10 +360,10 @@ describe("AccountsStrategy", function () {
         const LOCK_AMT = 300;
         const LIQ_AMT = 200;
         const redeemRequest = {
-          ...DEFAULT_REDEEM_REQUEST, 
+          ...DEFAULT_REDEEM_REQUEST,
           lockAmt: LOCK_AMT,
           liquidAmt: LIQ_AMT,
-        }
+        };
 
         before(async function () {
           router = await deployDummyRouter(owner);
@@ -392,8 +379,8 @@ describe("AccountsStrategy", function () {
 
         beforeEach(async function () {
           await state.setConfig(config);
-          let endowDetails : AccountStorage.EndowmentStruct = {
-            ...DEFAULT_CHARITY_ENDOWMENT, 
+          let endowDetails: AccountStorage.EndowmentStruct = {
+            ...DEFAULT_CHARITY_ENDOWMENT,
             owner: owner.address,
             settingsController: {
               ...DEFAULT_SETTINGS_STRUCT,
@@ -401,14 +388,14 @@ describe("AccountsStrategy", function () {
                 ...DEFAULT_PERMISSIONS_STRUCT,
                 delegate: {
                   expires: 0,
-                  addr: user.address
+                  addr: user.address,
                 },
               },
               liquidInvestmentManagement: {
                 ...DEFAULT_PERMISSIONS_STRUCT,
                 delegate: {
                   expires: 0,
-                  addr: user.address
+                  addr: user.address,
                 },
               },
             },
@@ -431,12 +418,7 @@ describe("AccountsStrategy", function () {
             status: VaultActionStatus.SUCCESS,
           });
 
-          expect(
-            await facet.strategyRedeem(
-              ACCOUNT_ID,
-              redeemRequest
-            )
-          )
+          expect(await facet.strategyRedeem(ACCOUNT_ID, redeemRequest))
             .to.emit(facet, "EndowmentRedeemed")
             .withArgs(VaultActionStatus.SUCCESS);
 
@@ -462,12 +444,7 @@ describe("AccountsStrategy", function () {
             status: VaultActionStatus.POSITION_EXITED,
           });
 
-          expect(
-            await facet.strategyRedeem(
-              ACCOUNT_ID,
-              redeemRequest
-            )
-          )
+          expect(await facet.strategyRedeem(ACCOUNT_ID, redeemRequest))
             .to.emit(facet, "EndowmentRedeemed")
             .withArgs(VaultActionStatus.POSITION_EXITED);
 
@@ -492,9 +469,7 @@ describe("AccountsStrategy", function () {
             liqAmt: LIQ_AMT,
             status: VaultActionStatus.FAIL_TOKENS_FALLBACK,
           });
-          await expect(
-            facet.strategyRedeem(ACCOUNT_ID, redeemRequest)
-          )
+          await expect(facet.strategyRedeem(ACCOUNT_ID, redeemRequest))
             .to.be.revertedWithCustomError(facet, "RedeemFailed")
             .withArgs(VaultActionStatus.FAIL_TOKENS_FALLBACK);
 
@@ -552,8 +527,8 @@ describe("AccountsStrategy", function () {
         await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
         let redeemAllRequest = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
-          redeemLocked: true
-        }
+          redeemLocked: true,
+        };
         await expect(
           facet.connect(user).strategyRedeemAll(ACCOUNT_ID, redeemAllRequest)
         ).to.be.revertedWith("Unauthorized");
@@ -562,16 +537,16 @@ describe("AccountsStrategy", function () {
         await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
         let redeemAllRequest = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
-          redeemLiquid: true
-        }
+          redeemLiquid: true,
+        };
         await expect(
           facet.connect(user).strategyRedeemAll(ACCOUNT_ID, redeemAllRequest)
         ).to.be.revertedWith("Unauthorized");
       });
 
       it("the strategy is not approved", async function () {
-        let endowDetails : AccountStorage.EndowmentStruct = {
-          ...DEFAULT_CHARITY_ENDOWMENT, 
+        let endowDetails: AccountStorage.EndowmentStruct = {
+          ...DEFAULT_CHARITY_ENDOWMENT,
           owner: owner.address,
           settingsController: {
             ...DEFAULT_SETTINGS_STRUCT,
@@ -579,14 +554,14 @@ describe("AccountsStrategy", function () {
               ...DEFAULT_PERMISSIONS_STRUCT,
               delegate: {
                 expires: 0,
-                addr: user.address
+                addr: user.address,
               },
             },
             liquidInvestmentManagement: {
               ...DEFAULT_PERMISSIONS_STRUCT,
               delegate: {
                 expires: 0,
-                addr: user.address
+                addr: user.address,
               },
             },
           },
@@ -597,11 +572,11 @@ describe("AccountsStrategy", function () {
         await state.setConfig(config);
         let redeemAllRequest = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
-          redeemLiquid: true
-        }
-        await expect(
-          facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest)
-        ).to.be.revertedWith("Strategy is not approved");
+          redeemLiquid: true,
+        };
+        await expect(facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest)).to.be.revertedWith(
+          "Strategy is not approved"
+        );
       });
 
       describe("and calls the local router", async function () {
@@ -613,7 +588,7 @@ describe("AccountsStrategy", function () {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLocked: true,
           redeemLiquid: true,
-        }
+        };
 
         before(async function () {
           router = await deployDummyRouter(owner);
@@ -629,8 +604,8 @@ describe("AccountsStrategy", function () {
 
         beforeEach(async function () {
           await state.setConfig(config);
-          let endowDetails : AccountStorage.EndowmentStruct = {
-            ...DEFAULT_CHARITY_ENDOWMENT, 
+          let endowDetails: AccountStorage.EndowmentStruct = {
+            ...DEFAULT_CHARITY_ENDOWMENT,
             owner: owner.address,
             settingsController: {
               ...DEFAULT_SETTINGS_STRUCT,
@@ -638,14 +613,14 @@ describe("AccountsStrategy", function () {
                 ...DEFAULT_PERMISSIONS_STRUCT,
                 delegate: {
                   expires: 0,
-                  addr: user.address
+                  addr: user.address,
                 },
               },
               liquidInvestmentManagement: {
                 ...DEFAULT_PERMISSIONS_STRUCT,
                 delegate: {
                   expires: 0,
-                  addr: user.address
+                  addr: user.address,
                 },
               },
             },
@@ -668,12 +643,7 @@ describe("AccountsStrategy", function () {
             status: VaultActionStatus.POSITION_EXITED,
           });
 
-          expect(
-            await facet.strategyRedeemAll(
-              ACCOUNT_ID,
-              redeemAllRequest
-            )
-          )
+          expect(await facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest))
             .to.emit(facet, "EndowmentRedeemed")
             .withArgs(VaultActionStatus.POSITION_EXITED);
 
@@ -698,9 +668,7 @@ describe("AccountsStrategy", function () {
             liqAmt: LIQ_AMT,
             status: VaultActionStatus.FAIL_TOKENS_FALLBACK,
           });
-          await expect(
-            facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest)
-          )
+          await expect(facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest))
             .to.be.revertedWithCustomError(facet, "RedeemAllFailed")
             .withArgs(VaultActionStatus.FAIL_TOKENS_FALLBACK);
 

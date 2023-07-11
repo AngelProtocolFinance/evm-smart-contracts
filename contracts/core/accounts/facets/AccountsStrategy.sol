@@ -77,10 +77,18 @@ contract AccountsStrategy is
     NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)
       .queryNetworkConnection(state.config.networkName);
 
-    address tokenAddress = IAxelarGateway(thisNetwork.axelarGateway).tokenAddresses(investRequest.token);
+    address tokenAddress = IAxelarGateway(thisNetwork.axelarGateway).tokenAddresses(
+      investRequest.token
+    );
 
-    require(state.STATES[id].balances.locked[tokenAddress] >= investRequest.lockAmt, "Insufficient Balance");
-    require(state.STATES[id].balances.liquid[tokenAddress] >= investRequest.liquidAmt, "Insufficient Balance");
+    require(
+      state.STATES[id].balances.locked[tokenAddress] >= investRequest.lockAmt,
+      "Insufficient Balance"
+    );
+    require(
+      state.STATES[id].balances.liquid[tokenAddress] >= investRequest.liquidAmt,
+      "Insufficient Balance"
+    );
 
     require(
       IRegistrar(state.config.registrarContract).isTokenAccepted(tokenAddress),
@@ -104,7 +112,10 @@ contract AccountsStrategy is
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
 
-      IERC20(tokenAddress).transfer(thisNetwork.router, (investRequest.lockAmt + investRequest.liquidAmt));
+      IERC20(tokenAddress).transfer(
+        thisNetwork.router,
+        (investRequest.lockAmt + investRequest.liquidAmt)
+      );
       IVault.VaultActionData memory response = IRouter(thisNetwork.router).executeWithTokenLocal(
         state.config.networkName,
         AddressToString.toString(address(this)),
@@ -122,7 +133,6 @@ contract AccountsStrategy is
         revert InvestFailed(response.status);
       }
     }
-    
     // Strategy lives on another chain
     else {
       NetworkInfo memory network = IRegistrar(state.config.registrarContract)
@@ -153,7 +163,10 @@ contract AccountsStrategy is
         state.ENDOWMENTS[id].owner
       );
 
-      IERC20(tokenAddress).approve(thisNetwork.axelarGateway, (investRequest.lockAmt + investRequest.liquidAmt));
+      IERC20(tokenAddress).approve(
+        thisNetwork.axelarGateway,
+        (investRequest.lockAmt + investRequest.liquidAmt)
+      );
       IAxelarGateway(thisNetwork.axelarGateway).callContractWithToken(
         stratParams.network,
         AddressToString.toString(network.router),
@@ -161,7 +174,7 @@ contract AccountsStrategy is
         investRequest.token,
         (investRequest.lockAmt + investRequest.liquidAmt)
       );
-      
+
       state.STATES[id].balances.locked[tokenAddress] -= investRequest.lockAmt;
       state.STATES[id].balances.liquid[tokenAddress] -= investRequest.liquidAmt;
       state.STATES[id].activeStrategies[investRequest.strategy] == true;
@@ -207,14 +220,16 @@ contract AccountsStrategy is
     LocalRegistrarLib.StrategyParams memory stratParams = IRegistrar(state.config.registrarContract)
       .getStrategyParamsById(redeemRequest.strategy);
     require(
-      (stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.APPROVED) || 
-      (stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.WITHDRAW_ONLY),
+      (stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.APPROVED) ||
+        (stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.WITHDRAW_ONLY),
       "Strategy is not approved"
     );
 
     NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)
       .queryNetworkConnection(state.config.networkName);
-    address tokenAddress = IAxelarGateway(thisNetwork.axelarGateway).tokenAddresses(redeemRequest.token);
+    address tokenAddress = IAxelarGateway(thisNetwork.axelarGateway).tokenAddresses(
+      redeemRequest.token
+    );
     uint32[] memory accts = new uint32[](1);
     accts[0] = id;
 
@@ -292,40 +307,46 @@ contract AccountsStrategy is
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
 
-    require(redeemAllRequest.redeemLiquid || redeemAllRequest.redeemLocked, 
-      "Must redeem at least one of Locked/Liquid");
-    if(redeemAllRequest.redeemLocked) {
+    require(
+      redeemAllRequest.redeemLiquid || redeemAllRequest.redeemLocked,
+      "Must redeem at least one of Locked/Liquid"
+    );
+    if (redeemAllRequest.redeemLocked) {
       require(
         Validator.canChange(
           tempEndowment.settingsController.lockedInvestmentManagement,
           msg.sender,
           tempEndowment.owner,
           block.timestamp
-        ), "Unauthorized"
+        ),
+        "Unauthorized"
       );
     }
-    if(redeemAllRequest.redeemLiquid) {
+    if (redeemAllRequest.redeemLiquid) {
       require(
         Validator.canChange(
           tempEndowment.settingsController.liquidInvestmentManagement,
           msg.sender,
           tempEndowment.owner,
           block.timestamp
-        ), "Unauthorized"
+        ),
+        "Unauthorized"
       );
     }
 
     LocalRegistrarLib.StrategyParams memory stratParams = IRegistrar(state.config.registrarContract)
       .getStrategyParamsById(redeemAllRequest.strategy);
     require(
-      (stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.APPROVED) || 
-      (stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.WITHDRAW_ONLY),
+      (stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.APPROVED) ||
+        (stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.WITHDRAW_ONLY),
       "Strategy is not approved"
     );
 
     NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)
       .queryNetworkConnection(state.config.networkName);
-    address tokenAddress = IAxelarGateway(thisNetwork.axelarGateway).tokenAddresses(redeemAllRequest.token);
+    address tokenAddress = IAxelarGateway(thisNetwork.axelarGateway).tokenAddresses(
+      redeemAllRequest.token
+    );
     uint32[] memory accts = new uint32[](1);
     accts[0] = id;
 
@@ -336,8 +357,8 @@ contract AccountsStrategy is
         selector: IVault.redeemAll.selector,
         accountIds: accts,
         token: tokenAddress,
-        lockAmt: redeemAllRequest.redeemLocked? 1 : 0,
-        liqAmt: redeemAllRequest.redeemLiquid? 1 : 0,
+        lockAmt: redeemAllRequest.redeemLocked ? 1 : 0,
+        liqAmt: redeemAllRequest.redeemLiquid ? 1 : 0,
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
@@ -353,12 +374,11 @@ contract AccountsStrategy is
         state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
         state.STATES[id].activeStrategies[redeemAllRequest.strategy] == false;
         emit EndowmentRedeemed(response.status);
-      }
-      else{
+      } else {
         revert RedeemAllFailed(response.status);
       }
 
-    // Strategy lives on another chain
+      // Strategy lives on another chain
     } else {
       NetworkInfo memory network = IRegistrar(state.config.registrarContract)
         .queryNetworkConnection(stratParams.network);
@@ -368,8 +388,8 @@ contract AccountsStrategy is
         selector: IVault.redeemAll.selector,
         accountIds: accts,
         token: tokenAddress,
-        lockAmt: redeemAllRequest.redeemLocked? 1 : 0,
-        liqAmt: redeemAllRequest.redeemLiquid? 1 : 0,
+        lockAmt: redeemAllRequest.redeemLocked ? 1 : 0,
+        liqAmt: redeemAllRequest.redeemLiquid ? 1 : 0,
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
@@ -392,7 +412,6 @@ contract AccountsStrategy is
     }
   }
 
-
   function _axelarCallbackWithToken(
     IVault.VaultActionData memory response
   ) internal returns (bool) {
@@ -402,32 +421,33 @@ contract AccountsStrategy is
     // Invest Cases
     // FAIL_TOKENS_RETURNED => Refund upon failed invest call
     // ALL ELSE => Unexpected cases; all other responses should not have tokens
-    if (response.selector == IVault.deposit.selector && 
-      response.status == IVault.VaultActionStatus.FAIL_TOKENS_RETURNED) {
+    if (
+      response.selector == IVault.deposit.selector &&
+      response.status == IVault.VaultActionStatus.FAIL_TOKENS_RETURNED
+    ) {
       state.STATES[id].balances.locked[response.token] += response.lockAmt;
       state.STATES[id].balances.liquid[response.token] += response.liqAmt;
       return true;
     }
-
     // Redeem/RedeemAll Cases
     // SUCCESS => Tokens returning from successful redemption call
     // POSITION_EXITED => Specified amounts led to a full, successful redemption
     // ALL ELSE => Unexpected; all other responses should not have tokens
-    else if ((response.selector == IVault.redeem.selector) || (response.selector == IVault.redeemAll.selector)) {
+    else if (
+      (response.selector == IVault.redeem.selector) ||
+      (response.selector == IVault.redeemAll.selector)
+    ) {
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
         state.STATES[id].balances.locked[response.token] += response.lockAmt;
         state.STATES[id].balances.liquid[response.token] += response.liqAmt;
         return true;
-      }
-      else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
+      } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.STATES[id].balances.locked[response.token] += response.lockAmt;
         state.STATES[id].balances.liquid[response.token] += response.liqAmt;
         state.STATES[id].activeStrategies[response.strategyId] == false;
         return true;
       }
-    }
-
-    else {
+    } else {
       return false;
     }
   }
@@ -436,17 +456,18 @@ contract AccountsStrategy is
     string calldata tokenSymbol,
     uint256 amount,
     IVault.VaultActionData memory response
-    ) internal {
-    AccountStorage.State storage state = LibAccounts.diamondStorage(); 
+  ) internal {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
     NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)
       .queryNetworkConnection(state.config.networkName);
-    LocalRegistrarLib.AngelProtocolParams memory apParams = IRegistrar(state.config.registrarContract)
-      .getAngelProtocolParams();
+    LocalRegistrarLib.AngelProtocolParams memory apParams = IRegistrar(
+      state.config.registrarContract
+    ).getAngelProtocolParams();
     address tokenAddress = IAxelarGateway(thisNetwork.axelarGateway).tokenAddresses(tokenSymbol);
     IERC20(tokenAddress).transfer(apParams.refundAddr, amount);
     emit RefundNeeded(response);
   }
-  
+
   // axelar endpoints
   function _executeWithToken(
     string calldata sourceChain,
@@ -458,7 +479,7 @@ contract AccountsStrategy is
     IVault.VaultActionData memory response = RouterLib.unpackCalldata(payload);
     _validateCall(sourceChain, sourceAddress, response);
     if (!_axelarCallbackWithToken(response)) {
-      // Fallback -- we don't expect this. If we get here, we have a bug somewhere.  
+      // Fallback -- we don't expect this. If we get here, we have a bug somewhere.
       // But we also don't ever want tokens in the Accounts contract without an owner assigned
       // Emit the refund needed event and transfer the tokens to the refund address for manual processing
       _refundFallback(tokenSymbol, amount, response);
@@ -482,25 +503,25 @@ contract AccountsStrategy is
       return response;
     }
 
-    // Fallback  
+    // Fallback
     revert UnexpectedResponse(response);
   }
 
   function _validateCall(
-    string calldata sourceChain, 
-    string calldata sourceAddress, 
+    string calldata sourceChain,
+    string calldata sourceAddress,
     IVault.VaultActionData memory response
   ) internal {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     LocalRegistrarLib.StrategyParams memory stratParams = IRegistrar(state.config.registrarContract)
       .getStrategyParamsById(response.strategyId);
     if (!Validator.compareStrings(sourceChain, stratParams.network)) {
-      revert UnexpectedCaller(response, sourceChain, sourceAddress); 
+      revert UnexpectedCaller(response, sourceChain, sourceAddress);
     }
     NetworkInfo memory stratNetwork = IRegistrar(state.config.registrarContract)
       .queryNetworkConnection(stratParams.network);
-    if(stratNetwork.router != StringToAddress.toAddress(sourceAddress)) {
-      revert UnexpectedCaller(response, sourceChain, sourceAddress); 
+    if (stratNetwork.router != StringToAddress.toAddress(sourceAddress)) {
+      revert UnexpectedCaller(response, sourceChain, sourceAddress);
     }
   }
 }

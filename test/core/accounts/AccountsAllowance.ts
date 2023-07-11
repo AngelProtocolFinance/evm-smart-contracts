@@ -8,7 +8,7 @@ import {
   AccountsAllowance,
 } from "typechain-types";
 import {getSigners} from "utils";
-import { deployFacetAsProxy } from "./utils/deployTestFacet";
+import {deployFacetAsProxy} from "./utils/deployTestFacet";
 
 describe("AccountsAllowance", function () {
   const {ethers} = hre;

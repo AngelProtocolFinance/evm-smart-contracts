@@ -3,8 +3,12 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import { deployFacetAsProxy } from "./utils/deployTestFacet";
-import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG, DEFAULT_STRATEGY_SELECTOR} from "test/utils";
+import {deployFacetAsProxy} from "./utils/deployTestFacet";
+import {
+  DEFAULT_CHARITY_ENDOWMENT,
+  DEFAULT_REGISTRAR_CONFIG,
+  DEFAULT_STRATEGY_SELECTOR,
+} from "test/utils";
 import {
   AccountsUpdateStatusEndowments,
   AccountsUpdateStatusEndowments__factory,
@@ -95,11 +99,10 @@ describe("AccountsUpdateStatusEndowments", function () {
   });
 
   describe("upon closeEndowmment", async function () {
-
     it("reverts if the caller is not the owner of the endowment", async () => {
-      await expect(facet.connect(accOwner).closeEndowment(accountId, beneficiary)).to.be.revertedWith(
-        "Unauthorized"
-      );
+      await expect(
+        facet.connect(accOwner).closeEndowment(accountId, beneficiary)
+      ).to.be.revertedWith("Unauthorized");
     });
 
     it("reverts if the endowment is already closed", async () => {
@@ -191,21 +194,25 @@ describe("AccountsUpdateStatusEndowments", function () {
       expect(endowState[1].data.endowId).to.equal(0);
       expect(endowState[1].data.fundId).to.equal(funds[0].id);
     });
-  })
+  });
 
   describe("upon forceSetStrategyInactive", async function () {
-
     it("reverts if the caller is not the endowment owner", async function () {
-      await expect(facet.connect(accOwner).forceSetStrategyInactive(accountId, DEFAULT_STRATEGY_SELECTOR))
-        .to.be.revertedWith("Unauthorized")
-    })
+      await expect(
+        facet.connect(accOwner).forceSetStrategyInactive(accountId, DEFAULT_STRATEGY_SELECTOR)
+      ).to.be.revertedWith("Unauthorized");
+    });
 
     it("sets the active state to false for the specified strategy", async function () {
-      await state.setActiveStrategyEndowmentState(accountId, DEFAULT_STRATEGY_SELECTOR, true)
-      await facet.connect(endowOwner).forceSetStrategyInactive(accountId, DEFAULT_STRATEGY_SELECTOR)
-      let activeState = await state.getActiveStrategyEndowmentState(accountId, DEFAULT_STRATEGY_SELECTOR)
-      expect(activeState).to.be.false
-    })
-  })
-
+      await state.setActiveStrategyEndowmentState(accountId, DEFAULT_STRATEGY_SELECTOR, true);
+      await facet
+        .connect(endowOwner)
+        .forceSetStrategyInactive(accountId, DEFAULT_STRATEGY_SELECTOR);
+      let activeState = await state.getActiveStrategyEndowmentState(
+        accountId,
+        DEFAULT_STRATEGY_SELECTOR
+      );
+      expect(activeState).to.be.false;
+    });
+  });
 });

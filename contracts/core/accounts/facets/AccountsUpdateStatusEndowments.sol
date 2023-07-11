@@ -90,17 +90,17 @@ contract AccountsUpdateStatusEndowments is
     return true;
   }
 
-   /**
+  /**
    * @notice Force a strategy inactive for `checkFullyExited` to pass
-   * @dev We optimistically expect that a cross-chain `deposit` call will be successful 
-   * and then set the strategy active accordingly. In the event that a strategy is erroneously active, 
-   * we need a hook for an endow owner to close out.  
+   * @dev We optimistically expect that a cross-chain `deposit` call will be successful
+   * and then set the strategy active accordingly. In the event that a strategy is erroneously active,
+   * we need a hook for an endow owner to close out.
    * @param id The ID of the endowment to be closed.
    * @param strategySelector The `stuck state` strategy
    */
   function forceSetStrategyInactive(uint32 id, bytes4 strategySelector) public {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    require(msg.sender == state.ENDOWMENTS[id].owner, "Unauthorized"); 
+    require(msg.sender == state.ENDOWMENTS[id].owner, "Unauthorized");
     state.STATES[id].activeStrategies[strategySelector] = false;
   }
 }
