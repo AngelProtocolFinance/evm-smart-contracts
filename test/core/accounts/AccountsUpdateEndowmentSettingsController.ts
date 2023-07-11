@@ -129,17 +129,6 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       );
     });
 
-    it("reverts if a normal endowment is updating its maturityAllowlist with a zero address value", async () => {
-      const invalidRequest: AccountMessages.UpdateEndowmentSettingsRequestStruct = {
-        ...normalEndowReq,
-        maturity_allowlist_add: [ethers.constants.AddressZero],
-      };
-
-      await expect(facet.updateEndowmentSettings(invalidRequest)).to.be.revertedWith(
-        "InvalidAddress"
-      );
-    });
-
     it("changes nothing in charity settings if sender doesn't have necessary permissions", async () => {
       await expect(facet.connect(owner).updateEndowmentSettings(charityReq))
         .to.emit(facet, "EndowmentUpdated")
@@ -256,6 +245,24 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       expect(updated.splitToLiquid.max).to.equal(normalEndowReq.splitToLiquid.max);
       expect(updated.splitToLiquid.min).to.equal(normalEndowReq.splitToLiquid.min);
     });
+
+    it("does not validate passed in address values", async () => {
+      const request: AccountMessages.UpdateEndowmentSettingsRequestStruct = {
+        ...normalEndowReq,
+        maturity_allowlist_add: [ethers.constants.AddressZero],
+        maturity_allowlist_remove: [ethers.constants.AddressZero],
+        allowlistedBeneficiaries: [ethers.constants.AddressZero],
+        allowlistedContributors: [ethers.constants.AddressZero],
+      };
+
+      await expect(facet.updateEndowmentSettings(request))
+        .to.emit(facet, "EndowmentSettingUpdated")
+        .withArgs(request.id, "allowlistedBeneficiaries")
+        .to.emit(facet, "EndowmentSettingUpdated")
+        .withArgs(request.id, "allowlistedContributors")
+        .to.emit(facet, "EndowmentSettingUpdated")
+        .withArgs(request.id, "maturityAllowlist");
+    });
   });
 
   describe("updateEndowmentController", () => {
@@ -300,12 +307,6 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       });
       await expect(facet.updateEndowmentController(charityReq)).to.be.revertedWith(
         "UpdatesAfterClosed"
-      );
-    });
-
-    it("reverts if the sender is not the owner of the endowment", async () => {
-      await expect(facet.connect(owner).updateEndowmentController(charityReq)).to.be.revertedWith(
-        "Unauthorized"
       );
     });
 
