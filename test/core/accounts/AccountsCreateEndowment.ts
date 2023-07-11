@@ -5,7 +5,7 @@ import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import { deployFacetAsProxy } from "test/utils";
+import { deployFacetAsProxy } from "./utils/deployTestFacet";
 import {
   AccountsCreateEndowment,
   AccountsCreateEndowment__factory,

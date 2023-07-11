@@ -1,9 +1,11 @@
 import {ethers} from "hardhat";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
+import { AccountMessages } from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
 import {LibAccounts} from "typechain-types/contracts/multisigs/CharityApplications";
 import {NetworkInfoStruct} from "../types";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {BigNumber} from "ethers";
+import { DEFAULT_STRATEGY_SELECTOR } from "test/utils/constants";
 
 export const DEFAULT_PERMISSIONS_STRUCT: LibAccounts.SettingsPermissionStruct = {
   locked: false,
@@ -136,3 +138,27 @@ export const DEFAULT_REGISTRAR_CONFIG: RegistrarStorage.ConfigStruct = {
   multisigEmitter: ethers.constants.AddressZero,
   donationMatchCharitesContract: ethers.constants.AddressZero,
 };
+
+export const DEFAULT_INVEST_REQUEST: AccountMessages.InvestRequestStruct = {
+  strategy: DEFAULT_STRATEGY_SELECTOR,
+  token: "TKN",
+  lockAmt: 0,
+  liquidAmt: 0,
+  gasFee: 0,
+}
+
+export const DEFAULT_REDEEM_REQUEST: AccountMessages.RedeemRequestStruct = {
+  strategy: DEFAULT_STRATEGY_SELECTOR,
+  token: "TKN",
+  lockAmt: 0,
+  liquidAmt: 0,
+  gasFee: 0,
+}
+
+export const DEFAULT_REDEEM_ALL_REQUEST: AccountMessages.RedeemAllRequestStruct = {
+  strategy: DEFAULT_STRATEGY_SELECTOR,
+  token: "TKN",
+  redeemLocked: false,
+  redeemLiquid: false,
+  gasFee: 0,
+}
