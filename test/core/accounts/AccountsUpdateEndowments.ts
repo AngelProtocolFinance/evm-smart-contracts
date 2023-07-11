@@ -451,5 +451,17 @@ describe("AccountsUpdateEndowments", function () {
         )
       ).to.be.revertedWith("UpdatesAfterClosed");
     });
+
+    it("reverts if EarlyLockedWithdrawFee setting option is used", async () => {
+      await expect(
+        facet.updateDelegate(
+          normalEndowId,
+          ControllerSettingOption.EarlyLockedWithdrawFee,
+          DelegateAction.Set,
+          ethers.constants.AddressZero,
+          0
+        )
+      ).to.be.revertedWith("Invalid setting input");
+    });
   });
 });
