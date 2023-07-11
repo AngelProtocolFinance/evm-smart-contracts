@@ -4,7 +4,7 @@ import hre from "hardhat";
 import {getSigners} from "utils";
 
 import {LocalRegistrar, LocalRegistrar__factory} from "../../../typechain-types";
-import {StrategyApprovalState} from "../../utils/helpers/ILocalRegistrarHelpers";
+import {StrategyApprovalState} from "test/utils";
 
 describe("Local Registrar", function () {
   const {ethers, upgrades} = hre;

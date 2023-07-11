@@ -2,7 +2,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
+import { deployFacetAsProxy } from "./utils/deployTestFacet";
 import {DEFAULT_ACCOUNTS_CONFIG, DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
 import {
   AccountsQueryEndowments,
@@ -131,9 +131,6 @@ describe("AccountsQueryEndowments", function () {
       expect(endowmentDetails.multisig).to.equal(DEFAULT_CHARITY_ENDOWMENT.multisig);
       expect(endowmentDetails.name).to.equal(DEFAULT_CHARITY_ENDOWMENT.name);
       expect(endowmentDetails.parent).to.equal(DEFAULT_CHARITY_ENDOWMENT.parent);
-      expect(endowmentDetails.pendingRedemptions).to.equal(
-        DEFAULT_CHARITY_ENDOWMENT.pendingRedemptions
-      );
       expect(endowmentDetails.proposalLink).to.equal(DEFAULT_CHARITY_ENDOWMENT.proposalLink);
       expect(endowmentDetails.rebalance.basis).to.deep.equal(
         DEFAULT_CHARITY_ENDOWMENT.rebalance.basis

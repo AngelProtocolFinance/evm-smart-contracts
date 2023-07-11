@@ -1,7 +1,7 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import hre from "hardhat";
-import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
+import { deployFacetAsProxy } from "./utils/deployTestFacet";
 import {AccountsUpdate, AccountsUpdate__factory, TestFacetProxyContract} from "typechain-types";
 import {LibAccounts} from "typechain-types/contracts/core/accounts/facets/AccountsCreateEndowment";
 import {getSigners} from "utils";
@@ -39,6 +39,7 @@ describe("AccountsUpdate", function () {
     await state.setConfig({
       owner: owner.address,
       version: "1",
+      networkName: "Polygon",
       registrarContract: ethers.constants.AddressZero,
       nextAccountId: 1,
       maxGeneralCategoryId: 1,

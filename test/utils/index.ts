@@ -7,4 +7,3 @@ export * from "./dummyVault";
 export * from "./helpers";
 export * from "./Registrar";
 export * from "./integrations";
-export * from "./deployTestFacet";

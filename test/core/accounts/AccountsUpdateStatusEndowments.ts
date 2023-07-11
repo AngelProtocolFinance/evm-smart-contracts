@@ -3,7 +3,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
+import { deployFacetAsProxy } from "./utils/deployTestFacet";
 import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG} from "test/utils";
 import {
   AccountsUpdateStatusEndowments,
@@ -80,6 +80,7 @@ describe("AccountsUpdateStatusEndowments", function () {
     await state.setConfig({
       owner: accOwner.address,
       version: "1",
+      networkName: "Polygon",
       registrarContract: registrarFake.address,
       nextAccountId: accountId + 1,
       maxGeneralCategoryId: 1,
@@ -103,13 +104,6 @@ describe("AccountsUpdateStatusEndowments", function () {
     await state.setClosingEndowmentState(accountId, true, beneficiary);
     await expect(facet.closeEndowment(accountId, beneficiary)).to.be.revertedWith(
       "Endowment is closed"
-    );
-  });
-
-  it("reverts if there is a redemption in progress for the endowment", async () => {
-    await state.setEndowmentDetails(accountId, {...endowment, pendingRedemptions: 1});
-    await expect(facet.closeEndowment(accountId, beneficiary)).to.be.revertedWith(
-      "RedemptionInProgress"
     );
   });
 

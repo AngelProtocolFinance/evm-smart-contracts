@@ -5,7 +5,7 @@ import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
+import { deployFacetAsProxy } from "test/utils";
 import {
   AccountsCreateEndowment,
   AccountsCreateEndowment__factory,
@@ -179,6 +179,7 @@ describe("AccountsCreateEndowment", function () {
     await state.setConfig({
       owner: owner.address,
       version: "1",
+      networkName: "Polygon",
       registrarContract: registrarFake.address,
       nextAccountId: expectedNextAccountId,
       maxGeneralCategoryId: 1,
@@ -380,7 +381,6 @@ describe("AccountsCreateEndowment", function () {
     expect(result.multisig).to.not.equal(ethers.constants.AddressZero);
     expect(result.name).to.equal(request.name);
     expect(result.parent).to.equal(request.parent);
-    expect(result.pendingRedemptions).to.equal(0);
     expect(result.proposalLink).to.equal(request.proposalLink);
     expect(result.rebalance).to.deep.equal(await Registrar.getRebalanceParams());
     expect(result.referralId).to.equal(request.referralId);
@@ -484,7 +484,6 @@ describe("AccountsCreateEndowment", function () {
     expect(result.multisig).to.not.equal(ethers.constants.AddressZero);
     expect(result.name).to.equal(request.name);
     expect(result.parent).to.equal(request.parent);
-    expect(result.pendingRedemptions).to.equal(0);
     expect(result.proposalLink).to.equal(request.proposalLink);
     expect(result.rebalance).to.deep.equal(await Registrar.getRebalanceParams());
     expect(result.referralId).to.equal(request.referralId);
