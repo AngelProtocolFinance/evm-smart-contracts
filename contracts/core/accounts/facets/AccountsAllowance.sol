@@ -37,48 +37,6 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
       "Invalid Token"
     );
 
-    // Only the endowment owner or a delegate whom controls the appropriate allowlist can update allowances
-    // also need to check that the spender address passed is in an allowlist (based on maturity)
-    bool mature = (tempEndowment.maturityTime != 0 &&
-      block.timestamp >= tempEndowment.maturityTime);
-    bool inAllowlist = false;
-    if (!mature) {
-      require(
-        Validator.canChange(
-          tempEndowment.settingsController.allowlistedBeneficiaries,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        ),
-        "Unauthorized"
-      );
-      if (tempEndowment.allowlistedBeneficiaries.length > 0) {
-        for (uint256 i = 0; i < tempEndowment.allowlistedBeneficiaries.length; i++) {
-          if (tempEndowment.allowlistedBeneficiaries[i] == spender) {
-            inAllowlist = true;
-          }
-        }
-      }
-    } else {
-      require(
-        Validator.canChange(
-          tempEndowment.settingsController.maturityAllowlist,
-          msg.sender,
-          tempEndowment.owner,
-          block.timestamp
-        ),
-        "Unauthorized"
-      );
-      if (tempEndowment.maturityAllowlist.length > 0) {
-        for (uint256 i = 0; i < tempEndowment.maturityAllowlist.length; i++) {
-          if (tempEndowment.maturityAllowlist[i] == spender) {
-            inAllowlist = true;
-          }
-        }
-      }
-    }
-    require(inAllowlist, "Spender is not in allowlists");
-
     uint256 spenderBal = state.ALLOWANCES[endowId][token].bySpender[spender];
     uint256 amountDelta;
     if (amount > spenderBal) {
@@ -108,6 +66,47 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
     }
     // set the allocation for spender to the amount specified
     state.ALLOWANCES[endowId][token].bySpender[spender] = amount;
+
+    // Checks are based around the endowment's maturity time having been reached or not
+    bool mature = (tempEndowment.maturityTime != 0 &&
+      block.timestamp >= tempEndowment.maturityTime);
+    bool inAllowlist = false;
+    if (!mature) {
+      // Only the endowment owner or a delegate whom controls allowlist can update allowances
+      require(
+        Validator.canChange(
+          tempEndowment.settingsController.allowlistedBeneficiaries,
+          msg.sender,
+          tempEndowment.owner,
+          block.timestamp
+        ),
+        "Unauthorized"
+      );
+      // also need to check that the spender address passed is in an allowlist
+      if (tempEndowment.allowlistedBeneficiaries.length > 0) {
+        for (uint256 i = 0; i < tempEndowment.allowlistedBeneficiaries.length; i++) {
+          if (tempEndowment.allowlistedBeneficiaries[i] == spender) inAllowlist = true;
+        }
+      }
+    } else {
+      // Only the endowment owner or a delegate whom controls allowlist can update allowances
+      require(
+        Validator.canChange(
+          tempEndowment.settingsController.maturityAllowlist,
+          msg.sender,
+          tempEndowment.owner,
+          block.timestamp
+        ),
+        "Unauthorized"
+      );
+      // also need to check that the spender address passed is in an allowlist
+      if (tempEndowment.maturityAllowlist.length > 0) {
+        for (uint256 i = 0; i < tempEndowment.maturityAllowlist.length; i++) {
+          if (tempEndowment.maturityAllowlist[i] == spender) inAllowlist = true;
+        }
+      }
+    }
+    require(inAllowlist, "Spender is not in allowlists");
   }
 
   /**
