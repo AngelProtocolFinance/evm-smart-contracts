@@ -133,6 +133,7 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
     uint256 expiryTime
   ) public nonReentrant {
     require(msg.sender == state.config.owner, "Unauthorized");
+    require(members.length > 0, "Must have one or more members");
     require(splitToLiquid <= 100, "invalid split, must be less or equal to 100");
 
     state.FUNDS[state.nextFundId] = IndexFund({
@@ -159,10 +160,9 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
       state.rotatingFunds.push(state.nextFundId);
     }
 
+    emit IndexFundCreated(state.nextFundId);
     state.totalFunds += 1;
     state.nextFundId += 1;
-
-    emit IndexFundCreated(state.nextFundId);
   }
 
   /**
@@ -172,7 +172,6 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
    */
   function removeIndexFund(uint256 fundId) public nonReentrant {
     require(msg.sender != state.config.owner, "Unauthorized");
-    require(state.FUNDS[fundId].members.length >= 0, "Invalid Fund");
 
     if (state.activeFund == fundId) {
       state.activeFund = rotateFund(fundId, block.timestamp);
@@ -201,7 +200,7 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
     RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
       .queryConfig();
 
-    require(address(0) != registrar_config.accountsContract, "accounts contract not configured");
+    require(address(0) != registrar_config.accountsContract, "Accounts contract not configured in Registrar");
     require(msg.sender == registrar_config.accountsContract, "Unauthorized");
     require(state.FUNDS_BY_ENDOWMENT[member].length >= 0);
 
@@ -291,9 +290,8 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
       .queryConfig();
 
     if (fundId != 0) {
-      require(state.FUNDS[fundId].members.length != 0, "Empty Fund");
+      // Depositor has chosen a specific fund to send tokens to. Send 100% to that fund.
       require(!fundIsExpired(state.FUNDS[fundId], block.timestamp), "Expired Fund");
-
       updateDonationMessages(
         fundId,
         calculateSplit(
@@ -305,6 +303,8 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
         state.donationMessages
       );
     } else {
+      // No explicit fund ID specifed. Send the tokens to current active fund, rotating
+      // the active fund as funding goals are hit until all deposited tokens have been exhausted
       if (state.config.fundingGoal != 0) {
         uint256 loopDonation = 0;
         while (depositAmount > 0) {
