@@ -84,7 +84,7 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
    * @dev can be called by rent owner to set new registrar contract address
    * @param newRegistrar address of new registrar contract
    */
-  function updateRegistrar(address newRegistrar) public nonReentrant returns (bool) {
+  function updateRegistrar(address newRegistrar) public nonReentrant {
     require(msg.sender == state.config.owner, "Unauthorized");
     require(newRegistrar != address(0), "invalid input address");
     state.config.registrarContract = newRegistrar;
