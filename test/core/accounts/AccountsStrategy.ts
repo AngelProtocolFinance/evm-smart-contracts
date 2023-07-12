@@ -38,8 +38,9 @@ import {
   DEFAULT_REDEEM_ALL_REQUEST,
   DEFAULT_STRATEGY_PARAMS,
   packActionData,
-  unpackActionData,
+  VaultActionStructToArray,
   deployDummyVault,
+  DEFAULT_AP_PARAMS,
 } from "test/utils";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {deployDummyGasService} from "tasks/helpers";
@@ -997,16 +998,16 @@ describe("AccountsStrategy", function () {
           chainId: 42,
           router: router.address,
         };
-        await registrar.queryNetworkConnection.whenCalledWith("ThisNet").returns(thisNet);
-        await registrar.queryNetworkConnection.whenCalledWith("ThatNet").returns(thatNet);
+        registrar.queryNetworkConnection.whenCalledWith("ThisNet").returns(thisNet);
+        registrar.queryNetworkConnection.whenCalledWith("ThatNet").returns(thatNet);
 
-        await registrar.isTokenAccepted.returns(true);
+        registrar.isTokenAccepted.returns(true);
         const stratParams = {
           ...DEFAULT_STRATEGY_PARAMS,
           network: "ThatNet",
           approvalState: StrategyApprovalState.APPROVED,
         };
-        await registrar.getStrategyParamsById.returns(stratParams);
+        registrar.getStrategyParamsById.returns(stratParams);
       });
 
       beforeEach(async function () {
@@ -1078,7 +1079,7 @@ describe("AccountsStrategy", function () {
     });
   });
 
-  describe("upon axelar callback via execute", async function () {
+  describe("upon axelar callback", async function () {
     let facet: AccountsStrategy;
     let state: TestFacetProxyContract;
     let token: DummyERC20;
@@ -1090,15 +1091,16 @@ describe("AccountsStrategy", function () {
       gateway = await deployDummyGateway(owner);
       await gateway.setTestTokenAddress(token.address);
 
-      const network = {
+      const thisNet = {
         ...DEFAULT_NETWORK_INFO,
         chainId: (await ethers.provider.getNetwork()).chainId,
         axelarGateway: gateway.address,
       };
-      registrar.queryNetworkConnection.returns(network);
+      registrar.queryNetworkConnection.whenCalledWith("ThisNet").returns(thisNet);
+
       let stratParams = {
         ...DEFAULT_STRATEGY_PARAMS,
-        network: "ThisNet",
+        network: "ThatNet",
         approvalState: StrategyApprovalState.NOT_APPROVED,
       };
       registrar.getStrategyParamsById.returns(stratParams);
@@ -1107,6 +1109,341 @@ describe("AccountsStrategy", function () {
     beforeEach(async function () {
       state = await deployFacetAsProxy(hre, owner, admin, facetImpl.address);
       facet = AccountsStrategy__factory.connect(state.address, owner);
+      const config = {
+        ...DEFAULT_ACCOUNTS_CONFIG,
+        networkName: "ThisNet",
+        registrarContract: registrar.address,
+      };
+      await state.setConfig(config);
+    });
+
+    it("reverts in _execute if the call didn't originate from the expected chain", async function () {
+      const action = {
+        destinationChain: "ThatNet",
+        strategyId: DEFAULT_STRATEGY_SELECTOR,
+        selector: vault.interface.getSighash("deposit"),
+        accountIds: [ACCOUNT_ID],
+        token: token.address,
+        lockAmt: 1,
+        liqAmt: 1,
+        status: VaultActionStatus.UNPROCESSED,
+      }
+      const payload = packActionData(action);
+      const returnedAction = VaultActionStructToArray(action)
+      await expect(facet.execute(
+        ethers.utils.formatBytes32String("true"), 
+        "NotNet", 
+        owner.address,
+        payload
+      ))
+      .to.be.revertedWithCustomError(facet, "UnexpectedCaller")
+      .withArgs(returnedAction, "NotNet", owner.address)
+    })
+
+    it("reverts in _executeWithToken if the call didn't originate from the expected chain", async function () {
+      const action = {
+        destinationChain: "ThatNet",
+        strategyId: DEFAULT_STRATEGY_SELECTOR,
+        selector: vault.interface.getSighash("deposit"),
+        accountIds: [ACCOUNT_ID],
+        token: token.address,
+        lockAmt: 1,
+        liqAmt: 1,
+        status: VaultActionStatus.UNPROCESSED,
+      }
+      const payload = packActionData(action);
+      const returnedAction = VaultActionStructToArray(action)
+      await expect(facet.executeWithToken(
+        ethers.utils.formatBytes32String("true"), 
+        "NotNet", 
+        owner.address,
+        payload,
+        "TKN", 
+        1
+      ))
+      .to.be.revertedWithCustomError(facet, "UnexpectedCaller")
+      .withArgs(returnedAction, "NotNet", owner.address)
+    });
+
+    
+    it("reverts in _execute if the call didn't originate from the chain's router", async function () {
+      const action = {
+        destinationChain: "ThatNet",
+        strategyId: DEFAULT_STRATEGY_SELECTOR,
+        selector: vault.interface.getSighash("deposit"),
+        accountIds: [ACCOUNT_ID],
+        token: token.address,
+        lockAmt: 1,
+        liqAmt: 1,
+        status: VaultActionStatus.UNPROCESSED,
+      }
+      const payload = packActionData(action);
+      const returnedAction = VaultActionStructToArray(action)
+      await expect(facet.execute(
+        ethers.utils.formatBytes32String("true"), 
+        "ThatNet", 
+        owner.address,
+        payload
+      ))
+      .to.be.revertedWithCustomError(facet, "UnexpectedCaller")
+      .withArgs(returnedAction, "ThatNet", owner.address)
+    });
+
+    it("reverts in _executeWithToken if the call didn't originate from the expected chain", async function () {
+      const action = {
+        destinationChain: "ThatNet",
+        strategyId: DEFAULT_STRATEGY_SELECTOR,
+        selector: vault.interface.getSighash("deposit"),
+        accountIds: [ACCOUNT_ID],
+        token: token.address,
+        lockAmt: 1,
+        liqAmt: 1,
+        status: VaultActionStatus.UNPROCESSED,
+      }
+      const payload = packActionData(action);
+      const returnedAction = VaultActionStructToArray(action)
+      await expect(facet.executeWithToken(
+        ethers.utils.formatBytes32String("true"), 
+        "ThatNet", 
+        owner.address,
+        payload,
+        "TKN", 
+        1
+      ))
+      .to.be.revertedWithCustomError(facet, "UnexpectedCaller")
+      .withArgs(returnedAction, "ThatNet", owner.address)
+    });
+
+    it("_execute successfully handles status == FAIL_TOKENS_FALLBACK", async function () {
+      const action = {
+        destinationChain: "ThatNet",
+        strategyId: DEFAULT_STRATEGY_SELECTOR,
+        selector: vault.interface.getSighash("deposit"),
+        accountIds: [ACCOUNT_ID],
+        token: token.address,
+        lockAmt: 1,
+        liqAmt: 1,
+        status: VaultActionStatus.FAIL_TOKENS_FALLBACK,
+      }
+      const payload = packActionData(action);
+      const returnedAction = VaultActionStructToArray(action)
+      expect(await facet.execute(
+        ethers.utils.formatBytes32String("true"), 
+        "ThatNet", 
+        router.address,
+        payload
+      ))
+      .to.emit(facet, "RefundNeeded")
+      .withArgs(returnedAction)
+    });
+
+    it("_execute reverts for any other status", async function () {
+      const action = {
+        destinationChain: "ThatNet",
+        strategyId: DEFAULT_STRATEGY_SELECTOR,
+        selector: vault.interface.getSighash("deposit"),
+        accountIds: [ACCOUNT_ID],
+        token: token.address,
+        lockAmt: 1,
+        liqAmt: 1,
+        status: VaultActionStatus.UNPROCESSED,
+      }
+      const payload = packActionData(action);
+      const returnedAction = VaultActionStructToArray(action)
+      await expect(facet.execute(
+        ethers.utils.formatBytes32String("true"), 
+        "ThatNet", 
+        router.address,
+        payload
+      ))
+      .to.be.revertedWithCustomError(facet, "UnexpectedResponse")
+      .withArgs(returnedAction)
+    });
+
+    it("_executeWithToken: deposit && FAIL_TOKENS_RETURNED", async function () {
+      const LOCK_AMT = 300;
+      const LIQ_AMT = 200;
+      const action = {
+        destinationChain: "ThatNet",
+        strategyId: DEFAULT_STRATEGY_SELECTOR,
+        selector: vault.interface.getSighash("deposit"),
+        accountIds: [ACCOUNT_ID],
+        token: token.address,
+        lockAmt: LOCK_AMT,
+        liqAmt: LIQ_AMT,
+        status: VaultActionStatus.FAIL_TOKENS_RETURNED,
+      }
+      const payload = packActionData(action);
+      await facet.executeWithToken(
+        ethers.utils.formatBytes32String("true"), 
+        "ThatNet", 
+        router.address,
+        payload,
+        "TKN",
+        1
+      );
+      const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+      expect(lockBal).to.equal(LOCK_AMT)
+      expect(liqBal).to.equal(LIQ_AMT)
+    });
+
+    it("_executeWithToken: redeem && SUCCESS", async function () {
+      const LOCK_AMT = 300;
+      const LIQ_AMT = 200;
+      const action = {
+        destinationChain: "ThatNet",
+        strategyId: DEFAULT_STRATEGY_SELECTOR,
+        selector: vault.interface.getSighash("redeem"),
+        accountIds: [ACCOUNT_ID],
+        token: token.address,
+        lockAmt: LOCK_AMT,
+        liqAmt: LIQ_AMT,
+        status: VaultActionStatus.SUCCESS,
+      }
+      const payload = packActionData(action);
+      await facet.executeWithToken(
+        ethers.utils.formatBytes32String("true"), 
+        "ThatNet", 
+        router.address,
+        payload,
+        "TKN",
+        1
+      );
+      const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+      expect(lockBal).to.equal(LOCK_AMT)
+      expect(liqBal).to.equal(LIQ_AMT)
+    });
+
+    it("_executeWithToken: redeemAll && SUCCESS", async function () {
+      const LOCK_AMT = 300;
+      const LIQ_AMT = 200;
+      const action = {
+        destinationChain: "ThatNet",
+        strategyId: DEFAULT_STRATEGY_SELECTOR,
+        selector: vault.interface.getSighash("redeemAll"),
+        accountIds: [ACCOUNT_ID],
+        token: token.address,
+        lockAmt: LOCK_AMT,
+        liqAmt: LIQ_AMT,
+        status: VaultActionStatus.SUCCESS,
+      }
+      const payload = packActionData(action);
+      await facet.executeWithToken(
+        ethers.utils.formatBytes32String("true"), 
+        "ThatNet", 
+        router.address,
+        payload,
+        "TKN",
+        1
+      );
+      const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+      expect(lockBal).to.equal(LOCK_AMT)
+      expect(liqBal).to.equal(LIQ_AMT)
+    });
+
+    it("_executeWithToken: redeem && POSITION_EXITED", async function () {
+      const LOCK_AMT = 300;
+      const LIQ_AMT = 200;
+      const action = {
+        destinationChain: "ThatNet",
+        strategyId: DEFAULT_STRATEGY_SELECTOR,
+        selector: vault.interface.getSighash("redeem"),
+        accountIds: [ACCOUNT_ID],
+        token: token.address,
+        lockAmt: LOCK_AMT,
+        liqAmt: LIQ_AMT,
+        status: VaultActionStatus.POSITION_EXITED,
+      }
+      const payload = packActionData(action);
+      await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true);
+      
+      await facet.executeWithToken(
+        ethers.utils.formatBytes32String("true"), 
+        "ThatNet", 
+        router.address,
+        payload,
+        "TKN",
+        1
+      );
+      const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+      expect(lockBal).to.equal(LOCK_AMT);
+      expect(liqBal).to.equal(LIQ_AMT);
+      let strategyActive = await state.getActiveStrategyEndowmentState(
+        ACCOUNT_ID,
+        DEFAULT_STRATEGY_SELECTOR
+      );
+      expect(!strategyActive);
+    });
+
+    it("_executeWithToken: redeemAll && POSITION_EXITED", async function () {
+      const LOCK_AMT = 300;
+      const LIQ_AMT = 200;
+      const action = {
+        destinationChain: "ThatNet",
+        strategyId: DEFAULT_STRATEGY_SELECTOR,
+        selector: vault.interface.getSighash("redeemAll"),
+        accountIds: [ACCOUNT_ID],
+        token: token.address,
+        lockAmt: LOCK_AMT,
+        liqAmt: LIQ_AMT,
+        status: VaultActionStatus.POSITION_EXITED,
+      }
+      const payload = packActionData(action);
+      await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true);
+
+      await facet.executeWithToken(
+        ethers.utils.formatBytes32String("true"), 
+        "ThatNet", 
+        router.address,
+        payload,
+        "TKN",
+        1
+      );
+      const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+      expect(lockBal).to.equal(LOCK_AMT);
+      expect(liqBal).to.equal(LIQ_AMT);
+      let strategyActive = await state.getActiveStrategyEndowmentState(
+        ACCOUNT_ID,
+        DEFAULT_STRATEGY_SELECTOR
+      );
+      expect(!strategyActive);
+    });
+
+    it("_refundFallback", async function () {
+      const LOCK_AMT = 300;
+      const LIQ_AMT = 200;
+      const action = {
+        destinationChain: "ThatNet",
+        strategyId: DEFAULT_STRATEGY_SELECTOR,
+        selector: vault.interface.getSighash("deposit"),
+        accountIds: [ACCOUNT_ID],
+        token: token.address,
+        lockAmt: LOCK_AMT,
+        liqAmt: LIQ_AMT,
+        status: VaultActionStatus.UNPROCESSED,
+      }
+      const payload = packActionData(action);
+
+      const apParams = {
+        ...DEFAULT_AP_PARAMS, 
+        refundAddr: user.address
+      }
+      registrar.getAngelProtocolParams.returns(apParams)
+      
+      await token.mint(facet.address, LOCK_AMT + LIQ_AMT)
+      await facet.executeWithToken(
+        ethers.utils.formatBytes32String("true"), 
+        "ThatNet", 
+        router.address,
+        payload,
+        "TKN",
+        LOCK_AMT + LIQ_AMT
+      );
+      const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+      expect(lockBal).to.equal(0);
+      expect(liqBal).to.equal(0);
+      let userBal = await token.balanceOf(user.address);
+      expect(userBal).to.equal(LOCK_AMT + LIQ_AMT)
     });
   });
 });

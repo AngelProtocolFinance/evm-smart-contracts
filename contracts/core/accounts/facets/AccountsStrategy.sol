@@ -16,7 +16,7 @@ import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
 import {IAccountsStrategy} from "../interfaces/IAccountsStrategy.sol";
-import {AxelarExecutable} from "../../../axelar/AxelarExecutable.sol";
+import {AxelarExecutableAccounts} from "../lib//AxelarExecutableAccounts.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IGasFwd} from "../../gasFwd/IGasFwd.sol";
 import "hardhat/console.sol";
@@ -27,7 +27,7 @@ import "hardhat/console.sol";
  */
 contract AccountsStrategy is
   IAccountsStrategy,
-  AxelarExecutable,
+  AxelarExecutableAccounts,
   ReentrancyGuardFacet,
   IAccountsEvents
 {

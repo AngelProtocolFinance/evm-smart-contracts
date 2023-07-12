@@ -178,3 +178,8 @@ export const DEFAULT_STRATEGY_PARAMS: LocalRegistrarLib.StrategyParamsStruct = {
     vaultAddr: ethers.constants.AddressZero,
   },
 };
+
+export const DEFAULT_AP_PARAMS: LocalRegistrarLib.AngelProtocolParamsStruct = {
+  refundAddr: ethers.constants.AddressZero, 
+  routerAddr: ethers.constants.AddressZero
+}
