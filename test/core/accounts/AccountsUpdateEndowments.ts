@@ -8,6 +8,8 @@ import {DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
 import {
   AccountsUpdateEndowments,
   AccountsUpdateEndowments__factory,
+  DummyERC165CompatibleContract,
+  DummyERC165CompatibleContract__factory,
   Registrar,
   Registrar__factory,
   TestFacetProxyContract,
@@ -64,8 +66,6 @@ describe("AccountsUpdateEndowments", function () {
   let oldNormalEndow: AccountStorage.EndowmentStruct;
   let oldCharity: AccountStorage.EndowmentStruct;
 
-  let registrarFake: FakeContract<Registrar>;
-
   /**
    * Updates all endowment's settings' delegate in a way that has no side-effects
    * @param endowId ID of the endowment
@@ -100,7 +100,7 @@ describe("AccountsUpdateEndowments", function () {
    * @param endowId ID of the endowment
    * @returns the updated endowment data with all settings locked
    */
-  async function lockSettings(endowId: PromiseOrValue<BigNumberish>) {
+  async function lockAllSettings(endowId: PromiseOrValue<BigNumberish>) {
     const oldEndow = await state.getEndowmentDetails(endowId);
     const lockedEndow: AccountStorage.EndowmentStruct = {...oldEndow};
     lockedEndow.settingsController = (
@@ -138,29 +138,12 @@ describe("AccountsUpdateEndowments", function () {
       ...oldCharity,
       endowType: 1,
     };
-
-    registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
-      address: genWallet().address,
-    });
   });
 
   beforeEach(async () => {
     const Facet = new AccountsUpdateEndowments__factory(accOwner);
     const facetImpl = await Facet.deploy();
     state = await deployFacetAsProxy(hre, accOwner, proxyAdmin, facetImpl.address);
-
-    await state.setConfig({
-      owner: accOwner.address,
-      version: "1",
-      registrarContract: ethers.constants.AddressZero,
-      nextAccountId: 1,
-      maxGeneralCategoryId: 1,
-      subDao: ethers.constants.AddressZero,
-      gateway: ethers.constants.AddressZero,
-      gasReceiver: ethers.constants.AddressZero,
-      earlyLockedWithdrawFee: {bps: 1000, payoutAddress: ethers.constants.AddressZero},
-      reentrancyGuardLocked: false,
-    });
 
     facet = AccountsUpdateEndowments__factory.connect(state.address, endowOwner);
 
@@ -247,7 +230,7 @@ describe("AccountsUpdateEndowments", function () {
       });
 
       it("changes nothing in charity settings if settings are locked", async () => {
-        const oldEndow = await lockSettings(charityReq.id);
+        const oldEndow = await lockAllSettings(charityReq.id);
         await updateDelegate(charityReq.id, {addr: delegate.address, expires: 0});
 
         // using delegate signer to avoid updating owner and rebalance data
@@ -260,7 +243,7 @@ describe("AccountsUpdateEndowments", function () {
       });
 
       it("changes nothing in normal endowment settings if settings are locked", async () => {
-        const oldEndow = await lockSettings(normalEndowReq.id);
+        const oldEndow = await lockAllSettings(normalEndowReq.id);
         await updateDelegate(normalEndowReq.id, {addr: delegate.address, expires: 0});
 
         // using delegate signer to avoid updating owner and rebalance data
@@ -553,7 +536,7 @@ describe("AccountsUpdateEndowments", function () {
         });
 
         describe("cases with missing permissions", () => {
-          it("changes nothing if sender is neither an owner nor delegate", async () => {
+          it("reverts if sender is neither an owner nor delegate", async () => {
             await expect(
               facet
                 .connect(accOwner)
@@ -567,8 +550,8 @@ describe("AccountsUpdateEndowments", function () {
             ).to.be.revertedWith("Unauthorized");
           });
 
-          it("changes nothing if settings are locked", async () => {
-            const oldEndow = await lockSettings(normalEndowId);
+          it("reverts if settings are locked", async () => {
+            await lockAllSettings(normalEndowId);
             await updateDelegate(normalEndowId, {addr: delegate.address, expires: 0});
 
             // using delegate signer to avoid updating owner and rebalance data
@@ -586,7 +569,7 @@ describe("AccountsUpdateEndowments", function () {
             ).to.be.revertedWith("Unauthorized");
           });
 
-          it("changes nothing if delegation has expired", async () => {
+          it("reverts if delegation has expired", async () => {
             const blockTimestamp = (await ethers.provider.getBlock("latest")).timestamp;
             await updateDelegate(normalEndowId, {
               addr: delegate.address,
@@ -608,5 +591,114 @@ describe("AccountsUpdateEndowments", function () {
         });
       });
     });
+  });
+
+  describe("updateAcceptedToken", () => {
+    const tokenAddr = genWallet().address;
+    const priceFeedAddr = genWallet().address;
+
+    it("reverts if invalid token address is passed", async () => {
+      await expect(
+        facet.updateAcceptedToken(normalEndowId, ethers.constants.AddressZero, priceFeedAddr, true)
+      ).to.be.revertedWith("Invalid token address passed");
+    });
+
+    it("reverts if invalid price feed address is passed", async () => {
+      await expect(
+        facet.updateAcceptedToken(normalEndowId, tokenAddr, ethers.constants.AddressZero, true)
+      ).to.be.revertedWith("Invalid priceFeed address passed");
+    });
+
+    it("reverts if the endowment is closed", async () => {
+      await state.setClosingEndowmentState(normalEndowId, true, {
+        enumData: 0,
+        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+      });
+      await expect(
+        facet.updateAcceptedToken(normalEndowId, tokenAddr, priceFeedAddr, true)
+      ).to.be.revertedWith("UpdatesAfterClosed");
+    });
+
+    it("reverts if sender is neither an owner nor delegate for accepted tokens settings", async () => {
+      await expect(
+        facet.connect(accOwner).updateAcceptedToken(normalEndowId, tokenAddr, priceFeedAddr, true)
+      ).to.be.revertedWith("Unauthorized");
+    });
+
+    it("reverts if accepted tokens settings are locked", async () => {
+      await lockAllSettings(normalEndowId);
+      await updateDelegate(normalEndowId, {addr: delegate.address, expires: 0});
+
+      await expect(
+        facet.connect(delegate).updateAcceptedToken(normalEndowId, tokenAddr, priceFeedAddr, true)
+      ).to.be.revertedWith("Unauthorized");
+    });
+
+    it("reverts if for accepted tokens settings delegation has expired", async () => {
+      const blockTimestamp = (await ethers.provider.getBlock("latest")).timestamp;
+      await updateDelegate(normalEndowId, {
+        addr: delegate.address,
+        expires: blockTimestamp - 1,
+      });
+
+      await expect(
+        facet.connect(delegate).updateAcceptedToken(normalEndowId, tokenAddr, priceFeedAddr, true)
+      ).to.be.revertedWith("Unauthorized");
+    });
+
+    it("reverts if the token is a member of the protocol-level accepted tokens list in the Registrar", async () => {
+      const registrarFake = await deployFakeRegistrar();
+      registrarFake.isTokenAccepted.returns(true);
+      await expect(
+        facet.updateAcceptedToken(normalEndowId, tokenAddr, priceFeedAddr, true)
+      ).to.be.revertedWith("Cannot add tokens already in the Registrar AcceptedTokens list");
+    });
+
+    it("reverts if the price feed passed to the function does not support ERC-165", async () => {
+      const registrarFake = await deployFakeRegistrar();
+      registrarFake.isTokenAccepted.returns(false);
+      await expect(
+        facet.updateAcceptedToken(normalEndowId, tokenAddr, priceFeedAddr, true)
+      ).to.be.revertedWith("Price Feed contract is not a valid ERC-165 interface");
+    });
+
+    [true, false].forEach((tokenStatus) => {
+      it(`adds token's price feed and sets token's status as ${
+        tokenStatus ? "" : "*not* "
+      }accepted`, async () => {
+        const registrarFake = await deployFakeRegistrar();
+        registrarFake.isTokenAccepted.returns(false);
+
+        const FakePriceFeed = new DummyERC165CompatibleContract__factory(proxyAdmin);
+        const fakePriceFeed = await FakePriceFeed.deploy();
+        await fakePriceFeed.deployed();
+
+        await expect(
+          facet.updateAcceptedToken(normalEndowId, tokenAddr, fakePriceFeed.address, tokenStatus)
+        ).to.not.be.reverted;
+
+        expect(await state.getPriceFeed(normalEndowId, tokenAddr)).to.equal(fakePriceFeed.address);
+        expect(await state.getTokenAccepted(normalEndowId, tokenAddr)).to.equal(tokenStatus);
+      });
+    });
+
+    async function deployFakeRegistrar() {
+      const registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
+        address: genWallet().address,
+      });
+      await state.setConfig({
+        owner: accOwner.address,
+        version: "1",
+        registrarContract: registrarFake.address,
+        nextAccountId: 1,
+        maxGeneralCategoryId: 1,
+        subDao: ethers.constants.AddressZero,
+        gateway: ethers.constants.AddressZero,
+        gasReceiver: ethers.constants.AddressZero,
+        earlyLockedWithdrawFee: {bps: 1000, payoutAddress: ethers.constants.AddressZero},
+        reentrancyGuardLocked: false,
+      });
+      return registrarFake;
+    }
   });
 });
