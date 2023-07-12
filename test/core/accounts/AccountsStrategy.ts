@@ -105,7 +105,7 @@ describe("AccountsStrategy", function () {
           ...DEFAULT_INVEST_REQUEST,
           lockAmt: 1,
         };
-        await expect(facet.strategyInvest(ACCOUNT_ID, investRequest)).to.be.revertedWith(
+        await expect(facet.connect(user).strategyInvest(ACCOUNT_ID, investRequest)).to.be.revertedWith(
           "Unauthorized"
         );
       });
@@ -116,7 +116,7 @@ describe("AccountsStrategy", function () {
           ...DEFAULT_INVEST_REQUEST,
           liquidAmt: 1,
         };
-        await expect(facet.strategyInvest(ACCOUNT_ID, investRequest)).to.be.revertedWith(
+        await expect(facet.connect(user).strategyInvest(ACCOUNT_ID, investRequest)).to.be.revertedWith(
           "Unauthorized"
         );
       });
