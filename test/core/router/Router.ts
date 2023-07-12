@@ -26,7 +26,7 @@ import {
   deployDummyVault,
   deployRegistrarAsProxy,
   packActionData,
-  unpackActionData
+  unpackActionData,
 } from "test/utils";
 import {getSigners} from "utils";
 import {LocalRegistrarLib} from "../../../typechain-types/contracts/core/registrar/LocalRegistrar";

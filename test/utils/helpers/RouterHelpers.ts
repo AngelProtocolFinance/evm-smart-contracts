@@ -1,7 +1,9 @@
-import { IVaultHelpers, VaultActionStructToArray, ArrayToVaultActionStruct } from "./IVaultHelpers";
+import {IVaultHelpers, VaultActionStructToArray, ArrayToVaultActionStruct} from "./IVaultHelpers";
 import {ethers} from "hardhat";
 
-export async function packActionData(_actionData: IVaultHelpers.VaultActionDataStruct): Promise<string> {
+export async function packActionData(
+  _actionData: IVaultHelpers.VaultActionDataStruct
+): Promise<string> {
   const TypeList = ["string", "bytes4", "bytes4", "uint[]", "address", "uint", "uint", "uint"];
   return ethers.utils.defaultAbiCoder.encode(TypeList, VaultActionStructToArray(_actionData));
 }

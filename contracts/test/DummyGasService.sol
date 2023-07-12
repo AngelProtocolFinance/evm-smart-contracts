@@ -5,8 +5,19 @@ pragma solidity >=0.8.0;
 import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService.sol";
 
 contract DummyGasService is IAxelarGasService {
-  event GasPaid(address, string, string, bytes,address, uint256, address);
-  event GasPaidWithToken(address, string, string, bytes, string, uint256, address, uint256, address);
+  event GasPaid(address, string, string, bytes, address, uint256, address);
+  event GasPaidWithToken(
+    address,
+    string,
+    string,
+    bytes,
+    string,
+    uint256,
+    address,
+    uint256,
+    address
+  );
+
   // This is called on the source chain before calling the gateway to execute a remote contract.
   function payGasForContractCall(
     address sender,
@@ -17,7 +28,15 @@ contract DummyGasService is IAxelarGasService {
     uint256 gasFeeAmount,
     address refundAddress
   ) external {
-    emit GasPaid(sender, destinationChain, destinationAddress, payload, gasToken, gasFeeAmount, refundAddress);
+    emit GasPaid(
+      sender,
+      destinationChain,
+      destinationAddress,
+      payload,
+      gasToken,
+      gasFeeAmount,
+      refundAddress
+    );
   }
 
   // This is called on the source chain before calling the gateway to execute a remote contract.
@@ -32,7 +51,17 @@ contract DummyGasService is IAxelarGasService {
     uint256 gasFeeAmount,
     address refundAddress
   ) external {
-    emit GasPaidWithToken(sender, destinationChain, destinationAddress, payload, symbol, amount, gasToken, gasFeeAmount, refundAddress);
+    emit GasPaidWithToken(
+      sender,
+      destinationChain,
+      destinationAddress,
+      payload,
+      symbol,
+      amount,
+      gasToken,
+      gasFeeAmount,
+      refundAddress
+    );
   }
 
   // This is called on the source chain before calling the gateway to execute a remote contract.

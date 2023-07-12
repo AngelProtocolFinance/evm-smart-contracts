@@ -5,11 +5,8 @@ import {LibAccounts} from "typechain-types/contracts/multisigs/CharityApplicatio
 import {NetworkInfoStruct} from "../types";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {BigNumber} from "ethers";
-import {
-  DEFAULT_STRATEGY_SELECTOR,
-  StrategyApprovalState,
-} from "test/utils";
-import { LocalRegistrarLib } from "typechain-types/contracts/core/registrar/LocalRegistrar";
+import {DEFAULT_STRATEGY_SELECTOR, StrategyApprovalState} from "test/utils";
+import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 
 export const DEFAULT_PERMISSIONS_STRUCT: LibAccounts.SettingsPermissionStruct = {
   locked: false,
@@ -170,7 +167,7 @@ export const DEFAULT_REDEEM_ALL_REQUEST: AccountMessages.RedeemAllRequestStruct 
 };
 
 export const DEFAULT_STRATEGY_PARAMS: LocalRegistrarLib.StrategyParamsStruct = {
-  approvalState: 0, 
+  approvalState: 0,
   network: "",
   Locked: {
     Type: 0,

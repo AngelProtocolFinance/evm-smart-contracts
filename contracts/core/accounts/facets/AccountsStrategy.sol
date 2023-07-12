@@ -214,7 +214,6 @@ contract AccountsStrategy is
         "Unauthorized"
       );
     }
-
     LocalRegistrarLib.StrategyParams memory stratParams = IRegistrar(state.config.registrarContract)
       .getStrategyParamsById(redeemRequest.strategy);
     require(
@@ -222,7 +221,6 @@ contract AccountsStrategy is
         (stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.WITHDRAW_ONLY),
       "Strategy is not approved"
     );
-
     NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)
       .queryNetworkConnection(state.config.networkName);
     address tokenAddress = IAxelarGateway(thisNetwork.axelarGateway).tokenAddresses(
