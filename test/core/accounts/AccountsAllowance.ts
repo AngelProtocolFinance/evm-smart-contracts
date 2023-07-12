@@ -108,8 +108,8 @@ describe("AccountsAllowance", function () {
       await expect(facet.manageAllowances(42, user.address, token.address, 10));
 
       // endowment liquid balance should be 90 now (100 - 10)
-      //const endowBal = await proxy.getEndowmentTokenBalance(42, token.address);
-      //expect(endowBal[1]).to.equal(90);
+      const endowBal = await proxy.getEndowmentTokenBalance(42, token.address);
+      expect(endowBal[1]).to.equal(90);
       // user allowance should be 10 now
       const allowance = await proxy.getTokenAllowance(42, user.address, token.address);
       expect(allowance).to.equal(10);
@@ -180,8 +180,8 @@ describe("AccountsAllowance", function () {
 
     it("passes when spend less than or equal to the allowance available for token", async function () {
       // check starting assumptions (should be 100 in liquid bal)
-      //let endowBal = await proxy.getEndowmentTokenBalance(42, token.address);
-      //expect(endowBal[1]).to.equal(100);
+      let endowBal = await proxy.getEndowmentTokenBalance(42, token.address);
+      expect(endowBal[1]).to.equal(100);
 
       // now we allocate some token allowance to the user address to spend from
       await facet.manageAllowances(42, user.address, token.address, 10);
@@ -189,8 +189,8 @@ describe("AccountsAllowance", function () {
       let allowance = await proxy.getTokenAllowance(42, user.address, token.address);
       expect(allowance).to.equal(10);
       // new liquid balance should be 90 (100 - 10)
-      //endowBal = await proxy.getEndowmentTokenBalance(42, token.address);
-      //expect(endowBal[1]).to.equal(90);
+      endowBal = await proxy.getEndowmentTokenBalance(42, token.address);
+      expect(endowBal[1]).to.equal(90);
 
       // mint tokens so that the contract can transfer them to recipient
       await token.mint(facet.address, 10);
