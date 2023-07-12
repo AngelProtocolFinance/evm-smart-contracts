@@ -460,12 +460,32 @@ describe("AccountsStrategy", function () {
     let facet: AccountsStrategy;
     let facetImpl: AccountsStrategy;
     let state: TestFacetProxyContract;
-    let registrar: Registrar;
+    let registrar: FakeContract<Registrar>;
     let token: DummyERC20;
     let gateway: DummyGateway;
     let network: NetworkInfoStruct;
     const ACCOUNT_ID = 1;
 
+    before(async function () {
+      let Facet = new AccountsStrategy__factory(owner);
+      facetImpl = await Facet.deploy();
+      registrar = await smock.fake<Registrar>(new Registrar__factory());
+      router = await smock.fake<Router>(new Router__factory(), {
+        address: owner.address,
+      });
+
+
+      token = await deployDummyERC20(owner);
+      gateway = await deployDummyGateway(owner);
+      await gateway.setTestTokenAddress(token.address);
+
+      network = { 
+        ...DEFAULT_NETWORK_INFO,
+        chainId: (await ethers.provider.getNetwork()).chainId,
+        axelarGateway: gateway.address
+      }
+      await registrar.queryNetworkConnection.returns(network);
+    });
     before(async function () {
       let Facet = new AccountsStrategy__factory(owner);
       facetImpl = await Facet.deploy();
