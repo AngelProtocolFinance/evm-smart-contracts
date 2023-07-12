@@ -64,8 +64,6 @@ contract AccountsUpdateEndowmentSettingsController is
           )
         ) {
           tempEndowment.allowlistedBeneficiaries = details.allowlistedBeneficiaries;
-          // IS EMITTING THIS EVENT FOR EACH UPDATED FIELD A GENERAL PRACTICE?
-          // I SEE THE BENEFIT, JUST NOT SURE ABOUT GAS EFFICIENCY AND USEFULNESS
           emit EndowmentSettingUpdated(details.id, "allowlistedBeneficiaries");
         }
 
@@ -238,7 +236,7 @@ contract AccountsUpdateEndowmentSettingsController is
         msg.sender,
         tempEndowment.owner,
         block.timestamp
-      )
+      ) && tempEndowment.endowType != LibAccounts.EndowmentType.Charity
     ) {
       tempEndowment.settingsController.withdrawFee = details.settingsController.withdrawFee;
     }
@@ -248,7 +246,7 @@ contract AccountsUpdateEndowmentSettingsController is
         msg.sender,
         tempEndowment.owner,
         block.timestamp
-      )
+      ) && tempEndowment.endowType != LibAccounts.EndowmentType.Charity
     ) {
       tempEndowment.settingsController.depositFee = details.settingsController.depositFee;
     }
@@ -258,7 +256,7 @@ contract AccountsUpdateEndowmentSettingsController is
         msg.sender,
         tempEndowment.owner,
         block.timestamp
-      )
+      ) && tempEndowment.endowType != LibAccounts.EndowmentType.Charity
     ) {
       tempEndowment.settingsController.balanceFee = details.settingsController.balanceFee;
     }
