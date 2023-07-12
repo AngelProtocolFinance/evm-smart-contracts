@@ -234,6 +234,7 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
     uint32[] memory members
   ) public nonReentrant {
     require(msg.sender == state.config.owner, "Unauthorized");
+    require(members.length > 0, "Must pass at least one member to add to the fund");
     require(members.length < state.config.fundMemberLimit, "Fund member limit exceeded");
     require(!fundIsExpired(state.FUNDS[fundId], block.timestamp), "Index Fund Expired");
 
