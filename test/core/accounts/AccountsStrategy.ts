@@ -665,11 +665,9 @@ describe("AccountsStrategy", function () {
 
   describe("upon strategyRedeemAll", async function () {
     let facet: AccountsStrategy;
-    let facetImpl: AccountsStrategy;
     let state: TestFacetProxyContract;
     let token: DummyERC20;
     let gateway: DummyGateway;
-    let network: NetworkInfoStruct;
     const ACCOUNT_ID = 1;
 
     before(async function () {
