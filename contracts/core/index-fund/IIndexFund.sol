@@ -18,5 +18,5 @@ interface IIndexFund {
 
   function queryInvolvedFunds(uint32 endowmentId) external view returns (IndexFund[] memory);
 
-  function removeMember(uint32 member) external returns (bool);
+  function removeMember(uint32 member) external;
 }
