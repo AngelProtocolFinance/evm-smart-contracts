@@ -53,9 +53,10 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
         "Unauthorized"
       );
       // also need to check that the spender address passed is in an allowlist
-      if (tempEndowment.allowlistedBeneficiaries.length > 0) {
-        for (uint256 i = 0; i < tempEndowment.allowlistedBeneficiaries.length; i++) {
-          if (tempEndowment.allowlistedBeneficiaries[i] == spender) inAllowlist = true;
+      for (uint256 i = 0; i < tempEndowment.allowlistedBeneficiaries.length; i++) {
+        if (tempEndowment.allowlistedBeneficiaries[i] == spender) {
+          inAllowlist = true;
+          break;
         }
       }
     } else {
@@ -70,9 +71,10 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
         "Unauthorized"
       );
       // also need to check that the spender address passed is in an allowlist
-      if (tempEndowment.maturityAllowlist.length > 0) {
-        for (uint256 i = 0; i < tempEndowment.maturityAllowlist.length; i++) {
-          if (tempEndowment.maturityAllowlist[i] == spender) inAllowlist = true;
+      for (uint256 i = 0; i < tempEndowment.maturityAllowlist.length; i++) {
+        if (tempEndowment.maturityAllowlist[i] == spender) {
+          inAllowlist = true;
+          break;
         }
       }
     }
@@ -126,10 +128,9 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
     require(
-      token != address(0) && state.ALLOWANCES[endowId][token].totalOutstanding > 0,
+      state.ALLOWANCES[endowId][token].totalOutstanding > 0,
       "Invalid Token"
     );
-    require(recipient != address(0), "Invalid recipient address");
     require(amount > 0, "Zero Amount");
     require(
       amount <= state.ALLOWANCES[endowId][token].bySpender[msg.sender],

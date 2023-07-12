@@ -116,6 +116,23 @@ describe("AccountsAllowance", function () {
       const allowance = await state.getTokenAllowance(42, user.address, token.address);
       expect(allowance).to.equal(10);
     });
+
+    it("passes when try to decrease an existing spender's allowance", async function () {
+      // now we allocate some token allowance to the user address to spend from
+      await state.setTokenAllowance(42, user.address, token.address, 10, 10);
+
+      // set a lower total token allowance for the user, returning the delta to liquid balance
+      expect(await facet.manageAllowances(42, user.address, token.address, 3))
+        .to.emit(facet, "AllowanceUpdated")
+        .withArgs(42, user.address, token.address, 3, 0, 7);
+
+      // endowment liquid balance should be 107 now (100 + 7)
+      const endowBal = await state.getEndowmentTokenBalance(42, token.address);
+      expect(endowBal[1]).to.equal(107);
+      // user allowance should be 3 now
+      const allowance = await state.getTokenAllowance(42, user.address, token.address);
+      expect(allowance).to.equal(3);
+    });
   });
 
   describe("Test cases for `spendAllowance`", async function () {
@@ -150,16 +167,6 @@ describe("AccountsAllowance", function () {
       );
     });
 
-    it("reverts when try to spend allowance to an invalid recipient address", async function () {
-      // now we allocate some token allowance to the user address to spend from
-      await state.setTokenAllowance(42, user.address, token.address, 10, 10);
-
-      // try to spend allocated funds to an invalid zero address
-      await expect(
-        facet.spendAllowance(42, token.address, 10, ethers.constants.AddressZero)
-      ).to.be.revertedWith("Invalid recipient address");
-    });
-
     it("reverts when try to spend zero amount of allowance", async function () {
       // now we allocate some token allowance to the user address to spend from
       await state.setTokenAllowance(42, user.address, token.address, 10, 10);
@@ -176,6 +183,11 @@ describe("AccountsAllowance", function () {
 
       // try to spend more allowance than user was allocated
       await expect(facet.spendAllowance(42, token.address, 1000, user.address)).to.be.revertedWith(
+        "Amount requested exceeds Allowance balance"
+      );
+
+      // try to spend more allowance than user was allocated
+      await expect(facet.spendAllowance(42, token.address, 1, proxyAdmin.address)).to.be.revertedWith(
         "Amount requested exceeds Allowance balance"
       );
     });
