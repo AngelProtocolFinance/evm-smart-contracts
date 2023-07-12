@@ -175,7 +175,7 @@ contract AccountsDepositWithdrawEndowments is
     state.STATES[details.id].balances.liquid[tokenAddress] += liquidAmount;
 
     state.ENDOWMENTS[details.id] = tempEndowment;
-    emit EndowmentUpdated(details.id);
+    emit EndowmentDeposit(details.id, tokenAddress, lockedAmount, liquidAmount);
   }
 
   /**
@@ -316,7 +316,7 @@ contract AccountsDepositWithdrawEndowments is
           LibAccounts.FEE_BASIS
         );
 
-        // transfer endowment withdraw fee to beneficiary address
+        // transfer endowment withdraw fee to payout address
         require(
           IERC20(tokens[t].addr).transfer(
             tempEndowment.withdrawFee.payoutAddress,
@@ -352,6 +352,14 @@ contract AccountsDepositWithdrawEndowments is
       } else {
         state.STATES[id].balances.liquid[tokens[t].addr] -= tokens[t].amnt;
       }
+      emit EndowmentWithdraw(
+        id,
+        tokens[t].addr,
+        tokens[t].amnt,
+        acctType,
+        beneficiaryAddress,
+        beneficiaryEndowId
+      );
     }
   }
 }
