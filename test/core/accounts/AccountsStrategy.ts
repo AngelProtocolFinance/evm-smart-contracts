@@ -56,6 +56,7 @@ describe("AccountsStrategy", function () {
   let registrar: FakeContract<Registrar>;
   let router: FakeContract<Router>;
   let vault: DummyVault
+  let facetImpl: AccountsStrategy;
 
   before(async function () {
     const {deployer, proxyAdmin, apTeam1} = await getSigners(hre);
@@ -63,11 +64,14 @@ describe("AccountsStrategy", function () {
     admin = proxyAdmin;
     user = apTeam1;
     vault = await deployDummyVault(owner, {baseToken: ethers.constants.AddressZero, yieldToken: ethers.constants.AddressZero})
+    registrar = await smock.fake<Registrar>(new Registrar__factory());
+    router = await smock.fake<Router>(new Router__factory());
+    let Facet = new AccountsStrategy__factory(owner);
+    facetImpl = await Facet.deploy();
   });
 
   describe("upon strategyInvest", async function () {
     let facet: AccountsStrategy;
-    let facetImpl: AccountsStrategy;
     let state: TestFacetProxyContract;
     let token: DummyERC20;
     let gateway: DummyGateway;
@@ -75,14 +79,6 @@ describe("AccountsStrategy", function () {
     const ACCOUNT_ID = 1;
 
     before(async function () {
-      let Facet = new AccountsStrategy__factory(owner);
-      facetImpl = await Facet.deploy();
-      registrar = await smock.fake<Registrar>(new Registrar__factory());
-      router = await smock.fake<Router>(new Router__factory(), {
-        address: owner.address,
-      });
-
-
       token = await deployDummyERC20(owner);
       gateway = await deployDummyGateway(owner);
       await gateway.setTestTokenAddress(token.address);
@@ -349,14 +345,19 @@ describe("AccountsStrategy", function () {
         const gasFwdFactory = await smock.mock<GasFwd__factory>('GasFwd');
         gasFwd = await gasFwdFactory.deploy() 
   
-        const network = {
+        const thisNet = {
           ...DEFAULT_NETWORK_INFO,
           chainId: (await ethers.provider.getNetwork()).chainId,
-          router: router.address,
           axelarGateway: gateway.address,
           gasReceiver: gasReceiver.address
         }
-        await registrar.queryNetworkConnection.returns(network);
+        const thatNet = {
+          ...DEFAULT_NETWORK_INFO,
+          chainId: 42,
+          router: router.address,
+        }
+        await registrar.queryNetworkConnection.whenCalledWith("ThisNet").returns(thisNet);
+        await registrar.queryNetworkConnection.whenCalledWith("ThatNet").returns(thatNet);
 
         await registrar.isTokenAccepted.returns(true);
         const stratParams = {
@@ -458,23 +459,13 @@ describe("AccountsStrategy", function () {
 
   describe("upon strategyRedeem", async function () {
     let facet: AccountsStrategy;
-    let facetImpl: AccountsStrategy;
     let state: TestFacetProxyContract;
-    let registrar: FakeContract<Registrar>;
     let token: DummyERC20;
     let gateway: DummyGateway;
     let network: NetworkInfoStruct;
     const ACCOUNT_ID = 1;
 
     before(async function () {
-      let Facet = new AccountsStrategy__factory(owner);
-      facetImpl = await Facet.deploy();
-      registrar = await smock.fake<Registrar>(new Registrar__factory());
-      router = await smock.fake<Router>(new Router__factory(), {
-        address: owner.address,
-      });
-
-
       token = await deployDummyERC20(owner);
       gateway = await deployDummyGateway(owner);
       await gateway.setTestTokenAddress(token.address);
@@ -485,20 +476,6 @@ describe("AccountsStrategy", function () {
         axelarGateway: gateway.address
       }
       await registrar.queryNetworkConnection.returns(network);
-    });
-    before(async function () {
-      let Facet = new AccountsStrategy__factory(owner);
-      facetImpl = await Facet.deploy();
-      registrar = await deployRegistrarAsProxy(owner, admin);
-
-      token = await deployDummyERC20(owner);
-      gateway = await deployDummyGateway(owner);
-      await gateway.setTestTokenAddress(token.address);
-
-      network = DEFAULT_NETWORK_INFO;
-      network.chainId = (await ethers.provider.getNetwork()).chainId;
-      network.axelarGateway = gateway.address;
-      await registrar.updateNetworkConnections("", network, "post");
     });
 
     beforeEach(async function () {
@@ -530,6 +507,12 @@ describe("AccountsStrategy", function () {
       });
 
       it("the strategy is not approved", async function () {
+        let stratParams = {
+          ...DEFAULT_STRATEGY_PARAMS,
+          network: "ThisNet",
+          approvalState: StrategyApprovalState.NOT_APPROVED,
+        }
+        await registrar.getStrategyParamsById.returns(stratParams);
         let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
         endowDetails.owner = owner.address;
         await state.setEndowmentDetails(1, endowDetails);
@@ -540,135 +523,142 @@ describe("AccountsStrategy", function () {
           "Strategy is not approved"
         );
       });
+    });
 
-      describe("and calls the local router", async function () {
-        let router: DummyRouter;
-        let config: AccountStorage.ConfigStruct;
-        const LOCK_AMT = 300;
-        const LIQ_AMT = 200;
-        const redeemRequest = {
-          ...DEFAULT_REDEEM_REQUEST,
-          lockAmt: LOCK_AMT,
-          liquidAmt: LIQ_AMT,
+    describe("and calls the local router", async function () {
+      const LOCK_AMT = 300;
+      const LIQ_AMT = 200;
+      const redeemRequest = {
+        ...DEFAULT_REDEEM_REQUEST,
+        lockAmt: LOCK_AMT,
+        liquidAmt: LIQ_AMT,
+      };
+
+      before(async function () {
+        const network = {
+          ...DEFAULT_NETWORK_INFO,
+          chainId: (await ethers.provider.getNetwork()).chainId,
+          router: router.address,
+          axelarGateway: gateway.address
+        }
+        console.log(network);
+        await registrar.queryNetworkConnection.whenCalledWith("ThisNet").returns(network);
+
+        await registrar.isTokenAccepted.returns(true);
+
+        let stratParams = {
+          ...DEFAULT_STRATEGY_PARAMS,
+          network: "ThisNet",
+          approvalState: StrategyApprovalState.APPROVED,
+        }
+        await registrar.getStrategyParamsById.returns(stratParams);
+      });
+
+      beforeEach(async function () {
+        let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
+        endowDetails.settingsController.liquidInvestmentManagement = {
+          locked: false,
+          delegate: {
+            addr: owner.address,
+            expires: 0,
+          },
         };
+        endowDetails.settingsController.lockedInvestmentManagement = {
+          locked: false,
+          delegate: {
+            addr: owner.address,
+            expires: 0,
+          },
+        };
+        await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
 
-        before(async function () {
-          router = await deployDummyRouter(owner);
-          network.router = router.address;
-          await registrar.updateNetworkConnections("", network, "post");
-          await registrar.setStrategyApprovalState(
-            DEFAULT_STRATEGY_SELECTOR,
-            StrategyApprovalState.APPROVED
-          );
-          config = DEFAULT_ACCOUNTS_CONFIG;
-          config.registrarContract = registrar.address;
+        token.mint(facet.address, LOCK_AMT + LIQ_AMT);
+        await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true);
+
+        const config = {
+          ...DEFAULT_ACCOUNTS_CONFIG,
+          networkName: "ThisNet",
+          gateway: gateway.address, 
+          registrarContract: registrar.address
+        }
+        await state.setConfig(config);
+      });
+
+      it("and the response is SUCCESS", async function () {
+        await router.executeLocal.returns({
+          destinationChain: "",
+          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          selector: DEFAULT_METHOD_SELECTOR,
+          accountIds: [ACCOUNT_ID],
+          token: token.address,
+          lockAmt: LOCK_AMT,
+          liqAmt: LIQ_AMT,
+          status: VaultActionStatus.SUCCESS,
         });
 
-        beforeEach(async function () {
-          await state.setConfig(config);
-          let endowDetails: AccountStorage.EndowmentStruct = {
-            ...DEFAULT_CHARITY_ENDOWMENT,
-            owner: owner.address,
-            settingsController: {
-              ...DEFAULT_SETTINGS_STRUCT,
-              lockedInvestmentManagement: {
-                ...DEFAULT_PERMISSIONS_STRUCT,
-                delegate: {
-                  expires: 0,
-                  addr: user.address,
-                },
-              },
-              liquidInvestmentManagement: {
-                ...DEFAULT_PERMISSIONS_STRUCT,
-                delegate: {
-                  expires: 0,
-                  addr: user.address,
-                },
-              },
-            },
-          };
-          await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
+        expect(await facet.strategyRedeem(ACCOUNT_ID, redeemRequest))
+          .to.emit(facet, "EndowmentRedeemed")
+          .withArgs(VaultActionStatus.SUCCESS);
 
-          token.mint(facet.address, LOCK_AMT + LIQ_AMT);
-          await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true);
+        const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+        expect(lockBal).to.equal(LOCK_AMT);
+        expect(liqBal).to.equal(LIQ_AMT);
+        let strategyActive = await state.getActiveStrategyEndowmentState(
+          ACCOUNT_ID,
+          DEFAULT_STRATEGY_SELECTOR
+        );
+        expect(strategyActive);
+      });
+
+      it("and the response is POSITION_EXITED", async function () {
+        await router.executeLocal.returns({
+          destinationChain: "",
+          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          selector: DEFAULT_METHOD_SELECTOR,
+          accountIds: [ACCOUNT_ID],
+          token: token.address,
+          lockAmt: LOCK_AMT,
+          liqAmt: LIQ_AMT,
+          status: VaultActionStatus.POSITION_EXITED,
         });
 
-        it("and the response is SUCCESS", async function () {
-          await router.setResponseStruct({
-            destinationChain: "",
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
-            selector: DEFAULT_METHOD_SELECTOR,
-            accountIds: [ACCOUNT_ID],
-            token: token.address,
-            lockAmt: LOCK_AMT,
-            liqAmt: LIQ_AMT,
-            status: VaultActionStatus.SUCCESS,
-          });
+        expect(await facet.strategyRedeem(ACCOUNT_ID, redeemRequest))
+          .to.emit(facet, "EndowmentRedeemed")
+          .withArgs(VaultActionStatus.POSITION_EXITED);
 
-          expect(await facet.strategyRedeem(ACCOUNT_ID, redeemRequest))
-            .to.emit(facet, "EndowmentRedeemed")
-            .withArgs(VaultActionStatus.SUCCESS);
+        const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+        expect(lockBal).to.equal(LOCK_AMT);
+        expect(liqBal).to.equal(LIQ_AMT);
+        let strategyActive = await state.getActiveStrategyEndowmentState(
+          ACCOUNT_ID,
+          DEFAULT_STRATEGY_SELECTOR
+        );
+        expect(!strategyActive);
+      });
 
-          const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
-          expect(lockBal).to.equal(LOCK_AMT);
-          expect(liqBal).to.equal(LIQ_AMT);
-          let strategyActive = await state.getActiveStrategyEndowmentState(
-            ACCOUNT_ID,
-            DEFAULT_STRATEGY_SELECTOR
-          );
-          expect(strategyActive);
+      it("and the response is anything else", async function () {
+        await router.executeLocal.returns({
+          destinationChain: "",
+          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          selector: DEFAULT_METHOD_SELECTOR,
+          accountIds: [ACCOUNT_ID],
+          token: token.address,
+          lockAmt: LOCK_AMT,
+          liqAmt: LIQ_AMT,
+          status: VaultActionStatus.FAIL_TOKENS_FALLBACK,
         });
+        await expect(facet.strategyRedeem(ACCOUNT_ID, redeemRequest))
+          .to.be.revertedWithCustomError(facet, "RedeemFailed")
+          .withArgs(VaultActionStatus.FAIL_TOKENS_FALLBACK);
 
-        it("and the response is POSITION_EXITED", async function () {
-          await router.setResponseStruct({
-            destinationChain: "",
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
-            selector: DEFAULT_METHOD_SELECTOR,
-            accountIds: [ACCOUNT_ID],
-            token: token.address,
-            lockAmt: LOCK_AMT,
-            liqAmt: LIQ_AMT,
-            status: VaultActionStatus.POSITION_EXITED,
-          });
-
-          expect(await facet.strategyRedeem(ACCOUNT_ID, redeemRequest))
-            .to.emit(facet, "EndowmentRedeemed")
-            .withArgs(VaultActionStatus.POSITION_EXITED);
-
-          const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
-          expect(lockBal).to.equal(LOCK_AMT);
-          expect(liqBal).to.equal(LIQ_AMT);
-          let strategyActive = await state.getActiveStrategyEndowmentState(
-            ACCOUNT_ID,
-            DEFAULT_STRATEGY_SELECTOR
-          );
-          expect(!strategyActive);
-        });
-
-        it("and the response is anything else", async function () {
-          await router.setResponseStruct({
-            destinationChain: "",
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
-            selector: DEFAULT_METHOD_SELECTOR,
-            accountIds: [ACCOUNT_ID],
-            token: token.address,
-            lockAmt: LOCK_AMT,
-            liqAmt: LIQ_AMT,
-            status: VaultActionStatus.FAIL_TOKENS_FALLBACK,
-          });
-          await expect(facet.strategyRedeem(ACCOUNT_ID, redeemRequest))
-            .to.be.revertedWithCustomError(facet, "RedeemFailed")
-            .withArgs(VaultActionStatus.FAIL_TOKENS_FALLBACK);
-
-          const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
-          expect(lockBal).to.equal(0);
-          expect(liqBal).to.equal(0);
-          let strategyActive = await state.getActiveStrategyEndowmentState(
-            ACCOUNT_ID,
-            DEFAULT_STRATEGY_SELECTOR
-          );
-          expect(strategyActive);
-        });
+        const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+        expect(lockBal).to.equal(0);
+        expect(liqBal).to.equal(0);
+        let strategyActive = await state.getActiveStrategyEndowmentState(
+          ACCOUNT_ID,
+          DEFAULT_STRATEGY_SELECTOR
+        );
+        expect(strategyActive);
       });
     });
   });
@@ -677,25 +667,22 @@ describe("AccountsStrategy", function () {
     let facet: AccountsStrategy;
     let facetImpl: AccountsStrategy;
     let state: TestFacetProxyContract;
-    let registrar: Registrar;
     let token: DummyERC20;
     let gateway: DummyGateway;
     let network: NetworkInfoStruct;
     const ACCOUNT_ID = 1;
 
     before(async function () {
-      let Facet = new AccountsStrategy__factory(owner);
-      facetImpl = await Facet.deploy();
-      registrar = await deployRegistrarAsProxy(owner, admin);
-
       token = await deployDummyERC20(owner);
       gateway = await deployDummyGateway(owner);
       await gateway.setTestTokenAddress(token.address);
 
-      network = DEFAULT_NETWORK_INFO;
-      network.chainId = (await ethers.provider.getNetwork()).chainId;
-      network.axelarGateway = gateway.address;
-      await registrar.updateNetworkConnections("", network, "post");
+      const network = {
+        ...DEFAULT_NETWORK_INFO,
+        chainId: (await ethers.provider.getNetwork()).chainId,
+        axelarGateway: gateway.address
+      }
+      await registrar.queryNetworkConnection.returns(network);
     });
 
     beforeEach(async function () {
@@ -767,8 +754,6 @@ describe("AccountsStrategy", function () {
       });
 
       describe("and calls the local router", async function () {
-        let router: DummyRouter;
-        let config: AccountStorage.ConfigStruct;
         const LOCK_AMT = 300;
         const LIQ_AMT = 200;
         let redeemAllRequest = {
@@ -778,19 +763,31 @@ describe("AccountsStrategy", function () {
         };
 
         before(async function () {
-          router = await deployDummyRouter(owner);
-          network.router = router.address;
-          await registrar.updateNetworkConnections("", network, "post");
-          await registrar.setStrategyApprovalState(
-            DEFAULT_STRATEGY_SELECTOR,
-            StrategyApprovalState.APPROVED
-          );
-          config = DEFAULT_ACCOUNTS_CONFIG;
-          config.registrarContract = registrar.address;
+          const network = {
+            ...DEFAULT_NETWORK_INFO,
+            chainId: (await ethers.provider.getNetwork()).chainId,
+            axelarGateway: gateway.address,
+            router: router.address
+          }
+          await registrar.queryNetworkConnection.returns(network);
+          await registrar.isTokenAccepted.returns(true);
+          let stratParams = {
+            ...DEFAULT_STRATEGY_PARAMS,
+            network: "ThisNet",
+            approvalState: StrategyApprovalState.APPROVED,
+          }
+          await registrar.getStrategyParamsById.returns(stratParams);
         });
 
         beforeEach(async function () {
+          const config = {
+            ...DEFAULT_ACCOUNTS_CONFIG,
+            networkName: "ThisNet",
+            gateway: gateway.address, 
+            registrarContract: registrar.address
+          }
           await state.setConfig(config);
+
           let endowDetails: AccountStorage.EndowmentStruct = {
             ...DEFAULT_CHARITY_ENDOWMENT,
             owner: owner.address,
@@ -819,7 +816,7 @@ describe("AccountsStrategy", function () {
         });
 
         it("and the response is POSITION_EXITED", async function () {
-          await router.setResponseStruct({
+          await router.executeLocal.returns({
             destinationChain: "",
             strategyId: DEFAULT_STRATEGY_SELECTOR,
             selector: DEFAULT_METHOD_SELECTOR,
@@ -845,7 +842,7 @@ describe("AccountsStrategy", function () {
         });
 
         it("and the response is anything else", async function () {
-          await router.setResponseStruct({
+          await router.executeLocal.returns({
             destinationChain: "",
             strategyId: DEFAULT_STRATEGY_SELECTOR,
             selector: DEFAULT_METHOD_SELECTOR,
