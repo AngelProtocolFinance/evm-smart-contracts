@@ -452,6 +452,20 @@ describe("AccountsUpdateEndowments", function () {
       ).to.be.revertedWith("UpdatesAfterClosed");
     });
 
+    it("reverts if neither DelegateAction.Set nor DelegateAction.Revoke action is used", async () => {
+      const invalidAction = 2;
+
+      await expect(
+        facet.updateDelegate(
+          normalEndowId,
+          ControllerSettingOption.EarlyLockedWithdrawFee,
+          invalidAction,
+          ethers.constants.AddressZero,
+          0
+        )
+      ).to.be.revertedWithoutReason();
+    });
+
     it("reverts if EarlyLockedWithdrawFee setting option is used", async () => {
       await expect(
         facet.updateDelegate(
