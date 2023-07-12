@@ -4,7 +4,6 @@ pragma solidity ^0.8.16;
 import "./message.sol";
 import "./storage.sol";
 import {IAccounts} from "../../core/accounts/interfaces/IAccounts.sol";
-import {IAccountsAllowance} from "../../core/accounts/interfaces/IAccountsAllowance.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
 import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 import {AccountMessages} from "../../core/accounts/message.sol";
@@ -22,13 +21,9 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
  */
 contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuard {
   event ConfigUpdated();
-  event BalancesUpdated(
-    address addr,
-    address token,
-    uint256 amt,
-    IAccountsAllowance.AllowanceAction action
-  );
-  event DepositUpdated(uint256 depositId);
+  event GiftCardDeposited(address addr, address token, uint256 amt);
+  event GiftCardClaimed(address addr, address token, uint256 amt);
+  event GiftCardBalanceSpent(address addr, address token, uint256 amt);
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
@@ -45,7 +40,6 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
     state.config.registrarContract = details.registrarContract;
     state.config.keeper = details.keeper;
     state.config.nextDeposit = 1;
-    emit ConfigUpdated();
   }
 
   /**
@@ -126,12 +120,12 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
     if (toAddress != address(0)) {
       deposit.claimed = true;
       state.BALANCES[toAddress][tokenAddress] += amount;
-      emit BalancesUpdated(toAddress, tokenAddress, amount, IAccountsAllowance.AllowanceAction.Add);
+      emit GiftCardClaimed(toAddress, tokenAddress, amount);
     }
 
     // save the deposit information
     state.DEPOSITS[state.config.nextDeposit] = deposit;
-    emit DepositUpdated(state.config.nextDeposit);
+    emit GiftCardDeposited(msg.sender, tokenAddress, amount);
     state.config.nextDeposit += 1;
   }
 
@@ -146,17 +140,15 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
 
     // mark deposit as claimed
     state.DEPOSITS[depositId].claimed = true;
-    emit DepositUpdated(depositId);
 
     // add the claimed amount for the target token to the recipient's balance
     state.BALANCES[recipient][state.DEPOSITS[depositId].tokenAddress] += state
       .DEPOSITS[depositId]
       .amount;
-    emit BalancesUpdated(
+    emit GiftCardClaimed(
       recipient,
       state.DEPOSITS[depositId].tokenAddress,
-      state.DEPOSITS[depositId].amount,
-      IAccountsAllowance.AllowanceAction.Add
+      state.DEPOSITS[depositId].amount
     );
   }
 
@@ -202,12 +194,7 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
 
     // deduct balance by amount deposited with Accounts contract
     state.BALANCES[msg.sender][tokenAddress] -= amount;
-    emit BalancesUpdated(
-      msg.sender,
-      tokenAddress,
-      amount,
-      IAccountsAllowance.AllowanceAction.Remove
-    );
+    emit GiftCardBalanceSpent(msg.sender, tokenAddress, amount);
   }
 
   /**
@@ -227,7 +214,6 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
     if (registrarContract != address(0)) {
       state.config.registrarContract = registrarContract;
     }
-    emit ConfigUpdated();
   }
 
   function queryConfig() public view returns (GiftCardsStorage.Config memory) {
