@@ -232,6 +232,18 @@ contract AccountsUpdateEndowmentSettingsController is
     }
     if (
       Validator.canChange(
+        tempEndowment.settingsController.earlyLockedWithdrawFee,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      ) && tempEndowment.endowType != LibAccounts.EndowmentType.Charity
+    ) {
+      tempEndowment.settingsController.earlyLockedWithdrawFee = details
+        .settingsController
+        .earlyLockedWithdrawFee;
+    }
+    if (
+      Validator.canChange(
         tempEndowment.settingsController.withdrawFee,
         msg.sender,
         tempEndowment.owner,
