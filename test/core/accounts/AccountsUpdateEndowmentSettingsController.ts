@@ -438,7 +438,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       );
     });
 
-    it("updates all charity's controllers", async () => {
+    it("updates all charity's controllers except fee-related ones", async () => {
       await expect(facet.updateEndowmentController(charityReq))
         .to.emit(facet, "EndowmentSettingUpdated")
         .withArgs(charityReq.id, "endowmentController")
@@ -472,13 +472,13 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
         oldCharity.settingsController.earlyLockedWithdrawFee
       );
       expect(updated.settingsController.withdrawFee).to.equalSettingsPermission(
-        charityReq.settingsController.withdrawFee
+        oldCharity.settingsController.withdrawFee
       );
       expect(updated.settingsController.depositFee).to.equalSettingsPermission(
-        charityReq.settingsController.depositFee
+        oldCharity.settingsController.depositFee
       );
       expect(updated.settingsController.balanceFee).to.equalSettingsPermission(
-        charityReq.settingsController.balanceFee
+        oldCharity.settingsController.balanceFee
       );
       expect(updated.settingsController.name).to.equalSettingsPermission(
         charityReq.settingsController.name
@@ -531,7 +531,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
         normalEndowReq.settingsController.maturityTime
       );
       expect(updated.settingsController.earlyLockedWithdrawFee).to.equalSettingsPermission(
-        oldNormalEndow.settingsController.earlyLockedWithdrawFee
+        normalEndowReq.settingsController.earlyLockedWithdrawFee
       );
       expect(updated.settingsController.withdrawFee).to.equalSettingsPermission(
         normalEndowReq.settingsController.withdrawFee
@@ -605,7 +605,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       expect(updated.balanceFee).to.equalFee(lockedNormalEndow.balanceFee);
     });
 
-    it("updates all normal endowment's controllers", async () => {
+    it("updates all normal endowment's fees", async () => {
       await expect(facet.updateFeeSettings(request))
         .to.emit(facet, "EndowmentUpdated")
         .withArgs(request.id);
