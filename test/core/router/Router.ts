@@ -25,6 +25,8 @@ import {
   deployDummyGateway,
   deployDummyVault,
   deployRegistrarAsProxy,
+  packActionData,
+  unpackActionData
 } from "test/utils";
 import {getSigners} from "utils";
 import {LocalRegistrarLib} from "../../../typechain-types/contracts/core/registrar/LocalRegistrar";
@@ -94,19 +96,6 @@ describe("Router", function () {
 
     const RouterProxy = ITransparentUpgradeableProxy__factory.connect(routerProxy, signer);
     RouterProxy.upgradeTo(RouterImpl.address);
-  }
-
-  async function packActionData(_actionData: IVaultHelpers.VaultActionDataStruct): Promise<string> {
-    const TypeList = ["string", "bytes4", "bytes4", "uint[]", "address", "uint", "uint", "uint"];
-    return ethers.utils.defaultAbiCoder.encode(TypeList, VaultActionStructToArray(_actionData));
-  }
-
-  async function unpackActionData(
-    _encodedActionData: string
-  ): Promise<IVaultHelpers.VaultActionDataStruct> {
-    const TypeList = ["string", "string", "string", "uint[]", "string", "uint", "uint", "uint"];
-    let decoded = ethers.utils.defaultAbiCoder.decode(TypeList, _encodedActionData);
-    return ArrayToVaultActionStruct(decoded);
   }
 
   describe("Deployment", function () {

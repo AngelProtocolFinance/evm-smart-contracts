@@ -18,6 +18,7 @@ import {IVault} from "../../vault/interfaces/IVault.sol";
 import {IAccountsStrategy} from "../interfaces/IAccountsStrategy.sol";
 import {AxelarExecutable} from "../../../axelar/AxelarExecutable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IGasFwd} from "../../gasFwd/IGasFwd.sol";
 import "hardhat/console.sol";
 
 /**
@@ -137,7 +138,6 @@ contract AccountsStrategy is
     else {
       NetworkInfo memory network = IRegistrar(state.config.registrarContract)
         .queryNetworkConnection(stratParams.network);
-      // @todo get gas from gasFwd
       IVault.VaultActionData memory payload = IVault.VaultActionData({
         destinationChain: stratParams.network,
         strategyId: investRequest.strategy,
@@ -149,7 +149,7 @@ contract AccountsStrategy is
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
-
+      IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(tokenAddress, investRequest.gasFee);
       IERC20(tokenAddress).approve(thisNetwork.gasReceiver, investRequest.gasFee);
       IAxelarGasService(thisNetwork.gasReceiver).payGasForContractCallWithToken(
         address(this),
@@ -158,11 +158,10 @@ contract AccountsStrategy is
         packedPayload,
         investRequest.token,
         (investRequest.lockAmt + investRequest.liquidAmt),
-        StringToAddress.toAddress(investRequest.token),
+        tokenAddress,
         investRequest.gasFee,
-        state.ENDOWMENTS[id].owner
+        state.ENDOWMENTS[id].gasFwd
       );
-
       IERC20(tokenAddress).approve(
         thisNetwork.axelarGateway,
         (investRequest.lockAmt + investRequest.liquidAmt)
@@ -174,10 +173,9 @@ contract AccountsStrategy is
         investRequest.token,
         (investRequest.lockAmt + investRequest.liquidAmt)
       );
-
       state.STATES[id].balances.locked[tokenAddress] -= investRequest.lockAmt;
       state.STATES[id].balances.liquid[tokenAddress] -= investRequest.liquidAmt;
-      state.STATES[id].activeStrategies[investRequest.strategy] == true;
+      state.STATES[id].activeStrategies[investRequest.strategy] = true;
     }
   }
 
@@ -277,7 +275,8 @@ contract AccountsStrategy is
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
-      // @todo integrate gasFwd
+
+      IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(tokenAddress, redeemRequest.gasFee);
       IERC20(tokenAddress).approve(thisNetwork.gasReceiver, redeemRequest.gasFee);
       IAxelarGasService(thisNetwork.gasReceiver).payGasForContractCall(
         address(this),
@@ -393,7 +392,8 @@ contract AccountsStrategy is
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
-      // @todo integrate gasFwd
+
+      IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(tokenAddress, redeemAllRequest.gasFee);
       IERC20(tokenAddress).approve(thisNetwork.gasReceiver, redeemAllRequest.gasFee);
       IAxelarGasService(thisNetwork.gasReceiver).payGasForContractCall(
         address(this),
@@ -414,7 +414,7 @@ contract AccountsStrategy is
 
   function _axelarCallbackWithToken(
     IVault.VaultActionData memory response
-  ) internal returns (bool) {
+  ) internal returns (bool success_) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     uint32 id = response.accountIds[0];
 
@@ -494,8 +494,6 @@ contract AccountsStrategy is
   ) internal override returns (IVault.VaultActionData memory) {
     IVault.VaultActionData memory response = RouterLib.unpackCalldata(payload);
     _validateCall(sourceChain, sourceAddress, response);
-    uint32 id = response.accountIds[0];
-    AccountStorage.State storage state = LibAccounts.diamondStorage();
 
     // FAIL_TOKENS_FALLBACK => Call failed and tokens could not be returned, manual refund needed
     if (response.status == IVault.VaultActionStatus.FAIL_TOKENS_FALLBACK) {
@@ -511,7 +509,7 @@ contract AccountsStrategy is
     string calldata sourceChain,
     string calldata sourceAddress,
     IVault.VaultActionData memory response
-  ) internal {
+  ) internal view {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     LocalRegistrarLib.StrategyParams memory stratParams = IRegistrar(state.config.registrarContract)
       .getStrategyParamsById(response.strategyId);

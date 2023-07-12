@@ -1,4 +1,5 @@
-import {expect} from "chai";
+import {expect, use} from "chai";
+import {FakeContract, MockContract, smock} from "@defi-wonderland/smock";
 import hre from "hardhat";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 
@@ -7,11 +8,17 @@ import {
   AccountsStrategy,
   AccountsStrategy__factory,
   Registrar,
+  Registrar__factory,
+  Router,
+  Router__factory,
   DummyERC20,
   DummyGateway,
-  DummyRouter,
+  DummyGasService,
+  GasFwd,
+  GasFwd__factory,
+  DummyVault,
 } from "typechain-types";
-import {getSigners} from "utils";
+import {genWallet, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils/deployTestFacet";
 import {
   deployRegistrarAsProxy,
@@ -31,27 +38,37 @@ import {
   DEFAULT_INVEST_REQUEST,
   DEFAULT_REDEEM_REQUEST,
   DEFAULT_REDEEM_ALL_REQUEST,
+  DEFAULT_STRATEGY_PARAMS,
+  packActionData,
+  unpackActionData,
+  deployDummyVault
 } from "test/utils";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
+import { deployDummyGasService } from "tasks/helpers";
+
+use(smock.matchers);
 
 describe("AccountsStrategy", function () {
   const {ethers} = hre;
   let owner: SignerWithAddress;
   let admin: SignerWithAddress;
   let user: SignerWithAddress;
+  let registrar: FakeContract<Registrar>;
+  let router: FakeContract<Router>;
+  let vault: DummyVault
 
   before(async function () {
     const {deployer, proxyAdmin, apTeam1} = await getSigners(hre);
     owner = deployer;
     admin = proxyAdmin;
     user = apTeam1;
+    vault = await deployDummyVault(owner, {baseToken: ethers.constants.AddressZero, yieldToken: ethers.constants.AddressZero})
   });
 
   describe("upon strategyInvest", async function () {
     let facet: AccountsStrategy;
     let facetImpl: AccountsStrategy;
     let state: TestFacetProxyContract;
-    let registrar: Registrar;
     let token: DummyERC20;
     let gateway: DummyGateway;
     let network: NetworkInfoStruct;
@@ -60,16 +77,22 @@ describe("AccountsStrategy", function () {
     before(async function () {
       let Facet = new AccountsStrategy__factory(owner);
       facetImpl = await Facet.deploy();
-      registrar = await deployRegistrarAsProxy(owner, admin);
+      registrar = await smock.fake<Registrar>(new Registrar__factory());
+      router = await smock.fake<Router>(new Router__factory(), {
+        address: owner.address,
+      });
+
 
       token = await deployDummyERC20(owner);
       gateway = await deployDummyGateway(owner);
       await gateway.setTestTokenAddress(token.address);
 
-      network = DEFAULT_NETWORK_INFO;
-      network.chainId = (await ethers.provider.getNetwork()).chainId;
-      network.axelarGateway = gateway.address;
-      await registrar.updateNetworkConnections("", network, "post");
+      network = { 
+        ...DEFAULT_NETWORK_INFO,
+        chainId: (await ethers.provider.getNetwork()).chainId,
+        axelarGateway: gateway.address
+      }
+      await registrar.queryNetworkConnection.returns(network);
     });
 
     beforeEach(async function () {
@@ -102,8 +125,10 @@ describe("AccountsStrategy", function () {
 
       it("the strategy is not approved", async function () {
         await state.setEndowmentDetails(1, DEFAULT_CHARITY_ENDOWMENT);
-        let config = DEFAULT_ACCOUNTS_CONFIG;
-        config.registrarContract = registrar.address;
+        let config = {
+          ...DEFAULT_ACCOUNTS_CONFIG,
+          registrarContract: registrar.address
+        }
         await state.setConfig(config);
         await expect(facet.strategyInvest(ACCOUNT_ID, DEFAULT_INVEST_REQUEST)).to.be.revertedWith(
           "Strategy is not approved"
@@ -121,14 +146,18 @@ describe("AccountsStrategy", function () {
         };
         await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
 
-        let config = DEFAULT_ACCOUNTS_CONFIG;
-        config.registrarContract = registrar.address;
+        let config = {
+          ...DEFAULT_ACCOUNTS_CONFIG,
+          registrarContract: registrar.address
+        }
         await state.setConfig(config);
 
-        await registrar.setStrategyApprovalState(
-          DEFAULT_STRATEGY_SELECTOR,
-          StrategyApprovalState.APPROVED
-        );
+        let stratParams = {
+          ...DEFAULT_STRATEGY_PARAMS,
+          approvalState: StrategyApprovalState.APPROVED
+        }
+        await registrar.getStrategyParamsById.returns(stratParams);
+
         let investRequest = {
           ...DEFAULT_INVEST_REQUEST,
           lockAmt: 1,
@@ -147,16 +176,20 @@ describe("AccountsStrategy", function () {
             expires: 0,
           },
         };
-        await state.setEndowmentDetails(1, endowDetails);
+        await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
 
-        let config = DEFAULT_ACCOUNTS_CONFIG;
-        config.registrarContract = registrar.address;
+        let config = {
+          ...DEFAULT_ACCOUNTS_CONFIG,
+          registrarContract: registrar.address
+        }
         await state.setConfig(config);
 
-        await registrar.setStrategyApprovalState(
-          DEFAULT_STRATEGY_SELECTOR,
-          StrategyApprovalState.APPROVED
-        );
+        let stratParams = {
+          ...DEFAULT_STRATEGY_PARAMS,
+          approvalState: StrategyApprovalState.APPROVED
+        }
+        await registrar.getStrategyParamsById.returns(stratParams);
+
         let investRequest = {
           ...DEFAULT_INVEST_REQUEST,
           liquidAmt: 1,
@@ -167,14 +200,18 @@ describe("AccountsStrategy", function () {
       });
 
       it("the token isn't accepted", async function () {
-        let config = DEFAULT_ACCOUNTS_CONFIG;
-        config.registrarContract = registrar.address;
+        let config = {
+          ...DEFAULT_ACCOUNTS_CONFIG,
+          registrarContract: registrar.address
+        }
         await state.setConfig(config);
 
-        await registrar.setStrategyApprovalState(
-          DEFAULT_STRATEGY_SELECTOR,
-          StrategyApprovalState.APPROVED
-        );
+        let stratParams = {
+          ...DEFAULT_STRATEGY_PARAMS,
+          approvalState: StrategyApprovalState.APPROVED
+        }
+        await registrar.getStrategyParamsById.returns(stratParams);
+
         await expect(facet.strategyInvest(ACCOUNT_ID, DEFAULT_INVEST_REQUEST)).to.be.revertedWith(
           "Token not approved"
         );
@@ -182,26 +219,27 @@ describe("AccountsStrategy", function () {
     });
 
     describe("and calls the local router", async function () {
-      let router: DummyRouter;
-      let config: AccountStorage.ConfigStruct;
       const LOCK_AMT = 300;
       const LIQ_AMT = 200;
 
       before(async function () {
-        router = await deployDummyRouter(owner);
-        network.router = router.address;
-        await registrar.updateNetworkConnections("", network, "post");
-        await registrar.setStrategyApprovalState(
-          DEFAULT_STRATEGY_SELECTOR,
-          StrategyApprovalState.APPROVED
-        );
-        await registrar.setTokenAccepted(token.address, true);
-        config = DEFAULT_ACCOUNTS_CONFIG;
-        config.registrarContract = registrar.address;
+        const network = {
+          ...DEFAULT_NETWORK_INFO,
+          chainId: (await ethers.provider.getNetwork()).chainId,
+          router: router.address,
+          axelarGateway: gateway.address
+        }
+        await registrar.queryNetworkConnection.returns(network);
+        await registrar.isTokenAccepted.returns(true);
+        let stratParams = {
+          ...DEFAULT_STRATEGY_PARAMS,
+          network: "ThisNet",
+          approvalState: StrategyApprovalState.APPROVED,
+        }
+        await registrar.getStrategyParamsById.returns(stratParams);
       });
 
       beforeEach(async function () {
-        await state.setConfig(config);
         let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
         endowDetails.settingsController.liquidInvestmentManagement = {
           locked: false,
@@ -221,10 +259,18 @@ describe("AccountsStrategy", function () {
 
         token.mint(facet.address, 1000);
         await state.setEndowmentTokenBalance(ACCOUNT_ID, token.address, 500, 500);
+
+        const config = {
+          ...DEFAULT_ACCOUNTS_CONFIG,
+          networkName: "ThisNet",
+          gateway: gateway.address, 
+          registrarContract: registrar.address
+        }
+        await state.setConfig(config);
       });
 
       it("and the response is SUCCESS", async function () {
-        await router.setResponseStruct({
+        await router.executeWithTokenLocal.returns({
           destinationChain: "",
           strategyId: DEFAULT_STRATEGY_SELECTOR,
           selector: DEFAULT_METHOD_SELECTOR,
@@ -258,7 +304,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("and the response is anything other than SUCCESS", async function () {
-        await router.setResponseStruct({
+        await router.executeWithTokenLocal.returns({
           destinationChain: "",
           strategyId: DEFAULT_STRATEGY_SELECTOR,
           selector: DEFAULT_METHOD_SELECTOR,
@@ -268,6 +314,7 @@ describe("AccountsStrategy", function () {
           liqAmt: LIQ_AMT,
           status: VaultActionStatus.FAIL_TOKENS_FALLBACK,
         });
+
         let investRequest = {
           ...DEFAULT_INVEST_REQUEST,
           lockAmt: LOCK_AMT,
@@ -285,6 +332,126 @@ describe("AccountsStrategy", function () {
           DEFAULT_STRATEGY_SELECTOR
         );
         expect(!strategyActive);
+      });
+    });
+
+    describe("and calls axelar GMP", async function () {
+      let gasReceiver: DummyGasService
+      let gasFwd: MockContract<GasFwd>;
+      const LOCK_AMT = 300;
+      const LIQ_AMT = 200;
+      const INITIAL_LOCK_BAL = 500;
+      const INITIAL_LIQ_BAL = 500;
+      const GAS_FEE = 100;
+
+      before(async function () {
+        gasReceiver = await deployDummyGasService(owner);
+        const gasFwdFactory = await smock.mock<GasFwd__factory>('GasFwd');
+        gasFwd = await gasFwdFactory.deploy() 
+  
+        const network = {
+          ...DEFAULT_NETWORK_INFO,
+          chainId: (await ethers.provider.getNetwork()).chainId,
+          router: router.address,
+          axelarGateway: gateway.address,
+          gasReceiver: gasReceiver.address
+        }
+        await registrar.queryNetworkConnection.returns(network);
+
+        await registrar.isTokenAccepted.returns(true);
+        const stratParams = {
+          ...DEFAULT_STRATEGY_PARAMS,
+          network: "ThatNet", 
+          approvalState: StrategyApprovalState.APPROVED
+        }
+        await registrar.getStrategyParamsById.returns(stratParams);
+      });
+
+      beforeEach(async function () {
+        const config = {
+          ...DEFAULT_ACCOUNTS_CONFIG,
+          registrarContract: registrar.address,
+          networkName: "ThisNet",
+          gateway: gateway.address
+        }
+        await state.setConfig(config);
+
+        let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
+        endowDetails.settingsController.liquidInvestmentManagement = {
+          locked: false,
+          delegate: {
+            addr: owner.address,
+            expires: 0,
+          },
+        };
+        endowDetails.settingsController.lockedInvestmentManagement = {
+          locked: false,
+          delegate: {
+            addr: owner.address,
+            expires: 0,
+          },
+        };
+        endowDetails.gasFwd = gasFwd.address
+        await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
+
+        token.mint(facet.address, INITIAL_LIQ_BAL + INITIAL_LOCK_BAL);
+        token.mint(gasFwd.address, GAS_FEE);
+        await state.setEndowmentTokenBalance(ACCOUNT_ID, token.address, INITIAL_LOCK_BAL, INITIAL_LIQ_BAL);
+        await gasFwd.setVariable('accounts', facet.address)
+      });
+
+      it("makes all the correct external calls", async function () {
+        let investRequest = {
+          ...DEFAULT_INVEST_REQUEST,
+          lockAmt: LOCK_AMT,
+          liquidAmt: LIQ_AMT,
+          gasFee: GAS_FEE
+        };
+
+        let payload = packActionData(
+          {
+            destinationChain: "ThatNet",
+            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            selector: vault.interface.getSighash("deposit"),
+            accountIds: [ACCOUNT_ID],
+            token: token.address,
+            lockAmt: LOCK_AMT,
+            liqAmt: LIQ_AMT,
+            status: VaultActionStatus.UNPROCESSED
+          }
+        )
+
+        expect(await facet.strategyInvest(ACCOUNT_ID, investRequest))
+          .to.emit(gasReceiver, "GasPaidWithToken")
+          .withArgs(
+            facet.address, 
+            "ThatNet", 
+            router.address, 
+            payload, 
+            "TKN", 
+            LOCK_AMT + LIQ_AMT, 
+            token.address, 
+            GAS_FEE,
+            gasFwd.address
+          )
+          .to.emit(gateway, "ContractCallWtihToken")
+          .withArgs(
+            "ThatNet", 
+            router.address,
+            payload
+          )
+        
+        let gasReceiverApproved = await token.allowance(facet.address, gasReceiver.address)
+        expect(gasReceiverApproved).to.equal(GAS_FEE)
+        let gatewayApproved = await token.allowance(facet.address, gateway.address);
+        expect(gatewayApproved).to.equal(LOCK_AMT + LIQ_AMT);
+        const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+        expect(lockBal).to.equal(INITIAL_LOCK_BAL - LOCK_AMT);
+        expect(liqBal).to.equal(INITIAL_LIQ_BAL - LIQ_AMT);
+        expect(await state.getActiveStrategyEndowmentState(
+          ACCOUNT_ID,
+          DEFAULT_STRATEGY_SELECTOR
+        )).to.be.true;
       });
     });
   });
