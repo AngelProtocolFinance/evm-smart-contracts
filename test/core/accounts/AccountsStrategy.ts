@@ -1423,6 +1423,7 @@ describe("AccountsStrategy", function () {
         status: VaultActionStatus.UNPROCESSED,
       }
       const payload = packActionData(action);
+      const returnedAction = VaultActionStructToArray(action)
 
       const apParams = {
         ...DEFAULT_AP_PARAMS, 
@@ -1431,14 +1432,16 @@ describe("AccountsStrategy", function () {
       registrar.getAngelProtocolParams.returns(apParams)
       
       await token.mint(facet.address, LOCK_AMT + LIQ_AMT)
-      await facet.executeWithToken(
+      expect(await facet.executeWithToken(
         ethers.utils.formatBytes32String("true"), 
         "ThatNet", 
         router.address,
         payload,
         "TKN",
         LOCK_AMT + LIQ_AMT
-      );
+      ))
+        .to.emit(facet, "RefundNeeded")
+        .withArgs(returnedAction)
       const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
       expect(lockBal).to.equal(0);
       expect(liqBal).to.equal(0);
