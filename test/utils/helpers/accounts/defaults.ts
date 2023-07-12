@@ -180,6 +180,6 @@ export const DEFAULT_STRATEGY_PARAMS: LocalRegistrarLib.StrategyParamsStruct = {
 };
 
 export const DEFAULT_AP_PARAMS: LocalRegistrarLib.AngelProtocolParamsStruct = {
-  refundAddr: ethers.constants.AddressZero, 
-  routerAddr: ethers.constants.AddressZero
-}
+  refundAddr: ethers.constants.AddressZero,
+  routerAddr: ethers.constants.AddressZero,
+};

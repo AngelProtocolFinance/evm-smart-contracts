@@ -12,7 +12,6 @@ import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/
 import {IAxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarExecutable.sol";
 
 abstract contract AxelarExecutableAccounts is IAxelarExecutable {
-
   function gateway() public view returns (IAxelarGateway) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     IAccountsStrategy.NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)

@@ -105,9 +105,9 @@ describe("AccountsStrategy", function () {
           ...DEFAULT_INVEST_REQUEST,
           lockAmt: 1,
         };
-        await expect(facet.connect(user).strategyInvest(ACCOUNT_ID, investRequest)).to.be.revertedWith(
-          "Unauthorized"
-        );
+        await expect(
+          facet.connect(user).strategyInvest(ACCOUNT_ID, investRequest)
+        ).to.be.revertedWith("Unauthorized");
       });
 
       it("the caller is not approved for liquid fund mgmt", async function () {
@@ -116,9 +116,9 @@ describe("AccountsStrategy", function () {
           ...DEFAULT_INVEST_REQUEST,
           liquidAmt: 1,
         };
-        await expect(facet.connect(user).strategyInvest(ACCOUNT_ID, investRequest)).to.be.revertedWith(
-          "Unauthorized"
-        );
+        await expect(
+          facet.connect(user).strategyInvest(ACCOUNT_ID, investRequest)
+        ).to.be.revertedWith("Unauthorized");
       });
 
       it("the strategy is not approved", async function () {
@@ -1127,18 +1127,15 @@ describe("AccountsStrategy", function () {
         lockAmt: 1,
         liqAmt: 1,
         status: VaultActionStatus.UNPROCESSED,
-      }
+      };
       const payload = packActionData(action);
-      const returnedAction = VaultActionStructToArray(action)
-      await expect(facet.execute(
-        ethers.utils.formatBytes32String("true"), 
-        "NotNet", 
-        owner.address,
-        payload
-      ))
-      .to.be.revertedWithCustomError(facet, "UnexpectedCaller")
-      .withArgs(returnedAction, "NotNet", owner.address)
-    })
+      const returnedAction = VaultActionStructToArray(action);
+      await expect(
+        facet.execute(ethers.utils.formatBytes32String("true"), "NotNet", owner.address, payload)
+      )
+        .to.be.revertedWithCustomError(facet, "UnexpectedCaller")
+        .withArgs(returnedAction, "NotNet", owner.address);
+    });
 
     it("reverts in _executeWithToken if the call didn't originate from the expected chain", async function () {
       const action = {
@@ -1150,22 +1147,23 @@ describe("AccountsStrategy", function () {
         lockAmt: 1,
         liqAmt: 1,
         status: VaultActionStatus.UNPROCESSED,
-      }
+      };
       const payload = packActionData(action);
-      const returnedAction = VaultActionStructToArray(action)
-      await expect(facet.executeWithToken(
-        ethers.utils.formatBytes32String("true"), 
-        "NotNet", 
-        owner.address,
-        payload,
-        "TKN", 
-        1
-      ))
-      .to.be.revertedWithCustomError(facet, "UnexpectedCaller")
-      .withArgs(returnedAction, "NotNet", owner.address)
+      const returnedAction = VaultActionStructToArray(action);
+      await expect(
+        facet.executeWithToken(
+          ethers.utils.formatBytes32String("true"),
+          "NotNet",
+          owner.address,
+          payload,
+          "TKN",
+          1
+        )
+      )
+        .to.be.revertedWithCustomError(facet, "UnexpectedCaller")
+        .withArgs(returnedAction, "NotNet", owner.address);
     });
 
-    
     it("reverts in _execute if the call didn't originate from the chain's router", async function () {
       const action = {
         destinationChain: "ThatNet",
@@ -1176,17 +1174,14 @@ describe("AccountsStrategy", function () {
         lockAmt: 1,
         liqAmt: 1,
         status: VaultActionStatus.UNPROCESSED,
-      }
+      };
       const payload = packActionData(action);
-      const returnedAction = VaultActionStructToArray(action)
-      await expect(facet.execute(
-        ethers.utils.formatBytes32String("true"), 
-        "ThatNet", 
-        owner.address,
-        payload
-      ))
-      .to.be.revertedWithCustomError(facet, "UnexpectedCaller")
-      .withArgs(returnedAction, "ThatNet", owner.address)
+      const returnedAction = VaultActionStructToArray(action);
+      await expect(
+        facet.execute(ethers.utils.formatBytes32String("true"), "ThatNet", owner.address, payload)
+      )
+        .to.be.revertedWithCustomError(facet, "UnexpectedCaller")
+        .withArgs(returnedAction, "ThatNet", owner.address);
     });
 
     it("reverts in _executeWithToken if the call didn't originate from the expected chain", async function () {
@@ -1199,19 +1194,21 @@ describe("AccountsStrategy", function () {
         lockAmt: 1,
         liqAmt: 1,
         status: VaultActionStatus.UNPROCESSED,
-      }
+      };
       const payload = packActionData(action);
-      const returnedAction = VaultActionStructToArray(action)
-      await expect(facet.executeWithToken(
-        ethers.utils.formatBytes32String("true"), 
-        "ThatNet", 
-        owner.address,
-        payload,
-        "TKN", 
-        1
-      ))
-      .to.be.revertedWithCustomError(facet, "UnexpectedCaller")
-      .withArgs(returnedAction, "ThatNet", owner.address)
+      const returnedAction = VaultActionStructToArray(action);
+      await expect(
+        facet.executeWithToken(
+          ethers.utils.formatBytes32String("true"),
+          "ThatNet",
+          owner.address,
+          payload,
+          "TKN",
+          1
+        )
+      )
+        .to.be.revertedWithCustomError(facet, "UnexpectedCaller")
+        .withArgs(returnedAction, "ThatNet", owner.address);
     });
 
     it("_execute successfully handles status == FAIL_TOKENS_FALLBACK", async function () {
@@ -1224,17 +1221,19 @@ describe("AccountsStrategy", function () {
         lockAmt: 1,
         liqAmt: 1,
         status: VaultActionStatus.FAIL_TOKENS_FALLBACK,
-      }
+      };
       const payload = packActionData(action);
-      const returnedAction = VaultActionStructToArray(action)
-      expect(await facet.execute(
-        ethers.utils.formatBytes32String("true"), 
-        "ThatNet", 
-        router.address,
-        payload
-      ))
-      .to.emit(facet, "RefundNeeded")
-      .withArgs(returnedAction)
+      const returnedAction = VaultActionStructToArray(action);
+      expect(
+        await facet.execute(
+          ethers.utils.formatBytes32String("true"),
+          "ThatNet",
+          router.address,
+          payload
+        )
+      )
+        .to.emit(facet, "RefundNeeded")
+        .withArgs(returnedAction);
     });
 
     it("_execute reverts for any other status", async function () {
@@ -1247,17 +1246,14 @@ describe("AccountsStrategy", function () {
         lockAmt: 1,
         liqAmt: 1,
         status: VaultActionStatus.UNPROCESSED,
-      }
+      };
       const payload = packActionData(action);
-      const returnedAction = VaultActionStructToArray(action)
-      await expect(facet.execute(
-        ethers.utils.formatBytes32String("true"), 
-        "ThatNet", 
-        router.address,
-        payload
-      ))
-      .to.be.revertedWithCustomError(facet, "UnexpectedResponse")
-      .withArgs(returnedAction)
+      const returnedAction = VaultActionStructToArray(action);
+      await expect(
+        facet.execute(ethers.utils.formatBytes32String("true"), "ThatNet", router.address, payload)
+      )
+        .to.be.revertedWithCustomError(facet, "UnexpectedResponse")
+        .withArgs(returnedAction);
     });
 
     it("_executeWithToken: deposit && FAIL_TOKENS_RETURNED", async function () {
@@ -1272,19 +1268,19 @@ describe("AccountsStrategy", function () {
         lockAmt: LOCK_AMT,
         liqAmt: LIQ_AMT,
         status: VaultActionStatus.FAIL_TOKENS_RETURNED,
-      }
+      };
       const payload = packActionData(action);
       await facet.executeWithToken(
-        ethers.utils.formatBytes32String("true"), 
-        "ThatNet", 
+        ethers.utils.formatBytes32String("true"),
+        "ThatNet",
         router.address,
         payload,
         "TKN",
         1
       );
       const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
-      expect(lockBal).to.equal(LOCK_AMT)
-      expect(liqBal).to.equal(LIQ_AMT)
+      expect(lockBal).to.equal(LOCK_AMT);
+      expect(liqBal).to.equal(LIQ_AMT);
     });
 
     it("_executeWithToken: redeem && SUCCESS", async function () {
@@ -1299,19 +1295,19 @@ describe("AccountsStrategy", function () {
         lockAmt: LOCK_AMT,
         liqAmt: LIQ_AMT,
         status: VaultActionStatus.SUCCESS,
-      }
+      };
       const payload = packActionData(action);
       await facet.executeWithToken(
-        ethers.utils.formatBytes32String("true"), 
-        "ThatNet", 
+        ethers.utils.formatBytes32String("true"),
+        "ThatNet",
         router.address,
         payload,
         "TKN",
         1
       );
       const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
-      expect(lockBal).to.equal(LOCK_AMT)
-      expect(liqBal).to.equal(LIQ_AMT)
+      expect(lockBal).to.equal(LOCK_AMT);
+      expect(liqBal).to.equal(LIQ_AMT);
     });
 
     it("_executeWithToken: redeemAll && SUCCESS", async function () {
@@ -1326,19 +1322,19 @@ describe("AccountsStrategy", function () {
         lockAmt: LOCK_AMT,
         liqAmt: LIQ_AMT,
         status: VaultActionStatus.SUCCESS,
-      }
+      };
       const payload = packActionData(action);
       await facet.executeWithToken(
-        ethers.utils.formatBytes32String("true"), 
-        "ThatNet", 
+        ethers.utils.formatBytes32String("true"),
+        "ThatNet",
         router.address,
         payload,
         "TKN",
         1
       );
       const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
-      expect(lockBal).to.equal(LOCK_AMT)
-      expect(liqBal).to.equal(LIQ_AMT)
+      expect(lockBal).to.equal(LOCK_AMT);
+      expect(liqBal).to.equal(LIQ_AMT);
     });
 
     it("_executeWithToken: redeem && POSITION_EXITED", async function () {
@@ -1353,13 +1349,13 @@ describe("AccountsStrategy", function () {
         lockAmt: LOCK_AMT,
         liqAmt: LIQ_AMT,
         status: VaultActionStatus.POSITION_EXITED,
-      }
+      };
       const payload = packActionData(action);
       await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true);
-      
+
       await facet.executeWithToken(
-        ethers.utils.formatBytes32String("true"), 
-        "ThatNet", 
+        ethers.utils.formatBytes32String("true"),
+        "ThatNet",
         router.address,
         payload,
         "TKN",
@@ -1387,13 +1383,13 @@ describe("AccountsStrategy", function () {
         lockAmt: LOCK_AMT,
         liqAmt: LIQ_AMT,
         status: VaultActionStatus.POSITION_EXITED,
-      }
+      };
       const payload = packActionData(action);
       await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true);
 
       await facet.executeWithToken(
-        ethers.utils.formatBytes32String("true"), 
-        "ThatNet", 
+        ethers.utils.formatBytes32String("true"),
+        "ThatNet",
         router.address,
         payload,
         "TKN",
@@ -1421,32 +1417,34 @@ describe("AccountsStrategy", function () {
         lockAmt: LOCK_AMT,
         liqAmt: LIQ_AMT,
         status: VaultActionStatus.UNPROCESSED,
-      }
+      };
       const payload = packActionData(action);
-      const returnedAction = VaultActionStructToArray(action)
+      const returnedAction = VaultActionStructToArray(action);
 
       const apParams = {
-        ...DEFAULT_AP_PARAMS, 
-        refundAddr: user.address
-      }
-      registrar.getAngelProtocolParams.returns(apParams)
-      
-      await token.mint(facet.address, LOCK_AMT + LIQ_AMT)
-      expect(await facet.executeWithToken(
-        ethers.utils.formatBytes32String("true"), 
-        "ThatNet", 
-        router.address,
-        payload,
-        "TKN",
-        LOCK_AMT + LIQ_AMT
-      ))
+        ...DEFAULT_AP_PARAMS,
+        refundAddr: user.address,
+      };
+      registrar.getAngelProtocolParams.returns(apParams);
+
+      await token.mint(facet.address, LOCK_AMT + LIQ_AMT);
+      expect(
+        await facet.executeWithToken(
+          ethers.utils.formatBytes32String("true"),
+          "ThatNet",
+          router.address,
+          payload,
+          "TKN",
+          LOCK_AMT + LIQ_AMT
+        )
+      )
         .to.emit(facet, "RefundNeeded")
-        .withArgs(returnedAction)
+        .withArgs(returnedAction);
       const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
       expect(lockBal).to.equal(0);
       expect(liqBal).to.equal(0);
       let userBal = await token.balanceOf(user.address);
-      expect(userBal).to.equal(LOCK_AMT + LIQ_AMT)
+      expect(userBal).to.equal(LOCK_AMT + LIQ_AMT);
     });
   });
 });
