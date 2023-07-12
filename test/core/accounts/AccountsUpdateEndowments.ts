@@ -1,7 +1,7 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
-import {BigNumberish} from "ethers";
+import {BigNumber, BigNumberish} from "ethers";
 import hre from "hardhat";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
@@ -12,6 +12,7 @@ import {
   Registrar__factory,
   TestFacetProxyContract,
 } from "typechain-types";
+import {PromiseOrValue} from "typechain-types/common";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsUpdateEndowments";
 import {
   AccountStorage,
@@ -19,8 +20,6 @@ import {
 } from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet, getSigners} from "utils";
 import "../../utils/setup";
-import {deepCopy} from "ethers/lib/utils";
-import {PromiseOrValue} from "typechain-types/common";
 
 enum ControllerSettingOption {
   AcceptedTokens,
@@ -139,15 +138,15 @@ describe("AccountsUpdateEndowments", function () {
       ...oldCharity,
       endowType: 1,
     };
-  });
 
-  beforeEach(async () => {
     registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
       address: genWallet().address,
     });
+  });
 
-    let Facet = new AccountsUpdateEndowments__factory(accOwner);
-    let facetImpl = await Facet.deploy();
+  beforeEach(async () => {
+    const Facet = new AccountsUpdateEndowments__factory(accOwner);
+    const facetImpl = await Facet.deploy();
     state = await deployFacetAsProxy(hre, accOwner, proxyAdmin, facetImpl.address);
 
     await state.setConfig({
@@ -236,7 +235,7 @@ describe("AccountsUpdateEndowments", function () {
           .to.emit(facet, "EndowmentUpdated")
           .withArgs(charityReq.id);
 
-        await expectNothingChanged(state, charityReq.id, oldCharity);
+        await expectNothingChanged(charityReq.id, oldCharity);
       });
 
       it("changes nothing in normal endowment settings if sender is neither an owner nor delegate", async () => {
@@ -244,7 +243,7 @@ describe("AccountsUpdateEndowments", function () {
           .to.emit(facet, "EndowmentUpdated")
           .withArgs(normalEndowReq.id);
 
-        await expectNothingChanged(state, normalEndowReq.id, oldNormalEndow);
+        await expectNothingChanged(normalEndowReq.id, oldNormalEndow);
       });
 
       it("changes nothing in charity settings if settings are locked", async () => {
@@ -257,12 +256,12 @@ describe("AccountsUpdateEndowments", function () {
           .to.emit(facet, "EndowmentUpdated")
           .withArgs(charityReq.id);
 
-        await expectNothingChanged(state, charityReq.id, oldEndow);
+        await expectNothingChanged(charityReq.id, oldEndow);
       });
 
       it("changes nothing in normal endowment settings if settings are locked", async () => {
         const oldEndow = await lockSettings(normalEndowReq.id);
-        await updateDelegate(charityReq.id, {addr: delegate.address, expires: 0});
+        await updateDelegate(normalEndowReq.id, {addr: delegate.address, expires: 0});
 
         // using delegate signer to avoid updating owner and rebalance data
         // (which uses different logic from other fields)
@@ -270,7 +269,7 @@ describe("AccountsUpdateEndowments", function () {
           .to.emit(facet, "EndowmentUpdated")
           .withArgs(normalEndowReq.id);
 
-        await expectNothingChanged(state, normalEndowReq.id, oldEndow);
+        await expectNothingChanged(normalEndowReq.id, oldEndow);
       });
 
       it("changes nothing in charity settings if delegation has expired", async () => {
@@ -281,7 +280,7 @@ describe("AccountsUpdateEndowments", function () {
           .to.emit(facet, "EndowmentUpdated")
           .withArgs(charityReq.id);
 
-        await expectNothingChanged(state, charityReq.id, oldCharity);
+        await expectNothingChanged(charityReq.id, oldCharity);
       });
 
       it("changes nothing in normal endowment settings if delegation has expired", async () => {
@@ -295,11 +294,10 @@ describe("AccountsUpdateEndowments", function () {
           .to.emit(facet, "EndowmentUpdated")
           .withArgs(normalEndowReq.id);
 
-        await expectNothingChanged(state, normalEndowReq.id, oldNormalEndow);
+        await expectNothingChanged(normalEndowReq.id, oldNormalEndow);
       });
 
       async function expectNothingChanged(
-        state: TestFacetProxyContract,
         endowId: PromiseOrValue<BigNumberish>,
         oldEndow: AccountStorage.EndowmentStruct
       ) {
@@ -436,6 +434,9 @@ describe("AccountsUpdateEndowments", function () {
   });
 
   describe("updateDelegate", () => {
+    const newDelegate = genWallet().address;
+    const newDelegateExpiry = 200;
+
     it("reverts if the endowment is closed", async () => {
       await state.setClosingEndowmentState(normalEndowId, true, {
         enumData: 0,
@@ -476,6 +477,136 @@ describe("AccountsUpdateEndowments", function () {
           0
         )
       ).to.be.revertedWith("Invalid setting input");
+    });
+
+    const runs: {
+      setting: ControllerSettingOption;
+      field: keyof LibAccounts.SettingsControllerStruct;
+    }[] = [
+      {setting: ControllerSettingOption.AcceptedTokens, field: "acceptedTokens"},
+      {
+        setting: ControllerSettingOption.LockedInvestmentManagement,
+        field: "lockedInvestmentManagement",
+      },
+      {
+        setting: ControllerSettingOption.LiquidInvestmentManagement,
+        field: "liquidInvestmentManagement",
+      },
+      {
+        setting: ControllerSettingOption.AllowlistedBeneficiaries,
+        field: "allowlistedBeneficiaries",
+      },
+      {
+        setting: ControllerSettingOption.AllowlistedContributors,
+        field: "allowlistedContributors",
+      },
+      {setting: ControllerSettingOption.MaturityAllowlist, field: "maturityAllowlist"},
+      {setting: ControllerSettingOption.MaturityTime, field: "maturityTime"},
+      {setting: ControllerSettingOption.WithdrawFee, field: "withdrawFee"},
+      {setting: ControllerSettingOption.DepositFee, field: "depositFee"},
+      {setting: ControllerSettingOption.BalanceFee, field: "balanceFee"},
+      {setting: ControllerSettingOption.Name, field: "name"},
+      {setting: ControllerSettingOption.Image, field: "image"},
+      {setting: ControllerSettingOption.Logo, field: "logo"},
+      {setting: ControllerSettingOption.Sdgs, field: "sdgs"},
+      {setting: ControllerSettingOption.SplitToLiquid, field: "splitToLiquid"},
+      {setting: ControllerSettingOption.IgnoreUserSplits, field: "ignoreUserSplits"},
+    ];
+    runs.forEach(({setting, field}) => {
+      describe(`Updating delegate for setting option "${ControllerSettingOption[setting]}"`, () => {
+        it(`sets a new the delegate`, async () => {
+          await expect(
+            facet.updateDelegate(
+              normalEndowId,
+              setting,
+              DelegateAction.Set,
+              newDelegate,
+              newDelegateExpiry
+            )
+          )
+            .to.emit(facet, "EndowmentUpdated")
+            .withArgs(normalEndowId);
+
+          const {settingsController} = await state.getEndowmentDetails(normalEndowId);
+
+          expect(settingsController[field].delegate.addr).to.equal(newDelegate);
+          expect(settingsController[field].delegate.expires).to.equal(newDelegateExpiry);
+        });
+
+        it(`revokes delegate`, async () => {
+          await expect(
+            facet.updateDelegate(
+              normalEndowId,
+              setting,
+              DelegateAction.Revoke,
+              newDelegate, // the value is ignored
+              newDelegateExpiry // the value is ignored
+            )
+          )
+            .to.emit(facet, "EndowmentUpdated")
+            .withArgs(normalEndowId);
+
+          const {settingsController} = await state.getEndowmentDetails(normalEndowId);
+
+          expect(settingsController[field].delegate.addr).to.equal(ethers.constants.AddressZero);
+          expect(settingsController[field].delegate.expires).to.equal(0);
+        });
+
+        describe("cases with missing permissions", () => {
+          it("changes nothing if sender is neither an owner nor delegate", async () => {
+            await expect(
+              facet
+                .connect(accOwner)
+                .updateDelegate(
+                  normalEndowId,
+                  setting,
+                  DelegateAction.Revoke,
+                  newDelegate,
+                  newDelegateExpiry
+                )
+            ).to.be.revertedWith("Unauthorized");
+          });
+
+          it("changes nothing if settings are locked", async () => {
+            const oldEndow = await lockSettings(normalEndowId);
+            await updateDelegate(normalEndowId, {addr: delegate.address, expires: 0});
+
+            // using delegate signer to avoid updating owner and rebalance data
+            // (which uses different logic from other fields)
+            await expect(
+              facet
+                .connect(delegate)
+                .updateDelegate(
+                  normalEndowId,
+                  setting,
+                  DelegateAction.Revoke,
+                  newDelegate,
+                  newDelegateExpiry
+                )
+            ).to.be.revertedWith("Unauthorized");
+          });
+
+          it("changes nothing if delegation has expired", async () => {
+            const blockTimestamp = (await ethers.provider.getBlock("latest")).timestamp;
+            await updateDelegate(normalEndowId, {
+              addr: delegate.address,
+              expires: blockTimestamp - 1,
+            });
+
+            await expect(
+              facet
+                .connect(delegate)
+                .updateDelegate(
+                  normalEndowId,
+                  setting,
+                  DelegateAction.Revoke,
+                  newDelegate,
+                  newDelegateExpiry
+                )
+            ).to.be.revertedWith("Unauthorized");
+          });
+        });
+      });
     });
   });
 });
