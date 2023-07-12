@@ -187,9 +187,9 @@ describe("AccountsAllowance", function () {
       );
 
       // try to spend more allowance than user was allocated
-      await expect(facet.spendAllowance(42, token.address, 1, proxyAdmin.address)).to.be.revertedWith(
-        "Amount requested exceeds Allowance balance"
-      );
+      await expect(
+        facet.spendAllowance(42, token.address, 1, proxyAdmin.address)
+      ).to.be.revertedWith("Amount requested exceeds Allowance balance");
     });
 
     it("passes when spend less than or equal to the allowance available for token", async function () {

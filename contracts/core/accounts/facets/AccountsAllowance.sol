@@ -127,10 +127,7 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
-    require(
-      state.ALLOWANCES[endowId][token].totalOutstanding > 0,
-      "Invalid Token"
-    );
+    require(state.ALLOWANCES[endowId][token].totalOutstanding > 0, "Invalid Token");
     require(amount > 0, "Zero Amount");
     require(
       amount <= state.ALLOWANCES[endowId][token].bySpender[msg.sender],
