@@ -7,8 +7,15 @@ interface IAccountsEvents {
   event DaoContractCreated(uint32 endowId, address daoAddress);
   event DonationDeposited(uint256 endowId, address tokenAddress, uint256 amount);
   event DonationWithdrawn(uint256 endowId, address recipient, address tokenAddress, uint256 amount);
-  event AllowanceRemoved(address sender, address spender, address tokenAddress);
-  event AllowanceUpdated(address sender, address spender, address tokenAddress, uint256 allowance);
+  event AllowanceSpent(uint256 endowId, address spender, address tokenAddress, uint256 amount);
+  event AllowanceUpdated(
+    uint256 endowId,
+    address spender,
+    address tokenAddress,
+    uint256 newBalance,
+    uint256 added,
+    uint256 deducted
+  );
   event EndowmentCreated(uint256 endowId);
   event EndowmentUpdated(uint256 endowId);
   event ConfigUpdated();
