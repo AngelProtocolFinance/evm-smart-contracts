@@ -450,16 +450,18 @@ describe("AccountsUpdateEndowments", function () {
       ).to.be.revertedWithoutReason();
     });
 
-    it("reverts if EarlyLockedWithdrawFee setting option is used", async () => {
+    it("reverts if invalid setting option is used", async () => {
+      const invalidSettingOption = 200;
+
       await expect(
         facet.updateDelegate(
           normalEndowId,
-          ControllerSettingOption.EarlyLockedWithdrawFee,
+          invalidSettingOption,
           DelegateAction.Set,
           ethers.constants.AddressZero,
           0
         )
-      ).to.be.revertedWith("Invalid setting input");
+      ).to.be.revertedWithoutReason();
     });
 
     const runs: {
@@ -485,6 +487,7 @@ describe("AccountsUpdateEndowments", function () {
       },
       {setting: ControllerSettingOption.MaturityAllowlist, field: "maturityAllowlist"},
       {setting: ControllerSettingOption.MaturityTime, field: "maturityTime"},
+      {setting: ControllerSettingOption.EarlyLockedWithdrawFee, field: "earlyLockedWithdrawFee"},
       {setting: ControllerSettingOption.WithdrawFee, field: "withdrawFee"},
       {setting: ControllerSettingOption.DepositFee, field: "depositFee"},
       {setting: ControllerSettingOption.BalanceFee, field: "balanceFee"},

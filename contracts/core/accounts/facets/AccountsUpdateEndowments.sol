@@ -243,17 +243,17 @@ contract AccountsUpdateEndowments is
         "Unauthorized"
       );
       tempEndowment.settingsController.withdrawFee.delegate = newDelegate;
-      // } else if (setting == ControllerSettingOption.EarlyLockedWithdrawFee) {
-      //   require(
-      //     Validator.canChange(
-      //       tempEndowment.settingsController.earlyLockedWithdrawFee,
-      //       msg.sender,
-      //       tempEndowment.owner,
-      //       block.timestamp
-      //     ),
-      //     "Unauthorized"
-      //   );
-      //   tempEndowment.settingsController.earlyLockedWithdrawFee.delegate = newDelegate;
+    } else if (setting == ControllerSettingOption.EarlyLockedWithdrawFee) {
+      require(
+        Validator.canChange(
+          tempEndowment.settingsController.earlyLockedWithdrawFee,
+          msg.sender,
+          tempEndowment.owner,
+          block.timestamp
+        ),
+        "Unauthorized"
+      );
+      tempEndowment.settingsController.earlyLockedWithdrawFee.delegate = newDelegate;
     } else if (setting == ControllerSettingOption.DepositFee) {
       require(
         Validator.canChange(
