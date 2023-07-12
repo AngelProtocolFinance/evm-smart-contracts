@@ -37,36 +37,6 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
       "Invalid Token"
     );
 
-    uint256 spenderBal = state.ALLOWANCES[endowId][token].bySpender[spender];
-    uint256 amountDelta;
-    if (amount > spenderBal) {
-      amountDelta = amount - spenderBal;
-      // check if liquid balance is sufficient for any proposed increase to spender allocation
-      require(
-        amountDelta <= state.STATES[endowId].balances.liquid[token],
-        "Insufficient liquid balance to allocate"
-      );
-      // increase total outstanding allocation & reduce liquid balance by AmountDelta
-      state.ALLOWANCES[endowId][token].totalOutstanding += amountDelta;
-      state.STATES[endowId].balances.liquid[token] -= amountDelta;
-      emit AllowanceUpdated(endowId, spender, token, amount, amountDelta, 0);
-    } else if (amount < spenderBal) {
-      amountDelta = spenderBal - amount;
-      require(
-        amountDelta <= state.ALLOWANCES[endowId][token].totalOutstanding,
-        "Insufficient allowances outstanding to cover requested reduction"
-      );
-      // decrease total outstanding allocation & increase liquid balance by AmountDelta
-      state.ALLOWANCES[endowId][token].totalOutstanding -= amountDelta;
-      state.STATES[endowId].balances.liquid[token] += amountDelta;
-      emit AllowanceUpdated(endowId, spender, token, amount, 0, amountDelta);
-    } else {
-      // equal amount and spender balance
-      revert("Spender balance equal to amount. No changes needed");
-    }
-    // set the allocation for spender to the amount specified
-    state.ALLOWANCES[endowId][token].bySpender[spender] = amount;
-
     // Checks are based around the endowment's maturity time having been reached or not
     bool mature = (tempEndowment.maturityTime != 0 &&
       block.timestamp >= tempEndowment.maturityTime);
@@ -107,6 +77,36 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
       }
     }
     require(inAllowlist, "Spender is not in allowlists");
+
+    uint256 spenderBal = state.ALLOWANCES[endowId][token].bySpender[spender];
+    uint256 amountDelta;
+    if (amount > spenderBal) {
+      amountDelta = amount - spenderBal;
+      // check if liquid balance is sufficient for any proposed increase to spender allocation
+      require(
+        amountDelta <= state.STATES[endowId].balances.liquid[token],
+        "Insufficient liquid balance to allocate"
+      );
+      // increase total outstanding allocation & reduce liquid balance by AmountDelta
+      state.ALLOWANCES[endowId][token].totalOutstanding += amountDelta;
+      state.STATES[endowId].balances.liquid[token] -= amountDelta;
+      emit AllowanceUpdated(endowId, spender, token, amount, amountDelta, 0);
+    } else if (amount < spenderBal) {
+      amountDelta = spenderBal - amount;
+      require(
+        amountDelta <= state.ALLOWANCES[endowId][token].totalOutstanding,
+        "Insufficient allowances outstanding to cover requested reduction"
+      );
+      // decrease total outstanding allocation & increase liquid balance by AmountDelta
+      state.ALLOWANCES[endowId][token].totalOutstanding -= amountDelta;
+      state.STATES[endowId].balances.liquid[token] += amountDelta;
+      emit AllowanceUpdated(endowId, spender, token, amount, 0, amountDelta);
+    } else {
+      // equal amount and spender balance
+      revert("Spender balance equal to amount. No changes needed");
+    }
+    // set the allocation for spender to the amount specified
+    state.ALLOWANCES[endowId][token].bySpender[spender] = amount;
   }
 
   /**
@@ -141,5 +141,21 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
 
     require(IERC20(token).transfer(recipient, amount), "Transfer failed");
     emit AllowanceSpent(endowId, msg.sender, token, amount);
+  }
+
+  /**
+   * @notice Query the Allowance for token and spender
+   * @dev Query the Allowance for token and spender
+   * @param endowId The id of the endowment
+   * @param spender The address of the spender
+   * @param token The address of the token
+   */
+  function queryAllowance(
+    uint32 endowId,
+    address spender,
+    address token
+  ) external view returns (uint256) {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    return state.ALLOWANCES[endowId][token].bySpender[spender];
   }
 }

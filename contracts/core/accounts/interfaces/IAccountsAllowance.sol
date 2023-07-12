@@ -35,4 +35,17 @@ interface IAccountsAllowance {
     uint256 amount,
     address recipient
   ) external;
+
+  /**
+   * @notice Query the Allowance for token and spender
+   * @dev Query the Allowance for token and spender
+   * @param endowId The id of the endowment
+   * @param spender The address of the spender
+   * @param token The address of the token
+   */
+  function queryAllowance(
+    uint32 endowId,
+    address spender,
+    address token
+  ) external view returns (uint256);
 }

@@ -1,12 +1,12 @@
 import {expect} from "chai";
 import hre from "hardhat";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {deployDummyERC20, DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
+import {deployDummyERC20, DEFAULT_CHARITY_ENDOWMENT, DEFAULT_PERMISSIONS_STRUCT} from "test/utils";
 import {
   TestFacetProxyContract,
   AccountsAllowance__factory,
   AccountsAllowance,
-  DummyERC20
+  DummyERC20,
 } from "typechain-types";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {getSigners} from "utils";
@@ -24,10 +24,10 @@ describe("AccountsAllowance", function () {
     const signers = await getSigners(hre);
     owner = signers.deployer;
     proxyAdmin = signers.proxyAdmin;
-    user = signers.apTeam1
+    user = signers.apTeam1;
     token = await deployDummyERC20(owner);
     token2 = await deployDummyERC20(owner);
-  })
+  });
 
   describe("Test cases for `manageAllowances`", async function () {
     let facet: AccountsAllowance;
@@ -50,6 +50,7 @@ describe("AccountsAllowance", function () {
       // setup endowment 42 with minimum needed for testing
       // Allowlists Beneficiaries set for a user
       let endowment = DEFAULT_CHARITY_ENDOWMENT;
+      endowment.owner = owner.address;
       endowment.allowlistedBeneficiaries = [user.address];
       endowment.maturityAllowlist = [user.address];
       await proxy.setEndowmentDetails(42, endowment);
@@ -65,7 +66,8 @@ describe("AccountsAllowance", function () {
       );
     });
 
-    it("reverts when the sender is not the owner", async function () {
+    it("reverts when the sender is not the endowment owner or a valid delegate who can control allowlists", async function () {
+      // not the endowment owner sending the message and user is not a delegate
       await expect(
         facet.connect(user).manageAllowances(42, user.address, token.address, 10)
       ).to.be.revertedWith("Unauthorized");
@@ -82,9 +84,9 @@ describe("AccountsAllowance", function () {
     });
 
     it("reverts when the spender is not in allowlist", async function () {
-      await expect(facet.manageAllowances(42, proxyAdmin.address, token.address, 10)).to.be.revertedWith(
-        "Spender is not in allowlists"
-      );
+      await expect(
+        facet.manageAllowances(42, proxyAdmin.address, token.address, 10)
+      ).to.be.revertedWith("Spender is not in allowlists");
     });
 
     it("reverts when there are no adjustments needed (ie. proposed amount == spender balance amount)", async function () {
@@ -104,6 +106,13 @@ describe("AccountsAllowance", function () {
 
     it("passes when try to increase a valid token's allowance within range of liquid balance available", async function () {
       await expect(facet.manageAllowances(42, user.address, token.address, 10));
+
+      // endowment liquid balance should be 90 now (100 - 10)
+      //const endowBal = await proxy.getEndowmentTokenBalance(42, token.address);
+      //expect(endowBal[1]).to.equal(90);
+      // user allowance should be 10 now
+      const allowance = await proxy.getTokenAllowance(42, user.address, token.address);
+      expect(allowance).to.equal(10);
     });
   });
 
@@ -170,10 +179,27 @@ describe("AccountsAllowance", function () {
     });
 
     it("passes when spend less than or equal to the allowance available for token", async function () {
+      // check starting assumptions (should be 100 in liquid bal)
+      //let endowBal = await proxy.getEndowmentTokenBalance(42, token.address);
+      //expect(endowBal[1]).to.equal(100);
+
       // now we allocate some token allowance to the user address to spend from
-      await proxy.setTokenAllowance(42, user.address, token.address, 10, 10);
-      // spend less than what was allocated (ie. 5 out of 10 available)
+      await facet.manageAllowances(42, user.address, token.address, 10);
+      // user allowance should be set to 10 now
+      let allowance = await proxy.getTokenAllowance(42, user.address, token.address);
+      expect(allowance).to.equal(10);
+      // new liquid balance should be 90 (100 - 10)
+      //endowBal = await proxy.getEndowmentTokenBalance(42, token.address);
+      //expect(endowBal[1]).to.equal(90);
+
+      // mint tokens so that the contract can transfer them to recipient
+      await token.mint(facet.address, 10);
+
+      // user spends less than what was allocated to them (ie. 5 out of 10 available)
       await expect(facet.spendAllowance(42, token.address, 5, user.address));
+      // user allowance should be 5 now (10 - 5)
+      allowance = await proxy.getTokenAllowance(42, user.address, token.address);
+      expect(allowance).to.equal(5);
     });
   });
 });
