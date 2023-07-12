@@ -542,16 +542,16 @@ describe("AccountsStrategy", function () {
           axelarGateway: gateway.address
         }
         console.log(network);
-        await registrar.queryNetworkConnection.whenCalledWith("ThisNet").returns(network);
+        registrar.queryNetworkConnection.whenCalledWith("ThisNet").returns(network);
 
-        await registrar.isTokenAccepted.returns(true);
+        registrar.isTokenAccepted.returns(true);
 
         let stratParams = {
           ...DEFAULT_STRATEGY_PARAMS,
           network: "ThisNet",
           approvalState: StrategyApprovalState.APPROVED,
         }
-        await registrar.getStrategyParamsById.returns(stratParams);
+        registrar.getStrategyParamsById.returns(stratParams);
       });
 
       beforeEach(async function () {
@@ -680,7 +680,13 @@ describe("AccountsStrategy", function () {
         chainId: (await ethers.provider.getNetwork()).chainId,
         axelarGateway: gateway.address
       }
-      await registrar.queryNetworkConnection.returns(network);
+      registrar.queryNetworkConnection.returns(network);
+      let stratParams = {
+        ...DEFAULT_STRATEGY_PARAMS,
+        network: "ThisNet",
+        approvalState: StrategyApprovalState.NOT_APPROVED,
+      }
+      registrar.getStrategyParamsById.returns(stratParams);
     });
 
     beforeEach(async function () {
@@ -767,14 +773,14 @@ describe("AccountsStrategy", function () {
             axelarGateway: gateway.address,
             router: router.address
           }
-          await registrar.queryNetworkConnection.returns(network);
-          await registrar.isTokenAccepted.returns(true);
+          registrar.queryNetworkConnection.whenCalledWith("ThisNet").returns(network);
+          registrar.isTokenAccepted.returns(true);
           let stratParams = {
             ...DEFAULT_STRATEGY_PARAMS,
             network: "ThisNet",
             approvalState: StrategyApprovalState.APPROVED,
           }
-          await registrar.getStrategyParamsById.returns(stratParams);
+          registrar.getStrategyParamsById.returns(stratParams);
         });
 
         beforeEach(async function () {
@@ -809,7 +815,7 @@ describe("AccountsStrategy", function () {
           };
           await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
 
-          token.mint(facet.address, LOCK_AMT + LIQ_AMT);
+          await token.mint(facet.address, LOCK_AMT + LIQ_AMT);
           await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true);
         });
 
@@ -828,7 +834,7 @@ describe("AccountsStrategy", function () {
           expect(await facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest))
             .to.emit(facet, "EndowmentRedeemed")
             .withArgs(VaultActionStatus.POSITION_EXITED);
-
+            
           const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
           expect(lockBal).to.equal(LOCK_AMT);
           expect(liqBal).to.equal(LIQ_AMT);
