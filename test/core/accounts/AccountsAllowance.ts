@@ -105,7 +105,7 @@ describe("AccountsAllowance", function () {
     });
 
     it("passes when try to increase a valid token's allowance within range of liquid balance available", async function () {
-      await expect(facet.manageAllowances(42, user.address, token.address, 10));
+      expect(await facet.manageAllowances(42, user.address, token.address, 10));
 
       // endowment liquid balance should be 90 now (100 - 10)
       const endowBal = await proxy.getEndowmentTokenBalance(42, token.address);
@@ -179,26 +179,17 @@ describe("AccountsAllowance", function () {
     });
 
     it("passes when spend less than or equal to the allowance available for token", async function () {
-      // check starting assumptions (should be 100 in liquid bal)
-      let endowBal = await proxy.getEndowmentTokenBalance(42, token.address);
-      expect(endowBal[1]).to.equal(100);
-
       // now we allocate some token allowance to the user address to spend from
-      await facet.manageAllowances(42, user.address, token.address, 10);
-      // user allowance should be set to 10 now
-      let allowance = await proxy.getTokenAllowance(42, user.address, token.address);
-      expect(allowance).to.equal(10);
-      // new liquid balance should be 90 (100 - 10)
-      endowBal = await proxy.getEndowmentTokenBalance(42, token.address);
-      expect(endowBal[1]).to.equal(90);
+      await proxy.setTokenAllowance(42, user.address, token.address, 10, 10);
 
       // mint tokens so that the contract can transfer them to recipient
       await token.mint(facet.address, 10);
 
       // user spends less than what was allocated to them (ie. 5 out of 10 available)
-      await expect(facet.spendAllowance(42, token.address, 5, user.address));
+      expect(await facet.connect(user).spendAllowance(42, token.address, 5, user.address));
+
       // user allowance should be 5 now (10 - 5)
-      allowance = await proxy.getTokenAllowance(42, user.address, token.address);
+      let allowance = await proxy.getTokenAllowance(42, user.address, token.address);
       expect(allowance).to.equal(5);
     });
   });
