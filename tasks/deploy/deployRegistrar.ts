@@ -66,6 +66,7 @@ task(
           splitMin: config.REGISTRAR_DATA.splitToLiquid.min,
           splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit,
           collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare,
+          gasFwdFactory: addresses.gasFwd.factory,
           indexFundContract: addresses.indexFund.proxy,
           treasury: treasury.address,
           uniswapRouter: addresses.uniswap.swapRouter,

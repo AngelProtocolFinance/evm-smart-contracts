@@ -105,6 +105,10 @@ export function createEmptyAddressObj(): AddressObj {
       implementation: "",
       proxy: "",
     },
+    gasFwd: {
+      factory: "",
+      implementation: "",
+    },
     giftcards: {
       implementation: "",
       proxy: "",

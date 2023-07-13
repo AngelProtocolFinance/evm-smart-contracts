@@ -11,6 +11,7 @@ import {IEndowmentMultiSigFactory} from "../../../normalized_endowment/endowment
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsCreateEndowment} from "../interfaces/IAccountsCreateEndowment.sol";
+import {IGasFwdFactory} from "../../gasFwd/IGasFwdFactory.sol";
 
 /**
  * @title AccountsCreateEndowment
@@ -78,6 +79,8 @@ contract AccountsCreateEndowment is
       details.duration
     );
 
+    address gasFwd = IGasFwdFactory(registrar_config.gasFwdFactory).create();
+
     state.ENDOWMENTS[newEndowId] = AccountStorage.Endowment({
       owner: owner,
       name: details.name,
@@ -106,7 +109,8 @@ contract AccountsCreateEndowment is
       parent: details.parent,
       ignoreUserSplits: ignoreUserSplit,
       splitToLiquid: splitSettings,
-      referralId: details.referralId
+      referralId: details.referralId,
+      gasFwd: gasFwd
     });
 
     state.STATES[newEndowId].closingEndowment = false;

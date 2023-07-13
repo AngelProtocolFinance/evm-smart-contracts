@@ -46,6 +46,7 @@ library RegistrarMessages {
     address subdaoEmitter;
     address donationMatchContract;
     address cw900lvAddress;
+    address gasFwdFactory;
   }
 
   struct UpdateFeeRequest {

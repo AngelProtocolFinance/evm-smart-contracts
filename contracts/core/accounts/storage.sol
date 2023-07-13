@@ -47,6 +47,7 @@ library AccountStorage {
     bool ignoreUserSplits;
     LibAccounts.SplitDetails splitToLiquid;
     uint256 referralId;
+    address gasFwd;
   }
 
   struct EndowmentState {

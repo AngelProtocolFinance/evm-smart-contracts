@@ -11,6 +11,8 @@ import {
   AccountsCreateEndowment__factory,
   EndowmentMultiSigFactory,
   EndowmentMultiSigFactory__factory,
+  GasFwdFactory,
+  GasFwdFactory__factory,
   Registrar,
   Registrar__factory,
   TestFacetProxyContract,
@@ -44,6 +46,7 @@ describe("AccountsCreateEndowment", function () {
   let Registrar: Registrar;
   let createEndowmentRequest: AccountMessages.CreateEndowmentRequestStruct;
   let registrarFake: FakeContract<Registrar>;
+  let gasFwdFactoryFake: FakeContract<GasFwdFactory>;
 
   before(async function () {
     const signers = await getSigners(hre);
@@ -124,6 +127,9 @@ describe("AccountsCreateEndowment", function () {
     );
     endowmentFactoryFake.create.returns(endowmentOwner);
 
+    gasFwdFactoryFake = await smock.fake<GasFwdFactory>(new GasFwdFactory__factory());
+    gasFwdFactoryFake.create.returns(ethers.constants.AddressZero);
+
     registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
       address: genWallet().address,
     });
@@ -141,6 +147,7 @@ describe("AccountsCreateEndowment", function () {
       charityApplications: charityApplications.address,
       multisigFactory: endowmentFactoryFake.address,
       donationMatchCharitesContract: donationMatchCharitesAddress,
+      gasFwdFactory: gasFwdFactoryFake.address,
     };
     registrarFake.queryConfig.returns(config);
   });
