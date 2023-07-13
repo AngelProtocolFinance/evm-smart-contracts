@@ -36,6 +36,7 @@ contract AccountsUpdateStatusEndowments is
 
     require(msg.sender == tempEndowment.owner, "Unauthorized");
     require(!state.STATES[id].closingEndowment, "Endowment is closed");
+    require(checkFullyExited(id), "Not fully exited");
 
     RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
       .queryConfig();
@@ -85,7 +86,7 @@ contract AccountsUpdateStatusEndowments is
     }
     return true;
   }
-
+  
   /**
    * @notice Force a strategy inactive for `checkFullyExited` to pass
    * @dev We optimistically expect that a cross-chain `deposit` call will be successful
