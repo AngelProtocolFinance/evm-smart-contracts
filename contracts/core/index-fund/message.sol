@@ -10,6 +10,8 @@ library IndexFundMessage {
   }
 
   struct UpdateConfigMessage {
+    address owner;
+    address registrarContract;
     uint256 fundRotation;
     uint256 fundMemberLimit;
     uint256 fundingGoal;

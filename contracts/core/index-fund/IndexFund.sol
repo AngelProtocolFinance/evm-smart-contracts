@@ -20,23 +20,20 @@ import {AccountMessages} from "../accounts/message.sol";
 
 /**
  * @title IndexFund
- * @notice User can deposit/donate to a collection of endowments (index funds) through this contract
+ * @notice User can deposit/donate to a collection of endowments (ie. funds) through this contract
  * @dev IndexFund is a contract that manages the funds of the angelcore platform
- * It is responsible for creating new funds, adding members to funds, and
- * distributing funds to members
+ * It is responsible for creating new funds, adding endowments to funds, and
+ * distributing funds to the endowment members
  */
 contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
-  event OwnerUpdated(address newOwner);
-  event RegistrarUpdated(address newRegistrar);
   event ConfigUpdated();
-  event IndexFundCreated(uint256 id);
-  event IndexFundRemoved(uint256 id);
-  event MemberRemoved(uint256 fundId, uint32 memberId);
-  event MembersUpdated(uint256 fundId, uint32[] members);
-  event DonationMessagesUpdated(uint256 fundId);
+  event FundCreated(uint256 id);
+  event FundRemoved(uint256 id);
+  event MemberRemoved(uint256 fundId, uint32 endowmentId);
+  event MembersUpdated(uint256 fundId, uint32[] endowments);
+  event DonationProcessed(uint256 fundId);
   event ActiveFundUpdated(uint256 fundId);
   event StateUpdated();
-
 
   using SafeMath for uint256;
 
@@ -47,7 +44,7 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
    */
   function initIndexFund(IndexFundMessage.InstantiateMessage memory details) public initializer {
     require(details.registrarContract != address(0), "invalid registrar address");
-    require(details.fundMemberLimit > 0, "Fund member limit must be greater than zero");
+    require(details.fundMemberLimit > 0, "Fund endowment limit must be greater than zero");
     state.config = IndexFundStorage.Config({
       owner: msg.sender,
       registrarContract: details.registrarContract,
@@ -64,43 +61,29 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
 
     emit StateUpdated();
     emit ConfigUpdated();
-    emit OwnerUpdated(msg.sender);
-  }
-
-  /**
-   * @notice function to update ownder of the contract
-   * @dev can be called by rent owner to set new owner
-   * @param newOwner address of new owner
-   */
-  function updateOwner(address newOwner) public nonReentrant {
-    require(msg.sender == state.config.owner, "Unauthorized");
-    require(newOwner != address(0), "invalid input address");
-    state.config.owner = newOwner;
-    emit OwnerUpdated(newOwner);
-  }
-
-  /**
-   * @notice function to update registrar contract address
-   * @dev can be called by rent owner to set new registrar contract address
-   * @param newRegistrar address of new registrar contract
-   */
-  function updateRegistrar(address newRegistrar) public nonReentrant {
-    require(msg.sender == state.config.owner, "Unauthorized");
-    require(newRegistrar != address(0), "invalid input address");
-    state.config.registrarContract = newRegistrar;
-    emit RegistrarUpdated(newRegistrar);
   }
 
   /**
    * @notice function to update config of index fund
-   * @dev can be called by rent owner to set new config
+   * @dev can be called by owner to set new config
    * @param details IndexFundMessage.UpdateConfigMessage
    */
   function updateConfig(
     IndexFundMessage.UpdateConfigMessage memory details
   ) public nonReentrant {
     require(msg.sender == state.config.owner, "Unauthorized");
-    require(details.fundMemberLimit > 0, "Fund member limit must be greater than zero");
+    require(details.fundMemberLimit > 0, "Fund endowment limit must be greater than zero");
+
+    if(details.registrarContract != state.config.registrarContract) {
+      require(details.registrarContract != address(0), "Invalid Registrar address");
+      state.config.registrarContract = details.registrarContract;
+    }
+
+    if (details.owner != state.config.owner) {
+      require(details.owner != address(0), "Invalid owner address");
+      state.config.owner = details.owner;
+    }
+
     if (details.fundingGoal != 0) {
       if (details.fundingGoal < state.roundDonations) {
         revert("Invalid Inputs");
@@ -109,44 +92,47 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
     } else {
       state.config.fundingGoal = 0;
     }
+
     state.config.fundRotation = details.fundRotation;
     state.config.fundMemberLimit = details.fundMemberLimit;
+
     emit ConfigUpdated();
   }
 
   /**
-   * @notice function to create index fund
-   * @dev can be called by rent owner to create index fund
-   * @param name name of index fund
-   * @param description description of index fund
-   * @param members array of members of index fund
-   * @param rotatingFund boolean to indicate if index fund is rotating fund
-   * @param splitToLiquid split of index fund to liquid fund
-   * @param expiryTime expiry time of index fund
+   * @notice function to create a new Fund
+   * @dev can be called by owner to create a new Fund
+   * @param name name of the Fund
+   * @param description description of the Fund
+   * @param endowments array of endowments in the Fund
+   * @param rotatingFund boolean to indicate if the Fund is rotating fund
+   * @param splitToLiquid split of Fund donations to liquid portion of endowment account
+   * @param expiryTime expiry time of the Fund
    */
   function createIndexFund(
     string memory name,
     string memory description,
-    uint32[] memory members,
+    uint32[] memory endowments,
     bool rotatingFund,
     uint256 splitToLiquid,
     uint256 expiryTime
   ) public nonReentrant {
     require(msg.sender == state.config.owner, "Unauthorized");
-    require(members.length > 0, "Must have one or more members");
+    require(endowments.length > 0, "Must have one or more endowments");
     require(splitToLiquid <= 100, "invalid split, must be less or equal to 100");
 
-    state.FUNDS[state.nextFundId] = IndexFund({
+    state.Funds[state.nextFundId] = IndexFundStorage.Fund({
       id: state.nextFundId,
       name: name,
       description: description,
-      members: members,
+      endowments: endowments,
       splitToLiquid: splitToLiquid,
       expiryTime: expiryTime
     });
 
-    for (uint8 i = 0; i < members.length; i++) {
-      state.FUNDS_BY_ENDOWMENT[members[i]].push(state.nextFundId);
+    for (uint8 i = 0; i < endowments.length; i++) {
+      state.FundsByEndowment[endowments[i]].push(state.nextFundId);
+      state.FundsActiveEndowments[state.nextFundId][endowments[i]] = true;
     }
 
     // If there are no funds created or no active funds yet, set the new
@@ -160,14 +146,14 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
       state.rotatingFunds.push(state.nextFundId);
     }
 
-    emit IndexFundCreated(state.nextFundId);
+    emit FundCreated(state.nextFundId);
     state.totalFunds += 1;
     state.nextFundId += 1;
   }
 
   /**
    * @notice function to remove index fund
-   * @dev can be called by rent owner to remove an index fund
+   * @dev can be called by owner to remove an index fund
    * @param fundId id of index fund to be removed
    */
   function removeIndexFund(uint256 fundId) public nonReentrant {
@@ -187,71 +173,89 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
     }
 
     state.totalFunds -= 1;
-    delete state.FUNDS[fundId];
-    emit IndexFundRemoved(fundId);
+    delete state.Funds[fundId];
+    emit FundRemoved(fundId);
   }
 
   /**
-   *  @notice function to remove member from all the index funds
-   *  @dev can be called by rent owner to remove a member from all the index funds
-   *  @param member member to be removed from index fund
+   *  @notice function to remove endowment member from all Funds globally. Used by Accounts contract when an Endowment closes down.
+   *  @dev can be called by owner to remove a endowment from all the index funds
+   *  @param endowment endowment to be removed from index fund
    */
-  function removeMember(uint32 member) public nonReentrant {
+  function removeMember(uint32 endowment) public nonReentrant {
     RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
       .queryConfig();
 
     require(address(0) != registrar_config.accountsContract, "Accounts contract not configured in Registrar");
     require(msg.sender == registrar_config.accountsContract, "Unauthorized");
-    require(state.FUNDS_BY_ENDOWMENT[member].length >= 0);
 
-    // remove member from all involved funds if in their members array
     bool found;
     uint32 index;
-    for (uint32 i = 0; i < state.FUNDS_BY_ENDOWMENT[member].length; i++) {
-      uint256 fundId = state.FUNDS_BY_ENDOWMENT[member][i];
-      (index, found) = Array32.indexOf(state.FUNDS[fundId].members, member);
-      if (found) {
-        Array32.remove(state.FUNDS[fundId].members, index);
-        emit MemberRemoved(fundId, member);
-        // if member removal results in zero fund members left, close out the fund
-        if (state.FUNDS[fundId].members.length == 0) {
+    // remove endowment from all involved funds if in their endowments array
+    for (uint32 i = 0; i < state.FundsByEndowment[endowment].length; i++) {
+      uint256 fundId = state.FundsByEndowment[endowment][i];
+      if (state.FundsActiveEndowments[fundId][endowment]) {
+        state.FundsActiveEndowments[fundId][endowment] = false;
+        (index, found) = Array32.indexOf(state.Funds[fundId].endowments, endowment);
+        Array32.remove(state.Funds[fundId].endowments, index);
+        emit MemberRemoved(fundId, endowment);
+        // if endowment removal results in a fund having zero endowment members left, close out the fund
+        if (state.Funds[fundId].endowments.length == 0) {
           removeIndexFund(fundId);
         }
       }
     }
-    delete state.FUNDS_BY_ENDOWMENT[member];
+    delete state.FundsByEndowment[endowment];
   }
 
   /**
-   *  @notice function to update fund members
-   *  @dev can be called by rent owner to add/remove member to an index fund
-   *  @param fundId the id of index fund to be updated
-   *  @param members array of members to be set for the index fund
+   *  @notice Function to update a Fund's endowment members
+   *  @dev Can be called by owner to add/remove endowments to a Fund
+   *  @param fundId The id of the Fund to be updated
+   *  @param endowments An array of endowments to be set for a Fund
    */
   function updateFundMembers(
     uint256 fundId,
-    uint32[] memory members
+    uint32[] memory endowments
   ) public nonReentrant {
     require(msg.sender == state.config.owner, "Unauthorized");
-    require(members.length > 0, "Must pass at least one member to add to the fund");
-    require(members.length < state.config.fundMemberLimit, "Fund member limit exceeded");
-    require(!fundIsExpired(state.FUNDS[fundId], block.timestamp), "Index Fund Expired");
+    require(endowments.length > 0, "Must pass at least one endowment member to add to the Fund");
+    require(endowments.length <= state.config.fundMemberLimit, "Fund endowment members limit exceeded");
+    require(!fundIsExpired(state.Funds[fundId], block.timestamp), "Fund Expired");
 
-    // set members on fund
-    state.FUNDS[fundId].members = members;
-
-    // update members by endowment records
+    uint32[] memory currEndowments = state.Funds[fundId].endowments;
     bool found;
-    uint256 index;
-    for (uint i = 0; i < members.length; i++) {
-      uint256[] memory funds = state.FUNDS_BY_ENDOWMENT[members[i]];
-      (index, found) = Array.indexOf(funds, fundId);
+    uint32 index;
+    uint256 fundIndex;
+
+    // sort out which of the endowments passed need to be added to a Fund
+    for (uint32 i = 0; i < endowments.length; i++) {
+      (index, found) = Array32.indexOf(currEndowments, endowments[i]);
+      // if found in current Endowments, there's nothing we need to do
+      // if NOT in current Endowments, then we need to add it
       if (!found) {
-        state.FUNDS_BY_ENDOWMENT[members[i]].push(fundId);
+        state.FundsByEndowment[endowments[i]].push(fundId);
+        state.FundsActiveEndowments[fundId][endowments[i]] = true;
       }
     }
 
-    emit MembersUpdated(fundId, members);
+    // sort out which of the current endowments need to be removed from a Fund
+    for (uint32 i = 0; i < currEndowments.length; i++) {
+      (index, found) = Array32.indexOf(endowments, currEndowments[i]);
+      // if found in new Endowments, there's nothing we need to do
+      // if NOT in new Endowments list, we need to remove it
+      if (!found) {
+        state.FundsActiveEndowments[fundId][currEndowments[i]] = false;
+        // remove fund from the endowment's involved funds list
+        uint256[] memory involvedFunds = state.FundsByEndowment[currEndowments[i]];
+        (fundIndex, found) = Array.indexOf(involvedFunds, fundId);
+        Array.remove(state.FundsByEndowment[currEndowments[i]], fundIndex);
+      }
+    }
+
+    // set array of endowment members on the Fund
+    state.Funds[fundId].endowments = endowments;
+    emit MembersUpdated(fundId, endowments);
   }
 
   /**
@@ -291,12 +295,12 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
 
     if (fundId != 0) {
       // Depositor has chosen a specific fund to send tokens to. Send 100% to that fund.
-      require(!fundIsExpired(state.FUNDS[fundId], block.timestamp), "Expired Fund");
+      require(!fundIsExpired(state.Funds[fundId], block.timestamp), "Expired Fund");
       updateDonationMessages(
         fundId,
         calculateSplit(
           registrar_config.splitToLiquid,
-          state.FUNDS[fundId].splitToLiquid,
+          state.Funds[fundId].splitToLiquid,
           splitToLiquid
         ),
         amount,
@@ -309,7 +313,7 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
         uint256 loopDonation = 0;
         while (depositAmount > 0) {
           require(
-            !fundIsExpired(state.FUNDS[state.activeFund], block.timestamp),
+            !fundIsExpired(state.Funds[state.activeFund], block.timestamp),
             "Expired Fund"
           );
           uint256 activeFund = state.activeFund;
@@ -329,7 +333,7 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
             activeFund,
             calculateSplit(
               registrar_config.splitToLiquid,
-              state.FUNDS[activeFund].splitToLiquid,
+              state.Funds[activeFund].splitToLiquid,
               splitToLiquid
             ),
             loopDonation,
@@ -340,7 +344,7 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
         }
       } else {
         require(
-          !fundIsExpired(state.FUNDS[state.activeFund], block.timestamp),
+          !fundIsExpired(state.Funds[state.activeFund], block.timestamp),
           "Expired Fund"
         );
 
@@ -348,7 +352,7 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
           state.activeFund,
           calculateSplit(
             registrar_config.splitToLiquid,
-            state.FUNDS[state.activeFund].splitToLiquid,
+            state.Funds[state.activeFund].splitToLiquid,
             splitToLiquid
           ),
           amount,
@@ -378,9 +382,9 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
     Utils._execute(target[0], value[0], callData[0]);
 
     // Clean up storage for next call
-    delete state.donationMessages.member_ids;
-    delete state.donationMessages.locked_donation_amount;
-    delete state.donationMessages.liquid_donation_amount;
+    delete state.donationMessages.endowmentIds;
+    delete state.donationMessages.lockedDonationAmount;
+    delete state.donationMessages.liquidDonationAmount;
     delete state.donationMessages.lockedSplit;
     delete state.donationMessages.liquidSplit;
 
@@ -400,22 +404,22 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
     uint256 balance,
     IndexFundStorage.DonationMessages storage donationMessages
   ) internal {
-    uint256 memberPortion = balance;
-    uint32[] memory members = state.FUNDS[fundId].members;
+    uint256 endowmentPortion = balance;
+    uint32[] memory endowments = state.Funds[fundId].endowments;
 
-    if (members.length > 0) {
-      memberPortion = memberPortion.div(members.length);
+    if (endowments.length > 0) {
+      endowmentPortion = endowmentPortion.div(endowments.length);
     }
 
     uint256 lockSplit = 100 - liquidSplit;
 
-    for (uint256 i = 0; i < members.length; i++) {
-      // check if member is in membersidsm, then modify, else push
+    for (uint256 i = 0; i < endowments.length; i++) {
+      // check if endowment is in endowmentsidsm, then modify, else push
       bool alreadyExists = false;
       uint256 index = 0;
 
-      for (uint256 j = 0; j < donationMessages.member_ids.length; j++) {
-        if (donationMessages.member_ids[j] == members[i]) {
+      for (uint256 j = 0; j < donationMessages.endowmentIds.length; j++) {
+        if (donationMessages.endowmentIds[j] == endowments[i]) {
           alreadyExists = true;
           index = j;
           break;
@@ -425,23 +429,23 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
       if (alreadyExists) {
         donationMessages.lockedSplit[index] = lockSplit;
         donationMessages.liquidSplit[index] = liquidSplit;
-        donationMessages.locked_donation_amount[index] += (memberPortion * lockSplit) / 100;
+        donationMessages.lockedDonationAmount[index] += (endowmentPortion * lockSplit) / 100;
         // avoid any over and under flows
-        donationMessages.liquid_donation_amount[index] += (
-          (memberPortion - ((memberPortion * lockSplit) / 100))
+        donationMessages.liquidDonationAmount[index] += (
+          (endowmentPortion - ((endowmentPortion * lockSplit) / 100))
         );
       } else {
-        donationMessages.member_ids.push(members[i]);
+        donationMessages.endowmentIds.push(endowments[i]);
         donationMessages.lockedSplit.push(lockSplit);
         donationMessages.liquidSplit.push(liquidSplit);
-        donationMessages.locked_donation_amount.push((memberPortion * lockSplit) / 100);
+        donationMessages.lockedDonationAmount.push((endowmentPortion * lockSplit) / 100);
         // avoid any over and under flows
-        donationMessages.liquid_donation_amount.push(
-          (memberPortion - ((memberPortion * lockSplit) / 100))
+        donationMessages.liquidDonationAmount.push(
+          (endowmentPortion - ((endowmentPortion * lockSplit) / 100))
         );
       }
     }
-    emit DonationMessagesUpdated(fundId);
+    emit DonationProcessed(fundId);
   }
 
   /**
@@ -459,22 +463,22 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
     view
     returns (address[] memory target, uint256[] memory value, bytes[] memory callData)
   {
-    target = new address[](donationMessages.member_ids.length);
-    value = new uint256[](donationMessages.member_ids.length);
-    callData = new bytes[](donationMessages.member_ids.length);
+    target = new address[](donationMessages.endowmentIds.length);
+    value = new uint256[](donationMessages.endowmentIds.length);
+    callData = new bytes[](donationMessages.endowmentIds.length);
 
-    for (uint256 i = 0; i < donationMessages.member_ids.length; i++) {
+    for (uint256 i = 0; i < donationMessages.endowmentIds.length; i++) {
       target[i] = accountscontract;
       value[i] = 0;
       callData[i] = abi.encodeWithSignature(
         "depositERC20((uint256,uint256,uint256),address,uint256)",
         AccountMessages.DepositRequest({
-          id: donationMessages.member_ids[i],
+          id: donationMessages.endowmentIds[i],
           lockedPercentage: donationMessages.lockedSplit[i],
           liquidPercentage: donationMessages.liquidSplit[i]
         }),
         tokenaddress,
-        donationMessages.locked_donation_amount[i] + donationMessages.liquid_donation_amount[i]
+        donationMessages.lockedDonationAmount[i] + donationMessages.liquidDonationAmount[i]
       );
     }
   }
@@ -543,8 +547,9 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
    * @param fundId Fund id
    * @return Fund details
    */
-  function queryFundDetails(uint256 fundId) public view returns (IndexFund memory) {
-    return state.FUNDS[fundId];
+  function queryFundDetails(uint256 fundId) public view returns (IndexFundStorage.Fund memory) {
+    require(state.Funds[fundId].endowments.length > 0, "Invalid Fund ID");
+    return state.Funds[fundId];
   }
 
   /**
@@ -552,23 +557,17 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
    * @param endowmentId Endowment id
    * @return Fund details
    */
-  function queryInvolvedFunds(uint32 endowmentId) public view returns (IndexFund[] memory) {
-    // make memory and allocate to response object
-    IndexFund[] memory resp = new IndexFund[](state.FUNDS_BY_ENDOWMENT[endowmentId].length);
-
-    for (uint256 i = 0; i < state.FUNDS_BY_ENDOWMENT[endowmentId].length; i++) {
-      resp[i] = state.FUNDS[state.FUNDS_BY_ENDOWMENT[endowmentId][i]];
-    }
-
-    return resp;
+  function queryInvolvedFunds(uint32 endowmentId) public view returns (uint256[] memory) {
+    return state.FundsByEndowment[endowmentId];
   }
 
   /**
    * @dev Query active fund details
    * @return Fund details
    */
-  function queryActiveFundDetails() public view returns (IndexFund memory) {
-    return state.FUNDS[state.activeFund];
+  function queryActiveFundDetails() public view returns (IndexFundStorage.Fund memory) {
+    require(state.activeFund != 0, "Active fund not set");
+    return state.Funds[state.activeFund];
   }
 
   // Internal functions
@@ -578,7 +577,7 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
    * @param envTime rent block time
    * @return True if fund is expired
    */
-  function fundIsExpired(IndexFund memory fund, uint256 envTime) internal pure returns (bool) {
+  function fundIsExpired(IndexFundStorage.Fund memory fund, uint256 envTime) internal pure returns (bool) {
     return (fund.expiryTime != 0 && envTime >= fund.expiryTime);
   }
 
@@ -589,11 +588,11 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
    * @return New active fund
    */
   function rotateFund(uint256 rFund, uint256 envTime) internal view returns (uint256) {
-    IndexFund[] memory activeFunds = new IndexFund[](state.rotatingFunds.length);
+    IndexFundStorage.Fund[] memory activeFunds = new IndexFundStorage.Fund[](state.rotatingFunds.length);
 
     for (uint256 i = 0; i < state.rotatingFunds.length; i++) {
-      if (!fundIsExpired(state.FUNDS[state.rotatingFunds[i]], envTime)) {
-        activeFunds[i] = state.FUNDS[state.rotatingFunds[i]];
+      if (!fundIsExpired(state.Funds[state.rotatingFunds[i]], envTime)) {
+        activeFunds[i] = state.Funds[state.rotatingFunds[i]];
       }
     }
 
