@@ -126,8 +126,8 @@ contract AccountsStrategy is
       );
 
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
-        state.STATES[id].balances.locked[tokenAddress] -= response.lockAmt;
-        state.STATES[id].balances.liquid[tokenAddress] -= response.liqAmt;
+        state.STATES[id].balances.locked[tokenAddress] -= investRequest.lockAmt;
+        state.STATES[id].balances.liquid[tokenAddress] -= investRequest.liquidAmt;
         state.STATES[id].activeStrategies[investRequest.strategy] == true;
         emit EndowmentInvested(response.status);
       } else {

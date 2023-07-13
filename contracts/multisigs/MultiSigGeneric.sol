@@ -108,7 +108,13 @@ contract MultiSigGeneric is
     approvalsRequired = _approvalsRequired;
     requireExecution = _requireExecution;
     transactionExpiry = _transactionExpiry;
-    emit InitializedMultiSig(address(this), owners, approvalsRequired, requireExecution, transactionExpiry);
+    emit InitializedMultiSig(
+      address(this),
+      owners,
+      approvalsRequired,
+      requireExecution,
+      transactionExpiry
+    );
   }
 
   /// @dev Allows to add new owners. Transaction has to be sent by wallet.
