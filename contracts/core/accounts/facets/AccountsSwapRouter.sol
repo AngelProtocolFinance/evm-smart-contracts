@@ -121,7 +121,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
     }
     require(
       (priceFeedIn != address(0) && priceFeedOut != address(0)),
-      "Chinlink Oracle Price Feed contracts are required for all tokens swapping to/from"
+      "Chainlink Oracle Price Feed contracts are required for all tokens swapping to/from"
     );
 
     require(

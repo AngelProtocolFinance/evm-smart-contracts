@@ -5,10 +5,11 @@ import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract DummySwapRouter is ISwapRouter {
-
   uint256 output;
 
-  function exactInputSingle(ExactInputSingleParams calldata params) external payable returns (uint256 amountOut) {
+  function exactInputSingle(
+    ExactInputSingleParams calldata params
+  ) external payable returns (uint256 amountOut) {
     IERC20(params.tokenIn).transferFrom(msg.sender, address(this), params.amountIn);
     IERC20(params.tokenOut).transfer(msg.sender, output);
     return output;
@@ -18,7 +19,9 @@ contract DummySwapRouter is ISwapRouter {
     return output;
   }
 
-  function exactOutputSingle(ExactOutputSingleParams calldata) external payable returns (uint256 amountIn) {
+  function exactOutputSingle(
+    ExactOutputSingleParams calldata
+  ) external payable returns (uint256 amountIn) {
     return output;
   }
 
@@ -27,8 +30,8 @@ contract DummySwapRouter is ISwapRouter {
   }
 
   function uniswapV3SwapCallback(
-        int256 amount0Delta,
-        int256 amount1Delta,
-        bytes calldata data
-    ) external {}
+    int256 amount0Delta,
+    int256 amount1Delta,
+    bytes calldata data
+  ) external {}
 }
