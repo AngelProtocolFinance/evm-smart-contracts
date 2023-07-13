@@ -64,8 +64,6 @@ contract AccountsUpdateEndowmentSettingsController is
           )
         ) {
           tempEndowment.allowlistedBeneficiaries = details.allowlistedBeneficiaries;
-          // IS EMITTING THIS EVENT FOR EACH UPDATED FIELD A GENERAL PRACTICE?
-          // I SEE THE BENEFIT, JUST NOT SURE ABOUT GAS EFFICIENCY AND USEFULNESS
           emit EndowmentSettingUpdated(details.id, "allowlistedBeneficiaries");
         }
 
@@ -89,7 +87,6 @@ contract AccountsUpdateEndowmentSettingsController is
           )
         ) {
           for (uint256 i = 0; i < details.maturity_allowlist_add.length; i++) {
-            require(Validator.addressChecker(details.maturity_allowlist_add[i]), "InvalidAddress");
             (, bool found) = AddressArray.indexOf(
               tempEndowment.maturityAllowlist,
               details.maturity_allowlist_add[i]
@@ -152,7 +149,6 @@ contract AccountsUpdateEndowmentSettingsController is
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
 
     require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
-    require(msg.sender == tempEndowment.owner, "Unauthorized");
 
     if (
       Validator.canChange(
@@ -236,11 +232,23 @@ contract AccountsUpdateEndowmentSettingsController is
     }
     if (
       Validator.canChange(
+        tempEndowment.settingsController.earlyLockedWithdrawFee,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      ) && tempEndowment.endowType != LibAccounts.EndowmentType.Charity
+    ) {
+      tempEndowment.settingsController.earlyLockedWithdrawFee = details
+        .settingsController
+        .earlyLockedWithdrawFee;
+    }
+    if (
+      Validator.canChange(
         tempEndowment.settingsController.withdrawFee,
         msg.sender,
         tempEndowment.owner,
         block.timestamp
-      )
+      ) && tempEndowment.endowType != LibAccounts.EndowmentType.Charity
     ) {
       tempEndowment.settingsController.withdrawFee = details.settingsController.withdrawFee;
     }
@@ -250,7 +258,7 @@ contract AccountsUpdateEndowmentSettingsController is
         msg.sender,
         tempEndowment.owner,
         block.timestamp
-      )
+      ) && tempEndowment.endowType != LibAccounts.EndowmentType.Charity
     ) {
       tempEndowment.settingsController.depositFee = details.settingsController.depositFee;
     }
@@ -260,7 +268,7 @@ contract AccountsUpdateEndowmentSettingsController is
         msg.sender,
         tempEndowment.owner,
         block.timestamp
-      )
+      ) && tempEndowment.endowType != LibAccounts.EndowmentType.Charity
     ) {
       tempEndowment.settingsController.balanceFee = details.settingsController.balanceFee;
     }
