@@ -4,7 +4,7 @@ import hre from "hardhat";
 import {getSigners} from "utils";
 
 import {LocalRegistrar, LocalRegistrar__factory} from "../../../typechain-types";
-import {StrategyApprovalState} from "../../utils/helpers/ILocalRegistrarHelpers";
+import {StrategyApprovalState} from "test/utils";
 
 describe("Local Registrar", function () {
   const {ethers, upgrades} = hre;
@@ -197,6 +197,7 @@ describe("Local Registrar", function () {
       let strategyId = "0xffffffff"; // random 4-byte hash
       let strategyParams = {
         approvalState: StrategyApprovalState.NOT_APPROVED,
+        network: originatingChain,
         Locked: {
           Type: 0,
           vaultAddr: "0x690B9A9E9aa1C9dB991C7721a92d351Db4FaC990",
@@ -213,6 +214,7 @@ describe("Local Registrar", function () {
             .connect(user)
             .setStrategyParams(
               strategyId,
+              strategyParams.network,
               strategyParams.Locked.vaultAddr,
               strategyParams.Liquid.vaultAddr,
               strategyParams.approvalState
@@ -223,11 +225,13 @@ describe("Local Registrar", function () {
       it("Should accept and set new values", async function () {
         await registrar.setStrategyParams(
           strategyId,
+          strategyParams.network,
           strategyParams.Locked.vaultAddr,
           strategyParams.Liquid.vaultAddr,
           strategyParams.approvalState
         );
         let returnedValue = await registrar.getStrategyParamsById(strategyId);
+        expect(returnedValue.network).to.equal(strategyParams.network);
         expect(returnedValue.approvalState).to.equal(strategyParams.approvalState);
         expect(returnedValue.Locked.Type).to.equal(strategyParams.Locked.Type);
         expect(returnedValue.Locked.vaultAddr).to.equal(strategyParams.Locked.vaultAddr);
@@ -260,6 +264,7 @@ describe("Local Registrar", function () {
     let strategyId = "0xffffffff"; // random 4-byte hash
     let strategyParams = {
       approvalState: StrategyApprovalState.APPROVED,
+      network: originatingChain,
       Locked: {
         Type: 0,
         vaultAddr: "0x690B9A9E9aa1C9dB991C7721a92d351Db4FaC990",
@@ -301,6 +306,7 @@ describe("Local Registrar", function () {
       await expect(
         registrar.setStrategyParams(
           strategyId,
+          strategyParams.network,
           strategyParams.Liquid.vaultAddr,
           strategyParams.Locked.vaultAddr,
           strategyParams.approvalState

@@ -26,7 +26,9 @@ contract DummyGateway is IAxelarGateway {
     string calldata destinationChain,
     string calldata contractAddress,
     bytes calldata payload
-  ) external {}
+  ) external {
+    emit ContractCall(msg.sender, destinationChain, contractAddress, keccak256(payload), payload);
+  }
 
   function callContractWithToken(
     string calldata destinationChain,
@@ -34,7 +36,17 @@ contract DummyGateway is IAxelarGateway {
     bytes calldata payload,
     string calldata symbol,
     uint256 amount
-  ) external {}
+  ) external {
+    emit ContractCallWithToken(
+      msg.sender,
+      destinationChain,
+      contractAddress,
+      keccak256(payload),
+      payload,
+      symbol,
+      amount
+    );
+  }
 
   function isContractCallApproved(
     bytes32 commandId,

@@ -81,6 +81,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     await state.setConfig({
       owner: owner.address,
       version: "1",
+      networkName: "",
       registrarContract: ethers.constants.AddressZero,
       nextAccountId: 1,
       maxGeneralCategoryId: 1,

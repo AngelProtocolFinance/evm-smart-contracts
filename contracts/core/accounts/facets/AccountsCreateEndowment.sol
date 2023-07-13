@@ -88,7 +88,6 @@ contract AccountsCreateEndowment is
       endowType: details.endowType,
       maturityTime: details.maturityTime,
       rebalance: IRegistrar(registrarAddress).getRebalanceParams(),
-      pendingRedemptions: 0,
       multisig: owner,
       dao: address(0),
       daoToken: address(0),

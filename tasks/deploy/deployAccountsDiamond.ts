@@ -10,7 +10,7 @@ type TaskArgs = {
   yes: boolean;
 };
 
-task("deploy:AccountsDiamond", "It will deploy accounts diamond contracts")
+task("AccountsDiamond", "It will deploy accounts diamond contracts")
   .addOptionalParam(
     "apTeamMultisig",
     "APTeamMultiSig contract address. Will do a local lookup from contract-address.json if none is provided."

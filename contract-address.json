@@ -128,7 +128,7 @@
     },
     "registrar": {
       "implementation": "0x1dBDba33dfA381bCC89FCe74DFF69Aa96B53b503",
-      "proxy": "0x9E545E3C0baAB3E08CdfD552C960A1050f373042"
+      "proxy": "0xF8e31cb472bc70500f08Cd84917E5A1912Ec8397"
     },
     "router": {
       "implementation": "0x381445710b5e73d34aF196c53A3D5cDa58EDBf7A",

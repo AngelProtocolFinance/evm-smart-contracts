@@ -15,7 +15,7 @@ import {IAccountsUpdate} from "./IAccountsUpdate.sol";
 import {IAccountsUpdateEndowments} from "./IAccountsUpdateEndowments.sol";
 import {IAccountsUpdateEndowmentSettingsController} from "./IAccountsUpdateEndowmentSettingsController.sol";
 import {IAccountsUpdateStatusEndowments} from "./IAccountsUpdateStatusEndowments.sol";
-import {IAccountsVaultFacet} from "./IAccountsVaultFacet.sol";
+import {IAccountsStrategy} from "./IAccountsStrategy.sol";
 
 interface IAccounts is
   IAccountsAllowance,
@@ -31,5 +31,5 @@ interface IAccounts is
   IAccountsUpdateEndowments,
   IAccountsUpdateEndowmentSettingsController,
   IAccountsUpdateStatusEndowments,
-  IAccountsVaultFacet
+  IAccountsStrategy
 {}

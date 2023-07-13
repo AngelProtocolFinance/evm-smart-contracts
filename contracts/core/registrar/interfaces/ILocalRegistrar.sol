@@ -19,6 +19,7 @@ interface ILocalRegistrar {
   );
   event StrategyParamsUpdated(
     bytes4 _strategyId,
+    string _network,
     address _lockAddr,
     address _liqAddr,
     LocalRegistrarLib.StrategyApprovalState _approvalState
@@ -89,6 +90,7 @@ interface ILocalRegistrar {
   /// @param _lockAddr address to a compatible Locked type Vault
   function setStrategyParams(
     bytes4 _strategyId,
+    string memory _network,
     address _liqAddr,
     address _lockAddr,
     LocalRegistrarLib.StrategyApprovalState _approvalState

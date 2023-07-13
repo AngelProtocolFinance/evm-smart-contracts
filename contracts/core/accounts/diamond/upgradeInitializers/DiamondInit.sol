@@ -39,6 +39,7 @@ contract DiamondInit {
 
     state.config.owner = owner;
     state.config.registrarContract = registrar;
+    state.config.networkName = "Polygon";
     state.config.nextAccountId = 1;
     state.config.maxGeneralCategoryId = 1;
     state.config.earlyLockedWithdrawFee = LibAccounts.FeeSetting({
