@@ -15,6 +15,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import "hardhat/console.sol";
 
 /**
  * @title AccountsSwapRouter
@@ -161,23 +162,9 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
    * @return answer Returns the oracle answer of current price as an int
    */
   function getLatestPriceData(address tokenFeed) internal view returns (uint256) {
-    AggregatorV3Interface chainlinkFeed = AggregatorV3Interface(tokenFeed);
-    (, int256 answer, , , ) = chainlinkFeed.latestRoundData();
+    (, int256 answer, , , ) = AggregatorV3Interface(tokenFeed).latestRoundData();
+    require(answer > 0, "Invalid price feed answer");
     return uint256(answer);
-  }
-
-  // /**
-  //  * @dev This function sorts two token addresses in ascending order and returns them.
-  //  * @param tokenA address
-  //  * @param tokenB address
-  //  */
-  function sortTokens(
-    address tokenA,
-    address tokenB
-  ) internal pure returns (address token0, address token1) {
-    require(tokenA != tokenB, "UniswapV3Library: IDENTICAL_ADDRESSES");
-    (token0, token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
-    require(token0 != address(0), "UniswapV3Library: ZERO_ADDRESS");
   }
 
   /**

@@ -34,4 +34,8 @@ contract DummySwapRouter is ISwapRouter {
     int256 amount1Delta,
     bytes calldata data
   ) external {}
+
+  function setOutputValue(uint256 _output) external {
+    output = _output;
+  }
 }
