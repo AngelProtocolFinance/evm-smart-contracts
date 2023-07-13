@@ -72,11 +72,7 @@ contract AccountsUpdateStatusEndowments is
 
     state.STATES[id].closingEndowment = true;
     state.STATES[id].closingBeneficiary = beneficiary;
-
-    require(checkFullyExited(id), "Not fully exited");
-
-    emit EndowmentUpdated(id);
-    // emit EndowmentStateUpdated(id);
+    emit EndowmentClosed(id);
   }
 
   function checkFullyExited(uint32 id) internal view returns (bool) {

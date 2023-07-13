@@ -115,6 +115,6 @@ contract AccountsCreateEndowment is
     state.STATES[newEndowId].closingEndowment = false;
     state.config.nextAccountId += 1;
 
-    emit EndowmentCreated(newEndowId);
+    emit EndowmentCreated(newEndowId, details.endowType);
   }
 }

@@ -129,10 +129,10 @@ describe("AccountsUpdateStatusEndowments", function () {
       );
     });
 
-    it("removes the closing endowment from all index funds it is involved in", async () => {
-      await expect(facet.closeEndowment(accountId, beneficiary))
-        .to.emit(facet, "EndowmentUpdated")
-        .withArgs(accountId);
+  it("removes the closing endowment from all index funds it is involved in", async () => {
+    await expect(facet.closeEndowment(accountId, beneficiary))
+      .to.emit(facet, "EndowmentClosed")
+      .withArgs(accountId);
 
       const endowState = await state.getClosingEndowmentState(accountId);
 
@@ -147,9 +147,9 @@ describe("AccountsUpdateStatusEndowments", function () {
       indexFundFake.queryInvolvedFunds.returns([]);
       const beneficiaryNone: LibAccounts.BeneficiaryStruct = {...beneficiary, enumData: 3};
 
-      await expect(facet.closeEndowment(accountId, beneficiaryNone))
-        .to.emit(facet, "EndowmentUpdated")
-        .withArgs(accountId);
+    await expect(facet.closeEndowment(accountId, beneficiaryNone))
+      .to.emit(facet, "EndowmentClosed")
+      .withArgs(accountId);
 
       const endowState = await state.getClosingEndowmentState(accountId);
 
@@ -182,9 +182,9 @@ describe("AccountsUpdateStatusEndowments", function () {
       indexFundFake.queryInvolvedFunds.returns(funds);
       const beneficiaryNone: LibAccounts.BeneficiaryStruct = {...beneficiary, enumData: 3};
 
-      await expect(facet.closeEndowment(accountId, beneficiaryNone))
-        .to.emit(facet, "EndowmentUpdated")
-        .withArgs(accountId);
+    await expect(facet.closeEndowment(accountId, beneficiaryNone))
+      .to.emit(facet, "EndowmentClosed")
+      .withArgs(accountId);
 
       const endowState = await state.getClosingEndowmentState(accountId);
 
