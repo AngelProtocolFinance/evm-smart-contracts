@@ -16,6 +16,7 @@ import {
 } from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet, getSigners} from "utils";
 import "../../utils/setup";
+import {updateAllSettings} from "./utils";
 
 use(smock.matchers);
 
@@ -32,28 +33,6 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
   let state: TestFacetProxyContract;
   let oldNormalEndow: AccountStorage.EndowmentStruct;
   let oldCharity: AccountStorage.EndowmentStruct;
-
-  /**
-   * Locks all endowment's settings in a way that has no side-effects
-   * @param endowId ID of the endowment
-   * @param endow data of the Endowment to store in state
-   * @returns the updated endowment data with all settings locked
-   */
-  async function lockSettings(endowId: number, endow: AccountStorage.EndowmentStruct) {
-    const lockedEndow: AccountStorage.EndowmentStruct = {...endow};
-    lockedEndow.settingsController = (
-      Object.entries(lockedEndow.settingsController) as [
-        keyof LibAccounts.SettingsControllerStruct,
-        LibAccounts.SettingsPermissionStruct
-      ][]
-    ).reduce((controller, [key, curSetting]) => {
-      controller[key] = {locked: true, delegate: {...curSetting.delegate}};
-      return controller;
-    }, {} as LibAccounts.SettingsControllerStruct);
-
-    await state.setEndowmentDetails(endowId, lockedEndow);
-    return lockedEndow;
-  }
 
   before(async function () {
     const signers = await getSigners(hre);
@@ -311,8 +290,8 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       );
     });
 
-    it("changes nothing in charity controller if fields cannot be changed", async () => {
-      const lockedCharity = await lockSettings(charityId, oldCharity);
+    it("changes nothing in charity controller if fields are locked", async () => {
+      const lockedCharity = await updateAllSettings(charityId, {locked: true}, state);
 
       await expect(facet.updateEndowmentController(charityReq))
         .to.emit(facet, "EndowmentSettingUpdated")
@@ -375,8 +354,8 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       );
     });
 
-    it("changes nothing in normal endowment controller if fields cannot be changed", async () => {
-      const lockedNormalEndow = await lockSettings(normalEndowId, oldNormalEndow);
+    it("changes nothing in normal endowment controller if fields are locked", async () => {
+      const lockedNormalEndow = await updateAllSettings(normalEndowId, {locked: true}, state);
 
       await expect(facet.updateEndowmentController(normalEndowReq))
         .to.emit(facet, "EndowmentSettingUpdated")
@@ -591,8 +570,8 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       await expect(facet.updateFeeSettings(request)).to.be.revertedWith("UpdatesAfterClosed");
     });
 
-    it("changes nothing in endowment fees if fields cannot be changed", async () => {
-      const lockedNormalEndow = await lockSettings(normalEndowId, oldNormalEndow);
+    it("changes nothing in endowment fees if fields are locked", async () => {
+      const lockedNormalEndow = await updateAllSettings(normalEndowId, {locked: true}, state);
 
       await expect(facet.updateFeeSettings(request))
         .to.emit(facet, "EndowmentUpdated")
