@@ -210,6 +210,15 @@ describe("AccountsUpdateEndowments", function () {
           "InvalidInputs"
         );
       });
+      it(`reverts if a normal endowment is updating its SDGs with an array containing invalid values: [${sdgs}]`, async () => {
+        const invalidRequest: AccountMessages.UpdateEndowmentDetailsRequestStruct = {
+          ...normalEndowReq,
+          sdgs,
+        };
+        await expect(facet.updateEndowmentDetails(invalidRequest)).to.be.revertedWith(
+          "InvalidInputs"
+        );
+      });
     });
 
     describe("cases with missing permissions", () => {

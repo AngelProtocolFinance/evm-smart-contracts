@@ -54,15 +54,13 @@ contract AccountsUpdateEndowments is
         block.timestamp
       )
     ) {
-      if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
-        if (details.sdgs.length == 0) {
+      if (details.sdgs.length == 0) {
+        revert("InvalidInputs");
+      }
+      details.sdgs = Array.sort(details.sdgs);
+      for (uint256 i = 0; i < details.sdgs.length; i++) {
+        if (details.sdgs[i] > 17 || details.sdgs[i] == 0) {
           revert("InvalidInputs");
-        }
-        details.sdgs = Array.sort(details.sdgs);
-        for (uint256 i = 0; i < details.sdgs.length; i++) {
-          if (details.sdgs[i] > 17 || details.sdgs[i] == 0) {
-            revert("InvalidInputs");
-          }
         }
       }
       tempEndowment.sdgs = details.sdgs;
