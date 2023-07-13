@@ -65,7 +65,6 @@ contract AccountsUpdateEndowments is
           }
         }
       }
-      // should this assignment be moved inside the `if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity)` block?
       tempEndowment.sdgs = details.sdgs;
     }
 
