@@ -6,6 +6,7 @@ import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG} from "test/utils";
 import {
   AccountsDepositWithdrawEndowments,
   AccountsDepositWithdrawEndowments__factory,
+  DummyWMATIC__factory,
   Registrar,
   Registrar__factory,
   TestFacetProxyContract,
@@ -37,20 +38,19 @@ describe("AccountsDepositWithdrawEndowments", function () {
     endowOwner = signers.deployer;
 
     endowment = {...DEFAULT_CHARITY_ENDOWMENT, owner: endowOwner.address};
-  });
-
-  beforeEach(async function () {
-    let Facet = new AccountsDepositWithdrawEndowments__factory(accOwner);
-    let facetImpl = await Facet.deploy();
-    state = await deployFacetAsProxy(hre, accOwner, proxyAdmin, facetImpl.address);
 
     registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
       address: genWallet().address,
     });
+  });
 
-    registrarFake.queryConfig.returns(DEFAULT_REGISTRAR_CONFIG);
+  beforeEach(async () => {
+    let Facet = new AccountsDepositWithdrawEndowments__factory(accOwner);
+    let facetImpl = await Facet.deploy();
+    state = await deployFacetAsProxy(hre, accOwner, proxyAdmin, facetImpl.address);
 
     await state.setEndowmentDetails(endowId, endowment);
+
     await state.setConfig({
       owner: accOwner.address,
       version: "1",
@@ -80,6 +80,46 @@ describe("AccountsDepositWithdrawEndowments", function () {
           {value: 0}
         )
       ).to.be.revertedWith("Invalid Amount");
+    });
+
+    it("reverts if the endowment is closed", async () => {
+      await state.setClosingEndowmentState(endowId, true, {
+        enumData: 0,
+        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+      });
+      await expect(
+        facet.depositMatic(
+          {
+            id: endowId,
+            liquidPercentage: 10,
+            lockedPercentage: 10,
+          },
+          {value: 1}
+        )
+      ).to.be.revertedWith("Endowment is closed");
+    });
+
+    it("reverts if the locked + liquid percentage does not equal 100", async () => {
+      const DummyWMATIC = new DummyWMATIC__factory(proxyAdmin);
+      const dummyWMATIC = await DummyWMATIC.deploy();
+      await dummyWMATIC.deployed();
+
+      const config: typeof DEFAULT_REGISTRAR_CONFIG = {
+        ...DEFAULT_REGISTRAR_CONFIG,
+        wMaticAddress: dummyWMATIC.address,
+      };
+      registrarFake.queryConfig.returns(config);
+
+      await expect(
+        facet.depositMatic(
+          {
+            id: endowId,
+            liquidPercentage: 10,
+            lockedPercentage: 10,
+          },
+          {value: 1}
+        )
+      ).to.be.revertedWith("InvalidSplit");
     });
   });
 });
