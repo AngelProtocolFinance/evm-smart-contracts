@@ -200,7 +200,7 @@ describe("AccountsUpdateEndowments", function () {
       );
     });
 
-    [[], [0], [18], [0, 18], [0, 5], [5, 18]].forEach((sdgs) => {
+    [[0], [18], [0, 18], [0, 5], [5, 18]].forEach((sdgs) => {
       it(`reverts if a charity is updating its SDGs with an array containing invalid values: [${sdgs}]`, async () => {
         const invalidRequest: AccountMessages.UpdateEndowmentDetailsRequestStruct = {
           ...charityReq,
@@ -210,6 +210,7 @@ describe("AccountsUpdateEndowments", function () {
           "InvalidInputs"
         );
       });
+
       it(`reverts if a normal endowment is updating its SDGs with an array containing invalid values: [${sdgs}]`, async () => {
         const invalidRequest: AccountMessages.UpdateEndowmentDetailsRequestStruct = {
           ...normalEndowReq,
@@ -219,6 +220,28 @@ describe("AccountsUpdateEndowments", function () {
           "InvalidInputs"
         );
       });
+    });
+
+    it("reverts if a charity is updating its SDGs with an empty array", async () => {
+      const invalidRequest: AccountMessages.UpdateEndowmentDetailsRequestStruct = {
+        ...charityReq,
+        sdgs: [],
+      };
+      await expect(facet.updateEndowmentDetails(invalidRequest)).to.be.revertedWith(
+        "InvalidInputs"
+      );
+    });
+
+    it("updates the normal endowment even when no SDGs are passed", async () => {
+      const emptySdgsReq: AccountMessages.UpdateEndowmentDetailsRequestStruct = {
+        ...normalEndowReq,
+        sdgs: [],
+      };
+      await expect(facet.updateEndowmentDetails(emptySdgsReq)).to.not.be.reverted;
+
+      const updated = await state.getEndowmentDetails(charityReq.id);
+
+      expect(updated.sdgs).to.have.same.members(emptySdgsReq.sdgs);
     });
 
     describe("cases with missing permissions", () => {
