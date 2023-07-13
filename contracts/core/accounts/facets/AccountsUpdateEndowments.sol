@@ -121,10 +121,6 @@ contract AccountsUpdateEndowments is
     emit EndowmentUpdated(details.id);
   }
 
-  // >> PASSING `delegateAddress` AND `delegateExpiry` WHEN REVOKING SEEMS REDUNDANT
-  // WE COULD INSTEAD HAVE 2 DIFFERENT FUNCS: `updateDelegate` AND `revokeDelegate`
-  // THAT CALL THE BELOW FUNC'S UPDATE LOGIC AS AN INTERNAL METHOD.
-  // THIS WAY WE COULD REMOVE THE NEED FOR `enum LibAccounts.DelegateAction`
   /**
     @notice Updates the delegate for a specific endowment setting
     @dev This function allows authorized users to update the delegate for a specific endowment setting
