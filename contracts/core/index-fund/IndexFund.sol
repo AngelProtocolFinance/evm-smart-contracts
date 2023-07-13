@@ -42,7 +42,7 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
    * @dev This function is called by deployer only once at the time of initialization
    * @param details IndexFundMessage.InstantiateMessage
    */
-  function initIndexFund(IndexFundMessage.InstantiateMessage memory details) public initializer {
+  function initialize(IndexFundMessage.InstantiateMessage memory details) public initializer {
     require(details.registrarContract != address(0), "invalid registrar address");
     require(details.fundMemberLimit > 0, "Fund endowment limit must be greater than zero");
     state.config = IndexFundStorage.Config({
@@ -68,13 +68,11 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
    * @dev can be called by owner to set new config
    * @param details IndexFundMessage.UpdateConfigMessage
    */
-  function updateConfig(
-    IndexFundMessage.UpdateConfigMessage memory details
-  ) public nonReentrant {
+  function updateConfig(IndexFundMessage.UpdateConfigMessage memory details) public nonReentrant {
     require(msg.sender == state.config.owner, "Unauthorized");
     require(details.fundMemberLimit > 0, "Fund endowment limit must be greater than zero");
 
-    if(details.registrarContract != state.config.registrarContract) {
+    if (details.registrarContract != state.config.registrarContract) {
       require(details.registrarContract != address(0), "Invalid Registrar address");
       state.config.registrarContract = details.registrarContract;
     }
@@ -186,7 +184,10 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
     RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
       .queryConfig();
 
-    require(address(0) != registrar_config.accountsContract, "Accounts contract not configured in Registrar");
+    require(
+      address(0) != registrar_config.accountsContract,
+      "Accounts contract not configured in Registrar"
+    );
     require(msg.sender == registrar_config.accountsContract, "Unauthorized");
 
     bool found;
@@ -214,13 +215,13 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
    *  @param fundId The id of the Fund to be updated
    *  @param endowments An array of endowments to be set for a Fund
    */
-  function updateFundMembers(
-    uint256 fundId,
-    uint32[] memory endowments
-  ) public nonReentrant {
+  function updateFundMembers(uint256 fundId, uint32[] memory endowments) public nonReentrant {
     require(msg.sender == state.config.owner, "Unauthorized");
     require(endowments.length > 0, "Must pass at least one endowment member to add to the Fund");
-    require(endowments.length <= state.config.fundMemberLimit, "Fund endowment members limit exceeded");
+    require(
+      endowments.length <= state.config.fundMemberLimit,
+      "Fund endowment members limit exceeded"
+    );
     require(!fundIsExpired(state.Funds[fundId], block.timestamp), "Fund Expired");
 
     uint32[] memory currEndowments = state.Funds[fundId].endowments;
@@ -312,10 +313,7 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
       if (state.config.fundingGoal != 0) {
         uint256 loopDonation = 0;
         while (depositAmount > 0) {
-          require(
-            !fundIsExpired(state.Funds[state.activeFund], block.timestamp),
-            "Expired Fund"
-          );
+          require(!fundIsExpired(state.Funds[state.activeFund], block.timestamp), "Expired Fund");
           uint256 activeFund = state.activeFund;
           uint256 goalLeftover = state.config.fundingGoal - state.roundDonations;
           if (depositAmount >= goalLeftover) {
@@ -343,10 +341,7 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
           depositAmount -= loopDonation;
         }
       } else {
-        require(
-          !fundIsExpired(state.Funds[state.activeFund], block.timestamp),
-          "Expired Fund"
-        );
+        require(!fundIsExpired(state.Funds[state.activeFund], block.timestamp), "Expired Fund");
 
         updateDonationMessages(
           state.activeFund,
@@ -390,6 +385,68 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
 
     emit StateUpdated();
   }
+
+  /**
+   * ~~~~~~~~~~~~~~~~~~~
+   *     Queries
+   * ~~~~~~~~~~~~~~~~~~~
+   */
+
+  /**
+   * @dev Query config
+   * @return Config
+   */
+  function queryConfig() public view returns (IndexFundStorage.Config memory) {
+    return state.config;
+  }
+
+  /**
+   * @dev Query state
+   * @return State
+   */
+  function queryState() public view returns (IndexFundMessage.StateResponseMessage memory) {
+    return
+      IndexFundMessage.StateResponseMessage({
+        totalFunds: state.totalFunds,
+        activeFund: state.activeFund,
+        roundDonations: state.roundDonations,
+        nextRotationBlock: state.nextRotationBlock
+      });
+  }
+
+  /**
+   * @dev Query fund details
+   * @param fundId Fund id
+   * @return Fund details
+   */
+  function queryFundDetails(uint256 fundId) public view returns (IndexFundStorage.Fund memory) {
+    require(state.Funds[fundId].endowments.length > 0, "Invalid Fund ID");
+    return state.Funds[fundId];
+  }
+
+  /**
+   * @dev Query in which index funds is an endowment part of
+   * @param endowmentId Endowment id
+   * @return Fund details
+   */
+  function queryInvolvedFunds(uint32 endowmentId) public view returns (uint256[] memory) {
+    return state.FundsByEndowment[endowmentId];
+  }
+
+  /**
+   * @dev Query active fund details
+   * @return Fund details
+   */
+  function queryActiveFundDetails() public view returns (IndexFundStorage.Fund memory) {
+    require(state.activeFund != 0, "Active fund not set");
+    return state.Funds[state.activeFund];
+  }
+
+  /*
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~
+   *     Internal functions
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~
+   */
 
   /**
    * @dev Update donation messages
@@ -512,72 +569,16 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
     return split;
   }
 
-  // QUERIES
-
-  /**
-   * @dev Query config
-   * @return Config
-   */
-  function queryConfig()
-    public
-    view
-    returns (
-      IndexFundStorage.Config memory
-    )
-  {
-    return state.config;
-  }
-
-  /**
-   * @dev Query state
-   * @return State
-   */
-  function queryState() public view returns (IndexFundMessage.StateResponseMessage memory) {
-    return
-      IndexFundMessage.StateResponseMessage({
-        totalFunds: state.totalFunds,
-        activeFund: state.activeFund,
-        roundDonations: state.roundDonations,
-        nextRotationBlock: state.nextRotationBlock
-      });
-  }
-
-  /**
-   * @dev Query fund details
-   * @param fundId Fund id
-   * @return Fund details
-   */
-  function queryFundDetails(uint256 fundId) public view returns (IndexFundStorage.Fund memory) {
-    require(state.Funds[fundId].endowments.length > 0, "Invalid Fund ID");
-    return state.Funds[fundId];
-  }
-
-  /**
-   * @dev Query in which index funds is an endowment part of
-   * @param endowmentId Endowment id
-   * @return Fund details
-   */
-  function queryInvolvedFunds(uint32 endowmentId) public view returns (uint256[] memory) {
-    return state.FundsByEndowment[endowmentId];
-  }
-
-  /**
-   * @dev Query active fund details
-   * @return Fund details
-   */
-  function queryActiveFundDetails() public view returns (IndexFundStorage.Fund memory) {
-    require(state.activeFund != 0, "Active fund not set");
-    return state.Funds[state.activeFund];
-  }
-
-  // Internal functions
   /**
    * @dev Check if fund is expired
    * @param fund Fund
    * @param envTime rent block time
    * @return True if fund is expired
    */
-  function fundIsExpired(IndexFundStorage.Fund memory fund, uint256 envTime) internal pure returns (bool) {
+  function fundIsExpired(
+    IndexFundStorage.Fund memory fund,
+    uint256 envTime
+  ) internal pure returns (bool) {
     return (fund.expiryTime != 0 && envTime >= fund.expiryTime);
   }
 
@@ -588,7 +589,9 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
    * @return New active fund
    */
   function rotateFund(uint256 rFund, uint256 envTime) internal view returns (uint256) {
-    IndexFundStorage.Fund[] memory activeFunds = new IndexFundStorage.Fund[](state.rotatingFunds.length);
+    IndexFundStorage.Fund[] memory activeFunds = new IndexFundStorage.Fund[](
+      state.rotatingFunds.length
+    );
 
     for (uint256 i = 0; i < state.rotatingFunds.length; i++) {
       if (!fundIsExpired(state.Funds[state.rotatingFunds[i]], envTime)) {

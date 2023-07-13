@@ -85,7 +85,7 @@ contract AccountsUpdateStatusEndowments is
     }
     return true;
   }
-  
+
   /**
    * @notice Force a strategy inactive for `checkFullyExited` to pass
    * @dev We optimistically expect that a cross-chain `deposit` call will be successful
