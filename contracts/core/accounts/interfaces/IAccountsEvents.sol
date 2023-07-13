@@ -2,6 +2,7 @@
 pragma solidity ^0.8.16;
 
 import {IVault} from "../../vault/interfaces/IVault.sol";
+import {LibAccounts} from "../lib/LibAccounts.sol";
 
 interface IAccountsEvents {
   event DaoContractCreated(uint32 endowId, address daoAddress);
@@ -16,8 +17,23 @@ interface IAccountsEvents {
     uint256 added,
     uint256 deducted
   );
-  event EndowmentCreated(uint256 endowId);
+  event EndowmentCreated(uint256 endowId, LibAccounts.EndowmentType endowType);
   event EndowmentUpdated(uint256 endowId);
+  event EndowmentClosed(uint256 endowId);
+  event EndowmentDeposit(
+    uint256 endowId,
+    address tokenAddress,
+    uint256 amountLocked,
+    uint256 amountLiquid
+  );
+  event EndowmentWithdraw(
+    uint256 endowId,
+    address tokenAddress,
+    uint256 amount,
+    IVault.VaultType accountType,
+    address beneficiaryAddress,
+    uint32 beneficiaryEndowId
+  );
   event ConfigUpdated();
   event OwnerUpdated(address owner);
   event DonationMatchCreated(uint256 endowId, address donationMatchContract);
@@ -30,4 +46,8 @@ interface IAccountsEvents {
     uint256 amountOut
   );
   event EndowmentSettingUpdated(uint256 endowId, string setting);
+  event EndowmentInvested(IVault.VaultActionStatus);
+  event EndowmentRedeemed(IVault.VaultActionStatus);
+  event RefundNeeded(IVault.VaultActionData);
+  event UnexpectedTokens(IVault.VaultActionData);
 }

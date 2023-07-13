@@ -88,7 +88,6 @@ contract AccountsCreateEndowment is
       endowType: details.endowType,
       maturityTime: details.maturityTime,
       rebalance: IRegistrar(registrarAddress).getRebalanceParams(),
-      pendingRedemptions: 0,
       multisig: owner,
       dao: address(0),
       daoToken: address(0),
@@ -116,6 +115,6 @@ contract AccountsCreateEndowment is
     state.STATES[newEndowId].closingEndowment = false;
     state.config.nextAccountId += 1;
 
-    emit EndowmentCreated(newEndowId);
+    emit EndowmentCreated(newEndowId, details.endowType);
   }
 }

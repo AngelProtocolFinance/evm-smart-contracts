@@ -11,7 +11,7 @@ import {
   AccountsUpdateEndowments__factory,
   AccountsUpdateStatusEndowments__factory,
   AccountsUpdate__factory,
-  AccountsVaultFacet__factory,
+  AccountsStrategy__factory,
 } from "typechain-types";
 import {getContractName} from "utils";
 
@@ -22,7 +22,7 @@ export const ALL_FACET_NAMES: string[] = [
   getContractName(new AccountsSwapRouter__factory()),
   getContractName(new AccountsUpdateEndowmentSettingsController__factory()),
   getContractName(new AccountsUpdateEndowments__factory()),
-  getContractName(new AccountsVaultFacet__factory()),
+  getContractName(new AccountsStrategy__factory()),
   getContractName(new AccountsDeployContract__factory()),
   getContractName(new AccountsDonationMatch__factory()),
   getContractName(new AccountsDaoEndowments__factory()),

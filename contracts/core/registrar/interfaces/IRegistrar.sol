@@ -4,7 +4,7 @@ pragma solidity ^0.8.16;
 import {RegistrarStorage} from "../storage.sol";
 import {RegistrarMessages} from "../message.sol";
 import {ILocalRegistrar} from "./ILocalRegistrar.sol";
-import {IAccountsVaultFacet} from "../../accounts/interfaces/IAccountsVaultFacet.sol";
+import {IAccountsStrategy} from "../../accounts/interfaces/IAccountsStrategy.sol";
 
 interface IRegistrar is ILocalRegistrar {
   function updateConfig(RegistrarMessages.UpdateConfigRequest memory details) external;
@@ -14,7 +14,8 @@ interface IRegistrar is ILocalRegistrar {
   function updateTokenPriceFeed(address token, address priceFeed) external;
 
   function updateNetworkConnections(
-    IAccountsVaultFacet.NetworkInfo memory networkInfo,
+    string memory networkName,
+    IAccountsStrategy.NetworkInfo memory networkInfo,
     string memory action
   ) external;
 
@@ -27,8 +28,8 @@ interface IRegistrar is ILocalRegistrar {
   function queryAllStrategies() external view returns (bytes4[] memory allStrategies);
 
   function queryNetworkConnection(
-    uint256 chainId
-  ) external view returns (IAccountsVaultFacet.NetworkInfo memory response);
+    string memory networkName
+  ) external view returns (IAccountsStrategy.NetworkInfo memory response);
 
   function owner() external view returns (address);
 }

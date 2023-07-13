@@ -46,6 +46,7 @@ library LocalRegistrarLib {
 
   struct StrategyParams {
     StrategyApprovalState approvalState;
+    string network;
     VaultParams Locked;
     VaultParams Liquid;
   }

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.16;
 
 import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
-import {IAccountsVaultFacet} from "../accounts/interfaces/IAccountsVaultFacet.sol";
+import {IAccountsStrategy} from "../accounts/interfaces/IAccountsStrategy.sol";
 
 library RegistrarStorage {
   struct Config {
@@ -44,7 +44,7 @@ library RegistrarStorage {
     Config config;
     bytes4[] STRATEGIES;
     mapping(LibAccounts.FeeTypes => LibAccounts.FeeSetting) FeeSettingsByFeeType;
-    mapping(uint256 => IAccountsVaultFacet.NetworkInfo) NETWORK_CONNECTIONS;
+    mapping(string => IAccountsStrategy.NetworkInfo) NETWORK_CONNECTIONS;
     mapping(address => address) PriceFeeds;
   }
 }
