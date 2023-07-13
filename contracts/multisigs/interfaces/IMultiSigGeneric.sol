@@ -7,16 +7,23 @@ abstract contract IMultiSigGeneric is IERC165 {
   /*
    *  Events
    */
-  event TransactionConfirmed(address sender, uint256 transactionId);
-  event ConfirmationRevoked(address sender, uint256 transactionId);
-  event TransactionSubmitted(address sender, uint256 transactionId);
-  event TransactionExecuted(uint256 transactionId);
-  event Deposit(address sender, uint256 amount);
-  event OwnerAdded(address owner);
-  event OwnerRemoved(address owner);
-  event ApprovalsRequiredChanged(uint256 approvalsRequired);
-  event RequireExecutionChanged(bool requireExecution);
-  event TransactionExpiryChanged(uint256 transactionExpiry);
+  event InitializedMultiSig(
+    address msAddress,
+    address[] owners,
+    uint256 approvalsRequired,
+    bool requireExecution,
+    uint256 transactionExpiry
+  );
+  event OwnersAdded(address msAddress, address[] owners);
+  event OwnersRemoved(address msAddress, address[] owners);
+  event OwnerReplaced(address msAddress, address currOwner, address newOwner);
+  event ApprovalsRequiredChanged(address msAddress, uint256 approvalsRequired);
+  event RequireExecutionChanged(address msAddress, bool requireExecution);
+  event ExpiryChanged(address msAddress, uint256 transactionExpiry);
+  event TransactionSubmitted(address msAddress, address sender, uint256 transactionId);
+  event TransactionConfirmed(address msAddress, address sender, uint256 transactionId);
+  event TransactionConfirmationRevoked(address msAddress, address sender, uint256 transactionId);
+  event TransactionExecuted(address msAddress, uint256 transactionId);
 
   /// @dev Receive function allows to deposit ether.
   receive() external payable virtual;

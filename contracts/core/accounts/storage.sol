@@ -8,6 +8,7 @@ library AccountStorage {
   struct Config {
     address owner;
     string version;
+    string networkName;
     address registrarContract;
     uint32 nextAccountId;
     uint256 maxGeneralCategoryId;
@@ -28,7 +29,6 @@ library AccountStorage {
     string image;
     uint256 maturityTime; // datetime int of endowment maturity
     LocalRegistrarLib.RebalanceParams rebalance; // parameters to guide rebalancing & harvesting of gains from locked/liquid accounts
-    uint256 pendingRedemptions; // number of vault redemptions rently pending for this endowment
     uint256 proposalLink; // link back the Applications Team Multisig Proposal that created an endowment (if a Charity)
     address multisig;
     address dao;

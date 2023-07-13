@@ -40,20 +40,29 @@ contract EndowmentMultiSig is MultiSigGeneric {
     ENDOWMENT_ID = _endowmentId;
     EMITTER_ADDRESS = _emitter;
     super.initialize(_owners, _required, _requireExecution, _transactionExpiry);
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).createEndowmentMultisig(
+      address(this),
+      ENDOWMENT_ID,
+      EMITTER_ADDRESS,
+      _owners,
+      _required,
+      _requireExecution,
+      _transactionExpiry
+    );
   }
 
   /// @dev Allows to add new owners. Transaction has to be sent by wallet.
   /// @param owners Addresses of new owners.
   function addOwners(address[] memory owners) public override {
     super.addOwners(owners);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).addOwnersEndowment(ENDOWMENT_ID, owners);
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).ownersAddedEndowment(ENDOWMENT_ID, owners);
   }
 
   /// @dev Allows to remove owners. Transaction has to be sent by wallet.
   /// @param owners Addresses of removed owners.
   function removeOwners(address[] memory owners) public override {
     super.removeOwners(owners);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).removeOwnersEndowment(ENDOWMENT_ID, owners);
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).ownersRemovedEndowment(ENDOWMENT_ID, owners);
   }
 
   /**
@@ -64,7 +73,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
    */
   function replaceOwner(address currOwner, address newOwner) public override {
     super.replaceOwner(currOwner, newOwner);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).replaceOwnerEndowment(
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).ownerReplacedEndowment(
       ENDOWMENT_ID,
       currOwner,
       newOwner
@@ -78,7 +87,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
    */
   function changeApprovalsRequirement(uint256 _approvalsRequired) public override {
     super.changeApprovalsRequirement(_approvalsRequired);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).approvalsRequirementChangeEndowment(
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).approvalsRequirementChangedEndowment(
       ENDOWMENT_ID,
       _approvalsRequired
     );
@@ -91,7 +100,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
    */
   function changeTransactionExpiry(uint256 _transactionExpiry) public override {
     super.changeTransactionExpiry(_transactionExpiry);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).transactionExpiryChangeEndowment(
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).expiryChangedEndowment(
       ENDOWMENT_ID,
       _transactionExpiry
     );
@@ -104,7 +113,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
    */
   function changeRequireExecution(bool _requireExecution) public override {
     super.changeRequireExecution(_requireExecution);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).requireExecutionChangeEndowment(
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).requireExecutionChangedEndowment(
       ENDOWMENT_ID,
       _requireExecution
     );
@@ -122,7 +131,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
     bytes memory metadata
   ) public virtual override returns (uint256 transactionId) {
     transactionId = super.submitTransaction(destination, value, data, metadata);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).submitEndowment(ENDOWMENT_ID, transactionId);
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).transactionSubmittedEndowment(ENDOWMENT_ID, msg.sender, transactionId);
   }
 
   /**
@@ -132,7 +141,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
    */
   function confirmTransaction(uint256 transactionId) public override {
     super.confirmTransaction(transactionId);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).confirmEndowment(
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).transactionConfirmedEndowment(
       ENDOWMENT_ID,
       msg.sender,
       transactionId
@@ -146,7 +155,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
    */
   function revokeConfirmation(uint256 transactionId) public override {
     super.revokeConfirmation(transactionId);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).revokeEndowment(
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).transactionConfirmationRevokedEndowment(
       ENDOWMENT_ID,
       msg.sender,
       transactionId
@@ -164,7 +173,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
     address formerOwner
   ) public override {
     super.revokeConfirmationOfFormerOwner(transactionId, formerOwner);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).revokeEndowment(
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).transactionConfirmationOfFormerOwnerRevokedEndowment(
       ENDOWMENT_ID,
       formerOwner,
       transactionId
@@ -178,6 +187,6 @@ contract EndowmentMultiSig is MultiSigGeneric {
    */
   function executeTransaction(uint256 transactionId) public override {
     super.executeTransaction(transactionId);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).executeEndowment(ENDOWMENT_ID, transactionId);
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).transactionExecutedEndowment(ENDOWMENT_ID, transactionId);
   }
 }

@@ -1,7 +1,6 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {TestFacetProxyContract__factory, TestFacetProxyContract} from "typechain-types";
-
 export async function deployFacetAsProxy(
   hre: HardhatRuntimeEnvironment,
   deployer: SignerWithAddress,

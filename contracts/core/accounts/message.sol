@@ -110,7 +110,6 @@ library AccountMessages {
     LocalRegistrarLib.RebalanceParams rebalance;
     address donationMatchContract;
     address[] maturityAllowlist;
-    uint256 pendingRedemptions;
     string logo;
     string image;
     string name;
@@ -126,6 +125,30 @@ library AccountMessages {
     uint32 id;
     uint256 lockedPercentage;
     uint256 liquidPercentage;
+  }
+
+  struct InvestRequest {
+    bytes4 strategy;
+    string token;
+    uint256 lockAmt;
+    uint256 liquidAmt;
+    uint256 gasFee;
+  }
+
+  struct RedeemRequest {
+    bytes4 strategy;
+    string token;
+    uint256 lockAmt;
+    uint256 liquidAmt;
+    uint256 gasFee;
+  }
+
+  struct RedeemAllRequest {
+    bytes4 strategy;
+    string token;
+    bool redeemLocked;
+    bool redeemLiquid;
+    uint256 gasFee;
   }
 
   struct UpdateFeeSettingRequest {

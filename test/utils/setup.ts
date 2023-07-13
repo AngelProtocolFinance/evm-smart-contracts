@@ -1,7 +1,7 @@
-import {logger} from "utils";
-import {LibAccounts} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {Assertion, util} from "chai";
 import {BigNumber} from "ethers";
+import {LibAccounts} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
+import {logger} from "utils";
 
 before(() => {
   logger.off();

@@ -12,6 +12,8 @@ import {
   ITransparentUpgradeableProxy__factory,
   Router,
   Router__factory,
+  Registrar__factory,
+  Registrar,
 } from "typechain-types";
 import {
   ArrayToVaultActionStruct,
@@ -22,6 +24,9 @@ import {
   deployDummyGasService,
   deployDummyGateway,
   deployDummyVault,
+  deployRegistrarAsProxy,
+  packActionData,
+  unpackActionData,
 } from "test/utils";
 import {getSigners} from "utils";
 import {LocalRegistrarLib} from "../../../typechain-types/contracts/core/registrar/LocalRegistrar";
@@ -33,7 +38,7 @@ describe("Router", function () {
   let user: SignerWithAddress;
   let collector: SignerWithAddress;
   let Router: Router__factory;
-  let Registrar: LocalRegistrar__factory;
+  let Registrar: Registrar__factory;
   let defaultApParams = {
     routerAddr: ethers.constants.AddressZero,
     refundAddr: ethers.constants.AddressZero,
@@ -54,10 +59,10 @@ describe("Router", function () {
   async function deployRouterAsProxy(
     gatewayAddress: string = "0xe432150cce91c13a887f7D836923d5597adD8E31",
     gasRecvAddress: string = "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
-    registrar?: LocalRegistrar
+    registrar?: Registrar
   ): Promise<Router> {
     if (!registrar) {
-      registrar = await deployRegistrarAsProxy();
+      registrar = await deployRegistrarAsProxy(owner, admin);
     }
     let apParams = defaultApParams;
     apParams.refundAddr = collector.address;
@@ -93,26 +98,6 @@ describe("Router", function () {
     RouterProxy.upgradeTo(RouterImpl.address);
   }
 
-  async function deployRegistrarAsProxy(): Promise<LocalRegistrar> {
-    Registrar = (await ethers.getContractFactory("LocalRegistrar")) as LocalRegistrar__factory;
-    const registrar = (await upgrades.deployProxy(Registrar)) as LocalRegistrar;
-    await registrar.deployed();
-    return registrar;
-  }
-
-  async function packActionData(_actionData: IVaultHelpers.VaultActionDataStruct): Promise<string> {
-    const TypeList = ["string", "bytes4", "bytes4", "uint[]", "address", "uint", "uint", "uint"];
-    return ethers.utils.defaultAbiCoder.encode(TypeList, VaultActionStructToArray(_actionData));
-  }
-
-  async function unpackActionData(
-    _encodedActionData: string
-  ): Promise<IVaultHelpers.VaultActionDataStruct> {
-    const TypeList = ["string", "string", "string", "uint[]", "string", "uint", "uint", "uint"];
-    let decoded = ethers.utils.defaultAbiCoder.decode(TypeList, _encodedActionData);
-    return ArrayToVaultActionStruct(decoded);
-  }
-
   describe("Deployment", function () {
     let router: Router;
     beforeEach(async function () {
@@ -140,7 +125,7 @@ describe("Router", function () {
   describe("Protected methods", function () {
     let lockedVault: DummyVault;
     let liquidVault: DummyVault;
-    let registrar: LocalRegistrar;
+    let registrar: Registrar;
     let gateway: DummyGateway;
     let token: DummyERC20;
     let router: Router;
@@ -160,7 +145,7 @@ describe("Router", function () {
       });
       gasService = await deployDummyGasService(owner);
       token = await deployDummyERC20(owner);
-      registrar = await deployRegistrarAsProxy();
+      registrar = await deployRegistrarAsProxy(owner, admin);
       await gateway.setTestTokenAddress(token.address);
       await registrar.setTokenAccepted(token.address, true);
       await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract);
@@ -244,7 +229,7 @@ describe("Router", function () {
   describe("Correctly triggers the refund process on failed Deposit", function () {
     let lockedVault: DummyVault;
     let liquidVault: DummyVault;
-    let registrar: LocalRegistrar;
+    let registrar: Registrar;
     let gateway: DummyGateway;
     let token: DummyERC20;
     let router: Router;
@@ -277,7 +262,7 @@ describe("Router", function () {
         gateway = await deployDummyGateway(owner);
         gasService = await deployDummyGasService(owner);
         token = await deployDummyERC20(owner);
-        registrar = await deployRegistrarAsProxy();
+        registrar = await deployRegistrarAsProxy(owner, admin);
         await gateway.setTestTokenAddress(token.address);
         await registrar.setTokenAccepted(token.address, true);
         await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract);
@@ -480,7 +465,7 @@ describe("Router", function () {
         });
         gateway = await deployDummyGateway(owner);
         gasService = await deployDummyGasService(owner);
-        registrar = await deployRegistrarAsProxy();
+        registrar = await deployRegistrarAsProxy(owner, admin);
         await gateway.setTestTokenAddress(token.address);
         await registrar.setTokenAccepted(token.address, true);
         await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract);
@@ -669,7 +654,7 @@ describe("Router", function () {
   describe("Routes messages according to payload instructions", function () {
     let lockedVault: DummyVault;
     let liquidVault: DummyVault;
-    let registrar: LocalRegistrar;
+    let registrar: Registrar;
     let gateway: DummyGateway;
     let gasService: DummyGasService;
     let token: DummyERC20;
@@ -689,7 +674,7 @@ describe("Router", function () {
       gateway = await deployDummyGateway(owner);
       gasService = await deployDummyGasService(owner);
       token = await deployDummyERC20(owner);
-      registrar = await deployRegistrarAsProxy();
+      registrar = await deployRegistrarAsProxy(owner, admin);
       await registrar.setTokenAccepted(token.address, true);
       await gateway.setTestTokenAddress(token.address);
       await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract);
@@ -706,6 +691,7 @@ describe("Router", function () {
       });
       await registrar.setStrategyParams(
         actionData.strategyId,
+        originatingChain,
         lockedVault.address,
         liquidVault.address,
         StrategyApprovalState.APPROVED
@@ -814,7 +800,7 @@ describe("Router", function () {
   describe("Deposit", function () {
     let lockedVault: DummyVault;
     let liquidVault: DummyVault;
-    let registrar: LocalRegistrar;
+    let registrar: Registrar;
     let gateway: DummyGateway;
     let gasService: DummyGasService;
     let token: DummyERC20;
@@ -834,7 +820,7 @@ describe("Router", function () {
       gateway = await deployDummyGateway(owner);
       gasService = await deployDummyGasService(owner);
       token = await deployDummyERC20(owner);
-      registrar = await deployRegistrarAsProxy();
+      registrar = await deployRegistrarAsProxy(owner, admin);
       await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract);
       await gateway.setTestTokenAddress(token.address);
       await registrar.setTokenAccepted(token.address, true);
@@ -850,6 +836,7 @@ describe("Router", function () {
       });
       await registrar.setStrategyParams(
         actionData.strategyId,
+        originatingChain,
         lockedVault.address,
         liquidVault.address,
         StrategyApprovalState.APPROVED
@@ -882,7 +869,7 @@ describe("Router", function () {
   describe("Redeem", function () {
     let lockedVault: DummyVault;
     let liquidVault: DummyVault;
-    let registrar: LocalRegistrar;
+    let registrar: Registrar;
     let gateway: DummyGateway;
     let gasService: DummyGasService;
     let token: DummyERC20;
@@ -902,7 +889,7 @@ describe("Router", function () {
       gateway = await deployDummyGateway(owner);
       gasService = await deployDummyGasService(owner);
       token = await deployDummyERC20(owner);
-      registrar = await deployRegistrarAsProxy();
+      registrar = await deployRegistrarAsProxy(owner, admin);
       await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract);
       await gateway.setTestTokenAddress(token.address);
       lockedVault = await deployDummyVault(owner, {
@@ -918,6 +905,7 @@ describe("Router", function () {
       await registrar.setTokenAccepted(token.address, true);
       await registrar.setStrategyParams(
         actionData.strategyId,
+        originatingChain,
         lockedVault.address,
         liquidVault.address,
         StrategyApprovalState.APPROVED
@@ -1029,7 +1017,7 @@ describe("Router", function () {
   describe("RedeemAll", function () {
     let lockedVault: DummyVault;
     let liquidVault: DummyVault;
-    let registrar: LocalRegistrar;
+    let registrar: Registrar;
     let gateway: DummyGateway;
     let gasService: DummyGasService;
     let token: DummyERC20;
@@ -1049,7 +1037,7 @@ describe("Router", function () {
       gateway = await deployDummyGateway(owner);
       gasService = await deployDummyGasService(owner);
       token = await deployDummyERC20(owner);
-      registrar = await deployRegistrarAsProxy();
+      registrar = await deployRegistrarAsProxy(owner, admin);
       await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract);
       await gateway.setTestTokenAddress(token.address);
       await registrar.setTokenAccepted(token.address, true);
@@ -1065,6 +1053,7 @@ describe("Router", function () {
       });
       await registrar.setStrategyParams(
         actionData.strategyId,
+        originatingChain,
         lockedVault.address,
         liquidVault.address,
         StrategyApprovalState.APPROVED
