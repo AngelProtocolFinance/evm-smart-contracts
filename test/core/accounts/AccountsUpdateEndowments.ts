@@ -690,6 +690,7 @@ describe("AccountsUpdateEndowments", function () {
         address: genWallet().address,
       });
       await state.setConfig({
+        networkName: "test",
         owner: accOwner.address,
         version: "1",
         registrarContract: registrarFake.address,
