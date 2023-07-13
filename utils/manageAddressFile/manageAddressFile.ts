@@ -4,7 +4,7 @@ import {DEFAULT_CONTRACT_ADDRESS_FILE_PATH, isLocalNetwork} from "..";
 import {createEmptyAddressObj, getAddressesByNetworkId, saveFrontendFiles} from "./helpers";
 import {AddressObj} from "./types";
 
-type DeepPartial<T> = {
+export type DeepPartial<T> = {
   [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
 };
 

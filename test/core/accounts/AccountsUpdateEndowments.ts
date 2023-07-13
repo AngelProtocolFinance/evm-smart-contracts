@@ -20,7 +20,7 @@ import {
   AccountStorage,
   LibAccounts,
 } from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {genWallet, getSigners} from "utils";
+import {DeepPartial, genWallet, getSigners} from "utils";
 import "../../utils/setup";
 
 enum ControllerSettingOption {
@@ -67,52 +67,72 @@ describe("AccountsUpdateEndowments", function () {
   let oldCharity: AccountStorage.EndowmentStruct;
 
   /**
-   * Updates all endowment's settings' delegate in a way that has no side-effects
+   * Updates endowment's setting's permissions field in a way that has no side-effects
    * @param endowId ID of the endowment
-   * @param delegate new delegate to set for all settings
-   * @returns the updated endowment data with all settings' delegates updated
+   * @param field settings field to update
+   * @param settings new settings to set for the setting field
+   * @returns the updated endowment
    */
-  async function updateDelegate(
+  async function updateSettings(
     endowId: PromiseOrValue<BigNumberish>,
-    delegate: LibAccounts.DelegateStruct
+    field: keyof LibAccounts.SettingsControllerStruct,
+    settings: DeepPartial<LibAccounts.SettingsPermissionStruct>
   ) {
     const oldEndow = await state.getEndowmentDetails(endowId);
-    const lockedEndow: AccountStorage.EndowmentStruct = {...oldEndow};
-    lockedEndow.settingsController = (
-      Object.entries(lockedEndow.settingsController) as [
-        keyof LibAccounts.SettingsControllerStruct,
-        LibAccounts.SettingsPermissionStruct
-      ][]
-    ).reduce((controller, [key, curSetting]) => {
-      controller[key] = {
-        locked: curSetting.locked,
-        delegate: {...delegate},
-      };
-      return controller;
-    }, {} as LibAccounts.SettingsControllerStruct);
+
+    const lockedEndow: AccountStorage.EndowmentStruct = {
+      ...oldEndow,
+      settingsController: {
+        ...oldEndow.settingsController,
+        [field]: getUpdated(oldEndow.settingsController[field], settings),
+      },
+    };
 
     await state.setEndowmentDetails(endowId, lockedEndow);
     return lockedEndow;
   }
 
   /**
-   * Updates all endowment's settings' delegate in a way that has no side-effects
+   * Updates all endowment's settings in a way that has no side-effects
    * @param endowId ID of the endowment
-   * @returns the updated endowment data with all settings locked
+   * @param settings new settings to set for the setting field
+   * @returns the updated endowment data
    */
-  async function lockAllSettings(endowId: PromiseOrValue<BigNumberish>) {
+  function getUpdated(
+    oldSettings: LibAccounts.SettingsPermissionStruct,
+    settings: DeepPartial<LibAccounts.SettingsPermissionStruct>
+  ): LibAccounts.SettingsPermissionStruct {
+    const result = {
+      locked: settings.locked ?? oldSettings.locked,
+      delegate: {
+        addr: settings.delegate?.addr ?? oldSettings.delegate.addr,
+        expires: settings.delegate?.expires ?? oldSettings.delegate.expires,
+      },
+    };
+
+    return result;
+  }
+
+  /**
+   * Updates all endowment's settings in a way that has no side-effects
+   * @param endowId ID of the endowment
+   * @param settings new settings to set for all setting fields
+   * @returns the updated endowment data with all settings updated
+   */
+  async function updateAllSettings(
+    endowId: PromiseOrValue<BigNumberish>,
+    settings: DeepPartial<LibAccounts.SettingsPermissionStruct>
+  ) {
     const oldEndow = await state.getEndowmentDetails(endowId);
     const lockedEndow: AccountStorage.EndowmentStruct = {...oldEndow};
+
     lockedEndow.settingsController = (
       Object.entries(lockedEndow.settingsController) as [
         keyof LibAccounts.SettingsControllerStruct,
         LibAccounts.SettingsPermissionStruct
       ][]
     ).reduce((controller, [key, curSetting]) => {
-      controller[key] = {
-        locked: true,
-        delegate: {...curSetting.delegate},
-      };
+      controller[key] = getUpdated(curSetting, settings);
       return controller;
     }, {} as LibAccounts.SettingsControllerStruct);
 
@@ -262,8 +282,7 @@ describe("AccountsUpdateEndowments", function () {
       });
 
       it("changes nothing in charity settings if settings are locked", async () => {
-        const oldEndow = await lockAllSettings(charityReq.id);
-        await updateDelegate(charityReq.id, {addr: delegate.address, expires: 0});
+        const oldEndow = await updateAllSettings(charityReq.id, {locked: true});
 
         // using delegate signer to avoid updating owner and rebalance data
         // (which uses different logic from other fields)
@@ -275,8 +294,7 @@ describe("AccountsUpdateEndowments", function () {
       });
 
       it("changes nothing in normal endowment settings if settings are locked", async () => {
-        const oldEndow = await lockAllSettings(normalEndowReq.id);
-        await updateDelegate(normalEndowReq.id, {addr: delegate.address, expires: 0});
+        const oldEndow = await updateAllSettings(normalEndowReq.id, {locked: true});
 
         // using delegate signer to avoid updating owner and rebalance data
         // (which uses different logic from other fields)
@@ -289,7 +307,9 @@ describe("AccountsUpdateEndowments", function () {
 
       it("changes nothing in charity settings if delegation has expired", async () => {
         const blockTimestamp = (await ethers.provider.getBlock("latest")).timestamp;
-        await updateDelegate(charityReq.id, {addr: delegate.address, expires: blockTimestamp - 1});
+        await updateAllSettings(charityReq.id, {
+          delegate: {addr: delegate.address, expires: blockTimestamp - 1},
+        });
 
         await expect(facet.connect(delegate).updateEndowmentDetails(charityReq))
           .to.emit(facet, "EndowmentUpdated")
@@ -300,9 +320,8 @@ describe("AccountsUpdateEndowments", function () {
 
       it("changes nothing in normal endowment settings if delegation has expired", async () => {
         const blockTimestamp = (await ethers.provider.getBlock("latest")).timestamp;
-        await updateDelegate(normalEndowReq.id, {
-          addr: delegate.address,
-          expires: blockTimestamp - 1,
+        await updateAllSettings(normalEndowReq.id, {
+          delegate: {addr: delegate.address, expires: blockTimestamp - 1},
         });
 
         await expect(facet.connect(delegate).updateEndowmentDetails(normalEndowReq))
@@ -328,7 +347,7 @@ describe("AccountsUpdateEndowments", function () {
     });
 
     it("updates all charity settings except those updateable only by owner", async () => {
-      await updateDelegate(charityReq.id, {addr: delegate.address, expires: 0});
+      await updateAllSettings(charityReq.id, {delegate: {addr: delegate.address, expires: 0}});
 
       await expect(facet.connect(delegate).updateEndowmentDetails(charityReq))
         .to.emit(facet, "EndowmentUpdated")
@@ -347,7 +366,7 @@ describe("AccountsUpdateEndowments", function () {
     });
 
     it("updates all normal endowment settings except those updateable only by owner", async () => {
-      await updateDelegate(normalEndowReq.id, {addr: delegate.address, expires: 0});
+      await updateAllSettings(normalEndowReq.id, {delegate: {addr: delegate.address, expires: 0}});
 
       await expect(facet.connect(delegate).updateEndowmentDetails(normalEndowReq))
         .to.emit(facet, "EndowmentUpdated")
@@ -586,29 +605,26 @@ describe("AccountsUpdateEndowments", function () {
           });
 
           it("reverts if settings are locked", async () => {
-            await lockAllSettings(normalEndowId);
-            await updateDelegate(normalEndowId, {addr: delegate.address, expires: 0});
+            await updateSettings(normalEndowId, field, {locked: true});
 
-            // using delegate signer to avoid updating owner and rebalance data
-            // (which uses different logic from other fields)
             await expect(
-              facet
-                .connect(delegate)
-                .updateDelegate(
-                  normalEndowId,
-                  setting,
-                  DelegateAction.Revoke,
-                  newDelegate,
-                  newDelegateExpiry
-                )
+              facet.updateDelegate(
+                normalEndowId,
+                setting,
+                DelegateAction.Revoke,
+                newDelegate,
+                newDelegateExpiry
+              )
             ).to.be.revertedWith("Unauthorized");
           });
 
           it("reverts if delegation has expired", async () => {
             const blockTimestamp = (await ethers.provider.getBlock("latest")).timestamp;
-            await updateDelegate(normalEndowId, {
-              addr: delegate.address,
-              expires: blockTimestamp - 1,
+            await updateSettings(normalEndowId, field, {
+              delegate: {
+                addr: delegate.address,
+                expires: blockTimestamp - 1,
+              },
             });
 
             await expect(
@@ -661,19 +677,22 @@ describe("AccountsUpdateEndowments", function () {
     });
 
     it("reverts if accepted tokens settings are locked", async () => {
-      await lockAllSettings(normalEndowId);
-      await updateDelegate(normalEndowId, {addr: delegate.address, expires: 0});
+      await updateSettings(normalEndowId, "acceptedTokens", {
+        locked: true,
+      });
 
       await expect(
-        facet.connect(delegate).updateAcceptedToken(normalEndowId, tokenAddr, priceFeedAddr, true)
+        facet.updateAcceptedToken(normalEndowId, tokenAddr, priceFeedAddr, true)
       ).to.be.revertedWith("Unauthorized");
     });
 
     it("reverts if for accepted tokens settings delegation has expired", async () => {
       const blockTimestamp = (await ethers.provider.getBlock("latest")).timestamp;
-      await updateDelegate(normalEndowId, {
-        addr: delegate.address,
-        expires: blockTimestamp - 1,
+      await updateSettings(normalEndowId, "acceptedTokens", {
+        delegate: {
+          addr: delegate.address,
+          expires: blockTimestamp - 1,
+        },
       });
 
       await expect(
