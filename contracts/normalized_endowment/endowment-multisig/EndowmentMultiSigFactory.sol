@@ -2,6 +2,7 @@
 pragma solidity ^0.8.16;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import {IEndowmentMultiSigEmitter} from "./interfaces/IEndowmentMultiSigEmitter.sol";
 import {ProxyContract} from "../../core/proxy.sol";
 
 /// @title Multisignature wallet factory - Allows creation of multisigs wallet.
@@ -87,6 +88,15 @@ contract EndowmentMultiSigFactory is Ownable {
       transactionExpiry
     );
     wallet = address(new ProxyContract(IMPLEMENTATION_ADDRESS, PROXY_ADMIN, EndowmentData));
+    IEndowmentMultiSigEmitter(emitterAddress).createEndowmentMultisig(
+      wallet,
+      endowmentId,
+      emitterAddress,
+      owners,
+      required,
+      false,
+      transactionExpiry
+    );
 
     register(wallet);
     // also store address of multisig in endowmentIdToMultisig
