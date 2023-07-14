@@ -183,6 +183,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
           .to.emit(facet, "EndowmentDeposit")
           .withArgs(charityId, wmaticFake.address, 0, 10000);
 
+        expect(wmaticFake.deposit).to.have.been.called;
+
         const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
           charityId,
           wmaticFake.address
