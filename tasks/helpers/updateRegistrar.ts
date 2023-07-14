@@ -1,7 +1,7 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
 import {
-  IAccountsVaultFacet,
+  IAccountsStrategy,
   RegistrarMessages,
 } from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 import {getSigners, logger, structToObject, validateAddress} from "utils";
@@ -9,7 +9,7 @@ import {getSigners, logger, structToObject, validateAddress} from "utils";
 export async function updateRegistrarNetworkConnections(
   registrar = "",
   apTeamMultisig = "",
-  newNetworkInfo: Partial<IAccountsVaultFacet.NetworkInfoStruct>,
+  newNetworkInfo: Partial<IAccountsStrategy.NetworkInfoStruct>,
   hre: HardhatRuntimeEnvironment
 ) {
   logger.divider();
@@ -26,7 +26,7 @@ export async function updateRegistrarNetworkConnections(
     const registrarContract = Registrar__factory.connect(registrar, apTeamMultisigOwners[0]);
 
     logger.out("Fetching current Registrar's network connection data...");
-    const struct = await registrarContract.queryNetworkConnection(network.chainId);
+    const struct = await registrarContract.queryNetworkConnection(network.name);
     const curNetworkConnection = structToObject(struct);
     logger.out(curNetworkConnection);
 
@@ -35,7 +35,7 @@ export async function updateRegistrarNetworkConnections(
 
     const updateNetworkConnectionsData = registrarContract.interface.encodeFunctionData(
       "updateNetworkConnections",
-      [{...curNetworkConnection, ...newNetworkInfo}, "post"]
+      [network.name, {...curNetworkConnection, ...newNetworkInfo}, "post"]
     );
     const apTeamMultisigContract = APTeamMultiSig__factory.connect(
       apTeamMultisig,
@@ -51,7 +51,7 @@ export async function updateRegistrarNetworkConnections(
     await tx.wait();
 
     logger.out("Updated network connection data:");
-    const newStruct = await registrarContract.queryNetworkConnection(network.chainId);
+    const newStruct = await registrarContract.queryNetworkConnection(network.name);
     const newNetworkConnection = structToObject(newStruct);
     logger.out(newNetworkConnection);
   } catch (error) {
