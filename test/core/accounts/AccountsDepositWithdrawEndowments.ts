@@ -443,7 +443,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
       });
     });
 
-    describe("when sending from Index Fund", () => {
+    describe("when sending from non-Index-Fund signers", () => {
       let donationMatch: FakeContract<DonationMatch>;
       let donationMatchCharity: FakeContract<DonationMatchCharity>;
 
