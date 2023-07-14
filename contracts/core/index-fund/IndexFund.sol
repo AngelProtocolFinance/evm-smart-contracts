@@ -116,8 +116,9 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
     uint256 expiryTime
   ) public nonReentrant {
     require(msg.sender == state.config.owner, "Unauthorized");
-    require(endowments.length > 0, "Must have one or more endowments");
-    require(splitToLiquid <= 100, "invalid split, must be less or equal to 100");
+    require(endowments.length > 0, "Fund must have one or more endowment members");
+    require(endowments.length <= state.config.fundMemberLimit, "Fund endowment members exceeds upper limit");
+    require(splitToLiquid <= 100, "Invalid split: must be less or equal to 100");
 
     state.Funds[state.nextFundId] = IndexFundStorage.Fund({
       id: state.nextFundId,
@@ -220,7 +221,7 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
     require(endowments.length > 0, "Must pass at least one endowment member to add to the Fund");
     require(
       endowments.length <= state.config.fundMemberLimit,
-      "Fund endowment members limit exceeded"
+      "Fund endowment members exceeds upper limit"
     );
     require(!fundIsExpired(state.Funds[fundId], block.timestamp), "Fund Expired");
 
@@ -273,10 +274,12 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
     uint256 amount,
     uint256 splitToLiquid
   ) public nonReentrant {
-    require(token != address(0), "Invalid Token Address");
+    require(
+      IERC20(token).transferFrom(msg.sender, address(this), amount),
+      "Failed to transfer funds"
+    );
 
     uint256 depositAmount = amount;
-
     // check if time limit is reached
     if (state.config.fundRotation != 0) {
       if (block.number >= state.nextRotationBlock) {
@@ -296,7 +299,6 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
 
     if (fundId != 0) {
       // Depositor has chosen a specific fund to send tokens to. Send 100% to that fund.
-      require(!fundIsExpired(state.Funds[fundId], block.timestamp), "Expired Fund");
       updateDonationMessages(
         fundId,
         calculateSplit(
@@ -313,7 +315,6 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
       if (state.config.fundingGoal != 0) {
         uint256 loopDonation = 0;
         while (depositAmount > 0) {
-          require(!fundIsExpired(state.Funds[state.activeFund], block.timestamp), "Expired Fund");
           uint256 activeFund = state.activeFund;
           uint256 goalLeftover = state.config.fundingGoal - state.roundDonations;
           if (depositAmount >= goalLeftover) {
@@ -326,7 +327,6 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
             state.roundDonations += depositAmount;
             loopDonation = depositAmount;
           }
-
           updateDonationMessages(
             activeFund,
             calculateSplit(
@@ -341,8 +341,6 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
           depositAmount -= loopDonation;
         }
       } else {
-        require(!fundIsExpired(state.Funds[state.activeFund], block.timestamp), "Expired Fund");
-
         updateDonationMessages(
           state.activeFund,
           calculateSplit(
@@ -356,13 +354,7 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
       }
     }
 
-    // transfer funds from msg sender to here
-    require(
-      IERC20(token).transferFrom(msg.sender, address(this), amount),
-      "Failed to transfer funds"
-    );
-
-    // give allowance to accounts
+    // give allowance to accounts contract
     require(
       IERC20(token).approve(registrar_config.accountsContract, amount),
       "Failed to approve funds"
@@ -461,9 +453,9 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
     uint256 balance,
     IndexFundStorage.DonationMessages storage donationMessages
   ) internal {
+    require(!fundIsExpired(state.Funds[fundId], block.timestamp), "Expired Fund");
     uint256 endowmentPortion = balance;
     uint32[] memory endowments = state.Funds[fundId].endowments;
-
     if (endowments.length > 0) {
       endowmentPortion = endowmentPortion.div(endowments.length);
     }
