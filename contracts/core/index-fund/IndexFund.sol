@@ -39,17 +39,26 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
   /**
    * @notice Initializer function for index fund contract, to be called when proxy is deployed
    * @dev This function is called by deployer only once at the time of initialization
-   * @param details IndexFundMessage.InstantiateMessage
-   */
-  function initialize(IndexFundMessage.InstantiateMessage memory details) external initializer {
-    require(details.registrarContract != address(0), "invalid registrar address");
-    require(details.fundMemberLimit > 0, "Fund endowment limit must be greater than zero");
+   * @param registrarContract Registrar Contract address
+   * @param fundRotation how many blocks are in a rotation cycle for the active IndexFund
+   * @param fundMemberLimit limit to number of members an IndexFund can have
+   * @param fundingGoal donation funding limit to trigger early cycle of the Active IndexFund
+
+  */
+  function initialize(
+    address registrarContract,
+    uint256 fundRotation,
+    uint256 fundMemberLimit,
+    uint256 fundingGoal
+  ) external initializer {
+    require(registrarContract != address(0), "invalid registrar address");
+    require(fundMemberLimit > 0, "Fund endowment limit must be greater than zero");
     state.config = IndexFundStorage.Config({
       owner: msg.sender,
-      registrarContract: details.registrarContract,
-      fundRotation: details.fundRotation,
-      fundMemberLimit: details.fundMemberLimit,
-      fundingGoal: details.fundingGoal
+      registrarContract: registrarContract,
+      fundRotation: fundRotation,
+      fundMemberLimit: fundMemberLimit,
+      fundingGoal: fundingGoal
     });
 
     state.totalFunds = 0;
@@ -64,33 +73,43 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
   /**
    * @notice function to update config of index fund
    * @dev can be called by owner to set new config
-   * @param details IndexFundMessage.UpdateConfigMessage
+   * @param owner contract Owner address
+   * @param registrarContract Registrar Contract address
+   * @param fundRotation how many blocks are in a rotation cycle for the active IndexFund
+   * @param fundMemberLimit limit to number of members an IndexFund can have
+   * @param fundingGoal donation funding limit to trigger early cycle of the Active IndexFund
    */
-  function updateConfig(IndexFundMessage.UpdateConfigMessage memory details) external nonReentrant {
+  function updateConfig(
+    address owner,
+    address registrarContract,
+    uint256 fundRotation,
+    uint256 fundMemberLimit,
+    uint256 fundingGoal
+  ) external nonReentrant {
     require(msg.sender == state.config.owner, "Unauthorized");
-    require(details.fundMemberLimit > 0, "Fund endowment limit must be greater than zero");
+    require(fundMemberLimit > 0, "Fund endowment limit must be greater than zero");
 
-    if (details.registrarContract != state.config.registrarContract) {
-      require(details.registrarContract != address(0), "Invalid Registrar address");
-      state.config.registrarContract = details.registrarContract;
+    if (registrarContract != state.config.registrarContract) {
+      require(registrarContract != address(0), "Invalid Registrar address");
+      state.config.registrarContract = registrarContract;
     }
 
-    if (details.owner != state.config.owner) {
-      require(details.owner != address(0), "Invalid owner address");
-      state.config.owner = details.owner;
+    if (owner != state.config.owner) {
+      require(owner != address(0), "Invalid owner address");
+      state.config.owner = owner;
     }
 
-    if (details.fundingGoal != 0) {
-      if (details.fundingGoal < state.roundDonations) {
+    if (fundingGoal != 0) {
+      if (fundingGoal < state.roundDonations) {
         revert("Invalid Inputs");
       }
-      state.config.fundingGoal = details.fundingGoal;
+      state.config.fundingGoal = fundingGoal;
     } else {
       state.config.fundingGoal = 0;
     }
 
-    state.config.fundRotation = details.fundRotation;
-    state.config.fundMemberLimit = details.fundMemberLimit;
+    state.config.fundRotation = fundRotation;
+    state.config.fundMemberLimit = fundMemberLimit;
 
     emit ConfigUpdated();
   }
@@ -383,9 +402,9 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
    * @dev Query state
    * @return State
    */
-  function queryState() external view returns (IndexFundMessage.StateResponseMessage memory) {
+  function queryState() external view returns (IndexFundMessage.StateResponse memory) {
     return
-      IndexFundMessage.StateResponseMessage({
+      IndexFundMessage.StateResponse({
         totalFunds: state.totalFunds,
         activeFund: state.activeFund,
         roundDonations: state.roundDonations,

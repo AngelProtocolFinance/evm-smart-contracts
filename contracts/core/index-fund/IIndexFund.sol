@@ -8,16 +8,34 @@ interface IIndexFund {
   /**
    * @notice Initializer function for index fund contract, to be called when proxy is deployed
    * @dev This function is called by deployer only once at the time of initialization
-   * @param details IndexFundMessage.InstantiateMessage
+   * @param registrarContract Registrar Contract address
+   * @param fundRotation how many blocks are in a rotation cycle for the active IndexFund
+   * @param fundMemberLimit limit to number of members an IndexFund can have
+   * @param fundingGoal donation funding limit to trigger early cycle of the Active IndexFund
    */
-  function initialize(IndexFundMessage.InstantiateMessage memory details) external;
+  function initialize(
+    address registrarContract,
+    uint256 fundRotation,
+    uint256 fundMemberLimit,
+    uint256 fundingGoal
+  ) external;
 
   /**
    * @notice function to update config of index fund
    * @dev can be called by owner to set new config
-   * @param details IndexFundMessage.UpdateConfigMessage
+   * @param owner Contract Owner address
+   * @param registrarContract Registrar Contract address
+   * @param fundRotation how many blocks are in a rotation cycle for the active IndexFund
+   * @param fundMemberLimit limit to number of members an IndexFund can have
+   * @param fundingGoal donation funding limit to trigger early cycle of the Active IndexFund
    */
-  function updateConfig(IndexFundMessage.UpdateConfigMessage memory details) external;
+  function updateConfig(
+    address owner,
+    address registrarContract,
+    uint256 fundRotation,
+    uint256 fundMemberLimit,
+    uint256 fundingGoal
+  ) external;
 
   /**
    * @notice function to create a new Fund
@@ -85,7 +103,7 @@ interface IIndexFund {
    * @dev Query state
    * @return State
    */
-  function queryState() external view returns (IndexFundMessage.StateResponseMessage memory);
+  function queryState() external view returns (IndexFundMessage.StateResponse memory);
 
   /**
    * @dev Query fund details
