@@ -8,6 +8,8 @@ import {
   AccountsDepositWithdrawEndowments__factory,
   DummyWMATIC,
   DummyWMATIC__factory,
+  IndexFund,
+  IndexFund__factory,
   Registrar,
   Registrar__factory,
   TestFacetProxyContract,
@@ -17,6 +19,7 @@ import {genWallet, getSigners} from "utils";
 import "../../utils/setup";
 import {deployFacetAsProxy} from "./utils/deployTestFacet";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsDepositWithdrawEndowments";
+import {BigNumber} from "ethers";
 
 use(smock.matchers);
 
@@ -36,6 +39,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
   let facet: AccountsDepositWithdrawEndowments;
   let state: TestFacetProxyContract;
   let endowment: AccountStorage.EndowmentStruct;
+  let indexFundFake: FakeContract<IndexFund>;
   let registrarFake: FakeContract<Registrar>;
   let wmaticFake: FakeContract<DummyWMATIC>;
 
@@ -48,6 +52,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
     endowment = {...DEFAULT_CHARITY_ENDOWMENT, owner: endowOwner.address};
 
     registrarFake = await smock.fake<Registrar>(new Registrar__factory());
+
+    indexFundFake = await smock.fake<IndexFund>(new IndexFund__factory());
   });
 
   beforeEach(async () => {
@@ -78,7 +84,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
     const config: typeof DEFAULT_REGISTRAR_CONFIG = {
       ...DEFAULT_REGISTRAR_CONFIG,
       wMaticAddress: wmaticFake.address,
-      indexFundContract: genWallet().address,
+      indexFundContract: indexFundFake.address,
     };
     registrarFake.queryConfig.returns(config);
   });
@@ -133,6 +139,28 @@ describe("AccountsDepositWithdrawEndowments", function () {
       await expect(facet.depositMatic(depositReq, {value: 10000})).to.be.revertedWith(
         "No Index Fund"
       );
+    });
+
+    it("deposits MATIC with no locked amount", async () => {
+      endowOwner.sendTransaction({
+        value: ethers.utils.parseEther("1.0"),
+        to: indexFundFake.address,
+      });
+
+      await expect(
+        facet
+          .connect(await ethers.getSigner(indexFundFake.address))
+          .depositMatic({id: endowId, lockedPercentage: 0, liquidPercentage: 100}, {value: 10000})
+      )
+        .to.emit(facet, "EndowmentDeposit")
+        .withArgs(depositReq.id, wmaticFake.address, 0, 10000);
+
+      const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+        depositReq.id,
+        wmaticFake.address
+      );
+      expect(lockedBal).to.equal(BigNumber.from(0));
+      expect(liquidBal).to.equal(BigNumber.from(10000));
     });
   });
 });
