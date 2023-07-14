@@ -5,6 +5,23 @@ import {IndexFundStorage} from "./storage.sol";
 import {IndexFundMessage} from "./message.sol";
 
 interface IIndexFund {
+  /*////////////////////////////////////////////////
+                        EVENTS
+  */ ////////////////////////////////////////////////
+  event IndexFundInstantiated();
+  event ConfigUpdated();
+  event FundCreated(uint256 id);
+  event FundRemoved(uint256 id);
+  event MemberRemoved(uint256 fundId, uint32 endowmentId);
+  event MembersUpdated(uint256 fundId, uint32[] endowments);
+  event DonationProcessed(uint256 fundId);
+  event ActiveFundUpdated(uint256 fundId);
+  event StateUpdated();
+
+  /*////////////////////////////////////////////////
+                    ENDPOINTS
+ */ ////////////////////////////////////////////////
+
   /**
    * @notice Initializer function for index fund contract, to be called when proxy is deployed
    * @dev This function is called by deployer only once at the time of initialization

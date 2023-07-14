@@ -4,9 +4,9 @@ pragma solidity ^0.8.16;
 //Libraries
 import "./storage.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IndexFundMessage} from "./message.sol";
 import {IIndexFund} from "./IIndexFund.sol";
 import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
@@ -17,23 +17,13 @@ import {RegistrarStorage} from "../registrar/storage.sol";
 import {AccountMessages} from "../accounts/message.sol";
 
 /**
- * @title IndexFund
+ * @title Index Fund
  * @notice User can deposit/donate to a collection of endowments (ie. funds) through this contract
  * @dev IndexFund is a contract that manages the funds of the angelcore platform
  * It is responsible for creating new funds, adding endowments to funds, and
  * distributing funds to the endowment members
  */
-contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
-  event IndexFundInstantiated();
-  event ConfigUpdated();
-  event FundCreated(uint256 id);
-  event FundRemoved(uint256 id);
-  event MemberRemoved(uint256 fundId, uint32 endowmentId);
-  event MembersUpdated(uint256 fundId, uint32[] endowments);
-  event DonationProcessed(uint256 fundId);
-  event ActiveFundUpdated(uint256 fundId);
-  event StateUpdated();
-
+contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
   using SafeMath for uint256;
 
   /**
@@ -43,14 +33,15 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
    * @param fundRotation how many blocks are in a rotation cycle for the active IndexFund
    * @param fundMemberLimit limit to number of members an IndexFund can have
    * @param fundingGoal donation funding limit to trigger early cycle of the Active IndexFund
-
-  */
+   */
   function initialize(
     address registrarContract,
     uint256 fundRotation,
     uint256 fundMemberLimit,
     uint256 fundingGoal
   ) external initializer {
+    __Ownable_init_unchained();
+
     require(registrarContract != address(0), "invalid registrar address");
     require(fundMemberLimit > 0, "Fund endowment limit must be greater than zero");
     state.config = IndexFundStorage.Config({
@@ -66,8 +57,6 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
     state.nextFundId = 1;
     state.roundDonations = 0;
     state.nextRotationBlock = block.number + state.config.fundRotation;
-
-    emit IndexFundInstantiated();
   }
 
   /**
@@ -85,7 +74,7 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
     uint256 fundRotation,
     uint256 fundMemberLimit,
     uint256 fundingGoal
-  ) external nonReentrant {
+  ) external {
     require(msg.sender == state.config.owner, "Unauthorized");
     require(fundMemberLimit > 0, "Fund endowment limit must be greater than zero");
 
@@ -131,7 +120,7 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
     bool rotatingFund,
     uint256 splitToLiquid,
     uint256 expiryTime
-  ) external nonReentrant {
+  ) external {
     require(msg.sender == state.config.owner, "Unauthorized");
     require(endowments.length > 0, "Fund must have one or more endowment members");
     require(
@@ -175,7 +164,7 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
    * @dev can be called by owner to remove an index fund
    * @param fundId id of index fund to be removed
    */
-  function removeIndexFund(uint256 fundId) external nonReentrant {
+  function removeIndexFund(uint256 fundId) external {
     require(msg.sender != state.config.owner, "Unauthorized");
     removeFund(fundId);
   }
@@ -185,7 +174,7 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
    *  @dev can be called by owner to remove a endowment from all the index funds
    *  @param endowment endowment to be removed from index fund
    */
-  function removeMember(uint32 endowment) external nonReentrant {
+  function removeMember(uint32 endowment) external {
     RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
       .queryConfig();
 
@@ -220,7 +209,7 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
    *  @param fundId The id of the Fund to be updated
    *  @param endowments An array of endowments to be set for a Fund
    */
-  function updateFundMembers(uint256 fundId, uint32[] memory endowments) external nonReentrant {
+  function updateFundMembers(uint256 fundId, uint32[] memory endowments) external {
     require(msg.sender == state.config.owner, "Unauthorized");
     require(endowments.length > 0, "Must pass at least one endowment member to add to the Fund");
     require(
@@ -371,6 +360,7 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
     ) = buildDonationMessages(registrar_config.accountsContract, state.donationMessages, token);
 
     Utils._execute(target[0], value[0], callData[0]);
+    emit DonationProcessed(fundId);
 
     // Clean up storage for next call
     delete state.donationMessages.endowmentIds;
@@ -378,8 +368,6 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
     delete state.donationMessages.liquidDonationAmount;
     delete state.donationMessages.lockedSplit;
     delete state.donationMessages.liquidSplit;
-
-    emit StateUpdated();
   }
 
   /**
@@ -523,7 +511,6 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
         );
       }
     }
-    emit DonationProcessed(fundId);
   }
 
   /**
