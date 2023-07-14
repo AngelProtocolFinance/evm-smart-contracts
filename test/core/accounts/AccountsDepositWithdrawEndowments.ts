@@ -202,6 +202,50 @@ describe("AccountsDepositWithdrawEndowments", function () {
           );
         });
 
+        it("skips donation matching for a charity when no donation match contract is registered in Registrar", async () => {
+          const expectedLockedAmt = 6000;
+          const expectedLiquidAmt = 4000;
+
+          await expect(facet.connect(indexFund).depositMatic(depositToCharity, {value: 10000}))
+            .to.emit(facet, "EndowmentDeposit")
+            .withArgs(
+              depositToCharity.id,
+              wmaticFake.address,
+              expectedLockedAmt,
+              expectedLiquidAmt
+            );
+
+          const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+            depositToCharity.id,
+            wmaticFake.address
+          );
+          expect(lockedBal).to.equal(BigNumber.from(expectedLockedAmt));
+          expect(liquidBal).to.equal(BigNumber.from(expectedLiquidAmt));
+          expect(donationMatchCharity.executeDonorMatch).to.not.have.been.called;
+        });
+
+        it("skips donation matching for a normal endowment when no donation match contract is associated with said endowment", async () => {
+          const expectedLockedAmt = 6000;
+          const expectedLiquidAmt = 4000;
+
+          await expect(facet.connect(indexFund).depositMatic(depositToNormalEndow, {value: 10000}))
+            .to.emit(facet, "EndowmentDeposit")
+            .withArgs(
+              depositToNormalEndow.id,
+              wmaticFake.address,
+              expectedLockedAmt,
+              expectedLiquidAmt
+            );
+
+          const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+            depositToNormalEndow.id,
+            wmaticFake.address
+          );
+          expect(lockedBal).to.equal(BigNumber.from(expectedLockedAmt));
+          expect(liquidBal).to.equal(BigNumber.from(expectedLiquidAmt));
+          expect(donationMatch.executeDonorMatch).to.not.have.been.called;
+        });
+
         it("matches the donation to a charity", async () => {
           const config: RegistrarStorage.ConfigStruct = {
             ...registrarConfig,
