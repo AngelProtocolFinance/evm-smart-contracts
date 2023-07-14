@@ -3,10 +3,7 @@ import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {DEFAULT_CONTRACT_ADDRESS_FILE_PATH, isLocalNetwork} from "..";
 import {createEmptyAddressObj, getAddressesByNetworkId, saveFrontendFiles} from "./helpers";
 import {AddressObj} from "./types";
-
-type DeepPartial<T> = {
-  [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
-};
+import {DeepPartial} from "types";
 
 /**
  * Removes contract address for the current network from the appropriate file.

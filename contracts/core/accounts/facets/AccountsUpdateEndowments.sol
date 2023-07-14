@@ -35,21 +35,6 @@ contract AccountsUpdateEndowments is
 
     require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
 
-    // there are several fields that are restricted to changing only by the Endowment Owner
-    if (msg.sender == tempEndowment.owner) {
-      // An Endowment's owner can be set as the gov dao OR the endowment multisig contract
-      if (
-        details.owner != address(0) &&
-        (details.owner == tempEndowment.dao || details.owner == tempEndowment.multisig)
-      ) {
-        tempEndowment.owner = details.owner;
-      }
-
-      if (tempEndowment.endowType != LibAccounts.EndowmentType.Charity) {
-        tempEndowment.rebalance = details.rebalance;
-      }
-    }
-
     if (
       Validator.canChange(
         tempEndowment.settingsController.name,
@@ -69,10 +54,12 @@ contract AccountsUpdateEndowments is
         block.timestamp
       )
     ) {
-      if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
-        if (details.sdgs.length == 0) {
-          revert("InvalidInputs");
-        }
+      if (
+        details.sdgs.length == 0 && tempEndowment.endowType == LibAccounts.EndowmentType.Charity
+      ) {
+        revert("InvalidInputs");
+      }
+      if (details.sdgs.length != 0) {
         details.sdgs = Array.sort(details.sdgs);
         for (uint256 i = 0; i < details.sdgs.length; i++) {
           if (details.sdgs[i] > 17 || details.sdgs[i] == 0) {
@@ -103,6 +90,29 @@ contract AccountsUpdateEndowments is
       )
     ) {
       tempEndowment.image = details.image;
+    }
+
+    // there are several fields that are restricted to changing only by the Endowment Owner
+    if (msg.sender == tempEndowment.owner) {
+      // Field `owner` MUST be updated *last*, as otherwise no other endowment field would be updateable due to following:
+      // 1. Current owner (multisig) sends request to update endowment owner to DAO address and let's say it
+      // also wants to update `image`
+      // 2. Field `image` has no delegate and is unlocked, so only `owner` can update it
+      // 3. Owner update check passes and is updated to DAO address
+      // 4. Contract gets to updating `image`, but first needs to check whether the field can be updated
+      // 5. It sees that the current sender (previous owner, Multisig) is NOT the current owner of the endowment
+      //    (as it was updated in the previous step to DAO address)
+      // 6. Check for `image` fails and the update is skipped
+      if (
+        details.owner != address(0) &&
+        (details.owner == tempEndowment.dao || details.owner == tempEndowment.multisig)
+      ) {
+        tempEndowment.owner = details.owner;
+      }
+
+      if (tempEndowment.endowType != LibAccounts.EndowmentType.Charity) {
+        tempEndowment.rebalance = details.rebalance;
+      }
     }
 
     state.ENDOWMENTS[details.id] = tempEndowment;
@@ -227,6 +237,17 @@ contract AccountsUpdateEndowments is
         "Unauthorized"
       );
       tempEndowment.settingsController.withdrawFee.delegate = newDelegate;
+    } else if (setting == ControllerSettingOption.EarlyLockedWithdrawFee) {
+      require(
+        Validator.canChange(
+          tempEndowment.settingsController.earlyLockedWithdrawFee,
+          msg.sender,
+          tempEndowment.owner,
+          block.timestamp
+        ),
+        "Unauthorized"
+      );
+      tempEndowment.settingsController.earlyLockedWithdrawFee.delegate = newDelegate;
     } else if (setting == ControllerSettingOption.DepositFee) {
       require(
         Validator.canChange(
@@ -339,7 +360,8 @@ contract AccountsUpdateEndowments is
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[endowId];
 
-    require((tokenAddr != address(0) && priceFeedAddr != address(0)), "Zero address passed");
+    require(tokenAddr != address(0), "Invalid token address passed");
+    require(priceFeedAddr != address(0), "Invalid priceFeed address passed");
     require(!state.STATES[endowId].closingEndowment, "UpdatesAfterClosed");
     require(
       Validator.canChange(
