@@ -97,6 +97,7 @@ contract AccountsDepositWithdrawEndowments is
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
 
+    // is it possible to have tokenAddress == address(0)
     require(tokenAddress != address(0), "Invalid ERC20 token");
     require(details.lockedPercentage + details.liquidPercentage == 100, "InvalidSplit");
 
