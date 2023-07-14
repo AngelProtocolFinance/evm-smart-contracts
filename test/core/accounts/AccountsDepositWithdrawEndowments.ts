@@ -93,7 +93,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
         enumData: 0,
         data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
       });
-      await expect(facet.depositMatic(depositReq, {value: 1})).to.be.revertedWith(
+      await expect(facet.depositMatic(depositReq, {value: 10000})).to.be.revertedWith(
         "Endowment is closed"
       );
     });
@@ -104,7 +104,9 @@ describe("AccountsDepositWithdrawEndowments", function () {
         liquidPercentage: 10,
         lockedPercentage: 10,
       };
-      await expect(facet.depositMatic(invalidReq, {value: 1})).to.be.revertedWith("InvalidSplit");
+      await expect(facet.depositMatic(invalidReq, {value: 10000})).to.be.revertedWith(
+        "InvalidSplit"
+      );
     });
 
     it("reverts if the deposit fee transfer fails", async () => {
@@ -115,7 +117,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
       wmaticFake.transfer.returns(false);
 
-      await expect(facet.depositMatic(depositReq, {value: 1})).to.be.revertedWith(
+      await expect(facet.depositMatic(depositReq, {value: 10000})).to.be.revertedWith(
         "Transfer Failed"
       );
     });
@@ -128,7 +130,9 @@ describe("AccountsDepositWithdrawEndowments", function () {
       };
       registrarFake.queryConfig.returns(config);
 
-      await expect(facet.depositMatic(depositReq, {value: 1})).to.be.revertedWith("No Index Fund");
+      await expect(facet.depositMatic(depositReq, {value: 10000})).to.be.revertedWith(
+        "No Index Fund"
+      );
     });
   });
 });
