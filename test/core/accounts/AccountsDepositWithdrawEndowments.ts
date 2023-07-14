@@ -6,6 +6,7 @@ import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG} from "test/utils";
 import {
   AccountsDepositWithdrawEndowments,
   AccountsDepositWithdrawEndowments__factory,
+  DummyWMATIC,
   DummyWMATIC__factory,
   Registrar,
   Registrar__factory,
@@ -15,6 +16,7 @@ import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetP
 import {genWallet, getSigners} from "utils";
 import "../../utils/setup";
 import {deployFacetAsProxy} from "./utils/deployTestFacet";
+import {deployDummyWMATIC} from "test/utils/dummyWMATIC";
 
 use(smock.matchers);
 
@@ -30,6 +32,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
   let state: TestFacetProxyContract;
   let endowment: AccountStorage.EndowmentStruct;
   let registrarFake: FakeContract<Registrar>;
+  let wmaticFake: FakeContract<DummyWMATIC>;
 
   before(async function () {
     const signers = await getSigners(hre);
@@ -39,9 +42,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
     endowment = {...DEFAULT_CHARITY_ENDOWMENT, owner: endowOwner.address};
 
-    registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
-      address: genWallet().address,
-    });
+    registrarFake = await smock.fake<Registrar>(new Registrar__factory());
   });
 
   beforeEach(async () => {
@@ -66,6 +67,14 @@ describe("AccountsDepositWithdrawEndowments", function () {
     });
 
     facet = AccountsDepositWithdrawEndowments__factory.connect(state.address, endowOwner);
+
+    wmaticFake = await smock.fake<DummyWMATIC>(new DummyWMATIC__factory());
+
+    const config: typeof DEFAULT_REGISTRAR_CONFIG = {
+      ...DEFAULT_REGISTRAR_CONFIG,
+      wMaticAddress: wmaticFake.address,
+    };
+    registrarFake.queryConfig.returns(config);
   });
 
   describe("upon depositMatic", async function () {
@@ -100,16 +109,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
     });
 
     it("reverts if the locked + liquid percentage does not equal 100", async () => {
-      const DummyWMATIC = new DummyWMATIC__factory(proxyAdmin);
-      const dummyWMATIC = await DummyWMATIC.deploy();
-      await dummyWMATIC.deployed();
-
-      const config: typeof DEFAULT_REGISTRAR_CONFIG = {
-        ...DEFAULT_REGISTRAR_CONFIG,
-        wMaticAddress: dummyWMATIC.address,
-      };
-      registrarFake.queryConfig.returns(config);
-
       await expect(
         facet.depositMatic(
           {
@@ -121,5 +120,18 @@ describe("AccountsDepositWithdrawEndowments", function () {
         )
       ).to.be.revertedWith("InvalidSplit");
     });
+
+    // it("reverts if the deposit fee transfer fails", async () => {
+    //   await expect(
+    //     facet.depositMatic(
+    //       {
+    //         id: endowId,
+    //         liquidPercentage: 10,
+    //         lockedPercentage: 10,
+    //       },
+    //       {value: 1}
+    //     )
+    //   ).to.be.revertedWith("InvalidSplit");
+    // });
   });
 });
