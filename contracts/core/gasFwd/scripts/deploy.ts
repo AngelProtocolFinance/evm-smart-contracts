@@ -45,7 +45,6 @@ export async function deployGasFwd(
       },
       hre
     );
-    logger.out(`File updated`);
 
     return {
       implementation: {address: gf.address, contractName: getContractName(GF)},
