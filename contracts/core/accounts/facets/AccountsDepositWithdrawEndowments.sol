@@ -176,7 +176,6 @@ contract AccountsDepositWithdrawEndowments is
     state.STATES[details.id].balances.locked[tokenAddress] += lockedAmount;
     state.STATES[details.id].balances.liquid[tokenAddress] += liquidAmount;
 
-    state.ENDOWMENTS[details.id] = tempEndowment;
     emit EndowmentDeposit(details.id, tokenAddress, lockedAmount, liquidAmount);
   }
 
