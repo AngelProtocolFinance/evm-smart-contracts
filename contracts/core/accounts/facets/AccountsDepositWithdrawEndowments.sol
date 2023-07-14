@@ -120,15 +120,13 @@ contract AccountsDepositWithdrawEndowments is
     uint256 lockedSplitPercent = details.lockedPercentage;
     uint256 liquidSplitPercent = details.liquidPercentage;
 
-    LibAccounts.SplitDetails memory registrar_split_configs = registrar_config.splitToLiquid;
-
     require(registrar_config.indexFundContract != address(0), "No Index Fund");
 
     if (msg.sender != registrar_config.indexFundContract) {
       if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
         // use the Registrar default split for Charities
         (lockedSplitPercent, liquidSplitPercent) = Validator.checkSplits(
-          registrar_split_configs,
+          registrar_config.splitToLiquid,
           lockedSplitPercent,
           liquidSplitPercent,
           tempEndowment.ignoreUserSplits
