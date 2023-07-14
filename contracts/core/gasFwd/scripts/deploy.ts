@@ -27,7 +27,12 @@ export async function deployGasFwd(
 
     logger.out("Deploying factory...");
     const GFF = new GasFwdFactory__factory(admin);
-    const gff = await GFF.deploy(gf.address, admin.address, registrarAddress);
+    const constructorArguments: Parameters<GasFwdFactory__factory["deploy"]> = [
+      gf.address,
+      admin.address,
+      registrarAddress,
+    ];
+    const gff = await GFF.deploy(...constructorArguments);
     await gff.deployed();
     logger.out(`Address: ${gff.address}`);
 
@@ -42,7 +47,7 @@ export async function deployGasFwd(
     );
     logger.out(`File updated`);
 
-    return {address: gff.address, contractName: getContractName(GFF)};
+    return {address: gff.address, contractName: getContractName(GFF), constructorArguments};
   } catch (error) {
     logger.out(error, logger.Level.Error);
   }
