@@ -24,7 +24,11 @@ contract EndowmentMultiSigEmitter is IEndowmentMultiSigEmitter, Initializable {
   event TransactionSubmitted(uint256 endowmentId, address owner, uint256 transactionId);
   event TransactionConfirmed(uint256 endowmentId, address owner, uint256 transactionId);
   event TransactionConfirmationRevoked(uint256 endowmentId, address owner, uint256 transactionId);
-  event TransactionConfirmationOfFormerOwnerRevoked(uint256 endowmentId, address formerOwner, uint256 transactionId);
+  event TransactionConfirmationOfFormerOwnerRevoked(
+    uint256 endowmentId,
+    address formerOwner,
+    uint256 transactionId
+  );
   event TransactionExecuted(uint256 endowmentId, uint256 transactionId);
   event OwnersAdded(uint256 endowmentId, address[] owners);
   event OwnersRemoved(uint256 endowmentId, address[] owners);
@@ -86,7 +90,11 @@ contract EndowmentMultiSigEmitter is IEndowmentMultiSigEmitter, Initializable {
    * @param endowmentId the endowment id
    * @param transactionId the transaction id
    */
-  function transactionSubmittedEndowment(uint256 endowmentId, address owner, uint256 transactionId) public isEmitter {
+  function transactionSubmittedEndowment(
+    uint256 endowmentId,
+    address owner,
+    uint256 transactionId
+  ) public isEmitter {
     emit TransactionSubmitted(endowmentId, owner, transactionId);
   }
 
@@ -132,13 +140,15 @@ contract EndowmentMultiSigEmitter is IEndowmentMultiSigEmitter, Initializable {
     emit TransactionConfirmationOfFormerOwnerRevoked(endowmentId, formerOwner, transactionId);
   }
 
-
   /**
    * @notice emits the TransactionExecuted event
    * @param endowmentId the endowment id
    * @param transactionId the transaction id
    */
-  function transactionExecutedEndowment(uint256 endowmentId, uint256 transactionId) public isEmitter {
+  function transactionExecutedEndowment(
+    uint256 endowmentId,
+    uint256 transactionId
+  ) public isEmitter {
     emit TransactionExecuted(endowmentId, transactionId);
   }
 
@@ -202,10 +212,7 @@ contract EndowmentMultiSigEmitter is IEndowmentMultiSigEmitter, Initializable {
    * @param endowmentId the endowment id
    * @param transactionExpiry the duration a newly created transaction is valid for
    */
-  function expiryChangedEndowment(
-    uint256 endowmentId,
-    uint256 transactionExpiry
-  ) public isEmitter {
+  function expiryChangedEndowment(uint256 endowmentId, uint256 transactionExpiry) public isEmitter {
     emit ExpiryChanged(endowmentId, transactionExpiry);
   }
 }

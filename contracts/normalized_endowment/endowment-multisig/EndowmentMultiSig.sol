@@ -131,7 +131,11 @@ contract EndowmentMultiSig is MultiSigGeneric {
     bytes memory metadata
   ) public virtual override returns (uint256 transactionId) {
     transactionId = super.submitTransaction(destination, value, data, metadata);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).transactionSubmittedEndowment(ENDOWMENT_ID, msg.sender, transactionId);
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).transactionSubmittedEndowment(
+      ENDOWMENT_ID,
+      msg.sender,
+      transactionId
+    );
   }
 
   /**
@@ -187,6 +191,9 @@ contract EndowmentMultiSig is MultiSigGeneric {
    */
   function executeTransaction(uint256 transactionId) public override {
     super.executeTransaction(transactionId);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).transactionExecutedEndowment(ENDOWMENT_ID, transactionId);
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).transactionExecutedEndowment(
+      ENDOWMENT_ID,
+      transactionId
+    );
   }
 }
