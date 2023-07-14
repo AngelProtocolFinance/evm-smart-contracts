@@ -18,6 +18,8 @@ import {IAccountsDepositWithdrawEndowments} from "../interfaces/IAccountsDeposit
 import {Utils} from "../../../lib/utils.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
 
+import "hardhat/console.sol";
+
 /**
  * @title AccountsDepositWithdrawEndowments
  * @notice This facet manages the deposits and withdrawals for accounts
@@ -108,6 +110,7 @@ contract AccountsDepositWithdrawEndowments is
       uint256 depositFeeAmount = (amount.mul(tempEndowment.depositFee.bps)).div(
         LibAccounts.FEE_BASIS
       );
+
       amount = amount.sub(depositFeeAmount);
 
 

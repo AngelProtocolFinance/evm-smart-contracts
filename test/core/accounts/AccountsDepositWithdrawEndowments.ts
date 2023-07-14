@@ -25,15 +25,10 @@ describe("AccountsDepositWithdrawEndowments", function () {
   const {ethers} = hre;
 
   const endowId = 1;
-  const validReq: AccountMessages.DepositRequestStruct = {
+  const depositReq: AccountMessages.DepositRequestStruct = {
     id: endowId,
     liquidPercentage: 40,
     lockedPercentage: 60,
-  };
-  const invalidReq: AccountMessages.DepositRequestStruct = {
-    id: endowId,
-    liquidPercentage: 10,
-    lockedPercentage: 10,
   };
 
   let accOwner: SignerWithAddress;
@@ -84,13 +79,14 @@ describe("AccountsDepositWithdrawEndowments", function () {
     const config: typeof DEFAULT_REGISTRAR_CONFIG = {
       ...DEFAULT_REGISTRAR_CONFIG,
       wMaticAddress: wmaticFake.address,
+      indexFundContract: genWallet().address,
     };
     registrarFake.queryConfig.returns(config);
   });
 
   describe("upon depositMatic", async function () {
     it("reverts if the deposit value is 0 (zero)", async () => {
-      await expect(facet.depositMatic(validReq, {value: 0})).to.be.revertedWith("Invalid Amount");
+      await expect(facet.depositMatic(depositReq, {value: 0})).to.be.revertedWith("Invalid Amount");
     });
 
     it("reverts if the endowment is closed", async () => {
@@ -98,28 +94,42 @@ describe("AccountsDepositWithdrawEndowments", function () {
         enumData: 0,
         data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
       });
-      await expect(facet.depositMatic(validReq, {value: 1})).to.be.revertedWith(
+      await expect(facet.depositMatic(depositReq, {value: 1})).to.be.revertedWith(
         "Endowment is closed"
       );
     });
 
     it("reverts if the locked + liquid percentage does not equal 100", async () => {
+      const invalidReq: AccountMessages.DepositRequestStruct = {
+        id: endowId,
+        liquidPercentage: 10,
+        lockedPercentage: 10,
+      };
       await expect(facet.depositMatic(invalidReq, {value: 1})).to.be.revertedWith("InvalidSplit");
     });
 
-    // it("reverts if the deposit fee transfer fails", async () => {
-    //   wmaticFake.transfer.reverts();
+    it("reverts if the deposit fee transfer fails", async () => {
+      await state.setEndowmentDetails(endowId, {
+        ...endowment,
+        depositFee: {payoutAddress: genWallet().address, bps: 5},
+      });
 
-    //   await expect(
-    //     facet.depositMatic(
-    //       {
-    //         id: endowId,
-    //         liquidPercentage: 10,
-    //         lockedPercentage: 10,
-    //       },
-    //       {value: 1}
-    //     )
-    //   ).to.be.revertedWith("InvalidSplit");
-    // });
+      wmaticFake.transfer.returns(false);
+
+      await expect(facet.depositMatic(depositReq, {value: 1})).to.be.revertedWith(
+        "Transfer Failed"
+      );
+    });
+
+    it("reverts if no index fund contract is registered in the Registrar", async () => {
+      // no index fund address registered
+      const config: typeof DEFAULT_REGISTRAR_CONFIG = {
+        ...DEFAULT_REGISTRAR_CONFIG,
+        wMaticAddress: wmaticFake.address,
+      };
+      registrarFake.queryConfig.returns(config);
+
+      await expect(facet.depositMatic(depositReq, {value: 1})).to.be.revertedWith("No Index Fund");
+    });
   });
 });
