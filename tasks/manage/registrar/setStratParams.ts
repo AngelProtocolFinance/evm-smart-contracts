@@ -67,6 +67,7 @@ task("manage:registrar:setStratParams")
     logger.pad(50, "New liquid vault address", taskArguments.liquidVaultAddress);
     await registrar.setStrategyParams(
       taskArguments.strategySelector,
+      hre.network.name,
       taskArguments.lockedVaultAddress,
       taskArguments.liquidVaultAddress,
       taskArguments.approvalState
