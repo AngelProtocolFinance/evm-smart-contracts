@@ -162,8 +162,15 @@ describe("AccountsDepositWithdrawEndowments", function () {
       );
     });
 
-    describe("from Index Fund", () => {
+    describe("when sending from Index Fund", () => {
+      let donationMatch: FakeContract<DonationMatch>;
+      let donationMatchCharity: FakeContract<DonationMatchCharity>;
+
       before(async () => {
+        donationMatch = await smock.fake<DonationMatch>(new DonationMatch__factory());
+        donationMatchCharity = await smock.fake<DonationMatchCharity>(
+          new DonationMatchCharity__factory()
+        );
         await endowOwner.sendTransaction({
           value: ethers.utils.parseEther("1.0"),
           to: indexFund.address,
@@ -180,6 +187,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
           .withArgs(charityId, wmaticFake.address, 0, 10000);
 
         expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
+        expect(donationMatchCharity.executeDonorMatch).to.not.have.been.called;
+        expect(donationMatch.executeDonorMatch).to.not.have.been.called;
 
         const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
           charityId,
@@ -212,6 +221,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
           charityBps.depositFee.payoutAddress,
           expectedFee
         );
+        expect(donationMatchCharity.executeDonorMatch).to.not.have.been.called;
+        expect(donationMatch.executeDonorMatch).to.not.have.been.called;
 
         const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
           charityId,
@@ -222,16 +233,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
       });
 
       describe("upon depositing MATIC with locked amount", () => {
-        let donationMatch: FakeContract<DonationMatch>;
-        let donationMatchCharity: FakeContract<DonationMatchCharity>;
-
-        before(async () => {
-          donationMatch = await smock.fake<DonationMatch>(new DonationMatch__factory());
-          donationMatchCharity = await smock.fake<DonationMatchCharity>(
-            new DonationMatchCharity__factory()
-          );
-        });
-
         it("skips donation matching for a charity when no donation match contract is registered in Registrar", async () => {
           const expectedLockedAmt = BigNumber.from(6000);
           const expectedLiquidAmt = BigNumber.from(4000);
