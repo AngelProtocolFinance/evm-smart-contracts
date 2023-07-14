@@ -202,7 +202,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           );
         });
 
-        it("matches the donation using DonationMatchCharity when called for a charity", async () => {
+        it("matches the donation to a charity", async () => {
           const config: RegistrarStorage.ConfigStruct = {
             ...registrarConfig,
             donationMatchCharitesContract: donationMatchCharity.address,
@@ -235,7 +235,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           );
         });
 
-        it("matches the donation using DonationMatch when called for a normal endowment", async () => {
+        it("matches the donation to a normal endowment", async () => {
           await state.setEndowmentDetails(normalEndowId, {
             ...normalEndow,
             donationMatchContract: donationMatch.address,
