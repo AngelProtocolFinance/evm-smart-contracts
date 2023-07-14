@@ -1,6 +1,7 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
+import {BigNumber} from "ethers";
 import hre from "hardhat";
 import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG} from "test/utils";
 import {
@@ -8,18 +9,15 @@ import {
   AccountsDepositWithdrawEndowments__factory,
   DummyWMATIC,
   DummyWMATIC__factory,
-  IndexFund,
-  IndexFund__factory,
   Registrar,
   Registrar__factory,
   TestFacetProxyContract,
 } from "typechain-types";
+import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsDepositWithdrawEndowments";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet, getSigners} from "utils";
 import "../../utils/setup";
 import {deployFacetAsProxy} from "./utils/deployTestFacet";
-import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsDepositWithdrawEndowments";
-import {BigNumber} from "ethers";
 
 use(smock.matchers);
 
@@ -36,10 +34,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
   let accOwner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
   let endowOwner: SignerWithAddress;
+  let indexFund: SignerWithAddress;
+
   let facet: AccountsDepositWithdrawEndowments;
   let state: TestFacetProxyContract;
   let endowment: AccountStorage.EndowmentStruct;
-  let indexFundFake: FakeContract<IndexFund>;
+
   let registrarFake: FakeContract<Registrar>;
   let wmaticFake: FakeContract<DummyWMATIC>;
 
@@ -48,12 +48,11 @@ describe("AccountsDepositWithdrawEndowments", function () {
     accOwner = signers.apTeam1;
     proxyAdmin = signers.proxyAdmin;
     endowOwner = signers.deployer;
+    indexFund = signers.apTeam2;
 
     endowment = {...DEFAULT_CHARITY_ENDOWMENT, owner: endowOwner.address};
 
     registrarFake = await smock.fake<Registrar>(new Registrar__factory());
-
-    indexFundFake = await smock.fake<IndexFund>(new IndexFund__factory());
   });
 
   beforeEach(async () => {
@@ -84,7 +83,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
     const config: typeof DEFAULT_REGISTRAR_CONFIG = {
       ...DEFAULT_REGISTRAR_CONFIG,
       wMaticAddress: wmaticFake.address,
-      indexFundContract: indexFundFake.address,
+      indexFundContract: indexFund.address,
     };
     registrarFake.queryConfig.returns(config);
   });
@@ -144,12 +143,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
     it("deposits MATIC with no locked amount", async () => {
       endowOwner.sendTransaction({
         value: ethers.utils.parseEther("1.0"),
-        to: indexFundFake.address,
+        to: indexFund.address,
       });
 
       await expect(
         facet
-          .connect(await ethers.getSigner(indexFundFake.address))
+          .connect(indexFund)
           .depositMatic({id: endowId, lockedPercentage: 0, liquidPercentage: 100}, {value: 10000})
       )
         .to.emit(facet, "EndowmentDeposit")
@@ -166,14 +165,10 @@ describe("AccountsDepositWithdrawEndowments", function () {
     it("deposits MATIC with locked amount", async () => {
       endowOwner.sendTransaction({
         value: ethers.utils.parseEther("1.0"),
-        to: indexFundFake.address,
+        to: indexFund.address,
       });
 
-      await expect(
-        facet
-          .connect(await ethers.getSigner(indexFundFake.address))
-          .depositMatic(depositReq, {value: 10000})
-      )
+      await expect(facet.connect(indexFund).depositMatic(depositReq, {value: 10000}))
         .to.emit(facet, "EndowmentDeposit")
         .withArgs(depositReq.id, wmaticFake.address, 6000, 4000);
 
