@@ -12,7 +12,7 @@ type Data = {
 export async function deployGasFwd(
   {deployer, admin, registrar}: Data,
   hre: HardhatRuntimeEnvironment
-): Promise<Deployment | undefined> {
+): Promise<{factory: Deployment; implementation: Deployment} | undefined> {
   logger.out("Deploying Gas Forwarder...");
 
   try {
@@ -47,7 +47,10 @@ export async function deployGasFwd(
     );
     logger.out(`File updated`);
 
-    return {address: gff.address, contractName: getContractName(GFF), constructorArguments};
+    return {
+      implementation: {address: gf.address, contractName: getContractName(GF)},
+      factory: {address: gff.address, contractName: getContractName(GFF), constructorArguments},
+    };
   } catch (error) {
     logger.out(error, logger.Level.Error);
   }
