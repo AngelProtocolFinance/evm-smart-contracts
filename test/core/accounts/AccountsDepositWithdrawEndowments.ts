@@ -16,7 +16,6 @@ import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetP
 import {genWallet, getSigners} from "utils";
 import "../../utils/setup";
 import {deployFacetAsProxy} from "./utils/deployTestFacet";
-import {deployDummyWMATIC} from "test/utils/dummyWMATIC";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsDepositWithdrawEndowments";
 
 use(smock.matchers);
