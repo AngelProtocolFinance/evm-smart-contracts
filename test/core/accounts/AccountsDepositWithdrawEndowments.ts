@@ -162,5 +162,27 @@ describe("AccountsDepositWithdrawEndowments", function () {
       expect(lockedBal).to.equal(BigNumber.from(0));
       expect(liquidBal).to.equal(BigNumber.from(10000));
     });
+
+    it("deposits MATIC with locked amount", async () => {
+      endowOwner.sendTransaction({
+        value: ethers.utils.parseEther("1.0"),
+        to: indexFundFake.address,
+      });
+
+      await expect(
+        facet
+          .connect(await ethers.getSigner(indexFundFake.address))
+          .depositMatic(depositReq, {value: 10000})
+      )
+        .to.emit(facet, "EndowmentDeposit")
+        .withArgs(depositReq.id, wmaticFake.address, 6000, 4000);
+
+      const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+        depositReq.id,
+        wmaticFake.address
+      );
+      expect(lockedBal).to.equal(BigNumber.from(6000));
+      expect(liquidBal).to.equal(BigNumber.from(4000));
+    });
   });
 });
