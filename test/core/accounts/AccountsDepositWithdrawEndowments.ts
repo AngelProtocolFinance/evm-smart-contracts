@@ -3,7 +3,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG, VaultType} from "test/utils";
+import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG, FeeTypes, VaultType} from "test/utils";
 import {
   AccountsDepositWithdrawEndowments,
   AccountsDepositWithdrawEndowments__factory,
@@ -25,7 +25,7 @@ import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetP
 import {genWallet, getSigners} from "utils";
 import "../../utils/setup";
 import {deployFacetAsProxy} from "./utils/deployTestFacet";
-import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
+import {RegistrarStorage, LibAccounts} from "typechain-types/contracts/core/registrar/Registrar";
 
 use(smock.matchers);
 
@@ -74,6 +74,10 @@ describe("AccountsDepositWithdrawEndowments", function () {
       ...DEFAULT_CHARITY_ENDOWMENT,
       owner: endowOwner.address,
       daoToken: genWallet().address,
+      withdrawFee: {
+        bps: 30,
+        payoutAddress: genWallet().address,
+      },
     };
     normalEndow = {...charity, endowType: 1, splitToLiquid: {defaultSplit: 40, max: 80, min: 20}};
 
@@ -115,6 +119,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
       indexFundContract: indexFund.address,
       wMaticAddress: wmaticFake.address,
       splitToLiquid: {defaultSplit: 50, max: 90, min: 10},
+      treasury: genWallet().address,
     };
     registrarFake.queryConfig.returns(registrarConfig);
     registrarFake.isTokenAccepted.whenCalledWith(tokenFake.address).returns(true);
@@ -1613,6 +1618,31 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
   describe("upon withdraw", () => {
     const tokenLimit = 10;
+    const liqBal = 10000;
+    const lockBal = 10000;
+
+    const charityFeeSetting: LibAccounts.FeeSettingStruct = {
+      bps: 10,
+      payoutAddress: genWallet().address,
+    };
+    const normalEndowFeeSetting: LibAccounts.FeeSettingStruct = {
+      bps: 20,
+      payoutAddress: genWallet().address,
+    };
+
+    before(() => {
+      registrarFake.getFeeSettingsByFeeType
+        .whenCalledWith(FeeTypes.WithdrawCharity)
+        .returns(charityFeeSetting);
+      registrarFake.getFeeSettingsByFeeType
+        .whenCalledWith(FeeTypes.WithdrawNormal)
+        .returns(normalEndowFeeSetting);
+    });
+
+    beforeEach(async () => {
+      await state.setEndowmentTokenBalance(charityId, tokenFake.address, lockBal, liqBal);
+      await state.setEndowmentTokenBalance(normalEndowId, tokenFake.address, lockBal, liqBal);
+    });
 
     it("reverts if the endowment is closed", async () => {
       await state.setClosingEndowmentState(charityId, true, {
@@ -1621,7 +1651,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
       });
       await expect(
         facet.withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, [
-          {addr: genWallet().address, amnt: 1},
+          {addr: tokenFake.address, amnt: 1},
         ])
       ).to.be.revertedWith("Endowment is closed");
     });
@@ -1636,7 +1666,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
       const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = Array.from(
         Array(tokenLimit + 1)
       ).map((_) => ({
-        addr: genWallet().address,
+        addr: tokenFake.address,
         amnt: 1,
       }));
 
@@ -1647,7 +1677,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
     it("reverts if any of the tokens to withdraw has a zero address", async () => {
       const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = [
-        {addr: genWallet().address, amnt: 1},
+        {addr: tokenFake.address, amnt: 1},
         {addr: ethers.constants.AddressZero, amnt: 1},
       ];
 
@@ -1658,13 +1688,73 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
     it("reverts if any of the tokens to withdraw has a zero amount", async () => {
       const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = [
-        {addr: genWallet().address, amnt: 1},
-        {addr: genWallet().address, amnt: 0},
+        {addr: tokenFake.address, amnt: 1},
+        {addr: tokenFake.address, amnt: 0},
       ];
 
       await expect(
         facet.withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, tokens)
       ).to.be.revertedWith("Invalid withdraw token passed: zero amount");
+    });
+
+    it("reverts if sender address is not listed in maturityAllowlist", async () => {
+      const matureCharity: AccountStorage.EndowmentStruct = {
+        ...charity,
+        maturityTime: 1,
+        maturityAllowlist: [genWallet().address],
+      };
+      await state.setEndowmentDetails(charityId, matureCharity);
+
+      await expect(
+        facet.withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, [
+          {addr: tokenFake.address, amnt: 1},
+        ])
+      ).to.be.revertedWith("Sender address is not listed in maturityAllowlist");
+    });
+
+    it("reverts if sender address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner", async () => {
+      await expect(
+        facet
+          .connect(indexFund)
+          .withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, [
+            {addr: tokenFake.address, amnt: 1},
+          ])
+      ).to.be.revertedWith(
+        "Sender address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner"
+      );
+    });
+
+    it("reverts if the specified token balance to withdraw is larger than the available balance", async () => {
+      await expect(
+        facet.withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, [
+          {addr: tokenFake.address, amnt: liqBal + 1},
+        ])
+      ).to.be.revertedWith("InsufficientFunds");
+    });
+
+    it("reverts if the AP Protocol fee transfer to treasury fails", async () => {
+      tokenFake.transfer.returns(false);
+
+      await expect(
+        facet.withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, [
+          {addr: tokenFake.address, amnt: 5000},
+        ])
+      ).to.be.revertedWith("Transfer failed");
+    });
+
+    it("reverts if the transfer of endowment withdraw fee to payout address fails", async () => {
+      tokenFake.transfer.whenCalledWith(registrarConfig.treasury, 5).returns(true);
+
+      const amtLeftover = 14;
+      tokenFake.transfer
+        .whenCalledWith(charity.withdrawFee.payoutAddress, amtLeftover)
+        .returns(false);
+
+      await expect(
+        facet.withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, [
+          {addr: tokenFake.address, amnt: 5000},
+        ])
+      ).to.be.revertedWith("Insufficient Funds");
     });
   });
 });

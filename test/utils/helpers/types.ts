@@ -52,3 +52,12 @@ export enum VaultType {
   LOCKED,
   LIQUID,
 }
+
+export enum FeeTypes {
+  Default,
+  Harvest,
+  WithdrawCharity,
+  WithdrawNormal,
+  EarlyLockedWithdrawCharity,
+  EarlyLockedWithdrawNormal,
+}
