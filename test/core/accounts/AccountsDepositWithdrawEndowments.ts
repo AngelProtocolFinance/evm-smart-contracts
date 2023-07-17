@@ -104,7 +104,9 @@ describe("AccountsDepositWithdrawEndowments", function () {
     facet = AccountsDepositWithdrawEndowments__factory.connect(state.address, endowOwner);
 
     wmaticFake = await smock.fake<DummyWMATIC>(new DummyWMATIC__factory());
+
     tokenFake = await smock.fake<DummyERC20>(new DummyERC20__factory());
+    tokenFake.transferFrom.returns(true);
 
     registrarConfig = {
       ...DEFAULT_REGISTRAR_CONFIG,
@@ -795,5 +797,696 @@ describe("AccountsDepositWithdrawEndowments", function () {
         });
       });
     });
+  });
+
+  describe("upon depositERC20", async function () {
+    it("reverts if the token address is zero address", async () => {
+      const invalidAddress = ethers.constants.AddressZero;
+      await expect(facet.depositERC20(depositToCharity, invalidAddress, 10)).to.be.revertedWith(
+        "Invalid Token Address"
+      );
+    });
+
+    it("reverts if the endowment is closed", async () => {
+      await state.setClosingEndowmentState(charityId, true, {
+        enumData: 0,
+        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+      });
+      await expect(facet.depositERC20(depositToCharity, tokenFake.address, 10)).to.be.revertedWith(
+        "Endowment is closed"
+      );
+    });
+
+    it("reverts if the token is neither in the protocol-level accepted tokens list in the Registrar contract nor in the endowment-level accepted tokens list", async () => {
+      registrarFake.isTokenAccepted.whenCalledWith(tokenFake.address).returns(false);
+      await expect(facet.depositERC20(depositToCharity, tokenFake.address, 10)).to.be.revertedWith(
+        "Not in an Accepted Tokens List"
+      );
+    });
+
+    it("reverts if the ERC20 transfer to the facet fails", async () => {
+      tokenFake.transferFrom.returns(false);
+
+      await expect(facet.depositERC20(depositToCharity, tokenFake.address, 10)).to.be.revertedWith(
+        "Transfer failed"
+      );
+    });
+
+    it("reverts if the locked + liquid percentage does not equal 100", async () => {
+      const invalidReq: AccountMessages.DepositRequestStruct = {
+        id: charityId,
+        liquidPercentage: 10,
+        lockedPercentage: 10,
+      };
+      await expect(facet.depositERC20(invalidReq, tokenFake.address, 10)).to.be.revertedWith(
+        "InvalidSplit"
+      );
+    });
+
+    it("reverts if the deposit fee transfer fails", async () => {
+      await state.setEndowmentDetails(charityId, {
+        ...charity,
+        depositFee: {payoutAddress: genWallet().address, bps: 5},
+      });
+
+      wmaticFake.transfer.returns(false);
+
+      await expect(facet.depositERC20(depositToCharity, tokenFake.address, 10)).to.be.revertedWith(
+        "Transfer Failed"
+      );
+    });
+
+    it("reverts if no index fund contract is registered in the Registrar", async () => {
+      const config: RegistrarStorage.ConfigStruct = {
+        ...registrarConfig,
+        indexFundContract: ethers.constants.AddressZero,
+      };
+      registrarFake.queryConfig.returns(config);
+
+      await expect(facet.depositERC20(depositToCharity, tokenFake.address, 10)).to.be.revertedWith(
+        "No Index Fund"
+      );
+    });
+
+    // describe("when sending from Index Fund", () => {
+    //   let donationMatch: FakeContract<DonationMatch>;
+    //   let donationMatchCharity: FakeContract<DonationMatchCharity>;
+
+    //   before(async () => {
+    //     donationMatch = await smock.fake<DonationMatch>(new DonationMatch__factory());
+    //     donationMatchCharity = await smock.fake<DonationMatchCharity>(
+    //       new DonationMatchCharity__factory()
+    //     );
+    //     await endowOwner.sendTransaction({
+    //       value: ethers.utils.parseEther("1.0"),
+    //       to: indexFund.address,
+    //     });
+    //   });
+
+    //   describe("upon depositing MATIC without a locked amount", () => {
+    //     it("successfully deposits MATIC", async () => {
+    //       await expect(
+    //         facet
+    //           .connect(indexFund)
+    //           .depositERC20({id: charityId, lockedPercentage: 0, liquidPercentage: 100})
+    //       )
+    //         .to.emit(facet, "EndowmentDeposit")
+    //         .withArgs(charityId, wmaticFake.address, 0, 10000);
+
+    //       expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
+    //       expect(donationMatchCharity.executeDonorMatch).to.not.have.been.called;
+    //       expect(donationMatch.executeDonorMatch).to.not.have.been.called;
+
+    //       const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+    //         charityId,
+    //         wmaticFake.address
+    //       );
+    //       expect(lockedBal).to.equal(BigNumber.from(0));
+    //       expect(liquidBal).to.equal(BigNumber.from(10000));
+    //     });
+
+    //     it("successfully deposits MATIC including a deposit fee", async () => {
+    //       const expectedFee = 10;
+
+    //       const charityBps: AccountStorage.EndowmentStruct = {
+    //         ...charity,
+    //         depositFee: {payoutAddress: genWallet().address, bps: 10},
+    //       };
+    //       await state.setEndowmentDetails(charityId, charityBps);
+    //       wmaticFake.transfer.returns(true);
+
+    //       await expect(
+    //         facet
+    //           .connect(indexFund)
+    //           .depositERC20({id: charityId, lockedPercentage: 0, liquidPercentage: 100})
+    //       )
+    //         .to.emit(facet, "EndowmentDeposit")
+    //         .withArgs(charityId, wmaticFake.address, 0, 9990);
+
+    //       expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
+    //       expect(wmaticFake.transfer).to.have.been.calledWith(
+    //         charityBps.depositFee.payoutAddress,
+    //         expectedFee
+    //       );
+    //       expect(donationMatchCharity.executeDonorMatch).to.not.have.been.called;
+    //       expect(donationMatch.executeDonorMatch).to.not.have.been.called;
+
+    //       const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+    //         charityId,
+    //         wmaticFake.address
+    //       );
+    //       expect(lockedBal).to.equal(BigNumber.from(0));
+    //       expect(liquidBal).to.equal(BigNumber.from(9990));
+    //     });
+    //   });
+
+    //   describe("upon depositing MATIC with locked amount", () => {
+    //     it("skips donation matching for a charity when no donation match contract is registered in Registrar", async () => {
+    //       const expectedLockedAmt = BigNumber.from(6000);
+    //       const expectedLiquidAmt = BigNumber.from(4000);
+
+    //       await expect(facet.connect(indexFund).depositERC20(depositToCharity))
+    //         .to.emit(facet, "EndowmentDeposit")
+    //         .withArgs(
+    //           depositToCharity.id,
+    //           wmaticFake.address,
+    //           expectedLockedAmt,
+    //           expectedLiquidAmt
+    //         );
+
+    //       expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
+    //       expect(donationMatchCharity.executeDonorMatch).to.not.have.been.called;
+
+    //       const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+    //         depositToCharity.id,
+    //         wmaticFake.address
+    //       );
+    //       expect(lockedBal).to.equal(expectedLockedAmt);
+    //       expect(liquidBal).to.equal(expectedLiquidAmt);
+    //     });
+
+    //     it("skips donation matching for a normal endowment when no donation match contract is associated with said endowment", async () => {
+    //       const expectedLockedAmt = BigNumber.from(6000);
+    //       const expectedLiquidAmt = BigNumber.from(4000);
+
+    //       await expect(facet.connect(indexFund).depositERC20(depositToNormalEndow))
+    //         .to.emit(facet, "EndowmentDeposit")
+    //         .withArgs(
+    //           depositToNormalEndow.id,
+    //           wmaticFake.address,
+    //           expectedLockedAmt,
+    //           expectedLiquidAmt
+    //         );
+
+    //       expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
+    //       expect(donationMatch.executeDonorMatch).to.not.have.been.called;
+
+    //       const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+    //         depositToNormalEndow.id,
+    //         wmaticFake.address
+    //       );
+    //       expect(lockedBal).to.equal(expectedLockedAmt);
+    //       expect(liquidBal).to.equal(expectedLiquidAmt);
+    //     });
+
+    //     it("matches the donation to a charity", async () => {
+    //       const config: RegistrarStorage.ConfigStruct = {
+    //         ...registrarConfig,
+    //         donationMatchCharitesContract: donationMatchCharity.address,
+    //       };
+    //       registrarFake.queryConfig.returns(config);
+
+    //       const expectedLockedAmt = BigNumber.from(6000);
+    //       const expectedLiquidAmt = BigNumber.from(4000);
+
+    //       await expect(facet.connect(indexFund).depositERC20(depositToCharity))
+    //         .to.emit(facet, "EndowmentDeposit")
+    //         .withArgs(
+    //           depositToCharity.id,
+    //           wmaticFake.address,
+    //           expectedLockedAmt,
+    //           expectedLiquidAmt
+    //         );
+
+    //       expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
+    //       expect(donationMatchCharity.executeDonorMatch).to.have.been.calledWith(
+    //         depositToCharity.id,
+    //         expectedLockedAmt,
+    //         indexFund.address,
+    //         registrarConfig.haloToken
+    //       );
+
+    //       const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+    //         depositToCharity.id,
+    //         wmaticFake.address
+    //       );
+    //       expect(lockedBal).to.equal(expectedLockedAmt);
+    //       expect(liquidBal).to.equal(expectedLiquidAmt);
+    //     });
+
+    //     it("matches the donation to a normal endowment", async () => {
+    //       await state.setEndowmentDetails(normalEndowId, {
+    //         ...normalEndow,
+    //         donationMatchContract: donationMatch.address,
+    //       });
+
+    //       const expectedLockedAmt = BigNumber.from(6000);
+    //       const expectedLiquidAmt = BigNumber.from(4000);
+
+    //       await expect(facet.connect(indexFund).depositERC20(depositToNormalEndow))
+    //         .to.emit(facet, "EndowmentDeposit")
+    //         .withArgs(
+    //           depositToNormalEndow.id,
+    //           wmaticFake.address,
+    //           expectedLockedAmt,
+    //           expectedLiquidAmt
+    //         );
+
+    //       expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
+    //       expect(donationMatch.executeDonorMatch).to.have.been.calledWith(
+    //         depositToNormalEndow.id,
+    //         expectedLockedAmt,
+    //         indexFund.address,
+    //         normalEndow.daoToken
+    //       );
+
+    //       const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+    //         depositToNormalEndow.id,
+    //         wmaticFake.address
+    //       );
+    //       expect(lockedBal).to.equal(expectedLockedAmt);
+    //       expect(liquidBal).to.equal(expectedLiquidAmt);
+    //     });
+
+    //     it("matches the donation to a charity, but includes a deposit fee", async () => {
+    //       const expectedFee = 10;
+
+    //       const charityBps: AccountStorage.EndowmentStruct = {
+    //         ...charity,
+    //         depositFee: {payoutAddress: genWallet().address, bps: 10},
+    //       };
+    //       await state.setEndowmentDetails(depositToCharity.id, charityBps);
+    //       wmaticFake.transfer.returns(true);
+
+    //       const config: RegistrarStorage.ConfigStruct = {
+    //         ...registrarConfig,
+    //         donationMatchCharitesContract: donationMatchCharity.address,
+    //       };
+    //       registrarFake.queryConfig.returns(config);
+
+    //       const expectedLockedAmt = BigNumber.from(5994);
+    //       const expectedLiquidAmt = BigNumber.from(3996);
+
+    //       await expect(facet.connect(indexFund).depositERC20(depositToCharity))
+    //         .to.emit(facet, "EndowmentDeposit")
+    //         .withArgs(
+    //           depositToCharity.id,
+    //           wmaticFake.address,
+    //           expectedLockedAmt,
+    //           expectedLiquidAmt
+    //         );
+
+    //       expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
+    //       expect(wmaticFake.transfer).to.have.been.calledWith(
+    //         charityBps.depositFee.payoutAddress,
+    //         expectedFee
+    //       );
+    //       expect(donationMatchCharity.executeDonorMatch).to.have.been.calledWith(
+    //         depositToCharity.id,
+    //         expectedLockedAmt,
+    //         indexFund.address,
+    //         registrarConfig.haloToken
+    //       );
+
+    //       const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+    //         depositToCharity.id,
+    //         wmaticFake.address
+    //       );
+    //       expect(lockedBal).to.equal(expectedLockedAmt);
+    //       expect(liquidBal).to.equal(expectedLiquidAmt);
+    //     });
+
+    //     it("matches the donation to a normal endowment, but includes a deposit fee", async () => {
+    //       const expectedFee = 10;
+
+    //       const normalEndowBps: AccountStorage.EndowmentStruct = {
+    //         ...normalEndow,
+    //         donationMatchContract: donationMatch.address,
+    //         depositFee: {payoutAddress: genWallet().address, bps: 10},
+    //       };
+    //       await state.setEndowmentDetails(depositToNormalEndow.id, normalEndowBps);
+    //       wmaticFake.transfer.returns(true);
+
+    //       const expectedLockedAmt = BigNumber.from(5994);
+    //       const expectedLiquidAmt = BigNumber.from(3996);
+
+    //       await expect(facet.connect(indexFund).depositERC20(depositToNormalEndow))
+    //         .to.emit(facet, "EndowmentDeposit")
+    //         .withArgs(
+    //           depositToNormalEndow.id,
+    //           wmaticFake.address,
+    //           expectedLockedAmt,
+    //           expectedLiquidAmt
+    //         );
+
+    //       expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
+    //       expect(wmaticFake.transfer).to.have.been.calledWith(
+    //         normalEndowBps.depositFee.payoutAddress,
+    //         expectedFee
+    //       );
+
+    //       const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+    //         depositToNormalEndow.id,
+    //         wmaticFake.address
+    //       );
+    //       expect(lockedBal).to.equal(expectedLockedAmt);
+    //       expect(liquidBal).to.equal(expectedLiquidAmt);
+    //       expect(donationMatch.executeDonorMatch).to.have.been.calledWith(
+    //         depositToNormalEndow.id,
+    //         expectedLockedAmt,
+    //         indexFund.address,
+    //         normalEndow.daoToken
+    //       );
+    //     });
+    //   });
+    // });
+
+    // describe("when sending from non-Index-Fund signers", () => {
+    //   let donationMatch: FakeContract<DonationMatch>;
+    //   let donationMatchCharity: FakeContract<DonationMatchCharity>;
+
+    //   before(async () => {
+    //     donationMatch = await smock.fake<DonationMatch>(new DonationMatch__factory());
+    //     donationMatchCharity = await smock.fake<DonationMatchCharity>(
+    //       new DonationMatchCharity__factory()
+    //     );
+    //   });
+
+    //   describe("to charities", () => {
+    //     it("deposits MATIC with no locked amount", async () => {
+    //       const expectedLockedAmt = BigNumber.from(9000);
+    //       const expectedLiquidAmt = BigNumber.from(1000);
+
+    //       await expect(
+    //         facet.depositERC20({id: charityId, lockedPercentage: 0, liquidPercentage: 100})
+    //       )
+    //         .to.emit(facet, "EndowmentDeposit")
+    //         .withArgs(charityId, wmaticFake.address, expectedLockedAmt, expectedLiquidAmt);
+
+    //       expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
+    //       expect(donationMatchCharity.executeDonorMatch).to.not.have.been.called;
+
+    //       const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+    //         charityId,
+    //         wmaticFake.address
+    //       );
+    //       expect(lockedBal).to.equal(expectedLockedAmt);
+    //       expect(liquidBal).to.equal(expectedLiquidAmt);
+    //     });
+
+    //     it("deposits MATIC with no locked amount and includes a deposit fee", async () => {
+    //       const expectedLockedAmt = BigNumber.from(8991);
+    //       const expectedLiquidAmt = BigNumber.from(999);
+    //       const expectedFee = 10;
+
+    //       const charityBps: AccountStorage.EndowmentStruct = {
+    //         ...charity,
+    //         depositFee: {payoutAddress: genWallet().address, bps: 10},
+    //       };
+    //       await state.setEndowmentDetails(charityId, charityBps);
+    //       wmaticFake.transfer.returns(true);
+
+    //       await expect(
+    //         facet.depositERC20({id: charityId, lockedPercentage: 0, liquidPercentage: 100})
+    //       )
+    //         .to.emit(facet, "EndowmentDeposit")
+    //         .withArgs(charityId, wmaticFake.address, expectedLockedAmt, expectedLiquidAmt);
+
+    //       expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
+    //       expect(wmaticFake.transfer).to.have.been.calledWith(
+    //         charityBps.depositFee.payoutAddress,
+    //         expectedFee
+    //       );
+    //       expect(donationMatchCharity.executeDonorMatch).to.not.have.been.called;
+
+    //       const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+    //         charityId,
+    //         wmaticFake.address
+    //       );
+    //       expect(lockedBal).to.equal(expectedLockedAmt);
+    //       expect(liquidBal).to.equal(expectedLiquidAmt);
+    //     });
+
+    //     it("skips donation matching when no donation match contract is registered in Registrar", async () => {
+    //       const expectedLockedAmt = BigNumber.from(6000);
+    //       const expectedLiquidAmt = BigNumber.from(4000);
+
+    //       await expect(facet.depositERC20(depositToCharity))
+    //         .to.emit(facet, "EndowmentDeposit")
+    //         .withArgs(
+    //           depositToCharity.id,
+    //           wmaticFake.address,
+    //           expectedLockedAmt,
+    //           expectedLiquidAmt
+    //         );
+
+    //       expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
+    //       expect(donationMatchCharity.executeDonorMatch).to.not.have.been.called;
+
+    //       const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+    //         depositToCharity.id,
+    //         wmaticFake.address
+    //       );
+    //       expect(lockedBal).to.equal(expectedLockedAmt);
+    //       expect(liquidBal).to.equal(expectedLiquidAmt);
+    //     });
+
+    //     it("matches the donation", async () => {
+    //       const config: RegistrarStorage.ConfigStruct = {
+    //         ...registrarConfig,
+    //         donationMatchCharitesContract: donationMatchCharity.address,
+    //       };
+    //       registrarFake.queryConfig.returns(config);
+
+    //       const expectedLockedAmt = BigNumber.from(6000);
+    //       const expectedLiquidAmt = BigNumber.from(4000);
+
+    //       await expect(facet.depositERC20(depositToCharity))
+    //         .to.emit(facet, "EndowmentDeposit")
+    //         .withArgs(
+    //           depositToCharity.id,
+    //           wmaticFake.address,
+    //           expectedLockedAmt,
+    //           expectedLiquidAmt
+    //         );
+
+    //       expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
+    //       expect(donationMatchCharity.executeDonorMatch).to.have.been.calledWith(
+    //         depositToCharity.id,
+    //         expectedLockedAmt,
+    //         await facet.signer.getAddress(),
+    //         registrarConfig.haloToken
+    //       );
+
+    //       const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+    //         depositToCharity.id,
+    //         wmaticFake.address
+    //       );
+    //       expect(lockedBal).to.equal(expectedLockedAmt);
+    //       expect(liquidBal).to.equal(expectedLiquidAmt);
+    //     });
+
+    //     it("matches the donation and includes a deposit fee", async () => {
+    //       const expectedFee = 10;
+
+    //       const charityBps: AccountStorage.EndowmentStruct = {
+    //         ...charity,
+    //         depositFee: {payoutAddress: genWallet().address, bps: 10},
+    //       };
+    //       await state.setEndowmentDetails(depositToCharity.id, charityBps);
+    //       wmaticFake.transfer.returns(true);
+
+    //       const config: RegistrarStorage.ConfigStruct = {
+    //         ...registrarConfig,
+    //         donationMatchCharitesContract: donationMatchCharity.address,
+    //       };
+    //       registrarFake.queryConfig.returns(config);
+
+    //       const expectedLockedAmt = BigNumber.from(5994);
+    //       const expectedLiquidAmt = BigNumber.from(3996);
+
+    //       await expect(facet.depositERC20(depositToCharity))
+    //         .to.emit(facet, "EndowmentDeposit")
+    //         .withArgs(
+    //           depositToCharity.id,
+    //           wmaticFake.address,
+    //           expectedLockedAmt,
+    //           expectedLiquidAmt
+    //         );
+
+    //       expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
+    //       expect(wmaticFake.transfer).to.have.been.calledWith(
+    //         charityBps.depositFee.payoutAddress,
+    //         expectedFee
+    //       );
+    //       expect(donationMatchCharity.executeDonorMatch).to.have.been.calledWith(
+    //         depositToCharity.id,
+    //         expectedLockedAmt,
+    //         await facet.signer.getAddress(),
+    //         registrarConfig.haloToken
+    //       );
+
+    //       const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+    //         depositToCharity.id,
+    //         wmaticFake.address
+    //       );
+    //       expect(lockedBal).to.equal(expectedLockedAmt);
+    //       expect(liquidBal).to.equal(expectedLiquidAmt);
+    //     });
+    //   });
+
+    //   describe("to normal endowments", () => {
+    //     it("deposits MATIC with no locked amount", async () => {
+    //       const expectedLockedAmt = BigNumber.from(8000);
+    //       const expectedLiquidAmt = BigNumber.from(2000);
+
+    //       await expect(
+    //         facet.depositERC20(
+    //           {id: normalEndowId, lockedPercentage: 0, liquidPercentage: 100},
+    //           {value}
+    //         )
+    //       )
+    //         .to.emit(facet, "EndowmentDeposit")
+    //         .withArgs(normalEndowId, wmaticFake.address, expectedLockedAmt, expectedLiquidAmt);
+
+    //       expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
+    //       expect(donationMatch.executeDonorMatch).to.not.have.been.called;
+
+    //       const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+    //         normalEndowId,
+    //         wmaticFake.address
+    //       );
+    //       expect(lockedBal).to.equal(expectedLockedAmt);
+    //       expect(liquidBal).to.equal(expectedLiquidAmt);
+    //     });
+
+    //     it("deposits MATIC with no locked amount and includes a deposit fee", async () => {
+    //       const expectedLockedAmt = BigNumber.from(7992);
+    //       const expectedLiquidAmt = BigNumber.from(1998);
+    //       const expectedFee = 10;
+
+    //       const normalEndowBps: AccountStorage.EndowmentStruct = {
+    //         ...normalEndow,
+    //         depositFee: {payoutAddress: genWallet().address, bps: 10},
+    //       };
+    //       await state.setEndowmentDetails(normalEndowId, normalEndowBps);
+    //       wmaticFake.transfer.returns(true);
+
+    //       await expect(
+    //         facet.depositERC20(
+    //           {id: normalEndowId, lockedPercentage: 0, liquidPercentage: 100},
+    //           {value}
+    //         )
+    //       )
+    //         .to.emit(facet, "EndowmentDeposit")
+    //         .withArgs(normalEndowId, wmaticFake.address, expectedLockedAmt, expectedLiquidAmt);
+
+    //       expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
+    //       expect(wmaticFake.transfer).to.have.been.calledWith(
+    //         normalEndowBps.depositFee.payoutAddress,
+    //         expectedFee
+    //       );
+    //       expect(donationMatch.executeDonorMatch).to.not.have.been.called;
+
+    //       const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+    //         normalEndowId,
+    //         wmaticFake.address
+    //       );
+    //       expect(lockedBal).to.equal(expectedLockedAmt);
+    //       expect(liquidBal).to.equal(expectedLiquidAmt);
+    //     });
+
+    //     it("skips donation matching when no donation match contract is associated with endowment being deposited to", async () => {
+    //       const expectedLockedAmt = BigNumber.from(6000);
+    //       const expectedLiquidAmt = BigNumber.from(4000);
+
+    //       await expect(facet.depositERC20(depositToNormalEndow))
+    //         .to.emit(facet, "EndowmentDeposit")
+    //         .withArgs(
+    //           depositToNormalEndow.id,
+    //           wmaticFake.address,
+    //           expectedLockedAmt,
+    //           expectedLiquidAmt
+    //         );
+
+    //       expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
+    //       expect(donationMatch.executeDonorMatch).to.not.have.been.called;
+
+    //       const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+    //         depositToNormalEndow.id,
+    //         wmaticFake.address
+    //       );
+    //       expect(lockedBal).to.equal(expectedLockedAmt);
+    //       expect(liquidBal).to.equal(expectedLiquidAmt);
+    //     });
+
+    //     it("matches the donation", async () => {
+    //       await state.setEndowmentDetails(normalEndowId, {
+    //         ...normalEndow,
+    //         donationMatchContract: donationMatch.address,
+    //       });
+
+    //       const expectedLockedAmt = BigNumber.from(6000);
+    //       const expectedLiquidAmt = BigNumber.from(4000);
+
+    //       await expect(facet.depositERC20(depositToNormalEndow))
+    //         .to.emit(facet, "EndowmentDeposit")
+    //         .withArgs(
+    //           depositToNormalEndow.id,
+    //           wmaticFake.address,
+    //           expectedLockedAmt,
+    //           expectedLiquidAmt
+    //         );
+
+    //       expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
+    //       expect(donationMatch.executeDonorMatch).to.have.been.calledWith(
+    //         depositToNormalEndow.id,
+    //         expectedLockedAmt,
+    //         await facet.signer.getAddress(),
+    //         normalEndow.daoToken
+    //       );
+
+    //       const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+    //         depositToNormalEndow.id,
+    //         wmaticFake.address
+    //       );
+    //       expect(lockedBal).to.equal(expectedLockedAmt);
+    //       expect(liquidBal).to.equal(expectedLiquidAmt);
+    //     });
+
+    //     it("matches the donation and includes a deposit fee", async () => {
+    //       const expectedFee = 10;
+
+    //       const normalEndowBps: AccountStorage.EndowmentStruct = {
+    //         ...normalEndow,
+    //         donationMatchContract: donationMatch.address,
+    //         depositFee: {payoutAddress: genWallet().address, bps: 10},
+    //       };
+    //       await state.setEndowmentDetails(depositToNormalEndow.id, normalEndowBps);
+    //       wmaticFake.transfer.returns(true);
+
+    //       const expectedLockedAmt = BigNumber.from(5994);
+    //       const expectedLiquidAmt = BigNumber.from(3996);
+
+    //       await expect(facet.depositERC20(depositToNormalEndow))
+    //         .to.emit(facet, "EndowmentDeposit")
+    //         .withArgs(
+    //           depositToNormalEndow.id,
+    //           wmaticFake.address,
+    //           expectedLockedAmt,
+    //           expectedLiquidAmt
+    //         );
+
+    //       expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
+    //       expect(wmaticFake.transfer).to.have.been.calledWith(
+    //         normalEndowBps.depositFee.payoutAddress,
+    //         expectedFee
+    //       );
+
+    //       const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+    //         depositToNormalEndow.id,
+    //         wmaticFake.address
+    //       );
+    //       expect(lockedBal).to.equal(expectedLockedAmt);
+    //       expect(liquidBal).to.equal(expectedLiquidAmt);
+    //       expect(donationMatch.executeDonorMatch).to.have.been.calledWith(
+    //         depositToNormalEndow.id,
+    //         expectedLockedAmt,
+    //         await facet.signer.getAddress(),
+    //         normalEndow.daoToken
+    //       );
+    //     });
+    //   });
+    // });
   });
 });
