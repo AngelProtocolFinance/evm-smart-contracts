@@ -123,7 +123,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     return lrs.uniswapRouter;
   }
 
-    /**
+  /**
    * @dev Query the network connection in registrar
    * @param networkName The chain name to query
    * @return response The network connection
@@ -134,7 +134,6 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
     response = lrs.NetworkConnections[networkName];
   }
-
 
   /*////////////////////////////////////////////////
                     RESTRICTED SETTERS
@@ -242,7 +241,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     lrs.uniswapFactory = _uniswapFactory;
   }
 
-    /**
+  /**
    * @dev update network connections in the registrar
    * @param networkInfo The network info to update
    * @param action The action to perform (POST or DELETE)

@@ -192,55 +192,59 @@ describe("Local Registrar", function () {
         expect(returnedValue.toNumber()).to.equal(1);
       });
     });
-    
+
     describe("updateNetworkConnections and queryNetworkConnection", async function () {
       it("Should be an owner restricted method", async function () {
-        await expect(registrar.connect(user).updateNetworkConnections(
-          "TestNet", 
-          DEFAULT_NETWORK_INFO, 
-          1 // POST
-        )).to.be.reverted;
+        await expect(
+          registrar.connect(user).updateNetworkConnections(
+            "TestNet",
+            DEFAULT_NETWORK_INFO,
+            1 // POST
+          )
+        ).to.be.reverted;
       });
 
       it("Should revert if an invalid action is taken", async function () {
-        await expect(registrar.updateNetworkConnections(
-          "TestNet", 
-          DEFAULT_NETWORK_INFO, 
-          0 // POST
-        )).to.be.reverted;
+        await expect(
+          registrar.updateNetworkConnections(
+            "TestNet",
+            DEFAULT_NETWORK_INFO,
+            0 // POST
+          )
+        ).to.be.reverted;
       });
 
       it("Should accept and set the new value", async function () {
         let networkInfo = {
-          ...DEFAULT_NETWORK_INFO, 
-          chainId: 42
-        }
+          ...DEFAULT_NETWORK_INFO,
+          chainId: 42,
+        };
         await registrar.updateNetworkConnections(
-          "TestNet", 
+          "TestNet",
           networkInfo,
           1 // POST
-        )
+        );
         let returnedValue = await registrar.queryNetworkConnection("TestNet");
         expect(returnedValue.chainId).to.equal(42);
       });
 
       it("Should delete a mapping when requested", async function () {
         let networkInfo = {
-          ...DEFAULT_NETWORK_INFO, 
-          chainId: 42
-        }
+          ...DEFAULT_NETWORK_INFO,
+          chainId: 42,
+        };
         await registrar.updateNetworkConnections(
-          "TestNet", 
+          "TestNet",
           networkInfo,
           1 // POST
-        )
+        );
         let beforeReturnedValue = await registrar.queryNetworkConnection("TestNet");
         expect(beforeReturnedValue.chainId).to.equal(42);
         await registrar.updateNetworkConnections(
-          "TestNet", 
+          "TestNet",
           networkInfo,
           2 // DELETE
-        )
+        );
         let afterReturnedValue = await registrar.queryNetworkConnection("TestNet");
         expect(afterReturnedValue.chainId).to.equal(0);
       });
