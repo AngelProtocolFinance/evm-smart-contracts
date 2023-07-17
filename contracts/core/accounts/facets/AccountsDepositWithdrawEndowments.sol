@@ -232,7 +232,7 @@ contract AccountsDepositWithdrawEndowments is
             senderAllowed = true;
           }
         }
-        require(senderAllowed, "Sender address is not listed in maturityAllowlist.");
+        require(senderAllowed, "Sender address is not listed in maturityAllowlist");
       }
     } else {
       if (tempEndowment.allowlistedBeneficiaries.length > 0) {
@@ -244,7 +244,7 @@ contract AccountsDepositWithdrawEndowments is
       }
       require(
         senderAllowed || msg.sender == tempEndowment.owner,
-        "Sender address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner."
+        "Sender address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner"
       );
     }
 
