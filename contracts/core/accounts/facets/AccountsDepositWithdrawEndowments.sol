@@ -330,7 +330,11 @@ contract AccountsDepositWithdrawEndowments is
         );
         // Send deposit message to 100% Liquid account of an endowment
         processTokenDeposit(
-          AccountMessages.DepositRequest({id: id, lockedPercentage: 0, liquidPercentage: 100}),
+          AccountMessages.DepositRequest({
+            id: beneficiaryEndowId,
+            lockedPercentage: 0,
+            liquidPercentage: 100
+          }),
           tokens[t].addr,
           (amountLeftover - withdrawFeeEndow)
         );
