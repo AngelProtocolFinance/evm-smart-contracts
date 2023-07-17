@@ -457,23 +457,25 @@ describe("AccountsDepositWithdrawEndowments", function () {
         );
       });
 
-      it("deposits MATIC with no locked amount", async () => {
-        await expect(
-          facet.depositMatic({id: charityId, lockedPercentage: 0, liquidPercentage: 100}, {value})
-        )
-          .to.emit(facet, "EndowmentDeposit")
-          .withArgs(charityId, wmaticFake.address, 0, 10000);
+      describe("for charities", () => {
+        it("deposits MATIC with no locked amount", async () => {
+          await expect(
+            facet.depositMatic({id: charityId, lockedPercentage: 0, liquidPercentage: 100}, {value})
+          )
+            .to.emit(facet, "EndowmentDeposit")
+            .withArgs(charityId, wmaticFake.address, 0, 10000);
 
-        expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
-        expect(donationMatchCharity.executeDonorMatch).to.not.have.been.called;
-        expect(donationMatch.executeDonorMatch).to.not.have.been.called;
+          expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
+          expect(donationMatchCharity.executeDonorMatch).to.not.have.been.called;
+          expect(donationMatch.executeDonorMatch).to.not.have.been.called;
 
-        const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
-          charityId,
-          wmaticFake.address
-        );
-        expect(lockedBal).to.equal(BigNumber.from(0));
-        expect(liquidBal).to.equal(BigNumber.from(10000));
+          const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+            charityId,
+            wmaticFake.address
+          );
+          expect(lockedBal).to.equal(BigNumber.from(0));
+          expect(liquidBal).to.equal(BigNumber.from(10000));
+        });
       });
 
       // it("deposits MATIC with no locked amount but including a deposit fee", async () => {
