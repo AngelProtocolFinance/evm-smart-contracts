@@ -10,6 +10,7 @@ import {ILocalRegistrar} from "../registrar/interfaces/ILocalRegistrar.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 import {StringToAddress} from "../../lib/StringAddressUtils.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {AxelarExecutable} from "../../axelar/AxelarExecutable.sol";
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
@@ -17,6 +18,7 @@ import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contrac
 import {IAxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarExecutable.sol";
 
 contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
+  using SafeERC20 for IERC20Metadata;
   string public chain;
   ILocalRegistrar public registrar;
   IAxelarGasService public gasReceiver;
@@ -132,14 +134,14 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
 
     if (action.lockAmt > 0) {
       // Send tokens to locked vault and call deposit
-      require(IERC20Metadata(action.token).transfer(params.Locked.vaultAddr, action.lockAmt));
+      IERC20Metadata(action.token).safeTransfer(params.Locked.vaultAddr, action.lockAmt);
       IVault lockedVault = IVault(params.Locked.vaultAddr);
       lockedVault.deposit(action.accountIds[0], action.token, action.lockAmt);
     }
 
     if (action.liqAmt > 0) {
       // Send tokens to liquid vault and call deposit
-      require(IERC20Metadata(action.token).transfer(params.Liquid.vaultAddr, action.liqAmt));
+      IERC20Metadata(action.token).safeTransfer(params.Liquid.vaultAddr, action.liqAmt);
       IVault liquidVault = IVault(params.Liquid.vaultAddr);
       liquidVault.deposit(action.accountIds[0], action.token, action.liqAmt);
     }
@@ -158,24 +160,21 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
       _action.accountIds[0],
       _action.lockAmt
     );
-    require(
-      IERC20Metadata(_action.token).transferFrom(
+      IERC20Metadata(_action.token).safeTransferFrom(
         _params.Locked.vaultAddr,
         address(this),
         _redemptionLock.amount
-      )
-    );
+      );
 
     IVault.RedemptionResponse memory _redemptionLiquid = liquidVault.redeem(
       _action.accountIds[0],
       _action.liqAmt
     );
-    require(
-      IERC20Metadata(_action.token).transferFrom(
+    
+      IERC20Metadata(_action.token).safeTransferFrom(
         _params.Liquid.vaultAddr,
         address(this),
         _redemptionLiquid.amount
-      )
     );
 
     // Pack and send the tokens back to Accounts contract
@@ -206,24 +205,20 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     // Redeem tokens from vaults and txfer them to the Router
     IVault.RedemptionResponse memory lockResponse = lockedVault.redeemAll(_action.accountIds[0]);
     if (lockResponse.amount > 0) {
-      require(
-        IERC20Metadata(_action.token).transferFrom(
+        IERC20Metadata(_action.token).safeTransferFrom(
           _params.Locked.vaultAddr,
           address(this),
           lockResponse.amount
-        )
       );
     }
     _action.lockAmt = lockResponse.amount;
 
     IVault.RedemptionResponse memory liqResponse = liquidVault.redeemAll(_action.accountIds[0]);
     if (liqResponse.amount > 0) {
-      require(
-        IERC20Metadata(_action.token).transferFrom(
+        IERC20Metadata(_action.token).safeTransferFrom(
           _params.Liquid.vaultAddr,
           address(this),
           liqResponse.amount
-        )
       );
     }
     _action.liqAmt = liqResponse.amount;
@@ -311,7 +306,7 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     string memory accountsContractAddress = registrar.getAccountsContractAddressByChain(
       (_action.destinationChain)
     );
-    IERC20Metadata(_action.token).transfer(
+    IERC20Metadata(_action.token).safeTransfer(
       StringToAddress.toAddress(accountsContractAddress),
       _sendAmt
     );
@@ -352,12 +347,12 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
       emit Transfer(_action, amtLessGasFee);
     } catch Error(string memory reason) {
       emit ErrorLogged(_action, reason);
-      IERC20Metadata(_action.token).transfer(apParams.refundAddr, _sendAmt);
+      IERC20Metadata(_action.token).safeTransfer(apParams.refundAddr, _sendAmt);
       emit Refund(_action, _sendAmt);
       _action.status = IVault.VaultActionStatus.FAIL_TOKENS_FALLBACK;
     } catch (bytes memory data) {
       emit ErrorBytesLogged(_action, data);
-      IERC20Metadata(_action.token).transfer(apParams.refundAddr, _sendAmt);
+      IERC20Metadata(_action.token).safeTransfer(apParams.refundAddr, _sendAmt);
       emit Refund(_action, _sendAmt);
       _action.status = IVault.VaultActionStatus.FAIL_TOKENS_FALLBACK;
     }
@@ -374,8 +369,8 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     uint256 gasFeeAmt
   ) public onlySelf {
     address tokenAddress = gateway.tokenAddresses(symbol);
-    require(IERC20Metadata(tokenAddress).approve(address(gateway), amount));
-    require(IERC20Metadata(gasToken).approve(address(gasReceiver), gasFeeAmt));
+    IERC20Metadata(tokenAddress).safeApprove(address(gateway), amount);
+    IERC20Metadata(gasToken).safeApprove(address(gasReceiver), gasFeeAmt);
 
     LibAccounts.FeeSetting memory feeSetting = registrar.getFeeSettingsByFeeType(
       LibAccounts.FeeTypes.Default
