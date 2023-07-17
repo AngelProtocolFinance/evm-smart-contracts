@@ -194,13 +194,16 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
       describe("to charities", () => {
         it("successfully deposits MATIC", async () => {
+          const expectedLockedAmt = BigNumber.from(0);
+          const expectedLiquidAmt = BigNumber.from(value);
+
           await expect(
             facet
               .connect(indexFund)
               .depositMatic({id: charityId, lockedPercentage: 0, liquidPercentage: 100}, {value})
           )
             .to.emit(facet, "EndowmentDeposit")
-            .withArgs(charityId, wmaticFake.address, 0, 10000);
+            .withArgs(charityId, wmaticFake.address, expectedLockedAmt, expectedLiquidAmt);
 
           expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
           expect(donationMatchCharity.executeDonorMatch).to.not.have.been.called;
@@ -209,12 +212,14 @@ describe("AccountsDepositWithdrawEndowments", function () {
             charityId,
             wmaticFake.address
           );
-          expect(lockedBal).to.equal(BigNumber.from(0));
-          expect(liquidBal).to.equal(BigNumber.from(10000));
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
         });
 
         it("successfully deposits MATIC including a deposit fee", async () => {
           const expectedFee = 10;
+          const expectedLockedAmt = BigNumber.from(0);
+          const expectedLiquidAmt = BigNumber.from(9990);
 
           const charityBps: AccountStorage.EndowmentStruct = {
             ...charity,
@@ -229,7 +234,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
               .depositMatic({id: charityId, lockedPercentage: 0, liquidPercentage: 100}, {value})
           )
             .to.emit(facet, "EndowmentDeposit")
-            .withArgs(charityId, wmaticFake.address, 0, 9990);
+            .withArgs(charityId, wmaticFake.address, expectedLockedAmt, expectedLiquidAmt);
 
           expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
           expect(wmaticFake.transfer).to.have.been.calledWith(
@@ -242,8 +247,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
             charityId,
             wmaticFake.address
           );
-          expect(lockedBal).to.equal(BigNumber.from(0));
-          expect(liquidBal).to.equal(BigNumber.from(9990));
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
         });
 
         it("skips donation matching when no donation match contract is registered in Registrar", async () => {
@@ -356,6 +361,9 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
       describe("to normal endowments", () => {
         it("successfully deposits MATIC", async () => {
+          const expectedLockedAmt = BigNumber.from(0);
+          const expectedLiquidAmt = BigNumber.from(value);
+
           await expect(
             facet
               .connect(indexFund)
@@ -365,7 +373,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
               )
           )
             .to.emit(facet, "EndowmentDeposit")
-            .withArgs(normalEndowId, wmaticFake.address, 0, 10000);
+            .withArgs(normalEndowId, wmaticFake.address, expectedLockedAmt, expectedLiquidAmt);
 
           expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
           expect(donationMatch.executeDonorMatch).to.not.have.been.called;
@@ -374,12 +382,14 @@ describe("AccountsDepositWithdrawEndowments", function () {
             normalEndowId,
             wmaticFake.address
           );
-          expect(lockedBal).to.equal(BigNumber.from(0));
-          expect(liquidBal).to.equal(BigNumber.from(10000));
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
         });
 
         it("successfully deposits MATIC including a deposit fee", async () => {
           const expectedFee = 10;
+          const expectedLockedAmt = BigNumber.from(0);
+          const expectedLiquidAmt = BigNumber.from(9990);
 
           const normalEndowBps: AccountStorage.EndowmentStruct = {
             ...normalEndow,
@@ -397,7 +407,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
               )
           )
             .to.emit(facet, "EndowmentDeposit")
-            .withArgs(normalEndowId, wmaticFake.address, 0, 9990);
+            .withArgs(normalEndowId, wmaticFake.address, expectedLockedAmt, expectedLiquidAmt);
 
           expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
           expect(wmaticFake.transfer).to.have.been.calledWith(
@@ -410,8 +420,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
             normalEndowId,
             wmaticFake.address
           );
-          expect(lockedBal).to.equal(BigNumber.from(0));
-          expect(liquidBal).to.equal(BigNumber.from(9990));
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
         });
 
         it("skips donation matching when no donation match contract is associated with said endowment", async () => {
