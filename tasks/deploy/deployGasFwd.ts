@@ -26,12 +26,13 @@ task("deploy:GasFwd", "Will deploy the GasFwd implementation and factory")
       await updateRegistrarConfig(
         addresses.registrar.proxy,
         addresses.multiSig.apTeam.proxy,
-        {gasFwdFactory: gasFwdDeployment.address},
+        {gasFwdFactory: gasFwdDeployment.factory.address},
         hre
       );
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
-        await verify(hre, gasFwdDeployment);
+        await verify(hre, gasFwdDeployment.implementation);
+        await verify(hre, gasFwdDeployment.factory);
       }
     } catch (error) {
       logger.out(error, logger.Level.Error);
