@@ -15,8 +15,6 @@ import {LocalRegistrarLib} from "./lib/LocalRegistrarLib.sol";
  */
 contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
   event ConfigUpdated();
-  event NetworkConnectionPosted(uint256 chainId);
-  event NetworkConnectionRemoved(uint256 chainId);
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
@@ -64,7 +62,8 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     });
     emit ConfigUpdated();
 
-    state.NETWORK_CONNECTIONS["Polygon"] = IAccountsStrategy.NetworkInfo({
+    LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
+    lrs.NetworkConnections["Polygon"] = IAccountsStrategy.NetworkInfo({
       chainId: block.chainid,
       router: details.router,
       axelarGateway: details.axelarGateway,
@@ -234,44 +233,12 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
   }
 
   /**
-   * @dev update network connections in the registrar
-   * @param networkInfo The network info to update
-   * @param action The action to perform (post or delete)
-   */
-  function updateNetworkConnections(
-    string memory networkName,
-    IAccountsStrategy.NetworkInfo memory networkInfo,
-    string memory action
-  ) public nonReentrant onlyOwner {
-    if (Validator.compareStrings(action, "post")) {
-      state.NETWORK_CONNECTIONS[networkName] = networkInfo;
-      emit NetworkConnectionPosted(networkInfo.chainId);
-    } else if (Validator.compareStrings(action, "delete")) {
-      delete state.NETWORK_CONNECTIONS[networkName];
-      emit NetworkConnectionRemoved(networkInfo.chainId);
-    } else {
-      revert("Invalid inputs");
-    }
-  }
-
-  /**
    * @dev Query the Price Feed contract set for an Accepted Token in the Registrar
    * @param token The address of token
    * @return address of Price Feed contract set (zero-address if not set)
    */
   function queryTokenPriceFeed(address token) public view returns (address) {
     return state.PriceFeeds[token];
-  }
-
-  /**
-   * @dev Query the network connection in registrar
-   * @param networkName The chain name to query
-   * @return response The network connection
-   */
-  function queryNetworkConnection(
-    string memory networkName
-  ) public view returns (IAccountsStrategy.NetworkInfo memory response) {
-    response = state.NETWORK_CONNECTIONS[networkName];
   }
 
   // Query functions for contract

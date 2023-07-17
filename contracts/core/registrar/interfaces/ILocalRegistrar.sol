@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 
 import {LocalRegistrarLib} from "../lib/LocalRegistrarLib.sol";
 import {LibAccounts} from "../../accounts/lib/LibAccounts.sol";
+import {IAccountsStrategy} from "../../accounts/interfaces/IAccountsStrategy.sol";
 
 interface ILocalRegistrar {
   /*////////////////////////////////////////////////
@@ -26,6 +27,8 @@ interface ILocalRegistrar {
   );
   event GasFeeUpdated(address _tokenAddr, uint256 _gasFee);
   event FeeSettingsUpdated(LibAccounts.FeeTypes _feeType, uint256 _bpsRate, address _payoutAddress);
+  event NetworkConnectionPosted(uint256 chainId);
+  event NetworkConnectionRemoved(uint256 chainId);
 
   /*////////////////////////////////////////////////
                     EXTERNAL METHODS
@@ -60,6 +63,14 @@ interface ILocalRegistrar {
   ) external view returns (LibAccounts.FeeSetting memory);
 
   function getVaultOperatorApproved(address _operator) external view returns (bool);
+
+  function getUniswapFactoryAddress() external view returns (address);
+
+  function getUniswapRouterAddress() external view returns (address);
+
+  function queryNetworkConnection(
+    string memory networkName
+  ) external view returns (IAccountsStrategy.NetworkInfo memory response);
 
   // Setter methods for granular changes to specific params
   function setRebalanceParams(LocalRegistrarLib.RebalanceParams calldata _rebalanceParams) external;
@@ -107,4 +118,12 @@ interface ILocalRegistrar {
   ) external;
 
   function setVaultOperatorApproved(address _operator, bool _isApproved) external;
+
+  function setUniswapAddresses(address _uniswapRouter, address _uniswapFactory) external;
+
+  function updateNetworkConnections(
+    string memory networkName,
+    IAccountsStrategy.NetworkInfo memory networkInfo,
+    LocalRegistrarLib.NetworkConnectionAction action
+  ) external;
 }
