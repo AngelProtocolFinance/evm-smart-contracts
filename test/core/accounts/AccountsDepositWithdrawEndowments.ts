@@ -104,9 +104,10 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
     registrarConfig = {
       ...DEFAULT_REGISTRAR_CONFIG,
-      wMaticAddress: wmaticFake.address,
-      indexFundContract: indexFund.address,
       haloToken: genWallet().address,
+      indexFundContract: indexFund.address,
+      wMaticAddress: wmaticFake.address,
+      splitToLiquid: {defaultSplit: 50, max: 90, min: 10},
     };
     registrarFake.queryConfig.returns(registrarConfig);
   });
