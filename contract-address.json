@@ -276,11 +276,11 @@
       },
       "endowment": {
         "emitter": {
-          "implementation": "0x62f6B5889f6f66aE487f84aFe189a497805b7E40",
-          "proxy": "0xd2A489b762C550d83f41CBBce853720bB93F9DB2"
+          "implementation": "0xf1bBE8aCdd30E2998D1Db8eEaACE95E86DFE7a0a",
+          "proxy": "0x8a87385765871bD85d96B7675A3F1Fb663146E4d"
         },
-        "factory": "0x7a541821B0E2d0F9482Ce6ed0e92FE116A478C5d",
-        "implementation": "0xe5d043d781102a23A81974B54eFCE81721021b10"
+        "factory": "0xc4150f28a33a04B79B60560Bd4684d521edB99AE",
+        "implementation": "0x9Bcb8A679727f922704d50e74fCA8f053720D3AA"
       }
     },
     "registrar": {
