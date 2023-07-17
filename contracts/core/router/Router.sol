@@ -160,21 +160,21 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
       _action.accountIds[0],
       _action.lockAmt
     );
-      IERC20Metadata(_action.token).safeTransferFrom(
-        _params.Locked.vaultAddr,
-        address(this),
-        _redemptionLock.amount
-      );
+    IERC20Metadata(_action.token).safeTransferFrom(
+      _params.Locked.vaultAddr,
+      address(this),
+      _redemptionLock.amount
+    );
 
     IVault.RedemptionResponse memory _redemptionLiquid = liquidVault.redeem(
       _action.accountIds[0],
       _action.liqAmt
     );
-    
-      IERC20Metadata(_action.token).safeTransferFrom(
-        _params.Liquid.vaultAddr,
-        address(this),
-        _redemptionLiquid.amount
+
+    IERC20Metadata(_action.token).safeTransferFrom(
+      _params.Liquid.vaultAddr,
+      address(this),
+      _redemptionLiquid.amount
     );
 
     // Pack and send the tokens back to Accounts contract
@@ -205,20 +205,20 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     // Redeem tokens from vaults and txfer them to the Router
     IVault.RedemptionResponse memory lockResponse = lockedVault.redeemAll(_action.accountIds[0]);
     if (lockResponse.amount > 0) {
-        IERC20Metadata(_action.token).safeTransferFrom(
-          _params.Locked.vaultAddr,
-          address(this),
-          lockResponse.amount
+      IERC20Metadata(_action.token).safeTransferFrom(
+        _params.Locked.vaultAddr,
+        address(this),
+        lockResponse.amount
       );
     }
     _action.lockAmt = lockResponse.amount;
 
     IVault.RedemptionResponse memory liqResponse = liquidVault.redeemAll(_action.accountIds[0]);
     if (liqResponse.amount > 0) {
-        IERC20Metadata(_action.token).safeTransferFrom(
-          _params.Liquid.vaultAddr,
-          address(this),
-          liqResponse.amount
+      IERC20Metadata(_action.token).safeTransferFrom(
+        _params.Liquid.vaultAddr,
+        address(this),
+        liqResponse.amount
       );
     }
     _action.liqAmt = liqResponse.amount;
