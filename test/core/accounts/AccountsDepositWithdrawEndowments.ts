@@ -16,6 +16,8 @@ import {
   Registrar,
   Registrar__factory,
   TestFacetProxyContract,
+  DummyERC20,
+  DummyERC20__factory,
 } from "typechain-types";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsDepositWithdrawEndowments";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
@@ -56,6 +58,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
   let registrarFake: FakeContract<Registrar>;
   let wmaticFake: FakeContract<DummyWMATIC>;
+  let tokenFake: FakeContract<DummyERC20>;
 
   let registrarConfig: RegistrarStorage.ConfigStruct;
 
@@ -101,6 +104,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
     facet = AccountsDepositWithdrawEndowments__factory.connect(state.address, endowOwner);
 
     wmaticFake = await smock.fake<DummyWMATIC>(new DummyWMATIC__factory());
+    tokenFake = await smock.fake<DummyERC20>(new DummyERC20__factory());
 
     registrarConfig = {
       ...DEFAULT_REGISTRAR_CONFIG,
@@ -110,6 +114,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
       splitToLiquid: {defaultSplit: 50, max: 90, min: 10},
     };
     registrarFake.queryConfig.returns(registrarConfig);
+    registrarFake.isTokenAccepted.whenCalledWith(tokenFake.address).returns(true);
   });
 
   describe("upon depositMatic", async function () {
@@ -126,6 +131,13 @@ describe("AccountsDepositWithdrawEndowments", function () {
       });
       await expect(facet.depositMatic(depositToCharity, {value})).to.be.revertedWith(
         "Endowment is closed"
+      );
+    });
+
+    it("reverts if the deposit to WMATIC fails", async () => {
+      wmaticFake.deposit.reverts();
+      await expect(facet.depositMatic(depositToCharity, {value})).to.be.revertedWith(
+        "call reverted without message"
       );
     });
 
