@@ -3,7 +3,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG} from "test/utils";
+import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG, VaultType} from "test/utils";
 import {
   AccountsDepositWithdrawEndowments,
   AccountsDepositWithdrawEndowments__factory,
@@ -18,6 +18,7 @@ import {
   TestFacetProxyContract,
   DummyERC20,
   DummyERC20__factory,
+  IAccountsDepositWithdrawEndowments,
 } from "typechain-types";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsDepositWithdrawEndowments";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
@@ -1607,6 +1608,63 @@ describe("AccountsDepositWithdrawEndowments", function () {
           );
         });
       });
+    });
+  });
+
+  describe("upon withdraw", () => {
+    const tokenLimit = 10;
+
+    it("reverts if the endowment is closed", async () => {
+      await state.setClosingEndowmentState(charityId, true, {
+        enumData: 0,
+        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+      });
+      await expect(
+        facet.withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, [
+          {addr: genWallet().address, amnt: 1},
+        ])
+      ).to.be.revertedWith("Endowment is closed");
+    });
+
+    it("reverts if no tokens are provided", async () => {
+      await expect(
+        facet.withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, [])
+      ).to.be.revertedWith("No tokens provided");
+    });
+
+    it("reverts if number of tokens to withdraw is bigger than limit", async () => {
+      const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = Array.from(
+        Array(tokenLimit + 1)
+      ).map((_) => ({
+        addr: genWallet().address,
+        amnt: 1,
+      }));
+
+      await expect(
+        facet.withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, tokens)
+      ).to.be.revertedWith("Upper-limit is ten(10) unique ERC20 tokens per withdraw");
+    });
+
+    it("reverts if any of the tokens to withdraw has a zero address", async () => {
+      const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = [
+        {addr: genWallet().address, amnt: 1},
+        {addr: ethers.constants.AddressZero, amnt: 1},
+      ];
+
+      await expect(
+        facet.withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, tokens)
+      ).to.be.revertedWith("Invalid withdraw token passed: zero address");
+    });
+
+    it("reverts if any of the tokens to withdraw has a zero amount", async () => {
+      const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = [
+        {addr: genWallet().address, amnt: 1},
+        {addr: genWallet().address, amnt: 0},
+      ];
+
+      await expect(
+        facet.withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, tokens)
+      ).to.be.revertedWith("Invalid withdraw token passed: zero amount");
     });
   });
 });

@@ -47,3 +47,8 @@ export enum DelegateAction {
   Set,
   Revoke,
 }
+
+export enum VaultType {
+  LOCKED,
+  LIQUID,
+}
