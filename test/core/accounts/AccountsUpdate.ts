@@ -1,10 +1,10 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import hre from "hardhat";
-import {deployFacetAsProxy} from "./utils/deployTestFacet";
 import {AccountsUpdate, AccountsUpdate__factory, TestFacetProxyContract} from "typechain-types";
 import {LibAccounts} from "typechain-types/contracts/core/accounts/facets/AccountsCreateEndowment";
 import {getSigners} from "utils";
+import {deployFacetAsProxy} from "./utils/deployTestFacet";
 
 describe("AccountsUpdate", function () {
   const {ethers} = hre;

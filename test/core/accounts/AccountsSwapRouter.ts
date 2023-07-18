@@ -1,34 +1,32 @@
+import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
-import {FakeContract, smock} from "@defi-wonderland/smock";
 import hre from "hardhat";
+import {deployDummyERC20} from "tasks/helpers";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
-import {getSigners, genWallet} from "utils";
 import {
   DEFAULT_ACCOUNTS_CONFIG,
   DEFAULT_CHARITY_ENDOWMENT,
-  DEFAULT_REGISTRAR_CONFIG,
   DEFAULT_PERMISSIONS_STRUCT,
+  DEFAULT_REGISTRAR_CONFIG,
   VaultType,
 } from "test/utils";
 import {
   AccountsSwapRouter,
   AccountsSwapRouter__factory,
-  TestFacetProxyContract,
-  Registrar,
-  Registrar__factory,
+  DummyAggregatorV3Interface,
+  DummyAggregatorV3Interface__factory,
+  DummyERC20,
   DummySwapRouter,
   DummySwapRouter__factory,
   DummyUniswapV3Factory,
   DummyUniswapV3Factory__factory,
-  DummyERC20,
-  DummyAggregatorV3Interface,
-  DummyAggregatorV3Interface__factory,
+  Registrar,
+  Registrar__factory,
+  TestFacetProxyContract,
 } from "typechain-types";
+import {genWallet, getSigners} from "utils";
 import "../../utils/setup";
-import {endowmentMultisig} from "typechain-types/contracts/normalized_endowment";
-import {deployDummyERC20} from "tasks/helpers";
-import {token} from "typechain-types/@openzeppelin/contracts";
 
 use(smock.matchers);
 

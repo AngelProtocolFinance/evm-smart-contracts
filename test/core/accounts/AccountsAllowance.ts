@@ -1,16 +1,15 @@
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import hre from "hardhat";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {deployDummyERC20, DEFAULT_CHARITY_ENDOWMENT, DEFAULT_PERMISSIONS_STRUCT} from "test/utils";
-import {
-  TestFacetProxyContract,
-  AccountsAllowance__factory,
-  AccountsAllowance,
-  DummyERC20,
-} from "typechain-types";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
+import {DEFAULT_CHARITY_ENDOWMENT, deployDummyERC20} from "test/utils";
+import {
+  AccountsAllowance,
+  AccountsAllowance__factory,
+  DummyERC20,
+  TestFacetProxyContract,
+} from "typechain-types";
 import {getSigners} from "utils";
-import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 
 describe("AccountsAllowance", function () {
   const {ethers} = hre;
