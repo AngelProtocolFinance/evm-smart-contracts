@@ -46,7 +46,6 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     require(registrarContract != address(0), "invalid registrar address");
     require(fundMemberLimit > 0, "Fund endowment limit must be greater than zero");
     state.config = IndexFundStorage.Config({
-      owner: msg.sender,
       registrarContract: registrarContract,
       fundRotation: fundRotation,
       fundMemberLimit: fundMemberLimit,
@@ -62,30 +61,22 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
   /**
    * @notice function to update config of index fund
    * @dev can be called by owner to set new config
-   * @param owner contract Owner address
    * @param registrarContract Registrar Contract address
    * @param fundRotation how many blocks are in a rotation cycle for the active IndexFund
    * @param fundMemberLimit limit to number of members an IndexFund can have
    * @param fundingGoal donation funding limit to trigger early cycle of the Active IndexFund
    */
   function updateConfig(
-    address owner,
     address registrarContract,
     uint256 fundRotation,
     uint256 fundMemberLimit,
     uint256 fundingGoal
-  ) external {
-    require(msg.sender == state.config.owner, "Unauthorized");
+  ) external onlyOwner {
     require(fundMemberLimit > 0, "Fund endowment limit must be greater than zero");
 
     if (registrarContract != state.config.registrarContract) {
       require(registrarContract != address(0), "Invalid Registrar address");
       state.config.registrarContract = registrarContract;
-    }
-
-    if (owner != state.config.owner) {
-      require(owner != address(0), "Invalid owner address");
-      state.config.owner = owner;
     }
 
     if (fundingGoal != 0) {
@@ -120,8 +111,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     bool rotatingFund,
     uint256 splitToLiquid,
     uint256 expiryTime
-  ) external {
-    require(msg.sender == state.config.owner, "Unauthorized");
+  ) external onlyOwner {
     require(endowments.length > 0, "Fund must have one or more endowment members");
     require(
       endowments.length <= state.config.fundMemberLimit,
@@ -163,8 +153,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
    * @dev can be called by owner to remove an index fund
    * @param fundId id of index fund to be removed
    */
-  function removeIndexFund(uint256 fundId) external {
-    require(msg.sender != state.config.owner, "Unauthorized");
+  function removeIndexFund(uint256 fundId) external onlyOwner {
     removeFund(fundId);
   }
 
@@ -173,7 +162,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
    *  @dev can be called by owner to remove a endowment from all the index funds
    *  @param endowment endowment to be removed from index fund
    */
-  function removeMember(uint32 endowment) external {
+  function removeMember(uint32 endowment) external onlyOwner {
     RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
       .queryConfig();
 
@@ -208,8 +197,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
    *  @param fundId The id of the Fund to be updated
    *  @param endowments An array of endowments to be set for a Fund
    */
-  function updateFundMembers(uint256 fundId, uint32[] memory endowments) external {
-    require(msg.sender == state.config.owner, "Unauthorized");
+  function updateFundMembers(uint256 fundId, uint32[] memory endowments) external onlyOwner {
     require(endowments.length > 0, "Must pass at least one endowment member to add to the Fund");
     require(
       endowments.length <= state.config.fundMemberLimit,

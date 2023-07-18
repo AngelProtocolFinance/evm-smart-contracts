@@ -45,14 +45,12 @@ interface IIndexFund {
   /**
    * @notice function to update config of index fund
    * @dev can be called by owner to set new config
-   * @param owner Contract Owner address
    * @param registrarContract Registrar Contract address
    * @param fundRotation how many blocks are in a rotation cycle for the active IndexFund
    * @param fundMemberLimit limit to number of members an IndexFund can have
    * @param fundingGoal donation funding limit to trigger early cycle of the Active IndexFund
    */
   function updateConfig(
-    address owner,
     address registrarContract,
     uint256 fundRotation,
     uint256 fundMemberLimit,

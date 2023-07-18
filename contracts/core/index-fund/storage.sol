@@ -17,7 +17,6 @@ library IndexFundStorage {
   }
 
   struct Config {
-    address owner; // DANO Address
     address registrarContract; // Address of Registrar SC
     uint256 fundRotation; // how many blocks are in a rotation cycle for the active IndexFund
     uint256 fundMemberLimit; // limit to number of endowments an IndexFund can have
