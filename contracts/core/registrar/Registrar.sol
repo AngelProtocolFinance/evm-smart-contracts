@@ -28,6 +28,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
    */
   function initialize(RegistrarMessages.InstantiateRequest memory details) public initializer {
     __LocalRegistrar_init();
+    uint32[] memory dafApprovedEndowments;
     state.config = RegistrarStorage.Config({
       indexFundContract: address(0),
       accountsContract: address(0),
@@ -58,7 +59,8 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       usdcAddress: address(0),
       wMaticAddress: address(0),
       cw900lvAddress: address(0),
-      gasFwdFactory: address(0)
+      gasFwdFactory: address(0),
+      dafApprovedEndowments: dafApprovedEndowments
     });
     emit ConfigUpdated();
 
@@ -216,6 +218,9 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     if (Validator.addressChecker(details.gasFwdFactory)) {
       state.config.gasFwdFactory = details.gasFwdFactory;
     }
+
+    state.config.dafApprovedEndowments = details.dafApprovedEndowments;
+
     // state.config.acceptedTokens = LibAccounts.AcceptedTokens({
     //     native: details.accepted_tokens_native,
     //     cw20: details.accepted_tokens_cw20

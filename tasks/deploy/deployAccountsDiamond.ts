@@ -41,7 +41,10 @@ task("AccountsDiamond", "It will deploy accounts diamond contracts")
       await updateRegistrarConfig(
         registrar,
         apTeam,
-        {accountsContract: deployData.diamond.address},
+        {
+          accountsContract: deployData.diamond.address,
+          dafApprovedEndowments: [],
+        },
         hre
       );
       await hre.run("manage:CharityApplication:updateConfig", {

@@ -48,7 +48,10 @@ task("deploy:IndexFund", "Will deploy IndexFund contract")
       await updateRegistrarConfig(
         registrar,
         apTeamMultiSig,
-        {indexFundContract: deployment.address},
+        {
+          indexFundContract: deployment.address,
+          dafApprovedEndowments: [],
+        },
         hre
       );
 

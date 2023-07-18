@@ -51,7 +51,7 @@ contract AccountsCreateEndowment is
     require(details.members.length >= 1, "No members provided for Endowment multisig");
     require(details.threshold > 0, "Threshold must be a positive number");
 
-    if (LibAccounts.EndowmentType.Normal == details.endowType) {
+    if (LibAccounts.EndowmentType.Charity != details.endowType) {
       require(details.threshold <= details.members.length, "Threshold greater than member count");
     }
 
@@ -63,11 +63,6 @@ contract AccountsCreateEndowment is
     } else {
       splitSettings = details.splitToLiquid;
       ignoreUserSplit = details.ignoreUserSplits;
-    }
-
-    address donationMatchContract = address(0);
-    if (LibAccounts.EndowmentType.Charity == details.endowType) {
-      donationMatchContract = registrar_config.donationMatchCharitesContract;
     }
 
     newEndowId = state.config.nextAccountId;
@@ -92,7 +87,7 @@ contract AccountsCreateEndowment is
       dao: address(0),
       daoToken: address(0),
       donationMatchActive: false,
-      donationMatchContract: donationMatchContract,
+      donationMatchContract: address(0),
       allowlistedBeneficiaries: details.allowlistedBeneficiaries,
       allowlistedContributors: details.allowlistedContributors,
       earlyLockedWithdrawFee: earlyLockedWithdrawFee,

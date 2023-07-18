@@ -47,6 +47,7 @@ library RegistrarMessages {
     address donationMatchContract;
     address cw900lvAddress;
     address gasFwdFactory;
+    uint32[] dafApprovedEndowments;
   }
 
   struct UpdateFeeRequest {

@@ -53,7 +53,10 @@ task("deploy:CharityApplications", "Will deploy CharityApplication contract")
       await updateRegistrarConfig(
         registrar,
         apTeamMultiSig,
-        {charityApplications: charityApplications.address},
+        {
+          charityApplications: charityApplications.address,
+          dafApprovedEndowments: [],
+        },
         hre
       );
 

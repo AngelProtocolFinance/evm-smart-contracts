@@ -26,7 +26,10 @@ task("deploy:GasFwd", "Will deploy the GasFwd implementation and factory")
       await updateRegistrarConfig(
         addresses.registrar.proxy,
         addresses.multiSig.apTeam.proxy,
-        {gasFwdFactory: gasFwdDeployment.factory.address},
+        {
+          gasFwdFactory: gasFwdDeployment.factory.address,
+          dafApprovedEndowments: [],
+        },
         hre
       );
 

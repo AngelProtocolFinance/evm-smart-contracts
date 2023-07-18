@@ -110,6 +110,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
           usdcAddress: thirdPartyAddresses.usdcToken.address,
           wMaticAddress: thirdPartyAddresses.wmaticToken.address,
           gasFwdFactory: gasFwd?.factory.address,
+          dafApprovedEndowments: [],
         },
         hre
       );

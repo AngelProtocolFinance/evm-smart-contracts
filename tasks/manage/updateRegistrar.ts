@@ -62,6 +62,7 @@ task(
         cw900lvAddress: ADDRESS_ZERO,
         lockedWithdrawal: ADDRESS_ZERO,
         gasFwdFactory: addresses.gasFwd.factory,
+        dafApprovedEndowments: [],
       };
       await updateRegistrarConfig(
         addresses.registrar.proxy,

@@ -45,6 +45,7 @@ task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
         {
           multisigFactory: deployData.factory.address,
           multisigEmitter: deployData.emitter.address,
+          dafApprovedEndowments: [],
         },
         hre
       );

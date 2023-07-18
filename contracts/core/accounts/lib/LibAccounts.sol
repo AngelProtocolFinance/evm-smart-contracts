@@ -15,7 +15,8 @@ library LibAccounts {
 
   enum EndowmentType {
     Charity,
-    Normal
+    Normal,
+    Daf
   }
 
   enum Tier {

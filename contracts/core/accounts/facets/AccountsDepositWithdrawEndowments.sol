@@ -16,6 +16,7 @@ import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsDepositWithdrawEndowments} from "../interfaces/IAccountsDepositWithdrawEndowments.sol";
 import {Utils} from "../../../lib/utils.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
+import {Array32} from "../../../lib/array.sol";
 
 /**
  * @title AccountsDepositWithdrawEndowments
@@ -122,7 +123,9 @@ contract AccountsDepositWithdrawEndowments is
 
     require(registrar_config.indexFundContract != address(0), "No Index Fund");
 
-    if (msg.sender != registrar_config.indexFundContract) {
+    // no need to check splits for deposit messages originating "internally" 
+    // (ie. coming from the Accounts or Index Fund contract)
+    if (msg.sender != address(this) && msg.sender != registrar_config.indexFundContract) {
       if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
         // use the Registrar default split for Charities
         (lockedSplitPercent, liquidSplitPercent) = Validator.checkSplits(
@@ -224,9 +227,18 @@ contract AccountsDepositWithdrawEndowments is
     //      Allowlist is not populated, then only the endowment multisig is allowed to withdraw.
     // ** CHARITY TYPE WITHDRAW RULES **
     // Since charity endowments do not mature, they can be treated the same as Normal endowments
+    // ** DAF TYPE WITHDRAW RULES **
+    // Regardless of account balance, can only go to an Endowment listed in Registrar DAF_APPROVED_ENDOWMENTS
+    // DAFs do not have maturity rules, as they are not meant to be endowments
     bool senderAllowed = false;
+    if (tempEndowment.endowType == LibAccounts.EndowmentType.Daf) {
+      bool found;
+      uint256 index;
+      (index, found) = Array32.indexOf(registrar_config.dafApprovedEndowments, beneficiaryEndowId);
+      require(found, "Endowment beneficiary must be a DAF-Approved Endowment");
+      require(beneficiaryAddress == address(0), "Beneficiary address is not allowed for DAF withdrawals");
     // determine if msg sender is allowed to withdraw based on rules and maturity status
-    if (mature) {
+    } else if (mature) {
       if (tempEndowment.maturityAllowlist.length > 0) {
         for (uint256 i = 0; i < tempEndowment.maturityAllowlist.length; i++) {
           if (tempEndowment.maturityAllowlist[i] == msg.sender) {
@@ -338,12 +350,21 @@ contract AccountsDepositWithdrawEndowments is
           !state.STATES[beneficiaryEndowId].closingEndowment,
           "Beneficiary endowment is closed"
         );
-        // Send deposit message to 100% Liquid account of an endowment
-        processTokenDeposit(
-          AccountMessages.DepositRequest({id: id, lockedPercentage: 0, liquidPercentage: 100}),
-          tokens[t].addr,
-          (amountLeftover - withdrawFeeEndow)
-        );
+
+        // Send deposit message spit set for the appropriate account of receiving endowment (100% split)
+        if (acctType == IVault.VaultType.LOCKED) {
+          processTokenDeposit(
+            AccountMessages.DepositRequest({id: id, lockedPercentage: 100, liquidPercentage: 0}),
+            tokens[t].addr,
+            (amountLeftover - withdrawFeeEndow)
+          );
+        } else {
+          processTokenDeposit(
+            AccountMessages.DepositRequest({id: id, lockedPercentage: 0, liquidPercentage: 100}),
+            tokens[t].addr,
+            (amountLeftover - withdrawFeeEndow)
+          );
+        }
       }
 
       // reduce the orgs balance by the withdrawn token amount

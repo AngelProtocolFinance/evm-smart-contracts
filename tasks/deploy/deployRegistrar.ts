@@ -77,6 +77,7 @@ task(
           proxyAdmin: proxyAdmin.address,
           usdcAddress: addresses.tokens.usdc,
           wMaticAddress: addresses.tokens.wmatic,
+          dafApprovedEndowments: [],
         },
         hre
       );

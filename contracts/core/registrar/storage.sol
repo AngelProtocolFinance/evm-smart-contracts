@@ -38,6 +38,7 @@ library RegistrarStorage {
     address wMaticAddress;
     address cw900lvAddress;
     address gasFwdFactory;
+    uint32[] dafApprovedEndowments;
   }
 
   struct State {
