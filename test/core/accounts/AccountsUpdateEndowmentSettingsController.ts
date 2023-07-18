@@ -15,7 +15,6 @@ import {
   LibAccounts,
 } from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet, getSigners} from "utils";
-import "../../utils/setup";
 import {updateAllSettings} from "./utils";
 
 use(smock.matchers);
@@ -29,8 +28,10 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
   let owner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
   let endowOwner: SignerWithAddress;
+
   let facet: AccountsUpdateEndowmentSettingsController;
   let state: TestFacetProxyContract;
+
   let oldNormalEndow: AccountStorage.EndowmentStruct;
   let oldCharity: AccountStorage.EndowmentStruct;
 

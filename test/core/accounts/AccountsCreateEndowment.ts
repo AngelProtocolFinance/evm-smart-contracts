@@ -1,11 +1,9 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
-import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
-import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {deployFacetAsProxy} from "./utils/deployTestFacet";
+import {DEFAULT_REGISTRAR_CONFIG} from "test/utils";
 import {
   AccountsCreateEndowment,
   AccountsCreateEndowment__factory,
@@ -21,8 +19,7 @@ import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/Ac
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {genWallet, getSigners} from "utils";
-import "../../utils/setup";
-import {DEFAULT_REGISTRAR_CONFIG} from "test/utils";
+import {deployFacetAsProxy} from "./utils/deployTestFacet";
 
 use(smock.matchers);
 
@@ -31,19 +28,14 @@ describe("AccountsCreateEndowment", function () {
 
   const donationMatchCharitesAddress = genWallet().address;
   const endowmentOwner = genWallet().address;
-  const treasuryAddress = genWallet().address;
 
   const expectedNextAccountId = 1;
 
   let owner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
   let charityApplications: SignerWithAddress;
-  let axelarGateway: SignerWithAddress;
-  let axelarGasService: SignerWithAddress;
-  let deployer: SignerWithAddress;
   let facet: AccountsCreateEndowment;
   let state: TestFacetProxyContract;
-  let Registrar: Registrar;
   let createEndowmentRequest: AccountMessages.CreateEndowmentRequestStruct;
   let registrarFake: FakeContract<Registrar>;
   let gasFwdFactoryFake: FakeContract<GasFwdFactory>;
@@ -53,9 +45,6 @@ describe("AccountsCreateEndowment", function () {
     owner = signers.apTeam1;
     proxyAdmin = signers.proxyAdmin;
     charityApplications = signers.deployer;
-    axelarGateway = signers.apTeam2;
-    axelarGasService = signers.apTeam3;
-    deployer = signers.deployer;
 
     const defaultSettingsPermissionsStruct = {
       locked: false,
@@ -153,32 +142,6 @@ describe("AccountsCreateEndowment", function () {
   });
 
   beforeEach(async function () {
-    const registrarDeployment = await deployRegistrar(
-      {
-        axelarGateway: axelarGateway.address,
-        axelarGasService: axelarGasService.address,
-        router: ethers.constants.AddressZero,
-        owner: owner.address,
-        deployer,
-        proxyAdmin,
-        treasuryAddress: treasuryAddress,
-      },
-      hre
-    );
-    const endowDeployments = await deployEndowmentMultiSig(hre);
-    Registrar = Registrar__factory.connect(registrarDeployment!.address, owner);
-    const {splitToLiquid, ...curConfig} = await Registrar.queryConfig();
-    await Registrar.updateConfig({
-      ...curConfig,
-      splitDefault: splitToLiquid.defaultSplit,
-      splitMax: splitToLiquid.max,
-      splitMin: splitToLiquid.min,
-      charityApplications: charityApplications.address,
-      multisigFactory: endowDeployments!.factory.address,
-      multisigEmitter: endowDeployments!.emitter.address,
-      donationMatchCharitesContract: donationMatchCharitesAddress,
-    });
-
     let Facet = new AccountsCreateEndowment__factory(owner);
     let facetImpl = await Facet.deploy();
     state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
@@ -387,7 +350,7 @@ describe("AccountsCreateEndowment", function () {
     expect(result.name).to.equal(request.name);
     expect(result.parent).to.equal(request.parent);
     expect(result.proposalLink).to.equal(request.proposalLink);
-    expect(result.rebalance).to.equalRebalance(await Registrar.getRebalanceParams());
+    expect(result.rebalance).to.equalRebalance(await registrarFake.getRebalanceParams());
     expect(result.referralId).to.equal(request.referralId);
     expect(result.sdgs).to.have.same.deep.members(request.sdgs.map((x) => BigNumber.from(x)));
     expect(result.settingsController.acceptedTokens).to.equalSettingsPermission(
@@ -490,7 +453,7 @@ describe("AccountsCreateEndowment", function () {
     expect(result.name).to.equal(request.name);
     expect(result.parent).to.equal(request.parent);
     expect(result.proposalLink).to.equal(request.proposalLink);
-    expect(result.rebalance).to.equalRebalance(await Registrar.getRebalanceParams());
+    expect(result.rebalance).to.equalRebalance(await registrarFake.getRebalanceParams());
     expect(result.referralId).to.equal(request.referralId);
     expect(result.sdgs).to.have.same.deep.members(request.sdgs.map((x) => BigNumber.from(x)));
     expect(result.settingsController.acceptedTokens).to.equalSettingsPermission(

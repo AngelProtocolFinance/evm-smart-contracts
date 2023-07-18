@@ -3,7 +3,6 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {deployFacetAsProxy} from "./utils/deployTestFacet";
 import {
   DEFAULT_CHARITY_ENDOWMENT,
   DEFAULT_REGISTRAR_CONFIG,
@@ -23,7 +22,7 @@ import {LibAccounts} from "typechain-types/contracts/core/accounts/facets/Accoun
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet, getSigners} from "utils";
-import "../../utils/setup";
+import {deployFacetAsProxy} from "./utils/deployTestFacet";
 
 use(smock.matchers);
 
@@ -42,10 +41,13 @@ describe("AccountsUpdateStatusEndowments", function () {
   let accOwner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
   let endowOwner: SignerWithAddress;
+
   let facet: AccountsUpdateStatusEndowments;
   let state: TestFacetProxyContract;
+
   let endowment: AccountStorage.EndowmentStruct;
   let treasuryAddress: string;
+
   let registrarFake: FakeContract<Registrar>;
   let indexFundFake: FakeContract<IndexFund>;
 
