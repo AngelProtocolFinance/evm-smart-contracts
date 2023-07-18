@@ -1,7 +1,7 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
-import {BigNumber, Wallet} from "ethers";
+import {BigNumber} from "ethers";
 import hre from "hardhat";
 import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG, FeeTypes, VaultType} from "test/utils";
 import {
@@ -9,32 +9,32 @@ import {
   AccountsDepositWithdrawEndowments__factory,
   DonationMatch,
   DonationMatchCharity,
-  DonationMatch__factory,
   DonationMatchCharity__factory,
+  DonationMatch__factory,
+  DummyERC20,
+  DummyERC20__factory,
   DummyWMATIC,
   DummyWMATIC__factory,
+  IAccountsDepositWithdrawEndowments,
   Registrar,
   Registrar__factory,
   TestFacetProxyContract,
-  DummyERC20,
-  DummyERC20__factory,
-  IAccountsDepositWithdrawEndowments,
 } from "typechain-types";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsDepositWithdrawEndowments";
+import {LibAccounts, RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet, getSigners} from "utils";
 import "../../utils/setup";
 import {deployFacetAsProxy} from "./utils/deployTestFacet";
-import {RegistrarStorage, LibAccounts} from "typechain-types/contracts/core/registrar/Registrar";
 
 use(smock.matchers);
 
 describe("AccountsDepositWithdrawEndowments", function () {
   const {ethers} = hre;
 
-  const value = BigNumber.from(10000);
   const charityId = 1;
   const normalEndowId = 2;
+
   const depositToCharity: AccountMessages.DepositRequestStruct = {
     id: charityId,
     liquidPercentage: 40,
@@ -63,8 +63,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
   let wmaticFake: FakeContract<DummyWMATIC>;
   let tokenFake: FakeContract<DummyERC20>;
 
-  let registrarConfig: RegistrarStorage.ConfigStruct;
-
   before(async function () {
     const signers = await getSigners(hre);
     accOwner = signers.apTeam1;
@@ -90,19 +88,39 @@ describe("AccountsDepositWithdrawEndowments", function () {
         payoutAddress: genWallet().address,
       },
     };
+  });
 
-    registrarFake = await smock.fake<Registrar>(new Registrar__factory());
+  beforeEach(async () => {
+    const Facet = new AccountsDepositWithdrawEndowments__factory(accOwner);
+    const facetImpl = await Facet.deploy();
+    state = await deployFacetAsProxy(hre, accOwner, proxyAdmin, facetImpl.address);
+
+    facet = AccountsDepositWithdrawEndowments__factory.connect(state.address, endowOwner);
 
     donationMatch = await smock.fake<DonationMatch>(new DonationMatch__factory());
     donationMatchCharity = await smock.fake<DonationMatchCharity>(
       new DonationMatchCharity__factory()
     );
-  });
 
-  beforeEach(async () => {
-    let Facet = new AccountsDepositWithdrawEndowments__factory(accOwner);
-    let facetImpl = await Facet.deploy();
-    state = await deployFacetAsProxy(hre, accOwner, proxyAdmin, facetImpl.address);
+    registrarFake = await smock.fake<Registrar>(new Registrar__factory());
+
+    tokenFake = await smock.fake<DummyERC20>(new DummyERC20__factory());
+
+    wmaticFake = await smock.fake<DummyWMATIC>(new DummyWMATIC__factory());
+
+    tokenFake.transferFrom.returns(true);
+    tokenFake.transfer.returns(true);
+
+    const registrarConfig: RegistrarStorage.ConfigStruct = {
+      ...DEFAULT_REGISTRAR_CONFIG,
+      haloToken: genWallet().address,
+      indexFundContract: indexFund.address,
+      wMaticAddress: wmaticFake.address,
+      splitToLiquid: {defaultSplit: 50, max: 90, min: 10},
+      treasury: genWallet().address,
+    };
+    registrarFake.queryConfig.returns(registrarConfig);
+    registrarFake.isTokenAccepted.whenCalledWith(tokenFake.address).returns(true);
 
     await state.setEndowmentDetails(charityId, charity);
     await state.setEndowmentDetails(normalEndowId, normalEndow);
@@ -120,27 +138,11 @@ describe("AccountsDepositWithdrawEndowments", function () {
       earlyLockedWithdrawFee: {bps: 5, payoutAddress: ethers.constants.AddressZero},
       reentrancyGuardLocked: false,
     });
-
-    facet = AccountsDepositWithdrawEndowments__factory.connect(state.address, endowOwner);
-
-    wmaticFake = await smock.fake<DummyWMATIC>(new DummyWMATIC__factory());
-
-    tokenFake = await smock.fake<DummyERC20>(new DummyERC20__factory());
-    tokenFake.transferFrom.returns(true);
-
-    registrarConfig = {
-      ...DEFAULT_REGISTRAR_CONFIG,
-      haloToken: genWallet().address,
-      indexFundContract: indexFund.address,
-      wMaticAddress: wmaticFake.address,
-      splitToLiquid: {defaultSplit: 50, max: 90, min: 10},
-      treasury: genWallet().address,
-    };
-    registrarFake.queryConfig.returns(registrarConfig);
-    registrarFake.isTokenAccepted.whenCalledWith(tokenFake.address).returns(true);
   });
 
   describe("upon depositMatic", async function () {
+    const value = BigNumber.from(10000);
+
     it("reverts if the deposit value is 0 (zero)", async () => {
       await expect(facet.depositMatic(depositToCharity, {value: 0})).to.be.revertedWith(
         "Invalid Amount"
@@ -187,11 +189,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
     });
 
     it("reverts if no index fund contract is registered in the Registrar", async () => {
-      const config: RegistrarStorage.ConfigStruct = {
-        ...registrarConfig,
+      const curConfig = await registrarFake.queryConfig();
+      const regConfig: RegistrarStorage.ConfigStruct = {
+        ...curConfig,
         indexFundContract: ethers.constants.AddressZero,
       };
-      registrarFake.queryConfig.returns(config);
+      registrarFake.queryConfig.returns(regConfig);
 
       await expect(facet.depositMatic(depositToCharity, {value})).to.be.revertedWith(
         "No Index Fund"
@@ -290,11 +293,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
         });
 
         it("matches the donation", async () => {
-          const config: RegistrarStorage.ConfigStruct = {
-            ...registrarConfig,
+          const curConfig = await registrarFake.queryConfig();
+          const regConfig: RegistrarStorage.ConfigStruct = {
+            ...curConfig,
             donationMatchCharitesContract: donationMatchCharity.address,
           };
-          registrarFake.queryConfig.returns(config);
+          registrarFake.queryConfig.returns(regConfig);
 
           const expectedLockedAmt = BigNumber.from(6000);
           const expectedLiquidAmt = BigNumber.from(4000);
@@ -313,7 +317,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositToCharity.id,
             expectedLockedAmt,
             indexFund.address,
-            registrarConfig.haloToken
+            regConfig.haloToken
           );
 
           const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
@@ -334,11 +338,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
           await state.setEndowmentDetails(depositToCharity.id, charityBps);
           wmaticFake.transfer.returns(true);
 
-          const config: RegistrarStorage.ConfigStruct = {
-            ...registrarConfig,
+          const curConfig = await registrarFake.queryConfig();
+          const regConfig: RegistrarStorage.ConfigStruct = {
+            ...curConfig,
             donationMatchCharitesContract: donationMatchCharity.address,
           };
-          registrarFake.queryConfig.returns(config);
+          registrarFake.queryConfig.returns(regConfig);
 
           const expectedLockedAmt = BigNumber.from(5994);
           const expectedLiquidAmt = BigNumber.from(3996);
@@ -361,7 +366,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositToCharity.id,
             expectedLockedAmt,
             indexFund.address,
-            registrarConfig.haloToken
+            regConfig.haloToken
           );
 
           const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
@@ -622,11 +627,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
         });
 
         it("matches the donation", async () => {
-          const config: RegistrarStorage.ConfigStruct = {
-            ...registrarConfig,
+          const curConfig = await registrarFake.queryConfig();
+          const regConfig: RegistrarStorage.ConfigStruct = {
+            ...curConfig,
             donationMatchCharitesContract: donationMatchCharity.address,
           };
-          registrarFake.queryConfig.returns(config);
+          registrarFake.queryConfig.returns(regConfig);
 
           const expectedLockedAmt = BigNumber.from(6000);
           const expectedLiquidAmt = BigNumber.from(4000);
@@ -645,7 +651,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositToCharity.id,
             expectedLockedAmt,
             await facet.signer.getAddress(),
-            registrarConfig.haloToken
+            regConfig.haloToken
           );
 
           const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
@@ -666,11 +672,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
           await state.setEndowmentDetails(depositToCharity.id, charityBps);
           wmaticFake.transfer.returns(true);
 
-          const config: RegistrarStorage.ConfigStruct = {
-            ...registrarConfig,
+          const curConfig = await registrarFake.queryConfig();
+          const regConfig: RegistrarStorage.ConfigStruct = {
+            ...curConfig,
             donationMatchCharitesContract: donationMatchCharity.address,
           };
-          registrarFake.queryConfig.returns(config);
+          registrarFake.queryConfig.returns(regConfig);
 
           const expectedLockedAmt = BigNumber.from(5994);
           const expectedLiquidAmt = BigNumber.from(3996);
@@ -693,7 +700,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositToCharity.id,
             expectedLockedAmt,
             await facet.signer.getAddress(),
-            registrarConfig.haloToken
+            regConfig.haloToken
           );
 
           const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
@@ -922,7 +929,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
         depositFee: {payoutAddress: genWallet().address, bps: 5},
       });
 
-      wmaticFake.transfer.returns(false);
+      tokenFake.transfer.returns(false);
 
       await expect(
         facet.depositERC20(depositToCharity, tokenFake.address, depositAmt)
@@ -930,11 +937,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
     });
 
     it("reverts if no index fund contract is registered in the Registrar", async () => {
-      const config: RegistrarStorage.ConfigStruct = {
-        ...registrarConfig,
+      const curConfig = await registrarFake.queryConfig();
+      const regConfig: RegistrarStorage.ConfigStruct = {
+        ...curConfig,
         indexFundContract: ethers.constants.AddressZero,
       };
-      registrarFake.queryConfig.returns(config);
+      registrarFake.queryConfig.returns(regConfig);
 
       await expect(
         facet.depositERC20(depositToCharity, tokenFake.address, depositAmt)
@@ -979,7 +987,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositFee: {payoutAddress: genWallet().address, bps: 10},
           };
           await state.setEndowmentDetails(charityId, charityBps);
-          tokenFake.transfer.returns(true);
 
           await expect(
             facet
@@ -1028,11 +1035,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
         });
 
         it("matches the donation", async () => {
-          const config: RegistrarStorage.ConfigStruct = {
-            ...registrarConfig,
+          const curConfig = await registrarFake.queryConfig();
+          const regConfig: RegistrarStorage.ConfigStruct = {
+            ...curConfig,
             donationMatchCharitesContract: donationMatchCharity.address,
           };
-          registrarFake.queryConfig.returns(config);
+          registrarFake.queryConfig.returns(regConfig);
 
           const expectedLockedAmt = BigNumber.from(6000);
           const expectedLiquidAmt = BigNumber.from(4000);
@@ -1047,7 +1055,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositToCharity.id,
             expectedLockedAmt,
             indexFund.address,
-            registrarConfig.haloToken
+            regConfig.haloToken
           );
 
           const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
@@ -1066,13 +1074,13 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositFee: {payoutAddress: genWallet().address, bps: 10},
           };
           await state.setEndowmentDetails(depositToCharity.id, charityBps);
-          tokenFake.transfer.returns(true);
 
-          const config: RegistrarStorage.ConfigStruct = {
-            ...registrarConfig,
+          const curConfig = await registrarFake.queryConfig();
+          const regConfig: RegistrarStorage.ConfigStruct = {
+            ...curConfig,
             donationMatchCharitesContract: donationMatchCharity.address,
           };
-          registrarFake.queryConfig.returns(config);
+          registrarFake.queryConfig.returns(regConfig);
 
           const expectedLockedAmt = BigNumber.from(5994);
           const expectedLiquidAmt = BigNumber.from(3996);
@@ -1091,7 +1099,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositToCharity.id,
             expectedLockedAmt,
             indexFund.address,
-            registrarConfig.haloToken
+            regConfig.haloToken
           );
 
           const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
@@ -1140,7 +1148,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositFee: {payoutAddress: genWallet().address, bps: 10},
           };
           await state.setEndowmentDetails(normalEndowId, normalEndowBps);
-          tokenFake.transfer.returns(true);
 
           await expect(
             facet
@@ -1241,7 +1248,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositFee: {payoutAddress: genWallet().address, bps: 10},
           };
           await state.setEndowmentDetails(depositToNormalEndow.id, normalEndowBps);
-          tokenFake.transfer.returns(true);
 
           const expectedLockedAmt = BigNumber.from(5994);
           const expectedLiquidAmt = BigNumber.from(3996);
@@ -1316,7 +1322,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositFee: {payoutAddress: genWallet().address, bps: 10},
           };
           await state.setEndowmentDetails(charityId, charityBps);
-          tokenFake.transfer.returns(true);
 
           await expect(
             facet.depositERC20(
@@ -1361,11 +1366,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
         });
 
         it("matches the donation", async () => {
-          const config: RegistrarStorage.ConfigStruct = {
-            ...registrarConfig,
+          const curConfig = await registrarFake.queryConfig();
+          const regConfig: RegistrarStorage.ConfigStruct = {
+            ...curConfig,
             donationMatchCharitesContract: donationMatchCharity.address,
           };
-          registrarFake.queryConfig.returns(config);
+          registrarFake.queryConfig.returns(regConfig);
 
           const expectedLockedAmt = BigNumber.from(6000);
           const expectedLiquidAmt = BigNumber.from(4000);
@@ -1378,7 +1384,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositToCharity.id,
             expectedLockedAmt,
             await facet.signer.getAddress(),
-            registrarConfig.haloToken
+            regConfig.haloToken
           );
 
           const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
@@ -1397,13 +1403,13 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositFee: {payoutAddress: genWallet().address, bps: 10},
           };
           await state.setEndowmentDetails(depositToCharity.id, charityBps);
-          tokenFake.transfer.returns(true);
 
-          const config: RegistrarStorage.ConfigStruct = {
-            ...registrarConfig,
+          const curConfig = await registrarFake.queryConfig();
+          const regConfig: RegistrarStorage.ConfigStruct = {
+            ...curConfig,
             donationMatchCharitesContract: donationMatchCharity.address,
           };
-          registrarFake.queryConfig.returns(config);
+          registrarFake.queryConfig.returns(regConfig);
 
           const expectedLockedAmt = BigNumber.from(5994);
           const expectedLiquidAmt = BigNumber.from(3996);
@@ -1420,7 +1426,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositToCharity.id,
             expectedLockedAmt,
             await facet.signer.getAddress(),
-            registrarConfig.haloToken
+            regConfig.haloToken
           );
 
           const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
@@ -1467,7 +1473,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositFee: {payoutAddress: genWallet().address, bps: 10},
           };
           await state.setEndowmentDetails(normalEndowId, normalEndowBps);
-          tokenFake.transfer.returns(true);
 
           await expect(
             facet.depositERC20(
@@ -1558,7 +1563,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositFee: {payoutAddress: genWallet().address, bps: 10},
           };
           await state.setEndowmentDetails(depositToNormalEndow.id, normalEndowBps);
-          tokenFake.transfer.returns(true);
 
           const expectedLockedAmt = BigNumber.from(5994);
           const expectedLiquidAmt = BigNumber.from(3996);
@@ -1607,12 +1611,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
       bps: 20,
       payoutAddress: genWallet().address,
     };
-    const earlyLockWithFeeSetting: LibAccounts.FeeSettingStruct = {
-      bps: 30,
-      payoutAddress: genWallet().address,
-    };
 
-    before(() => {
+    beforeEach(() => {
       registrarFake.getFeeSettingsByFeeType
         .whenCalledWith(FeeTypes.WithdrawCharity)
         .returns(charityFeeSetting);
@@ -1725,7 +1725,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
     });
 
     it("reverts if the transfer of endowment withdraw fee to payout address fails", async () => {
-      tokenFake.transfer.whenCalledWith(registrarConfig.treasury, 5).returns(true);
+      const regConfig = await registrarFake.queryConfig();
+      tokenFake.transfer.whenCalledWith(regConfig.treasury, 5).returns(true);
 
       const amtLeftover = 14;
       tokenFake.transfer
@@ -1740,8 +1741,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
     });
 
     it("reverts if the transfer of all tokens to the ultimate beneficiary address fails", async () => {
-      tokenFake.transfer.returns(true);
-
       const beneficiary = genWallet().address;
 
       const amtToTransfer = 4981;
@@ -1757,8 +1756,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
     it("reverts if the transfer of all tokens to the ultimate beneficiary endowment fails", async () => {
       const beneficiaryId = normalEndowId;
 
-      tokenFake.transfer.returns(true);
-
       await state.setClosingEndowmentState(beneficiaryId, true, {
         enumData: 0,
         data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
@@ -1772,8 +1769,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
     });
 
     it("passes: charity, liquid tokens, beneficiary address, 1 token, sender: endow. owner", async () => {
-      tokenFake.transfer.returns(true);
-
       const acctType = VaultType.LIQUID;
       const beneficiaryAddress = genWallet().address;
       const beneficiaryId = 0;
@@ -1792,11 +1787,13 @@ describe("AccountsDepositWithdrawEndowments", function () {
           beneficiaryId
         );
 
+      const regConfig = await registrarFake.queryConfig();
+
       const withdrawFeeAp = 5;
       const withdrawFeeEndow = 14;
       const remainder = BigNumber.from(tokens[0].amnt).sub(withdrawFeeAp + withdrawFeeEndow);
 
-      expect(tokenFake.transfer).to.have.been.calledWith(registrarConfig.treasury, withdrawFeeAp);
+      expect(tokenFake.transfer).to.have.been.calledWith(regConfig.treasury, withdrawFeeAp);
       expect(tokenFake.transfer).to.have.been.calledWith(
         charity.withdrawFee.payoutAddress,
         withdrawFeeEndow
@@ -1817,7 +1814,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
       const tokenFake2 = await smock.fake<DummyERC20>(new DummyERC20__factory());
       await state.setEndowmentTokenBalance(charityId, tokenFake2.address, lockBal, liqBal);
 
-      tokenFake.transfer.returns(true);
       tokenFake2.transfer.returns(true);
 
       const acctType = VaultType.LIQUID;
@@ -1852,13 +1848,15 @@ describe("AccountsDepositWithdrawEndowments", function () {
           beneficiaryId
         );
 
+      const regConfig = await registrarFake.queryConfig();
+
       // tokens[0]
       const amount = BigNumber.from(tokens[0].amnt);
       const withdrawFeeAp = 5;
       const withdrawFeeEndow = 14;
       const remainder = amount.sub(withdrawFeeAp + withdrawFeeEndow);
 
-      expect(tokenFake.transfer).to.have.been.calledWith(registrarConfig.treasury, withdrawFeeAp);
+      expect(tokenFake.transfer).to.have.been.calledWith(regConfig.treasury, withdrawFeeAp);
       expect(tokenFake.transfer).to.have.been.calledWith(
         charity.withdrawFee.payoutAddress,
         withdrawFeeEndow
@@ -1874,7 +1872,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
       const withdrawFeeEndow2 = 8;
       const remainder2 = amount2.sub(withdrawFeeAp2 + withdrawFeeEndow2);
 
-      expect(tokenFake2.transfer).to.have.been.calledWith(registrarConfig.treasury, withdrawFeeAp2);
+      expect(tokenFake2.transfer).to.have.been.calledWith(regConfig.treasury, withdrawFeeAp2);
       expect(tokenFake2.transfer).to.have.been.calledWith(
         charity.withdrawFee.payoutAddress,
         withdrawFeeEndow2
@@ -1895,8 +1893,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
         maturityAllowlist: [indexFund.address],
       };
       await state.setEndowmentDetails(charityId, matureCharity);
-
-      tokenFake.transfer.returns(true);
 
       const acctType = VaultType.LOCKED;
       const beneficiaryAddress = ethers.constants.AddressZero;
@@ -1920,12 +1916,14 @@ describe("AccountsDepositWithdrawEndowments", function () {
           beneficiaryId
         );
 
+      const regConfig = await registrarFake.queryConfig();
+
       const amount = BigNumber.from(tokens[0].amnt);
       const withdrawFeeAp = 5;
       const withdrawFeeEndow = 14;
       const remainder = amount.sub(withdrawFeeAp + withdrawFeeEndow);
 
-      expect(tokenFake.transfer).to.have.been.calledWith(registrarConfig.treasury, withdrawFeeAp);
+      expect(tokenFake.transfer).to.have.been.calledWith(regConfig.treasury, withdrawFeeAp);
       expect(tokenFake.transfer).to.have.been.calledWith(
         charity.withdrawFee.payoutAddress,
         withdrawFeeEndow
@@ -1949,11 +1947,13 @@ describe("AccountsDepositWithdrawEndowments", function () {
       };
       await state.setEndowmentDetails(charityId, charityNoWithFee);
 
+      const earlyLockWithFeeSetting: LibAccounts.FeeSettingStruct = {
+        bps: 30,
+        payoutAddress: genWallet().address,
+      };
       registrarFake.getFeeSettingsByFeeType
         .whenCalledWith(FeeTypes.EarlyLockedWithdrawCharity)
         .returns(earlyLockWithFeeSetting);
-
-      tokenFake.transfer.returns(true);
 
       const acctType = VaultType.LOCKED;
       const beneficiaryAddress = genWallet().address;
@@ -1973,12 +1973,14 @@ describe("AccountsDepositWithdrawEndowments", function () {
           beneficiaryId
         );
 
+      const regConfig = await registrarFake.queryConfig();
+
       const amount = BigNumber.from(tokens[0].amnt);
-      const withdrawAndEarlyWithdrawPenaltyFee = 7;
+      const withdrawAndEarlyWithdrawPenaltyFee = 20;
       const remainder = amount.sub(withdrawAndEarlyWithdrawPenaltyFee);
 
       expect(tokenFake.transfer).to.have.been.calledWith(
-        registrarConfig.treasury,
+        regConfig.treasury,
         withdrawAndEarlyWithdrawPenaltyFee
       );
       expect(tokenFake.transfer).to.have.been.calledWith(beneficiaryAddress, remainder);
@@ -1993,8 +1995,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
         withdrawFee: {bps: 0, payoutAddress: ethers.constants.AddressZero},
       };
       await state.setEndowmentDetails(normalEndowId, normalEndowNoWithFee);
-
-      tokenFake.transfer.returns(true);
 
       const acctType = VaultType.LOCKED;
       const beneficiaryAddress = genWallet().address;
@@ -2016,12 +2016,14 @@ describe("AccountsDepositWithdrawEndowments", function () {
           beneficiaryId
         );
 
+      const regConfig = await registrarFake.queryConfig();
+
       const amount = BigNumber.from(tokens[0].amnt);
       const withdrawAndEarlyWithdrawPenaltyFee = 17;
       const remainder = amount.sub(withdrawAndEarlyWithdrawPenaltyFee);
 
       expect(tokenFake.transfer).to.have.been.calledWith(
-        registrarConfig.treasury,
+        regConfig.treasury,
         withdrawAndEarlyWithdrawPenaltyFee
       );
       expect(tokenFake.transfer).to.have.been.calledWith(beneficiaryAddress, remainder);
