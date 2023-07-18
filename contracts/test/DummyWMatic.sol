@@ -2,6 +2,9 @@
 // author: @misicnenad
 pragma solidity ^0.8.0;
 
+/**
+ * Inspired by the official testnet WMATIC code https://mumbai.polygonscan.com/address/0x9c3c9283d3e44854697cd22d3faa240cfb032889#code
+ */
 contract DummyWMATIC {
   string public name = "Dummy Wrapped Matic";
   string public symbol = "DWMATIC";

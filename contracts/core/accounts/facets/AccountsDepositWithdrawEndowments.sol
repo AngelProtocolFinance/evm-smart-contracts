@@ -18,8 +18,6 @@ import {IAccountsDepositWithdrawEndowments} from "../interfaces/IAccountsDeposit
 import {Utils} from "../../../lib/utils.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title AccountsDepositWithdrawEndowments
  * @notice This facet manages the deposits and withdrawals for accounts
@@ -99,8 +97,6 @@ contract AccountsDepositWithdrawEndowments is
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
 
-    // is it possible to have tokenAddress == address(0)
-    require(tokenAddress != address(0), "Invalid ERC20 token");
     require(details.lockedPercentage + details.liquidPercentage == 100, "InvalidSplit");
 
     RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
@@ -112,7 +108,6 @@ contract AccountsDepositWithdrawEndowments is
       );
 
       amount = amount.sub(depositFeeAmount);
-
 
       IERC20(tokenAddress).safeTransfer(tempEndowment.depositFee.payoutAddress, depositFeeAmount);
     }
@@ -290,7 +285,6 @@ contract AccountsDepositWithdrawEndowments is
       }
 
       // ensure balance of tokens can cover the requested withdraw amount
-      // SHOULDN'T IT BE >= ?
       require(current_bal > tokens[t].amnt, "InsufficientFunds");
 
       // calculate AP Protocol fee owed on withdrawn token amount
@@ -322,7 +316,10 @@ contract AccountsDepositWithdrawEndowments is
 
       // send all tokens (less fees) to the ultimate beneficiary address/endowment
       if (beneficiaryAddress != address(0)) {
-          IERC20(tokens[t].addr).safeTransfer(beneficiaryAddress, (amountLeftover - withdrawFeeEndow));
+        IERC20(tokens[t].addr).safeTransfer(
+          beneficiaryAddress,
+          (amountLeftover - withdrawFeeEndow)
+        );
       } else {
         // check endowment specified is not closed
         require(
