@@ -10,7 +10,8 @@ import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsSwapRouter} from "../interfaces/IAccountsSwapRouter.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
@@ -23,6 +24,7 @@ import "hardhat/console.sol";
  */
 contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsSwapRouter {
   using SafeMath for uint256;
+  using SafeERC20 for IERC20;
 
   /**
    * @notice This function swaps tokens for an endowment
@@ -125,10 +127,8 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
       "Chainlink Oracle Price Feed contracts are required for all tokens swapping to/from"
     );
 
-    require(
-      IERC20(tokenIn).approve(address(registrar_config.uniswapRouter), amountIn),
-      "Approval failed"
-    );
+    IERC20(tokenIn).safeApprove(address(registrar_config.uniswapRouter), amountIn);
+
 
     // Who ya gonna call? Swap Function!
     uint256 amountOut = swap(
