@@ -15,6 +15,7 @@ task(
   "deploy:LocalRegistrarAndRouter",
   "Will deploy the Local Registrar contract and Router."
 )
+  .addParam("owner", "The owner wallet for both router and registrar")
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {

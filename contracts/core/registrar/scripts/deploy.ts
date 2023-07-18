@@ -115,13 +115,15 @@ export async function deployLocalRegistrar(
     // deploy proxy
     logger.out("Deploying proxy...");
     const proxyFactory = new ProxyContract__factory(deployer);
-    const proxy = await proxyFactory.deploy(localRegistrar.address, proxyAdmin.address, []);
+    const initData = localRegistrar.interface.encodeFunctionData("initialize")
+    const proxy = await proxyFactory.deploy(localRegistrar.address, proxyAdmin.address, initData);
     await proxy.deployed();
     logger.out(`Address: ${proxy.address}`);
 
     // update owner
     logger.out(`Updating Registrar owner to '${owner}'..."`);
-    const proxiedRegistrar = Registrar__factory.connect(proxy.address, deployer);
+    const proxiedRegistrar = LocalRegistrar__factory.connect(proxy.address, deployer);
+    logger.out(`Current owner: ${await proxiedRegistrar.owner()}`)
     const tx = await proxiedRegistrar.transferOwnership(owner);
     await tx.wait();
 
