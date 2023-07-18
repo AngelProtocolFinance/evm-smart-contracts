@@ -1,10 +1,14 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {ProxyContract__factory, Registrar__factory} from "typechain-types";
+import {
+  ProxyContract__factory, 
+  Registrar__factory,
+  LocalRegistrar__factory
+} from "typechain-types";
 import {Deployment, getContractName, logger, updateAddresses, validateAddress} from "utils";
 
-type Data = {
+type RegistrarDeployData = {
   axelarGateway: string;
   axelarGasService: string;
   router: string;
@@ -23,7 +27,7 @@ export async function deployRegistrar(
     deployer,
     proxyAdmin,
     treasuryAddress,
-  }: Data,
+  }: RegistrarDeployData,
   hre: HardhatRuntimeEnvironment
 ): Promise<Deployment | undefined> {
   logger.out("Deploying Registrar...");
@@ -71,6 +75,61 @@ export async function deployRegistrar(
       {
         registrar: {
           implementation: registrar.address,
+          proxy: proxy.address,
+        },
+      },
+      hre
+    );
+
+    return {address: proxy.address, contractName: getContractName(factory)};
+  } catch (error) {
+    logger.out(error, logger.Level.Error);
+  }
+}
+
+type LocalRegistrarDeployData = {
+  owner?: string;
+  deployer: SignerWithAddress;
+  proxyAdmin: SignerWithAddress;
+};
+
+export async function deployLocalRegistrar(
+  {
+    owner = "",
+    deployer,
+    proxyAdmin,
+  } : LocalRegistrarDeployData,
+  hre: HardhatRuntimeEnvironment
+): Promise<Deployment | undefined> {
+  logger.out("Deploying Local Registrar...");
+
+  try {
+    validateAddress(owner, "owner");
+    // deploy implementation
+    logger.out("Deploying implementation...");
+    const factory = new LocalRegistrar__factory(proxyAdmin);
+    const localRegistrar = await factory.deploy();
+    await localRegistrar.deployed();
+    logger.out(`Address: ${localRegistrar.address}`);
+
+    // deploy proxy
+    logger.out("Deploying proxy...");
+    const proxyFactory = new ProxyContract__factory(deployer);
+    const proxy = await proxyFactory.deploy(localRegistrar.address, proxyAdmin.address, []);
+    await proxy.deployed();
+    logger.out(`Address: ${proxy.address}`);
+
+    // update owner
+    logger.out(`Updating Registrar owner to '${owner}'..."`);
+    const proxiedRegistrar = Registrar__factory.connect(proxy.address, deployer);
+    const tx = await proxiedRegistrar.transferOwnership(owner);
+    await tx.wait();
+
+    // update address file & verify contracts
+    await updateAddresses(
+      {
+        registrar: {
+          implementation: localRegistrar.address,
           proxy: proxy.address,
         },
       },
