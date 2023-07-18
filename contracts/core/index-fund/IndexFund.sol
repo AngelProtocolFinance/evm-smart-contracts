@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IndexFundMessage} from "./message.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IIndexFund} from "./IIndexFund.sol";
 import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {Array, Array32} from "../../lib/array.sol";
@@ -24,6 +24,7 @@ import {AccountMessages} from "../accounts/message.sol";
  * distributing funds to the endowment members
  */
 contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
+  using SafeERC20 for IERC20;
   using SafeMath for uint256;
 
   /**
@@ -52,7 +53,6 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
       fundingGoal: fundingGoal
     });
 
-    state.totalFunds = 0;
     state.activeFund = 0;
     state.nextFundId = 1;
     state.roundDonations = 0;
@@ -145,7 +145,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
 
     // If there are no funds created or no active funds yet, set the new
     // fund being created now to be the active fund
-    if (state.totalFunds == 0 || state.activeFund == 0) {
+    if (state.activeFund == 0) {
       state.activeFund = state.nextFundId;
       emit ActiveFundUpdated(state.activeFund);
     }
@@ -155,7 +155,6 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     }
 
     emit FundCreated(state.nextFundId);
-    state.totalFunds += 1;
     state.nextFundId += 1;
   }
 
@@ -267,10 +266,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     uint256 amount,
     uint256 splitToLiquid
   ) external nonReentrant {
-    require(
-      IERC20(token).transferFrom(msg.sender, address(this), amount),
-      "Failed to transfer funds"
-    );
+    IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
     uint256 depositAmount = amount;
     // check if time limit is reached
@@ -348,10 +344,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     }
 
     // give allowance to accounts contract
-    require(
-      IERC20(token).approve(registrar_config.accountsContract, amount),
-      "Failed to approve funds"
-    );
+    IERC20(token).safeApprove(registrar_config.accountsContract, amount);
 
     (
       address[] memory target,
@@ -390,10 +383,9 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
    * @dev Query state
    * @return State
    */
-  function queryState() external view returns (IndexFundMessage.StateResponse memory) {
+  function queryState() external view returns (IIndexFund.StateResponse memory) {
     return
-      IndexFundMessage.StateResponse({
-        totalFunds: state.totalFunds,
+      IIndexFund.StateResponse({
         activeFund: state.activeFund,
         roundDonations: state.roundDonations,
         nextRotationBlock: state.nextRotationBlock
@@ -452,7 +444,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
       Array.remove(state.rotatingFunds, index);
     }
 
-    state.totalFunds -= 1;
+    // remove fund from Funds storage
     delete state.Funds[fundId];
     emit FundRemoved(fundId);
   }
@@ -473,9 +465,8 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     require(!fundIsExpired(state.Funds[fundId], block.timestamp), "Expired Fund");
     uint256 endowmentPortion = balance;
     uint32[] memory endowments = state.Funds[fundId].endowments;
-    if (endowments.length > 0) {
-      endowmentPortion = endowmentPortion.div(endowments.length);
-    }
+    require(endowments.length > 0, "Fund must have endowment members");
+    endowmentPortion = endowmentPortion.div(endowments.length);
 
     uint256 lockSplit = 100 - liquidSplit;
 

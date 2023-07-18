@@ -2,7 +2,6 @@
 pragma solidity ^0.8.16;
 
 import {IndexFundStorage} from "./storage.sol";
-import {IndexFundMessage} from "./message.sol";
 
 interface IIndexFund {
   /*////////////////////////////////////////////////
@@ -21,6 +20,12 @@ interface IIndexFund {
   /*////////////////////////////////////////////////
                     ENDPOINTS
  */ ////////////////////////////////////////////////
+
+  struct StateResponse {
+    uint256 activeFund; // index ID of the Active IndexFund
+    uint256 roundDonations; // total donations given to active charity this round
+    uint256 nextRotationBlock; // block height to perform next rotation on
+  }
 
   /**
    * @notice Initializer function for index fund contract, to be called when proxy is deployed
@@ -120,7 +125,7 @@ interface IIndexFund {
    * @dev Query state
    * @return State
    */
-  function queryState() external view returns (IndexFundMessage.StateResponse memory);
+  function queryState() external view returns (StateResponse memory);
 
   /**
    * @dev Query fund details
