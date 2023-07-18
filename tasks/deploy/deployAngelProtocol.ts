@@ -109,7 +109,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
           proxyAdmin: proxyAdmin.address, //address
           usdcAddress: thirdPartyAddresses.usdcToken.address,
           wMaticAddress: thirdPartyAddresses.wmaticToken.address,
-          gasFwdFactory: gasFwd?.address,
+          gasFwdFactory: gasFwd?.factory.address,
         },
         hre
       );
@@ -136,7 +136,8 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
           endowmentMultiSig?.emitter,
           endowmentMultiSig?.factory,
           endowmentMultiSig?.implementation,
-          gasFwd,
+          gasFwd?.factory,
+          gasFwd?.implementation,
         ];
 
         for (const deployment of deployments) {

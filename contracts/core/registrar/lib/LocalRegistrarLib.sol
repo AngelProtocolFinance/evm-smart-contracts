@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 
 import {IVault} from "../../vault/interfaces/IVault.sol";
 import {LibAccounts} from "../../accounts/lib/LibAccounts.sol";
+import {IAccountsStrategy} from "../../accounts/interfaces/IAccountsStrategy.sol";
 
 library LocalRegistrarLib {
   /*////////////////////////////////////////////////
@@ -44,6 +45,12 @@ library LocalRegistrarLib {
     DEPRECATED
   }
 
+  enum NetworkConnectionAction {
+    NONE,
+    POST,
+    DELETE
+  }
+
   struct StrategyParams {
     StrategyApprovalState approvalState;
     string network;
@@ -67,6 +74,7 @@ library LocalRegistrarLib {
     mapping(address => uint256) GasFeeByToken;
     mapping(LibAccounts.FeeTypes => LibAccounts.FeeSetting) FeeSettingsByFeeType;
     mapping(address => bool) ApprovedVaultOperators;
+    mapping(string => IAccountsStrategy.NetworkInfo) NetworkConnections;
   }
 
   /*////////////////////////////////////////////////

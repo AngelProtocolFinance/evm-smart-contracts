@@ -59,7 +59,7 @@ export default defineConfig({
           accountsUpdateStatusEndowments: parseAddress(
             mumbaiData.accounts.facets.accountsUpdateStatusEndowments
           ),
-          accountsVaultFacet: parseAddress(mumbaiData.accounts.facets.accountsVaultFacet),
+          accountsStrategy: parseAddress(mumbaiData.accounts.facets.accountsStrategy),
           diamondCutFacet: parseAddress(mumbaiData.accounts.facets.diamondCutFacet),
           diamondInitFacet: parseAddress(mumbaiData.accounts.facets.diamondInitFacet),
           diamondLoupeFacet: parseAddress(mumbaiData.accounts.facets.diamondLoupeFacet),

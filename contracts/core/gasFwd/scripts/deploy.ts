@@ -12,7 +12,7 @@ type Data = {
 export async function deployGasFwd(
   {deployer, admin, registrar}: Data,
   hre: HardhatRuntimeEnvironment
-): Promise<Deployment | undefined> {
+): Promise<{factory: Deployment; implementation: Deployment} | undefined> {
   logger.out("Deploying Gas Forwarder...");
 
   try {
@@ -27,7 +27,12 @@ export async function deployGasFwd(
 
     logger.out("Deploying factory...");
     const GFF = new GasFwdFactory__factory(admin);
-    const gff = await GFF.deploy(gf.address, admin.address, registrarAddress);
+    const constructorArguments: Parameters<GasFwdFactory__factory["deploy"]> = [
+      gf.address,
+      admin.address,
+      registrarAddress,
+    ];
+    const gff = await GFF.deploy(...constructorArguments);
     await gff.deployed();
     logger.out(`Address: ${gff.address}`);
 
@@ -40,9 +45,11 @@ export async function deployGasFwd(
       },
       hre
     );
-    logger.out(`File updated`);
 
-    return {address: gff.address, contractName: getContractName(GFF)};
+    return {
+      implementation: {address: gf.address, contractName: getContractName(GF)},
+      factory: {address: gff.address, contractName: getContractName(GFF), constructorArguments},
+    };
   } catch (error) {
     logger.out(error, logger.Level.Error);
   }

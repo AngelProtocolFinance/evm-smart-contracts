@@ -40,15 +40,6 @@ contract EndowmentMultiSig is MultiSigGeneric {
     ENDOWMENT_ID = _endowmentId;
     EMITTER_ADDRESS = _emitter;
     super.initialize(_owners, _required, _requireExecution, _transactionExpiry);
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).createEndowmentMultisig(
-      address(this),
-      ENDOWMENT_ID,
-      EMITTER_ADDRESS,
-      _owners,
-      _required,
-      _requireExecution,
-      _transactionExpiry
-    );
   }
 
   /// @dev Allows to add new owners. Transaction has to be sent by wallet.

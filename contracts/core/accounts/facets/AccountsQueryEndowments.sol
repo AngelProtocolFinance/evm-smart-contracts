@@ -59,12 +59,11 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments {
     config = AccountMessages.ConfigResponse({
       owner: state.config.owner,
       version: state.config.version,
+      networkName: state.config.networkName,
       registrarContract: state.config.registrarContract,
       nextAccountId: state.config.nextAccountId,
       maxGeneralCategoryId: state.config.maxGeneralCategoryId,
       subDao: state.config.subDao,
-      gateway: state.config.gateway,
-      gasReceiver: state.config.gasReceiver,
       earlyLockedWithdrawFee: state.config.earlyLockedWithdrawFee
     });
   }

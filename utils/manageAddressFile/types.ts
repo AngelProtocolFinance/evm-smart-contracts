@@ -9,12 +9,12 @@ export type AddressObj = {
       accountsCreateEndowment: string;
       accountsDaoEndowments: string;
       accountsQueryEndowments: string;
+      accountsStrategy: string;
       accountsSwapRouter: string;
       accountsUpdate: string;
       accountsUpdateEndowments: string;
       accountsUpdateEndowmentSettingsController: string;
       accountsUpdateStatusEndowments: string;
-      accountsStrategy: string;
       diamondCutFacet: string;
       diamondInitFacet: string;
       diamondLoupeFacet: string;
