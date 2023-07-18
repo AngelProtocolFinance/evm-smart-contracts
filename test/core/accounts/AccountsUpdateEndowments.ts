@@ -3,7 +3,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import {BigNumberish} from "ethers";
 import hre from "hardhat";
-import {DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
+import {ControllerSettingOption, DEFAULT_CHARITY_ENDOWMENT, DelegateAction} from "test/utils";
 import {
   AccountsUpdateEndowments,
   AccountsUpdateEndowments__factory,
@@ -21,31 +21,6 @@ import {
 import {genWallet, getSigners} from "utils";
 import {deployFacetAsProxy, updateAllSettings, updateSettings} from "./utils";
 
-enum ControllerSettingOption {
-  AcceptedTokens,
-  LockedInvestmentManagement,
-  LiquidInvestmentManagement,
-  AllowlistedBeneficiaries,
-  AllowlistedContributors,
-  MaturityAllowlist,
-  EarlyLockedWithdrawFee,
-  MaturityTime,
-  WithdrawFee,
-  DepositFee,
-  BalanceFee,
-  Name,
-  Image,
-  Logo,
-  Sdgs,
-  SplitToLiquid,
-  IgnoreUserSplits,
-}
-
-enum DelegateAction {
-  Set,
-  Revoke,
-}
-
 use(smock.matchers);
 
 describe("AccountsUpdateEndowments", function () {
@@ -61,6 +36,7 @@ describe("AccountsUpdateEndowments", function () {
 
   let facet: AccountsUpdateEndowments;
   let state: TestFacetProxyContract;
+
   let oldNormalEndow: AccountStorage.EndowmentStruct;
   let oldCharity: AccountStorage.EndowmentStruct;
 

@@ -41,10 +41,13 @@ describe("AccountsUpdateStatusEndowments", function () {
   let accOwner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
   let endowOwner: SignerWithAddress;
+
   let facet: AccountsUpdateStatusEndowments;
   let state: TestFacetProxyContract;
+
   let endowment: AccountStorage.EndowmentStruct;
   let treasuryAddress: string;
+
   let registrarFake: FakeContract<Registrar>;
   let indexFundFake: FakeContract<IndexFund>;
 

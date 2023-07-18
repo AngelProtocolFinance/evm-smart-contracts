@@ -28,8 +28,10 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
   let owner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
   let endowOwner: SignerWithAddress;
+
   let facet: AccountsUpdateEndowmentSettingsController;
   let state: TestFacetProxyContract;
+
   let oldNormalEndow: AccountStorage.EndowmentStruct;
   let oldCharity: AccountStorage.EndowmentStruct;
 

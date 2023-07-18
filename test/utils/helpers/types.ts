@@ -22,3 +22,28 @@ export enum VaultActionStatus {
   FAIL_TOKENS_RETURNED, // Tokens returned to accounts contract
   FAIL_TOKENS_FALLBACK, // Tokens failed to be returned to accounts contract
 }
+
+export enum ControllerSettingOption {
+  AcceptedTokens,
+  LockedInvestmentManagement,
+  LiquidInvestmentManagement,
+  AllowlistedBeneficiaries,
+  AllowlistedContributors,
+  MaturityAllowlist,
+  EarlyLockedWithdrawFee,
+  MaturityTime,
+  WithdrawFee,
+  DepositFee,
+  BalanceFee,
+  Name,
+  Image,
+  Logo,
+  Sdgs,
+  SplitToLiquid,
+  IgnoreUserSplits,
+}
+
+export enum DelegateAction {
+  Set,
+  Revoke,
+}

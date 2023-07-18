@@ -8,11 +8,14 @@ import {deployFacetAsProxy} from "./utils/deployTestFacet";
 
 describe("AccountsUpdate", function () {
   const {ethers} = hre;
+
   let owner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
   let user: SignerWithAddress;
+
   let facet: AccountsUpdate;
   let state: TestFacetProxyContract;
+
   let newRegistrar: string;
   let maxGeneralCategoryId: number;
   let earlyLockedWithdrawFee: LibAccounts.FeeSettingStruct;
