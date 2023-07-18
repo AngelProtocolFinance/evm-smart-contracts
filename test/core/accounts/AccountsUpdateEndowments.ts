@@ -19,7 +19,6 @@ import {
   LibAccounts,
 } from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet, getSigners} from "utils";
-import "../../utils/setup";
 import {deployFacetAsProxy, updateAllSettings, updateSettings} from "./utils";
 
 enum ControllerSettingOption {

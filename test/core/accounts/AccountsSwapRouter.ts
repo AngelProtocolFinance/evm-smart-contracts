@@ -26,7 +26,6 @@ import {
   TestFacetProxyContract,
 } from "typechain-types";
 import {genWallet, getSigners} from "utils";
-import "../../utils/setup";
 
 use(smock.matchers);
 

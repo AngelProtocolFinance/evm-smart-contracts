@@ -15,7 +15,6 @@ import {
   LibAccounts,
 } from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet, getSigners} from "utils";
-import "../../utils/setup";
 import {updateAllSettings} from "./utils";
 
 use(smock.matchers);
