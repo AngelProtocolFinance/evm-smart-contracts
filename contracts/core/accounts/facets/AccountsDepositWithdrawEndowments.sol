@@ -290,6 +290,7 @@ contract AccountsDepositWithdrawEndowments is
       }
 
       // ensure balance of tokens can cover the requested withdraw amount
+      // SHOULDN'T IT BE >= ?
       require(current_bal > tokens[t].amnt, "InsufficientFunds");
 
       // calculate AP Protocol fee owed on withdrawn token amount
