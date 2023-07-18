@@ -1756,5 +1756,37 @@ describe("AccountsDepositWithdrawEndowments", function () {
         ])
       ).to.be.revertedWith("Insufficient Funds");
     });
+
+    it("reverts if the transfer of all tokens to the ultimate beneficiary address fails", async () => {
+      tokenFake.transfer.returns(true);
+
+      const beneficiary = genWallet().address;
+
+      const amtToTransfer = 4981;
+      tokenFake.transfer.whenCalledWith(beneficiary, amtToTransfer).returns(false);
+
+      await expect(
+        facet.withdraw(charityId, VaultType.LIQUID, beneficiary, 0, [
+          {addr: tokenFake.address, amnt: 5000},
+        ])
+      ).to.be.revertedWith("Transfer failed");
+    });
+
+    it("reverts if the transfer of all tokens to the ultimate beneficiary endowment fails", async () => {
+      const beneficiaryId = normalEndowId;
+
+      tokenFake.transfer.returns(true);
+
+      await state.setClosingEndowmentState(beneficiaryId, true, {
+        enumData: 0,
+        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+      });
+
+      await expect(
+        facet.withdraw(charityId, VaultType.LIQUID, ethers.constants.AddressZero, beneficiaryId, [
+          {addr: tokenFake.address, amnt: 5000},
+        ])
+      ).to.be.revertedWith("Beneficiary endowment is closed");
+    });
   });
 });
