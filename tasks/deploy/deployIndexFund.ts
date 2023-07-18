@@ -37,9 +37,8 @@ task("deploy:IndexFund", "Will deploy IndexFund contract")
 
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
-      const owner = taskArgs.owner || addresses.multiSig.apTeam.proxy;
 
-      const deployment = await deployIndexFund(registrar, owner, hre);
+      const deployment = await deployIndexFund(registrar, hre);
 
       if (!deployment) {
         return;
