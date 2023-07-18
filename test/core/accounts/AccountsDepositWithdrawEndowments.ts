@@ -85,6 +85,10 @@ describe("AccountsDepositWithdrawEndowments", function () {
       endowType: 1,
       splitToLiquid: {defaultSplit: 40, max: 80, min: 20},
       daoToken: genWallet().address,
+      earlyLockedWithdrawFee: {
+        bps: 15,
+        payoutAddress: genWallet().address,
+      },
     };
 
     registrarFake = await smock.fake<Registrar>(new Registrar__factory());
@@ -113,7 +117,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
       subDao: ethers.constants.AddressZero,
       gateway: ethers.constants.AddressZero,
       gasReceiver: ethers.constants.AddressZero,
-      earlyLockedWithdrawFee: {bps: 1000, payoutAddress: ethers.constants.AddressZero},
+      earlyLockedWithdrawFee: {bps: 5, payoutAddress: ethers.constants.AddressZero},
       reentrancyGuardLocked: false,
     });
 
@@ -1615,9 +1619,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
       registrarFake.getFeeSettingsByFeeType
         .whenCalledWith(FeeTypes.WithdrawNormal)
         .returns(normalEndowFeeSetting);
-      registrarFake.getFeeSettingsByFeeType
-        .whenCalledWith(FeeTypes.EarlyLockedWithdrawCharity)
-        .returns(earlyLockWithFeeSetting);
     });
 
     beforeEach(async () => {
@@ -1939,6 +1940,97 @@ describe("AccountsDepositWithdrawEndowments", function () {
       );
       expect(lockBalBen).to.equal(lockBal);
       expect(liqBalBen).to.equal(liqBal.add(remainder));
+    });
+
+    it("passes: charity, locked tokens, beneficiary address, 1 token, sender: endow. owner", async () => {
+      const charityNoWithFee: AccountStorage.EndowmentStruct = {
+        ...charity,
+        withdrawFee: {bps: 0, payoutAddress: ethers.constants.AddressZero},
+      };
+      await state.setEndowmentDetails(charityId, charityNoWithFee);
+
+      registrarFake.getFeeSettingsByFeeType
+        .whenCalledWith(FeeTypes.EarlyLockedWithdrawCharity)
+        .returns(earlyLockWithFeeSetting);
+
+      tokenFake.transfer.returns(true);
+
+      const acctType = VaultType.LOCKED;
+      const beneficiaryAddress = genWallet().address;
+      const beneficiaryId = 0;
+      const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = [
+        {addr: tokenFake.address, amnt: 5000},
+      ];
+
+      await expect(facet.withdraw(charityId, acctType, beneficiaryAddress, beneficiaryId, tokens))
+        .to.emit(facet, "EndowmentWithdraw")
+        .withArgs(
+          charityId,
+          tokens[0].addr,
+          tokens[0].amnt,
+          acctType,
+          beneficiaryAddress,
+          beneficiaryId
+        );
+
+      const amount = BigNumber.from(tokens[0].amnt);
+      const withdrawAndEarlyWithdrawPenaltyFee = 7;
+      const remainder = amount.sub(withdrawAndEarlyWithdrawPenaltyFee);
+
+      expect(tokenFake.transfer).to.have.been.calledWith(
+        registrarConfig.treasury,
+        withdrawAndEarlyWithdrawPenaltyFee
+      );
+      expect(tokenFake.transfer).to.have.been.calledWith(beneficiaryAddress, remainder);
+
+      const [lockedBalance] = await state.getEndowmentTokenBalance(charityId, tokenFake.address);
+      expect(lockedBalance).to.equal(lockBal.sub(amount));
+    });
+
+    it("passes: normal endowment, locked tokens, beneficiary address, 1 token, sender: endow. owner", async () => {
+      const normalEndowNoWithFee: AccountStorage.EndowmentStruct = {
+        ...normalEndow,
+        withdrawFee: {bps: 0, payoutAddress: ethers.constants.AddressZero},
+      };
+      await state.setEndowmentDetails(normalEndowId, normalEndowNoWithFee);
+
+      tokenFake.transfer.returns(true);
+
+      const acctType = VaultType.LOCKED;
+      const beneficiaryAddress = genWallet().address;
+      const beneficiaryId = 0;
+      const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = [
+        {addr: tokenFake.address, amnt: 5000},
+      ];
+
+      await expect(
+        facet.withdraw(normalEndowId, acctType, beneficiaryAddress, beneficiaryId, tokens)
+      )
+        .to.emit(facet, "EndowmentWithdraw")
+        .withArgs(
+          normalEndowId,
+          tokens[0].addr,
+          tokens[0].amnt,
+          acctType,
+          beneficiaryAddress,
+          beneficiaryId
+        );
+
+      const amount = BigNumber.from(tokens[0].amnt);
+      const withdrawAndEarlyWithdrawPenaltyFee = 17;
+      const remainder = amount.sub(withdrawAndEarlyWithdrawPenaltyFee);
+
+      expect(tokenFake.transfer).to.have.been.calledWith(
+        registrarConfig.treasury,
+        withdrawAndEarlyWithdrawPenaltyFee
+      );
+      expect(tokenFake.transfer).to.have.been.calledWith(beneficiaryAddress, remainder);
+
+      const [lockedBalance] = await state.getEndowmentTokenBalance(
+        normalEndowId,
+        tokenFake.address
+      );
+      expect(lockedBalance).to.equal(lockBal.sub(amount));
     });
   });
 });
