@@ -2,7 +2,6 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {deployFacetAsProxy} from "./utils/deployTestFacet";
 import {DEFAULT_ACCOUNTS_CONFIG, DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
 import {
   AccountsQueryEndowments,
@@ -12,6 +11,7 @@ import {
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsQueryEndowments";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {getSigners} from "utils";
+import {deployFacetAsProxy} from "./utils/deployTestFacet";
 
 describe("AccountsQueryEndowments", function () {
   const {ethers} = hre;
