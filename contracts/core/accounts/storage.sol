@@ -13,8 +13,6 @@ library AccountStorage {
     uint32 nextAccountId;
     uint256 maxGeneralCategoryId;
     address subDao;
-    address gateway;
-    address gasReceiver;
     bool reentrancyGuardLocked;
     LibAccounts.FeeSetting earlyLockedWithdrawFee;
   }
