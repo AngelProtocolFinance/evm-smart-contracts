@@ -464,7 +464,7 @@ contract AccountsStrategy is
       state.config.registrarContract
     ).getAngelProtocolParams();
     address tokenAddress = IAxelarGateway(thisNetwork.axelarGateway).tokenAddresses(tokenSymbol);
-    IERC20(tokenAddress).safeApprove(apParams.refundAddr, amount);
+    IERC20(tokenAddress).safeTransfer(apParams.refundAddr, amount);
     emit RefundNeeded(response);
   }
 
