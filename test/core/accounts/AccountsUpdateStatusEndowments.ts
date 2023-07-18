@@ -89,8 +89,6 @@ describe("AccountsUpdateStatusEndowments", function () {
       nextAccountId: accountId + 1,
       maxGeneralCategoryId: 1,
       subDao: ethers.constants.AddressZero,
-      gateway: ethers.constants.AddressZero,
-      gasReceiver: ethers.constants.AddressZero,
       earlyLockedWithdrawFee: {bps: 1000, payoutAddress: ethers.constants.AddressZero},
       reentrancyGuardLocked: false,
     });

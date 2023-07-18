@@ -8,9 +8,7 @@ import {IVault} from "../vault/interfaces/IVault.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
-
-// Import integrations here
-import {APGoldfinchConfigLib} from "../../integrations/goldfinch/APGoldfinchConfig.sol";
+import {IAccountsStrategy} from "../accounts/interfaces/IAccountsStrategy.sol";
 
 contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
   /*////////////////////////////////////////////////
@@ -125,6 +123,18 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     return lrs.uniswapRouter;
   }
 
+  /**
+   * @dev Query the network connection in registrar
+   * @param networkName The chain name to query
+   * @return response The network connection
+   */
+  function queryNetworkConnection(
+    string memory networkName
+  ) public view returns (IAccountsStrategy.NetworkInfo memory response) {
+    LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
+    response = lrs.NetworkConnections[networkName];
+  }
+
   /*////////////////////////////////////////////////
                     RESTRICTED SETTERS
     */ ////////////////////////////////////////////////
@@ -231,24 +241,25 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     lrs.uniswapFactory = _uniswapFactory;
   }
 
-  /*////////////////////////////////////////////////
-                        GOLDFINCH
-    */ ////////////////////////////////////////////////
-  function getAPGoldfinchParams()
-    external
-    pure
-    returns (APGoldfinchConfigLib.APGoldfinchConfig memory)
-  {
-    APGoldfinchConfigLib.APGoldfinchConfig storage grs = APGoldfinchConfigLib
-      .goldfinchRegistrarStorage();
-    return grs;
-  }
-
-  function setAPGoldfinchParams(
-    APGoldfinchConfigLib.APGoldfinchConfig calldata _apGoldfinch
-  ) public {
-    APGoldfinchConfigLib.APGoldfinchConfig storage grs = APGoldfinchConfigLib
-      .goldfinchRegistrarStorage();
-    grs.crvParams.allowedSlippage = _apGoldfinch.crvParams.allowedSlippage;
+  /**
+   * @dev update network connections in the registrar
+   * @param networkInfo The network info to update
+   * @param action The action to perform (POST or DELETE)
+   */
+  function updateNetworkConnections(
+    string memory networkName,
+    IAccountsStrategy.NetworkInfo memory networkInfo,
+    LocalRegistrarLib.NetworkConnectionAction action
+  ) public onlyOwner {
+    LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
+    if (action == LocalRegistrarLib.NetworkConnectionAction.POST) {
+      lrs.NetworkConnections[networkName] = networkInfo;
+      emit NetworkConnectionPosted(networkInfo.chainId);
+    } else if (action == LocalRegistrarLib.NetworkConnectionAction.DELETE) {
+      delete lrs.NetworkConnections[networkName];
+      emit NetworkConnectionRemoved(networkInfo.chainId);
+    } else {
+      revert("Invalid inputs");
+    }
   }
 }
