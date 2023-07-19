@@ -48,11 +48,6 @@ export enum DelegateAction {
   Revoke,
 }
 
-export enum VaultType {
-  LOCKED,
-  LIQUID,
-}
-
 export enum FeeTypes {
   Default,
   Harvest,
