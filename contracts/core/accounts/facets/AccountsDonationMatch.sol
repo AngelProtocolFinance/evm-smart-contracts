@@ -89,25 +89,31 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
 
     require(msg.sender == tempEndowment.owner, "Unauthorized");
 
-    require(tempEndowment.owner != address(0), "AD E02"); //A DAO does not exist yet for this Endowment. Please set that up first.
-    require(tempEndowment.donationMatchContract == address(0), "AD E03"); // A Donation Match contract already exists for this Endowment
+    require(tempEndowment.owner != address(0), "A DAO does not exist yet for this Endowment");
+    require(
+      tempEndowment.donationMatchContract == address(0),
+      "A Donation Match contract already exists for this Endowment"
+    );
 
-    require(details.data.uniswapFactory != address(0), "Invalid Data");
-    require(details.data.poolFee != 0, "Invalid Data");
+    require(details.data.uniswapFactory != address(0), "Invalid UniswapFactory address");
+    require(details.data.poolFee != 0, "Invalid pool fee");
 
     RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
       .queryConfig();
 
-    require(registrar_config.donationMatchContract != address(0), "AD E04"); // No implementation for donation matching contract
-    require(registrar_config.usdcAddress != address(0), "AD E05"); // Invalid Registrar Data
+    require(
+      registrar_config.donationMatchContract != address(0),
+      "Missing implementation for donation matching contract"
+    );
+    require(registrar_config.usdcAddress != address(0), "Missing USDC address in Registrar");
 
     address inputtoken;
     if (details.enumData == AccountMessages.DonationMatchEnum.HaloTokenReserve) {
-      require(registrar_config.haloToken != address(0), "AD E05"); // Invalid Registrar Data
+      require(registrar_config.haloToken != address(0), "Invalid HALO address in Registrar");
 
       inputtoken = registrar_config.haloToken;
     } else {
-      require(details.data.reserveToken != address(0), "Invalid  Data");
+      require(details.data.reserveToken != address(0), "Invalid reserve token address");
       inputtoken = details.data.reserveToken;
     }
 
