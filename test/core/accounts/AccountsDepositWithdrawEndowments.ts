@@ -24,7 +24,6 @@ import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/Ac
 import {LibAccounts, RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet, getSigners} from "utils";
-import "../../utils/setup";
 import {deployFacetAsProxy} from "./utils/deployTestFacet";
 
 use(smock.matchers);
@@ -133,8 +132,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
       nextAccountId: 3, // 2 endows already added
       maxGeneralCategoryId: 1,
       subDao: ethers.constants.AddressZero,
-      gateway: ethers.constants.AddressZero,
-      gasReceiver: ethers.constants.AddressZero,
       earlyLockedWithdrawFee: {bps: 5, payoutAddress: ethers.constants.AddressZero},
       reentrancyGuardLocked: false,
     });
@@ -184,7 +181,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
       wmaticFake.transfer.returns(false);
 
       await expect(facet.depositMatic(depositToCharity, {value})).to.be.revertedWith(
-        "Transfer Failed"
+        "SafeERC20: ERC20 operation did not succeed"
       );
     });
 
@@ -909,7 +906,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
       await expect(
         facet.depositERC20(depositToCharity, tokenFake.address, depositAmt)
-      ).to.be.revertedWith("Transfer failed");
+      ).to.be.revertedWith("SafeERC20: ERC20 operation did not succeed");
     });
 
     it("reverts if the locked + liquid percentage does not equal 100", async () => {
@@ -933,7 +930,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
       await expect(
         facet.depositERC20(depositToCharity, tokenFake.address, depositAmt)
-      ).to.be.revertedWith("Transfer Failed");
+      ).to.be.revertedWith("SafeERC20: ERC20 operation did not succeed");
     });
 
     it("reverts if no index fund contract is registered in the Registrar", async () => {
@@ -1711,7 +1708,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
         facet.withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, [
           {addr: tokenFake.address, amnt: liqBal.add(1)},
         ])
-      ).to.be.revertedWith("InsufficientFunds");
+      ).to.be.revertedWith("Insufficient Funds");
     });
 
     it("reverts if the AP Protocol fee transfer to treasury fails", async () => {
@@ -1721,7 +1718,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
         facet.withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, [
           {addr: tokenFake.address, amnt: 5000},
         ])
-      ).to.be.revertedWith("Transfer failed");
+      ).to.be.revertedWith("SafeERC20: ERC20 operation did not succeed");
     });
 
     it("reverts if the transfer of endowment withdraw fee to payout address fails", async () => {
@@ -1737,7 +1734,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
         facet.withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, [
           {addr: tokenFake.address, amnt: 5000},
         ])
-      ).to.be.revertedWith("Insufficient Funds");
+      ).to.be.revertedWith("SafeERC20: ERC20 operation did not succeed");
     });
 
     it("reverts if the transfer of all tokens to the ultimate beneficiary address fails", async () => {
@@ -1750,7 +1747,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
         facet.withdraw(charityId, VaultType.LIQUID, beneficiary, 0, [
           {addr: tokenFake.address, amnt: 5000},
         ])
-      ).to.be.revertedWith("Transfer failed");
+      ).to.be.revertedWith("SafeERC20: ERC20 operation did not succeed");
     });
 
     it("reverts if the transfer of all tokens to the ultimate beneficiary endowment fails", async () => {
