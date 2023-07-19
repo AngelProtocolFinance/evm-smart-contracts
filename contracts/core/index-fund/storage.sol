@@ -19,16 +19,7 @@ library IndexFundStorage {
   struct Config {
     address registrarContract; // Address of Registrar SC
     uint256 fundRotation; // how many blocks are in a rotation cycle for the active IndexFund
-    uint256 fundMemberLimit; // limit to number of endowments an IndexFund can have
     uint256 fundingGoal; // donation funding limit (in UUSD) to trigger early cycle of the Active IndexFund
-  }
-
-  struct DonationMessages {
-    uint32[] endowmentIds;
-    uint256[] lockedDonationAmount;
-    uint256[] liquidDonationAmount;
-    uint256[] lockedSplit;
-    uint256[] liquidSplit;
   }
 
   struct State {
@@ -38,11 +29,8 @@ library IndexFundStorage {
     uint256 nextRotationBlock; // block height to perform next rotation on
     uint256 nextFundId;
     uint256[] rotatingFunds; // list of active, rotating funds (ex. 17 funds, 1 for each of the UNSDGs)
-    DonationMessages donationMessages;
     // Fund ID >> Fund
     mapping(uint256 => Fund) Funds;
-    // Fund ID >> Endowment ID >> Bool
-    mapping(uint256 => mapping(uint32 => bool)) FundsActiveEndowments;
     // Endow ID >> [Fund IDs]
     mapping(uint32 => uint256[]) FundsByEndowment;
   }

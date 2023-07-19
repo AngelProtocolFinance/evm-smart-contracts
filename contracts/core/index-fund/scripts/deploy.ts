@@ -32,12 +32,14 @@ export async function deployIndexFund(
 
     // deploy proxy
     logger.out("Deploying proxy...");
-    const initData = indexFund.interface.encodeFunctionData("initialize(address,uint256,uint256,uint256)", [
-      registrar,
-      config.INDEX_FUND_DATA.fundRotation,
-      config.INDEX_FUND_DATA.fundMemberLimit,
-      config.INDEX_FUND_DATA.fundingGoal,
-    ]);
+    const initData = indexFund.interface.encodeFunctionData(
+      "initialize(address,uint256,uint256)",
+      [
+        registrar,
+        config.INDEX_FUND_DATA.fundRotation,
+        config.INDEX_FUND_DATA.fundingGoal,
+      ]
+    );
     const proxyFactory = new ProxyContract__factory(deployer);
     const indexFundProxy = await proxyFactory.deploy(
       indexFund.address,

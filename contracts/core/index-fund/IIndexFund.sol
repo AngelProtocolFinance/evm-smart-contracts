@@ -32,13 +32,11 @@ interface IIndexFund {
    * @dev This function is called by deployer only once at the time of initialization
    * @param registrarContract Registrar Contract address
    * @param fundRotation how many blocks are in a rotation cycle for the active IndexFund
-   * @param fundMemberLimit limit to number of members an IndexFund can have
    * @param fundingGoal donation funding limit to trigger early cycle of the Active IndexFund
    */
   function initialize(
     address registrarContract,
     uint256 fundRotation,
-    uint256 fundMemberLimit,
     uint256 fundingGoal
   ) external;
 
@@ -47,13 +45,11 @@ interface IIndexFund {
    * @dev can be called by owner to set new config
    * @param registrarContract Registrar Contract address
    * @param fundRotation how many blocks are in a rotation cycle for the active IndexFund
-   * @param fundMemberLimit limit to number of members an IndexFund can have
    * @param fundingGoal donation funding limit to trigger early cycle of the Active IndexFund
    */
   function updateConfig(
     address registrarContract,
     uint256 fundRotation,
-    uint256 fundMemberLimit,
     uint256 fundingGoal
   ) external;
 
