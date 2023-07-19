@@ -11,11 +11,12 @@ import {
 import {
   AccountsDonationMatch,
   AccountsDonationMatch__factory,
+  DummyERC20,
+  DummyERC20__factory,
   Registrar,
   Registrar__factory,
   TestFacetProxyContract,
 } from "typechain-types";
-import {LibAccounts} from "typechain-types/contracts/core/accounts/facets/AccountsDonationMatch";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet, getSigners} from "utils";
@@ -26,7 +27,7 @@ use(smock.matchers);
 describe("AccountsDonationMatch", function () {
   const {ethers} = hre;
 
-  const accountId = 1;
+  const endowId = 1;
 
   let accOwner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
@@ -35,9 +36,8 @@ describe("AccountsDonationMatch", function () {
   let facet: AccountsDonationMatch;
   let state: TestFacetProxyContract;
 
-  let endowment: AccountStorage.EndowmentStruct;
-  let treasuryAddress: string;
-
+  let daoTokenFake: FakeContract<DummyERC20>;
+  let haloTokenFake: FakeContract<DummyERC20>;
   let registrarFake: FakeContract<Registrar>;
 
   before(async function () {
@@ -45,43 +45,75 @@ describe("AccountsDonationMatch", function () {
     accOwner = signers.apTeam1;
     proxyAdmin = signers.proxyAdmin;
     endowOwner = signers.deployer;
-    treasuryAddress = signers.apTeam2.address;
-
-    endowment = {...DEFAULT_CHARITY_ENDOWMENT, owner: endowOwner.address};
   });
 
   beforeEach(async function () {
-    let Facet = new AccountsDonationMatch__factory(accOwner);
-    let facetImpl = await Facet.deploy();
+    const Facet = new AccountsDonationMatch__factory(accOwner);
+    const facetImpl = await Facet.deploy();
     state = await deployFacetAsProxy(hre, accOwner, proxyAdmin, facetImpl.address);
 
-    registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
-      address: genWallet().address,
-    });
+    facet = AccountsDonationMatch__factory.connect(state.address, endowOwner);
+
+    registrarFake = await smock.fake<Registrar>(new Registrar__factory());
+    daoTokenFake = await smock.fake<DummyERC20>(new DummyERC20__factory());
+    haloTokenFake = await smock.fake<DummyERC20>(new DummyERC20__factory());
 
     const config: RegistrarStorage.ConfigStruct = {
       ...DEFAULT_REGISTRAR_CONFIG,
-      treasury: treasuryAddress,
+      haloToken: haloTokenFake.address,
     };
     registrarFake.queryConfig.returns(config);
 
-    await state.setEndowmentDetails(accountId, endowment);
+    const endowment: AccountStorage.EndowmentStruct = {
+      ...DEFAULT_CHARITY_ENDOWMENT,
+      owner: endowOwner.address,
+      daoToken: daoTokenFake.address,
+    };
+    await state.setEndowmentDetails(endowId, endowment);
     await state.setConfig({
       owner: accOwner.address,
       version: "1",
       networkName: "Polygon",
       registrarContract: registrarFake.address,
-      nextAccountId: accountId + 1,
+      nextAccountId: endowId + 1,
       maxGeneralCategoryId: 1,
       subDao: ethers.constants.AddressZero,
       earlyLockedWithdrawFee: {bps: 1000, payoutAddress: ethers.constants.AddressZero},
       reentrancyGuardLocked: false,
     });
-
-    facet = AccountsDonationMatch__factory.connect(state.address, endowOwner);
   });
 
   describe("upon depositDonationMatchERC20", () => {
-    it("reverts ");
+    it("reverts if the token is neither HALO nor DAOToken", async () => {
+      await expect(
+        facet.depositDonationMatchERC20(endowId, genWallet().address, 10)
+      ).to.be.revertedWith("Invalid Token");
+    });
+
+    it("passes when token used is HALO", async () => {
+      const prevBalance = await state.getDaoTokenBalance(endowId);
+      const amount = BigNumber.from(10);
+
+      haloTokenFake.transferFrom.returns(true);
+
+      await expect(facet.depositDonationMatchERC20(endowId, haloTokenFake.address, amount))
+        .to.emit(facet, "DonationDeposited")
+        .withArgs(endowId, haloTokenFake.address, amount);
+
+      expect(await state.getDaoTokenBalance(endowId)).to.equal(prevBalance.add(amount));
+    });
+
+    it("passes when token used is DAOToken", async () => {
+      const prevBalance = await state.getDaoTokenBalance(endowId);
+      const amount = BigNumber.from(10);
+
+      daoTokenFake.transferFrom.returns(true);
+
+      await expect(facet.depositDonationMatchERC20(endowId, daoTokenFake.address, amount))
+        .to.emit(facet, "DonationDeposited")
+        .withArgs(endowId, daoTokenFake.address, amount);
+
+      expect(await state.getDaoTokenBalance(endowId)).to.equal(prevBalance.add(amount));
+    });
   });
 });
