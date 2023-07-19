@@ -17,10 +17,8 @@ import {ProxyContract} from "../../proxy.sol";
 import {IAccountsDonationMatch} from "../interfaces/IAccountsDonationMatch.sol";
 
 /**
- * @title AccountsDeployContract
- * @notice This contract is used to deploy contracts from accounts diamond
- * @dev Created so that deploying facets (which call this) don't have size conflicts
- * @dev Is always going to be called by address(this)
+ * @title AccountsDonationMatch
+ * @dev This contract is used to manage donation match tokens
  */
 contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccountsDonationMatch {
   using SafeERC20 for IERC20;
@@ -29,6 +27,7 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
    * @notice Deposit DAOToken(or Halo) to the endowment and store its balance
    * @dev Function manages reserve token sent by donation matching contract
    * @param id Endowment ID
+   * @param token DAOToken or HALO address
    * @param amount Amount of DAOToken to deposit
    */
   function depositDonationMatchERC20(uint32 id, address token, uint256 amount) public {
