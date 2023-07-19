@@ -24,7 +24,7 @@ library SubDaoTokenStorage {
     uint256 unbondingPeriod;
   }
 
-  enum veTypeEnum {
+  enum VeTypeEnum {
     Constant,
     Linear,
     SquareRoot
@@ -40,10 +40,10 @@ library SubDaoTokenStorage {
     claimInfo[] details;
   }
 
-  function getReserveRatio(SubDaoLib.veTypeEnum curveType) internal pure returns (uint256) {
-    if (curveType == SubDaoLib.veTypeEnum.Linear) {
+  function getReserveRatio(SubDaoLib.VeTypeEnum curveType) internal pure returns (uint256) {
+    if (curveType == SubDaoLib.VeTypeEnum.Linear) {
       return 500000;
-    } else if (curveType == SubDaoLib.veTypeEnum.SquarRoot) {
+    } else if (curveType == SubDaoLib.VeTypeEnum.SquarRoot) {
       return 660000;
     } else {
       return 1000000;
