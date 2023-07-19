@@ -106,7 +106,6 @@ contract AccountsDepositWithdrawEndowments is
       uint256 depositFeeAmount = (amount.mul(tempEndowment.depositFee.bps)).div(
         LibAccounts.FEE_BASIS
       );
-
       amount = amount.sub(depositFeeAmount);
 
       IERC20(tokenAddress).safeTransfer(tempEndowment.depositFee.payoutAddress, depositFeeAmount);
