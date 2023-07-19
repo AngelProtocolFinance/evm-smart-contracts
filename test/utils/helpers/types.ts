@@ -59,5 +59,5 @@ export enum FeeTypes {
 
 export enum DonationMatchEnum {
   HaloTokenReserve,
-  Cw20TokenReserve,
+  ERC20TokenReserve,
 }

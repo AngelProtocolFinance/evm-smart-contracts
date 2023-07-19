@@ -278,7 +278,7 @@ describe("AccountsDonationMatch", function () {
     });
 
     it("reverts if the passed reserveToken address is a zero address", async () => {
-      details.enumData = DonationMatchEnum.Cw20TokenReserve;
+      details.enumData = DonationMatchEnum.ERC20TokenReserve;
       details.data.reserveToken = ethers.constants.AddressZero;
 
       await expect(facet.setupDonationMatch(endowId, details)).to.be.revertedWith(
@@ -310,7 +310,7 @@ describe("AccountsDonationMatch", function () {
     });
 
     it("passes when setting up some custom reserve token", async () => {
-      details.enumData = DonationMatchEnum.Cw20TokenReserve;
+      details.enumData = DonationMatchEnum.ERC20TokenReserve;
       details.data.reserveToken = genWallet().address;
 
       await expect(facet.setupDonationMatch(endowId, details)).to.emit(
