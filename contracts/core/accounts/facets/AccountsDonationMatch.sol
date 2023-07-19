@@ -89,7 +89,6 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
 
     require(msg.sender == tempEndowment.owner, "Unauthorized");
 
-    require(tempEndowment.owner != address(0), "A DAO does not exist yet for this Endowment");
     require(
       tempEndowment.donationMatchContract == address(0),
       "A Donation Match contract already exists for this Endowment"
