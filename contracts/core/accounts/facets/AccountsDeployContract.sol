@@ -43,7 +43,7 @@ contract AccountsDeployContract is IAccountsDeployContract, ReentrancyGuardFacet
     );
 
     daoAddress = address(new ProxyContract(implementation, admin, subDaoData));
-    // >> SHOULD IT BE CALLED INSIDE SubDao.initializeSubDao?
+
     ISubDaoEmitter(registrar_config.subdaoEmitter).initializeSubDao(daoAddress);
 
     ISubDao(daoAddress).buildDaoTokenMesage(createDaoMessage);
