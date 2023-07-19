@@ -31,7 +31,7 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
    * @param id Endowment ID
    * @param amount Amount of DAOToken to deposit
    */
-  function depositDonationMatchErC20(uint32 id, address token, uint256 amount) public {
+  function depositDonationMatchERC20(uint32 id, address token, uint256 amount) public {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
@@ -57,7 +57,7 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
    * @param recipient Recipient address
    * @param amount Amount of DAOToken to withdraw
    */
-  function withdrawDonationMatchErC20(uint32 id, address recipient, uint256 amount) public {
+  function withdrawDonationMatchERC20(uint32 id, address recipient, uint256 amount) public {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
@@ -134,7 +134,6 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
     // TODO: add donation match address?? :
     state.ENDOWMENTS[id].donationMatchContract = donationMatch;
 
-    // Shouldn't this be emitted from contracts/normalized_endowment/donation-match/DonationMatch.sol > initialize ?
     IDonationMatchEmitter(registrar_config.donationMatchEmitter).initializeDonationMatch(
       id,
       donationMatch,

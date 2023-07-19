@@ -124,7 +124,7 @@ contract DonationMatchCharity is IDonationMatching, Storage, Initializable, Reen
 
       IERC20Burnable(token).safeApprove(registrar_config.accountsContract, endowmentAmount);
 
-      IAccountsDonationMatch(registrar_config.accountsContract).depositDonationMatchErC20(
+      IAccountsDonationMatch(registrar_config.accountsContract).depositDonationMatchERC20(
         endowmentId,
         token,
         endowmentAmount
