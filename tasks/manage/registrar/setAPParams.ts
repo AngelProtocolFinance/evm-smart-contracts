@@ -6,9 +6,6 @@ const NULL_NUMBER = 0;
 const NULL_STRING = "";
 
 type TaskArgs = {
-  protocolTaxRate: number;
-  protocolTaxBasis: number;
-  protocolTaxCollector: string;
   routerAddress: string;
   refundAddress: string;
 };
@@ -17,24 +14,6 @@ task(
   "manage:registrar:setAPParams",
   "Set any or all of the AP params. This task only modifies specified optional args"
 )
-  .addOptionalParam(
-    "protocolTaxRate",
-    "The protocol tax rate as a percent (i.e. 2 => 2%)",
-    NULL_NUMBER,
-    types.int
-  )
-  .addOptionalParam(
-    "protocolTaxBasis",
-    "The protocol tax basis for setting precision",
-    NULL_NUMBER,
-    types.int
-  )
-  .addOptionalParam(
-    "protocolTaxCollector",
-    "Address of the protocol tax collector",
-    NULL_STRING,
-    types.string
-  )
   .addOptionalParam("routerAddress", "The address of this chains router", NULL_STRING, types.string)
   .addOptionalParam(
     "refundAddress",
