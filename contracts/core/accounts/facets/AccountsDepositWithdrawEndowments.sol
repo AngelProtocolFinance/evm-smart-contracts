@@ -97,7 +97,6 @@ contract AccountsDepositWithdrawEndowments is
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
 
-    require(tokenAddress != address(0), "Invalid ERC20 token");
     require(details.lockedPercentage + details.liquidPercentage == 100, "InvalidSplit");
 
     RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
@@ -109,14 +108,11 @@ contract AccountsDepositWithdrawEndowments is
       );
       amount = amount.sub(depositFeeAmount);
 
-
       IERC20(tokenAddress).safeTransfer(tempEndowment.depositFee.payoutAddress, depositFeeAmount);
     }
 
     uint256 lockedSplitPercent = details.lockedPercentage;
     uint256 liquidSplitPercent = details.liquidPercentage;
-
-    LibAccounts.SplitDetails memory registrar_split_configs = registrar_config.splitToLiquid;
 
     require(registrar_config.indexFundContract != address(0), "No Index Fund");
 
@@ -124,7 +120,7 @@ contract AccountsDepositWithdrawEndowments is
       if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
         // use the Registrar default split for Charities
         (lockedSplitPercent, liquidSplitPercent) = Validator.checkSplits(
-          registrar_split_configs,
+          registrar_config.splitToLiquid,
           lockedSplitPercent,
           liquidSplitPercent,
           tempEndowment.ignoreUserSplits
@@ -172,7 +168,6 @@ contract AccountsDepositWithdrawEndowments is
     state.STATES[details.id].balances.locked[tokenAddress] += lockedAmount;
     state.STATES[details.id].balances.liquid[tokenAddress] += liquidAmount;
 
-    state.ENDOWMENTS[details.id] = tempEndowment;
     emit EndowmentDeposit(details.id, tokenAddress, lockedAmount, liquidAmount);
   }
 
@@ -231,7 +226,7 @@ contract AccountsDepositWithdrawEndowments is
             senderAllowed = true;
           }
         }
-        require(senderAllowed, "Sender address is not listed in maturityAllowlist.");
+        require(senderAllowed, "Sender address is not listed in maturityAllowlist");
       }
     } else {
       if (tempEndowment.allowlistedBeneficiaries.length > 0) {
@@ -243,7 +238,7 @@ contract AccountsDepositWithdrawEndowments is
       }
       require(
         senderAllowed || msg.sender == tempEndowment.owner,
-        "Sender address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner."
+        "Sender address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner"
       );
     }
 
@@ -289,7 +284,7 @@ contract AccountsDepositWithdrawEndowments is
       }
 
       // ensure balance of tokens can cover the requested withdraw amount
-      require(current_bal > tokens[t].amnt, "InsufficientFunds");
+      require(current_bal >= tokens[t].amnt, "Insufficient Funds");
 
       // calculate AP Protocol fee owed on withdrawn token amount
       uint256 withdrawFeeAp = (tokens[t].amnt.mul(withdrawFeeRateAp)).div(LibAccounts.FEE_BASIS);
@@ -320,7 +315,10 @@ contract AccountsDepositWithdrawEndowments is
 
       // send all tokens (less fees) to the ultimate beneficiary address/endowment
       if (beneficiaryAddress != address(0)) {
-          IERC20(tokens[t].addr).safeTransfer(beneficiaryAddress, (amountLeftover - withdrawFeeEndow));
+        IERC20(tokens[t].addr).safeTransfer(
+          beneficiaryAddress,
+          (amountLeftover - withdrawFeeEndow)
+        );
       } else {
         // check endowment specified is not closed
         require(
@@ -329,7 +327,11 @@ contract AccountsDepositWithdrawEndowments is
         );
         // Send deposit message to 100% Liquid account of an endowment
         processTokenDeposit(
-          AccountMessages.DepositRequest({id: id, lockedPercentage: 0, liquidPercentage: 100}),
+          AccountMessages.DepositRequest({
+            id: beneficiaryEndowId,
+            lockedPercentage: 0,
+            liquidPercentage: 100
+          }),
           tokens[t].addr,
           (amountLeftover - withdrawFeeEndow)
         );
