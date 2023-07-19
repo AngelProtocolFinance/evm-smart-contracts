@@ -109,7 +109,6 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
     address inputtoken;
     if (details.enumData == AccountMessages.DonationMatchEnum.HaloTokenReserve) {
       require(registrar_config.haloToken != address(0), "Invalid HALO address in Registrar");
-
       inputtoken = registrar_config.haloToken;
     } else {
       require(details.data.reserveToken != address(0), "Invalid reserve token address");
@@ -131,6 +130,7 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
       registrar_config.donationMatchEmitter
     );
 
+    // TODO: might be a good idea to create this contract using a factory, will improve testability as well
     address donationMatch = address(
       new ProxyContract(registrar_config.donationMatchContract, registrar_config.proxyAdmin, data)
     );
