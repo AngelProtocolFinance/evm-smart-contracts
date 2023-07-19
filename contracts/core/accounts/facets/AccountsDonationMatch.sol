@@ -18,7 +18,7 @@ import {IAccountsDonationMatch} from "../interfaces/IAccountsDonationMatch.sol";
 
 /**
  * @title AccountsDonationMatch
- * @dev This contract is used to manage donation match tokens
+ * @dev This contract is used to manage donation match tokens and to setup a donation match contract for an endowment
  */
 contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccountsDonationMatch {
   using SafeERC20 for IERC20;
@@ -86,7 +86,6 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
     AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];
-    // AccountStorage.Config memory tempConfig = state.config;
 
     require(msg.sender == tempEndowment.owner, "Unauthorized");
 
