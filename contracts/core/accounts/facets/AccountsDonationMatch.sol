@@ -104,7 +104,7 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
       registrar_config.donationMatchContract != address(0),
       "Missing implementation for donation matching contract"
     );
-    require(registrar_config.usdcAddress != address(0), "Missing USDC address in Registrar");
+    require(registrar_config.usdcAddress != address(0), "Invalid USDC address in Registrar");
 
     address inputtoken;
     if (details.enumData == AccountMessages.DonationMatchEnum.HaloTokenReserve) {
