@@ -32,6 +32,7 @@ describe("AccountsDonationMatch", function () {
   let accOwner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
   let endowOwner: SignerWithAddress;
+  let user: SignerWithAddress;
 
   let facet: AccountsDonationMatch;
   let state: TestFacetProxyContract;
@@ -45,6 +46,7 @@ describe("AccountsDonationMatch", function () {
     accOwner = signers.apTeam1;
     proxyAdmin = signers.proxyAdmin;
     endowOwner = signers.deployer;
+    user = signers.apTeam2;
   });
 
   beforeEach(async function () {
@@ -114,6 +116,57 @@ describe("AccountsDonationMatch", function () {
         .withArgs(endowId, daoTokenFake.address, amount);
 
       expect(await state.getDaoTokenBalance(endowId)).to.equal(prevBalance.add(amount));
+    });
+  });
+
+  describe("upon withdrawDonationMatchERC20", () => {
+    it("reverts if amount is 0 (zero)", async () => {
+      await expect(
+        facet.withdrawDonationMatchERC20(endowId, genWallet().address, 0)
+      ).to.be.revertedWith("amount should be greater than 0");
+    });
+
+    it("reverts if sender is not the endowment owner", async () => {
+      await expect(
+        facet.connect(user).withdrawDonationMatchERC20(endowId, genWallet().address, 10)
+      ).to.be.revertedWith("Unauthorized");
+    });
+
+    it("reverts if endowment's DAO token balance is smaller than the requested amount", async () => {
+      // current DAO token balance is not set, which makes it 0 (zero) by default
+      await expect(
+        facet.withdrawDonationMatchERC20(endowId, genWallet().address, 10)
+      ).to.be.revertedWith("Insufficient amount");
+    });
+
+    it("passes if DAO token balance is equal to the requested amount", async () => {
+      const amount = 10;
+      const recipient = genWallet().address;
+
+      await state.setDaoTokenBalance(endowId, amount);
+
+      daoTokenFake.transfer.whenCalledWith(recipient, amount).returns(true);
+
+      await expect(facet.withdrawDonationMatchERC20(endowId, recipient, amount))
+        .to.emit(facet, "DonationWithdrawn")
+        .withArgs(endowId, recipient, daoTokenFake.address, amount);
+
+      expect(await state.getDaoTokenBalance(endowId)).to.equal(0);
+    });
+
+    it("passes if DAO token balance is greater than the requested amount", async () => {
+      const amount = 10;
+      const recipient = genWallet().address;
+
+      await state.setDaoTokenBalance(endowId, amount + 1);
+
+      daoTokenFake.transfer.whenCalledWith(recipient, amount).returns(true);
+
+      await expect(facet.withdrawDonationMatchERC20(endowId, recipient, amount))
+        .to.emit(facet, "DonationWithdrawn")
+        .withArgs(endowId, recipient, daoTokenFake.address, amount);
+
+      expect(await state.getDaoTokenBalance(endowId)).to.equal(1);
     });
   });
 });

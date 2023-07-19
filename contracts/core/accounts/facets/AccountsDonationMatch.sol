@@ -61,9 +61,9 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
 
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
 
-    require(amount > 0, "amount should be grater than 0");
+    require(amount > 0, "amount should be greater than 0");
 
-    require(msg.sender == tempEndowment.owner, "UnAuthorized");
+    require(msg.sender == tempEndowment.owner, "Unauthorized");
 
     require(state.DAOTOKENBALANCE[id] >= amount, "Insufficient amount");
 
