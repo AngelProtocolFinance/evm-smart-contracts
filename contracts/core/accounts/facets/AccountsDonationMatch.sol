@@ -5,7 +5,8 @@ import {AccountStorage} from "../storage.sol";
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {AccountMessages} from "../message.sol";
@@ -22,6 +23,8 @@ import {IAccountsDonationMatch} from "../interfaces/IAccountsDonationMatch.sol";
  * @dev Is always going to be called by address(this)
  */
 contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccountsDonationMatch {
+  using SafeERC20 for IERC20;
+
   /**
    * @notice Deposit DAOToken(or Halo) to the endowment and store its balance
    * @dev Function manages reserve token sent by donation matching contract
@@ -41,7 +44,7 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
       "Invalid Token"
     );
 
-    require(IERC20(token).transferFrom(msg.sender, address(this), amount), "TransferFrom failed");
+    IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
     state.DAOTOKENBALANCE[id] += amount;
     emit DonationDeposited(id, token, amount);
@@ -67,7 +70,7 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
 
     state.DAOTOKENBALANCE[id] -= amount;
 
-    require(IERC20(tempEndowment.daoToken).transfer(recipient, amount), "Transfer failed");
+    IERC20(tempEndowment.daoToken).safeTransfer(recipient, amount);
     emit DonationWithdrawn(id, recipient, tempEndowment.daoToken, amount);
   }
 

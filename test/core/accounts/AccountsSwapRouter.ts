@@ -27,6 +27,7 @@ import {
 } from "typechain-types";
 import {genWallet, getSigners} from "utils";
 
+
 use(smock.matchers);
 
 describe("AccountsSwapRouter", function () {
@@ -332,7 +333,7 @@ describe("AccountsSwapRouter", function () {
 
         await expect(
           facet.swapToken(ACCOUNT_ID, VaultType.LIQUID, token.address, 1, genWallet().address, 1)
-        ).to.be.revertedWith("Approval failed");
+        ).to.be.revertedWith("SafeERC20: ERC20 operation did not succeed");
       });
     });
 
