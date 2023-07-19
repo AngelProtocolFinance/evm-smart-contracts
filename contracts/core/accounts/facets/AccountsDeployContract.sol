@@ -42,6 +42,8 @@ contract AccountsDeployContract is IAccountsDeployContract, ReentrancyGuardFacet
       registrar_config.subdaoEmitter
     );
 
+    // TODO: create a ProxyFactory contract that instantiates proxy contracts
+    // Reason: will make the contract more easily testable (factory could be mocked)
     daoAddress = address(new ProxyContract(implementation, admin, subDaoData));
 
     ISubDaoEmitter(registrar_config.subdaoEmitter).initializeSubDao(daoAddress);

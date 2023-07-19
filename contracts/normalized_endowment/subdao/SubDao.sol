@@ -34,6 +34,7 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
 
     emitterAddress = _emitterAddress;
 
+    // should this data be verified? Like registrarContract != address(0)?
     config = SubDaoStorage.Config({
       registrarContract: details.registrarContract,
       owner: details.owner,
