@@ -1,1 +1,2 @@
 import "./updateOwner";
+import "./updateRegistrar";
