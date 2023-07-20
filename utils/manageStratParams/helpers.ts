@@ -5,16 +5,14 @@ import {StrategyObject} from "./types";
 export function readStrategyAddresses(
   filePath: string,
   name: string
-): Record<string, StrategyObject> {
+): StrategyObject {
   checkExistence(filePath);
 
   const jsonData = fs.readFileSync(filePath, "utf-8");
 
-  const allData = JSON.parse(jsonData);
+  const allData: Record<string, StrategyObject> = JSON.parse(jsonData);
 
-  const data: Record<string, StrategyObject> = allData[name];
-
-  return data;
+  return allData[name];
 }
 
 function checkExistence(filePath: string) {

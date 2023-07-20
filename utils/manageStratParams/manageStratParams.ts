@@ -7,15 +7,15 @@ import {DEFAULT_STRATEGY_ADDRESSES_FILE_PATH} from "..";
 export function getVaultAddress(name: string, type: VaultType): string {
   let typeName: string;
   if (type == VaultType.LOCKED) {
-    typeName = "Locked";
+    typeName = "locked";
   } else if (type == VaultType.LIQUID) {
-    typeName = "Liquid";
+    typeName = "liquid";
   } else {
     throw new Error(`Vault of type ${type} is not`);
   }
   const addresses = readStrategyAddresses(DEFAULT_STRATEGY_ADDRESSES_FILE_PATH, name);
 
-  return String(addresses[typeName]);
+  return addresses[typeName];
 }
 
 export function getStrategyAddress(name: string): string {
