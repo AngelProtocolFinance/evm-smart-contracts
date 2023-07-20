@@ -1,5 +1,8 @@
+import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {expect, use} from "chai";
 import hre from "hardhat";
+import {DEFAULT_REGISTRAR_CONFIG, EndowmentType, TokenType, VeTypeEnum} from "test/utils";
 import {
   AccountsDeployContract,
   AccountsDeployContract__factory,
@@ -8,17 +11,12 @@ import {
   SubDao,
   SubDaoEmitter,
   SubDaoEmitter__factory,
-  SubDaoLib,
-  SubDaoLib__factory,
   SubDao__factory,
   TestFacetProxyContract,
 } from "typechain-types";
+import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {genWallet, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils/deployTestFacet";
-import {FakeContract, smock} from "@defi-wonderland/smock";
-import {expect, use} from "chai";
-import {DEFAULT_REGISTRAR_CONFIG, EndowmentType, TokenType, VeTypeEnum} from "test/utils";
-import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 
 use(smock.matchers);
 
@@ -44,12 +42,9 @@ describe("AccountsDeployContract", function () {
     proxyAdmin = signers.proxyAdmin;
     endowOwner = signers.deployer;
 
-    const subdaoLibFake: FakeContract<SubDaoLib> = await smock.fake<SubDaoLib>(
-      new SubDaoLib__factory()
-    );
     subdaoFake = await smock.fake<SubDao>(
       new SubDao__factory({
-        "contracts/normalized_endowment/subdao/SubDaoLib.sol:SubDaoLib": subdaoLibFake.address,
+        "contracts/normalized_endowment/subdao/SubDaoLib.sol:SubDaoLib": genWallet().address,
       })
     );
     subdaoEmitterFake = await smock.fake<SubDaoEmitter>(new SubDaoEmitter__factory());
@@ -90,40 +85,40 @@ describe("AccountsDeployContract", function () {
         facet.connect(endowOwner).createDaoContract({
           endowOwner: endowOwner.address,
           endowType: EndowmentType.Charity,
-          expirationPeriod: 0,
+          expirationPeriod: 1,
           id: endowId,
           owner: endowOwner.address,
           proposalDeposit: 1,
           quorum: 1,
           registrarContract: registrarFake.address,
-          snapshotPeriod: 0,
-          threshold: 0,
-          timelockPeriod: 0,
+          snapshotPeriod: 1,
+          threshold: 1,
+          timelockPeriod: 1,
           token: {
             token: TokenType.New,
             data: {
-              existingData: "",
-              newInitialSupply: 0,
-              newName: "",
-              newSymbol: "",
+              existingData: genWallet().address,
+              newInitialSupply: 1,
+              newName: "newname",
+              newSymbol: "NEW",
               veBondingDecimals: 18,
-              veBondingName: "",
-              veBondingPeriod: 0,
+              veBondingName: "VENAME",
+              veBondingPeriod: 1,
               veBondingReserveDecimals: 18,
-              veBondingReserveDenom: "",
-              veBondingSymbol: "",
+              veBondingReserveDenom: genWallet().address,
+              veBondingSymbol: "DSFN",
               veBondingType: {
                 ve_type: VeTypeEnum.Constant,
                 data: {
-                  power: 0,
-                  scale: 0,
-                  slope: 0,
-                  value: 0,
+                  power: 1,
+                  scale: 1,
+                  slope: 1,
+                  value: 1,
                 },
               },
             },
           },
-          votingPeriod: 0,
+          votingPeriod: 1,
         })
       ).to.be.revertedWith("Unauthorized");
     });
