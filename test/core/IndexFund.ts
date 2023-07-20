@@ -46,6 +46,15 @@ describe("IndexFund", function () {
       registrar = await deployRegistrarAsProxy(owner, proxyAdmin);
     }
 
+    // registrar config has the accounts contract facet set
+    await registrar.updateConfig({
+      accountsContract: facet.address,
+      splitMax: 100,
+      splitMin: 0,
+      splitDefault: 50,
+      collectorShare: 0,
+    });
+
     const IndexFundFactory = new IndexFund__factory(owner);
     const IndexFundImpl = await IndexFundFactory.deploy();
     await IndexFundImpl.deployed();
@@ -225,7 +234,7 @@ describe("IndexFund", function () {
 
     it("passes when all inputs are correct", async function () {
       // create a new fund with two Endowment members
-      expect(await indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], false, 0, 10))
+      expect(await indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], false, 0, 0))
         .to.emit(indexFund, "FundCreated")
         .withArgs(1);
       let activeFund = await indexFund.queryActiveFundDetails();
@@ -239,15 +248,8 @@ describe("IndexFund", function () {
     before(async function () {
       indexFund = await deployIndexFundAsProxy();
       // create 2 funds (1 active and 1 expired)
-      await indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], true, 50, 10);
-      await indexFund.createIndexFund(
-        "Test Fund #2 (Inactive)",
-        "Inactive Test fund",
-        [1, 2],
-        false,
-        50,
-        0
-      );
+      await indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], true, 50, 0);
+      await indexFund.createIndexFund("Test Fund #2", "Test fund", [1], false, 50, 0);
     });
 
     it("reverts when the message sender is not the owner", async function () {
@@ -285,15 +287,8 @@ describe("IndexFund", function () {
     before(async function () {
       indexFund = await deployIndexFundAsProxy();
       // create 2 funds (1 active and 1 expired)
-      await indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], true, 50, 10);
-      await indexFund.createIndexFund(
-        "Test Fund #2 (Inactive)",
-        "Inactive Test fund",
-        [1, 2],
-        false,
-        50,
-        0
-      );
+      await indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], true, 50, 0);
+      await indexFund.createIndexFund("Test Fund #2", "Test fund", [1], false, 50, 0);
     });
 
     it("reverts when the message sender is not the owner", async function () {
@@ -317,30 +312,29 @@ describe("IndexFund", function () {
     before(async function () {
       indexFund = await deployIndexFundAsProxy();
       // create 2 funds (1 active and 1 expired)
-      await indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], true, 50, 10);
-      await indexFund.createIndexFund(
-        "Test Fund #2 (Inactive)",
-        "Inactive Test fund",
-        [1, 2],
-        false,
-        50,
-        0
-      );
+      await indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], true, 50, 0);
+      await indexFund.createIndexFund("Test Fund #2", "Test fund", [1], false, 50, 0);
     });
 
     it("reverts when the message sender is not the accounts contract", async function () {
-      let regConfig = await registrar.queryConfig();
-      expect(indexFund.connect(regConfig.accountsContract).removeMember(1)).to.be.revertedWith(
-        "Unauthorized"
-      );
+      expect(indexFund.removeMember(1)).to.be.revertedWith("Unauthorized");
     });
 
     it("passes with correct sender", async function () {
+      // Endowment #1 should be invloved with two funds
+      let funds = await indexFund.queryInvolvedFunds(1);
+      expect(funds.length).to.equal(2);
+
+      // remove Endowment #1 from all funds
       let regConfig = await registrar.queryConfig();
       expect(await indexFund.connect(regConfig.accountsContract).removeMember(1)).to.emit(
         indexFund,
         "MemberRemoved"
       );
+
+      // Endowment #1 should not be invloved with any funds now
+      funds = await indexFund.queryInvolvedFunds(1);
+      expect(funds.length).to.equal(0);
     });
   });
 
@@ -350,57 +344,48 @@ describe("IndexFund", function () {
     before(async function () {
       indexFund = await deployIndexFundAsProxy();
       // create 1 fund
-      await indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], true, 50, 10);
-      await indexFund.createIndexFund(
-        "Test Fund #2 (Inactive)",
-        "Inactive Test fund",
-        [1, 2],
-        false,
-        50,
-        0
-      );
+      await indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], true, 50, 0);
+      await indexFund.createIndexFund("Test Fund #2", "Test fund", [1], false, 50, 0);
     });
 
     it("reverts when amount is zero", async function () {
-      expect(indexFund.connect(user).depositERC20(1, token1.address, 0, 50)).to.be.revertedWith(
+      expect(indexFund.depositERC20(1, token1.address, 0, 50)).to.be.revertedWith(
         "Amount to donate must be greater than zero"
       );
     });
 
     it("reverts when fund passed is expired", async function () {
-      expect(indexFund.connect(user).depositERC20(2, token1.address, 100, 50)).to.be.revertedWith(
-        "Expired Fund"
-      );
+      expect(indexFund.depositERC20(2, token1.address, 100, 50)).to.be.revertedWith("Expired Fund");
     });
 
     it("reverts when invalid token is passed", async function () {
-      expect(
-        indexFund.connect(user).depositERC20(1, ethers.constants.AddressZero, 100, 50)
-      ).to.be.revertedWith("Invalid token");
+      expect(indexFund.depositERC20(1, ethers.constants.AddressZero, 100, 50)).to.be.revertedWith(
+        "Invalid token"
+      );
     });
 
     it("reverts when liquid split passed greater than 100", async function () {
-      expect(indexFund.connect(user).depositERC20(1, token1.address, 100, 105)).to.be.revertedWith(
+      expect(indexFund.depositERC20(1, token1.address, 100, 105)).to.be.revertedWith(
         "Invalid liquid split"
       );
     });
 
     it("passes for a specific fund, amount > zero, spilt <= 100 & token is valid", async function () {
       // mint tokens so that the user and contract can transfer them
-      await token1.mint(user.address, 100);
+      await token1.mint(owner.address, 100);
       await token1.mint(indexFund.address, 100);
 
-      expect(await indexFund.connect(user).depositERC20(1, token1.address, 100, 50))
+      expect(await indexFund.depositERC20(1, token1.address, 100, 50))
         .to.emit("DonationProcessed")
         .withArgs(1);
     });
 
     it("passes for active fund donation, amount > zero, spilt <= 100 & token is valid", async function () {
       // mint tokens so that the user and contract can transfer them
-      await token1.mint(user.address, 100);
+      await token1.mint(owner.address, 100);
       await token1.mint(indexFund.address, 100);
 
-      expect(await indexFund.connect(user).depositERC20(0, token1.address, 100, 50))
+      expect(await indexFund.depositERC20(0, token1.address, 100, 50))
         .to.emit("DonationProcessed")
         .withArgs(1);
     });

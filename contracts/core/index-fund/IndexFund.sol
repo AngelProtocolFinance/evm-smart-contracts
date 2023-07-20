@@ -149,11 +149,12 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
   }
 
   /**
-   *  @notice function to remove endowment member from all Funds globally. Used by Accounts contract when an Endowment closes down.
+   *  @notice function to remove endowment member from all Funds globally.
+   *  Used by Accounts contract when an Endowment closes down.
    *  @dev can be called by owner to remove a endowment from all the index funds
    *  @param endowment endowment to be removed from index fund
    */
-  function removeMember(uint32 endowment) external onlyOwner {
+  function removeMember(uint32 endowment) external {
     RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
       .queryConfig();
 
