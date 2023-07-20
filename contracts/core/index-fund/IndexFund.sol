@@ -313,19 +313,20 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
         );
         processDonations(registrar_config.accountsContract, state.activeFund, split, token, amount);
       } else {
-        // Check if funding goal is met for current active fund and rotate funds until all tokens are depleted
+        // Check if funding goal is met for current active fund and rotate funds until all donated tokens are depleted
+        uint256 donationAmnt = amount;
         uint256 loopDonation = 0;
         uint256 goalLeftover = state.config.fundingGoal - state.roundDonations;
-        while (amount > 0) {
-          if (amount >= goalLeftover) {
+        while (donationAmnt > 0) {
+          if (donationAmnt >= goalLeftover) {
             state.roundDonations = 0;
             // set state active fund to next fund for next loop iteration
             state.activeFund = rotateFund(state.activeFund);
             emit ActiveFundUpdated(state.activeFund);
             loopDonation = goalLeftover;
           } else {
-            state.roundDonations += amount;
-            loopDonation = amount;
+            state.roundDonations += donationAmnt;
+            loopDonation = donationAmnt;
           }
           split = calculateSplit(
             registrar_config.splitToLiquid,
@@ -339,8 +340,8 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
             token,
             loopDonation
           );
-          // deduct donated amount in this round from total donation amt
-          amount -= loopDonation;
+          // deduct donated donationAmnt in this round from total donation amt
+          donationAmnt -= loopDonation;
         }
       }
     }
@@ -434,22 +435,21 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     address token,
     uint256 amount
   ) internal {
-    uint32[] memory endowments = state.Funds[fundId].endowments;
-    require(endowments.length > 0, "Fund must have endowment members");
+    require(state.Funds[fundId].endowments.length > 0, "Fund must have endowment members");
     require(!fundIsExpired(state.Funds[fundId], block.timestamp), "Expired Fund");
     require(amount > 0, "Amount cannot be zero");
 
-    uint256 lockedSplit = 100 - liquidSplit;
-    uint256 endowmentPortion = amount.div(endowments.length);
-
     // execute donation message for each endowment in the fund
-    for (uint256 i = 0; i < endowments.length; i++) {
+    for (uint256 i = 0; i < state.Funds[fundId].endowments.length; i++) {
       IAccounts(accountsContract).depositERC20(
         AccountMessages.DepositRequest({
-          id: endowments[i],
-          lockedPercentage: lockedSplit,
+          id: state.Funds[fundId].endowments[i],
+          lockedPercentage: 100 - liquidSplit,
           liquidPercentage: liquidSplit
-        }), token, amount);
+        }),
+        token,
+        amount.div(state.Funds[fundId].endowments.length)
+      );
     }
 
     emit DonationProcessed(fundId);
@@ -512,10 +512,10 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     // OR the current active fund is the last item in the rotating funds list...
     if (!found || index == state.rotatingFunds.length - 1) {
       // set to the first fund in the rotating funds list
-      return state.Funds[state.rotatingFunds[0]].id;
+      return state.rotatingFunds[0];
     } else {
       // otherwise set the next fund in rotating funds list
-      return state.Funds[state.rotatingFunds[index + 1]].id;
+      return state.rotatingFunds[index + 1];
     }
   }
 }
