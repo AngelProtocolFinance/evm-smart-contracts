@@ -352,9 +352,6 @@ describe("IndexFund", function () {
 
     before(async function () {
       indexFund = await deployIndexFundAsProxy();
-      // create 1 fund
-      await indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], true, 50, 0);
-      await indexFund.createIndexFund("Test Fund #2", "Test fund", [1], false, 50, 0);
     });
 
     it("reverts when amount is zero", async function () {
@@ -380,19 +377,33 @@ describe("IndexFund", function () {
     });
 
     it("passes for a specific fund, amount > zero, spilt <= 100 & token is valid", async function () {
+      // create 2 funds (1 rotating & 1 not)
+      await indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], true, 50, 0);
+      await indexFund.createIndexFund("Test Fund #2", "Test fund", [1], false, 50, 0);
+
       // mint tokens so that the user and contract can transfer them
       await token1.mint(owner.address, 100);
       await token1.mint(indexFund.address, 100);
-      // await token1.approve(indexFund.address, 100, {
-      //   from: owner.address,
-      // });
 
       expect(await indexFund.depositERC20(1, token1.address, 100, 50))
         .to.emit("DonationProcessed")
         .withArgs(1);
     });
 
+    it("reverts when a `0` Fund ID is passed and there are no actively rotating funds", async function () {
+      // create 1 non-rotating fund
+      await indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], false, 50, 0);
+
+      expect(indexFund.depositERC20(0, token1.address, 100, 105)).to.be.revertedWith(
+        "Must have rotating funds active to pass a Fund ID of 0"
+      );
+    });
+
     it("passes for active fund donation, amount > zero, spilt <= 100 & token is valid", async function () {
+      // create 2 funds (1 rotating & 1 not)
+      await indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], true, 50, 0);
+      await indexFund.createIndexFund("Test Fund #2", "Test fund", [1], false, 50, 0);
+
       // mint tokens so that the user and contract can transfer them
       await token1.mint(owner.address, 100);
       await token1.mint(indexFund.address, 100);
