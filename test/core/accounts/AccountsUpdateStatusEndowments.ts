@@ -22,7 +22,7 @@ import {LibAccounts} from "typechain-types/contracts/core/accounts/facets/Accoun
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet, getSigners} from "utils";
-import {deployFacetAsProxy} from "./utils/deployTestFacet";
+import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
 

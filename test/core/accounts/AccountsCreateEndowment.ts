@@ -19,7 +19,7 @@ import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/Ac
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {genWallet, getSigners} from "utils";
-import {deployFacetAsProxy} from "./utils/deployTestFacet";
+import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
 

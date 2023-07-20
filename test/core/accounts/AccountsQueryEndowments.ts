@@ -11,7 +11,7 @@ import {
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsQueryEndowments";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {getSigners} from "utils";
-import {deployFacetAsProxy} from "./utils/deployTestFacet";
+import {deployFacetAsProxy} from "./utils";
 
 describe("AccountsQueryEndowments", function () {
   const {ethers} = hre;

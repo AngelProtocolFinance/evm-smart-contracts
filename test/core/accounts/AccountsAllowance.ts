@@ -2,7 +2,6 @@ import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import hre from "hardhat";
-import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
 import {
   AccountsAllowance,
@@ -12,6 +11,7 @@ import {
   TestFacetProxyContract,
 } from "typechain-types";
 import {genWallet, getSigners} from "utils";
+import {deployFacetAsProxy} from "./utils";
 
 describe("AccountsAllowance", function () {
   const {ethers} = hre;
