@@ -415,20 +415,6 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
   function removeFund(uint256 fundId) internal {
     // "expire" the fund by updating the expire time to now
     state.Funds[fundId].expiryTime = block.timestamp;
-
-    if (state.activeFund == fundId) {
-      state.activeFund = rotateFund(fundId);
-      emit ActiveFundUpdated(state.activeFund);
-    }
-
-    // remove from rotating funds list
-    bool found;
-    uint256 index;
-    (index, found) = Array.indexOf(state.rotatingFunds, fundId);
-    if (found) {
-      Array.remove(state.rotatingFunds, index);
-    }
-
     emit FundRemoved(fundId);
   }
 
