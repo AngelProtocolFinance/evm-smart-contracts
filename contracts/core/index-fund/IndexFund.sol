@@ -173,10 +173,10 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
       if (found) {
         Array32.remove(state.Funds[fundId].endowments, index);
         emit MemberRemoved(fundId, endowment);
-      }
-      // if endowment removal results in a fund having zero endowment members left, close out the fund
-      if (state.Funds[fundId].endowments.length == 0) {
-        removeFund(fundId);
+        // if endowment removal results in a fund having zero endowment members left, close out the fund
+        if (state.Funds[fundId].endowments.length == 0) {
+          removeFund(fundId);
+        }
       }
     }
     // wipe involved funds for the target endowment member ID
@@ -278,7 +278,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
       // fund each time the funding goal is hit, until all deposited tokens have been exhausted
 
       // first pass clean up: start by removing all expired funds from rotating funds list
-      for (uint256 i = 0; i < state.rotatingFunds.length - 1; i++) {
+      for (uint256 i = 0; i < state.rotatingFunds.length; i++) {
         if (fundIsExpired(state.Funds[state.rotatingFunds[i]], block.timestamp)) {
           Array.remove(state.rotatingFunds, i);
         }

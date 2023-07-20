@@ -383,7 +383,7 @@ describe("IndexFund", function () {
 
       // mint tokens so that the user and contract can transfer them
       await token1.mint(owner.address, 100);
-      await token1.mint(indexFund.address, 100);
+      await token1.approveFor(owner.address, indexFund.address, 100);
 
       expect(await indexFund.depositERC20(1, token1.address, 100, 50))
         .to.emit("DonationProcessed")
@@ -391,6 +391,10 @@ describe("IndexFund", function () {
     });
 
     it("reverts when a `0` Fund ID is passed and there are no actively rotating funds", async function () {
+      // mint tokens so that the user and contract can transfer them
+      await token1.mint(owner.address, 100);
+      await token1.approveFor(owner.address, indexFund.address, 100);
+
       // create 1 non-rotating fund
       await indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], false, 50, 0);
 
@@ -400,13 +404,13 @@ describe("IndexFund", function () {
     });
 
     it("passes for active fund donation, amount > zero, spilt <= 100 & token is valid", async function () {
+      // mint tokens so that the user and contract can transfer them
+      await token1.mint(owner.address, 100);
+      await token1.approveFor(owner.addresss, indexFund.address, 100);
+
       // create 2 funds (1 rotating & 1 not)
       await indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], true, 50, 0);
       await indexFund.createIndexFund("Test Fund #2", "Test fund", [1], false, 50, 0);
-
-      // mint tokens so that the user and contract can transfer them
-      await token1.mint(owner.address, 100);
-      await token1.mint(indexFund.address, 100);
 
       expect(await indexFund.depositERC20(0, token1.address, 100, 50))
         .to.emit("DonationProcessed")
