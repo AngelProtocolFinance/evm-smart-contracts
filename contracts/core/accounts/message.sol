@@ -160,7 +160,7 @@ library AccountMessages {
 
   enum DonationMatchEnum {
     HaloTokenReserve,
-    Cw20TokenReserve
+    ERC20TokenReserve
   }
 
   struct DonationMatchData {

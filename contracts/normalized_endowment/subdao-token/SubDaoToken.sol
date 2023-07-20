@@ -85,7 +85,7 @@ contract SubDaoToken is ISubDaoToken, Storage, ContinuousToken {
 
     require(IERC20(address(this)).approve(accountscontract, endowmentAmount), "Approve failed");
 
-    IAccountsDonationMatch(accountscontract).depositDonationMatchErC20(
+    IAccountsDonationMatch(accountscontract).depositDonationMatchERC20(
       endowmentId,
       address(this),
       endowmentAmount

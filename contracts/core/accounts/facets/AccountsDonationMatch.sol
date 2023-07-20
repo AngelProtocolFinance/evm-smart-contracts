@@ -17,10 +17,8 @@ import {ProxyContract} from "../../proxy.sol";
 import {IAccountsDonationMatch} from "../interfaces/IAccountsDonationMatch.sol";
 
 /**
- * @title AccountsDeployContract
- * @notice This contract is used to deploy contracts from accounts diamond
- * @dev Created so that deploying facets (which call this) don't have size conflicts
- * @dev Is always going to be called by address(this)
+ * @title AccountsDonationMatch
+ * @dev This contract is used to manage donation match tokens and to setup a donation match contract for an endowment
  */
 contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccountsDonationMatch {
   using SafeERC20 for IERC20;
@@ -29,9 +27,10 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
    * @notice Deposit DAOToken(or Halo) to the endowment and store its balance
    * @dev Function manages reserve token sent by donation matching contract
    * @param id Endowment ID
+   * @param token DAOToken or HALO address
    * @param amount Amount of DAOToken to deposit
    */
-  function depositDonationMatchErC20(uint32 id, address token, uint256 amount) public {
+  function depositDonationMatchERC20(uint32 id, address token, uint256 amount) public {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
@@ -57,14 +56,14 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
    * @param recipient Recipient address
    * @param amount Amount of DAOToken to withdraw
    */
-  function withdrawDonationMatchErC20(uint32 id, address recipient, uint256 amount) public {
+  function withdrawDonationMatchERC20(uint32 id, address recipient, uint256 amount) public {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
 
-    require(amount > 0, "amount should be grater than 0");
+    require(amount > 0, "amount should be greater than 0");
 
-    require(msg.sender == tempEndowment.owner, "UnAuthorized");
+    require(msg.sender == tempEndowment.owner, "Unauthorized");
 
     require(state.DAOTOKENBALANCE[id] >= amount, "Insufficient amount");
 
@@ -87,29 +86,32 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
     AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];
-    // AccountStorage.Config memory tempConfig = state.config;
 
     require(msg.sender == tempEndowment.owner, "Unauthorized");
 
-    require(tempEndowment.owner != address(0), "AD E02"); //A DAO does not exist yet for this Endowment. Please set that up first.
-    require(tempEndowment.donationMatchContract == address(0), "AD E03"); // A Donation Match contract already exists for this Endowment
+    require(
+      tempEndowment.donationMatchContract == address(0),
+      "A Donation Match contract already exists for this Endowment"
+    );
 
-    require(details.data.uniswapFactory != address(0), "Invalid Data");
-    require(details.data.poolFee != 0, "Invalid Data");
+    require(details.data.uniswapFactory != address(0), "Invalid UniswapFactory address");
+    require(details.data.poolFee != 0, "Invalid pool fee");
 
     RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
       .queryConfig();
 
-    require(registrar_config.donationMatchContract != address(0), "AD E04"); // No implementation for donation matching contract
-    require(registrar_config.usdcAddress != address(0), "AD E05"); // Invalid Registrar Data
+    require(
+      registrar_config.donationMatchContract != address(0),
+      "Missing implementation for donation matching contract"
+    );
+    require(registrar_config.usdcAddress != address(0), "Invalid USDC address in Registrar");
 
     address inputtoken;
     if (details.enumData == AccountMessages.DonationMatchEnum.HaloTokenReserve) {
-      require(registrar_config.haloToken != address(0), "AD E05"); // Invalid Registrar Data
-
+      require(registrar_config.haloToken != address(0), "Invalid HALO address in Registrar");
       inputtoken = registrar_config.haloToken;
     } else {
-      require(details.data.reserveToken != address(0), "Invalid  Data");
+      require(details.data.reserveToken != address(0), "Invalid reserve token address");
       inputtoken = details.data.reserveToken;
     }
 
@@ -128,13 +130,13 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
       registrar_config.donationMatchEmitter
     );
 
+    // TODO: might be a good idea to create this contract using a factory, will improve testability as well
     address donationMatch = address(
       new ProxyContract(registrar_config.donationMatchContract, registrar_config.proxyAdmin, data)
     );
     // TODO: add donation match address?? :
     state.ENDOWMENTS[id].donationMatchContract = donationMatch;
 
-    // Shouldn't this be emitted from contracts/normalized_endowment/donation-match/DonationMatch.sol > initialize ?
     IDonationMatchEmitter(registrar_config.donationMatchEmitter).initializeDonationMatch(
       id,
       donationMatch,

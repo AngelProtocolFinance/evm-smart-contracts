@@ -131,7 +131,7 @@ contract DonationMatch is IDonationMatching, Storage, Initializable {
         "Approve failed"
       );
 
-      IAccountsDonationMatch(registrar_config.accountsContract).depositDonationMatchErC20(
+      IAccountsDonationMatch(registrar_config.accountsContract).depositDonationMatchERC20(
         endowmentId,
         token,
         endowmentAmount
