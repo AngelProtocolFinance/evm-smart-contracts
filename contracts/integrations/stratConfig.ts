@@ -1,4 +1,10 @@
-import { AllStratConfigs, StratConfig, StrategyApprovalState, VaultType, getVaultAddress } from "utils"
+import {
+  AllStratConfigs,
+  StratConfig,
+  StrategyApprovalState,
+  VaultType,
+  getVaultAddress,
+} from "utils";
 
 export const dummy: StratConfig = {
   name: "dummy",
@@ -9,15 +15,15 @@ export const dummy: StratConfig = {
     network: "ethereum-2",
     Locked: {
       Type: VaultType.LOCKED,
-      vaultAddr: getVaultAddress("dummy", VaultType.LOCKED)
+      vaultAddr: getVaultAddress("dummy", VaultType.LOCKED),
     },
     Liquid: {
       Type: VaultType.LIQUID,
-      vaultAddr: getVaultAddress("dummy", VaultType.LIQUID)
-    }
-  }
-}
+      vaultAddr: getVaultAddress("dummy", VaultType.LIQUID),
+    },
+  },
+};
 
 export const allStrategyConfigs: AllStratConfigs = {
-  "dummy": dummy,
-}
+  dummy: dummy,
+};

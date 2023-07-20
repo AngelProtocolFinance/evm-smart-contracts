@@ -9,7 +9,7 @@ import "./deployGasFwd";
 // import "./deployHaloImplementation";
 import "./deployImplementation"; // TODO: Rename to something more clear that pertains to Normalized Endowments
 import "./deployIndexFund";
-import "./deployLocalRegistrar"
+import "./deployLocalRegistrar";
 import "./deployRegistrar";
 import "./deployRouter";
 import "./integrations";

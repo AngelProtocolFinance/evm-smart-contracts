@@ -1,8 +1,11 @@
 import fs from "fs";
 
-import { StrategyObject } from "./types";
+import {StrategyObject} from "./types";
 
-export function readStrategyAddresses(filePath: string, name: string): Record<string, StrategyObject> {
+export function readStrategyAddresses(
+  filePath: string,
+  name: string
+): Record<string, StrategyObject> {
   checkExistence(filePath);
 
   const jsonData = fs.readFileSync(filePath, "utf-8");

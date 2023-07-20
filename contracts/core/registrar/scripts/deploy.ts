@@ -1,11 +1,7 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {
-  ProxyContract__factory, 
-  Registrar__factory,
-  LocalRegistrar__factory
-} from "typechain-types";
+import {ProxyContract__factory, Registrar__factory, LocalRegistrar__factory} from "typechain-types";
 import {Deployment, getContractName, logger, updateAddresses, validateAddress} from "utils";
 
 type RegistrarDeployData = {
@@ -94,11 +90,7 @@ type LocalRegistrarDeployData = {
 };
 
 export async function deployLocalRegistrar(
-  {
-    owner = "",
-    deployer,
-    proxyAdmin,
-  } : LocalRegistrarDeployData,
+  {owner = "", deployer, proxyAdmin}: LocalRegistrarDeployData,
   hre: HardhatRuntimeEnvironment
 ): Promise<Deployment | undefined> {
   logger.out("Deploying Local Registrar...");
@@ -115,7 +107,7 @@ export async function deployLocalRegistrar(
     // deploy proxy
     logger.out("Deploying proxy...");
     const proxyFactory = new ProxyContract__factory(deployer);
-    const initData = localRegistrar.interface.encodeFunctionData("initialize")
+    const initData = localRegistrar.interface.encodeFunctionData("initialize");
     const proxy = await proxyFactory.deploy(localRegistrar.address, proxyAdmin.address, initData);
     await proxy.deployed();
     logger.out(`Address: ${proxy.address}`);
@@ -123,7 +115,7 @@ export async function deployLocalRegistrar(
     // update owner
     logger.out(`Updating Registrar owner to '${owner}'..."`);
     const proxiedRegistrar = LocalRegistrar__factory.connect(proxy.address, deployer);
-    logger.out(`Current owner: ${await proxiedRegistrar.owner()}`)
+    logger.out(`Current owner: ${await proxiedRegistrar.owner()}`);
     const tx = await proxiedRegistrar.transferOwnership(owner);
     await tx.wait();
 
