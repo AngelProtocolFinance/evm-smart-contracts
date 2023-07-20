@@ -12,7 +12,7 @@ library AccountStorage {
     address registrarContract;
     uint32 nextAccountId;
     uint256 maxGeneralCategoryId;
-    address subDao; // when is this ever used?
+    address subDao;
     bool reentrancyGuardLocked;
     LibAccounts.FeeSetting earlyLockedWithdrawFee;
   }
