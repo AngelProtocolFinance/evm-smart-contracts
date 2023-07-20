@@ -8,9 +8,9 @@ import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../registrar/storage.sol";
 
 contract GasFwdFactory is IGasFwdFactory, Ownable {
-  address impl;
-  address admin;
-  address registrar;
+  address public impl;
+  address public admin;
+  address public registrar;
 
   constructor(address _impl, address _admin, address _registrar) {
     if (_impl == address(0)) {
