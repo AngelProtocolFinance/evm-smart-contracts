@@ -2,17 +2,17 @@ import config from "config";
 import {deployLocalRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
-import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
+import {confirmAction, getAddresses, getNetworkNameFromChainId, getSigners, isLocalNetwork, logger, verify} from "utils";
 import {updateRegistrarConfig, updateRegistrarNetworkConnections} from "../helpers";
 
 type TaskArgs = {
   skipVerify: boolean;
   yes: boolean;
-  owner: string;
+  owner?: string;
 };
 
 task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract and Router.")
-  .addParam("owner", "The owner wallet for both router and registrar")
+  .addOptionalParam("owner", "The owner wallet for both router and registrar")
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
@@ -26,9 +26,11 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
       const {proxyAdmin, deployer} = await getSigners(hre);
       const addresses = await getAddresses(hre);
 
+      const owner = taskArgs.owner || addresses.multiSig.apTeam.proxy;
+
       const localRegistrarDeployment = await deployLocalRegistrar(
         {
-          owner: taskArgs.owner,
+          owner: owner,
           deployer,
           proxyAdmin,
         },
@@ -45,6 +47,15 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
         localRegistrarDeployment.address,
         hre
       );
+      
+      logger.divider()
+      let network = await hre.ethers.provider.getNetwork();
+      if(!isLocalNetwork(hre)) {
+        logger.out("Updating network connection info in the registrar")
+        await hre.run("manage:registrar:setNetworkInfo", 
+        {networkName: getNetworkNameFromChainId(network.chainId)}
+        )
+      }
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         await verify(hre, localRegistrarDeployment);
