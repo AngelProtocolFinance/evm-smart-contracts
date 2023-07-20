@@ -47,7 +47,9 @@ describe("IndexFund", function () {
     }
 
     // registrar config has the accounts contract facet set
+    const {splitToLiquid, ...curConfig} = await registrar.queryConfig();
     await registrar.updateConfig({
+      ...curConfig,
       accountsContract: facet.address,
       splitMax: 100,
       splitMin: 0,
@@ -314,6 +316,17 @@ describe("IndexFund", function () {
       // create 2 funds (1 active and 1 expired)
       await indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], true, 50, 0);
       await indexFund.createIndexFund("Test Fund #2", "Test fund", [1], false, 50, 0);
+
+      // registrar config has the accounts contract set as owner (for ease of testing)
+      let {splitToLiquid, ...curConfig} = await registrar.queryConfig();
+      await registrar.updateConfig({
+        ...curConfig,
+        accountsContract: owner.address,
+        splitMax: 100,
+        splitMin: 0,
+        splitDefault: 50,
+        collectorShare: 0,
+      });
     });
 
     it("reverts when the message sender is not the accounts contract", async function () {
@@ -326,11 +339,7 @@ describe("IndexFund", function () {
       expect(funds.length).to.equal(2);
 
       // remove Endowment #1 from all funds
-      let regConfig = await registrar.queryConfig();
-      expect(await indexFund.connect(regConfig.accountsContract).removeMember(1)).to.emit(
-        indexFund,
-        "MemberRemoved"
-      );
+      expect(await indexFund.connect(owner).removeMember(1)).to.emit(indexFund, "MemberRemoved");
 
       // Endowment #1 should not be invloved with any funds now
       funds = await indexFund.queryInvolvedFunds(1);
@@ -374,6 +383,9 @@ describe("IndexFund", function () {
       // mint tokens so that the user and contract can transfer them
       await token1.mint(owner.address, 100);
       await token1.mint(indexFund.address, 100);
+      // await token1.approve(indexFund.address, 100, {
+      //   from: owner.address,
+      // });
 
       expect(await indexFund.depositERC20(1, token1.address, 100, 50))
         .to.emit("DonationProcessed")

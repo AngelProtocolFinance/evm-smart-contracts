@@ -250,21 +250,6 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
   ) external nonReentrant {
     require(amount > 0, "Amount to donate must be greater than zero");
     require(splitToLiquid <= 100, "Invalid liquid split");
-    require(!fundIsExpired(state.Funds[fundId], block.timestamp), "Expired Fund");
-
-    // check if time limit is reached
-    if (state.config.fundRotation != 0) {
-      if (block.number >= state.nextRotationBlock) {
-        uint256 newFundId = rotateFund(state.activeFund, block.timestamp);
-        state.activeFund = newFundId;
-        emit ActiveFundUpdated(state.activeFund);
-        state.roundDonations = 0;
-
-        while (block.number >= state.nextRotationBlock) {
-          state.nextRotationBlock += state.config.fundRotation;
-        }
-      }
-    }
 
     RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
       .queryConfig();
@@ -278,57 +263,84 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     // we give allowance to accounts contract
     IERC20(token).safeApprove(registrar_config.accountsContract, amount);
 
-    uint256 depositAmount = amount;
-    uint256 split = calculateSplit(
-      registrar_config.splitToLiquid,
-      state.Funds[state.activeFund].splitToLiquid,
-      splitToLiquid
-    );
+    uint256 split;
     if (fundId != 0) {
       // Depositor has chosen a specific fund to send tokens to. Send 100% to that fund.
-      processDonations(registrar_config.accountsContract, fundId, split, token, depositAmount);
+      require(!fundIsExpired(state.Funds[fundId], block.timestamp), "Expired Fund");
+      split = calculateSplit(
+        registrar_config.splitToLiquid,
+        state.Funds[fundId].splitToLiquid,
+        splitToLiquid
+      );
+      processDonations(registrar_config.accountsContract, fundId, split, token, amount);
     } else {
       // No explicit fund ID specifed. Send the tokens to current active fund, rotating to a new active
       // fund each time the funding goal is hit, until all deposited tokens have been exhausted
-      if (state.config.fundingGoal > 0) {
-        uint256 loopDonation = 0;
-        uint256 activeFund = state.activeFund;
-        uint256 goalLeftover = state.config.fundingGoal - state.roundDonations;
+
+      // first pass clean up: start by removing all expired funds from rotating funds list
+      for (uint256 i = 0; i < state.rotatingFunds.length - 1; i++) {
+        if (fundIsExpired(state.Funds[state.rotatingFunds[i]], block.timestamp)) {
+          Array.remove(state.rotatingFunds, i);
+        }
+      }
+      require(
+        state.rotatingFunds.length > 0,
+        "Must have rotating funds active to pass a Fund ID of 0"
+      );
+
+      // if block based fund rotations are turned on...
+      if (state.config.fundRotation != 0) {
+        // check if block limit has been reached/exceeded since last contract call
+        // and that there are actually active rotating funds to rotate
+        if (state.rotatingFunds.length > 0 && block.number >= state.nextRotationBlock) {
+          state.activeFund = rotateFund(state.activeFund);
+          emit ActiveFundUpdated(state.activeFund);
+          state.roundDonations = 0;
+
+          while (block.number >= state.nextRotationBlock) {
+            state.nextRotationBlock += state.config.fundRotation;
+          }
+        }
+      }
+
+      // Send all funds to the Active Fund since there's no funding goal to hit to trigger a rotation
+      if (state.config.fundingGoal == 0) {
         split = calculateSplit(
           registrar_config.splitToLiquid,
-          state.Funds[activeFund].splitToLiquid,
+          state.Funds[state.activeFund].splitToLiquid,
           splitToLiquid
         );
-        while (depositAmount > 0) {
-          if (depositAmount >= goalLeftover) {
+        processDonations(registrar_config.accountsContract, state.activeFund, split, token, amount);
+      } else {
+        // Check if funding goal is met for current active fund and rotate funds until all tokens are depleted
+        uint256 loopDonation = 0;
+        uint256 goalLeftover = state.config.fundingGoal - state.roundDonations;
+        while (amount > 0) {
+          if (amount >= goalLeftover) {
             state.roundDonations = 0;
             // set state active fund to next fund for next loop iteration
-            state.activeFund = rotateFund(state.activeFund, block.timestamp);
+            state.activeFund = rotateFund(state.activeFund);
             emit ActiveFundUpdated(state.activeFund);
             loopDonation = goalLeftover;
           } else {
-            state.roundDonations += depositAmount;
-            loopDonation = depositAmount;
+            state.roundDonations += amount;
+            loopDonation = amount;
           }
+          split = calculateSplit(
+            registrar_config.splitToLiquid,
+            state.Funds[state.activeFund].splitToLiquid,
+            splitToLiquid
+          );
           processDonations(
             registrar_config.accountsContract,
-            activeFund,
+            state.activeFund,
             split,
             token,
             loopDonation
           );
           // deduct donated amount in this round from total donation amt
-          depositAmount -= loopDonation;
+          amount -= loopDonation;
         }
-      } else {
-        // Send all funds to the Active Fund since there's no funding goal to hit to trigger a rotation
-        processDonations(
-          registrar_config.accountsContract,
-          state.activeFund,
-          split,
-          token,
-          depositAmount
-        );
       }
     }
   }
@@ -405,7 +417,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     state.Funds[fundId].expiryTime = block.timestamp;
 
     if (state.activeFund == fundId) {
-      state.activeFund = rotateFund(fundId, block.timestamp);
+      state.activeFund = rotateFund(fundId);
       emit ActiveFundUpdated(state.activeFund);
     }
 
@@ -492,7 +504,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
   /**
    * @dev Check if fund is expired
    * @param fund Fund
-   * @param envTime rent block time
+   * @param envTime block time
    * @return True if fund is expired
    */
   function fundIsExpired(
@@ -504,30 +516,23 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
 
   /**
    * @dev rotate active based if investment goal is fulfilled
-   * @param rFund rent Active fund
-   * @param envTime rent block time
+   * @param rFund Active fund
    * @return New active fund
    */
-  function rotateFund(uint256 rFund, uint256 envTime) internal view returns (uint256) {
-    IndexFundStorage.Fund[] memory activeFunds = new IndexFundStorage.Fund[](
-      state.rotatingFunds.length
-    );
+  function rotateFund(uint256 rFund) internal view returns (uint256) {
+    require(state.rotatingFunds.length > 0, "No rotating Funds");
 
-    for (uint256 i = 0; i < state.rotatingFunds.length; i++) {
-      if (!fundIsExpired(state.Funds[state.rotatingFunds[i]], envTime)) {
-        activeFunds[i] = state.Funds[state.rotatingFunds[i]];
-      }
-    }
-
-    // check if the rent active fund is in the rotation and not expired
     bool found;
     uint256 index;
     (index, found) = Array.indexOf(state.rotatingFunds, rFund);
-    if (!found || index == activeFunds.length - 1) {
-      // set to the first fund in the list
-      return activeFunds[0].id;
+    // If the current active fund is not found in the rotating funds list (for whatever reason)
+    // OR the current active fund is the last item in the rotating funds list...
+    if (!found || index == state.rotatingFunds.length - 1) {
+      // set to the first fund in the rotating funds list
+      return state.Funds[state.rotatingFunds[0]].id;
     } else {
-      return activeFunds[index + 1].id;
+      // otherwise set the next fund in rotating funds list
+      return state.Funds[state.rotatingFunds[index + 1]].id;
     }
   }
 }
