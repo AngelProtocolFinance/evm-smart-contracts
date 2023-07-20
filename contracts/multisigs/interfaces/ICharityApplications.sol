@@ -8,7 +8,12 @@ abstract contract ICharityApplications {
   /*
    * Events
    */
-  event ApplicationProposed(address msAddress, uint256 proposalId, address proposer);
+  event ApplicationProposed(
+    address msAddress,
+    uint256 proposalId,
+    address proposer,
+    string charityName
+  );
   event ApplicationExecuted(uint256 proposalId);
   event ApplicationConfirmed(uint256 proposalId, address owner);
   event ApplicationConfirmationRevoked(uint256 proposalId, address owner);

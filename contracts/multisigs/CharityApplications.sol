@@ -138,7 +138,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
       executed: false
     });
 
-    emit ApplicationProposed(address(this), proposalCount, msg.sender);
+    emit ApplicationProposed(address(this), proposalCount, msg.sender, _application.name);
 
     if (isOwner[msg.sender]) {
       confirmProposal(proposalCount);
