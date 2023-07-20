@@ -44,4 +44,11 @@ contract GasFwdFactory is IGasFwdFactory, Ownable {
     }
     impl = _impl;
   }
+
+  function updateRegistrar(address _registrar) external onlyOwner {
+    if (_registrar == address(0)) {
+      revert InvalidAddress("_registrar");
+    }
+    registrar = _registrar;
+  }
 }
