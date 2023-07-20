@@ -47,13 +47,11 @@ describe("AccountsDeployContract", function () {
     const subdaoLibFake: FakeContract<SubDaoLib> = await smock.fake<SubDaoLib>(
       new SubDaoLib__factory()
     );
-    console.log("deployed lib", subdaoLibFake.address);
     subdaoFake = await smock.fake<SubDao>(
       new SubDao__factory({
         "contracts/normalized_endowment/subdao/SubDaoLib.sol:SubDaoLib": subdaoLibFake.address,
       })
     );
-    console.log("deployed subdao", subdaoFake.address);
     subdaoEmitterFake = await smock.fake<SubDaoEmitter>(new SubDaoEmitter__factory());
     registrarFake = await smock.fake<Registrar>(new Registrar__factory());
 
