@@ -9,12 +9,13 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IIndexFund} from "./IIndexFund.sol";
-import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {Array, Array32} from "../../lib/array.sol";
 import {Utils} from "../../lib/utils.sol";
 import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../registrar/storage.sol";
+import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {AccountMessages} from "../accounts/message.sol";
+import {IAccounts} from "../accounts/interfaces/IAccounts.sol";
 
 uint256 constant MAX_ENDOWMENT_MEMBERS = 10;
 
@@ -420,8 +421,10 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
 
   /**
    * @dev Process and execute donation messages for a Fund, Split and Amount
-   * @param fundId index fund ID
-   * @param liquidSplit Split to liquid
+   * @param accountsContract Accounts contract address
+   * @param fundId Fund ID
+   * @param liquidSplit Split to liquid percentage
+   * @param token Token address of token to donate
    * @param amount Balance of fund
    */
   function processDonations(
@@ -439,20 +442,14 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     uint256 lockedSplit = 100 - liquidSplit;
     uint256 endowmentPortion = amount.div(endowments.length);
 
-    // execute donation messages for each endowment in the fund
-    bytes memory callData;
+    // execute donation message for each endowment in the fund
     for (uint256 i = 0; i < endowments.length; i++) {
-      callData = abi.encodeWithSignature(
-        "depositERC20((uint256,uint256,uint256),address,uint256)",
+      IAccounts(accountsContract).depositERC20(
         AccountMessages.DepositRequest({
           id: endowments[i],
           lockedPercentage: lockedSplit,
           liquidPercentage: liquidSplit
-        }),
-        token,
-        endowmentPortion
-      );
-      Utils._execute(accountsContract, 0, callData);
+        }), token, amount);
     }
 
     emit DonationProcessed(fundId);
