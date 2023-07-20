@@ -10,8 +10,8 @@ export type NetworkInfoStruct = {
 
 export enum NetworkConnectionAction {
   NONE,
-  POST, 
-  DELETE
+  POST,
+  DELETE,
 }
 
 export enum StrategyApprovalState {

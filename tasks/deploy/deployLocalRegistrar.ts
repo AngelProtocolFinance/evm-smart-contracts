@@ -2,7 +2,15 @@ import config from "config";
 import {deployLocalRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
-import {confirmAction, getAddresses, getNetworkNameFromChainId, getSigners, isLocalNetwork, logger, verify} from "utils";
+import {
+  confirmAction,
+  getAddresses,
+  getNetworkNameFromChainId,
+  getSigners,
+  isLocalNetwork,
+  logger,
+  verify,
+} from "utils";
 import {updateRegistrarConfig, updateRegistrarNetworkConnections} from "../helpers";
 
 type TaskArgs = {
@@ -47,14 +55,14 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
         localRegistrarDeployment.address,
         hre
       );
-      
-      logger.divider()
+
+      logger.divider();
       let network = await hre.ethers.provider.getNetwork();
-      if(!isLocalNetwork(hre)) {
-        logger.out("Updating network connection info in the registrar")
-        await hre.run("manage:registrar:setNetworkInfo", 
-        {networkName: getNetworkNameFromChainId(network.chainId)}
-        )
+      if (!isLocalNetwork(hre)) {
+        logger.out("Updating network connection info in the registrar");
+        await hre.run("manage:registrar:setNetworkInfo", {
+          networkName: getNetworkNameFromChainId(network.chainId),
+        });
       }
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {

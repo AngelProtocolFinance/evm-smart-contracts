@@ -45,9 +45,13 @@ task("manage:registrar:setFeeSettings")
       newfeeSetting.payoutAddress == taskArguments.payoutAddress &&
       newfeeSetting.bps.eq(taskArguments.bps)
     ) {
-      logger.out("Fee settings updated successfully")
-    }
-    else {
-      throw new Error(`Fee settings were not updated. Expected: ${[taskArguments.payoutAddress, taskArguments.bps]}, Got: ${[newfeeSetting.payoutAddress, newfeeSetting.bps]}`)
+      logger.out("Fee settings updated successfully");
+    } else {
+      throw new Error(
+        `Fee settings were not updated. Expected: ${[
+          taskArguments.payoutAddress,
+          taskArguments.bps,
+        ]}, Got: ${[newfeeSetting.payoutAddress, newfeeSetting.bps]}`
+      );
     }
   });

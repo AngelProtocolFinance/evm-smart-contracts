@@ -1,18 +1,20 @@
-import { network } from "hardhat";
+import {network} from "hardhat";
 import {task, types} from "hardhat/config";
-import { NetworkInfoStruct, NetworkConnectionAction } from "test/utils";
+import {NetworkInfoStruct, NetworkConnectionAction} from "test/utils";
 import {Registrar__factory} from "typechain-types";
-import {getAddresses, getSigners, logger, getChainIdFromNetworkName, getAddressesByNetworkId, DEFAULT_CONTRACT_ADDRESS_FILE_PATH} from "utils";
+import {
+  getAddresses,
+  getSigners,
+  logger,
+  getChainIdFromNetworkName,
+  getAddressesByNetworkId,
+  DEFAULT_CONTRACT_ADDRESS_FILE_PATH,
+} from "utils";
 
-type TaskArgs = {networkName: string;};
+type TaskArgs = {networkName: string};
 
 task("manage:registrar:setNetworkInfo")
-  .addParam(
-    "networkName",
-    "The name of the network to update",
-    "",
-    types.string
-  )
+  .addParam("networkName", "The name of the network to update", "", types.string)
   .setAction(async function (taskArguments: TaskArgs, hre) {
     logger.divider();
     logger.out("Connecting to registrar on specified network...");
@@ -22,8 +24,8 @@ task("manage:registrar:setNetworkInfo")
     const registrar = Registrar__factory.connect(registrarAddress, deployer);
     logger.pad(50, "Connected to Registrar at: ", registrar.address);
 
-    const chainId = getChainIdFromNetworkName(taskArguments.networkName)
-    const subjectAddresses = getAddressesByNetworkId(chainId, DEFAULT_CONTRACT_ADDRESS_FILE_PATH)
+    const chainId = getChainIdFromNetworkName(taskArguments.networkName);
+    const subjectAddresses = getAddressesByNetworkId(chainId, DEFAULT_CONTRACT_ADDRESS_FILE_PATH);
 
     logger.divider();
     logger.out("Checking current network settings");
@@ -33,7 +35,7 @@ task("manage:registrar:setNetworkInfo")
       currentNetworkSettings.chainId.eq(chainId) &&
       currentNetworkSettings.router == subjectAddresses.router.proxy &&
       currentNetworkSettings.axelarGateway == subjectAddresses.axelar.gateway &&
-      currentNetworkSettings.gasReceiver == subjectAddresses.axelar.gasService 
+      currentNetworkSettings.gasReceiver == subjectAddresses.axelar.gasService
     ) {
       logger.pad(10, "Network already configured");
       return;
@@ -45,26 +47,27 @@ task("manage:registrar:setNetworkInfo")
       chainId: chainId,
       router: subjectAddresses.router.proxy,
       axelarGateway: subjectAddresses.axelar.gateway,
-      ibcChannel: "", 
+      ibcChannel: "",
       transferChannel: "",
       gasReceiver: subjectAddresses.axelar.gasService,
-      gasLimit: 0 
-    }
+      gasLimit: 0,
+    };
     await registrar.updateNetworkConnections(
-      taskArguments.networkName, 
+      taskArguments.networkName,
       networkInfo,
       NetworkConnectionAction.POST
     );
     let newNetworkSettings = await registrar.queryNetworkConnection(taskArguments.networkName);
-    if ( 
+    if (
       newNetworkSettings.chainId.eq(chainId) &&
       newNetworkSettings.router == subjectAddresses.router.proxy &&
       newNetworkSettings.axelarGateway == subjectAddresses.axelar.gateway &&
-      newNetworkSettings.gasReceiver == subjectAddresses.axelar.gasService 
+      newNetworkSettings.gasReceiver == subjectAddresses.axelar.gasService
     ) {
-      logger.out(`Network Info updated on ${taskArguments.networkName}`)
-    }
-    else {
-      throw new Error(`Queried network info does not match expected new values, got: ${newNetworkSettings}, expected: ${networkInfo}`)
+      logger.out(`Network Info updated on ${taskArguments.networkName}`);
+    } else {
+      throw new Error(
+        `Queried network info does not match expected new values, got: ${newNetworkSettings}, expected: ${networkInfo}`
+      );
     }
   });

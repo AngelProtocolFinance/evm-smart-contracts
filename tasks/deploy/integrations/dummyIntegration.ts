@@ -22,7 +22,8 @@ task("Deploy:dummyIntegration", "Will deploy a set of vaults and a dummy strateg
     "name",
     `The name of the strategy according to StratConfig, possible values: ${Object.keys(
       allStrategyConfigs
-    ).join(", ")}`)
+    ).join(", ")}`
+  )
   .addOptionalParam(
     "admin",
     "The wallet address that will be set as the admin for the vaults and strategy contracts, default is APTeamMultisig"
@@ -40,7 +41,7 @@ task("Deploy:dummyIntegration", "Will deploy a set of vaults and a dummy strateg
       }
 
       let addresses = await getAddresses(hre);
-      let admin = taskArgs.admin || addresses.multiSig.apTeam.proxy
+      let admin = taskArgs.admin || addresses.multiSig.apTeam.proxy;
       let YieldToken = new DummyERC20__factory(deployer);
       let yieldToken = await YieldToken.deploy(0);
 

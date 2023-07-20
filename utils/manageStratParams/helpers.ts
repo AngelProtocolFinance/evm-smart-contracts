@@ -2,10 +2,7 @@ import fs from "fs";
 
 import {StrategyObject} from "./types";
 
-export function readStrategyAddresses(
-  filePath: string,
-  name: string
-): StrategyObject {
+export function readStrategyAddresses(filePath: string, name: string): StrategyObject {
   checkExistence(filePath);
 
   const jsonData = fs.readFileSync(filePath, "utf-8");
