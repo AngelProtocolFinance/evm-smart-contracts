@@ -37,7 +37,7 @@ library SubDaoLib {
     string veBondingName;
     string veBondingSymbol;
     uint256 veBondingDecimals;
-    address veBondingReserveDenom;
+    address veBondingReserveDenom; // should this be string?
     uint256 veBondingReserveDecimals;
     uint256 veBondingPeriod;
   }
