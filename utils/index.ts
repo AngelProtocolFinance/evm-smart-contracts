@@ -6,6 +6,7 @@ export * from "./getSigners";
 export * from "./keygen";
 export * as logger from "./logger";
 export * from "./manageAddressFile";
+export * from "./manageStratParams";
 export * from "./networkHelpers";
 export * from "./structToObject";
 export * from "./types";
