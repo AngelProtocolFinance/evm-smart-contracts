@@ -1,15 +1,10 @@
-export type StrategyParams = {
-  approvalState: StrategyApprovalState;
-  network: string;
-  Locked: VaultParams;
-  Liquid: VaultParams;
-};
+import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 
 export type StratConfig = {
   name: string;
   id: string;
   chainId: number;
-  params: StrategyParams;
+  params: LocalRegistrarLib.StrategyParamsStruct;
 };
 
 export enum StrategyApprovalState {
