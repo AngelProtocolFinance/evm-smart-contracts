@@ -18,6 +18,6 @@ export const dummy: StratConfig = {
   }
 }
 
-export const allConfigs: AllStratConfigs = {
+export const allStrategyConfigs: AllStratConfigs = {
   "dummy": dummy,
 }

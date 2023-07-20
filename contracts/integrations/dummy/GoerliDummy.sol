@@ -6,5 +6,5 @@ import {IStrategy} from "../../core/strategy/IStrategy.sol";
 import {DummyStrategy} from "../../test/DummyStrategy.sol";
 
 contract GoerliDummy is DummyStrategy {
-
+  constructor(StrategyConfig memory _config) DummyStrategy(_config) {}
 }
