@@ -106,6 +106,10 @@ task(
         newRegistrar: registrarDeployment.address,
         yes: true,
       });
+      await hre.run("manage:GasFwdFactory:updateRegistrar", {
+        newRegistrar: registrarDeployment.address,
+        yes: true,
+      });
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         await verify(hre, registrarDeployment);
