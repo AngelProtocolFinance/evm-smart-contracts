@@ -11,4 +11,6 @@ interface IGasFwdFactory {
   function create() external returns (address);
 
   function updateImplementation(address _impl) external;
+
+  function updateRegistrar(address _impl) external;
 }

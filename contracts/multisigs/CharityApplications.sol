@@ -127,6 +127,8 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
       }
     }
 
+    uint256 expiry = block.timestamp + transactionExpiry;
+
     // Maturity always set to zero (None) for all Charity Endowments
     _application.maturityTime = 0;
     // save new proposal
@@ -134,11 +136,11 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
       proposer: msg.sender,
       application: _application,
       meta: _meta,
-      expiry: block.timestamp + transactionExpiry,
+      expiry: expiry,
       executed: false
     });
 
-    emit ApplicationProposed(proposalCount);
+    emit ApplicationProposed(proposalCount, msg.sender, _application.name, expiry);
 
     if (isOwner[msg.sender]) {
       confirmProposal(proposalCount);

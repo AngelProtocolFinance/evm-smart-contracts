@@ -4,7 +4,7 @@ import {
   IAccountsStrategy,
   RegistrarMessages,
 } from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-import {getSigners, logger, structToObject, validateAddress} from "utils";
+import {NetworkConnectionAction, getSigners, logger, structToObject, validateAddress} from "utils";
 
 export async function updateRegistrarNetworkConnections(
   registrar = "",
@@ -35,7 +35,7 @@ export async function updateRegistrarNetworkConnections(
 
     const updateNetworkConnectionsData = registrarContract.interface.encodeFunctionData(
       "updateNetworkConnections",
-      [network.name, {...curNetworkConnection, ...newNetworkInfo}, "post"]
+      [network.name, {...curNetworkConnection, ...newNetworkInfo}, NetworkConnectionAction.POST]
     );
     const apTeamMultisigContract = APTeamMultiSig__factory.connect(
       apTeamMultisig,

@@ -102,8 +102,12 @@ task(
         newRegistrar: registrarDeployment.address,
         yes: true,
       });
-      await hre.run("manage:IndexFund:updateOwner", {
-        to: registrarDeployment.address,
+      await hre.run("manage:IndexFund:updateRegistrar", {
+        newRegistrar: registrarDeployment.address,
+        yes: true,
+      });
+      await hre.run("manage:GasFwdFactory:updateRegistrar", {
+        newRegistrar: registrarDeployment.address,
         yes: true,
       });
 

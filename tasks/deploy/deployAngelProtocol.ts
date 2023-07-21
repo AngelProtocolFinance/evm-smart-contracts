@@ -71,7 +71,6 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       const gasFwd = await deployGasFwd(
         {
-          deployer: deployer,
           admin: proxyAdmin,
           registrar: registrar?.address,
         },

@@ -53,3 +53,17 @@ export enum DelegateAction {
   Set,
   Revoke,
 }
+
+export enum FeeTypes {
+  Default,
+  Harvest,
+  WithdrawCharity,
+  WithdrawNormal,
+  EarlyLockedWithdrawCharity,
+  EarlyLockedWithdrawNormal,
+}
+
+export enum DonationMatchEnum {
+  HaloTokenReserve,
+  ERC20TokenReserve,
+}

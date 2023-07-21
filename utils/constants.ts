@@ -8,3 +8,9 @@ export const DEFAULT_STRATEGY_ADDRESSES_FILE_PATH = path.join(
   __dirname,
   "../contracts/integrations/strategy-addresses.json"
 );
+
+export enum NetworkConnectionAction {
+  NONE,
+  POST,
+  DELETE,
+}

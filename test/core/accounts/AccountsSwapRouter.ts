@@ -3,7 +3,6 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import hre from "hardhat";
 import {deployDummyERC20} from "tasks/helpers";
-import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {
   DEFAULT_ACCOUNTS_CONFIG,
   DEFAULT_CHARITY_ENDOWMENT,
@@ -26,6 +25,7 @@ import {
   TestFacetProxyContract,
 } from "typechain-types";
 import {genWallet, getSigners} from "utils";
+import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
 
@@ -332,7 +332,7 @@ describe("AccountsSwapRouter", function () {
 
         await expect(
           facet.swapToken(ACCOUNT_ID, VaultType.LIQUID, token.address, 1, genWallet().address, 1)
-        ).to.be.revertedWith("Approval failed");
+        ).to.be.revertedWith("SafeERC20: ERC20 operation did not succeed");
       });
     });
 

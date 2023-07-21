@@ -18,8 +18,8 @@ import {IVault} from "../../vault/interfaces/IVault.sol";
 import {IAccountsStrategy} from "../interfaces/IAccountsStrategy.sol";
 import {AxelarExecutableAccounts} from "../lib//AxelarExecutableAccounts.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IGasFwd} from "../../gasFwd/IGasFwd.sol";
-import "hardhat/console.sol";
 
 /**
  * @title AccountsStrategy
@@ -31,6 +31,8 @@ contract AccountsStrategy is
   ReentrancyGuardFacet,
   IAccountsEvents
 {
+  using SafeERC20 for IERC20;
+
   /**
    * @notice This function that allows users to deposit into a yield strategy using tokens from their locked or liquid account in an endowment.
    * @dev Allows the owner of an endowment to invest tokens into specified yield vaults.
@@ -113,7 +115,7 @@ contract AccountsStrategy is
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
 
-      IERC20(tokenAddress).transfer(
+      IERC20(tokenAddress).safeTransfer(
         thisNetwork.router,
         (investRequest.lockAmt + investRequest.liquidAmt)
       );
@@ -128,7 +130,7 @@ contract AccountsStrategy is
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
         state.STATES[id].balances.locked[tokenAddress] -= investRequest.lockAmt;
         state.STATES[id].balances.liquid[tokenAddress] -= investRequest.liquidAmt;
-        state.STATES[id].activeStrategies[investRequest.strategy] == true;
+        state.STATES[id].activeStrategies[investRequest.strategy] = true;
         emit EndowmentInvested(response.status);
       } else {
         revert InvestFailed(response.status);
@@ -150,7 +152,7 @@ contract AccountsStrategy is
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
       IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(tokenAddress, investRequest.gasFee);
-      IERC20(tokenAddress).approve(thisNetwork.gasReceiver, investRequest.gasFee);
+      IERC20(tokenAddress).safeApprove(thisNetwork.gasReceiver, investRequest.gasFee);
       IAxelarGasService(thisNetwork.gasReceiver).payGasForContractCallWithToken(
         address(this),
         stratParams.network,
@@ -162,7 +164,7 @@ contract AccountsStrategy is
         investRequest.gasFee,
         state.ENDOWMENTS[id].gasFwd
       );
-      IERC20(tokenAddress).approve(
+      IERC20(tokenAddress).safeApprove(
         thisNetwork.axelarGateway,
         (investRequest.lockAmt + investRequest.liquidAmt)
       );
@@ -253,7 +255,7 @@ contract AccountsStrategy is
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
         state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
-        state.STATES[id].activeStrategies[redeemRequest.strategy] == false;
+        state.STATES[id].activeStrategies[redeemRequest.strategy] = false;
       } else {
         revert RedeemFailed(response.status);
       }
@@ -275,7 +277,7 @@ contract AccountsStrategy is
       bytes memory packedPayload = RouterLib.packCallData(payload);
 
       IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(tokenAddress, redeemRequest.gasFee);
-      IERC20(tokenAddress).approve(thisNetwork.gasReceiver, redeemRequest.gasFee);
+      IERC20(tokenAddress).safeApprove(thisNetwork.gasReceiver, redeemRequest.gasFee);
       IAxelarGasService(thisNetwork.gasReceiver).payGasForContractCall(
         address(this),
         stratParams.network,
@@ -369,7 +371,7 @@ contract AccountsStrategy is
       if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
         state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
-        state.STATES[id].activeStrategies[redeemAllRequest.strategy] == false;
+        state.STATES[id].activeStrategies[redeemAllRequest.strategy] = false;
         emit EndowmentRedeemed(response.status);
       } else {
         revert RedeemAllFailed(response.status);
@@ -392,7 +394,7 @@ contract AccountsStrategy is
       bytes memory packedPayload = RouterLib.packCallData(payload);
 
       IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(tokenAddress, redeemAllRequest.gasFee);
-      IERC20(tokenAddress).approve(thisNetwork.gasReceiver, redeemAllRequest.gasFee);
+      IERC20(tokenAddress).safeApprove(thisNetwork.gasReceiver, redeemAllRequest.gasFee);
       IAxelarGasService(thisNetwork.gasReceiver).payGasForContractCall(
         address(this),
         stratParams.network,
@@ -442,7 +444,7 @@ contract AccountsStrategy is
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.STATES[id].balances.locked[response.token] += response.lockAmt;
         state.STATES[id].balances.liquid[response.token] += response.liqAmt;
-        state.STATES[id].activeStrategies[response.strategyId] == false;
+        state.STATES[id].activeStrategies[response.strategyId] = false;
         return true;
       }
     } else {
@@ -462,7 +464,7 @@ contract AccountsStrategy is
       state.config.registrarContract
     ).getAngelProtocolParams();
     address tokenAddress = IAxelarGateway(thisNetwork.axelarGateway).tokenAddresses(tokenSymbol);
-    IERC20(tokenAddress).transfer(apParams.refundAddr, amount);
+    IERC20(tokenAddress).safeTransfer(apParams.refundAddr, amount);
     emit RefundNeeded(response);
   }
 

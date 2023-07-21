@@ -3,6 +3,7 @@ pragma solidity ^0.8.16;
 
 import "./storage.sol";
 import {DonationMatchMessages} from "./message.sol";
+import {IDonationMatching} from "./IDonationMatching.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
 import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 import {AccountMessages} from "../../core/accounts/message.sol";
@@ -27,7 +28,7 @@ interface IERC20Burnable is IERC20 {
  * @dev DonationMatch contract
  * The `DonationMatch` contract implements a donation matching mechanism for charity endowments and normal endowments.
  */
-contract DonationMatch is Storage, Initializable {
+contract DonationMatch is IDonationMatching, Storage, Initializable {
   address emitterAddress;
 
   /**
@@ -130,7 +131,7 @@ contract DonationMatch is Storage, Initializable {
         "Approve failed"
       );
 
-      IAccountsDonationMatch(registrar_config.accountsContract).depositDonationMatchErC20(
+      IAccountsDonationMatch(registrar_config.accountsContract).depositDonationMatchERC20(
         endowmentId,
         token,
         endowmentAmount

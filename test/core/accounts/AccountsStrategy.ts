@@ -43,7 +43,7 @@ import {
 } from "typechain-types";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {getSigners} from "utils";
-import {deployFacetAsProxy} from "./utils/deployTestFacet";
+import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
 
@@ -268,7 +268,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("and the response is SUCCESS", async function () {
-        await router.executeWithTokenLocal.returns({
+        router.executeWithTokenLocal.returns({
           destinationChain: "",
           strategyId: DEFAULT_STRATEGY_SELECTOR,
           selector: DEFAULT_METHOD_SELECTOR,
@@ -298,7 +298,7 @@ describe("AccountsStrategy", function () {
           ACCOUNT_ID,
           DEFAULT_STRATEGY_SELECTOR
         );
-        expect(strategyActive);
+        expect(strategyActive).to.be.true;
       });
 
       it("and the response is anything other than SUCCESS", async function () {
@@ -605,7 +605,7 @@ describe("AccountsStrategy", function () {
           ACCOUNT_ID,
           DEFAULT_STRATEGY_SELECTOR
         );
-        expect(strategyActive);
+        expect(strategyActive).to.be.true;
       });
 
       it("and the response is POSITION_EXITED", async function () {
@@ -631,7 +631,7 @@ describe("AccountsStrategy", function () {
           ACCOUNT_ID,
           DEFAULT_STRATEGY_SELECTOR
         );
-        expect(!strategyActive);
+        expect(strategyActive).to.be.false;
       });
 
       it("and the response is anything else", async function () {
@@ -945,7 +945,7 @@ describe("AccountsStrategy", function () {
             ACCOUNT_ID,
             DEFAULT_STRATEGY_SELECTOR
           );
-          expect(!strategyActive);
+          expect(strategyActive).to.be.false;
         });
 
         it("and the response is anything else", async function () {
@@ -1368,7 +1368,7 @@ describe("AccountsStrategy", function () {
         ACCOUNT_ID,
         DEFAULT_STRATEGY_SELECTOR
       );
-      expect(!strategyActive);
+      expect(strategyActive).to.be.false;
     });
 
     it("_executeWithToken: redeemAll && POSITION_EXITED", async function () {
