@@ -267,8 +267,8 @@
     },
     "multiSig": {
       "charityApplications": {
-        "implementation": "0xe657852734f2c5215a5e8A69EF564eAfAFfb81bC",
-        "proxy": "0x3769916a8c97FFf1C48DE49b03181578576aFdF1"
+        "implementation": "0xE2Af564F27EE4a6721f1650f9FAa975a11Fdc50F",
+        "proxy": "0x4cb1E5cc57a5cEb38C0087300cFdDDE3a08B3694"
       },
       "apTeam": {
         "implementation": "0xC944590c3fe90e97129ac5AF077DCFB229f3A909",
