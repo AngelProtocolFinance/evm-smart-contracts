@@ -248,16 +248,9 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
    * @param fundId index fund ID
    * @param token address of Token being deposited
    * @param amount amount of Token being deposited
-   * @param splitToLiquid integer % of deposit to be split to liquid balance
    */
-  function depositERC20(
-    uint256 fundId,
-    address token,
-    uint256 amount,
-    uint256 splitToLiquid
-  ) external nonReentrant {
+  function depositERC20(uint256 fundId, address token, uint256 amount) external nonReentrant {
     require(amount > 0, "Amount to donate must be greater than zero");
-    require(splitToLiquid <= 100, "Invalid liquid split");
 
     RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
       .queryConfig();
@@ -275,18 +268,20 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     if (fundId != 0) {
       // Depositor has chosen a specific fund to send tokens to. Send 100% to that fund.
       require(!fundIsExpired(fundId, block.timestamp), "Expired Fund");
-      split = calculateSplit(
-        registrarConfig.splitToLiquid,
+      processDonations(
+        registrarConfig.accountsContract,
+        fundId,
         state.Funds[fundId].splitToLiquid,
-        splitToLiquid
+        token,
+        amount
       );
-      processDonations(registrarConfig.accountsContract, fundId, split, token, amount);
     } else {
       // No explicit fund ID specifed. Send the tokens to current active fund, rotating to a new active
       // fund each time the funding goal is hit, until all deposited tokens have been exhausted
 
       // first pass clean up: start by removing all expired funds from rotating funds list
       prepRotatingFunds();
+      require(state.rotatingFunds.length > 0, "No rotating funds");
 
       if (state.config.fundRotation > 0) {
         // Block-based rotation of Funds
@@ -301,12 +296,13 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
             state.nextRotationBlock += state.config.fundRotation;
           }
         }
-        split = calculateSplit(
-          registrarConfig.splitToLiquid,
+        processDonations(
+          registrarConfig.accountsContract,
+          state.activeFund,
           state.Funds[state.activeFund].splitToLiquid,
-          splitToLiquid
+          token,
+          amount
         );
-        processDonations(registrarConfig.accountsContract, state.activeFund, split, token, amount);
       } else if (state.config.fundingGoal > 0) {
         // Fundraising Goal-based rotation of Funds
         // Check if funding goal is met for current active fund and rotate funds until all donated tokens are depleted
@@ -324,15 +320,10 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
             state.roundDonations += donationAmnt;
             loopDonation = donationAmnt;
           }
-          split = calculateSplit(
-            registrarConfig.splitToLiquid,
-            state.Funds[state.activeFund].splitToLiquid,
-            splitToLiquid
-          );
           processDonations(
             registrarConfig.accountsContract,
             state.activeFund,
-            split,
+            state.Funds[state.activeFund].splitToLiquid,
             token,
             loopDonation
           );
@@ -464,35 +455,6 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     }
 
     emit DonationProcessed(fundId);
-  }
-
-  /**
-   * @dev Calculate split
-   * @param registrar_split Registrar split
-   * @param fundSplit Fund split (set on index fund contract)
-   * @param userSplit User split
-   */
-
-  function calculateSplit(
-    LibAccounts.SplitDetails memory registrar_split,
-    uint256 fundSplit,
-    uint256 userSplit
-  ) internal pure returns (uint256) {
-    uint256 split = 0;
-
-    if (fundSplit == 0) {
-      if (userSplit == 0) {
-        split = registrar_split.defaultSplit;
-      } else {
-        if (userSplit > registrar_split.min && userSplit < registrar_split.max) {
-          split = userSplit;
-        }
-      }
-    } else {
-      split = fundSplit;
-    }
-
-    return split;
   }
 
   /**

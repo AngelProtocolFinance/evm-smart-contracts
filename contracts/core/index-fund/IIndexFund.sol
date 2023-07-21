@@ -87,14 +87,8 @@ interface IIndexFund {
    * @param fundId index fund ID
    * @param token address of Token being deposited
    * @param amount amount of Token being deposited
-   * @param splitToLiquid integer % of deposit to be split to liquid balance
    */
-  function depositERC20(
-    uint256 fundId,
-    address token,
-    uint256 amount,
-    uint256 splitToLiquid
-  ) external;
+  function depositERC20(uint256 fundId, address token, uint256 amount) external;
 
   /**
    * @dev Query config

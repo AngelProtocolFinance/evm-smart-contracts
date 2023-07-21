@@ -422,29 +422,23 @@ describe("IndexFund", function () {
     });
 
     it("reverts when amount is zero", async function () {
-      expect(indexFund.depositERC20(1, token1.address, 0, 50)).to.be.revertedWith(
+      expect(indexFund.depositERC20(1, token1.address, 0)).to.be.revertedWith(
         "Amount to donate must be greater than zero"
       );
     });
 
     it("reverts when fund passed is expired", async function () {
-      expect(indexFund.depositERC20(2, token1.address, 100, 50)).to.be.revertedWith("Expired Fund");
+      expect(indexFund.depositERC20(2, token1.address, 100)).to.be.revertedWith("Expired Fund");
     });
 
     it("reverts when invalid token is passed", async function () {
-      expect(indexFund.depositERC20(1, ethers.constants.AddressZero, 100, 50)).to.be.revertedWith(
+      expect(indexFund.depositERC20(1, ethers.constants.AddressZero, 100)).to.be.revertedWith(
         "Invalid token"
       );
     });
 
-    it("reverts when liquid split passed greater than 100", async function () {
-      expect(indexFund.depositERC20(1, token1.address, 100, 105)).to.be.revertedWith(
-        "Invalid liquid split"
-      );
-    });
-
     it("reverts when target fund is expired", async function () {
-      expect(indexFund.depositERC20(2, token1.address, 100, 50)).to.be.revertedWith("Fund expired");
+      expect(indexFund.depositERC20(2, token1.address, 100)).to.be.revertedWith("Fund expired");
     });
 
     it("reverts when `0` Fund ID is passed with no rotating funds(empty)", async function () {
@@ -453,7 +447,7 @@ describe("IndexFund", function () {
       await token1.approveFor(owner.address, indexFund.address, 100);
 
       // should fail with no rotating funds set
-      expect(indexFund.depositERC20(0, token1.address, 100, 0)).to.be.revertedWith(
+      expect(indexFund.depositERC20(0, token1.address, 100)).to.be.revertedWith(
         "Must have rotating funds active to pass a Fund ID of 0"
       );
     });
@@ -489,7 +483,7 @@ describe("IndexFund", function () {
       );
     });
 
-    it("passes for a specific fund, amount > zero, spilt <= 100 & token is valid", async function () {
+    it("passes for a specific fund, amount > zero & token is valid", async function () {
       // mint tokens so that the user and contract can transfer them
       await token1.mint(owner.address, 100);
       await token1.approveFor(owner.address, indexFund.address, 100);
@@ -499,12 +493,12 @@ describe("IndexFund", function () {
         .to.emit("FundCreated")
         .withArgs(4);
 
-      expect(await indexFund.depositERC20(4, token1.address, 100, 50))
-        .to.emit("DonationProcessed")
-        .withArgs(1);
+      expect(await indexFund.depositERC20(4, token1.address, 100))
+        .to.emit(indexFund, "DonationProcessed")
+        .withArgs(4);
     });
 
-    it("passes for an active fund donation, amount > zero, spilt <= 100 & token is valid", async function () {
+    it("passes for an active fund donation(amount-based rotation), amount > zero & token is valid", async function () {
       // mint tokens so that the user and contract can transfer them
       await token1.mint(owner.address, 10000);
       await token1.approveFor(owner.address, indexFund.address, 10000);
@@ -514,9 +508,9 @@ describe("IndexFund", function () {
         .to.emit("FundCreated")
         .withArgs(5);
 
-      expect(await indexFund.depositERC20(0, token1.address, 10000, 50))
-        .to.emit("DonationProcessed")
-        .withArgs(1);
+      expect(await indexFund.depositERC20(0, token1.address, 10000))
+        .to.emit(indeFund, "DonationProcessed")
+        .withArgs(4);
     });
   });
 });
