@@ -110,6 +110,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
       "Fund endowment members exceeds upper limit"
     );
     require(splitToLiquid <= 100, "Invalid split: must be less or equal to 100");
+    require(expiryTime == 0 || expiryTime > block.timestamp, "Invalid expiry time");
 
     state.Funds[state.nextFundId] = IndexFundStorage.Fund({
       id: state.nextFundId,
@@ -124,15 +125,16 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
       state.FundsByEndowment[endowments[i]].push(state.nextFundId);
     }
 
-    // If there are no funds created or no active funds yet, set the new
-    // fund being created now to be the active fund
-    if (state.activeFund == 0) {
-      state.activeFund = state.nextFundId;
-      emit ActiveFundUpdated(state.activeFund);
-    }
-
     if (rotatingFund) {
       state.rotatingFunds.push(state.nextFundId);
+      // If there are no funds created or no active funds yet
+      // or if the current active fund is expired:
+      if (state.activeFund == 0 || fundIsExpired(state.activeFund, block.timestamp)) {
+        // prep rotating funds list & set the next Active Fund
+        prepRotatingFunds();
+        state.activeFund = nextActiveFund();
+        emit ActiveFundUpdated(state.activeFund);
+      }
     }
 
     emit FundCreated(state.nextFundId);
@@ -145,7 +147,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
    * @param fundId id of index fund to be removed
    */
   function removeIndexFund(uint256 fundId) external onlyOwner {
-    require(!fundIsExpired(state.Funds[fundId], block.timestamp), "Fund Expired");
+    require(!fundIsExpired(fundId, block.timestamp), "Fund Expired");
     removeFund(fundId);
   }
 
@@ -197,7 +199,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
       endowments.length <= MAX_ENDOWMENT_MEMBERS,
       "Fund endowment members exceeds upper limit"
     );
-    require(!fundIsExpired(state.Funds[fundId], block.timestamp), "Fund Expired");
+    require(!fundIsExpired(fundId, block.timestamp), "Fund Expired");
 
     uint32[] memory currEndowments = state.Funds[fundId].endowments;
     bool found;
@@ -267,7 +269,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     uint256 split;
     if (fundId != 0) {
       // Depositor has chosen a specific fund to send tokens to. Send 100% to that fund.
-      require(!fundIsExpired(state.Funds[fundId], block.timestamp), "Expired Fund");
+      require(!fundIsExpired(fundId, block.timestamp), "Expired Fund");
       split = calculateSplit(
         registrar_config.splitToLiquid,
         state.Funds[fundId].splitToLiquid,
@@ -279,22 +281,14 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
       // fund each time the funding goal is hit, until all deposited tokens have been exhausted
 
       // first pass clean up: start by removing all expired funds from rotating funds list
-      for (uint256 i = 0; i < state.rotatingFunds.length; i++) {
-        if (fundIsExpired(state.Funds[state.rotatingFunds[i]], block.timestamp)) {
-          Array.remove(state.rotatingFunds, i);
-        }
-      }
-      require(
-        state.rotatingFunds.length > 0,
-        "Must have rotating funds active to pass a Fund ID of 0"
-      );
+      prepRotatingFunds();
 
-      // if block based fund rotations are turned on...
+      // Block-based rotation of Funds
       if (state.config.fundRotation != 0) {
         // check if block limit has been reached/exceeded since last contract call
         // and that there are actually active rotating funds to rotate
         if (state.rotatingFunds.length > 0 && block.number >= state.nextRotationBlock) {
-          state.activeFund = rotateFund(state.activeFund);
+          state.activeFund = nextActiveFund();
           emit ActiveFundUpdated(state.activeFund);
           state.roundDonations = 0;
 
@@ -302,17 +296,16 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
             state.nextRotationBlock += state.config.fundRotation;
           }
         }
-      }
-
-      // Send all funds to the Active Fund since there's no funding goal to hit to trigger a rotation
-      if (state.config.fundingGoal == 0) {
+        processDonations(registrar_config.accountsContract, state.activeFund, split, token, amount);
+        // Fundraising Goal-based rotation of Funds is the alternative
+      } else if (state.config.fundingGoal == 0) {
         split = calculateSplit(
           registrar_config.splitToLiquid,
           state.Funds[state.activeFund].splitToLiquid,
           splitToLiquid
         );
         processDonations(registrar_config.accountsContract, state.activeFund, split, token, amount);
-      } else {
+      } else if (state.config.fundingGoal > 0) {
         // Check if funding goal is met for current active fund and rotate funds until all donated tokens are depleted
         uint256 donationAmnt = amount;
         uint256 loopDonation = 0;
@@ -321,7 +314,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
           if (donationAmnt >= goalLeftover) {
             state.roundDonations = 0;
             // set state active fund to next fund for next loop iteration
-            state.activeFund = rotateFund(state.activeFund);
+            state.activeFund = nextActiveFund();
             emit ActiveFundUpdated(state.activeFund);
             loopDonation = goalLeftover;
           } else {
@@ -374,6 +367,14 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
         roundDonations: state.roundDonations,
         nextRotationBlock: state.nextRotationBlock
       });
+  }
+
+  /**
+   * @dev Query rotating funds list
+   * @return List of rotating fund IDs
+   */
+  function queryRotatingFunds() external view returns (uint256[] memory) {
+    return state.rotatingFunds;
   }
 
   /**
@@ -436,7 +437,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     uint256 amount
   ) internal {
     require(state.Funds[fundId].endowments.length > 0, "Fund must have endowment members");
-    require(!fundIsExpired(state.Funds[fundId], block.timestamp), "Expired Fund");
+    require(!fundIsExpired(fundId, block.timestamp), "Expired Fund");
     require(amount > 0, "Amount cannot be zero");
 
     // execute donation message for each endowment in the fund
@@ -486,35 +487,48 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
 
   /**
    * @dev Check if fund is expired
-   * @param fund Fund
+   * @param fundId Fund ID to check expired status
    * @param envTime block time
-   * @return True if fund is expired
+   * @return True if Fund is expired
    */
-  function fundIsExpired(
-    IndexFundStorage.Fund memory fund,
-    uint256 envTime
-  ) internal pure returns (bool) {
-    return (fund.expiryTime != 0 && envTime >= fund.expiryTime);
+  function fundIsExpired(uint256 fundId, uint256 envTime) internal view returns (bool) {
+    return (state.Funds[fundId].expiryTime != 0 && envTime > state.Funds[fundId].expiryTime);
   }
 
   /**
-   * @dev rotate active based if investment goal is fulfilled
-   * @param rFund Active fund
-   * @return New active fund
+   * @dev Removes all expired funds from the Rotating Funds array
+   * Used before any active fund donations logic that would require rotating funds
+   * to ensure that we do not ever donate to an expired fund and
+   * the rotating funds has members still after the clean up process.
    */
-  function rotateFund(uint256 rFund) internal view returns (uint256) {
-    require(state.rotatingFunds.length > 0, "No rotating Funds");
+  function prepRotatingFunds() internal {
+    for (uint256 i = 0; i < state.rotatingFunds.length; i++) {
+      if (fundIsExpired(state.rotatingFunds[i], block.timestamp)) {
+        Array.remove(state.rotatingFunds, i);
+      }
+    }
+    require(
+      state.rotatingFunds.length > 0,
+      "Must have rotating funds active to pass a Fund ID of 0"
+    );
+  }
 
+  /**
+   * @dev Find next active fund ID from the rotating funds list
+   * @return Next active fund ID
+   */
+  function nextActiveFund() internal view returns (uint256) {
+    require(state.rotatingFunds.length > 0, "No rotating Funds");
     bool found;
     uint256 index;
-    (index, found) = Array.indexOf(state.rotatingFunds, rFund);
+    (index, found) = Array.indexOf(state.rotatingFunds, state.activeFund);
     // If the current active fund is not found in the rotating funds list (for whatever reason)
     // OR the current active fund is the last item in the rotating funds list...
     if (!found || index == state.rotatingFunds.length - 1) {
-      // set to the first fund in the rotating funds list
+      // return the first fund in the rotating funds list
       return state.rotatingFunds[0];
     } else {
-      // otherwise set the next fund in rotating funds list
+      // otherwise return the next fund in rotating funds list
       return state.rotatingFunds[index + 1];
     }
   }

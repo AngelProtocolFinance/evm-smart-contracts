@@ -122,6 +122,12 @@ interface IIndexFund {
   function queryState() external view returns (StateResponse memory);
 
   /**
+   * @dev Query rotating funds list
+   * @return List of rotating fund IDs
+   */
+  function queryRotatingFunds() external view returns (uint256[] memory);
+
+  /**
    * @dev Query fund details
    * @param fundId Fund id
    * @return Fund details
