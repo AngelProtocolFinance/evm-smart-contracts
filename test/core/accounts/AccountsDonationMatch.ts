@@ -3,12 +3,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {
-  DEFAULT_CHARITY_ENDOWMENT,
-  DEFAULT_REGISTRAR_CONFIG,
-  DEFAULT_STRATEGY_SELECTOR,
-  DonationMatchEnum,
-} from "test/utils";
+import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG, DonationMatchEnum} from "test/utils";
 import {
   AccountsDonationMatch,
   AccountsDonationMatch__factory,
@@ -22,12 +17,12 @@ import {
   Registrar__factory,
   TestFacetProxyContract,
 } from "typechain-types";
+import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsDonationMatch";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
+import {DonationMatchStorage} from "typechain-types/contracts/normalized_endowment/donation-match/DonationMatchEmitter";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet, getSigners} from "utils";
-import {deployFacetAsProxy} from "./utils/deployTestFacet";
-import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsDonationMatch";
-import {DonationMatchStorage} from "typechain-types/contracts/normalized_endowment/donation-match/DonationMatchEmitter";
+import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
 

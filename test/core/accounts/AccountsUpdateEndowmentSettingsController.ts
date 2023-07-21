@@ -2,7 +2,6 @@ import {smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import hre from "hardhat";
-import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
 import {
   AccountsUpdateEndowmentSettingsController,
@@ -15,7 +14,7 @@ import {
   LibAccounts,
 } from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet, getSigners} from "utils";
-import {updateAllSettings} from "./utils";
+import {deployFacetAsProxy, updateAllSettings} from "./utils";
 
 use(smock.matchers);
 

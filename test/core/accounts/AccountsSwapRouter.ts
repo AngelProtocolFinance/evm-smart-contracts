@@ -3,7 +3,6 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import hre from "hardhat";
 import {deployDummyERC20} from "tasks/helpers";
-import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {
   DEFAULT_ACCOUNTS_CONFIG,
   DEFAULT_CHARITY_ENDOWMENT,
@@ -26,7 +25,7 @@ import {
   TestFacetProxyContract,
 } from "typechain-types";
 import {genWallet, getSigners} from "utils";
-
+import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
 
