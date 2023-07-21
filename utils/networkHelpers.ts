@@ -23,5 +23,6 @@ const AxelarNetworks = new TwoWayMap({
   1: "Ethereum",
   5: "ethereum-2",
   137: "Polygon",
+  31337: "localhost",
   80001: "Polygon",
 });

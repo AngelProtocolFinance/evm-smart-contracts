@@ -1,4 +1,3 @@
-import config from "config";
 import {deployLocalRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
@@ -10,8 +9,12 @@ import {
   isLocalNetwork,
   logger,
   verify,
+  NetworkConnectionAction
 } from "utils";
+import {Registrar__factory} from "typechain-types";
+import { IAccountsStrategy } from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 import {updateRegistrarConfig, updateRegistrarNetworkConnections} from "../helpers";
+import { router } from "typechain-types/contracts/core";
 
 type TaskArgs = {
   skipVerify: boolean;
@@ -56,20 +59,30 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
         hre
       );
 
-      logger.divider();
-      let network = await hre.ethers.provider.getNetwork();
-      if (!isLocalNetwork(hre)) {
-        logger.out("Updating network connection info in the registrar");
-        await hre.run("manage:registrar:setNetworkInfo", {
-          networkName: getNetworkNameFromChainId(network.chainId),
-        });
+      if (!routerDeployment) {
+        return;
       }
+
+      let network = await hre.ethers.provider.getNetwork()
+      const networkInfo: IAccountsStrategy.NetworkInfoStruct = {
+        chainId: network.chainId,
+        router: routerDeployment.address, 
+        axelarGateway: addresses.axelar.gateway,
+        ibcChannel: "",
+        transferChannel: "",
+        gasReceiver: addresses.axelar.gasService,
+        gasLimit: 0
+      }
+      await updateRegistrarNetworkConnections(
+        localRegistrarDeployment.address,
+        owner, 
+        networkInfo,
+        hre
+      )
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         await verify(hre, localRegistrarDeployment);
-        if (routerDeployment) {
-          await verify(hre, routerDeployment);
-        }
+        await verify(hre, routerDeployment);
       }
     } catch (error) {
       logger.out(error, logger.Level.Error);

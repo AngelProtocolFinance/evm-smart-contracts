@@ -12,4 +12,5 @@ import "./deployIndexFund";
 import "./deployLocalRegistrar";
 import "./deployRegistrar";
 import "./deployRouter";
+import "./deploySideChain";
 import "./integrations";

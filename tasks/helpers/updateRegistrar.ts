@@ -13,7 +13,7 @@ export async function updateRegistrarNetworkConnections(
   hre: HardhatRuntimeEnvironment
 ) {
   logger.divider();
-  logger.out("Updating Registrar config...");
+  logger.out(`Updating Registrar network info for chain id: ${newNetworkInfo.chainId}`);
 
   try {
     validateAddress(registrar, "registrar");
