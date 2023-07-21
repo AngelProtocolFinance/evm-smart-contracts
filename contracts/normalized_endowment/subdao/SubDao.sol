@@ -122,7 +122,10 @@ contract SubDao is ISubDao, Storage, ReentrancyGuard, Initializable {
       details.token.token == SubDaoLib.TokenType.VeBonding &&
       details.endowType == LibAccounts.EndowmentType.Charity
     ) {
-      require(registrar_config.haloToken != address(0), "Registrar's HALO token address is empty");
+      require(
+        Validator.addressChecker(registrar_config.haloToken),
+        "Registrar's HALO token address is empty"
+      );
 
       SubDaoTokenMessage.InstantiateMsg memory temp = SubDaoTokenMessage.InstantiateMsg({
         name: details.token.data.veBondingName,
@@ -171,8 +174,8 @@ contract SubDao is ISubDao, Storage, ReentrancyGuard, Initializable {
   function registerContract(address veToken, address swapFactory) external {
     require(config.owner == msg.sender, "Unauthorized");
 
-    require(veToken != address(0), "Invalid input");
-    require(swapFactory != address(0), "Invalid input");
+    require(Validator.addressChecker(veToken), "Invalid veToken");
+    require(Validator.addressChecker(swapFactory), "Invalid swapFactory");
 
     config.veToken = veToken;
     config.swapFactory = swapFactory;
@@ -203,13 +206,10 @@ contract SubDao is ISubDao, Storage, ReentrancyGuard, Initializable {
   ) external {
     require(config.owner == msg.sender, "Unauthorized");
 
-    if (owner != address(0)) {
-      config.owner = owner;
-    }
-
     require(SubDaoLib.validateQuorum(quorum), "InvalidQuorum");
     require(SubDaoLib.validateThreshold(threshold), "InvalidThreshold");
 
+    config.owner = owner;
     config.quorum = quorum;
     config.threshold = threshold;
     config.votingPeriod = votingperiod;
