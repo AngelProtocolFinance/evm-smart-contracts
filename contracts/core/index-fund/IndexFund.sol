@@ -65,6 +65,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     state.nextFundId = 1;
     state.roundDonations = 0;
     state.nextRotationBlock = block.number + state.config.fundRotation;
+    emit Instantiated(registrarContract, fundRotation, fundingGoal);
   }
 
   /**
@@ -92,7 +93,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
       revert("Invalid Fund Rotation configuration");
     }
 
-    emit ConfigUpdated();
+    emit ConfigUpdated(registrarContract, fundingGoal, fundRotation);
   }
 
   /**
@@ -170,10 +171,6 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
       .queryConfig();
 
-    require(
-      address(0) != registrarConfig.accountsContract,
-      "Accounts contract not configured in Registrar"
-    );
     require(msg.sender == registrarConfig.accountsContract, "Unauthorized");
 
     bool found;
@@ -192,8 +189,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
       }
     }
     // wipe involved funds for the target endowment member ID
-    uint256[] memory empty;
-    state.FundsByEndowment[endowment] = empty;
+    delete state.FundsByEndowment[endowment];
   }
 
   /**

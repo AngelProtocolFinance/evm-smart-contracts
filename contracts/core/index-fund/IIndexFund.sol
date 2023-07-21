@@ -7,8 +7,8 @@ interface IIndexFund {
   /*////////////////////////////////////////////////
                         EVENTS
   */ ////////////////////////////////////////////////
-  event IndexFundInstantiated();
-  event ConfigUpdated();
+  event Instantiated(address registrarContract, uint256 fundRotation, uint256 fundingGoal);
+  event ConfigUpdated(address registrarContract, uint256 fundingGoal, uint256 fundRotation);
   event FundCreated(uint256 id);
   event FundRemoved(uint256 id);
   event MemberRemoved(uint256 fundId, uint32 endowmentId);

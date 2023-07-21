@@ -163,7 +163,7 @@ describe("IndexFund", function () {
       );
     });
 
-    it("accepts fund member limit, rotation, and goal as part of initialization", async function () {
+    it("accepts rotation and goal as part of initialization", async function () {
       let rotation = 0;
       let goal = 5000;
       indexFund = await deployIndexFundAsProxy(rotation, goal);
