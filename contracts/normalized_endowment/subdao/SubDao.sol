@@ -14,10 +14,11 @@ import {SubDaoTokenMessage} from "./../subdao-token/message.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ISubDaoEmitter} from "./ISubDaoEmitter.sol";
+import {ISubDao} from "./ISubDao.sol";
 import "./Token/ERC20.sol";
 import "./storage.sol";
 
-contract SubDao is Storage, ReentrancyGuard, Initializable {
+contract SubDao is ISubDao, Storage, ReentrancyGuard, Initializable {
   address emitterAddress;
   address accountAddress;
 
