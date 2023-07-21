@@ -45,6 +45,16 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     __Ownable_init_unchained();
 
     require(registrarContract != address(0), "invalid registrar address");
+
+    // active fund rotations can set by either a Time-based or Amoount-based
+    // or neither (wherein both are == 0)
+    state.config.fundRotation = fundRotation;
+    if (fundingGoal == 0 || (fundRotation == 0 && fundingGoal > 0)) {
+      state.config.fundingGoal = fundingGoal;
+    } else {
+      revert("Invalid Fund Rotation configuration");
+    }
+
     state.config = IndexFundStorage.Config({
       registrarContract: registrarContract,
       fundRotation: fundRotation,
@@ -72,15 +82,14 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     require(registrarContract != address(0), "Invalid Registrar address");
 
     state.config.registrarContract = registrarContract;
-    state.config.fundRotation = fundRotation;
 
-    if (fundingGoal != 0) {
-      if (fundingGoal < state.roundDonations) {
-        revert("Invalid Inputs");
-      }
+    // active fund rotations can set by either a Time-based or Amoount-based
+    // or neither (wherein both are == 0)
+    state.config.fundRotation = fundRotation;
+    if (fundingGoal == 0 || (fundRotation == 0 && fundingGoal > 0)) {
       state.config.fundingGoal = fundingGoal;
     } else {
-      state.config.fundingGoal = 0;
+      revert("Invalid Fund Rotation configuration");
     }
 
     emit ConfigUpdated();
@@ -158,14 +167,14 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
    *  @param endowment endowment to be removed from index fund
    */
   function removeMember(uint32 endowment) external {
-    RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
+    RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
       .queryConfig();
 
     require(
-      address(0) != registrar_config.accountsContract,
+      address(0) != registrarConfig.accountsContract,
       "Accounts contract not configured in Registrar"
     );
-    require(msg.sender == registrar_config.accountsContract, "Unauthorized");
+    require(msg.sender == registrarConfig.accountsContract, "Unauthorized");
 
     bool found;
     uint32 index;
@@ -254,28 +263,28 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     require(amount > 0, "Amount to donate must be greater than zero");
     require(splitToLiquid <= 100, "Invalid liquid split");
 
-    RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
+    RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
       .queryConfig();
     require(
-      address(0) != registrar_config.accountsContract,
+      address(0) != registrarConfig.accountsContract,
       "Accounts contract not configured in Registrar"
     );
 
     // tokens must be transfered from the senter to this contract
     IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
     // we give allowance to accounts contract
-    IERC20(token).safeApprove(registrar_config.accountsContract, amount);
+    IERC20(token).safeApprove(registrarConfig.accountsContract, amount);
 
     uint256 split;
     if (fundId != 0) {
       // Depositor has chosen a specific fund to send tokens to. Send 100% to that fund.
       require(!fundIsExpired(fundId, block.timestamp), "Expired Fund");
       split = calculateSplit(
-        registrar_config.splitToLiquid,
+        registrarConfig.splitToLiquid,
         state.Funds[fundId].splitToLiquid,
         splitToLiquid
       );
-      processDonations(registrar_config.accountsContract, fundId, split, token, amount);
+      processDonations(registrarConfig.accountsContract, fundId, split, token, amount);
     } else {
       // No explicit fund ID specifed. Send the tokens to current active fund, rotating to a new active
       // fund each time the funding goal is hit, until all deposited tokens have been exhausted
@@ -283,11 +292,11 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
       // first pass clean up: start by removing all expired funds from rotating funds list
       prepRotatingFunds();
 
-      // Block-based rotation of Funds
-      if (state.config.fundRotation != 0) {
+      if (state.config.fundRotation > 0) {
+        // Block-based rotation of Funds
         // check if block limit has been reached/exceeded since last contract call
         // and that there are actually active rotating funds to rotate
-        if (state.rotatingFunds.length > 0 && block.number >= state.nextRotationBlock) {
+        if (block.number >= state.nextRotationBlock) {
           state.activeFund = nextActiveFund();
           emit ActiveFundUpdated(state.activeFund);
           state.roundDonations = 0;
@@ -296,16 +305,14 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
             state.nextRotationBlock += state.config.fundRotation;
           }
         }
-        processDonations(registrar_config.accountsContract, state.activeFund, split, token, amount);
-        // Fundraising Goal-based rotation of Funds is the alternative
-      } else if (state.config.fundingGoal == 0) {
         split = calculateSplit(
-          registrar_config.splitToLiquid,
+          registrarConfig.splitToLiquid,
           state.Funds[state.activeFund].splitToLiquid,
           splitToLiquid
         );
-        processDonations(registrar_config.accountsContract, state.activeFund, split, token, amount);
+        processDonations(registrarConfig.accountsContract, state.activeFund, split, token, amount);
       } else if (state.config.fundingGoal > 0) {
+        // Fundraising Goal-based rotation of Funds
         // Check if funding goal is met for current active fund and rotate funds until all donated tokens are depleted
         uint256 donationAmnt = amount;
         uint256 loopDonation = 0;
@@ -322,12 +329,12 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
             loopDonation = donationAmnt;
           }
           split = calculateSplit(
-            registrar_config.splitToLiquid,
+            registrarConfig.splitToLiquid,
             state.Funds[state.activeFund].splitToLiquid,
             splitToLiquid
           );
           processDonations(
-            registrar_config.accountsContract,
+            registrarConfig.accountsContract,
             state.activeFund,
             split,
             token,
@@ -336,6 +343,8 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
           // deduct donated donationAmnt in this round from total donation amt
           donationAmnt -= loopDonation;
         }
+      } else {
+        revert("Active Donation rotations are not properly configured");
       }
     }
   }

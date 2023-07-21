@@ -39,7 +39,7 @@ describe("IndexFund", function () {
   } as LocalRegistrarLib.AngelProtocolParamsStruct;
 
   async function deployIndexFundAsProxy(
-    fundRotation: uint256 = 1000,
+    fundRotation: uint256 = 0, // no block-based rotation
     fundingGoal: uint256 = 10000
   ): Promise<IndexFund> {
     let apParams = defaultApParams;
@@ -155,8 +155,16 @@ describe("IndexFund", function () {
       expect(state.activeFund).to.equal(0);
     });
 
-    it("accepts fund member limit, rotation, and goal as part of initialization", async function () {
+    it("reverts if an invalid fund rotation setup is passed", async function () {
       let rotation = 250;
+      let goal = 5000;
+      expect(deployIndexFundAsProxy(rotation, goal)).to.be.revertedWith(
+        "Invalid Registrar address"
+      );
+    });
+
+    it("accepts fund member limit, rotation, and goal as part of initialization", async function () {
+      let rotation = 0;
       let goal = 5000;
       indexFund = await deployIndexFundAsProxy(rotation, goal);
       let config = await indexFund.queryConfig();
@@ -178,9 +186,9 @@ describe("IndexFund", function () {
       );
     });
 
-    it("reverts when the limit of members is zero", async function () {
+    it("reverts when both rotation-related arguments are non-zero", async function () {
       expect(indexFund.updateConfig(registrar.address, 200, 5000)).to.be.revertedWith(
-        "Fund endowment limit must be greater than zero"
+        "Invalid Fund Rotation configuration"
       );
     });
 
@@ -192,14 +200,14 @@ describe("IndexFund", function () {
 
     it("passes with valid sender and all correct inputs", async function () {
       // update config with all the correct bits
-      expect(await indexFund.updateConfig(registrar.address, 200, 5000)).to.emit(
+      expect(await indexFund.updateConfig(registrar.address, 0, 5000)).to.emit(
         indexFund,
         "ConfigUpdated"
       );
 
       // query the new config and check that updates applied correctly
       let newConfig = await indexFund.queryConfig();
-      expect(newConfig.fundRotation).to.equal(200);
+      expect(newConfig.fundRotation).to.equal(0);
       expect(newConfig.fundingGoal).to.equal(5000);
     });
   });
