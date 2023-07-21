@@ -130,7 +130,7 @@ contract AccountsStrategy is
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
         state.STATES[id].balances.locked[tokenAddress] -= investRequest.lockAmt;
         state.STATES[id].balances.liquid[tokenAddress] -= investRequest.liquidAmt;
-        state.STATES[id].activeStrategies[investRequest.strategy] == true;
+        state.STATES[id].activeStrategies[investRequest.strategy] = true;
         emit EndowmentInvested(response.status);
       } else {
         revert InvestFailed(response.status);
@@ -255,7 +255,7 @@ contract AccountsStrategy is
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
         state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
-        state.STATES[id].activeStrategies[redeemRequest.strategy] == false;
+        state.STATES[id].activeStrategies[redeemRequest.strategy] = false;
       } else {
         revert RedeemFailed(response.status);
       }
@@ -371,7 +371,7 @@ contract AccountsStrategy is
       if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
         state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
-        state.STATES[id].activeStrategies[redeemAllRequest.strategy] == false;
+        state.STATES[id].activeStrategies[redeemAllRequest.strategy] = false;
         emit EndowmentRedeemed(response.status);
       } else {
         revert RedeemAllFailed(response.status);
@@ -444,7 +444,7 @@ contract AccountsStrategy is
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.STATES[id].balances.locked[response.token] += response.lockAmt;
         state.STATES[id].balances.liquid[response.token] += response.liqAmt;
-        state.STATES[id].activeStrategies[response.strategyId] == false;
+        state.STATES[id].activeStrategies[response.strategyId] = false;
         return true;
       }
     } else {
