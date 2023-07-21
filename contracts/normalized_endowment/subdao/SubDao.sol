@@ -164,19 +164,18 @@ contract SubDao is ISubDao, Storage, ReentrancyGuard, Initializable {
   }
 
   /**
-   * @notice function used to register the contract address
-   * @dev Register the contract address
-   * @param vetoken The address of the ve token contract
-   * @param swapfactory The address of the swap factory contract
+   * @notice function used to register the ve bonding token and swap factory contract addresses
+   * @param veToken The address of the ve bonding token contract
+   * @param swapFactory The address of the swap factory contract
    */
-  function registerContract(address vetoken, address swapfactory) external {
+  function registerContract(address veToken, address swapFactory) external {
     require(config.owner == msg.sender, "Unauthorized");
 
-    require(vetoken != address(0), "Invalid input");
-    require(swapfactory != address(0), "Invalid input");
+    require(veToken != address(0), "Invalid input");
+    require(swapFactory != address(0), "Invalid input");
 
-    config.veToken = vetoken;
-    config.swapFactory = swapfactory;
+    config.veToken = veToken;
+    config.swapFactory = swapFactory;
     ISubDaoEmitter(emitterAddress).updateSubDaoConfig();
   }
 

@@ -8,7 +8,7 @@ import {Array} from "../../lib/array.sol";
 import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 
 interface ISubDao {
-  function registerContracts(address vetoken, address swapfactory) external;
+  function registerContract(address vetoken, address swapfactory) external;
 
   function updateConfig(
     address owner,
@@ -22,13 +22,12 @@ interface ISubDao {
   ) external;
 
   function createPoll(
-    address proposer,
     uint256 depositamount,
     string memory title,
     string memory description,
     string memory link,
     SubDaoStorage.ExecuteData memory executeMsgs
-  ) external;
+  ) external returns (uint256);
 
   function endPoll(uint256 pollid) external;
 
