@@ -1,4 +1,3 @@
-import {network} from "hardhat";
 import {task, types} from "hardhat/config";
 import {NetworkInfoStruct, NetworkConnectionAction} from "test/utils";
 import {Registrar__factory} from "typechain-types";
@@ -43,7 +42,7 @@ task("manage:registrar:setNetworkInfo")
 
     logger.divider();
     logger.out("Setting network config according to contract-address.json");
-    const networkInfo: NetworkInfoStruct = {
+    const newNetworkInfo: NetworkInfoStruct = {
       chainId: chainId,
       router: subjectAddresses.router.proxy,
       axelarGateway: subjectAddresses.axelar.gateway,
@@ -54,7 +53,7 @@ task("manage:registrar:setNetworkInfo")
     };
     await registrar.updateNetworkConnections(
       taskArguments.networkName,
-      networkInfo,
+      newNetworkInfo,
       NetworkConnectionAction.POST
     );
     let newNetworkSettings = await registrar.queryNetworkConnection(taskArguments.networkName);
@@ -67,7 +66,7 @@ task("manage:registrar:setNetworkInfo")
       logger.out(`Network Info updated on ${taskArguments.networkName}`);
     } else {
       throw new Error(
-        `Queried network info does not match expected new values, got: ${newNetworkSettings}, expected: ${networkInfo}`
+        `Queried network info does not match expected new values, got: ${newNetworkSettings}, expected: ${newNetworkInfo}`
       );
     }
   });
