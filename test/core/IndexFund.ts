@@ -1,6 +1,7 @@
 import {expect} from "chai";
 import hre from "hardhat";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {impersonateAccount, setBalance} from "@nomicfoundation/hardhat-network-helpers";
 import {
   AccountsDepositWithdrawEndowments,
   AccountsDepositWithdrawEndowments__factory,
@@ -317,16 +318,6 @@ describe("IndexFund", function () {
       await indexFund.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0);
       await indexFund.createIndexFund("Test Fund #2", "Test fund", [3], false, 50, 0);
 
-      // registrar config has the accounts contract set as owner (for ease of testing)
-      let {splitToLiquid, ...curConfig} = await registrar.queryConfig();
-      await registrar.updateConfig({
-        ...curConfig,
-        accountsContract: owner.address,
-        splitMax: 100,
-        splitMin: 0,
-        splitDefault: 50,
-        collectorShare: 0,
-      });
     });
 
     it("reverts when the message sender is not the accounts contract", async function () {
@@ -334,12 +325,18 @@ describe("IndexFund", function () {
     });
 
     it("passes with correct sender", async function () {
+      // create a signer for the Accounts contract to send msgs from
+      let regConfig = await registrar.queryConfig();
+      await impersonateAccount(regConfig.accountsContract);
+      await setBalance(regConfig.accountsContract, 1000000000000000000); // give it some gas money, as impersonateAccount does not
+      const acctSigner = await ethers.getSigner(regConfig.accountsContract);
+
       // Endowment #1 should be invloved with two funds
       let funds = await indexFund.queryInvolvedFunds(3);
       expect(funds.length).to.equal(2);
 
       // remove Endowment #1 from all funds
-      expect(await indexFund.connect(owner).removeMember(3)).to.emit(indexFund, "MemberRemoved");
+      expect(await indexFund.connect(acctSigner).removeMember(3)).to.emit(indexFund, "MemberRemoved");
 
       // Endowment #1 should not be invloved with any funds now
       funds = await indexFund.queryInvolvedFunds(3);
