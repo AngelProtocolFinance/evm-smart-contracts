@@ -8,9 +8,9 @@ import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../registrar/storage.sol";
 
 contract GasFwdFactory is IGasFwdFactory, Ownable {
-  address impl;
-  address admin;
-  address registrar;
+  address public impl;
+  address public admin;
+  address public registrar;
 
   constructor(address _impl, address _admin, address _registrar) {
     if (_impl == address(0)) {
@@ -43,5 +43,12 @@ contract GasFwdFactory is IGasFwdFactory, Ownable {
       revert InvalidAddress("_impl");
     }
     impl = _impl;
+  }
+
+  function updateRegistrar(address _registrar) external onlyOwner {
+    if (_registrar == address(0)) {
+      revert InvalidAddress("_registrar");
+    }
+    registrar = _registrar;
   }
 }

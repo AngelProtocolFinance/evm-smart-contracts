@@ -4,20 +4,19 @@ import {GasFwdFactory__factory, GasFwd__factory} from "typechain-types";
 import {Deployment, getAddresses, getContractName, logger, updateAddresses} from "utils";
 
 type Data = {
-  deployer: SignerWithAddress;
   admin: SignerWithAddress;
   registrar?: string;
 };
 
 export async function deployGasFwd(
-  {deployer, admin, registrar}: Data,
+  {admin, registrar}: Data,
   hre: HardhatRuntimeEnvironment
 ): Promise<{factory: Deployment; implementation: Deployment} | undefined> {
   logger.out("Deploying Gas Forwarder...");
 
   try {
     logger.out("Deploying GasFwd implementation...");
-    const GF = new GasFwd__factory(deployer);
+    const GF = new GasFwd__factory(admin);
     const gf = await GF.deploy();
     await gf.deployed();
     logger.out(`Address: ${gf.address}`);
