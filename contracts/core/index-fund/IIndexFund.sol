@@ -28,19 +28,6 @@ interface IIndexFund {
   }
 
   /**
-   * @notice Initializer function for index fund contract, to be called when proxy is deployed
-   * @dev This function is called by deployer only once at the time of initialization
-   * @param registrarContract Registrar Contract address
-   * @param fundRotation how many blocks are in a rotation cycle for the active IndexFund
-   * @param fundingGoal donation funding limit to trigger early cycle of the Active IndexFund
-   */
-  function initialize(
-    address registrarContract,
-    uint256 fundRotation,
-    uint256 fundingGoal
-  ) external;
-
-  /**
    * @notice function to update config of index fund
    * @dev can be called by owner to set new config
    * @param registrarContract Registrar Contract address

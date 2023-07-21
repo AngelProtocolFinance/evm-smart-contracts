@@ -39,8 +39,8 @@ describe("IndexFund", function () {
   } as LocalRegistrarLib.AngelProtocolParamsStruct;
 
   async function deployIndexFundAsProxy(
-    fundRotation: uint256 = 0, // no block-based rotation
-    fundingGoal: uint256 = 10000
+    fundRotation: number = 0, // no block-based rotation
+    fundingGoal: number = 10000
   ): Promise<IndexFund> {
     let apParams = defaultApParams;
     if (!registrar) {

@@ -351,8 +351,6 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
    * ~~~~~~~~~~~~~~~~~~~
    */
 
-  // TODO: Edit Query functions with start and limit to optimise the size of data being returned
-
   /**
    * @dev Query config
    * @return Config
@@ -423,6 +421,13 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
   function removeFund(uint256 fundId) internal {
     // "expire" the fund by updating the expire time to now
     state.Funds[fundId].expiryTime = block.timestamp;
+    // clean up the rotating funds list (save users some gas later)
+    prepRotatingFunds();
+    // if removed Fund ID was the active Fund and we have funds left to rotate with after prep clean up,
+    // try to set the next Active fund
+    if (state.activeFund == fundId && state.rotatingFunds.length > 0) {
+      state.activeFund = nextActiveFund();
+    }
     emit FundRemoved(fundId);
   }
 
@@ -512,10 +517,6 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
         Array.remove(state.rotatingFunds, i);
       }
     }
-    require(
-      state.rotatingFunds.length > 0,
-      "Must have rotating funds active to pass a Fund ID of 0"
-    );
   }
 
   /**
