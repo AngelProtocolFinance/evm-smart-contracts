@@ -171,7 +171,7 @@ contract SubDao is ISubDao, Storage, ReentrancyGuard, Initializable {
    * @param veToken The address of the ve bonding token contract
    * @param swapFactory The address of the swap factory contract
    */
-  function registerContract(address veToken, address swapFactory) external {
+  function registerContracts(address veToken, address swapFactory) external {
     require(config.owner == msg.sender, "Unauthorized");
 
     require(Validator.addressChecker(veToken), "Invalid veToken");

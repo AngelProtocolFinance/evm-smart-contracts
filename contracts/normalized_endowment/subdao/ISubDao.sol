@@ -8,7 +8,7 @@ import {Array} from "../../lib/array.sol";
 import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 
 interface ISubDao {
-  function registerContract(address vetoken, address swapfactory) external;
+  function registerContracts(address vetoken, address swapfactory) external;
 
   function updateConfig(
     address owner,
