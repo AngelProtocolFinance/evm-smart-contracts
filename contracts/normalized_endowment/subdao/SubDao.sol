@@ -32,7 +32,7 @@ contract SubDao is ISubDao, Storage, ReentrancyGuard, Initializable {
     SubDaoMessages.InstantiateMsg memory details,
     address _emitterAddress
   ) public initializer {
-    require(Validator.addressChecker(_emitterAddress), "InvalidEmitterAddress");
+    require(Validator.addressChecker(_emitterAddress), "Invalid emitter address");
     require(Validator.addressChecker(details.registrarContract), "Invalid registrarContract");
     require(Validator.addressChecker(details.owner), "Invalid owner");
 
