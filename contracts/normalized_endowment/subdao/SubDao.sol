@@ -206,10 +206,13 @@ contract SubDao is ISubDao, Storage, ReentrancyGuard, Initializable {
   ) external {
     require(config.owner == msg.sender, "Unauthorized");
 
+    if (Validator.addressChecker(owner)) {
+      config.owner = owner;
+    }
+
     require(SubDaoLib.validateQuorum(quorum), "InvalidQuorum");
     require(SubDaoLib.validateThreshold(threshold), "InvalidThreshold");
 
-    config.owner = owner;
     config.quorum = quorum;
     config.threshold = threshold;
     config.votingPeriod = votingperiod;
