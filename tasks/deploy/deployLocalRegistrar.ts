@@ -9,12 +9,12 @@ import {
   isLocalNetwork,
   logger,
   verify,
-  NetworkConnectionAction
+  NetworkConnectionAction,
 } from "utils";
 import {Registrar__factory} from "typechain-types";
-import { IAccountsStrategy } from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
+import {IAccountsStrategy} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 import {updateRegistrarConfig, updateRegistrarNetworkConnections} from "../helpers";
-import { router } from "typechain-types/contracts/core";
+import {router} from "typechain-types/contracts/core";
 
 type TaskArgs = {
   skipVerify: boolean;
@@ -63,22 +63,22 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
         return;
       }
 
-      let network = await hre.ethers.provider.getNetwork()
+      let network = await hre.ethers.provider.getNetwork();
       const networkInfo: IAccountsStrategy.NetworkInfoStruct = {
         chainId: network.chainId,
-        router: routerDeployment.address, 
+        router: routerDeployment.address,
         axelarGateway: addresses.axelar.gateway,
         ibcChannel: "",
         transferChannel: "",
         gasReceiver: addresses.axelar.gasService,
-        gasLimit: 0
-      }
+        gasLimit: 0,
+      };
       await updateRegistrarNetworkConnections(
         localRegistrarDeployment.address,
-        owner, 
+        owner,
         networkInfo,
         hre
-      )
+      );
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         await verify(hre, localRegistrarDeployment);

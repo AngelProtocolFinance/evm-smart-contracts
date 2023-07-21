@@ -129,7 +129,6 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
 
     IERC20(tokenIn).safeApprove(address(registrar_config.uniswapRouter), amountIn);
 
-
     // Who ya gonna call? Swap Function!
     uint256 amountOut = swap(
       tokenIn,

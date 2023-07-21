@@ -32,12 +32,10 @@ task("deploy:SideChain", "Will deploy complete side-chain infrastructure")
         skipVerify: verify_contracts,
         yes: true,
         owner: apTeamMultisig.address,
-      })
-      
+      });
+
       if (verify_contracts) {
-        const deployments: Array<Deployment | undefined> = [
-          apTeamMultisig,
-        ];
+        const deployments: Array<Deployment | undefined> = [apTeamMultisig];
 
         for (const deployment of deployments) {
           if (deployment) {

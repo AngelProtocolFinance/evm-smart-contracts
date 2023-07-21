@@ -1,5 +1,5 @@
 import {task, types} from "hardhat/config";
-import {Registrar__factory} from "typechain-types";
+import {Registrar__factory, APTeamMultiSig__factory} from "typechain-types";
 import {getAddresses, getSigners, logger} from "utils";
 
 type TaskArgs = {feeType: number; payoutAddress: string; bps: number};
@@ -18,8 +18,8 @@ task("manage:registrar:setFeeSettings")
     logger.out("Connecting to registrar on specified network...");
     const addresses = await getAddresses(hre);
     const registrarAddress = addresses["registrar"]["proxy"];
-    const {deployer} = await getSigners(hre);
-    const registrar = Registrar__factory.connect(registrarAddress, deployer);
+    const {apTeamMultisigOwners} = await getSigners(hre);
+    const registrar = Registrar__factory.connect(registrarAddress, apTeamMultisigOwners[0]);
     logger.pad(50, "Connected to Registrar at: ", registrar.address);
 
     logger.divider();
@@ -35,11 +35,24 @@ task("manage:registrar:setFeeSettings")
 
     logger.divider();
     logger.out("Setting fees according to specification");
-    await registrar.setFeeSettingsByFeesType(
+    const updateData = registrar.interface.encodeFunctionData("setFeeSettingsByFeesType", [
       taskArguments.feeType,
       taskArguments.bps,
-      taskArguments.payoutAddress
+      taskArguments.payoutAddress,
+    ]);
+    const apTeamMultisigContract = APTeamMultiSig__factory.connect(
+      addresses.multiSig.apTeam.proxy,
+      apTeamMultisigOwners[0]
     );
+    const tx = await apTeamMultisigContract.submitTransaction(
+      registrar.address,
+      0,
+      updateData,
+      "0x"
+    );
+    logger.out(`Tx hash: ${tx.hash}`);
+    await tx.wait();
+
     const newfeeSetting = await registrar.getFeeSettingsByFeeType(taskArguments.feeType);
     if (
       newfeeSetting.payoutAddress == taskArguments.payoutAddress &&

@@ -4,7 +4,7 @@ import {
   IAccountsStrategy,
   RegistrarMessages,
 } from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-import {NetworkConnectionAction, getSigners, logger, structToObject, validateAddress} from "utils";
+import {NetworkConnectionAction, getNetworkNameFromChainId, getSigners, logger, structToObject, validateAddress} from "utils";
 
 export async function updateRegistrarNetworkConnections(
   registrar = "",
@@ -26,7 +26,8 @@ export async function updateRegistrarNetworkConnections(
     const registrarContract = Registrar__factory.connect(registrar, apTeamMultisigOwners[0]);
 
     logger.out("Fetching current Registrar's network connection data...");
-    const struct = await registrarContract.queryNetworkConnection(network.name);
+    const networkName = getNetworkNameFromChainId(network.chainId)
+    const struct = await registrarContract.queryNetworkConnection(networkName);
     const curNetworkConnection = structToObject(struct);
     logger.out(curNetworkConnection);
 

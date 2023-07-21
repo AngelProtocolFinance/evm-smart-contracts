@@ -8,18 +8,19 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface IDummyERC20 is IERC20 {
   function mint(address account, uint256 amount) external;
+
   function burn(address account, uint256 amount) external;
-} 
+}
 
 contract GoerliDummy is DummyStrategy {
   constructor(StrategyConfig memory _config) DummyStrategy(_config) {}
 
-  function deposit(uint256 amt) public override payable returns (uint256) {
+  function deposit(uint256 amt) public payable override returns (uint256) {
     IDummyERC20(config.yieldToken).mint(address(this), dummyAmt);
     return super.deposit(amt);
   }
 
-  function withdraw(uint256 amt) public override payable returns (uint256) {
+  function withdraw(uint256 amt) public payable override returns (uint256) {
     uint256 val = super.deposit(amt);
     IDummyERC20(config.yieldToken).burn(address(this), val);
     return val;

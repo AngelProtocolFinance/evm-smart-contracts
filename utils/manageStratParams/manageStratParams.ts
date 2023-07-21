@@ -15,7 +15,7 @@ export function getVaultAddress(name: string, type: VaultType): string {
   }
   const addresses = readStrategyAddresses(DEFAULT_STRATEGY_ADDRESSES_FILE_PATH, name);
 
-  return addresses[typeName];
+  return addresses[typeName as keyof StrategyObject];
 }
 
 export function getStrategyAddress(name: string): string {
