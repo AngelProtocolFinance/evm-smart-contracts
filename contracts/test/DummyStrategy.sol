@@ -33,13 +33,13 @@ contract DummyStrategy is Pausable, IStrategy {
     config = _newConfig;
   }
 
-  function deposit(uint256 amt) external payable returns (uint256) {
+  function deposit(uint256 amt) public virtual payable returns (uint256) {
     IERC20(config.baseToken).transferFrom(msg.sender, address(this), amt);
     IERC20(config.yieldToken).approve(msg.sender, dummyAmt);
     return dummyAmt;
   }
 
-  function withdraw(uint256 amt) external payable returns (uint256) {
+  function withdraw(uint256 amt) public virtual payable returns (uint256) {
     IERC20(config.yieldToken).transferFrom(msg.sender, address(this), amt);
     IERC20(config.baseToken).approve(msg.sender, dummyAmt);
     return dummyAmt;
