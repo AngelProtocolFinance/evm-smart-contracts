@@ -11,7 +11,7 @@ export const dummy: StratConfig = {
   id: "0x12345678",
   chainId: 5,
   params: {
-    approvalState: StrategyApprovalState.NOT_APPROVED,
+    approvalState: StrategyApprovalState.APPROVED,
     network: "ethereum-2",
     Locked: {
       Type: VaultType.LOCKED,

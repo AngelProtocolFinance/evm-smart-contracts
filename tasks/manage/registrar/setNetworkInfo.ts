@@ -27,14 +27,11 @@ task("manage:registrar:setNetworkInfo", "Set network info for a specified networ
     const networkId = getChainIdFromNetworkName(taskArguments.networkName);
     const thisNetworkAddresses = await getAddresses(hre)
     const thatNetworkAddresses = getAddressesByNetworkId(networkId, DEFAULT_CONTRACT_ADDRESS_FILE_PATH);
-    const newNetworkInfo: IAccountsStrategy.NetworkInfoStruct = {
+    const newNetworkInfo: Partial<IAccountsStrategy.NetworkInfoStruct> = {
       chainId: networkId,
       router: thatNetworkAddresses.router.proxy,
       axelarGateway: thatNetworkAddresses.axelar.gateway,
-      ibcChannel: "",
-      transferChannel: "",
       gasReceiver: thatNetworkAddresses.axelar.gasService,
-      gasLimit: 0,
     };
 
     await updateRegistrarNetworkConnections(

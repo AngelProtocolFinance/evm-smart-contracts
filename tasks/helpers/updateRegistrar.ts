@@ -1,3 +1,4 @@
+import { BigNumber } from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
 import {
@@ -20,13 +21,14 @@ export async function updateRegistrarNetworkConnections(
     validateAddress(apTeamMultisig, "apTeamMultisig");
 
     const network = await hre.ethers.provider.getNetwork();
+    const networkName = getNetworkNameFromChainId(network.chainId)
 
     const {apTeamMultisigOwners} = await getSigners(hre);
 
     const registrarContract = Registrar__factory.connect(registrar, apTeamMultisigOwners[0]);
 
     logger.out("Fetching current Registrar's network connection data...");
-    const networkName = getNetworkNameFromChainId(network.chainId)
+    
     const struct = await registrarContract.queryNetworkConnection(networkName);
     const curNetworkConnection = structToObject(struct);
     logger.out(curNetworkConnection);
@@ -36,14 +38,14 @@ export async function updateRegistrarNetworkConnections(
 
     const updateNetworkConnectionsData = registrarContract.interface.encodeFunctionData(
       "updateNetworkConnections",
-      [network.name, {...curNetworkConnection, ...newNetworkInfo}, NetworkConnectionAction.POST]
+      [networkName, {...curNetworkConnection, ...newNetworkInfo}, NetworkConnectionAction.POST]
     );
     const apTeamMultisigContract = APTeamMultiSig__factory.connect(
       apTeamMultisig,
       apTeamMultisigOwners[0]
     );
     const tx = await apTeamMultisigContract.submitTransaction(
-      registrar,
+      registrarContract.address,
       0,
       updateNetworkConnectionsData,
       "0x"
@@ -52,7 +54,7 @@ export async function updateRegistrarNetworkConnections(
     await tx.wait();
 
     logger.out("Updated network connection data:");
-    const newStruct = await registrarContract.queryNetworkConnection(network.name);
+    const newStruct = await registrarContract.queryNetworkConnection(networkName);
     const newNetworkConnection = structToObject(newStruct);
     logger.out(newNetworkConnection);
   } catch (error) {
