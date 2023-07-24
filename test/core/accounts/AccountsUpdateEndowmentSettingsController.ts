@@ -64,7 +64,6 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       registrarContract: ethers.constants.AddressZero,
       nextAccountId: 1,
       maxGeneralCategoryId: 1,
-      subDao: ethers.constants.AddressZero,
       earlyLockedWithdrawFee: {bps: 1000, payoutAddress: ethers.constants.AddressZero},
       reentrancyGuardLocked: false,
     });

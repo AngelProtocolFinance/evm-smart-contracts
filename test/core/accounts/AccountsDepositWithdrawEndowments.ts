@@ -131,7 +131,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
       registrarContract: registrarFake.address,
       nextAccountId: 3, // 2 endows already added
       maxGeneralCategoryId: 1,
-      subDao: ethers.constants.AddressZero,
       earlyLockedWithdrawFee: {bps: 5, payoutAddress: ethers.constants.AddressZero},
       reentrancyGuardLocked: false,
     });

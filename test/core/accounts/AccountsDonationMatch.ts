@@ -93,7 +93,6 @@ describe("AccountsDonationMatch", function () {
       registrarContract: registrarFake.address,
       nextAccountId: endowId + 1,
       maxGeneralCategoryId: 1,
-      subDao: ethers.constants.AddressZero,
       earlyLockedWithdrawFee: {bps: 1000, payoutAddress: ethers.constants.AddressZero},
       reentrancyGuardLocked: false,
     });

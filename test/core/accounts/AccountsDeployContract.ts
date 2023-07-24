@@ -73,7 +73,6 @@ describe("AccountsDeployContract", function () {
       registrarContract: registrarFake.address,
       nextAccountId: 1,
       maxGeneralCategoryId: 1,
-      subDao: ethers.constants.AddressZero,
       earlyLockedWithdrawFee: {bps: 1000, payoutAddress: ethers.constants.AddressZero},
       reentrancyGuardLocked: false,
     });
