@@ -22,9 +22,17 @@ export async function updateRegistrarNetworkConnections(
 ) {
   logger.divider();
 
+  let networkName
   try {
-    const chainId = await getChainId(hre);
-    const networkName = getNetworkNameFromChainId(chainId);
+
+    // If we're updating info on this chain for another chain, arg info MUST specify chain id 
+    if (Number(networkInfo.chainId) > 0) {
+      networkName = getNetworkNameFromChainId(Number(networkInfo.chainId));
+    }
+    else { // we're updating this chains own network info and can safely lookup chain id
+      const chainId = await getChainId(hre);
+      networkName = getNetworkNameFromChainId(chainId);
+    }
 
     logger.out(`Updating Registrar network info for chain: ${networkName}`);
 
