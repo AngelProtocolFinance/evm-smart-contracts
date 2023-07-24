@@ -143,7 +143,6 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
         // prep rotating funds list & set the next Active Fund
         prepRotatingFunds();
         state.activeFund = nextActiveFund();
-        emit ActiveFundUpdated(state.activeFund);
       }
     }
 
@@ -264,10 +263,10 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     // we give allowance to accounts contract
     IERC20(token).safeApprove(registrarConfig.accountsContract, amount);
 
-    uint256 split;
     if (fundId != 0) {
       // Depositor has chosen a specific fund to send tokens to. Send 100% to that fund.
       require(!fundIsExpired(fundId, block.timestamp), "Expired Fund");
+      // send donation messages to Accounts contract
       processDonations(
         registrarConfig.accountsContract,
         fundId,
@@ -279,7 +278,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
       // No explicit fund ID specifed. Send the tokens to current active fund, rotating to a new active
       // fund each time the funding goal is hit, until all deposited tokens have been exhausted
 
-      // first pass clean up: start by removing all expired funds from rotating funds list
+      // start by removing all expired funds from rotating funds list
       prepRotatingFunds();
       require(state.rotatingFunds.length > 0, "No rotating funds");
 
@@ -289,13 +288,13 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
         // and that there are actually active rotating funds to rotate
         if (block.number >= state.nextRotationBlock) {
           state.activeFund = nextActiveFund();
-          emit ActiveFundUpdated(state.activeFund);
           state.roundDonations = 0;
 
           while (block.number >= state.nextRotationBlock) {
             state.nextRotationBlock += state.config.fundRotation;
           }
         }
+        // send donation messages to Accounts contract
         processDonations(
           registrarConfig.accountsContract,
           state.activeFund,
@@ -305,30 +304,38 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
         );
       } else if (state.config.fundingGoal > 0) {
         // Fundraising Goal-based rotation of Funds
-        // Check if funding goal is met for current active fund and rotate funds until all donated tokens are depleted
-        uint256 donationAmnt = amount;
+        // Check if funding goal is met for current active fund and rotate funds 
+        // until all donated tokens are depleted
         uint256 loopDonation = 0;
         uint256 goalLeftover = state.config.fundingGoal - state.roundDonations;
-        while (donationAmnt > 0) {
-          if (donationAmnt >= goalLeftover) {
-            state.roundDonations = 0;
-            // set state active fund to next fund for next loop iteration
-            state.activeFund = nextActiveFund();
-            emit ActiveFundUpdated(state.activeFund);
+        while (amount > 0) {
+          if (amount >= goalLeftover) {
             loopDonation = goalLeftover;
+            // send donation messages to Accounts contract
+            processDonations(
+              registrarConfig.accountsContract,
+              state.activeFund,
+              state.Funds[state.activeFund].splitToLiquid,
+              token,
+              loopDonation
+            );
+            // set state active fund to next fund for next loop iteration
+            state.roundDonations = 0;
+            state.activeFund = nextActiveFund();
           } else {
-            state.roundDonations += donationAmnt;
-            loopDonation = donationAmnt;
+            state.roundDonations += amount;
+            loopDonation = amount;
+            // send donation messages to Accounts contract
+            processDonations(
+              registrarConfig.accountsContract,
+              state.activeFund,
+              state.Funds[state.activeFund].splitToLiquid,
+              token,
+              loopDonation
+            );
           }
-          processDonations(
-            registrarConfig.accountsContract,
-            state.activeFund,
-            state.Funds[state.activeFund].splitToLiquid,
-            token,
-            loopDonation
-          );
-          // deduct donated donationAmnt in this round from total donation amt
-          donationAmnt -= loopDonation;
+          // deduct donated amount in this round from total donation amt
+          amount -= loopDonation;
         }
       } else {
         revert("Active Donation rotations are not properly configured");
@@ -437,8 +444,6 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     address token,
     uint256 amount
   ) internal {
-    require(state.Funds[fundId].endowments.length > 0, "Fund must have endowment members");
-    require(!fundIsExpired(fundId, block.timestamp), "Expired Fund");
     require(amount > 0, "Amount cannot be zero");
 
     // execute donation message for each endowment in the fund
@@ -485,8 +490,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
    * @dev Find next active fund ID from the rotating funds list
    * @return Next active fund ID
    */
-  function nextActiveFund() internal view returns (uint256) {
-    require(state.rotatingFunds.length > 0, "No rotating Funds");
+  function nextActiveFund() internal returns (uint256) {
     bool found;
     uint256 index;
     (index, found) = Array.indexOf(state.rotatingFunds, state.activeFund);
@@ -494,9 +498,11 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     // OR the current active fund is the last item in the rotating funds list...
     if (!found || index == state.rotatingFunds.length - 1) {
       // return the first fund in the rotating funds list
+      emit ActiveFundUpdated(state.rotatingFunds[0]);
       return state.rotatingFunds[0];
     } else {
       // otherwise return the next fund in rotating funds list
+      emit ActiveFundUpdated(state.rotatingFunds[index + 1]);
       return state.rotatingFunds[index + 1];
     }
   }
