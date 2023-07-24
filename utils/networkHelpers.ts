@@ -17,6 +17,11 @@ export function getNetworkNameFromChainId(id: number): string {
   return AxelarNetworks.get(id);
 }
 
+export async function getChainId(hre: HardhatRuntimeEnvironment): Promise<number> {
+  const chainId = (await hre.ethers.provider.getNetwork()).chainId;
+  return chainId;
+}
+
 // There are errors/mismatches in the axelar sdk jsons, so we just implement a lightweight
 // version here and use this instead.
 const AxelarNetworks = new TwoWayMap({

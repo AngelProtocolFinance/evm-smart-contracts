@@ -1,8 +1,16 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import {ProxyContract__factory, Registrar__factory, LocalRegistrar__factory} from "typechain-types";
-import {Deployment, getContractName, logger, updateAddresses, validateAddress} from "utils";
+import {LocalRegistrar__factory, ProxyContract__factory, Registrar__factory} from "typechain-types";
+import {
+  Deployment,
+  getChainId,
+  getContractName,
+  getNetworkNameFromChainId,
+  logger,
+  updateAddresses,
+  validateAddress,
+} from "utils";
 
 type RegistrarDeployData = {
   axelarGateway: string;
@@ -11,7 +19,7 @@ type RegistrarDeployData = {
   owner?: string;
   deployer: SignerWithAddress;
   proxyAdmin: SignerWithAddress;
-  treasuryAddress: string;
+  treasury: string;
 };
 
 export async function deployRegistrar(
@@ -22,13 +30,16 @@ export async function deployRegistrar(
     owner = "",
     deployer,
     proxyAdmin,
-    treasuryAddress,
+    treasury,
   }: RegistrarDeployData,
   hre: HardhatRuntimeEnvironment
 ): Promise<Deployment | undefined> {
   logger.out("Deploying Registrar...");
 
   try {
+    const chainId = await getChainId(hre);
+    const networkName = getNetworkNameFromChainId(chainId);
+
     validateAddress(axelarGateway, "axelarGateway");
     validateAddress(axelarGasService, "axelarGasService");
     validateAddress(owner, "owner");
@@ -44,14 +55,15 @@ export async function deployRegistrar(
     // deploy proxy
     logger.out("Deploying proxy...");
     const initData = registrar.interface.encodeFunctionData(
-      "initialize((address,(uint256,uint256,uint256),address,address,address))",
+      "initialize((address,(uint256,uint256,uint256),address,address,address,string))",
       [
         {
-          treasury: treasuryAddress,
+          treasury,
           splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
-          router: router,
-          axelarGateway: axelarGateway,
-          axelarGasRecv: axelarGasService,
+          router,
+          axelarGateway,
+          axelarGasService,
+          networkName,
         },
       ]
     );

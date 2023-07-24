@@ -1,9 +1,8 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-
-import {DEFAULT_CONTRACT_ADDRESS_FILE_PATH, isLocalNetwork} from "..";
+import {DeepPartial} from "types";
+import {DEFAULT_CONTRACT_ADDRESS_FILE_PATH, getChainId, isLocalNetwork} from "..";
 import {createEmptyAddressObj, getAddressesByNetworkId, saveFrontendFiles} from "./helpers";
 import {AddressObj} from "./types";
-import {DeepPartial} from "types";
 
 /**
  * Removes contract address for the current network from the appropriate file.
@@ -65,9 +64,4 @@ function updateInternal<T>(original: T, partial: DeepPartial<T>): T {
   }
 
   return updated;
-}
-
-async function getChainId(hre: HardhatRuntimeEnvironment): Promise<number> {
-  const chainId = (await hre.ethers.provider.getNetwork()).chainId;
-  return chainId;
 }

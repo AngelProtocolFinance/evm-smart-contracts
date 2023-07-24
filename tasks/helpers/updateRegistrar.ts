@@ -1,44 +1,52 @@
-import { BigNumber } from "ethers";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
 import {
   IAccountsStrategy,
   RegistrarMessages,
 } from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-import {NetworkConnectionAction, getNetworkNameFromChainId, getSigners, logger, structToObject, validateAddress} from "utils";
+import {
+  NetworkConnectionAction,
+  getChainId,
+  getNetworkNameFromChainId,
+  getSigners,
+  logger,
+  structToObject,
+  validateAddress,
+} from "utils";
 
 export async function updateRegistrarNetworkConnections(
   registrar = "",
   apTeamMultisig = "",
-  newNetworkInfo: Partial<IAccountsStrategy.NetworkInfoStruct>,
+  networkInfo: Partial<IAccountsStrategy.NetworkInfoStruct>,
   hre: HardhatRuntimeEnvironment
 ) {
   logger.divider();
-  logger.out(`Updating Registrar network info for chain id: ${newNetworkInfo.chainId}`);
 
   try {
+    const chainId = await getChainId(hre);
+    const networkName = getNetworkNameFromChainId(chainId);
+
+    logger.out(`Updating Registrar network info for chain: ${networkName}`);
+
     validateAddress(registrar, "registrar");
     validateAddress(apTeamMultisig, "apTeamMultisig");
-
-    const network = await hre.ethers.provider.getNetwork();
-    const networkName = getNetworkNameFromChainId(network.chainId)
 
     const {apTeamMultisigOwners} = await getSigners(hre);
 
     const registrarContract = Registrar__factory.connect(registrar, apTeamMultisigOwners[0]);
 
     logger.out("Fetching current Registrar's network connection data...");
-    
+
     const struct = await registrarContract.queryNetworkConnection(networkName);
     const curNetworkConnection = structToObject(struct);
     logger.out(curNetworkConnection);
 
     logger.out("Network info to update:");
-    logger.out(newNetworkInfo);
+    logger.out(networkInfo);
 
     const updateNetworkConnectionsData = registrarContract.interface.encodeFunctionData(
       "updateNetworkConnections",
-      [networkName, {...curNetworkConnection, ...newNetworkInfo}, NetworkConnectionAction.POST]
+      [networkName, {...curNetworkConnection, ...networkInfo}, NetworkConnectionAction.POST]
     );
     const apTeamMultisigContract = APTeamMultiSig__factory.connect(
       apTeamMultisig,

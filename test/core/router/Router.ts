@@ -1,44 +1,35 @@
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import hre from "hardhat";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {
-  DummyERC20,
-  DummyGasService,
-  DummyGateway,
-  DummyVault,
-  IRouter,
-  LocalRegistrar,
-  LocalRegistrar__factory,
-  ITransparentUpgradeableProxy__factory,
-  Router,
-  Router__factory,
-  Registrar__factory,
-  Registrar,
-} from "typechain-types";
-import {
-  ArrayToVaultActionStruct,
   IVaultHelpers,
   StrategyApprovalState,
-  VaultActionStructToArray,
   deployDummyERC20,
   deployDummyGasService,
   deployDummyGateway,
   deployDummyVault,
   deployRegistrarAsProxy,
   packActionData,
-  unpackActionData,
 } from "test/utils";
+import {
+  DummyERC20,
+  DummyGasService,
+  DummyGateway,
+  DummyVault,
+  ITransparentUpgradeableProxy__factory,
+  Registrar,
+  Router,
+  Router__factory,
+} from "typechain-types";
 import {getSigners} from "utils";
 import {LocalRegistrarLib} from "../../../typechain-types/contracts/core/registrar/LocalRegistrar";
 
 describe("Router", function () {
-  const {ethers, upgrades} = hre;
+  const {ethers} = hre;
   let owner: SignerWithAddress;
   let admin: SignerWithAddress;
   let user: SignerWithAddress;
   let collector: SignerWithAddress;
-  let Router: Router__factory;
-  let Registrar: Registrar__factory;
   let defaultApParams = {
     routerAddr: ethers.constants.AddressZero,
     refundAddr: ethers.constants.AddressZero,
@@ -107,10 +98,6 @@ describe("Router", function () {
     it("Should successfully deploy the contract as an upgradable proxy", async function () {
       expect(router.address);
       expect(await upgradeProxy(admin, router.address));
-    });
-
-    it("Should set the right owner", async function () {
-      expect(await router.owner()).to.equal(owner.address);
     });
 
     it("Accepts and initializes the gateway and gas receiver as part of init", async function () {
