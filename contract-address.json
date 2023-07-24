@@ -441,7 +441,7 @@
       }
     },
     "registrar": {
-      "implementation": "0x91d385Ae51b116ac5146143F07CFF45354f5f9D7",
+      "implementation": "0x9956556BB0697c4cd8800e17043EDDC9D87CfC00",
       "proxy": "0xe1215B3e150dd298d787D41a4879959D30Dc3939"
     },
     "router": {
