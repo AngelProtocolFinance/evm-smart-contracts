@@ -424,12 +424,12 @@
     },
     "multiSig": {
       "charityApplications": {
-        "implementation": "0xE2Af564F27EE4a6721f1650f9FAa975a11Fdc50F",
-        "proxy": "0x4cb1E5cc57a5cEb38C0087300cFdDDE3a08B3694"
+        "implementation": "0xbC79912c36A0C003Bf93b164F96e1d14565e2786",
+        "proxy": "0xbF338a5f1030c9c3c7d729214A0299201149146C"
       },
       "apTeam": {
-        "implementation": "0xC944590c3fe90e97129ac5AF077DCFB229f3A909",
-        "proxy": "0xeA2B4CD932f5Cecea867D8794206c5D51A13a516"
+        "implementation": "0x8c6135a5b9a48A6faCF07bd9b90b73D952a588cA",
+        "proxy": "0x9034E5Bb0e03c985952C3506363Fe936c4A799f5"
       },
       "endowment": {
         "emitter": {
@@ -437,7 +437,7 @@
           "proxy": "0x8a87385765871bD85d96B7675A3F1Fb663146E4d"
         },
         "factory": "0xc4150f28a33a04B79B60560Bd4684d521edB99AE",
-        "implementation": "0x9Bcb8A679727f922704d50e74fCA8f053720D3AA"
+        "implementation": "0x0026843B609C93036aF4ED9e873Fe40fD5772283"
       }
     },
     "registrar": {

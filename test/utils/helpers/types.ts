@@ -51,3 +51,20 @@ export enum DonationMatchEnum {
   HaloTokenReserve,
   ERC20TokenReserve,
 }
+
+export enum EndowmentType {
+  Charity,
+  Normal,
+}
+
+export enum VeTypeEnum {
+  Constant,
+  Linear,
+  SquarRoot,
+}
+
+export enum TokenType {
+  Existing,
+  New,
+  VeBonding,
+}

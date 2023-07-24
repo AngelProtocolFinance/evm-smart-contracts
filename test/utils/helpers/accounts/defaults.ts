@@ -92,7 +92,6 @@ export const DEFAULT_ACCOUNTS_CONFIG: AccountStorage.ConfigStruct = {
   registrarContract: ethers.constants.AddressZero,
   nextAccountId: 0,
   maxGeneralCategoryId: 0,
-  subDao: ethers.constants.AddressZero,
   reentrancyGuardLocked: false,
   earlyLockedWithdrawFee: DEFAULT_FEE_STRUCT,
 };

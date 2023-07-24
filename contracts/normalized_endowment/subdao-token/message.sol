@@ -22,7 +22,7 @@ library SubDaoTokenMessage {
     /// if you want to add a custom ve, you should make a new contract that imports this one.
     /// write a custom `instantiate`, and then dispatch `your::execute` -> `cw20_bonding::do_execute`
     /// with your custom ve as a parameter (and same with `query` -> `do_query`)
-    SubDaoLib.veTypeEnum ve_type;
+    SubDaoLib.VeTypeEnum ve_type;
     // days of unbonding
     uint256 unbondingPeriod;
   }

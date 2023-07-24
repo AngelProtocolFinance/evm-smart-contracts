@@ -4,22 +4,22 @@ pragma solidity ^0.8.16;
 import {QueryIIncentivisedVotingLockup} from "./../incentivised-voting/interfaces/QueryIIncentivisedVotingLockup.sol";
 
 library SubDaoLib {
-  enum veTypeEnum {
+  enum VeTypeEnum {
     Constant,
     Linear,
     SquarRoot
   }
 
-  struct veTypeData {
+  struct VeTypeData {
     uint128 value;
     uint256 scale;
     uint128 slope;
     uint128 power;
   }
 
-  struct veType {
-    veTypeEnum ve_type;
-    veTypeData data;
+  struct VeType {
+    VeTypeEnum ve_type;
+    VeTypeData data;
   }
 
   enum TokenType {
@@ -33,7 +33,7 @@ library SubDaoLib {
     uint256 newInitialSupply;
     string newName;
     string newSymbol;
-    veType veBondingType;
+    VeType veBondingType;
     string veBondingName;
     string veBondingSymbol;
     uint256 veBondingDecimals;

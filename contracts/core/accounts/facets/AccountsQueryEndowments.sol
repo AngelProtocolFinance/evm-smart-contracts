@@ -63,7 +63,6 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments {
       registrarContract: state.config.registrarContract,
       nextAccountId: state.config.nextAccountId,
       maxGeneralCategoryId: state.config.maxGeneralCategoryId,
-      subDao: state.config.subDao,
       earlyLockedWithdrawFee: state.config.earlyLockedWithdrawFee
     });
   }

@@ -3,6 +3,7 @@ pragma solidity ^0.8.16;
 
 import {SubDaoMessages} from "./message.sol";
 import {SubDaoLib} from "./SubDaoLib.sol";
+import {Validator} from "../../core/validator.sol";
 import {LibAccounts} from "../../core/accounts/lib/LibAccounts.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
 import {Array} from "../../lib/array.sol";
@@ -13,10 +14,11 @@ import {SubDaoTokenMessage} from "./../subdao-token/message.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ISubDaoEmitter} from "./ISubDaoEmitter.sol";
+import {ISubDao} from "./ISubDao.sol";
 import "./Token/ERC20.sol";
 import "./storage.sol";
 
-contract SubDao is Storage, ReentrancyGuard, Initializable {
+contract SubDao is ISubDao, Storage, ReentrancyGuard, Initializable {
   address emitterAddress;
   address accountAddress;
 
@@ -30,7 +32,9 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
     SubDaoMessages.InstantiateMsg memory details,
     address _emitterAddress
   ) public initializer {
-    require(_emitterAddress != address(0), "InvalidEmitterAddress");
+    require(Validator.addressChecker(_emitterAddress), "Invalid emitter address");
+    require(Validator.addressChecker(details.registrarContract), "Invalid registrarContract");
+    require(Validator.addressChecker(details.owner), "Invalid owner");
 
     emitterAddress = _emitterAddress;
 
@@ -118,7 +122,10 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
       details.token.token == SubDaoLib.TokenType.VeBonding &&
       details.endowType == LibAccounts.EndowmentType.Charity
     ) {
-      require(registrar_config.haloToken != address(0), "Registrar's HALO token address is empty");
+      require(
+        Validator.addressChecker(registrar_config.haloToken),
+        "Registrar's HALO token address is empty"
+      );
 
       SubDaoTokenMessage.InstantiateMsg memory temp = SubDaoTokenMessage.InstantiateMsg({
         name: details.token.data.veBondingName,
@@ -160,19 +167,18 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
   }
 
   /**
-   * @notice function used to register the contract address
-   * @dev Register the contract address
-   * @param vetoken The address of the ve token contract
-   * @param swapfactory The address of the swap factory contract
+   * @notice function used to register the ve bonding token and swap factory contract addresses
+   * @param veToken The address of the ve bonding token contract
+   * @param swapFactory The address of the swap factory contract
    */
-  function registerContract(address vetoken, address swapfactory) external {
+  function registerContracts(address veToken, address swapFactory) external {
     require(config.owner == msg.sender, "Unauthorized");
 
-    require(vetoken != address(0), "Invalid input");
-    require(swapfactory != address(0), "Invalid input");
+    require(Validator.addressChecker(veToken), "Invalid veToken");
+    require(Validator.addressChecker(swapFactory), "Invalid swapFactory");
 
-    config.veToken = vetoken;
-    config.swapFactory = swapfactory;
+    config.veToken = veToken;
+    config.swapFactory = swapFactory;
     ISubDaoEmitter(emitterAddress).updateSubDaoConfig();
   }
 
@@ -200,7 +206,7 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
   ) external {
     require(config.owner == msg.sender, "Unauthorized");
 
-    if (owner != address(0)) {
+    if (Validator.addressChecker(owner)) {
       config.owner = owner;
     }
 

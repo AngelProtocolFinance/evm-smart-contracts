@@ -12,7 +12,6 @@ library AccountStorage {
     address registrarContract;
     uint32 nextAccountId;
     uint256 maxGeneralCategoryId;
-    address subDao;
     bool reentrancyGuardLocked;
     LibAccounts.FeeSetting earlyLockedWithdrawFee;
   }

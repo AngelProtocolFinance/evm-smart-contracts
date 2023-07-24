@@ -104,6 +104,8 @@ contract MultiSigGeneric is
       require(!isOwner[owners[i]] && owners[i] != address(0));
       isOwner[owners[i]] = true;
     }
+    activeOwnersCount = owners.length;
+
     // set storage variables
     approvalsRequired = _approvalsRequired;
     requireExecution = _requireExecution;
