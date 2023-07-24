@@ -18,6 +18,7 @@ import {AccountMessages} from "../accounts/message.sol";
 import {IAccounts} from "../accounts/interfaces/IAccounts.sol";
 
 uint256 constant MAX_ENDOWMENT_MEMBERS = 10;
+uint256 constant MIN_AMOUNT_PER_ENDOWMENT = 100;
 
 /**
  * @title Index Fund
@@ -447,7 +448,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     require(state.Funds[fundId].endowments.length > 0, "Fund must have members");
     // require enough funds to allow for downstream fees calulations, etc
     require(
-      amount >= state.Funds[fundId].endowments.length.mul(100),
+      amount >= MIN_AMOUNT_PER_ENDOWMENT.mul(state.Funds[fundId].endowments.length),
       "Amount must be greater than 100 units per endowment"
     );
 
