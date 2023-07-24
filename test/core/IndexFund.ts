@@ -437,6 +437,12 @@ describe("IndexFund", function () {
       );
     });
 
+    it("reverts when amount donated, on a per endowment-basis for a fund, would be < 100 units", async function () {
+      expect(indexFund.depositERC20(1, token1.address, 100)).to.be.revertedWith(
+        "Amount must be greater than 100 units per endowment"
+      );
+    });
+
     it("reverts when target fund is expired", async function () {
       expect(indexFund.depositERC20(2, token1.address, 100)).to.be.revertedWith("Fund expired");
     });
@@ -496,9 +502,11 @@ describe("IndexFund", function () {
       expect(
         await indexFund.depositERC20(4, token1.address, 500, {
           gasPrice: 3000,
-          gasLimit: 10000000
+          gasLimit: 10000000,
         })
-      ).to.emit(indexFund, "DonationProcessed").withArgs(4);
+      )
+        .to.emit(indexFund, "DonationProcessed")
+        .withArgs(4);
     });
 
     it("passes for an active fund donation(amount-based rotation), amount > zero & token is valid", async function () {
@@ -511,11 +519,14 @@ describe("IndexFund", function () {
         .to.emit("FundCreated")
         .withArgs(5);
 
-      expect(await indexFund.depositERC20(0, token1.address, 10000, {
+      expect(
+        await indexFund.depositERC20(0, token1.address, 10000, {
           gasPrice: 3000,
-          gasLimit: 10000000
+          gasLimit: 10000000,
         })
-      ).to.emit(indeFund, "DonationProcessed").withArgs(4);
+      )
+        .to.emit(indexFund, "DonationProcessed")
+        .withArgs(4);
     });
   });
 });
