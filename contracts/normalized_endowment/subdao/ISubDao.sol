@@ -22,13 +22,12 @@ interface ISubDao {
   ) external;
 
   function createPoll(
-    address proposer,
     uint256 depositamount,
     string memory title,
     string memory description,
     string memory link,
     SubDaoStorage.ExecuteData memory executeMsgs
-  ) external;
+  ) external returns (uint256);
 
   function endPoll(uint256 pollid) external;
 
