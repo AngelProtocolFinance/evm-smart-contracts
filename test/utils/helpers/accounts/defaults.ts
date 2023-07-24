@@ -2,11 +2,11 @@ import {ethers} from "hardhat";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
 import {LibAccounts} from "typechain-types/contracts/multisigs/CharityApplications";
-import {NetworkInfoStruct} from "../types";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {BigNumber} from "ethers";
-import {DEFAULT_STRATEGY_SELECTOR, StrategyApprovalState} from "test/utils";
+import {DEFAULT_STRATEGY_SELECTOR} from "test/utils";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
+import {IAccountsStrategy} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 
 export const DEFAULT_PERMISSIONS_STRUCT: LibAccounts.SettingsPermissionStruct = {
   locked: false,
@@ -97,7 +97,7 @@ export const DEFAULT_ACCOUNTS_CONFIG: AccountStorage.ConfigStruct = {
   earlyLockedWithdrawFee: DEFAULT_FEE_STRUCT,
 };
 
-export const DEFAULT_NETWORK_INFO: NetworkInfoStruct = {
+export const DEFAULT_NETWORK_INFO: IAccountsStrategy.NetworkInfoStruct = {
   chainId: 0,
   router: ethers.constants.AddressZero,
   axelarGateway: ethers.constants.AddressZero,

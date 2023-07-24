@@ -10,7 +10,8 @@ library RegistrarMessages {
     LibAccounts.SplitDetails splitToLiquid;
     address router;
     address axelarGateway;
-    address axelarGasRecv;
+    address axelarGasService;
+    string networkName;
   }
 
   struct UpdateConfigRequest {
