@@ -220,7 +220,6 @@ describe("AccountsQueryEndowments", function () {
       expect(configResponse.nextAccountId).to.equal(config.nextAccountId);
       expect(configResponse.owner).to.equal(config.owner);
       expect(configResponse.registrarContract).to.equal(config.registrarContract);
-      expect(configResponse.subDao).to.equal(config.subDao);
       expect(configResponse.version).to.equal(config.version);
     });
   });
