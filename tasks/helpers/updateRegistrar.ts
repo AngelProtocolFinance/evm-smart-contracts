@@ -44,9 +44,6 @@ export async function updateRegistrarNetworkConnections(
     logger.out("Network info to update:");
     logger.out(networkInfo);
 
-    logger.out("owner")
-    logger.out(await registrarContract.owner())
-
     const updateNetworkConnectionsData = registrarContract.interface.encodeFunctionData(
       "updateNetworkConnections",
       [networkName, {...curNetworkConnection, ...networkInfo}, NetworkConnectionAction.POST]
