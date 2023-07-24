@@ -2,7 +2,6 @@ import {smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import hre from "hardhat";
-import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
 import {
   AccountsUpdateEndowmentSettingsController,
@@ -15,8 +14,7 @@ import {
   LibAccounts,
 } from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {genWallet, getSigners} from "utils";
-import "../../utils/setup";
-import {updateAllSettings} from "./utils";
+import {deployFacetAsProxy, updateAllSettings} from "./utils";
 
 use(smock.matchers);
 
@@ -29,8 +27,10 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
   let owner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
   let endowOwner: SignerWithAddress;
+
   let facet: AccountsUpdateEndowmentSettingsController;
   let state: TestFacetProxyContract;
+
   let oldNormalEndow: AccountStorage.EndowmentStruct;
   let oldCharity: AccountStorage.EndowmentStruct;
 
@@ -64,7 +64,6 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       registrarContract: ethers.constants.AddressZero,
       nextAccountId: 1,
       maxGeneralCategoryId: 1,
-      subDao: ethers.constants.AddressZero,
       earlyLockedWithdrawFee: {bps: 1000, payoutAddress: ethers.constants.AddressZero},
       reentrancyGuardLocked: false,
     });

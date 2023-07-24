@@ -8,8 +8,9 @@ import {AccountStorage} from "../storage.sol";
 import {Validator} from "../../validator.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {IDonationMatching} from "../../../normalized_endowment/donation-match/IDonationMatching.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
@@ -29,6 +30,7 @@ contract AccountsDepositWithdrawEndowments is
   IAccountsDepositWithdrawEndowments
 {
   using SafeMath for uint256;
+  using SafeERC20 for IERC20;
 
   /**
    * @notice Deposit MATIC into the endowment. Wraps first to ERC20 before processing.
@@ -74,10 +76,8 @@ contract AccountsDepositWithdrawEndowments is
         state.AcceptedTokens[details.id][tokenAddress],
       "Not in an Accepted Tokens List"
     );
-    require(
-      IERC20(tokenAddress).transferFrom(msg.sender, address(this), amount),
-      "Transfer failed"
-    );
+
+    IERC20(tokenAddress).safeTransferFrom(msg.sender, address(this), amount);
 
     processTokenDeposit(details, tokenAddress, amount);
   }
@@ -97,7 +97,6 @@ contract AccountsDepositWithdrawEndowments is
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
 
-    require(tokenAddress != address(0), "Invalid ERC20 token");
     require(details.lockedPercentage + details.liquidPercentage == 100, "InvalidSplit");
 
     RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
@@ -109,16 +108,11 @@ contract AccountsDepositWithdrawEndowments is
       );
       amount = amount.sub(depositFeeAmount);
 
-      require(
-        IERC20(tokenAddress).transfer(tempEndowment.depositFee.payoutAddress, depositFeeAmount),
-        "Transfer Failed"
-      );
+      IERC20(tokenAddress).safeTransfer(tempEndowment.depositFee.payoutAddress, depositFeeAmount);
     }
 
     uint256 lockedSplitPercent = details.lockedPercentage;
     uint256 liquidSplitPercent = details.liquidPercentage;
-
-    LibAccounts.SplitDetails memory registrar_split_configs = registrar_config.splitToLiquid;
 
     require(registrar_config.indexFundContract != address(0), "No Index Fund");
 
@@ -126,7 +120,7 @@ contract AccountsDepositWithdrawEndowments is
       if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
         // use the Registrar default split for Charities
         (lockedSplitPercent, liquidSplitPercent) = Validator.checkSplits(
-          registrar_split_configs,
+          registrar_config.splitToLiquid,
           lockedSplitPercent,
           liquidSplitPercent,
           tempEndowment.ignoreUserSplits
@@ -174,7 +168,6 @@ contract AccountsDepositWithdrawEndowments is
     state.STATES[details.id].balances.locked[tokenAddress] += lockedAmount;
     state.STATES[details.id].balances.liquid[tokenAddress] += liquidAmount;
 
-    state.ENDOWMENTS[details.id] = tempEndowment;
     emit EndowmentDeposit(details.id, tokenAddress, lockedAmount, liquidAmount);
   }
 
@@ -233,7 +226,7 @@ contract AccountsDepositWithdrawEndowments is
             senderAllowed = true;
           }
         }
-        require(senderAllowed, "Sender address is not listed in maturityAllowlist.");
+        require(senderAllowed, "Sender address is not listed in maturityAllowlist");
       }
     } else {
       if (tempEndowment.allowlistedBeneficiaries.length > 0) {
@@ -245,7 +238,7 @@ contract AccountsDepositWithdrawEndowments is
       }
       require(
         senderAllowed || msg.sender == tempEndowment.owner,
-        "Sender address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner."
+        "Sender address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner"
       );
     }
 
@@ -291,19 +284,16 @@ contract AccountsDepositWithdrawEndowments is
       }
 
       // ensure balance of tokens can cover the requested withdraw amount
-      require(current_bal > tokens[t].amnt, "InsufficientFunds");
+      require(current_bal >= tokens[t].amnt, "Insufficient Funds");
 
       // calculate AP Protocol fee owed on withdrawn token amount
       uint256 withdrawFeeAp = (tokens[t].amnt.mul(withdrawFeeRateAp)).div(LibAccounts.FEE_BASIS);
 
       // Transfer AP Protocol fee to treasury
       // (ie. standard Withdraw Fee + any early Locked Withdraw Penalty)
-      require(
-        IERC20(tokens[t].addr).transfer(
-          registrar_config.treasury,
-          withdrawFeeAp + earlyLockedWithdrawPenalty
-        ),
-        "Transfer failed"
+      IERC20(tokens[t].addr).safeTransfer(
+        registrar_config.treasury,
+        withdrawFeeAp + earlyLockedWithdrawPenalty
       );
 
       // ** Endowment specific withdraw fee **
@@ -317,20 +307,17 @@ contract AccountsDepositWithdrawEndowments is
         );
 
         // transfer endowment withdraw fee to payout address
-        require(
-          IERC20(tokens[t].addr).transfer(
-            tempEndowment.withdrawFee.payoutAddress,
-            withdrawFeeEndow
-          ),
-          "Insufficient Funds"
+        IERC20(tokens[t].addr).safeTransfer(
+          tempEndowment.withdrawFee.payoutAddress,
+          withdrawFeeEndow
         );
       }
 
       // send all tokens (less fees) to the ultimate beneficiary address/endowment
       if (beneficiaryAddress != address(0)) {
-        require(
-          IERC20(tokens[t].addr).transfer(beneficiaryAddress, (amountLeftover - withdrawFeeEndow)),
-          "Transfer failed"
+        IERC20(tokens[t].addr).safeTransfer(
+          beneficiaryAddress,
+          (amountLeftover - withdrawFeeEndow)
         );
       } else {
         // check endowment specified is not closed
@@ -340,7 +327,11 @@ contract AccountsDepositWithdrawEndowments is
         );
         // Send deposit message to 100% Liquid account of an endowment
         processTokenDeposit(
-          AccountMessages.DepositRequest({id: id, lockedPercentage: 0, liquidPercentage: 100}),
+          AccountMessages.DepositRequest({
+            id: beneficiaryEndowId,
+            lockedPercentage: 0,
+            liquidPercentage: 100
+          }),
           tokens[t].addr,
           (amountLeftover - withdrawFeeEndow)
         );

@@ -1,49 +1,49 @@
-import {expect, use} from "chai";
 import {FakeContract, MockContract, smock} from "@defi-wonderland/smock";
-import hre from "hardhat";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {expect, use} from "chai";
+import hre from "hardhat";
 
+import {deployDummyGasService} from "tasks/helpers";
 import {
-  TestFacetProxyContract,
+  DEFAULT_ACCOUNTS_CONFIG,
+  DEFAULT_AP_PARAMS,
+  DEFAULT_CHARITY_ENDOWMENT,
+  DEFAULT_INVEST_REQUEST,
+  DEFAULT_METHOD_SELECTOR,
+  DEFAULT_NETWORK_INFO,
+  DEFAULT_PERMISSIONS_STRUCT,
+  DEFAULT_REDEEM_ALL_REQUEST,
+  DEFAULT_REDEEM_REQUEST,
+  DEFAULT_SETTINGS_STRUCT,
+  DEFAULT_STRATEGY_PARAMS,
+  DEFAULT_STRATEGY_SELECTOR,
+  NetworkInfoStruct,
+  StrategyApprovalState,
+  VaultActionStatus,
+  VaultActionStructToArray,
+  deployDummyERC20,
+  deployDummyGateway,
+  deployDummyVault,
+  packActionData,
+} from "test/utils";
+import {
   AccountsStrategy,
   AccountsStrategy__factory,
+  DummyERC20,
+  DummyGasService,
+  DummyGateway,
+  DummyVault,
+  GasFwd,
+  GasFwd__factory,
   Registrar,
   Registrar__factory,
   Router,
   Router__factory,
-  DummyERC20,
-  DummyGateway,
-  DummyGasService,
-  GasFwd,
-  GasFwd__factory,
-  DummyVault,
+  TestFacetProxyContract,
 } from "typechain-types";
-import {genWallet, getSigners} from "utils";
-import {deployFacetAsProxy} from "./utils/deployTestFacet";
-import {
-  deployDummyERC20,
-  deployDummyGateway,
-  DEFAULT_CHARITY_ENDOWMENT,
-  DEFAULT_STRATEGY_SELECTOR,
-  DEFAULT_ACCOUNTS_CONFIG,
-  DEFAULT_NETWORK_INFO,
-  DEFAULT_METHOD_SELECTOR,
-  DEFAULT_PERMISSIONS_STRUCT,
-  DEFAULT_SETTINGS_STRUCT,
-  NetworkInfoStruct,
-  StrategyApprovalState,
-  VaultActionStatus,
-  DEFAULT_INVEST_REQUEST,
-  DEFAULT_REDEEM_REQUEST,
-  DEFAULT_REDEEM_ALL_REQUEST,
-  DEFAULT_STRATEGY_PARAMS,
-  packActionData,
-  VaultActionStructToArray,
-  deployDummyVault,
-  DEFAULT_AP_PARAMS,
-} from "test/utils";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {deployDummyGasService} from "tasks/helpers";
+import {getSigners} from "utils";
+import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
 
@@ -268,7 +268,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("and the response is SUCCESS", async function () {
-        await router.executeWithTokenLocal.returns({
+        router.executeWithTokenLocal.returns({
           destinationChain: "",
           strategyId: DEFAULT_STRATEGY_SELECTOR,
           selector: DEFAULT_METHOD_SELECTOR,
@@ -298,7 +298,7 @@ describe("AccountsStrategy", function () {
           ACCOUNT_ID,
           DEFAULT_STRATEGY_SELECTOR
         );
-        expect(strategyActive);
+        expect(strategyActive).to.be.true;
       });
 
       it("and the response is anything other than SUCCESS", async function () {
@@ -605,7 +605,7 @@ describe("AccountsStrategy", function () {
           ACCOUNT_ID,
           DEFAULT_STRATEGY_SELECTOR
         );
-        expect(strategyActive);
+        expect(strategyActive).to.be.true;
       });
 
       it("and the response is POSITION_EXITED", async function () {
@@ -631,7 +631,7 @@ describe("AccountsStrategy", function () {
           ACCOUNT_ID,
           DEFAULT_STRATEGY_SELECTOR
         );
-        expect(!strategyActive);
+        expect(strategyActive).to.be.false;
       });
 
       it("and the response is anything else", async function () {
@@ -945,7 +945,7 @@ describe("AccountsStrategy", function () {
             ACCOUNT_ID,
             DEFAULT_STRATEGY_SELECTOR
           );
-          expect(!strategyActive);
+          expect(strategyActive).to.be.false;
         });
 
         it("and the response is anything else", async function () {
@@ -1368,7 +1368,7 @@ describe("AccountsStrategy", function () {
         ACCOUNT_ID,
         DEFAULT_STRATEGY_SELECTOR
       );
-      expect(!strategyActive);
+      expect(strategyActive).to.be.false;
     });
 
     it("_executeWithToken: redeemAll && POSITION_EXITED", async function () {

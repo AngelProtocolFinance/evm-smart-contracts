@@ -15,7 +15,7 @@ task(
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      await hre.run("upgrade:CharityApplication", {skipVerify: taskArgs.skipVerify, yes: true});
+      await hre.run("upgrade:CharityApplications", {skipVerify: taskArgs.skipVerify, yes: true});
       await hre.run("upgrade:facets", {
         facets: ["all"],
         skipVerify: taskArgs.skipVerify,

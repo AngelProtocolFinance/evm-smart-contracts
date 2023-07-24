@@ -7,3 +7,4 @@ export * from "./dummyVault";
 export * from "./helpers";
 export * from "./Registrar";
 export * from "./integrations";
+import "./assertions";

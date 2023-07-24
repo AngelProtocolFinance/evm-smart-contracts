@@ -2,7 +2,6 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {deployFacetAsProxy} from "./utils/deployTestFacet";
 import {DEFAULT_ACCOUNTS_CONFIG, DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
 import {
   AccountsQueryEndowments,
@@ -12,6 +11,7 @@ import {
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsQueryEndowments";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {getSigners} from "utils";
+import {deployFacetAsProxy} from "./utils";
 
 describe("AccountsQueryEndowments", function () {
   const {ethers} = hre;
@@ -220,7 +220,6 @@ describe("AccountsQueryEndowments", function () {
       expect(configResponse.nextAccountId).to.equal(config.nextAccountId);
       expect(configResponse.owner).to.equal(config.owner);
       expect(configResponse.registrarContract).to.equal(config.registrarContract);
-      expect(configResponse.subDao).to.equal(config.subDao);
       expect(configResponse.version).to.equal(config.version);
     });
   });

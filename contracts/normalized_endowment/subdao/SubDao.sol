@@ -3,6 +3,7 @@ pragma solidity ^0.8.16;
 
 import {SubDaoMessages} from "./message.sol";
 import {SubDaoLib} from "./SubDaoLib.sol";
+import {Validator} from "../../core/validator.sol";
 import {LibAccounts} from "../../core/accounts/lib/LibAccounts.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
 import {Array} from "../../lib/array.sol";
@@ -30,7 +31,9 @@ contract SubDao is Storage, ReentrancyGuard, Initializable {
     SubDaoMessages.InstantiateMsg memory details,
     address _emitterAddress
   ) public initializer {
-    require(_emitterAddress != address(0), "InvalidEmitterAddress");
+    require(Validator.addressChecker(_emitterAddress), "InvalidEmitterAddress");
+    require(Validator.addressChecker(details.registrarContract), "Invalid registrarContract");
+    require(Validator.addressChecker(details.owner), "Invalid owner");
 
     emitterAddress = _emitterAddress;
 

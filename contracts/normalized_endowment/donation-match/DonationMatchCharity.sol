@@ -9,7 +9,8 @@ import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 import {AccountStorage} from "../../core/accounts/storage.sol";
 import {IAccounts} from "../../core/accounts/interfaces/IAccounts.sol";
 import {LibAccounts} from "../../core/accounts/lib/LibAccounts.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
 import "@uniswap/v3-core/contracts/interfaces/pool/IUniswapV3PoolState.sol";
 import {IAccountsDonationMatch} from "../../core/accounts/interfaces/IAccountsDonationMatch.sol";
@@ -34,6 +35,8 @@ contract DonationMatchCharity is IDonationMatching, Storage, Initializable, Reen
     uint32 endowmentId,
     address donor
   );
+
+  using SafeERC20 for IERC20Burnable;
 
   function initialize(DonationMatchMessages.InstantiateMessage memory details) public initializer {
     require(details.reserveToken != address(0), "Invalid Address");
@@ -98,15 +101,13 @@ contract DonationMatchCharity is IDonationMatching, Storage, Initializable, Reen
     //         10**IERC20Metadata(state.config.reserveToken).decimals()) /
     //     (10**IERC20Metadata(state.config.usdcAddress).decimals());
 
-    uint256 reserveBal = IERC20(state.config.reserveToken).balanceOf(address(this));
+    uint256 reserveBal = IERC20Burnable(state.config.reserveToken).balanceOf(address(this));
 
     require(reserveBal >= reserveTokenAmount, "Insufficient Reserve Token");
 
     // give allowance to dao token contract
 
-    bool success = IERC20(token).approve(state.config.reserveToken, reserveTokenAmount);
-
-    require(success, "Token transfer failed");
+    IERC20Burnable(token).safeApprove(state.config.reserveToken, reserveTokenAmount);
 
     emit Approval(endowmentId, token, state.config.reserveToken, reserveTokenAmount);
 
@@ -121,10 +122,9 @@ contract DonationMatchCharity is IDonationMatching, Storage, Initializable, Reen
 
       emit Transfer(endowmentId, token, donor, donorAmount);
 
-      success = IERC20(token).approve(registrar_config.accountsContract, endowmentAmount);
-      require(success, "Approve failed");
+      IERC20Burnable(token).safeApprove(registrar_config.accountsContract, endowmentAmount);
 
-      IAccountsDonationMatch(registrar_config.accountsContract).depositDonationMatchErC20(
+      IAccountsDonationMatch(registrar_config.accountsContract).depositDonationMatchERC20(
         endowmentId,
         token,
         endowmentAmount
@@ -137,8 +137,7 @@ contract DonationMatchCharity is IDonationMatching, Storage, Initializable, Reen
     } else {
       // approve reserve rency to dao token contract [GIvE approval]
 
-      success = IERC20(state.config.reserveToken).approve(token, reserveTokenAmount);
-      require(success, "Approve failed");
+      IERC20Burnable(state.config.reserveToken).safeApprove(token, reserveTokenAmount);
 
       // call execute donor match on dao token contract
       ISubDaoToken(token).executeDonorMatch(

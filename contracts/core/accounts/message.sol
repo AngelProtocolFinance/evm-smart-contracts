@@ -90,7 +90,6 @@ library AccountMessages {
     address registrarContract;
     uint256 nextAccountId;
     uint256 maxGeneralCategoryId;
-    address subDao;
     LibAccounts.FeeSetting earlyLockedWithdrawFee;
   }
 
@@ -160,7 +159,7 @@ library AccountMessages {
 
   enum DonationMatchEnum {
     HaloTokenReserve,
-    Cw20TokenReserve
+    ERC20TokenReserve
   }
 
   struct DonationMatchData {
