@@ -258,7 +258,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
       "Accounts contract not configured in Registrar"
     );
 
-    // tokens must be transfered from the senter to this contract
+    // tokens must be transfered from the sender to this contract
     IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
     // we give allowance to accounts contract
     IERC20(token).safeApprove(registrarConfig.accountsContract, amount);
@@ -282,7 +282,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
       prepRotatingFunds();
       require(state.rotatingFunds.length > 0, "No rotating funds");
 
-      if (state.config.fundRotation > 0) {
+      if (state.config.fundRotation > 0 && state.config.fundingGoal == 0) {
         // Block-based rotation of Funds
         // check if block limit has been reached/exceeded since last contract call
         // and that there are actually active rotating funds to rotate
@@ -302,7 +302,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
           token,
           amount
         );
-      } else if (state.config.fundingGoal > 0) {
+      } else if (state.config.fundRotation == 0 && state.config.fundingGoal > 0) {
         // Fundraising Goal-based rotation of Funds
         // Check if funding goal is met for current active fund and rotate funds 
         // until all donated tokens are depleted
@@ -444,7 +444,12 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     address token,
     uint256 amount
   ) internal {
-    require(amount > 0, "Amount cannot be zero");
+    require(state.Funds[fundId].endowments.length > 0, "Fund must have members");
+    // require enough funds to allow for downstream fees calulations, etc
+    require(
+      amount >= state.Funds[fundId].endowments.length.mul(100),
+      "Amount must be greater than 100 units per endowment"
+    );
 
     // execute donation message for each endowment in the fund
     for (uint256 i = 0; i < state.Funds[fundId].endowments.length; i++) {

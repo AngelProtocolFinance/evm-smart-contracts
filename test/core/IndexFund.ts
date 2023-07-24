@@ -454,8 +454,8 @@ describe("IndexFund", function () {
 
     it("reverts when `0` Fund ID is passed with no un-expired rotating funds(0 after cleanup)", async function () {
       // mint tokens so that the user and contract can transfer them
-      await token1.mint(owner.address, 100);
-      await token1.approveFor(owner.address, indexFund.address, 100);
+      await token1.mint(owner.address, 500);
+      await token1.approveFor(owner.address, indexFund.address, 500);
 
       // create 1 expired, rotating fund
       let currTime = await time.latest();
@@ -478,24 +478,27 @@ describe("IndexFund", function () {
       expect(activeFund.id).to.equal(3);
 
       // should fail when prep clean up process removes the expired fund, leaving 0 funds available
-      expect(indexFund.depositERC20(0, token1.address, 100, 0)).to.be.revertedWith(
+      expect(indexFund.depositERC20(0, token1.address, 500, 0)).to.be.revertedWith(
         "Must have rotating funds active to pass a Fund ID of 0"
       );
     });
 
     it("passes for a specific fund, amount > zero & token is valid", async function () {
       // mint tokens so that the user and contract can transfer them
-      await token1.mint(owner.address, 100);
-      await token1.approveFor(owner.address, indexFund.address, 100);
+      await token1.mint(owner.address, 500);
+      await token1.approveFor(owner.address, indexFund.address, 500);
 
       // create 1 active, rotating fund
       expect(await indexFund.createIndexFund("Test Fund #4", "Test fund", [2, 3], true, 50, 0))
         .to.emit("FundCreated")
         .withArgs(4);
 
-      expect(await indexFund.depositERC20(4, token1.address, 100))
-        .to.emit(indexFund, "DonationProcessed")
-        .withArgs(4);
+      expect(
+        await indexFund.depositERC20(4, token1.address, 500, {
+          gasPrice: 3000,
+          gasLimit: 10000000
+        })
+      ).to.emit(indexFund, "DonationProcessed").withArgs(4);
     });
 
     it("passes for an active fund donation(amount-based rotation), amount > zero & token is valid", async function () {
@@ -508,9 +511,11 @@ describe("IndexFund", function () {
         .to.emit("FundCreated")
         .withArgs(5);
 
-      expect(await indexFund.depositERC20(0, token1.address, 10000))
-        .to.emit(indeFund, "DonationProcessed")
-        .withArgs(4);
+      expect(await indexFund.depositERC20(0, token1.address, 10000, {
+          gasPrice: 3000,
+          gasLimit: 10000000
+        })
+      ).to.emit(indeFund, "DonationProcessed").withArgs(4);
     });
   });
 });
