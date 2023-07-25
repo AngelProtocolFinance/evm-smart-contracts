@@ -6,7 +6,7 @@ import {
   Deployment,
   getChainId,
   getContractName,
-  getNetworkName,
+  getAxlNetworkName,
   logger,
   updateAddresses,
   validateAddress,
@@ -37,7 +37,7 @@ export async function deployRegistrar(
   logger.out("Deploying Registrar...");
 
   try {
-    const networkName = await getNetworkName(hre);
+    const networkName = await getAxlNetworkName(hre);
 
     validateAddress(axelarGateway, "axelarGateway");
     validateAddress(axelarGasService, "axelarGasService");
