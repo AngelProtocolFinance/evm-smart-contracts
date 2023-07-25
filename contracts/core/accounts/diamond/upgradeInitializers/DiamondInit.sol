@@ -25,7 +25,7 @@ import {AccountStorage} from "./../../storage.sol";
 contract DiamondInit {
   // You can add parameters to this function in order to pass in
   // data to set your own state variables
-  function init(address owner, address registrar) external {
+  function init(address owner, address registrar, string memory networkName) external {
     // adding ERC165 data
     LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
     ds.supportedInterfaces[type(IERC165).interfaceId] = true;
@@ -39,7 +39,7 @@ contract DiamondInit {
 
     state.config.owner = owner;
     state.config.registrarContract = registrar;
-    state.config.networkName = "Polygon";
+    state.config.networkName = networkName;
     state.config.nextAccountId = 1;
 
     // add your own state variables
