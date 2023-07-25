@@ -10,7 +10,7 @@ type TaskArgs = {
   earlyLockedWithdrawFeeBps?: number;
   earlyLockedWithdrawFeePayoutAddress?: string;
   maxGeneralCategoryId?: number;
-  newRegistrar?: string;
+  registrarContract?: string;
   yes: boolean;
 };
 
@@ -27,7 +27,7 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
   )
   .addOptionalParam("maxGeneralCategoryId", "The max general category id.", undefined, types.int)
   .addOptionalParam(
-    "newRegistrar",
+    "registrarContract",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
   )
   .addFlag("yes", "Automatic yes to prompt.")
@@ -63,7 +63,7 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
         apTeamMultisigOwners[0]
       );
       const data = accountsUpdate.interface.encodeFunctionData("updateConfig", [
-        newConfig.newRegistrar || curConfig.registrarContract,
+        newConfig.registrarContract || curConfig.registrarContract,
         newConfig.maxGeneralCategoryId || curConfig.maxGeneralCategoryId,
         {
           bps: newConfig.earlyLockedWithdrawFeeBps || curConfig.earlyLockedWithdrawFee.bps,

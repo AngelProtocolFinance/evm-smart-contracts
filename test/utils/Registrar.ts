@@ -30,14 +30,15 @@ export async function deployRegistrarAsProxy(
   const registrarImpl = await Registrar.deploy();
   await registrarImpl.deployed();
   const data = registrarImpl.interface.encodeFunctionData(
-    "initialize((address,(uint256,uint256,uint256),address,address,address))",
+    "initialize((address,(uint256,uint256,uint256),address,address,address,string))",
     [
       {
         treasury: ethers.constants.AddressZero,
         splitToLiquid: DEFAULT_SPLIT_STRUCT,
         router: ethers.constants.AddressZero,
         axelarGateway: ethers.constants.AddressZero,
-        axelarGasRecv: ethers.constants.AddressZero,
+        axelarGasService: ethers.constants.AddressZero,
+        networkName: "localhost",
       },
     ]
   );

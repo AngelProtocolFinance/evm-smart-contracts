@@ -1,13 +1,16 @@
 import {task, types} from "hardhat/config";
-import {Registrar__factory} from "typechain-types";
-import {getAddresses, getSigners, logger} from "utils";
+import {Registrar__factory, APTeamMultiSig__factory} from "typechain-types";
+import {getAddresses, getSigners, StratConfig, logger} from "utils";
+import {allStrategyConfigs} from "../../../contracts/integrations/stratConfig";
 
-type TaskArgs = {approvalState: number; strategySelector: string};
+type TaskArgs = {name: string; approvalState: number};
 
 task("manage:registrar:setStratApproval")
   .addParam(
-    "strategySelector",
-    "The 4-byte unique ID of the strategy, set by bytes4(keccack256('StrategyName'))",
+    "name",
+    `The name of the strategy according to StratConfig, possible values: ${Object.keys(
+      allStrategyConfigs
+    ).join(", ")}`,
     "",
     types.string
   )
@@ -22,13 +25,14 @@ task("manage:registrar:setStratApproval")
     logger.out("Connecting to registrar on specified network...");
     const addresses = await getAddresses(hre);
     const registrarAddress = addresses["registrar"]["proxy"];
-    const {deployer} = await getSigners(hre);
-    const registrar = Registrar__factory.connect(registrarAddress, deployer);
+    const {apTeamMultisigOwners} = await getSigners(hre);
+    const registrar = Registrar__factory.connect(registrarAddress, apTeamMultisigOwners[0]);
     logger.pad(50, "Connected to Registrar at: ", registrar.address);
 
     logger.divider();
     logger.out("Checking current strategy approval state");
-    let currentStratParams = await registrar.getStrategyParamsById(taskArguments.strategySelector);
+    const config: StratConfig = allStrategyConfigs[taskArguments.name];
+    let currentStratParams = await registrar.getStrategyParamsById(config.id);
     if (currentStratParams.approvalState == taskArguments.approvalState) {
       logger.out("Strategy approval state already matches desired state");
       return;
@@ -37,8 +41,20 @@ task("manage:registrar:setStratApproval")
     logger.divider();
     logger.out("Setting strategy approval state to:");
     logger.pad(50, "New strategy approval state", taskArguments.approvalState);
-    await registrar.setStrategyApprovalState(
-      taskArguments.strategySelector,
-      taskArguments.approvalState
+    const updateData = registrar.interface.encodeFunctionData("setStrategyApprovalState", [
+      config.id,
+      taskArguments.approvalState,
+    ]);
+    const apTeamMultisigContract = APTeamMultiSig__factory.connect(
+      addresses.multiSig.apTeam.proxy,
+      apTeamMultisigOwners[0]
     );
+    const tx = await apTeamMultisigContract.submitTransaction(
+      registrar.address,
+      0,
+      updateData,
+      "0x"
+    );
+    logger.out(`Tx hash: ${tx.hash}`);
+    await tx.wait();
   });

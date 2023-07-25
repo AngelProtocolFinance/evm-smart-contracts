@@ -4,45 +4,64 @@ import {
   IAccountsStrategy,
   RegistrarMessages,
 } from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-import {NetworkConnectionAction, getSigners, logger, structToObject, validateAddress} from "utils";
+import {
+  NetworkConnectionAction,
+  getChainId,
+  getNetworkNameFromChainId,
+  getSigners,
+  logger,
+  structToObject,
+  validateAddress,
+} from "utils";
 
 export async function updateRegistrarNetworkConnections(
   registrar = "",
   apTeamMultisig = "",
-  newNetworkInfo: Partial<IAccountsStrategy.NetworkInfoStruct>,
+  networkInfo: Partial<IAccountsStrategy.NetworkInfoStruct>,
   hre: HardhatRuntimeEnvironment
 ) {
   logger.divider();
-  logger.out("Updating Registrar config...");
 
+  let networkName
   try {
+
+    // If we're updating info on this chain for another chain, arg info MUST specify chain id 
+    if (Number(networkInfo.chainId) > 0) {
+      networkName = getNetworkNameFromChainId(Number(networkInfo.chainId));
+    }
+    else { // we're updating this chains own network info and can safely lookup chain id
+      const chainId = await getChainId(hre);
+      networkName = getNetworkNameFromChainId(chainId);
+    }
+
+    logger.out(`Updating Registrar network info for chain: ${networkName}`);
+
     validateAddress(registrar, "registrar");
     validateAddress(apTeamMultisig, "apTeamMultisig");
-
-    const network = await hre.ethers.provider.getNetwork();
 
     const {apTeamMultisigOwners} = await getSigners(hre);
 
     const registrarContract = Registrar__factory.connect(registrar, apTeamMultisigOwners[0]);
 
     logger.out("Fetching current Registrar's network connection data...");
-    const struct = await registrarContract.queryNetworkConnection(network.name);
+
+    const struct = await registrarContract.queryNetworkConnection(networkName);
     const curNetworkConnection = structToObject(struct);
     logger.out(curNetworkConnection);
 
     logger.out("Network info to update:");
-    logger.out(newNetworkInfo);
+    logger.out(networkInfo);
 
     const updateNetworkConnectionsData = registrarContract.interface.encodeFunctionData(
       "updateNetworkConnections",
-      [network.name, {...curNetworkConnection, ...newNetworkInfo}, NetworkConnectionAction.POST]
+      [networkName, {...curNetworkConnection, ...networkInfo}, NetworkConnectionAction.POST]
     );
     const apTeamMultisigContract = APTeamMultiSig__factory.connect(
       apTeamMultisig,
       apTeamMultisigOwners[0]
     );
     const tx = await apTeamMultisigContract.submitTransaction(
-      registrar,
+      registrarContract.address,
       0,
       updateNetworkConnectionsData,
       "0x"
@@ -51,7 +70,7 @@ export async function updateRegistrarNetworkConnections(
     await tx.wait();
 
     logger.out("Updated network connection data:");
-    const newStruct = await registrarContract.queryNetworkConnection(network.name);
+    const newStruct = await registrarContract.queryNetworkConnection(networkName);
     const newNetworkConnection = structToObject(newStruct);
     logger.out(newNetworkConnection);
   } catch (error) {
