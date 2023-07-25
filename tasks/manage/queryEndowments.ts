@@ -1,10 +1,7 @@
 import {task, types} from "hardhat/config";
 import {
-  AccountsCreateEndowment__factory,
   AccountsQueryEndowments__factory,
-  CharityApplications__factory,
 } from "typechain-types";
-import {AccountMessages} from "typechain-types/contracts/multisigs/CharityApplications";
 import {getAddresses, getSigners, logger, structToObject} from "utils";
 
 type TaskArgs = {id: number};
@@ -22,7 +19,7 @@ task("manage:queryEndowments", "Will create a new endowment")
         apTeam1
       );
 
-      logger.out(await queryEndowmentFacet.queryEndowmentDetails(taskArgs.id))
+      logger.out(structToObject(await queryEndowmentFacet.queryEndowmentDetails(taskArgs.id)));
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
