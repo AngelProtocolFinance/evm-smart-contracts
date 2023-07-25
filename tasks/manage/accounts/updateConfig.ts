@@ -30,7 +30,7 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
         addresses.accounts.diamond,
         apTeamMultisigOwners[0]
       );
-      const {registrarContract, owner} = await accountsQueryEndowments.queryConfig();
+      const curConfig = await accountsQueryEndowments.queryConfig();
       logger.out(curConfig);
 
       logger.out("Config data to update:");
@@ -50,7 +50,7 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
         newConfig.registrarContract || curConfig.registrarContract,
       ]);
       const apTeamMultiSig = APTeamMultiSig__factory.connect(
-        owner, // ensure connection to current owning APTeamMultiSig contract
+        curConfig.owner, // ensure connection to current owning APTeamMultiSig contract
         apTeamMultisigOwners[0]
       );
       const tx = await apTeamMultiSig.submitTransaction(addresses.accounts.diamond, 0, data, "0x");
