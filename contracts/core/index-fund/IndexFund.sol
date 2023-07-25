@@ -262,10 +262,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     // tokens must be transfered from the sender to this contract
     IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
     // we give allowance to accounts contract
-    require(
-      IERC20(token).approve(registrarConfig.accountsContract, amount),
-      "Approval needed for Accounts Contract to spend"
-    );
+    IERC20(token).safeApprove(registrarConfig.accountsContract, amount);
 
     if (fundId != 0) {
       // Depositor has chosen a specific fund to send tokens to. Send 100% to that fund.
@@ -294,9 +291,8 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
           state.activeFund = nextActiveFund();
           state.roundDonations = 0;
 
-          while (block.number >= state.nextRotationBlock) {
-            state.nextRotationBlock += state.config.fundRotation;
-          }
+          uint256 addIters = (block.number - state.nextRotationBlock).div(state.config.fundRotation);
+          state.nextRotationBlock += state.config.fundRotation.mul(addIters);
         }
         // send donation messages to Accounts contract
         processDonations(
