@@ -248,7 +248,6 @@ describe("Router", function () {
         });
         gateway = await deployDummyGateway(owner);
         gasService = await deployDummyGasService(owner);
-        token = await deployDummyERC20(owner);
         registrar = await deployRegistrarAsProxy(owner, admin);
         await gateway.setTestTokenAddress(token.address);
         await registrar.setTokenAccepted(token.address, true);
@@ -257,14 +256,11 @@ describe("Router", function () {
 
       beforeEach(async function () {
         router = await deployRouterAsProxy(gateway.address, gasService.address, registrar);
-        token.mint(router.address, 333);
+        await token.mint(gateway.address, 333);
+        await token.approveFor(gateway.address, router.address, 333)
         let collectorBal = await token.balanceOf(collector.address);
         if (collectorBal.gt(0)) {
           await token.connect(collector).transfer(deadAddr, collectorBal);
-        }
-        let gatewayBal = await token.balanceOf(gateway.address);
-        if (gatewayBal.gt(0)) {
-          await token.connect(collector).transfer(deadAddr, gatewayBal);
         }
       });
 
@@ -307,27 +303,6 @@ describe("Router", function () {
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Only deposit accepts tokens");
-        let gatewayAllowance = await token.allowance(router.address, gateway.address);
-        expect(gatewayAllowance).to.equal(333);
-      });
-
-      it("when the token designation doesn't match", async function () {
-        let actionData = getDefaultActionData();
-        actionData.selector = liquidVault.interface.getSighash("deposit");
-        actionData.token = token.address;
-        let packedData = await packActionData(actionData);
-        await expect(
-          router.executeWithToken(
-            ethers.utils.formatBytes32String("true"),
-            originatingChain,
-            accountsContract,
-            packedData,
-            "WRONG",
-            333
-          )
-        )
-          .to.emit(router, "ErrorLogged")
-          .withArgs(Array<any>, "Token mismatch");
         let gatewayAllowance = await token.allowance(router.address, gateway.address);
         expect(gatewayAllowance).to.equal(333);
       });
@@ -460,7 +435,8 @@ describe("Router", function () {
 
       beforeEach(async function () {
         router = await deployRouterAsProxy(gateway.address, undefined, registrar); // set gas service to undef so that the sendTokens call fails
-        token.mint(router.address, 333);
+        await token.mint(gateway.address, 333);
+        await token.approveFor(gateway.address, router.address, 333)
         let collectorBal = await token.balanceOf(collector.address);
         if (collectorBal.gt(0)) {
           await token.connect(collector).transfer(deadAddr, collectorBal);
@@ -507,27 +483,6 @@ describe("Router", function () {
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Only deposit accepts tokens");
-        let collectorBal = await token.balanceOf(collector.address);
-        expect(collectorBal).to.equal(333);
-      });
-
-      it("when the token designation doesn't match", async function () {
-        let actionData = getDefaultActionData();
-        actionData.selector = liquidVault.interface.getSighash("deposit");
-        actionData.token = token.address;
-        let packedData = await packActionData(actionData);
-        expect(
-          await router.executeWithToken(
-            ethers.utils.formatBytes32String("true"),
-            originatingChain,
-            accountsContract,
-            packedData,
-            "WRONG",
-            333
-          )
-        )
-          .to.emit(router, "ErrorLogged")
-          .withArgs(Array<any>, "Token mismatch");
         let collectorBal = await token.balanceOf(collector.address);
         expect(collectorBal).to.equal(333);
       });
@@ -646,14 +601,16 @@ describe("Router", function () {
     let gasService: DummyGasService;
     let token: DummyERC20;
     let router: Router;
+    const LOCKAMT = 111;
+    const LIQAMT = 222;
     let actionData = {
       destinationChain: originatingChain,
       strategyId: "0xffffffff",
       selector: "",
       accountIds: [1],
       token: "",
-      lockAmt: 111,
-      liqAmt: 222,
+      lockAmt: LOCKAMT,
+      liqAmt: LIQAMT,
       status: 0,
     } as IVaultHelpers.VaultActionDataStruct;
 
@@ -694,8 +651,8 @@ describe("Router", function () {
     });
 
     it("correctly calls depost", async function () {
-      await token.mint(router.address, actionData.liqAmt);
-      await token.mint(router.address, actionData.lockAmt);
+      await token.mint(gateway.address, LOCKAMT + LIQAMT);
+      await token.approveFor(gateway.address, router.address, LOCKAMT + LIQAMT)
       actionData.selector = liquidVault.interface.getSighash("deposit");
       let packedData = await packActionData(actionData);
       await expect(
@@ -712,8 +669,8 @@ describe("Router", function () {
 
     it("correctly calls redeem via execute", async function () {
       // Do a deposit first to update the symbol mapping
-      await token.mint(router.address, actionData.liqAmt);
-      await token.mint(router.address, actionData.lockAmt);
+      await token.mint(gateway.address, LOCKAMT + LIQAMT);
+      await token.approveFor(gateway.address, router.address, LOCKAMT + LIQAMT)
       actionData.selector = liquidVault.interface.getSighash("deposit");
       let packedData = await packActionData(actionData);
       await router.executeWithToken(
@@ -741,8 +698,8 @@ describe("Router", function () {
 
     it("correctly calls redeemAll via execute", async function () {
       // Do a deposit first to update the symbol mapping
-      await token.mint(router.address, actionData.liqAmt);
-      await token.mint(router.address, actionData.lockAmt);
+      await token.mint(gateway.address, LOCKAMT + LIQAMT);
+      await token.approveFor(gateway.address, router.address, LOCKAMT + LIQAMT)
       actionData.selector = liquidVault.interface.getSighash("deposit");
       let packedData = await packActionData(actionData);
       await router.executeWithToken(
@@ -758,8 +715,8 @@ describe("Router", function () {
       actionData.selector = liquidVault.interface.getSighash("redeemAll");
       actionData.token = token.address;
       packedData = await packActionData(actionData);
-      await token.mint(liquidVault.address, actionData.liqAmt);
-      await token.mint(lockedVault.address, actionData.lockAmt);
+      await token.mint(gateway.address, LOCKAMT + LIQAMT);
+      await token.approveFor(gateway.address, router.address, LOCKAMT + LIQAMT)
       await expect(
         router.execute(
           ethers.utils.formatBytes32String("true"),
@@ -792,14 +749,16 @@ describe("Router", function () {
     let gasService: DummyGasService;
     let token: DummyERC20;
     let router: Router;
+    const LOCKAMT = 111;
+    const LIQAMT = 222;
     let actionData = {
       destinationChain: originatingChain,
       strategyId: "0xffffffff",
       selector: "",
       accountIds: [1],
       token: "",
-      lockAmt: 111,
-      liqAmt: 222,
+      lockAmt: LOCKAMT,
+      liqAmt: LIQAMT,
       status: 0,
     } as IVaultHelpers.VaultActionDataStruct;
 
@@ -837,8 +796,8 @@ describe("Router", function () {
     });
 
     it("deposits the specified amounts to the specified vaults", async function () {
-      token.mint(router.address, actionData.liqAmt);
-      token.mint(router.address, actionData.lockAmt);
+      await token.mint(gateway.address, LOCKAMT + LIQAMT);
+      await token.approveFor(gateway.address, router.address, LOCKAMT + LIQAMT)
       let packedData = packActionData(actionData);
       await router.executeWithToken(
         ethers.utils.formatBytes32String("true"),
@@ -861,14 +820,16 @@ describe("Router", function () {
     let gasService: DummyGasService;
     let token: DummyERC20;
     let router: Router;
+    const LOCKAMT = 111;
+    const LIQAMT = 222;
     let actionData = {
       destinationChain: originatingChain,
       strategyId: "0xffffffff",
       selector: "",
       accountIds: [1],
       token: "",
-      lockAmt: 111,
-      liqAmt: 222,
+      lockAmt: LOCKAMT,
+      liqAmt: LIQAMT,
       status: 0,
     } as IVaultHelpers.VaultActionDataStruct;
 
@@ -902,8 +863,8 @@ describe("Router", function () {
 
     beforeEach(async function () {
       router = await deployRouterAsProxy(gateway.address, gasService.address, registrar);
-      await token.mint(router.address, actionData.liqAmt);
-      await token.mint(router.address, actionData.lockAmt);
+      await token.mint(gateway.address, LOCKAMT + LIQAMT);
+      await token.approveFor(gateway.address, router.address, LOCKAMT + LIQAMT)
       actionData.selector = liquidVault.interface.getSighash("deposit");
       let packedData = packActionData(actionData);
       await router.executeWithToken(
@@ -1009,14 +970,16 @@ describe("Router", function () {
     let gasService: DummyGasService;
     let token: DummyERC20;
     let router: Router;
+    const LOCKAMT = 111;
+    const LIQAMT = 222;
     let actionData = {
       destinationChain: originatingChain,
       strategyId: "0xffffffff",
       selector: "",
       accountIds: [1],
       token: "",
-      lockAmt: 111,
-      liqAmt: 222,
+      lockAmt: LOCKAMT,
+      liqAmt: LIQAMT,
       status: 0,
     } as IVaultHelpers.VaultActionDataStruct;
 
@@ -1051,8 +1014,8 @@ describe("Router", function () {
 
     beforeEach(async function () {
       router = await deployRouterAsProxy(gateway.address, gasService.address, registrar);
-      await token.mint(router.address, actionData.liqAmt);
-      await token.mint(router.address, actionData.lockAmt);
+      await token.mint(gateway.address, LOCKAMT + LIQAMT);
+      await token.approveFor(gateway.address, router.address, LOCKAMT + LIQAMT)
       actionData.selector = liquidVault.interface.getSighash("deposit");
       let packedData = packActionData(actionData);
       await router.executeWithToken(

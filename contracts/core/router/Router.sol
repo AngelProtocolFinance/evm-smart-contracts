@@ -63,14 +63,12 @@ contract Router is IRouter, AxelarExecutable {
     require(action.accountIds.length == 1, "Only one account allowed");
     // deposit only
     require(action.selector == IVault.deposit.selector, "Only deposit accepts tokens");
-    // token fwd is token expected
-    address tokenAddress = gateway.tokenAddresses(tokenSymbol);
-    require(tokenAddress == action.token, "Token mismatch");
     // amt fwd equal expected amt
     require(amount == (action.liqAmt + action.lockAmt), "Amount mismatch");
     // check that at least one vault is expected to receive a deposit
     require(action.lockAmt > 0 || action.liqAmt > 0, "No vault deposit specified");
     // check that token is accepted by angel protocol
+    address tokenAddress = gateway.tokenAddresses(tokenSymbol);
     require(registrar.isTokenAccepted(tokenAddress), "Token not accepted");
     // Get parameters from registrar if approved
     require(
@@ -407,6 +405,10 @@ contract Router is IRouter, AxelarExecutable {
   {
     // decode payload
     IVault.VaultActionData memory action = RouterLib.unpackCalldata(payload);
+
+    // grab tokens sent cross-chain
+    address tokenAddress = gateway.tokenAddresses(tokenSymbol);
+    IERC20Metadata(tokenAddress).safeTransferFrom(address(gateway), address(this), amount);
 
     // Leverage this.call() to enable try/catch logic
     try this.deposit(action, tokenSymbol, amount) {
