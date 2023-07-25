@@ -21,7 +21,12 @@ contract EndowmentMultiSigEmitter is IEndowmentMultiSigEmitter, Initializable {
     bool requireExecution,
     uint256 transactionExpiry
   );
-  event TransactionSubmitted(uint256 endowmentId, address owner, uint256 transactionId);
+  event TransactionSubmitted(
+    uint256 endowmentId,
+    address owner,
+    uint256 transactionId,
+    bytes metadata
+  );
   event TransactionConfirmed(uint256 endowmentId, address owner, uint256 transactionId);
   event TransactionConfirmationRevoked(uint256 endowmentId, address owner, uint256 transactionId);
   event TransactionConfirmationOfFormerOwnerRevoked(
@@ -93,9 +98,10 @@ contract EndowmentMultiSigEmitter is IEndowmentMultiSigEmitter, Initializable {
   function transactionSubmittedEndowment(
     uint256 endowmentId,
     address owner,
-    uint256 transactionId
+    uint256 transactionId,
+    bytes memory metadata
   ) public isEmitter {
-    emit TransactionSubmitted(endowmentId, owner, transactionId);
+    emit TransactionSubmitted(endowmentId, owner, transactionId, metadata);
   }
 
   /**

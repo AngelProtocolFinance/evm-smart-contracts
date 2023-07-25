@@ -111,7 +111,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
    */
   function proposeApplication(
     AccountMessages.CreateEndowmentRequest memory _application,
-    string memory _meta
+    bytes memory _meta
   ) public override {
     require(proposals[proposalCount].proposer == address(0), "Proposal already exists");
     require(
@@ -140,7 +140,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
       executed: false
     });
 
-    emit ApplicationProposed(proposalCount, msg.sender, _application.name, expiry);
+    emit ApplicationProposed(proposalCount, msg.sender, _application.name, expiry, _meta);
 
     if (isOwner[msg.sender]) {
       confirmProposal(proposalCount);

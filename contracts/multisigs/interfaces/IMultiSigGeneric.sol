@@ -20,7 +20,12 @@ abstract contract IMultiSigGeneric is IERC165 {
   event ApprovalsRequiredChanged(address msAddress, uint256 approvalsRequired);
   event RequireExecutionChanged(address msAddress, bool requireExecution);
   event ExpiryChanged(address msAddress, uint256 transactionExpiry);
-  event TransactionSubmitted(address msAddress, address sender, uint256 transactionId);
+  event TransactionSubmitted(
+    address msAddress,
+    address sender,
+    uint256 transactionId,
+    bytes metadata
+  );
   event TransactionConfirmed(address msAddress, address sender, uint256 transactionId);
   event TransactionConfirmationRevoked(address msAddress, address sender, uint256 transactionId);
   event TransactionExecuted(address msAddress, uint256 transactionId);

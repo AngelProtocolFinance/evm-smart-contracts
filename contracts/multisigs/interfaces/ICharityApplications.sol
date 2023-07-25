@@ -12,7 +12,8 @@ abstract contract ICharityApplications {
     uint256 proposalId,
     address proposer,
     string charityName,
-    uint256 expiry
+    uint256 expiry,
+    bytes metadata
   );
   event ApplicationExecuted(uint256 proposalId);
   event ApplicationConfirmed(uint256 proposalId, address owner);
@@ -51,7 +52,7 @@ abstract contract ICharityApplications {
 
   function proposeApplication(
     AccountMessages.CreateEndowmentRequest memory application,
-    string memory meta
+    bytes memory meta
   ) public virtual;
 
   function confirmProposal(uint256 proposalId) public virtual;

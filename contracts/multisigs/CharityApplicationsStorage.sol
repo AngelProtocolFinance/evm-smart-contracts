@@ -8,7 +8,7 @@ library ApplicationsStorage {
   struct ApplicationProposal {
     address proposer;
     AccountMessages.CreateEndowmentRequest application;
-    string meta;
+    bytes meta;
     uint256 expiry;
     bool executed;
   }
