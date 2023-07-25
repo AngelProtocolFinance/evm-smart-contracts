@@ -4,6 +4,7 @@ pragma solidity ^0.8.16;
 //Libraries
 import "./storage.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import {Validator} from "../validator.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -45,8 +46,6 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
   ) external initializer {
     __Ownable_init_unchained();
 
-    require(registrarContract != address(0), "invalid registrar address");
-
     // active fund rotations can set by either a Time-based or Amoount-based
     // or neither (wherein both are == 0)
     state.config.fundRotation = fundRotation;
@@ -56,11 +55,13 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
       revert("Invalid Fund Rotation configuration");
     }
 
-    state.config = IndexFundStorage.Config({
-      registrarContract: registrarContract,
-      fundRotation: fundRotation,
-      fundingGoal: fundingGoal
-    });
+    if (Validator.addressChecker(registrarContract)) {
+      state.config = IndexFundStorage.Config({
+        registrarContract: registrarContract,
+        fundRotation: fundRotation,
+        fundingGoal: fundingGoal
+      });
+    }
 
     state.activeFund = 0;
     state.nextFundId = 1;
@@ -81,9 +82,9 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     uint256 fundRotation,
     uint256 fundingGoal
   ) external onlyOwner {
-    require(registrarContract != address(0), "Invalid Registrar address");
-
-    state.config.registrarContract = registrarContract;
+    if (Validator.addressChecker(registrarContract)) {
+      state.config.registrarContract = registrarContract;
+    }
 
     // active fund rotations can set by either a Time-based or Amoount-based
     // or neither (wherein both are == 0)
@@ -255,7 +256,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
       .queryConfig();
     require(
-      address(0) != registrarConfig.accountsContract,
+      Validator.addressChecker(registrarConfig.accountsContract),
       "Accounts contract not configured in Registrar"
     );
 
