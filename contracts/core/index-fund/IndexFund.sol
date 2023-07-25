@@ -261,7 +261,10 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
 
     // tokens must be transfered from the sender to this contract
     IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
-    // we give allowance to accounts contract
+    // now index funds contracts gives allowance to accounts contract
+    // OZ SafeERC20 bug for non-zero to non-zeo approvals (https://github.com/code-423n4/2021-09-yaxis-findings/issues/63)
+    // zero out allowance first and then set allowance as amount deposited
+    IERC20(token).safeApprove(registrarConfig.accountsContract, 0);
     IERC20(token).safeApprove(registrarConfig.accountsContract, amount);
 
     if (fundId != 0) {
@@ -435,7 +438,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
    * @param fundId Fund ID
    * @param liquidSplit Split to liquid percentage
    * @param token Token address of token to donate
-   * @param amount Balance of fund
+   * @param amount Token amount to send to donate
    */
   function processDonations(
     address accountsContract,
