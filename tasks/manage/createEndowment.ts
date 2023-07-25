@@ -23,7 +23,8 @@ task("manage:createEndowment", "Will create a new endowment")
       );
 
       const config = await queryEndowmentFacet.queryConfig();
-      logger.out(`Current config: ${JSON.stringify(config, undefined, 2)}`);
+      logger.out(`Current config:`);
+      logger.out(structToObject(config));
 
       // logger.out("Generating new wallet as owner...");
       // const wallet = genWallet(true);
@@ -96,7 +97,7 @@ task("manage:createEndowment", "Will create a new endowment")
           addresses.multiSig.charityApplications.proxy,
           apTeam1
         );
-        const tx = await charityApplications.proposeApplication(createEndowmentRequest, "");
+        const tx = await charityApplications.proposeApplication(createEndowmentRequest, "0x");
         const receipt = await tx.wait();
 
         if (!receipt.events?.length) {
