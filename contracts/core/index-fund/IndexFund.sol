@@ -311,34 +311,33 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
         // until all donated tokens are depleted
         uint256 loopDonation = 0;
         uint256 goalLeftover = state.config.fundingGoal - state.roundDonations;
-        while (amount > 0) {
-          if (amount >= goalLeftover) {
+        uint256 donationAmount = amount;
+
+        while (donationAmount > 0) {
+          if (donationAmount < goalLeftover) {
+            state.roundDonations += donationAmount;
+            loopDonation = donationAmount;
+          } else {
             loopDonation = goalLeftover;
-            // send donation messages to Accounts contract
-            processDonations(
-              registrarConfig.accountsContract,
-              state.activeFund,
-              state.Funds[state.activeFund].splitToLiquid,
-              token,
-              loopDonation
-            );
+          }
+
+          // send donation messages to Accounts contract
+          processDonations(
+            registrarConfig.accountsContract,
+            state.activeFund,
+            state.Funds[state.activeFund].splitToLiquid,
+            token,
+            loopDonation
+          );
+
+          if (donationAmount >= goalLeftover) {
             // set state active fund to next fund for next loop iteration
             state.roundDonations = 0;
             state.activeFund = nextActiveFund();
-          } else {
-            state.roundDonations += amount;
-            loopDonation = amount;
-            // send donation messages to Accounts contract
-            processDonations(
-              registrarConfig.accountsContract,
-              state.activeFund,
-              state.Funds[state.activeFund].splitToLiquid,
-              token,
-              loopDonation
-            );
           }
+
           // deduct donated amount in this round from total donation amt
-          amount -= loopDonation;
+          donationAmount -= loopDonation;
         }
       } else {
         revert("Active Donation rotations are not properly configured");
