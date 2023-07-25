@@ -310,21 +310,32 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
         // Fundraising Goal-based rotation of Funds
         // Check if funding goal is met for current active fund and rotate funds
         // until all donated tokens are depleted
-        uint256 loopDonation;
-        uint256 goalLeftover;
-        uint256 donationAmount = amount;
+        uint256 rounds = 1;
+        uint256 goalLeftover = state.config.fundingGoal - state.roundDonations;
+        // check that the amount donated will have enough funds for the last round of donations
+        if (amount > goalLeftover) {
+          uint256 postFirstRoundAmnt = amount - goalLeftover;
+          rounds += postFirstRoundAmnt.div(state.config.fundingGoal);
+          // check that the final round amount is greater than the min amount per endowment
+          // multipled by the max members in a fund (assume a full final fund for safety)
+          require(
+            postFirstRoundAmnt % state.config.fundingGoal >= MIN_AMOUNT_PER_ENDOWMENT.mul(MAX_ENDOWMENT_MEMBERS),
+            "Not enough funds to cover all rounds"
+          );
+        }
 
-        while (donationAmount > 0) {
+        uint256 loopDonation;
+        for (uint256 round = 0; round < rounds; round++) {
           goalLeftover = state.config.fundingGoal - state.roundDonations;
-          if (donationAmount < goalLeftover) {
-            loopDonation = donationAmount;
-            state.roundDonations += donationAmount;
+          if (amount < goalLeftover) {
+            loopDonation = amount;
+            state.roundDonations += amount;
           } else {
             loopDonation = goalLeftover;
             state.roundDonations = 0;
           }
           // deduct donated amount in this round from total donation amt
-          donationAmount -= loopDonation;
+          amount -= loopDonation;
 
           // send donation messages to Accounts contract
           processDonations(
