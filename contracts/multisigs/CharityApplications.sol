@@ -135,7 +135,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
     proposals[proposalCount] = ApplicationsStorage.ApplicationProposal({
       proposer: msg.sender,
       application: _application,
-      meta: _metadata,
+      metadata: _metadata,
       expiry: expiry,
       executed: false
     });

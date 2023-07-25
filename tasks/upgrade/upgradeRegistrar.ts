@@ -15,7 +15,8 @@ task("upgrade:registrar", "Will upgrade the Registrar (use only on the primary c
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: {skipVerify: boolean; yes: boolean}, hre) => {
     try {
-      const isConfirmed = taskArgs.yes || (await confirmAction("Upgrading Registrar implementation..."));
+      const isConfirmed =
+        taskArgs.yes || (await confirmAction("Upgrading Registrar implementation..."));
       if (!isConfirmed) {
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
@@ -42,7 +43,7 @@ task("upgrade:registrar", "Will upgrade the Registrar (use only on the primary c
       await updateAddresses(
         {
           registrar: {
-            implementation: registrar.address
+            implementation: registrar.address,
           },
         },
         hre

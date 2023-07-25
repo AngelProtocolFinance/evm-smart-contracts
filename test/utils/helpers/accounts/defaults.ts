@@ -91,9 +91,7 @@ export const DEFAULT_ACCOUNTS_CONFIG: AccountStorage.ConfigStruct = {
   version: "",
   registrarContract: ethers.constants.AddressZero,
   nextAccountId: 0,
-  maxGeneralCategoryId: 0,
   reentrancyGuardLocked: false,
-  earlyLockedWithdrawFee: DEFAULT_FEE_STRUCT,
 };
 
 export const DEFAULT_NETWORK_INFO: IAccountsStrategy.NetworkInfoStruct = {

@@ -22,7 +22,7 @@ task("manage:queryEndowments", "Will create a new endowment")
         apTeam1
       );
 
-      logger.out(await queryEndowmentFacet.queryEndowmentDetails(taskArgs.id))
+      logger.out(await queryEndowmentFacet.queryEndowmentDetails(taskArgs.id));
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
