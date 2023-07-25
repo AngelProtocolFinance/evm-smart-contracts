@@ -160,24 +160,7 @@ describe("AccountsUpdateStatusEndowments", function () {
     });
 
     it("updates the beneficiary to the first index fund if the beneficiary is set to 'None' and the endowment is involved in one or more funds", async () => {
-      const funds: IIndexFund.IndexFundStruct[] = [
-        {
-          description: "d1",
-          expiryTime: BigNumber.from(100),
-          id: BigNumber.from(1),
-          name: "if1",
-          members: [accountId],
-          splitToLiquid: 50,
-        },
-        {
-          description: "d2",
-          expiryTime: BigNumber.from(100),
-          id: BigNumber.from(2),
-          name: "if2",
-          members: [accountId],
-          splitToLiquid: 50,
-        },
-      ];
+      const funds: BigNumber[] = [BigNumber.from(1), BigNumber.from(2)];
       indexFundFake.queryInvolvedFunds.returns(funds);
       const beneficiaryNone: LibAccounts.BeneficiaryStruct = {...beneficiary, enumData: 3};
 
