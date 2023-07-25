@@ -39,6 +39,10 @@ jobs:
         with:
           cmd: "compile"
 
+      - name: "Sleep for 10 seconds to allow GH API to have access to typechain-types"
+        shell: bash
+        run: sleep 10s
+
       - name: "Check typescript files for compilation errors"
         uses: "borales/actions-yarn@v4"
         with:
