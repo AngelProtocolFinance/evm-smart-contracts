@@ -52,7 +52,7 @@ abstract contract ICharityApplications {
 
   function proposeApplication(
     AccountMessages.CreateEndowmentRequest memory application,
-    bytes memory meta
+    bytes memory metadata
   ) public virtual;
 
   function confirmProposal(uint256 proposalId) public virtual;

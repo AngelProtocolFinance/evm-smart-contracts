@@ -90,7 +90,6 @@ library AccountMessages {
     address registrarContract;
     uint256 nextAccountId;
     uint256 maxGeneralCategoryId;
-    LibAccounts.FeeSetting earlyLockedWithdrawFee;
   }
 
   struct StateResponse {
