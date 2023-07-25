@@ -11,7 +11,6 @@ library AccountStorage {
     string networkName;
     address registrarContract;
     uint32 nextAccountId;
-    uint256 maxGeneralCategoryId;
     bool reentrancyGuardLocked;
   }
 

@@ -7,25 +7,11 @@ import {
 import {confirmAction, getAddresses, getSigners, logger} from "utils";
 
 type TaskArgs = {
-  earlyLockedWithdrawFeeBps?: number;
-  earlyLockedWithdrawFeePayoutAddress?: string;
-  maxGeneralCategoryId?: number;
   registrarContract?: string;
   yes: boolean;
 };
 
 task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
-  .addOptionalParam(
-    "earlyLockedWithdrawFeeBps",
-    "Early locked withdraw fee BPS.",
-    undefined,
-    types.int
-  )
-  .addOptionalParam(
-    "earlyLockedWithdrawFeePayoutAddress",
-    "Early locked withdraw fee payout address."
-  )
-  .addOptionalParam("maxGeneralCategoryId", "The max general category id.", undefined, types.int)
   .addOptionalParam(
     "registrarContract",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
@@ -44,9 +30,7 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
         addresses.accounts.diamond,
         apTeamMultisigOwners[0]
       );
-      const {registrarContract, earlyLockedWithdrawFee, maxGeneralCategoryId, owner} =
-        await accountsQueryEndowments.queryConfig();
-      const curConfig = {registrarContract, earlyLockedWithdrawFee, maxGeneralCategoryId};
+      const {registrarContract, owner} = await accountsQueryEndowments.queryConfig();
       logger.out(curConfig);
 
       logger.out("Config data to update:");
@@ -64,13 +48,6 @@ task("manage:accounts:updateConfig", "Will update Accounts Diamond config")
       );
       const data = accountsUpdate.interface.encodeFunctionData("updateConfig", [
         newConfig.registrarContract || curConfig.registrarContract,
-        newConfig.maxGeneralCategoryId || curConfig.maxGeneralCategoryId,
-        {
-          bps: newConfig.earlyLockedWithdrawFeeBps || curConfig.earlyLockedWithdrawFee.bps,
-          payoutAddress:
-            newConfig.earlyLockedWithdrawFeePayoutAddress ||
-            curConfig.earlyLockedWithdrawFee.payoutAddress,
-        },
       ]);
       const apTeamMultiSig = APTeamMultiSig__factory.connect(
         owner, // ensure connection to current owning APTeamMultiSig contract

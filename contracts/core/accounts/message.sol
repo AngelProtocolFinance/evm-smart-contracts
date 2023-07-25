@@ -89,7 +89,6 @@ library AccountMessages {
     string networkName;
     address registrarContract;
     uint256 nextAccountId;
-    uint256 maxGeneralCategoryId;
   }
 
   struct StateResponse {

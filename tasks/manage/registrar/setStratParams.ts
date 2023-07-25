@@ -28,7 +28,10 @@ task("manage:registrar:setStratParams")
     logger.out("Connecting to registrar on specified network...");
     const addresses = await getAddresses(hre);
     const {apTeamMultisigOwners} = await getSigners(hre);
-    const registrar = Registrar__factory.connect(addresses.registrar.proxy, apTeamMultisigOwners[0]);
+    const registrar = Registrar__factory.connect(
+      addresses.registrar.proxy,
+      apTeamMultisigOwners[0]
+    );
     logger.pad(50, "Connected to Registrar at: ", registrar.address);
 
     logger.divider();

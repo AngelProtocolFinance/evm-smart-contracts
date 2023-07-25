@@ -25,8 +25,11 @@ task("manage:registrar:setNetworkInfo", "Set network info for a specified networ
     logger.out("Connecting to registrar on specified network...");
 
     const networkId = getChainIdFromNetworkName(taskArguments.networkName);
-    const thisNetworkAddresses = await getAddresses(hre)
-    const thatNetworkAddresses = getAddressesByNetworkId(networkId, DEFAULT_CONTRACT_ADDRESS_FILE_PATH);
+    const thisNetworkAddresses = await getAddresses(hre);
+    const thatNetworkAddresses = getAddressesByNetworkId(
+      networkId,
+      DEFAULT_CONTRACT_ADDRESS_FILE_PATH
+    );
     const newNetworkInfo: Partial<IAccountsStrategy.NetworkInfoStruct> = {
       chainId: networkId,
       router: thatNetworkAddresses.router.proxy,

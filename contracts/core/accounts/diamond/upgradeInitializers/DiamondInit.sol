@@ -41,11 +41,6 @@ contract DiamondInit {
     state.config.registrarContract = registrar;
     state.config.networkName = "Polygon";
     state.config.nextAccountId = 1;
-    state.config.maxGeneralCategoryId = 1;
-    state.config.earlyLockedWithdrawFee = LibAccounts.FeeSetting({
-      payoutAddress: address(0),
-      bps: 1000 // 10% fee placeholder. Can always change later if needed
-    });
 
     // add your own state variables
     // EIP-2535 specifies that the `diamondCut` function takes two optional

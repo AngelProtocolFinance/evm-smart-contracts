@@ -152,8 +152,6 @@ describe("AccountsCreateEndowment", function () {
       networkName: "Polygon",
       registrarContract: registrarFake.address,
       nextAccountId: expectedNextAccountId,
-      maxGeneralCategoryId: 1,
-      earlyLockedWithdrawFee: {bps: 1000, payoutAddress: ethers.constants.AddressZero},
       reentrancyGuardLocked: false,
     });
 

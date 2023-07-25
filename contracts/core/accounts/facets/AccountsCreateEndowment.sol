@@ -35,8 +35,8 @@ contract AccountsCreateEndowment is
     address registrarAddress = state.config.registrarContract;
 
     RegistrarStorage.Config memory registrar_config = IRegistrar(registrarAddress).queryConfig();
+    LibAccounts.FeeSetting memory earlyLockedWithdrawFee = IRegistrar(registrarAddress).getFeeSettingsByFeeType(LibAccounts.FeeTypes.EarlyLockedWithdrawCharity);
 
-    LibAccounts.FeeSetting memory earlyLockedWithdrawFee = state.config.earlyLockedWithdrawFee;
     if (LibAccounts.EndowmentType.Charity == details.endowType) {
       require(msg.sender == registrar_config.charityApplications, "Unauthorized");
     } else {

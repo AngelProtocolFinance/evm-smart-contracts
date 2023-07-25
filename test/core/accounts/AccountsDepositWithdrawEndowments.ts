@@ -130,8 +130,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
       networkName: "Polygon",
       registrarContract: registrarFake.address,
       nextAccountId: 3, // 2 endows already added
-      maxGeneralCategoryId: 1,
-      earlyLockedWithdrawFee: {bps: 5, payoutAddress: ethers.constants.AddressZero},
       reentrancyGuardLocked: false,
     });
   });
