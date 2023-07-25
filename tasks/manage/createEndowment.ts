@@ -113,11 +113,15 @@ task("manage:createEndowment", "Will create a new endowment")
         }
 
         const proposalId = charityProposedEvent.args.at(0);
+        logger.out(`Created proposal: ${proposalId}`);
 
-        logger.out(`Confirm the new charity endowment with proposal ID: ${proposalId}...`);
-        const tx2 = await charityApplications.confirmProposal(proposalId);
-        logger.out(`Confirm proposal tx hash: ${tx2.hash}`);
-        await tx2.wait();
+        const requireExecution = await charityApplications.requireExecution();
+        if (requireExecution) {
+          logger.out(`Executing the new charity endowment with proposal ID: ${proposalId}...`);
+          const tx2 = await charityApplications.executeProposal(proposalId);
+          logger.out(`Tx hash: ${tx2.hash}`);
+          await tx2.wait();
+        }
       } else {
         const createEndowFacet = AccountsCreateEndowment__factory.connect(
           addresses.accounts.diamond,
@@ -132,7 +136,7 @@ task("manage:createEndowment", "Will create a new endowment")
         config.nextAccountId
       );
       logger.out("Added endowment:");
-      logger.out(JSON.stringify(structToObject(newEndowmentDetails), undefined, 2));
+      logger.out(structToObject(newEndowmentDetails));
       logger.out();
     } catch (error) {
       logger.out(error, logger.Level.Error);
