@@ -36,7 +36,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
   modifier proposalConfirmed(uint256 proposalId, address _owner) {
     require(
       proposalConfirmations[proposalId].confirmationsByOwner[_owner],
-      "Proposal is confirmed"
+      "Proposal is not confirmed"
     );
     _;
   }
@@ -44,7 +44,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
   modifier proposalNotConfirmed(uint256 proposalId, address _owner) {
     require(
       !proposalConfirmations[proposalId].confirmationsByOwner[_owner],
-      "Proposal is not confirmed"
+      "Proposal is already confirmed"
     );
     _;
   }

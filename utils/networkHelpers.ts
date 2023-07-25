@@ -17,6 +17,11 @@ export function getNetworkNameFromChainId(id: number): string {
   return AxelarNetworks.get(id);
 }
 
+export async function getAxlNetworkName(hre: HardhatRuntimeEnvironment): Promise<string> {
+  const chainId = await getChainId(hre);
+  return AxelarNetworks.get(chainId);
+}
+
 export async function getChainId(hre: HardhatRuntimeEnvironment): Promise<number> {
   const chainId = (await hre.ethers.provider.getNetwork()).chainId;
   return chainId;
