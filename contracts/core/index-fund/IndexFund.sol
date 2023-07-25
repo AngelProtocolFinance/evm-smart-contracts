@@ -310,17 +310,21 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
         // Fundraising Goal-based rotation of Funds
         // Check if funding goal is met for current active fund and rotate funds
         // until all donated tokens are depleted
-        uint256 loopDonation = 0;
-        uint256 goalLeftover = state.config.fundingGoal - state.roundDonations;
+        uint256 loopDonation;
+        uint256 goalLeftover;
         uint256 donationAmount = amount;
 
         while (donationAmount > 0) {
+          goalLeftover = state.config.fundingGoal - state.roundDonations;
           if (donationAmount < goalLeftover) {
-            state.roundDonations += donationAmount;
             loopDonation = donationAmount;
+            state.roundDonations += donationAmount;
           } else {
             loopDonation = goalLeftover;
+            state.roundDonations = 0;
           }
+          // deduct donated amount in this round from total donation amt
+          donationAmount -= loopDonation;
 
           // send donation messages to Accounts contract
           processDonations(
@@ -331,14 +335,11 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
             loopDonation
           );
 
-          if (donationAmount >= goalLeftover) {
-            // set state active fund to next fund for next loop iteration
-            state.roundDonations = 0;
+          // set state active fund to next fund for next loop iteration if goal remaining
+          // was met/exceeded with the amount donated in this loop
+          if (loopDonation == goalLeftover) {
             state.activeFund = nextActiveFund();
           }
-
-          // deduct donated amount in this round from total donation amt
-          donationAmount -= loopDonation;
         }
       } else {
         revert("Active Donation rotations are not properly configured");
