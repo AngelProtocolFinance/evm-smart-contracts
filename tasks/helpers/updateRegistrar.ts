@@ -6,7 +6,7 @@ import {
 } from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 import {
   NetworkConnectionAction,
-  getChainId,
+  getNetworkName,
   getNetworkNameFromChainId,
   getSigners,
   logger,
@@ -29,8 +29,7 @@ export async function updateRegistrarNetworkConnections(
       networkName = getNetworkNameFromChainId(Number(networkInfo.chainId));
     } else {
       // we're updating this chains own network info and can safely lookup chain id
-      const chainId = await getChainId(hre);
-      networkName = getNetworkNameFromChainId(chainId);
+      networkName = await getNetworkName(hre);
     }
 
     logger.out(`Updating Registrar network info for chain: ${networkName}`);

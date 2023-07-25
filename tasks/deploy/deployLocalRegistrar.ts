@@ -4,7 +4,6 @@ import {task} from "hardhat/config";
 import {
   confirmAction,
   getAddresses,
-  getNetworkNameFromChainId,
   getSigners,
   isLocalNetwork,
   logger,
