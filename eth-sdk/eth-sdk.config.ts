@@ -82,10 +82,6 @@ export default defineConfig({
         implementation: parseAddress(mumbaiData.indexFund.implementation),
         proxy: parseAddress(mumbaiData.indexFund.proxy),
       },
-      libraries: {
-        angelCoreStruct: parseAddress(mumbaiData.libraries.angelCoreStruct),
-        stringArray: parseAddress(mumbaiData.libraries.stringArray),
-      },
       multiSig: {
         apTeam: {
           implementation: parseAddress(mumbaiData.multiSig.apTeam.implementation),
