@@ -34,21 +34,14 @@ contract AccountsUpdate is ReentrancyGuardFacet, IAccountsEvents, IAccountsUpdat
    * @notice This function updates the config of the contract
    * @dev This function updates the config of the contract
    * @param newRegistrar The new registrar contract
-   * @param maxGeneralCategoryId The max general category id
    */
-  function updateConfig(
-    address newRegistrar,
-    uint256 maxGeneralCategoryId,
-    LibAccounts.FeeSetting memory earlyLockedWithdrawFee
-  ) public nonReentrant {
+  function updateConfig(address newRegistrar) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
     require(msg.sender == state.config.owner, "Unauthorized");
     require(Validator.addressChecker(newRegistrar), "invalid registrar address");
 
     state.config.registrarContract = newRegistrar;
-    state.config.maxGeneralCategoryId = maxGeneralCategoryId;
-    state.config.earlyLockedWithdrawFee = earlyLockedWithdrawFee;
 
     emit ConfigUpdated();
   }

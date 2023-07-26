@@ -11,13 +11,12 @@ import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 import {StringToAddress} from "../../lib/StringAddressUtils.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {AxelarExecutable} from "../../axelar/AxelarExecutable.sol";
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
 import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService.sol";
 import {IAxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarExecutable.sol";
 
-contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
+contract Router is IRouter, AxelarExecutable {
   using SafeERC20 for IERC20Metadata;
   string public chain;
   ILocalRegistrar public registrar;
@@ -39,7 +38,6 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     registrar = ILocalRegistrar(_registrar);
     gasReceiver = IAxelarGasService(_gasReceiver);
     __AxelarExecutable_init_unchained(_gateway);
-    __Ownable_init_unchained();
   }
 
   /*///////////////////////////////////////////////
@@ -65,14 +63,12 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
     require(action.accountIds.length == 1, "Only one account allowed");
     // deposit only
     require(action.selector == IVault.deposit.selector, "Only deposit accepts tokens");
-    // token fwd is token expected
-    address tokenAddress = gateway.tokenAddresses(tokenSymbol);
-    require(tokenAddress == action.token, "Token mismatch");
     // amt fwd equal expected amt
     require(amount == (action.liqAmt + action.lockAmt), "Amount mismatch");
     // check that at least one vault is expected to receive a deposit
     require(action.lockAmt > 0 || action.liqAmt > 0, "No vault deposit specified");
     // check that token is accepted by angel protocol
+    address tokenAddress = gateway.tokenAddresses(tokenSymbol);
     require(registrar.isTokenAccepted(tokenAddress), "Token not accepted");
     // Get parameters from registrar if approved
     require(
@@ -409,6 +405,10 @@ contract Router is IRouter, OwnableUpgradeable, AxelarExecutable {
   {
     // decode payload
     IVault.VaultActionData memory action = RouterLib.unpackCalldata(payload);
+
+    // grab tokens sent cross-chain
+    address tokenAddress = gateway.tokenAddresses(tokenSymbol);
+    IERC20Metadata(tokenAddress).safeTransferFrom(address(gateway), address(this), amount);
 
     // Leverage this.call() to enable try/catch logic
     try this.deposit(action, tokenSymbol, amount) {

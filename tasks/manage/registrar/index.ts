@@ -1,6 +1,8 @@
 import "./setAPParams";
 import "./setAccountsChainAndAddress";
 import "./setGasByToken";
+import "./setFeeSetting";
+import "./setNetworkInfo";
 import "./setRebalParams";
 import "./setStratApproval";
 import "./setStratParams";

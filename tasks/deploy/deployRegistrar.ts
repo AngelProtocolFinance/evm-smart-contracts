@@ -48,7 +48,7 @@ task(
           owner: apTeamMultiSig,
           deployer,
           proxyAdmin,
-          treasuryAddress: treasury.address,
+          treasury: treasury.address,
         },
         hre
       );
@@ -99,7 +99,7 @@ task(
       }
 
       await hre.run("manage:accounts:updateConfig", {
-        newRegistrar: registrarDeployment.address,
+        registrarContract: registrarDeployment.address,
         yes: true,
       });
       await hre.run("manage:IndexFund:updateRegistrar", {

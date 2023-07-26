@@ -23,7 +23,8 @@ interface IEndowmentMultiSigEmitter {
   function transactionSubmittedEndowment(
     uint256 endowmentId,
     address owner,
-    uint256 transactionId
+    uint256 transactionId,
+    bytes memory metadata
   ) external;
 
   function transactionExecutedEndowment(uint256 endowmentId, uint256 transactionId) external;

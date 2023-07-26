@@ -36,7 +36,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
   modifier proposalConfirmed(uint256 proposalId, address _owner) {
     require(
       proposalConfirmations[proposalId].confirmationsByOwner[_owner],
-      "Proposal is confirmed"
+      "Proposal is not confirmed"
     );
     _;
   }
@@ -44,7 +44,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
   modifier proposalNotConfirmed(uint256 proposalId, address _owner) {
     require(
       !proposalConfirmations[proposalId].confirmationsByOwner[_owner],
-      "Proposal is not confirmed"
+      "Proposal is already confirmed"
     );
     _;
   }
@@ -107,11 +107,11 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
    * @notice propose a charity to be opened on Accounts
    * @dev propose a charity to be opened on Accounts
    * @param _application.Charity application
-   * @param _meta Meta (URL of Metadata)
+   * @param _metadata Metadata
    */
   function proposeApplication(
     AccountMessages.CreateEndowmentRequest memory _application,
-    string memory _meta
+    bytes memory _metadata
   ) public override {
     require(proposals[proposalCount].proposer == address(0), "Proposal already exists");
     require(
@@ -135,12 +135,12 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
     proposals[proposalCount] = ApplicationsStorage.ApplicationProposal({
       proposer: msg.sender,
       application: _application,
-      meta: _meta,
+      metadata: _metadata,
       expiry: expiry,
       executed: false
     });
 
-    emit ApplicationProposed(proposalCount, msg.sender, _application.name, expiry);
+    emit ApplicationProposed(proposalCount, msg.sender, _application.name, expiry, _metadata);
 
     if (isOwner[msg.sender]) {
       confirmProposal(proposalCount);

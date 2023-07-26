@@ -348,6 +348,6 @@ contract MultiSigGeneric is
       metadata: metadata
     });
     transactionCount += 1;
-    emit TransactionSubmitted(address(this), msg.sender, transactionId);
+    emit TransactionSubmitted(address(this), msg.sender, transactionId, metadata);
   }
 }

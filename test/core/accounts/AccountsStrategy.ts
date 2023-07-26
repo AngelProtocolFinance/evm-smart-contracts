@@ -17,7 +17,6 @@ import {
   DEFAULT_SETTINGS_STRUCT,
   DEFAULT_STRATEGY_PARAMS,
   DEFAULT_STRATEGY_SELECTOR,
-  NetworkInfoStruct,
   StrategyApprovalState,
   VaultActionStatus,
   VaultActionStructToArray,
@@ -41,6 +40,7 @@ import {
   Router__factory,
   TestFacetProxyContract,
 } from "typechain-types";
+import {IAccountsStrategy} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
@@ -77,7 +77,7 @@ describe("AccountsStrategy", function () {
     let state: TestFacetProxyContract;
     let token: DummyERC20;
     let gateway: DummyGateway;
-    let network: NetworkInfoStruct;
+    let network: IAccountsStrategy.NetworkInfoStruct;
     const ACCOUNT_ID = 1;
 
     before(async function () {
@@ -461,7 +461,7 @@ describe("AccountsStrategy", function () {
     let state: TestFacetProxyContract;
     let token: DummyERC20;
     let gateway: DummyGateway;
-    let network: NetworkInfoStruct;
+    let network: IAccountsStrategy.NetworkInfoStruct;
     const ACCOUNT_ID = 1;
 
     before(async function () {
