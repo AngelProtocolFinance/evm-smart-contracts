@@ -144,8 +144,7 @@ contract AccountsDepositWithdrawEndowments is
     uint256 lockedAmount = (amount.mul(lockedSplitPercent)).div(LibAccounts.PERCENT_BASIS);
     uint256 liquidAmount = (amount.mul(liquidSplitPercent)).div(LibAccounts.PERCENT_BASIS);
 
-    //donation matching flow
-    //execute donor match will always be called on an EOA
+    // donation matching flow
     if (lockedAmount > 0) {
       if (
         tempEndowment.endowType == LibAccounts.EndowmentType.Charity &&
