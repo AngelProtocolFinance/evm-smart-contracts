@@ -3,7 +3,7 @@ import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
 import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
-import {updateRegistrarConfig, updateRegistrarNetworkConnections} from "../helpers";
+import {updateRegistrarNetworkConnections} from "../helpers";
 
 type TaskArgs = {
   apTeamMultisig?: string;
@@ -57,29 +57,25 @@ task(
         return;
       }
 
-      await updateRegistrarConfig(
-        registrarDeployment.address,
-        apTeamMultiSig,
-        {
-          accountsContract: addresses.accounts.diamond,
-          splitMax: config.REGISTRAR_DATA.splitToLiquid.max,
-          splitMin: config.REGISTRAR_DATA.splitToLiquid.min,
-          splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit,
-          collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare,
-          gasFwdFactory: addresses.gasFwd.factory,
-          indexFundContract: addresses.indexFund.proxy,
-          treasury: treasury.address,
-          uniswapRouter: addresses.uniswap.swapRouter,
-          uniswapFactory: addresses.uniswap.factory,
-          multisigFactory: addresses.multiSig.endowment.factory,
-          multisigEmitter: addresses.multiSig.endowment.emitter.proxy,
-          charityApplications: addresses.multiSig.charityApplications.proxy,
-          proxyAdmin: proxyAdmin.address,
-          usdcAddress: addresses.tokens.usdc,
-          wMaticAddress: addresses.tokens.wmatic,
-        },
-        hre
-      );
+      await hre.run("manage:registrar:updateConfig", {
+        accountsContract: addresses.accounts.diamond,
+        splitMax: config.REGISTRAR_DATA.splitToLiquid.max,
+        splitMin: config.REGISTRAR_DATA.splitToLiquid.min,
+        splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit,
+        collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare,
+        gasFwdFactory: addresses.gasFwd.factory,
+        indexFundContract: addresses.indexFund.proxy,
+        treasury: treasury.address,
+        uniswapRouter: addresses.uniswap.swapRouter,
+        uniswapFactory: addresses.uniswap.factory,
+        multisigFactory: addresses.multiSig.endowment.factory,
+        multisigEmitter: addresses.multiSig.endowment.emitter.proxy,
+        charityApplications: addresses.multiSig.charityApplications.proxy,
+        proxyAdmin: proxyAdmin.address,
+        usdcAddress: addresses.tokens.usdc,
+        wMaticAddress: addresses.tokens.wmatic,
+        yes: true,
+      });
 
       const routerDeployment = await deployRouter(
         addresses.axelar.gateway,

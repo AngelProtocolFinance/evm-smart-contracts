@@ -1,6 +1,5 @@
 import config from "config";
 import {task} from "hardhat/config";
-import {updateRegistrarConfig} from "tasks/helpers";
 import {cliTypes} from "tasks/types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 import {ADDRESS_ZERO, getAddresses, getSigners, logger} from "utils";
@@ -63,12 +62,11 @@ task(
         lockedWithdrawal: ADDRESS_ZERO,
         gasFwdFactory: addresses.gasFwd.factory,
       };
-      await updateRegistrarConfig(
-        addresses.registrar.proxy,
-        addresses.multiSig.apTeam.proxy,
-        newConfig,
-        hre
-      );
+
+      await hre.run("manage:registrar:updateConfig", {
+        ...newConfig,
+        yes: true,
+      });
 
       if (taskArgs.acceptedTokens.length > 0) {
         logger.divider();

@@ -1,7 +1,6 @@
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {task} from "hardhat/config";
 import {confirmAction, getAddresses, isLocalNetwork, logger, verify} from "utils";
-import {updateRegistrarConfig} from "../helpers";
 
 type TaskArgs = {
   apTeamMultisig?: string;
@@ -38,12 +37,10 @@ task("AccountsDiamond", "It will deploy accounts diamond contracts")
         return;
       }
 
-      await updateRegistrarConfig(
-        registrar,
-        apTeam,
-        {accountsContract: deployData.diamond.address},
-        hre
-      );
+      await hre.run("manage:registrar:updateConfig", {
+        accountsContract: deployData.diamond.address,
+        yes: true,
+      });
       await hre.run("manage:CharityApplications:updateConfig", {
         accountsDiamond: deployData.diamond.address,
         yes: true,
