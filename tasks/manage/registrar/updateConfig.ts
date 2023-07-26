@@ -1,7 +1,7 @@
 import {task, types} from "hardhat/config";
-import {updateRegistrarConfig} from "tasks/helpers";
+import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/Registrar";
-import {confirmAction, getAddresses, logger} from "utils";
+import {confirmAction, getAddresses, getSigners, logger, structToObject} from "utils";
 
 type TaskArgs = Partial<RegistrarMessages.UpdateConfigRequestStruct> & {
   yes: boolean;
@@ -202,48 +202,81 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
   )
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
+    logger.divider();
+    logger.out("Updating Registrar config...");
+
     try {
-      const {yes, ...newConfig} = taskArgs;
-
-      logger.divider();
       const addresses = await getAddresses(hre);
+      const {apTeamMultisigOwners} = await getSigners(hre);
 
-      const cleanConfig = assignDefinedValues(newConfig);
+      const {yes, ...dirtyConfigValues} = taskArgs;
 
-      if (Object.keys(cleanConfig).length === 0) {
+      const updateConfigRequest = assignDefinedValues(dirtyConfigValues);
+
+      if (Object.keys(updateConfigRequest).length === 0) {
         return logger.out("Nothing to update");
       }
 
       logger.out("Config data to update:");
-      logger.out(cleanConfig);
+      logger.out(updateConfigRequest);
 
       const isConfirmed = taskArgs.yes || (await confirmAction(`Updating Registrar config...`));
       if (!isConfirmed) {
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      await updateRegistrarConfig(
+      const registrarContract = Registrar__factory.connect(
         addresses.registrar.proxy,
-        addresses.multiSig.apTeam.proxy,
-        cleanConfig,
-        hre
+        apTeamMultisigOwners[0]
       );
+
+      logger.out("Fetching current Registrar's config...");
+      const struct = await registrarContract.queryConfig();
+      const curConfig = structToObject(struct);
+      logger.out(curConfig);
+
+      const {splitToLiquid, ...otherConfig} = curConfig;
+      const updateConfigData = registrarContract.interface.encodeFunctionData("updateConfig", [
+        {
+          ...otherConfig,
+          splitMax: splitToLiquid.max,
+          splitMin: splitToLiquid.min,
+          splitDefault: splitToLiquid.defaultSplit,
+          ...updateConfigRequest,
+        },
+      ]);
+      const apTeamMultisigContract = APTeamMultiSig__factory.connect(
+        addresses.multiSig.apTeam.proxy,
+        apTeamMultisigOwners[0]
+      );
+      const tx = await apTeamMultisigContract.submitTransaction(
+        addresses.registrar.proxy,
+        0,
+        updateConfigData,
+        "0x"
+      );
+      logger.out(`Tx hash: ${tx.hash}`);
+      await tx.wait();
+
+      logger.out("New config:");
+      const newStruct = await registrarContract.queryConfig();
+      logger.out(structToObject(newStruct));
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
   });
 
-type AnyObject = {[key: string]: any};
+function assignDefinedValues(
+  obj: Partial<RegistrarMessages.UpdateConfigRequestStruct>
+): Partial<RegistrarMessages.UpdateConfigRequestStruct> {
+  const target: Partial<RegistrarMessages.UpdateConfigRequestStruct> = {};
 
-function assignDefinedValues<T extends AnyObject>(obj: T): Partial<T> {
-  const target: Partial<T> = {};
-
-  for (const key in obj) {
+  (Object.keys(obj) as (keyof RegistrarMessages.UpdateConfigRequestStruct)[]).forEach((key) => {
     const value = obj[key];
     if (value !== undefined && value !== null) {
-      target[key] = value;
+      target[key] = value as any;
     }
-  }
+  });
 
   return target;
 }
