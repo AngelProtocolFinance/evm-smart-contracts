@@ -23,7 +23,8 @@ task("manage:createEndowment", "Will create a new endowment")
       );
 
       const config = await queryEndowmentFacet.queryConfig();
-      logger.out(`Current config: ${JSON.stringify(config, undefined, 2)}`);
+      logger.out(`Current config:`);
+      logger.out(structToObject(config));
 
       // logger.out("Generating new wallet as owner...");
       // const wallet = genWallet(true);
@@ -96,7 +97,7 @@ task("manage:createEndowment", "Will create a new endowment")
           addresses.multiSig.charityApplications.proxy,
           apTeam1
         );
-        const tx = await charityApplications.proposeApplication(createEndowmentRequest, "");
+        const tx = await charityApplications.proposeApplication(createEndowmentRequest, "0x");
         const receipt = await tx.wait();
 
         if (!receipt.events?.length) {
@@ -112,11 +113,15 @@ task("manage:createEndowment", "Will create a new endowment")
         }
 
         const proposalId = charityProposedEvent.args.at(0);
+        logger.out(`Created proposal: ${proposalId}`);
 
-        logger.out(`Confirm the new charity endowment with proposal ID: ${proposalId}...`);
-        const tx2 = await charityApplications.confirmProposal(proposalId);
-        logger.out(`Confirm proposal tx hash: ${tx2.hash}`);
-        await tx2.wait();
+        const requireExecution = await charityApplications.requireExecution();
+        if (requireExecution) {
+          logger.out(`Executing the new charity endowment with proposal ID: ${proposalId}...`);
+          const tx2 = await charityApplications.executeProposal(proposalId);
+          logger.out(`Tx hash: ${tx2.hash}`);
+          await tx2.wait();
+        }
       } else {
         const createEndowFacet = AccountsCreateEndowment__factory.connect(
           addresses.accounts.diamond,
@@ -131,7 +136,7 @@ task("manage:createEndowment", "Will create a new endowment")
         config.nextAccountId
       );
       logger.out("Added endowment:");
-      logger.out(JSON.stringify(structToObject(newEndowmentDetails), undefined, 2));
+      logger.out(structToObject(newEndowmentDetails));
       logger.out();
     } catch (error) {
       logger.out(error, logger.Level.Error);

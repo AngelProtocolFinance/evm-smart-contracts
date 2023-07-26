@@ -1,7 +1,15 @@
-import {task} from "hardhat/config";
-import {Deployment, confirmAction, isLocalNetwork, logger, verify} from "utils";
 import config from "config";
-import {ADDRESS_ZERO, getSigners, resetAddresses} from "utils";
+import {task} from "hardhat/config";
+import {
+  ADDRESS_ZERO,
+  Deployment,
+  confirmAction,
+  getSigners,
+  isLocalNetwork,
+  logger,
+  resetAddresses,
+  verify,
+} from "utils";
 
 import {deployAccountsDiamond} from "contracts/core/accounts/scripts/deploy";
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
@@ -12,12 +20,12 @@ import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-
 // import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
 // import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
 
+import {deployGasFwd} from "contracts/core/gasFwd/scripts/deploy";
 import {
   getOrDeployThirdPartyContracts,
   updateRegistrarConfig,
   updateRegistrarNetworkConnections,
 } from "../helpers";
-import {deployGasFwd} from "contracts/core/gasFwd/scripts/deploy";
 
 task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
   .addFlag("skipVerify", "Skip contract verification")
@@ -50,7 +58,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
           owner: apTeamMultisig?.address,
           deployer,
           proxyAdmin,
-          treasuryAddress: treasury.address,
+          treasury: treasury.address,
         },
         hre
       );

@@ -1,30 +1,22 @@
 import {task, types} from "hardhat/config";
-import {Registrar__factory} from "typechain-types";
-import {getAddresses, getSigners, logger} from "utils";
+import {Registrar__factory, APTeamMultiSig__factory} from "typechain-types";
+import {StratConfig, getAddresses, getSigners, logger} from "utils";
+import {allStrategyConfigs} from "../../../contracts/integrations/stratConfig";
 
 type TaskArgs = {
-  approvalState: number;
-  strategySelector: string;
-  lockedVaultAddress: string;
-  liquidVaultAddress: string;
+  name: string;
   modifyExisting: boolean;
 };
 
 task("manage:registrar:setStratParams")
   .addParam(
-    "strategySelector",
-    "The 4-byte unique ID of the strategy, set by bytes4(keccack256('StrategyName'))",
+    "name",
+    `The name of the strategy according to StratConfig, possible values: ${Object.keys(
+      allStrategyConfigs
+    ).join(", ")}`,
     "",
     types.string
   )
-  .addParam(
-    "approvalState",
-    "Whether the strategy is currently approved or not, enum of NOT_APPROVED, APPROVED, WITHDRAW_ONLY, or DEPRECATED",
-    0,
-    types.int
-  )
-  .addParam("lockedVaultAddress", "The address of the strategys locked vault", "", types.string)
-  .addParam("liquidVaultAddress", "The address of the strategys liquid vault", "", types.string)
   .addOptionalParam(
     "modifyExisting",
     "Whether to modify an existing strategy",
@@ -35,14 +27,17 @@ task("manage:registrar:setStratParams")
     logger.divider();
     logger.out("Connecting to registrar on specified network...");
     const addresses = await getAddresses(hre);
-    const registrarAddress = addresses["registrar"]["proxy"];
-    const {deployer} = await getSigners(hre);
-    const registrar = Registrar__factory.connect(registrarAddress, deployer);
+    const {apTeamMultisigOwners} = await getSigners(hre);
+    const registrar = Registrar__factory.connect(
+      addresses.registrar.proxy,
+      apTeamMultisigOwners[0]
+    );
     logger.pad(50, "Connected to Registrar at: ", registrar.address);
 
     logger.divider();
     logger.out("Checking current strategy params at specified selector");
-    let currentStratParams = await registrar.getStrategyParamsById(taskArguments.strategySelector);
+    const config: StratConfig = allStrategyConfigs[taskArguments.name];
+    let currentStratParams = await registrar.getStrategyParamsById(config.id);
     if (
       currentStratParams.Liquid.vaultAddr == hre.ethers.constants.AddressZero &&
       currentStratParams.Locked.vaultAddr == hre.ethers.constants.AddressZero
@@ -61,15 +56,27 @@ task("manage:registrar:setStratParams")
 
     logger.divider();
     logger.out("Setting strategy params to: ");
-    logger.pad(50, "New strategy selector", taskArguments.strategySelector);
-    logger.pad(50, "New approval state", taskArguments.approvalState);
-    logger.pad(50, "New locked vault address", taskArguments.lockedVaultAddress);
-    logger.pad(50, "New liquid vault address", taskArguments.liquidVaultAddress);
-    await registrar.setStrategyParams(
-      taskArguments.strategySelector,
-      hre.network.name,
-      taskArguments.lockedVaultAddress,
-      taskArguments.liquidVaultAddress,
-      taskArguments.approvalState
+    logger.pad(50, "New strategy selector", config.id);
+    logger.pad(50, "New approval state", config.params.approvalState);
+    logger.pad(50, "New locked vault address", config.params.Locked.vaultAddr);
+    logger.pad(50, "New liquid vault address", config.params.Liquid.vaultAddr);
+    const updateData = registrar.interface.encodeFunctionData("setStrategyParams", [
+      config.id,
+      config.params.network,
+      config.params.Locked.vaultAddr,
+      config.params.Liquid.vaultAddr,
+      config.params.approvalState,
+    ]);
+    const apTeamMultisigContract = APTeamMultiSig__factory.connect(
+      addresses.multiSig.apTeam.proxy,
+      apTeamMultisigOwners[0]
     );
+    const tx = await apTeamMultisigContract.submitTransaction(
+      registrar.address,
+      0,
+      updateData,
+      "0x"
+    );
+    logger.out(`Tx hash: ${tx.hash}`);
+    await tx.wait();
   });

@@ -1,7 +1,5 @@
 import {task, types} from "hardhat/config";
-import {
-  AccountsQueryEndowments__factory,
-} from "typechain-types";
+import {AccountsQueryEndowments__factory} from "typechain-types";
 import {getAddresses, getSigners, logger, structToObject} from "utils";
 
 type TaskArgs = {id: number};

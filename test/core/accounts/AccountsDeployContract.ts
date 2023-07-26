@@ -72,8 +72,6 @@ describe("AccountsDeployContract", function () {
       networkName: "Polygon",
       registrarContract: registrarFake.address,
       nextAccountId: 1,
-      maxGeneralCategoryId: 1,
-      earlyLockedWithdrawFee: {bps: 1000, payoutAddress: ethers.constants.AddressZero},
       reentrancyGuardLocked: false,
     });
 

@@ -20,11 +20,6 @@ interface IAccountsUpdate {
    * @notice This function updates the config of the contract
    * @dev This function updates the config of the contract
    * @param newRegistrar The new registrar contract
-   * @param maxGeneralCategoryId The max general category id
    */
-  function updateConfig(
-    address newRegistrar,
-    uint256 maxGeneralCategoryId,
-    LibAccounts.FeeSetting memory earlyLockedWithdrawFee
-  ) external;
+  function updateConfig(address newRegistrar) external;
 }

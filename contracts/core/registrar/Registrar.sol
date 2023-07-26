@@ -63,13 +63,13 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     emit ConfigUpdated();
 
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
-    lrs.NetworkConnections["Polygon"] = IAccountsStrategy.NetworkInfo({
+    lrs.NetworkConnections[details.networkName] = IAccountsStrategy.NetworkInfo({
       chainId: block.chainid,
       router: details.router,
       axelarGateway: details.axelarGateway,
       ibcChannel: "",
       transferChannel: "",
-      gasReceiver: details.axelarGasRecv,
+      gasReceiver: details.axelarGasService,
       gasLimit: 0
     });
     emit NetworkConnectionPosted(block.chainid);

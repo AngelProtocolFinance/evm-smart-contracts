@@ -125,7 +125,8 @@ contract EndowmentMultiSig is MultiSigGeneric {
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).transactionSubmittedEndowment(
       ENDOWMENT_ID,
       msg.sender,
-      transactionId
+      transactionId,
+      metadata
     );
   }
 
