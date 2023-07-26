@@ -104,6 +104,8 @@ contract MultiSigGeneric is
       require(!isOwner[owners[i]] && owners[i] != address(0));
       isOwner[owners[i]] = true;
     }
+    activeOwnersCount = owners.length;
+
     // set storage variables
     approvalsRequired = _approvalsRequired;
     requireExecution = _requireExecution;
@@ -346,6 +348,6 @@ contract MultiSigGeneric is
       metadata: metadata
     });
     transactionCount += 1;
-    emit TransactionSubmitted(address(this), msg.sender, transactionId);
+    emit TransactionSubmitted(address(this), msg.sender, transactionId, metadata);
   }
 }

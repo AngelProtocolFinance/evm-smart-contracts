@@ -3,7 +3,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {DEFAULT_REGISTRAR_CONFIG} from "test/utils";
+import {DEFAULT_REGISTRAR_CONFIG, FeeTypes} from "test/utils";
 import {
   AccountsCreateEndowment,
   AccountsCreateEndowment__factory,
@@ -152,8 +152,6 @@ describe("AccountsCreateEndowment", function () {
       networkName: "Polygon",
       registrarContract: registrarFake.address,
       nextAccountId: expectedNextAccountId,
-      maxGeneralCategoryId: 1,
-      earlyLockedWithdrawFee: {bps: 1000, payoutAddress: ethers.constants.AddressZero},
       reentrancyGuardLocked: false,
     });
 
@@ -438,7 +436,7 @@ describe("AccountsCreateEndowment", function () {
     // `donationMatchContract` is read from `registrar config > donationMatchCharitesContract`
     expect(result.donationMatchContract).to.equal(donationMatchCharitesAddress);
     expect(result.earlyLockedWithdrawFee).to.equalFee(
-      (await state.getConfig()).earlyLockedWithdrawFee
+      await registrarFake.getFeeSettingsByFeeType(FeeTypes.EarlyLockedWithdrawCharity)
     );
     expect(result.endowType).to.equal(request.endowType);
     // `ignoreUserSplits` is set to `false` by default

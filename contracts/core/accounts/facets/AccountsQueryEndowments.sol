@@ -61,9 +61,7 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments {
       version: state.config.version,
       networkName: state.config.networkName,
       registrarContract: state.config.registrarContract,
-      nextAccountId: state.config.nextAccountId,
-      maxGeneralCategoryId: state.config.maxGeneralCategoryId,
-      earlyLockedWithdrawFee: state.config.earlyLockedWithdrawFee
+      nextAccountId: state.config.nextAccountId
     });
   }
 

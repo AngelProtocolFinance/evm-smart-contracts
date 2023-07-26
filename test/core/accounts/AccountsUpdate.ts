@@ -17,8 +17,6 @@ describe("AccountsUpdate", function () {
   let state: TestFacetProxyContract;
 
   let newRegistrar: string;
-  let maxGeneralCategoryId: number;
-  let earlyLockedWithdrawFee: LibAccounts.FeeSettingStruct;
 
   before(async function () {
     const signers = await getSigners(hre);
@@ -27,11 +25,6 @@ describe("AccountsUpdate", function () {
     user = signers.deployer;
 
     newRegistrar = signers.airdropOwner.address;
-    maxGeneralCategoryId = 2;
-    earlyLockedWithdrawFee = {
-      bps: 2000,
-      payoutAddress: owner.address,
-    };
   });
 
   beforeEach(async function () {
@@ -45,8 +38,6 @@ describe("AccountsUpdate", function () {
       networkName: "Polygon",
       registrarContract: ethers.constants.AddressZero,
       nextAccountId: 1,
-      maxGeneralCategoryId: 1,
-      earlyLockedWithdrawFee: {bps: 1000, payoutAddress: ethers.constants.AddressZero},
       reentrancyGuardLocked: false,
     });
 
@@ -81,29 +72,25 @@ describe("AccountsUpdate", function () {
 
   describe("updateConfig", () => {
     it("should update the config when called by the owner", async () => {
-      expect(
-        await facet.updateConfig(newRegistrar, maxGeneralCategoryId, earlyLockedWithdrawFee)
-      ).to.emit(facet, "ConfigUpdated");
+      expect(await facet.updateConfig(newRegistrar)).to.emit(facet, "ConfigUpdated");
 
       const config = await state.getConfig();
 
       expect(config.registrarContract).to.equal(newRegistrar);
-      expect(config.maxGeneralCategoryId).to.equal(maxGeneralCategoryId);
-      expect(config.earlyLockedWithdrawFee).to.equalFee(earlyLockedWithdrawFee);
     });
 
     it("should revert when called by a non-owner address", async () => {
-      await expect(
-        facet.connect(user).updateConfig(newRegistrar, maxGeneralCategoryId, earlyLockedWithdrawFee)
-      ).to.be.revertedWith("Unauthorized");
+      await expect(facet.connect(user).updateConfig(newRegistrar)).to.be.revertedWith(
+        "Unauthorized"
+      );
     });
 
     it("should revert when the registrar address is invalid", async () => {
       const invalidAddress = ethers.constants.AddressZero;
 
-      await expect(
-        facet.updateConfig(invalidAddress, maxGeneralCategoryId, earlyLockedWithdrawFee)
-      ).to.be.revertedWith("invalid registrar address");
+      await expect(facet.updateConfig(invalidAddress)).to.be.revertedWith(
+        "invalid registrar address"
+      );
     });
   });
 });
