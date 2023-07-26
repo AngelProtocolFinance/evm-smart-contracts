@@ -8,3 +8,4 @@ import "./setStratApproval";
 import "./setStratParams";
 import "./setTokenAccepted";
 import "./transferOwnership";
+import "./updateConfig";
