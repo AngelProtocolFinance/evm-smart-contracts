@@ -7,6 +7,7 @@ export * from "./keygen";
 export * as logger from "./logger";
 export * from "./manageAddressFile";
 export * from "./networkHelpers";
+export * from "./storage";
 export * from "./structToObject";
 export * from "./types";
 export * from "./validation";
