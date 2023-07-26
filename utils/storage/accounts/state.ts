@@ -74,9 +74,11 @@ export async function getNestedMappingChunk(
   keys: BigNumber[] | number[] | string[]
 ) : Promise<string[]> {
   const abiCoder = new hre.ethers.utils.AbiCoder();
-  const encoded = abiCoder.encode(["uint256", "uint256"], [key, chunk.start]);
-  let salt : string;
+  if(typeof keys[0] === `string`) [
+    keys.forEach((e,i) => {keys[i] = BigNumber.from(e)})
+  ]
+  let salt = abiCoder.encode(["uint256", "uint256"], [keys[0], chunk.start]);
   for (let i = chunk.depth; i == 0; i--) {
-    salt = abiCoder.encode(["uint256"], [chunk.innerChunk.]);
+    salt = abiCoder.encode(["uint256", "bytes"], [keys[i], salt]);
   }
 }
