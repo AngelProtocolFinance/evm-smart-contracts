@@ -1,15 +1,22 @@
-import {expect} from "chai";
+import {FakeContract, smock} from "@defi-wonderland/smock";
+import {expect, use} from "chai";
 import hre from "hardhat";
+import {BigNumber} from "ethers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {impersonateAccount, setBalance, time} from "@nomicfoundation/hardhat-network-helpers";
 import {
   AccountsDepositWithdrawEndowments,
   AccountsDepositWithdrawEndowments__factory,
   DummyERC20,
+  DummyERC20__factory,
+  DummyWMATIC,
+  DummyWMATIC__factory,
   IndexFund,
   IndexFund__factory,
+  IAccountsDepositWithdrawEndowments,
   ITransparentUpgradeableProxy__factory,
   Registrar,
+  Registrar__factory,
   TestFacetProxyContract,
 } from "typechain-types";
 import {
@@ -17,22 +24,27 @@ import {
   deployRegistrarAsProxy,
   DEFAULT_CHARITY_ENDOWMENT,
   DEFAULT_PERMISSIONS_STRUCT,
+  DEFAULT_REGISTRAR_CONFIG,
 } from "test/utils";
-import {getSigners} from "utils";
+import {genWallet, getSigners} from "utils";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {LocalRegistrarLib} from "../../../typechain-types/contracts/core/registrar/LocalRegistrar";
 
 describe("IndexFund", function () {
   const {ethers, upgrades} = hre;
+
   let owner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
   let user: SignerWithAddress;
-  let registrar: Registrar;
-  let token1: DummyERC20;
-  let token2: DummyERC20;
+
+  let registrar: FakeContract<Registrar>;
+  let wmatic: FakeContract<DummyWMATIC>;
+  let token: FakeContract<DummyERC20>;
+
   let facet: AccountsDepositWithdrawEndowments;
   let state: TestFacetProxyContract;
+
   const defaultApParams = {
     routerAddr: ethers.constants.AddressZero,
     refundAddr: ethers.constants.AddressZero,
@@ -44,19 +56,8 @@ describe("IndexFund", function () {
   ): Promise<IndexFund> {
     let apParams = defaultApParams;
     if (!registrar) {
-      registrar = await deployRegistrarAsProxy(owner, proxyAdmin);
+      registrar = await smock.fake<Registrar>(new Registrar__factory());
     }
-
-    // registrar config has the accounts contract facet set
-    const {splitToLiquid, ...curConfig} = await registrar.queryConfig();
-    await registrar.updateConfig({
-      ...curConfig,
-      accountsContract: facet.address,
-      splitMax: 100,
-      splitMin: 0,
-      splitDefault: 50,
-      collectorShare: 0,
-    });
 
     const IndexFundFactory = new IndexFund__factory(owner);
     const IndexFundImpl = await IndexFundFactory.deploy();
@@ -75,6 +76,19 @@ describe("IndexFund", function () {
       IndexFundInitData
     );
     await IndexFundProxy.deployed();
+
+    // registrar config has the accounts & index fund contract addresses set
+    const registrarConfig: RegistrarStorage.ConfigStruct = {
+      ...DEFAULT_REGISTRAR_CONFIG,
+      wMaticAddress: wmatic.address,
+      accountsContract: facet.address,
+      indexFundContract: IndexFundProxy.address,
+      treasury: owner.address,
+      splitToLiquid: {defaultSplit: 50, max: 100, min: 0},
+    };
+    registrar.queryConfig.returns(registrarConfig);
+    registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
+
     return IndexFund__factory.connect(IndexFundProxy.address, owner);
   }
 
@@ -92,14 +106,35 @@ describe("IndexFund", function () {
     owner = signers.deployer;
     proxyAdmin = signers.proxyAdmin;
     user = signers.apTeam1;
-    registrar = await deployRegistrarAsProxy(owner, proxyAdmin);
-    token1 = await deployDummyERC20(owner);
-    token2 = await deployDummyERC20(owner);
+    registrar = await smock.fake<Registrar>(new Registrar__factory());
+
+    token = await smock.fake<DummyERC20>(new DummyERC20__factory());
+    wmatic = await smock.fake<DummyWMATIC>(new DummyWMATIC__factory());
+    token.transferFrom.returns(true);
+    token.transfer.returns(true);
+    token.approve.returns(true);
+
+    const registrarConfig: RegistrarStorage.ConfigStruct = {
+      ...DEFAULT_REGISTRAR_CONFIG,
+      wMaticAddress: wmatic.address,
+      splitToLiquid: {defaultSplit: 50, max: 90, min: 10},
+      treasury: owner.address,
+    };
+    registrar.queryConfig.returns(registrarConfig);
+    registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
 
     // setup the Accounts DepositWithdraw Endowments facet once
     let Facet = new AccountsDepositWithdrawEndowments__factory(owner);
     let facetImpl = await Facet.deploy();
     state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
+    await state.setConfig({
+      owner: owner.address,
+      version: "1",
+      networkName: "Polygon",
+      registrarContract: registrar.address,
+      nextAccountId: 1,
+      reentrancyGuardLocked: false,
+    });
     facet = AccountsDepositWithdrawEndowments__factory.connect(state.address, owner);
 
     // setup the various Endowments for testing index funds once
@@ -114,8 +149,8 @@ describe("IndexFund", function () {
       data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
       enumData: 0,
     });
-    // accepts token1 for deposits
-    await state.setTokenAccepted(2, token1.address, true);
+    // accepts token for deposits
+    await state.setTokenAccepted(2, token.address, true);
     // setup endowment with minimum needed for testing
     let endowment = DEFAULT_CHARITY_ENDOWMENT;
     await state.setEndowmentDetails(2, endowment);
@@ -125,9 +160,9 @@ describe("IndexFund", function () {
       data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
       enumData: 0,
     });
-    // accepts token1 & token2 for deposits
-    await state.setTokenAccepted(3, token1.address, true);
-    await state.setTokenAccepted(3, token2.address, true);
+    // accepts token & wmatic for deposits
+    await state.setTokenAccepted(3, token.address, true);
+    await state.setTokenAccepted(3, wmatic.address, true);
     // setup endowment with minimum needed for testing
     await state.setEndowmentDetails(3, endowment);
   });
@@ -422,13 +457,13 @@ describe("IndexFund", function () {
     });
 
     it("reverts when amount is zero", async function () {
-      expect(indexFund.depositERC20(1, token1.address, 0)).to.be.revertedWith(
+      expect(indexFund.depositERC20(1, token.address, 0)).to.be.revertedWith(
         "Amount to donate must be greater than zero"
       );
     });
 
     it("reverts when fund passed is expired", async function () {
-      expect(indexFund.depositERC20(2, token1.address, 100)).to.be.revertedWith("Expired Fund");
+      expect(indexFund.depositERC20(2, token.address, 100)).to.be.revertedWith("Expired Fund");
     });
 
     it("reverts when invalid token is passed", async function () {
@@ -437,32 +472,24 @@ describe("IndexFund", function () {
       );
     });
 
-    it("reverts when amount donated, on a per endowment-basis for a fund, would be < 100 units", async function () {
-      expect(indexFund.depositERC20(1, token1.address, 100)).to.be.revertedWith(
-        "Amount must be greater than 100 units per endowment"
+    it("reverts when amount donated, on a per endowment-basis for a fund, would be < min units", async function () {
+      expect(indexFund.depositERC20(1, token.address, 100)).to.be.revertedWith(
+        "Amount must be enough to cover the minimum units per endowment for all members of a Fund"
       );
     });
 
     it("reverts when target fund is expired", async function () {
-      expect(indexFund.depositERC20(2, token1.address, 100)).to.be.revertedWith("Fund expired");
+      expect(indexFund.depositERC20(2, token.address, 100)).to.be.revertedWith("Fund expired");
     });
 
     it("reverts when `0` Fund ID is passed with no rotating funds(empty)", async function () {
-      // mint tokens so that the user and contract can transfer them
-      await token1.mint(owner.address, 100);
-      await token1.approveFor(owner.address, indexFund.address, 100);
-
       // should fail with no rotating funds set
-      expect(indexFund.depositERC20(0, token1.address, 100)).to.be.revertedWith(
+      expect(indexFund.depositERC20(0, token.address, 100)).to.be.revertedWith(
         "Must have rotating funds active to pass a Fund ID of 0"
       );
     });
 
     it("reverts when `0` Fund ID is passed with no un-expired rotating funds(0 after cleanup)", async function () {
-      // mint tokens so that the user and contract can transfer them
-      await token1.mint(owner.address, 500);
-      await token1.approveFor(owner.address, indexFund.address, 500);
-
       // create 1 expired, rotating fund
       let currTime = await time.latest();
       expect(
@@ -484,24 +511,20 @@ describe("IndexFund", function () {
       expect(activeFund.id).to.equal(3);
 
       // should fail when prep clean up process removes the expired fund, leaving 0 funds available
-      expect(indexFund.depositERC20(0, token1.address, 500, 0)).to.be.revertedWith(
+      expect(indexFund.depositERC20(0, token.address, 500, 0)).to.be.revertedWith(
         "Must have rotating funds active to pass a Fund ID of 0"
       );
     });
 
-    it("passes for a specific fund, amount > zero & token is valid", async function () {
-      // mint tokens so that the user and contract can transfer them
-      await token1.mint(owner.address, 500);
-      await token1.approveFor(owner.address, indexFund.address, 500);
-
+    it("passes for a specific fund, amount > min & token is valid", async function () {
       // create 1 active, rotating fund
       expect(await indexFund.createIndexFund("Test Fund #4", "Test fund", [2, 3], true, 50, 0))
         .to.emit("FundCreated")
         .withArgs(4);
 
       expect(
-        await indexFund.depositERC20(4, token1.address, 500, {
-          gasPrice: 3000,
+        await indexFund.depositERC20(4, token.address, 500, {
+          gasPrice: 100000,
           gasLimit: 10000000,
         })
       )
@@ -509,19 +532,37 @@ describe("IndexFund", function () {
         .withArgs(4);
     });
 
-    it("passes for an active fund donation(amount-based rotation), amount > zero & token is valid", async function () {
-      // mint tokens so that the user and contract can transfer them
-      await token1.mint(owner.address, 10000);
-      await token1.approveFor(owner.address, indexFund.address, 10000);
-
+    it("passes for an active fund donation(amount-based rotation), amount > min & token is valid", async function () {
       // create 1 more active, rotating fund for full rotation testing
       expect(await indexFund.createIndexFund("Test Fund #5", "Test fund", [2], true, 100, 0))
         .to.emit("FundCreated")
         .withArgs(5);
 
+      let ifState = await indexFund.queryState();
+      expect(ifState.activeFund).to.equal(4);
+      expect(ifState.roundDonations).to.equal(0);
+      let ifRotating = await indexFund.queryRotatingFunds();
+      expect(ifRotating.length).to.equal(2);
+
+      // deposit: should fill whole active fund goal and rotate to next fund for final 1000
       expect(
-        await indexFund.depositERC20(0, token1.address, 10000, {
-          gasPrice: 3000,
+        await indexFund.depositERC20(0, token.address, 11000, {
+          gasPrice: 100000,
+          gasLimit: 10000000,
+        })
+      )
+        .to.emit(indexFund, "DonationProcessed")
+        .withArgs(4);
+
+      // check all donation metrics reflect expected
+      ifState = await indexFund.queryState();
+      expect(ifState.activeFund).to.equal(5);
+      expect(ifState.roundDonations).to.equal(1000);
+
+      // test with a LARGER donation amount for gas-usage and rotation stress-tests
+      expect(
+        await indexFund.depositERC20(0, token.address, 1000000, {
+          gasPrice: 100000,
           gasLimit: 10000000,
         })
       )
