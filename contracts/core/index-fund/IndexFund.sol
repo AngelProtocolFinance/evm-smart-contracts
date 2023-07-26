@@ -295,7 +295,9 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
           state.activeFund = nextActiveFund();
           state.roundDonations = 0;
 
-          uint256 addIters = (block.number - state.nextRotationBlock).div(state.config.fundRotation);
+          uint256 addIters = (block.number - state.nextRotationBlock).div(
+            state.config.fundRotation
+          );
           state.nextRotationBlock += state.config.fundRotation.mul(addIters);
         }
         // send donation messages to Accounts contract
@@ -316,12 +318,16 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
         if (amount > goalLeftover) {
           uint256 postFirstRoundAmnt = amount - goalLeftover;
           rounds += postFirstRoundAmnt.div(state.config.fundingGoal);
-          // check that the final round amount is greater than the min amount per endowment
-          // multipled by the max members in a fund (assume a full final fund for safety)
-          require(
-            postFirstRoundAmnt % state.config.fundingGoal >= MIN_AMOUNT_PER_ENDOWMENT.mul(MAX_ENDOWMENT_MEMBERS),
-            "Not enough funds to cover all rounds"
-          );
+          if (postFirstRoundAmnt % state.config.fundingGoal > 0) {
+            // check that the final round amount is greater than the min amount per endowment
+            // multipled by the max members in a fund (assume a full final fund for safety)
+            require(
+              postFirstRoundAmnt % state.config.fundingGoal >=
+                MIN_AMOUNT_PER_ENDOWMENT.mul(MAX_ENDOWMENT_MEMBERS),
+              "Not enough funds to cover all rounds"
+            );
+            rounds += 1;
+          }
         }
 
         uint256 loopDonation;
@@ -463,7 +469,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     // require enough funds to allow for downstream fees calulations, etc
     require(
       amount >= MIN_AMOUNT_PER_ENDOWMENT.mul(state.Funds[fundId].endowments.length),
-      "Amount must be greater than 100 units per endowment"
+      "Amount must be enough to cover the minimum units per endowment for all members of a Fund"
     );
 
     // execute donation message for each endowment in the fund
