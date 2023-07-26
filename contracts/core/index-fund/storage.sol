@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
+import {IterableMappingEndow, IterableMappingFund} from "../../lib/IterableMappings.sol";
 import {IIndexFund} from "./IIndexFund.sol";
 
 library IndexFundStorage {
@@ -8,7 +9,6 @@ library IndexFundStorage {
     uint256 id;
     string name;
     string description;
-    uint32[] endowments;
     //Fund Specific: over-riding SC level setting to handle a fixed split value
     // Defines the % to split off into liquid account, and if defined overrides all other splits
     uint256 splitToLiquid;
@@ -31,8 +31,10 @@ library IndexFundStorage {
     uint256[] rotatingFunds; // list of active, rotating funds (ex. 17 funds, 1 for each of the UNSDGs)
     // Fund ID >> Fund
     mapping(uint256 => Fund) Funds;
-    // Endow ID >> [Fund IDs]
-    mapping(uint32 => uint256[]) FundsByEndowment;
+    // Fund ID >> Mapping (Endow ID >> bool)
+    mapping(uint256 => IterableMappingEndow.Map) EndowmentsByFund;
+    // Endow ID >> Mapping (Fund ID >> bool)
+    mapping(uint32 => IterableMappingFund.Map) FundsByEndowment;
   }
 }
 

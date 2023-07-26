@@ -27,6 +27,15 @@ interface IIndexFund {
     uint256 nextRotationBlock; // block height to perform next rotation on
   }
 
+  struct FundResponse {
+    uint256 id;
+    string name;
+    string description;
+    uint32[] endowments;
+    uint256 splitToLiquid;
+    uint256 expiryTime;
+  }
+
   /**
    * @notice function to update config of index fund
    * @dev can be called by owner to set new config
@@ -77,9 +86,14 @@ interface IIndexFund {
    *  @notice Function to update a Fund's endowment members
    *  @dev Can be called by owner to add/remove endowments to a Fund
    *  @param fundId The id of the Fund to be updated
-   *  @param endowments An array of endowments to be set for a Fund
+   *  @param endowmentsAdd An array of endowments to be added to a Fund
+   *  @param endowmentsRemove An array of endowments to be removed from a Fund
    */
-  function updateFundMembers(uint256 fundId, uint32[] memory endowments) external;
+  function updateFundMembers(
+    uint256 fundId,
+    uint32[] memory endowmentsAdd,
+    uint32[] memory endowmentsRemove
+  ) external;
 
   /**
    * @notice deposit function which can be called by user to add funds to index fund
@@ -113,7 +127,7 @@ interface IIndexFund {
    * @param fundId Fund id
    * @return Fund details
    */
-  function queryFundDetails(uint256 fundId) external view returns (IndexFundStorage.Fund memory);
+  function queryFundDetails(uint256 fundId) external view returns (IIndexFund.FundResponse memory);
 
   /**
    * @dev Query in which index funds is an endowment part of
@@ -126,5 +140,5 @@ interface IIndexFund {
    * @dev Query active fund details
    * @return Fund details
    */
-  function queryActiveFundDetails() external view returns (IndexFundStorage.Fund memory);
+  function queryActiveFundDetails() external view returns (IIndexFund.FundResponse memory);
 }

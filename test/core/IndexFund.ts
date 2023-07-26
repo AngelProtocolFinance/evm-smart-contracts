@@ -1,5 +1,5 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
-import {expect, use} from "chai";
+import {expect} from "chai";
 import hre from "hardhat";
 import {BigNumber} from "ethers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
@@ -13,7 +13,6 @@ import {
   DummyWMATIC__factory,
   IndexFund,
   IndexFund__factory,
-  IAccountsDepositWithdrawEndowments,
   ITransparentUpgradeableProxy__factory,
   Registrar,
   Registrar__factory,
@@ -29,7 +28,6 @@ import {
 import {genWallet, getSigners} from "utils";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {LocalRegistrarLib} from "../../../typechain-types/contracts/core/registrar/LocalRegistrar";
 
 describe("IndexFund", function () {
   const {ethers, upgrades} = hre;
@@ -45,16 +43,10 @@ describe("IndexFund", function () {
   let facet: AccountsDepositWithdrawEndowments;
   let state: TestFacetProxyContract;
 
-  const defaultApParams = {
-    routerAddr: ethers.constants.AddressZero,
-    refundAddr: ethers.constants.AddressZero,
-  } as LocalRegistrarLib.AngelProtocolParamsStruct;
-
   async function deployIndexFundAsProxy(
     fundRotation: number = 0, // no block-based rotation
     fundingGoal: number = 10000
   ): Promise<IndexFund> {
-    let apParams = defaultApParams;
     if (!registrar) {
       registrar = await smock.fake<Registrar>(new Registrar__factory());
     }
