@@ -104,10 +104,6 @@
       "implementation": "",
       "proxy": ""
     },
-    "libraries": {
-      "angelCoreStruct": "",
-      "stringArray": ""
-    },
     "multiSig": {
       "charityApplications": {
         "implementation": "",
@@ -261,10 +257,6 @@
       "implementation": "0x59c7E6B2c565Ff92B762523BD6B778CE66dC0302",
       "proxy": "0x9A676e781A523b5d0C0e43731313A708CB607508"
     },
-    "libraries": {
-      "angelCoreStruct": "",
-      "stringArray": ""
-    },
     "multiSig": {
       "charityApplications": {
         "implementation": "0x9687796759CAbecC1674A4Aaf23889fC9EC2FCA2",
@@ -417,10 +409,6 @@
     "indexFund": {
       "implementation": "0x73cF9763985f5617AaF635A8707d89E3B697e112",
       "proxy": "0xf6B32b4a0371050321fC01672FDfad76aF55603f"
-    },
-    "libraries": {
-      "angelCoreStruct": "",
-      "stringArray": ""
     },
     "multiSig": {
       "charityApplications": {
