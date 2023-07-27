@@ -115,9 +115,7 @@ contract AccountsDepositWithdrawEndowments is
     uint256 liquidSplitPercent = details.liquidPercentage;
 
     require(registrar_config.indexFundContract != address(0), "No Index Fund");
-    address donorAddr;
     if (msg.sender != registrar_config.indexFundContract) {
-      donorAddr = msg.sender;
       if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
         // use the Registrar default split for Charities
         (lockedSplitPercent, liquidSplitPercent) = Validator.checkSplits(
@@ -135,10 +133,6 @@ contract AccountsDepositWithdrawEndowments is
           tempEndowment.ignoreUserSplits
         );
       }
-    } else {
-      // don't use msg.sender for index fund donations, but instead
-      // use the tx.origin so that the original sender gets credited
-      donorAddr = tx.origin;
     }
 
     uint256 lockedAmount = (amount.mul(lockedSplitPercent)).div(LibAccounts.PERCENT_BASIS);
@@ -146,6 +140,11 @@ contract AccountsDepositWithdrawEndowments is
 
     // donation matching flow
     if (lockedAmount > 0) {
+      address donationMatch = details.donationMatch;
+      if (donationMatch == address(0)) {
+        donationMatch = msg.sender;
+      }
+
       if (
         tempEndowment.endowType == LibAccounts.EndowmentType.Charity &&
         registrar_config.donationMatchCharitesContract != address(0)
@@ -153,14 +152,14 @@ contract AccountsDepositWithdrawEndowments is
         IDonationMatching(registrar_config.donationMatchCharitesContract).executeDonorMatch(
           details.id,
           lockedAmount,
-          donorAddr,
+          donationMatch,
           registrar_config.haloToken
         );
       } else if (tempEndowment.donationMatchContract != address(0)) {
         IDonationMatching(tempEndowment.donationMatchContract).executeDonorMatch(
           details.id,
           lockedAmount,
-          donorAddr,
+          donationMatch,
           tempEndowment.daoToken
         );
       }
@@ -331,7 +330,8 @@ contract AccountsDepositWithdrawEndowments is
           AccountMessages.DepositRequest({
             id: beneficiaryEndowId,
             lockedPercentage: 0,
-            liquidPercentage: 100
+            liquidPercentage: 100,
+            donationMatch: address(this) // all liquid so won't trigger a match
           }),
           tokens[t].addr,
           (amountLeftover - withdrawFeeEndow)

@@ -121,6 +121,7 @@ library AccountMessages {
     uint32 id;
     uint256 lockedPercentage;
     uint256 liquidPercentage;
+    address donationMatch;
   }
 
   struct InvestRequest {

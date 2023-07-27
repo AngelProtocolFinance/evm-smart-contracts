@@ -508,7 +508,8 @@ contract IndexFund is IIndexFund, Storage, ReentrancyGuard, Initializable {
         AccountMessages.DepositRequest({
           id: donationMessages.member_ids[i],
           lockedPercentage: donationMessages.lockedSplit[i],
-          liquidPercentage: donationMessages.liquidSplit[i]
+          liquidPercentage: donationMessages.liquidSplit[i],
+          donationMatch: msg.sender
         }),
         tokenaddress,
         donationMessages.locked_donation_amount[i] + donationMessages.liquid_donation_amount[i]
