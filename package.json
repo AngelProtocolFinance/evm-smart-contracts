@@ -6,7 +6,7 @@
     "preinstall": "npx only-allow yarn",
     "format": "prettier --write './{config,contracts,eth-sdk,scripts,tasks,test,utils}/**/*.{ts,js,sol}'",
     "test": "hardhat test",
-    "compile": "mv -n ./tasks/index.ts ./tasks/temp_index.ts && touch ./tasks/index.ts && hardhat clean && hardhat compile && mv ./tasks/temp_index.ts ./tasks/index.ts",
+    "compile": "bash ./compile.sh",
     "deploy": "hardhat compile && hardhat deploy:AngelProtocol",
     "sdks": "yarn eth-sdk",
     "tsc": "tsc"
