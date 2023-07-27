@@ -70,4 +70,19 @@ interface IAccountsUpdateEndowments {
     address priceFeedAddr,
     bool tokenStatus
   ) external;
+
+  /**
+    @notice Allows the owner of an Endowment to create a new Multisig contract from the EndowmentMultiSigFactory.
+    @dev Replaces the existing Endowment.multisig address with the new address returned from the EndowmentMultiSigFactory.
+    @param endowId Endowment ID
+    @param members List of member addresses
+    @param threshold Number of votes needed to pass transactions
+    @param duration How long a TX proposal can be voted on before expiring
+  */
+  function newEndowmentMultisig(
+    uint32 endowId,
+    address[] memory members,
+    uint256 threshold,
+    uint256 duration
+  ) external;
 }

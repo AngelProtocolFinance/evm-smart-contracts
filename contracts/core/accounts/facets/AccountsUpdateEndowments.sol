@@ -6,6 +6,8 @@ import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {Validator} from "../../validator.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
+import {RegistrarStorage} from "../../registrar/storage.sol";
+import {IEndowmentMultiSigFactory} from "../../../normalized_endowment/endowment-multisig/interfaces/IEndowmentMultiSigFactory.sol";
 import {Array} from "../../../lib/array.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
@@ -385,5 +387,44 @@ contract AccountsUpdateEndowments is
     );
     state.PriceFeeds[endowId][tokenAddr] = priceFeedAddr;
     state.AcceptedTokens[endowId][tokenAddr] = tokenStatus;
+  }
+
+  /**
+    @notice Allows the owner of an Endowment to create a new Multisig contract from the EndowmentMultiSigFactory.
+    @dev Replaces the existing Endowment.multisig address with the new address returned from the EndowmentMultiSigFactory.
+    @param endowId Endowment ID
+    @param members List of member addresses
+    @param threshold Number of votes needed to pass transactions
+    @param duration How long a TX proposal can be voted on before expiring
+  */
+  function newEndowmentMultisig(
+    uint32 endowId,
+    address[] memory members,
+    uint256 threshold,
+    uint256 duration
+  ) public nonReentrant {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[endowId];
+
+    require(tempEndowment.owner == msg.sender, "Unauthorized");
+    RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
+      .queryConfig();
+
+    // creates new multsig with passed params
+    address newMultisig = IEndowmentMultiSigFactory(registrarConfig.multisigFactory).create(
+      endowId,
+      registrarConfig.multisigEmitter,
+      members,
+      threshold,
+      duration
+    );
+
+    // if the current owner is the Multisig, the we need to update the owner field too
+    if (tempEndowment.owner == tempEndowment.multisig) {
+      tempEndowment.owner = newMultisig;
+    }
+    tempEndowment.multisig = newMultisig;
+    state.ENDOWMENTS[endowId] = tempEndowment;
+    emit EndowmentMultiSigUpdated(endowId, newMultisig);
   }
 }
