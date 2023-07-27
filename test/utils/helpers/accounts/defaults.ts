@@ -4,9 +4,10 @@ import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/Ac
 import {LibAccounts} from "typechain-types/contracts/multisigs/CharityApplications";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {BigNumber} from "ethers";
-import {DEFAULT_STRATEGY_SELECTOR} from "test/utils";
+import {IVaultHelpers, DEFAULT_STRATEGY_SELECTOR} from "test/utils";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {IAccountsStrategy} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
+
 
 export const DEFAULT_PERMISSIONS_STRUCT: LibAccounts.SettingsPermissionStruct = {
   locked: false,
@@ -178,3 +179,14 @@ export const DEFAULT_AP_PARAMS: LocalRegistrarLib.AngelProtocolParamsStruct = {
   refundAddr: ethers.constants.AddressZero,
   routerAddr: ethers.constants.AddressZero,
 };
+
+export const DEFAULT_ACTION_DATA: IVaultHelpers.VaultActionDataStruct = {
+  destinationChain: "",
+  strategyId: DEFAULT_STRATEGY_SELECTOR,
+  selector: "",
+  accountIds: [],
+  token: "",
+  lockAmt: 0,
+  liqAmt: 0,
+  status: 0,
+}
