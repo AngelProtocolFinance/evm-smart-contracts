@@ -22,6 +22,10 @@ contract AccountsCreateEndowment is
   ReentrancyGuardFacet,
   IAccountsEvents
 {
+  function get() public pure returns (uint32) {
+    return 0;
+  }
+
   /**
    * @notice This function creates an endowment
    * @dev creates an endowment based on parameters and setups a dao if required
