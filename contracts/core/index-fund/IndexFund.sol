@@ -294,11 +294,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
         if (block.number >= state.nextRotationBlock) {
           state.activeFund = nextActiveFund();
           state.roundDonations = 0;
-
-          uint256 addIters = (block.number - state.nextRotationBlock).div(
-            state.config.fundRotation
-          );
-          state.nextRotationBlock += state.config.fundRotation.mul(addIters);
+          state.nextRotationBlock = block.number + state.config.fundRotation;
         }
         // send donation messages to Accounts contract
         processDonations(
