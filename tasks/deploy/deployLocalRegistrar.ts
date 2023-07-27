@@ -42,8 +42,6 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
       }
 
       const routerDeployment = await deployRouter(
-        addresses.axelar.gateway,
-        addresses.axelar.gasService,
         localRegistrarDeployment.address,
         hre
       );

@@ -34,8 +34,6 @@ task("deploy:Router", "Will deploy Router contract")
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
 
       const deployment = await deployRouter(
-        addresses.axelar.gateway,
-        addresses.axelar.gasService,
         registrar,
         hre
       );

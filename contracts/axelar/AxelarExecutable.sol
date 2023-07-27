@@ -6,20 +6,8 @@ pragma solidity >=0.8.8;
 import {IVault} from "../core/vault/interfaces/IVault.sol";
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
 import {IAxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarExecutable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract AxelarExecutable is IAxelarExecutable, Initializable {
-  IAxelarGateway public gateway;
-
-  // We want this to be intializeable by an OZ upgradable pattern so move the constructor logic to _init_ methods
-  function __AxelarExecutable_init(address gateway_) internal onlyInitializing {
-    __AxelarExecutable_init_unchained(gateway_);
-  }
-
-  function __AxelarExecutable_init_unchained(address gateway_) internal onlyInitializing {
-    if (gateway_ == address(0)) revert InvalidAddress();
-    gateway = IAxelarGateway(gateway_);
-  }
+abstract contract AxelarExecutable is IAxelarExecutable {
 
   function execute(
     bytes32 commandId,
@@ -28,7 +16,7 @@ contract AxelarExecutable is IAxelarExecutable, Initializable {
     bytes calldata payload
   ) public virtual override {
     bytes32 payloadHash = keccak256(payload);
-    if (!gateway.validateContractCall(commandId, sourceChain, sourceAddress, payloadHash))
+    if (!_gateway().validateContractCall(commandId, sourceChain, sourceAddress, payloadHash))
       revert NotApprovedByGateway();
     _execute(sourceChain, sourceAddress, payload);
   }
@@ -43,7 +31,7 @@ contract AxelarExecutable is IAxelarExecutable, Initializable {
   ) public virtual override {
     bytes32 payloadHash = keccak256(payload);
     if (
-      !gateway.validateContractCallAndMint(
+      !_gateway().validateContractCallAndMint(
         commandId,
         sourceChain,
         sourceAddress,
@@ -69,4 +57,10 @@ contract AxelarExecutable is IAxelarExecutable, Initializable {
     string calldata tokenSymbol,
     uint256 amount
   ) internal virtual returns (IVault.VaultActionData memory) {}
+
+  function gateway() external view returns (IAxelarGateway) {
+    return _gateway();
+  }
+
+  function _gateway() internal view virtual returns (IAxelarGateway);
 }

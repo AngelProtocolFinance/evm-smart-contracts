@@ -78,8 +78,6 @@ task(
       });
 
       const routerDeployment = await deployRouter(
-        addresses.axelar.gateway,
-        addresses.axelar.gasService,
         registrarDeployment.address,
         hre
       );

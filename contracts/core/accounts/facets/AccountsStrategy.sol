@@ -16,7 +16,7 @@ import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
 import {IAccountsStrategy} from "../interfaces/IAccountsStrategy.sol";
-import {AxelarExecutableAccounts} from "../lib//AxelarExecutableAccounts.sol";
+import {AxelarExecutableAccounts} from "../lib/AxelarExecutableAccounts.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IGasFwd} from "../../gasFwd/IGasFwd.sol";
