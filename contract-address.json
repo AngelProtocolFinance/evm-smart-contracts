@@ -421,7 +421,7 @@
       },
       "endowment": {
         "emitter": {
-          "implementation": "0xf1bBE8aCdd30E2998D1Db8eEaACE95E86DFE7a0a",
+          "implementation": "0x366478C1e2895017FaCb12Ea682CfcBF85720BAC",
           "proxy": "0x8a87385765871bD85d96B7675A3F1Fb663146E4d"
         },
         "factory": "0xc4150f28a33a04B79B60560Bd4684d521edB99AE",
