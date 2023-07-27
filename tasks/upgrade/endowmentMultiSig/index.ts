@@ -1,1 +1,2 @@
+import "./upgradeEmitter";
 import "./upgradeImplementation";
