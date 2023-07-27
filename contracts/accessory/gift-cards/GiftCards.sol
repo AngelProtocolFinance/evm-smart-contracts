@@ -186,7 +186,8 @@ contract GiftCards is Storage, Initializable, OwnableUpgradeable, ReentrancyGuar
       AccountMessages.DepositRequest({
         id: endowmentId,
         lockedPercentage: lockedPercentage,
-        liquidPercentage: liquidPercentage
+        liquidPercentage: liquidPercentage,
+        donationMatch: msg.sender
       }),
       tokenAddress,
       amount
