@@ -286,11 +286,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
         if (block.number >= state.nextRotationBlock) {
           state.activeFund = nextActiveFund();
           state.roundDonations = 0;
-
-          uint256 addIters = (block.number - state.nextRotationBlock).div(
-            state.config.fundRotation
-          );
-          state.nextRotationBlock += state.config.fundRotation.mul(addIters);
+          state.nextRotationBlock = block.number + state.config.fundRotation;
         }
         // send donation messages to Accounts contract
         processDonations(
@@ -305,19 +301,20 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
         // Check if funding goal is met for current active fund and rotate funds
         // until all donated tokens are depleted
         uint256 rounds = 1;
+        uint256 postFirstRoundAmnt;
         uint256 goalLeftover = state.config.fundingGoal - state.roundDonations;
         // check that the amount donated will have enough funds for the last round of donations
         if (amount > goalLeftover) {
-          uint256 postFirstRoundAmnt = amount - goalLeftover;
+          postFirstRoundAmnt = amount - goalLeftover;
           rounds += postFirstRoundAmnt.div(state.config.fundingGoal);
-          if (postFirstRoundAmnt % state.config.fundingGoal > 0) {
-            // check that the final round amount is greater than the min amount per endowment
-            // multipled by the max members in a fund (assume a full final fund for safety)
-            require(
-              postFirstRoundAmnt % state.config.fundingGoal >=
-                MIN_AMOUNT_PER_ENDOWMENT.mul(MAX_ENDOWMENT_MEMBERS),
-              "Not enough funds to cover all rounds"
-            );
+          // Check if there is a non-zero amount of funds after dividing the post-first round amount out
+          // that would require an additional round (ie. this amount is greater than the min per
+          // endowment multipled by the max members in a fund)
+          if (
+            postFirstRoundAmnt % state.config.fundingGoal > 0 &&
+            postFirstRoundAmnt % state.config.fundingGoal >=
+            MIN_AMOUNT_PER_ENDOWMENT.mul(MAX_ENDOWMENT_MEMBERS)
+          ) {
             rounds += 1;
           }
         }
@@ -331,6 +328,15 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
           } else {
             loopDonation = goalLeftover;
             state.roundDonations = 0;
+            // Add any dust that wouldn't meet the final round's minimum donation to the
+            // first round's donation in order to avoid needing to revert the whole TX
+            if (
+              round == 0 &&
+              postFirstRoundAmnt % state.config.fundingGoal <
+              MIN_AMOUNT_PER_ENDOWMENT.mul(MAX_ENDOWMENT_MEMBERS)
+            ) {
+              loopDonation += postFirstRoundAmnt % state.config.fundingGoal;
+            }
           }
           // deduct donated amount in this round from total donation amt
           amount -= loopDonation;
