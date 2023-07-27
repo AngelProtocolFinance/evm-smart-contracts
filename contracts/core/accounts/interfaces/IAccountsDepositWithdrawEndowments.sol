@@ -12,7 +12,6 @@ interface IAccountsDepositWithdrawEndowments {
 
   function depositMatic(AccountMessages.DepositRequest memory details) external payable;
 
-  //Pending
   function depositERC20(
     AccountMessages.DepositRequest memory details,
     address tokenAddress,
