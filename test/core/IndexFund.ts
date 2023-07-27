@@ -320,29 +320,33 @@ describe("IndexFund", function () {
     });
 
     it("reverts when the message sender is not the owner", async function () {
-      expect(indexFund.connect(user).updateFundMembers(1, [1, 2])).to.be.revertedWith(
+      expect(indexFund.connect(user).updateFundMembers(1, [1, 2], [])).to.be.revertedWith(
         "Unauthorized"
       );
     });
 
     it("reverts when no members are passed", async function () {
-      expect(indexFund.updateFundMembers(1, [])).to.be.revertedWith(
+      expect(indexFund.updateFundMembers(1, [], [])).to.be.revertedWith(
         "Must pass at least one endowment member to add to the Fund"
       );
     });
 
     it("reverts when too many members are passed", async function () {
-      expect(indexFund.updateFundMembers(1, [1, 2, 3])).to.be.revertedWith(
+      expect(indexFund.updateFundMembers(1, [1, 2, 3], [])).to.be.revertedWith(
         "Fund endowment members exceeds upper limit"
       );
     });
 
     it("reverts when the fund is expired", async function () {
-      expect(indexFund.updateFundMembers(2, [1, 2])).to.be.revertedWith("Fund Expired");
+      expect(indexFund.updateFundMembers(2, [1, 2], [])).to.be.revertedWith("Fund Expired");
     });
 
     it("passes when the fund is not expired and member inputs are valid", async function () {
-      expect(await indexFund.updateFundMembers(1, [1, 2]))
+      expect(await indexFund.updateFundMembers(1, [], [3]))
+        .to.emit(indexFund, "MembersUpdated")
+        .withArgs(1, [2]);
+
+      expect(await indexFund.updateFundMembers(1, [1, 2], [3]))
         .to.emit(indexFund, "MembersUpdated")
         .withArgs(1, [1, 2]);
     });
