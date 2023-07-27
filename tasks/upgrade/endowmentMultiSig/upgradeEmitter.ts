@@ -42,6 +42,7 @@ task(
       logger.out("Deploying implementation...");
       const Emitter = new EndowmentMultiSigEmitter__factory(proxyAdmin);
       const emitter = await Emitter.deploy();
+      logger.out(`Tx hash: ${emitter.deployTransaction.hash}`);
       await emitter.deployed();
       logger.out(`Address: ${emitter.address}`);
 
