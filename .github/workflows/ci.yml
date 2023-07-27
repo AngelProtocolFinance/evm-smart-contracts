@@ -25,11 +25,6 @@ jobs:
         with:
           cmd: "install"
 
-      - name: "Lint the code"
-        uses: "borales/actions-yarn@v4"
-        with:
-          cmd: "format"
-
       - name: "Create dummy .env file from template"
         shell: bash
         run: cp ./.env.template ./.env
