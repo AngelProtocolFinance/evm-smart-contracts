@@ -492,7 +492,8 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
         AccountMessages.DepositRequest({
           id: uint32(IterableMapping.getKeyAtIndex(state.EndowmentsByFund[fundId], i)),
           lockedPercentage: 100 - liquidSplit,
-          liquidPercentage: liquidSplit
+          liquidPercentage: liquidSplit,
+          donationMatch: msg.sender
         }),
         token,
         amount.div(state.EndowmentsByFund[fundId].keys.length)
