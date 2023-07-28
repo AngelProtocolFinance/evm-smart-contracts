@@ -11,7 +11,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IIndexFund} from "./IIndexFund.sol";
 import {Array, Array32} from "../../lib/array.sol";
-import {IterableMappingEndow, IterableMappingFund} from "../../lib/IterableMappings.sol";
+import {IterableMapping} from "../../lib/IterableMapping.sol";
 import {Utils} from "../../lib/utils.sol";
 import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../registrar/storage.sol";
@@ -29,11 +29,9 @@ uint256 constant MIN_AMOUNT_PER_ENDOWMENT = 100;
  * It is responsible for creating new funds, adding endowments to funds, and
  * distributing funds to the endowment members
  */
-contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
+contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, IterableMapping {
   using SafeERC20 for IERC20;
   using SafeMath for uint256;
-  using IterableMappingEndow for IterableMappingEndow.Map;
-  using IterableMappingFund for IterableMappingFund.Map;
 
   /**
    * @notice Initializer function for index fund contract, to be called when proxy is deployed
@@ -137,8 +135,8 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
 
     // set all Fund <> Endowment mappings
     for (uint8 i = 0; i < endowments.length; i++) {
-      state.FundsByEndowment[endowments[i]].set(state.nextFundId, true);
-      state.EndowmentsByFund[state.nextFundId].set(endowments[i], true);
+      IterableMapping.set(state.FundsByEndowment[endowments[i]], state.nextFundId, true);
+      IterableMapping.set(state.EndowmentsByFund[state.nextFundId], endowments[i], true);
     }
 
     if (rotatingFund) {
@@ -180,8 +178,8 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
 
     // remove endowment from all involved funds if in their endowments array
     for (uint i = 0; i < state.FundsByEndowment[endowment].keys.length; i++) {
-      uint256 fundId = state.FundsByEndowment[endowment].getKeyAtIndex(i);
-      state.EndowmentsByFund[fundId].remove(endowment);
+      uint256 fundId = IterableMapping.getKeyAtIndex(state.FundsByEndowment[endowment], i);
+      IterableMapping.remove(state.EndowmentsByFund[fundId], endowment);
       emit MemberRemoved(fundId, endowment);
       // if endowment removal results in a fund having zero endowment members left, close out the fund
       if (state.EndowmentsByFund[fundId].keys.length == 0) {
@@ -212,14 +210,14 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
 
     // add Endowments passed to a Fund members and FundsByEndowment mappings
     for (uint32 i = 0; i < endowmentsAdd.length; i++) {
-      state.EndowmentsByFund[fundId].set(endowmentsAdd[i], true);
-      state.FundsByEndowment[endowmentsAdd[i]].set(fundId, true);
+      IterableMapping.set(state.FundsByEndowment[endowmentsAdd[i]], fundId, true);
+      IterableMapping.set(state.EndowmentsByFund[fundId], endowmentsAdd[i], true);
     }
 
     // Endowments to be removed from a Fund
     for (uint32 i = 0; i < endowmentsRemove.length; i++) {
-      state.EndowmentsByFund[fundId].remove(endowmentsRemove[i]);
-      state.FundsByEndowment[endowmentsRemove[i]].remove(fundId);
+      IterableMapping.remove(state.EndowmentsByFund[fundId], endowmentsRemove[i]);
+      IterableMapping.remove(state.FundsByEndowment[endowmentsRemove[i]], fundId);
     }
 
     // resulting fund has no members, remove it
@@ -232,7 +230,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
       state.EndowmentsByFund[fundId].keys.length <= MAX_ENDOWMENT_MEMBERS,
       "Fund endowment members exceeds upper limit"
     );
-    emit MembersUpdated(fundId, state.EndowmentsByFund[fundId].keys);
+    emit MembersUpdated(fundId, IterableMapping.keysAsUint32(state.EndowmentsByFund[fundId]));
   }
 
   /**
@@ -409,7 +407,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
         id: state.Funds[fundId].id,
         name: state.Funds[fundId].name,
         description: state.Funds[fundId].description,
-        endowments: state.EndowmentsByFund[fundId].keys,
+        endowments: IterableMapping.keysAsUint32(state.EndowmentsByFund[fundId]),
         splitToLiquid: state.Funds[fundId].splitToLiquid,
         expiryTime: state.Funds[fundId].expiryTime
       });
@@ -436,7 +434,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
         id: state.Funds[state.activeFund].id,
         name: state.Funds[state.activeFund].name,
         description: state.Funds[state.activeFund].description,
-        endowments: state.EndowmentsByFund[state.activeFund].keys,
+        endowments: IterableMapping.keysAsUint32(state.EndowmentsByFund[state.activeFund]),
         splitToLiquid: state.Funds[state.activeFund].splitToLiquid,
         expiryTime: state.Funds[state.activeFund].expiryTime
       });
@@ -492,7 +490,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     for (uint256 i = 0; i < state.EndowmentsByFund[fundId].keys.length; i++) {
       IAccounts(accountsContract).depositERC20(
         AccountMessages.DepositRequest({
-          id: state.EndowmentsByFund[fundId].getKeyAtIndex(i),
+          id: uint32(IterableMapping.getKeyAtIndex(state.EndowmentsByFund[fundId], i)),
           lockedPercentage: 100 - liquidSplit,
           liquidPercentage: liquidSplit
         }),

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {IterableMappingEndow, IterableMappingFund} from "../../lib/IterableMappings.sol";
+import {IterableMapping} from "../../lib/IterableMapping.sol";
 import {IIndexFund} from "./IIndexFund.sol";
 
 library IndexFundStorage {
@@ -32,9 +32,9 @@ library IndexFundStorage {
     // Fund ID >> Fund
     mapping(uint256 => Fund) Funds;
     // Fund ID >> Mapping (Endow ID >> bool)
-    mapping(uint256 => IterableMappingEndow.Map) EndowmentsByFund;
+    mapping(uint256 => IterableMapping.Map) EndowmentsByFund;
     // Endow ID >> Mapping (Fund ID >> bool)
-    mapping(uint32 => IterableMappingFund.Map) FundsByEndowment;
+    mapping(uint32 => IterableMapping.Map) FundsByEndowment;
   }
 }
 
