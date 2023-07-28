@@ -434,7 +434,7 @@ describe("AccountsCreateEndowment", function () {
     expect(result.depositFee).to.equalFee(request.depositFee);
     expect(result.donationMatchActive).to.equal(false);
     // `donationMatchContract` is read from `registrar config > donationMatchCharitesContract`
-    expect(result.donationMatchContract).to.equal(donationMatchCharitesAddress);
+    expect(result.donationMatchContract).to.equal(ethers.constants.AddressZero);
     expect(result.earlyLockedWithdrawFee).to.equalFee(
       await registrarFake.getFeeSettingsByFeeType(FeeTypes.EarlyLockedWithdrawCharity)
     );

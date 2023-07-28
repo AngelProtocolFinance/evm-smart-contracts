@@ -93,4 +93,24 @@ describe("AccountsUpdate", function () {
       );
     });
   });
+
+  describe("updateDafApprovedEndowments", () => {
+    it("reverts when owner is not the sender", async () => {
+      await expect(facet.connect(user).updateDafApprovedEndowments([1], [2])).to.be.revertedWith(
+        "Unauthorized"
+      );
+    });
+
+    it("reverts when no add/remove endowments are passed", async () => {
+      await expect(facet.updateDafApprovedEndowments([], [])).to.be.revertedWith(
+        "Must pass at least one endowment to add/remove"
+      );
+    });
+
+    it("passes with valid input endowments and authorized sender", async () => {
+      expect(await facet.updateDafApprovedEndowments([1], [2]))
+        .to.emit("DafApprovedEndowmentsUpdated")
+        .withArgs([1], [2]);
+    });
+  });
 });
