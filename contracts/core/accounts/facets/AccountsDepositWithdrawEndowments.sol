@@ -230,63 +230,104 @@ contract AccountsDepositWithdrawEndowments is
         beneficiaryAddress == address(0),
         "Beneficiary address is not allowed for DAF withdrawals"
       );
-      // determine if msg sender is allowed to withdraw based on rules and maturity status
-    } else if (mature) {
-      if (tempEndowment.maturityAllowlist.length > 0) {
-        for (uint256 i = 0; i < tempEndowment.maturityAllowlist.length; i++) {
-          if (tempEndowment.maturityAllowlist[i] == msg.sender) {
-            senderAllowed = true;
-          }
-        }
-        require(senderAllowed, "Sender address is not listed in maturityAllowlist");
-      }
     } else {
-      if (tempEndowment.allowlistedBeneficiaries.length > 0) {
-        for (uint256 i = 0; i < tempEndowment.allowlistedBeneficiaries.length; i++) {
-          if (tempEndowment.allowlistedBeneficiaries[i] == msg.sender) {
-            senderAllowed = true;
+      // determine if msg sender is allowed to withdraw based on rules and maturity status
+      if (mature) {
+        if (tempEndowment.maturityAllowlist.length > 0) {
+          for (uint256 i = 0; i < tempEndowment.maturityAllowlist.length; i++) {
+            if (tempEndowment.maturityAllowlist[i] == msg.sender) {
+              senderAllowed = true;
+            }
+          }
+          require(senderAllowed, "Sender address is not listed in maturityAllowlist");
+        }
+      } else {
+        if (tempEndowment.allowlistedBeneficiaries.length > 0) {
+          for (uint256 i = 0; i < tempEndowment.allowlistedBeneficiaries.length; i++) {
+            if (tempEndowment.allowlistedBeneficiaries[i] == msg.sender) {
+              senderAllowed = true;
+            }
           }
         }
+        require(
+          senderAllowed || msg.sender == tempEndowment.owner,
+          "Sender address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner"
+        );
       }
-      require(
-        senderAllowed || msg.sender == tempEndowment.owner,
-        "Sender address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner"
-      );
     }
 
     for (uint256 t = 0; t < tokens.length; t++) {
-      // ** SHARED LOCKED WITHDRAWAL RULES **
-      // Can withdraw early for a (possible) penalty fee
+      // FEES & PENALTIES CALCULATIONS
       uint256 earlyLockedWithdrawPenalty = 0;
-      if (acctType == IVault.VaultType.LOCKED && !mature) {
-        // Calculate the early withdraw penalty based on the earlyLockedWithdrawFee setting
-        // Charity: Registrar based setting for all Charity Endowments
-        // Normal/DAF: Endowment specific setting that owners can (optionally) set
+      uint256 withdrawFeeAp = 0;
+      uint256 withdrawFeeEndow = 0;
+      uint256 withdrawFeeRateAp;
+      uint256 amountLeftover;
+      // Do not apply fees for Endowment <> Endowment withdraws/transfers
+      if (beneficiaryAddress != address(0)) {
+        // ** SHARED LOCKED WITHDRAWAL RULES **
+        // Can withdraw early for a (possible) penalty fee
+        if (acctType == IVault.VaultType.LOCKED && !mature) {
+          // Calculate the early withdraw penalty based on the earlyLockedWithdrawFee setting
+          // Charity: Registrar based setting for all Charity Endowments
+          // Normal: Endowment specific setting that owners can (optionally) set
+          if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
+            earlyLockedWithdrawPenalty = (
+              tokens[t].amnt.mul(
+                IRegistrar(state.config.registrarContract)
+                  .getFeeSettingsByFeeType(LibAccounts.FeeTypes.EarlyLockedWithdrawCharity)
+                  .bps
+              )
+            ).div(LibAccounts.FEE_BASIS);
+          } else {
+            earlyLockedWithdrawPenalty = (
+              tokens[t].amnt.mul(tempEndowment.earlyLockedWithdrawFee.bps)
+            ).div(LibAccounts.FEE_BASIS);
+          }
+        }
+        // protocol-level fee rate looked up from appropriate source
         if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
-          earlyLockedWithdrawPenalty = (
-            tokens[t].amnt.mul(
-              IRegistrar(state.config.registrarContract)
-                .getFeeSettingsByFeeType(LibAccounts.FeeTypes.EarlyLockedWithdrawCharity)
-                .bps
-            )
-          ).div(LibAccounts.FEE_BASIS);
+          withdrawFeeRateAp = IRegistrar(state.config.registrarContract)
+            .getFeeSettingsByFeeType(LibAccounts.FeeTypes.WithdrawCharity)
+            .bps;
         } else {
-          earlyLockedWithdrawPenalty = (
-            tokens[t].amnt.mul(tempEndowment.earlyLockedWithdrawFee.bps)
-          ).div(LibAccounts.FEE_BASIS);
+          withdrawFeeRateAp = IRegistrar(state.config.registrarContract)
+            .getFeeSettingsByFeeType(LibAccounts.FeeTypes.WithdrawNormal)
+            .bps;
+        }
+        // calculate AP Protocol fee owed on withdrawn token amount
+        withdrawFeeAp = (tokens[t].amnt.mul(withdrawFeeRateAp)).div(LibAccounts.FEE_BASIS);
+
+        // Transfer AP Protocol fee to treasury
+        // (ie. standard Withdraw Fee + any early Locked Withdraw Penalty)
+        IERC20(tokens[t].addr).safeTransfer(
+          registrar_config.treasury,
+          withdrawFeeAp + earlyLockedWithdrawPenalty
+        );
+
+        // ** Endowment specific withdraw fee **
+        // Endowment specific withdraw fee needs to be calculated against the amount
+        // leftover after all AP-centric withdraw fees are subtracted.
+        amountLeftover = tokens[t].amnt - withdrawFeeAp - earlyLockedWithdrawPenalty;
+        if (amountLeftover > 0 && tempEndowment.withdrawFee.bps != 0) {
+          withdrawFeeEndow = (amountLeftover.mul(tempEndowment.withdrawFee.bps)).div(
+            LibAccounts.FEE_BASIS
+          );
+
+          // transfer endowment withdraw fee to payout address
+          IERC20(tokens[t].addr).safeTransfer(
+            tempEndowment.withdrawFee.payoutAddress,
+            withdrawFeeEndow
+          );
         }
       }
 
-      uint256 withdrawFeeRateAp;
-      if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
-        withdrawFeeRateAp = IRegistrar(state.config.registrarContract)
-          .getFeeSettingsByFeeType(LibAccounts.FeeTypes.WithdrawCharity)
-          .bps;
-      } else {
-        withdrawFeeRateAp = IRegistrar(state.config.registrarContract)
-          .getFeeSettingsByFeeType(LibAccounts.FeeTypes.WithdrawNormal)
-          .bps;
-      }
+      // Final withdraw amount left after all fees/penalties are accounted for
+      amountLeftover =
+        tokens[t].amnt -
+        withdrawFeeAp -
+        earlyLockedWithdrawPenalty -
+        withdrawFeeEndow;
 
       uint256 current_bal;
       if (acctType == IVault.VaultType.LOCKED) {
@@ -298,39 +339,9 @@ contract AccountsDepositWithdrawEndowments is
       // ensure balance of tokens can cover the requested withdraw amount
       require(current_bal >= tokens[t].amnt, "Insufficient Funds");
 
-      // calculate AP Protocol fee owed on withdrawn token amount
-      uint256 withdrawFeeAp = (tokens[t].amnt.mul(withdrawFeeRateAp)).div(LibAccounts.FEE_BASIS);
-
-      // Transfer AP Protocol fee to treasury
-      // (ie. standard Withdraw Fee + any early Locked Withdraw Penalty)
-      IERC20(tokens[t].addr).safeTransfer(
-        registrar_config.treasury,
-        withdrawFeeAp + earlyLockedWithdrawPenalty
-      );
-
-      // ** Endowment specific withdraw fee **
-      // Endowment specific withdraw fee needs to be calculated against the amount
-      // leftover after all AP withdraw fees are subtracted.
-      uint256 amountLeftover = tokens[t].amnt - withdrawFeeAp - earlyLockedWithdrawPenalty;
-      uint256 withdrawFeeEndow = 0;
-      if (amountLeftover > 0 && tempEndowment.withdrawFee.bps != 0) {
-        withdrawFeeEndow = (amountLeftover.mul(tempEndowment.withdrawFee.bps)).div(
-          LibAccounts.FEE_BASIS
-        );
-
-        // transfer endowment withdraw fee to payout address
-        IERC20(tokens[t].addr).safeTransfer(
-          tempEndowment.withdrawFee.payoutAddress,
-          withdrawFeeEndow
-        );
-      }
-
       // send all tokens (less fees) to the ultimate beneficiary address/endowment
       if (beneficiaryAddress != address(0)) {
-        IERC20(tokens[t].addr).safeTransfer(
-          beneficiaryAddress,
-          (amountLeftover - withdrawFeeEndow)
-        );
+        IERC20(tokens[t].addr).safeTransfer(beneficiaryAddress, amountLeftover);
       } else {
         // check endowment specified is not closed
         require(
@@ -347,7 +358,7 @@ contract AccountsDepositWithdrawEndowments is
               donationMatch: msg.sender
             }),
             tokens[t].addr,
-            (amountLeftover - withdrawFeeEndow)
+            amountLeftover
           );
         } else {
           processTokenDeposit(
@@ -358,12 +369,12 @@ contract AccountsDepositWithdrawEndowments is
               donationMatch: address(this)
             }),
             tokens[t].addr,
-            (amountLeftover - withdrawFeeEndow)
+            amountLeftover
           );
         }
       }
 
-      // reduce the orgs balance by the withdrawn token amount
+      // reduce the org's balance by the withdrawn token amount
       if (acctType == IVault.VaultType.LOCKED) {
         state.STATES[id].balances.locked[tokens[t].addr] -= tokens[t].amnt;
       } else {

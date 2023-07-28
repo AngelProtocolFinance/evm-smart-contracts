@@ -1993,16 +1993,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
       const regConfig = await registrarFake.queryConfig();
 
       const amount = BigNumber.from(tokens[0].amnt);
-      const withdrawFeeAp = 5;
-      const withdrawFeeEndow = 14;
-      const remainder = amount.sub(withdrawFeeAp + withdrawFeeEndow);
-
-      expect(tokenFake.transfer).to.have.been.calledWith(regConfig.treasury, withdrawFeeAp);
-      expect(tokenFake.transfer).to.have.been.calledWith(
-        charity.withdrawFee.payoutAddress,
-        withdrawFeeEndow
-      );
-
       const [lockedBalance] = await state.getEndowmentTokenBalance(charityId, tokenFake.address);
       expect(lockedBalance).to.equal(lockBal.sub(amount));
 
@@ -2010,7 +2000,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
         beneficiaryId,
         tokens[0].addr
       );
-      expect(lockBalBen).to.equal(lockBal.add(remainder));
+      expect(lockBalBen).to.equal(lockBal.add(amount));
       expect(liqBalBen).to.equal(liqBal);
     });
 
