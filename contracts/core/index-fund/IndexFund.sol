@@ -484,7 +484,8 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
         AccountMessages.DepositRequest({
           id: state.Funds[fundId].endowments[i],
           lockedPercentage: 100 - liquidSplit,
-          liquidPercentage: liquidSplit
+          liquidPercentage: liquidSplit,
+          donationMatch: msg.sender
         }),
         token,
         amount.div(state.Funds[fundId].endowments.length)
