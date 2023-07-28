@@ -1,7 +1,6 @@
 import {deployGasFwd} from "contracts/core/gasFwd/scripts/deploy";
 import {task} from "hardhat/config";
-import {updateRegistrarConfig} from "tasks/helpers";
-import {getSigners, getAddresses, isLocalNetwork, logger, verify} from "utils";
+import {getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
 
 type TaskArgs = {
   skipVerify: boolean;
@@ -23,12 +22,10 @@ task("deploy:GasFwd", "Will deploy the GasFwd implementation and factory")
         return;
       }
 
-      await updateRegistrarConfig(
-        addresses.registrar.proxy,
-        addresses.multiSig.apTeam.proxy,
-        {gasFwdFactory: gasFwdDeployment.factory.address},
-        hre
-      );
+      await hre.run("manage:registrar:updateConfig", {
+        gasFwdFactory: gasFwdDeployment.factory.address,
+        yes: true,
+      });
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         await verify(hre, gasFwdDeployment.implementation);

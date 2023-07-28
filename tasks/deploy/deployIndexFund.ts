@@ -1,10 +1,8 @@
 import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {task} from "hardhat/config";
 import {confirmAction, getAddresses, isLocalNetwork, logger, verify} from "utils";
-import {updateRegistrarConfig} from "../helpers";
 
 type TaskArgs = {
-  apTeamMultisig?: string;
   owner?: string;
   registrar?: string;
   skipVerify: boolean;
@@ -12,10 +10,6 @@ type TaskArgs = {
 };
 
 task("deploy:IndexFund", "Will deploy IndexFund contract")
-  .addOptionalParam(
-    "apTeamMultisig",
-    "APTeamMultiSig contract address. Will do a local lookup from contract-address.json if none is provided."
-  )
   .addOptionalParam(
     "owner",
     "Address of the owner. By default set to AP team multisig proxy saved in contract-address.json."
@@ -35,7 +29,6 @@ task("deploy:IndexFund", "Will deploy IndexFund contract")
 
       const addresses = await getAddresses(hre);
 
-      const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
 
       const deployment = await deployIndexFund(registrar, hre);
@@ -44,12 +37,10 @@ task("deploy:IndexFund", "Will deploy IndexFund contract")
         return;
       }
 
-      await updateRegistrarConfig(
-        registrar,
-        apTeamMultiSig,
-        {indexFundContract: deployment.address},
-        hre
-      );
+      await hre.run("manage:registrar:updateConfig", {
+        indexFundContract: deployment.address,
+        yes: true,
+      });
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         await verify(hre, deployment);

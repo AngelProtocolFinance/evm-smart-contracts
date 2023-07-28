@@ -115,7 +115,6 @@ contract AccountsDepositWithdrawEndowments is
     uint256 liquidSplitPercent = details.liquidPercentage;
 
     require(registrar_config.indexFundContract != address(0), "No Index Fund");
-
     if (msg.sender != registrar_config.indexFundContract) {
       if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
         // use the Registrar default split for Charities
@@ -139,9 +138,13 @@ contract AccountsDepositWithdrawEndowments is
     uint256 lockedAmount = (amount.mul(lockedSplitPercent)).div(LibAccounts.PERCENT_BASIS);
     uint256 liquidAmount = (amount.mul(liquidSplitPercent)).div(LibAccounts.PERCENT_BASIS);
 
-    //donation matching flow
-    //execute donor match will always be called on an EOA
+    // donation matching flow
     if (lockedAmount > 0) {
+      address donationMatch = details.donationMatch;
+      if (donationMatch == address(0)) {
+        donationMatch = msg.sender;
+      }
+
       if (
         tempEndowment.endowType == LibAccounts.EndowmentType.Charity &&
         registrar_config.donationMatchCharitesContract != address(0)
@@ -149,17 +152,14 @@ contract AccountsDepositWithdrawEndowments is
         IDonationMatching(registrar_config.donationMatchCharitesContract).executeDonorMatch(
           details.id,
           lockedAmount,
-          tx.origin,
+          donationMatch,
           registrar_config.haloToken
         );
-      } else if (
-        tempEndowment.endowType == LibAccounts.EndowmentType.Normal &&
-        tempEndowment.donationMatchContract != address(0)
-      ) {
+      } else if (tempEndowment.donationMatchContract != address(0)) {
         IDonationMatching(tempEndowment.donationMatchContract).executeDonorMatch(
           details.id,
           lockedAmount,
-          tx.origin,
+          donationMatch,
           tempEndowment.daoToken
         );
       }
@@ -330,7 +330,8 @@ contract AccountsDepositWithdrawEndowments is
           AccountMessages.DepositRequest({
             id: beneficiaryEndowId,
             lockedPercentage: 0,
-            liquidPercentage: 100
+            liquidPercentage: 100,
+            donationMatch: address(this) // all liquid so won't trigger a match
           }),
           tokens[t].addr,
           (amountLeftover - withdrawFeeEndow)

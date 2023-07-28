@@ -17,8 +17,8 @@ type TaskArgs = {
 };
 
 task(
-  "upgrade:EndowmentMultiSig",
-  "Will upgrade the implementation of the EndowmentMultiSig contracts"
+  "upgrade:endowmentMultiSig:implementation",
+  "Will upgrade the implementation of the EndowmentMultiSig contract"
 )
   .addOptionalParam(
     "factory",

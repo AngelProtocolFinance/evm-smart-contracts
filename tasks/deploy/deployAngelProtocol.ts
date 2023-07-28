@@ -21,11 +21,7 @@ import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-
 // import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
 
 import {deployGasFwd} from "contracts/core/gasFwd/scripts/deploy";
-import {
-  getOrDeployThirdPartyContracts,
-  updateRegistrarConfig,
-  updateRegistrarNetworkConnections,
-} from "../helpers";
+import {getOrDeployThirdPartyContracts, updateRegistrarNetworkConnections} from "../helpers";
 
 task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
   .addFlag("skipVerify", "Skip contract verification")
@@ -97,29 +93,25 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       const endowmentMultiSig = await deployEndowmentMultiSig(hre);
 
-      await updateRegistrarConfig(
-        registrar?.address,
-        apTeamMultisig?.address,
-        {
-          accountsContract: accounts?.diamond.address, //Address
-          splitMax: config.REGISTRAR_DATA.splitToLiquid.max, //uint256
-          splitMin: config.REGISTRAR_DATA.splitToLiquid.min, //uint256
-          splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit, //uint256
-          collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
-          indexFundContract: indexFund?.address, //address
-          treasury: treasury.address,
-          uniswapRouter: thirdPartyAddresses.uniswap.swapRouter.address, //address
-          uniswapFactory: thirdPartyAddresses.uniswap.factory.address, //address
-          multisigFactory: endowmentMultiSig?.factory.address, //address
-          multisigEmitter: endowmentMultiSig?.emitter.address, //address
-          charityApplications: charityApplications?.address, //address
-          proxyAdmin: proxyAdmin.address, //address
-          usdcAddress: thirdPartyAddresses.usdcToken.address,
-          wMaticAddress: thirdPartyAddresses.wmaticToken.address,
-          gasFwdFactory: gasFwd?.factory.address,
-        },
-        hre
-      );
+      await hre.run("manage:registrar:updateConfig", {
+        accountsContract: accounts?.diamond.address, //Address
+        splitMax: config.REGISTRAR_DATA.splitToLiquid.max, //uint256
+        splitMin: config.REGISTRAR_DATA.splitToLiquid.min, //uint256
+        splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit, //uint256
+        collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
+        indexFundContract: indexFund?.address, //address
+        treasury: treasury.address,
+        uniswapRouter: thirdPartyAddresses.uniswap.swapRouter.address, //address
+        uniswapFactory: thirdPartyAddresses.uniswap.factory.address, //address
+        multisigFactory: endowmentMultiSig?.factory.address, //address
+        multisigEmitter: endowmentMultiSig?.emitter.address, //address
+        charityApplications: charityApplications?.address, //address
+        proxyAdmin: proxyAdmin.address, //address
+        usdcAddress: thirdPartyAddresses.usdcToken.address,
+        wMaticAddress: thirdPartyAddresses.wmaticToken.address,
+        gasFwdFactory: gasFwd?.factory.address,
+        yes: true,
+      });
 
       // Registrar NetworkInfo's Router address must be updated for the current network
       if (router) {
