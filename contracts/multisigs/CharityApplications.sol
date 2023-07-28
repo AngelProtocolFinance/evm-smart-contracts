@@ -239,7 +239,8 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
           AccountMessages.DepositRequest({
             id: endowmentId,
             lockedPercentage: 100 - config.seedSplitToLiquid,
-            liquidPercentage: config.seedSplitToLiquid
+            liquidPercentage: config.seedSplitToLiquid,
+            donationMatch: address(this)
           }),
           config.seedAsset,
           config.seedAmount

@@ -1,24 +1,13 @@
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
 import {task} from "hardhat/config";
-import {confirmAction, getAddresses, isLocalNetwork, logger, verify} from "utils";
-import {updateRegistrarConfig} from "../helpers";
+import {confirmAction, isLocalNetwork, logger, verify} from "utils";
 
 type TaskArgs = {
-  apTeamMultisig?: string;
-  registrar?: string;
   skipVerify: boolean;
   yes: boolean;
 };
 
 task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
-  .addOptionalParam(
-    "apTeamMultisig",
-    "APTeamMultiSig contract address. Will do a local lookup from contract-address.json if none is provided."
-  )
-  .addOptionalParam(
-    "registrar",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided."
-  )
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
@@ -28,26 +17,17 @@ task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const addresses = await getAddresses(hre);
-
-      const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
-      const registrar = taskArgs.registrar || addresses.registrar.proxy;
-
       const deployData = await deployEndowmentMultiSig(hre);
 
       if (!deployData) {
         return;
       }
 
-      await updateRegistrarConfig(
-        registrar,
-        apTeamMultiSig,
-        {
-          multisigFactory: deployData.factory.address,
-          multisigEmitter: deployData.emitter.address,
-        },
-        hre
-      );
+      await hre.run("manage:registrar:updateConfig", {
+        multisigFactory: deployData.factory.address,
+        multisigEmitter: deployData.emitter.address,
+        yes: true,
+      });
 
       if (!isLocalNetwork(hre) && !taskArgs.skipVerify) {
         await verify(hre, deployData.emitter);

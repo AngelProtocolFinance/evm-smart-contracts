@@ -103,10 +103,6 @@ export type AddressObj = {
     implementation: string;
     proxy: string;
   };
-  libraries: {
-    angelCoreStruct: string;
-    stringArray: string;
-  };
   multiSig: {
     charityApplications: {
       implementation: string;

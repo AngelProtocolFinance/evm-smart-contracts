@@ -1,19 +1,9 @@
 import {deployLocalRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
-import {
-  confirmAction,
-  getAddresses,
-  getSigners,
-  isLocalNetwork,
-  logger,
-  verify,
-  NetworkConnectionAction,
-} from "utils";
-import {Registrar__factory} from "typechain-types";
 import {IAccountsStrategy} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-import {updateRegistrarConfig, updateRegistrarNetworkConnections} from "../helpers";
-import {router} from "typechain-types/contracts/core";
+import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
+import {updateRegistrarNetworkConnections} from "../helpers";
 
 type TaskArgs = {
   skipVerify: boolean;

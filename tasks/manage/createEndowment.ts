@@ -1,3 +1,4 @@
+import {BigNumber} from "ethers";
 import {task, types} from "hardhat/config";
 import {
   AccountsCreateEndowment__factory,
@@ -98,6 +99,7 @@ task("manage:createEndowment", "Will create a new endowment")
           apTeam1
         );
         const tx = await charityApplications.proposeApplication(createEndowmentRequest, "0x");
+        logger.out(`Tx hash: ${tx.hash}`);
         const receipt = await tx.wait();
 
         if (!receipt.events?.length) {
@@ -135,7 +137,7 @@ task("manage:createEndowment", "Will create a new endowment")
       const newEndowmentDetails = await queryEndowmentFacet.queryEndowmentDetails(
         config.nextAccountId
       );
-      logger.out("Added endowment:");
+      logger.out(`Added endowment with ID: ${config.nextAccountId.toNumber()}`);
       logger.out(structToObject(newEndowmentDetails));
       logger.out();
     } catch (error) {

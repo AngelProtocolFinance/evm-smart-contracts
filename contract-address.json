@@ -104,10 +104,6 @@
       "implementation": "",
       "proxy": ""
     },
-    "libraries": {
-      "angelCoreStruct": "",
-      "stringArray": ""
-    },
     "multiSig": {
       "charityApplications": {
         "implementation": "",
@@ -260,10 +256,6 @@
     "indexFund": {
       "implementation": "0x59c7E6B2c565Ff92B762523BD6B778CE66dC0302",
       "proxy": "0x9A676e781A523b5d0C0e43731313A708CB607508"
-    },
-    "libraries": {
-      "angelCoreStruct": "",
-      "stringArray": ""
     },
     "multiSig": {
       "charityApplications": {
@@ -418,10 +410,6 @@
       "implementation": "0x73cF9763985f5617AaF635A8707d89E3B697e112",
       "proxy": "0xf6B32b4a0371050321fC01672FDfad76aF55603f"
     },
-    "libraries": {
-      "angelCoreStruct": "",
-      "stringArray": ""
-    },
     "multiSig": {
       "charityApplications": {
         "implementation": "0xA89d149De8F8785c2a6c7ea99B6cC3De5A4c29Af",
@@ -433,7 +421,7 @@
       },
       "endowment": {
         "emitter": {
-          "implementation": "0xf1bBE8aCdd30E2998D1Db8eEaACE95E86DFE7a0a",
+          "implementation": "0x366478C1e2895017FaCb12Ea682CfcBF85720BAC",
           "proxy": "0x8a87385765871bD85d96B7675A3F1Fb663146E4d"
         },
         "factory": "0xc4150f28a33a04B79B60560Bd4684d521edB99AE",

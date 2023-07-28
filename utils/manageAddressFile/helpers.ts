@@ -171,10 +171,6 @@ export function createEmptyAddressObj(): AddressObj {
       implementation: "",
       proxy: "",
     },
-    libraries: {
-      angelCoreStruct: "",
-      stringArray: "",
-    },
     multiSig: {
       charityApplications: {
         implementation: "",
