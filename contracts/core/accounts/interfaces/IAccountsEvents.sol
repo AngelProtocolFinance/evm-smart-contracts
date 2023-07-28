@@ -35,6 +35,7 @@ interface IAccountsEvents {
     uint32 beneficiaryEndowId
   );
   event ConfigUpdated();
+  event DafApprovedEndowmentsUpdated(uint32[] add, uint32[] remove);
   event OwnerUpdated(address owner);
   event DonationMatchCreated(uint256 endowId, address donationMatchContract);
   event TokenSwapped(

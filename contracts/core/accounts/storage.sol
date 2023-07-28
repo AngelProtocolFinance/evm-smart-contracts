@@ -68,6 +68,8 @@ library AccountStorage {
     mapping(uint32 => mapping(address => bool)) AcceptedTokens;
     // endow ID -> token Addr -> Price Feed Addr
     mapping(uint32 => mapping(address => address)) PriceFeeds;
+    // Endowments that a DAF can withdraw to, managed by contract Owner
+    mapping(uint32 => bool) dafApprovedEndowments;
     Config config;
   }
 }

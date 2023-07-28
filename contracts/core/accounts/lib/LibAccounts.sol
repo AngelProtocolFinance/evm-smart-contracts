@@ -14,8 +14,9 @@ library LibAccounts {
   }
 
   enum EndowmentType {
-    Charity,
-    Normal
+    Charity, // Charity Endowment
+    Normal, // Angel Smart Treasury (AST)
+    Daf // Donor Advised Fund
   }
 
   enum Tier {
