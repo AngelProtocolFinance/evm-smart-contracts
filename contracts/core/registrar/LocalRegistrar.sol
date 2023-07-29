@@ -9,6 +9,7 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {IAccountsStrategy} from "../accounts/interfaces/IAccountsStrategy.sol";
+import {Validator} from "../validator.sol";
 
 contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
   /*////////////////////////////////////////////////
@@ -228,10 +229,27 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     address _payout
   ) external {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
-    lrs.FeeSettingsByFeeType[_feeType] = LibAccounts.FeeSetting({
+    LibAccounts.FeeSetting memory newFee = LibAccounts.FeeSetting({
       payoutAddress: _payout,
       bps: _rate
     });
+    Validator.validateFee(newFee);
+    // For any changes to the withdraw-variety of fees, we need to check that the combined
+    // early locked withdraw + standard withdraw is still < 100% with the proposed changes
+    uint256 combinedFees = _rate;
+    if (_feeType == LibAccounts.FeeTypes.Withdraw) {
+      combinedFees += lrs.FeeSettingsByFeeType[LibAccounts.FeeTypes.EarlyLockedWithdraw].bps;
+    } else if (_feeType == LibAccounts.FeeTypes.WithdrawCharity) {
+      combinedFees += lrs.FeeSettingsByFeeType[LibAccounts.FeeTypes.EarlyLockedWithdrawCharity].bps;
+    } else if (_feeType == LibAccounts.FeeTypes.EarlyLockedWithdraw) {
+      combinedFees += lrs.FeeSettingsByFeeType[LibAccounts.FeeTypes.Withdraw].bps;
+    } else if (_feeType == LibAccounts.FeeTypes.EarlyLockedWithdrawCharity) {
+      combinedFees += lrs.FeeSettingsByFeeType[LibAccounts.FeeTypes.WithdrawCharity].bps;
+    }
+    // assert combined fees are less than the fee basis limit
+    require(combinedFees < LibAccounts.FEE_BASIS, "Fees meet or exceed 100%");
+
+    lrs.FeeSettingsByFeeType[_feeType] = newFee;
     emit FeeSettingsUpdated(_feeType, _rate, _payout);
   }
 

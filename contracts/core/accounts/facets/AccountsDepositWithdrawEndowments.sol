@@ -43,14 +43,14 @@ contract AccountsDepositWithdrawEndowments is
     AccountStorage.EndowmentState storage tempEndowmentState = state.STATES[details.id];
     require(!tempEndowmentState.closingEndowment, "Endowment is closed");
 
-    RegistrarStorage.Config memory registrar_config = IRegistrar(tempConfig.registrarContract)
+    RegistrarStorage.Config memory registrarConfig = IRegistrar(tempConfig.registrarContract)
       .queryConfig();
 
     // Wrap MATIC >> wMATIC by calling the deposit() endpoint on wMATIC contract
-    Utils._execute(registrar_config.wMaticAddress, msg.value, abi.encodeWithSignature("deposit()"));
+    Utils._execute(registrarConfig.wMaticAddress, msg.value, abi.encodeWithSignature("deposit()"));
 
     // finish donation process with the newly wrapped MATIC
-    processTokenDeposit(details, registrar_config.wMaticAddress, msg.value);
+    processTokenDeposit(details, registrarConfig.wMaticAddress, msg.value);
   }
 
   /**
@@ -99,27 +99,58 @@ contract AccountsDepositWithdrawEndowments is
 
     require(details.lockedPercentage + details.liquidPercentage == 100, "InvalidSplit");
 
-    RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
+    RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
       .queryConfig();
 
-    if (tempEndowment.depositFee.bps != 0) {
-      uint256 depositFeeAmount = (amount.mul(tempEndowment.depositFee.bps)).div(
-        LibAccounts.FEE_BASIS
-      );
-      amount = amount.sub(depositFeeAmount);
+    // ** DEPOSIT FEE CALCULATIONS **
+    uint256 depositFeeAp = 0;
+    uint256 depositFeeEndow = 0;
+    uint256 depositFeeRateAp;
+    uint256 amountLeftover = amount;
+    // We don't apply fees on Endowment <> Endowment transfers
+    // (ie. originates from this contract via the Withdraw endpoint)
+    if (msg.sender != address(this)) {
+      // ** Protocol-level Deposit Fee **
+      // Looked up from Registrar Fees mapping
+      if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
+        depositFeeRateAp = IRegistrar(state.config.registrarContract)
+          .getFeeSettingsByFeeType(LibAccounts.FeeTypes.DepositCharity)
+          .bps;
+      } else {
+        depositFeeRateAp = IRegistrar(state.config.registrarContract)
+          .getFeeSettingsByFeeType(LibAccounts.FeeTypes.Deposit)
+          .bps;
+      }
+      if (depositFeeRateAp > 0) {
+        depositFeeAp = (amount.mul(tempEndowment.depositFee.bps)).div(LibAccounts.FEE_BASIS);
+        // Transfer AP Protocol fee to treasury
+        IERC20(tokenAddress).safeTransfer(registrarConfig.treasury, depositFeeAp);
 
-      IERC20(tokenAddress).safeTransfer(tempEndowment.depositFee.payoutAddress, depositFeeAmount);
+        amountLeftover -= depositFeeAp;
+      }
+
+      // ** Endowment specific deposit fee **
+      // Calculated on the amount left after Protocol-level fee is deducted
+      if (tempEndowment.depositFee.bps > 0) {
+        depositFeeEndow = (amountLeftover.mul(tempEndowment.depositFee.bps)).div(
+          LibAccounts.FEE_BASIS
+        );
+        // transfer endowment deposit fee to payout address
+        IERC20(tokenAddress).safeTransfer(tempEndowment.depositFee.payoutAddress, depositFeeEndow);
+
+        amountLeftover -= depositFeeEndow;
+      }
     }
 
     uint256 lockedSplitPercent = details.lockedPercentage;
     uint256 liquidSplitPercent = details.liquidPercentage;
 
-    require(registrar_config.indexFundContract != address(0), "No Index Fund");
-    if (msg.sender != registrar_config.indexFundContract) {
+    require(registrarConfig.indexFundContract != address(0), "No Index Fund");
+    if (msg.sender != registrarConfig.indexFundContract) {
       if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
         // use the Registrar default split for Charity Endowments
         (lockedSplitPercent, liquidSplitPercent) = Validator.checkSplits(
-          registrar_config.splitToLiquid,
+          registrarConfig.splitToLiquid,
           lockedSplitPercent,
           liquidSplitPercent,
           tempEndowment.ignoreUserSplits
@@ -135,8 +166,8 @@ contract AccountsDepositWithdrawEndowments is
       }
     }
 
-    uint256 lockedAmount = (amount.mul(lockedSplitPercent)).div(LibAccounts.PERCENT_BASIS);
-    uint256 liquidAmount = (amount.mul(liquidSplitPercent)).div(LibAccounts.PERCENT_BASIS);
+    uint256 lockedAmount = (amountLeftover.mul(lockedSplitPercent)).div(LibAccounts.PERCENT_BASIS);
+    uint256 liquidAmount = (amountLeftover.mul(liquidSplitPercent)).div(LibAccounts.PERCENT_BASIS);
 
     // donation matching flow
     if (lockedAmount > 0) {
@@ -147,13 +178,13 @@ contract AccountsDepositWithdrawEndowments is
 
       if (
         tempEndowment.endowType == LibAccounts.EndowmentType.Charity &&
-        registrar_config.donationMatchCharitesContract != address(0)
+        registrarConfig.donationMatchCharitesContract != address(0)
       ) {
-        IDonationMatching(registrar_config.donationMatchCharitesContract).executeDonorMatch(
+        IDonationMatching(registrarConfig.donationMatchCharitesContract).executeDonorMatch(
           details.id,
           lockedAmount,
           donationMatch,
-          registrar_config.haloToken
+          registrarConfig.haloToken
         );
       } else if (tempEndowment.donationMatchContract != address(0)) {
         IDonationMatching(tempEndowment.donationMatchContract).executeDonorMatch(
@@ -202,7 +233,7 @@ contract AccountsDepositWithdrawEndowments is
     }
 
     // fetch registrar config
-    RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
+    RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
       .queryConfig();
 
     // Charities never mature & Normal endowments optionally mature
@@ -257,22 +288,43 @@ contract AccountsDepositWithdrawEndowments is
     }
 
     for (uint256 t = 0; t < tokens.length; t++) {
-      // FEES & PENALTIES CALCULATIONS
-      uint256 earlyLockedWithdrawPenalty = 0;
+      uint256 earlyLockedWithdrawFeeAp = 0;
+      uint256 earlyLockedWithdrawFeeEndow = 0;
       uint256 withdrawFeeAp = 0;
       uint256 withdrawFeeEndow = 0;
-      uint256 withdrawFeeRateAp;
-      uint256 amountLeftover;
+      uint256 amountLeftover = tokens[t].amnt;
+
+      // ** FEES & PENALTIES CALCULATIONS **
       // Do not apply fees for Endowment <> Endowment withdraws/transfers
       if (beneficiaryAddress != address(0)) {
-        // ** SHARED LOCKED WITHDRAWAL RULES **
+        // ** WITHDRAW FEE (STANDARD) **
+        // Protocol-level fee calculated based on Registrar rate look-up
+        if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
+          withdrawFeeAp = (
+            tokens[t].amnt.mul(
+              IRegistrar(state.config.registrarContract)
+                .getFeeSettingsByFeeType(LibAccounts.FeeTypes.WithdrawCharity)
+                .bps
+            )
+          ).div(LibAccounts.FEE_BASIS);
+        } else {
+          withdrawFeeAp = (
+            tokens[t].amnt.mul(
+              IRegistrar(state.config.registrarContract)
+                .getFeeSettingsByFeeType(LibAccounts.FeeTypes.Withdraw)
+                .bps
+            )
+          ).div(LibAccounts.FEE_BASIS);
+        }
+        amountLeftover -= withdrawFeeAp;
+
+        // ** EARLY LOCKED WITHDRAW FEE **
         // Can withdraw early for a (possible) penalty fee
         if (acctType == IVault.VaultType.LOCKED && !mature) {
-          // Calculate the early withdraw penalty based on the earlyLockedWithdrawFee setting
-          // Charity: Registrar based setting for all Charity Endowments
-          // Normal: Endowment specific setting that owners can (optionally) set
+          // Protocol-level early withdraw penalty fee
+          // Looked up from the Registrar based fee settings & calculated against original token amount
           if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
-            earlyLockedWithdrawPenalty = (
+            earlyLockedWithdrawFeeAp = (
               tokens[t].amnt.mul(
                 IRegistrar(state.config.registrarContract)
                   .getFeeSettingsByFeeType(LibAccounts.FeeTypes.EarlyLockedWithdrawCharity)
@@ -280,54 +332,57 @@ contract AccountsDepositWithdrawEndowments is
               )
             ).div(LibAccounts.FEE_BASIS);
           } else {
-            earlyLockedWithdrawPenalty = (
-              tokens[t].amnt.mul(tempEndowment.earlyLockedWithdrawFee.bps)
+            earlyLockedWithdrawFeeAp = (
+              tokens[t].amnt.mul(
+                IRegistrar(state.config.registrarContract)
+                  .getFeeSettingsByFeeType(LibAccounts.FeeTypes.EarlyLockedWithdraw)
+                  .bps
+              )
             ).div(LibAccounts.FEE_BASIS);
           }
-        }
-        // protocol-level fee rate looked up from appropriate source
-        if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
-          withdrawFeeRateAp = IRegistrar(state.config.registrarContract)
-            .getFeeSettingsByFeeType(LibAccounts.FeeTypes.WithdrawCharity)
-            .bps;
-        } else {
-          withdrawFeeRateAp = IRegistrar(state.config.registrarContract)
-            .getFeeSettingsByFeeType(LibAccounts.FeeTypes.WithdrawNormal)
-            .bps;
-        }
-        // calculate AP Protocol fee owed on withdrawn token amount
-        withdrawFeeAp = (tokens[t].amnt.mul(withdrawFeeRateAp)).div(LibAccounts.FEE_BASIS);
+          // Deduct AP Early Locked Withdraw Fee to arrive at an amountLeftover
+          // that all Endowment-level Fees hereafter can safely be calculated against
+          amountLeftover -= earlyLockedWithdrawFeeAp;
 
-        // Transfer AP Protocol fee to treasury
-        // (ie. standard Withdraw Fee + any early Locked Withdraw Penalty)
-        IERC20(tokens[t].addr).safeTransfer(
-          registrar_config.treasury,
-          withdrawFeeAp + earlyLockedWithdrawPenalty
-        );
+          // Normal/DAF Endowment-level Early Withdraw Fee that owners can (optionally) set
+          if (tempEndowment.earlyLockedWithdrawFee.bps > 0) {
+            earlyLockedWithdrawFeeEndow = (
+              (tokens[t].amnt - earlyLockedWithdrawFeeAp).mul(
+                tempEndowment.earlyLockedWithdrawFee.bps
+              )
+            ).div(LibAccounts.FEE_BASIS);
+            // transfer endowment early withdraw fee to payout address
+            IERC20(tokens[t].addr).safeTransfer(
+              tempEndowment.earlyLockedWithdrawFee.payoutAddress,
+              withdrawFeeEndow
+            );
+          }
+        }
 
-        // ** Endowment specific withdraw fee **
-        // Endowment specific withdraw fee needs to be calculated against the amount
-        // leftover after all AP-centric withdraw fees are subtracted.
-        amountLeftover = tokens[t].amnt - withdrawFeeAp - earlyLockedWithdrawPenalty;
-        if (amountLeftover > 0 && tempEndowment.withdrawFee.bps != 0) {
+        // ** WITHDRAW FEE (STANDARD): Endowment-Level fee **
+        // Calculated on the amount left after all Protocol-level fees are deducted
+        if (tempEndowment.withdrawFee.bps > 0) {
           withdrawFeeEndow = (amountLeftover.mul(tempEndowment.withdrawFee.bps)).div(
             LibAccounts.FEE_BASIS
           );
-
           // transfer endowment withdraw fee to payout address
           IERC20(tokens[t].addr).safeTransfer(
             tempEndowment.withdrawFee.payoutAddress,
             withdrawFeeEndow
           );
         }
-      }
 
-      // Final withdraw amount left after all fees/penalties are accounted for
-      amountLeftover =
-        tokens[t].amnt -
-        withdrawFeeAp -
-        earlyLockedWithdrawPenalty -
-        withdrawFeeEndow;
+        // Deduct all Endowment-level fees to get a final withdraw amount
+        amountLeftover -= (earlyLockedWithdrawFeeEndow + withdrawFeeEndow);
+
+        // Transfer all Protocol-level fees to the Treasury
+        if ((withdrawFeeAp + earlyLockedWithdrawFeeAp) > 0) {
+          IERC20(tokens[t].addr).safeTransfer(
+            registrarConfig.treasury,
+            (withdrawFeeAp + earlyLockedWithdrawFeeAp)
+          );
+        }
+      }
 
       uint256 current_bal;
       if (acctType == IVault.VaultType.LOCKED) {

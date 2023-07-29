@@ -406,6 +406,13 @@ contract AccountsUpdateEndowmentSettingsController is
       tempEndowment.balanceFee = details.balanceFee;
     }
 
+    // check that combined Endowment-level Withdraw Fees do not exceed 100%
+    require(
+      (tempEndowment.withdrawFee.bps + tempEndowment.earlyLockedWithdrawFee.bps) <=
+        LibAccounts.FEE_BASIS,
+      "Combined Withdraw Fees exceed 100%"
+    );
+
     state.ENDOWMENTS[details.id] = tempEndowment;
     emit EndowmentUpdated(details.id);
   }

@@ -93,10 +93,12 @@ library LibAccounts {
   enum FeeTypes {
     Default,
     Harvest,
+    Deposit,
+    DepositCharity,
+    Withdraw,
     WithdrawCharity,
-    WithdrawNormal,
-    EarlyLockedWithdrawCharity,
-    EarlyLockedWithdrawNormal
+    EarlyLockedWithdraw,
+    EarlyLockedWithdrawCharity
   }
 
   struct FeeSetting {
