@@ -8,7 +8,7 @@ task("manage:registrar:setFeeSettings")
   .addParam(
     "feeType",
     `The enum of the fee, possible values: ${getEnumKeys(FeeTypes)
-      .map((key) => `${key} - ${FeeTypes[key as any]}`)
+      .map((key) => `${key} - ${FeeTypes[key]}`)
       .join(", ")}`,
     0,
     types.int
