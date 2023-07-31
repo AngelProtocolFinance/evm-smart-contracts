@@ -2,6 +2,7 @@ export * from "./confirmAction";
 export * from "./constants";
 export * from "./env.config";
 export * from "./getContractName";
+export * from "./getEnumKeys";
 export * from "./getSigners";
 export * from "./keygen";
 export * as logger from "./logger";
