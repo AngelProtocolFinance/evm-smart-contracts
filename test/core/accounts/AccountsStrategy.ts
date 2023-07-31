@@ -17,8 +17,6 @@ import {
   DEFAULT_SETTINGS_STRUCT,
   DEFAULT_STRATEGY_PARAMS,
   DEFAULT_STRATEGY_SELECTOR,
-  StrategyApprovalState,
-  VaultActionStatus,
   VaultActionStructToArray,
   deployDummyERC20,
   deployDummyGateway,
@@ -42,7 +40,7 @@ import {
 } from "typechain-types";
 import {IAccountsStrategy} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {getSigners} from "utils";
+import {StrategyApprovalState, VaultActionStatus, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);

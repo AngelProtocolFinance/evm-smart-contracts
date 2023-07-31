@@ -33,11 +33,6 @@ export declare namespace IVaultHelpers {
   };
 }
 
-export enum VaultType {
-  LOCKED,
-  LIQUID,
-}
-
 export function VaultActionStructToArray(actionData: IVaultHelpers.VaultActionDataStruct) {
   return [
     actionData.destinationChain,

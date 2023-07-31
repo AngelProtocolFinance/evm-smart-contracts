@@ -3,7 +3,6 @@ import {expect} from "chai";
 import hre from "hardhat";
 import {
   IVaultHelpers,
-  StrategyApprovalState,
   deployDummyERC20,
   deployDummyGasService,
   deployDummyGateway,
@@ -21,7 +20,7 @@ import {
   Router,
   Router__factory,
 } from "typechain-types";
-import {getSigners} from "utils";
+import {StrategyApprovalState, getSigners} from "utils";
 import {LocalRegistrarLib} from "../../../typechain-types/contracts/core/registrar/LocalRegistrar";
 
 describe("Router", function () {
