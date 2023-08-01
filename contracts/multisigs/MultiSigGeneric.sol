@@ -110,13 +110,7 @@ contract MultiSigGeneric is
     approvalsRequired = _approvalsRequired;
     requireExecution = _requireExecution;
     transactionExpiry = _transactionExpiry;
-    emit InitializedMultiSig(
-      address(this),
-      owners,
-      approvalsRequired,
-      requireExecution,
-      transactionExpiry
-    );
+    emitInitializedMultiSig(owners, approvalsRequired, requireExecution, transactionExpiry);
   }
 
   /// @dev Allows to add new owners. Transaction has to be sent by wallet.
@@ -130,7 +124,7 @@ contract MultiSigGeneric is
       // set the owner address to false in mapping
       isOwner[owners[o]] = true;
     }
-    emit OwnersAdded(address(this), owners);
+    emitOwnersAdded(owners);
   }
 
   /// @dev Allows to remove owners. Transaction has to be sent by wallet.
@@ -148,7 +142,7 @@ contract MultiSigGeneric is
       // set the owner address to false in mapping
       isOwner[owners[o]] = false;
     }
-    emit OwnersRemoved(address(this), owners);
+    emitOwnersRemoved(owners);
     // adjust the approval threshold downward if we've removed more members than can meet the currently
     // set threshold level. (ex. Prevent 10 owners total needing 15 approvals to execute txs)
     if (approvalsRequired > activeOwnersCount) changeApprovalsRequirement(activeOwnersCount);
@@ -163,7 +157,7 @@ contract MultiSigGeneric is
   ) public virtual override onlyWallet ownerExists(currOwner) ownerDoesNotExist(newOwner) {
     isOwner[currOwner] = false;
     isOwner[newOwner] = true;
-    emit OwnerReplaced(address(this), currOwner, newOwner);
+    emitOwnerReplaced(currOwner, newOwner);
   }
 
   /// @dev Allows to change the number of required confirmations. Transaction has to be sent by wallet.
@@ -178,21 +172,21 @@ contract MultiSigGeneric is
     validApprovalsRequirement(activeOwnersCount, _approvalsRequired)
   {
     approvalsRequired = _approvalsRequired;
-    emit ApprovalsRequiredChanged(address(this), _approvalsRequired);
+    emitApprovalsRequiredChanged(_approvalsRequired);
   }
 
   /// @dev Allows to change whether explicit execution step is needed once the required number of confirmations is met. Transaction has to be sent by wallet.
   /// @param _requireExecution Is an explicit execution step is needed
   function changeRequireExecution(bool _requireExecution) public virtual override onlyWallet {
     requireExecution = _requireExecution;
-    emit RequireExecutionChanged(address(this), _requireExecution);
+    emitRequireExecutionChanged(_requireExecution);
   }
 
   /// @dev Allows to change the expiry time for transactions.
   /// @param _transactionExpiry time that a newly created transaction is valid for
   function changeTransactionExpiry(uint256 _transactionExpiry) public virtual override onlyWallet {
     transactionExpiry = _transactionExpiry;
-    emit ExpiryChanged(address(this), _transactionExpiry);
+    emitExpiryChanged(_transactionExpiry);
   }
 
   /// @dev Allows an owner to submit and confirm a transaction.
@@ -227,7 +221,7 @@ contract MultiSigGeneric is
   {
     confirmations[transactionId].confirmationsByOwner[msg.sender] = true;
     confirmations[transactionId].count += 1;
-    emit TransactionConfirmed(address(this), msg.sender, transactionId);
+    emitTransactionConfirmed(msg.sender, transactionId);
     // if execution is required, do not auto execute
     if (!requireExecution) {
       executeTransaction(transactionId);
@@ -250,7 +244,7 @@ contract MultiSigGeneric is
   {
     confirmations[transactionId].confirmationsByOwner[msg.sender] = false;
     confirmations[transactionId].count -= 1;
-    emit TransactionConfirmationRevoked(address(this), msg.sender, transactionId);
+    emitTransactionConfirmationRevoked(msg.sender, transactionId);
   }
 
   /// @dev Allows current owners to revoke a confirmation for a non-executed transaction from a removed/non-current owner.
@@ -272,7 +266,7 @@ contract MultiSigGeneric is
     require(!isOwner[formerOwner], "Attempting to revert confirmation of a current owner");
     confirmations[transactionId].confirmationsByOwner[formerOwner] = false;
     confirmations[transactionId].count -= 1;
-    emit TransactionConfirmationRevoked(address(this), formerOwner, transactionId);
+    emitTransactionConfirmationRevoked(formerOwner, transactionId);
   }
 
   /// @dev Allows anyone to execute a confirmed transaction.
@@ -290,7 +284,7 @@ contract MultiSigGeneric is
     MultiSigStorage.Transaction storage txn = transactions[transactionId];
     txn.executed = true;
     Utils._execute(txn.destination, txn.value, txn.data);
-    emit TransactionExecuted(address(this), transactionId);
+    emitTransactionExecuted(transactionId);
   }
 
   /// @dev Returns the confirmation status of a transaction.
@@ -348,6 +342,68 @@ contract MultiSigGeneric is
       metadata: metadata
     });
     transactionCount += 1;
-    emit TransactionSubmitted(address(this), msg.sender, transactionId, metadata);
+    emitTransactionSubmitted(msg.sender, transactionId, metadata);
+  }
+
+  function emitInitializedMultiSig(
+    address[] memory owners,
+    uint256 _approvalsRequired,
+    bool _requireExecution,
+    uint256 _transactionExpiry
+  ) public virtual {
+    emit InitializedMultiSig(
+      address(this),
+      owners,
+      _approvalsRequired,
+      _requireExecution,
+      _transactionExpiry
+    );
+  }
+
+  function emitOwnersAdded(address[] memory owners) public virtual {
+    emit OwnersAdded(address(this), owners);
+  }
+
+  function emitOwnersRemoved(address[] memory owners) public virtual {
+    emit OwnersRemoved(address(this), owners);
+  }
+
+  function emitOwnerReplaced(address currOwner, address newOwner) public virtual {
+    emit OwnerReplaced(address(this), currOwner, newOwner);
+  }
+
+  function emitApprovalsRequiredChanged(uint256 _approvalsRequired) public virtual {
+    emit ApprovalsRequiredChanged(address(this), _approvalsRequired);
+  }
+
+  function emitRequireExecutionChanged(bool _requireExecution) public virtual {
+    emit RequireExecutionChanged(address(this), _requireExecution);
+  }
+
+  function emitExpiryChanged(uint256 _transactionExpiry) public virtual {
+    emit ExpiryChanged(address(this), _transactionExpiry);
+  }
+
+  function emitTransactionSubmitted(
+    address sender,
+    uint256 transactionId,
+    bytes memory metadata
+  ) public virtual {
+    emit TransactionSubmitted(address(this), sender, transactionId, metadata);
+  }
+
+  function emitTransactionConfirmed(address sender, uint256 transactionId) public virtual {
+    emit TransactionConfirmed(address(this), sender, transactionId);
+  }
+
+  function emitTransactionConfirmationRevoked(
+    address sender,
+    uint256 transactionId
+  ) public virtual {
+    emit TransactionConfirmationRevoked(address(this), sender, transactionId);
+  }
+
+  function emitTransactionExecuted(uint256 transactionId) public virtual {
+    emit TransactionExecuted(address(this), transactionId);
   }
 }
