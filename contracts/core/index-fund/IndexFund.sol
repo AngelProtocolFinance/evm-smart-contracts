@@ -141,7 +141,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
       state.rotatingFunds.push(state.nextFundId);
       // If there are no funds created or no active funds yet
       // or if the current active fund is expired:
-      if (state.activeFund == 0 || fundIsExpired(state.activeFund, block.timestamp)) {
+      if (state.activeFund == 0 || fundIsExpired(state.activeFund)) {
         // prep rotating funds list & set the next Active Fund
         prepRotatingFunds();
         state.activeFund = nextActiveFund();
@@ -158,7 +158,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
    * @param fundId id of index fund to be removed
    */
   function removeIndexFund(uint256 fundId) external onlyOwner {
-    require(!fundIsExpired(fundId, block.timestamp), "Fund Expired");
+    require(!fundIsExpired(fundId), "Fund Expired");
     removeFund(fundId);
   }
 
@@ -205,7 +205,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
       endowments.length <= MAX_ENDOWMENT_MEMBERS,
       "Fund endowment members exceeds upper limit"
     );
-    require(!fundIsExpired(fundId, block.timestamp), "Fund Expired");
+    require(!fundIsExpired(fundId), "Fund Expired");
 
     uint32[] memory currEndowments = state.Funds[fundId].endowments;
     bool found;
@@ -270,7 +270,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
 
     if (fundId != 0) {
       // Depositor has chosen a specific fund to send tokens to. Send 100% to that fund.
-      require(!fundIsExpired(fundId, block.timestamp), "Expired Fund");
+      require(!fundIsExpired(fundId), "Expired Fund");
       // send donation messages to Accounts contract
       processDonations(
         registrarConfig.accountsContract,
@@ -498,11 +498,11 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
   /**
    * @dev Check if fund is expired
    * @param fundId Fund ID to check expired status
-   * @param envTime block time
    * @return True if Fund is expired
    */
-  function fundIsExpired(uint256 fundId, uint256 envTime) internal view returns (bool) {
-    return (state.Funds[fundId].expiryTime != 0 && envTime > state.Funds[fundId].expiryTime);
+  function fundIsExpired(uint256 fundId) internal view returns (bool) {
+    return (state.Funds[fundId].expiryTime != 0 &&
+      block.timestamp > state.Funds[fundId].expiryTime);
   }
 
   /**
@@ -513,7 +513,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
    */
   function prepRotatingFunds() internal {
     for (uint256 i = 0; i < state.rotatingFunds.length; i++) {
-      if (fundIsExpired(state.rotatingFunds[i], block.timestamp)) {
+      if (fundIsExpired(state.rotatingFunds[i])) {
         Array.remove(state.rotatingFunds, i);
       }
     }
