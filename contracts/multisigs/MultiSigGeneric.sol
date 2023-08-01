@@ -97,6 +97,10 @@ contract MultiSigGeneric is
   function addOwners(address[] memory owners) public virtual override onlyWallet {
     require(owners.length > 0, "Empty new owners list passed");
     for (uint256 o = 0; o < owners.length; o++) {
+      require(
+        Validator.addressChecker(owners[o]),
+        string.concat("Invalid owner address at index: '", Strings.toString(o))
+      );
       require(!isOwner[owners[o]], "New owner already exists");
       // increment active owners count by 1
       activeOwnersCount += 1;
@@ -134,6 +138,7 @@ contract MultiSigGeneric is
     address currOwner,
     address newOwner
   ) public virtual override onlyWallet ownerExists(currOwner) ownerDoesNotExist(newOwner) {
+    require(Validator.addressChecker(newOwner), "Invalid new owner address");
     isOwner[currOwner] = false;
     isOwner[newOwner] = true;
     emitOwnerReplaced(currOwner, newOwner);
