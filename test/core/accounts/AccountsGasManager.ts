@@ -161,7 +161,7 @@ describe("AccountsGasManager", function () {
         },
       };
       await state.setEndowmentDetails(ACCOUNT_ID, endowment);
-      await state.setEndowmentTokenBalance(ACCOUNT_ID,  token.address, BALANCE, BALANCE);
+      await state.setEndowmentTokenBalance(ACCOUNT_ID, token.address, BALANCE, BALANCE);
 
       expect(
         await facet.connect(user).addGas(ACCOUNT_ID, VaultType.LOCKED, token.address, GAS_COST)
@@ -189,7 +189,7 @@ describe("AccountsGasManager", function () {
         },
       };
       await state.setEndowmentDetails(ACCOUNT_ID, endowment);
-      await state.setEndowmentTokenBalance(ACCOUNT_ID,  token.address, BALANCE, BALANCE);
+      await state.setEndowmentTokenBalance(ACCOUNT_ID, token.address, BALANCE, BALANCE);
 
       expect(
         await facet.connect(user).addGas(ACCOUNT_ID, VaultType.LIQUID, token.address, GAS_COST)
@@ -206,7 +206,7 @@ describe("AccountsGasManager", function () {
         gasFwd: gasFwd.address,
       };
       await state.setEndowmentDetails(ACCOUNT_ID, endowment);
-      await state.setEndowmentTokenBalance(ACCOUNT_ID,  token.address, BALANCE, BALANCE);
+      await state.setEndowmentTokenBalance(ACCOUNT_ID, token.address, BALANCE, BALANCE);
 
       expect(
         await facet.connect(user).addGas(ACCOUNT_ID, VaultType.LIQUID, token.address, GAS_COST)
