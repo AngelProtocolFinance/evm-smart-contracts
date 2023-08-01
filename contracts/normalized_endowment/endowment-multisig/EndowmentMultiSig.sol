@@ -41,13 +41,13 @@ contract EndowmentMultiSig is MultiSigGeneric {
 
   /// @dev Allows to add new owners. Transaction has to be sent by wallet.
   /// @param owners Addresses of new owners.
-  function emitOwnersAdded(address[] memory owners) public override {
+  function emitOwnersAdded(address[] memory owners) internal override {
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).ownersAddedEndowment(ENDOWMENT_ID, owners);
   }
 
   /// @dev Allows to remove owners. Transaction has to be sent by wallet.
   /// @param owners Addresses of removed owners.
-  function emitOwnersRemoved(address[] memory owners) public override {
+  function emitOwnersRemoved(address[] memory owners) internal override {
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).ownersRemovedEndowment(ENDOWMENT_ID, owners);
   }
 
@@ -57,7 +57,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
    * @param currOwner the owner to be replaced
    * @param newOwner the new owner to add
    */
-  function emitOwnerReplaced(address currOwner, address newOwner) public override {
+  function emitOwnerReplaced(address currOwner, address newOwner) internal override {
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).ownerReplacedEndowment(
       ENDOWMENT_ID,
       currOwner,
@@ -70,7 +70,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
    * @dev emits the requirementChangeEndowment event
    * @param _approvalsRequired the new required number of signatures
    */
-  function emitApprovalsRequiredChanged(uint256 _approvalsRequired) public override {
+  function emitApprovalsRequiredChanged(uint256 _approvalsRequired) internal override {
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).approvalsRequirementChangedEndowment(
       ENDOWMENT_ID,
       _approvalsRequired
@@ -82,7 +82,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
    * @dev emits the transactionExpiryChangeEndowment event
    * @param _transactionExpiry the new validity for newly created transactions
    */
-  function emitExpiryChanged(uint256 _transactionExpiry) public override {
+  function emitExpiryChanged(uint256 _transactionExpiry) internal override {
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).expiryChangedEndowment(
       ENDOWMENT_ID,
       _transactionExpiry
@@ -94,7 +94,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
    * @dev emits the requirementChangeEndowment event
    * @param _requireExecution Explicit execution step is needed
    */
-  function emitRequireExecutionChanged(bool _requireExecution) public override {
+  function emitRequireExecutionChanged(bool _requireExecution) internal override {
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).requireExecutionChangedEndowment(
       ENDOWMENT_ID,
       _requireExecution
@@ -105,7 +105,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
     address sender,
     uint256 transactionId,
     bytes memory metadata
-  ) public override {
+  ) internal override {
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).transactionSubmittedEndowment(
       ENDOWMENT_ID,
       sender,
@@ -119,7 +119,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
    * @dev emits the confirmEndowment event
    * @param transactionId the transaction id
    */
-  function emitTransactionConfirmed(address sender, uint256 transactionId) public override {
+  function emitTransactionConfirmed(address sender, uint256 transactionId) internal override {
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).transactionConfirmedEndowment(
       ENDOWMENT_ID,
       sender,
@@ -135,7 +135,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
   function emitTransactionConfirmationRevoked(
     address sender,
     uint256 transactionId
-  ) public override {
+  ) internal override {
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).transactionConfirmationRevokedEndowment(
       ENDOWMENT_ID,
       sender,
@@ -148,7 +148,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
    * @dev emits the executeEndowment event, overrides underlying execute function
    * @param transactionId the transaction id
    */
-  function emitTransactionExecuted(uint256 transactionId) public override {
+  function emitTransactionExecuted(uint256 transactionId) internal override {
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).transactionExecutedEndowment(
       ENDOWMENT_ID,
       transactionId

@@ -347,7 +347,7 @@ contract MultiSigGeneric is
     uint256 _approvalsRequired,
     bool _requireExecution,
     uint256 _transactionExpiry
-  ) public virtual {
+  ) internal virtual {
     emit InitializedMultiSig(
       address(this),
       owners,
@@ -357,27 +357,27 @@ contract MultiSigGeneric is
     );
   }
 
-  function emitOwnersAdded(address[] memory owners) public virtual {
+  function emitOwnersAdded(address[] memory owners) internal virtual {
     emit OwnersAdded(address(this), owners);
   }
 
-  function emitOwnersRemoved(address[] memory owners) public virtual {
+  function emitOwnersRemoved(address[] memory owners) internal virtual {
     emit OwnersRemoved(address(this), owners);
   }
 
-  function emitOwnerReplaced(address currOwner, address newOwner) public virtual {
+  function emitOwnerReplaced(address currOwner, address newOwner) internal virtual {
     emit OwnerReplaced(address(this), currOwner, newOwner);
   }
 
-  function emitApprovalsRequiredChanged(uint256 _approvalsRequired) public virtual {
+  function emitApprovalsRequiredChanged(uint256 _approvalsRequired) internal virtual {
     emit ApprovalsRequiredChanged(address(this), _approvalsRequired);
   }
 
-  function emitRequireExecutionChanged(bool _requireExecution) public virtual {
+  function emitRequireExecutionChanged(bool _requireExecution) internal virtual {
     emit RequireExecutionChanged(address(this), _requireExecution);
   }
 
-  function emitExpiryChanged(uint256 _transactionExpiry) public virtual {
+  function emitExpiryChanged(uint256 _transactionExpiry) internal virtual {
     emit ExpiryChanged(address(this), _transactionExpiry);
   }
 
@@ -385,22 +385,22 @@ contract MultiSigGeneric is
     address sender,
     uint256 transactionId,
     bytes memory metadata
-  ) public virtual {
+  ) internal virtual {
     emit TransactionSubmitted(address(this), sender, transactionId, metadata);
   }
 
-  function emitTransactionConfirmed(address sender, uint256 transactionId) public virtual {
+  function emitTransactionConfirmed(address sender, uint256 transactionId) internal virtual {
     emit TransactionConfirmed(address(this), sender, transactionId);
   }
 
   function emitTransactionConfirmationRevoked(
     address sender,
     uint256 transactionId
-  ) public virtual {
+  ) internal virtual {
     emit TransactionConfirmationRevoked(address(this), sender, transactionId);
   }
 
-  function emitTransactionExecuted(uint256 transactionId) public virtual {
+  function emitTransactionExecuted(uint256 transactionId) internal virtual {
     emit TransactionExecuted(address(this), transactionId);
   }
 }
