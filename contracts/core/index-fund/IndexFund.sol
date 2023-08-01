@@ -230,7 +230,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
       state.EndowmentsByFund[fundId].keys.length <= MAX_ENDOWMENT_MEMBERS,
       "Fund endowment members exceeds upper limit"
     );
-    emit MembersUpdated(fundId, IterableMapping.keysAsUint32(state.EndowmentsByFund[fundId]));
+    emit MembersUpdated(fundId, keysAsUint32(state.EndowmentsByFund[fundId]));
   }
 
   /**
@@ -407,7 +407,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
         id: state.Funds[fundId].id,
         name: state.Funds[fundId].name,
         description: state.Funds[fundId].description,
-        endowments: IterableMapping.keysAsUint32(state.EndowmentsByFund[fundId]),
+        endowments: keysAsUint32(state.EndowmentsByFund[fundId]),
         splitToLiquid: state.Funds[fundId].splitToLiquid,
         expiryTime: state.Funds[fundId].expiryTime
       });
@@ -434,7 +434,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
         id: state.Funds[state.activeFund].id,
         name: state.Funds[state.activeFund].name,
         description: state.Funds[state.activeFund].description,
-        endowments: IterableMapping.keysAsUint32(state.EndowmentsByFund[state.activeFund]),
+        endowments: keysAsUint32(state.EndowmentsByFund[state.activeFund]),
         splitToLiquid: state.Funds[state.activeFund].splitToLiquid,
         expiryTime: state.Funds[state.activeFund].expiryTime
       });
@@ -546,5 +546,18 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
       emit ActiveFundUpdated(state.rotatingFunds[index + 1]);
       return state.rotatingFunds[index + 1];
     }
+  }
+
+  /**
+   * @dev Converts a Map's keys from a Uint256 Array to Uint32 Array
+   * @param map Map
+   * @return keys32 Map's keys as a Uint32 Array
+   */
+  function keysAsUint32(IterableMapping.Map storage map) internal view returns (uint32[] memory) {
+    uint32[] memory keys32 = new uint32[](map.keys.length);
+    for (uint256 i = 0; i < map.keys.length; i++) {
+      keys32[i] = uint32(map.keys[i]);
+    }
+    return keys32;
   }
 }

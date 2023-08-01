@@ -49,17 +49,4 @@ contract IterableMapping {
     map.keys[index] = lastKey;
     map.keys.pop();
   }
-
-  /**
-   * @dev Converts a Map's keys from a Uint256 Array to Uint32 Array
-   * @param map Map
-   * @return keys32 Map's keys as a Uint32 Array
-   */
-  function keysAsUint32(Map storage map) internal view returns (uint32[] memory) {
-    uint32[] memory keys32 = new uint32[](map.keys.length);
-    for (uint256 i = 0; i < map.keys.length; i++) {
-      keys32[i] = uint32(map.keys[i]);
-    }
-    return keys32;
-  }
 }
