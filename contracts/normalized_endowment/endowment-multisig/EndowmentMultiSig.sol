@@ -33,7 +33,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
     bool _requireExecution,
     uint256 _transactionExpiry
   ) public initializer {
-    require(Validator.addressChecker(_emitter), "Invalid Address");
+    require(Validator.addressChecker(_emitter), "Invalid Emitter Address");
     ENDOWMENT_ID = _endowmentId;
     EMITTER_ADDRESS = _emitter;
     super.initialize(_owners, _required, _requireExecution, _transactionExpiry);
