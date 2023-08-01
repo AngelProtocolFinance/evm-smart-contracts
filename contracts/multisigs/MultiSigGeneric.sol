@@ -84,30 +84,6 @@ contract MultiSigGeneric is
   /*
    * Public functions
    */
-  /// @dev Contract constructor sets initial owners and required number of confirmations.
-  /// @param owners List of initial owners.
-  /// @param _approvalsRequired Number of required confirmations.
-  /// @param _requireExecution setting for if an explicit execution call is required
-  /// @param _transactionExpiry Proposal expiry time in seconds
-  function initialize(
-    address[] memory owners,
-    uint256 _approvalsRequired,
-    bool _requireExecution,
-    uint256 _transactionExpiry
-  ) internal initializer validApprovalsRequirement(owners.length, _approvalsRequired) {
-    require(owners.length > 0, "Must pass at least one owner address");
-    for (uint256 i = 0; i < owners.length; i++) {
-      require(!isOwner[owners[i]] && Validator.addressChecker(owners[i]));
-      isOwner[owners[i]] = true;
-    }
-    activeOwnersCount = owners.length;
-
-    // set storage variables
-    approvalsRequired = _approvalsRequired;
-    requireExecution = _requireExecution;
-    transactionExpiry = _transactionExpiry;
-    emitInitializedMultiSig(owners, approvalsRequired, requireExecution, transactionExpiry);
-  }
 
   /// @dev Allows to add new owners. Transaction has to be sent by wallet.
   /// @param owners Addresses of new owners.
@@ -316,6 +292,31 @@ contract MultiSigGeneric is
   /*
    * Internal functions
    */
+  /// @dev Contract constructor sets initial owners and required number of confirmations.
+  /// @param owners List of initial owners.
+  /// @param _approvalsRequired Number of required confirmations.
+  /// @param _requireExecution setting for if an explicit execution call is required
+  /// @param _transactionExpiry Proposal expiry time in seconds
+  function initialize(
+    address[] memory owners,
+    uint256 _approvalsRequired,
+    bool _requireExecution,
+    uint256 _transactionExpiry
+  ) internal initializer validApprovalsRequirement(owners.length, _approvalsRequired) {
+    require(owners.length > 0, "Must pass at least one owner address");
+    for (uint256 i = 0; i < owners.length; i++) {
+      require(!isOwner[owners[i]] && Validator.addressChecker(owners[i]));
+      isOwner[owners[i]] = true;
+    }
+    activeOwnersCount = owners.length;
+
+    // set storage variables
+    approvalsRequired = _approvalsRequired;
+    requireExecution = _requireExecution;
+    transactionExpiry = _transactionExpiry;
+    emitInitializedMultiSig(owners, approvalsRequired, requireExecution, transactionExpiry);
+  }
+
   /// @dev Adds a new transaction to the transaction mapping, if transaction does not exist yet.
   /// @param destination Transaction target address.
   /// @param value Transaction ether value.
