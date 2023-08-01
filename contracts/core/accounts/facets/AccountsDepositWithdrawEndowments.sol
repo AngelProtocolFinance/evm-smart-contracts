@@ -236,6 +236,14 @@ contract AccountsDepositWithdrawEndowments is
     RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
       .queryConfig();
 
+    // check endowment beneficiary, if specified, is not closed
+    if (beneficiaryEndowId != 0) {
+      require(
+        !state.STATES[beneficiaryEndowId].closingEndowment,
+        "Beneficiary endowment is closed"
+      );
+    }
+
     // Charities never mature & Normal endowments optionally mature
     // Check if maturity has been reached for the endowment (0 == no maturity date)
     bool mature = (tempEndowment.maturityTime != 0 &&
@@ -288,6 +296,15 @@ contract AccountsDepositWithdrawEndowments is
     }
 
     for (uint256 t = 0; t < tokens.length; t++) {
+      uint256 currentBal;
+      if (acctType == IVault.VaultType.LOCKED) {
+        currentBal = state.STATES[id].balances.locked[tokens[t].addr];
+      } else {
+        currentBal = state.STATES[id].balances.liquid[tokens[t].addr];
+      }
+      // ensure balance of tokens can cover the requested withdraw amount
+      require(currentBal >= tokens[t].amnt, "Insufficient Funds");
+
       uint256 earlyLockedWithdrawFeeAp = 0;
       uint256 earlyLockedWithdrawFeeEndow = 0;
       uint256 withdrawFeeAp = 0;
@@ -384,25 +401,10 @@ contract AccountsDepositWithdrawEndowments is
         }
       }
 
-      uint256 current_bal;
-      if (acctType == IVault.VaultType.LOCKED) {
-        current_bal = state.STATES[id].balances.locked[tokens[t].addr];
-      } else {
-        current_bal = state.STATES[id].balances.liquid[tokens[t].addr];
-      }
-
-      // ensure balance of tokens can cover the requested withdraw amount
-      require(current_bal >= tokens[t].amnt, "Insufficient Funds");
-
       // send all tokens (less fees) to the ultimate beneficiary address/endowment
       if (beneficiaryAddress != address(0)) {
         IERC20(tokens[t].addr).safeTransfer(beneficiaryAddress, amountLeftover);
       } else {
-        // check endowment specified is not closed
-        require(
-          !state.STATES[beneficiaryEndowId].closingEndowment,
-          "Beneficiary endowment is closed"
-        );
         // Send deposit message spit set for the appropriate account of receiving endowment
         if (acctType == IVault.VaultType.LOCKED) {
           processTokenDeposit(
