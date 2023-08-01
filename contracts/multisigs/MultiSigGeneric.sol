@@ -5,6 +5,7 @@ import {Validator} from "../core/validator.sol";
 import "./storage.sol";
 import {IMultiSigGeneric} from "./interfaces/IMultiSigGeneric.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Utils} from "../lib/utils.sol";
@@ -305,7 +306,10 @@ contract MultiSigGeneric is
   ) internal initializer validApprovalsRequirement(owners.length, _approvalsRequired) {
     require(owners.length > 0, "Must pass at least one owner address");
     for (uint256 i = 0; i < owners.length; i++) {
-      require(!isOwner[owners[i]] && Validator.addressChecker(owners[i]));
+      require(
+        Validator.addressChecker(owners[i]),
+        string.concat("Invalid owner address at index: '", Strings.toString(i))
+      );
       isOwner[owners[i]] = true;
     }
     activeOwnersCount = owners.length;
