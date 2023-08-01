@@ -38,6 +38,7 @@ contract AccountsGasManager is
 
   /// @notice Wrapper method for sweeping funds from gasFwd contract on endow closure
   /// @dev Only callable by Accounts Diamond during endow closure flow
+  /// The endowment balance is not updated because we dont know which account to assign it to
   /// @return balance returns the balance of the gasFwd contract which was swept to accounts
   function sweepForClosure(uint32 id, address token) external onlyAccountsContract returns (uint256) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
