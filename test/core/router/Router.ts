@@ -3,8 +3,6 @@ import {FakeContract, MockContract, smock} from "@defi-wonderland/smock";
 import {expect, use} from "chai";
 import hre from "hardhat";
 import {
-  IVaultHelpers,
-  StrategyApprovalState,
   deployDummyERC20,
   packActionData,
   DEFAULT_NETWORK_INFO,
@@ -25,7 +23,7 @@ import {
   Router,
   Router__factory,
 } from "typechain-types";
-import {getSigners} from "utils";
+import {StrategyApprovalState, getSigners} from "utils";
 import {LocalRegistrarLib} from "../../../typechain-types/contracts/core/registrar/LocalRegistrar";
 
 use(smock.matchers);

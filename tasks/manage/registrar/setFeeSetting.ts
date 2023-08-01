@@ -1,13 +1,15 @@
 import {task, types} from "hardhat/config";
-import {Registrar__factory, APTeamMultiSig__factory} from "typechain-types";
-import {getAddresses, getSigners, logger} from "utils";
+import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
+import {FeeTypes, getAddresses, getEnumKeys, getSigners, logger} from "utils";
 
 type TaskArgs = {feeType: number; payoutAddress: string; bps: number};
 
 task("manage:registrar:setFeeSettings")
   .addParam(
     "feeType",
-    "The enum of the fee. {0:DEFAULT, 1:HARVEST, 2:WITHDRAWCHARITY, 3:WITHDRAWNORMAL, 4:EARLYLOCKEDWITHDRAWCHARITY, 5:EARLYLOCKEDWITHDRAWNORMAL}",
+    `The enum of the fee, possible values: ${getEnumKeys(FeeTypes)
+      .map((key) => `${key} - ${FeeTypes[key]}`)
+      .join(", ")}`,
     0,
     types.int
   )

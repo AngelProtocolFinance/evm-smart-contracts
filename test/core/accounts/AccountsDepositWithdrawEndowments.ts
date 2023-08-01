@@ -3,7 +3,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG, FeeTypes, VaultType} from "test/utils";
+import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG} from "test/utils";
 import {
   AccountsDepositWithdrawEndowments,
   AccountsDepositWithdrawEndowments__factory,
@@ -23,7 +23,7 @@ import {
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsDepositWithdrawEndowments";
 import {LibAccounts, RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {genWallet, getSigners} from "utils";
+import {FeeTypes, VaultType, genWallet, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
@@ -38,11 +38,13 @@ describe("AccountsDepositWithdrawEndowments", function () {
     id: charityId,
     liquidPercentage: 40,
     lockedPercentage: 60,
+    donationMatch: ethers.constants.AddressZero,
   };
   const depositToNormalEndow: AccountMessages.DepositRequestStruct = {
     id: normalEndowId,
     liquidPercentage: 40,
     lockedPercentage: 60,
+    donationMatch: ethers.constants.AddressZero,
   };
 
   let accOwner: SignerWithAddress;
@@ -165,6 +167,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
         id: charityId,
         liquidPercentage: 10,
         lockedPercentage: 10,
+        donationMatch: ethers.constants.AddressZero,
       };
       await expect(facet.depositMatic(invalidReq, {value})).to.be.revertedWith("InvalidSplit");
     });
@@ -209,9 +212,15 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const expectedLiquidAmt = BigNumber.from(value);
 
           await expect(
-            facet
-              .connect(indexFund)
-              .depositMatic({id: charityId, lockedPercentage: 0, liquidPercentage: 100}, {value})
+            facet.connect(indexFund).depositMatic(
+              {
+                id: charityId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
+              {value}
+            )
           )
             .to.emit(facet, "EndowmentDeposit")
             .withArgs(charityId, wmaticFake.address, expectedLockedAmt, expectedLiquidAmt);
@@ -240,9 +249,15 @@ describe("AccountsDepositWithdrawEndowments", function () {
           wmaticFake.transfer.returns(true);
 
           await expect(
-            facet
-              .connect(indexFund)
-              .depositMatic({id: charityId, lockedPercentage: 0, liquidPercentage: 100}, {value})
+            facet.connect(indexFund).depositMatic(
+              {
+                id: charityId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
+              {value}
+            )
           )
             .to.emit(facet, "EndowmentDeposit")
             .withArgs(charityId, wmaticFake.address, expectedLockedAmt, expectedLiquidAmt);
@@ -378,12 +393,15 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const expectedLiquidAmt = BigNumber.from(value);
 
           await expect(
-            facet
-              .connect(indexFund)
-              .depositMatic(
-                {id: normalEndowId, lockedPercentage: 0, liquidPercentage: 100},
-                {value}
-              )
+            facet.connect(indexFund).depositMatic(
+              {
+                id: normalEndowId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
+              {value}
+            )
           )
             .to.emit(facet, "EndowmentDeposit")
             .withArgs(normalEndowId, wmaticFake.address, expectedLockedAmt, expectedLiquidAmt);
@@ -412,12 +430,15 @@ describe("AccountsDepositWithdrawEndowments", function () {
           wmaticFake.transfer.returns(true);
 
           await expect(
-            facet
-              .connect(indexFund)
-              .depositMatic(
-                {id: normalEndowId, lockedPercentage: 0, liquidPercentage: 100},
-                {value}
-              )
+            facet.connect(indexFund).depositMatic(
+              {
+                id: normalEndowId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
+              {value}
+            )
           )
             .to.emit(facet, "EndowmentDeposit")
             .withArgs(normalEndowId, wmaticFake.address, expectedLockedAmt, expectedLiquidAmt);
@@ -547,7 +568,15 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const expectedLiquidAmt = BigNumber.from(1000);
 
           await expect(
-            facet.depositMatic({id: charityId, lockedPercentage: 0, liquidPercentage: 100}, {value})
+            facet.depositMatic(
+              {
+                id: charityId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
+              {value}
+            )
           )
             .to.emit(facet, "EndowmentDeposit")
             .withArgs(charityId, wmaticFake.address, expectedLockedAmt, expectedLiquidAmt);
@@ -576,7 +605,15 @@ describe("AccountsDepositWithdrawEndowments", function () {
           wmaticFake.transfer.returns(true);
 
           await expect(
-            facet.depositMatic({id: charityId, lockedPercentage: 0, liquidPercentage: 100}, {value})
+            facet.depositMatic(
+              {
+                id: charityId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
+              {value}
+            )
           )
             .to.emit(facet, "EndowmentDeposit")
             .withArgs(charityId, wmaticFake.address, expectedLockedAmt, expectedLiquidAmt);
@@ -713,7 +750,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
           await expect(
             facet.depositMatic(
-              {id: normalEndowId, lockedPercentage: 0, liquidPercentage: 100},
+              {
+                id: normalEndowId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
               {value}
             )
           )
@@ -745,7 +787,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
           await expect(
             facet.depositMatic(
-              {id: normalEndowId, lockedPercentage: 0, liquidPercentage: 100},
+              {
+                id: normalEndowId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
               {value}
             )
           )
@@ -911,6 +958,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
         id: charityId,
         liquidPercentage: 10,
         lockedPercentage: 10,
+        donationMatch: ethers.constants.AddressZero,
       };
       await expect(
         facet.depositERC20(invalidReq, tokenFake.address, depositAmt)
@@ -950,13 +998,16 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const expectedLiquidAmt = BigNumber.from(depositAmt);
 
           await expect(
-            facet
-              .connect(indexFund)
-              .depositERC20(
-                {id: charityId, lockedPercentage: 0, liquidPercentage: 100},
-                tokenFake.address,
-                depositAmt
-              )
+            facet.connect(indexFund).depositERC20(
+              {
+                id: charityId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
+              tokenFake.address,
+              depositAmt
+            )
           )
             .to.emit(facet, "EndowmentDeposit")
             .withArgs(charityId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
@@ -983,13 +1034,16 @@ describe("AccountsDepositWithdrawEndowments", function () {
           await state.setEndowmentDetails(charityId, charityBps);
 
           await expect(
-            facet
-              .connect(indexFund)
-              .depositERC20(
-                {id: charityId, lockedPercentage: 0, liquidPercentage: 100},
-                tokenFake.address,
-                depositAmt
-              )
+            facet.connect(indexFund).depositERC20(
+              {
+                id: charityId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
+              tokenFake.address,
+              depositAmt
+            )
           )
             .to.emit(facet, "EndowmentDeposit")
             .withArgs(charityId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
@@ -1111,13 +1165,16 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const expectedLiquidAmt = BigNumber.from(depositAmt);
 
           await expect(
-            facet
-              .connect(indexFund)
-              .depositERC20(
-                {id: normalEndowId, lockedPercentage: 0, liquidPercentage: 100},
-                tokenFake.address,
-                depositAmt
-              )
+            facet.connect(indexFund).depositERC20(
+              {
+                id: normalEndowId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
+              tokenFake.address,
+              depositAmt
+            )
           )
             .to.emit(facet, "EndowmentDeposit")
             .withArgs(normalEndowId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
@@ -1144,13 +1201,16 @@ describe("AccountsDepositWithdrawEndowments", function () {
           await state.setEndowmentDetails(normalEndowId, normalEndowBps);
 
           await expect(
-            facet
-              .connect(indexFund)
-              .depositERC20(
-                {id: normalEndowId, lockedPercentage: 0, liquidPercentage: 100},
-                tokenFake.address,
-                depositAmt
-              )
+            facet.connect(indexFund).depositERC20(
+              {
+                id: normalEndowId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
+              tokenFake.address,
+              depositAmt
+            )
           )
             .to.emit(facet, "EndowmentDeposit")
             .withArgs(normalEndowId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
@@ -1288,7 +1348,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
           await expect(
             facet.depositERC20(
-              {id: charityId, lockedPercentage: 0, liquidPercentage: 100},
+              {
+                id: charityId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
               tokenFake.address,
               depositAmt
             )
@@ -1319,7 +1384,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
           await expect(
             facet.depositERC20(
-              {id: charityId, lockedPercentage: 0, liquidPercentage: 100},
+              {
+                id: charityId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
               tokenFake.address,
               depositAmt
             )
@@ -1439,7 +1509,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
           await expect(
             facet.depositERC20(
-              {id: normalEndowId, lockedPercentage: 0, liquidPercentage: 100},
+              {
+                id: normalEndowId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
               tokenFake.address,
               depositAmt
             )
@@ -1470,7 +1545,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
           await expect(
             facet.depositERC20(
-              {id: normalEndowId, lockedPercentage: 0, liquidPercentage: 100},
+              {
+                id: normalEndowId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
               tokenFake.address,
               depositAmt
             )

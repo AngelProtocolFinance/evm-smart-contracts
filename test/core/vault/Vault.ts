@@ -3,12 +3,11 @@ import {BigNumber} from "ethers";
 import {ethers} from "hardhat";
 import hre from "hardhat";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {getSigners} from "utils";
+import {StrategyApprovalState, getSigners} from "utils";
 import {
   deployDummyStrategy,
   deployDummyERC20,
   deployLocalRegistrarAsProxy,
-  StrategyApprovalState,
   DEFAULT_STRATEGY_SELECTOR,
   DEFAULT_VAULT_NAME,
   DEFAULT_VAULT_SYMBOL,

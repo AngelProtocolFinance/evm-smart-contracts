@@ -17,9 +17,7 @@ import {
   DEFAULT_SETTINGS_STRUCT,
   DEFAULT_STRATEGY_PARAMS,
   DEFAULT_STRATEGY_SELECTOR,
-  StrategyApprovalState,
-  VaultActionStatus,
-  VaultActionStructToArray,
+  convertVaultActionStructToArray,
   deployDummyERC20,
   deployDummyGateway,
   deployDummyVault,
@@ -42,7 +40,7 @@ import {
 } from "typechain-types";
 import {IAccountsStrategy} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {getSigners} from "utils";
+import {StrategyApprovalState, VaultActionStatus, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
@@ -1129,7 +1127,7 @@ describe("AccountsStrategy", function () {
         status: VaultActionStatus.UNPROCESSED,
       };
       const payload = packActionData(action);
-      const returnedAction = VaultActionStructToArray(action);
+      const returnedAction = convertVaultActionStructToArray(action);
       await expect(
         facet.execute(ethers.utils.formatBytes32String("true"), "NotNet", owner.address, payload)
       )
@@ -1149,7 +1147,7 @@ describe("AccountsStrategy", function () {
         status: VaultActionStatus.UNPROCESSED,
       };
       const payload = packActionData(action);
-      const returnedAction = VaultActionStructToArray(action);
+      const returnedAction = convertVaultActionStructToArray(action);
       await expect(
         facet.executeWithToken(
           ethers.utils.formatBytes32String("true"),
@@ -1176,7 +1174,7 @@ describe("AccountsStrategy", function () {
         status: VaultActionStatus.UNPROCESSED,
       };
       const payload = packActionData(action);
-      const returnedAction = VaultActionStructToArray(action);
+      const returnedAction = convertVaultActionStructToArray(action);
       await expect(
         facet.execute(ethers.utils.formatBytes32String("true"), "ThatNet", owner.address, payload)
       )
@@ -1196,7 +1194,7 @@ describe("AccountsStrategy", function () {
         status: VaultActionStatus.UNPROCESSED,
       };
       const payload = packActionData(action);
-      const returnedAction = VaultActionStructToArray(action);
+      const returnedAction = convertVaultActionStructToArray(action);
       await expect(
         facet.executeWithToken(
           ethers.utils.formatBytes32String("true"),
@@ -1223,7 +1221,7 @@ describe("AccountsStrategy", function () {
         status: VaultActionStatus.FAIL_TOKENS_FALLBACK,
       };
       const payload = packActionData(action);
-      const returnedAction = VaultActionStructToArray(action);
+      const returnedAction = convertVaultActionStructToArray(action);
       expect(
         await facet.execute(
           ethers.utils.formatBytes32String("true"),
@@ -1248,7 +1246,7 @@ describe("AccountsStrategy", function () {
         status: VaultActionStatus.UNPROCESSED,
       };
       const payload = packActionData(action);
-      const returnedAction = VaultActionStructToArray(action);
+      const returnedAction = convertVaultActionStructToArray(action);
       await expect(
         facet.execute(ethers.utils.formatBytes32String("true"), "ThatNet", router.address, payload)
       )
@@ -1419,7 +1417,7 @@ describe("AccountsStrategy", function () {
         status: VaultActionStatus.UNPROCESSED,
       };
       const payload = packActionData(action);
-      const returnedAction = VaultActionStructToArray(action);
+      const returnedAction = convertVaultActionStructToArray(action);
 
       const apParams = {
         ...DEFAULT_AP_PARAMS,

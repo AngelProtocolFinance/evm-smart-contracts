@@ -3,7 +3,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import {BigNumberish} from "ethers";
 import hre from "hardhat";
-import {ControllerSettingOption, DEFAULT_CHARITY_ENDOWMENT, DelegateAction} from "test/utils";
+import {DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
 import {
   AccountsUpdateEndowments,
   AccountsUpdateEndowments__factory,
@@ -18,7 +18,7 @@ import {
   AccountStorage,
   LibAccounts,
 } from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {genWallet, getSigners} from "utils";
+import {ControllerSettingOption, DelegateAction, genWallet, getSigners} from "utils";
 import {deployFacetAsProxy, updateAllSettings, updateSettings} from "./utils";
 
 use(smock.matchers);
