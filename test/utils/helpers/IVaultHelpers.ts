@@ -1,44 +1,6 @@
-import type {BigNumberish, BytesLike} from "ethers";
+import {IVault} from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
 
-export declare namespace IVaultHelpers {
-  export type VaultActionDataStruct = {
-    destinationChain: string;
-    strategyId: BytesLike;
-    selector: BytesLike;
-    accountIds: Array<BigNumberish>;
-    token: string;
-    lockAmt: BigNumberish;
-    liqAmt: BigNumberish;
-    status: BigNumberish;
-  };
-
-  export type AngelProtocolParamsStructOutput = [
-    string,
-    string,
-    string,
-    Array<number>,
-    string,
-    number,
-    number,
-    number
-  ] & {
-    destinationChain: string;
-    strategyId: string;
-    selector: string;
-    accountIds: Array<number>;
-    token: string;
-    lockAmt: number;
-    liqAmt: number;
-    status: number;
-  };
-}
-
-export enum VaultType {
-  LOCKED,
-  LIQUID,
-}
-
-export function VaultActionStructToArray(actionData: IVaultHelpers.VaultActionDataStruct) {
+export function convertVaultActionStructToArray(actionData: IVault.VaultActionDataStruct) {
   return [
     actionData.destinationChain,
     actionData.strategyId,
@@ -51,7 +13,7 @@ export function VaultActionStructToArray(actionData: IVaultHelpers.VaultActionDa
   ];
 }
 
-export function ArrayToVaultActionStruct(decodedData: any) {
+export function convertArrayToVaultActionStruct(decodedData: any) {
   return {
     destinationChain: decodedData[0],
     strategyId: decodedData[1],
@@ -61,5 +23,5 @@ export function ArrayToVaultActionStruct(decodedData: any) {
     lockAmt: decodedData[5],
     liqAmt: decodedData[6],
     status: decodedData[7],
-  } as IVaultHelpers.VaultActionDataStruct;
+  } as IVault.VaultActionDataStruct;
 }

@@ -1,6 +1,10 @@
 import {Overrides} from "ethers";
 import {PromiseOrValue} from "typechain-types/common";
 
+export type DeepPartial<T> = {
+  [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
+};
+
 type Head<T extends any[]> = Required<T> extends [
   ...infer Head,
   Overrides & {from?: PromiseOrValue<string>}

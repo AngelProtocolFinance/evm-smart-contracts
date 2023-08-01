@@ -5,7 +5,7 @@ import {
   LibAccounts,
   TestFacetProxyContract,
 } from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {DeepPartial} from "types";
+import {DeepPartial} from "utils/types";
 
 /**
  * Updates endowment's setting's permissions field in a way that has no side-effects

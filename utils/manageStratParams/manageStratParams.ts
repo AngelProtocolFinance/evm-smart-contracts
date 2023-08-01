@@ -1,8 +1,8 @@
 import fs from "fs";
 
-import {VaultType, StrategyObject} from "./types";
+import {StrategyObject} from "./types";
 import {readStrategyAddresses} from "./helpers";
-import {DEFAULT_STRATEGY_ADDRESSES_FILE_PATH} from "..";
+import {DEFAULT_STRATEGY_ADDRESSES_FILE_PATH, VaultType} from "..";
 
 export function getVaultAddress(name: string, type: VaultType): string {
   let typeName: string;

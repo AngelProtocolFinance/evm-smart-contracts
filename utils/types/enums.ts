@@ -5,6 +5,16 @@ export enum StrategyApprovalState {
   DEPRECATED,
 }
 
+export type VaultParams = {
+  Type: VaultType;
+  vaultAddr: string;
+};
+
+export enum VaultType {
+  LOCKED,
+  LIQUID,
+}
+
 export enum VaultActionStatus {
   UNPROCESSED, // INIT state
   SUCCESS, // Ack
@@ -67,4 +77,10 @@ export enum TokenType {
   Existing,
   New,
   VeBonding,
+}
+
+export enum NetworkConnectionAction {
+  NONE,
+  POST,
+  DELETE,
 }

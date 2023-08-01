@@ -7,23 +7,6 @@ export type StratConfig = {
   params: LocalRegistrarLib.StrategyParamsStruct;
 };
 
-export enum StrategyApprovalState {
-  NOT_APPROVED,
-  APPROVED,
-  WITHDRAW_ONLY,
-  DEPRECATED,
-}
-
-export type VaultParams = {
-  Type: VaultType;
-  vaultAddr: string;
-};
-
-export enum VaultType {
-  LOCKED,
-  LIQUID,
-}
-
 export type AllStratConfigs = Record<string, StratConfig>;
 
 export type StrategyObject = {
