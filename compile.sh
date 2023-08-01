@@ -4,7 +4,7 @@
 set -x;
 # Shuttle `tasks/index.ts` file to temp file before cleaning/compiling starts
 mv -n ./tasks/index.ts ./tasks/temp_index.ts && touch ./tasks/index.ts;
-# Clean if necessary.
+# Clean if necessary
 if [ "$1" == "clean" ]; then
     hardhat clean;
 fi
