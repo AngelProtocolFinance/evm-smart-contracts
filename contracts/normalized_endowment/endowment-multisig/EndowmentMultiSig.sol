@@ -37,24 +37,21 @@ contract EndowmentMultiSig is MultiSigGeneric {
     super.initialize(_owners, _required, _requireExecution, _transactionExpiry);
   }
 
-  /// @dev Allows to add new owners. Transaction has to be sent by wallet.
+  /// @dev Emits an event when owners are added.
   /// @param owners Addresses of new owners.
   function emitOwnersAdded(address[] memory owners) internal override {
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).ownersAddedEndowment(ENDOWMENT_ID, owners);
   }
 
-  /// @dev Allows to remove owners. Transaction has to be sent by wallet.
-  /// @param owners Addresses of removed owners.
+  /// @dev Emits an event when owners are removed.
+  /// @param owners Addresses of new owners.
   function emitOwnersRemoved(address[] memory owners) internal override {
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).ownersRemovedEndowment(ENDOWMENT_ID, owners);
   }
 
-  /**
-   * @notice overrides the generic multisig replaceOwner function
-   * @dev emits the removeOwnerEndowment and addOwnerEndowment events
-   * @param currOwner the owner to be replaced
-   * @param newOwner the new owner to add
-   */
+  /// @dev Emits an event when owners are replaced.
+  /// @param currOwner Address of current owner to be replaced.
+  /// @param newOwner Address of new owner.
   function emitOwnerReplaced(address currOwner, address newOwner) internal override {
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).ownerReplacedEndowment(
       ENDOWMENT_ID,
@@ -63,11 +60,8 @@ contract EndowmentMultiSig is MultiSigGeneric {
     );
   }
 
-  /**
-   * @notice overrides the generic multisig changeRequirement function
-   * @dev emits the requirementChangeEndowment event
-   * @param _approvalsRequired the new required number of signatures
-   */
+  /// @dev Emits an event when the number of required confirmations is updated.
+  /// @param _approvalsRequired Number of required confirmations.
   function emitApprovalsRequiredChanged(uint256 _approvalsRequired) internal override {
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).approvalsRequirementChangedEndowment(
       ENDOWMENT_ID,
@@ -75,23 +69,8 @@ contract EndowmentMultiSig is MultiSigGeneric {
     );
   }
 
-  /**
-   * @notice overrides the generic multisig changeTransactionExpiry function
-   * @dev emits the transactionExpiryChangeEndowment event
-   * @param _transactionExpiry the new validity for newly created transactions
-   */
-  function emitExpiryChanged(uint256 _transactionExpiry) internal override {
-    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).expiryChangedEndowment(
-      ENDOWMENT_ID,
-      _transactionExpiry
-    );
-  }
-
-  /**
-   * @notice overrides the generic multisig changeRequireExecution function
-   * @dev emits the requirementChangeEndowment event
-   * @param _requireExecution Explicit execution step is needed
-   */
+  /// @dev Emits an event when there's an update to the flag indicating whether explicit execution step is needed.
+  /// @param _requireExecution Is an explicit execution step is needed.
   function emitRequireExecutionChanged(bool _requireExecution) internal override {
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).requireExecutionChangedEndowment(
       ENDOWMENT_ID,
@@ -99,6 +78,19 @@ contract EndowmentMultiSig is MultiSigGeneric {
     );
   }
 
+  /// @dev Emits an event when expiry time for transactions is updated.
+  /// @param _transactionExpiry time that a newly created transaction is valid for.
+  function emitExpiryChanged(uint256 _transactionExpiry) internal override {
+    IEndowmentMultiSigEmitter(EMITTER_ADDRESS).expiryChangedEndowment(
+      ENDOWMENT_ID,
+      _transactionExpiry
+    );
+  }
+
+  /// @dev Emits an event when a transaction is submitted.
+  /// @param sender Sender of the Transaction.
+  /// @param transactionId Transaction ID.
+  /// @param metadata Encoded transaction metadata, can contain dynamic content.
   function emitTransactionSubmitted(
     address sender,
     uint256 transactionId,
@@ -112,11 +104,9 @@ contract EndowmentMultiSig is MultiSigGeneric {
     );
   }
 
-  /**
-   * @notice overrides the generic multisig confirmTransaction function
-   * @dev emits the confirmEndowment event
-   * @param transactionId the transaction id
-   */
+  /// @dev Emits an event when a transaction is confirmed.
+  /// @param sender Sender of the Transaction.
+  /// @param transactionId Transaction ID.
   function emitTransactionConfirmed(address sender, uint256 transactionId) internal override {
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).transactionConfirmedEndowment(
       ENDOWMENT_ID,
@@ -125,11 +115,9 @@ contract EndowmentMultiSig is MultiSigGeneric {
     );
   }
 
-  /**
-   * @notice overrides the generic multisig revokeConfirmation function
-   * @dev emits the revokeEndowment event
-   * @param transactionId the transaction id
-   */
+  /// @dev Emits an event when a transaction confirmation is revoked.
+  /// @param sender Sender of the Transaction.
+  /// @param transactionId Transaction ID.
   function emitTransactionConfirmationRevoked(
     address sender,
     uint256 transactionId
@@ -141,11 +129,8 @@ contract EndowmentMultiSig is MultiSigGeneric {
     );
   }
 
-  /**
-   * @notice function called when a proposal has to be explicity executed
-   * @dev emits the executeEndowment event, overrides underlying execute function
-   * @param transactionId the transaction id
-   */
+  /// @dev Emits an event when a transaction is executed.
+  /// @param transactionId Transaction ID.
   function emitTransactionExecuted(uint256 transactionId) internal override {
     IEndowmentMultiSigEmitter(EMITTER_ADDRESS).transactionExecutedEndowment(
       ENDOWMENT_ID,

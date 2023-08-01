@@ -346,6 +346,11 @@ contract MultiSigGeneric is
     emitTransactionSubmitted(msg.sender, transactionId, metadata);
   }
 
+  /// @dev Emits an event post-initialization.
+  /// @param owners List of initial owners.
+  /// @param _approvalsRequired Number of required confirmations.
+  /// @param _requireExecution setting for if an explicit execution call is required.
+  /// @param _transactionExpiry Proposal expiry time in seconds.
   function emitInitializedMultiSig(
     address[] memory owners,
     uint256 _approvalsRequired,
@@ -361,30 +366,47 @@ contract MultiSigGeneric is
     );
   }
 
+  /// @dev Emits an event when owners are added.
+  /// @param owners Addresses of new owners.
   function emitOwnersAdded(address[] memory owners) internal virtual {
     emit OwnersAdded(address(this), owners);
   }
 
+  /// @dev Emits an event when owners are removed.
+  /// @param owners Addresses of new owners.
   function emitOwnersRemoved(address[] memory owners) internal virtual {
     emit OwnersRemoved(address(this), owners);
   }
 
+  /// @dev Emits an event when owners are replaced.
+  /// @param currOwner Address of current owner to be replaced.
+  /// @param newOwner Address of new owner.
   function emitOwnerReplaced(address currOwner, address newOwner) internal virtual {
     emit OwnerReplaced(address(this), currOwner, newOwner);
   }
 
+  /// @dev Emits an event when the number of required confirmations is updated.
+  /// @param _approvalsRequired Number of required confirmations.
   function emitApprovalsRequiredChanged(uint256 _approvalsRequired) internal virtual {
     emit ApprovalsRequiredChanged(address(this), _approvalsRequired);
   }
 
+  /// @dev Emits an event when there's an update to the flag indicating whether explicit execution step is needed.
+  /// @param _requireExecution Is an explicit execution step is needed.
   function emitRequireExecutionChanged(bool _requireExecution) internal virtual {
     emit RequireExecutionChanged(address(this), _requireExecution);
   }
 
+  /// @dev Emits an event when expiry time for transactions is updated.
+  /// @param _transactionExpiry time that a newly created transaction is valid for.
   function emitExpiryChanged(uint256 _transactionExpiry) internal virtual {
     emit ExpiryChanged(address(this), _transactionExpiry);
   }
 
+  /// @dev Emits an event when a transaction is submitted.
+  /// @param sender Sender of the Transaction.
+  /// @param transactionId Transaction ID.
+  /// @param metadata Encoded transaction metadata, can contain dynamic content.
   function emitTransactionSubmitted(
     address sender,
     uint256 transactionId,
@@ -393,10 +415,16 @@ contract MultiSigGeneric is
     emit TransactionSubmitted(address(this), sender, transactionId, metadata);
   }
 
+  /// @dev Emits an event when a transaction is confirmed.
+  /// @param sender Sender of the Transaction.
+  /// @param transactionId Transaction ID.
   function emitTransactionConfirmed(address sender, uint256 transactionId) internal virtual {
     emit TransactionConfirmed(address(this), sender, transactionId);
   }
 
+  /// @dev Emits an event when a transaction confirmation is revoked.
+  /// @param sender Sender of the Transaction.
+  /// @param transactionId Transaction ID.
   function emitTransactionConfirmationRevoked(
     address sender,
     uint256 transactionId
@@ -404,6 +432,8 @@ contract MultiSigGeneric is
     emit TransactionConfirmationRevoked(address(this), sender, transactionId);
   }
 
+  /// @dev Emits an event when a transaction is executed.
+  /// @param transactionId Transaction ID.
   function emitTransactionExecuted(uint256 transactionId) internal virtual {
     emit TransactionExecuted(address(this), transactionId);
   }
