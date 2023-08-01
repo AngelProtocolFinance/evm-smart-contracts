@@ -6,10 +6,6 @@ import {
   IVaultHelpers,
   StrategyApprovalState,
   deployDummyERC20,
-  deployDummyGasService,
-  deployDummyGateway,
-  deployDummyVault,
-  deployRegistrarAsProxy,
   packActionData,
   DEFAULT_NETWORK_INFO,
   DEFAULT_ACTION_DATA,
@@ -104,8 +100,6 @@ describe("Router", function () {
   });
 
   describe("Protected methods", function () {
-    let lockedVault: FakeContract<DummyVault>;
-    let liquidVault: FakeContract<DummyVault>;
     let registrar: FakeContract<Registrar>;
     let gateway: FakeContract<DummyGateway>;
     let gasService: FakeContract<DummyGasService>;
@@ -118,8 +112,6 @@ describe("Router", function () {
       registrar = await smock.fake<Registrar>(new Registrar__factory())
       gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
       gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
-      lockedVault = await smock.fake<DummyVault>(new DummyVault__factory());
-      liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
 
       const APParams = {routerAddr: ethers.constants.AddressZero, refundAddr: collector.address}
       const networkParams = {
@@ -390,8 +382,6 @@ describe("Router", function () {
         let actionData = getDefaultActionData();
         actionData.selector = liquidVault.interface.getSighash("deposit");
         actionData.token = token.address;
-        await gateway.setTestTokenAddress(token.address);
-        await registrar.setTokenAccepted(token.address, true);
         actionData.selector = liquidVault.interface.getSighash("redeem");
         let packedData = await packActionData(actionData);
         await expect(
