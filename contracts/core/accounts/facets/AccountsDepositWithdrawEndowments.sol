@@ -354,7 +354,7 @@ contract AccountsDepositWithdrawEndowments is
             // transfer endowment early withdraw fee to payout address
             IERC20(tokens[t].addr).safeTransfer(
               tempEndowment.earlyLockedWithdrawFee.payoutAddress,
-              withdrawFeeEndow
+              earlyLockedWithdrawFeeEndow
             );
           }
         }
