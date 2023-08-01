@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
+
+import {Validator} from "../core/validator.sol";
 import "./CharityApplicationsStorage.sol";
 import {ICharityApplications} from "./interfaces/ICharityApplications.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -23,7 +25,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
    */
 
   modifier proposalExists(uint256 proposalId) {
-    require(proposals[proposalId].proposer != address(0), "Proposal dne");
+    require(Validator.addressChecker(proposals[proposalId].proposer), "Proposal dne");
     _;
   }
 
@@ -88,7 +90,8 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
     address _seedAsset,
     uint256 _seedAmount
   ) public override initializer {
-    super.initialize(owners, _approvalsRequired, _requireExecution, _transactionExpiry);
+    require(Validator.addressChecker(_accountsContract), "Invalid Accounts contract");
+    require(Validator.addressChecker(_seedAsset), "Invalid seed asset");
     // set Applications Multisig storage items
     proposalCount = 1;
     config.accountsContract = _accountsContract;
@@ -96,6 +99,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
     config.gasAmount = _gasAmount;
     config.seedAsset = _seedAsset;
     config.seedAmount = _seedAmount;
+    super.initialize(owners, _approvalsRequired, _requireExecution, _transactionExpiry);
   }
 
   /**
@@ -210,7 +214,7 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
     if (config.gasAmount > 0) {
       // get the first member of the new endowment
       address payable signer = payable(proposals[proposalId].application.members[0]);
-      require(signer != address(0), "Endowment Member not set");
+      require(Validator.addressChecker(signer), "Endowment Member not set");
 
       // check matic balance on this contract
       if (address(this).balance >= config.gasAmount) {
@@ -270,8 +274,8 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
     address seedAsset,
     uint256 seedAmount
   ) public override ownerExists(msg.sender) {
-    require(seedAsset != address(0), "Seed Asset is not a valid address");
-    require(accountsContract != address(0), "Accounts Contract is not a valid address");
+    require(Validator.addressChecker(seedAsset), "Seed Asset is not a valid address");
+    require(Validator.addressChecker(accountsContract), "Accounts Contract is not a valid address");
     require(
       seedSplitToLiquid >= 0 && seedSplitToLiquid <= 100,
       "Seed split to liquid must be between 0 & 100"
