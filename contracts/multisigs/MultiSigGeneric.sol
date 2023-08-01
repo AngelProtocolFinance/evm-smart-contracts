@@ -99,7 +99,7 @@ contract MultiSigGeneric is
     for (uint256 o = 0; o < owners.length; o++) {
       require(
         Validator.addressChecker(owners[o]),
-        string.concat("Invalid owner address at index: '", Strings.toString(o))
+        string.concat("Invalid owner address at index: ", Strings.toString(o))
       );
       require(!isOwner[owners[o]], "New owner already exists");
       // increment active owners count by 1
@@ -319,7 +319,7 @@ contract MultiSigGeneric is
     for (uint256 i = 0; i < owners.length; i++) {
       require(
         Validator.addressChecker(owners[i]),
-        string.concat("Invalid owner address at index: '", Strings.toString(i))
+        string.concat("Invalid owner address at index: ", Strings.toString(i))
       );
       isOwner[owners[i]] = true;
     }
