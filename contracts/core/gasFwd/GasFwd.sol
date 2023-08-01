@@ -28,7 +28,9 @@ contract GasFwd is IGasFwd, Initializable {
     IERC20(token).safeTransfer(msg.sender, amount);
   }
 
-  function sweep(address token) external onlyAccounts {
-    IERC20(token).safeTransfer(msg.sender, IERC20(token).balanceOf(address(this)));
+  function sweep(address token) external onlyAccounts returns (uint256) {
+    uint256 balance = IERC20(token).balanceOf(address(this));
+    IERC20(token).safeTransfer(msg.sender, balance);
+    return balance;
   }
 }

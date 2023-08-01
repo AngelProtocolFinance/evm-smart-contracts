@@ -8,6 +8,7 @@ import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {IIndexFund} from "../../index-fund/IIndexFund.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
+import {IAccountsGasManager} from "../interfaces/IAccountsGasManager.sol";
 import {IAccountsUpdateStatusEndowments} from "../interfaces/IAccountsUpdateStatusEndowments.sol";
 
 /**
@@ -32,9 +33,8 @@ contract AccountsUpdateStatusEndowments is
     LibAccounts.Beneficiary memory beneficiary
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
 
-    require(msg.sender == tempEndowment.owner, "Unauthorized");
+    require(msg.sender == state.ENDOWMENTS[id].owner, "Unauthorized");
     require(!state.STATES[id].closingEndowment, "Endowment is closed");
     require(checkFullyExited(id), "Not fully exited");
 
