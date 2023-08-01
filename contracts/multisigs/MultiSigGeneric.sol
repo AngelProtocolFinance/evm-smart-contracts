@@ -98,7 +98,7 @@ contract MultiSigGeneric is
     uint256 _approvalsRequired,
     bool _requireExecution,
     uint256 _transactionExpiry
-  ) public virtual initializer validApprovalsRequirement(owners.length, _approvalsRequired) {
+  ) internal initializer validApprovalsRequirement(owners.length, _approvalsRequired) {
     require(owners.length > 0, "Must pass at least one owner address");
     for (uint256 i = 0; i < owners.length; i++) {
       require(!isOwner[owners[i]] && owners[i] != address(0));

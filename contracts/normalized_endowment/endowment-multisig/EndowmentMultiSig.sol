@@ -13,11 +13,6 @@ contract EndowmentMultiSig is MultiSigGeneric {
   uint256 public ENDOWMENT_ID;
   address public EMITTER_ADDRESS;
 
-  // @dev overrides the generic multisig initializer and restricted function
-  function initialize(address[] memory, uint256, bool, uint256) public override initializer {
-    revert("Not Implemented");
-  }
-
   /**
    * @notice initialize the multisig with the endowment id and the endowment multisig emitter address
    * @dev special initialize function for endowment multisig
