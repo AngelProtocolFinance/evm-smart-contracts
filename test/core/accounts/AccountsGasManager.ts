@@ -2,17 +2,22 @@ import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import hre from "hardhat";
-import {DEFAULT_ACCOUNTS_CONFIG, DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
+import {
+  DEFAULT_ACCOUNTS_CONFIG,
+  DEFAULT_CHARITY_ENDOWMENT,
+  DEFAULT_PERMISSIONS_STRUCT,
+  DEFAULT_SETTINGS_STRUCT,
+} from "test/utils";
 import {
   AccountsGasManager,
   AccountsGasManager__factory,
-  GasFwd, 
+  GasFwd,
   GasFwd__factory,
   DummyERC20,
   DummyERC20__factory,
   TestFacetProxyContract,
 } from "typechain-types";
-import {genWallet, getSigners} from "utils";
+import {genWallet, getSigners, VaultType} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
@@ -47,35 +52,31 @@ describe("AccountsGasManager", function () {
     beforeEach(async function () {
       state = await deployFacetAsProxy(hre, owner, proxyAdmin, impl.address);
       facet = AccountsGasManager__factory.connect(state.address, owner);
-      
+
       let endowment = {
         ...DEFAULT_CHARITY_ENDOWMENT,
         gasFwd: gasFwd.address,
       };
-      await state.setEndowmentDetails(ACCOUNT_ID, endowment)
-      
+      await state.setEndowmentDetails(ACCOUNT_ID, endowment);
+
       token.transfer.returns(true);
       token.transferFrom.returns(true);
     });
 
     it("reverts if not called by self", async function () {
-      await expect(facet.sweepForClosure(ACCOUNT_ID, token.address))
-        .to.be.revertedWithCustomError(facet, "OnlyAccountsContract")
+      await expect(facet.sweepForClosure(ACCOUNT_ID, token.address)).to.be.revertedWithCustomError(
+        facet,
+        "OnlyAccountsContract"
+      );
     });
 
     it("calls the sweep method", async function () {
-      let calldata = facet.interface.encodeFunctionData(
-        "sweepForClosure",
-        [
-          ACCOUNT_ID,
-          token.address
-        ]
-      );
-      expect(await state.callSelf(
-        0,
-        calldata
-      )).to.emit(gasFwd, "Sweep");
-      expect(gasFwd.sweep).to.have.been.calledWith(token.address)
+      let calldata = facet.interface.encodeFunctionData("sweepForClosure", [
+        ACCOUNT_ID,
+        token.address,
+      ]);
+      expect(await state.callSelf(0, calldata)).to.emit(gasFwd, "Sweep");
+      expect(gasFwd.sweep).to.have.been.calledWith(token.address);
     });
   });
 
@@ -87,32 +88,132 @@ describe("AccountsGasManager", function () {
     beforeEach(async function () {
       state = await deployFacetAsProxy(hre, owner, proxyAdmin, impl.address);
       facet = AccountsGasManager__factory.connect(state.address, owner);
-      
+
       let config = {
         ...DEFAULT_ACCOUNTS_CONFIG,
-        owner: owner.address
-      }
-      await state.setConfig(config)
+        owner: owner.address,
+      };
+      await state.setConfig(config);
 
       let endowment = {
         ...DEFAULT_CHARITY_ENDOWMENT,
         owner: user.address,
         gasFwd: gasFwd.address,
       };
-      await state.setEndowmentDetails(ACCOUNT_ID, endowment)
-      
+      await state.setEndowmentDetails(ACCOUNT_ID, endowment);
+
       token.transfer.returns(true);
       token.transferFrom.returns(true);
-      gasFwd.sweep.returns(BALANCE)
+      gasFwd.sweep.returns(BALANCE);
     });
 
     it("reverts if not called by admin", async function () {
-      await expect(facet.connect(user).sweepForClosure(ACCOUNT_ID, token.address))
-        .to.be.revertedWithCustomError(facet, "OnlyAdmin")
+      await expect(
+        facet.connect(user).sweepForEndowment(ACCOUNT_ID, VaultType.LOCKED, token.address)
+      ).to.be.revertedWithCustomError(facet, "OnlyAdmin");
     });
 
     it("calls the sweep method and updates the appropriate balance", async function () {
-      expect(await facet.connect(owner).sweepForEndowment
+      expect(
+        await facet.connect(owner).sweepForEndowment(ACCOUNT_ID, VaultType.LIQUID, token.address)
+      ).to.emit(gasFwd, "Sweep");
+      const [locked, liquid] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+      expect(liquid).to.equal(BALANCE);
+      expect(locked).to.equal(0);
+    });
+  });
+
+  describe("upon `addGas`", async function () {
+    let facet: AccountsGasManager;
+    let state: TestFacetProxyContract;
+    const BALANCE = 1000;
+    const GAS_COST = 400;
+
+    beforeEach(async function () {
+      state = await deployFacetAsProxy(hre, owner, proxyAdmin, impl.address);
+      facet = AccountsGasManager__factory.connect(state.address, owner);
+      token.transfer.returns(true);
+      token.transferFrom.returns(true);
+      gasFwd.sweep.returns(BALANCE);
+    });
+
+    it("reverts if not called by an approved caller", async function () {
+      await expect(
+        facet.connect(owner).addGas(ACCOUNT_ID, VaultType.LOCKED, token.address, GAS_COST)
+      ).to.be.revertedWithCustomError(facet, "Unauthorized");
+    });
+
+    it("allows a locked investment manager to call", async function () {
+      let lockedPerms = {
+        ...DEFAULT_PERMISSIONS_STRUCT,
+        delegate: {
+          addr: user.address,
+          expires: 0,
+        },
+      };
+
+      let endowment = {
+        ...DEFAULT_CHARITY_ENDOWMENT,
+        gasFwd: gasFwd.address,
+        settingsController: {
+          ...DEFAULT_SETTINGS_STRUCT,
+          lockedInvestmentManagement: lockedPerms,
+        },
+      };
+      await state.setEndowmentDetails(ACCOUNT_ID, endowment);
+      await state.setEndowmentTokenBalance(ACCOUNT_ID,  token.address, BALANCE, BALANCE);
+
+      expect(
+        await facet.connect(user).addGas(ACCOUNT_ID, VaultType.LOCKED, token.address, GAS_COST)
+      );
+      const [locked, liquid] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+      expect(locked).to.equal(BALANCE - GAS_COST);
+      expect(liquid).to.equal(BALANCE);
+    });
+
+    it("allows a liquid investment manager to call", async function () {
+      let liquidPerms = {
+        ...DEFAULT_PERMISSIONS_STRUCT,
+        delegate: {
+          addr: user.address,
+          expires: 0,
+        },
+      };
+
+      let endowment = {
+        ...DEFAULT_CHARITY_ENDOWMENT,
+        gasFwd: gasFwd.address,
+        settingsController: {
+          ...DEFAULT_SETTINGS_STRUCT,
+          liquidInvestmentManagement: liquidPerms,
+        },
+      };
+      await state.setEndowmentDetails(ACCOUNT_ID, endowment);
+      await state.setEndowmentTokenBalance(ACCOUNT_ID,  token.address, BALANCE, BALANCE);
+
+      expect(
+        await facet.connect(user).addGas(ACCOUNT_ID, VaultType.LIQUID, token.address, GAS_COST)
+      );
+      const [locked, liquid] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+      expect(locked).to.equal(BALANCE);
+      expect(liquid).to.equal(BALANCE - GAS_COST);
+    });
+
+    it("allows the owner to call", async function () {
+      let endowment = {
+        ...DEFAULT_CHARITY_ENDOWMENT,
+        owner: user.address,
+        gasFwd: gasFwd.address,
+      };
+      await state.setEndowmentDetails(ACCOUNT_ID, endowment);
+      await state.setEndowmentTokenBalance(ACCOUNT_ID,  token.address, BALANCE, BALANCE);
+
+      expect(
+        await facet.connect(user).addGas(ACCOUNT_ID, VaultType.LIQUID, token.address, GAS_COST)
+      );
+      const [locked, liquid] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+      expect(locked).to.equal(BALANCE);
+      expect(liquid).to.equal(BALANCE - GAS_COST);
     });
   });
 });

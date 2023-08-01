@@ -53,17 +53,17 @@ library Validator {
   }
 
   function canCall(
-    LibAccounts.SettingsPermission memory permissions, 
+    LibAccounts.SettingsPermission memory permissions,
     address sender,
     uint256 envTime
   ) internal pure returns (bool) {
-    // return true if: 
+    // return true if:
     // Caller is the specified delegate address AND
     // the delegate hasn't expired OR doesn't expire
     bool approved;
     if (sender == permissions.delegate.addr) {
-      if(permissions.delegate.expires > 0) {
-        if(permissions.delegate.expires > envTime) {
+      if (permissions.delegate.expires > 0) {
+        if (permissions.delegate.expires > envTime) {
           approved = true;
         }
       } else {
