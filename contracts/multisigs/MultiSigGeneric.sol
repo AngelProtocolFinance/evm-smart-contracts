@@ -21,7 +21,7 @@ contract MultiSigGeneric is
    *  Modifiers
    */
   modifier onlyWallet() {
-    require(msg.sender == address(this));
+    require(msg.sender == address(this), "Can only be called by the MultiSig itself");
     _;
   }
 
