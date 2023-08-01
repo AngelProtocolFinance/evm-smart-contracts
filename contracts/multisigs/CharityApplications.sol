@@ -92,6 +92,10 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
   ) public override initializer {
     require(Validator.addressChecker(_accountsContract), "Invalid Accounts contract");
     require(Validator.addressChecker(_seedAsset), "Invalid seed asset");
+    require(
+      _seedSplitToLiquid >= 0 && _seedSplitToLiquid <= 100,
+      "Seed split to liquid must be between 0 & 100"
+    );
     // set Applications Multisig storage items
     proposalCount = 1;
     config.accountsContract = _accountsContract;
