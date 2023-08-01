@@ -401,7 +401,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
    * @return Fund details
    */
   function queryFundDetails(uint256 fundId) external view returns (IIndexFund.FundResponse memory) {
-    require(state.EndowmentsByFund[fundId].keys.length > 0, "Invalid Fund ID");
+    require(state.EndowmentsByFund[fundId].keys.length > 0, "Non-existent Fund ID");
     return
       FundResponse({
         id: state.Funds[fundId].id,
@@ -428,7 +428,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
    */
   function queryActiveFundDetails() external view returns (IIndexFund.FundResponse memory) {
     require(state.activeFund != 0, "Active fund not set");
-    require(state.EndowmentsByFund[state.activeFund].keys.length > 0, "Invalid Fund ID");
+    require(state.EndowmentsByFund[state.activeFund].keys.length > 0, "Non-existent Fund ID");
     return
       FundResponse({
         id: state.Funds[state.activeFund].id,
