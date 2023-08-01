@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
+import {Validator} from "../core/validator.sol";
 import "./storage.sol";
 import {IMultiSigGeneric} from "./interfaces/IMultiSigGeneric.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
@@ -34,7 +35,7 @@ contract MultiSigGeneric is
   }
 
   modifier transactionExists(uint256 transactionId) {
-    require(transactions[transactionId].destination != address(0), "Transaction dne");
+    require(Validator.addressChecker(transactions[transactionId].destination), "Transaction dne");
     _;
   }
 
@@ -66,11 +67,6 @@ contract MultiSigGeneric is
       confirmations[transactionId].count >= approvalsRequired,
       "Not enough confirmations to execute"
     );
-    _;
-  }
-
-  modifier notNull(address addr) {
-    require(addr != address(0), "Address cannot be a zero address");
     _;
   }
 
@@ -309,7 +305,7 @@ contract MultiSigGeneric is
   ) internal initializer validApprovalsRequirement(owners.length, _approvalsRequired) {
     require(owners.length > 0, "Must pass at least one owner address");
     for (uint256 i = 0; i < owners.length; i++) {
-      require(!isOwner[owners[i]] && owners[i] != address(0));
+      require(!isOwner[owners[i]] && Validator.addressChecker(owners[i]));
       isOwner[owners[i]] = true;
     }
     activeOwnersCount = owners.length;
@@ -332,7 +328,8 @@ contract MultiSigGeneric is
     uint256 value,
     bytes memory data,
     bytes memory metadata
-  ) internal virtual override notNull(destination) returns (uint256 transactionId) {
+  ) internal virtual override returns (uint256 transactionId) {
+    require(Validator.addressChecker(destination), "Invalid destination address");
     transactionId = transactionCount;
     transactions[transactionId] = MultiSigStorage.Transaction({
       destination: destination,
