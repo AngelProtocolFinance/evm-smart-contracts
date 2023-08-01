@@ -2,8 +2,6 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import hre from "hardhat";
 import {
-  IVaultHelpers,
-  StrategyApprovalState,
   deployDummyERC20,
   deployDummyGasService,
   deployDummyGateway,
@@ -21,8 +19,9 @@ import {
   Router,
   Router__factory,
 } from "typechain-types";
-import {getSigners} from "utils";
+import {StrategyApprovalState, getSigners} from "utils";
 import {LocalRegistrarLib} from "../../../typechain-types/contracts/core/registrar/LocalRegistrar";
+import {IVault} from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
 
 describe("Router", function () {
   const {ethers} = hre;
@@ -231,7 +230,7 @@ describe("Router", function () {
         lockAmt: 111,
         liqAmt: 222,
         status: 0, // unprocessed
-      } as IVaultHelpers.VaultActionDataStruct);
+      } as IVault.VaultActionDataStruct);
 
     describe("and the refund call is successful back through axelar", function () {
       before(async function () {
@@ -612,7 +611,7 @@ describe("Router", function () {
       lockAmt: LOCKAMT,
       liqAmt: LIQAMT,
       status: 0,
-    } as IVaultHelpers.VaultActionDataStruct;
+    } as IVault.VaultActionDataStruct;
 
     before(async function () {
       gateway = await deployDummyGateway(owner);
@@ -760,7 +759,7 @@ describe("Router", function () {
       lockAmt: LOCKAMT,
       liqAmt: LIQAMT,
       status: 0,
-    } as IVaultHelpers.VaultActionDataStruct;
+    } as IVault.VaultActionDataStruct;
 
     before(async function () {
       gateway = await deployDummyGateway(owner);
@@ -831,7 +830,7 @@ describe("Router", function () {
       lockAmt: LOCKAMT,
       liqAmt: LIQAMT,
       status: 0,
-    } as IVaultHelpers.VaultActionDataStruct;
+    } as IVault.VaultActionDataStruct;
 
     before(async function () {
       gateway = await deployDummyGateway(owner);
@@ -981,7 +980,7 @@ describe("Router", function () {
       lockAmt: LOCKAMT,
       liqAmt: LIQAMT,
       status: 0,
-    } as IVaultHelpers.VaultActionDataStruct;
+    } as IVault.VaultActionDataStruct;
 
     before(async function () {
       gateway = await deployDummyGateway(owner);

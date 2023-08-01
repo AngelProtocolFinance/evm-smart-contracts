@@ -3,7 +3,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG, FeeTypes, VaultType} from "test/utils";
+import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG} from "test/utils";
 import {
   AccountsDepositWithdrawEndowments,
   AccountsDepositWithdrawEndowments__factory,
@@ -23,7 +23,7 @@ import {
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsDepositWithdrawEndowments";
 import {LibAccounts, RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {genWallet, getSigners} from "utils";
+import {FeeTypes, VaultType, genWallet, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
@@ -212,17 +212,15 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const expectedLiquidAmt = BigNumber.from(value);
 
           await expect(
-            facet
-              .connect(indexFund)
-              .depositMatic(
-                {
-                  id: charityId,
-                  lockedPercentage: 0,
-                  liquidPercentage: 100,
-                  donationMatch: ethers.constants.AddressZero,
-                },
-                {value}
-              )
+            facet.connect(indexFund).depositMatic(
+              {
+                id: charityId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
+              {value}
+            )
           )
             .to.emit(facet, "EndowmentDeposit")
             .withArgs(charityId, wmaticFake.address, expectedLockedAmt, expectedLiquidAmt);
@@ -251,17 +249,15 @@ describe("AccountsDepositWithdrawEndowments", function () {
           wmaticFake.transfer.returns(true);
 
           await expect(
-            facet
-              .connect(indexFund)
-              .depositMatic(
-                {
-                  id: charityId,
-                  lockedPercentage: 0,
-                  liquidPercentage: 100,
-                  donationMatch: ethers.constants.AddressZero,
-                },
-                {value}
-              )
+            facet.connect(indexFund).depositMatic(
+              {
+                id: charityId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
+              {value}
+            )
           )
             .to.emit(facet, "EndowmentDeposit")
             .withArgs(charityId, wmaticFake.address, expectedLockedAmt, expectedLiquidAmt);
@@ -397,17 +393,15 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const expectedLiquidAmt = BigNumber.from(value);
 
           await expect(
-            facet
-              .connect(indexFund)
-              .depositMatic(
-                {
-                  id: normalEndowId,
-                  lockedPercentage: 0,
-                  liquidPercentage: 100,
-                  donationMatch: ethers.constants.AddressZero,
-                },
-                {value}
-              )
+            facet.connect(indexFund).depositMatic(
+              {
+                id: normalEndowId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
+              {value}
+            )
           )
             .to.emit(facet, "EndowmentDeposit")
             .withArgs(normalEndowId, wmaticFake.address, expectedLockedAmt, expectedLiquidAmt);

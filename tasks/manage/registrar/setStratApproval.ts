@@ -1,6 +1,13 @@
 import {task, types} from "hardhat/config";
 import {Registrar__factory, APTeamMultiSig__factory} from "typechain-types";
-import {getAddresses, getSigners, StratConfig, logger} from "utils";
+import {
+  getAddresses,
+  getSigners,
+  StratConfig,
+  logger,
+  StrategyApprovalState,
+  getEnumKeys,
+} from "utils";
 import {allStrategyConfigs} from "../../../contracts/integrations/stratConfig";
 
 type TaskArgs = {name: string; approvalState: number};
@@ -16,7 +23,11 @@ task("manage:registrar:setStratApproval")
   )
   .addParam(
     "approvalState",
-    "Whether the strategy is currently approved or not, enum of {NOT_APPROVED,APPROVED,WITHDRAW_ONLY,DEPRECATED}",
+    `Whether the strategy is currently approved or not, possible values: ${getEnumKeys(
+      StrategyApprovalState
+    )
+      .map((key) => `${key} - ${StrategyApprovalState[key]}`)
+      .join(", ")}`,
     0,
     types.int
   )
