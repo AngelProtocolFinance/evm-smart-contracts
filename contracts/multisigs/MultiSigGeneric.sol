@@ -75,7 +75,10 @@ contract MultiSigGeneric is
   }
 
   modifier validApprovalsRequirement(uint256 _ownerCount, uint256 _approvalsRequired) {
-    require(_approvalsRequired <= _ownerCount && _approvalsRequired != 0);
+    require(
+      _approvalsRequired <= _ownerCount && _approvalsRequired != 0,
+      "Invalid approvals requirement"
+    );
     _;
   }
 
