@@ -41,14 +41,17 @@ contract MultiSigGeneric is
   }
 
   modifier confirmed(uint256 transactionId, address _owner) {
-    require(confirmations[transactionId].confirmationsByOwner[_owner], "Transaction is confirmed");
+    require(
+      confirmations[transactionId].confirmationsByOwner[_owner],
+      "Transaction is not confirmed"
+    );
     _;
   }
 
   modifier notConfirmed(uint256 transactionId, address _owner) {
     require(
       !confirmations[transactionId].confirmationsByOwner[_owner],
-      "Transaction is not confirmed"
+      "Transaction is already confirmed"
     );
     _;
   }
