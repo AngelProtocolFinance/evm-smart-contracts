@@ -230,7 +230,7 @@ describe("Router", function () {
         lockAmt: 111,
         liqAmt: 222,
         status: 0, // unprocessed
-      } as IVault.VaultActionDataStruct);
+      }) as IVault.VaultActionDataStruct;
 
     describe("and the refund call is successful back through axelar", function () {
       before(async function () {
@@ -275,7 +275,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            token.symbol(),
+            await token.symbol(),
             333
           )
         )
@@ -296,7 +296,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            token.symbol(),
+            await token.symbol(),
             333
           )
         )
@@ -317,7 +317,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            token.symbol(),
+            await token.symbol(),
             332
           )
         )
@@ -340,7 +340,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            token.symbol(),
+            await token.symbol(),
             0
           )
         )
@@ -360,7 +360,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            token.symbol(),
+            await token.symbol(),
             333
           )
         )
@@ -382,7 +382,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            token.symbol(),
+            await token.symbol(),
             333
           )
         )
@@ -454,7 +454,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            token.symbol(),
+            await token.symbol(),
             333
           )
         )
@@ -476,7 +476,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            token.symbol(),
+            await token.symbol(),
             333
           )
         )
@@ -497,7 +497,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            token.symbol(),
+            await token.symbol(),
             332
           )
         )
@@ -520,7 +520,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            token.symbol(),
+            await token.symbol(),
             0
           )
         )
@@ -540,7 +540,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            token.symbol(),
+            await token.symbol(),
             333
           )
         )
@@ -562,7 +562,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            token.symbol(),
+            await token.symbol(),
             333
           )
         )
@@ -660,7 +660,7 @@ describe("Router", function () {
           originatingChain,
           accountsContract,
           packedData,
-          token.symbol(),
+          await token.symbol(),
           333
         )
       ).to.emit(liquidVault, "Deposit");
@@ -677,7 +677,7 @@ describe("Router", function () {
         originatingChain,
         accountsContract,
         packedData,
-        token.symbol(),
+        await token.symbol(),
         333
       );
       actionData.selector = liquidVault.interface.getSighash("redeem");
@@ -706,7 +706,7 @@ describe("Router", function () {
         originatingChain,
         accountsContract,
         packedData,
-        token.symbol(),
+        await token.symbol(),
         333
       );
       await liquidVault.setDummyAmt(actionData.liqAmt);
@@ -803,7 +803,7 @@ describe("Router", function () {
         originatingChain,
         accountsContract,
         packedData,
-        token.symbol(),
+        await token.symbol(),
         333
       );
       expect(await token.balanceOf(liquidVault.address)).to.equal(actionData.liqAmt);
@@ -871,7 +871,7 @@ describe("Router", function () {
         originatingChain,
         accountsContract,
         packedData,
-        token.symbol(),
+        await token.symbol(),
         333
       );
       actionData.selector = liquidVault.interface.getSighash("redeem");
@@ -1022,7 +1022,7 @@ describe("Router", function () {
         originatingChain,
         accountsContract,
         packedData,
-        token.symbol(),
+        await token.symbol(),
         333
       );
       actionData.selector = liquidVault.interface.getSighash("redeemAll");
