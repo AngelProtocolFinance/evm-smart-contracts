@@ -33,10 +33,7 @@ task("deploy:Router", "Will deploy Router contract")
       const apTeamMultiSig = taskArgs.apTeamMultisig || addresses.multiSig.apTeam.proxy;
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
 
-      const deployment = await deployRouter(
-        registrar,
-        hre
-      );
+      const deployment = await deployRouter(registrar, hre);
 
       if (!deployment) {
         return;

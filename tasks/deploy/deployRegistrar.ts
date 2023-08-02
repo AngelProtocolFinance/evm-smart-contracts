@@ -77,10 +77,7 @@ task(
         yes: true,
       });
 
-      const routerDeployment = await deployRouter(
-        registrarDeployment.address,
-        hre
-      );
+      const routerDeployment = await deployRouter(registrarDeployment.address, hre);
 
       // Registrar NetworkInfo's Router address must be updated for the current network
       if (routerDeployment) {

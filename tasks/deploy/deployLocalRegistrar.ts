@@ -41,10 +41,7 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
         return;
       }
 
-      const routerDeployment = await deployRouter(
-        localRegistrarDeployment.address,
-        hre
-      );
+      const routerDeployment = await deployRouter(localRegistrarDeployment.address, hre);
 
       if (!routerDeployment) {
         return;

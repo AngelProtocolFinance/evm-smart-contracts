@@ -2,11 +2,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {FakeContract, MockContract, smock} from "@defi-wonderland/smock";
 import {expect, use} from "chai";
 import hre from "hardhat";
-import {
-  packActionData,
-  DEFAULT_NETWORK_INFO,
-  DEFAULT_ACTION_DATA,
-} from "test/utils";
+import {packActionData, DEFAULT_NETWORK_INFO, DEFAULT_ACTION_DATA} from "test/utils";
 import {
   DummyERC20,
   DummyERC20__factory,

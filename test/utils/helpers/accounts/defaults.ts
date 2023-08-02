@@ -4,11 +4,10 @@ import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/Ac
 import {LibAccounts} from "typechain-types/contracts/multisigs/CharityApplications";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {BigNumber} from "ethers";
-import { DEFAULT_STRATEGY_SELECTOR} from "test/utils";
+import {DEFAULT_STRATEGY_SELECTOR} from "test/utils";
 import {IVault} from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {IAccountsStrategy} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-
 
 export const DEFAULT_PERMISSIONS_STRUCT: LibAccounts.SettingsPermissionStruct = {
   locked: false,
@@ -190,4 +189,4 @@ export const DEFAULT_ACTION_DATA: IVault.VaultActionDataStruct = {
   lockAmt: 0,
   liqAmt: 0,
   status: 0,
-}
+};

@@ -66,6 +66,7 @@ abstract contract IVault {
   }
 
   struct RedemptionResponse {
+    address token;
     uint256 amount;
     VaultActionStatus status;
   }

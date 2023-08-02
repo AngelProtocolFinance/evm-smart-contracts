@@ -28,10 +28,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
                         PROXY INIT
     */ ///////////////////////////////////////////////
 
-  function initialize(
-    string calldata _chain,
-    address _registrar
-  ) public initializer {
+  function initialize(string calldata _chain, address _registrar) public initializer {
     chain = _chain;
     registrar = ILocalRegistrar(_registrar);
   }
@@ -152,7 +149,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
       _action.accountIds[0],
       _action.lockAmt
     );
-    IERC20Metadata(_action.token).safeTransferFrom(
+    IERC20Metadata(_redemptionLock.token).safeTransferFrom(
       _params.Locked.vaultAddr,
       address(this),
       _redemptionLock.amount
@@ -162,12 +159,15 @@ contract Router is IRouter, Initializable, AxelarExecutable {
       _action.accountIds[0],
       _action.liqAmt
     );
-
-    IERC20Metadata(_action.token).safeTransferFrom(
+    IERC20Metadata(_redemptionLiquid.token).safeTransferFrom(
       _params.Liquid.vaultAddr,
       address(this),
       _redemptionLiquid.amount
     );
+
+    // Update _action with this chain's token address.
+    // Liquid token should ALWAYS == Locked token
+    _action.token = _redemptionLiquid.token;
 
     // Pack and send the tokens back to Accounts contract
     uint256 _redeemedAmt = _redemptionLock.amount + _redemptionLiquid.amount;
@@ -405,6 +405,9 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     // grab tokens sent cross-chain
     address tokenAddress = _gateway().tokenAddresses(tokenSymbol);
     IERC20Metadata(tokenAddress).safeTransferFrom(address(_gateway()), address(this), amount);
+
+    // update action.token address to reflect this chain's token address
+    action.token = tokenAddress;
 
     // Leverage this.call() to enable try/catch logic
     try this.deposit(action, tokenSymbol, amount) {

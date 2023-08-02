@@ -38,13 +38,23 @@ contract DummyVault is IVault {
   ) public payable override returns (RedemptionResponse memory) {
     IERC20(vaultConfig.baseToken).approve(msg.sender, amt);
     emit Redeem(accountId, vaultConfig.vaultType, vaultConfig.baseToken, amt);
-    return RedemptionResponse({amount: amt, status: VaultActionStatus.SUCCESS});
+    return
+      RedemptionResponse({
+        token: vaultConfig.baseToken,
+        amount: amt,
+        status: VaultActionStatus.SUCCESS
+      });
   }
 
   function redeemAll(uint32 accountId) public payable override returns (RedemptionResponse memory) {
     IERC20(vaultConfig.baseToken).approve(msg.sender, dummyAmt);
     emit Redeem(accountId, vaultConfig.vaultType, address(this), dummyAmt);
-    return RedemptionResponse({amount: dummyAmt, status: VaultActionStatus.POSITION_EXITED});
+    return
+      RedemptionResponse({
+        token: vaultConfig.baseToken,
+        amount: dummyAmt,
+        status: VaultActionStatus.POSITION_EXITED
+      });
   }
 
   function harvest(uint32[] calldata accountIds) public override {

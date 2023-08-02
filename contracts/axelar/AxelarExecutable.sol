@@ -8,7 +8,6 @@ import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/
 import {IAxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarExecutable.sol";
 
 abstract contract AxelarExecutable is IAxelarExecutable {
-
   function execute(
     bytes32 commandId,
     string calldata sourceChain,
