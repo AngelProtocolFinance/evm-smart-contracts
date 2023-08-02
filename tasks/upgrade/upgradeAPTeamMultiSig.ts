@@ -15,6 +15,8 @@ task("upgrade:APTeamMultiSig", "Will upgrade the APTeamMultiSig")
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: {skipVerify: boolean; yes: boolean}, hre) => {
     try {
+      logger.divider();
+
       const isConfirmed = taskArgs.yes || (await confirmAction("Upgrading APTeamMultiSig..."));
       if (!isConfirmed) {
         return logger.out("Confirmation denied.", logger.Level.Warn);
