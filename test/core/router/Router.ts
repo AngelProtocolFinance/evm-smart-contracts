@@ -45,10 +45,7 @@ describe("Router", function () {
     collector = apTeam2;
   });
 
-  async function deployRouterAsProxy(
-    registrar: string
-  ): Promise<Router> {
-
+  async function deployRouterAsProxy(registrar: string): Promise<Router> {
     const RouterFactory = new Router__factory(owner);
     const RouterImpl = await RouterFactory.deploy();
     await RouterImpl.deployed();
@@ -81,7 +78,7 @@ describe("Router", function () {
     let registrar: FakeContract<Registrar>;
     let router: Router;
     beforeEach(async function () {
-      registrar = await smock.fake<Registrar>(new Registrar__factory())
+      registrar = await smock.fake<Registrar>(new Registrar__factory());
       router = await deployRouterAsProxy(registrar.address);
     });
 
@@ -100,23 +97,25 @@ describe("Router", function () {
 
     beforeEach(async function () {
       token = await smock.fake<DummyERC20>(new DummyERC20__factory());
-      registrar = await smock.fake<Registrar>(new Registrar__factory())
+      registrar = await smock.fake<Registrar>(new Registrar__factory());
       gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
       gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
 
-      const APParams = {routerAddr: ethers.constants.AddressZero, refundAddr: collector.address}
+      const APParams = {routerAddr: ethers.constants.AddressZero, refundAddr: collector.address};
       const networkParams = {
-        ...DEFAULT_NETWORK_INFO, 
-        axelarGateway: gateway.address, 
-        gasReceiver: gasService.address
-      }
+        ...DEFAULT_NETWORK_INFO,
+        axelarGateway: gateway.address,
+        gasReceiver: gasService.address,
+      };
 
       gateway.validateContractCall.returns(true);
       gateway.validateContractCallAndMint.returns(true);
       registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
-      registrar.getAngelProtocolParams.returns(APParams)
-      registrar.queryNetworkConnection.returns(networkParams)
-      registrar.getAccountsContractAddressByChain.whenCalledWith(originatingChain).returns(accountsContract)
+      registrar.getAngelProtocolParams.returns(APParams);
+      registrar.queryNetworkConnection.returns(networkParams);
+      registrar.getAccountsContractAddressByChain
+        .whenCalledWith(originatingChain)
+        .returns(accountsContract);
       registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
       router = await deployRouterAsProxy(registrar.address);
     });
@@ -207,39 +206,41 @@ describe("Router", function () {
       accountIds: [1],
       lockAmt: LOCK_AMT,
       liqAmt: LIQ_AMT,
-    })
+    });
 
     beforeEach(async function () {
       token = await smock.fake<DummyERC20>(new DummyERC20__factory());
-      registrar = await smock.fake<Registrar>(new Registrar__factory())
+      registrar = await smock.fake<Registrar>(new Registrar__factory());
       gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
       gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
       lockedVault = await smock.fake<DummyVault>(new DummyVault__factory());
       liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
 
-      const APParams = {routerAddr: ethers.constants.AddressZero, refundAddr: collector.address}
+      const APParams = {routerAddr: ethers.constants.AddressZero, refundAddr: collector.address};
       const networkParams = {
-        ...DEFAULT_NETWORK_INFO, 
-        axelarGateway: gateway.address, 
-        gasReceiver: gasService.address
-      }
+        ...DEFAULT_NETWORK_INFO,
+        axelarGateway: gateway.address,
+        gasReceiver: gasService.address,
+      };
 
       gateway.validateContractCall.returns(true);
       gateway.validateContractCallAndMint.returns(true);
+      gateway.tokenAddresses.returns(token.address);
       registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
-      registrar.getAngelProtocolParams.returns(APParams)
-      registrar.queryNetworkConnection.returns(networkParams)
-      registrar.getAccountsContractAddressByChain.whenCalledWith(originatingChain).returns(accountsContract)
+      registrar.getAngelProtocolParams.returns(APParams);
+      registrar.queryNetworkConnection.returns(networkParams);
+      registrar.getAccountsContractAddressByChain
+        .whenCalledWith(originatingChain)
+        .returns(accountsContract);
       registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
       token.transfer.returns(true);
       token.transferFrom.returns(true);
       token.approve.returns(true);
       token.approveFor.returns(true);
       router = await deployRouterAsProxy(registrar.address);
-    })
+    });
 
     describe("and the refund call is successful back through axelar", function () {
-
       it("when more than one account is specified", async function () {
         let actionData = getDefaultActionData();
         actionData.selector = liquidVault.interface.getSighash("deposit");
@@ -258,7 +259,7 @@ describe("Router", function () {
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Only one account allowed");
-        let gatewayAllowance = token.allowance(router.address, gateway.address);
+        let gatewayAllowance = await token.allowance(router.address, gateway.address);
         expect(gatewayAllowance).to.equal(333);
       });
 
