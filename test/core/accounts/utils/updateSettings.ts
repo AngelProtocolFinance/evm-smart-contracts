@@ -51,7 +51,7 @@ export async function updateAllSettings(
   lockedEndow.settingsController = (
     Object.entries(lockedEndow.settingsController) as [
       keyof LibAccounts.SettingsControllerStruct,
-      LibAccounts.SettingsPermissionStruct
+      LibAccounts.SettingsPermissionStruct,
     ][]
   ).reduce((controller, [key, curSetting]) => {
     controller[key] = getUpdated(curSetting, settings);

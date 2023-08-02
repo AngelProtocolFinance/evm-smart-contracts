@@ -7,7 +7,7 @@ export type DeepPartial<T> = {
 
 type Head<T extends any[]> = Required<T> extends [
   ...infer Head,
-  Overrides & {from?: PromiseOrValue<string>}
+  Overrides & {from?: PromiseOrValue<string>},
 ]
   ? Head
   : never;
