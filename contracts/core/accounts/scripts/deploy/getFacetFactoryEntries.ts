@@ -14,6 +14,7 @@ import {
   AccountsUpdateStatusEndowments__factory,
   AccountsUpdate__factory,
   AccountsStrategy__factory,
+  AccountsGasManager__factory,
   DiamondLoupeFacet__factory,
   OwnershipFacet__factory,
 } from "typechain-types";
@@ -86,6 +87,10 @@ export default async function getFacetFactoryEntries(diamondOwner: SignerWithAdd
     {
       addressField: "accountsStrategy",
       factory: new AccountsStrategy__factory(diamondOwner),
+    },
+    {
+      addressField: "accountsGasManager",
+      factory: new AccountsGasManager__factory(diamondOwner),
     },
   ];
 }

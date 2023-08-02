@@ -8,6 +8,7 @@ export type AddressObj = {
       accountsAllowance: string;
       accountsCreateEndowment: string;
       accountsDaoEndowments: string;
+      accountsGasManager: string;
       accountsQueryEndowments: string;
       accountsStrategy: string;
       accountsSwapRouter: string;
