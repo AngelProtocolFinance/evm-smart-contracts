@@ -91,16 +91,24 @@ contract AccountsUpdateStatusEndowments is
       memory lockedTokens = new IAccountsDepositWithdrawEndowments.TokenInfo[](
         IterableMapping.size(state.STATES[id].balances.locked)
       );
-    //for (uint256 i = 0; i < IterableMapping.keys(state.states[id].balances.locked).length; i++) {
-    //  lockedTokens[i] = IAccountsDepositWithdrawEndowments.TokenInfo({
-    //    addr: address(0),
-    //    amnt: 0,
-    //  });
-    //}
+    for (uint256 i = 0; i < IterableMapping.size(state.STATES[id].balances.locked); i++) {
+      address k = IterableMapping.getKeyAtIndex(state.STATES[id].balances.locked, i);
+      lockedTokens[i] = IAccountsDepositWithdrawEndowments.TokenInfo({
+        addr: k,
+        amnt: IterableMapping.get(state.STATES[id].balances.locked, k)
+      });
+    }
     IAccountsDepositWithdrawEndowments.TokenInfo[]
       memory liquidTokens = new IAccountsDepositWithdrawEndowments.TokenInfo[](
         IterableMapping.size(state.STATES[id].balances.liquid)
       );
+    for (uint256 i = 0; i < IterableMapping.size(state.STATES[id].balances.liquid); i++) {
+      address k = IterableMapping.getKeyAtIndex(state.STATES[id].balances.liquid, i);
+      liquidTokens[i] = IAccountsDepositWithdrawEndowments.TokenInfo({
+        addr: k,
+        amnt: IterableMapping.get(state.STATES[id].balances.liquid, k)
+      });
+    }
 
     if (beneficiary.enumData != LibAccounts.BeneficiaryEnum.Wallet) {
       require(beneficiary.data.addr != address(0), "Cannot pass a zero address");
