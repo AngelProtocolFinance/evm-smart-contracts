@@ -28,6 +28,7 @@ import {
 import {genWallet, getSigners} from "utils";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
+import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 
 describe("IndexFund", function () {
   const {ethers, upgrades} = hre;
@@ -498,7 +499,7 @@ describe("IndexFund", function () {
           currTime + 42069
         )
       )
-        .to.emit("FundCreated")
+        .to.emit(indexFund, "FundCreated")
         .withArgs(3);
       time.increase(42069); // move time forward so Fund #3 is @ expiry
 
@@ -507,7 +508,7 @@ describe("IndexFund", function () {
       expect(activeFund.id).to.equal(3);
 
       // should fail when prep clean up process removes the expired fund, leaving 0 funds available
-      expect(indexFund.depositERC20(0, token.address, 500, 0)).to.be.revertedWith(
+      expect(indexFund.depositERC20(0, token.address, 500)).to.be.revertedWith(
         "Must have rotating funds active to pass a Fund ID of 0"
       );
     });
@@ -515,7 +516,7 @@ describe("IndexFund", function () {
     it("passes for a specific fund, amount > min & token is valid", async function () {
       // create 1 active, rotating fund
       expect(await indexFund.createIndexFund("Test Fund #4", "Test fund", [2, 3], true, 50, 0))
-        .to.emit("FundCreated")
+        .to.emit(indexFund, "FundCreated")
         .withArgs(4);
 
       expect(
@@ -531,7 +532,7 @@ describe("IndexFund", function () {
     it("passes for an active fund donation(amount-based rotation), amount > min & token is valid", async function () {
       // create 1 more active, rotating fund for full rotation testing
       expect(await indexFund.createIndexFund("Test Fund #5", "Test fund", [2], true, 100, 0))
-        .to.emit("FundCreated")
+        .to.emit(indexFund, "FundCreated")
         .withArgs(5);
 
       let ifState = await indexFund.queryState();
