@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
+
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";
 import {Validator} from "../../validator.sol";
@@ -93,18 +94,21 @@ contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager {
 
   function _validateCaller(uint32 id) internal view returns (bool) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
+    AccountStorage.Endowment memory tempEndow = state.ENDOWMENTS[id];
+
     if (
-      Validator.canCall(
-        state.ENDOWMENTS[id].settingsController.lockedInvestmentManagement,
+      Validator.canChange(
+        tempEndow.settingsController.lockedInvestmentManagement,
         msg.sender,
+        tempEndow.owner,
         block.timestamp
       ) ||
-      Validator.canCall(
-        state.ENDOWMENTS[id].settingsController.liquidInvestmentManagement,
+      Validator.canChange(
+        tempEndow.settingsController.liquidInvestmentManagement,
         msg.sender,
+        tempEndow.owner,
         block.timestamp
-      ) ||
-      msg.sender == state.ENDOWMENTS[id].owner
+      )
     ) {
       return true;
     }
