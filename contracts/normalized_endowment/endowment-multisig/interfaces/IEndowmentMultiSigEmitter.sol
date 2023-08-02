@@ -14,12 +14,6 @@ interface IEndowmentMultiSigEmitter {
     uint256 transactionId
   ) external;
 
-  function transactionConfirmationOfFormerOwnerRevokedEndowment(
-    uint256 endowmentId,
-    address formerOwner,
-    uint256 transactionId
-  ) external;
-
   function transactionSubmittedEndowment(
     uint256 endowmentId,
     address owner,
