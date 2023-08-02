@@ -3,7 +3,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {DEFAULT_REGISTRAR_CONFIG, FeeTypes} from "test/utils";
+import {DEFAULT_REGISTRAR_CONFIG} from "test/utils";
 import {
   AccountsCreateEndowment,
   AccountsCreateEndowment__factory,
@@ -18,7 +18,7 @@ import {
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsCreateEndowment";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
-import {genWallet, getSigners} from "utils";
+import {FeeTypes, genWallet, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);

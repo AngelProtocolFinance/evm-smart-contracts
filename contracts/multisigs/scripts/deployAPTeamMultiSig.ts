@@ -27,7 +27,7 @@ export async function deployAPTeamMultiSig(
 
     // deploy proxy
     logger.out("Deploying proxy...");
-    const apTeamMultiSigData = apTeamMultiSig.interface.encodeFunctionData("initialize", [
+    const apTeamMultiSigData = apTeamMultiSig.interface.encodeFunctionData("initializeAPTeam", [
       apTeamMultisigOwners.map((x) => x.address),
       config.AP_TEAM_MULTISIG_DATA.threshold,
       config.AP_TEAM_MULTISIG_DATA.requireExecution,

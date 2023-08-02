@@ -49,8 +49,7 @@ contract AccountsUpdateStatusEndowments is
 
     // If NONE was passed for beneficiary, send balance to the AP Treasury (if not in any funds)
     // or send to the first index fund if it is in one.
-    IIndexFund.IndexFund[] memory funds = IIndexFund(registrar_config.indexFundContract)
-      .queryInvolvedFunds(id);
+    uint256[] memory funds = IIndexFund(registrar_config.indexFundContract).queryInvolvedFunds(id);
     if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.None) {
       if (funds.length == 0) {
         beneficiary = LibAccounts.Beneficiary({
@@ -63,7 +62,7 @@ contract AccountsUpdateStatusEndowments is
         });
       } else {
         beneficiary = LibAccounts.Beneficiary({
-          data: LibAccounts.BeneficiaryData({endowId: 0, fundId: funds[0].id, addr: address(0)}),
+          data: LibAccounts.BeneficiaryData({endowId: 0, fundId: funds[0], addr: address(0)}),
           enumData: LibAccounts.BeneficiaryEnum.IndexFund
         });
         // remove closing endowment from all Index Funds that it is in

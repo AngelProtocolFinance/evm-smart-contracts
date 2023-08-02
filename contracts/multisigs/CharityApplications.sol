@@ -62,11 +62,6 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
     _;
   }
 
-  // @dev overrides the generic multisig initializer and restricted function
-  function initialize(address[] memory, uint256, bool, uint256) public override initializer {
-    revert("Not Implemented");
-  }
-
   /**
    * @notice Initialize the charity applications contract
    * where anyone can submit applications to open a charity endowment on AP for review and approval

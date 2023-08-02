@@ -8,7 +8,6 @@ import {
   DEFAULT_CHARITY_ENDOWMENT,
   DEFAULT_PERMISSIONS_STRUCT,
   DEFAULT_REGISTRAR_CONFIG,
-  VaultType,
 } from "test/utils";
 import {
   AccountsSwapRouter,
@@ -24,7 +23,7 @@ import {
   Registrar__factory,
   TestFacetProxyContract,
 } from "typechain-types";
-import {genWallet, getSigners} from "utils";
+import {VaultType, genWallet, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);

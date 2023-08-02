@@ -3,7 +3,7 @@ import {impersonateAccount, setBalance} from "@nomicfoundation/hardhat-network-h
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import hre from "hardhat";
-import {DEFAULT_REGISTRAR_CONFIG, EndowmentType, TokenType, VeTypeEnum} from "test/utils";
+import {DEFAULT_REGISTRAR_CONFIG} from "test/utils";
 import {
   AccountsDeployContract,
   AccountsDeployContract__factory,
@@ -17,7 +17,7 @@ import {
 } from "typechain-types";
 import {SubDaoMessages} from "typechain-types/contracts/core/accounts/facets/AccountsDeployContract";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
-import {genWallet, getSigners} from "utils";
+import {EndowmentType, TokenType, VeTypeEnum, genWallet, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils/deployTestFacet";
 
 use(smock.matchers);
