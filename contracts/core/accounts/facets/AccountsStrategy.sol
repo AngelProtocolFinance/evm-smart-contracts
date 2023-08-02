@@ -152,6 +152,15 @@ contract AccountsStrategy is
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
       uint256 gasFwdGas = IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(tokenAddress, investRequest.gasFee);
+      if (gasFwdGas < investRequest.gasFee) {
+        _payForGasWithAccountBalance(
+          id, 
+          tokenAddress, 
+          investRequest.lockAmt, 
+          investRequest.liquidAmt, 
+          (investRequest.gasFee - gasFwdGas)
+        );
+      }
       IERC20(tokenAddress).safeApprove(thisNetwork.gasReceiver, investRequest.gasFee);
       IAxelarGasService(thisNetwork.gasReceiver).payGasForContractCallWithToken(
         address(this),
@@ -275,8 +284,16 @@ contract AccountsStrategy is
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
-
-      IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(tokenAddress, redeemRequest.gasFee);
+      uint256 gasFwdGas = IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(tokenAddress, redeemRequest.gasFee);
+      if (gasFwdGas < redeemRequest.gasFee) {
+        _payForGasWithAccountBalance(
+          id, 
+          tokenAddress, 
+          redeemRequest.lockAmt, 
+          redeemRequest.liquidAmt, 
+          (redeemRequest.gasFee - gasFwdGas)
+        );
+      }
       IERC20(tokenAddress).safeApprove(thisNetwork.gasReceiver, redeemRequest.gasFee);
       IAxelarGasService(thisNetwork.gasReceiver).payGasForContractCall(
         address(this),
@@ -392,8 +409,16 @@ contract AccountsStrategy is
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
-
-      IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(tokenAddress, redeemAllRequest.gasFee);
+      uint256 gasFwdGas = IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(tokenAddress, redeemAllRequest.gasFee);
+      if (gasFwdGas < redeemAllRequest.gasFee) {
+        _payForGasWithAccountBalance(
+          id, 
+          tokenAddress, 
+          0, 
+          0, 
+          (redeemAllRequest.gasFee - gasFwdGas)
+        );
+      }
       IERC20(tokenAddress).safeApprove(thisNetwork.gasReceiver, redeemAllRequest.gasFee);
       IAxelarGasService(thisNetwork.gasReceiver).payGasForContractCall(
         address(this),
@@ -521,5 +546,27 @@ contract AccountsStrategy is
     if (stratNetwork.router != StringToAddress.toAddress(sourceAddress)) {
       revert UnexpectedCaller(response, sourceChain, sourceAddress);
     }
+  }
+
+  /**
+   * @notice Pay for gas from the account balance
+   * @dev Split the gas payment proprotionally between locked and liquid. Deduct the gas from the respective account balances
+   * Revert if the balance of the account cannot cover both the investment request and the gas payment.  
+   */
+  function _payForGasWithAccountBalance(uint32 id, address token, uint256 lockAmt, uint256 liqAmt, uint256 gasRemaining) internal {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    uint256 lockBal = state.STATES[id].balances.locked[token];
+    uint256 liqBal = state.STATES[id].balances.liquid[token];
+    uint256 sendAmt = lockAmt + liqAmt;
+
+    // Split gas proportionally between liquid and lock amts
+    uint256 liqGas = (gasRemaining * ((liqAmt * LibAccounts.BIG_NUMBA_BASIS) / sendAmt)) / LibAccounts.BIG_NUMBA_BASIS;
+    uint256 lockGas = gasRemaining - liqGas;
+    if(((liqGas + liqAmt )> liqBal) 
+      || ((lockGas + lockAmt) > lockBal)) {
+      revert InsufficientFundsForGas(id);
+    }
+    state.STATES[id].balances.locked[token] -= lockGas;
+    state.STATES[id].balances.liquid[token] -= liqGas;
   }
 }
