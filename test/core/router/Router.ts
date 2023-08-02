@@ -34,10 +34,6 @@ describe("Router", function () {
   let admin: SignerWithAddress;
   let user: SignerWithAddress;
   let collector: SignerWithAddress;
-  let defaultApParams = {
-    routerAddr: ethers.constants.AddressZero,
-    refundAddr: ethers.constants.AddressZero,
-  } as LocalRegistrarLib.AngelProtocolParamsStruct;
   let deadAddr = "0x000000000000000000000000000000000000dead";
   const originatingChain = "polygon";
   const localChain = "ethereum";
@@ -101,12 +97,11 @@ describe("Router", function () {
     let registrar: FakeContract<Registrar>;
     let gateway: FakeContract<DummyGateway>;
     let gasService: FakeContract<DummyGasService>;
-    let token: MockContract<DummyERC20>;
+    let token: FakeContract<DummyERC20>;
     let router: Router;
 
     beforeEach(async function () {
-      const Token = await smock.mock<DummyERC20__factory>("DummyERC20");
-      token = await Token.deploy(0)
+      token = await smock.fake<DummyERC20>(new DummyERC20__factory());
       registrar = await smock.fake<Registrar>(new Registrar__factory())
       gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
       gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
@@ -205,7 +200,7 @@ describe("Router", function () {
     let registrar: FakeContract<Registrar>;
     let gateway: FakeContract<DummyGateway>;
     let gasService: FakeContract<DummyGasService>;
-    let token: MockContract<DummyERC20>;
+    let token: FakeContract<DummyERC20>;
     let router: Router;
     const LOCK_AMT = 111;
     const LIQ_AMT = 222;
@@ -217,8 +212,7 @@ describe("Router", function () {
     })
 
     beforeEach(async function () {
-      const Token = await smock.mock<DummyERC20__factory>("DummyERC20");
-      token = await Token.deploy(0)
+      token = await smock.fake<DummyERC20>(new DummyERC20__factory());
       registrar = await smock.fake<Registrar>(new Registrar__factory())
       gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
       gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
@@ -239,11 +233,11 @@ describe("Router", function () {
       registrar.queryNetworkConnection.returns(networkParams)
       registrar.getAccountsContractAddressByChain.whenCalledWith(originatingChain).returns(accountsContract)
       registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
-      router = await deployRouterAsProxy(registrar.address);
       token.transfer.returns(true);
       token.transferFrom.returns(true);
       token.approve.returns(true);
       token.approveFor.returns(true);
+      router = await deployRouterAsProxy(registrar.address);
     })
 
     describe("and the refund call is successful back through axelar", function () {
@@ -266,7 +260,7 @@ describe("Router", function () {
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Only one account allowed");
-        let gatewayAllowance = await token.allowance(router.address, gateway.address);
+        let gatewayAllowance = token.allowance(router.address, gateway.address);
         expect(gatewayAllowance).to.equal(333);
       });
 
