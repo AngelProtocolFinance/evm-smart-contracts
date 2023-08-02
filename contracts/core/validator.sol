@@ -35,7 +35,7 @@ library Validator {
   ) internal pure returns (bool) {
     return (delegate.addr != address(0) &&
       sender == delegate.addr &&
-      (delegate.expires == 0 || envTime <= delegate.expires));
+      (delegate.expires == 0 || envTime < delegate.expires));
   }
 
   function canChange(
