@@ -69,7 +69,7 @@ contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager {
   /// @dev Only callable by the owner, liquidInvestmentManager, or lockedInvestmentManager
   /// Sends the balance specified from the specified token and vault type to the endow's gasFwd contract
   function addGas(uint32 id, IVault.VaultType vault, address token, uint256 amount) external {
-    if (!_validateCaller(id)) {
+    if (!_validateCaller(id, vault)) {
       revert Unauthorized();
     }
 
@@ -92,26 +92,34 @@ contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager {
     IERC20(token).safeTransfer(state.ENDOWMENTS[id].gasFwd, amount);
   }
 
-  function _validateCaller(uint32 id) internal view returns (bool) {
+  function _validateCaller(uint32 id, IVault.VaultType vault) internal view returns (bool) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment memory tempEndow = state.ENDOWMENTS[id];
+    AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];
 
     if (
+      vault == IVault.VaultType.LOCKED &&
       Validator.canChange(
-        tempEndow.settingsController.lockedInvestmentManagement,
+        tempEndowment.settingsController.lockedInvestmentManagement,
         msg.sender,
-        tempEndow.owner,
-        block.timestamp
-      ) ||
-      Validator.canChange(
-        tempEndow.settingsController.liquidInvestmentManagement,
-        msg.sender,
-        tempEndow.owner,
+        tempEndowment.owner,
         block.timestamp
       )
     ) {
       return true;
     }
+
+    if (
+      vault == IVault.VaultType.LIQUID &&
+      Validator.canChange(
+        tempEndowment.settingsController.liquidInvestmentManagement,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
+    ) {
+      return true;
+    }
+
     return false;
   }
 }
