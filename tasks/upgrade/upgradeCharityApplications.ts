@@ -20,6 +20,8 @@ task("upgrade:CharityApplications", "Will upgrade the implementation of CharityA
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
+      logger.divider();
+
       const isConfirmed =
         taskArgs.yes ||
         (await confirmAction("Upgrading CharityApplications implementation contract..."));

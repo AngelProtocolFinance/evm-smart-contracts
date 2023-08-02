@@ -28,6 +28,8 @@ task(
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
+      logger.divider();
+
       const isConfirmed =
         taskArgs.yes ||
         (await confirmAction("Upgrading EndowmentMultiSig implementation contract..."));
