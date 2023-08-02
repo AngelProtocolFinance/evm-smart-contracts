@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.so
 import {LibAccounts} from "../../core/accounts/lib/LibAccounts.sol";
 import {AccountStorage} from "../../core/accounts/storage.sol";
 import {IterableMapping} from "../../lib/IterableMappingAddr.sol";
+import {Utils} from "../../lib/utils.sol";
 
 /**
  * @dev This contract implements a proxy that is upgradeable by an admin.
@@ -185,5 +186,9 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMapping 
   function getConfig() external view returns (AccountStorage.Config memory) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     return state.config;
+  }
+
+  function callSelf(uint256 value, bytes memory data) external {
+    Utils._execute(address(this), value, data);
   }
 }

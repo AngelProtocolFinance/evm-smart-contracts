@@ -52,6 +52,27 @@ library Validator {
       (delegateIsValid(permissions.delegate, sender, envTime) || sender == owner));
   }
 
+  function canCall(
+    LibAccounts.SettingsPermission memory permissions,
+    address sender,
+    uint256 envTime
+  ) internal pure returns (bool) {
+    // return true if:
+    // Caller is the specified delegate address AND
+    // the delegate hasn't expired OR doesn't expire
+    bool approved;
+    if (sender == permissions.delegate.addr) {
+      if (permissions.delegate.expires > 0) {
+        if (permissions.delegate.expires > envTime) {
+          approved = true;
+        }
+      } else {
+        approved = true;
+      }
+    }
+    return approved;
+  }
+
   function validateFee(LibAccounts.FeeSetting memory fee) internal pure {
     if (fee.bps > 0 && fee.payoutAddress == address(0)) {
       revert("Invalid fee payout zero address given");

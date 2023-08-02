@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
+import {Validator} from "../core/validator.sol";
 import "./storage.sol";
 import {IMultiSigGeneric} from "./interfaces/IMultiSigGeneric.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {Utils} from "../lib/utils.sol";
@@ -19,7 +21,7 @@ contract MultiSigGeneric is
    *  Modifiers
    */
   modifier onlyWallet() {
-    require(msg.sender == address(this));
+    require(msg.sender == address(this), "Can only be called by the MultiSig itself");
     _;
   }
 
@@ -34,19 +36,22 @@ contract MultiSigGeneric is
   }
 
   modifier transactionExists(uint256 transactionId) {
-    require(transactions[transactionId].destination != address(0), "Transaction dne");
+    require(Validator.addressChecker(transactions[transactionId].destination), "Transaction dne");
     _;
   }
 
   modifier confirmed(uint256 transactionId, address _owner) {
-    require(confirmations[transactionId].confirmationsByOwner[_owner], "Transaction is confirmed");
+    require(
+      confirmations[transactionId].confirmationsByOwner[_owner],
+      "Transaction is not confirmed"
+    );
     _;
   }
 
   modifier notConfirmed(uint256 transactionId, address _owner) {
     require(
       !confirmations[transactionId].confirmationsByOwner[_owner],
-      "Transaction is not confirmed"
+      "Transaction is already confirmed"
     );
     _;
   }
@@ -69,13 +74,11 @@ contract MultiSigGeneric is
     _;
   }
 
-  modifier notNull(address addr) {
-    require(addr != address(0), "Address cannot be a zero address");
-    _;
-  }
-
   modifier validApprovalsRequirement(uint256 _ownerCount, uint256 _approvalsRequired) {
-    require(_approvalsRequired <= _ownerCount && _approvalsRequired != 0);
+    require(
+      _approvalsRequired <= _ownerCount && _approvalsRequired != 0,
+      "Invalid approvals requirement"
+    );
     _;
   }
 
@@ -94,6 +97,10 @@ contract MultiSigGeneric is
   function addOwners(address[] memory owners) public virtual override onlyWallet {
     require(owners.length > 0, "Empty new owners list passed");
     for (uint256 o = 0; o < owners.length; o++) {
+      require(
+        Validator.addressChecker(owners[o]),
+        string.concat("Invalid owner address at index: ", Strings.toString(o))
+      );
       require(!isOwner[owners[o]], "New owner already exists");
       // increment active owners count by 1
       activeOwnersCount += 1;
@@ -131,6 +138,7 @@ contract MultiSigGeneric is
     address currOwner,
     address newOwner
   ) public virtual override onlyWallet ownerExists(currOwner) ownerDoesNotExist(newOwner) {
+    require(Validator.addressChecker(newOwner), "Invalid new owner address");
     isOwner[currOwner] = false;
     isOwner[newOwner] = true;
     emitOwnerReplaced(currOwner, newOwner);
@@ -309,7 +317,10 @@ contract MultiSigGeneric is
   ) internal initializer validApprovalsRequirement(owners.length, _approvalsRequired) {
     require(owners.length > 0, "Must pass at least one owner address");
     for (uint256 i = 0; i < owners.length; i++) {
-      require(!isOwner[owners[i]] && owners[i] != address(0));
+      require(
+        Validator.addressChecker(owners[i]),
+        string.concat("Invalid owner address at index: ", Strings.toString(i))
+      );
       isOwner[owners[i]] = true;
     }
     activeOwnersCount = owners.length;
@@ -332,7 +343,8 @@ contract MultiSigGeneric is
     uint256 value,
     bytes memory data,
     bytes memory metadata
-  ) internal virtual override notNull(destination) returns (uint256 transactionId) {
+  ) internal virtual override returns (uint256 transactionId) {
+    require(Validator.addressChecker(destination), "Invalid destination address");
     transactionId = transactionCount;
     transactions[transactionId] = MultiSigStorage.Transaction({
       destination: destination,
