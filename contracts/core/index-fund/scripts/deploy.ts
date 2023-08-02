@@ -32,13 +32,10 @@ export async function deployIndexFund(
 
     // deploy proxy
     logger.out("Deploying proxy...");
-    const initData = indexFund.interface.encodeFunctionData("initIndexFund", [
-      {
-        registrarContract: registrar,
-        fundRotation: config.INDEX_FUND_DATA.fundRotation,
-        fundMemberLimit: config.INDEX_FUND_DATA.fundMemberLimit,
-        fundingGoal: config.INDEX_FUND_DATA.fundingGoal,
-      },
+    const initData = indexFund.interface.encodeFunctionData("initialize", [
+      registrar,
+      config.INDEX_FUND_DATA.fundRotation,
+      config.INDEX_FUND_DATA.fundingGoal,
     ]);
     const proxyFactory = new ProxyContract__factory(deployer);
     const indexFundProxy = await proxyFactory.deploy(
@@ -52,7 +49,7 @@ export async function deployIndexFund(
     // update owner
     logger.out(`Updating IndexFund owner to: ${owner}...`);
     const proxiedIndexFund = IndexFund__factory.connect(indexFundProxy.address, deployer);
-    const tx = await proxiedIndexFund.updateOwner(owner);
+    const tx = await proxiedIndexFund.transferOwnership(owner);
     await tx.wait();
 
     // update address file & verify contracts

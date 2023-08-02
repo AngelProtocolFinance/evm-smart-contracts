@@ -158,24 +158,7 @@ describe("AccountsUpdateStatusEndowments", function () {
     });
 
     it("updates the beneficiary to the first index fund if the beneficiary is set to 'None' and the endowment is involved in one or more funds", async () => {
-      const funds: IIndexFund.IndexFundStruct[] = [
-        {
-          description: "d1",
-          expiryTime: BigNumber.from(100),
-          id: BigNumber.from(1),
-          name: "if1",
-          members: [accountId],
-          splitToLiquid: 50,
-        },
-        {
-          description: "d2",
-          expiryTime: BigNumber.from(100),
-          id: BigNumber.from(2),
-          name: "if2",
-          members: [accountId],
-          splitToLiquid: 50,
-        },
-      ];
+      const funds: BigNumber[] = [BigNumber.from(1), BigNumber.from(2)];
       indexFundFake.queryInvolvedFunds.returns(funds);
       const beneficiaryNone: LibAccounts.BeneficiaryStruct = {...beneficiary, enumData: 3};
 
@@ -189,7 +172,7 @@ describe("AccountsUpdateStatusEndowments", function () {
       expect(endowState[1].enumData).to.equal(1);
       expect(endowState[1].data.addr).to.equal(ethers.constants.AddressZero);
       expect(endowState[1].data.endowId).to.equal(0);
-      expect(endowState[1].data.fundId).to.equal(funds[0].id);
+      expect(endowState[1].data.fundId).to.equal(funds[0]);
     });
   });
 

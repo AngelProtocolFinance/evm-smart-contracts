@@ -1,40 +1,40 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
+import {IterableMapping} from "../../lib/IterableMapping.sol";
 import {IIndexFund} from "./IIndexFund.sol";
 
 library IndexFundStorage {
+  struct Fund {
+    uint256 id;
+    string name;
+    string description;
+    //Fund Specific: over-riding SC level setting to handle a fixed split value
+    // Defines the % to split off into liquid account, and if defined overrides all other splits
+    uint256 splitToLiquid;
+    // Used for one-off funds that have an end date (ex. disaster recovery funds)
+    uint256 expiryTime; // datetime int of index fund expiry
+  }
+
   struct Config {
-    address owner; // DANO Address
     address registrarContract; // Address of Registrar SC
     uint256 fundRotation; // how many blocks are in a rotation cycle for the active IndexFund
-    uint256 fundMemberLimit; // limit to number of members an IndexFund can have
     uint256 fundingGoal; // donation funding limit (in UUSD) to trigger early cycle of the Active IndexFund
-  }
-
-  struct _State {
-    uint256 totalFunds;
-    uint256 activeFund; // ID of the Active IndexFund in the rent rotation set
-    uint256 roundDonations; // total donations given to active charity this round
-    uint256 nextRotationBlock; // block height to perform next rotation on
-    uint256 nextFundId;
-  }
-
-  struct DonationMessages {
-    uint32[] member_ids;
-    uint256[] locked_donation_amount;
-    uint256[] liquid_donation_amount;
-    uint256[] lockedSplit;
-    uint256[] liquidSplit;
   }
 
   struct State {
     Config config;
-    _State state;
-    mapping(uint256 => IIndexFund.IndexFund) FUNDS;
-    mapping(uint32 => uint256[]) FUNDS_BY_ENDOWMENT; // Endow ID >> [Fund IDs]
+    uint256 activeFund; // ID of the Active IndexFund in the rent rotation set
+    uint256 roundDonations; // total donations given to active charity this round
+    uint256 nextRotationBlock; // block height to perform next rotation on
+    uint256 nextFundId;
     uint256[] rotatingFunds; // list of active, rotating funds (ex. 17 funds, 1 for each of the UNSDGs)
-    DonationMessages donationMessages;
+    // Fund ID >> Fund
+    mapping(uint256 => Fund) Funds;
+    // Fund ID >> Mapping (Endow ID >> bool)
+    mapping(uint256 => IterableMapping.Map) EndowmentsByFund;
+    // Endow ID >> Mapping (Fund ID >> bool)
+    mapping(uint32 => IterableMapping.Map) FundsByEndowment;
   }
 }
 
