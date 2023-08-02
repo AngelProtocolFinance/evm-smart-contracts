@@ -8,6 +8,8 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 
 contract GasFwd is IGasFwd, Initializable {
   error OnlyAccounts();
+  event GasPay(address token, uint256 amount);
+  event Sweep(address token, uint256 amount);
 
   using SafeERC20 for IERC20;
 
@@ -26,9 +28,13 @@ contract GasFwd is IGasFwd, Initializable {
 
   function payForGas(address token, uint256 amount) external onlyAccounts {
     IERC20(token).safeTransfer(msg.sender, amount);
+    emit GasPay(token, amount);
   }
 
-  function sweep(address token) external onlyAccounts {
-    IERC20(token).safeTransfer(msg.sender, IERC20(token).balanceOf(address(this)));
+  function sweep(address token) external onlyAccounts returns (uint256) {
+    uint256 balance = IERC20(token).balanceOf(address(this));
+    IERC20(token).safeTransfer(msg.sender, balance);
+    emit Sweep(token, balance);
+    return balance;
   }
 }

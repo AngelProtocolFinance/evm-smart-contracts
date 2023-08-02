@@ -4,6 +4,7 @@ pragma solidity ^0.8.16;
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {LibAccounts} from "../../core/accounts/lib/LibAccounts.sol";
 import {AccountStorage} from "../../core/accounts/storage.sol";
+import {Utils} from "../../lib/utils.sol";
 
 /**
  * @dev This contract implements a proxy that is upgradeable by an admin.
@@ -184,5 +185,9 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy {
   function getConfig() external view returns (AccountStorage.Config memory) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     return state.config;
+  }
+
+  function callSelf(uint256 value, bytes memory data) external {
+    Utils._execute(address(this), value, data);
   }
 }
