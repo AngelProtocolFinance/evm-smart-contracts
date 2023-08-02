@@ -4,6 +4,7 @@ pragma solidity ^0.8.16;
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {LibAccounts} from "../../core/accounts/lib/LibAccounts.sol";
 import {AccountStorage} from "../../core/accounts/storage.sol";
+import {IterableMapping} from "../../lib/IterableMappingAddr.sol";
 
 /**
  * @dev This contract implements a proxy that is upgradeable by an admin.
@@ -27,7 +28,7 @@ import {AccountStorage} from "../../core/accounts/storage.sol";
  * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.
  */
 
-contract TestFacetProxyContract is TransparentUpgradeableProxy {
+contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMapping {
   constructor(
     address implementation,
     address admin,
@@ -71,8 +72,8 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy {
     uint256 _liqBal
   ) external {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    state.STATES[accountId].balances.locked[_token] = _lockBal;
-    state.STATES[accountId].balances.liquid[_token] = _liqBal;
+    IterableMapping.set(state.STATES[accountId].balances.locked, _token, _lockBal);
+    IterableMapping.set(state.STATES[accountId].balances.liquid, _token, _liqBal);
   }
 
   function getEndowmentTokenBalance(
@@ -81,8 +82,8 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy {
   ) external view returns (uint256, uint256) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     return (
-      state.STATES[accountId].balances.locked[_token],
-      state.STATES[accountId].balances.liquid[_token]
+      IterableMapping.get(state.STATES[accountId].balances.locked, _token),
+      IterableMapping.get(state.STATES[accountId].balances.liquid, _token)
     );
   }
 

@@ -9,6 +9,9 @@ import {IIndexFund} from "../../index-fund/IIndexFund.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsUpdateStatusEndowments} from "../interfaces/IAccountsUpdateStatusEndowments.sol";
+import {IAccountsDepositWithdrawEndowments} from "../interfaces/IAccountsDepositWithdrawEndowments.sol";
+import {IVault} from "../../vault/interfaces/IVault.sol";
+import {IterableMapping} from "../../../lib/IterableMappingAddr.sol";
 
 /**
  * @title AccountsUpdateStatusEndowments
@@ -18,7 +21,8 @@ import {IAccountsUpdateStatusEndowments} from "../interfaces/IAccountsUpdateStat
 contract AccountsUpdateStatusEndowments is
   IAccountsUpdateStatusEndowments,
   ReentrancyGuardFacet,
-  IAccountsEvents
+  IAccountsEvents,
+  IterableMapping
 {
   /**
    * @notice Closes an endowment, setting the endowment state to "closingEndowment" and the closing beneficiary to the provided beneficiary.
@@ -38,41 +42,107 @@ contract AccountsUpdateStatusEndowments is
     require(!state.STATES[id].closingEndowment, "Endowment is closed");
     require(checkFullyExited(id), "Not fully exited");
 
-    RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
+    RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
       .queryConfig();
 
     require(
       beneficiary.enumData != LibAccounts.BeneficiaryEnum.None ||
-        registrar_config.indexFundContract != address(0),
+        registrarConfig.indexFundContract != address(0),
       "Beneficiary is NONE & Index Fund Contract is not configured in Registrar"
     );
 
-    // If NONE was passed for beneficiary, send balance to the AP Treasury (if not in any funds)
-    // or send to the first index fund if it is in one.
-    uint256[] memory funds = IIndexFund(registrar_config.indexFundContract).queryInvolvedFunds(id);
+    // ** Closing logic summary **
+    // Charity Endowments: If specified an endowment ID to move their funds to do so (must be another Charity-type). Cannot send to 3rd-party wallet.
+    // DAF Endowments: If specified an endowment ID to move their funds to do so (must in AP Approved Endowments list). Cannot send to 3rd-party wallet.
+    // Normal Endowments: Can send to any other endowment ID or 3rd party wallet desired.
+    // If NONE was passed for beneficiary, then we send all balances to the AP Treasury to be manually re-invseted to Endowments chosen by AP MultiSig/Governance.
+
+    // Beneficiary of NONE passed, set to the AP Treasury
     if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.None) {
-      if (funds.length == 0) {
-        beneficiary = LibAccounts.Beneficiary({
-          data: LibAccounts.BeneficiaryData({
-            endowId: 0,
-            fundId: 0,
-            addr: registrar_config.treasury
-          }),
-          enumData: LibAccounts.BeneficiaryEnum.Wallet
-        });
-      } else {
-        beneficiary = LibAccounts.Beneficiary({
-          data: LibAccounts.BeneficiaryData({endowId: 0, fundId: funds[0], addr: address(0)}),
-          enumData: LibAccounts.BeneficiaryEnum.IndexFund
-        });
-        // remove closing endowment from all Index Funds that it is in
-        IIndexFund(registrar_config.indexFundContract).removeMember(id);
+      beneficiary = LibAccounts.Beneficiary({
+        data: LibAccounts.BeneficiaryData({endowId: 0, addr: registrarConfig.treasury}),
+        enumData: LibAccounts.BeneficiaryEnum.Wallet
+      });
+      // Ensure Charity & DAF Type endowments meet closing beneficiary restrictions
+    } else if (
+      tempEndowment.endowType == LibAccounts.EndowmentType.Charity ||
+      tempEndowment.endowType == LibAccounts.EndowmentType.Daf
+    ) {
+      require(
+        beneficiary.enumData != LibAccounts.BeneficiaryEnum.Wallet,
+        "Charity cannot pass Wallet beneficiary"
+      );
+      // if NONE is passed we can skip the below checks
+      if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.EndowmentId) {
+        if (tempEndowment.endowType == LibAccounts.EndowmentType.Daf) {
+          require(state.dafApprovedEndowments[id], "Not an approved Endowment for DAF withdrawals");
+        } else if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
+          require(
+            state.ENDOWMENTS[beneficiary.data.endowId].endowType ==
+              LibAccounts.EndowmentType.Charity,
+            "Beneficiary must be a Charity Endowment type"
+          );
+        }
       }
+    }
+
+    // Get all tokens on-hand to be liquidated upon closing
+    IAccountsDepositWithdrawEndowments.TokenInfo[]
+      memory lockedTokens = new IAccountsDepositWithdrawEndowments.TokenInfo[](
+        IterableMapping.size(state.STATES[id].balances.locked)
+      );
+    //for (uint256 i = 0; i < IterableMapping.keys(state.states[id].balances.locked).length; i++) {
+    //  lockedTokens[i] = IAccountsDepositWithdrawEndowments.TokenInfo({
+    //    addr: address(0),
+    //    amnt: 0,
+    //  });
+    //}
+    IAccountsDepositWithdrawEndowments.TokenInfo[]
+      memory liquidTokens = new IAccountsDepositWithdrawEndowments.TokenInfo[](
+        IterableMapping.size(state.STATES[id].balances.liquid)
+      );
+
+    if (beneficiary.enumData != LibAccounts.BeneficiaryEnum.Wallet) {
+      require(beneficiary.data.addr != address(0), "Cannot pass a zero address");
+      IAccountsDepositWithdrawEndowments(registrarConfig.accountsContract).withdraw(
+        id,
+        IVault.VaultType.LOCKED,
+        beneficiary.data.addr,
+        0,
+        lockedTokens
+      );
+      IAccountsDepositWithdrawEndowments(registrarConfig.accountsContract).withdraw(
+        id,
+        IVault.VaultType.LIQUID,
+        beneficiary.data.addr,
+        0,
+        liquidTokens
+      );
+    } else if (beneficiary.enumData != LibAccounts.BeneficiaryEnum.EndowmentId) {
+      require(beneficiary.data.endowId != 0, "Cannot pass a zero for Endowment ID");
+      require(
+        !state.STATES[beneficiary.data.endowId].closingEndowment,
+        "Beneficiary endowment is closed"
+      );
+      IAccountsDepositWithdrawEndowments(registrarConfig.accountsContract).withdraw(
+        id,
+        IVault.VaultType.LOCKED,
+        address(0),
+        beneficiary.data.endowId,
+        lockedTokens
+      );
+      IAccountsDepositWithdrawEndowments(registrarConfig.accountsContract).withdraw(
+        id,
+        IVault.VaultType.LIQUID,
+        address(0),
+        beneficiary.data.endowId,
+        liquidTokens
+      );
     }
 
     state.STATES[id].closingEndowment = true;
     state.STATES[id].closingBeneficiary = beneficiary;
-    emit EndowmentClosed(id);
+    emit EndowmentClosed(id, beneficiary);
   }
 
   function checkFullyExited(uint32 id) internal view returns (bool) {

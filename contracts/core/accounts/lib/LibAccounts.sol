@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
+import {IterableMapping} from "../../../lib/IterableMappingAddr.sol";
 import {AccountStorage} from "../storage.sol";
 
 library LibAccounts {
@@ -27,19 +28,17 @@ library LibAccounts {
   }
 
   struct BalanceInfo {
-    mapping(address => uint256) locked;
-    mapping(address => uint256) liquid;
+    IterableMapping.Map locked;
+    IterableMapping.Map liquid;
   }
 
   struct BeneficiaryData {
     uint32 endowId;
-    uint256 fundId;
     address addr;
   }
 
   enum BeneficiaryEnum {
     EndowmentId,
-    IndexFund,
     Wallet,
     None
   }

@@ -19,7 +19,7 @@ interface IAccountsEvents {
   );
   event EndowmentCreated(uint256 endowId, LibAccounts.EndowmentType endowType);
   event EndowmentUpdated(uint256 endowId);
-  event EndowmentClosed(uint256 endowId);
+  event EndowmentClosed(uint256 endowId, LibAccounts.Beneficiary beneficiary);
   event EndowmentDeposit(
     uint256 endowId,
     address tokenAddress,

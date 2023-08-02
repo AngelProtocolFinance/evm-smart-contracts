@@ -17,6 +17,7 @@ import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsDepositWithdrawEndowments} from "../interfaces/IAccountsDepositWithdrawEndowments.sol";
 import {Utils} from "../../../lib/utils.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
+import {IterableMapping} from "../../../lib/IterableMappingAddr.sol";
 
 /**
  * @title AccountsDepositWithdrawEndowments
@@ -26,6 +27,7 @@ import {IVault} from "../../vault/interfaces/IVault.sol";
 
 contract AccountsDepositWithdrawEndowments is
   ReentrancyGuardFacet,
+  IterableMapping,
   IAccountsEvents,
   IAccountsDepositWithdrawEndowments
 {
@@ -196,8 +198,8 @@ contract AccountsDepositWithdrawEndowments is
       }
     }
 
-    state.STATES[details.id].balances.locked[tokenAddress] += lockedAmount;
-    state.STATES[details.id].balances.liquid[tokenAddress] += liquidAmount;
+    IterableMapping.incr(state.STATES[details.id].balances.locked, tokenAddress, lockedAmount);
+    IterableMapping.incr(state.STATES[details.id].balances.liquid, tokenAddress, liquidAmount);
 
     emit EndowmentDeposit(details.id, tokenAddress, lockedAmount, liquidAmount);
   }
@@ -221,7 +223,10 @@ contract AccountsDepositWithdrawEndowments is
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
     AccountStorage.EndowmentState storage tempEndowmentState = state.STATES[id];
-    require(!tempEndowmentState.closingEndowment, "Endowment is closed");
+
+    if (msg.sender != address(this)) {
+      require(!tempEndowmentState.closingEndowment, "Endowment is closed");
+    }
 
     // place an arbitrary cap on the qty of different tokens per withdraw to limit gas use
     require(tokens.length > 0, "No tokens provided");
@@ -298,9 +303,9 @@ contract AccountsDepositWithdrawEndowments is
     for (uint256 t = 0; t < tokens.length; t++) {
       uint256 currentBal;
       if (acctType == IVault.VaultType.LOCKED) {
-        currentBal = state.STATES[id].balances.locked[tokens[t].addr];
+        currentBal = IterableMapping.get(state.STATES[id].balances.locked, tokens[t].addr);
       } else {
-        currentBal = state.STATES[id].balances.liquid[tokens[t].addr];
+        currentBal = IterableMapping.get(state.STATES[id].balances.liquid, tokens[t].addr);
       }
       // ensure balance of tokens can cover the requested withdraw amount
       require(currentBal >= tokens[t].amnt, "Insufficient Funds");
@@ -433,9 +438,9 @@ contract AccountsDepositWithdrawEndowments is
 
       // reduce the org's balance by the withdrawn token amount
       if (acctType == IVault.VaultType.LOCKED) {
-        state.STATES[id].balances.locked[tokens[t].addr] -= tokens[t].amnt;
+        IterableMapping.decr(state.STATES[id].balances.locked, tokens[t].addr, tokens[t].amnt);
       } else {
-        state.STATES[id].balances.liquid[tokens[t].addr] -= tokens[t].amnt;
+        IterableMapping.decr(state.STATES[id].balances.liquid, tokens[t].addr, tokens[t].amnt);
       }
       emit EndowmentWithdraw(
         id,

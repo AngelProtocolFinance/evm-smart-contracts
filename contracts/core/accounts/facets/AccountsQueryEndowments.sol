@@ -6,13 +6,14 @@ import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {IAccountsQueryEndowments} from "../interfaces/IAccountsQueryEndowments.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
+import {IterableMapping} from "../../../lib/IterableMappingAddr.sol";
 
 /**
  * @title AccountsQueryEndowments
  * @notice This contract facet queries for endowment and accounts config
  * @dev This contract facet queries for endowment and accounts config
  */
-contract AccountsQueryEndowments is IAccountsQueryEndowments {
+contract AccountsQueryEndowments is IAccountsQueryEndowments, IterableMapping {
   /**
    * @notice This function queries the balance of a token for an endowment
    * @dev This function queries the balance of a token for an endowment based on its type and address
@@ -30,9 +31,9 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments {
     require(address(0) != tokenAddress, "Invalid token address");
 
     if (accountType == IVault.VaultType.LOCKED) {
-      tokenAmount = state.STATES[id].balances.locked[tokenAddress];
+      tokenAmount = IterableMapping.get(state.STATES[id].balances.locked, tokenAddress);
     } else {
-      tokenAmount = state.STATES[id].balances.liquid[tokenAddress];
+      tokenAmount = IterableMapping.get(state.STATES[id].balances.liquid, tokenAddress);
     }
   }
 

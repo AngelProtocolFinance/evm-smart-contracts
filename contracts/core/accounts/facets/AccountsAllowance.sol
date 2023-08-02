@@ -8,12 +8,18 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsAllowance} from "../interfaces/IAccountsAllowance.sol";
+import {IterableMapping} from "../../../lib/IterableMappingAddr.sol";
 
 /**
  * @title AccountsAllowance
  * @dev This contract manages the allowances for accounts
  */
-contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccountsEvents {
+contract AccountsAllowance is
+  IAccountsAllowance,
+  ReentrancyGuardFacet,
+  IAccountsEvents,
+  IterableMapping
+{
   /**
    * @notice Endowment owner adds allowance to spend
    * @dev This function adds or removes allowances for an account
@@ -33,7 +39,7 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
 
     require(!state.STATES[endowId].closingEndowment, "Endowment is closed");
     require(
-      token != address(0) && state.STATES[endowId].balances.liquid[token] > 0,
+      token != address(0) && IterableMapping.get(state.STATES[endowId].balances.liquid, token) > 0,
       "Invalid Token"
     );
 
@@ -86,12 +92,12 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
       amountDelta = amount - spenderBal;
       // check if liquid balance is sufficient for any proposed increase to spender allocation
       require(
-        amountDelta <= state.STATES[endowId].balances.liquid[token],
+        amountDelta <= IterableMapping.get(state.STATES[endowId].balances.liquid, token),
         "Insufficient liquid balance to allocate"
       );
       // increase total outstanding allocation & reduce liquid balance by AmountDelta
       state.ALLOWANCES[endowId][token].totalOutstanding += amountDelta;
-      state.STATES[endowId].balances.liquid[token] -= amountDelta;
+      IterableMapping.decr(state.STATES[endowId].balances.liquid, token, amountDelta);
       emit AllowanceUpdated(endowId, spender, token, amount, amountDelta, 0);
     } else if (amount < spenderBal) {
       amountDelta = spenderBal - amount;
@@ -101,7 +107,7 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
       );
       // decrease total outstanding allocation & increase liquid balance by AmountDelta
       state.ALLOWANCES[endowId][token].totalOutstanding -= amountDelta;
-      state.STATES[endowId].balances.liquid[token] += amountDelta;
+      IterableMapping.incr(state.STATES[endowId].balances.liquid, token, amountDelta);
       emit AllowanceUpdated(endowId, spender, token, amount, 0, amountDelta);
     } else {
       // equal amount and spender balance

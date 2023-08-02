@@ -17,12 +17,18 @@ import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "hardhat/console.sol";
+import {IterableMapping} from "../../../lib/IterableMappingAddr.sol";
 
 /**
  * @title AccountsSwapRouter
  * @dev This contract manages the swaps for endowments
  */
-contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsSwapRouter {
+contract AccountsSwapRouter is
+  ReentrancyGuardFacet,
+  IAccountsEvents,
+  IAccountsSwapRouter,
+  IterableMapping
+{
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
@@ -100,16 +106,16 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
 
     if (accountType == IVault.VaultType.LOCKED) {
       require(
-        state.STATES[id].balances.locked[tokenIn] >= amountIn,
+        IterableMapping.get(state.STATES[id].balances.locked, tokenIn) >= amountIn,
         "Requested swap amount is greater than Endowment Locked balance"
       );
-      state.STATES[id].balances.locked[tokenIn] -= amountIn;
+      IterableMapping.decr(state.STATES[id].balances.locked, tokenIn, amountIn);
     } else {
       require(
-        state.STATES[id].balances.liquid[tokenIn] >= amountIn,
+        IterableMapping.get(state.STATES[id].balances.liquid, tokenIn) >= amountIn,
         "Requested swap amount is greater than Endowment Liquid balance"
       );
-      state.STATES[id].balances.liquid[tokenIn] -= amountIn;
+      IterableMapping.decr(state.STATES[id].balances.liquid, tokenIn, amountIn);
     }
 
     // Check that both in & out tokens have chainlink price feed contract set for them
@@ -143,9 +149,9 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
 
     // Allocate the newly swapped tokens to the correct endowment balance
     if (accountType == IVault.VaultType.LOCKED) {
-      state.STATES[id].balances.locked[tokenOut] += amountOut;
+      IterableMapping.incr(state.STATES[id].balances.locked, tokenOut, amountOut);
     } else {
-      state.STATES[id].balances.liquid[tokenOut] += amountOut;
+      IterableMapping.incr(state.STATES[id].balances.liquid, tokenOut, amountOut);
     }
 
     emit TokenSwapped(id, accountType, tokenIn, amountIn, tokenOut, amountOut);
