@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
-import {MultiSigGeneric} from "../../multisigs/MultiSigGeneric.sol";
-import {IEndowmentMultiSigEmitter} from "./interfaces/IEndowmentMultiSigEmitter.sol";
-import {MultiSigStorage} from "../../multisigs/storage.sol";
+
+import {Validator} from "../../core/validator.sol";
 import {Utils} from "../../lib/utils.sol";
+import {MultiSigGeneric} from "../../multisigs/MultiSigGeneric.sol";
+import {MultiSigStorage} from "../../multisigs/storage.sol";
+import {IEndowmentMultiSigEmitter} from "./interfaces/IEndowmentMultiSigEmitter.sol";
 
 /**
  * @notice the endowment multisig contract
@@ -31,7 +33,7 @@ contract EndowmentMultiSig is MultiSigGeneric {
     bool _requireExecution,
     uint256 _transactionExpiry
   ) public initializer {
-    require(_emitter != address(0), "Invalid Address");
+    require(Validator.addressChecker(_emitter), "Invalid Emitter Address");
     ENDOWMENT_ID = _endowmentId;
     EMITTER_ADDRESS = _emitter;
     super.initialize(_owners, _required, _requireExecution, _transactionExpiry);
