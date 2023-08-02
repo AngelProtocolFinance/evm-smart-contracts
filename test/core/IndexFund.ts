@@ -1,5 +1,5 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
-import {expect, use} from "chai";
+import {expect} from "chai";
 import hre from "hardhat";
 import {BigNumber} from "ethers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
@@ -13,7 +13,6 @@ import {
   DummyWMATIC__factory,
   IndexFund,
   IndexFund__factory,
-  IAccountsDepositWithdrawEndowments,
   ITransparentUpgradeableProxy__factory,
   Registrar,
   Registrar__factory,
@@ -29,7 +28,7 @@ import {
 import {genWallet, getSigners} from "utils";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {LocalRegistrarLib} from "../../../typechain-types/contracts/core/registrar/LocalRegistrar";
+import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 
 describe("IndexFund", function () {
   const {ethers, upgrades} = hre;
@@ -45,16 +44,10 @@ describe("IndexFund", function () {
   let facet: AccountsDepositWithdrawEndowments;
   let state: TestFacetProxyContract;
 
-  const defaultApParams = {
-    routerAddr: ethers.constants.AddressZero,
-    refundAddr: ethers.constants.AddressZero,
-  } as LocalRegistrarLib.AngelProtocolParamsStruct;
-
   async function deployIndexFundAsProxy(
     fundRotation: number = 0, // no block-based rotation
     fundingGoal: number = 10000
   ): Promise<IndexFund> {
-    let apParams = defaultApParams;
     if (!registrar) {
       registrar = await smock.fake<Registrar>(new Registrar__factory());
     }
@@ -328,29 +321,33 @@ describe("IndexFund", function () {
     });
 
     it("reverts when the message sender is not the owner", async function () {
-      expect(indexFund.connect(user).updateFundMembers(1, [1, 2])).to.be.revertedWith(
+      expect(indexFund.connect(user).updateFundMembers(1, [1, 2], [])).to.be.revertedWith(
         "Unauthorized"
       );
     });
 
     it("reverts when no members are passed", async function () {
-      expect(indexFund.updateFundMembers(1, [])).to.be.revertedWith(
+      expect(indexFund.updateFundMembers(1, [], [])).to.be.revertedWith(
         "Must pass at least one endowment member to add to the Fund"
       );
     });
 
     it("reverts when too many members are passed", async function () {
-      expect(indexFund.updateFundMembers(1, [1, 2, 3])).to.be.revertedWith(
+      expect(indexFund.updateFundMembers(1, [1, 2, 3], [])).to.be.revertedWith(
         "Fund endowment members exceeds upper limit"
       );
     });
 
     it("reverts when the fund is expired", async function () {
-      expect(indexFund.updateFundMembers(2, [1, 2])).to.be.revertedWith("Fund Expired");
+      expect(indexFund.updateFundMembers(2, [1, 2], [])).to.be.revertedWith("Fund Expired");
     });
 
     it("passes when the fund is not expired and member inputs are valid", async function () {
-      expect(await indexFund.updateFundMembers(1, [1, 2]))
+      expect(await indexFund.updateFundMembers(1, [], [3]))
+        .to.emit(indexFund, "MembersUpdated")
+        .withArgs(1, [2]);
+
+      expect(await indexFund.updateFundMembers(1, [1, 2], [3]))
         .to.emit(indexFund, "MembersUpdated")
         .withArgs(1, [1, 2]);
     });
@@ -502,7 +499,7 @@ describe("IndexFund", function () {
           currTime + 42069
         )
       )
-        .to.emit("FundCreated")
+        .to.emit(indexFund, "FundCreated")
         .withArgs(3);
       time.increase(42069); // move time forward so Fund #3 is @ expiry
 
@@ -511,7 +508,7 @@ describe("IndexFund", function () {
       expect(activeFund.id).to.equal(3);
 
       // should fail when prep clean up process removes the expired fund, leaving 0 funds available
-      expect(indexFund.depositERC20(0, token.address, 500, 0)).to.be.revertedWith(
+      expect(indexFund.depositERC20(0, token.address, 500)).to.be.revertedWith(
         "Must have rotating funds active to pass a Fund ID of 0"
       );
     });
@@ -519,7 +516,7 @@ describe("IndexFund", function () {
     it("passes for a specific fund, amount > min & token is valid", async function () {
       // create 1 active, rotating fund
       expect(await indexFund.createIndexFund("Test Fund #4", "Test fund", [2, 3], true, 50, 0))
-        .to.emit("FundCreated")
+        .to.emit(indexFund, "FundCreated")
         .withArgs(4);
 
       expect(
@@ -535,7 +532,7 @@ describe("IndexFund", function () {
     it("passes for an active fund donation(amount-based rotation), amount > min & token is valid", async function () {
       // create 1 more active, rotating fund for full rotation testing
       expect(await indexFund.createIndexFund("Test Fund #5", "Test fund", [2], true, 100, 0))
-        .to.emit("FundCreated")
+        .to.emit(indexFund, "FundCreated")
         .withArgs(5);
 
       let ifState = await indexFund.queryState();

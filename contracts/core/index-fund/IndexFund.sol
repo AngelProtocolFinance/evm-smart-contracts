@@ -11,6 +11,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IIndexFund} from "./IIndexFund.sol";
 import {Array, Array32} from "../../lib/array.sol";
+import {IterableMapping} from "../../lib/IterableMapping.sol";
 import {Utils} from "../../lib/utils.sol";
 import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
 import {RegistrarStorage} from "../registrar/storage.sol";
@@ -28,7 +29,7 @@ uint256 constant MIN_AMOUNT_PER_ENDOWMENT = 100;
  * It is responsible for creating new funds, adding endowments to funds, and
  * distributing funds to the endowment members
  */
-contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
+contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, IterableMapping {
   using SafeERC20 for IERC20;
   using SafeMath for uint256;
 
@@ -128,13 +129,14 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
       id: state.nextFundId,
       name: name,
       description: description,
-      endowments: endowments,
       splitToLiquid: splitToLiquid,
       expiryTime: expiryTime
     });
 
+    // set all Fund <> Endowment mappings
     for (uint8 i = 0; i < endowments.length; i++) {
-      state.FundsByEndowment[endowments[i]].push(state.nextFundId);
+      IterableMapping.set(state.FundsByEndowment[endowments[i]], state.nextFundId, true);
+      IterableMapping.set(state.EndowmentsByFund[state.nextFundId], endowments[i], true);
     }
 
     if (rotatingFund) {
@@ -174,19 +176,14 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
 
     require(msg.sender == registrarConfig.accountsContract, "Unauthorized");
 
-    bool found;
-    uint32 index;
     // remove endowment from all involved funds if in their endowments array
-    for (uint32 i = 0; i < state.FundsByEndowment[endowment].length; i++) {
-      uint256 fundId = state.FundsByEndowment[endowment][i];
-      (index, found) = Array32.indexOf(state.Funds[fundId].endowments, endowment);
-      if (found) {
-        Array32.remove(state.Funds[fundId].endowments, index);
-        emit MemberRemoved(fundId, endowment);
-        // if endowment removal results in a fund having zero endowment members left, close out the fund
-        if (state.Funds[fundId].endowments.length == 0) {
-          removeFund(fundId);
-        }
+    for (uint i = 0; i < state.FundsByEndowment[endowment].keys.length; i++) {
+      uint256 fundId = IterableMapping.getKeyAtIndex(state.FundsByEndowment[endowment], i);
+      IterableMapping.remove(state.EndowmentsByFund[fundId], endowment);
+      emit MemberRemoved(fundId, endowment);
+      // if endowment removal results in a fund having zero endowment members left, close out the fund
+      if (state.EndowmentsByFund[fundId].keys.length == 0) {
+        removeFund(fundId);
       }
     }
     // wipe involved funds for the target endowment member ID
@@ -197,50 +194,43 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
    *  @notice Function to update a Fund's endowment members
    *  @dev Can be called by owner to add/remove endowments to a Fund
    *  @param fundId The id of the Fund to be updated
-   *  @param endowments An array of endowments to be set for a Fund
+   *  @param endowmentsAdd An array of endowments to be added to a Fund
+   *  @param endowmentsRemove An array of endowments to be removed from a Fund
    */
-  function updateFundMembers(uint256 fundId, uint32[] memory endowments) external onlyOwner {
-    require(endowments.length > 0, "Must pass at least one endowment member to add to the Fund");
+  function updateFundMembers(
+    uint256 fundId,
+    uint32[] memory endowmentsAdd,
+    uint32[] memory endowmentsRemove
+  ) external onlyOwner {
     require(
-      endowments.length <= MAX_ENDOWMENT_MEMBERS,
-      "Fund endowment members exceeds upper limit"
+      endowmentsAdd.length > 0 || endowmentsRemove.length > 0,
+      "Must pass at least one endowment member to add to or remove from the Fund"
     );
     require(!fundIsExpired(fundId), "Fund Expired");
 
-    uint32[] memory currEndowments = state.Funds[fundId].endowments;
-    bool found;
-    uint32 index;
-    uint256 fundIndex;
-
-    // sort out which of the endowments passed need to be added to a Fund
-    for (uint32 i = 0; i < endowments.length; i++) {
-      (index, found) = Array32.indexOf(currEndowments, endowments[i]);
-      // if found in current Endowments, there's nothing we need to do
-      // if NOT in current Endowments, then we need to add it
-      if (!found) {
-        state.FundsByEndowment[endowments[i]].push(fundId);
-      }
+    // add Endowments passed to a Fund members and FundsByEndowment mappings
+    for (uint32 i = 0; i < endowmentsAdd.length; i++) {
+      IterableMapping.set(state.FundsByEndowment[endowmentsAdd[i]], fundId, true);
+      IterableMapping.set(state.EndowmentsByFund[fundId], endowmentsAdd[i], true);
     }
 
-    // sort out which of the current endowments need to be removed from a Fund
-    for (uint32 i = 0; i < currEndowments.length; i++) {
-      (index, found) = Array32.indexOf(endowments, currEndowments[i]);
-      // if found in new Endowments, there's nothing we need to do
-      // if NOT in new Endowments list, we need to remove it
-      if (!found) {
-        // remove fund from the endowment's involved funds list
-        uint256[] memory involvedFunds = state.FundsByEndowment[currEndowments[i]];
-        (fundIndex, found) = Array.indexOf(involvedFunds, fundId);
-        Array.remove(state.FundsByEndowment[currEndowments[i]], fundIndex);
-      }
-      // if endowment removal results in a fund having zero endowment members left, close out the fund
-      if (state.Funds[fundId].endowments.length == 0) {
-        removeFund(fundId);
-      }
+    // Endowments to be removed from a Fund
+    for (uint32 i = 0; i < endowmentsRemove.length; i++) {
+      IterableMapping.remove(state.EndowmentsByFund[fundId], endowmentsRemove[i]);
+      IterableMapping.remove(state.FundsByEndowment[endowmentsRemove[i]], fundId);
     }
-    // set array of endowment members on the Fund
-    state.Funds[fundId].endowments = endowments;
-    emit MembersUpdated(fundId, endowments);
+
+    // resulting fund has no members, remove it
+    if (state.EndowmentsByFund[fundId].keys.length == 0) {
+      removeFund(fundId);
+    }
+
+    // final check that resulting fund members list is within limits
+    require(
+      state.EndowmentsByFund[fundId].keys.length <= MAX_ENDOWMENT_MEMBERS,
+      "Fund endowment members exceeds upper limit"
+    );
+    emit MembersUpdated(fundId, keysAsUint32(state.EndowmentsByFund[fundId]));
   }
 
   /**
@@ -410,9 +400,17 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
    * @param fundId Fund id
    * @return Fund details
    */
-  function queryFundDetails(uint256 fundId) external view returns (IndexFundStorage.Fund memory) {
-    require(state.Funds[fundId].endowments.length > 0, "Invalid Fund ID");
-    return state.Funds[fundId];
+  function queryFundDetails(uint256 fundId) external view returns (IIndexFund.FundResponse memory) {
+    require(state.EndowmentsByFund[fundId].keys.length > 0, "Non-existent Fund ID");
+    return
+      FundResponse({
+        id: state.Funds[fundId].id,
+        name: state.Funds[fundId].name,
+        description: state.Funds[fundId].description,
+        endowments: keysAsUint32(state.EndowmentsByFund[fundId]),
+        splitToLiquid: state.Funds[fundId].splitToLiquid,
+        expiryTime: state.Funds[fundId].expiryTime
+      });
   }
 
   /**
@@ -421,16 +419,25 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
    * @return Fund details
    */
   function queryInvolvedFunds(uint32 endowmentId) external view returns (uint256[] memory) {
-    return state.FundsByEndowment[endowmentId];
+    return state.FundsByEndowment[endowmentId].keys;
   }
 
   /**
    * @dev Query active fund details
    * @return Fund details
    */
-  function queryActiveFundDetails() external view returns (IndexFundStorage.Fund memory) {
+  function queryActiveFundDetails() external view returns (IIndexFund.FundResponse memory) {
     require(state.activeFund != 0, "Active fund not set");
-    return state.Funds[state.activeFund];
+    require(state.EndowmentsByFund[state.activeFund].keys.length > 0, "Non-existent Fund ID");
+    return
+      FundResponse({
+        id: state.Funds[state.activeFund].id,
+        name: state.Funds[state.activeFund].name,
+        description: state.Funds[state.activeFund].description,
+        endowments: keysAsUint32(state.EndowmentsByFund[state.activeFund]),
+        splitToLiquid: state.Funds[state.activeFund].splitToLiquid,
+        expiryTime: state.Funds[state.activeFund].expiryTime
+      });
   }
 
   /*
@@ -453,6 +460,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     if (state.activeFund == fundId && state.rotatingFunds.length > 0) {
       state.activeFund = nextActiveFund();
     }
+    delete state.EndowmentsByFund[fundId];
     emit FundRemoved(fundId);
   }
 
@@ -471,24 +479,24 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
     address token,
     uint256 amount
   ) internal {
-    require(state.Funds[fundId].endowments.length > 0, "Fund must have members");
+    require(state.EndowmentsByFund[fundId].keys.length > 0, "Fund must have members");
     // require enough funds to allow for downstream fees calulations, etc
     require(
-      amount >= MIN_AMOUNT_PER_ENDOWMENT.mul(state.Funds[fundId].endowments.length),
+      amount >= MIN_AMOUNT_PER_ENDOWMENT.mul(state.EndowmentsByFund[fundId].keys.length),
       "Amount must be enough to cover the minimum units per endowment for all members of a Fund"
     );
 
     // execute donation message for each endowment in the fund
-    for (uint256 i = 0; i < state.Funds[fundId].endowments.length; i++) {
+    for (uint256 i = 0; i < state.EndowmentsByFund[fundId].keys.length; i++) {
       IAccounts(accountsContract).depositERC20(
         AccountMessages.DepositRequest({
-          id: state.Funds[fundId].endowments[i],
+          id: uint32(IterableMapping.getKeyAtIndex(state.EndowmentsByFund[fundId], i)),
           lockedPercentage: 100 - liquidSplit,
           liquidPercentage: liquidSplit,
           donationMatch: msg.sender
         }),
         token,
-        amount.div(state.Funds[fundId].endowments.length)
+        amount.div(state.EndowmentsByFund[fundId].keys.length)
       );
     }
 
@@ -538,5 +546,18 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard {
       emit ActiveFundUpdated(state.rotatingFunds[index + 1]);
       return state.rotatingFunds[index + 1];
     }
+  }
+
+  /**
+   * @dev Converts a Map's keys from a Uint256 Array to Uint32 Array
+   * @param map Map
+   * @return keys32 Map's keys as a Uint32 Array
+   */
+  function keysAsUint32(IterableMapping.Map storage map) internal view returns (uint32[] memory) {
+    uint32[] memory keys32 = new uint32[](map.keys.length);
+    for (uint256 i = 0; i < map.keys.length; i++) {
+      keys32[i] = uint32(map.keys[i]);
+    }
+    return keys32;
   }
 }

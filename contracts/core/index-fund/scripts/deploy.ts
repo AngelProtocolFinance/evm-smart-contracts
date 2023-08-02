@@ -32,7 +32,7 @@ export async function deployIndexFund(
 
     // deploy proxy
     logger.out("Deploying proxy...");
-    const initData = indexFund.interface.encodeFunctionData("initialize(address,uint256,uint256)", [
+    const initData = indexFund.interface.encodeFunctionData("initialize", [
       registrar,
       config.INDEX_FUND_DATA.fundRotation,
       config.INDEX_FUND_DATA.fundingGoal,

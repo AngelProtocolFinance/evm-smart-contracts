@@ -30,8 +30,9 @@ task("deploy:IndexFund", "Will deploy IndexFund contract")
       const addresses = await getAddresses(hre);
 
       const registrar = taskArgs.registrar || addresses.registrar.proxy;
+      const owner = taskArgs.owner || addresses.multiSig.apTeam.proxy;
 
-      const deployment = await deployIndexFund(registrar, hre);
+      const deployment = await deployIndexFund(registrar, owner, hre);
 
       if (!deployment) {
         return;
