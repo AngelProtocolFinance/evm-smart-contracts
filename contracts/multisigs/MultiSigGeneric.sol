@@ -206,7 +206,7 @@ contract MultiSigGeneric is
     confirmations[transactionId].confirmationsByOwner[msg.sender] = true;
     confirmations[transactionId].count += 1;
     emitTransactionConfirmed(msg.sender, transactionId);
-    // if execution is not required and confirmation count is met, execute 
+    // if execution is not required and confirmation count is met, execute
     if (!requireExecution && confirmations[transactionId].count >= approvalsRequired) {
       executeTransaction(transactionId);
     }

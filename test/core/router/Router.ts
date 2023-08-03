@@ -230,7 +230,7 @@ describe("Router", function () {
         lockAmt: 111,
         liqAmt: 222,
         status: 0, // unprocessed
-      }) as IVault.VaultActionDataStruct;
+      } as IVault.VaultActionDataStruct);
 
     describe("and the refund call is successful back through axelar", function () {
       before(async function () {
