@@ -117,10 +117,11 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     string calldata tokenSymbol,
     uint256 amount
   ) public onlySelf validateDeposit(action, tokenSymbol, amount) {
+
     LocalRegistrarLib.StrategyParams memory params = registrar.getStrategyParamsById(
       action.strategyId
     );
-
+    
     if (action.lockAmt > 0) {
       // Send tokens to locked vault and call deposit
       IERC20Metadata(action.token).safeTransfer(params.Locked.vaultAddr, action.lockAmt);
@@ -173,8 +174,6 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     uint256 _redeemedAmt = _redemptionLock.amount + _redemptionLiquid.amount;
     _action.lockAmt = _redemptionLock.amount;
     _action.liqAmt = _redemptionLiquid.amount;
-    _action = _prepareToSendTokens(_action, _redeemedAmt);
-    emit Redeem(_action, _redeemedAmt);
     if (
       (_redemptionLock.status == IVault.VaultActionStatus.POSITION_EXITED) &&
       (_redemptionLiquid.status == IVault.VaultActionStatus.POSITION_EXITED)
@@ -183,6 +182,8 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     } else {
       _action.status = IVault.VaultActionStatus.SUCCESS;
     }
+    _action = _prepareToSendTokens(_action, _redeemedAmt);
+    emit Redeem(_action, _redeemedAmt);
     return _action;
   }
 
@@ -217,9 +218,9 @@ contract Router is IRouter, Initializable, AxelarExecutable {
 
     // Pack and send the tokens back
     uint256 _redeemedAmt = lockResponse.amount + liqResponse.amount;
+    _action.status = IVault.VaultActionStatus.POSITION_EXITED;
     _action = _prepareToSendTokens(_action, _redeemedAmt);
     emit Redeem(_action, _redeemedAmt);
-    _action.status = IVault.VaultActionStatus.POSITION_EXITED;
     return _action;
   }
 
@@ -409,6 +410,9 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     // update action.token address to reflect this chain's token address
     action.token = tokenAddress;
 
+    // update action.destinationChain to source chain in case of failure
+    action.destinationChain = sourceChain;
+
     // Leverage this.call() to enable try/catch logic
     try this.deposit(action, tokenSymbol, amount) {
       emit Deposit(action);
@@ -441,6 +445,9 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     LocalRegistrarLib.StrategyParams memory params = registrar.getStrategyParamsById(
       action.strategyId
     );
+
+    // update action.destinationChain to source chain for token redemptions 
+    action.destinationChain = sourceChain;
 
     // Switch for calling appropriate vault/method
     return _callSwitch(params, action);

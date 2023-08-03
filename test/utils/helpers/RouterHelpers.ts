@@ -2,7 +2,7 @@ import {IVault} from "typechain-types/contracts/core/accounts/facets/AccountsStr
 import {convertVaultActionStructToArray, convertArrayToVaultActionStruct} from "./IVaultHelpers";
 import {ethers} from "hardhat";
 
-export async function packActionData(_actionData: IVault.VaultActionDataStruct): Promise<string> {
+export function packActionData(_actionData: IVault.VaultActionDataStruct): string {
   const TypeList = ["string", "bytes4", "bytes4", "uint[]", "address", "uint", "uint", "uint"];
   return ethers.utils.defaultAbiCoder.encode(
     TypeList,
@@ -10,9 +10,9 @@ export async function packActionData(_actionData: IVault.VaultActionDataStruct):
   );
 }
 
-export async function unpackActionData(
+export function unpackActionData(
   _encodedActionData: string
-): Promise<IVault.VaultActionDataStruct> {
+): IVault.VaultActionDataStruct {
   const TypeList = ["string", "string", "string", "uint[]", "string", "uint", "uint", "uint"];
   let decoded = ethers.utils.defaultAbiCoder.decode(TypeList, _encodedActionData);
   return convertArrayToVaultActionStruct(decoded);
