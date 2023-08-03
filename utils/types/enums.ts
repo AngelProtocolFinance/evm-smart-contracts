@@ -65,6 +65,7 @@ export enum DonationMatchEnum {
 export enum EndowmentType {
   Charity,
   Normal,
+  Daf,
 }
 
 export enum VeTypeEnum {

@@ -47,8 +47,8 @@ contract AccountsUpdate is ReentrancyGuardFacet, IAccountsEvents, IAccountsUpdat
   }
 
   /**
-   * @notice This function updates the DAF Approved Endowments mapping. If and endowment is passed in both lists it will result in removal/unapproved state.
-   * @dev This function updates the DAF Approved Endowments mapping. If and endowment is passed in both lists it will result in removal/unapproved state.
+   * @notice This function updates the DAF Approved Endowments mapping. If an endowment is passed in both lists it will result in removal/unapproved state.
+   * @dev This function updates the DAF Approved Endowments mapping. If an endowment is passed in both lists it will result in removal/unapproved state.
    * @param add Endowments list to add/approve for DAF Withdrawals
    * @param remove Endowments list to remove/reject for DAF Withdrawals
    */

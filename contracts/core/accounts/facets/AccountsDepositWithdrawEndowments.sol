@@ -410,7 +410,7 @@ contract AccountsDepositWithdrawEndowments is
       if (beneficiaryAddress != address(0)) {
         IERC20(tokens[t].addr).safeTransfer(beneficiaryAddress, amountLeftover);
       } else {
-        // Send deposit message spit set for the appropriate account of receiving endowment
+        // Send deposit message split set for the appropriate account of receiving endowment
         if (acctType == IVault.VaultType.LOCKED) {
           processTokenDeposit(
             AccountMessages.DepositRequest({
