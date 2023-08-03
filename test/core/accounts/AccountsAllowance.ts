@@ -6,8 +6,8 @@ import {DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
 import {
   AccountsAllowance,
   AccountsAllowance__factory,
-  DummyERC20,
-  DummyERC20__factory,
+  IERC20,
+  IERC20__factory,
   TestFacetProxyContract,
 } from "typechain-types";
 import {genWallet, getSigners} from "utils";
@@ -20,7 +20,7 @@ describe("AccountsAllowance", function () {
   let proxyAdmin: SignerWithAddress;
   let user: SignerWithAddress;
 
-  let tokenFake: FakeContract<DummyERC20>;
+  let tokenFake: FakeContract<IERC20>;
 
   before(async function () {
     const signers = await getSigners(hre);
@@ -30,7 +30,7 @@ describe("AccountsAllowance", function () {
   });
 
   beforeEach(async () => {
-    tokenFake = await smock.fake<DummyERC20>(new DummyERC20__factory());
+    tokenFake = await smock.fake<IERC20>(IERC20__factory.createInterface());
   });
 
   describe("Test cases for `manageAllowances`", async function () {

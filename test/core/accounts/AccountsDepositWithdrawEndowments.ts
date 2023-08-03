@@ -11,8 +11,8 @@ import {
   DonationMatchCharity,
   DonationMatchCharity__factory,
   DonationMatch__factory,
-  DummyERC20,
-  DummyERC20__factory,
+  IERC20,
+  IERC20__factory,
   DummyWMATIC,
   DummyWMATIC__factory,
   IAccountsDepositWithdrawEndowments,
@@ -62,7 +62,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
   let donationMatchCharity: FakeContract<DonationMatchCharity>;
   let registrarFake: FakeContract<Registrar>;
   let wmaticFake: FakeContract<DummyWMATIC>;
-  let tokenFake: FakeContract<DummyERC20>;
+  let tokenFake: FakeContract<IERC20>;
 
   before(async function () {
     const signers = await getSigners(hre);
@@ -105,7 +105,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
     registrarFake = await smock.fake<Registrar>(new Registrar__factory());
 
-    tokenFake = await smock.fake<DummyERC20>(new DummyERC20__factory());
+    tokenFake = await smock.fake<IERC20>(IERC20__factory.createInterface());
 
     wmaticFake = await smock.fake<DummyWMATIC>(new DummyWMATIC__factory());
 
@@ -1885,7 +1885,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
       };
       await state.setEndowmentDetails(charityId, charityWithAllowlist);
 
-      const tokenFake2 = await smock.fake<DummyERC20>(new DummyERC20__factory());
+      const tokenFake2 = await smock.fake<IERC20>(IERC20__factory.createInterface());
       await state.setEndowmentTokenBalance(charityId, tokenFake2.address, lockBal, liqBal);
 
       tokenFake2.transfer.returns(true);

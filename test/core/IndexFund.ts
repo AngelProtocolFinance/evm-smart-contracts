@@ -1,30 +1,29 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
+import {impersonateAccount, setBalance, time} from "@nomicfoundation/hardhat-network-helpers";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import hre from "hardhat";
-import {BigNumber} from "ethers";
-import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {impersonateAccount, setBalance, time} from "@nomicfoundation/hardhat-network-helpers";
+import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
+import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG} from "test/utils";
 import {
   AccountsDepositWithdrawEndowments,
   AccountsDepositWithdrawEndowments__factory,
-  DummyERC20,
-  DummyERC20__factory,
   DummyWMATIC,
   DummyWMATIC__factory,
+  IERC20,
+  IERC20__factory,
+  ITransparentUpgradeableProxy__factory,
   IndexFund,
   IndexFund__factory,
-  ITransparentUpgradeableProxy__factory,
   Registrar,
   Registrar__factory,
   TestFacetProxyContract,
 } from "typechain-types";
-import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG} from "test/utils";
-import {getSigners} from "utils";
-import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
+import {getSigners} from "utils";
 
 describe("IndexFund", function () {
-  const {ethers, upgrades} = hre;
+  const {ethers} = hre;
 
   let owner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
@@ -32,7 +31,7 @@ describe("IndexFund", function () {
 
   let registrar: FakeContract<Registrar>;
   let wmatic: FakeContract<DummyWMATIC>;
-  let token: FakeContract<DummyERC20>;
+  let token: FakeContract<IERC20>;
 
   let facet: AccountsDepositWithdrawEndowments;
   let state: TestFacetProxyContract;
@@ -94,7 +93,7 @@ describe("IndexFund", function () {
     user = signers.apTeam1;
     registrar = await smock.fake<Registrar>(new Registrar__factory());
 
-    token = await smock.fake<DummyERC20>(new DummyERC20__factory());
+    token = await smock.fake<IERC20>(IERC20__factory.createInterface());
     wmatic = await smock.fake<DummyWMATIC>(new DummyWMATIC__factory());
     token.transferFrom.returns(true);
     token.transfer.returns(true);

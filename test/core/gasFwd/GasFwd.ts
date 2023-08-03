@@ -1,9 +1,17 @@
+import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {expect} from "chai";
+import {expect, use} from "chai";
 import hre from "hardhat";
+import {
+  GasFwd,
+  GasFwd__factory,
+  IERC20,
+  IERC20__factory,
+  ProxyContract__factory,
+} from "typechain-types";
 import {getSigners} from "utils";
-import {GasFwd__factory, GasFwd, ProxyContract__factory, DummyERC20} from "typechain-types";
-import {deployDummyERC20} from "test/utils";
+
+use(smock.matchers);
 
 describe("GasFwd", function () {
   const {ethers, upgrades} = hre;
@@ -44,10 +52,10 @@ describe("GasFwd", function () {
   });
 
   describe("upon payForGas", async function () {
-    let token: DummyERC20;
+    let token: FakeContract<IERC20>;
     let gasFwd: GasFwd;
     beforeEach(async function () {
-      token = await deployDummyERC20(owner);
+      token = await smock.fake<IERC20>(IERC20__factory.createInterface());
       gasFwd = await deployGasFwdAsProxy(owner, admin, user);
     });
     it("reverts if called by non-accounts contract", async function () {
@@ -57,35 +65,47 @@ describe("GasFwd", function () {
       );
     });
     it("nothing happens when requested amount is 0", async function () {
-      await token.mint(gasFwd.address, BALANCE);
+      token.balanceOf.returns(BALANCE);
       await expect(gasFwd.connect(user).payForGas(token.address, 0)).to.not.emit(gasFwd, "GasPay");
-      expect(await token.balanceOf(user.address)).to.equal(0);
-      expect(await token.balanceOf(gasFwd.address)).to.equal(BALANCE);
+      expect(token.transfer).to.not.be.called;
     });
     it("nothing happens when current balance is 0", async function () {
+      token.balanceOf.returns(0);
       await expect(gasFwd.connect(user).payForGas(token.address, 1)).to.not.emit(gasFwd, "GasPay");
-      let balance = await token.balanceOf(user.address);
-      expect(balance).to.equal(0);
+      expect(token.transfer).to.not.be.called;
     });
     it("transfers tokens which do not exceed the balance", async function () {
-      await token.mint(gasFwd.address, BALANCE);
-      await gasFwd.connect(user).payForGas(token.address, 1);
-      let balance = await token.balanceOf(user.address);
-      expect(balance).to.equal(1);
+      const amount = 1;
+      token.transfer.returns(true);
+      token.balanceOf.returns(BALANCE);
+      await expect(gasFwd.connect(user).payForGas(token.address, amount))
+        .to.emit(gasFwd, "GasPay")
+        .withArgs(token.address, amount);
+      expect(token.transfer).to.have.been.calledWith(user.address, amount);
+    });
+    it("transfers tokens when amount to transfer is equal to balance", async function () {
+      token.transfer.returns(true);
+      token.balanceOf.returns(BALANCE);
+      await expect(gasFwd.connect(user).payForGas(token.address, BALANCE))
+        .to.emit(gasFwd, "GasPay")
+        .withArgs(token.address, BALANCE);
+      expect(token.transfer).to.have.been.calledWith(user.address, BALANCE);
     });
     it("transfers tokens when the call exceeds the balance", async function () {
-      await token.mint(gasFwd.address, BALANCE);
-      await gasFwd.connect(user).payForGas(token.address, BALANCE + 1);
-      let balance = await token.balanceOf(user.address);
-      expect(balance).to.equal(BALANCE);
+      token.transfer.returns(true);
+      token.balanceOf.returns(BALANCE);
+      await expect(gasFwd.connect(user).payForGas(token.address, BALANCE + 1))
+        .to.emit(gasFwd, "GasPay")
+        .withArgs(token.address, BALANCE);
+      expect(token.transfer).to.have.been.calledWith(user.address, BALANCE);
     });
   });
 
   describe("upon sweep", async function () {
-    let token: DummyERC20;
+    let token: FakeContract<IERC20>;
     let gasFwd: GasFwd;
     beforeEach(async function () {
-      token = await deployDummyERC20(owner);
+      token = await smock.fake<IERC20>(IERC20__factory.createInterface());
       gasFwd = await deployGasFwdAsProxy(owner, admin, user);
     });
     it("reverts if called by non-accounts contract", async function () {
@@ -95,14 +115,19 @@ describe("GasFwd", function () {
       );
     });
     it("nothing happens if there's no balance to sweep", async () => {
+      token.balanceOf.returns(0);
       await expect(gasFwd.connect(user).sweep(token.address)).to.not.emit(gasFwd, "Sweep");
-      expect(await token.balanceOf(user.address)).to.equal(0);
+      expect(token.transfer).to.not.be.called;
     });
     it("transfers the token balance", async function () {
-      await token.mint(gasFwd.address, BALANCE);
-      await gasFwd.connect(user).sweep(token.address);
-      let balance = await token.balanceOf(user.address);
-      expect(balance).to.equal(BALANCE);
+      const balance = 10;
+      token.transfer.returns(true);
+      token.balanceOf.returns(balance);
+
+      await expect(gasFwd.connect(user).sweep(token.address))
+        .to.emit(gasFwd, "Sweep")
+        .withArgs(token.address, balance);
+      expect(token.transfer).to.have.been.calledWith(user.address, balance);
     });
   });
 });

@@ -11,8 +11,8 @@ import {
 import {
   AccountsGasManager,
   AccountsGasManager__factory,
-  DummyERC20,
-  DummyERC20__factory,
+  IERC20,
+  IERC20__factory,
   GasFwd,
   GasFwd__factory,
   TestFacetProxyContract,
@@ -27,7 +27,7 @@ describe("AccountsGasManager", function () {
   let proxyAdmin: SignerWithAddress;
   let user: SignerWithAddress;
   let impl: AccountsGasManager;
-  let token: FakeContract<DummyERC20>;
+  let token: FakeContract<IERC20>;
   let gasFwd: FakeContract<GasFwd>;
   const ACCOUNT_ID = 1;
   const BALANCE = 1000;
@@ -42,7 +42,7 @@ describe("AccountsGasManager", function () {
   });
 
   beforeEach(async () => {
-    token = await smock.fake<DummyERC20>(new DummyERC20__factory());
+    token = await smock.fake<IERC20>(IERC20__factory.createInterface());
     gasFwd = await smock.fake<GasFwd>(new GasFwd__factory());
 
     token.transfer.returns(true);
