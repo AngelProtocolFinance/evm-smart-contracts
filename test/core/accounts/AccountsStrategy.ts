@@ -88,7 +88,7 @@ describe("AccountsStrategy", function () {
         chainId: (await ethers.provider.getNetwork()).chainId,
         axelarGateway: gateway.address,
       };
-      await registrar.queryNetworkConnection.returns(network);
+      registrar.queryNetworkConnection.returns(network);
     });
 
     beforeEach(async function () {
@@ -184,7 +184,7 @@ describe("AccountsStrategy", function () {
           ...DEFAULT_STRATEGY_PARAMS,
           approvalState: StrategyApprovalState.APPROVED,
         };
-        await registrar.getStrategyParamsById.returns(stratParams);
+        registrar.getStrategyParamsById.returns(stratParams);
 
         let investRequest = {
           ...DEFAULT_INVEST_REQUEST,
@@ -206,7 +206,7 @@ describe("AccountsStrategy", function () {
           ...DEFAULT_STRATEGY_PARAMS,
           approvalState: StrategyApprovalState.APPROVED,
         };
-        await registrar.getStrategyParamsById.returns(stratParams);
+        registrar.getStrategyParamsById.returns(stratParams);
 
         await expect(facet.strategyInvest(ACCOUNT_ID, DEFAULT_INVEST_REQUEST)).to.be.revertedWith(
           "Token not approved"
@@ -225,14 +225,14 @@ describe("AccountsStrategy", function () {
           router: router.address,
           axelarGateway: gateway.address,
         };
-        await registrar.queryNetworkConnection.returns(network);
-        await registrar.isTokenAccepted.returns(true);
+        registrar.queryNetworkConnection.returns(network);
+        registrar.isTokenAccepted.returns(true);
         let stratParams = {
           ...DEFAULT_STRATEGY_PARAMS,
           network: "ThisNet",
           approvalState: StrategyApprovalState.APPROVED,
         };
-        await registrar.getStrategyParamsById.returns(stratParams);
+        registrar.getStrategyParamsById.returns(stratParams);
       });
 
       beforeEach(async function () {
@@ -300,7 +300,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("and the response is anything other than SUCCESS", async function () {
-        await router.executeWithTokenLocal.returns({
+        router.executeWithTokenLocal.returns({
           destinationChain: "",
           strategyId: DEFAULT_STRATEGY_SELECTOR,
           selector: DEFAULT_METHOD_SELECTOR,
@@ -356,16 +356,16 @@ describe("AccountsStrategy", function () {
           chainId: 42,
           router: router.address,
         };
-        await registrar.queryNetworkConnection.whenCalledWith("ThisNet").returns(thisNet);
-        await registrar.queryNetworkConnection.whenCalledWith("ThatNet").returns(thatNet);
+        registrar.queryNetworkConnection.whenCalledWith("ThisNet").returns(thisNet);
+        registrar.queryNetworkConnection.whenCalledWith("ThatNet").returns(thatNet);
 
-        await registrar.isTokenAccepted.returns(true);
+        registrar.isTokenAccepted.returns(true);
         const stratParams = {
           ...DEFAULT_STRATEGY_PARAMS,
           network: "ThatNet",
           approvalState: StrategyApprovalState.APPROVED,
         };
-        await registrar.getStrategyParamsById.returns(stratParams);
+        registrar.getStrategyParamsById.returns(stratParams);
       });
 
       beforeEach(async function () {
@@ -472,7 +472,7 @@ describe("AccountsStrategy", function () {
         chainId: (await ethers.provider.getNetwork()).chainId,
         axelarGateway: gateway.address,
       };
-      await registrar.queryNetworkConnection.returns(network);
+      registrar.queryNetworkConnection.returns(network);
     });
 
     beforeEach(async function () {
@@ -509,7 +509,7 @@ describe("AccountsStrategy", function () {
           network: "ThisNet",
           approvalState: StrategyApprovalState.NOT_APPROVED,
         };
-        await registrar.getStrategyParamsById.returns(stratParams);
+        registrar.getStrategyParamsById.returns(stratParams);
         let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
         endowDetails.owner = owner.address;
         await state.setEndowmentDetails(1, endowDetails);
@@ -581,7 +581,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("and the response is SUCCESS", async function () {
-        await router.executeLocal.returns({
+        router.executeLocal.returns({
           destinationChain: "",
           strategyId: DEFAULT_STRATEGY_SELECTOR,
           selector: DEFAULT_METHOD_SELECTOR,
@@ -607,7 +607,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("and the response is POSITION_EXITED", async function () {
-        await router.executeLocal.returns({
+        router.executeLocal.returns({
           destinationChain: "",
           strategyId: DEFAULT_STRATEGY_SELECTOR,
           selector: DEFAULT_METHOD_SELECTOR,
@@ -633,7 +633,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("and the response is anything else", async function () {
-        await router.executeLocal.returns({
+        router.executeLocal.returns({
           destinationChain: "",
           strategyId: DEFAULT_STRATEGY_SELECTOR,
           selector: DEFAULT_METHOD_SELECTOR,
@@ -683,16 +683,16 @@ describe("AccountsStrategy", function () {
           chainId: 42,
           router: router.address,
         };
-        await registrar.queryNetworkConnection.whenCalledWith("ThisNet").returns(thisNet);
-        await registrar.queryNetworkConnection.whenCalledWith("ThatNet").returns(thatNet);
+        registrar.queryNetworkConnection.whenCalledWith("ThisNet").returns(thisNet);
+        registrar.queryNetworkConnection.whenCalledWith("ThatNet").returns(thatNet);
 
-        await registrar.isTokenAccepted.returns(true);
+        registrar.isTokenAccepted.returns(true);
         const stratParams = {
           ...DEFAULT_STRATEGY_PARAMS,
           network: "ThatNet",
           approvalState: StrategyApprovalState.APPROVED,
         };
-        await registrar.getStrategyParamsById.returns(stratParams);
+        registrar.getStrategyParamsById.returns(stratParams);
       });
 
       beforeEach(async function () {
@@ -921,7 +921,7 @@ describe("AccountsStrategy", function () {
         });
 
         it("and the response is POSITION_EXITED", async function () {
-          await router.executeLocal.returns({
+          router.executeLocal.returns({
             destinationChain: "",
             strategyId: DEFAULT_STRATEGY_SELECTOR,
             selector: DEFAULT_METHOD_SELECTOR,
@@ -947,7 +947,7 @@ describe("AccountsStrategy", function () {
         });
 
         it("and the response is anything else", async function () {
-          await router.executeLocal.returns({
+          router.executeLocal.returns({
             destinationChain: "",
             strategyId: DEFAULT_STRATEGY_SELECTOR,
             selector: DEFAULT_METHOD_SELECTOR,
