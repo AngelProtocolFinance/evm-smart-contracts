@@ -26,7 +26,6 @@ use(smock.matchers);
 describe("AccountsCreateEndowment", function () {
   const {ethers} = hre;
 
-  const donationMatchCharitesAddress = genWallet().address;
   const endowmentOwner = genWallet().address;
 
   const expectedNextAccountId = 1;
@@ -135,7 +134,6 @@ describe("AccountsCreateEndowment", function () {
       ...DEFAULT_REGISTRAR_CONFIG,
       charityApplications: charityApplications.address,
       multisigFactory: endowmentFactoryFake.address,
-      donationMatchCharitesContract: donationMatchCharitesAddress,
       gasFwdFactory: gasFwdFactoryFake.address,
     };
     registrarFake.queryConfig.returns(config);
