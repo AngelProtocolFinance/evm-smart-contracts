@@ -2,7 +2,13 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {FakeContract, MockContract, smock} from "@defi-wonderland/smock";
 import {expect, use} from "chai";
 import hre from "hardhat";
-import {packActionData, DEFAULT_NETWORK_INFO, DEFAULT_ACTION_DATA, DEFAULT_STRATEGY_PARAMS, DEFAULT_STRATEGY_SELECTOR} from "test/utils";
+import {
+  packActionData,
+  DEFAULT_NETWORK_INFO,
+  DEFAULT_ACTION_DATA,
+  DEFAULT_STRATEGY_PARAMS,
+  DEFAULT_STRATEGY_SELECTOR,
+} from "test/utils";
 import {
   DummyERC20,
   DummyERC20__factory,
@@ -219,8 +225,6 @@ describe("Router", function () {
         axelarGateway: gateway.address,
         gasReceiver: gasService.address,
       };
-      
-      
 
       gateway.validateContractCall.returns(true);
       gateway.validateContractCallAndMint.returns(true);
@@ -260,7 +264,7 @@ describe("Router", function () {
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Only one account allowed");
-        expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT-GAS_COST);
+        expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT - GAS_COST);
         expect(token.approve).to.have.been.calledWith(gasService.address, GAS_COST);
       });
 
@@ -281,7 +285,7 @@ describe("Router", function () {
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Only deposit accepts tokens");
-        expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT-GAS_COST);
+        expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT - GAS_COST);
         expect(token.approve).to.have.been.calledWith(gasService.address, GAS_COST);
       });
 
@@ -302,7 +306,7 @@ describe("Router", function () {
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Amount mismatch");
-          TOTAL_AMT
+        TOTAL_AMT;
       });
 
       it("when the vault values are both zero", async function () {
@@ -344,7 +348,7 @@ describe("Router", function () {
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Token not accepted");
-        expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT-GAS_COST);
+        expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT - GAS_COST);
         expect(token.approve).to.have.been.calledWith(gasService.address, GAS_COST);
       });
 
@@ -365,7 +369,7 @@ describe("Router", function () {
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Strategy not approved");
-        expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT-GAS_COST);
+        expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT - GAS_COST);
         expect(token.approve).to.have.been.calledWith(gasService.address, GAS_COST);
       });
 
@@ -427,7 +431,9 @@ describe("Router", function () {
         registrar.getAccountsContractAddressByChain
           .whenCalledWith(originatingChain)
           .returns(accountsContract);
-        registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
+        registrar.getAccountsContractAddressByChain
+          .whenCalledWith(localChain)
+          .returns(owner.address);
         registrar.getGasByToken.whenCalledWith(token.address).returns(GAS_COST);
         token.transfer.returns(true);
         token.transferFrom.returns(true);
@@ -490,7 +496,7 @@ describe("Router", function () {
             accountsContract,
             packedData,
             token.symbol(),
-            TOTAL_AMT - 1 
+            TOTAL_AMT - 1
           )
         )
           .to.emit(router, "ErrorLogged")
@@ -615,13 +621,13 @@ describe("Router", function () {
         network: localChain,
         Locked: {
           Type: 0,
-          vaultAddr: lockedVault.address
+          vaultAddr: lockedVault.address,
         },
         Liquid: {
           Type: 1,
-          vaultAddr: liquidVault.address
-        }
-      }
+          vaultAddr: liquidVault.address,
+        },
+      };
 
       gateway.validateContractCall.returns(true);
       gateway.validateContractCallAndMint.returns(true);
@@ -649,7 +655,7 @@ describe("Router", function () {
       actionData.selector = liquidVault.interface.getSighash("deposit");
       actionData.token = token.address;
       let packedData = await packActionData(actionData);
-      expect(        
+      expect(
         await router.executeWithToken(
           ethers.utils.formatBytes32String("true"),
           originatingChain,
@@ -658,10 +664,9 @@ describe("Router", function () {
           "TKN",
           TOTAL_AMT
         )
-      )
-        .to.emit(router, "Deposit");
-      expect(lockedVault.deposit).to.have.been.calledWith(1, token.address, LOCK_AMT)
-      expect(liquidVault.deposit).to.have.been.calledWith(1, token.address, LIQ_AMT)
+      ).to.emit(router, "Deposit");
+      expect(lockedVault.deposit).to.have.been.calledWith(1, token.address, LOCK_AMT);
+      expect(liquidVault.deposit).to.have.been.calledWith(1, token.address, LIQ_AMT);
     });
 
     it("correctly calls redeem via execute", async function () {
@@ -671,13 +676,13 @@ describe("Router", function () {
       let packedData = await packActionData(actionData);
       lockedVault.redeem.returns({
         token: token.address,
-        amount: LOCK_AMT, 
-        status: VaultActionStatus.SUCCESS
+        amount: LOCK_AMT,
+        status: VaultActionStatus.SUCCESS,
       });
       liquidVault.redeem.returns({
         token: token.address,
-        amount: LIQ_AMT, 
-        status: VaultActionStatus.SUCCESS
+        amount: LIQ_AMT,
+        status: VaultActionStatus.SUCCESS,
       });
       expect(
         await router.execute(
@@ -686,7 +691,7 @@ describe("Router", function () {
           accountsContract,
           packedData
         )
-      )
+      );
       expect(lockedVault.redeem).to.have.been.calledWith(1, LOCK_AMT);
       expect(liquidVault.redeem).to.have.been.calledWith(1, LIQ_AMT);
     });
@@ -698,13 +703,13 @@ describe("Router", function () {
       let packedData = await packActionData(actionData);
       lockedVault.redeemAll.returns({
         token: token.address,
-        amount: LOCK_AMT, 
-        status: VaultActionStatus.POSITION_EXITED
+        amount: LOCK_AMT,
+        status: VaultActionStatus.POSITION_EXITED,
       });
       liquidVault.redeemAll.returns({
         token: token.address,
-        amount: LIQ_AMT, 
-        status: VaultActionStatus.POSITION_EXITED
+        amount: LIQ_AMT,
+        status: VaultActionStatus.POSITION_EXITED,
       });
       expect(
         await router.execute(
@@ -713,7 +718,7 @@ describe("Router", function () {
           accountsContract,
           packedData
         )
-      )
+      );
       expect(lockedVault.redeemAll).to.have.been.called;
       expect(liquidVault.redeemAll).to.have.been.called;
     });
@@ -730,7 +735,7 @@ describe("Router", function () {
           accountsContract,
           packedData
         )
-      )
+      );
       expect(lockedVault.harvest).to.have.been.called;
       expect(liquidVault.harvest).to.have.been.called;
     });
@@ -774,13 +779,13 @@ describe("Router", function () {
         network: localChain,
         Locked: {
           Type: 0,
-          vaultAddr: lockedVault.address
+          vaultAddr: lockedVault.address,
         },
         Liquid: {
           Type: 1,
-          vaultAddr: liquidVault.address
-        }
-      }
+          vaultAddr: liquidVault.address,
+        },
+      };
 
       gateway.validateContractCall.returns(true);
       gateway.validateContractCallAndMint.returns(true);
@@ -858,13 +863,13 @@ describe("Router", function () {
         network: localChain,
         Locked: {
           Type: 0,
-          vaultAddr: lockedVault.address
+          vaultAddr: lockedVault.address,
         },
         Liquid: {
           Type: 1,
-          vaultAddr: liquidVault.address
-        }
-      }
+          vaultAddr: liquidVault.address,
+        },
+      };
 
       gateway.validateContractCall.returns(true);
       gateway.validateContractCallAndMint.returns(true);
@@ -878,7 +883,7 @@ describe("Router", function () {
       registrar.getGasByToken.whenCalledWith(token.address).returns(GAS_COST);
       registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
       registrar.getStrategyParamsById.returns(stratParams);
-      registrar.getFeeSettingsByFeeType.returns({payoutAddress: collector.address, bps: 1,})
+      registrar.getFeeSettingsByFeeType.returns({payoutAddress: collector.address, bps: 1});
       token.transfer.returns(true);
       token.transferFrom.returns(true);
       token.approve.returns(true);
@@ -894,13 +899,13 @@ describe("Router", function () {
       let packedData = packActionData(actionData);
       lockedVault.redeem.returns({
         token: token.address,
-        amount: LOCK_AMT, 
-        status: VaultActionStatus.SUCCESS
+        amount: LOCK_AMT,
+        status: VaultActionStatus.SUCCESS,
       });
       liquidVault.redeem.returns({
         token: token.address,
-        amount: LIQ_AMT, 
-        status: VaultActionStatus.SUCCESS
+        amount: LIQ_AMT,
+        status: VaultActionStatus.SUCCESS,
       });
       expect(
         await router.execute(
@@ -922,8 +927,8 @@ describe("Router", function () {
         token: token.address,
         lockAmt: LOCK_AMT - 2, // less weighted gas
         liqAmt: LIQ_AMT - 3, // less weighted gas
-        status: VaultActionStatus.SUCCESS
-      })
+        status: VaultActionStatus.SUCCESS,
+      });
       expect(gasService.payGasForContractCallWithToken).to.have.been.calledWith(
         router.address,
         originatingChain,
@@ -939,7 +944,7 @@ describe("Router", function () {
         originatingChain,
         deadAddr,
         expectedPayload,
-        "TKN", 
+        "TKN",
         TOTAL_AMT - GAS_COST
       );
     });
@@ -951,13 +956,13 @@ describe("Router", function () {
       let packedData = packActionData(actionData);
       lockedVault.redeem.returns({
         token: token.address,
-        amount: LOCK_AMT, 
-        status: VaultActionStatus.SUCCESS
+        amount: LOCK_AMT,
+        status: VaultActionStatus.SUCCESS,
       });
       liquidVault.redeem.returns({
         token: token.address,
-        amount: LIQ_AMT, 
-        status: VaultActionStatus.SUCCESS
+        amount: LIQ_AMT,
+        status: VaultActionStatus.SUCCESS,
       });
       registrar.getGasByToken.whenCalledWith(token.address).returns(TOTAL_AMT + 1);
       await expect(
@@ -1009,13 +1014,13 @@ describe("Router", function () {
         network: localChain,
         Locked: {
           Type: 0,
-          vaultAddr: lockedVault.address
+          vaultAddr: lockedVault.address,
         },
         Liquid: {
           Type: 1,
-          vaultAddr: liquidVault.address
-        }
-      }
+          vaultAddr: liquidVault.address,
+        },
+      };
 
       gateway.validateContractCall.returns(true);
       gateway.validateContractCallAndMint.returns(true);
@@ -1029,7 +1034,7 @@ describe("Router", function () {
       registrar.getGasByToken.whenCalledWith(token.address).returns(GAS_COST);
       registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
       registrar.getStrategyParamsById.returns(stratParams);
-      registrar.getFeeSettingsByFeeType.returns({payoutAddress: collector.address, bps: 1,})
+      registrar.getFeeSettingsByFeeType.returns({payoutAddress: collector.address, bps: 1});
       token.transfer.returns(true);
       token.transferFrom.returns(true);
       token.approve.returns(true);
@@ -1045,13 +1050,13 @@ describe("Router", function () {
       let packedData = packActionData(actionData);
       lockedVault.redeemAll.returns({
         token: token.address,
-        amount: LOCK_AMT, 
-        status: VaultActionStatus.POSITION_EXITED
+        amount: LOCK_AMT,
+        status: VaultActionStatus.POSITION_EXITED,
       });
       liquidVault.redeemAll.returns({
         token: token.address,
-        amount: LIQ_AMT, 
-        status: VaultActionStatus.POSITION_EXITED
+        amount: LIQ_AMT,
+        status: VaultActionStatus.POSITION_EXITED,
       });
       expect(
         await router.execute(
@@ -1073,8 +1078,8 @@ describe("Router", function () {
         token: token.address,
         lockAmt: LOCK_AMT - 2, // less weighted gas
         liqAmt: LIQ_AMT - 3, // less weighted gas
-        status: VaultActionStatus.POSITION_EXITED
-      })
+        status: VaultActionStatus.POSITION_EXITED,
+      });
       expect(gasService.payGasForContractCallWithToken).to.have.been.calledWith(
         router.address,
         originatingChain,
@@ -1090,7 +1095,7 @@ describe("Router", function () {
         originatingChain,
         deadAddr,
         expectedPayload,
-        "TKN", 
+        "TKN",
         TOTAL_AMT - GAS_COST
       );
     });
@@ -1102,13 +1107,13 @@ describe("Router", function () {
       let packedData = packActionData(actionData);
       lockedVault.redeemAll.returns({
         token: token.address,
-        amount: LOCK_AMT, 
-        status: VaultActionStatus.POSITION_EXITED
+        amount: LOCK_AMT,
+        status: VaultActionStatus.POSITION_EXITED,
       });
       liquidVault.redeem.returns({
         token: token.address,
-        amount: LIQ_AMT, 
-        status: VaultActionStatus.POSITION_EXITED
+        amount: LIQ_AMT,
+        status: VaultActionStatus.POSITION_EXITED,
       });
       registrar.getGasByToken.whenCalledWith(token.address).returns(TOTAL_AMT + 1);
       await expect(

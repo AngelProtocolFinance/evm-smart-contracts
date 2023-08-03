@@ -117,11 +117,10 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     string calldata tokenSymbol,
     uint256 amount
   ) public onlySelf validateDeposit(action, tokenSymbol, amount) {
-
     LocalRegistrarLib.StrategyParams memory params = registrar.getStrategyParamsById(
       action.strategyId
     );
-    
+
     if (action.lockAmt > 0) {
       // Send tokens to locked vault and call deposit
       IERC20Metadata(action.token).safeTransfer(params.Locked.vaultAddr, action.lockAmt);
@@ -446,7 +445,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
       action.strategyId
     );
 
-    // update action.destinationChain to source chain for token redemptions 
+    // update action.destinationChain to source chain for token redemptions
     action.destinationChain = sourceChain;
 
     // Switch for calling appropriate vault/method
