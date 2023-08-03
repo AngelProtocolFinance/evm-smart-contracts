@@ -1,5 +1,4 @@
 import {BigNumberish} from "ethers";
-import {PromiseOrValue} from "typechain-types/common";
 import {
   AccountStorage,
   LibAccounts,
@@ -15,7 +14,7 @@ import {DeepPartial} from "utils/types";
  * @returns the updated endowment
  */
 export async function updateSettings(
-  endowId: PromiseOrValue<BigNumberish>,
+  endowId: BigNumberish,
   field: keyof LibAccounts.SettingsControllerStruct,
   settings: DeepPartial<LibAccounts.SettingsPermissionStruct>,
   state: TestFacetProxyContract
@@ -41,7 +40,7 @@ export async function updateSettings(
  * @returns the updated endowment data with all settings updated
  */
 export async function updateAllSettings(
-  endowId: PromiseOrValue<BigNumberish>,
+  endowId: BigNumberish,
   settings: DeepPartial<LibAccounts.SettingsPermissionStruct>,
   state: TestFacetProxyContract
 ) {
@@ -51,7 +50,7 @@ export async function updateAllSettings(
   lockedEndow.settingsController = (
     Object.entries(lockedEndow.settingsController) as [
       keyof LibAccounts.SettingsControllerStruct,
-      LibAccounts.SettingsPermissionStruct,
+      LibAccounts.SettingsPermissionStruct
     ][]
   ).reduce((controller, [key, curSetting]) => {
     controller[key] = getUpdated(curSetting, settings);
