@@ -8,6 +8,7 @@ import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {IIndexFund} from "../../index-fund/IIndexFund.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
+import {IAccountsGasManager} from "../interfaces/IAccountsGasManager.sol";
 import {IAccountsUpdateStatusEndowments} from "../interfaces/IAccountsUpdateStatusEndowments.sol";
 
 /**
@@ -32,9 +33,8 @@ contract AccountsUpdateStatusEndowments is
     LibAccounts.Beneficiary memory beneficiary
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
 
-    require(msg.sender == tempEndowment.owner, "Unauthorized");
+    require(msg.sender == state.ENDOWMENTS[id].owner, "Unauthorized");
     require(!state.STATES[id].closingEndowment, "Endowment is closed");
     require(checkFullyExited(id), "Not fully exited");
 
@@ -49,8 +49,7 @@ contract AccountsUpdateStatusEndowments is
 
     // If NONE was passed for beneficiary, send balance to the AP Treasury (if not in any funds)
     // or send to the first index fund if it is in one.
-    IIndexFund.IndexFund[] memory funds = IIndexFund(registrar_config.indexFundContract)
-      .queryInvolvedFunds(id);
+    uint256[] memory funds = IIndexFund(registrar_config.indexFundContract).queryInvolvedFunds(id);
     if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.None) {
       if (funds.length == 0) {
         beneficiary = LibAccounts.Beneficiary({
@@ -63,7 +62,7 @@ contract AccountsUpdateStatusEndowments is
         });
       } else {
         beneficiary = LibAccounts.Beneficiary({
-          data: LibAccounts.BeneficiaryData({endowId: 0, fundId: funds[0].id, addr: address(0)}),
+          data: LibAccounts.BeneficiaryData({endowId: 0, fundId: funds[0], addr: address(0)}),
           enumData: LibAccounts.BeneficiaryEnum.IndexFund
         });
         // remove closing endowment from all Index Funds that it is in

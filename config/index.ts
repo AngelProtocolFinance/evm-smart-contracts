@@ -43,7 +43,7 @@ const config: Config = {
     collectorShare: 1,
   },
   INDEX_FUND_DATA: {
-    fundRotation: 1000,
+    fundRotation: 0,
     fundMemberLimit: 30,
     fundingGoal: ethers.utils.parseUnits("10000", 6),
   },

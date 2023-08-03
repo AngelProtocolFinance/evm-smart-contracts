@@ -76,6 +76,7 @@ export function createEmptyAddressObj(): AddressObj {
         accountsAllowance: "",
         accountsCreateEndowment: "",
         accountsDaoEndowments: "",
+        accountsGasManager: "",
         accountsQueryEndowments: "",
         accountsStrategy: "",
         accountsSwapRouter: "",

@@ -9,6 +9,7 @@ import {IAccountsDeployContract} from "./IAccountsDeployContract.sol";
 import {IAccountsDepositWithdrawEndowments} from "./IAccountsDepositWithdrawEndowments.sol";
 import {IAccountsDonationMatch} from "./IAccountsDonationMatch.sol";
 import {IAccountsEvents} from "./IAccountsEvents.sol";
+import {IAccountsGasManager} from "./IAccountsGasManager.sol";
 import {IAccountsQueryEndowments} from "./IAccountsQueryEndowments.sol";
 import {IAccountsSwapRouter} from "./IAccountsSwapRouter.sol";
 import {IAccountsUpdate} from "./IAccountsUpdate.sol";
@@ -25,6 +26,7 @@ interface IAccounts is
   IAccountsDepositWithdrawEndowments,
   IAccountsDonationMatch,
   IAccountsEvents,
+  IAccountsGasManager,
   IAccountsQueryEndowments,
   IAccountsSwapRouter,
   IAccountsUpdate,
