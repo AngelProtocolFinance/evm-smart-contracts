@@ -35,7 +35,7 @@ library Validator {
   ) internal pure returns (bool) {
     return (delegate.addr != address(0) &&
       sender == delegate.addr &&
-      (delegate.expires == 0 || envTime <= delegate.expires));
+      (delegate.expires == 0 || envTime < delegate.expires));
   }
 
   function canChange(
@@ -50,27 +50,6 @@ library Validator {
     //    sender is the endow owner (ie. owner must first revoke their delegation)
     return (!permissions.locked &&
       (delegateIsValid(permissions.delegate, sender, envTime) || sender == owner));
-  }
-
-  function canCall(
-    LibAccounts.SettingsPermission memory permissions,
-    address sender,
-    uint256 envTime
-  ) internal pure returns (bool) {
-    // return true if:
-    // Caller is the specified delegate address AND
-    // the delegate hasn't expired OR doesn't expire
-    bool approved;
-    if (sender == permissions.delegate.addr) {
-      if (permissions.delegate.expires > 0) {
-        if (permissions.delegate.expires > envTime) {
-          approved = true;
-        }
-      } else {
-        approved = true;
-      }
-    }
-    return approved;
   }
 
   function validateFee(LibAccounts.FeeSetting memory fee) internal pure {

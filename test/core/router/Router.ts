@@ -511,7 +511,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            token.symbol(),
+            await token.symbol(),
             0
           )
         )
