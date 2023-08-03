@@ -414,8 +414,8 @@ contract AccountsStrategy is
         _payForGasWithAccountBalance(
           id, 
           tokenAddress, 
-          0, 
-          0, 
+          1, // Split evenly 
+          1, 
           (redeemAllRequest.gasFee - gasFwdGas)
         );
       }
@@ -550,8 +550,10 @@ contract AccountsStrategy is
 
   /**
    * @notice Pay for gas from the account balance
-   * @dev Split the gas payment proprotionally between locked and liquid. Deduct the gas from the respective account balances
-   * Revert if the balance of the account cannot cover both the investment request and the gas payment.  
+   * @dev This method pays for gas for endowments by directly accessing their balances. 
+   * We split the gas payment proprotionally between locked and liquid if possible and  
+   * use liquid funds for locked gas needs, but not the other way around in the case of a shortage. 
+   * Revert if the combined balances of the account cannot cover both the investment request and the gas payment.  
    */
   function _payForGasWithAccountBalance(uint32 id, address token, uint256 lockAmt, uint256 liqAmt, uint256 gasRemaining) internal {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
@@ -562,11 +564,30 @@ contract AccountsStrategy is
     // Split gas proportionally between liquid and lock amts
     uint256 liqGas = (gasRemaining * ((liqAmt * LibAccounts.BIG_NUMBA_BASIS) / sendAmt)) / LibAccounts.BIG_NUMBA_BASIS;
     uint256 lockGas = gasRemaining - liqGas;
-    if(((liqGas + liqAmt )> liqBal) 
-      || ((lockGas + lockAmt) > lockBal)) {
+
+    uint256 lockNeed = lockGas + lockAmt;
+    uint256 liqNeed = liqGas + liqAmt;
+
+    // Cases:  
+    // 1) lockBal and liqBal each cover the respective needs
+    if ( (lockNeed <= lockBal) && (liqNeed <= liqBal)) {
+      state.STATES[id].balances.locked[token] -= lockGas;
+      state.STATES[id].balances.liquid[token] -= liqGas;
+    }
+    else if ((lockNeed > lockBal) && (liqNeed <= liqBal)) {
+      // 2) lockBal does not cover lockNeeds, liqBal can cover deficit in addition to liqNeeds
+      if ((lockNeed - lockBal) <= (liqBal - liqNeed)) {
+          state.STATES[id].balances.locked[token] = 0;
+          state.STATES[id].balances.liquid[token] -= (liqGas + (lockNeed - lockBal));
+      }
+      // 3) lockBal does not cover lockNeeds and liqBal cannot cover -> revert
+      else {
+        revert InsufficientFundsForGas(id);
+      }
+    }
+    // 4) lockBal covers lockNeeds, liqBal does not cover liqNeeds -> revert
+    else {
       revert InsufficientFundsForGas(id);
     }
-    state.STATES[id].balances.locked[token] -= lockGas;
-    state.STATES[id].balances.liquid[token] -= liqGas;
   }
 }
