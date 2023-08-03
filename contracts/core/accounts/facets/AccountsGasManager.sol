@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
+
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";
 import {Validator} from "../../validator.sol";
@@ -69,7 +70,7 @@ contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager, Iterab
   /// @dev Only callable by the owner, liquidInvestmentManager, or lockedInvestmentManager
   /// Sends the balance specified from the specified token and vault type to the endow's gasFwd contract
   function addGas(uint32 id, IVault.VaultType vault, address token, uint256 amount) external {
-    if (!_validateCaller(id)) {
+    if (!_validateCaller(id, vault)) {
       revert Unauthorized();
     }
 
@@ -92,23 +93,34 @@ contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager, Iterab
     IERC20(token).safeTransfer(state.ENDOWMENTS[id].gasFwd, amount);
   }
 
-  function _validateCaller(uint32 id) internal view returns (bool) {
+  function _validateCaller(uint32 id, IVault.VaultType vault) internal view returns (bool) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
+    AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];
+
     if (
-      Validator.canCall(
-        state.ENDOWMENTS[id].settingsController.lockedInvestmentManagement,
+      vault == IVault.VaultType.LOCKED &&
+      Validator.canChange(
+        tempEndowment.settingsController.lockedInvestmentManagement,
         msg.sender,
+        tempEndowment.owner,
         block.timestamp
-      ) ||
-      Validator.canCall(
-        state.ENDOWMENTS[id].settingsController.liquidInvestmentManagement,
-        msg.sender,
-        block.timestamp
-      ) ||
-      msg.sender == state.ENDOWMENTS[id].owner
+      )
     ) {
       return true;
     }
+
+    if (
+      vault == IVault.VaultType.LIQUID &&
+      Validator.canChange(
+        tempEndowment.settingsController.liquidInvestmentManagement,
+        msg.sender,
+        tempEndowment.owner,
+        block.timestamp
+      )
+    ) {
+      return true;
+    }
+
     return false;
   }
 }

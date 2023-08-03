@@ -11,13 +11,13 @@ import {
 import {
   AccountsGasManager,
   AccountsGasManager__factory,
-  GasFwd,
-  GasFwd__factory,
   DummyERC20,
   DummyERC20__factory,
+  GasFwd,
+  GasFwd__factory,
   TestFacetProxyContract,
 } from "typechain-types";
-import {genWallet, getSigners, VaultType} from "utils";
+import {VaultType, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
@@ -30,6 +30,7 @@ describe("AccountsGasManager", function () {
   let token: FakeContract<DummyERC20>;
   let gasFwd: FakeContract<GasFwd>;
   const ACCOUNT_ID = 1;
+  const BALANCE = 1000;
 
   before(async function () {
     const signers = await getSigners(hre);
@@ -43,6 +44,10 @@ describe("AccountsGasManager", function () {
   beforeEach(async () => {
     token = await smock.fake<DummyERC20>(new DummyERC20__factory());
     gasFwd = await smock.fake<GasFwd>(new GasFwd__factory());
+
+    token.transfer.returns(true);
+    token.transferFrom.returns(true);
+    gasFwd.sweep.returns(BALANCE);
   });
 
   describe("upon `sweepForClosure`", async function () {
@@ -58,9 +63,6 @@ describe("AccountsGasManager", function () {
         gasFwd: gasFwd.address,
       };
       await state.setEndowmentDetails(ACCOUNT_ID, endowment);
-
-      token.transfer.returns(true);
-      token.transferFrom.returns(true);
     });
 
     it("reverts if not called by self", async function () {
@@ -75,7 +77,8 @@ describe("AccountsGasManager", function () {
         ACCOUNT_ID,
         token.address,
       ]);
-      expect(await state.callSelf(0, calldata)).to.emit(gasFwd, "Sweep");
+      await expect(state.callSelf(0, calldata)).to.not.be.reverted;
+
       expect(gasFwd.sweep).to.have.been.calledWith(token.address);
     });
   });
@@ -83,7 +86,6 @@ describe("AccountsGasManager", function () {
   describe("upon `sweepForEndowment`", async function () {
     let facet: AccountsGasManager;
     let state: TestFacetProxyContract;
-    const BALANCE = 1000;
 
     beforeEach(async function () {
       state = await deployFacetAsProxy(hre, owner, proxyAdmin, impl.address);
@@ -101,10 +103,6 @@ describe("AccountsGasManager", function () {
         gasFwd: gasFwd.address,
       };
       await state.setEndowmentDetails(ACCOUNT_ID, endowment);
-
-      token.transfer.returns(true);
-      token.transferFrom.returns(true);
-      gasFwd.sweep.returns(BALANCE);
     });
 
     it("reverts if not called by admin", async function () {
@@ -114,9 +112,12 @@ describe("AccountsGasManager", function () {
     });
 
     it("calls the sweep method and updates the appropriate balance", async function () {
-      expect(
-        await facet.connect(owner).sweepForEndowment(ACCOUNT_ID, VaultType.LIQUID, token.address)
-      ).to.emit(gasFwd, "Sweep");
+      await expect(
+        facet.connect(owner).sweepForEndowment(ACCOUNT_ID, VaultType.LIQUID, token.address)
+      ).to.not.be.reverted;
+
+      expect(gasFwd.sweep).to.have.been.calledWith(token.address);
+
       const [locked, liquid] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
       expect(liquid).to.equal(BALANCE);
       expect(locked).to.equal(0);
@@ -132,9 +133,6 @@ describe("AccountsGasManager", function () {
     beforeEach(async function () {
       state = await deployFacetAsProxy(hre, owner, proxyAdmin, impl.address);
       facet = AccountsGasManager__factory.connect(state.address, owner);
-      token.transfer.returns(true);
-      token.transferFrom.returns(true);
-      gasFwd.sweep.returns(BALANCE);
     });
 
     it("reverts if not called by an approved caller", async function () {
@@ -163,9 +161,10 @@ describe("AccountsGasManager", function () {
       await state.setEndowmentDetails(ACCOUNT_ID, endowment);
       await state.setEndowmentTokenBalance(ACCOUNT_ID, token.address, BALANCE, BALANCE);
 
-      expect(
-        await facet.connect(user).addGas(ACCOUNT_ID, VaultType.LOCKED, token.address, GAS_COST)
-      );
+      await expect(
+        facet.connect(user).addGas(ACCOUNT_ID, VaultType.LOCKED, token.address, GAS_COST)
+      ).to.not.be.reverted;
+
       const [locked, liquid] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
       expect(locked).to.equal(BALANCE - GAS_COST);
       expect(liquid).to.equal(BALANCE);
@@ -191,9 +190,10 @@ describe("AccountsGasManager", function () {
       await state.setEndowmentDetails(ACCOUNT_ID, endowment);
       await state.setEndowmentTokenBalance(ACCOUNT_ID, token.address, BALANCE, BALANCE);
 
-      expect(
-        await facet.connect(user).addGas(ACCOUNT_ID, VaultType.LIQUID, token.address, GAS_COST)
-      );
+      await expect(
+        facet.connect(user).addGas(ACCOUNT_ID, VaultType.LIQUID, token.address, GAS_COST)
+      ).to.not.be.reverted;
+
       const [locked, liquid] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
       expect(locked).to.equal(BALANCE);
       expect(liquid).to.equal(BALANCE - GAS_COST);
@@ -208,9 +208,10 @@ describe("AccountsGasManager", function () {
       await state.setEndowmentDetails(ACCOUNT_ID, endowment);
       await state.setEndowmentTokenBalance(ACCOUNT_ID, token.address, BALANCE, BALANCE);
 
-      expect(
-        await facet.connect(user).addGas(ACCOUNT_ID, VaultType.LIQUID, token.address, GAS_COST)
-      );
+      await expect(
+        facet.connect(user).addGas(ACCOUNT_ID, VaultType.LIQUID, token.address, GAS_COST)
+      ).to.not.be.reverted;
+
       const [locked, liquid] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
       expect(locked).to.equal(BALANCE);
       expect(liquid).to.equal(BALANCE - GAS_COST);
