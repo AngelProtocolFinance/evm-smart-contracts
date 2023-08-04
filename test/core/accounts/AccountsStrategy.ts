@@ -361,7 +361,6 @@ describe("AccountsStrategy", function () {
         );
 
         token.approve.returns(true);
-        token.transfer.returns(true);
 
         await wait(
           state.setEndowmentTokenBalance(
