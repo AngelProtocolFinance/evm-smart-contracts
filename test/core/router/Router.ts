@@ -1,13 +1,12 @@
+import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {FakeContract, MockContract, smock} from "@defi-wonderland/smock";
 import {expect, use} from "chai";
 import hre from "hardhat";
 import {
-  packActionData,
-  DEFAULT_NETWORK_INFO,
   DEFAULT_ACTION_DATA,
-  DEFAULT_STRATEGY_PARAMS,
+  DEFAULT_NETWORK_INFO,
   DEFAULT_STRATEGY_SELECTOR,
+  packActionData,
 } from "test/utils";
 import {
   DummyERC20,
@@ -25,7 +24,7 @@ import {
   Router__factory,
 } from "typechain-types";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
-import {getSigners, StrategyApprovalState, VaultActionStatus} from "utils";
+import {StrategyApprovalState, VaultActionStatus, getSigners} from "utils";
 
 use(smock.matchers);
 
@@ -455,7 +454,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            "TKN",
+            await token.symbol(),
             TOTAL_AMT
           )
         )
@@ -475,7 +474,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            "TKN",
+            await token.symbol(),
             TOTAL_AMT
           )
         )
@@ -495,7 +494,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            "TKN",
+            await token.symbol(),
             TOTAL_AMT - 1
           )
         )
@@ -517,7 +516,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            "TKN",
+            await await token.symbol(),
             0
           )
         )
@@ -537,7 +536,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            "TKN",
+            await token.symbol(),
             TOTAL_AMT
           )
         )
@@ -557,7 +556,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            "TKN",
+            await token.symbol(),
             TOTAL_AMT
           )
         )
@@ -817,7 +816,7 @@ describe("Router", function () {
         originatingChain,
         accountsContract,
         packedData,
-        "TKN",
+        await token.symbol(),
         TOTAL_AMT
       );
       expect(lockedVault.deposit).to.have.been.calledWith(1, token.address, LOCK_AMT);
