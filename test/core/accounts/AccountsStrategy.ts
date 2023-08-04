@@ -49,6 +49,7 @@ import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetP
 import {StrategyApprovalState, VaultActionStatus, genWallet, getChainId, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 import {BigNumber} from "ethers";
+import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
 
 use(smock.matchers);
 
@@ -130,7 +131,7 @@ describe("AccountsStrategy", function () {
     describe("reverts when", async function () {
       it("the caller is not approved for locked fund mgmt", async function () {
         await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
-        let investRequest = {
+        let investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           lockAmt: 1,
         };
@@ -141,7 +142,7 @@ describe("AccountsStrategy", function () {
 
       it("the caller is not approved for liquid fund mgmt", async function () {
         await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
-        let investRequest = {
+        let investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           liquidAmt: 1,
         };
@@ -174,7 +175,7 @@ describe("AccountsStrategy", function () {
         };
         registrar.getStrategyParamsById.returns(stratParams);
 
-        let investRequest = {
+        let investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           lockAmt: 1,
         };
@@ -200,7 +201,7 @@ describe("AccountsStrategy", function () {
         };
         registrar.getStrategyParamsById.returns(stratParams);
 
-        let investRequest = {
+        let investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           liquidAmt: 1,
         };
@@ -270,7 +271,7 @@ describe("AccountsStrategy", function () {
           status: VaultActionStatus.SUCCESS,
         });
 
-        let investRequest = {
+        let investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           lockAmt: LOCK_AMT,
           liquidAmt: LIQ_AMT,
@@ -302,7 +303,7 @@ describe("AccountsStrategy", function () {
           status: VaultActionStatus.FAIL_TOKENS_FALLBACK,
         });
 
-        let investRequest = {
+        let investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           lockAmt: LOCK_AMT,
           liquidAmt: LIQ_AMT,
@@ -376,7 +377,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("makes all the correct external calls", async function () {
-        let investRequest = {
+        let investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           lockAmt: LOCK_AMT,
           liquidAmt: LIQ_AMT,
@@ -407,21 +408,21 @@ describe("AccountsStrategy", function () {
           netInfoThat.router.toLowerCase(), // AddressToString.toString produces only lowercase letters
           payload,
           investRequest.token,
-          BigNumber.from(investRequest.liquidAmt + investRequest.lockAmt),
+          BigNumber.from(investRequest.liquidAmt).add(BigNumber.from(investRequest.lockAmt)),
           token.address,
-          BigNumber.from(investRequest.gasFee),
+          investRequest.gasFee,
           gasFwd.address
         );
         expect(token.approve).to.have.been.calledWith(
           gateway.address,
-          investRequest.liquidAmt + investRequest.lockAmt
+          BigNumber.from(investRequest.liquidAmt).add(BigNumber.from(investRequest.lockAmt))
         );
         expect(gateway.callContractWithToken).to.have.been.calledWith(
           stratParams.network,
           netInfoThat.router.toLowerCase(),
           payload,
           investRequest.token,
-          investRequest.liquidAmt + investRequest.lockAmt
+          BigNumber.from(investRequest.liquidAmt).add(BigNumber.from(investRequest.lockAmt))
         );
 
         const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
