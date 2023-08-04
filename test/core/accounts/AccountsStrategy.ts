@@ -126,9 +126,20 @@ describe("AccountsStrategy", function () {
       registrarContract: registrar.address,
     };
     await state.setConfig(config);
+
+    registrar.isTokenAccepted.returns(true);
   });
 
   describe("upon strategyInvest", async function () {
+    beforeEach(() => {
+      const stratParams = {
+        ...DEFAULT_STRATEGY_PARAMS,
+        network: networkNameThis,
+        approvalState: StrategyApprovalState.APPROVED,
+      };
+      registrar.getStrategyParamsById.returns(stratParams);
+    });
+
     describe("reverts when", async function () {
       it("the caller is not approved for locked fund mgmt", async function () {
         await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
@@ -176,12 +187,6 @@ describe("AccountsStrategy", function () {
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
-        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
-          ...DEFAULT_STRATEGY_PARAMS,
-          approvalState: StrategyApprovalState.APPROVED,
-        };
-        registrar.getStrategyParamsById.returns(stratParams);
-
         const investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           lockAmt: 1,
@@ -202,12 +207,6 @@ describe("AccountsStrategy", function () {
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
-        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
-          ...DEFAULT_STRATEGY_PARAMS,
-          approvalState: StrategyApprovalState.APPROVED,
-        };
-        registrar.getStrategyParamsById.returns(stratParams);
-
         const investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           liquidAmt: 1,
@@ -218,11 +217,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("the token isn't accepted", async function () {
-        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
-          ...DEFAULT_STRATEGY_PARAMS,
-          approvalState: StrategyApprovalState.APPROVED,
-        };
-        registrar.getStrategyParamsById.returns(stratParams);
+        registrar.isTokenAccepted.returns(false);
 
         await expect(facet.strategyInvest(ACCOUNT_ID, DEFAULT_INVEST_REQUEST)).to.be.revertedWith(
           "Token not approved"
@@ -233,16 +228,6 @@ describe("AccountsStrategy", function () {
     describe("and calls the local router", async function () {
       const LOCK_AMT = 300;
       const LIQ_AMT = 200;
-
-      before(async function () {
-        registrar.isTokenAccepted.returns(true);
-        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
-          ...DEFAULT_STRATEGY_PARAMS,
-          network: networkNameThis,
-          approvalState: StrategyApprovalState.APPROVED,
-        };
-        registrar.getStrategyParamsById.returns(stratParams);
-      });
 
       beforeEach(async function () {
         const endowDetails = DEFAULT_CHARITY_ENDOWMENT;
@@ -264,6 +249,13 @@ describe("AccountsStrategy", function () {
 
         token.transfer.whenCalledWith(router.address, LIQ_AMT + LOCK_AMT).returns(true);
         await wait(state.setEndowmentTokenBalance(ACCOUNT_ID, token.address, 500, 500));
+
+        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
+          ...DEFAULT_STRATEGY_PARAMS,
+          network: networkNameThis,
+          approvalState: StrategyApprovalState.APPROVED,
+        };
+        registrar.getStrategyParamsById.returns(stratParams);
       });
 
       it("and the response is SUCCESS", async function () {
@@ -336,17 +328,6 @@ describe("AccountsStrategy", function () {
       const INITIAL_LOCK_BAL = 500;
       const INITIAL_LIQ_BAL = 500;
       const GAS_FEE = 100;
-      const stratParams = {
-        ...DEFAULT_STRATEGY_PARAMS,
-        network: networkNameThat,
-        approvalState: StrategyApprovalState.APPROVED,
-      };
-
-      before(async function () {
-        registrar.isTokenAccepted.returns(true);
-
-        registrar.getStrategyParamsById.returns(stratParams);
-      });
 
       beforeEach(async function () {
         const endowDetails: AccountStorage.EndowmentStruct = {
@@ -381,6 +362,22 @@ describe("AccountsStrategy", function () {
 
         token.approve.returns(true);
         token.transfer.returns(true);
+
+        await wait(
+          state.setEndowmentTokenBalance(
+            ACCOUNT_ID,
+            token.address,
+            INITIAL_LOCK_BAL,
+            INITIAL_LIQ_BAL
+          )
+        );
+
+        const stratParams = {
+          ...DEFAULT_STRATEGY_PARAMS,
+          network: networkNameThat,
+          approvalState: StrategyApprovalState.APPROVED,
+        };
+        registrar.getStrategyParamsById.returns(stratParams);
       });
 
       it("makes all the correct external calls", async function () {
@@ -411,7 +408,7 @@ describe("AccountsStrategy", function () {
         expect(token.approve).to.have.been.calledWith(gasService.address, investRequest.gasFee);
         expect(gasService.payGasForContractCallWithToken).to.have.been.calledWith(
           facet.address,
-          stratParams.network,
+          networkNameThat,
           netInfoThat.router.toLowerCase(), // AddressToString.toString produces only lowercase constters
           payload,
           investRequest.token,
@@ -425,7 +422,7 @@ describe("AccountsStrategy", function () {
           BigNumber.from(investRequest.liquidAmt).add(BigNumber.from(investRequest.lockAmt))
         );
         expect(gateway.callContractWithToken).to.have.been.calledWith(
-          stratParams.network,
+          networkNameThat,
           netInfoThat.router.toLowerCase(),
           payload,
           investRequest.token,
@@ -471,12 +468,13 @@ describe("AccountsStrategy", function () {
       it("the strategy is not approved", async function () {
         const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
-          network: networkNameThis,
           approvalState: StrategyApprovalState.NOT_APPROVED,
         };
         registrar.getStrategyParamsById.returns(stratParams);
-        const endowDetails = DEFAULT_CHARITY_ENDOWMENT;
-        endowDetails.owner = owner.address;
+        const endowDetails = {
+          ...DEFAULT_CHARITY_ENDOWMENT,
+          owner: owner.address,
+        };
         await wait(state.setEndowmentDetails(1, endowDetails));
         await expect(facet.strategyRedeem(ACCOUNT_ID, DEFAULT_REDEEM_REQUEST)).to.be.revertedWith(
           "Strategy is not approved"
@@ -492,17 +490,6 @@ describe("AccountsStrategy", function () {
         lockAmt: LOCK_AMT,
         liquidAmt: LIQ_AMT,
       };
-
-      before(async function () {
-        registrar.isTokenAccepted.returns(true);
-
-        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
-          ...DEFAULT_STRATEGY_PARAMS,
-          network: networkNameThis,
-          approvalState: StrategyApprovalState.APPROVED,
-        };
-        registrar.getStrategyParamsById.returns(stratParams);
-      });
 
       beforeEach(async function () {
         const endowDetails = DEFAULT_CHARITY_ENDOWMENT;
@@ -525,6 +512,13 @@ describe("AccountsStrategy", function () {
         await wait(
           state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true)
         );
+
+        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
+          ...DEFAULT_STRATEGY_PARAMS,
+          network: networkNameThis,
+          approvalState: StrategyApprovalState.APPROVED,
+        };
+        registrar.getStrategyParamsById.returns(stratParams);
       });
 
       it("and the response is SUCCESS", async function () {
@@ -649,18 +643,7 @@ describe("AccountsStrategy", function () {
       const LOCK_AMT = 300;
       const LIQ_AMT = 200;
       const GAS_FEE = 100;
-      const stratParams = {
-        ...DEFAULT_STRATEGY_PARAMS,
-        network: networkNameThat,
-        approvalState: StrategyApprovalState.APPROVED,
-      };
       let endowDetails: AccountStorage.EndowmentStruct;
-
-      before(async function () {
-        registrar.isTokenAccepted.returns(true);
-
-        registrar.getStrategyParamsById.returns(stratParams);
-      });
 
       beforeEach(async function () {
         endowDetails = {
@@ -683,6 +666,13 @@ describe("AccountsStrategy", function () {
           },
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
+
+        const stratParams = {
+          ...DEFAULT_STRATEGY_PARAMS,
+          network: networkNameThat,
+          approvalState: StrategyApprovalState.APPROVED,
+        };
+        registrar.getStrategyParamsById.returns(stratParams);
       });
 
       it("makes all the correct external calls", async function () {
@@ -715,7 +705,7 @@ describe("AccountsStrategy", function () {
         expect(token.approve).to.have.been.calledWith(gasService.address, redeemRequest.gasFee);
         expect(gasService.payGasForContractCall).to.have.been.calledWith(
           facet.address,
-          stratParams.network,
+          networkNameThat,
           netInfoThat.router.toLowerCase(),
           payload,
           token.address,
@@ -723,7 +713,7 @@ describe("AccountsStrategy", function () {
           endowDetails.owner
         );
         expect(gateway.callContract).to.have.been.calledWith(
-          stratParams.network,
+          networkNameThat,
           netInfoThat.router.toLowerCase(),
           payload
         );
@@ -816,16 +806,6 @@ describe("AccountsStrategy", function () {
           redeemLiquid: true,
         };
 
-        before(async function () {
-          registrar.isTokenAccepted.returns(true);
-          const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
-            ...DEFAULT_STRATEGY_PARAMS,
-            network: networkNameThis,
-            approvalState: StrategyApprovalState.APPROVED,
-          };
-          registrar.getStrategyParamsById.returns(stratParams);
-        });
-
         beforeEach(async function () {
           const endowDetails: AccountStorage.EndowmentStruct = {
             ...DEFAULT_CHARITY_ENDOWMENT,
@@ -854,6 +834,13 @@ describe("AccountsStrategy", function () {
           await wait(
             state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true)
           );
+
+          const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
+            ...DEFAULT_STRATEGY_PARAMS,
+            network: networkNameThis,
+            approvalState: StrategyApprovalState.APPROVED,
+          };
+          registrar.getStrategyParamsById.returns(stratParams);
         });
 
         it("and the response is POSITION_EXITED", async function () {
@@ -920,14 +907,6 @@ describe("AccountsStrategy", function () {
         gasReceiver = await deployDummyGasService(owner);
         const gasFwdFactory = await smock.mock<GasFwd__factory>("GasFwd");
         gasFwd = await gasFwdFactory.deploy();
-
-        registrar.isTokenAccepted.returns(true);
-        const stratParams = {
-          ...DEFAULT_STRATEGY_PARAMS,
-          network: networkNameThat,
-          approvalState: StrategyApprovalState.APPROVED,
-        };
-        registrar.getStrategyParamsById.returns(stratParams);
       });
 
       beforeEach(async function () {
@@ -951,6 +930,13 @@ describe("AccountsStrategy", function () {
 
         await token.mint(gasFwd.address, GAS_FEE);
         await gasFwd.setVariable("accounts", facet.address);
+
+        const stratParams = {
+          ...DEFAULT_STRATEGY_PARAMS,
+          network: networkNameThat,
+          approvalState: StrategyApprovalState.APPROVED,
+        };
+        registrar.getStrategyParamsById.returns(stratParams);
       });
 
       it("makes all the correct external calls", async function () {
