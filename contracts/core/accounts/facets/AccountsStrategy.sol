@@ -264,10 +264,12 @@ contract AccountsStrategy is
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
         state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
         state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
+        emit EndowmentRedeemed(response.status);
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
         state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
         state.STATES[id].activeStrategies[redeemRequest.strategy] = false;
+        emit EndowmentRedeemed(response.status);
       } else {
         revert RedeemFailed(response.status);
       }
