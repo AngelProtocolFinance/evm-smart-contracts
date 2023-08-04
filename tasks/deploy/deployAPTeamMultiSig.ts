@@ -26,7 +26,7 @@ task("deploy:APTeamMultiSig", "Will deploy APTeamMultiSig contract")
         to: deployment.address,
         yes: true,
       });
-      await hre.run("manage:IndexFund:updateOwner", {
+      await hre.run("manage:IndexFund:transferOwnership", {
         to: deployment.address,
         yes: true,
       });

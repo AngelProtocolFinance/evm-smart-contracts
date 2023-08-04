@@ -98,8 +98,8 @@ task(
         registrarContract: registrarDeployment.address,
         yes: true,
       });
-      await hre.run("manage:IndexFund:updateRegistrar", {
-        newRegistrar: registrarDeployment.address,
+      await hre.run("manage:IndexFund:updateConfig", {
+        registrarContract: registrarDeployment.address,
         yes: true,
       });
       await hre.run("manage:GasFwdFactory:updateRegistrar", {

@@ -1,21 +1,25 @@
-import {task} from "hardhat/config";
+import {task, types} from "hardhat/config";
 import {APTeamMultiSig__factory, IndexFund__factory} from "typechain-types";
-import {confirmAction, getAddresses, getSigners, logger} from "utils";
+import {confirmAction, getAddresses, getSigners, logger, structToObject} from "utils";
 
 type TaskArgs = {
-  newConfig: {registrarContract: string; fundingGoal: number; fundingRotation: number};
+  registrarContract: string;
+  fundingGoal: number;
+  fundRotation: number;
   yes: boolean;
 };
 
 task("manage:IndexFund:updateConfig", "Will update the config of the IndexFund")
-  .addParam(
-    "newConfig",
-    "New Config. Registrar Contract address, funding rotation blocks & funding goal amount."
+  .addOptionalParam(
+    "registrarContract",
+    "New Registrar contract. Will do a local lookup from contract-address.json if none is provided.funding rotation blocks & funding goal amount."
   )
+  .addOptionalParam("fundingGoal", "Funding rotation blocks.", undefined, types.int)
+  .addOptionalParam("fundRotation", "Funding goal amount.", undefined, types.int)
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
-      let newConfig = taskArgs.newConfig;
+      const {yes, ...newConfig} = taskArgs;
 
       logger.divider();
       const addresses = await getAddresses(hre);
@@ -26,6 +30,12 @@ task("manage:IndexFund:updateConfig", "Will update the config of the IndexFund")
         addresses.indexFund.proxy,
         apTeamMultisigOwners[0]
       );
+      const struct = await indexFund.queryConfig();
+      const curConfig = structToObject(struct);
+      logger.out(curConfig);
+
+      logger.out("Config data to update:");
+      logger.out(newConfig);
 
       const isConfirmed =
         taskArgs.yes ||
@@ -34,18 +44,23 @@ task("manage:IndexFund:updateConfig", "Will update the config of the IndexFund")
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
+      logger.out("Updating config...");
       const apTeamMultiSig = APTeamMultiSig__factory.connect(
         addresses.multiSig.apTeam.proxy, // ensure connection to current owning APTeamMultiSig contract
         apTeamMultisigOwners[0]
       );
       const data = indexFund.interface.encodeFunctionData("updateConfig", [
-        newConfig.registrarContract,
-        newConfig.fundingRotation,
-        newConfig.fundingGoal,
+        newConfig.registrarContract || curConfig.registrarContract,
+        newConfig.fundRotation || curConfig.fundRotation,
+        newConfig.fundingGoal || curConfig.fundingGoal,
       ]);
       const tx = await apTeamMultiSig.submitTransaction(indexFund.address, 0, data, "0x");
       logger.out(`Tx hash: ${tx.hash}`);
       await tx.wait();
+
+      logger.out("New config:");
+      const updatedConfig = await indexFund.queryConfig();
+      logger.out(structToObject(updatedConfig));
     } catch (error) {
       logger.out(error, logger.Level.Error);
     }
