@@ -50,6 +50,7 @@ import {StrategyApprovalState, VaultActionStatus, genWallet, getChainId, getSign
 import {deployFacetAsProxy} from "./utils";
 import {BigNumber} from "ethers";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
+import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 
 use(smock.matchers);
 
@@ -152,6 +153,12 @@ describe("AccountsStrategy", function () {
       });
 
       it("the strategy is not approved", async function () {
+        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
+          ...DEFAULT_STRATEGY_PARAMS,
+          approvalState: StrategyApprovalState.NOT_APPROVED,
+        };
+        registrar.getStrategyParamsById.returns(stratParams);
+
         await wait(state.setEndowmentDetails(1, DEFAULT_CHARITY_ENDOWMENT));
         await expect(facet.strategyInvest(ACCOUNT_ID, DEFAULT_INVEST_REQUEST)).to.be.revertedWith(
           "Strategy is not approved"
@@ -169,7 +176,7 @@ describe("AccountsStrategy", function () {
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
-        let stratParams = {
+        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
           approvalState: StrategyApprovalState.APPROVED,
         };
@@ -195,7 +202,7 @@ describe("AccountsStrategy", function () {
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
-        let stratParams = {
+        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
           approvalState: StrategyApprovalState.APPROVED,
         };
@@ -211,7 +218,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("the token isn't accepted", async function () {
-        let stratParams = {
+        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
           approvalState: StrategyApprovalState.APPROVED,
         };
@@ -229,7 +236,7 @@ describe("AccountsStrategy", function () {
 
       before(async function () {
         registrar.isTokenAccepted.returns(true);
-        let stratParams = {
+        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
           network: networkNameThis,
           approvalState: StrategyApprovalState.APPROVED,
@@ -462,7 +469,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("the strategy is not approved", async function () {
-        let stratParams = {
+        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
           network: networkNameThis,
           approvalState: StrategyApprovalState.NOT_APPROVED,
@@ -489,7 +496,7 @@ describe("AccountsStrategy", function () {
       before(async function () {
         registrar.isTokenAccepted.returns(true);
 
-        let stratParams = {
+        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
           network: networkNameThis,
           approvalState: StrategyApprovalState.APPROVED,
@@ -732,13 +739,6 @@ describe("AccountsStrategy", function () {
       token = await deployDummyERC20(owner);
       gateway = await deployDummyGateway(owner);
       await wait(gateway.setTestTokenAddress(token.address));
-
-      let stratParams = {
-        ...DEFAULT_STRATEGY_PARAMS,
-        network: networkNameThis,
-        approvalState: StrategyApprovalState.NOT_APPROVED,
-      };
-      registrar.getStrategyParamsById.returns(stratParams);
     });
 
     describe("reverts when", async function () {
@@ -770,6 +770,12 @@ describe("AccountsStrategy", function () {
       });
 
       it("the strategy is not approved", async function () {
+        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
+          ...DEFAULT_STRATEGY_PARAMS,
+          approvalState: StrategyApprovalState.NOT_APPROVED,
+        };
+        registrar.getStrategyParamsById.returns(stratParams);
+
         let endowDetails: AccountStorage.EndowmentStruct = {
           ...DEFAULT_CHARITY_ENDOWMENT,
           owner: owner.address,
@@ -812,7 +818,7 @@ describe("AccountsStrategy", function () {
 
         before(async function () {
           registrar.isTokenAccepted.returns(true);
-          let stratParams = {
+          const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
             ...DEFAULT_STRATEGY_PARAMS,
             network: networkNameThis,
             approvalState: StrategyApprovalState.APPROVED,
@@ -997,13 +1003,6 @@ describe("AccountsStrategy", function () {
       token = await deployDummyERC20(owner);
       gateway = await deployDummyGateway(owner);
       await wait(gateway.setTestTokenAddress(token.address));
-
-      let stratParams = {
-        ...DEFAULT_STRATEGY_PARAMS,
-        network: networkNameThat,
-        approvalState: StrategyApprovalState.NOT_APPROVED,
-      };
-      registrar.getStrategyParamsById.returns(stratParams);
     });
 
     it("reverts in _execute if the call didn't originate from the expected chain", async function () {
