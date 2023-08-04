@@ -46,7 +46,7 @@ import {
 } from "typechain-types";
 import {IAccountsStrategy} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {StrategyApprovalState, VaultActionStatus, getChainId, getSigners} from "utils";
+import {StrategyApprovalState, VaultActionStatus, genWallet, getChainId, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 import {BigNumber} from "ethers";
 
@@ -722,24 +722,29 @@ describe("AccountsStrategy", function () {
     });
 
     describe("and calls axelar GMP", async function () {
-      let gasReceiver: DummyGasService;
-      let gasFwd: MockContract<GasFwd>;
+      let gasService: FakeContract<IAxelarGasService>;
+      let gasFwd: FakeContract<GasFwd>;
       const LOCK_AMT = 300;
       const LIQ_AMT = 200;
-      const INITIAL_LOCK_BAL = 0;
-      const INITIAL_LIQ_BAL = 0;
       const GAS_FEE = 100;
+      const stratParams = {
+        ...DEFAULT_STRATEGY_PARAMS,
+        network: "ThatNet",
+        approvalState: StrategyApprovalState.APPROVED,
+      };
+      let endowDetails: AccountStorage.EndowmentStruct;
 
       before(async function () {
-        gasReceiver = await deployDummyGasService(owner);
-        const gasFwdFactory = await smock.mock<GasFwd__factory>("GasFwd");
-        gasFwd = await gasFwdFactory.deploy();
+        gasService = await smock.fake<IAxelarGasService>(
+          IAxelarGasService__factory.createInterface()
+        );
+        gasFwd = await smock.fake<GasFwd>(new GasFwd__factory());
 
         const thisNet = {
           ...DEFAULT_NETWORK_INFO,
           chainId: await getChainId(hre),
           axelarGateway: gateway.address,
-          gasReceiver: gasReceiver.address,
+          gasReceiver: gasService.address,
         };
         const thatNet = {
           ...DEFAULT_NETWORK_INFO,
@@ -750,11 +755,7 @@ describe("AccountsStrategy", function () {
         registrar.queryNetworkConnection.whenCalledWith("ThatNet").returns(thatNet);
 
         registrar.isTokenAccepted.returns(true);
-        const stratParams = {
-          ...DEFAULT_STRATEGY_PARAMS,
-          network: "ThatNet",
-          approvalState: StrategyApprovalState.APPROVED,
-        };
+
         registrar.getStrategyParamsById.returns(stratParams);
       });
 
@@ -766,7 +767,11 @@ describe("AccountsStrategy", function () {
         };
         await wait(state.setConfig(config));
 
-        let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
+        endowDetails = {
+          ...DEFAULT_CHARITY_ENDOWMENT,
+          gasFwd: gasFwd.address,
+          owner: genWallet().address,
+        };
         endowDetails.settingsController.liquidInvestmentManagement = {
           locked: false,
           delegate: {
@@ -781,10 +786,7 @@ describe("AccountsStrategy", function () {
             expires: 0,
           },
         };
-        endowDetails.gasFwd = gasFwd.address;
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
-
-        await gasFwd.setVariable("accounts", facet.address);
       });
 
       it("makes all the correct external calls", async function () {
@@ -809,22 +811,26 @@ describe("AccountsStrategy", function () {
           hre
         );
 
-        expect(await facet.strategyRedeem(ACCOUNT_ID, redeemRequest))
-          .to.emit(gasReceiver, "GasPaid")
-          .withArgs(
-            facet.address,
-            "ThatNet",
-            router.address,
-            payload,
-            token.address,
-            GAS_FEE,
-            gasFwd.address
-          )
-          .to.emit(gateway, "ContractCall")
-          .withArgs("ThatNet", router.address, payload);
+        token.approve.returns(true);
 
-        let gasReceiverApproved = await token.allowance(facet.address, gasReceiver.address);
-        expect(gasReceiverApproved).to.equal(GAS_FEE);
+        await expect(facet.strategyRedeem(ACCOUNT_ID, redeemRequest)).to.not.be.reverted;
+
+        expect(gasFwd.payForGas).to.have.been.calledWith(token.address, redeemRequest.gasFee);
+        expect(token.approve).to.have.been.calledWith(gasService.address, redeemRequest.gasFee);
+        expect(gasService.payGasForContractCall).to.have.been.calledWith(
+          facet.address,
+          stratParams.network,
+          router.address.toLowerCase(),
+          payload,
+          token.address,
+          redeemRequest.gasFee,
+          endowDetails.owner
+        );
+        expect(gateway.callContract).to.have.been.calledWith(
+          stratParams.network,
+          router.address.toLowerCase(),
+          payload
+        );
       });
     });
   });
