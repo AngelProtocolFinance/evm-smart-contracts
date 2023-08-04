@@ -3,6 +3,7 @@
 pragma solidity >=0.8.8;
 
 import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
+import {IAccountsStrategy} from "../accounts/interfaces/IAccountsStrategy.sol";
 import {IRouter} from "./IRouter.sol";
 import {RouterLib} from "./RouterLib.sol";
 import {IVault} from "../vault/interfaces/IVault.sol";
@@ -15,29 +16,21 @@ import {AxelarExecutable} from "../../axelar/AxelarExecutable.sol";
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
 import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService.sol";
 import {IAxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarExecutable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract Router is IRouter, AxelarExecutable {
+contract Router is IRouter, Initializable, AxelarExecutable {
   using SafeERC20 for IERC20Metadata;
   string public chain;
   ILocalRegistrar public registrar;
-  IAxelarGasService public gasReceiver;
-
   uint256 constant PRECISION = 10 ** 6;
 
   /*///////////////////////////////////////////////
                         PROXY INIT
     */ ///////////////////////////////////////////////
 
-  function initialize(
-    string calldata _chain,
-    address _gateway,
-    address _gasReceiver,
-    address _registrar
-  ) public initializer {
+  function initialize(string calldata _chain, address _registrar) public initializer {
     chain = _chain;
     registrar = ILocalRegistrar(_registrar);
-    gasReceiver = IAxelarGasService(_gasReceiver);
-    __AxelarExecutable_init_unchained(_gateway);
   }
 
   /*///////////////////////////////////////////////
@@ -68,7 +61,7 @@ contract Router is IRouter, AxelarExecutable {
     // check that at least one vault is expected to receive a deposit
     require(action.lockAmt > 0 || action.liqAmt > 0, "No vault deposit specified");
     // check that token is accepted by angel protocol
-    address tokenAddress = gateway.tokenAddresses(tokenSymbol);
+    address tokenAddress = _gateway().tokenAddresses(tokenSymbol);
     require(registrar.isTokenAccepted(tokenAddress), "Token not accepted");
     // Get parameters from registrar if approved
     require(
@@ -156,7 +149,7 @@ contract Router is IRouter, AxelarExecutable {
       _action.accountIds[0],
       _action.lockAmt
     );
-    IERC20Metadata(_action.token).safeTransferFrom(
+    IERC20Metadata(_redemptionLock.token).safeTransferFrom(
       _params.Locked.vaultAddr,
       address(this),
       _redemptionLock.amount
@@ -166,19 +159,20 @@ contract Router is IRouter, AxelarExecutable {
       _action.accountIds[0],
       _action.liqAmt
     );
-
-    IERC20Metadata(_action.token).safeTransferFrom(
+    IERC20Metadata(_redemptionLiquid.token).safeTransferFrom(
       _params.Liquid.vaultAddr,
       address(this),
       _redemptionLiquid.amount
     );
 
+    // Update _action with this chain's token address.
+    // Liquid token should ALWAYS == Locked token
+    _action.token = _redemptionLiquid.token;
+
     // Pack and send the tokens back to Accounts contract
     uint256 _redeemedAmt = _redemptionLock.amount + _redemptionLiquid.amount;
     _action.lockAmt = _redemptionLock.amount;
     _action.liqAmt = _redemptionLiquid.amount;
-    _action = _prepareToSendTokens(_action, _redeemedAmt);
-    emit Redeem(_action, _redeemedAmt);
     if (
       (_redemptionLock.status == IVault.VaultActionStatus.POSITION_EXITED) &&
       (_redemptionLiquid.status == IVault.VaultActionStatus.POSITION_EXITED)
@@ -187,6 +181,8 @@ contract Router is IRouter, AxelarExecutable {
     } else {
       _action.status = IVault.VaultActionStatus.SUCCESS;
     }
+    _action = _prepareToSendTokens(_action, _redeemedAmt);
+    emit Redeem(_action, _redeemedAmt);
     return _action;
   }
 
@@ -221,9 +217,9 @@ contract Router is IRouter, AxelarExecutable {
 
     // Pack and send the tokens back
     uint256 _redeemedAmt = lockResponse.amount + liqResponse.amount;
+    _action.status = IVault.VaultActionStatus.POSITION_EXITED;
     _action = _prepareToSendTokens(_action, _redeemedAmt);
     emit Redeem(_action, _redeemedAmt);
-    _action.status = IVault.VaultActionStatus.POSITION_EXITED;
     return _action;
   }
 
@@ -241,7 +237,7 @@ contract Router is IRouter, AxelarExecutable {
   }
 
   /*////////////////////////////////////////////////
-                        AXELAR IMPL.
+                      AXELAR IMPL.
   */ ////////////////////////////////////////////////
 
   function executeLocal(
@@ -364,15 +360,15 @@ contract Router is IRouter, AxelarExecutable {
     address gasToken,
     uint256 gasFeeAmt
   ) public onlySelf {
-    address tokenAddress = gateway.tokenAddresses(symbol);
-    IERC20Metadata(tokenAddress).safeApprove(address(gateway), amount);
-    IERC20Metadata(gasToken).safeApprove(address(gasReceiver), gasFeeAmt);
+    address tokenAddress = _gateway().tokenAddresses(symbol);
+    IERC20Metadata(tokenAddress).safeApprove(address(_gateway()), amount);
+    IERC20Metadata(gasToken).safeApprove(address(_gasReceiver()), gasFeeAmt);
 
     LibAccounts.FeeSetting memory feeSetting = registrar.getFeeSettingsByFeeType(
       LibAccounts.FeeTypes.Default
     );
 
-    gasReceiver.payGasForContractCallWithToken(
+    _gasReceiver().payGasForContractCallWithToken(
       address(this),
       destinationChain,
       destinationAddress,
@@ -384,7 +380,7 @@ contract Router is IRouter, AxelarExecutable {
       feeSetting.payoutAddress
     );
 
-    gateway.callContractWithToken(destinationChain, destinationAddress, payload, symbol, amount);
+    _gateway().callContractWithToken(destinationChain, destinationAddress, payload, symbol, amount);
   }
 
   function _executeWithToken(
@@ -407,8 +403,14 @@ contract Router is IRouter, AxelarExecutable {
     IVault.VaultActionData memory action = RouterLib.unpackCalldata(payload);
 
     // grab tokens sent cross-chain
-    address tokenAddress = gateway.tokenAddresses(tokenSymbol);
-    IERC20Metadata(tokenAddress).safeTransferFrom(address(gateway), address(this), amount);
+    address tokenAddress = _gateway().tokenAddresses(tokenSymbol);
+    IERC20Metadata(tokenAddress).safeTransferFrom(address(_gateway()), address(this), amount);
+
+    // update action.token address to reflect this chain's token address
+    action.token = tokenAddress;
+
+    // update action.destinationChain to source chain in case of failure
+    action.destinationChain = sourceChain;
 
     // Leverage this.call() to enable try/catch logic
     try this.deposit(action, tokenSymbol, amount) {
@@ -443,7 +445,20 @@ contract Router is IRouter, AxelarExecutable {
       action.strategyId
     );
 
+    // update action.destinationChain to source chain for token redemptions
+    action.destinationChain = sourceChain;
+
     // Switch for calling appropriate vault/method
     return _callSwitch(params, action);
+  }
+
+  function _gateway() internal view override returns (IAxelarGateway) {
+    IAccountsStrategy.NetworkInfo memory network = registrar.queryNetworkConnection(chain);
+    return IAxelarGateway(network.axelarGateway);
+  }
+
+  function _gasReceiver() internal view returns (IAxelarGasService) {
+    IAccountsStrategy.NetworkInfo memory network = registrar.queryNetworkConnection(chain);
+    return IAxelarGasService(network.gasReceiver);
   }
 }

@@ -60,12 +60,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
       );
 
       // Router deployment will require updating Registrar config's "router" address
-      const router = await deployRouter(
-        thirdPartyAddresses.axelarGateway.address,
-        thirdPartyAddresses.axelarGasService.address,
-        registrar?.address,
-        hre
-      );
+      const router = await deployRouter(registrar?.address, hre);
 
       const accounts = await deployAccountsDiamond(
         apTeamMultisig?.address,

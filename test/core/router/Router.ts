@@ -1,27 +1,33 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {expect} from "chai";
+import {FakeContract, MockContract, smock} from "@defi-wonderland/smock";
+import {expect, use} from "chai";
 import hre from "hardhat";
 import {
-  deployDummyERC20,
-  deployDummyGasService,
-  deployDummyGateway,
-  deployDummyVault,
-  deployRegistrarAsProxy,
   packActionData,
+  DEFAULT_NETWORK_INFO,
+  DEFAULT_ACTION_DATA,
+  DEFAULT_STRATEGY_PARAMS,
+  DEFAULT_STRATEGY_SELECTOR,
 } from "test/utils";
 import {
   DummyERC20,
+  DummyERC20__factory,
   DummyGasService,
+  DummyGasService__factory,
   DummyGateway,
+  DummyGateway__factory,
   DummyVault,
+  DummyVault__factory,
   ITransparentUpgradeableProxy__factory,
   Registrar,
+  Registrar__factory,
   Router,
   Router__factory,
 } from "typechain-types";
-import {StrategyApprovalState, getSigners} from "utils";
-import {LocalRegistrarLib} from "../../../typechain-types/contracts/core/registrar/LocalRegistrar";
-import {IVault} from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
+import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
+import {getSigners, StrategyApprovalState, VaultActionStatus} from "utils";
+
+use(smock.matchers);
 
 describe("Router", function () {
   const {ethers} = hre;
@@ -29,10 +35,6 @@ describe("Router", function () {
   let admin: SignerWithAddress;
   let user: SignerWithAddress;
   let collector: SignerWithAddress;
-  let defaultApParams = {
-    routerAddr: ethers.constants.AddressZero,
-    refundAddr: ethers.constants.AddressZero,
-  } as LocalRegistrarLib.AngelProtocolParamsStruct;
   let deadAddr = "0x000000000000000000000000000000000000dead";
   const originatingChain = "polygon";
   const localChain = "ethereum";
@@ -46,18 +48,7 @@ describe("Router", function () {
     collector = apTeam2;
   });
 
-  async function deployRouterAsProxy(
-    gatewayAddress: string = "0xe432150cce91c13a887f7D836923d5597adD8E31",
-    gasRecvAddress: string = "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
-    registrar?: Registrar
-  ): Promise<Router> {
-    if (!registrar) {
-      registrar = await deployRegistrarAsProxy(owner, admin);
-    }
-    let apParams = defaultApParams;
-    apParams.refundAddr = collector.address;
-    await registrar.setAngelProtocolParams(apParams);
-
+  async function deployRouterAsProxy(registrar: string): Promise<Router> {
     const RouterFactory = new Router__factory(owner);
     const RouterImpl = await RouterFactory.deploy();
     await RouterImpl.deployed();
@@ -65,9 +56,7 @@ describe("Router", function () {
     const ProxyContract = await ethers.getContractFactory("ProxyContract");
     const RouterInitData = RouterImpl.interface.encodeFunctionData("initialize", [
       localChain,
-      gatewayAddress,
-      gasRecvAddress,
-      registrar.address,
+      registrar,
     ]);
 
     const RouterProxy = await ProxyContract.deploy(
@@ -89,56 +78,49 @@ describe("Router", function () {
   }
 
   describe("Deployment", function () {
+    let registrar: FakeContract<Registrar>;
     let router: Router;
     beforeEach(async function () {
-      router = await deployRouterAsProxy();
+      registrar = await smock.fake<Registrar>(new Registrar__factory());
+      router = await deployRouterAsProxy(registrar.address);
     });
 
     it("Should successfully deploy the contract as an upgradable proxy", async function () {
       expect(router.address);
       expect(await upgradeProxy(admin, router.address));
     });
-
-    it("Accepts and initializes the gateway and gas receiver as part of init", async function () {
-      const gateway = "0x4F4495243837681061C4743b74B3eEdf548D56A5";
-      const gasRecv = "0x2d5d7d31F671F86C782533cc367F14109a082712";
-      router = await deployRouterAsProxy(gateway, gasRecv);
-      expect(await router.gateway()).to.equal(gateway);
-      expect(await router.gasReceiver()).to.equal(gasRecv);
-    });
   });
 
   describe("Protected methods", function () {
-    let lockedVault: DummyVault;
-    let liquidVault: DummyVault;
-    let registrar: Registrar;
-    let gateway: DummyGateway;
-    let token: DummyERC20;
+    let registrar: FakeContract<Registrar>;
+    let gateway: FakeContract<DummyGateway>;
+    let gasService: FakeContract<DummyGasService>;
+    let token: FakeContract<DummyERC20>;
     let router: Router;
-    let gasService: DummyGasService;
-    before(async function () {
-      token = await deployDummyERC20(owner);
-      gateway = await deployDummyGateway(owner);
-      lockedVault = await deployDummyVault(owner, {
-        baseToken: token.address,
-        yieldToken: token.address,
-        vaultType: 0,
-      });
-      liquidVault = await deployDummyVault(owner, {
-        baseToken: token.address,
-        yieldToken: token.address,
-        vaultType: 1,
-      });
-      gasService = await deployDummyGasService(owner);
-      token = await deployDummyERC20(owner);
-      registrar = await deployRegistrarAsProxy(owner, admin);
-      await gateway.setTestTokenAddress(token.address);
-      await registrar.setTokenAccepted(token.address, true);
-      await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract);
-      await registrar.setAccountsContractAddressByChain(localChain, owner.address);
-    });
+
     beforeEach(async function () {
-      router = await deployRouterAsProxy(gateway.address, gasService.address, registrar);
+      token = await smock.fake<DummyERC20>(new DummyERC20__factory());
+      registrar = await smock.fake<Registrar>(new Registrar__factory());
+      gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
+      gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
+
+      const APParams = {routerAddr: ethers.constants.AddressZero, refundAddr: collector.address};
+      const networkParams = {
+        ...DEFAULT_NETWORK_INFO,
+        axelarGateway: gateway.address,
+        gasReceiver: gasService.address,
+      };
+
+      gateway.validateContractCall.returns(true);
+      gateway.validateContractCallAndMint.returns(true);
+      registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
+      registrar.getAngelProtocolParams.returns(APParams);
+      registrar.queryNetworkConnection.returns(networkParams);
+      registrar.getAccountsContractAddressByChain
+        .whenCalledWith(originatingChain)
+        .returns(accountsContract);
+      registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
+      router = await deployRouterAsProxy(registrar.address);
     });
 
     it("Does not allow a non-accounts contract address on another chain to call executeWithToken via GMP", async function () {
@@ -213,56 +195,57 @@ describe("Router", function () {
   });
 
   describe("Correctly triggers the refund process on failed Deposit", function () {
-    let lockedVault: DummyVault;
-    let liquidVault: DummyVault;
-    let registrar: Registrar;
-    let gateway: DummyGateway;
-    let token: DummyERC20;
+    let liquidVault: FakeContract<DummyVault>;
+    let registrar: FakeContract<Registrar>;
+    let gateway: FakeContract<DummyGateway>;
+    let gasService: FakeContract<DummyGasService>;
+    let token: FakeContract<DummyERC20>;
     let router: Router;
-    let gasService: DummyGasService;
-    const getDefaultActionData = () =>
-      ({
-        destinationChain: originatingChain,
-        strategyId: "0xffffffff",
-        selector: "",
-        accountIds: [1],
-        token: "",
-        lockAmt: 111,
-        liqAmt: 222,
-        status: 0, // unprocessed
-      }) as IVault.VaultActionDataStruct;
+    const LOCK_AMT = 111;
+    const LIQ_AMT = 222;
+    const GAS_COST = 5;
+    const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
+    const getDefaultActionData = () => ({
+      ...DEFAULT_ACTION_DATA,
+      accountIds: [1],
+      lockAmt: LOCK_AMT,
+      liqAmt: LIQ_AMT,
+    });
+
+    beforeEach(async function () {
+      token = await smock.fake<DummyERC20>(new DummyERC20__factory());
+      registrar = await smock.fake<Registrar>(new Registrar__factory());
+      gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
+      gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
+      liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
+
+      const APParams = {routerAddr: ethers.constants.AddressZero, refundAddr: collector.address};
+      const networkParams = {
+        ...DEFAULT_NETWORK_INFO,
+        axelarGateway: gateway.address,
+        gasReceiver: gasService.address,
+      };
+
+      gateway.validateContractCall.returns(true);
+      gateway.validateContractCallAndMint.returns(true);
+      gateway.tokenAddresses.returns(token.address);
+      registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
+      registrar.getAngelProtocolParams.returns(APParams);
+      registrar.queryNetworkConnection.returns(networkParams);
+      registrar.getAccountsContractAddressByChain
+        .whenCalledWith(originatingChain)
+        .returns(accountsContract);
+      registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
+      registrar.getGasByToken.whenCalledWith(token.address).returns(GAS_COST);
+      token.transfer.returns(true);
+      token.transferFrom.returns(true);
+      token.approve.returns(true);
+      token.approveFor.returns(true);
+      token.symbol.returns("TKN");
+      router = await deployRouterAsProxy(registrar.address);
+    });
 
     describe("and the refund call is successful back through axelar", function () {
-      before(async function () {
-        token = await deployDummyERC20(owner);
-        lockedVault = await deployDummyVault(owner, {
-          baseToken: token.address,
-          yieldToken: token.address,
-          vaultType: 0,
-        });
-        liquidVault = await deployDummyVault(owner, {
-          baseToken: token.address,
-          yieldToken: token.address,
-          vaultType: 1,
-        });
-        gateway = await deployDummyGateway(owner);
-        gasService = await deployDummyGasService(owner);
-        registrar = await deployRegistrarAsProxy(owner, admin);
-        await gateway.setTestTokenAddress(token.address);
-        await registrar.setTokenAccepted(token.address, true);
-        await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract);
-      });
-
-      beforeEach(async function () {
-        router = await deployRouterAsProxy(gateway.address, gasService.address, registrar);
-        await token.mint(gateway.address, 333);
-        await token.approveFor(gateway.address, router.address, 333);
-        let collectorBal = await token.balanceOf(collector.address);
-        if (collectorBal.gt(0)) {
-          await token.connect(collector).transfer(deadAddr, collectorBal);
-        }
-      });
-
       it("when more than one account is specified", async function () {
         let actionData = getDefaultActionData();
         actionData.selector = liquidVault.interface.getSighash("deposit");
@@ -275,14 +258,14 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            await token.symbol(),
-            333
+            "TKN",
+            TOTAL_AMT
           )
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Only one account allowed");
-        let gatewayAllowance = await token.allowance(router.address, gateway.address);
-        expect(gatewayAllowance).to.equal(333);
+        expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT - GAS_COST);
+        expect(token.approve).to.have.been.calledWith(gasService.address, GAS_COST);
       });
 
       it("when an action other than deposit is called", async function () {
@@ -296,14 +279,14 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            await token.symbol(),
+            "TKN",
             333
           )
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Only deposit accepts tokens");
-        let gatewayAllowance = await token.allowance(router.address, gateway.address);
-        expect(gatewayAllowance).to.equal(333);
+        expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT - GAS_COST);
+        expect(token.approve).to.have.been.calledWith(gasService.address, GAS_COST);
       });
 
       it("when the payload amt doesn't match the GMP amt", async function () {
@@ -317,14 +300,13 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            await token.symbol(),
-            332
+            "TKN",
+            TOTAL_AMT - 1
           )
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Amount mismatch");
-        let gatewayAllowance = await token.allowance(router.address, gateway.address);
-        expect(gatewayAllowance).to.equal(332);
+        TOTAL_AMT;
       });
 
       it("when the vault values are both zero", async function () {
@@ -340,7 +322,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            await token.symbol(),
+            "TKN",
             0
           )
         )
@@ -352,7 +334,7 @@ describe("Router", function () {
         let actionData = getDefaultActionData();
         actionData.selector = liquidVault.interface.getSighash("deposit");
         actionData.token = token.address;
-        await registrar.setTokenAccepted(token.address, false);
+        registrar.isTokenAccepted.whenCalledWith(token.address).returns(false);
         let packedData = await packActionData(actionData);
         await expect(
           router.executeWithToken(
@@ -360,15 +342,14 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            await token.symbol(),
-            333
+            "TKN",
+            TOTAL_AMT
           )
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Token not accepted");
-        let gatewayAllowance = await token.allowance(router.address, gateway.address);
-        expect(gatewayAllowance).to.equal(333);
-        await registrar.setTokenAccepted(token.address, true);
+        expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT - GAS_COST);
+        expect(token.approve).to.have.been.calledWith(gasService.address, GAS_COST);
       });
 
       it("when the strategy is not approved", async function () {
@@ -382,22 +363,20 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            await token.symbol(),
-            333
+            "TKN",
+            TOTAL_AMT
           )
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Strategy not approved");
-        let gatewayAllowance = await token.allowance(router.address, gateway.address);
-        expect(gatewayAllowance).to.equal(333);
+        expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT - GAS_COST);
+        expect(token.approve).to.have.been.calledWith(gasService.address, GAS_COST);
       });
 
       it("when the strategy is not approved for execute", async function () {
         let actionData = getDefaultActionData();
         actionData.selector = liquidVault.interface.getSighash("deposit");
         actionData.token = token.address;
-        await gateway.setTestTokenAddress(token.address);
-        await registrar.setTokenAccepted(token.address, true);
         actionData.selector = liquidVault.interface.getSighash("redeem");
         let packedData = await packActionData(actionData);
         await expect(
@@ -412,34 +391,56 @@ describe("Router", function () {
     });
 
     describe("and the refund call fails through axelar and falls back to the refund collector", async function () {
-      before(async function () {
-        token = await deployDummyERC20(owner);
-        lockedVault = await deployDummyVault(owner, {
-          baseToken: token.address,
-          yieldToken: token.address,
-          vaultType: 0,
-        });
-        liquidVault = await deployDummyVault(owner, {
-          baseToken: token.address,
-          yieldToken: token.address,
-          vaultType: 1,
-        });
-        gateway = await deployDummyGateway(owner);
-        gasService = await deployDummyGasService(owner);
-        registrar = await deployRegistrarAsProxy(owner, admin);
-        await gateway.setTestTokenAddress(token.address);
-        await registrar.setTokenAccepted(token.address, true);
-        await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract);
+      let liquidVault: FakeContract<DummyVault>;
+      let registrar: FakeContract<Registrar>;
+      let gateway: FakeContract<DummyGateway>;
+      let gasService: FakeContract<DummyGasService>;
+      let token: FakeContract<DummyERC20>;
+      let router: Router;
+      const LOCK_AMT = 111;
+      const LIQ_AMT = 222;
+      const GAS_COST = 5;
+      const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
+      const getDefaultActionData = () => ({
+        ...DEFAULT_ACTION_DATA,
+        accountIds: [1],
+        lockAmt: LOCK_AMT,
+        liqAmt: LIQ_AMT,
       });
 
       beforeEach(async function () {
-        router = await deployRouterAsProxy(gateway.address, undefined, registrar); // set gas service to undef so that the sendTokens call fails
-        await token.mint(gateway.address, 333);
-        await token.approveFor(gateway.address, router.address, 333);
-        let collectorBal = await token.balanceOf(collector.address);
-        if (collectorBal.gt(0)) {
-          await token.connect(collector).transfer(deadAddr, collectorBal);
-        }
+        token = await smock.fake<DummyERC20>(new DummyERC20__factory());
+        registrar = await smock.fake<Registrar>(new Registrar__factory());
+        gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
+        gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
+        liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
+
+        const APParams = {routerAddr: ethers.constants.AddressZero, refundAddr: collector.address};
+        const networkParams = {
+          ...DEFAULT_NETWORK_INFO,
+          axelarGateway: gateway.address,
+          gasReceiver: gasService.address,
+        };
+
+        gateway.validateContractCall.returns(true);
+        gateway.validateContractCallAndMint.returns(true);
+        gateway.tokenAddresses.returns(token.address);
+        registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
+        registrar.getAngelProtocolParams.returns(APParams);
+        registrar.queryNetworkConnection.returns(networkParams);
+        registrar.getAccountsContractAddressByChain
+          .whenCalledWith(originatingChain)
+          .returns(accountsContract);
+        registrar.getAccountsContractAddressByChain
+          .whenCalledWith(localChain)
+          .returns(owner.address);
+        registrar.getGasByToken.whenCalledWith(token.address).returns(GAS_COST);
+        token.transfer.returns(true);
+        token.transferFrom.returns(true);
+        token.approve.returns(false);
+        token.approveFor.returns(false);
+        token.symbol.returns("TKN");
+        router = await deployRouterAsProxy(registrar.address);
       });
 
       it("when more than one account is specified", async function () {
@@ -454,19 +455,17 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            await token.symbol(),
-            333
+            token.symbol(),
+            TOTAL_AMT
           )
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Only one account allowed");
-        let collectorBal = await token.balanceOf(collector.address);
-        expect(collectorBal).to.equal(333);
+        expect(token.transfer).to.have.been.calledWith(collector.address, TOTAL_AMT);
       });
 
       it("when an action other than deposit is called", async function () {
         let actionData = getDefaultActionData();
-        actionData.selector = liquidVault.interface.getSighash("deposit");
         actionData.token = token.address;
         actionData.selector = liquidVault.interface.getSighash("redeem");
         let packedData = await packActionData(actionData);
@@ -476,14 +475,13 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            await token.symbol(),
-            333
+            token.symbol(),
+            TOTAL_AMT
           )
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Only deposit accepts tokens");
-        let collectorBal = await token.balanceOf(collector.address);
-        expect(collectorBal).to.equal(333);
+        expect(token.transfer).to.have.been.calledWith(collector.address, TOTAL_AMT);
       });
 
       it("when the payload amt doesn't match the GMP amt", async function () {
@@ -497,14 +495,13 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            await token.symbol(),
-            332
+            token.symbol(),
+            TOTAL_AMT - 1
           )
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Amount mismatch");
-        let collectorBal = await token.balanceOf(collector.address);
-        expect(collectorBal).to.equal(332);
+        expect(token.transfer).to.have.been.calledWith(collector.address, TOTAL_AMT - 1);
       });
 
       it("when the vault values are both zero", async function () {
@@ -532,7 +529,7 @@ describe("Router", function () {
         let actionData = getDefaultActionData();
         actionData.selector = liquidVault.interface.getSighash("deposit");
         actionData.token = token.address;
-        await registrar.setTokenAccepted(token.address, false);
+        registrar.isTokenAccepted.whenCalledWith(token.address).returns(false);
         let packedData = await packActionData(actionData);
         await expect(
           router.executeWithToken(
@@ -540,15 +537,13 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            await token.symbol(),
-            333
+            token.symbol(),
+            TOTAL_AMT
           )
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Token not accepted");
-        let collectorBal = await token.balanceOf(collector.address);
-        expect(collectorBal).to.equal(333);
-        await registrar.setTokenAccepted(token.address, true);
+        expect(token.transfer).to.have.been.calledWith(collector.address, TOTAL_AMT);
       });
 
       it("when the strategy is not approved", async function () {
@@ -562,22 +557,18 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            await token.symbol(),
-            333
+            token.symbol(),
+            TOTAL_AMT
           )
         )
           .to.emit(router, "ErrorLogged")
           .withArgs(Array<any>, "Strategy not approved");
-        let collectorBal = await token.balanceOf(collector.address);
-        expect(collectorBal).to.equal(333);
+        expect(token.transfer).to.have.been.calledWith(collector.address, TOTAL_AMT);
       });
 
       it("when the strategy is not approved for execute", async function () {
         let actionData = getDefaultActionData();
-        actionData.selector = liquidVault.interface.getSighash("deposit");
         actionData.token = token.address;
-        await gateway.setTestTokenAddress(token.address);
-        await registrar.setTokenAccepted(token.address, true);
         actionData.selector = liquidVault.interface.getSighash("redeem");
         let packedData = await packActionData(actionData);
         await expect(
@@ -593,293 +584,329 @@ describe("Router", function () {
   });
 
   describe("Routes messages according to payload instructions", function () {
-    let lockedVault: DummyVault;
-    let liquidVault: DummyVault;
-    let registrar: Registrar;
-    let gateway: DummyGateway;
-    let gasService: DummyGasService;
-    let token: DummyERC20;
+    let lockedVault: FakeContract<DummyVault>;
+    let liquidVault: FakeContract<DummyVault>;
+    let registrar: FakeContract<Registrar>;
+    let gateway: FakeContract<DummyGateway>;
+    let gasService: FakeContract<DummyGasService>;
+    let token: FakeContract<DummyERC20>;
     let router: Router;
-    const LOCKAMT = 111;
-    const LIQAMT = 222;
-    let actionData = {
-      destinationChain: originatingChain,
-      strategyId: "0xffffffff",
-      selector: "",
+    const LOCK_AMT = 111;
+    const LIQ_AMT = 222;
+    const GAS_COST = 5;
+    const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
+    const getDefaultActionData = () => ({
+      ...DEFAULT_ACTION_DATA,
       accountIds: [1],
-      token: "",
-      lockAmt: LOCKAMT,
-      liqAmt: LIQAMT,
-      status: 0,
-    } as IVault.VaultActionDataStruct;
-
-    before(async function () {
-      gateway = await deployDummyGateway(owner);
-      gasService = await deployDummyGasService(owner);
-      token = await deployDummyERC20(owner);
-      registrar = await deployRegistrarAsProxy(owner, admin);
-      await registrar.setTokenAccepted(token.address, true);
-      await gateway.setTestTokenAddress(token.address);
-      await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract);
-      actionData.token = token.address;
-      lockedVault = await deployDummyVault(owner, {
-        baseToken: token.address,
-        yieldToken: token.address,
-        vaultType: 0,
-      });
-      liquidVault = await deployDummyVault(owner, {
-        baseToken: token.address,
-        yieldToken: token.address,
-        vaultType: 1,
-      });
-      await registrar.setStrategyParams(
-        actionData.strategyId,
-        originatingChain,
-        lockedVault.address,
-        liquidVault.address,
-        StrategyApprovalState.APPROVED
-      );
+      lockAmt: LOCK_AMT,
+      liqAmt: LIQ_AMT,
     });
 
     beforeEach(async function () {
-      router = await deployRouterAsProxy(gateway.address, gasService.address, registrar);
-      await registrar.setAngelProtocolParams({
-        routerAddr: router.address,
-        refundAddr: owner.address,
-      });
+      token = await smock.fake<DummyERC20>(new DummyERC20__factory());
+      registrar = await smock.fake<Registrar>(new Registrar__factory());
+      gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
+      gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
+      lockedVault = await smock.fake<DummyVault>(new DummyVault__factory());
+      liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
+
+      const APParams = {routerAddr: ethers.constants.AddressZero, refundAddr: collector.address};
+      const networkParams = {
+        ...DEFAULT_NETWORK_INFO,
+        axelarGateway: gateway.address,
+        gasReceiver: gasService.address,
+      };
+      const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
+        approvalState: StrategyApprovalState.APPROVED,
+        network: localChain,
+        Locked: {
+          Type: 0,
+          vaultAddr: lockedVault.address,
+        },
+        Liquid: {
+          Type: 1,
+          vaultAddr: liquidVault.address,
+        },
+      };
+
+      gateway.validateContractCall.returns(true);
+      gateway.validateContractCallAndMint.returns(true);
+      gateway.tokenAddresses.returns(token.address);
+      registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
+      registrar.getAngelProtocolParams.returns(APParams);
+      registrar.queryNetworkConnection.returns(networkParams);
+      registrar.getAccountsContractAddressByChain
+        .whenCalledWith(originatingChain)
+        .returns(accountsContract);
+      registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
+      registrar.getGasByToken.whenCalledWith(token.address).returns(GAS_COST);
+      registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
+      registrar.getStrategyParamsById.returns(stratParams);
+      token.transfer.returns(true);
+      token.transferFrom.returns(true);
+      token.approve.returns(true);
+      token.approveFor.returns(true);
+      token.symbol.returns("TKN");
+      router = await deployRouterAsProxy(registrar.address);
     });
 
     it("correctly calls depost", async function () {
-      await token.mint(gateway.address, LOCKAMT + LIQAMT);
-      await token.approveFor(gateway.address, router.address, LOCKAMT + LIQAMT);
+      let actionData = getDefaultActionData();
       actionData.selector = liquidVault.interface.getSighash("deposit");
+      actionData.token = token.address;
       let packedData = await packActionData(actionData);
-      await expect(
-        router.executeWithToken(
+      expect(
+        await router.executeWithToken(
           ethers.utils.formatBytes32String("true"),
           originatingChain,
           accountsContract,
           packedData,
-          await token.symbol(),
-          333
+          "TKN",
+          TOTAL_AMT
         )
-      ).to.emit(liquidVault, "Deposit");
+      ).to.emit(router, "Deposit");
+      expect(lockedVault.deposit).to.have.been.calledWith(1, token.address, LOCK_AMT);
+      expect(liquidVault.deposit).to.have.been.calledWith(1, token.address, LIQ_AMT);
     });
 
     it("correctly calls redeem via execute", async function () {
-      // Do a deposit first to update the symbol mapping
-      await token.mint(gateway.address, LOCKAMT + LIQAMT);
-      await token.approveFor(gateway.address, router.address, LOCKAMT + LIQAMT);
-      actionData.selector = liquidVault.interface.getSighash("deposit");
-      let packedData = await packActionData(actionData);
-      await router.executeWithToken(
-        ethers.utils.formatBytes32String("true"),
-        originatingChain,
-        accountsContract,
-        packedData,
-        await token.symbol(),
-        333
-      );
+      let actionData = getDefaultActionData();
       actionData.selector = liquidVault.interface.getSighash("redeem");
       actionData.token = token.address;
-      packedData = await packActionData(actionData);
-      await expect(
-        router.execute(
+      let packedData = await packActionData(actionData);
+      lockedVault.redeem.returns({
+        token: token.address,
+        amount: LOCK_AMT,
+        status: VaultActionStatus.SUCCESS,
+      });
+      liquidVault.redeem.returns({
+        token: token.address,
+        amount: LIQ_AMT,
+        status: VaultActionStatus.SUCCESS,
+      });
+      expect(
+        await router.execute(
           ethers.utils.formatBytes32String("true"),
           originatingChain,
           accountsContract,
           packedData
         )
-      )
-        .to.emit(liquidVault, "Redeem")
-        .to.emit(lockedVault, "Redeem");
+      );
+      expect(lockedVault.redeem).to.have.been.calledWith(1, LOCK_AMT);
+      expect(liquidVault.redeem).to.have.been.calledWith(1, LIQ_AMT);
     });
 
     it("correctly calls redeemAll via execute", async function () {
-      // Do a deposit first to update the symbol mapping
-      await token.mint(gateway.address, LOCKAMT + LIQAMT);
-      await token.approveFor(gateway.address, router.address, LOCKAMT + LIQAMT);
-      actionData.selector = liquidVault.interface.getSighash("deposit");
-      let packedData = await packActionData(actionData);
-      await router.executeWithToken(
-        ethers.utils.formatBytes32String("true"),
-        originatingChain,
-        accountsContract,
-        packedData,
-        await token.symbol(),
-        333
-      );
-      await liquidVault.setDummyAmt(actionData.liqAmt);
-      await lockedVault.setDummyAmt(actionData.lockAmt);
+      let actionData = getDefaultActionData();
       actionData.selector = liquidVault.interface.getSighash("redeemAll");
       actionData.token = token.address;
-      packedData = await packActionData(actionData);
-      await token.mint(gateway.address, LOCKAMT + LIQAMT);
-      await token.approveFor(gateway.address, router.address, LOCKAMT + LIQAMT);
-      await expect(
-        router.execute(
+      let packedData = await packActionData(actionData);
+      lockedVault.redeemAll.returns({
+        token: token.address,
+        amount: LOCK_AMT,
+        status: VaultActionStatus.POSITION_EXITED,
+      });
+      liquidVault.redeemAll.returns({
+        token: token.address,
+        amount: LIQ_AMT,
+        status: VaultActionStatus.POSITION_EXITED,
+      });
+      expect(
+        await router.execute(
           ethers.utils.formatBytes32String("true"),
           originatingChain,
           accountsContract,
           packedData
         )
-      ).to.emit(liquidVault, "Redeem");
+      );
+      expect(lockedVault.redeemAll).to.have.been.called;
+      expect(liquidVault.redeemAll).to.have.been.called;
     });
 
     it("correctly calls harvest via execute", async function () {
+      let actionData = getDefaultActionData();
       actionData.selector = liquidVault.interface.getSighash("harvest");
+      actionData.token = token.address;
       let packedData = await packActionData(actionData);
-      await expect(
-        router.execute(
+      expect(
+        await router.execute(
           ethers.utils.formatBytes32String("true"),
           originatingChain,
           accountsContract,
           packedData
         )
-      ).to.emit(liquidVault, "RewardsHarvested");
+      );
+      expect(lockedVault.harvest).to.have.been.called;
+      expect(liquidVault.harvest).to.have.been.called;
     });
   });
 
   describe("Deposit", function () {
-    let lockedVault: DummyVault;
-    let liquidVault: DummyVault;
-    let registrar: Registrar;
-    let gateway: DummyGateway;
-    let gasService: DummyGasService;
-    let token: DummyERC20;
+    let lockedVault: FakeContract<DummyVault>;
+    let liquidVault: FakeContract<DummyVault>;
+    let registrar: FakeContract<Registrar>;
+    let gateway: FakeContract<DummyGateway>;
+    let gasService: FakeContract<DummyGasService>;
+    let token: FakeContract<DummyERC20>;
     let router: Router;
-    const LOCKAMT = 111;
-    const LIQAMT = 222;
-    let actionData = {
-      destinationChain: originatingChain,
-      strategyId: "0xffffffff",
-      selector: "",
+    const LOCK_AMT = 111;
+    const LIQ_AMT = 222;
+    const GAS_COST = 5;
+    const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
+    const getDefaultActionData = () => ({
+      ...DEFAULT_ACTION_DATA,
       accountIds: [1],
-      token: "",
-      lockAmt: LOCKAMT,
-      liqAmt: LIQAMT,
-      status: 0,
-    } as IVault.VaultActionDataStruct;
-
-    before(async function () {
-      gateway = await deployDummyGateway(owner);
-      gasService = await deployDummyGasService(owner);
-      token = await deployDummyERC20(owner);
-      registrar = await deployRegistrarAsProxy(owner, admin);
-      await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract);
-      await gateway.setTestTokenAddress(token.address);
-      await registrar.setTokenAccepted(token.address, true);
-      lockedVault = await deployDummyVault(owner, {
-        baseToken: token.address,
-        yieldToken: token.address,
-        vaultType: 0,
-      });
-      liquidVault = await deployDummyVault(owner, {
-        baseToken: token.address,
-        yieldToken: token.address,
-        vaultType: 1,
-      });
-      await registrar.setStrategyParams(
-        actionData.strategyId,
-        originatingChain,
-        lockedVault.address,
-        liquidVault.address,
-        StrategyApprovalState.APPROVED
-      );
-      actionData.selector = liquidVault.interface.getSighash("deposit");
-      actionData.token = token.address;
+      lockAmt: LOCK_AMT,
+      liqAmt: LIQ_AMT,
     });
 
     beforeEach(async function () {
-      router = await deployRouterAsProxy(gateway.address, gasService.address, registrar);
+      token = await smock.fake<DummyERC20>(new DummyERC20__factory());
+      registrar = await smock.fake<Registrar>(new Registrar__factory());
+      gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
+      gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
+      lockedVault = await smock.fake<DummyVault>(new DummyVault__factory());
+      liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
+
+      const APParams = {routerAddr: ethers.constants.AddressZero, refundAddr: collector.address};
+      const networkParams = {
+        ...DEFAULT_NETWORK_INFO,
+        axelarGateway: gateway.address,
+        gasReceiver: gasService.address,
+      };
+      const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
+        approvalState: StrategyApprovalState.APPROVED,
+        network: localChain,
+        Locked: {
+          Type: 0,
+          vaultAddr: lockedVault.address,
+        },
+        Liquid: {
+          Type: 1,
+          vaultAddr: liquidVault.address,
+        },
+      };
+
+      gateway.validateContractCall.returns(true);
+      gateway.validateContractCallAndMint.returns(true);
+      gateway.tokenAddresses.returns(token.address);
+      registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
+      registrar.getAngelProtocolParams.returns(APParams);
+      registrar.queryNetworkConnection.returns(networkParams);
+      registrar.getAccountsContractAddressByChain
+        .whenCalledWith(originatingChain)
+        .returns(accountsContract);
+      registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
+      registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
+      registrar.getStrategyParamsById.returns(stratParams);
+      token.transfer.returns(true);
+      token.transferFrom.returns(true);
+      token.approve.returns(true);
+      token.approveFor.returns(true);
+      token.symbol.returns("TKN");
+      router = await deployRouterAsProxy(registrar.address);
     });
 
     it("deposits the specified amounts to the specified vaults", async function () {
-      await token.mint(gateway.address, LOCKAMT + LIQAMT);
-      await token.approveFor(gateway.address, router.address, LOCKAMT + LIQAMT);
+      let actionData = getDefaultActionData();
+      actionData.token = token.address;
+      actionData.selector = liquidVault.interface.getSighash("deposit");
       let packedData = packActionData(actionData);
       await router.executeWithToken(
         ethers.utils.formatBytes32String("true"),
         originatingChain,
         accountsContract,
         packedData,
-        await token.symbol(),
-        333
+        token.symbol(),
+        TOTAL_AMT
       );
-      expect(await token.balanceOf(liquidVault.address)).to.equal(actionData.liqAmt);
-      expect(await token.balanceOf(lockedVault.address)).to.equal(actionData.lockAmt);
+      expect(lockedVault.deposit).to.have.been.calledWith(1, token.address, LOCK_AMT);
+      expect(token.transfer).to.have.been.calledWith(lockedVault.address, LOCK_AMT);
     });
   });
 
   describe("Redeem", function () {
-    let lockedVault: DummyVault;
-    let liquidVault: DummyVault;
-    let registrar: Registrar;
-    let gateway: DummyGateway;
-    let gasService: DummyGasService;
-    let token: DummyERC20;
+    let lockedVault: FakeContract<DummyVault>;
+    let liquidVault: FakeContract<DummyVault>;
+    let registrar: FakeContract<Registrar>;
+    let gateway: FakeContract<DummyGateway>;
+    let gasService: FakeContract<DummyGasService>;
+    let token: FakeContract<DummyERC20>;
     let router: Router;
-    const LOCKAMT = 111;
-    const LIQAMT = 222;
-    let actionData = {
-      destinationChain: originatingChain,
-      strategyId: "0xffffffff",
-      selector: "",
+    const LOCK_AMT = 111;
+    const LIQ_AMT = 222;
+    const GAS_COST = 5;
+    const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
+    const getDefaultActionData = () => ({
+      ...DEFAULT_ACTION_DATA,
       accountIds: [1],
-      token: "",
-      lockAmt: LOCKAMT,
-      liqAmt: LIQAMT,
-      status: 0,
-    } as IVault.VaultActionDataStruct;
-
-    before(async function () {
-      gateway = await deployDummyGateway(owner);
-      gasService = await deployDummyGasService(owner);
-      token = await deployDummyERC20(owner);
-      registrar = await deployRegistrarAsProxy(owner, admin);
-      await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract);
-      await gateway.setTestTokenAddress(token.address);
-      lockedVault = await deployDummyVault(owner, {
-        baseToken: token.address,
-        yieldToken: token.address,
-        vaultType: 0,
-      });
-      liquidVault = await deployDummyVault(owner, {
-        baseToken: token.address,
-        yieldToken: token.address,
-        vaultType: 1,
-      });
-      await registrar.setTokenAccepted(token.address, true);
-      await registrar.setStrategyParams(
-        actionData.strategyId,
-        originatingChain,
-        lockedVault.address,
-        liquidVault.address,
-        StrategyApprovalState.APPROVED
-      );
-      actionData.token = token.address;
+      lockAmt: LOCK_AMT,
+      liqAmt: LIQ_AMT,
     });
 
     beforeEach(async function () {
-      router = await deployRouterAsProxy(gateway.address, gasService.address, registrar);
-      await token.mint(gateway.address, LOCKAMT + LIQAMT);
-      await token.approveFor(gateway.address, router.address, LOCKAMT + LIQAMT);
-      actionData.selector = liquidVault.interface.getSighash("deposit");
-      let packedData = packActionData(actionData);
-      await router.executeWithToken(
-        ethers.utils.formatBytes32String("true"),
-        originatingChain,
-        accountsContract,
-        packedData,
-        await token.symbol(),
-        333
-      );
-      actionData.selector = liquidVault.interface.getSighash("redeem");
+      token = await smock.fake<DummyERC20>(new DummyERC20__factory());
+      registrar = await smock.fake<Registrar>(new Registrar__factory());
+      gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
+      gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
+      lockedVault = await smock.fake<DummyVault>(new DummyVault__factory());
+      liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
+
+      const APParams = {routerAddr: ethers.constants.AddressZero, refundAddr: collector.address};
+      const networkParams = {
+        ...DEFAULT_NETWORK_INFO,
+        axelarGateway: gateway.address,
+        gasReceiver: gasService.address,
+      };
+      const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
+        approvalState: StrategyApprovalState.APPROVED,
+        network: localChain,
+        Locked: {
+          Type: 0,
+          vaultAddr: lockedVault.address,
+        },
+        Liquid: {
+          Type: 1,
+          vaultAddr: liquidVault.address,
+        },
+      };
+
+      gateway.validateContractCall.returns(true);
+      gateway.validateContractCallAndMint.returns(true);
+      gateway.tokenAddresses.returns(token.address);
+      registrar.getAngelProtocolParams.returns(APParams);
+      registrar.queryNetworkConnection.returns(networkParams);
+      registrar.getAccountsContractAddressByChain
+        .whenCalledWith(originatingChain)
+        .returns(accountsContract);
+      registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
+      registrar.getGasByToken.whenCalledWith(token.address).returns(GAS_COST);
+      registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
+      registrar.getStrategyParamsById.returns(stratParams);
+      registrar.getFeeSettingsByFeeType.returns({payoutAddress: collector.address, bps: 1});
+      token.transfer.returns(true);
+      token.transferFrom.returns(true);
+      token.approve.returns(true);
+      token.approveFor.returns(true);
+      token.symbol.returns("TKN");
+      router = await deployRouterAsProxy(registrar.address);
     });
 
     it("Redeems the amounts specified back to the router", async function () {
-      let routerBalBefore = await token.balanceOf(router.address);
+      let actionData = getDefaultActionData();
+      actionData.selector = liquidVault.interface.getSighash("redeem");
+      actionData.token = token.address;
       let packedData = packActionData(actionData);
+      lockedVault.redeem.returns({
+        token: token.address,
+        amount: LOCK_AMT,
+        status: VaultActionStatus.SUCCESS,
+      });
+      liquidVault.redeem.returns({
+        token: token.address,
+        amount: LIQ_AMT,
+        status: VaultActionStatus.SUCCESS,
+      });
       expect(
         await router.execute(
           ethers.utils.formatBytes32String("true"),
@@ -887,43 +914,57 @@ describe("Router", function () {
           accountsContract,
           packedData
         )
+      ).to.emit(router, "Redeem");
+      expect(lockedVault.redeem).to.have.been.calledWith(1, LOCK_AMT);
+      expect(liquidVault.redeem).to.have.been.calledWith(1, LIQ_AMT);
+      expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT - GAS_COST);
+      expect(token.approve).to.have.been.calledWith(gasService.address, GAS_COST);
+      let expectedPayload = packActionData({
+        destinationChain: originatingChain,
+        strategyId: DEFAULT_STRATEGY_SELECTOR,
+        selector: liquidVault.interface.getSighash("redeem"),
+        accountIds: [1],
+        token: token.address,
+        lockAmt: LOCK_AMT - 2, // less weighted gas
+        liqAmt: LIQ_AMT - 3, // less weighted gas
+        status: VaultActionStatus.SUCCESS,
+      });
+      expect(gasService.payGasForContractCallWithToken).to.have.been.calledWith(
+        router.address,
+        originatingChain,
+        deadAddr,
+        expectedPayload,
+        "TKN",
+        TOTAL_AMT - GAS_COST,
+        token.address,
+        GAS_COST,
+        collector.address
       );
-      let routerBalAfter = await token.balanceOf(router.address);
-      expect(routerBalAfter).to.equal(routerBalBefore.add(333));
-    });
-
-    it("Sets the gateway as an approved spender for the redeemed tokens", async function () {
-      let packedData = packActionData(actionData);
-      expect(
-        await router.execute(
-          ethers.utils.formatBytes32String("true"),
-          originatingChain,
-          accountsContract,
-          packedData
-        )
+      expect(gateway.callContractWithToken).to.have.been.calledWith(
+        originatingChain,
+        deadAddr,
+        expectedPayload,
+        "TKN",
+        TOTAL_AMT - GAS_COST
       );
-      let allowance = await token.allowance(router.address, gateway.address);
-      expect(allowance).to.equal(333);
-    });
-
-    it("Sets the gas receiver as an approved spender for the gas fee", async function () {
-      let packedData = packActionData(actionData);
-      expect(
-        await router.execute(
-          ethers.utils.formatBytes32String("true"),
-          originatingChain,
-          accountsContract,
-          packedData
-        )
-      );
-      let allowance = await token.allowance(router.address, gasService.address);
-      let gasFee = await registrar.getGasByToken(token.address);
-      expect(allowance).to.equal(gasFee);
     });
 
     it("Reverts if the redemption amount is less than the gas fee", async function () {
+      let actionData = getDefaultActionData();
+      actionData.selector = liquidVault.interface.getSighash("redeem");
+      actionData.token = token.address;
       let packedData = packActionData(actionData);
-      await registrar.setGasByToken(token.address, 334);
+      lockedVault.redeem.returns({
+        token: token.address,
+        amount: LOCK_AMT,
+        status: VaultActionStatus.SUCCESS,
+      });
+      liquidVault.redeem.returns({
+        token: token.address,
+        amount: LIQ_AMT,
+        status: VaultActionStatus.SUCCESS,
+      });
+      registrar.getGasByToken.whenCalledWith(token.address).returns(TOTAL_AMT + 1);
       await expect(
         router.execute(
           ethers.utils.formatBytes32String("true"),
@@ -933,106 +974,90 @@ describe("Router", function () {
         )
       ).to.be.revertedWith("Send amount does not cover gas");
     });
-
-    // This test runs into an open bug with the chai hardhat listeners. We will have to check this
-    // manually until the issue is resolved
-    // the issue can be found here: https://github.com/NomicFoundation/hardhat/issues/3080
-    // it("Correctly splits the gas fees between locked and liquid amounts", async function () {
-    //   let packedData = packActionData(actionData)
-    //   await registrar.setGasByToken(token.address, 9)
-    //   let expectedLiquidRedemption = BigNumber.from(111).sub(3)
-    //   let expectedLockedRedemption = BigNumber.from(222).sub(6)
-    //   await expect(router.execute(
-    //     ethers.utils.formatBytes32String("true"),
-    //     originatingChain,
-    //     accountsContract,
-    //     packedData
-    //   ))
-    //   .to.emit(router, "TokensSent")
-    //   .withArgs(
-    //     [
-    //       actionData.strategyId,
-    //       actionData.selector,
-    //       undefined,
-    //       actionData.token,
-    //       expectedLockedRedemption,
-    //       expectedLiquidRedemption
-    //     ], 324)
-    // })
   });
 
   describe("RedeemAll", function () {
-    let lockedVault: DummyVault;
-    let liquidVault: DummyVault;
-    let registrar: Registrar;
-    let gateway: DummyGateway;
-    let gasService: DummyGasService;
-    let token: DummyERC20;
+    let lockedVault: FakeContract<DummyVault>;
+    let liquidVault: FakeContract<DummyVault>;
+    let registrar: FakeContract<Registrar>;
+    let gateway: FakeContract<DummyGateway>;
+    let gasService: FakeContract<DummyGasService>;
+    let token: FakeContract<DummyERC20>;
     let router: Router;
-    const LOCKAMT = 111;
-    const LIQAMT = 222;
-    let actionData = {
-      destinationChain: originatingChain,
-      strategyId: "0xffffffff",
-      selector: "",
+    const LOCK_AMT = 111;
+    const LIQ_AMT = 222;
+    const GAS_COST = 5;
+    const TOTAL_AMT = LOCK_AMT + LIQ_AMT;
+    const getDefaultActionData = () => ({
+      ...DEFAULT_ACTION_DATA,
       accountIds: [1],
-      token: "",
-      lockAmt: LOCKAMT,
-      liqAmt: LIQAMT,
-      status: 0,
-    } as IVault.VaultActionDataStruct;
-
-    before(async function () {
-      gateway = await deployDummyGateway(owner);
-      gasService = await deployDummyGasService(owner);
-      token = await deployDummyERC20(owner);
-      registrar = await deployRegistrarAsProxy(owner, admin);
-      await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract);
-      await gateway.setTestTokenAddress(token.address);
-      await registrar.setTokenAccepted(token.address, true);
-      lockedVault = await deployDummyVault(owner, {
-        baseToken: token.address,
-        yieldToken: token.address,
-        vaultType: 0,
-      });
-      liquidVault = await deployDummyVault(owner, {
-        baseToken: token.address,
-        yieldToken: token.address,
-        vaultType: 1,
-      });
-      await registrar.setStrategyParams(
-        actionData.strategyId,
-        originatingChain,
-        lockedVault.address,
-        liquidVault.address,
-        StrategyApprovalState.APPROVED
-      );
-      actionData.selector = liquidVault.interface.getSighash("redeemAll");
-      actionData.token = token.address;
+      lockAmt: LOCK_AMT,
+      liqAmt: LIQ_AMT,
     });
 
     beforeEach(async function () {
-      router = await deployRouterAsProxy(gateway.address, gasService.address, registrar);
-      await token.mint(gateway.address, LOCKAMT + LIQAMT);
-      await token.approveFor(gateway.address, router.address, LOCKAMT + LIQAMT);
-      actionData.selector = liquidVault.interface.getSighash("deposit");
-      let packedData = packActionData(actionData);
-      await router.executeWithToken(
-        ethers.utils.formatBytes32String("true"),
-        originatingChain,
-        accountsContract,
-        packedData,
-        await token.symbol(),
-        333
-      );
-      actionData.selector = liquidVault.interface.getSighash("redeemAll");
+      token = await smock.fake<DummyERC20>(new DummyERC20__factory());
+      registrar = await smock.fake<Registrar>(new Registrar__factory());
+      gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
+      gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
+      lockedVault = await smock.fake<DummyVault>(new DummyVault__factory());
+      liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
+
+      const APParams = {routerAddr: ethers.constants.AddressZero, refundAddr: collector.address};
+      const networkParams = {
+        ...DEFAULT_NETWORK_INFO,
+        axelarGateway: gateway.address,
+        gasReceiver: gasService.address,
+      };
+      const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
+        approvalState: StrategyApprovalState.APPROVED,
+        network: localChain,
+        Locked: {
+          Type: 0,
+          vaultAddr: lockedVault.address,
+        },
+        Liquid: {
+          Type: 1,
+          vaultAddr: liquidVault.address,
+        },
+      };
+
+      gateway.validateContractCall.returns(true);
+      gateway.validateContractCallAndMint.returns(true);
+      gateway.tokenAddresses.returns(token.address);
+      registrar.getAngelProtocolParams.returns(APParams);
+      registrar.queryNetworkConnection.returns(networkParams);
+      registrar.getAccountsContractAddressByChain
+        .whenCalledWith(originatingChain)
+        .returns(accountsContract);
+      registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
+      registrar.getGasByToken.whenCalledWith(token.address).returns(GAS_COST);
+      registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
+      registrar.getStrategyParamsById.returns(stratParams);
+      registrar.getFeeSettingsByFeeType.returns({payoutAddress: collector.address, bps: 1});
+      token.transfer.returns(true);
+      token.transferFrom.returns(true);
+      token.approve.returns(true);
+      token.approveFor.returns(true);
+      token.symbol.returns("TKN");
+      router = await deployRouterAsProxy(registrar.address);
     });
 
     it("Redeems the amounts specified back to the router", async function () {
-      let routerBalBefore = await token.balanceOf(router.address);
+      let actionData = getDefaultActionData();
+      actionData.token = token.address;
+      actionData.selector = liquidVault.interface.getSighash("redeemAll");
       let packedData = packActionData(actionData);
-      await liquidVault.setDummyAmt(actionData.liqAmt);
-      await lockedVault.setDummyAmt(actionData.lockAmt);
+      lockedVault.redeemAll.returns({
+        token: token.address,
+        amount: LOCK_AMT,
+        status: VaultActionStatus.POSITION_EXITED,
+      });
+      liquidVault.redeemAll.returns({
+        token: token.address,
+        amount: LIQ_AMT,
+        status: VaultActionStatus.POSITION_EXITED,
+      });
       expect(
         await router.execute(
           ethers.utils.formatBytes32String("true"),
@@ -1040,51 +1065,57 @@ describe("Router", function () {
           accountsContract,
           packedData
         )
+      ).to.emit(router, "RedeemAll");
+      expect(lockedVault.redeemAll).to.have.been.calledWith(1);
+      expect(liquidVault.redeemAll).to.have.been.calledWith(1);
+      expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT - GAS_COST);
+      expect(token.approve).to.have.been.calledWith(gasService.address, GAS_COST);
+      let expectedPayload = packActionData({
+        destinationChain: originatingChain,
+        strategyId: DEFAULT_STRATEGY_SELECTOR,
+        selector: liquidVault.interface.getSighash("redeemAll"),
+        accountIds: [1],
+        token: token.address,
+        lockAmt: LOCK_AMT - 2, // less weighted gas
+        liqAmt: LIQ_AMT - 3, // less weighted gas
+        status: VaultActionStatus.POSITION_EXITED,
+      });
+      expect(gasService.payGasForContractCallWithToken).to.have.been.calledWith(
+        router.address,
+        originatingChain,
+        deadAddr,
+        expectedPayload,
+        "TKN",
+        TOTAL_AMT - GAS_COST,
+        token.address,
+        GAS_COST,
+        collector.address
       );
-      let routerBalAfter = await token.balanceOf(router.address);
-      expect(routerBalAfter).to.equal(routerBalBefore.add(333));
-    });
-
-    it("Sets the gateway as an approved spender for the redeemed tokens", async function () {
-      let packedData = packActionData(actionData);
-      await liquidVault.setDummyAmt(actionData.liqAmt);
-      await lockedVault.setDummyAmt(actionData.lockAmt);
-      expect(
-        await router.execute(
-          ethers.utils.formatBytes32String("true"),
-          originatingChain,
-          accountsContract,
-          packedData
-        )
+      expect(gateway.callContractWithToken).to.have.been.calledWith(
+        originatingChain,
+        deadAddr,
+        expectedPayload,
+        "TKN",
+        TOTAL_AMT - GAS_COST
       );
-      let allowance = await token.allowance(router.address, gateway.address);
-      expect(allowance).to.equal(333);
-    });
-
-    it("Sets the gas receiver as an approved spender for the gas fee", async function () {
-      let packedData = packActionData(actionData);
-      await liquidVault.setDummyAmt(actionData.liqAmt);
-      await lockedVault.setDummyAmt(actionData.lockAmt);
-      expect(
-        await router.execute(
-          ethers.utils.formatBytes32String("true"),
-          originatingChain,
-          accountsContract,
-          packedData
-        )
-      );
-      let allowance = await token.allowance(router.address, gasService.address);
-      let gasFee = await registrar.getGasByToken(token.address);
-      expect(allowance).to.equal(gasFee);
     });
 
     it("Reverts if the redemption amount is less than the gas fee", async function () {
-      actionData.liqAmt = 1;
-      actionData.lockAmt = 1;
-      await liquidVault.setDummyAmt(actionData.liqAmt);
-      await lockedVault.setDummyAmt(actionData.lockAmt);
+      let actionData = getDefaultActionData();
+      actionData.token = token.address;
+      actionData.selector = liquidVault.interface.getSighash("redeemAll");
       let packedData = packActionData(actionData);
-      await registrar.setGasByToken(token.address, 3);
+      lockedVault.redeemAll.returns({
+        token: token.address,
+        amount: LOCK_AMT,
+        status: VaultActionStatus.POSITION_EXITED,
+      });
+      liquidVault.redeem.returns({
+        token: token.address,
+        amount: LIQ_AMT,
+        status: VaultActionStatus.POSITION_EXITED,
+      });
+      registrar.getGasByToken.whenCalledWith(token.address).returns(TOTAL_AMT + 1);
       await expect(
         router.execute(
           ethers.utils.formatBytes32String("true"),
