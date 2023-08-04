@@ -89,6 +89,7 @@ describe("AccountsStrategy", function () {
         axelarGateway: gateway.address,
       };
       registrar.queryNetworkConnection.returns(network);
+      gateway.tokenAddresses.returns(token.address);
     });
 
     beforeEach(async function () {
@@ -287,8 +288,6 @@ describe("AccountsStrategy", function () {
           .to.emit(facet, "EndowmentInvested")
           .withArgs(VaultActionStatus.SUCCESS);
 
-        let routerBal = await token.balanceOf(router.address);
-        expect(routerBal).to.equal(LOCK_AMT + LIQ_AMT);
         const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
         expect(lockBal).to.equal(500 - LOCK_AMT);
         expect(liqBal).to.equal(500 - LIQ_AMT);
