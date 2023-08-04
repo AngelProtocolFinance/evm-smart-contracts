@@ -19,7 +19,6 @@ import {
   convertVaultActionStructToArray,
   deployDummyERC20,
   deployDummyGateway,
-  deployDummyVault,
   packActionData,
   wait,
 } from "test/utils";
@@ -29,9 +28,14 @@ import {
   DummyERC20,
   DummyGasService,
   DummyGateway,
-  DummyVault,
   GasFwd,
   GasFwd__factory,
+  IAxelarGateway,
+  IAxelarGateway__factory,
+  IERC20,
+  IERC20__factory,
+  IVault,
+  IVault__factory,
   Registrar,
   Registrar__factory,
   Router,
@@ -52,7 +56,7 @@ describe("AccountsStrategy", function () {
   let user: SignerWithAddress;
   let registrar: FakeContract<Registrar>;
   let router: FakeContract<Router>;
-  let vault: DummyVault;
+  let vault: FakeContract<IVault>;
   let facetImpl: AccountsStrategy;
 
   before(async function () {
@@ -60,10 +64,7 @@ describe("AccountsStrategy", function () {
     owner = deployer;
     admin = proxyAdmin;
     user = apTeam1;
-    vault = await deployDummyVault(owner, {
-      baseToken: ethers.constants.AddressZero,
-      yieldToken: ethers.constants.AddressZero,
-    });
+    vault = await smock.fake<IVault>(IVault__factory.createInterface());
     registrar = await smock.fake<Registrar>(new Registrar__factory());
     router = await smock.fake<Router>(new Router__factory());
     let Facet = new AccountsStrategy__factory(owner);
@@ -73,15 +74,14 @@ describe("AccountsStrategy", function () {
   describe("upon strategyInvest", async function () {
     let facet: AccountsStrategy;
     let state: TestFacetProxyContract;
-    let token: DummyERC20;
-    let gateway: DummyGateway;
+    let token: FakeContract<IERC20>;
+    let gateway: FakeContract<IAxelarGateway>;
     let network: IAccountsStrategy.NetworkInfoStruct;
     const ACCOUNT_ID = 1;
 
     before(async function () {
-      token = await deployDummyERC20(owner);
-      gateway = await deployDummyGateway(owner);
-      await wait(gateway.setTestTokenAddress(token.address));
+      token = await smock.fake<IERC20>(IERC20__factory.createInterface());
+      gateway = await smock.fake<IAxelarGateway>(IAxelarGateway__factory.createInterface());
 
       network = {
         ...DEFAULT_NETWORK_INFO,
@@ -152,7 +152,7 @@ describe("AccountsStrategy", function () {
           ...DEFAULT_STRATEGY_PARAMS,
           approvalState: StrategyApprovalState.APPROVED,
         };
-        await registrar.getStrategyParamsById.returns(stratParams);
+        registrar.getStrategyParamsById.returns(stratParams);
 
         let investRequest = {
           ...DEFAULT_INVEST_REQUEST,
@@ -253,7 +253,7 @@ describe("AccountsStrategy", function () {
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
-        token.mint(facet.address, 1000);
+        token.transfer.whenCalledWith(router.address, LIQ_AMT + LOCK_AMT).returns(true);
         await wait(state.setEndowmentTokenBalance(ACCOUNT_ID, token.address, 500, 500));
 
         const config = {
@@ -395,8 +395,8 @@ describe("AccountsStrategy", function () {
         endowDetails.gasFwd = gasFwd.address;
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
-        await token.mint(facet.address, INITIAL_LIQ_BAL + INITIAL_LOCK_BAL);
-        await token.mint(gasFwd.address, GAS_FEE);
+        token.approve.returns(true);
+        token.transfer.returns(true);
         await wait(
           state.setEndowmentTokenBalance(
             ACCOUNT_ID,
