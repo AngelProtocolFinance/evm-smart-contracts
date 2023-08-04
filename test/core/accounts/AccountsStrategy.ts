@@ -132,7 +132,7 @@ describe("AccountsStrategy", function () {
     describe("reverts when", async function () {
       it("the caller is not approved for locked fund mgmt", async function () {
         await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
-        let investRequest: AccountMessages.InvestRequestStruct = {
+        const investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           lockAmt: 1,
         };
@@ -143,7 +143,7 @@ describe("AccountsStrategy", function () {
 
       it("the caller is not approved for liquid fund mgmt", async function () {
         await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
-        let investRequest: AccountMessages.InvestRequestStruct = {
+        const investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           liquidAmt: 1,
         };
@@ -166,7 +166,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("the account locked balance is insufficient", async function () {
-        let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
+        const endowDetails = DEFAULT_CHARITY_ENDOWMENT;
         endowDetails.settingsController.lockedInvestmentManagement = {
           locked: false,
           delegate: {
@@ -182,7 +182,7 @@ describe("AccountsStrategy", function () {
         };
         registrar.getStrategyParamsById.returns(stratParams);
 
-        let investRequest: AccountMessages.InvestRequestStruct = {
+        const investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           lockAmt: 1,
         };
@@ -192,7 +192,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("the account liquid balance is insufficient", async function () {
-        let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
+        const endowDetails = DEFAULT_CHARITY_ENDOWMENT;
         endowDetails.settingsController.liquidInvestmentManagement = {
           locked: false,
           delegate: {
@@ -208,7 +208,7 @@ describe("AccountsStrategy", function () {
         };
         registrar.getStrategyParamsById.returns(stratParams);
 
-        let investRequest: AccountMessages.InvestRequestStruct = {
+        const investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           liquidAmt: 1,
         };
@@ -245,7 +245,7 @@ describe("AccountsStrategy", function () {
       });
 
       beforeEach(async function () {
-        let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
+        const endowDetails = DEFAULT_CHARITY_ENDOWMENT;
         endowDetails.settingsController.liquidInvestmentManagement = {
           locked: false,
           delegate: {
@@ -278,7 +278,7 @@ describe("AccountsStrategy", function () {
           status: VaultActionStatus.SUCCESS,
         });
 
-        let investRequest: AccountMessages.InvestRequestStruct = {
+        const investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           lockAmt: LOCK_AMT,
           liquidAmt: LIQ_AMT,
@@ -291,7 +291,7 @@ describe("AccountsStrategy", function () {
         const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
         expect(lockBal).to.equal(500 - LOCK_AMT);
         expect(liqBal).to.equal(500 - LIQ_AMT);
-        let strategyActive = await state.getActiveStrategyEndowmentState(
+        const strategyActive = await state.getActiveStrategyEndowmentState(
           ACCOUNT_ID,
           DEFAULT_STRATEGY_SELECTOR
         );
@@ -310,7 +310,7 @@ describe("AccountsStrategy", function () {
           status: VaultActionStatus.FAIL_TOKENS_FALLBACK,
         });
 
-        let investRequest: AccountMessages.InvestRequestStruct = {
+        const investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           lockAmt: LOCK_AMT,
           liquidAmt: LIQ_AMT,
@@ -322,7 +322,7 @@ describe("AccountsStrategy", function () {
         const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
         expect(lockBal).to.equal(500);
         expect(liqBal).to.equal(500);
-        let strategyActive = await state.getActiveStrategyEndowmentState(
+        const strategyActive = await state.getActiveStrategyEndowmentState(
           ACCOUNT_ID,
           DEFAULT_STRATEGY_SELECTOR
         );
@@ -384,14 +384,14 @@ describe("AccountsStrategy", function () {
       });
 
       it("makes all the correct external calls", async function () {
-        let investRequest: AccountMessages.InvestRequestStruct = {
+        const investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           lockAmt: LOCK_AMT,
           liquidAmt: LIQ_AMT,
           gasFee: GAS_FEE,
         };
 
-        let payload = packActionData(
+        const payload = packActionData(
           {
             destinationChain: networkNameThat,
             strategyId: DEFAULT_STRATEGY_SELECTOR,
@@ -412,7 +412,7 @@ describe("AccountsStrategy", function () {
         expect(gasService.payGasForContractCallWithToken).to.have.been.calledWith(
           facet.address,
           stratParams.network,
-          netInfoThat.router.toLowerCase(), // AddressToString.toString produces only lowercase letters
+          netInfoThat.router.toLowerCase(), // AddressToString.toString produces only lowercase constters
           payload,
           investRequest.token,
           BigNumber.from(investRequest.liquidAmt).add(BigNumber.from(investRequest.lockAmt)),
@@ -448,7 +448,7 @@ describe("AccountsStrategy", function () {
     describe("reverts when", async function () {
       it("the caller is not approved for locked fund mgmt", async function () {
         await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
-        let redeemRequest = {
+        const redeemRequest = {
           ...DEFAULT_REDEEM_REQUEST,
           lockAmt: 1,
         };
@@ -459,7 +459,7 @@ describe("AccountsStrategy", function () {
 
       it("the caller is not approved for liquid fund mgmt", async function () {
         await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
-        let redeemRequest = {
+        const redeemRequest = {
           ...DEFAULT_REDEEM_REQUEST,
           liquidAmt: 1,
         };
@@ -475,7 +475,7 @@ describe("AccountsStrategy", function () {
           approvalState: StrategyApprovalState.NOT_APPROVED,
         };
         registrar.getStrategyParamsById.returns(stratParams);
-        let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
+        const endowDetails = DEFAULT_CHARITY_ENDOWMENT;
         endowDetails.owner = owner.address;
         await wait(state.setEndowmentDetails(1, endowDetails));
         await expect(facet.strategyRedeem(ACCOUNT_ID, DEFAULT_REDEEM_REQUEST)).to.be.revertedWith(
@@ -505,7 +505,7 @@ describe("AccountsStrategy", function () {
       });
 
       beforeEach(async function () {
-        let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
+        const endowDetails = DEFAULT_CHARITY_ENDOWMENT;
         endowDetails.settingsController.liquidInvestmentManagement = {
           locked: false,
           delegate: {
@@ -612,7 +612,7 @@ describe("AccountsStrategy", function () {
         const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
         expect(lockBal).to.equal(LOCK_AMT);
         expect(liqBal).to.equal(LIQ_AMT);
-        let strategyActive = await state.getActiveStrategyEndowmentState(
+        const strategyActive = await state.getActiveStrategyEndowmentState(
           ACCOUNT_ID,
           DEFAULT_STRATEGY_SELECTOR
         );
@@ -637,7 +637,7 @@ describe("AccountsStrategy", function () {
         const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
         expect(lockBal).to.equal(0);
         expect(liqBal).to.equal(0);
-        let strategyActive = await state.getActiveStrategyEndowmentState(
+        const strategyActive = await state.getActiveStrategyEndowmentState(
           ACCOUNT_ID,
           DEFAULT_STRATEGY_SELECTOR
         );
@@ -686,14 +686,14 @@ describe("AccountsStrategy", function () {
       });
 
       it("makes all the correct external calls", async function () {
-        let redeemRequest = {
+        const redeemRequest = {
           ...DEFAULT_REDEEM_REQUEST,
           lockAmt: LOCK_AMT,
           liquidAmt: LIQ_AMT,
           gasFee: GAS_FEE,
         };
 
-        let payload = packActionData(
+        const payload = packActionData(
           {
             destinationChain: networkNameThat,
             strategyId: DEFAULT_STRATEGY_SELECTOR,
@@ -750,7 +750,7 @@ describe("AccountsStrategy", function () {
       });
       it("the caller is not approved for locked fund mgmt", async function () {
         await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
-        let redeemAllRequest = {
+        const redeemAllRequest = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLocked: true,
         };
@@ -760,7 +760,7 @@ describe("AccountsStrategy", function () {
       });
       it("the caller is not approved for liquid fund mgmt", async function () {
         await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
-        let redeemAllRequest = {
+        const redeemAllRequest = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLiquid: true,
         };
@@ -776,7 +776,7 @@ describe("AccountsStrategy", function () {
         };
         registrar.getStrategyParamsById.returns(stratParams);
 
-        let endowDetails: AccountStorage.EndowmentStruct = {
+        const endowDetails: AccountStorage.EndowmentStruct = {
           ...DEFAULT_CHARITY_ENDOWMENT,
           owner: owner.address,
           settingsController: {
@@ -798,7 +798,7 @@ describe("AccountsStrategy", function () {
           },
         };
         await wait(state.setEndowmentDetails(1, endowDetails));
-        let redeemAllRequest = {
+        const redeemAllRequest = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLiquid: true,
         };
@@ -810,7 +810,7 @@ describe("AccountsStrategy", function () {
       describe("and calls the local router", async function () {
         const LOCK_AMT = 300;
         const LIQ_AMT = 200;
-        let redeemAllRequest = {
+        const redeemAllRequest = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLocked: true,
           redeemLiquid: true,
@@ -827,7 +827,7 @@ describe("AccountsStrategy", function () {
         });
 
         beforeEach(async function () {
-          let endowDetails: AccountStorage.EndowmentStruct = {
+          const endowDetails: AccountStorage.EndowmentStruct = {
             ...DEFAULT_CHARITY_ENDOWMENT,
             owner: owner.address,
             settingsController: {
@@ -875,7 +875,7 @@ describe("AccountsStrategy", function () {
           const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
           expect(lockBal).to.equal(LOCK_AMT);
           expect(liqBal).to.equal(LIQ_AMT);
-          let strategyActive = await state.getActiveStrategyEndowmentState(
+          const strategyActive = await state.getActiveStrategyEndowmentState(
             ACCOUNT_ID,
             DEFAULT_STRATEGY_SELECTOR
           );
@@ -900,7 +900,7 @@ describe("AccountsStrategy", function () {
           const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
           expect(lockBal).to.equal(0);
           expect(liqBal).to.equal(0);
-          let strategyActive = await state.getActiveStrategyEndowmentState(
+          const strategyActive = await state.getActiveStrategyEndowmentState(
             ACCOUNT_ID,
             DEFAULT_STRATEGY_SELECTOR
           );
@@ -931,7 +931,7 @@ describe("AccountsStrategy", function () {
       });
 
       beforeEach(async function () {
-        let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
+        const endowDetails = DEFAULT_CHARITY_ENDOWMENT;
         endowDetails.settingsController.liquidInvestmentManagement = {
           locked: false,
           delegate: {
@@ -954,14 +954,14 @@ describe("AccountsStrategy", function () {
       });
 
       it("makes all the correct external calls", async function () {
-        let redeemAllRequest = {
+        const redeemAllRequest = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLocked: true,
           redeemLiquid: true,
           gasFee: GAS_FEE,
         };
 
-        let payload = packActionData(
+        const payload = packActionData(
           {
             destinationChain: networkNameThat,
             strategyId: DEFAULT_STRATEGY_SELECTOR,
@@ -989,7 +989,7 @@ describe("AccountsStrategy", function () {
           .to.emit(gateway, "ContractCall")
           .withArgs(networkNameThat, router.address, payload);
 
-        let gasReceiverApproved = await token.allowance(facet.address, gasReceiver.address);
+        const gasReceiverApproved = await token.allowance(facet.address, gasReceiver.address);
         expect(gasReceiverApproved).to.equal(GAS_FEE);
       });
     });
@@ -1264,7 +1264,7 @@ describe("AccountsStrategy", function () {
       const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
       expect(lockBal).to.equal(LOCK_AMT);
       expect(liqBal).to.equal(LIQ_AMT);
-      let strategyActive = await state.getActiveStrategyEndowmentState(
+      const strategyActive = await state.getActiveStrategyEndowmentState(
         ACCOUNT_ID,
         DEFAULT_STRATEGY_SELECTOR
       );
@@ -1300,7 +1300,7 @@ describe("AccountsStrategy", function () {
       const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
       expect(lockBal).to.equal(LOCK_AMT);
       expect(liqBal).to.equal(LIQ_AMT);
-      let strategyActive = await state.getActiveStrategyEndowmentState(
+      const strategyActive = await state.getActiveStrategyEndowmentState(
         ACCOUNT_ID,
         DEFAULT_STRATEGY_SELECTOR
       );
@@ -1345,7 +1345,7 @@ describe("AccountsStrategy", function () {
       const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
       expect(lockBal).to.equal(0);
       expect(liqBal).to.equal(0);
-      let userBal = await token.balanceOf(user.address);
+      const userBal = await token.balanceOf(user.address);
       expect(userBal).to.equal(LOCK_AMT + LIQ_AMT);
     });
   });
