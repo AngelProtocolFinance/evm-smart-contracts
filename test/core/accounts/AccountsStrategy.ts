@@ -55,12 +55,15 @@ use(smock.matchers);
 describe("AccountsStrategy", function () {
   const {ethers} = hre;
 
+  const ACCOUNT_ID = 1;
+
   const networkNameThis = "ThisNet";
   const networkNameThat = "ThatNet";
 
   let owner: SignerWithAddress;
   let admin: SignerWithAddress;
   let user: SignerWithAddress;
+
   let registrar: FakeContract<Registrar>;
   let router: FakeContract<Router>;
   let vault: FakeContract<IVault>;
@@ -99,7 +102,6 @@ describe("AccountsStrategy", function () {
     let token: FakeContract<IERC20>;
     let gateway: FakeContract<IAxelarGateway>;
     let network: IAccountsStrategy.NetworkInfoStruct;
-    const ACCOUNT_ID = 1;
 
     before(async function () {
       token = await smock.fake<IERC20>(IERC20__factory.createInterface());
@@ -455,7 +457,6 @@ describe("AccountsStrategy", function () {
     let token: FakeContract<IERC20>;
     let gateway: FakeContract<IAxelarGateway>;
     let network: IAccountsStrategy.NetworkInfoStruct;
-    const ACCOUNT_ID = 1;
 
     before(async function () {
       token = await smock.fake<IERC20>(IERC20__factory.createInterface());
@@ -789,7 +790,6 @@ describe("AccountsStrategy", function () {
   describe("upon strategyRedeemAll", async function () {
     let token: DummyERC20;
     let gateway: DummyGateway;
-    const ACCOUNT_ID = 1;
 
     before(async function () {
       token = await deployDummyERC20(owner);
@@ -1082,7 +1082,6 @@ describe("AccountsStrategy", function () {
   describe("upon axelar callback", async function () {
     let token: DummyERC20;
     let gateway: DummyGateway;
-    const ACCOUNT_ID = 1;
 
     before(async function () {
       token = await deployDummyERC20(owner);
