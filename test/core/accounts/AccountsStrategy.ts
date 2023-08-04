@@ -552,6 +552,7 @@ describe("AccountsStrategy", function () {
         lockAmt: LOCK_AMT,
         liquidAmt: LIQ_AMT,
       };
+      const networkName = "ThisNet";
 
       before(async function () {
         const network = {
@@ -560,13 +561,13 @@ describe("AccountsStrategy", function () {
           router: router.address,
           axelarGateway: gateway.address,
         };
-        registrar.queryNetworkConnection.whenCalledWith("ThisNet").returns(network);
+        registrar.queryNetworkConnection.whenCalledWith(networkName).returns(network);
 
         registrar.isTokenAccepted.returns(true);
 
         let stratParams = {
           ...DEFAULT_STRATEGY_PARAMS,
-          network: "ThisNet",
+          network: networkName,
           approvalState: StrategyApprovalState.APPROVED,
         };
         registrar.getStrategyParamsById.returns(stratParams);
@@ -594,10 +595,9 @@ describe("AccountsStrategy", function () {
           state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true)
         );
 
-        const config = {
+        const config: AccountStorage.ConfigStruct = {
           ...DEFAULT_ACCOUNTS_CONFIG,
-          networkName: "ThisNet",
-          gateway: gateway.address,
+          networkName,
           registrarContract: registrar.address,
         };
         await wait(state.setConfig(config));
@@ -615,14 +615,34 @@ describe("AccountsStrategy", function () {
           status: VaultActionStatus.SUCCESS,
         });
 
-        expect(await facet.strategyRedeem(ACCOUNT_ID, redeemRequest))
+        const payload = packActionData(
+          {
+            destinationChain: networkName,
+            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            selector: vault.interface.getSighash("redeem"),
+            accountIds: [ACCOUNT_ID],
+            token: token.address,
+            lockAmt: LOCK_AMT,
+            liqAmt: LIQ_AMT,
+            status: VaultActionStatus.UNPROCESSED,
+          },
+          hre
+        );
+
+        await expect(facet.strategyRedeem(ACCOUNT_ID, redeemRequest))
           .to.emit(facet, "EndowmentRedeemed")
           .withArgs(VaultActionStatus.SUCCESS);
+
+        expect(router.executeLocal).to.have.been.calledWith(
+          networkName,
+          facet.address.toLowerCase(),
+          payload
+        );
 
         const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
         expect(lockBal).to.equal(LOCK_AMT);
         expect(liqBal).to.equal(LIQ_AMT);
-        let strategyActive = await state.getActiveStrategyEndowmentState(
+        const strategyActive = await state.getActiveStrategyEndowmentState(
           ACCOUNT_ID,
           DEFAULT_STRATEGY_SELECTOR
         );
@@ -641,9 +661,29 @@ describe("AccountsStrategy", function () {
           status: VaultActionStatus.POSITION_EXITED,
         });
 
-        expect(await facet.strategyRedeem(ACCOUNT_ID, redeemRequest))
+        const payload = packActionData(
+          {
+            destinationChain: networkName,
+            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            selector: vault.interface.getSighash("redeem"),
+            accountIds: [ACCOUNT_ID],
+            token: token.address,
+            lockAmt: LOCK_AMT,
+            liqAmt: LIQ_AMT,
+            status: VaultActionStatus.UNPROCESSED,
+          },
+          hre
+        );
+
+        await expect(facet.strategyRedeem(ACCOUNT_ID, redeemRequest))
           .to.emit(facet, "EndowmentRedeemed")
           .withArgs(VaultActionStatus.POSITION_EXITED);
+
+        expect(router.executeLocal).to.have.been.calledWith(
+          networkName,
+          facet.address.toLowerCase(),
+          payload
+        );
 
         const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
         expect(lockBal).to.equal(LOCK_AMT);
