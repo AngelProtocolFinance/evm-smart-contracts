@@ -33,17 +33,24 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
   const charityId = 1;
   const normalEndowId = 2;
+  const dafEndowId = 3;
 
   const depositToCharity: AccountMessages.DepositRequestStruct = {
     id: charityId,
-    liquidPercentage: 40,
-    lockedPercentage: 60,
+    liquidPercentage: 60,
+    lockedPercentage: 40,
     donationMatch: ethers.constants.AddressZero,
   };
   const depositToNormalEndow: AccountMessages.DepositRequestStruct = {
     id: normalEndowId,
-    liquidPercentage: 40,
-    lockedPercentage: 60,
+    liquidPercentage: 60,
+    lockedPercentage: 40,
+    donationMatch: ethers.constants.AddressZero,
+  };
+  const depositToDafEndow: AccountMessages.DepositRequestStruct = {
+    id: dafEndowId,
+    liquidPercentage: 60,
+    lockedPercentage: 40,
     donationMatch: ethers.constants.AddressZero,
   };
 
@@ -57,12 +64,16 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
   let charity: AccountStorage.EndowmentStruct;
   let normalEndow: AccountStorage.EndowmentStruct;
+  let dafEndow: AccountStorage.EndowmentStruct;
 
   let donationMatch: FakeContract<DonationMatch>;
   let donationMatchCharity: FakeContract<DonationMatchCharity>;
   let registrarFake: FakeContract<Registrar>;
   let wmaticFake: FakeContract<DummyWMATIC>;
   let tokenFake: FakeContract<DummyERC20>;
+
+  let treasury: string;
+  let depositAmt = 10000;
 
   before(async function () {
     const signers = await getSigners(hre);
@@ -74,20 +85,24 @@ describe("AccountsDepositWithdrawEndowments", function () {
     charity = {
       ...DEFAULT_CHARITY_ENDOWMENT,
       owner: endowOwner.address,
-      withdrawFee: {
-        bps: 30,
-        payoutAddress: genWallet().address,
-      },
+      splitToLiquid: {defaultSplit: 25, max: 90, min: 10},
     };
     normalEndow = {
       ...charity,
       endowType: 1,
-      splitToLiquid: {defaultSplit: 40, max: 80, min: 20},
-      daoToken: genWallet().address,
+      splitToLiquid: {defaultSplit: 50, max: 80, min: 20},
+      withdrawFee: {
+        bps: 30,
+        payoutAddress: endowOwner.address,
+      },
       earlyLockedWithdrawFee: {
         bps: 15,
-        payoutAddress: genWallet().address,
+        payoutAddress: endowOwner.address,
       },
+    };
+    dafEndow = {
+      ...charity,
+      endowType: 2,
     };
   });
 
@@ -106,184 +121,133 @@ describe("AccountsDepositWithdrawEndowments", function () {
     registrarFake = await smock.fake<Registrar>(new Registrar__factory());
 
     tokenFake = await smock.fake<DummyERC20>(new DummyERC20__factory());
-
     wmaticFake = await smock.fake<DummyWMATIC>(new DummyWMATIC__factory());
 
     tokenFake.transferFrom.returns(true);
     tokenFake.transfer.returns(true);
+    wmaticFake.transferFrom.returns(true);
+    wmaticFake.transfer.returns(true);
 
+    treasury = genWallet().address;
     const registrarConfig: RegistrarStorage.ConfigStruct = {
       ...DEFAULT_REGISTRAR_CONFIG,
       haloToken: genWallet().address,
       indexFundContract: indexFund.address,
       wMaticAddress: wmaticFake.address,
-      splitToLiquid: {defaultSplit: 50, max: 90, min: 10},
-      treasury: genWallet().address,
+      splitToLiquid: {defaultSplit: 50, max: 100, min: 0},
+      treasury: treasury,
     };
     registrarFake.queryConfig.returns(registrarConfig);
     registrarFake.isTokenAccepted.whenCalledWith(tokenFake.address).returns(true);
 
     await state.setEndowmentDetails(charityId, charity);
     await state.setEndowmentDetails(normalEndowId, normalEndow);
+    await state.setEndowmentDetails(dafEndowId, dafEndow);
 
     await state.setConfig({
       owner: accOwner.address,
       version: "1",
       networkName: "Polygon",
       registrarContract: registrarFake.address,
-      nextAccountId: 3, // 2 endows already added
+      nextAccountId: 4, // 3 endows already added
       reentrancyGuardLocked: false,
     });
   });
 
-  describe("upon depositMatic", async () => {
-    const value = BigNumber.from(10000);
+  describe("upon deposit", async () => {
+    describe("of Matic", async () => {
+      let maticValue = BigNumber.from(depositAmt);
 
-    it("reverts if the deposit value is zero", async () => {
-      await expect(facet.depositMatic(depositToCharity, {value: 0})).to.be.revertedWith(
-        "Invalid Amount"
-      );
-    });
-
-    it("reverts if the endowment is closed", async () => {
-      await state.setClosingEndowmentState(charityId, true, {
-        enumData: 0,
-        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
-      });
-      await expect(facet.depositMatic(depositToCharity, {value})).to.be.revertedWith(
-        "Endowment is closed"
-      );
-    });
-
-    it("reverts if the token is neither in the protocol-level accepted tokens list in the Registrar contract nor in the endowment-level accepted tokens list", async () => {
-      registrarFake.isTokenAccepted.whenCalledWith(tokenFake.address).returns(false);
-      await expect(
-        facet.depositERC20(depositToCharity, tokenFake.address, depositAmt)
-      ).to.be.revertedWith("Not in an Accepted Tokens List");
-    });
-
-    it("reverts if the deposit to WMATIC fails", async () => {
-      wmaticFake.deposit.reverts();
-      await expect(facet.depositMatic(depositToCharity, {value})).to.be.revertedWith(
-        "call reverted without message"
-      );
-    });
-  });
-
-  describe("upon depositERC20", async () => {
-    const depositAmt = 10000;
-
-    it("reverts if the token address is zero address", async () => {
-      const invalidAddress = ethers.constants.AddressZero;
-      await expect(
-        facet.depositERC20(depositToCharity, invalidAddress, depositAmt)
-      ).to.be.revertedWith("Invalid Token Address");
-    });
-
-    it("reverts if the endowment is closed", async () => {
-      await state.setClosingEndowmentState(charityId, true, {
-        enumData: 0,
-        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
-      });
-      await expect(
-        facet.depositERC20(depositToCharity, tokenFake.address, depositAmt)
-      ).to.be.revertedWith("Endowment is closed");
-    });
-
-    it("reverts if the token is neither in the protocol-level accepted tokens list in the Registrar contract nor in the endowment-level accepted tokens list", async () => {
-      registrarFake.isTokenAccepted.whenCalledWith(tokenFake.address).returns(false);
-      await expect(
-        facet.depositERC20(depositToCharity, tokenFake.address, depositAmt)
-      ).to.be.revertedWith("Not in an Accepted Tokens List");
-    });
-
-    it("reverts if the ERC20 transfer to the facet fails", async () => {
-      tokenFake.transferFrom.returns(false);
-
-      await expect(
-        facet.depositERC20(depositToCharity, tokenFake.address, depositAmt)
-      ).to.be.revertedWith("SafeERC20: ERC20 operation did not succeed");
-    });
-  });
-
-  describe("upon passing deposit information to the processDonation internal function", async () => {
-    it("reverts if the locked + liquid percentage does not equal 100", async () => {
-      const invalidReq: AccountMessages.DepositRequestStruct = {
-        id: charityId,
-        liquidPercentage: 10,
-        lockedPercentage: 10,
-        donationMatch: ethers.constants.AddressZero,
-      };
-      await expect(
-        facet.depositERC20(invalidReq, tokenFake.address, depositAmt)
-      ).to.be.revertedWith("InvalidSplit");
-    });
-
-    it("reverts if no index fund contract is registered in the Registrar", async () => {
-      const curConfig = await registrarFake.queryConfig();
-      const regConfig: RegistrarStorage.ConfigStruct = {
-        ...curConfig,
-        indexFundContract: ethers.constants.AddressZero,
-      };
-      registrarFake.queryConfig.returns(regConfig);
-
-      await expect(
-        facet.depositERC20(depositToCharity, tokenFake.address, depositAmt)
-      ).to.be.revertedWith("No Index Fund");
-    });
-
-    it("if sender is the Index Fund: successfully overrides endowment-level fee split", async () => {
-      await endowOwner.sendTransaction({
-        value: ethers.utils.parseEther("1.0"),
-        to: indexFund.address,
+      it("reverts if the deposited MATIC value is zero", async () => {
+        await expect(facet.depositMatic(depositToCharity, {value: 0})).to.be.revertedWith(
+          "Invalid Amount"
+        );
       });
 
-      const expectedFee = 10;
-      const expectedLockedAmt = BigNumber.from(0);
-      const expectedLiquidAmt = BigNumber.from(9990);
+      it("reverts if the endowment is closed", async () => {
+        await state.setClosingEndowmentState(charityId, true, {
+          enumData: 0,
+          data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+        });
+        await expect(facet.depositMatic(depositToCharity, {value: maticValue})).to.be.revertedWith(
+          "Endowment is closed"
+        );
+      });
 
-      const charityBps: AccountStorage.EndowmentStruct = {
-        ...charity,
-        depositFee: {payoutAddress: genWallet().address, bps: 10},
-      };
-      await state.setEndowmentDetails(charityId, charityBps);
-      wmaticFake.transfer.returns(true);
-
-      await expect(
-        facet.connect(indexFund).depositMatic(
-          {
-            id: normalEndowId,
-            lockedPercentage: 0,
-            liquidPercentage: 100,
-            donationMatch: ethers.constants.AddressZero,
-          },
-          {value}
-        )
-      )
-        .to.emit(facet, "EndowmentDeposit")
-        .withArgs(charityId, wmaticFake.address, expectedLockedAmt, expectedLiquidAmt);
-
-      expect(wmaticFake.deposit).to.have.been.calledWithValue(value);
-      expect(wmaticFake.transfer).to.have.been.calledWith(
-        charityBps.depositFee.payoutAddress,
-        expectedFee
-      );
-
-      const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
-        charityId,
-        wmaticFake.address
-      );
-      expect(lockedBal).to.equal(expectedLockedAmt);
-      expect(liquidBal).to.equal(expectedLiquidAmt);
+      it("reverts if the deposit of MATIC to wMATIC fails", async () => {
+        wmaticFake.deposit.reverts();
+        await expect(facet.depositMatic(depositToCharity, {value: maticValue})).to.be.revertedWith(
+          "call reverted without message"
+        );
+      });
     });
 
-    describe("to charities", async () => {
-      it("deposits an ERC20 with no locked amount", async () => {
-        const expectedLockedAmt = BigNumber.from(9000);
-        const expectedLiquidAmt = BigNumber.from(1000);
+    describe("of ERC20", async () => {
+      it("reverts if the token address is zero address", async () => {
+        const invalidAddress = ethers.constants.AddressZero;
+        await expect(
+          facet.depositERC20(depositToCharity, invalidAddress, depositAmt)
+        ).to.be.revertedWith("Invalid Token Address");
+      });
+
+      it("reverts if the endowment is closed", async () => {
+        await state.setClosingEndowmentState(charityId, true, {
+          enumData: 0,
+          data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+        });
+        await expect(
+          facet.depositERC20(depositToCharity, tokenFake.address, depositAmt)
+        ).to.be.revertedWith("Endowment is closed");
+      });
+
+      it("reverts if the token is neither in the protocol-level accepted tokens list in the Registrar contract nor in the endowment-level accepted tokens list", async () => {
+        registrarFake.isTokenAccepted.whenCalledWith(tokenFake.address).returns(false);
+        await expect(
+          facet.depositERC20(depositToCharity, tokenFake.address, depositAmt)
+        ).to.be.revertedWith("Not in an Accepted Tokens List");
+      });
+
+      it("reverts if the ERC20 transfer to the facet fails", async () => {
+        tokenFake.transferFrom.returns(false);
 
         await expect(
-          facet.depositERC20(
+          facet.depositERC20(depositToCharity, tokenFake.address, depositAmt)
+        ).to.be.revertedWith("SafeERC20: ERC20 operation did not succeed");
+      });
+    });
+
+    describe("passing deposit information to the processDonation internal function", async () => {
+      it("reverts if the locked + liquid percentage does not equal 100", async () => {
+        const invalidReq: AccountMessages.DepositRequestStruct = {
+          id: charityId,
+          liquidPercentage: 10,
+          lockedPercentage: 10,
+          donationMatch: ethers.constants.AddressZero,
+        };
+        await expect(
+          facet.depositERC20(invalidReq, tokenFake.address, depositAmt)
+        ).to.be.revertedWith("InvalidSplit");
+      });
+
+      it("reverts if no index fund contract is registered in the Registrar", async () => {
+        const curConfig = await registrarFake.queryConfig();
+        const regConfig: RegistrarStorage.ConfigStruct = {
+          ...curConfig,
+          indexFundContract: ethers.constants.AddressZero,
+        };
+        registrarFake.queryConfig.returns(regConfig);
+
+        await expect(
+          facet.depositERC20(depositToCharity, tokenFake.address, depositAmt)
+        ).to.be.revertedWith("No Index Fund");
+      });
+
+      it("if sender is the Index Fund: successfully overrides Endowment-level split ranges & defaults", async () => {
+        const expectedLockedAmt = BigNumber.from(0);
+        const expectedLiquidAmt = BigNumber.from(10000);
+
+        await expect(
+          facet.connect(indexFund).depositERC20(
             {
               id: charityId,
               lockedPercentage: 0,
@@ -297,8 +261,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
           .to.emit(facet, "EndowmentDeposit")
           .withArgs(charityId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
 
-        expect(donationMatchCharity.executeDonorMatch).to.not.have.been.called;
-
         const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
           charityId,
           tokenFake.address
@@ -307,302 +269,350 @@ describe("AccountsDepositWithdrawEndowments", function () {
         expect(liquidBal).to.equal(expectedLiquidAmt);
       });
 
-      it("deposits an ERC20 with no locked amount and includes a deposit fee", async () => {
-        const expectedLockedAmt = BigNumber.from(8991);
-        const expectedLiquidAmt = BigNumber.from(999);
-        const expectedFee = 10;
+      describe("to Charity Endowments", async () => {
+        it("adjust user split if it falls outside Endowment max/min split range", async () => {
+          // min is 10% on Registrar splits, so we adj user split to be in-line with that
+          const expectedLockedAmt = BigNumber.from(9000);
+          const expectedLiquidAmt = BigNumber.from(1000);
 
-        const charityBps: AccountStorage.EndowmentStruct = {
-          ...charity,
-          depositFee: {payoutAddress: genWallet().address, bps: 10},
-        };
-        await state.setEndowmentDetails(charityId, charityBps);
-
-        await expect(
-          facet.depositERC20(
-            {
-              id: charityId,
-              lockedPercentage: 0,
-              liquidPercentage: 100,
-              donationMatch: ethers.constants.AddressZero,
-            },
-            tokenFake.address,
-            depositAmt
+          await expect(
+            facet.depositERC20(
+              {
+                id: charityId,
+                lockedPercentage: 100,
+                liquidPercentage: 0,
+                donationMatch: ethers.constants.AddressZero,
+              },
+              tokenFake.address,
+              depositAmt
+            )
           )
-        )
-          .to.emit(facet, "EndowmentDeposit")
-          .withArgs(charityId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
+            .to.emit(facet, "EndowmentDeposit")
+            .withArgs(charityId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
 
-        expect(tokenFake.transfer).to.have.been.calledWith(
-          charityBps.depositFee.payoutAddress,
-          expectedFee
-        );
-        expect(donationMatchCharity.executeDonorMatch).to.not.have.been.called;
-
-        const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
-          charityId,
-          tokenFake.address
-        );
-        expect(lockedBal).to.equal(expectedLockedAmt);
-        expect(liquidBal).to.equal(expectedLiquidAmt);
-      });
-
-      it("skips donation matching when no donation match contract is registered in Registrar", async () => {
-        const expectedLockedAmt = BigNumber.from(6000);
-        const expectedLiquidAmt = BigNumber.from(4000);
-
-        await expect(facet.depositERC20(depositToCharity, tokenFake.address, depositAmt))
-          .to.emit(facet, "EndowmentDeposit")
-          .withArgs(depositToCharity.id, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
-
-        expect(donationMatchCharity.executeDonorMatch).to.not.have.been.called;
-
-        const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
-          depositToCharity.id,
-          tokenFake.address
-        );
-        expect(lockedBal).to.equal(expectedLockedAmt);
-        expect(liquidBal).to.equal(expectedLiquidAmt);
-      });
-
-      it("matches the donation", async () => {
-        const curConfig = await registrarFake.queryConfig();
-        const regConfig: RegistrarStorage.ConfigStruct = {
-          ...curConfig,
-          donationMatchCharitesContract: donationMatchCharity.address,
-        };
-        registrarFake.queryConfig.returns(regConfig);
-
-        const expectedLockedAmt = BigNumber.from(6000);
-        const expectedLiquidAmt = BigNumber.from(4000);
-
-        await expect(facet.depositERC20(depositToCharity, tokenFake.address, depositAmt))
-          .to.emit(facet, "EndowmentDeposit")
-          .withArgs(depositToCharity.id, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
-
-        expect(donationMatchCharity.executeDonorMatch).to.have.been.calledWith(
-          depositToCharity.id,
-          expectedLockedAmt,
-          await facet.signer.getAddress(),
-          regConfig.haloToken
-        );
-
-        const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
-          depositToCharity.id,
-          tokenFake.address
-        );
-        expect(lockedBal).to.equal(expectedLockedAmt);
-        expect(liquidBal).to.equal(expectedLiquidAmt);
-      });
-
-      it("matches the donation and includes a deposit fee", async () => {
-        const expectedFee = 10;
-
-        const charityBps: AccountStorage.EndowmentStruct = {
-          ...charity,
-          depositFee: {payoutAddress: genWallet().address, bps: 10},
-        };
-        await state.setEndowmentDetails(depositToCharity.id, charityBps);
-
-        const curConfig = await registrarFake.queryConfig();
-        const regConfig: RegistrarStorage.ConfigStruct = {
-          ...curConfig,
-          donationMatchCharitesContract: donationMatchCharity.address,
-        };
-        registrarFake.queryConfig.returns(regConfig);
-
-        const expectedLockedAmt = BigNumber.from(5994);
-        const expectedLiquidAmt = BigNumber.from(3996);
-
-        await expect(facet.depositERC20(depositToCharity, tokenFake.address, depositAmt))
-          .to.emit(facet, "EndowmentDeposit")
-          .withArgs(depositToCharity.id, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
-
-        expect(tokenFake.transfer).to.have.been.calledWith(
-          charityBps.depositFee.payoutAddress,
-          expectedFee
-        );
-        expect(donationMatchCharity.executeDonorMatch).to.have.been.calledWith(
-          depositToCharity.id,
-          expectedLockedAmt,
-          await facet.signer.getAddress(),
-          regConfig.haloToken
-        );
-
-        const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
-          depositToCharity.id,
-          tokenFake.address
-        );
-        expect(lockedBal).to.equal(expectedLockedAmt);
-        expect(liquidBal).to.equal(expectedLiquidAmt);
-      });
-    });
-
-    describe("to normal endowments", async () => {
-      it("deposits an ERC20 with no locked amount", async () => {
-        const expectedLockedAmt = BigNumber.from(8000);
-        const expectedLiquidAmt = BigNumber.from(2000);
-
-        await expect(
-          facet.depositERC20(
-            {
-              id: normalEndowId,
-              lockedPercentage: 0,
-              liquidPercentage: 100,
-              donationMatch: ethers.constants.AddressZero,
-            },
-            tokenFake.address,
-            depositAmt
-          )
-        )
-          .to.emit(facet, "EndowmentDeposit")
-          .withArgs(normalEndowId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
-
-        expect(donationMatch.executeDonorMatch).to.not.have.been.called;
-
-        const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
-          normalEndowId,
-          tokenFake.address
-        );
-        expect(lockedBal).to.equal(expectedLockedAmt);
-        expect(liquidBal).to.equal(expectedLiquidAmt);
-      });
-
-      it("deposits an ERC20 with no locked amount and includes a deposit fee", async () => {
-        const expectedLockedAmt = BigNumber.from(7992);
-        const expectedLiquidAmt = BigNumber.from(1998);
-        const expectedFee = 10;
-
-        const normalEndowBps: AccountStorage.EndowmentStruct = {
-          ...normalEndow,
-          depositFee: {payoutAddress: genWallet().address, bps: 10},
-        };
-        await state.setEndowmentDetails(normalEndowId, normalEndowBps);
-
-        await expect(
-          facet.depositERC20(
-            {
-              id: normalEndowId,
-              lockedPercentage: 0,
-              liquidPercentage: 100,
-              donationMatch: ethers.constants.AddressZero,
-            },
-            tokenFake.address,
-            depositAmt
-          )
-        )
-          .to.emit(facet, "EndowmentDeposit")
-          .withArgs(normalEndowId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
-
-        expect(tokenFake.transfer).to.have.been.calledWith(
-          normalEndowBps.depositFee.payoutAddress,
-          expectedFee
-        );
-        expect(donationMatch.executeDonorMatch).to.not.have.been.called;
-
-        const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
-          normalEndowId,
-          tokenFake.address
-        );
-        expect(lockedBal).to.equal(expectedLockedAmt);
-        expect(liquidBal).to.equal(expectedLiquidAmt);
-      });
-
-      it("skips donation matching when no donation match contract is associated with endowment being deposited to", async () => {
-        const expectedLockedAmt = BigNumber.from(6000);
-        const expectedLiquidAmt = BigNumber.from(4000);
-
-        await expect(facet.depositERC20(depositToNormalEndow, tokenFake.address, depositAmt))
-          .to.emit(facet, "EndowmentDeposit")
-          .withArgs(
-            depositToNormalEndow.id,
-            tokenFake.address,
-            expectedLockedAmt,
-            expectedLiquidAmt
+          const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+            charityId,
+            tokenFake.address
           );
-
-        expect(donationMatch.executeDonorMatch).to.not.have.been.called;
-
-        const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
-          depositToNormalEndow.id,
-          tokenFake.address
-        );
-        expect(lockedBal).to.equal(expectedLockedAmt);
-        expect(liquidBal).to.equal(expectedLiquidAmt);
-      });
-
-      it("matches the donation", async () => {
-        await state.setEndowmentDetails(normalEndowId, {
-          ...normalEndow,
-          donationMatchContract: donationMatch.address,
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
         });
 
-        const expectedLockedAmt = BigNumber.from(6000);
-        const expectedLiquidAmt = BigNumber.from(4000);
+        it("if ignore user splits set, take Endowment-level split default, regardless of user values", async () => {
+          const expectedLockedAmt = BigNumber.from(7500);
+          const expectedLiquidAmt = BigNumber.from(2500);
 
-        await expect(facet.depositERC20(depositToNormalEndow, tokenFake.address, depositAmt))
-          .to.emit(facet, "EndowmentDeposit")
-          .withArgs(
-            depositToNormalEndow.id,
-            tokenFake.address,
+          // turn on ignoring of user-passed splits
+          const ignoreUserSplits: AccountStorage.EndowmentStruct = {
+            ...charity,
+            ignoreUserSplits: true,
+          };
+          await state.setEndowmentDetails(charityId, ignoreUserSplits);
+
+          await expect(
+            facet.depositERC20(
+              {
+                id: charityId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
+              tokenFake.address,
+              depositAmt
+            )
+          )
+            .to.emit(facet, "EndowmentDeposit")
+            .withArgs(charityId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
+
+          const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+            charityId,
+            tokenFake.address
+          );
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
+        });
+
+        it("skips donation matching when no donation match contract is in Registrar", async () => {
+          const expectedLockedAmt = BigNumber.from(4000);
+          const expectedLiquidAmt = BigNumber.from(6000);
+
+          await expect(facet.depositERC20(depositToCharity, tokenFake.address, depositAmt))
+            .to.emit(facet, "EndowmentDeposit")
+            .withArgs(depositToCharity.id, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
+
+          expect(donationMatchCharity.executeDonorMatch).to.not.have.been.called;
+
+          const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+            depositToCharity.id,
+            tokenFake.address
+          );
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
+        });
+
+        it("matches the donation when contract is in Registrar and Locked split passed", async () => {
+          const curConfig = await registrarFake.queryConfig();
+          const regConfig: RegistrarStorage.ConfigStruct = {
+            ...curConfig,
+            donationMatchCharitesContract: donationMatchCharity.address,
+          };
+          registrarFake.queryConfig.returns(regConfig);
+
+          const expectedLockedAmt = BigNumber.from(4000);
+          const expectedLiquidAmt = BigNumber.from(6000);
+
+          await expect(facet.depositERC20(depositToCharity, tokenFake.address, depositAmt))
+            .to.emit(facet, "EndowmentDeposit")
+            .withArgs(depositToCharity.id, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
+
+          expect(donationMatchCharity.executeDonorMatch).to.have.been.calledWith(
+            depositToCharity.id,
             expectedLockedAmt,
-            expectedLiquidAmt
+            await facet.signer.getAddress(),
+            regConfig.haloToken
           );
 
-        expect(donationMatch.executeDonorMatch).to.have.been.calledWith(
-          depositToNormalEndow.id,
-          expectedLockedAmt,
-          await facet.signer.getAddress(),
-          normalEndow.daoToken
-        );
+          const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+            depositToCharity.id,
+            tokenFake.address
+          );
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
+        });
 
-        const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
-          depositToNormalEndow.id,
-          tokenFake.address
-        );
-        expect(lockedBal).to.equal(expectedLockedAmt);
-        expect(liquidBal).to.equal(expectedLiquidAmt);
+        it("deposit with protocol-level deposit fee only", async () => {
+          const expectedLockedAmt = BigNumber.from(3996);
+          const expectedLiquidAmt = BigNumber.from(5994);
+          const expectedFee = 10;
+
+          const depositBps: AccountStorage.EndowmentStruct = {
+            ...charity,
+            depositFee: {payoutAddress: genWallet().address, bps: 10},
+          };
+          await state.setEndowmentDetails(charityId, depositBps);
+
+          await expect(
+            facet.depositERC20(
+              depositToCharity,
+              tokenFake.address,
+              depositAmt
+            )
+          )
+            .to.emit(facet, "EndowmentDeposit")
+            .withArgs(charityId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
+
+          expect(tokenFake.transfer).to.have.been.calledWith(
+            depositBps.depositFee.payoutAddress,
+            expectedFee
+          );
+
+          const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+            charityId,
+            tokenFake.address
+          );
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
+        });
       });
 
-      it("matches the donation and includes a deposit fee", async () => {
-        const expectedFee = 10;
+      describe("to other endowment-types", async () => {
+        it("adjust user split if it falls outside Endowment max/min split range", async () => {
+          // User splits 0 / 100 
+          // Endow splits 50 / 80 / 20 
+          // Final splits 20 / 80
+          const expectedLockedAmt = BigNumber.from(2000);
+          const expectedLiquidAmt = BigNumber.from(8000);
 
-        const normalEndowBps: AccountStorage.EndowmentStruct = {
-          ...normalEndow,
-          donationMatchContract: donationMatch.address,
-          depositFee: {payoutAddress: genWallet().address, bps: 10},
-        };
-        await state.setEndowmentDetails(depositToNormalEndow.id, normalEndowBps);
+          await expect(
+            facet.depositERC20(
+              {
+                id: normalEndowId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
+              tokenFake.address,
+              depositAmt
+            )
+          )
+            .to.emit(facet, "EndowmentDeposit")
+            .withArgs(normalEndowId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
 
-        const expectedLockedAmt = BigNumber.from(5994);
-        const expectedLiquidAmt = BigNumber.from(3996);
+          const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+            normalEndowId,
+            tokenFake.address
+          );
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
+        });
 
-        await expect(facet.depositERC20(depositToNormalEndow, tokenFake.address, depositAmt))
-          .to.emit(facet, "EndowmentDeposit")
-          .withArgs(
+        it("if ignore user splits set, take Endowment-level split default, regardless of user values", async () => {
+          // take default split for Endow == 50%
+          const expectedLockedAmt = BigNumber.from(5000);
+          const expectedLiquidAmt = BigNumber.from(5000);
+
+          // turn on ignoring of user-passed splits
+          const ignoreUserSplits: AccountStorage.EndowmentStruct = {
+            ...normalEndow,
+            ignoreUserSplits: true,
+          };
+          await state.setEndowmentDetails(normalEndowId, ignoreUserSplits);
+
+          await expect(
+            facet.depositERC20(
+              {
+                id: normalEndowId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
+              tokenFake.address,
+              depositAmt
+            )
+          )
+            .to.emit(facet, "EndowmentDeposit")
+            .withArgs(normalEndowId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
+
+          const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+            normalEndowId,
+            tokenFake.address
+          );
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
+        });
+
+        it("skips donation matching when no donation match contract is associated with endowment being deposited to", async () => {
+          const expectedLockedAmt = BigNumber.from(4000);
+          const expectedLiquidAmt = BigNumber.from(6000);
+
+          await expect(facet.depositERC20(depositToNormalEndow, tokenFake.address, depositAmt))
+            .to.emit(facet, "EndowmentDeposit")
+            .withArgs(
+              depositToNormalEndow.id,
+              tokenFake.address,
+              expectedLockedAmt,
+              expectedLiquidAmt
+            );
+
+          expect(donationMatch.executeDonorMatch).to.not.have.been.called;
+
+          const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
             depositToNormalEndow.id,
-            tokenFake.address,
+            tokenFake.address
+          );
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
+        });
+
+        it("matches the donation when matching contract is setup & locked split amount is sent", async () => {
+          await state.setEndowmentDetails(normalEndowId, {
+            ...normalEndow,
+            donationMatchContract: donationMatch.address,
+          });
+
+          const expectedLockedAmt = BigNumber.from(4000);
+          const expectedLiquidAmt = BigNumber.from(6000);
+
+          await expect(facet.depositERC20(depositToNormalEndow, tokenFake.address, depositAmt))
+            .to.emit(facet, "EndowmentDeposit")
+            .withArgs(
+              depositToNormalEndow.id,
+              tokenFake.address,
+              expectedLockedAmt,
+              expectedLiquidAmt
+            );
+
+          expect(donationMatch.executeDonorMatch).to.have.been.calledWith(
+            depositToNormalEndow.id,
             expectedLockedAmt,
-            expectedLiquidAmt
+            await facet.signer.getAddress(),
+            normalEndow.daoToken
           );
 
-        expect(tokenFake.transfer).to.have.been.calledWith(
-          normalEndowBps.depositFee.payoutAddress,
-          expectedFee
-        );
+          const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+            depositToNormalEndow.id,
+            tokenFake.address
+          );
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
+        });
 
-        const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
-          depositToNormalEndow.id,
-          tokenFake.address
-        );
-        expect(lockedBal).to.equal(expectedLockedAmt);
-        expect(liquidBal).to.equal(expectedLiquidAmt);
-        expect(donationMatch.executeDonorMatch).to.have.been.calledWith(
-          depositToNormalEndow.id,
-          expectedLockedAmt,
-          await facet.signer.getAddress(),
-          normalEndow.daoToken
-        );
+        it("deposit with protocol-level deposit fee only", async () => {
+          const expectedLockedAmt = BigNumber.from(3996);
+          const expectedLiquidAmt = BigNumber.from(5994);
+          const expectedFee = 10;
+
+          const depositBps: AccountStorage.EndowmentStruct = {
+            ...normalEndow,
+            depositFee: {payoutAddress: genWallet().address, bps: 10},
+          };
+          await state.setEndowmentDetails(normalEndowId, depositBps);
+
+          await expect(
+            facet.depositERC20(
+              depositToNormalEndow,
+              tokenFake.address,
+              depositAmt
+            )
+          )
+            .to.emit(facet, "EndowmentDeposit")
+            .withArgs(normalEndowId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
+
+          expect(tokenFake.transfer).to.have.been.calledWith(
+            depositBps.depositFee.payoutAddress,
+            expectedFee
+          );
+
+          const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+            normalEndowId,
+            tokenFake.address
+          );
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
+        });
+
+        it("deposit with protocol & endowment-level deposit fees", async () => {
+          registrarFake.getFeeSettingsByFeeType.whenCalledWith(FeeTypes.Deposit).returns({payoutAddress: treasury, bps: 10});
+
+          const depositBps: AccountStorage.EndowmentStruct = {
+            ...normalEndow,
+            depositFee: {payoutAddress: endowOwner.address, bps: 100},
+          };
+          await state.setEndowmentDetails(depositToNormalEndow.id, depositBps);
+
+          const expectedFeeAp = BigNumber.from(depositAmt).mul(10).div(10000); // 10000 * 0.1% = 10
+          const amountLeftAfterApFees = BigNumber.from(depositAmt).sub(expectedFeeAp); // 9990
+          const expectedFeeEndow = amountLeftAfterApFees.mul(100).div(10000); // 9990 * 1% = 99
+          const finalAmountLeftover = amountLeftAfterApFees.sub(expectedFeeEndow); // 9990 - 99 = 9891
+
+          const expectedLockedAmt = finalAmountLeftover.mul(depositToNormalEndow.lockedPercentage).div(100); // 9891 * 40% = 3956
+          const expectedLiquidAmt = finalAmountLeftover.mul(depositToNormalEndow.liquidPercentage).div(100); // 9891 * 60% = 5934
+
+          await expect(facet.depositERC20(depositToNormalEndow, tokenFake.address, BigNumber.from(depositAmt)))
+            .to.emit(facet, "EndowmentDeposit")
+            .withArgs(
+              depositToNormalEndow.id,
+              tokenFake.address,
+              expectedLockedAmt,
+              expectedLiquidAmt
+            );
+
+          expect(tokenFake.transfer).to.have.been.calledWith(
+            treasury,
+            expectedFeeAp
+          );
+          expect(tokenFake.transfer).to.have.been.calledWith(
+            depositBps.depositFee.payoutAddress,
+            expectedFeeEndow
+          );
+
+          const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+            depositToNormalEndow.id,
+            tokenFake.address
+          );
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
+        });
       });
     });
   });

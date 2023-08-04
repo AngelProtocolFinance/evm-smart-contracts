@@ -124,12 +124,11 @@ contract AccountsDepositWithdrawEndowments is
           .bps;
       }
       if (depositFeeRateAp > 0) {
-        depositFeeAp = (amount.mul(tempEndowment.depositFee.bps)).div(LibAccounts.FEE_BASIS);
+        depositFeeAp = (amount.mul(depositFeeRateAp)).div(LibAccounts.FEE_BASIS);
         // Transfer AP Protocol fee to treasury
         IERC20(tokenAddress).safeTransfer(registrarConfig.treasury, depositFeeAp);
-
-        amountLeftover -= depositFeeAp;
       }
+      amountLeftover -= depositFeeAp;
 
       // ** Endowment specific deposit fee **
       // Calculated on the amount left after Protocol-level fee is deducted
@@ -139,33 +138,22 @@ contract AccountsDepositWithdrawEndowments is
         );
         // transfer endowment deposit fee to payout address
         IERC20(tokenAddress).safeTransfer(tempEndowment.depositFee.payoutAddress, depositFeeEndow);
-
-        amountLeftover -= depositFeeEndow;
       }
+      amountLeftover -= depositFeeEndow;
     }
 
-    uint256 lockedSplitPercent = details.lockedPercentage;
-    uint256 liquidSplitPercent = details.liquidPercentage;
-
+    // ** SPLIT ADJUSTMENTS AND CHECKS ** 
+    uint256 lockedSplitPercent = details.liquidPercentage;
+    uint256 liquidSplitPercent = details.lockedPercentage;
     require(registrarConfig.indexFundContract != address(0), "No Index Fund");
     if (msg.sender != registrarConfig.indexFundContract) {
-      if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
-        // use the Registrar default split for Charity Endowments
-        (lockedSplitPercent, liquidSplitPercent) = Validator.checkSplits(
-          registrarConfig.splitToLiquid,
-          lockedSplitPercent,
-          liquidSplitPercent,
-          tempEndowment.ignoreUserSplits
-        );
-      } else {
-        // use the Endowment-level SplitDetails
-        (lockedSplitPercent, liquidSplitPercent) = Validator.checkSplits(
-          tempEndowment.splitToLiquid,
-          lockedSplitPercent,
-          liquidSplitPercent,
-          tempEndowment.ignoreUserSplits
-        );
-      }
+      // adjust user passed liquid split to be in-line with endowment range (if falls outside)
+      liquidSplitPercent = Validator.adjustLiquidSplit(
+        tempEndowment.splitToLiquid,
+        details.liquidPercentage,
+        tempEndowment.ignoreUserSplits
+      );
+      lockedSplitPercent = 100 - liquidSplitPercent;
     }
 
     uint256 lockedAmount = (amountLeftover.mul(lockedSplitPercent)).div(LibAccounts.PERCENT_BASIS);
