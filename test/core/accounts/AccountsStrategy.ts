@@ -479,15 +479,14 @@ describe("AccountsStrategy", function () {
   describe("upon strategyRedeem", async function () {
     let facet: AccountsStrategy;
     let state: TestFacetProxyContract;
-    let token: DummyERC20;
-    let gateway: DummyGateway;
+    let token: FakeContract<IERC20>;
+    let gateway: FakeContract<IAxelarGateway>;
     let network: IAccountsStrategy.NetworkInfoStruct;
     const ACCOUNT_ID = 1;
 
     before(async function () {
-      token = await deployDummyERC20(owner);
-      gateway = await deployDummyGateway(owner);
-      await wait(gateway.setTestTokenAddress(token.address));
+      token = await smock.fake<IERC20>(IERC20__factory.createInterface());
+      gateway = await smock.fake<IAxelarGateway>(IAxelarGateway__factory.createInterface());
 
       network = {
         ...DEFAULT_NETWORK_INFO,
@@ -495,6 +494,7 @@ describe("AccountsStrategy", function () {
         axelarGateway: gateway.address,
       };
       registrar.queryNetworkConnection.returns(network);
+      gateway.tokenAddresses.returns(token.address);
     });
 
     beforeEach(async function () {
@@ -590,7 +590,6 @@ describe("AccountsStrategy", function () {
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
-        token.mint(facet.address, LOCK_AMT + LIQ_AMT);
         await wait(
           state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true)
         );
@@ -745,7 +744,6 @@ describe("AccountsStrategy", function () {
         endowDetails.gasFwd = gasFwd.address;
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
-        await token.mint(gasFwd.address, GAS_FEE);
         await gasFwd.setVariable("accounts", facet.address);
       });
 
