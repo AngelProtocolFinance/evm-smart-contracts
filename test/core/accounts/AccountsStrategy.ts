@@ -54,29 +54,48 @@ use(smock.matchers);
 
 describe("AccountsStrategy", function () {
   const {ethers} = hre;
+
+  const networkNameThis = "ThisNet";
+  const networkNameThat = "ThatNet";
+
   let owner: SignerWithAddress;
   let admin: SignerWithAddress;
   let user: SignerWithAddress;
   let registrar: FakeContract<Registrar>;
   let router: FakeContract<Router>;
   let vault: FakeContract<IVault>;
+
   let facetImpl: AccountsStrategy;
+  let state: TestFacetProxyContract;
+  let facet: AccountsStrategy;
 
   before(async function () {
     const {deployer, proxyAdmin, apTeam1} = await getSigners(hre);
     owner = deployer;
     admin = proxyAdmin;
     user = apTeam1;
+
     vault = await smock.fake<IVault>(IVault__factory.createInterface());
     registrar = await smock.fake<Registrar>(new Registrar__factory());
     router = await smock.fake<Router>(new Router__factory());
-    let Facet = new AccountsStrategy__factory(owner);
+
+    const Facet = new AccountsStrategy__factory(owner);
     facetImpl = await Facet.deploy();
   });
 
+  beforeEach(async function () {
+    state = await deployFacetAsProxy(hre, owner, admin, facetImpl.address);
+    facet = AccountsStrategy__factory.connect(state.address, owner);
+
+    const config: AccountStorage.ConfigStruct = {
+      ...DEFAULT_ACCOUNTS_CONFIG,
+      networkName: networkNameThis,
+      registrarContract: registrar.address,
+    };
+    await state.setConfig(config);
+  });
+
   describe("upon strategyInvest", async function () {
-    let facet: AccountsStrategy;
-    let state: TestFacetProxyContract;
     let token: FakeContract<IERC20>;
     let gateway: FakeContract<IAxelarGateway>;
     let network: IAccountsStrategy.NetworkInfoStruct;
@@ -93,11 +112,6 @@ describe("AccountsStrategy", function () {
       };
       registrar.queryNetworkConnection.returns(network);
       gateway.tokenAddresses.returns(token.address);
-    });
-
-    beforeEach(async function () {
-      state = await deployFacetAsProxy(hre, owner, admin, facetImpl.address);
-      facet = AccountsStrategy__factory.connect(state.address, owner);
     });
 
     describe("reverts when", async function () {
@@ -125,11 +139,6 @@ describe("AccountsStrategy", function () {
 
       it("the strategy is not approved", async function () {
         await wait(state.setEndowmentDetails(1, DEFAULT_CHARITY_ENDOWMENT));
-        let config = {
-          ...DEFAULT_ACCOUNTS_CONFIG,
-          registrarContract: registrar.address,
-        };
-        await wait(state.setConfig(config));
         await expect(facet.strategyInvest(ACCOUNT_ID, DEFAULT_INVEST_REQUEST)).to.be.revertedWith(
           "Strategy is not approved"
         );
@@ -145,12 +154,6 @@ describe("AccountsStrategy", function () {
           },
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
-
-        let config = {
-          ...DEFAULT_ACCOUNTS_CONFIG,
-          registrarContract: registrar.address,
-        };
-        await wait(state.setConfig(config));
 
         let stratParams = {
           ...DEFAULT_STRATEGY_PARAMS,
@@ -178,12 +181,6 @@ describe("AccountsStrategy", function () {
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
-        let config = {
-          ...DEFAULT_ACCOUNTS_CONFIG,
-          registrarContract: registrar.address,
-        };
-        await wait(state.setConfig(config));
-
         let stratParams = {
           ...DEFAULT_STRATEGY_PARAMS,
           approvalState: StrategyApprovalState.APPROVED,
@@ -200,12 +197,6 @@ describe("AccountsStrategy", function () {
       });
 
       it("the token isn't accepted", async function () {
-        let config = {
-          ...DEFAULT_ACCOUNTS_CONFIG,
-          registrarContract: registrar.address,
-        };
-        await wait(state.setConfig(config));
-
         let stratParams = {
           ...DEFAULT_STRATEGY_PARAMS,
           approvalState: StrategyApprovalState.APPROVED,
@@ -259,14 +250,6 @@ describe("AccountsStrategy", function () {
 
         token.transfer.whenCalledWith(router.address, LIQ_AMT + LOCK_AMT).returns(true);
         await wait(state.setEndowmentTokenBalance(ACCOUNT_ID, token.address, 500, 500));
-
-        const config = {
-          ...DEFAULT_ACCOUNTS_CONFIG,
-          networkName: "ThisNet",
-          gateway: gateway.address,
-          registrarContract: registrar.address,
-        };
-        await wait(state.setConfig(config));
       });
 
       it("and the response is SUCCESS", async function () {
@@ -373,14 +356,6 @@ describe("AccountsStrategy", function () {
       });
 
       beforeEach(async function () {
-        const config = {
-          ...DEFAULT_ACCOUNTS_CONFIG,
-          registrarContract: registrar.address,
-          networkName: "ThisNet",
-          gateway: gateway.address,
-        };
-        await wait(state.setConfig(config));
-
         const endowDetails: AccountStorage.EndowmentStruct = {
           ...DEFAULT_CHARITY_ENDOWMENT,
           gasFwd: gasFwd.address,
@@ -477,8 +452,6 @@ describe("AccountsStrategy", function () {
   });
 
   describe("upon strategyRedeem", async function () {
-    let facet: AccountsStrategy;
-    let state: TestFacetProxyContract;
     let token: FakeContract<IERC20>;
     let gateway: FakeContract<IAxelarGateway>;
     let network: IAccountsStrategy.NetworkInfoStruct;
@@ -495,11 +468,6 @@ describe("AccountsStrategy", function () {
       };
       registrar.queryNetworkConnection.returns(network);
       gateway.tokenAddresses.returns(token.address);
-    });
-
-    beforeEach(async function () {
-      state = await deployFacetAsProxy(hre, owner, admin, facetImpl.address);
-      facet = AccountsStrategy__factory.connect(state.address, owner);
     });
 
     describe("reverts when", async function () {
@@ -535,9 +503,6 @@ describe("AccountsStrategy", function () {
         let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
         endowDetails.owner = owner.address;
         await wait(state.setEndowmentDetails(1, endowDetails));
-        let config = DEFAULT_ACCOUNTS_CONFIG;
-        config.registrarContract = registrar.address;
-        await wait(state.setConfig(config));
         await expect(facet.strategyRedeem(ACCOUNT_ID, DEFAULT_REDEEM_REQUEST)).to.be.revertedWith(
           "Strategy is not approved"
         );
@@ -594,13 +559,6 @@ describe("AccountsStrategy", function () {
         await wait(
           state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true)
         );
-
-        const config: AccountStorage.ConfigStruct = {
-          ...DEFAULT_ACCOUNTS_CONFIG,
-          networkName,
-          registrarContract: registrar.address,
-        };
-        await wait(state.setConfig(config));
       });
 
       it("and the response is SUCCESS", async function () {
@@ -760,13 +718,6 @@ describe("AccountsStrategy", function () {
       });
 
       beforeEach(async function () {
-        const config = {
-          ...DEFAULT_ACCOUNTS_CONFIG,
-          registrarContract: registrar.address,
-          networkName: "ThisNet",
-        };
-        await wait(state.setConfig(config));
-
         endowDetails = {
           ...DEFAULT_CHARITY_ENDOWMENT,
           gasFwd: gasFwd.address,
@@ -836,8 +787,6 @@ describe("AccountsStrategy", function () {
   });
 
   describe("upon strategyRedeemAll", async function () {
-    let facet: AccountsStrategy;
-    let state: TestFacetProxyContract;
     let token: DummyERC20;
     let gateway: DummyGateway;
     const ACCOUNT_ID = 1;
@@ -859,11 +808,6 @@ describe("AccountsStrategy", function () {
         approvalState: StrategyApprovalState.NOT_APPROVED,
       };
       registrar.getStrategyParamsById.returns(stratParams);
-    });
-
-    beforeEach(async function () {
-      state = await deployFacetAsProxy(hre, owner, admin, facetImpl.address);
-      facet = AccountsStrategy__factory.connect(state.address, owner);
     });
 
     describe("reverts when", async function () {
@@ -917,9 +861,6 @@ describe("AccountsStrategy", function () {
           },
         };
         await wait(state.setEndowmentDetails(1, endowDetails));
-        let config = DEFAULT_ACCOUNTS_CONFIG;
-        config.registrarContract = registrar.address;
-        await wait(state.setConfig(config));
         let redeemAllRequest = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLiquid: true,
@@ -956,14 +897,6 @@ describe("AccountsStrategy", function () {
         });
 
         beforeEach(async function () {
-          const config = {
-            ...DEFAULT_ACCOUNTS_CONFIG,
-            networkName: "ThisNet",
-            gateway: gateway.address,
-            registrarContract: registrar.address,
-          };
-          await wait(state.setConfig(config));
-
           let endowDetails: AccountStorage.EndowmentStruct = {
             ...DEFAULT_CHARITY_ENDOWMENT,
             owner: owner.address,
@@ -1082,13 +1015,6 @@ describe("AccountsStrategy", function () {
       });
 
       beforeEach(async function () {
-        const config = {
-          ...DEFAULT_ACCOUNTS_CONFIG,
-          registrarContract: registrar.address,
-          networkName: "ThisNet",
-        };
-        await wait(state.setConfig(config));
-
         let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
         endowDetails.settingsController.liquidInvestmentManagement = {
           locked: false,
@@ -1154,8 +1080,6 @@ describe("AccountsStrategy", function () {
   });
 
   describe("upon axelar callback", async function () {
-    let facet: AccountsStrategy;
-    let state: TestFacetProxyContract;
     let token: DummyERC20;
     let gateway: DummyGateway;
     const ACCOUNT_ID = 1;
@@ -1178,17 +1102,6 @@ describe("AccountsStrategy", function () {
         approvalState: StrategyApprovalState.NOT_APPROVED,
       };
       registrar.getStrategyParamsById.returns(stratParams);
-    });
-
-    beforeEach(async function () {
-      state = await deployFacetAsProxy(hre, owner, admin, facetImpl.address);
-      facet = AccountsStrategy__factory.connect(state.address, owner);
-      const config = {
-        ...DEFAULT_ACCOUNTS_CONFIG,
-        networkName: "ThisNet",
-        registrarContract: registrar.address,
-      };
-      await wait(state.setConfig(config));
     });
 
     it("reverts in _execute if the call didn't originate from the expected chain", async function () {
