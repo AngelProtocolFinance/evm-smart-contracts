@@ -2,7 +2,6 @@ import {FakeContract, MockContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import hre from "hardhat";
-
 import {deployDummyGasService} from "tasks/helpers";
 import {
   DEFAULT_ACCOUNTS_CONFIG,
@@ -41,7 +40,7 @@ import {
 } from "typechain-types";
 import {IAccountsStrategy} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {StrategyApprovalState, VaultActionStatus, getSigners} from "utils";
+import {StrategyApprovalState, VaultActionStatus, getChainId, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
@@ -86,7 +85,7 @@ describe("AccountsStrategy", function () {
 
       network = {
         ...DEFAULT_NETWORK_INFO,
-        chainId: (await ethers.provider.getNetwork()).chainId,
+        chainId: await getChainId(hre),
         axelarGateway: gateway.address,
       };
       registrar.queryNetworkConnection.returns(network);
@@ -222,7 +221,7 @@ describe("AccountsStrategy", function () {
       before(async function () {
         const network = {
           ...DEFAULT_NETWORK_INFO,
-          chainId: (await ethers.provider.getNetwork()).chainId,
+          chainId: await getChainId(hre),
           router: router.address,
           axelarGateway: gateway.address,
         };
@@ -348,7 +347,7 @@ describe("AccountsStrategy", function () {
 
         const thisNet = {
           ...DEFAULT_NETWORK_INFO,
-          chainId: (await ethers.provider.getNetwork()).chainId,
+          chainId: await getChainId(hre),
           axelarGateway: gateway.address,
           gasReceiver: gasReceiver.address,
         };
@@ -475,7 +474,7 @@ describe("AccountsStrategy", function () {
 
       network = {
         ...DEFAULT_NETWORK_INFO,
-        chainId: (await ethers.provider.getNetwork()).chainId,
+        chainId: await getChainId(hre),
         axelarGateway: gateway.address,
       };
       registrar.queryNetworkConnection.returns(network);
@@ -540,7 +539,7 @@ describe("AccountsStrategy", function () {
       before(async function () {
         const network = {
           ...DEFAULT_NETWORK_INFO,
-          chainId: (await ethers.provider.getNetwork()).chainId,
+          chainId: await getChainId(hre),
           router: router.address,
           axelarGateway: gateway.address,
         };
@@ -682,7 +681,7 @@ describe("AccountsStrategy", function () {
 
         const thisNet = {
           ...DEFAULT_NETWORK_INFO,
-          chainId: (await ethers.provider.getNetwork()).chainId,
+          chainId: await getChainId(hre),
           axelarGateway: gateway.address,
           gasReceiver: gasReceiver.address,
         };
@@ -789,7 +788,7 @@ describe("AccountsStrategy", function () {
 
       const network = {
         ...DEFAULT_NETWORK_INFO,
-        chainId: (await ethers.provider.getNetwork()).chainId,
+        chainId: await getChainId(hre),
         axelarGateway: gateway.address,
       };
       registrar.queryNetworkConnection.returns(network);
@@ -881,7 +880,7 @@ describe("AccountsStrategy", function () {
         before(async function () {
           const network = {
             ...DEFAULT_NETWORK_INFO,
-            chainId: (await ethers.provider.getNetwork()).chainId,
+            chainId: await getChainId(hre),
             axelarGateway: gateway.address,
             router: router.address,
           };
@@ -1000,7 +999,7 @@ describe("AccountsStrategy", function () {
 
         const thisNet = {
           ...DEFAULT_NETWORK_INFO,
-          chainId: (await ethers.provider.getNetwork()).chainId,
+          chainId: await getChainId(hre),
           axelarGateway: gateway.address,
           gasReceiver: gasReceiver.address,
         };
@@ -1107,7 +1106,7 @@ describe("AccountsStrategy", function () {
 
       const thisNet = {
         ...DEFAULT_NETWORK_INFO,
-        chainId: (await ethers.provider.getNetwork()).chainId,
+        chainId: await getChainId(hre),
         axelarGateway: gateway.address,
       };
       registrar.queryNetworkConnection.whenCalledWith("ThisNet").returns(thisNet);
