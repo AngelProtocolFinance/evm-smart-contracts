@@ -142,9 +142,9 @@ contract AccountsDepositWithdrawEndowments is
       amountLeftover -= depositFeeEndow;
     }
 
-    // ** SPLIT ADJUSTMENTS AND CHECKS ** 
-    uint256 lockedSplitPercent = details.liquidPercentage;
-    uint256 liquidSplitPercent = details.lockedPercentage;
+    // ** SPLIT ADJUSTMENTS AND CHECKS **
+    uint256 lockedSplitPercent = details.lockedPercentage;
+    uint256 liquidSplitPercent = details.liquidPercentage;
     require(registrarConfig.indexFundContract != address(0), "No Index Fund");
     if (msg.sender != registrarConfig.indexFundContract) {
       // adjust user passed liquid split to be in-line with endowment range (if falls outside)
