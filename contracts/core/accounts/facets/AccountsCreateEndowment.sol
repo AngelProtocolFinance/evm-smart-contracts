@@ -35,16 +35,17 @@ contract AccountsCreateEndowment is
     address registrarAddress = state.config.registrarContract;
 
     RegistrarStorage.Config memory registrar_config = IRegistrar(registrarAddress).queryConfig();
-    LibAccounts.FeeSetting memory earlyLockedWithdrawFee = IRegistrar(registrarAddress)
-      .getFeeSettingsByFeeType(LibAccounts.FeeTypes.EarlyLockedWithdrawCharity);
 
     if (LibAccounts.EndowmentType.Charity == details.endowType) {
       require(msg.sender == registrar_config.charityApplications, "Unauthorized");
-    } else {
-      Validator.validateFee(details.earlyLockedWithdrawFee);
-      earlyLockedWithdrawFee = details.earlyLockedWithdrawFee;
+      // Set all charity endowment-level fees to 0. Charities must use the Registrar Protocol-level fees.
+      details.withdrawFee = LibAccounts.FeeSetting({payoutAddress: address(0), bps: 0});
+      details.earlyLockedWithdrawFee = LibAccounts.FeeSetting({payoutAddress: address(0), bps: 0});
+      details.earlyLockedWithdrawFee = LibAccounts.FeeSetting({payoutAddress: address(0), bps: 0});
+      details.earlyLockedWithdrawFee = LibAccounts.FeeSetting({payoutAddress: address(0), bps: 0});
     }
-    // check all of the other fees
+    // check all fees are valid
+    Validator.validateFee(details.earlyLockedWithdrawFee);
     Validator.validateFee(details.withdrawFee);
     Validator.validateFee(details.depositFee);
     Validator.validateFee(details.balanceFee);
@@ -54,16 +55,6 @@ contract AccountsCreateEndowment is
 
     if (LibAccounts.EndowmentType.Charity != details.endowType) {
       require(details.threshold <= details.members.length, "Threshold greater than member count");
-    }
-
-    LibAccounts.SplitDetails memory splitSettings;
-    bool ignoreUserSplit;
-
-    if (LibAccounts.EndowmentType.Charity == details.endowType) {
-      ignoreUserSplit = false;
-    } else {
-      splitSettings = details.splitToLiquid;
-      ignoreUserSplit = details.ignoreUserSplits;
     }
 
     newEndowId = state.config.nextAccountId;
@@ -91,7 +82,7 @@ contract AccountsCreateEndowment is
       donationMatchContract: address(0),
       allowlistedBeneficiaries: details.allowlistedBeneficiaries,
       allowlistedContributors: details.allowlistedContributors,
-      earlyLockedWithdrawFee: earlyLockedWithdrawFee,
+      earlyLockedWithdrawFee: details.earlyLockedWithdrawFee,
       withdrawFee: details.withdrawFee,
       depositFee: details.depositFee,
       balanceFee: details.balanceFee,
@@ -102,8 +93,8 @@ contract AccountsCreateEndowment is
       proposalLink: details.proposalLink,
       settingsController: details.settingsController,
       parent: details.parent,
-      ignoreUserSplits: ignoreUserSplit,
-      splitToLiquid: splitSettings,
+      ignoreUserSplits: details.ignoreUserSplits,
+      splitToLiquid: details.splitToLiquid,
       referralId: details.referralId,
       gasFwd: gasFwd
     });
