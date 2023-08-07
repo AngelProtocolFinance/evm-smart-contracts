@@ -26,9 +26,17 @@ contract GasFwd is IGasFwd, Initializable {
     _;
   }
 
-  function payForGas(address token, uint256 amount) external onlyAccounts {
-    IERC20(token).safeTransfer(msg.sender, amount);
-    emit GasPay(token, amount);
+  function payForGas(address token, uint256 amount) external onlyAccounts returns (uint256) {
+    uint256 balance = IERC20(token).balanceOf(address(this));
+    if (amount > balance) {
+      IERC20(token).safeTransfer(msg.sender, balance);
+      emit GasPay(token, balance);
+      return balance;
+    } else {    
+      IERC20(token).safeTransfer(msg.sender, amount);
+      emit GasPay(token, amount);
+      return amount;
+    }
   }
 
   function sweep(address token) external onlyAccounts returns (uint256) {
