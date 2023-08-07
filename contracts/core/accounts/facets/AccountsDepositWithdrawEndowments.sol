@@ -52,7 +52,7 @@ contract AccountsDepositWithdrawEndowments is
     Utils._execute(registrarConfig.wMaticAddress, msg.value, abi.encodeWithSignature("deposit()"));
 
     // finish donation process with the newly wrapped MATIC
-    processTokenDeposit(details, registrarConfig.wMaticAddress, msg.value);
+    processTokenDeposit(details, registrarConfig.wMaticAddress, msg.value, false);
   }
 
   /**
@@ -81,7 +81,7 @@ contract AccountsDepositWithdrawEndowments is
 
     IERC20(tokenAddress).safeTransferFrom(msg.sender, address(this), amount);
 
-    processTokenDeposit(details, tokenAddress, amount);
+    processTokenDeposit(details, tokenAddress, amount, false);
   }
 
   /**
@@ -90,11 +90,13 @@ contract AccountsDepositWithdrawEndowments is
    * @param details The details of the deposit
    * @param tokenAddress The address of the token to deposit (only called with USDC address)
    * @param amount The amount of the token to deposit (in USDC)
+   * @param transfer Internal Endowment <> Endowment transfer signifier
    */
   function processTokenDeposit(
     AccountMessages.DepositRequest memory details,
     address tokenAddress,
-    uint256 amount
+    uint256 amount,
+    bool transfer
   ) internal {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
@@ -107,12 +109,12 @@ contract AccountsDepositWithdrawEndowments is
     // ** DEPOSIT FEE CALCULATIONS **
     uint256 depositFeeAp = 0;
     uint256 depositFeeEndow = 0;
-    uint256 depositFeeRateAp;
     uint256 amountLeftover = amount;
     // We don't apply fees on Endowment <> Endowment transfers
     // (ie. originates from this contract via the Withdraw endpoint)
-    if (msg.sender != address(this)) {
+    if (!transfer) {
       // ** Protocol-level Deposit Fee **
+      uint256 depositFeeRateAp;
       // Looked up from Registrar Fees mapping
       if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
         depositFeeRateAp = IRegistrar(state.config.registrarContract)
@@ -127,10 +129,10 @@ contract AccountsDepositWithdrawEndowments is
         depositFeeAp = (amount.mul(depositFeeRateAp)).div(LibAccounts.FEE_BASIS);
         // Transfer AP Protocol fee to treasury
         IERC20(tokenAddress).safeTransfer(registrarConfig.treasury, depositFeeAp);
+        amountLeftover = amountLeftover.sub(depositFeeAp);
       }
-      amountLeftover -= depositFeeAp;
 
-      // ** Endowment specific deposit fee **
+      // ** Endowment-level Deposit Fee **
       // Calculated on the amount left after Protocol-level fee is deducted
       if (tempEndowment.depositFee.bps > 0) {
         depositFeeEndow = (amountLeftover.mul(tempEndowment.depositFee.bps)).div(
@@ -138,8 +140,8 @@ contract AccountsDepositWithdrawEndowments is
         );
         // transfer endowment deposit fee to payout address
         IERC20(tokenAddress).safeTransfer(tempEndowment.depositFee.payoutAddress, depositFeeEndow);
+        amountLeftover = amountLeftover.sub(depositFeeEndow);
       }
-      amountLeftover -= depositFeeEndow;
     }
 
     // ** SPLIT ADJUSTMENTS AND CHECKS **
@@ -330,7 +332,8 @@ contract AccountsDepositWithdrawEndowments is
               donationMatch: msg.sender
             }),
             tokens[t].addr,
-            amountLeftover
+            amountLeftover,
+            true
           );
         } else {
           processTokenDeposit(
@@ -341,7 +344,8 @@ contract AccountsDepositWithdrawEndowments is
               donationMatch: address(this)
             }),
             tokens[t].addr,
-            amountLeftover
+            amountLeftover,
+            true
           );
         }
       }

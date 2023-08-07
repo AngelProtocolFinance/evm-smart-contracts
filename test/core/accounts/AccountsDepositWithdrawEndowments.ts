@@ -590,27 +590,79 @@ describe("AccountsDepositWithdrawEndowments", function () {
         });
 
         it("deposit with protocol-level deposit fee only", async () => {
-          const expectedLockedAmt = BigNumber.from(3996);
-          const expectedLiquidAmt = BigNumber.from(5994);
-          const expectedFee = 10;
-
           const depositBps: AccountStorage.EndowmentStruct = {
             ...normalEndow,
-            depositFee: {payoutAddress: genWallet().address, bps: 10},
+            depositFee: {payoutAddress: treasury, bps: 10},
           };
           await state.setEndowmentDetails(normalEndowId, depositBps);
+
+          const expectedFeeAp = BigNumber.from(depositAmt).mul(10).div(10000); // 10
+          const amountLeftAfterApFees = BigNumber.from(depositAmt).sub(expectedFeeAp); // 9990
+          const expectedFeeEndow = amountLeftAfterApFees.mul(0).div(10000); // 0
+          const finalAmountLeftover = amountLeftAfterApFees.sub(expectedFeeEndow); // 9990 - 0 = 9990
+
+          const expectedLockedAmt = finalAmountLeftover
+            .mul(depositToNormalEndow.lockedPercentage)
+            .div(100);
+          const expectedLiquidAmt = finalAmountLeftover
+            .mul(depositToNormalEndow.liquidPercentage)
+            .div(100);
 
           await expect(facet.depositERC20(depositToNormalEndow, tokenFake.address, depositAmt))
             .to.emit(facet, "EndowmentDeposit")
             .withArgs(normalEndowId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
 
-          expect(tokenFake.transfer).to.have.been.calledWith(
-            depositBps.depositFee.payoutAddress,
-            expectedFee
-          );
+          expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
 
           const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
             normalEndowId,
+            tokenFake.address
+          );
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
+        });
+
+        it("deposit with endowment-level deposit fee only", async () => {
+          registrarFake.getFeeSettingsByFeeType
+            .whenCalledWith(FeeTypes.Deposit)
+            .returns({payoutAddress: treasury, bps: 0});
+
+          const depositBps: AccountStorage.EndowmentStruct = {
+            ...normalEndow,
+            depositFee: {payoutAddress: endowOwner.address, bps: 100},
+          };
+          await state.setEndowmentDetails(depositToNormalEndow.id, depositBps);
+
+          const expectedFeeAp = BigNumber.from(depositAmt).mul(0).div(10000); // 0
+          const amountLeftAfterApFees = BigNumber.from(depositAmt).sub(expectedFeeAp); // 10000
+          const expectedFeeEndow = amountLeftAfterApFees.mul(100).div(10000); // 10000 * 1% = 100
+          const finalAmountLeftover = amountLeftAfterApFees.sub(expectedFeeEndow); // 10000 - 100 = 9900
+
+          const expectedLockedAmt = finalAmountLeftover
+            .mul(depositToNormalEndow.lockedPercentage)
+            .div(100);
+          const expectedLiquidAmt = finalAmountLeftover
+            .mul(depositToNormalEndow.liquidPercentage)
+            .div(100);
+
+          await expect(
+            facet.depositERC20(depositToNormalEndow, tokenFake.address, BigNumber.from(depositAmt))
+          )
+            .to.emit(facet, "EndowmentDeposit")
+            .withArgs(
+              depositToNormalEndow.id,
+              tokenFake.address,
+              expectedLockedAmt,
+              expectedLiquidAmt
+            );
+
+          expect(tokenFake.transfer).to.have.been.calledWith(
+            depositBps.depositFee.payoutAddress,
+            expectedFeeEndow
+          );
+
+          const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+            depositToNormalEndow.id,
             tokenFake.address
           );
           expect(lockedBal).to.equal(expectedLockedAmt);
@@ -650,7 +702,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
               expectedLockedAmt,
               expectedLiquidAmt
             );
-
           expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
           expect(tokenFake.transfer).to.have.been.calledWith(
             depositBps.depositFee.payoutAddress,
