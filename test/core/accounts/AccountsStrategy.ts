@@ -899,10 +899,13 @@ describe("AccountsStrategy", function () {
     });
 
     describe("and calls axelar GMP", async function () {
+      let endowDetails: AccountStorage.EndowmentStruct;
+
       beforeEach(async function () {
-        const endowDetails: AccountStorage.EndowmentStruct = {
+        endowDetails = {
           ...DEFAULT_CHARITY_ENDOWMENT,
           gasFwd: gasFwd.address,
+          owner: genWallet().address,
           settingsController: {
             ...DEFAULT_CHARITY_ENDOWMENT.settingsController,
             liquidInvestmentManagement: {
@@ -939,6 +942,9 @@ describe("AccountsStrategy", function () {
           gasFee: GAS_FEE,
         };
 
+        gasFwd.payForGas.returns(GAS_FEE);
+        token.approve.returns(true);
+
         const payload = packActionData({
           destinationChain: NET_NAME_THAT,
           strategyId: DEFAULT_STRATEGY_SELECTOR,
@@ -950,22 +956,24 @@ describe("AccountsStrategy", function () {
           status: VaultActionStatus.UNPROCESSED,
         });
 
-        expect(await facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest))
-          // .to.emit(gasReceiver, "GasPaid")
-          // .withArgs(
-          //   facet.address,
-          //   networkNameThat,
-          //   router.address,
-          //   payload,
-          //   token.address,
-          //   GAS_FEE,
-          //   gasFwd.address
-          // )
-          .to.emit(gateway, "ContractCall")
-          .withArgs(NET_NAME_THAT, router.address, payload);
+        await expect(facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest)).to.not.be.reverted;
 
-        // const gasReceiverApproved = await token.allowance(facet.address, gasReceiver.address);
-        // expect(gasReceiverApproved).to.equal(GAS_FEE);
+        expect(gasFwd.payForGas).to.have.been.calledWith(token.address, redeemAllRequest.gasFee);
+        expect(token.approve).to.have.been.calledWith(netInfoThis.gasReceiver, GAS_FEE);
+        expect(gasService.payGasForContractCall).to.have.been.calledWith(
+          facet.address,
+          NET_NAME_THAT,
+          netInfoThat.router.toLowerCase(),
+          payload,
+          token.address,
+          GAS_FEE,
+          endowDetails.owner
+        );
+        expect(gateway.callContract).to.have.been.calledWith(
+          NET_NAME_THAT,
+          netInfoThat.router.toLowerCase(),
+          payload
+        );
       });
     });
   });
