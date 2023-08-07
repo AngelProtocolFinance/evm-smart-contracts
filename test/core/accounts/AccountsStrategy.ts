@@ -658,6 +658,8 @@ describe("AccountsStrategy", function () {
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
+        token.approve.returns(true);
+
         const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
           network: NET_NAME_THAT,
@@ -684,8 +686,6 @@ describe("AccountsStrategy", function () {
           liqAmt: LIQ_AMT,
           status: VaultActionStatus.UNPROCESSED,
         });
-
-        token.approve.returns(true);
 
         await expect(facet.strategyRedeem(ACCOUNT_ID, redeemRequest)).to.not.be.reverted;
 
@@ -920,6 +920,8 @@ describe("AccountsStrategy", function () {
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
+        token.approve.returns(true);
+
         const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
           network: NET_NAME_THAT,
@@ -941,7 +943,6 @@ describe("AccountsStrategy", function () {
           };
 
           gasFwd.payForGas.returns(payForGasResult);
-          token.approve.returns(true);
 
           const payload = packActionData({
             destinationChain: NET_NAME_THAT,
