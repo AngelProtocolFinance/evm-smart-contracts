@@ -66,8 +66,8 @@ describe("AccountsStrategy", function () {
   const LIQ_AMT = 200;
   const GAS_FEE = 100;
 
-  const networkNameThis = "ThisNet";
-  const networkNameThat = "ThatNet";
+  const NET_NAME_THIS = "ThisNet";
+  const NET_NAME_THAT = "ThatNet";
 
   let owner: SignerWithAddress;
   let admin: SignerWithAddress;
@@ -119,8 +119,8 @@ describe("AccountsStrategy", function () {
       chainId: 42,
       router: genWallet().address,
     };
-    registrar.queryNetworkConnection.whenCalledWith(networkNameThis).returns(netInfoThis);
-    registrar.queryNetworkConnection.whenCalledWith(networkNameThat).returns(netInfoThat);
+    registrar.queryNetworkConnection.whenCalledWith(NET_NAME_THIS).returns(netInfoThis);
+    registrar.queryNetworkConnection.whenCalledWith(NET_NAME_THAT).returns(netInfoThat);
   });
 
   beforeEach(async function () {
@@ -129,7 +129,7 @@ describe("AccountsStrategy", function () {
 
     const config: AccountStorage.ConfigStruct = {
       ...DEFAULT_ACCOUNTS_CONFIG,
-      networkName: networkNameThis,
+      networkName: NET_NAME_THIS,
       registrarContract: registrar.address,
     };
     await state.setConfig(config);
@@ -141,7 +141,7 @@ describe("AccountsStrategy", function () {
     beforeEach(() => {
       const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
         ...DEFAULT_STRATEGY_PARAMS,
-        network: networkNameThis,
+        network: NET_NAME_THIS,
         approvalState: StrategyApprovalState.APPROVED,
       };
       registrar.getStrategyParamsById.returns(stratParams);
@@ -271,7 +271,7 @@ describe("AccountsStrategy", function () {
 
         const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
-          network: networkNameThis,
+          network: NET_NAME_THIS,
           approvalState: StrategyApprovalState.APPROVED,
         };
         registrar.getStrategyParamsById.returns(stratParams);
@@ -391,7 +391,7 @@ describe("AccountsStrategy", function () {
 
         const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
-          network: networkNameThat,
+          network: NET_NAME_THAT,
           approvalState: StrategyApprovalState.APPROVED,
         };
         registrar.getStrategyParamsById.returns(stratParams);
@@ -405,19 +405,16 @@ describe("AccountsStrategy", function () {
           gasFee: GAS_FEE,
         };
 
-        const payload = packActionData(
-          {
-            destinationChain: networkNameThat,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
-            selector: vault.interface.getSighash("deposit"),
-            accountIds: [ACCOUNT_ID],
-            token: token.address,
-            lockAmt: LOCK_AMT,
-            liqAmt: LIQ_AMT,
-            status: VaultActionStatus.UNPROCESSED,
-          },
-          hre
-        );
+        const payload = packActionData({
+          destinationChain: NET_NAME_THAT,
+          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          selector: vault.interface.getSighash("deposit"),
+          accountIds: [ACCOUNT_ID],
+          token: token.address,
+          lockAmt: LOCK_AMT,
+          liqAmt: LIQ_AMT,
+          status: VaultActionStatus.UNPROCESSED,
+        });
 
         await expect(facet.strategyInvest(ACCOUNT_ID, investRequest)).to.not.be.reverted;
 
@@ -425,7 +422,7 @@ describe("AccountsStrategy", function () {
         expect(token.approve).to.have.been.calledWith(gasService.address, investRequest.gasFee);
         expect(gasService.payGasForContractCallWithToken).to.have.been.calledWith(
           facet.address,
-          networkNameThat,
+          NET_NAME_THAT,
           netInfoThat.router.toLowerCase(), // AddressToString.toString produces only lowercase constters
           payload,
           investRequest.token,
@@ -439,7 +436,7 @@ describe("AccountsStrategy", function () {
           BigNumber.from(investRequest.liquidAmt).add(BigNumber.from(investRequest.lockAmt))
         );
         expect(gateway.callContractWithToken).to.have.been.calledWith(
-          networkNameThat,
+          NET_NAME_THAT,
           netInfoThat.router.toLowerCase(),
           payload,
           investRequest.token,
@@ -535,7 +532,7 @@ describe("AccountsStrategy", function () {
 
         const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
-          network: networkNameThis,
+          network: NET_NAME_THIS,
           approvalState: StrategyApprovalState.APPROVED,
         };
         registrar.getStrategyParamsById.returns(stratParams);
@@ -562,7 +559,7 @@ describe("AccountsStrategy", function () {
         it(`and the response is ${VaultActionStatus[vaultStatus]} with approval state: ${StrategyApprovalState[approvalState]}`, async function () {
           const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
             ...DEFAULT_STRATEGY_PARAMS,
-            network: networkNameThis,
+            network: NET_NAME_THIS,
             approvalState,
           };
           registrar.getStrategyParamsById.returns(stratParams);
@@ -579,26 +576,23 @@ describe("AccountsStrategy", function () {
           };
           router.executeLocal.returns(vaultActionData);
 
-          const payload = packActionData(
-            {
-              destinationChain: networkNameThis,
-              strategyId: DEFAULT_STRATEGY_SELECTOR,
-              selector: vault.interface.getSighash("redeem"),
-              accountIds: [ACCOUNT_ID],
-              token: token.address,
-              lockAmt: LOCK_AMT,
-              liqAmt: LIQ_AMT,
-              status: VaultActionStatus.UNPROCESSED,
-            },
-            hre
-          );
+          const payload = packActionData({
+            destinationChain: NET_NAME_THIS,
+            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            selector: vault.interface.getSighash("redeem"),
+            accountIds: [ACCOUNT_ID],
+            token: token.address,
+            lockAmt: LOCK_AMT,
+            liqAmt: LIQ_AMT,
+            status: VaultActionStatus.UNPROCESSED,
+          });
 
           await expect(facet.strategyRedeem(ACCOUNT_ID, redeemRequest))
             .to.emit(facet, "EndowmentRedeemed")
             .withArgs(vaultStatus);
 
           expect(router.executeLocal).to.have.been.calledWith(
-            networkNameThis,
+            NET_NAME_THIS,
             facet.address.toLowerCase(),
             payload
           );
@@ -672,7 +666,7 @@ describe("AccountsStrategy", function () {
 
         const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
-          network: networkNameThat,
+          network: NET_NAME_THAT,
           approvalState: StrategyApprovalState.APPROVED,
         };
         registrar.getStrategyParamsById.returns(stratParams);
@@ -686,19 +680,16 @@ describe("AccountsStrategy", function () {
           gasFee: GAS_FEE,
         };
 
-        const payload = packActionData(
-          {
-            destinationChain: networkNameThat,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
-            selector: vault.interface.getSighash("redeem"),
-            accountIds: [ACCOUNT_ID],
-            token: token.address,
-            lockAmt: LOCK_AMT,
-            liqAmt: LIQ_AMT,
-            status: VaultActionStatus.UNPROCESSED,
-          },
-          hre
-        );
+        const payload = packActionData({
+          destinationChain: NET_NAME_THAT,
+          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          selector: vault.interface.getSighash("redeem"),
+          accountIds: [ACCOUNT_ID],
+          token: token.address,
+          lockAmt: LOCK_AMT,
+          liqAmt: LIQ_AMT,
+          status: VaultActionStatus.UNPROCESSED,
+        });
 
         token.approve.returns(true);
 
@@ -708,7 +699,7 @@ describe("AccountsStrategy", function () {
         expect(token.approve).to.have.been.calledWith(gasService.address, redeemRequest.gasFee);
         expect(gasService.payGasForContractCall).to.have.been.calledWith(
           facet.address,
-          networkNameThat,
+          NET_NAME_THAT,
           netInfoThat.router.toLowerCase(),
           payload,
           token.address,
@@ -716,7 +707,7 @@ describe("AccountsStrategy", function () {
           endowDetails.owner
         );
         expect(gateway.callContract).to.have.been.calledWith(
-          networkNameThat,
+          NET_NAME_THAT,
           netInfoThat.router.toLowerCase(),
           payload
         );
@@ -829,7 +820,7 @@ describe("AccountsStrategy", function () {
 
         const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
-          network: networkNameThis,
+          network: NET_NAME_THIS,
           approvalState: StrategyApprovalState.APPROVED,
         };
         registrar.getStrategyParamsById.returns(stratParams);
@@ -849,7 +840,7 @@ describe("AccountsStrategy", function () {
         router.executeLocal.returns(vaultActionData);
 
         const payload = packActionData({
-          destinationChain: networkNameThis,
+          destinationChain: NET_NAME_THIS,
           strategyId: DEFAULT_STRATEGY_SELECTOR,
           selector: vault.interface.getSighash("redeemAll"),
           accountIds: [ACCOUNT_ID],
@@ -864,7 +855,7 @@ describe("AccountsStrategy", function () {
           .withArgs(VaultActionStatus.POSITION_EXITED);
 
         expect(router.executeLocal).to.have.been.calledWith(
-          networkNameThis,
+          NET_NAME_THIS,
           facet.address.toLowerCase(),
           payload
         );
@@ -934,7 +925,7 @@ describe("AccountsStrategy", function () {
 
         const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
-          network: networkNameThat,
+          network: NET_NAME_THAT,
           approvalState: StrategyApprovalState.APPROVED,
         };
         registrar.getStrategyParamsById.returns(stratParams);
@@ -948,19 +939,16 @@ describe("AccountsStrategy", function () {
           gasFee: GAS_FEE,
         };
 
-        const payload = packActionData(
-          {
-            destinationChain: networkNameThat,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
-            selector: vault.interface.getSighash("redeemAll"),
-            accountIds: [ACCOUNT_ID],
-            token: token.address,
-            lockAmt: 1,
-            liqAmt: 1,
-            status: VaultActionStatus.UNPROCESSED,
-          },
-          hre
-        );
+        const payload = packActionData({
+          destinationChain: NET_NAME_THAT,
+          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          selector: vault.interface.getSighash("redeemAll"),
+          accountIds: [ACCOUNT_ID],
+          token: token.address,
+          lockAmt: 1,
+          liqAmt: 1,
+          status: VaultActionStatus.UNPROCESSED,
+        });
 
         expect(await facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest))
           // .to.emit(gasReceiver, "GasPaid")
@@ -974,7 +962,7 @@ describe("AccountsStrategy", function () {
           //   gasFwd.address
           // )
           .to.emit(gateway, "ContractCall")
-          .withArgs(networkNameThat, router.address, payload);
+          .withArgs(NET_NAME_THAT, router.address, payload);
 
         // const gasReceiverApproved = await token.allowance(facet.address, gasReceiver.address);
         // expect(gasReceiverApproved).to.equal(GAS_FEE);
@@ -985,7 +973,7 @@ describe("AccountsStrategy", function () {
   describe("upon axelar callback", async function () {
     it("reverts in _execute if the call didn't originate from the expected chain", async function () {
       const action: IVaultStrategy.VaultActionDataStruct = {
-        destinationChain: networkNameThat,
+        destinationChain: NET_NAME_THAT,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("deposit"),
         accountIds: [ACCOUNT_ID],
@@ -1005,7 +993,7 @@ describe("AccountsStrategy", function () {
 
     it("reverts in _executeWithToken if the call didn't originate from the expected chain", async function () {
       const action: IVaultStrategy.VaultActionDataStruct = {
-        destinationChain: networkNameThat,
+        destinationChain: NET_NAME_THAT,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("deposit"),
         accountIds: [ACCOUNT_ID],
@@ -1033,7 +1021,7 @@ describe("AccountsStrategy", function () {
 
     it("reverts in _execute if the call didn't originate from the chain's router", async function () {
       const action: IVaultStrategy.VaultActionDataStruct = {
-        destinationChain: networkNameThat,
+        destinationChain: NET_NAME_THAT,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("deposit"),
         accountIds: [ACCOUNT_ID],
@@ -1047,18 +1035,18 @@ describe("AccountsStrategy", function () {
       await expect(
         facet.execute(
           ethers.utils.formatBytes32String("true"),
-          networkNameThat,
+          NET_NAME_THAT,
           owner.address,
           payload
         )
       )
         .to.be.revertedWithCustomError(facet, "UnexpectedCaller")
-        .withArgs(returnedAction, networkNameThat, owner.address);
+        .withArgs(returnedAction, NET_NAME_THAT, owner.address);
     });
 
     it("reverts in _executeWithToken if the call didn't originate from the expected chain", async function () {
       const action: IVaultStrategy.VaultActionDataStruct = {
-        destinationChain: networkNameThat,
+        destinationChain: NET_NAME_THAT,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("deposit"),
         accountIds: [ACCOUNT_ID],
@@ -1072,7 +1060,7 @@ describe("AccountsStrategy", function () {
       await expect(
         facet.executeWithToken(
           ethers.utils.formatBytes32String("true"),
-          networkNameThat,
+          NET_NAME_THAT,
           owner.address,
           payload,
           "TKN",
@@ -1080,12 +1068,12 @@ describe("AccountsStrategy", function () {
         )
       )
         .to.be.revertedWithCustomError(facet, "UnexpectedCaller")
-        .withArgs(returnedAction, networkNameThat, owner.address);
+        .withArgs(returnedAction, NET_NAME_THAT, owner.address);
     });
 
     it("_execute successfully handles status == FAIL_TOKENS_FALLBACK", async function () {
       const action: IVaultStrategy.VaultActionDataStruct = {
-        destinationChain: networkNameThat,
+        destinationChain: NET_NAME_THAT,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("deposit"),
         accountIds: [ACCOUNT_ID],
@@ -1099,7 +1087,7 @@ describe("AccountsStrategy", function () {
       expect(
         await facet.execute(
           ethers.utils.formatBytes32String("true"),
-          networkNameThat,
+          NET_NAME_THAT,
           router.address,
           payload
         )
@@ -1110,7 +1098,7 @@ describe("AccountsStrategy", function () {
 
     it("_execute reverts for any other status", async function () {
       const action: IVaultStrategy.VaultActionDataStruct = {
-        destinationChain: networkNameThat,
+        destinationChain: NET_NAME_THAT,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("deposit"),
         accountIds: [ACCOUNT_ID],
@@ -1124,7 +1112,7 @@ describe("AccountsStrategy", function () {
       await expect(
         facet.execute(
           ethers.utils.formatBytes32String("true"),
-          networkNameThat,
+          NET_NAME_THAT,
           router.address,
           payload
         )
@@ -1135,7 +1123,7 @@ describe("AccountsStrategy", function () {
 
     it("_executeWithToken: deposit && FAIL_TOKENS_RETURNED", async function () {
       const action: IVaultStrategy.VaultActionDataStruct = {
-        destinationChain: networkNameThat,
+        destinationChain: NET_NAME_THAT,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("deposit"),
         accountIds: [ACCOUNT_ID],
@@ -1147,7 +1135,7 @@ describe("AccountsStrategy", function () {
       const payload = packActionData(action, hre);
       await facet.executeWithToken(
         ethers.utils.formatBytes32String("true"),
-        networkNameThat,
+        NET_NAME_THAT,
         router.address,
         payload,
         "TKN",
@@ -1160,7 +1148,7 @@ describe("AccountsStrategy", function () {
 
     it("_executeWithToken: redeem && SUCCESS", async function () {
       const action: IVaultStrategy.VaultActionDataStruct = {
-        destinationChain: networkNameThat,
+        destinationChain: NET_NAME_THAT,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("redeem"),
         accountIds: [ACCOUNT_ID],
@@ -1172,7 +1160,7 @@ describe("AccountsStrategy", function () {
       const payload = packActionData(action, hre);
       await facet.executeWithToken(
         ethers.utils.formatBytes32String("true"),
-        networkNameThat,
+        NET_NAME_THAT,
         router.address,
         payload,
         "TKN",
@@ -1185,7 +1173,7 @@ describe("AccountsStrategy", function () {
 
     it("_executeWithToken: redeemAll && SUCCESS", async function () {
       const action: IVaultStrategy.VaultActionDataStruct = {
-        destinationChain: networkNameThat,
+        destinationChain: NET_NAME_THAT,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("redeemAll"),
         accountIds: [ACCOUNT_ID],
@@ -1197,7 +1185,7 @@ describe("AccountsStrategy", function () {
       const payload = packActionData(action, hre);
       await facet.executeWithToken(
         ethers.utils.formatBytes32String("true"),
-        networkNameThat,
+        NET_NAME_THAT,
         router.address,
         payload,
         "TKN",
@@ -1210,7 +1198,7 @@ describe("AccountsStrategy", function () {
 
     it("_executeWithToken: redeem && POSITION_EXITED", async function () {
       const action: IVaultStrategy.VaultActionDataStruct = {
-        destinationChain: networkNameThat,
+        destinationChain: NET_NAME_THAT,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("redeem"),
         accountIds: [ACCOUNT_ID],
@@ -1226,7 +1214,7 @@ describe("AccountsStrategy", function () {
 
       await facet.executeWithToken(
         ethers.utils.formatBytes32String("true"),
-        networkNameThat,
+        NET_NAME_THAT,
         router.address,
         payload,
         "TKN",
@@ -1244,7 +1232,7 @@ describe("AccountsStrategy", function () {
 
     it("_executeWithToken: redeemAll && POSITION_EXITED", async function () {
       const action: IVaultStrategy.VaultActionDataStruct = {
-        destinationChain: networkNameThat,
+        destinationChain: NET_NAME_THAT,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("redeemAll"),
         accountIds: [ACCOUNT_ID],
@@ -1260,7 +1248,7 @@ describe("AccountsStrategy", function () {
 
       await facet.executeWithToken(
         ethers.utils.formatBytes32String("true"),
-        networkNameThat,
+        NET_NAME_THAT,
         router.address,
         payload,
         "TKN",
@@ -1278,7 +1266,7 @@ describe("AccountsStrategy", function () {
 
     it("_refundFallback", async function () {
       const action: IVaultStrategy.VaultActionDataStruct = {
-        destinationChain: networkNameThat,
+        destinationChain: NET_NAME_THAT,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("deposit"),
         accountIds: [ACCOUNT_ID],
@@ -1299,7 +1287,7 @@ describe("AccountsStrategy", function () {
       expect(
         await facet.executeWithToken(
           ethers.utils.formatBytes32String("true"),
-          networkNameThat,
+          NET_NAME_THAT,
           router.address,
           payload,
           "TKN",
