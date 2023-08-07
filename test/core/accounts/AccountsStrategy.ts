@@ -49,7 +49,10 @@ import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetP
 import {StrategyApprovalState, VaultActionStatus, genWallet, getChainId, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 import {BigNumber} from "ethers";
-import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
+import {
+  AccountMessages,
+  IVault as IVaultStrategy,
+} from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 
 use(smock.matchers);
@@ -132,7 +135,7 @@ describe("AccountsStrategy", function () {
 
   describe("upon strategyInvest", async function () {
     beforeEach(() => {
-      const stratParams = {
+      const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
         ...DEFAULT_STRATEGY_PARAMS,
         network: networkNameThis,
         approvalState: StrategyApprovalState.APPROVED,
@@ -177,12 +180,17 @@ describe("AccountsStrategy", function () {
       });
 
       it("the account locked balance is insufficient", async function () {
-        const endowDetails = DEFAULT_CHARITY_ENDOWMENT;
-        endowDetails.settingsController.lockedInvestmentManagement = {
-          locked: false,
-          delegate: {
-            addr: owner.address,
-            expires: 0,
+        const endowDetails: AccountStorage.EndowmentStruct = {
+          ...DEFAULT_CHARITY_ENDOWMENT,
+          settingsController: {
+            ...DEFAULT_CHARITY_ENDOWMENT.settingsController,
+            lockedInvestmentManagement: {
+              locked: false,
+              delegate: {
+                addr: owner.address,
+                expires: 0,
+              },
+            },
           },
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
@@ -197,12 +205,17 @@ describe("AccountsStrategy", function () {
       });
 
       it("the account liquid balance is insufficient", async function () {
-        const endowDetails = DEFAULT_CHARITY_ENDOWMENT;
-        endowDetails.settingsController.liquidInvestmentManagement = {
-          locked: false,
-          delegate: {
-            addr: owner.address,
-            expires: 0,
+        const endowDetails: AccountStorage.EndowmentStruct = {
+          ...DEFAULT_CHARITY_ENDOWMENT,
+          settingsController: {
+            ...DEFAULT_CHARITY_ENDOWMENT.settingsController,
+            liquidInvestmentManagement: {
+              locked: false,
+              delegate: {
+                addr: owner.address,
+                expires: 0,
+              },
+            },
           },
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
@@ -230,19 +243,24 @@ describe("AccountsStrategy", function () {
       const LIQ_AMT = 200;
 
       beforeEach(async function () {
-        const endowDetails = DEFAULT_CHARITY_ENDOWMENT;
-        endowDetails.settingsController.liquidInvestmentManagement = {
-          locked: false,
-          delegate: {
-            addr: owner.address,
-            expires: 0,
-          },
-        };
-        endowDetails.settingsController.lockedInvestmentManagement = {
-          locked: false,
-          delegate: {
-            addr: owner.address,
-            expires: 0,
+        const endowDetails: AccountStorage.EndowmentStruct = {
+          ...DEFAULT_CHARITY_ENDOWMENT,
+          settingsController: {
+            ...DEFAULT_CHARITY_ENDOWMENT.settingsController,
+            liquidInvestmentManagement: {
+              locked: false,
+              delegate: {
+                addr: owner.address,
+                expires: 0,
+              },
+            },
+            lockedInvestmentManagement: {
+              locked: false,
+              delegate: {
+                addr: owner.address,
+                expires: 0,
+              },
+            },
           },
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
@@ -259,7 +277,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("and the response is SUCCESS", async function () {
-        router.executeWithTokenLocal.returns({
+        const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: "",
           strategyId: DEFAULT_STRATEGY_SELECTOR,
           selector: DEFAULT_METHOD_SELECTOR,
@@ -268,7 +286,8 @@ describe("AccountsStrategy", function () {
           lockAmt: LOCK_AMT,
           liqAmt: LIQ_AMT,
           status: VaultActionStatus.SUCCESS,
-        });
+        };
+        router.executeWithTokenLocal.returns(vaultActionData);
 
         const investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
@@ -291,7 +310,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("and the response is anything other than SUCCESS", async function () {
-        router.executeWithTokenLocal.returns({
+        const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: "",
           strategyId: DEFAULT_STRATEGY_SELECTOR,
           selector: DEFAULT_METHOD_SELECTOR,
@@ -300,7 +319,8 @@ describe("AccountsStrategy", function () {
           lockAmt: LOCK_AMT,
           liqAmt: LIQ_AMT,
           status: VaultActionStatus.FAIL_TOKENS_FALLBACK,
-        });
+        };
+        router.executeWithTokenLocal.returns(vaultActionData);
 
         const investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
@@ -371,7 +391,7 @@ describe("AccountsStrategy", function () {
           )
         );
 
-        const stratParams = {
+        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
           network: networkNameThat,
           approvalState: StrategyApprovalState.APPROVED,
@@ -484,26 +504,31 @@ describe("AccountsStrategy", function () {
     describe("and calls the local router", async function () {
       const LOCK_AMT = 300;
       const LIQ_AMT = 200;
-      const redeemRequest = {
+      const redeemRequest: AccountMessages.RedeemRequestStruct = {
         ...DEFAULT_REDEEM_REQUEST,
         lockAmt: LOCK_AMT,
         liquidAmt: LIQ_AMT,
       };
 
       beforeEach(async function () {
-        const endowDetails = DEFAULT_CHARITY_ENDOWMENT;
-        endowDetails.settingsController.liquidInvestmentManagement = {
-          locked: false,
-          delegate: {
-            addr: owner.address,
-            expires: 0,
-          },
-        };
-        endowDetails.settingsController.lockedInvestmentManagement = {
-          locked: false,
-          delegate: {
-            addr: owner.address,
-            expires: 0,
+        const endowDetails: AccountStorage.EndowmentStruct = {
+          ...DEFAULT_CHARITY_ENDOWMENT,
+          settingsController: {
+            ...DEFAULT_CHARITY_ENDOWMENT.settingsController,
+            liquidInvestmentManagement: {
+              locked: false,
+              delegate: {
+                addr: owner.address,
+                expires: 0,
+              },
+            },
+            lockedInvestmentManagement: {
+              locked: false,
+              delegate: {
+                addr: owner.address,
+                expires: 0,
+              },
+            },
           },
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
@@ -546,7 +571,7 @@ describe("AccountsStrategy", function () {
           };
           registrar.getStrategyParamsById.returns(stratParams);
 
-          router.executeLocal.returns({
+          const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
             destinationChain: "",
             strategyId: DEFAULT_STRATEGY_SELECTOR,
             selector: DEFAULT_METHOD_SELECTOR,
@@ -555,7 +580,8 @@ describe("AccountsStrategy", function () {
             lockAmt: LOCK_AMT,
             liqAmt: LIQ_AMT,
             status: vaultStatus,
-          });
+          };
+          router.executeLocal.returns(vaultActionData);
 
           const payload = packActionData(
             {
@@ -593,7 +619,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("and the response is anything else", async function () {
-        router.executeLocal.returns({
+        const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: "",
           strategyId: DEFAULT_STRATEGY_SELECTOR,
           selector: DEFAULT_METHOD_SELECTOR,
@@ -602,7 +628,9 @@ describe("AccountsStrategy", function () {
           lockAmt: LOCK_AMT,
           liqAmt: LIQ_AMT,
           status: VaultActionStatus.FAIL_TOKENS_FALLBACK,
-        });
+        };
+        router.executeLocal.returns(vaultActionData);
+
         await expect(facet.strategyRedeem(ACCOUNT_ID, redeemRequest))
           .to.be.revertedWithCustomError(facet, "RedeemFailed")
           .withArgs(VaultActionStatus.FAIL_TOKENS_FALLBACK);
@@ -629,24 +657,27 @@ describe("AccountsStrategy", function () {
           ...DEFAULT_CHARITY_ENDOWMENT,
           gasFwd: gasFwd.address,
           owner: genWallet().address,
-        };
-        endowDetails.settingsController.liquidInvestmentManagement = {
-          locked: false,
-          delegate: {
-            addr: owner.address,
-            expires: 0,
-          },
-        };
-        endowDetails.settingsController.lockedInvestmentManagement = {
-          locked: false,
-          delegate: {
-            addr: owner.address,
-            expires: 0,
+          settingsController: {
+            ...DEFAULT_CHARITY_ENDOWMENT.settingsController,
+            liquidInvestmentManagement: {
+              locked: false,
+              delegate: {
+                addr: owner.address,
+                expires: 0,
+              },
+            },
+            lockedInvestmentManagement: {
+              locked: false,
+              delegate: {
+                addr: owner.address,
+                expires: 0,
+              },
+            },
           },
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
-        const stratParams = {
+        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
           network: networkNameThat,
           approvalState: StrategyApprovalState.APPROVED,
@@ -655,7 +686,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("makes all the correct external calls", async function () {
-        const redeemRequest = {
+        const redeemRequest: AccountMessages.RedeemRequestStruct = {
           ...DEFAULT_REDEEM_REQUEST,
           lockAmt: LOCK_AMT,
           liquidAmt: LIQ_AMT,
@@ -719,7 +750,7 @@ describe("AccountsStrategy", function () {
       });
       it("the caller is not approved for locked fund mgmt", async function () {
         await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
-        const redeemAllRequest = {
+        const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLocked: true,
         };
@@ -729,7 +760,7 @@ describe("AccountsStrategy", function () {
       });
       it("the caller is not approved for liquid fund mgmt", async function () {
         await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
-        const redeemAllRequest = {
+        const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLiquid: true,
         };
@@ -767,7 +798,7 @@ describe("AccountsStrategy", function () {
           },
         };
         await wait(state.setEndowmentDetails(1, endowDetails));
-        const redeemAllRequest = {
+        const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLiquid: true,
         };
@@ -779,7 +810,7 @@ describe("AccountsStrategy", function () {
       describe("and calls the local router", async function () {
         const LOCK_AMT = 300;
         const LIQ_AMT = 200;
-        const redeemAllRequest = {
+        const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLocked: true,
           redeemLiquid: true,
@@ -823,7 +854,7 @@ describe("AccountsStrategy", function () {
         });
 
         it("and the response is POSITION_EXITED", async function () {
-          router.executeLocal.returns({
+          const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
             destinationChain: "",
             strategyId: DEFAULT_STRATEGY_SELECTOR,
             selector: DEFAULT_METHOD_SELECTOR,
@@ -832,7 +863,8 @@ describe("AccountsStrategy", function () {
             lockAmt: LOCK_AMT,
             liqAmt: LIQ_AMT,
             status: VaultActionStatus.POSITION_EXITED,
-          });
+          };
+          router.executeLocal.returns(vaultActionData);
 
           expect(await facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest))
             .to.emit(facet, "EndowmentRedeemed")
@@ -849,7 +881,7 @@ describe("AccountsStrategy", function () {
         });
 
         it("and the response is anything else", async function () {
-          router.executeLocal.returns({
+          const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
             destinationChain: "",
             strategyId: DEFAULT_STRATEGY_SELECTOR,
             selector: DEFAULT_METHOD_SELECTOR,
@@ -858,7 +890,9 @@ describe("AccountsStrategy", function () {
             lockAmt: LOCK_AMT,
             liqAmt: LIQ_AMT,
             status: VaultActionStatus.FAIL_TOKENS_FALLBACK,
-          });
+          };
+          router.executeLocal.returns(vaultActionData);
+
           await expect(facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest))
             .to.be.revertedWithCustomError(facet, "RedeemAllFailed")
             .withArgs(VaultActionStatus.FAIL_TOKENS_FALLBACK);
@@ -889,28 +923,33 @@ describe("AccountsStrategy", function () {
       });
 
       beforeEach(async function () {
-        const endowDetails = DEFAULT_CHARITY_ENDOWMENT;
-        endowDetails.settingsController.liquidInvestmentManagement = {
-          locked: false,
-          delegate: {
-            addr: owner.address,
-            expires: 0,
+        const endowDetails: AccountStorage.EndowmentStruct = {
+          ...DEFAULT_CHARITY_ENDOWMENT,
+          gasFwd: gasFwd.address,
+          settingsController: {
+            ...DEFAULT_CHARITY_ENDOWMENT.settingsController,
+            liquidInvestmentManagement: {
+              locked: false,
+              delegate: {
+                addr: owner.address,
+                expires: 0,
+              },
+            },
+            lockedInvestmentManagement: {
+              locked: false,
+              delegate: {
+                addr: owner.address,
+                expires: 0,
+              },
+            },
           },
         };
-        endowDetails.settingsController.lockedInvestmentManagement = {
-          locked: false,
-          delegate: {
-            addr: owner.address,
-            expires: 0,
-          },
-        };
-        endowDetails.gasFwd = gasFwd.address;
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
         await token.mint(gasFwd.address, GAS_FEE);
         await gasFwd.setVariable("accounts", facet.address);
 
-        const stratParams = {
+        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
           network: networkNameThat,
           approvalState: StrategyApprovalState.APPROVED,
@@ -919,7 +958,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("makes all the correct external calls", async function () {
-        const redeemAllRequest = {
+        const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLocked: true,
           redeemLiquid: true,
@@ -971,7 +1010,7 @@ describe("AccountsStrategy", function () {
     });
 
     it("reverts in _execute if the call didn't originate from the expected chain", async function () {
-      const action = {
+      const action: IVaultStrategy.VaultActionDataStruct = {
         destinationChain: networkNameThat,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("deposit"),
@@ -991,7 +1030,7 @@ describe("AccountsStrategy", function () {
     });
 
     it("reverts in _executeWithToken if the call didn't originate from the expected chain", async function () {
-      const action = {
+      const action: IVaultStrategy.VaultActionDataStruct = {
         destinationChain: networkNameThat,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("deposit"),
@@ -1018,7 +1057,7 @@ describe("AccountsStrategy", function () {
     });
 
     it("reverts in _execute if the call didn't originate from the chain's router", async function () {
-      const action = {
+      const action: IVaultStrategy.VaultActionDataStruct = {
         destinationChain: networkNameThat,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("deposit"),
@@ -1043,7 +1082,7 @@ describe("AccountsStrategy", function () {
     });
 
     it("reverts in _executeWithToken if the call didn't originate from the expected chain", async function () {
-      const action = {
+      const action: IVaultStrategy.VaultActionDataStruct = {
         destinationChain: networkNameThat,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("deposit"),
@@ -1070,7 +1109,7 @@ describe("AccountsStrategy", function () {
     });
 
     it("_execute successfully handles status == FAIL_TOKENS_FALLBACK", async function () {
-      const action = {
+      const action: IVaultStrategy.VaultActionDataStruct = {
         destinationChain: networkNameThat,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("deposit"),
@@ -1095,7 +1134,7 @@ describe("AccountsStrategy", function () {
     });
 
     it("_execute reverts for any other status", async function () {
-      const action = {
+      const action: IVaultStrategy.VaultActionDataStruct = {
         destinationChain: networkNameThat,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("deposit"),
@@ -1122,7 +1161,7 @@ describe("AccountsStrategy", function () {
     it("_executeWithToken: deposit && FAIL_TOKENS_RETURNED", async function () {
       const LOCK_AMT = 300;
       const LIQ_AMT = 200;
-      const action = {
+      const action: IVaultStrategy.VaultActionDataStruct = {
         destinationChain: networkNameThat,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("deposit"),
@@ -1149,7 +1188,7 @@ describe("AccountsStrategy", function () {
     it("_executeWithToken: redeem && SUCCESS", async function () {
       const LOCK_AMT = 300;
       const LIQ_AMT = 200;
-      const action = {
+      const action: IVaultStrategy.VaultActionDataStruct = {
         destinationChain: networkNameThat,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("redeem"),
@@ -1176,7 +1215,7 @@ describe("AccountsStrategy", function () {
     it("_executeWithToken: redeemAll && SUCCESS", async function () {
       const LOCK_AMT = 300;
       const LIQ_AMT = 200;
-      const action = {
+      const action: IVaultStrategy.VaultActionDataStruct = {
         destinationChain: networkNameThat,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("redeemAll"),
@@ -1203,7 +1242,7 @@ describe("AccountsStrategy", function () {
     it("_executeWithToken: redeem && POSITION_EXITED", async function () {
       const LOCK_AMT = 300;
       const LIQ_AMT = 200;
-      const action = {
+      const action: IVaultStrategy.VaultActionDataStruct = {
         destinationChain: networkNameThat,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("redeem"),
@@ -1239,7 +1278,7 @@ describe("AccountsStrategy", function () {
     it("_executeWithToken: redeemAll && POSITION_EXITED", async function () {
       const LOCK_AMT = 300;
       const LIQ_AMT = 200;
-      const action = {
+      const action: IVaultStrategy.VaultActionDataStruct = {
         destinationChain: networkNameThat,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("redeemAll"),
@@ -1275,7 +1314,7 @@ describe("AccountsStrategy", function () {
     it("_refundFallback", async function () {
       const LOCK_AMT = 300;
       const LIQ_AMT = 200;
-      const action = {
+      const action: IVaultStrategy.VaultActionDataStruct = {
         destinationChain: networkNameThat,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
         selector: vault.interface.getSighash("deposit"),
@@ -1288,7 +1327,7 @@ describe("AccountsStrategy", function () {
       const payload = packActionData(action, hre);
       const returnedAction = convertVaultActionStructToArray(action);
 
-      const apParams = {
+      const apParams: LocalRegistrarLib.AngelProtocolParamsStruct = {
         ...DEFAULT_AP_PARAMS,
         refundAddr: user.address,
       };
