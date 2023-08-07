@@ -579,8 +579,7 @@ contract AccountsStrategy is
     uint256 sendAmt = lockAmt + liqAmt;
 
     // Split gas proportionally between liquid and lock amts
-    uint256 liqGas = (gasRemaining * ((liqAmt * LibAccounts.BIG_NUMBA_BASIS) / sendAmt)) /
-      LibAccounts.BIG_NUMBA_BASIS;
+    uint256 liqGas = (gasRemaining * ((liqAmt * LibAccounts.PERCENT_BASIS) / sendAmt)) / LibAccounts.PERCENT_BASIS;
     uint256 lockGas = gasRemaining - liqGas;
 
     uint256 lockNeed = lockGas + lockAmt;
@@ -593,9 +592,10 @@ contract AccountsStrategy is
       state.STATES[id].balances.liquid[token] -= liqGas;
     } else if ((lockNeed > lockBal) && (liqNeed <= liqBal)) {
       // 2) lockBal does not cover lockNeeds, liqBal can cover deficit in addition to liqNeeds
-      if ((lockNeed - lockBal) <= (liqBal - liqNeed)) {
-        state.STATES[id].balances.locked[token] = 0;
-        state.STATES[id].balances.liquid[token] -= (liqGas + (lockNeed - lockBal));
+      uint256 lockNeedDeficit = lockNeed - lockBal;
+      if (lockNeedDeficit <= (liqBal - liqNeed)) {
+        state.STATES[id].balances.locked[token] -= (lockGas - lockNeedDeficit);
+        state.STATES[id].balances.liquid[token] -= (liqGas + lockNeedDeficit);
       }
       // 3) lockBal does not cover lockNeeds and liqBal cannot cover -> revert
       else {
