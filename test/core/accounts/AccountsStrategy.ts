@@ -62,6 +62,10 @@ describe("AccountsStrategy", function () {
 
   const ACCOUNT_ID = 1;
 
+  const LOCK_AMT = 300;
+  const LIQ_AMT = 200;
+  const GAS_FEE = 100;
+
   const networkNameThis = "ThisNet";
   const networkNameThat = "ThatNet";
 
@@ -239,9 +243,6 @@ describe("AccountsStrategy", function () {
     });
 
     describe("and calls the local router", async function () {
-      const LOCK_AMT = 300;
-      const LIQ_AMT = 200;
-
       beforeEach(async function () {
         const endowDetails: AccountStorage.EndowmentStruct = {
           ...DEFAULT_CHARITY_ENDOWMENT,
@@ -343,11 +344,8 @@ describe("AccountsStrategy", function () {
     });
 
     describe("and calls axelar GMP", async function () {
-      const LOCK_AMT = 300;
-      const LIQ_AMT = 200;
       const INITIAL_LOCK_BAL = 500;
       const INITIAL_LIQ_BAL = 500;
-      const GAS_FEE = 100;
 
       beforeEach(async function () {
         const endowDetails: AccountStorage.EndowmentStruct = {
@@ -502,8 +500,6 @@ describe("AccountsStrategy", function () {
     });
 
     describe("and calls the local router", async function () {
-      const LOCK_AMT = 300;
-      const LIQ_AMT = 200;
       const redeemRequest: AccountMessages.RedeemRequestStruct = {
         ...DEFAULT_REDEEM_REQUEST,
         lockAmt: LOCK_AMT,
@@ -647,9 +643,6 @@ describe("AccountsStrategy", function () {
     });
 
     describe("and calls axelar GMP", async function () {
-      const LOCK_AMT = 300;
-      const LIQ_AMT = 200;
-      const GAS_FEE = 100;
       let endowDetails: AccountStorage.EndowmentStruct;
 
       beforeEach(async function () {
@@ -808,8 +801,6 @@ describe("AccountsStrategy", function () {
       });
 
       describe("and calls the local router", async function () {
-        const LOCK_AMT = 300;
-        const LIQ_AMT = 200;
         const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLocked: true,
@@ -912,9 +903,6 @@ describe("AccountsStrategy", function () {
     describe("and calls axelar GMP", async function () {
       let gasReceiver: DummyGasService;
       let gasFwd: MockContract<GasFwd>;
-      const LOCK_AMT = 300;
-      const LIQ_AMT = 200;
-      const GAS_FEE = 100;
 
       before(async function () {
         gasReceiver = await deployDummyGasService(owner);
@@ -1159,8 +1147,6 @@ describe("AccountsStrategy", function () {
     });
 
     it("_executeWithToken: deposit && FAIL_TOKENS_RETURNED", async function () {
-      const LOCK_AMT = 300;
-      const LIQ_AMT = 200;
       const action: IVaultStrategy.VaultActionDataStruct = {
         destinationChain: networkNameThat,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
@@ -1186,8 +1172,6 @@ describe("AccountsStrategy", function () {
     });
 
     it("_executeWithToken: redeem && SUCCESS", async function () {
-      const LOCK_AMT = 300;
-      const LIQ_AMT = 200;
       const action: IVaultStrategy.VaultActionDataStruct = {
         destinationChain: networkNameThat,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
@@ -1213,8 +1197,6 @@ describe("AccountsStrategy", function () {
     });
 
     it("_executeWithToken: redeemAll && SUCCESS", async function () {
-      const LOCK_AMT = 300;
-      const LIQ_AMT = 200;
       const action: IVaultStrategy.VaultActionDataStruct = {
         destinationChain: networkNameThat,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
@@ -1240,8 +1222,6 @@ describe("AccountsStrategy", function () {
     });
 
     it("_executeWithToken: redeem && POSITION_EXITED", async function () {
-      const LOCK_AMT = 300;
-      const LIQ_AMT = 200;
       const action: IVaultStrategy.VaultActionDataStruct = {
         destinationChain: networkNameThat,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
@@ -1276,8 +1256,6 @@ describe("AccountsStrategy", function () {
     });
 
     it("_executeWithToken: redeemAll && POSITION_EXITED", async function () {
-      const LOCK_AMT = 300;
-      const LIQ_AMT = 200;
       const action: IVaultStrategy.VaultActionDataStruct = {
         destinationChain: networkNameThat,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
@@ -1312,8 +1290,6 @@ describe("AccountsStrategy", function () {
     });
 
     it("_refundFallback", async function () {
-      const LOCK_AMT = 300;
-      const LIQ_AMT = 200;
       const action: IVaultStrategy.VaultActionDataStruct = {
         destinationChain: networkNameThat,
         strategyId: DEFAULT_STRATEGY_SELECTOR,
