@@ -13,6 +13,8 @@ type TaskArgs = {
   yes: boolean;
 };
 
+// Sample syntax: npx hardhat upgrade:facets --yes --network mumbai "AccountsStrategy"
+
 task("upgrade:facets", "Will redeploy and upgrade all facets that use AccountStorage struct")
   .addOptionalParam(
     "accountsDiamond",
