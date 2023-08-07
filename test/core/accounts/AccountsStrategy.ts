@@ -934,46 +934,51 @@ describe("AccountsStrategy", function () {
         registrar.getStrategyParamsById.returns(stratParams);
       });
 
-      it("makes all the correct external calls", async function () {
-        const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
-          ...DEFAULT_REDEEM_ALL_REQUEST,
-          redeemLocked: true,
-          redeemLiquid: true,
-          gasFee: GAS_FEE,
-        };
+      [
+        {payForGasResult: GAS_FEE, text: "just enough balance"},
+        {payForGasResult: GAS_FEE + 1, text: "more than enough balance"},
+      ].forEach(({payForGasResult, text}) => {
+        it(`makes all the correct external calls when GasFwd has ${text} to pay for gas`, async function () {
+          const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
+            ...DEFAULT_REDEEM_ALL_REQUEST,
+            redeemLocked: true,
+            redeemLiquid: true,
+            gasFee: GAS_FEE,
+          };
 
-        gasFwd.payForGas.returns(GAS_FEE);
-        token.approve.returns(true);
+          gasFwd.payForGas.returns(payForGasResult);
+          token.approve.returns(true);
 
-        const payload = packActionData({
-          destinationChain: NET_NAME_THAT,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
-          selector: vault.interface.getSighash("redeemAll"),
-          accountIds: [ACCOUNT_ID],
-          token: token.address,
-          lockAmt: 1,
-          liqAmt: 1,
-          status: VaultActionStatus.UNPROCESSED,
+          const payload = packActionData({
+            destinationChain: NET_NAME_THAT,
+            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            selector: vault.interface.getSighash("redeemAll"),
+            accountIds: [ACCOUNT_ID],
+            token: token.address,
+            lockAmt: 1,
+            liqAmt: 1,
+            status: VaultActionStatus.UNPROCESSED,
+          });
+
+          await expect(facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest)).to.not.be.reverted;
+
+          expect(gasFwd.payForGas).to.have.been.calledWith(token.address, redeemAllRequest.gasFee);
+          expect(token.approve).to.have.been.calledWith(netInfoThis.gasReceiver, GAS_FEE);
+          expect(gasService.payGasForContractCall).to.have.been.calledWith(
+            facet.address,
+            NET_NAME_THAT,
+            netInfoThat.router.toLowerCase(),
+            payload,
+            token.address,
+            GAS_FEE,
+            endowDetails.owner
+          );
+          expect(gateway.callContract).to.have.been.calledWith(
+            NET_NAME_THAT,
+            netInfoThat.router.toLowerCase(),
+            payload
+          );
         });
-
-        await expect(facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest)).to.not.be.reverted;
-
-        expect(gasFwd.payForGas).to.have.been.calledWith(token.address, redeemAllRequest.gasFee);
-        expect(token.approve).to.have.been.calledWith(netInfoThis.gasReceiver, GAS_FEE);
-        expect(gasService.payGasForContractCall).to.have.been.calledWith(
-          facet.address,
-          NET_NAME_THAT,
-          netInfoThat.router.toLowerCase(),
-          payload,
-          token.address,
-          GAS_FEE,
-          endowDetails.owner
-        );
-        expect(gateway.callContract).to.have.been.calledWith(
-          NET_NAME_THAT,
-          netInfoThat.router.toLowerCase(),
-          payload
-        );
       });
     });
   });
