@@ -52,7 +52,7 @@ contract AccountsDepositWithdrawEndowments is
     Utils._execute(registrarConfig.wMaticAddress, msg.value, abi.encodeWithSignature("deposit()"));
 
     // finish donation process with the newly wrapped MATIC
-    processTokenDeposit(details, registrarConfig.wMaticAddress, msg.value, false);
+    processTokenDeposit(details, registrarConfig.wMaticAddress, msg.value);
   }
 
   /**
@@ -81,7 +81,7 @@ contract AccountsDepositWithdrawEndowments is
 
     IERC20(tokenAddress).safeTransferFrom(msg.sender, address(this), amount);
 
-    processTokenDeposit(details, tokenAddress, amount, false);
+    processTokenDeposit(details, tokenAddress, amount);
   }
 
   /**
@@ -90,13 +90,11 @@ contract AccountsDepositWithdrawEndowments is
    * @param details The details of the deposit
    * @param tokenAddress The address of the token to deposit (only called with USDC address)
    * @param amount The amount of the token to deposit (in USDC)
-   * @param transfer Internal Endowment <> Endowment transfer signifier
    */
   function processTokenDeposit(
     AccountMessages.DepositRequest memory details,
     address tokenAddress,
-    uint256 amount,
-    bool transfer
+    uint256 amount
   ) internal {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
@@ -110,38 +108,35 @@ contract AccountsDepositWithdrawEndowments is
     uint256 depositFeeAp = 0;
     uint256 depositFeeEndow = 0;
     uint256 amountLeftover = amount;
-    // We don't apply fees on Endowment <> Endowment transfers
-    // (ie. originates from this contract via the Withdraw endpoint)
-    if (!transfer) {
-      // ** Protocol-level Deposit Fee **
-      uint256 depositFeeRateAp;
-      // Looked up from Registrar Fees mapping
-      if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
-        depositFeeRateAp = IRegistrar(state.config.registrarContract)
-          .getFeeSettingsByFeeType(LibAccounts.FeeTypes.DepositCharity)
-          .bps;
-      } else {
-        depositFeeRateAp = IRegistrar(state.config.registrarContract)
-          .getFeeSettingsByFeeType(LibAccounts.FeeTypes.Deposit)
-          .bps;
-      }
-      if (depositFeeRateAp > 0) {
-        depositFeeAp = (amount.mul(depositFeeRateAp)).div(LibAccounts.FEE_BASIS);
-        // Transfer AP Protocol fee to treasury
-        IERC20(tokenAddress).safeTransfer(registrarConfig.treasury, depositFeeAp);
-        amountLeftover = amountLeftover.sub(depositFeeAp);
-      }
 
-      // ** Endowment-level Deposit Fee **
-      // Calculated on the amount left after Protocol-level fee is deducted
-      if (tempEndowment.depositFee.bps > 0) {
-        depositFeeEndow = (amountLeftover.mul(tempEndowment.depositFee.bps)).div(
-          LibAccounts.FEE_BASIS
-        );
-        // transfer endowment deposit fee to payout address
-        IERC20(tokenAddress).safeTransfer(tempEndowment.depositFee.payoutAddress, depositFeeEndow);
-        amountLeftover = amountLeftover.sub(depositFeeEndow);
-      }
+    // ** Protocol-level Deposit Fee **
+    uint256 depositFeeRateAp;
+    // Looked up from Registrar Fees mapping
+    if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
+      depositFeeRateAp = IRegistrar(state.config.registrarContract)
+        .getFeeSettingsByFeeType(LibAccounts.FeeTypes.DepositCharity)
+        .bps;
+    } else {
+      depositFeeRateAp = IRegistrar(state.config.registrarContract)
+        .getFeeSettingsByFeeType(LibAccounts.FeeTypes.Deposit)
+        .bps;
+    }
+    if (depositFeeRateAp > 0) {
+      depositFeeAp = (amount.mul(depositFeeRateAp)).div(LibAccounts.FEE_BASIS);
+      // Transfer AP Protocol fee to treasury
+      IERC20(tokenAddress).safeTransfer(registrarConfig.treasury, depositFeeAp);
+      amountLeftover = amountLeftover.sub(depositFeeAp);
+    }
+
+    // ** Endowment-level Deposit Fee **
+    // Calculated on the amount left after Protocol-level fee is deducted
+    if (tempEndowment.depositFee.bps > 0) {
+      depositFeeEndow = (amountLeftover.mul(tempEndowment.depositFee.bps)).div(
+        LibAccounts.FEE_BASIS
+      );
+      // transfer endowment deposit fee to payout address
+      IERC20(tokenAddress).safeTransfer(tempEndowment.depositFee.payoutAddress, depositFeeEndow);
+      amountLeftover = amountLeftover.sub(depositFeeEndow);
     }
 
     // ** SPLIT ADJUSTMENTS AND CHECKS **
@@ -192,6 +187,49 @@ contract AccountsDepositWithdrawEndowments is
     IterableMapping.incr(state.STATES[details.id].balances.liquid, tokenAddress, liquidAmount);
 
     emit EndowmentDeposit(details.id, tokenAddress, lockedAmount, liquidAmount);
+  }
+
+  /**
+   * @notice Transfer ERC20 tokens from one Endowment to another, no fees or donation matching
+   * @dev manages Token transfers between endowments when closing or withdrawing sends to another Endowment
+   * @param details The details of the deposit
+   * @param tokenAddress The address of the token to deposit (only called with USDC address)
+   * @param amount The amount of the token to deposit (in USDC)
+   */
+  function processTokenTransfer(
+    AccountMessages.DepositRequest memory details,
+    address tokenAddress,
+    uint256 amount
+  ) internal {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
+
+    require(details.lockedPercentage + details.liquidPercentage == 100, "InvalidSplit");
+
+    RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
+      .queryConfig();
+
+    // ** SPLIT ADJUSTMENTS AND CHECKS **
+    uint256 lockedSplitPercent = details.lockedPercentage;
+    uint256 liquidSplitPercent = details.liquidPercentage;
+    require(registrarConfig.indexFundContract != address(0), "No Index Fund");
+    if (msg.sender != registrarConfig.indexFundContract) {
+      // adjust user passed liquid split to be in-line with endowment range (if falls outside)
+      liquidSplitPercent = Validator.adjustLiquidSplit(
+        tempEndowment.splitToLiquid,
+        details.liquidPercentage,
+        tempEndowment.ignoreUserSplits
+      );
+      lockedSplitPercent = 100 - liquidSplitPercent;
+    }
+
+    uint256 lockedAmount = (amount.mul(lockedSplitPercent)).div(LibAccounts.PERCENT_BASIS);
+    uint256 liquidAmount = (amount.mul(liquidSplitPercent)).div(LibAccounts.PERCENT_BASIS);
+
+    IterableMapping.incr(state.STATES[details.id].balances.locked, tokenAddress, lockedAmount);
+    IterableMapping.incr(state.STATES[details.id].balances.liquid, tokenAddress, liquidAmount);
+
+    emit EndowmentTransfer(details.id, tokenAddress, lockedAmount, liquidAmount);
   }
 
   /**
@@ -324,7 +362,7 @@ contract AccountsDepositWithdrawEndowments is
       } else {
         // Send deposit message split set for the appropriate account of receiving endowment
         if (acctType == IVault.VaultType.LOCKED) {
-          processTokenDeposit(
+          processTokenTransfer(
             AccountMessages.DepositRequest({
               id: beneficiaryEndowId,
               lockedPercentage: 100,
@@ -332,11 +370,10 @@ contract AccountsDepositWithdrawEndowments is
               donationMatch: msg.sender
             }),
             tokens[t].addr,
-            amountLeftover,
-            true
+            amountLeftover
           );
         } else {
-          processTokenDeposit(
+          processTokenTransfer(
             AccountMessages.DepositRequest({
               id: beneficiaryEndowId,
               lockedPercentage: 0,
@@ -344,8 +381,7 @@ contract AccountsDepositWithdrawEndowments is
               donationMatch: address(this)
             }),
             tokens[t].addr,
-            amountLeftover,
-            true
+            amountLeftover
           );
         }
       }

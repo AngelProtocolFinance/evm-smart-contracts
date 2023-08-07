@@ -26,6 +26,12 @@ interface IAccountsEvents {
     uint256 amountLocked,
     uint256 amountLiquid
   );
+  event EndowmentTransfer(
+    uint256 endowId,
+    address tokenAddress,
+    uint256 amountLocked,
+    uint256 amountLiquid
+  );
   event EndowmentWithdraw(
     uint256 endowId,
     address tokenAddress,
