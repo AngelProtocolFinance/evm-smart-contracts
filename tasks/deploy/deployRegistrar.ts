@@ -77,12 +77,7 @@ task(
         yes: true,
       });
 
-      const routerDeployment = await deployRouter(
-        addresses.axelar.gateway,
-        addresses.axelar.gasService,
-        registrarDeployment.address,
-        hre
-      );
+      const routerDeployment = await deployRouter(registrarDeployment.address, hre);
 
       // Registrar NetworkInfo's Router address must be updated for the current network
       if (routerDeployment) {
@@ -98,8 +93,8 @@ task(
         registrarContract: registrarDeployment.address,
         yes: true,
       });
-      await hre.run("manage:IndexFund:updateRegistrar", {
-        newRegistrar: registrarDeployment.address,
+      await hre.run("manage:IndexFund:updateConfig", {
+        registrarContract: registrarDeployment.address,
         yes: true,
       });
       await hre.run("manage:GasFwdFactory:updateRegistrar", {

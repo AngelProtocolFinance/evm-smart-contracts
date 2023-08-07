@@ -11,8 +11,6 @@ import {
 } from "utils";
 
 export async function deployRouter(
-  axelarGateway = "",
-  gasReceiver = "",
   registrar = "",
   hre: HardhatRuntimeEnvironment
 ): Promise<Deployment | undefined> {
@@ -21,8 +19,6 @@ export async function deployRouter(
   const {proxyAdmin} = await getSigners(hre);
 
   try {
-    validateAddress(axelarGateway, "axelarGateway");
-    validateAddress(gasReceiver, "gasReceiver");
     validateAddress(registrar, "registrar");
 
     // deploy implementation
@@ -35,12 +31,7 @@ export async function deployRouter(
     // deploy proxy
     logger.out("Deploying proxy...");
     const network = await hre.ethers.provider.getNetwork();
-    const initData = router.interface.encodeFunctionData("initialize", [
-      network.name,
-      axelarGateway,
-      gasReceiver,
-      registrar,
-    ]);
+    const initData = router.interface.encodeFunctionData("initialize", [network.name, registrar]);
     const constructorArguments: ContractFunctionParams<ProxyContract__factory["deploy"]> = [
       router.address,
       proxyAdmin.address,

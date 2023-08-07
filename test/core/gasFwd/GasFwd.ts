@@ -44,10 +44,11 @@ describe("GasFwd", function () {
   describe("upon payForGas", async function () {
     let token: DummyERC20;
     let gasFwd: GasFwd;
+    const BALANCE = 1000;
     beforeEach(async function () {
       token = await deployDummyERC20(owner);
       gasFwd = await deployGasFwdAsProxy(owner, admin, user);
-      await token.mint(gasFwd.address, 1);
+      await token.mint(gasFwd.address, BALANCE);
     });
     it("reverts if called by non-accounts contract", async function () {
       await expect(gasFwd.payForGas(token.address, 1)).to.be.revertedWithCustomError(
@@ -55,10 +56,15 @@ describe("GasFwd", function () {
         "OnlyAccounts"
       );
     });
-    it("transfers tokens", async function () {
+    it("transfers tokens which do not exceed the balance", async function () {
       await gasFwd.connect(user).payForGas(token.address, 1);
       let balance = await token.balanceOf(user.address);
       expect(balance).to.equal(1);
+    });
+    it("transfers tokens when the call exceeds the balance", async function () {
+      await gasFwd.connect(user).payForGas(token.address, BALANCE+1);
+      let balance = await token.balanceOf(user.address);
+      expect(balance).to.equal(BALANCE);
     });
   });
 

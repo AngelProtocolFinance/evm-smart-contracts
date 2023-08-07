@@ -102,7 +102,12 @@ contract APVault_V1 is IVault, ERC4626AP {
       // redeemAll if less
       return redeemAll(accountId);
     } else if (amt == 0) {
-      return RedemptionResponse({amount: 0, status: VaultActionStatus.UNPROCESSED});
+      return
+        RedemptionResponse({
+          token: vaultConfig.baseToken,
+          amount: 0,
+          status: VaultActionStatus.UNPROCESSED
+        });
     } else {
       // redeem shares for yieldToken -> approve strategy -> strategy withdraw -> base token
       uint256 yieldTokenAmt = super.redeemERC4626(amt, vaultConfig.strategy, accountId);
@@ -124,7 +129,12 @@ contract APVault_V1 is IVault, ERC4626AP {
         revert ApproveFailed();
       }
       // generate and return redemption response
-      return RedemptionResponse({amount: returnAmt, status: VaultActionStatus.SUCCESS});
+      return
+        RedemptionResponse({
+          token: vaultConfig.baseToken,
+          amount: returnAmt,
+          status: VaultActionStatus.SUCCESS
+        });
     }
   }
 
@@ -132,7 +142,12 @@ contract APVault_V1 is IVault, ERC4626AP {
     uint32 accountId
   ) public payable virtual override notPaused onlyApproved returns (RedemptionResponse memory) {
     if (balanceOf(accountId) == 0) {
-      return RedemptionResponse({amount: 0, status: VaultActionStatus.POSITION_EXITED});
+      return
+        RedemptionResponse({
+          token: vaultConfig.baseToken,
+          amount: 0,
+          status: VaultActionStatus.POSITION_EXITED
+        });
     }
     uint256 balance = balanceOf(accountId);
     // redeem shares for yieldToken -> approve strategy
@@ -159,6 +174,7 @@ contract APVault_V1 is IVault, ERC4626AP {
     }
     // generate redemption response
     RedemptionResponse memory response = RedemptionResponse({
+      token: vaultConfig.baseToken,
       amount: returnAmt,
       status: VaultActionStatus.POSITION_EXITED
     });

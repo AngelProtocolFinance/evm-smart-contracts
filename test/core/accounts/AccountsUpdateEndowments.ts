@@ -12,7 +12,6 @@ import {
   Registrar__factory,
   TestFacetProxyContract,
 } from "typechain-types";
-import {PromiseOrValue} from "typechain-types/common";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsUpdateEndowments";
 import {
   AccountStorage,
@@ -240,7 +239,7 @@ describe("AccountsUpdateEndowments", function () {
       });
 
       async function expectNothingChanged(
-        endowId: PromiseOrValue<BigNumberish>,
+        endowId: BigNumberish,
         oldEndow: AccountStorage.EndowmentStruct
       ) {
         const updated = await state.getEndowmentDetails(endowId);

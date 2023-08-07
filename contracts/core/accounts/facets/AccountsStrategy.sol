@@ -16,7 +16,7 @@ import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
 import {IAccountsStrategy} from "../interfaces/IAccountsStrategy.sol";
-import {AxelarExecutableAccounts} from "../lib//AxelarExecutableAccounts.sol";
+import {AxelarExecutableAccounts} from "../lib/AxelarExecutableAccounts.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IGasFwd} from "../../gasFwd/IGasFwd.sol";
@@ -158,7 +158,16 @@ contract AccountsStrategy is
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
-      IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(tokenAddress, investRequest.gasFee);
+      uint256 gasFwdGas = IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(tokenAddress, investRequest.gasFee);
+      if (gasFwdGas < investRequest.gasFee) {
+        _payForGasWithAccountBalance(
+          id, 
+          tokenAddress, 
+          investRequest.lockAmt, 
+          investRequest.liquidAmt, 
+          (investRequest.gasFee - gasFwdGas)
+        );
+      }
       IERC20(tokenAddress).safeApprove(thisNetwork.gasReceiver, investRequest.gasFee);
       IAxelarGasService(thisNetwork.gasReceiver).payGasForContractCallWithToken(
         address(this),
@@ -282,8 +291,16 @@ contract AccountsStrategy is
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
-
-      IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(tokenAddress, redeemRequest.gasFee);
+      uint256 gasFwdGas = IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(tokenAddress, redeemRequest.gasFee);
+      if (gasFwdGas < redeemRequest.gasFee) {
+        _payForGasWithAccountBalance(
+          id, 
+          tokenAddress, 
+          redeemRequest.lockAmt, 
+          redeemRequest.liquidAmt, 
+          (redeemRequest.gasFee - gasFwdGas)
+        );
+      }
       IERC20(tokenAddress).safeApprove(thisNetwork.gasReceiver, redeemRequest.gasFee);
       IAxelarGasService(thisNetwork.gasReceiver).payGasForContractCall(
         address(this),
@@ -399,8 +416,16 @@ contract AccountsStrategy is
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
-
-      IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(tokenAddress, redeemAllRequest.gasFee);
+      uint256 gasFwdGas = IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(tokenAddress, redeemAllRequest.gasFee);
+      if (gasFwdGas < redeemAllRequest.gasFee) {
+        _payForGasWithAccountBalance(
+          id, 
+          tokenAddress, 
+          1, // Split evenly 
+          1, 
+          (redeemAllRequest.gasFee - gasFwdGas)
+        );
+      }
       IERC20(tokenAddress).safeApprove(thisNetwork.gasReceiver, redeemAllRequest.gasFee);
       IAxelarGasService(thisNetwork.gasReceiver).payGasForContractCall(
         address(this),
@@ -527,6 +552,49 @@ contract AccountsStrategy is
       .queryNetworkConnection(stratParams.network);
     if (stratNetwork.router != StringToAddress.toAddress(sourceAddress)) {
       revert UnexpectedCaller(response, sourceChain, sourceAddress);
+    }
+  }
+
+  /**
+   * @notice Pay for gas from the account balance
+   * @dev This method pays for gas for endowments by directly accessing their balances. 
+   * We split the gas payment proprotionally between locked and liquid if possible and  
+   * use liquid funds for locked gas needs, but not the other way around in the case of a shortage. 
+   * Revert if the combined balances of the account cannot cover both the investment request and the gas payment.  
+   */
+  function _payForGasWithAccountBalance(uint32 id, address token, uint256 lockAmt, uint256 liqAmt, uint256 gasRemaining) internal {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    uint256 lockBal = state.STATES[id].balances.locked[token];
+    uint256 liqBal = state.STATES[id].balances.liquid[token];
+    uint256 sendAmt = lockAmt + liqAmt;
+
+    // Split gas proportionally between liquid and lock amts
+    uint256 liqGas = (gasRemaining * ((liqAmt * LibAccounts.BIG_NUMBA_BASIS) / sendAmt)) / LibAccounts.BIG_NUMBA_BASIS;
+    uint256 lockGas = gasRemaining - liqGas;
+
+    uint256 lockNeed = lockGas + lockAmt;
+    uint256 liqNeed = liqGas + liqAmt;
+
+    // Cases:  
+    // 1) lockBal and liqBal each cover the respective needs
+    if ( (lockNeed <= lockBal) && (liqNeed <= liqBal)) {
+      state.STATES[id].balances.locked[token] -= lockGas;
+      state.STATES[id].balances.liquid[token] -= liqGas;
+    }
+    else if ((lockNeed > lockBal) && (liqNeed <= liqBal)) {
+      // 2) lockBal does not cover lockNeeds, liqBal can cover deficit in addition to liqNeeds
+      if ((lockNeed - lockBal) <= (liqBal - liqNeed)) {
+          state.STATES[id].balances.locked[token] = 0;
+          state.STATES[id].balances.liquid[token] -= (liqGas + (lockNeed - lockBal));
+      }
+      // 3) lockBal does not cover lockNeeds and liqBal cannot cover -> revert
+      else {
+        revert InsufficientFundsForGas(id);
+      }
+    }
+    // 4) lockBal covers lockNeeds, liqBal does not cover liqNeeds -> revert
+    else {
+      revert InsufficientFundsForGas(id);
     }
   }
 }
