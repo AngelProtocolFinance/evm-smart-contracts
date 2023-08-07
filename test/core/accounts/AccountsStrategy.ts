@@ -56,6 +56,8 @@ describe("AccountsStrategy", function () {
 
   const ACCOUNT_ID = 1;
 
+  const INITIAL_LOCK_BAL = 500;
+  const INITIAL_LIQ_BAL = 500;
   const LOCK_AMT = 300;
   const LIQ_AMT = 200;
   const GAS_FEE = 100;
@@ -128,6 +130,13 @@ describe("AccountsStrategy", function () {
     };
     await state.setConfig(config);
 
+    await state.setEndowmentTokenBalance(
+      ACCOUNT_ID,
+      token.address,
+      INITIAL_LOCK_BAL,
+      INITIAL_LIQ_BAL
+    );
+
     registrar.isTokenAccepted.returns(true);
   });
 
@@ -195,7 +204,7 @@ describe("AccountsStrategy", function () {
 
         const investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
-          lockAmt: 1,
+          lockAmt: INITIAL_LOCK_BAL + 1,
         };
         await expect(facet.strategyInvest(ACCOUNT_ID, investRequest)).to.be.revertedWith(
           "Insufficient Balance"
@@ -220,7 +229,7 @@ describe("AccountsStrategy", function () {
 
         const investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
-          liquidAmt: 1,
+          liquidAmt: INITIAL_LIQ_BAL + 1,
         };
         await expect(facet.strategyInvest(ACCOUNT_ID, investRequest)).to.be.revertedWith(
           "Insufficient Balance"
@@ -261,7 +270,6 @@ describe("AccountsStrategy", function () {
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
         token.transfer.whenCalledWith(router.address, LIQ_AMT + LOCK_AMT).returns(true);
-        await wait(state.setEndowmentTokenBalance(ACCOUNT_ID, token.address, 500, 500));
 
         const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
@@ -295,8 +303,8 @@ describe("AccountsStrategy", function () {
           .withArgs(VaultActionStatus.SUCCESS);
 
         const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
-        expect(lockBal).to.equal(500 - LOCK_AMT);
-        expect(liqBal).to.equal(500 - LIQ_AMT);
+        expect(lockBal).to.equal(INITIAL_LOCK_BAL - LOCK_AMT);
+        expect(liqBal).to.equal(INITIAL_LIQ_BAL - LIQ_AMT);
         const strategyActive = await state.getActiveStrategyEndowmentState(
           ACCOUNT_ID,
           DEFAULT_STRATEGY_SELECTOR
@@ -327,8 +335,8 @@ describe("AccountsStrategy", function () {
           .withArgs(VaultActionStatus.FAIL_TOKENS_FALLBACK);
 
         const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
-        expect(lockBal).to.equal(500);
-        expect(liqBal).to.equal(500);
+        expect(lockBal).to.equal(INITIAL_LOCK_BAL);
+        expect(liqBal).to.equal(INITIAL_LIQ_BAL);
         const strategyActive = await state.getActiveStrategyEndowmentState(
           ACCOUNT_ID,
           DEFAULT_STRATEGY_SELECTOR
@@ -338,9 +346,6 @@ describe("AccountsStrategy", function () {
     });
 
     describe("and calls axelar GMP", async function () {
-      const INITIAL_LOCK_BAL = 500;
-      const INITIAL_LIQ_BAL = 500;
-
       beforeEach(async function () {
         const endowDetails: AccountStorage.EndowmentStruct = {
           ...DEFAULT_CHARITY_ENDOWMENT,
@@ -373,15 +378,6 @@ describe("AccountsStrategy", function () {
         );
 
         token.approve.returns(true);
-
-        await wait(
-          state.setEndowmentTokenBalance(
-            ACCOUNT_ID,
-            token.address,
-            INITIAL_LOCK_BAL,
-            INITIAL_LIQ_BAL
-          )
-        );
 
         const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
@@ -462,6 +458,13 @@ describe("AccountsStrategy", function () {
           gasFee: GAS_FEE,
         };
 
+        gasFwd.payForGas.returns(GAS_FEE - 1);
+
+        await expect(facet.strategyInvest(ACCOUNT_ID, investRequest)).to.not.be.reverted;
+
+        expect(gasFwd.payForGas).to.have.been.calledWith(token.address, investRequest.gasFee);
+        expect(token.approve).to.have.been.calledWith(gasService.address, investRequest.gasFee);
+
         const payload = packActionData({
           destinationChain: NET_NAME_THAT,
           strategyId: DEFAULT_STRATEGY_SELECTOR,
@@ -472,13 +475,6 @@ describe("AccountsStrategy", function () {
           liqAmt: LIQ_AMT,
           status: VaultActionStatus.UNPROCESSED,
         });
-
-        gasFwd.payForGas.returns(GAS_FEE - 1);
-
-        await expect(facet.strategyInvest(ACCOUNT_ID, investRequest)).to.not.be.reverted;
-
-        expect(gasFwd.payForGas).to.have.been.calledWith(token.address, investRequest.gasFee);
-        expect(token.approve).to.have.been.calledWith(gasService.address, investRequest.gasFee);
         expect(gasService.payGasForContractCallWithToken).to.have.been.calledWith(
           facet.address,
           NET_NAME_THAT,
