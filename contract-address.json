@@ -347,8 +347,8 @@
       "proxy": ""
     },
     "gasFwd": {
-      "factory": "0xD787792eD0073050A18f47abE28b466B5df35081",
-      "implementation": "0xfb0B678DF7Eed05970eF869148C163069adc1E1C"
+      "factory": "0x462fb09e82dd7b5F983C5981E1c234C2b6fCE829",
+      "implementation": "0xA85EeA1E910527A1059Cc4d17ba255BE57075E1D"
     },
     "giftcards": {
       "implementation": "",
