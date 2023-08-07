@@ -848,9 +848,26 @@ describe("AccountsStrategy", function () {
         };
         router.executeLocal.returns(vaultActionData);
 
-        expect(await facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest))
+        const payload = packActionData({
+          destinationChain: networkNameThis,
+          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          selector: vault.interface.getSighash("redeemAll"),
+          accountIds: [ACCOUNT_ID],
+          token: token.address,
+          lockAmt: 1,
+          liqAmt: 1,
+          status: VaultActionStatus.UNPROCESSED,
+        });
+
+        await expect(facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest))
           .to.emit(facet, "EndowmentRedeemed")
           .withArgs(VaultActionStatus.POSITION_EXITED);
+
+        expect(router.executeLocal).to.have.been.calledWith(
+          networkNameThis,
+          facet.address.toLowerCase(),
+          payload
+        );
 
         const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
         expect(lockBal).to.equal(LOCK_AMT);
