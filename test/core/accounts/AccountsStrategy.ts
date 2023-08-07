@@ -243,6 +243,72 @@ describe("AccountsStrategy", function () {
           "Token not approved"
         );
       });
+
+      describe("calling _payForGasWithAccountBalance", () => {
+        beforeEach(async () => {
+          const endowDetails: AccountStorage.EndowmentStruct = {
+            ...DEFAULT_CHARITY_ENDOWMENT,
+            gasFwd: gasFwd.address,
+            settingsController: {
+              ...DEFAULT_CHARITY_ENDOWMENT.settingsController,
+              liquidInvestmentManagement: {
+                locked: false,
+                delegate: {
+                  addr: owner.address,
+                  expires: 0,
+                },
+              },
+              lockedInvestmentManagement: {
+                locked: false,
+                delegate: {
+                  addr: owner.address,
+                  expires: 0,
+                },
+              },
+            },
+          };
+          await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
+
+          const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
+            ...DEFAULT_STRATEGY_PARAMS,
+            network: NET_NAME_THAT,
+            approvalState: StrategyApprovalState.APPROVED,
+          };
+          registrar.getStrategyParamsById.returns(stratParams);
+
+          gasFwd.payForGas.returns(0);
+        });
+
+        it("neither locked nor liquid balances can cover their respective gas fees", async () => {
+          const hugeGasFee = INITIAL_LOCK_BAL + INITIAL_LIQ_BAL;
+
+          const investRequest: AccountMessages.InvestRequestStruct = {
+            ...DEFAULT_INVEST_REQUEST,
+            lockAmt: LOCK_AMT,
+            liquidAmt: LIQ_AMT,
+            gasFee: hugeGasFee,
+          };
+
+          await expect(facet.strategyInvest(ACCOUNT_ID, investRequest))
+            .to.be.revertedWithCustomError(facet, "InsufficientFundsForGas")
+            .withArgs(ACCOUNT_ID);
+        });
+
+        it("liquid balances can't cover locked gas deficit", async () => {
+          const hugeGasFee = INITIAL_LOCK_BAL + 100;
+
+          const investRequest: AccountMessages.InvestRequestStruct = {
+            ...DEFAULT_INVEST_REQUEST,
+            lockAmt: LOCK_AMT,
+            liquidAmt: LIQ_AMT,
+            gasFee: hugeGasFee,
+          };
+
+          await expect(facet.strategyInvest(ACCOUNT_ID, investRequest))
+            .to.be.revertedWithCustomError(facet, "InsufficientFundsForGas")
+            .withArgs(ACCOUNT_ID);
+        });
+      });
     });
 
     describe("and calls the local router", async function () {
@@ -350,19 +416,22 @@ describe("AccountsStrategy", function () {
         const endowDetails: AccountStorage.EndowmentStruct = {
           ...DEFAULT_CHARITY_ENDOWMENT,
           gasFwd: gasFwd.address,
-        };
-        endowDetails.settingsController.liquidInvestmentManagement = {
-          locked: false,
-          delegate: {
-            addr: owner.address,
-            expires: 0,
-          },
-        };
-        endowDetails.settingsController.lockedInvestmentManagement = {
-          locked: false,
-          delegate: {
-            addr: owner.address,
-            expires: 0,
+          settingsController: {
+            ...DEFAULT_CHARITY_ENDOWMENT.settingsController,
+            liquidInvestmentManagement: {
+              locked: false,
+              delegate: {
+                addr: owner.address,
+                expires: 0,
+              },
+            },
+            lockedInvestmentManagement: {
+              locked: false,
+              delegate: {
+                addr: owner.address,
+                expires: 0,
+              },
+            },
           },
         };
         endowDetails.gasFwd = gasFwd.address;
