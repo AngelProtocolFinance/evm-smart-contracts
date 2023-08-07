@@ -1,8 +1,8 @@
-import {FakeContract, MockContract, smock} from "@defi-wonderland/smock";
+import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
+import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {deployDummyGasService} from "tasks/helpers";
 import {
   DEFAULT_ACCOUNTS_CONFIG,
   DEFAULT_AP_PARAMS,
@@ -17,17 +17,12 @@ import {
   DEFAULT_STRATEGY_PARAMS,
   DEFAULT_STRATEGY_SELECTOR,
   convertVaultActionStructToArray,
-  deployDummyERC20,
-  deployDummyGateway,
   packActionData,
   wait,
 } from "test/utils";
 import {
   AccountsStrategy,
   AccountsStrategy__factory,
-  DummyERC20,
-  DummyGasService,
-  DummyGateway,
   GasFwd,
   GasFwd__factory,
   IAxelarGasService,
@@ -44,16 +39,15 @@ import {
   Router__factory,
   TestFacetProxyContract,
 } from "typechain-types";
-import {IAccountsStrategy} from "typechain-types/contracts/core/registrar/Registrar";
-import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {StrategyApprovalState, VaultActionStatus, genWallet, getChainId, getSigners} from "utils";
-import {deployFacetAsProxy} from "./utils";
-import {BigNumber} from "ethers";
 import {
   AccountMessages,
   IVault as IVaultStrategy,
 } from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
+import {IAccountsStrategy} from "typechain-types/contracts/core/registrar/Registrar";
+import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
+import {StrategyApprovalState, VaultActionStatus, genWallet, getChainId, getSigners} from "utils";
+import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
 
