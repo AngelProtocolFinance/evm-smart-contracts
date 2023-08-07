@@ -270,8 +270,36 @@ describe("AccountsDepositWithdrawEndowments", function () {
       });
 
       describe("to Charity Endowments", async () => {
-        it("adjust user split if it falls outside Endowment max/min split range", async () => {
-          // min is 10% on Registrar splits, so we adj user split to be in-line with that
+        it("adjust user liquid split downward if it falls outside max liquid split range", async () => {
+          // max is 90% on splits, so we adj user split to be in-line with that
+          const expectedLockedAmt = BigNumber.from(1000);
+          const expectedLiquidAmt = BigNumber.from(9000);
+
+          await expect(
+            facet.depositERC20(
+              {
+                id: charityId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: ethers.constants.AddressZero,
+              },
+              tokenFake.address,
+              depositAmt
+            )
+          )
+            .to.emit(facet, "EndowmentDeposit")
+            .withArgs(charityId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
+
+          const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+            charityId,
+            tokenFake.address
+          );
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
+        });
+
+        it("adjust user liquid split upward if it falls outside min liquid split range", async () => {
+          // min is 10% on splits, so we adj user split to be in-line with that
           const expectedLockedAmt = BigNumber.from(9000);
           const expectedLiquidAmt = BigNumber.from(1000);
 
@@ -391,13 +419,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           };
           await state.setEndowmentDetails(charityId, depositBps);
 
-          await expect(
-            facet.depositERC20(
-              depositToCharity,
-              tokenFake.address,
-              depositAmt
-            )
-          )
+          await expect(facet.depositERC20(depositToCharity, tokenFake.address, depositAmt))
             .to.emit(facet, "EndowmentDeposit")
             .withArgs(charityId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
 
@@ -416,10 +438,40 @@ describe("AccountsDepositWithdrawEndowments", function () {
       });
 
       describe("to other endowment-types", async () => {
-        it("adjust user split if it falls outside Endowment max/min split range", async () => {
-          // User splits 0 / 100 
-          // Endow splits 50 / 80 / 20 
-          // Final splits 20 / 80
+        it("adjust user liquid split upward if it falls outside Endowment min liquid split range", async () => {
+          // User splits (lock: 100 | liq: 0)
+          // Endow splits (def: 50 | max: 80 | min: 20)
+          // Final splits (lock: 80 | liq: 20)
+          const expectedLockedAmt = BigNumber.from(8000);
+          const expectedLiquidAmt = BigNumber.from(2000);
+
+          await expect(
+            facet.depositERC20(
+              {
+                id: normalEndowId,
+                lockedPercentage: 100,
+                liquidPercentage: 0,
+                donationMatch: ethers.constants.AddressZero,
+              },
+              tokenFake.address,
+              depositAmt
+            )
+          )
+            .to.emit(facet, "EndowmentDeposit")
+            .withArgs(normalEndowId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
+
+          const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
+            normalEndowId,
+            tokenFake.address
+          );
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
+        });
+
+        it("adjust user liquid split downward if it falls outside Endowment max liquid split range", async () => {
+          // User splits (lock: 0 | liq: 100)
+          // Endow splits (def: 50 | max: 80 | min: 20)
+          // Final splits (lock: 20 | liq: 80)
           const expectedLockedAmt = BigNumber.from(2000);
           const expectedLiquidAmt = BigNumber.from(8000);
 
@@ -548,13 +600,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           };
           await state.setEndowmentDetails(normalEndowId, depositBps);
 
-          await expect(
-            facet.depositERC20(
-              depositToNormalEndow,
-              tokenFake.address,
-              depositAmt
-            )
-          )
+          await expect(facet.depositERC20(depositToNormalEndow, tokenFake.address, depositAmt))
             .to.emit(facet, "EndowmentDeposit")
             .withArgs(normalEndowId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
 
@@ -572,7 +618,9 @@ describe("AccountsDepositWithdrawEndowments", function () {
         });
 
         it("deposit with protocol & endowment-level deposit fees", async () => {
-          registrarFake.getFeeSettingsByFeeType.whenCalledWith(FeeTypes.Deposit).returns({payoutAddress: treasury, bps: 10});
+          registrarFake.getFeeSettingsByFeeType
+            .whenCalledWith(FeeTypes.Deposit)
+            .returns({payoutAddress: treasury, bps: 10});
 
           const depositBps: AccountStorage.EndowmentStruct = {
             ...normalEndow,
@@ -585,10 +633,16 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const expectedFeeEndow = amountLeftAfterApFees.mul(100).div(10000); // 9990 * 1% = 99
           const finalAmountLeftover = amountLeftAfterApFees.sub(expectedFeeEndow); // 9990 - 99 = 9891
 
-          const expectedLockedAmt = finalAmountLeftover.mul(depositToNormalEndow.lockedPercentage).div(100); // 9891 * 40% = 3956
-          const expectedLiquidAmt = finalAmountLeftover.mul(depositToNormalEndow.liquidPercentage).div(100); // 9891 * 60% = 5934
+          const expectedLockedAmt = finalAmountLeftover
+            .mul(depositToNormalEndow.lockedPercentage)
+            .div(100); // 9891 * 40% = 3956
+          const expectedLiquidAmt = finalAmountLeftover
+            .mul(depositToNormalEndow.liquidPercentage)
+            .div(100); // 9891 * 60% = 5934
 
-          await expect(facet.depositERC20(depositToNormalEndow, tokenFake.address, BigNumber.from(depositAmt)))
+          await expect(
+            facet.depositERC20(depositToNormalEndow, tokenFake.address, BigNumber.from(depositAmt))
+          )
             .to.emit(facet, "EndowmentDeposit")
             .withArgs(
               depositToNormalEndow.id,
@@ -597,10 +651,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
               expectedLiquidAmt
             );
 
-          expect(tokenFake.transfer).to.have.been.calledWith(
-            treasury,
-            expectedFeeAp
-          );
+          expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
           expect(tokenFake.transfer).to.have.been.calledWith(
             depositBps.depositFee.payoutAddress,
             expectedFeeEndow
