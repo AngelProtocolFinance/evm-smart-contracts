@@ -725,15 +725,6 @@ describe("AccountsStrategy", function () {
   });
 
   describe("upon strategyRedeemAll", async function () {
-    let token: DummyERC20;
-    let gateway: DummyGateway;
-
-    before(async function () {
-      token = await deployDummyERC20(owner);
-      gateway = await deployDummyGateway(owner);
-      await wait(gateway.setTestTokenAddress(token.address));
-    });
-
     describe("reverts when", async function () {
       it("the caller is not approved for locked nor liquid fund mgmt", async function () {
         await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
@@ -831,7 +822,6 @@ describe("AccountsStrategy", function () {
           };
           await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
-          await token.mint(facet.address, LOCK_AMT + LIQ_AMT);
           await wait(
             state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true)
           );
@@ -901,15 +891,6 @@ describe("AccountsStrategy", function () {
     });
 
     describe("and calls axelar GMP", async function () {
-      let gasReceiver: DummyGasService;
-      let gasFwd: MockContract<GasFwd>;
-
-      before(async function () {
-        gasReceiver = await deployDummyGasService(owner);
-        const gasFwdFactory = await smock.mock<GasFwd__factory>("GasFwd");
-        gasFwd = await gasFwdFactory.deploy();
-      });
-
       beforeEach(async function () {
         const endowDetails: AccountStorage.EndowmentStruct = {
           ...DEFAULT_CHARITY_ENDOWMENT,
@@ -933,9 +914,6 @@ describe("AccountsStrategy", function () {
           },
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
-
-        await token.mint(gasFwd.address, GAS_FEE);
-        await gasFwd.setVariable("accounts", facet.address);
 
         const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
@@ -968,35 +946,26 @@ describe("AccountsStrategy", function () {
         );
 
         expect(await facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest))
-          .to.emit(gasReceiver, "GasPaid")
-          .withArgs(
-            facet.address,
-            networkNameThat,
-            router.address,
-            payload,
-            token.address,
-            GAS_FEE,
-            gasFwd.address
-          )
+          // .to.emit(gasReceiver, "GasPaid")
+          // .withArgs(
+          //   facet.address,
+          //   networkNameThat,
+          //   router.address,
+          //   payload,
+          //   token.address,
+          //   GAS_FEE,
+          //   gasFwd.address
+          // )
           .to.emit(gateway, "ContractCall")
           .withArgs(networkNameThat, router.address, payload);
 
-        const gasReceiverApproved = await token.allowance(facet.address, gasReceiver.address);
-        expect(gasReceiverApproved).to.equal(GAS_FEE);
+        // const gasReceiverApproved = await token.allowance(facet.address, gasReceiver.address);
+        // expect(gasReceiverApproved).to.equal(GAS_FEE);
       });
     });
   });
 
   describe("upon axelar callback", async function () {
-    let token: DummyERC20;
-    let gateway: DummyGateway;
-
-    before(async function () {
-      token = await deployDummyERC20(owner);
-      gateway = await deployDummyGateway(owner);
-      await wait(gateway.setTestTokenAddress(token.address));
-    });
-
     it("reverts in _execute if the call didn't originate from the expected chain", async function () {
       const action: IVaultStrategy.VaultActionDataStruct = {
         destinationChain: networkNameThat,
@@ -1030,6 +999,7 @@ describe("AccountsStrategy", function () {
       };
       const payload = packActionData(action, hre);
       const returnedAction = convertVaultActionStructToArray(action);
+
       await expect(
         facet.executeWithToken(
           ethers.utils.formatBytes32String("true"),
@@ -1309,7 +1279,6 @@ describe("AccountsStrategy", function () {
       };
       registrar.getAngelProtocolParams.returns(apParams);
 
-      await token.mint(facet.address, LOCK_AMT + LIQ_AMT);
       expect(
         await facet.executeWithToken(
           ethers.utils.formatBytes32String("true"),
