@@ -7,6 +7,8 @@ import {deployDummyERC20} from "test/utils";
 
 describe("GasFwd", function () {
   const {ethers, upgrades} = hre;
+  const BALANCE = 1000;
+
   let owner: SignerWithAddress;
   let admin: SignerWithAddress;
   let user: SignerWithAddress;
@@ -44,7 +46,6 @@ describe("GasFwd", function () {
   describe("upon payForGas", async function () {
     let token: DummyERC20;
     let gasFwd: GasFwd;
-    const BALANCE = 1000;
     beforeEach(async function () {
       token = await deployDummyERC20(owner);
       gasFwd = await deployGasFwdAsProxy(owner, admin, user);
@@ -62,7 +63,7 @@ describe("GasFwd", function () {
       expect(balance).to.equal(1);
     });
     it("transfers tokens when the call exceeds the balance", async function () {
-      await gasFwd.connect(user).payForGas(token.address, BALANCE+1);
+      await gasFwd.connect(user).payForGas(token.address, BALANCE + 1);
       let balance = await token.balanceOf(user.address);
       expect(balance).to.equal(BALANCE);
     });
@@ -74,7 +75,6 @@ describe("GasFwd", function () {
     beforeEach(async function () {
       token = await deployDummyERC20(owner);
       gasFwd = await deployGasFwdAsProxy(owner, admin, user);
-      await token.mint(gasFwd.address, 10);
     });
     it("reverts if called by non-accounts contract", async function () {
       await expect(gasFwd.sweep(token.address)).to.be.revertedWithCustomError(
@@ -82,10 +82,16 @@ describe("GasFwd", function () {
         "OnlyAccounts"
       );
     });
+    it("returns 0 (zero) if there's no balance to sweep", async () => {
+      expect(await gasFwd.connect(user).sweep(token.address))
+        .to.not.emit(gasFwd, "Sweep")
+        .and.to.equal(0);
+    });
     it("transfers the token balance", async function () {
+      await token.mint(gasFwd.address, BALANCE);
       await gasFwd.connect(user).sweep(token.address);
       let balance = await token.balanceOf(user.address);
-      expect(balance).to.equal(10);
+      expect(balance).to.equal(BALANCE);
     });
   });
 });
