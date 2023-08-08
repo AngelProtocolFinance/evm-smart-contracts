@@ -293,10 +293,10 @@ contract AccountsStrategy is
       );
       if (gasFwdGas < redeemRequest.gasFee) {
         _payForGasWithAccountBalance(
-          id,
-          tokenAddress,
-          redeemRequest.lockAmt,
-          redeemRequest.liquidAmt,
+          id, 
+          tokenAddress, 
+          0, // redeeming, no tokens will be sent
+          0, 
           (redeemRequest.gasFee - gasFwdGas)
         );
       }
@@ -421,10 +421,10 @@ contract AccountsStrategy is
       );
       if (gasFwdGas < redeemAllRequest.gasFee) {
         _payForGasWithAccountBalance(
-          id,
-          tokenAddress,
-          1, // Split evenly
-          1,
+          id, 
+          tokenAddress, 
+          0, // redeeming, no tokens will be sent
+          0, 
           (redeemAllRequest.gasFee - gasFwdGas)
         );
       }
@@ -576,9 +576,12 @@ contract AccountsStrategy is
     uint256 liqBal = state.STATES[id].balances.liquid[token];
     uint256 sendAmt = lockAmt + liqAmt;
 
-    // Split gas proportionally between liquid and lock amts
-    uint256 liqGas = (gasRemaining * ((liqAmt * LibAccounts.BIG_NUMBA_BASIS) / sendAmt)) /
-      LibAccounts.BIG_NUMBA_BASIS;
+    // Split equally by default
+    uint256 liqGas = gasRemaining / 2;
+    if (sendAmt > 0) {
+      // If there are any tokens to send together with gas, split gas proportionally between liquid and lock amts
+      liqGas = (gasRemaining * ((liqAmt * LibAccounts.BIG_NUMBA_BASIS) / sendAmt)) / LibAccounts.BIG_NUMBA_BASIS;
+    }
     uint256 lockGas = gasRemaining - liqGas;
 
     uint256 lockNeed = lockGas + lockAmt;
