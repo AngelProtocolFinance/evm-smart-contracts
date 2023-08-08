@@ -141,7 +141,7 @@ describe("AccountsStrategy", function () {
     gateway.tokenAddresses.returns(token.address);
   });
 
-  describe("upon strategyInvest", async function () {
+  describe("upon strategyInvest", function () {
     beforeEach(() => {
       const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
         ...DEFAULT_STRATEGY_PARAMS,
@@ -151,7 +151,7 @@ describe("AccountsStrategy", function () {
       registrar.getStrategyParamsById.returns(stratParams);
     });
 
-    describe("reverts when", async function () {
+    describe("reverts when", function () {
       it("the caller is not approved for locked fund mgmt", async function () {
         await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
         const investRequest: AccountMessages.InvestRequestStruct = {
@@ -246,7 +246,7 @@ describe("AccountsStrategy", function () {
       });
     });
 
-    describe("and calls the local router", async function () {
+    describe("and calls the local router", function () {
       beforeEach(async function () {
         const endowDetails: AccountStorage.EndowmentStruct = {
           ...DEFAULT_CHARITY_ENDOWMENT,
@@ -346,7 +346,7 @@ describe("AccountsStrategy", function () {
       });
     });
 
-    describe("and calls axelar GMP", async function () {
+    describe("and calls axelar GMP", function () {
       beforeEach(async function () {
         const endowDetails: AccountStorage.EndowmentStruct = {
           ...DEFAULT_CHARITY_ENDOWMENT,
@@ -607,8 +607,8 @@ describe("AccountsStrategy", function () {
     });
   });
 
-  describe("upon strategyRedeem", async function () {
-    describe("reverts when", async function () {
+  describe("upon strategyRedeem", function () {
+    describe("reverts when", function () {
       it("the caller is not approved for locked fund mgmt", async function () {
         await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
         const redeemRequest = {
@@ -648,7 +648,7 @@ describe("AccountsStrategy", function () {
       });
     });
 
-    describe("and calls the local router", async function () {
+    describe("and calls the local router", function () {
       const redeemRequest: AccountMessages.RedeemRequestStruct = {
         ...DEFAULT_REDEEM_REQUEST,
         lockAmt: LOCK_AMT,
@@ -779,7 +779,7 @@ describe("AccountsStrategy", function () {
       });
     });
 
-    describe("and calls axelar GMP", async function () {
+    describe("and calls axelar GMP", function () {
       let endowDetails: AccountStorage.EndowmentStruct;
 
       beforeEach(async function () {
@@ -1011,8 +1011,8 @@ describe("AccountsStrategy", function () {
     });
   });
 
-  describe("upon strategyRedeemAll", async function () {
-    describe("reverts when", async function () {
+  describe("upon strategyRedeemAll", function () {
+    describe("reverts when", function () {
       it("the caller is not approved for locked nor liquid fund mgmt", async function () {
         await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
         await expect(
@@ -1062,7 +1062,7 @@ describe("AccountsStrategy", function () {
       });
     });
 
-    describe("and calls the local router", async function () {
+    describe("and calls the local router", function () {
       const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
         ...DEFAULT_REDEEM_ALL_REQUEST,
         redeemLocked: true,
@@ -1197,7 +1197,7 @@ describe("AccountsStrategy", function () {
       });
     });
 
-    describe("and calls axelar GMP", async function () {
+    describe("and calls axelar GMP", function () {
       let endowDetails: AccountStorage.EndowmentStruct;
 
       beforeEach(async function () {
@@ -1376,7 +1376,7 @@ describe("AccountsStrategy", function () {
     });
   });
 
-  describe("upon axelar callback", async function () {
+  describe("upon axelar callback", function () {
     it("reverts in _execute if the call didn't originate from the expected chain", async function () {
       const action: IVaultStrategy.VaultActionDataStruct = {
         destinationChain: NET_NAME_THAT,
