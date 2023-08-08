@@ -14,12 +14,14 @@ import {getSigners} from "utils";
 use(smock.matchers);
 
 describe("GasFwd", function () {
-  const {ethers, upgrades} = hre;
   const BALANCE = 1000;
 
   let owner: SignerWithAddress;
   let admin: SignerWithAddress;
   let accounts: SignerWithAddress;
+
+  let token: FakeContract<IERC20>;
+  let gasFwd: GasFwd;
 
   async function deployGasFwdAsProxy(
     owner: SignerWithAddress,
@@ -45,19 +47,14 @@ describe("GasFwd", function () {
     accounts = apTeam1;
   });
 
-  describe("upon deployment", async function () {
-    it("can be deployed as a proxy", async function () {
-      expect(await deployGasFwdAsProxy(owner, admin));
-    });
+  beforeEach(async function () {
+    token = await smock.fake<IERC20>(IERC20__factory.createInterface());
+    gasFwd = await deployGasFwdAsProxy(owner, admin, accounts);
+    token.balanceOf.returns(BALANCE);
+    token.transfer.returns(true);
   });
 
   describe("upon payForGas", async function () {
-    let token: FakeContract<IERC20>;
-    let gasFwd: GasFwd;
-    beforeEach(async function () {
-      token = await smock.fake<IERC20>(IERC20__factory.createInterface());
-      gasFwd = await deployGasFwdAsProxy(owner, admin, accounts);
-    });
     it("reverts if called by non-accounts contract", async function () {
       await expect(gasFwd.payForGas(token.address, 1)).to.be.revertedWithCustomError(
         gasFwd,
@@ -65,7 +62,6 @@ describe("GasFwd", function () {
       );
     });
     it("nothing happens when requested amount is 0", async function () {
-      token.balanceOf.returns(BALANCE);
       await expect(gasFwd.connect(accounts).payForGas(token.address, 0)).to.not.emit(
         gasFwd,
         "GasPay"
@@ -82,24 +78,18 @@ describe("GasFwd", function () {
     });
     it("transfers tokens which do not exceed the balance", async function () {
       const amount = 1;
-      token.transfer.returns(true);
-      token.balanceOf.returns(BALANCE);
       await expect(gasFwd.connect(accounts).payForGas(token.address, amount))
         .to.emit(gasFwd, "GasPay")
         .withArgs(token.address, amount);
       expect(token.transfer).to.have.been.calledWith(accounts.address, amount);
     });
     it("transfers tokens when amount to transfer is equal to balance", async function () {
-      token.transfer.returns(true);
-      token.balanceOf.returns(BALANCE);
       await expect(gasFwd.connect(accounts).payForGas(token.address, BALANCE))
         .to.emit(gasFwd, "GasPay")
         .withArgs(token.address, BALANCE);
       expect(token.transfer).to.have.been.calledWith(accounts.address, BALANCE);
     });
     it("transfers tokens when the call exceeds the balance", async function () {
-      token.transfer.returns(true);
-      token.balanceOf.returns(BALANCE);
       await expect(gasFwd.connect(accounts).payForGas(token.address, BALANCE + 1))
         .to.emit(gasFwd, "GasPay")
         .withArgs(token.address, BALANCE);
@@ -108,12 +98,6 @@ describe("GasFwd", function () {
   });
 
   describe("upon sweep", async function () {
-    let token: FakeContract<IERC20>;
-    let gasFwd: GasFwd;
-    beforeEach(async function () {
-      token = await smock.fake<IERC20>(IERC20__factory.createInterface());
-      gasFwd = await deployGasFwdAsProxy(owner, admin, accounts);
-    });
     it("reverts if called by non-accounts contract", async function () {
       await expect(gasFwd.sweep(token.address)).to.be.revertedWithCustomError(
         gasFwd,
@@ -126,14 +110,11 @@ describe("GasFwd", function () {
       expect(token.transfer).to.not.be.called;
     });
     it("transfers the token balance", async function () {
-      const balance = 10;
       token.transfer.returns(true);
-      token.balanceOf.returns(balance);
-
       await expect(gasFwd.connect(accounts).sweep(token.address))
         .to.emit(gasFwd, "Sweep")
-        .withArgs(token.address, balance);
-      expect(token.transfer).to.have.been.calledWith(accounts.address, balance);
+        .withArgs(token.address, BALANCE);
+      expect(token.transfer).to.have.been.calledWith(accounts.address, BALANCE);
     });
   });
 });
