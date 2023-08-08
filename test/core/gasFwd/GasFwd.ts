@@ -62,7 +62,7 @@ describe("GasFwd", function () {
       expect(balance).to.equal(1);
     });
     it("transfers tokens when the call exceeds the balance", async function () {
-      await gasFwd.connect(user).payForGas(token.address, BALANCE+1);
+      await gasFwd.connect(user).payForGas(token.address, BALANCE + 1);
       let balance = await token.balanceOf(user.address);
       expect(balance).to.equal(BALANCE);
     });
