@@ -1049,23 +1049,6 @@ describe("AccountsStrategy", function () {
         const endowDetails: AccountStorage.EndowmentStruct = {
           ...DEFAULT_CHARITY_ENDOWMENT,
           owner: owner.address,
-          settingsController: {
-            ...DEFAULT_SETTINGS_STRUCT,
-            lockedInvestmentManagement: {
-              ...DEFAULT_PERMISSIONS_STRUCT,
-              delegate: {
-                expires: 0,
-                addr: user.address,
-              },
-            },
-            liquidInvestmentManagement: {
-              ...DEFAULT_PERMISSIONS_STRUCT,
-              delegate: {
-                expires: 0,
-                addr: user.address,
-              },
-            },
-          },
         };
         await wait(state.setEndowmentDetails(1, endowDetails));
         const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
@@ -1121,7 +1104,7 @@ describe("AccountsStrategy", function () {
         registrar.getStrategyParamsById.returns(stratParams);
       });
 
-      it("and the response is POSITION_EXITED", async function () {
+      it("redeems when the response is POSITION_EXITED", async function () {
         const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: "",
           strategyId: DEFAULT_STRATEGY_SELECTOR,
@@ -1156,8 +1139,8 @@ describe("AccountsStrategy", function () {
         );
 
         const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
-        expect(lockBal).to.equal(LOCK_AMT);
-        expect(liqBal).to.equal(LIQ_AMT);
+        expect(lockBal).to.equal(INITIAL_LOCK_BAL + LOCK_AMT);
+        expect(liqBal).to.equal(INITIAL_LIQ_BAL + LIQ_AMT);
         const strategyActive = await state.getActiveStrategyEndowmentState(
           ACCOUNT_ID,
           DEFAULT_STRATEGY_SELECTOR
@@ -1165,31 +1148,37 @@ describe("AccountsStrategy", function () {
         expect(strategyActive).to.be.false;
       });
 
-      it("and the response is anything else", async function () {
-        const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
-          destinationChain: "",
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
-          selector: DEFAULT_METHOD_SELECTOR,
-          accountIds: [ACCOUNT_ID],
-          token: token.address,
-          lockAmt: LOCK_AMT,
-          liqAmt: LIQ_AMT,
-          status: VaultActionStatus.FAIL_TOKENS_FALLBACK,
-        };
-        router.executeLocal.returns(vaultActionData);
+      [
+        VaultActionStatus.FAIL_TOKENS_FALLBACK,
+        VaultActionStatus.FAIL_TOKENS_RETURNED,
+        VaultActionStatus.SUCCESS,
+      ].forEach((vaultActionStatus) => {
+        it(`reverts when response is ${VaultActionStatus[vaultActionStatus]}`, async function () {
+          const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
+            destinationChain: "",
+            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            selector: DEFAULT_METHOD_SELECTOR,
+            accountIds: [ACCOUNT_ID],
+            token: token.address,
+            lockAmt: LOCK_AMT,
+            liqAmt: LIQ_AMT,
+            status: vaultActionStatus,
+          };
+          router.executeLocal.returns(vaultActionData);
 
-        await expect(facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest))
-          .to.be.revertedWithCustomError(facet, "RedeemAllFailed")
-          .withArgs(VaultActionStatus.FAIL_TOKENS_FALLBACK);
+          await expect(facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest))
+            .to.be.revertedWithCustomError(facet, "RedeemAllFailed")
+            .withArgs(vaultActionStatus);
 
-        const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
-        expect(lockBal).to.equal(0);
-        expect(liqBal).to.equal(0);
-        const strategyActive = await state.getActiveStrategyEndowmentState(
-          ACCOUNT_ID,
-          DEFAULT_STRATEGY_SELECTOR
-        );
-        expect(strategyActive);
+          const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+          expect(lockBal).to.equal(INITIAL_LOCK_BAL);
+          expect(liqBal).to.equal(INITIAL_LIQ_BAL);
+          const strategyActive = await state.getActiveStrategyEndowmentState(
+            ACCOUNT_ID,
+            DEFAULT_STRATEGY_SELECTOR
+          );
+          expect(strategyActive).to.be.true;
+        });
       });
     });
 
@@ -1220,6 +1209,8 @@ describe("AccountsStrategy", function () {
           },
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
+
+        await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true);
 
         token.approve.returns(true);
 
@@ -1274,6 +1265,15 @@ describe("AccountsStrategy", function () {
             netInfoThat.router.toLowerCase(),
             payload
           );
+
+          const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+          expect(lockBal).to.equal(INITIAL_LOCK_BAL);
+          expect(liqBal).to.equal(INITIAL_LIQ_BAL);
+          const strategyActive = await state.getActiveStrategyEndowmentState(
+            ACCOUNT_ID,
+            DEFAULT_STRATEGY_SELECTOR
+          );
+          expect(strategyActive).to.be.true;
         });
       });
     });
