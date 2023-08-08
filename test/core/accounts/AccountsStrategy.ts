@@ -1276,6 +1276,88 @@ describe("AccountsStrategy", function () {
           expect(strategyActive).to.be.true;
         });
       });
+
+      it("makes all the correct external calls and pays for part of gas fee with locked & liquid covering their respective needs", async function () {
+        const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
+          ...DEFAULT_REDEEM_ALL_REQUEST,
+          redeemLocked: true,
+          redeemLiquid: true,
+          gasFee: GAS_FEE,
+        };
+
+        gasFwd.payForGas.returns(GAS_FEE - 1);
+
+        await expect(facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest)).to.not.be.reverted;
+
+        expect(gasFwd.payForGas).to.have.been.calledWith(token.address, redeemAllRequest.gasFee);
+        expect(token.approve).to.have.been.calledWith(netInfoThis.gasReceiver, GAS_FEE);
+
+        const payload = packActionData({
+          destinationChain: NET_NAME_THAT,
+          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          selector: vault.interface.getSighash("redeemAll"),
+          accountIds: [ACCOUNT_ID],
+          token: token.address,
+          lockAmt: 1,
+          liqAmt: 1,
+          status: VaultActionStatus.UNPROCESSED,
+        });
+        expect(gasService.payGasForContractCall).to.have.been.calledWith(
+          facet.address,
+          NET_NAME_THAT,
+          netInfoThat.router.toLowerCase(),
+          payload,
+          token.address,
+          GAS_FEE,
+          endowDetails.owner
+        );
+        expect(gateway.callContract).to.have.been.calledWith(
+          NET_NAME_THAT,
+          netInfoThat.router.toLowerCase(),
+          payload
+        );
+
+        const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+        expect(lockBal).to.equal(INITIAL_LOCK_BAL - 1);
+        expect(liqBal).to.equal(INITIAL_LIQ_BAL);
+        const strategyActive = await state.getActiveStrategyEndowmentState(
+          ACCOUNT_ID,
+          DEFAULT_STRATEGY_SELECTOR
+        );
+        expect(strategyActive).to.be.true;
+      });
+
+      describe("but reverts because", () => {
+        it("neither locked nor liquid balances can cover their respective gas fees", async () => {
+          const hugeGasFee = INITIAL_LOCK_BAL + INITIAL_LIQ_BAL;
+
+          const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
+            ...DEFAULT_REDEEM_ALL_REQUEST,
+            redeemLocked: true,
+            redeemLiquid: true,
+            gasFee: hugeGasFee,
+          };
+
+          await expect(facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest))
+            .to.be.revertedWithCustomError(facet, "InsufficientFundsForGas")
+            .withArgs(ACCOUNT_ID);
+        });
+
+        it("liquid balances can't cover locked gas deficit", async () => {
+          const hugeGasFee = INITIAL_LOCK_BAL + INITIAL_LIQ_BAL - 1;
+
+          const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
+            ...DEFAULT_REDEEM_ALL_REQUEST,
+            redeemLocked: true,
+            redeemLiquid: true,
+            gasFee: hugeGasFee,
+          };
+
+          await expect(facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest))
+            .to.be.revertedWithCustomError(facet, "InsufficientFundsForGas")
+            .withArgs(ACCOUNT_ID);
+        });
+      });
     });
   });
 
