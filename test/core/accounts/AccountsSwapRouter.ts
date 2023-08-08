@@ -146,6 +146,25 @@ describe("AccountsSwapRouter", function () {
         ).to.be.revertedWith("Invalid Swap Input: Zero Address");
       });
 
+      it("reverts if tokenIn is the same as tokenOut", async function () {
+        registrar.queryConfig.returns({
+          ...DEFAULT_REGISTRAR_CONFIG,
+          uniswapRouter: uniswapRouter.address,
+          uniswapFactory: uniswapFactory.address,
+        });
+        let token = genWallet().address;
+        await expect(
+          facet.swapToken(
+            ACCOUNT_ID,
+            VaultType.LOCKED,
+            token,
+            1,
+            token,
+            0
+          )
+        ).to.be.revertedWith("Invalid Swap Input: Same Token");
+      });
+
       it("reverts if the tokenOut is the zero address", async function () {
         registrar.queryConfig.returns({
           ...DEFAULT_REGISTRAR_CONFIG,

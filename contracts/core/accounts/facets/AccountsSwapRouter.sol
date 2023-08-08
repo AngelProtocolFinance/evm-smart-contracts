@@ -59,6 +59,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
     );
     require(amountIn > 0, "Invalid Swap Input: Zero Amount");
     require(tokenIn != address(0) && tokenOut != address(0), "Invalid Swap Input: Zero Address");
+    require(tokenIn != tokenOut, "Invalid Swap Input: Same Token");
     require(
       slippage < LibAccounts.FEE_BASIS,
       "Invalid Swap Input: Token Out slippage set too high"
