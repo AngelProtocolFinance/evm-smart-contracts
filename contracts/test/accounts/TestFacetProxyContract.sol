@@ -188,6 +188,16 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMapping 
     return state.config;
   }
 
+  function setDafApprovedEndowments(uint32 endowId, bool _accepted) external {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    state.dafApprovedEndowments[endowId] = _accepted;
+  }
+
+  function getDafApprovedEndowments(uint32 endowId) external view returns (bool) {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    return state.dafApprovedEndowments[endowId];
+  }
+
   function callSelf(uint256 value, bytes memory data) external {
     Utils._execute(address(this), value, data);
   }
