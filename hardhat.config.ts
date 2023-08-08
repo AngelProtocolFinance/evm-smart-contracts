@@ -1,5 +1,6 @@
 import {HardhatUserConfig} from "hardhat/config";
-import {envConfig} from "./utils";
+import {HardhatNetworkAccountsUserConfig} from "hardhat/types";
+import {envConfig, getHardhatAccounts} from "./utils";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@openzeppelin/hardhat-upgrades";
@@ -15,6 +16,7 @@ var accounts = [
   envConfig.AP_TEAM_2.key,
   envConfig.AP_TEAM_3.key,
 ];
+var hardhatAccounts: HardhatNetworkAccountsUserConfig = getHardhatAccounts(accounts);
 
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
@@ -51,6 +53,12 @@ const config: HardhatUserConfig = {
       url: envConfig.POLYGON_RPC_URL,
       accounts: accounts,
     },
+    hardhat: {
+      accounts: hardhatAccounts,
+      forking: {
+        url: envConfig.MUMBAI_RPC_URL
+      }
+    }
   },
   mocha: {
     timeout: 400000,
