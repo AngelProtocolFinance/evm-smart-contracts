@@ -49,7 +49,6 @@ describe("GasFwd", function () {
     beforeEach(async function () {
       token = await deployDummyERC20(owner);
       gasFwd = await deployGasFwdAsProxy(owner, admin, user);
-      await token.mint(gasFwd.address, BALANCE);
     });
     it("reverts if called by non-accounts contract", async function () {
       await expect(gasFwd.payForGas(token.address, 1)).to.be.revertedWithCustomError(
@@ -57,12 +56,25 @@ describe("GasFwd", function () {
         "OnlyAccounts"
       );
     });
+    it("nothing happens when requested amount is 0", async function () {
+      await token.mint(gasFwd.address, BALANCE);
+      await expect(gasFwd.connect(user).payForGas(token.address, 0)).to.not.emit(gasFwd, "GasPay");
+      expect(await token.balanceOf(user.address)).to.equal(0);
+      expect(await token.balanceOf(gasFwd.address)).to.equal(BALANCE);
+    });
+    it("nothing happens when current balance is 0", async function () {
+      await expect(gasFwd.connect(user).payForGas(token.address, 1)).to.not.emit(gasFwd, "GasPay");
+      let balance = await token.balanceOf(user.address);
+      expect(balance).to.equal(0);
+    });
     it("transfers tokens which do not exceed the balance", async function () {
+      await token.mint(gasFwd.address, BALANCE);
       await gasFwd.connect(user).payForGas(token.address, 1);
       let balance = await token.balanceOf(user.address);
       expect(balance).to.equal(1);
     });
     it("transfers tokens when the call exceeds the balance", async function () {
+      await token.mint(gasFwd.address, BALANCE);
       await gasFwd.connect(user).payForGas(token.address, BALANCE + 1);
       let balance = await token.balanceOf(user.address);
       expect(balance).to.equal(BALANCE);
@@ -82,10 +94,9 @@ describe("GasFwd", function () {
         "OnlyAccounts"
       );
     });
-    it("returns 0 (zero) if there's no balance to sweep", async () => {
-      expect(await gasFwd.connect(user).sweep(token.address))
-        .to.not.emit(gasFwd, "Sweep")
-        .and.to.equal(0);
+    it("nothing happens if there's no balance to sweep", async () => {
+      await expect(gasFwd.connect(user).sweep(token.address)).to.not.emit(gasFwd, "Sweep");
+      expect(await token.balanceOf(user.address)).to.equal(0);
     });
     it("transfers the token balance", async function () {
       await token.mint(gasFwd.address, BALANCE);
