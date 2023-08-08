@@ -90,36 +90,20 @@ describe("AccountsStrategy", function () {
     admin = proxyAdmin;
     user = apTeam1;
 
-    gasFwd = await smock.fake<GasFwd>(new GasFwd__factory());
     gasService = await smock.fake<IAxelarGasService>(IAxelarGasService__factory.createInterface());
     gateway = await smock.fake<IAxelarGateway>(IAxelarGateway__factory.createInterface());
-    registrar = await smock.fake<Registrar>(new Registrar__factory());
-    router = await smock.fake<Router>(new Router__factory());
-    token = await smock.fake<IERC20>(IERC20__factory.createInterface());
     vault = await smock.fake<IVault>(IVault__factory.createInterface());
 
     const Facet = new AccountsStrategy__factory(owner);
     facetImpl = await Facet.deploy();
-
-    gateway.tokenAddresses.returns(token.address);
-
-    netInfoThis = {
-      ...DEFAULT_NETWORK_INFO,
-      chainId: await getChainId(hre),
-      axelarGateway: gateway.address,
-      gasReceiver: gasService.address,
-      router: router.address,
-    };
-    netInfoThat = {
-      ...DEFAULT_NETWORK_INFO,
-      chainId: 42,
-      router: genWallet().address,
-    };
-    registrar.queryNetworkConnection.whenCalledWith(NET_NAME_THIS).returns(netInfoThis);
-    registrar.queryNetworkConnection.whenCalledWith(NET_NAME_THAT).returns(netInfoThat);
   });
 
   beforeEach(async function () {
+    gasFwd = await smock.fake<GasFwd>(new GasFwd__factory());
+    registrar = await smock.fake<Registrar>(new Registrar__factory());
+    router = await smock.fake<Router>(new Router__factory());
+    token = await smock.fake<IERC20>(IERC20__factory.createInterface());
+
     state = await deployFacetAsProxy(hre, owner, admin, facetImpl.address);
     facet = AccountsStrategy__factory.connect(state.address, owner);
 
@@ -137,7 +121,24 @@ describe("AccountsStrategy", function () {
       INITIAL_LIQ_BAL
     );
 
+    netInfoThis = {
+      ...DEFAULT_NETWORK_INFO,
+      chainId: await getChainId(hre),
+      axelarGateway: gateway.address,
+      gasReceiver: gasService.address,
+      router: router.address,
+    };
+    netInfoThat = {
+      ...DEFAULT_NETWORK_INFO,
+      chainId: 42,
+      router: genWallet().address,
+    };
+    registrar.queryNetworkConnection.whenCalledWith(NET_NAME_THIS).returns(netInfoThis);
+    registrar.queryNetworkConnection.whenCalledWith(NET_NAME_THAT).returns(netInfoThat);
+
     registrar.isTokenAccepted.returns(true);
+
+    gateway.tokenAddresses.returns(token.address);
   });
 
   describe("upon strategyInvest", async function () {
