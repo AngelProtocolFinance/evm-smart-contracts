@@ -680,13 +680,6 @@ describe("AccountsStrategy", function () {
         await wait(
           state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true)
         );
-
-        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
-          ...DEFAULT_STRATEGY_PARAMS,
-          network: NET_NAME_THIS,
-          approvalState: StrategyApprovalState.APPROVED,
-        };
-        registrar.getStrategyParamsById.returns(stratParams);
       });
 
       [
@@ -749,8 +742,8 @@ describe("AccountsStrategy", function () {
           );
 
           const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
-          expect(lockBal).to.equal(LOCK_AMT);
-          expect(liqBal).to.equal(LIQ_AMT);
+          expect(lockBal).to.equal(INITIAL_LOCK_BAL + LOCK_AMT);
+          expect(liqBal).to.equal(INITIAL_LIQ_BAL + LIQ_AMT);
           const strategyActive = await state.getActiveStrategyEndowmentState(
             ACCOUNT_ID,
             DEFAULT_STRATEGY_SELECTOR
@@ -760,6 +753,13 @@ describe("AccountsStrategy", function () {
       });
 
       it("and the response is anything else", async function () {
+        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
+          ...DEFAULT_STRATEGY_PARAMS,
+          network: NET_NAME_THIS,
+          approvalState: StrategyApprovalState.APPROVED,
+        };
+        registrar.getStrategyParamsById.returns(stratParams);
+
         const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: "",
           strategyId: DEFAULT_STRATEGY_SELECTOR,
@@ -805,6 +805,8 @@ describe("AccountsStrategy", function () {
           },
         };
         await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
+
+        await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true);
 
         token.approve.returns(true);
 
@@ -859,6 +861,150 @@ describe("AccountsStrategy", function () {
             netInfoThat.router.toLowerCase(),
             payload
           );
+
+          const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+          expect(lockBal).to.equal(INITIAL_LOCK_BAL);
+          expect(liqBal).to.equal(INITIAL_LIQ_BAL);
+          const strategyActive = await state.getActiveStrategyEndowmentState(
+            ACCOUNT_ID,
+            DEFAULT_STRATEGY_SELECTOR
+          );
+          expect(strategyActive).to.be.true;
+        });
+      });
+
+      it("makes all the correct external calls and pays for part of gas fee with locked & liquid covering their respective needs", async function () {
+        const redeemRequest: AccountMessages.RedeemRequestStruct = {
+          ...DEFAULT_REDEEM_REQUEST,
+          lockAmt: LOCK_AMT,
+          liquidAmt: LIQ_AMT,
+          gasFee: GAS_FEE,
+        };
+
+        const payload = packActionData({
+          destinationChain: NET_NAME_THAT,
+          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          selector: vault.interface.getSighash("redeem"),
+          accountIds: [ACCOUNT_ID],
+          token: token.address,
+          lockAmt: LOCK_AMT,
+          liqAmt: LIQ_AMT,
+          status: VaultActionStatus.UNPROCESSED,
+        });
+
+        gasFwd.payForGas.returns(GAS_FEE - 1);
+
+        await expect(facet.strategyRedeem(ACCOUNT_ID, redeemRequest)).to.not.be.reverted;
+
+        expect(gasFwd.payForGas).to.have.been.calledWith(token.address, redeemRequest.gasFee);
+        expect(token.approve).to.have.been.calledWith(gasService.address, redeemRequest.gasFee);
+        expect(gasService.payGasForContractCall).to.have.been.calledWith(
+          facet.address,
+          NET_NAME_THAT,
+          netInfoThat.router.toLowerCase(),
+          payload,
+          token.address,
+          redeemRequest.gasFee,
+          endowDetails.owner
+        );
+        expect(gateway.callContract).to.have.been.calledWith(
+          NET_NAME_THAT,
+          netInfoThat.router.toLowerCase(),
+          payload
+        );
+
+        const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+        expect(lockBal).to.equal(INITIAL_LOCK_BAL - 1);
+        expect(liqBal).to.equal(INITIAL_LIQ_BAL);
+        const strategyActive = await state.getActiveStrategyEndowmentState(
+          ACCOUNT_ID,
+          DEFAULT_STRATEGY_SELECTOR
+        );
+        expect(strategyActive).to.be.true;
+      });
+
+      it("makes all the correct external calls and pays for part of gas fee with liquid covering part of the locked bal. gas fee", async function () {
+        const bigGasFee = INITIAL_LOCK_BAL;
+        const payForGasResult = 50;
+
+        const redeemRequest: AccountMessages.RedeemRequestStruct = {
+          ...DEFAULT_REDEEM_REQUEST,
+          lockAmt: LOCK_AMT,
+          liquidAmt: LIQ_AMT,
+          gasFee: bigGasFee,
+        };
+
+        const payload = packActionData({
+          destinationChain: NET_NAME_THAT,
+          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          selector: vault.interface.getSighash("redeem"),
+          accountIds: [ACCOUNT_ID],
+          token: token.address,
+          lockAmt: LOCK_AMT,
+          liqAmt: LIQ_AMT,
+          status: VaultActionStatus.UNPROCESSED,
+        });
+
+        gasFwd.payForGas.returns(payForGasResult);
+
+        await expect(facet.strategyRedeem(ACCOUNT_ID, redeemRequest)).to.not.be.reverted;
+
+        expect(gasFwd.payForGas).to.have.been.calledWith(token.address, redeemRequest.gasFee);
+        expect(token.approve).to.have.been.calledWith(gasService.address, redeemRequest.gasFee);
+        expect(gasService.payGasForContractCall).to.have.been.calledWith(
+          facet.address,
+          NET_NAME_THAT,
+          netInfoThat.router.toLowerCase(),
+          payload,
+          token.address,
+          redeemRequest.gasFee,
+          endowDetails.owner
+        );
+        expect(gateway.callContract).to.have.been.calledWith(
+          NET_NAME_THAT,
+          netInfoThat.router.toLowerCase(),
+          payload
+        );
+
+        const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+        expect(lockBal).to.equal(300);
+        expect(liqBal).to.equal(250);
+        const strategyActive = await state.getActiveStrategyEndowmentState(
+          ACCOUNT_ID,
+          DEFAULT_STRATEGY_SELECTOR
+        );
+        expect(strategyActive).to.be.true;
+      });
+
+      describe("but reverts because", () => {
+        it("neither locked nor liquid balances can cover their respective gas fees", async () => {
+          const hugeGasFee = INITIAL_LOCK_BAL + INITIAL_LIQ_BAL;
+
+          const investRequest: AccountMessages.InvestRequestStruct = {
+            ...DEFAULT_INVEST_REQUEST,
+            lockAmt: LOCK_AMT,
+            liquidAmt: LIQ_AMT,
+            gasFee: hugeGasFee,
+          };
+
+          await expect(facet.strategyRedeem(ACCOUNT_ID, investRequest))
+            .to.be.revertedWithCustomError(facet, "InsufficientFundsForGas")
+            .withArgs(ACCOUNT_ID);
+        });
+
+        it("liquid balances can't cover locked gas deficit", async () => {
+          const hugeGasFee = INITIAL_LOCK_BAL + 100;
+
+          const investRequest: AccountMessages.InvestRequestStruct = {
+            ...DEFAULT_INVEST_REQUEST,
+            lockAmt: LOCK_AMT,
+            liquidAmt: LIQ_AMT,
+            gasFee: hugeGasFee,
+          };
+
+          await expect(facet.strategyRedeem(ACCOUNT_ID, investRequest))
+            .to.be.revertedWithCustomError(facet, "InsufficientFundsForGas")
+            .withArgs(ACCOUNT_ID);
         });
       });
     });
