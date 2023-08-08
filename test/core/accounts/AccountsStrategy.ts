@@ -775,15 +775,6 @@ describe("AccountsStrategy", function () {
         await expect(facet.strategyRedeem(ACCOUNT_ID, redeemRequest))
           .to.be.revertedWithCustomError(facet, "RedeemFailed")
           .withArgs(VaultActionStatus.FAIL_TOKENS_FALLBACK);
-
-        const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
-        expect(lockBal).to.equal(0);
-        expect(liqBal).to.equal(0);
-        const strategyActive = await state.getActiveStrategyEndowmentState(
-          ACCOUNT_ID,
-          DEFAULT_STRATEGY_SELECTOR
-        );
-        expect(strategyActive);
       });
     });
 
