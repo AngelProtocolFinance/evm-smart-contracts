@@ -18,6 +18,7 @@ import {IAccountsDepositWithdrawEndowments} from "../interfaces/IAccountsDeposit
 import {Utils} from "../../../lib/utils.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
 import {IterableMapping} from "../../../lib/IterableMappingAddr.sol";
+import {FixedPointMathLib} from "../../../lib/FixedPointMathLib.sol";
 
 /**
  * @title AccountsDepositWithdrawEndowments
@@ -31,8 +32,8 @@ contract AccountsDepositWithdrawEndowments is
   IAccountsEvents,
   IAccountsDepositWithdrawEndowments
 {
-  using SafeMath for uint256;
   using SafeERC20 for IERC20;
+  using FixedPointMathLib for uint256;
 
   /**
    * @notice Deposit MATIC into the endowment. Wraps first to ERC20 before processing.
@@ -122,21 +123,22 @@ contract AccountsDepositWithdrawEndowments is
         .bps;
     }
     if (depositFeeRateAp > 0) {
-      depositFeeAp = (amount.mul(depositFeeRateAp)).div(LibAccounts.FEE_BASIS);
+      depositFeeAp = amount.mulDivDown(depositFeeRateAp, LibAccounts.FEE_BASIS);
       // Transfer AP Protocol fee to treasury
       IERC20(tokenAddress).safeTransfer(registrarConfig.treasury, depositFeeAp);
-      amountLeftover = amountLeftover.sub(depositFeeAp);
+      amountLeftover -= depositFeeAp;
     }
 
     // ** Endowment-level Deposit Fee **
     // Calculated on the amount left after Protocol-level fee is deducted
     if (tempEndowment.depositFee.bps > 0) {
-      depositFeeEndow = (amountLeftover.mul(tempEndowment.depositFee.bps)).div(
+      depositFeeEndow = amountLeftover.mulDivDown(
+        tempEndowment.depositFee.bps,
         LibAccounts.FEE_BASIS
       );
       // transfer endowment deposit fee to payout address
       IERC20(tokenAddress).safeTransfer(tempEndowment.depositFee.payoutAddress, depositFeeEndow);
-      amountLeftover = amountLeftover.sub(depositFeeEndow);
+      amountLeftover = depositFeeEndow;
     }
 
     // ** SPLIT ADJUSTMENTS AND CHECKS **
@@ -153,8 +155,8 @@ contract AccountsDepositWithdrawEndowments is
       lockedSplitPercent = 100 - liquidSplitPercent;
     }
 
-    uint256 lockedAmount = (amountLeftover.mul(lockedSplitPercent)).div(LibAccounts.PERCENT_BASIS);
-    uint256 liquidAmount = (amountLeftover.mul(liquidSplitPercent)).div(LibAccounts.PERCENT_BASIS);
+    uint256 lockedAmount = amountLeftover.mulDivDown(lockedSplitPercent, LibAccounts.PERCENT_BASIS);
+    uint256 liquidAmount = amountLeftover.mulDivDown(liquidSplitPercent, LibAccounts.PERCENT_BASIS);
 
     // donation matching flow
     if (lockedAmount > 0) {
@@ -223,8 +225,8 @@ contract AccountsDepositWithdrawEndowments is
       lockedSplitPercent = 100 - liquidSplitPercent;
     }
 
-    uint256 lockedAmount = (amount.mul(lockedSplitPercent)).div(LibAccounts.PERCENT_BASIS);
-    uint256 liquidAmount = (amount.mul(liquidSplitPercent)).div(LibAccounts.PERCENT_BASIS);
+    uint256 lockedAmount = amount.mulDivDown(lockedSplitPercent, LibAccounts.PERCENT_BASIS);
+    uint256 liquidAmount = amount.mulDivDown(liquidSplitPercent, LibAccounts.PERCENT_BASIS);
 
     IterableMapping.incr(state.STATES[details.id].balances.locked, tokenAddress, lockedAmount);
     IterableMapping.incr(state.STATES[details.id].balances.liquid, tokenAddress, liquidAmount);
@@ -297,12 +299,12 @@ contract AccountsDepositWithdrawEndowments is
     bool senderAllowed = false;
     if (tempEndowment.endowType == LibAccounts.EndowmentType.Daf) {
       require(
-        state.dafApprovedEndowments[beneficiaryEndowId],
-        "Endowment beneficiary must be a DAF-Approved Endowment"
-      );
-      require(
         beneficiaryAddress == address(0),
         "Beneficiary address is not allowed for DAF withdrawals"
+      );
+      require(
+        state.dafApprovedEndowments[beneficiaryEndowId],
+        "Endowment beneficiary must be a DAF-Approved Endowment"
       );
     } else {
       // determine if msg sender is allowed to withdraw based on rules and maturity status
@@ -426,19 +428,17 @@ contract AccountsDepositWithdrawEndowments is
     // ** WITHDRAW FEE (STANDARD) **
     // Protocol-level fee calculated based on Registrar rate look-up
     if (endowType == LibAccounts.EndowmentType.Charity) {
-      withdrawFeeAp = (
-        token.amnt.mul(
-          IRegistrar(registrarContract)
-            .getFeeSettingsByFeeType(LibAccounts.FeeTypes.WithdrawCharity)
-            .bps
-        )
-      ).div(LibAccounts.FEE_BASIS);
+      withdrawFeeAp = token.amnt.mulDivDown(
+        IRegistrar(registrarContract)
+          .getFeeSettingsByFeeType(LibAccounts.FeeTypes.WithdrawCharity)
+          .bps,
+        LibAccounts.FEE_BASIS
+      );
     } else {
-      withdrawFeeAp = (
-        token.amnt.mul(
-          IRegistrar(registrarContract).getFeeSettingsByFeeType(LibAccounts.FeeTypes.Withdraw).bps
-        )
-      ).div(LibAccounts.FEE_BASIS);
+      withdrawFeeAp = token.amnt.mulDivDown(
+        IRegistrar(registrarContract).getFeeSettingsByFeeType(LibAccounts.FeeTypes.Withdraw).bps,
+        LibAccounts.FEE_BASIS
+      );
     }
     amountLeftover -= withdrawFeeAp;
 
@@ -448,21 +448,19 @@ contract AccountsDepositWithdrawEndowments is
       // Protocol-level early withdraw penalty fee
       // Looked up from the Registrar based fee settings & calculated against original token amount
       if (endowType == LibAccounts.EndowmentType.Charity) {
-        earlyLockedWithdrawFeeAp = (
-          token.amnt.mul(
-            IRegistrar(registrarContract)
-              .getFeeSettingsByFeeType(LibAccounts.FeeTypes.EarlyLockedWithdrawCharity)
-              .bps
-          )
-        ).div(LibAccounts.FEE_BASIS);
+        earlyLockedWithdrawFeeAp = token.amnt.mulDivDown(
+          IRegistrar(registrarContract)
+            .getFeeSettingsByFeeType(LibAccounts.FeeTypes.EarlyLockedWithdrawCharity)
+            .bps,
+          LibAccounts.FEE_BASIS
+        );
       } else {
-        earlyLockedWithdrawFeeAp = (
-          token.amnt.mul(
-            IRegistrar(registrarContract)
-              .getFeeSettingsByFeeType(LibAccounts.FeeTypes.EarlyLockedWithdraw)
-              .bps
-          )
-        ).div(LibAccounts.FEE_BASIS);
+        earlyLockedWithdrawFeeAp = token.amnt.mulDivDown(
+          IRegistrar(registrarContract)
+            .getFeeSettingsByFeeType(LibAccounts.FeeTypes.EarlyLockedWithdraw)
+            .bps,
+          LibAccounts.FEE_BASIS
+        );
       }
       // Deduct AP Early Locked Withdraw Fee to arrive at an amountLeftover
       // that all Endowment-level Fees hereafter can safely be calculated against
@@ -470,7 +468,8 @@ contract AccountsDepositWithdrawEndowments is
 
       // Normal/DAF Endowment-level Early Withdraw Fee that owners can (optionally) set
       if (earlyLockedWithdrawFee.bps > 0) {
-        earlyLockedWithdrawFeeEndow = ((amountLeftover).mul(earlyLockedWithdrawFee.bps)).div(
+        earlyLockedWithdrawFeeEndow = amountLeftover.mulDivDown(
+          earlyLockedWithdrawFee.bps,
           LibAccounts.FEE_BASIS
         );
         // transfer endowment early withdraw fee to payout address
@@ -484,7 +483,7 @@ contract AccountsDepositWithdrawEndowments is
     // ** WITHDRAW FEE (STANDARD): Endowment-Level fee **
     // Calculated on the amount left after all Protocol-level fees are deducted
     if (withdrawFee.bps > 0) {
-      withdrawFeeEndow = (amountLeftover.mul(withdrawFee.bps)).div(LibAccounts.FEE_BASIS);
+      withdrawFeeEndow = amountLeftover.mulDivDown(withdrawFee.bps, LibAccounts.FEE_BASIS);
       // transfer endowment withdraw fee to payout address
       IERC20(token.addr).safeTransfer(withdrawFee.payoutAddress, withdrawFeeEndow);
     }
