@@ -19,7 +19,7 @@ describe("GasFwd", function () {
 
   let owner: SignerWithAddress;
   let admin: SignerWithAddress;
-  let user: SignerWithAddress;
+  let accounts: SignerWithAddress;
 
   async function deployGasFwdAsProxy(
     owner: SignerWithAddress,
@@ -42,7 +42,7 @@ describe("GasFwd", function () {
     const {deployer, proxyAdmin, apTeam1} = await getSigners(hre);
     owner = deployer;
     admin = proxyAdmin;
-    user = apTeam1;
+    accounts = apTeam1;
   });
 
   describe("upon deployment", async function () {
@@ -56,7 +56,7 @@ describe("GasFwd", function () {
     let gasFwd: GasFwd;
     beforeEach(async function () {
       token = await smock.fake<IERC20>(IERC20__factory.createInterface());
-      gasFwd = await deployGasFwdAsProxy(owner, admin, user);
+      gasFwd = await deployGasFwdAsProxy(owner, admin, accounts);
     });
     it("reverts if called by non-accounts contract", async function () {
       await expect(gasFwd.payForGas(token.address, 1)).to.be.revertedWithCustomError(
@@ -66,38 +66,44 @@ describe("GasFwd", function () {
     });
     it("nothing happens when requested amount is 0", async function () {
       token.balanceOf.returns(BALANCE);
-      await expect(gasFwd.connect(user).payForGas(token.address, 0)).to.not.emit(gasFwd, "GasPay");
+      await expect(gasFwd.connect(accounts).payForGas(token.address, 0)).to.not.emit(
+        gasFwd,
+        "GasPay"
+      );
       expect(token.transfer).to.not.be.called;
     });
     it("nothing happens when current balance is 0", async function () {
       token.balanceOf.returns(0);
-      await expect(gasFwd.connect(user).payForGas(token.address, 1)).to.not.emit(gasFwd, "GasPay");
+      await expect(gasFwd.connect(accounts).payForGas(token.address, 1)).to.not.emit(
+        gasFwd,
+        "GasPay"
+      );
       expect(token.transfer).to.not.be.called;
     });
     it("transfers tokens which do not exceed the balance", async function () {
       const amount = 1;
       token.transfer.returns(true);
       token.balanceOf.returns(BALANCE);
-      await expect(gasFwd.connect(user).payForGas(token.address, amount))
+      await expect(gasFwd.connect(accounts).payForGas(token.address, amount))
         .to.emit(gasFwd, "GasPay")
         .withArgs(token.address, amount);
-      expect(token.transfer).to.have.been.calledWith(user.address, amount);
+      expect(token.transfer).to.have.been.calledWith(accounts.address, amount);
     });
     it("transfers tokens when amount to transfer is equal to balance", async function () {
       token.transfer.returns(true);
       token.balanceOf.returns(BALANCE);
-      await expect(gasFwd.connect(user).payForGas(token.address, BALANCE))
+      await expect(gasFwd.connect(accounts).payForGas(token.address, BALANCE))
         .to.emit(gasFwd, "GasPay")
         .withArgs(token.address, BALANCE);
-      expect(token.transfer).to.have.been.calledWith(user.address, BALANCE);
+      expect(token.transfer).to.have.been.calledWith(accounts.address, BALANCE);
     });
     it("transfers tokens when the call exceeds the balance", async function () {
       token.transfer.returns(true);
       token.balanceOf.returns(BALANCE);
-      await expect(gasFwd.connect(user).payForGas(token.address, BALANCE + 1))
+      await expect(gasFwd.connect(accounts).payForGas(token.address, BALANCE + 1))
         .to.emit(gasFwd, "GasPay")
         .withArgs(token.address, BALANCE);
-      expect(token.transfer).to.have.been.calledWith(user.address, BALANCE);
+      expect(token.transfer).to.have.been.calledWith(accounts.address, BALANCE);
     });
   });
 
@@ -106,7 +112,7 @@ describe("GasFwd", function () {
     let gasFwd: GasFwd;
     beforeEach(async function () {
       token = await smock.fake<IERC20>(IERC20__factory.createInterface());
-      gasFwd = await deployGasFwdAsProxy(owner, admin, user);
+      gasFwd = await deployGasFwdAsProxy(owner, admin, accounts);
     });
     it("reverts if called by non-accounts contract", async function () {
       await expect(gasFwd.sweep(token.address)).to.be.revertedWithCustomError(
@@ -116,7 +122,7 @@ describe("GasFwd", function () {
     });
     it("nothing happens if there's no balance to sweep", async () => {
       token.balanceOf.returns(0);
-      await expect(gasFwd.connect(user).sweep(token.address)).to.not.emit(gasFwd, "Sweep");
+      await expect(gasFwd.connect(accounts).sweep(token.address)).to.not.emit(gasFwd, "Sweep");
       expect(token.transfer).to.not.be.called;
     });
     it("transfers the token balance", async function () {
@@ -124,10 +130,10 @@ describe("GasFwd", function () {
       token.transfer.returns(true);
       token.balanceOf.returns(balance);
 
-      await expect(gasFwd.connect(user).sweep(token.address))
+      await expect(gasFwd.connect(accounts).sweep(token.address))
         .to.emit(gasFwd, "Sweep")
         .withArgs(token.address, balance);
-      expect(token.transfer).to.have.been.calledWith(user.address, balance);
+      expect(token.transfer).to.have.been.calledWith(accounts.address, balance);
     });
   });
 });
