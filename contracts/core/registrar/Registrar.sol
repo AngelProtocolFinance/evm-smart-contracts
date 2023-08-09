@@ -9,6 +9,8 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {LocalRegistrar} from "./LocalRegistrar.sol";
 import {LocalRegistrarLib} from "./lib/LocalRegistrarLib.sol";
 
+uint256 constant COLLECTOR_DEFAULT_SHARE = 50;
+
 /**
  * @title Registrar Contract
  * @dev Contract for Registrar
@@ -45,7 +47,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       govContract: address(0),
       donationMatchCharitesContract: address(0),
       donationMatchEmitter: address(0),
-      collectorShare: 50,
+      collectorShare: COLLECTOR_DEFAULT_SHARE,
       charitySharesContract: address(0),
       fundraisingContract: address(0),
       uniswapRouter: address(0),
