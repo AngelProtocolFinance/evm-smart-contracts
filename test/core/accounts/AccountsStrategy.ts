@@ -18,7 +18,6 @@ import {
   DEFAULT_STRATEGY_SELECTOR,
   convertVaultActionStructToArray,
   packActionData,
-  wait,
 } from "test/utils";
 import {
   AccountsStrategy,
@@ -142,18 +141,46 @@ describe("AccountsStrategy", function () {
   });
 
   describe("upon strategyInvest", function () {
-    beforeEach(() => {
+    beforeEach(async () => {
       const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
         ...DEFAULT_STRATEGY_PARAMS,
         network: NET_NAME_THIS,
         approvalState: StrategyApprovalState.APPROVED,
       };
       registrar.getStrategyParamsById.returns(stratParams);
+
+      const endowDetails: AccountStorage.EndowmentStruct = {
+        ...DEFAULT_CHARITY_ENDOWMENT,
+        settingsController: {
+          ...DEFAULT_CHARITY_ENDOWMENT.settingsController,
+          liquidInvestmentManagement: {
+            locked: false,
+            delegate: {
+              addr: owner.address,
+              expires: 0,
+            },
+          },
+          lockedInvestmentManagement: {
+            locked: false,
+            delegate: {
+              addr: owner.address,
+              expires: 0,
+            },
+          },
+        },
+      };
+      await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
     });
 
     describe("reverts when", function () {
+      it("both locked and liquid amounts to be invested are set to 0 (zero)", async function () {
+        await expect(facet.strategyInvest(ACCOUNT_ID, DEFAULT_INVEST_REQUEST)).to.be.revertedWith(
+          "Must invest at least one of Locked/Liquid"
+        );
+      });
+
       it("the caller is not approved for locked fund mgmt", async function () {
-        await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
+        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
         const investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           lockAmt: 1,
@@ -164,7 +191,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("the caller is not approved for liquid fund mgmt", async function () {
-        await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
+        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
         const investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           liquidAmt: 1,
@@ -181,28 +208,13 @@ describe("AccountsStrategy", function () {
         };
         registrar.getStrategyParamsById.returns(stratParams);
 
-        await wait(state.setEndowmentDetails(1, DEFAULT_CHARITY_ENDOWMENT));
+        await state.setEndowmentDetails(1, DEFAULT_CHARITY_ENDOWMENT);
         await expect(facet.strategyInvest(ACCOUNT_ID, DEFAULT_INVEST_REQUEST)).to.be.revertedWith(
           "Strategy is not approved"
         );
       });
 
       it("the account locked balance is insufficient", async function () {
-        const endowDetails: AccountStorage.EndowmentStruct = {
-          ...DEFAULT_CHARITY_ENDOWMENT,
-          settingsController: {
-            ...DEFAULT_CHARITY_ENDOWMENT.settingsController,
-            lockedInvestmentManagement: {
-              locked: false,
-              delegate: {
-                addr: owner.address,
-                expires: 0,
-              },
-            },
-          },
-        };
-        await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
-
         const investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           lockAmt: INITIAL_LOCK_BAL + 1,
@@ -213,21 +225,6 @@ describe("AccountsStrategy", function () {
       });
 
       it("the account liquid balance is insufficient", async function () {
-        const endowDetails: AccountStorage.EndowmentStruct = {
-          ...DEFAULT_CHARITY_ENDOWMENT,
-          settingsController: {
-            ...DEFAULT_CHARITY_ENDOWMENT.settingsController,
-            liquidInvestmentManagement: {
-              locked: false,
-              delegate: {
-                addr: owner.address,
-                expires: 0,
-              },
-            },
-          },
-        };
-        await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
-
         const investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           liquidAmt: INITIAL_LIQ_BAL + 1,
@@ -268,7 +265,7 @@ describe("AccountsStrategy", function () {
             },
           },
         };
-        await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
+        await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
 
         token.transfer.whenCalledWith(router.address, LIQ_AMT + LOCK_AMT).returns(true);
 
@@ -369,17 +366,7 @@ describe("AccountsStrategy", function () {
             },
           },
         };
-        endowDetails.gasFwd = gasFwd.address;
-        await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
-
-        await wait(
-          state.setEndowmentTokenBalance(
-            ACCOUNT_ID,
-            token.address,
-            INITIAL_LOCK_BAL,
-            INITIAL_LIQ_BAL
-          )
-        );
+        await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
 
         token.approve.returns(true);
 
@@ -609,8 +596,14 @@ describe("AccountsStrategy", function () {
 
   describe("upon strategyRedeem", function () {
     describe("reverts when", function () {
+      it("both locked and liquid amounts to be redeemed are set to 0 (zero)", async function () {
+        await expect(facet.strategyRedeem(ACCOUNT_ID, DEFAULT_REDEEM_REQUEST)).to.be.revertedWith(
+          "Must invest at least one of Locked/Liquid"
+        );
+      });
+
       it("the caller is not approved for locked fund mgmt", async function () {
-        await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
+        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
         const redeemRequest = {
           ...DEFAULT_REDEEM_REQUEST,
           lockAmt: 1,
@@ -621,7 +614,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("the caller is not approved for liquid fund mgmt", async function () {
-        await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
+        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
         const redeemRequest = {
           ...DEFAULT_REDEEM_REQUEST,
           liquidAmt: 1,
@@ -641,7 +634,7 @@ describe("AccountsStrategy", function () {
           ...DEFAULT_CHARITY_ENDOWMENT,
           owner: owner.address,
         };
-        await wait(state.setEndowmentDetails(1, endowDetails));
+        await state.setEndowmentDetails(1, endowDetails);
         await expect(facet.strategyRedeem(ACCOUNT_ID, DEFAULT_REDEEM_REQUEST)).to.be.revertedWith(
           "Strategy is not approved"
         );
@@ -676,11 +669,9 @@ describe("AccountsStrategy", function () {
             },
           },
         };
-        await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
+        await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
 
-        await wait(
-          state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true)
-        );
+        await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true);
       });
 
       [
@@ -805,7 +796,7 @@ describe("AccountsStrategy", function () {
             },
           },
         };
-        await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
+        await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
 
         await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true);
 
@@ -1013,14 +1004,13 @@ describe("AccountsStrategy", function () {
 
   describe("upon strategyRedeemAll", function () {
     describe("reverts when", function () {
-      it("the caller is not approved for locked nor liquid fund mgmt", async function () {
-        await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
+      it("neither locked nor liquid funds are set to be redeemed", async function () {
         await expect(
-          facet.connect(user).strategyRedeemAll(ACCOUNT_ID, DEFAULT_REDEEM_ALL_REQUEST)
+          facet.strategyRedeemAll(ACCOUNT_ID, DEFAULT_REDEEM_ALL_REQUEST)
         ).to.be.revertedWith("Must redeem at least one of Locked/Liquid");
       });
       it("the caller is not approved for locked fund mgmt", async function () {
-        await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
+        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
         const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLocked: true,
@@ -1030,7 +1020,7 @@ describe("AccountsStrategy", function () {
         ).to.be.revertedWith("Unauthorized");
       });
       it("the caller is not approved for liquid fund mgmt", async function () {
-        await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
+        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
         const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLiquid: true,
@@ -1051,7 +1041,7 @@ describe("AccountsStrategy", function () {
           ...DEFAULT_CHARITY_ENDOWMENT,
           owner: owner.address,
         };
-        await wait(state.setEndowmentDetails(1, endowDetails));
+        await state.setEndowmentDetails(1, endowDetails);
         const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLiquid: true,
@@ -1091,11 +1081,9 @@ describe("AccountsStrategy", function () {
             },
           },
         };
-        await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
+        await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
 
-        await wait(
-          state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true)
-        );
+        await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true);
       });
 
       [StrategyApprovalState.APPROVED, StrategyApprovalState.WITHDRAW_ONLY].forEach(
@@ -1223,7 +1211,7 @@ describe("AccountsStrategy", function () {
             },
           },
         };
-        await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
+        await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
 
         await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true);
 
@@ -1681,7 +1669,7 @@ describe("AccountsStrategy", function () {
         liqAmt: LIQ_AMT,
         status: VaultActionStatus.UNPROCESSED,
       };
-      const payload = packActionData(action, hre);
+      const payload = packActionData(action);
       const returnedAction = convertVaultActionStructToArray(action);
 
       const apParams: LocalRegistrarLib.AngelProtocolParamsStruct = {
