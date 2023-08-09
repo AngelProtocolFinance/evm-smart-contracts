@@ -35,9 +35,9 @@ abstract contract ERC4626AP is ERC20AP {
 
   constructor(
     IERC20Metadata _asset,
-    string memory _name,
-    string memory _symbol
-  ) ERC20AP(_name, _symbol, _asset.decimals()) {
+    string memory _ERC20name,
+    string memory _ERC20symbol
+  ) ERC20AP(_ERC20name, _ERC20symbol, _asset.decimals()) {
     asset = _asset;
   }
 
@@ -54,7 +54,7 @@ abstract contract ERC4626AP is ERC20AP {
     require((shares = previewDeposit(assets)) != 0, "ZERO_SHARES");
 
     // Need to transfer before minting or ERC777s could reenter.
-    asset.transferFrom(strategy, address(this), assets);
+    asset.safeTransferFrom(strategy, address(this), assets);
 
     _mint(receiver, shares);
 
@@ -70,7 +70,7 @@ abstract contract ERC4626AP is ERC20AP {
     assets = previewMint(shares); // No need to check for rounding error, previewMint rounds up.
 
     // Need to transfer before minting or ERC777s could reenter.
-    asset.transferFrom(_msgSender(), address(this), assets);
+    asset.safeTransferFrom(_msgSender(), address(this), assets);
 
     _mint(receiver, shares);
 
@@ -115,7 +115,7 @@ abstract contract ERC4626AP is ERC20AP {
 
     emit WithdrawERC4626(_msgSender(), receiver, owner, assets, shares);
 
-    asset.approve(receiver, assets);
+    asset.safeApprove(receiver, assets);
   }
 
   /*//////////////////////////////////////////////////////////////

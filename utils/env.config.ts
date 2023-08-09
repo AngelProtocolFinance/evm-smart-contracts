@@ -1,7 +1,7 @@
 // Env handling:
 import {config as dotenvConfig} from "dotenv";
 import {resolve} from "path";
-import { HardhatNetworkAccountsUserConfig, HardhatNetworkAccountUserConfig } from "hardhat/types";
+import {HardhatNetworkAccountsUserConfig, HardhatNetworkAccountUserConfig} from "hardhat/types";
 
 dotenvConfig({path: resolve(__dirname, "../.env")});
 
@@ -64,12 +64,12 @@ function extractString(name: string): string {
   return envVar;
 }
 
-export function getHardhatAccounts(accountList: string[]) : HardhatNetworkAccountsUserConfig {
-  let hardhatAccounts: HardhatNetworkAccountUserConfig[] =[];
-  accountList.forEach(element => {
+export function getHardhatAccounts(accountList: string[]): HardhatNetworkAccountsUserConfig {
+  let hardhatAccounts: HardhatNetworkAccountUserConfig[] = [];
+  accountList.forEach((element) => {
     hardhatAccounts.push({
       privateKey: element,
-      balance: "1000000000000000000000"
+      balance: "1000000000000000000000",
     });
   });
   return hardhatAccounts;
