@@ -608,17 +608,17 @@ contract AccountsStrategy is
       state.STATES[id].balances.locked[token] -= lockGas;
       state.STATES[id].balances.liquid[token] -= liqGas;
     } else if ((lockNeed > lockBal) && (liqNeed <= liqBal)) {
-      // 2) lockBal does not cover lockGas, liqBal can cover deficit in addition to liqGas
+      // 2) lockBal does not cover lockNeed, check if liqBal can cover deficit in addition to liqNeed
       uint256 lockNeedDeficit = lockNeed - lockBal;
       if (lockNeedDeficit <= (liqBal - liqNeed)) {
         state.STATES[id].balances.locked[token] -= (lockGas - lockNeedDeficit);
         state.STATES[id].balances.liquid[token] -= (liqGas + lockNeedDeficit);
       } else {
-        // 3) lockBal does not cover lockNeeds and liqBal cannot cover -> revert
+        // 3) lockBal does not cover lockNeed and liqBal cannot cover -> revert
         revert InsufficientFundsForGas(id, liqNeed + lockNeed, liqBal + lockBal);
       }
     } else {
-      // 4) lockBal covers lockNeeds, liqBal does not cover liqNeeds -> revert
+      // 4) lockBal covers lockNeed, liqBal does not cover liqNeed -> revert
       revert InsufficientFundsForGas(id, liqNeed + lockNeed, liqBal + lockBal);
     }
   }
