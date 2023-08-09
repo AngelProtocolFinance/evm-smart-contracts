@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
+import "@openzeppelin/contracts/utils/Strings.sol";
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
@@ -32,6 +33,8 @@ contract AccountsStrategy is
   IAccountsEvents
 {
   using SafeERC20 for IERC20;
+
+  error InvalidValue(string param, string value);
 
   /**
    * @notice This function that allows users to deposit into a yield strategy using tokens from their locked or liquid account in an endowment.
@@ -592,6 +595,9 @@ contract AccountsStrategy is
     uint256 gasPercentFromLiq,
     uint256 gasRemaining
   ) internal {
+    if (gasPercentFromLiq > 100) {
+      revert InvalidValue("gasPercentFromLiq", Strings.toString(gasPercentFromLiq));
+    }
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     uint256 lockBal = state.STATES[id].balances.locked[token];
     uint256 liqBal = state.STATES[id].balances.liquid[token];
