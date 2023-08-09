@@ -1456,29 +1456,36 @@ describe("AccountsStrategy", function () {
           .withArgs(returnedAction);
       });
 
-      it("reverts for any other status", async function () {
-        const action: IVaultStrategy.VaultActionDataStruct = {
-          destinationChain: NET_NAME_THAT,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
-          selector: vault.interface.getSighash("deposit"),
-          accountIds: [ACCOUNT_ID],
-          token: token.address,
-          lockAmt: 1,
-          liqAmt: 1,
-          status: VaultActionStatus.UNPROCESSED,
-        };
-        const payload = packActionData(action);
-        const returnedAction = convertVaultActionStructToArray(action);
-        await expect(
-          facet.execute(
-            ethers.utils.formatBytes32String("true"),
-            NET_NAME_THAT,
-            router.address,
-            payload
+      [
+        VaultActionStatus.FAIL_TOKENS_RETURNED,
+        VaultActionStatus.POSITION_EXITED,
+        VaultActionStatus.SUCCESS,
+        VaultActionStatus.UNPROCESSED,
+      ].forEach((vaultActionStatus) => {
+        it(`reverts for response status: ${VaultActionStatus[vaultActionStatus]}`, async function () {
+          const action: IVaultStrategy.VaultActionDataStruct = {
+            destinationChain: NET_NAME_THAT,
+            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            selector: vault.interface.getSighash("deposit"),
+            accountIds: [ACCOUNT_ID],
+            token: token.address,
+            lockAmt: 1,
+            liqAmt: 1,
+            status: vaultActionStatus,
+          };
+          const payload = packActionData(action);
+          const returnedAction = convertVaultActionStructToArray(action);
+          await expect(
+            facet.execute(
+              ethers.utils.formatBytes32String("true"),
+              NET_NAME_THAT,
+              router.address,
+              payload
+            )
           )
-        )
-          .to.be.revertedWithCustomError(facet, "UnexpectedResponse")
-          .withArgs(returnedAction);
+            .to.be.revertedWithCustomError(facet, "UnexpectedResponse")
+            .withArgs(returnedAction);
+        });
       });
     });
 
