@@ -231,6 +231,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
    * @param priceFeed address
    */
   function updateTokenPriceFeed(address token, address priceFeed) public onlyOwner {
+    require(priceFeed != address(0), "Must pass valid price feed contract address");
     state.PriceFeeds[token] = priceFeed;
   }
 
