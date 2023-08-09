@@ -217,7 +217,10 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     emit StrategyParamsUpdated(_strategyId, _network, _lockAddr, _liqAddr, _approvalState);
   }
 
-  function setVaultOperatorApproved(address _operator, bool _isApproved) external override {
+  function setVaultOperatorApproved(
+    address _operator,
+    bool _isApproved
+  ) external override onlyOwner {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
     lrs.ApprovedVaultOperators[_operator] = _isApproved;
   }
@@ -226,7 +229,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     LibAccounts.FeeTypes _feeType,
     uint256 _rate,
     address _payout
-  ) external {
+  ) external onlyOwner {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
     lrs.FeeSettingsByFeeType[_feeType] = LibAccounts.FeeSetting({
       payoutAddress: _payout,

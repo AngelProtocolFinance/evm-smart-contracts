@@ -151,13 +151,16 @@ contract AccountsStrategy is
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
-      uint256 gasFwdGas = IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(tokenAddress, investRequest.gasFee);
+      uint256 gasFwdGas = IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(
+        tokenAddress,
+        investRequest.gasFee
+      );
       if (gasFwdGas < investRequest.gasFee) {
         _payForGasWithAccountBalance(
-          id, 
-          tokenAddress, 
-          investRequest.lockAmt, 
-          investRequest.liquidAmt, 
+          id,
+          tokenAddress,
+          investRequest.lockAmt,
+          investRequest.liquidAmt,
           (investRequest.gasFee - gasFwdGas)
         );
       }
@@ -284,13 +287,16 @@ contract AccountsStrategy is
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
-      uint256 gasFwdGas = IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(tokenAddress, redeemRequest.gasFee);
+      uint256 gasFwdGas = IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(
+        tokenAddress,
+        redeemRequest.gasFee
+      );
       if (gasFwdGas < redeemRequest.gasFee) {
         _payForGasWithAccountBalance(
-          id, 
-          tokenAddress, 
-          redeemRequest.lockAmt, 
-          redeemRequest.liquidAmt, 
+          id,
+          tokenAddress,
+          redeemRequest.lockAmt,
+          redeemRequest.liquidAmt,
           (redeemRequest.gasFee - gasFwdGas)
         );
       }
@@ -409,13 +415,16 @@ contract AccountsStrategy is
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
-      uint256 gasFwdGas = IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(tokenAddress, redeemAllRequest.gasFee);
+      uint256 gasFwdGas = IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(
+        tokenAddress,
+        redeemAllRequest.gasFee
+      );
       if (gasFwdGas < redeemAllRequest.gasFee) {
         _payForGasWithAccountBalance(
-          id, 
-          tokenAddress, 
-          1, // Split evenly 
-          1, 
+          id,
+          tokenAddress,
+          1, // Split evenly
+          1,
           (redeemAllRequest.gasFee - gasFwdGas)
         );
       }
@@ -550,35 +559,41 @@ contract AccountsStrategy is
 
   /**
    * @notice Pay for gas from the account balance
-   * @dev This method pays for gas for endowments by directly accessing their balances. 
-   * We split the gas payment proprotionally between locked and liquid if possible and  
-   * use liquid funds for locked gas needs, but not the other way around in the case of a shortage. 
-   * Revert if the combined balances of the account cannot cover both the investment request and the gas payment.  
+   * @dev This method pays for gas for endowments by directly accessing their balances.
+   * We split the gas payment proprotionally between locked and liquid if possible and
+   * use liquid funds for locked gas needs, but not the other way around in the case of a shortage.
+   * Revert if the combined balances of the account cannot cover both the investment request and the gas payment.
    */
-  function _payForGasWithAccountBalance(uint32 id, address token, uint256 lockAmt, uint256 liqAmt, uint256 gasRemaining) internal {
+  function _payForGasWithAccountBalance(
+    uint32 id,
+    address token,
+    uint256 lockAmt,
+    uint256 liqAmt,
+    uint256 gasRemaining
+  ) internal {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     uint256 lockBal = state.STATES[id].balances.locked[token];
     uint256 liqBal = state.STATES[id].balances.liquid[token];
     uint256 sendAmt = lockAmt + liqAmt;
 
     // Split gas proportionally between liquid and lock amts
-    uint256 liqGas = (gasRemaining * ((liqAmt * LibAccounts.BIG_NUMBA_BASIS) / sendAmt)) / LibAccounts.BIG_NUMBA_BASIS;
+    uint256 liqGas = (gasRemaining * ((liqAmt * LibAccounts.BIG_NUMBA_BASIS) / sendAmt)) /
+      LibAccounts.BIG_NUMBA_BASIS;
     uint256 lockGas = gasRemaining - liqGas;
 
     uint256 lockNeed = lockGas + lockAmt;
     uint256 liqNeed = liqGas + liqAmt;
 
-    // Cases:  
+    // Cases:
     // 1) lockBal and liqBal each cover the respective needs
-    if ( (lockNeed <= lockBal) && (liqNeed <= liqBal)) {
+    if ((lockNeed <= lockBal) && (liqNeed <= liqBal)) {
       state.STATES[id].balances.locked[token] -= lockGas;
       state.STATES[id].balances.liquid[token] -= liqGas;
-    }
-    else if ((lockNeed > lockBal) && (liqNeed <= liqBal)) {
+    } else if ((lockNeed > lockBal) && (liqNeed <= liqBal)) {
       // 2) lockBal does not cover lockNeeds, liqBal can cover deficit in addition to liqNeeds
       if ((lockNeed - lockBal) <= (liqBal - liqNeed)) {
-          state.STATES[id].balances.locked[token] = 0;
-          state.STATES[id].balances.liquid[token] -= (liqGas + (lockNeed - lockBal));
+        state.STATES[id].balances.locked[token] = 0;
+        state.STATES[id].balances.liquid[token] -= (liqGas + (lockNeed - lockBal));
       }
       // 3) lockBal does not cover lockNeeds and liqBal cannot cover -> revert
       else {
