@@ -55,9 +55,6 @@ const config: HardhatUserConfig = {
     },
     hardhat: {
       accounts: hardhatAccounts,
-      forking: {
-        url: envConfig.MUMBAI_RPC_URL
-      }
     }
   },
   mocha: {
