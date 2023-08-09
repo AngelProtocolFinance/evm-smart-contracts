@@ -37,11 +37,10 @@ contract AccountsDepositWithdrawEndowments is
    * @param details The details of the deposit
    */
   function depositMatic(AccountMessages.DepositRequest memory details) public payable nonReentrant {
-    require(msg.value > 0, "Invalid Amount");
+    validateDepositDetails(details, msg.value);
+
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Config memory tempConfig = state.config;
-    AccountStorage.EndowmentState storage tempEndowmentState = state.STATES[details.id];
-    require(!tempEndowmentState.closingEndowment, "Endowment is closed");
 
     RegistrarStorage.Config memory registrar_config = IRegistrar(tempConfig.registrarContract)
       .queryConfig();
@@ -64,10 +63,9 @@ contract AccountsDepositWithdrawEndowments is
     address tokenAddress,
     uint256 amount
   ) public nonReentrant {
+    validateDepositDetails(details, amount);
     require(tokenAddress != address(0), "Invalid Token Address");
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.EndowmentState storage tempEndowmentState = state.STATES[details.id];
-    require(!tempEndowmentState.closingEndowment, "Endowment is closed");
     // Check that the deposited token is either:
     // A. In the protocol-level accepted tokens list in the Registrar Contract OR
     // B. In the endowment-level accepted tokens list
@@ -80,6 +78,19 @@ contract AccountsDepositWithdrawEndowments is
     IERC20(tokenAddress).safeTransferFrom(msg.sender, address(this), amount);
 
     processTokenDeposit(details, tokenAddress, amount);
+  }
+
+  function validateDepositDetails(
+    AccountMessages.DepositRequest memory details,
+    uint256 amount
+  ) internal {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    require(amount > 0, "Amount must be greater than zero");
+    require(
+      details.id > 0 && details.id < state.config.nextAccountId,
+      "Must pass a valid Endowment ID"
+    );
+    require(details.lockedPercentage + details.liquidPercentage == 100, "InvalidSplit");
   }
 
   /**
@@ -97,7 +108,7 @@ contract AccountsDepositWithdrawEndowments is
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
 
-    require(details.lockedPercentage + details.liquidPercentage == 100, "InvalidSplit");
+    require(!state.STATES[details.id].closingEndowment, "Endowment is closed");
 
     RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
       .queryConfig();
