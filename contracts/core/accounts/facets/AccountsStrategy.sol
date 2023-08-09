@@ -45,6 +45,11 @@ contract AccountsStrategy is
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
 
+    require(
+      investRequest.lockAmt > 0 || investRequest.liquidAmt > 0,
+      "Must invest at least one of Locked/Liquid"
+    );
+
     // check if the msg sender is either the owner or their delegate address and
     // that they have the power to manage the investments for an account balance
     if (investRequest.lockAmt > 0) {
@@ -201,6 +206,11 @@ contract AccountsStrategy is
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
 
+    require(
+      redeemRequest.lockAmt > 0 || redeemRequest.liquidAmt > 0,
+      "Must redeem at least one of Locked/Liquid"
+    );
+
     // check if the msg sender is either the owner or their delegate address and
     // that they have the power to manage the investments for an account balance
     if (redeemRequest.lockAmt > 0) {
@@ -291,8 +301,7 @@ contract AccountsStrategy is
         redeemRequest.gasFee
       );
       if (gasFwdGas < redeemRequest.gasFee) {
-        uint256 gasPercentFromLiq =
-          (redeemRequest.liquidAmt * LibAccounts.PERCENT_BASIS) /
+        uint256 gasPercentFromLiq = (redeemRequest.liquidAmt * LibAccounts.PERCENT_BASIS) /
             (redeemRequest.liquidAmt + redeemRequest.lockAmt);
         _payForGasWithAccountBalance(
           id, 
