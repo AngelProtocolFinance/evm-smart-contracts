@@ -98,8 +98,6 @@ contract AccountsStrategy is
       "Token not approved"
     );
 
-    uint256 investAmt = investRequest.lockAmt + investRequest.liquidAmt;
-
     uint32[] memory accts = new uint32[](1);
     accts[0] = id;
 
@@ -117,13 +115,16 @@ contract AccountsStrategy is
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
 
-      IERC20(tokenAddress).safeTransfer(thisNetwork.router, investAmt);
+      IERC20(tokenAddress).safeTransfer(
+        thisNetwork.router,
+        (investRequest.lockAmt + investRequest.liquidAmt)
+      );
       IVault.VaultActionData memory response = IRouter(thisNetwork.router).executeWithTokenLocal(
         state.config.networkName,
         AddressToString.toString(address(this)),
         packedPayload,
         investRequest.token,
-        investAmt
+        (investRequest.lockAmt + investRequest.liquidAmt)
       );
 
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
@@ -158,16 +159,10 @@ contract AccountsStrategy is
         _payForGasWithAccountBalance(
           id,
           tokenAddress,
-          (investRequest.liquidAmt * LibAccounts.PERCENT_BASIS) / investAmt, 
+          investRequest.lockAmt,
+          investRequest.liquidAmt,
           (investRequest.gasFee - gasFwdGas)
         );
-        // check we still have enough funds to invest even after paying part of the gas fee
-        if (
-          state.STATES[id].balances.locked[tokenAddress] < investRequest.lockAmt ||
-          state.STATES[id].balances.liquid[tokenAddress] < investRequest.liquidAmt
-        ) {
-          revert InsufficientFundsForGas(id);
-        }
       }
       IERC20(tokenAddress).safeApprove(thisNetwork.gasReceiver, investRequest.gasFee);
       IAxelarGasService(thisNetwork.gasReceiver).payGasForContractCallWithToken(
@@ -176,18 +171,21 @@ contract AccountsStrategy is
         AddressToString.toString(network.router),
         packedPayload,
         investRequest.token,
-        investAmt,
+        (investRequest.lockAmt + investRequest.liquidAmt),
         tokenAddress,
         investRequest.gasFee,
         state.ENDOWMENTS[id].gasFwd
       );
-      IERC20(tokenAddress).safeApprove(thisNetwork.axelarGateway, investAmt);
+      IERC20(tokenAddress).safeApprove(
+        thisNetwork.axelarGateway,
+        (investRequest.lockAmt + investRequest.liquidAmt)
+      );
       IAxelarGateway(thisNetwork.axelarGateway).callContractWithToken(
         stratParams.network,
         AddressToString.toString(network.router),
         packedPayload,
         investRequest.token,
-        investAmt
+        (investRequest.lockAmt + investRequest.liquidAmt)
       );
       state.STATES[id].balances.locked[tokenAddress] -= investRequest.lockAmt;
       state.STATES[id].balances.liquid[tokenAddress] -= investRequest.liquidAmt;
@@ -299,8 +297,8 @@ contract AccountsStrategy is
         _payForGasWithAccountBalance(
           id, 
           tokenAddress, 
-          (redeemRequest.liquidAmt * LibAccounts.PERCENT_BASIS) /
-            (redeemRequest.lockAmt + redeemRequest.liquidAmt), 
+          0, // redeeming, no tokens will be sent
+          0, 
           (redeemRequest.gasFee - gasFwdGas)
         );
       }
@@ -427,7 +425,8 @@ contract AccountsStrategy is
         _payForGasWithAccountBalance(
           id, 
           tokenAddress, 
-          50, 
+          0, // redeeming, no tokens will be sent
+          0, 
           (redeemAllRequest.gasFee - gasFwdGas)
         );
       }
@@ -566,42 +565,50 @@ contract AccountsStrategy is
    * We split the gas payment proprotionally between locked and liquid if possible and
    * use liquid funds for locked gas needs, but not the other way around in the case of a shortage.
    * Revert if the combined balances of the account cannot cover both the investment request and the gas payment.
-   * @param id Endowment ID
-   * @param token Token address
-   * @param liqPortion Percentage of gas to pay from liquid portion
-   * @param gasRemaining Amount of gas to be payed from locked & liquid balances
    */
   function _payForGasWithAccountBalance(
     uint32 id,
     address token,
-    uint256 liqPortion,
+    uint256 lockAmt,
+    uint256 liqAmt,
     uint256 gasRemaining
   ) internal {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     uint256 lockBal = state.STATES[id].balances.locked[token];
     uint256 liqBal = state.STATES[id].balances.liquid[token];
+    uint256 sendAmt = lockAmt + liqAmt;
 
-    uint256 liqGas = (gasRemaining * liqPortion) / LibAccounts.PERCENT_BASIS;
+    uint256 liqGas;
+    if (sendAmt > 0) {
+      // If there are any tokens to send together with gas, split gas proportionally between liquid and lock amts
+      liqGas = (gasRemaining * ((liqAmt * LibAccounts.BIG_NUMBA_BASIS) / sendAmt)) / LibAccounts.BIG_NUMBA_BASIS;
+    } else {
+      // Split evenly if no amt specified (redeemAll) 
+      liqGas = gasRemaining / 2;
+    }
     uint256 lockGas = gasRemaining - liqGas;
+
+    uint256 lockNeed = lockGas + lockAmt;
+    uint256 liqNeed = liqGas + liqAmt;
 
     // Cases:
     // 1) lockBal and liqBal each cover the respective needs
-    if ((lockGas <= lockBal) && (liqGas <= liqBal)) {
+    if ((lockNeed <= lockBal) && (liqNeed <= liqBal)) {
       state.STATES[id].balances.locked[token] -= lockGas;
       state.STATES[id].balances.liquid[token] -= liqGas;
-    } else if ((lockGas > lockBal) && (liqGas <= liqBal)) {
+    } else if ((lockNeed > lockBal) && (liqNeed <= liqBal)) {
       // 2) lockBal does not cover lockGas, liqBal can cover deficit in addition to liqGas
-      uint256 lockNeedDeficit = lockGas - lockBal;
-      if (lockNeedDeficit <= (liqBal - liqGas)) {
+      uint256 lockNeedDeficit = lockNeed - lockBal;
+      if (lockNeedDeficit <= (liqBal - liqNeed)) {
         state.STATES[id].balances.locked[token] -= (lockGas - lockNeedDeficit);
-        state.STATES[id].balances.liquid[token] -= (liqGas + (lockGas - lockBal));
+        state.STATES[id].balances.liquid[token] -= (liqGas + lockNeedDeficit);
       }
-      // 3) lockBal does not cover lockGas and liqBal cannot cover -> revert
+      // 3) lockBal does not cover lockNeeds and liqBal cannot cover -> revert
       else {
         revert InsufficientFundsForGas(id);
       }
     }
-    // 4) lockBal covers lockGas, liqBal does not cover liqGas -> revert
+    // 4) lockBal covers lockNeeds, liqBal does not cover liqNeeds -> revert
     else {
       revert InsufficientFundsForGas(id);
     }
