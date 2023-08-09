@@ -456,7 +456,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            token.symbol(),
+            "TKN",
             TOTAL_AMT
           )
         )
@@ -476,7 +476,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            token.symbol(),
+            "TKN",
             TOTAL_AMT
           )
         )
@@ -496,7 +496,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            token.symbol(),
+            "TKN",
             TOTAL_AMT - 1
           )
         )
@@ -518,7 +518,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            await token.symbol(),
+            "TKN",
             0
           )
         )
@@ -538,7 +538,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            token.symbol(),
+            "TKN",
             TOTAL_AMT
           )
         )
@@ -558,7 +558,7 @@ describe("Router", function () {
             originatingChain,
             accountsContract,
             packedData,
-            token.symbol(),
+            "TKN",
             TOTAL_AMT
           )
         )
@@ -818,7 +818,7 @@ describe("Router", function () {
         originatingChain,
         accountsContract,
         packedData,
-        token.symbol(),
+        "TKN",
         TOTAL_AMT
       );
       expect(lockedVault.deposit).to.have.been.calledWith(1, token.address, LOCK_AMT);

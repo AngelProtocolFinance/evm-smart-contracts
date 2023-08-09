@@ -4,11 +4,12 @@ pragma solidity ^0.8.16;
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {Validator} from "../../validator.sol";
 import {AccountStorage} from "../storage.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsAllowance} from "../interfaces/IAccountsAllowance.sol";
 import {IterableMapping} from "../../../lib/IterableMappingAddr.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
  * @title AccountsAllowance
@@ -20,6 +21,8 @@ contract AccountsAllowance is
   IAccountsEvents,
   IterableMapping
 {
+  using SafeERC20 for IERC20;
+
   /**
    * @notice Endowment owner adds allowance to spend
    * @dev This function adds or removes allowances for an account
@@ -143,7 +146,7 @@ contract AccountsAllowance is
     state.ALLOWANCES[endowId][token].bySpender[msg.sender] -= amount;
     state.ALLOWANCES[endowId][token].totalOutstanding -= amount;
 
-    require(IERC20(token).transfer(recipient, amount), "Transfer failed");
+    IERC20(token).safeTransfer(recipient, amount);
     emit AllowanceSpent(endowId, msg.sender, token, amount);
   }
 
