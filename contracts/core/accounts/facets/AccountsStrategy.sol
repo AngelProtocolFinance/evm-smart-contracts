@@ -160,6 +160,7 @@ contract AccountsStrategy is
           tokenAddress,
           investRequest.lockAmt,
           investRequest.liquidAmt,
+          (investRequest.liquidAmt * LibAccounts.PERCENT_BASIS) / investAmt,
           (investRequest.gasFee - gasFwdGas)
         );
       }
@@ -290,11 +291,15 @@ contract AccountsStrategy is
         redeemRequest.gasFee
       );
       if (gasFwdGas < redeemRequest.gasFee) {
+        uint256 gasPercentFromLiq =
+          (redeemRequest.liquidAmt * LibAccounts.PERCENT_BASIS) /
+            (redeemRequest.liquidAmt + redeemRequest.lockAmt);
         _payForGasWithAccountBalance(
           id, 
           tokenAddress, 
           0, // redeeming, no tokens will be sent
           0, 
+          gasPercentFromLiq,
           (redeemRequest.gasFee - gasFwdGas)
         );
       }
@@ -418,11 +423,13 @@ contract AccountsStrategy is
         redeemAllRequest.gasFee
       );
       if (gasFwdGas < redeemAllRequest.gasFee) {
+        uint256 gasPercentFromLiq = 50;
         _payForGasWithAccountBalance(
           id, 
           tokenAddress, 
           0, // redeeming, no tokens will be sent
           0, 
+          gasPercentFromLiq,
           (redeemAllRequest.gasFee - gasFwdGas)
         );
       }
@@ -561,31 +568,30 @@ contract AccountsStrategy is
    * We split the gas payment proprotionally between locked and liquid if possible and
    * use liquid funds for locked gas needs, but not the other way around in the case of a shortage.
    * Revert if the combined balances of the account cannot cover both the investment request and the gas payment.
+   * @param id Endowment ID
+   * @param token Token address
+   * @param lockAmt Amount needed from locked balance
+   * @param liqAmt Amount needed from liquid balance
+   * @param gasPercentFromLiq Percentage of gas to pay from liquid portion
+   * @param gasRemaining Amount of gas to be payed from locked & liquid balances
    */
   function _payForGasWithAccountBalance(
     uint32 id,
     address token,
     uint256 lockAmt,
     uint256 liqAmt,
+    uint256 gasPercentFromLiq,
     uint256 gasRemaining
   ) internal {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     uint256 lockBal = state.STATES[id].balances.locked[token];
     uint256 liqBal = state.STATES[id].balances.liquid[token];
-    uint256 sendAmt = lockAmt + liqAmt;
 
-    uint256 liqGas;
-    if (sendAmt > 0) {
-      // If there are any tokens to send together with gas, split gas proportionally between liquid and lock amts
-      liqGas = (gasRemaining * ((liqAmt * LibAccounts.BIG_NUMBA_BASIS) / sendAmt)) / LibAccounts.BIG_NUMBA_BASIS;
-    } else {
-      // Split evenly if no amt specified (redeemAll) 
-      liqGas = gasRemaining / 2;
-    }
+    uint256 liqGas = (gasRemaining * gasPercentFromLiq) / LibAccounts.PERCENT_BASIS;
     uint256 lockGas = gasRemaining - liqGas;
 
-    uint256 lockNeed = lockGas + lockAmt;
     uint256 liqNeed = liqGas + liqAmt;
+    uint256 lockNeed = lockGas + lockAmt;
 
     // Cases:
     // 1) lockBal and liqBal each cover the respective needs
