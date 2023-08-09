@@ -61,6 +61,7 @@ contract AccountsCreateEndowment is
     Validator.validateFee(details.depositFee);
     Validator.validateFee(details.balanceFee);
 
+    require(details.duration > 0, "Duration must greater than zero");
     require(details.members.length >= 1, "No members provided for Endowment multisig");
     require(details.threshold > 0, "Threshold must be a positive number");
 
