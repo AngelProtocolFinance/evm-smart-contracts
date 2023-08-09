@@ -154,14 +154,7 @@ describe("AccountsSwapRouter", function () {
         });
         let token = genWallet().address;
         await expect(
-          facet.swapToken(
-            ACCOUNT_ID,
-            VaultType.LOCKED,
-            token,
-            1,
-            token,
-            0
-          )
+          facet.swapToken(ACCOUNT_ID, VaultType.LOCKED, token, 1, token, 0)
         ).to.be.revertedWith("Invalid Swap Input: Same Token");
       });
 

@@ -217,7 +217,10 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     emit StrategyParamsUpdated(_strategyId, _network, _lockAddr, _liqAddr, _approvalState);
   }
 
-  function setVaultOperatorApproved(address _operator, bool _isApproved) external override onlyOwner {
+  function setVaultOperatorApproved(
+    address _operator,
+    bool _isApproved
+  ) external override onlyOwner {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
     lrs.ApprovedVaultOperators[_operator] = _isApproved;
   }

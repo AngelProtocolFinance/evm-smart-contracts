@@ -311,14 +311,11 @@ describe("Local Registrar", function () {
         expect(returnedValue).to.equal(StrategyApprovalState.NOT_APPROVED);
       });
     });
-    
+
     describe("set and get vaultOperatorApproved", async function () {
       it("Should be an owner restricted method", async function () {
-        await expect(
-          registrar
-            .connect(user)
-            .setVaultOperatorApproved(user.address, true)
-        ).to.be.reverted;
+        await expect(registrar.connect(user).setVaultOperatorApproved(user.address, true)).to.be
+          .reverted;
       });
       it("Should set and get the vault operator approval status", async function () {
         expect(await registrar.getVaultOperatorApproved(user.address)).to.be.false;
@@ -332,18 +329,14 @@ describe("Local Registrar", function () {
         await expect(
           registrar
             .connect(user)
-            .setFeeSettingsByFeesType(
-              FeeTypes.Default,
-              1,
-              ethers.constants.AddressZero
-            )
+            .setFeeSettingsByFeesType(FeeTypes.Default, 1, ethers.constants.AddressZero)
         ).to.be.reverted;
       });
       it("Should set and get the vault operator approval status", async function () {
         await registrar.setFeeSettingsByFeesType(FeeTypes.Harvest, 1, user.address);
-        let afterHarvestFee = await registrar.getFeeSettingsByFeeType(FeeTypes.Harvest)
-        expect(afterHarvestFee.bps).to.equal(1)
-        expect(afterHarvestFee.payoutAddress).to.equal(user.address)
+        let afterHarvestFee = await registrar.getFeeSettingsByFeeType(FeeTypes.Harvest);
+        expect(afterHarvestFee.bps).to.equal(1);
+        expect(afterHarvestFee.payoutAddress).to.equal(user.address);
       });
     });
   });
