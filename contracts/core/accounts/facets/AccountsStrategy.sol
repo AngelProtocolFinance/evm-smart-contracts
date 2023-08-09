@@ -578,11 +578,13 @@ contract AccountsStrategy is
     uint256 liqBal = state.STATES[id].balances.liquid[token];
     uint256 sendAmt = lockAmt + liqAmt;
 
-    // Split equally by default
-    uint256 liqGas = gasRemaining / 2;
+    uint256 liqGas;
     if (sendAmt > 0) {
       // If there are any tokens to send together with gas, split gas proportionally between liquid and lock amts
       liqGas = (gasRemaining * ((liqAmt * LibAccounts.BIG_NUMBA_BASIS) / sendAmt)) / LibAccounts.BIG_NUMBA_BASIS;
+    } else {
+      // Split evenly if no amt specified (redeemAll) 
+      liqGas = gasRemaining / 2;
     }
     uint256 lockGas = gasRemaining - liqGas;
 
