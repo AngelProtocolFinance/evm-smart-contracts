@@ -576,7 +576,7 @@ describe("AccountsStrategy", function () {
 
       it("the caller is not approved for locked fund mgmt", async function () {
         await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
-        const redeemRequest = {
+        const redeemRequest: AccountMessages.RedeemRequestStruct = {
           ...DEFAULT_REDEEM_REQUEST,
           lockAmt: 1,
         };
@@ -587,7 +587,7 @@ describe("AccountsStrategy", function () {
 
       it("the caller is not approved for liquid fund mgmt", async function () {
         await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
-        const redeemRequest = {
+        const redeemRequest: AccountMessages.RedeemRequestStruct = {
           ...DEFAULT_REDEEM_REQUEST,
           liquidAmt: 1,
         };
@@ -604,7 +604,7 @@ describe("AccountsStrategy", function () {
         };
         registrar.getStrategyParamsById.returns(stratParams);
 
-        const redeemRequest = {
+        const redeemRequest: AccountMessages.RedeemRequestStruct = {
           ...DEFAULT_REDEEM_REQUEST,
           lockAmt: 1,
         };
