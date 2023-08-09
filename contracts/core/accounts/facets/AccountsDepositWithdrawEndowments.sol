@@ -242,6 +242,10 @@ contract AccountsDepositWithdrawEndowments is
       );
     }
 
+    uint256 earlyFeeBps = IRegistrar(state.config.registrarContract)
+      .getFeeSettingsByFeeType(LibAccounts.FeeTypes.EarlyLockedWithdrawCharity)
+      .bps;
+
     for (uint256 t = 0; t < tokens.length; t++) {
       // ** SHARED LOCKED WITHDRAWAL RULES **
       // Can withdraw early for a (possible) penalty fee
@@ -255,13 +259,7 @@ contract AccountsDepositWithdrawEndowments is
             tokens[t].amnt.mul(tempEndowment.earlyLockedWithdrawFee.bps)
           ).div(LibAccounts.FEE_BASIS);
         } else {
-          earlyLockedWithdrawPenalty = (
-            tokens[t].amnt.mul(
-              IRegistrar(state.config.registrarContract)
-                .getFeeSettingsByFeeType(LibAccounts.FeeTypes.EarlyLockedWithdrawCharity)
-                .bps
-            )
-          ).div(LibAccounts.FEE_BASIS);
+          earlyLockedWithdrawPenalty = (tokens[t].amnt.mul(earlyFeeBps)).div(LibAccounts.FEE_BASIS);
         }
       }
 
