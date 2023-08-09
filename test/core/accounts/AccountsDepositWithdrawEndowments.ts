@@ -104,6 +104,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
       ...charity,
       endowType: 2,
     };
+
+    treasury = genWallet().address;
   });
 
   beforeEach(async () => {
@@ -128,7 +130,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
     wmaticFake.transferFrom.returns(true);
     wmaticFake.transfer.returns(true);
 
-    treasury = genWallet().address;
     const registrarConfig: RegistrarStorage.ConfigStruct = {
       ...DEFAULT_REGISTRAR_CONFIG,
       haloToken: genWallet().address,
@@ -621,10 +622,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
         });
 
         it("deposit with endowment-level deposit fee only", async () => {
-          registrarFake.getFeeSettingsByFeeType
-            .whenCalledWith(FeeTypes.Deposit)
-            .returns({payoutAddress: treasury, bps: 0});
-
           const depositBps: AccountStorage.EndowmentStruct = {
             ...normalEndow,
             depositFee: {payoutAddress: endowOwner.address, bps: 100},
@@ -718,39 +715,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
     const liqBal = BigNumber.from(10000);
     const lockBal = BigNumber.from(9000);
     const beneficiaryAddress = genWallet().address;
-
-    const charityEarlyLockedWithdrawFeeSetting: LibAccounts.FeeSettingStruct = {
-      bps: 0,
-      payoutAddress: treasury,
-    };
-    const earlyLockedWithdrawFeeSetting: LibAccounts.FeeSettingStruct = {
-      bps: 0,
-      payoutAddress: treasury,
-    };
-    const charityWithdrawFeeSetting: LibAccounts.FeeSettingStruct = {
-      bps: 0,
-      payoutAddress: treasury,
-    };
-    const withdrawFeeSetting: LibAccounts.FeeSettingStruct = {
-      bps: 0,
-      payoutAddress: treasury,
-    };
-
+ 
     beforeEach(async () => {
-      // set all withdraw-related fees to 0
-      registrarFake.getFeeSettingsByFeeType
-        .whenCalledWith(FeeTypes.EarlyLockedWithdrawCharity)
-        .returns(charityEarlyLockedWithdrawFeeSetting);
-      registrarFake.getFeeSettingsByFeeType
-        .whenCalledWith(FeeTypes.EarlyLockedWithdraw)
-        .returns(earlyLockedWithdrawFeeSetting);
-      registrarFake.getFeeSettingsByFeeType
-        .whenCalledWith(FeeTypes.WithdrawCharity)
-        .returns(charityWithdrawFeeSetting);
-      registrarFake.getFeeSettingsByFeeType
-        .whenCalledWith(FeeTypes.Withdraw)
-        .returns(withdrawFeeSetting);
-
       await state.setEndowmentTokenBalance(charityId, tokenFake.address, lockBal, liqBal);
       await state.setEndowmentTokenBalance(charityId, wmaticFake.address, lockBal, liqBal);
       await state.setEndowmentTokenBalance(normalEndowId, tokenFake.address, lockBal, liqBal);
