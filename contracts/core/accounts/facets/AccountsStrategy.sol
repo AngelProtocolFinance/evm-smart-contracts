@@ -615,11 +615,11 @@ contract AccountsStrategy is
         state.STATES[id].balances.liquid[token] -= (liqGas + lockNeedDeficit);
       } else {
         // 3) lockBal does not cover lockNeeds and liqBal cannot cover -> revert
-        revert InsufficientFundsForGas(id);
+        revert InsufficientFundsForGas(id, liqNeed + lockNeed, liqBal + lockBal);
       }
     } else {
       // 4) lockBal covers lockNeeds, liqBal does not cover liqNeeds -> revert
-      revert InsufficientFundsForGas(id);
+      revert InsufficientFundsForGas(id, liqNeed + lockNeed, liqBal + lockBal);
     }
   }
 }

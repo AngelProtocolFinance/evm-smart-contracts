@@ -581,7 +581,11 @@ describe("AccountsStrategy", function () {
 
           await expect(facet.strategyInvest(ACCOUNT_ID, investRequest))
             .to.be.revertedWithCustomError(facet, "InsufficientFundsForGas")
-            .withArgs(ACCOUNT_ID);
+            .withArgs(
+              ACCOUNT_ID,
+              hugeGasFee + LOCK_AMT + LIQ_AMT,
+              INITIAL_LIQ_BAL + INITIAL_LOCK_BAL
+            );
         });
 
         it("liquid balances can't cover locked gas deficit", async () => {
@@ -596,7 +600,11 @@ describe("AccountsStrategy", function () {
 
           await expect(facet.strategyInvest(ACCOUNT_ID, investRequest))
             .to.be.revertedWithCustomError(facet, "InsufficientFundsForGas")
-            .withArgs(ACCOUNT_ID);
+            .withArgs(
+              ACCOUNT_ID,
+              hugeGasFee + LOCK_AMT + LIQ_AMT,
+              INITIAL_LIQ_BAL + INITIAL_LOCK_BAL
+            );
         });
       });
     });
@@ -993,7 +1001,7 @@ describe("AccountsStrategy", function () {
 
           await expect(facet.strategyRedeem(ACCOUNT_ID, investRequest))
             .to.be.revertedWithCustomError(facet, "InsufficientFundsForGas")
-            .withArgs(ACCOUNT_ID);
+            .withArgs(ACCOUNT_ID, hugeGasFee, INITIAL_LIQ_BAL + INITIAL_LOCK_BAL);
         });
 
         it("liquid balances can't cover locked gas deficit", async () => {
@@ -1008,7 +1016,7 @@ describe("AccountsStrategy", function () {
 
           await expect(facet.strategyRedeem(ACCOUNT_ID, investRequest))
             .to.be.revertedWithCustomError(facet, "InsufficientFundsForGas")
-            .withArgs(ACCOUNT_ID);
+            .withArgs(ACCOUNT_ID, hugeGasFee, INITIAL_LIQ_BAL + INITIAL_LOCK_BAL);
         });
       });
     });
@@ -1355,7 +1363,7 @@ describe("AccountsStrategy", function () {
 
           await expect(facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest))
             .to.be.revertedWithCustomError(facet, "InsufficientFundsForGas")
-            .withArgs(ACCOUNT_ID);
+            .withArgs(ACCOUNT_ID, hugeGasFee, INITIAL_LIQ_BAL + INITIAL_LOCK_BAL);
         });
 
         it("liquid balances can't cover locked gas deficit", async () => {
@@ -1370,7 +1378,7 @@ describe("AccountsStrategy", function () {
 
           await expect(facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest))
             .to.be.revertedWithCustomError(facet, "InsufficientFundsForGas")
-            .withArgs(ACCOUNT_ID);
+            .withArgs(ACCOUNT_ID, hugeGasFee, INITIAL_LIQ_BAL + INITIAL_LOCK_BAL);
         });
       });
     });
