@@ -1386,6 +1386,42 @@ describe("AccountsStrategy", function () {
 
   describe("upon axelar callback", function () {
     describe("into _execute", () => {
+      beforeEach(() => {
+        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
+          ...DEFAULT_STRATEGY_PARAMS,
+          network: NET_NAME_THIS,
+
+          approvalState: StrategyApprovalState.APPROVED,
+        };
+        registrar.getStrategyParamsById.returns(stratParams);
+
+        gateway.validateContractCall.returns(true);
+      });
+
+      it("reverts if the call was not approved by Axelar gateway", async function () {
+        gateway.validateContractCall.returns(false);
+
+        const payload = packActionData({
+          destinationChain: NET_NAME_THAT,
+          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          selector: vault.interface.getSighash("deposit"),
+          accountIds: [ACCOUNT_ID],
+          token: token.address,
+          lockAmt: 1,
+          liqAmt: 1,
+          status: VaultActionStatus.UNPROCESSED,
+        });
+
+        await expect(
+          facet.execute(
+            ethers.utils.formatBytes32String("true"),
+            NET_NAME_THIS,
+            router.address,
+            payload
+          )
+        ).to.be.revertedWithCustomError(facet, "NotApprovedByGateway");
+      });
+
       it("reverts if the call didn't originate from the expected chain", async function () {
         const action: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: NET_NAME_THAT,
@@ -1399,11 +1435,18 @@ describe("AccountsStrategy", function () {
         };
         const payload = packActionData(action);
         const returnedAction = convertVaultActionStructToArray(action);
+        const unexpectedChain = "NotThis";
+
         await expect(
-          facet.execute(ethers.utils.formatBytes32String("true"), "NotNet", owner.address, payload)
+          facet.execute(
+            ethers.utils.formatBytes32String("true"),
+            unexpectedChain,
+            router.address,
+            payload
+          )
         )
           .to.be.revertedWithCustomError(facet, "UnexpectedCaller")
-          .withArgs(returnedAction, "NotNet", owner.address);
+          .withArgs(returnedAction, unexpectedChain, router.address);
       });
 
       it("reverts if the call didn't originate from the chain's router", async function () {
@@ -1419,16 +1462,13 @@ describe("AccountsStrategy", function () {
         };
         const payload = packActionData(action);
         const returnedAction = convertVaultActionStructToArray(action);
+        const notRouter = genWallet().address;
+
         await expect(
-          facet.execute(
-            ethers.utils.formatBytes32String("true"),
-            NET_NAME_THAT,
-            owner.address,
-            payload
-          )
+          facet.execute(ethers.utils.formatBytes32String("true"), NET_NAME_THIS, notRouter, payload)
         )
           .to.be.revertedWithCustomError(facet, "UnexpectedCaller")
-          .withArgs(returnedAction, NET_NAME_THAT, owner.address);
+          .withArgs(returnedAction, NET_NAME_THIS, notRouter);
       });
 
       it("successfully handles status == FAIL_TOKENS_FALLBACK", async function () {
@@ -1443,17 +1483,19 @@ describe("AccountsStrategy", function () {
           status: VaultActionStatus.FAIL_TOKENS_FALLBACK,
         };
         const payload = packActionData(action);
-        const returnedAction = convertVaultActionStructToArray(action);
+        // const returnedAction = convertVaultActionStructToArray(action);
+
         await expect(
           facet.execute(
             ethers.utils.formatBytes32String("true"),
-            NET_NAME_THAT,
+            NET_NAME_THIS,
             router.address,
             payload
           )
-        )
-          .to.emit(facet, "RefundNeeded")
-          .withArgs(returnedAction);
+        ).to.emit(facet, "RefundNeeded");
+        // .withArgs(returnedAction);
+        // `chai` currently can't deep compare nested arrays in `.withArgs(...)`
+        // see open issue https://github.com/NomicFoundation/hardhat/issues/3833
       });
 
       [
@@ -1478,7 +1520,7 @@ describe("AccountsStrategy", function () {
           await expect(
             facet.execute(
               ethers.utils.formatBytes32String("true"),
-              NET_NAME_THAT,
+              NET_NAME_THIS,
               router.address,
               payload
             )
@@ -1490,6 +1532,35 @@ describe("AccountsStrategy", function () {
     });
 
     describe("into _executeWithToken", () => {
+      beforeEach(() => {
+        gateway.validateContractCall.returns(true);
+      });
+
+      it("reverts if the call was not approved by Axelar gateway", async function () {
+        gateway.validateContractCall.returns(false);
+
+        const payload = packActionData({
+          destinationChain: NET_NAME_THAT,
+          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          selector: vault.interface.getSighash("deposit"),
+          accountIds: [ACCOUNT_ID],
+          token: token.address,
+          lockAmt: 1,
+          liqAmt: 1,
+          status: VaultActionStatus.UNPROCESSED,
+        });
+        await expect(
+          facet.executeWithToken(
+            ethers.utils.formatBytes32String("true"),
+            NET_NAME_THIS,
+            owner.address,
+            payload,
+            "TKN",
+            1
+          )
+        ).to.be.revertedWithCustomError(facet, "NotApprovedByGateway");
+      });
+
       it("reverts if the call didn't originate from the expected chain", async function () {
         const action: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: NET_NAME_THAT,
@@ -1507,7 +1578,7 @@ describe("AccountsStrategy", function () {
         await expect(
           facet.executeWithToken(
             ethers.utils.formatBytes32String("true"),
-            "NotNet",
+            NET_NAME_THIS,
             owner.address,
             payload,
             "TKN",
@@ -1515,7 +1586,7 @@ describe("AccountsStrategy", function () {
           )
         )
           .to.be.revertedWithCustomError(facet, "UnexpectedCaller")
-          .withArgs(returnedAction, "NotNet", owner.address);
+          .withArgs(returnedAction, NET_NAME_THIS, owner.address);
       });
 
       it("reverts if the call didn't originate from the expected chain", async function () {
