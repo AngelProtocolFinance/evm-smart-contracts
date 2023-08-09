@@ -613,14 +613,12 @@ contract AccountsStrategy is
       if (lockNeedDeficit <= (liqBal - liqNeed)) {
         state.STATES[id].balances.locked[token] -= (lockGas - lockNeedDeficit);
         state.STATES[id].balances.liquid[token] -= (liqGas + lockNeedDeficit);
-      }
-      // 3) lockBal does not cover lockNeeds and liqBal cannot cover -> revert
-      else {
+      } else {
+        // 3) lockBal does not cover lockNeeds and liqBal cannot cover -> revert
         revert InsufficientFundsForGas(id);
       }
-    }
-    // 4) lockBal covers lockNeeds, liqBal does not cover liqNeeds -> revert
-    else {
+    } else {
+      // 4) lockBal covers lockNeeds, liqBal does not cover liqNeeds -> revert
       revert InsufficientFundsForGas(id);
     }
   }
