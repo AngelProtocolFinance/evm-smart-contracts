@@ -34,7 +34,7 @@ contract GasFwd is IGasFwd, Initializable {
       IERC20(token).safeTransfer(msg.sender, balance);
       emit GasPay(token, balance);
       return balance;
-    } else {    
+    } else {
       IERC20(token).safeTransfer(msg.sender, amount);
       emit GasPay(token, amount);
       return amount;
