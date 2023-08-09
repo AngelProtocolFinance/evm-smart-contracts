@@ -112,11 +112,13 @@ contract AccountsDepositWithdrawEndowments is
     LibAccounts.FeeSetting memory depositFeeAp;
     // Looked up from Registrar Fees mapping
     if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
-      depositFeeAp = IRegistrar(state.config.registrarContract)
-        .getFeeSettingsByFeeType(LibAccounts.FeeTypes.DepositCharity);
+      depositFeeAp = IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(
+        LibAccounts.FeeTypes.DepositCharity
+      );
     } else {
-      depositFeeAp = IRegistrar(state.config.registrarContract)
-        .getFeeSettingsByFeeType(LibAccounts.FeeTypes.Deposit);
+      depositFeeAp = IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(
+        LibAccounts.FeeTypes.Deposit
+      );
     }
     amountLeftover -= calculateAndPayoutFee(amountLeftover, tokenAddress, depositFeeAp);
 
@@ -316,11 +318,19 @@ contract AccountsDepositWithdrawEndowments is
     LibAccounts.FeeSetting memory protocolWithdrawFee;
     LibAccounts.FeeSetting memory protocolEarlyWithdrawFee;
     if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
-      protocolWithdrawFee = IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(LibAccounts.FeeTypes.WithdrawCharity);
-      protocolEarlyWithdrawFee = IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(LibAccounts.FeeTypes.EarlyLockedWithdrawCharity);
+      protocolWithdrawFee = IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(
+        LibAccounts.FeeTypes.WithdrawCharity
+      );
+      protocolEarlyWithdrawFee = IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(
+        LibAccounts.FeeTypes.EarlyLockedWithdrawCharity
+      );
     } else {
-      protocolWithdrawFee = IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(LibAccounts.FeeTypes.Withdraw);
-      protocolEarlyWithdrawFee = IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(LibAccounts.FeeTypes.EarlyLockedWithdraw);
+      protocolWithdrawFee = IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(
+        LibAccounts.FeeTypes.Withdraw
+      );
+      protocolEarlyWithdrawFee = IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(
+        LibAccounts.FeeTypes.EarlyLockedWithdraw
+      );
     }
 
     for (uint256 t = 0; t < tokens.length; t++) {
@@ -343,7 +353,11 @@ contract AccountsDepositWithdrawEndowments is
         // ** FEES & PENALTIES CALCULATIONS **
         // ** WITHDRAW FEE (STANDARD) **
         // Protocol-level fee calculated based on Registrar rate look-up
-        amountLeftover -= calculateAndPayoutFee(tokens[t].amnt, tokens[t].addr, protocolWithdrawFee);
+        amountLeftover -= calculateAndPayoutFee(
+          tokens[t].amnt,
+          tokens[t].addr,
+          protocolWithdrawFee
+        );
 
         // ** EARLY LOCKED WITHDRAW FEE **
         // Can withdraw early for a (possible) penalty fee
@@ -351,14 +365,26 @@ contract AccountsDepositWithdrawEndowments is
           // Protocol-level early withdraw penalty fee
           // Deduct AP Early Locked Withdraw Fee to arrive at an amountLeftover
           // that all Endowment-level Fees hereafter can safely be calculated against
-          amountLeftover -= calculateAndPayoutFee(tokens[t].amnt, tokens[t].addr, protocolEarlyWithdrawFee);
+          amountLeftover -= calculateAndPayoutFee(
+            tokens[t].amnt,
+            tokens[t].addr,
+            protocolEarlyWithdrawFee
+          );
           // Normal/DAF Endowment-level Early Withdraw Fee that owners can (optionally) set
-          totalEndowFees = calculateAndPayoutFee(amountLeftover, tokens[t].addr, tempEndowment.earlyLockedWithdrawFee);
+          totalEndowFees = calculateAndPayoutFee(
+            amountLeftover,
+            tokens[t].addr,
+            tempEndowment.earlyLockedWithdrawFee
+          );
         }
 
         // ** WITHDRAW FEE (STANDARD): Endowment-Level fee **
         // Calculated on the amount left after all Protocol-level fees are deducted
-        totalEndowFees += calculateAndPayoutFee(amountLeftover, tokens[t].addr, tempEndowment.withdrawFee);
+        totalEndowFees += calculateAndPayoutFee(
+          amountLeftover,
+          tokens[t].addr,
+          tempEndowment.withdrawFee
+        );
 
         // Deduct all Endowment-level fees to get a final withdraw amount leftover
         amountLeftover -= totalEndowFees;
@@ -411,7 +437,7 @@ contract AccountsDepositWithdrawEndowments is
   }
 
   // Internal function to calculate fees and disburse fees to payout addresses
-    function calculateAndPayoutFee(
+  function calculateAndPayoutFee(
     uint256 tokenAmnt,
     address tokenAddr,
     LibAccounts.FeeSetting memory fee

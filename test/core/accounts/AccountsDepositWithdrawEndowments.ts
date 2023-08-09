@@ -715,7 +715,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
     const liqBal = BigNumber.from(10000);
     const lockBal = BigNumber.from(9000);
     const beneficiaryAddress = genWallet().address;
- 
+
     beforeEach(async () => {
       await state.setEndowmentTokenBalance(charityId, tokenFake.address, lockBal, liqBal);
       await state.setEndowmentTokenBalance(charityId, wmaticFake.address, lockBal, liqBal);
@@ -852,7 +852,9 @@ describe("AccountsDepositWithdrawEndowments", function () {
           ];
 
           // set protocol-level withdraw fee to 2%
-          registrarFake.getFeeSettingsByFeeType.whenCalledWith(FeeTypes.Withdraw).returns({payoutAddress: treasury, bps: 200});
+          registrarFake.getFeeSettingsByFeeType
+            .whenCalledWith(FeeTypes.Withdraw)
+            .returns({payoutAddress: treasury, bps: 200});
 
           let amount = BigNumber.from(tokens[0].amnt);
           let expectedFeeAp = amount.mul(200).div(10000);
@@ -893,7 +895,9 @@ describe("AccountsDepositWithdrawEndowments", function () {
           ];
 
           // set protocol-level withdraw fee to 2%
-          registrarFake.getFeeSettingsByFeeType.whenCalledWith(FeeTypes.Withdraw).returns({payoutAddress: treasury, bps: 200});
+          registrarFake.getFeeSettingsByFeeType
+            .whenCalledWith(FeeTypes.Withdraw)
+            .returns({payoutAddress: treasury, bps: 200});
 
           // set Endowment allowlist & withdraw fee
           const normalWithAllowlist: AccountStorage.EndowmentStruct = {
@@ -973,7 +977,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
         it("passes: normal endowment, beneficiary address, 1 token, sender: endow. owner, protocol-level & endow-level withdraw fees apply", async () => {
           registrarFake.getFeeSettingsByFeeType
             .whenCalledWith(FeeTypes.Withdraw)
-            .returns({bps: 200, payoutAddress: treasury}); // 2% 
+            .returns({bps: 200, payoutAddress: treasury}); // 2%
 
           const normalEndowWithFee: AccountStorage.EndowmentStruct = {
             ...normalEndow,
@@ -1008,10 +1012,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const endowmentWithdrawFee = amountLeftAfterApFees.mul(10).div(10000);
           const remainder = amountLeftAfterApFees.sub(endowmentWithdrawFee);
 
-          expect(tokenFake.transfer).to.have.been.calledWith(
-            treasury,
-            protocolWithdrawFee
-          );
+          expect(tokenFake.transfer).to.have.been.calledWith(treasury, protocolWithdrawFee);
           expect(tokenFake.transfer).to.have.been.calledWith(
             endowOwner.address,
             endowmentWithdrawFee
@@ -1028,7 +1029,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
         it("passes: charity, beneficiary address, 1 token, sender: endow. owner, protocol-level early & normal withdraw fees apply", async () => {
           registrarFake.getFeeSettingsByFeeType
             .whenCalledWith(FeeTypes.WithdrawCharity)
-            .returns({bps: 200, payoutAddress: treasury}); // 2% 
+            .returns({bps: 200, payoutAddress: treasury}); // 2%
           registrarFake.getFeeSettingsByFeeType
             .whenCalledWith(FeeTypes.EarlyLockedWithdrawCharity)
             .returns({bps: 2000, payoutAddress: treasury}); // 20%
@@ -1059,14 +1060,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const protocolEarlyWithdrawFee = amount.mul(2000).div(10000);
           const remainder = amount.sub(protocolWithdrawFee + protocolEarlyWithdrawFee);
 
-          expect(tokenFake.transfer).to.have.been.calledWith(
-            treasury,
-            protocolWithdrawFee
-          );
-          expect(tokenFake.transfer).to.have.been.calledWith(
-            treasury,
-            protocolEarlyWithdrawFee
-          );
+          expect(tokenFake.transfer).to.have.been.calledWith(treasury, protocolWithdrawFee);
+          expect(tokenFake.transfer).to.have.been.calledWith(treasury, protocolEarlyWithdrawFee);
           expect(tokenFake.transfer).to.have.been.calledWith(beneficiaryAddress, remainder);
 
           const [lockedBalance] = await state.getEndowmentTokenBalance(
@@ -1098,7 +1093,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
         it("passes: Normal to Address (protocol-level normal fee only)", async () => {
           registrarFake.getFeeSettingsByFeeType
             .whenCalledWith(FeeTypes.Withdraw)
-            .returns({bps: 200, payoutAddress: treasury}); // 2% 
+            .returns({bps: 200, payoutAddress: treasury}); // 2%
 
           const matureEndowment: AccountStorage.EndowmentStruct = {
             ...normalEndow,
@@ -1131,10 +1126,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
               beneficiaryId
             );
 
-          expect(tokenFake.transfer).to.have.been.calledWith(
-            treasury,
-            expectedFeeAp
-          );
+          expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
           expect(tokenFake.transfer).to.have.been.calledWith(
             beneficiaryAddress,
             amountLeftAfterApFees
