@@ -86,7 +86,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       const indexFund = await deployIndexFund(registrar?.address, apTeamMultisig?.address, hre);
 
-      const endowmentMultiSig = await deployEndowmentMultiSig(hre);
+      const endowmentMultiSig = await deployEndowmentMultiSig(registrar?.address, hre);
 
       await hre.run("manage:registrar:updateConfig", {
         accountsContract: accounts?.diamond.address, //Address
