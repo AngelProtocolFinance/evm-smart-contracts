@@ -208,7 +208,7 @@ describe("AccountsStrategy", function () {
         };
         registrar.getStrategyParamsById.returns(stratParams);
 
-        await state.setEndowmentDetails(1, DEFAULT_CHARITY_ENDOWMENT);
+        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
         await expect(facet.strategyInvest(ACCOUNT_ID, DEFAULT_INVEST_REQUEST)).to.be.revertedWith(
           "Strategy is not approved"
         );
@@ -634,7 +634,7 @@ describe("AccountsStrategy", function () {
           ...DEFAULT_CHARITY_ENDOWMENT,
           owner: owner.address,
         };
-        await state.setEndowmentDetails(1, endowDetails);
+        await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
         await expect(facet.strategyRedeem(ACCOUNT_ID, DEFAULT_REDEEM_REQUEST)).to.be.revertedWith(
           "Strategy is not approved"
         );
@@ -1041,7 +1041,7 @@ describe("AccountsStrategy", function () {
           ...DEFAULT_CHARITY_ENDOWMENT,
           owner: owner.address,
         };
-        await state.setEndowmentDetails(1, endowDetails);
+        await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
         const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLiquid: true,
