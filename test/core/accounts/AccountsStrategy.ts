@@ -304,7 +304,7 @@ describe("AccountsStrategy", function () {
           liquidAmt: LIQ_AMT,
         };
 
-        expect(await facet.strategyInvest(ACCOUNT_ID, investRequest))
+        await expect(facet.strategyInvest(ACCOUNT_ID, investRequest))
           .to.emit(facet, "EndowmentInvested")
           .withArgs(VaultActionStatus.SUCCESS);
 
@@ -1444,8 +1444,8 @@ describe("AccountsStrategy", function () {
         };
         const payload = packActionData(action);
         const returnedAction = convertVaultActionStructToArray(action);
-        expect(
-          await facet.execute(
+        await expect(
+          facet.execute(
             ethers.utils.formatBytes32String("true"),
             NET_NAME_THAT,
             router.address,
@@ -1705,8 +1705,8 @@ describe("AccountsStrategy", function () {
       };
       registrar.getAngelProtocolParams.returns(apParams);
 
-      expect(
-        await facet.executeWithToken(
+      await expect(
+        facet.executeWithToken(
           ethers.utils.formatBytes32String("true"),
           NET_NAME_THAT,
           router.address,
