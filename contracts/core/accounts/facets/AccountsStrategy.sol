@@ -98,6 +98,8 @@ contract AccountsStrategy is
       "Token not approved"
     );
 
+    uint256 investAmt = investRequest.lockAmt + investRequest.liquidAmt;
+
     uint32[] memory accts = new uint32[](1);
     accts[0] = id;
 
@@ -115,16 +117,13 @@ contract AccountsStrategy is
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
 
-      IERC20(tokenAddress).safeTransfer(
-        thisNetwork.router,
-        (investRequest.lockAmt + investRequest.liquidAmt)
-      );
+      IERC20(tokenAddress).safeTransfer(thisNetwork.router, investAmt);
       IVault.VaultActionData memory response = IRouter(thisNetwork.router).executeWithTokenLocal(
         state.config.networkName,
         AddressToString.toString(address(this)),
         packedPayload,
         investRequest.token,
-        (investRequest.lockAmt + investRequest.liquidAmt)
+        investAmt
       );
 
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
@@ -171,21 +170,18 @@ contract AccountsStrategy is
         AddressToString.toString(network.router),
         packedPayload,
         investRequest.token,
-        (investRequest.lockAmt + investRequest.liquidAmt),
+        investAmt,
         tokenAddress,
         investRequest.gasFee,
         state.ENDOWMENTS[id].gasFwd
       );
-      IERC20(tokenAddress).safeApprove(
-        thisNetwork.axelarGateway,
-        (investRequest.lockAmt + investRequest.liquidAmt)
-      );
+      IERC20(tokenAddress).safeApprove(thisNetwork.axelarGateway, investAmt);
       IAxelarGateway(thisNetwork.axelarGateway).callContractWithToken(
         stratParams.network,
         AddressToString.toString(network.router),
         packedPayload,
         investRequest.token,
-        (investRequest.lockAmt + investRequest.liquidAmt)
+        investAmt
       );
       state.STATES[id].balances.locked[tokenAddress] -= investRequest.lockAmt;
       state.STATES[id].balances.liquid[tokenAddress] -= investRequest.liquidAmt;
