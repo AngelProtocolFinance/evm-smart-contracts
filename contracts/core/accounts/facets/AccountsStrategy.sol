@@ -488,11 +488,13 @@ contract AccountsStrategy is
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
         state.STATES[id].balances.locked[response.token] += response.lockAmt;
         state.STATES[id].balances.liquid[response.token] += response.liqAmt;
+        emit EndowmentRedeemed(response.status);
         return true;
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.STATES[id].balances.locked[response.token] += response.lockAmt;
         state.STATES[id].balances.liquid[response.token] += response.liqAmt;
         state.STATES[id].activeStrategies[response.strategyId] = false;
+        emit EndowmentRedeemed(response.status);
         return true;
       }
     } else {

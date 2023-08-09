@@ -1532,7 +1532,9 @@ describe("AccountsStrategy", function () {
               "TKN",
               1
             )
-          ).to.not.be.reverted;
+          )
+            .to.emit(facet, "EndowmentRedeemed")
+            .withArgs(actionStatus);
           const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
           expect(lockBal).to.equal(INITIAL_LOCK_BAL + LOCK_AMT);
           expect(liqBal).to.equal(INITIAL_LIQ_BAL + LIQ_AMT);
