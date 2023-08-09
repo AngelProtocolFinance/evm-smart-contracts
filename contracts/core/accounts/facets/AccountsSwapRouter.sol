@@ -18,6 +18,8 @@ import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "hardhat/console.sol";
 
+uint256 constant ACCEPTABLE_PRICE_DELAY = 300; // 5 minutes, in seconds
+
 /**
  * @title AccountsSwapRouter
  * @dev This contract manages the swaps for endowments
@@ -161,8 +163,19 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
    * @return answer Returns the oracle answer of current price as an int
    */
   function getLatestPriceData(address tokenFeed) internal view returns (uint256) {
-    (, int256 answer, , , ) = AggregatorV3Interface(tokenFeed).latestRoundData();
-    require(answer > 0, "Invalid price feed answer");
+    (
+      uint80 roundId,
+      int256 answer,
+      ,
+      uint256 updatedAt,
+      uint80 answeredInRound
+    ) = AggregatorV3Interface(tokenFeed).latestRoundData();
+    require(
+      answer > 0 &&
+        answeredInRound >= roundId &&
+        updatedAt >= (block.timestamp - ACCEPTABLE_PRICE_DELAY),
+      "Invalid price feed answer"
+    );
     return uint256(answer);
   }
 
