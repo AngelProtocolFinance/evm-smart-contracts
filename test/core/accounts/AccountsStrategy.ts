@@ -208,8 +208,12 @@ describe("AccountsStrategy", function () {
         };
         registrar.getStrategyParamsById.returns(stratParams);
 
-        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
-        await expect(facet.strategyInvest(ACCOUNT_ID, DEFAULT_INVEST_REQUEST)).to.be.revertedWith(
+        const investRequest: AccountMessages.InvestRequestStruct = {
+          ...DEFAULT_INVEST_REQUEST,
+          liquidAmt: 1,
+          lockAmt: 1,
+        };
+        await expect(facet.strategyInvest(ACCOUNT_ID, investRequest)).to.be.revertedWith(
           "Strategy is not approved"
         );
       });
@@ -237,7 +241,11 @@ describe("AccountsStrategy", function () {
       it("the token isn't accepted", async function () {
         registrar.isTokenAccepted.returns(false);
 
-        await expect(facet.strategyInvest(ACCOUNT_ID, DEFAULT_INVEST_REQUEST)).to.be.revertedWith(
+        const investRequest: AccountMessages.InvestRequestStruct = {
+          ...DEFAULT_INVEST_REQUEST,
+          liquidAmt: 1,
+        };
+        await expect(facet.strategyInvest(ACCOUNT_ID, investRequest)).to.be.revertedWith(
           "Token not approved"
         );
       });
@@ -598,7 +606,7 @@ describe("AccountsStrategy", function () {
     describe("reverts when", function () {
       it("both locked and liquid amounts to be redeemed are set to 0 (zero)", async function () {
         await expect(facet.strategyRedeem(ACCOUNT_ID, DEFAULT_REDEEM_REQUEST)).to.be.revertedWith(
-          "Must invest at least one of Locked/Liquid"
+          "Must redeem at least one of Locked/Liquid"
         );
       });
 
@@ -635,7 +643,12 @@ describe("AccountsStrategy", function () {
           owner: owner.address,
         };
         await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
-        await expect(facet.strategyRedeem(ACCOUNT_ID, DEFAULT_REDEEM_REQUEST)).to.be.revertedWith(
+
+        const redeemRequest = {
+          ...DEFAULT_REDEEM_REQUEST,
+          lockAmt: 1,
+        };
+        await expect(facet.strategyRedeem(ACCOUNT_ID, redeemRequest)).to.be.revertedWith(
           "Strategy is not approved"
         );
       });
@@ -916,8 +929,9 @@ describe("AccountsStrategy", function () {
       });
 
       it("makes all the correct external calls and pays for part of gas fee with liquid covering part of the locked bal. gas fee", async function () {
-        const bigGasFee = INITIAL_LOCK_BAL;
-        const payForGasResult = 50;
+        const bigGasFee = 900;
+
+        gasFwd.payForGas.returns(0);
 
         const redeemRequest: AccountMessages.RedeemRequestStruct = {
           ...DEFAULT_REDEEM_REQUEST,
@@ -925,6 +939,11 @@ describe("AccountsStrategy", function () {
           liquidAmt: LIQ_AMT,
           gasFee: bigGasFee,
         };
+
+        await expect(facet.strategyRedeem(ACCOUNT_ID, redeemRequest)).to.not.be.reverted;
+
+        expect(gasFwd.payForGas).to.have.been.calledWith(token.address, redeemRequest.gasFee);
+        expect(token.approve).to.have.been.calledWith(gasService.address, redeemRequest.gasFee);
 
         const payload = packActionData({
           destinationChain: NET_NAME_THAT,
@@ -936,13 +955,6 @@ describe("AccountsStrategy", function () {
           liqAmt: LIQ_AMT,
           status: VaultActionStatus.UNPROCESSED,
         });
-
-        gasFwd.payForGas.returns(payForGasResult);
-
-        await expect(facet.strategyRedeem(ACCOUNT_ID, redeemRequest)).to.not.be.reverted;
-
-        expect(gasFwd.payForGas).to.have.been.calledWith(token.address, redeemRequest.gasFee);
-        expect(token.approve).to.have.been.calledWith(gasService.address, redeemRequest.gasFee);
         expect(gasService.payGasForContractCall).to.have.been.calledWith(
           facet.address,
           NET_NAME_THAT,
@@ -959,8 +971,8 @@ describe("AccountsStrategy", function () {
         );
 
         const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
-        expect(lockBal).to.equal(300);
-        expect(liqBal).to.equal(250);
+        expect(lockBal).to.equal(0);
+        expect(liqBal).to.equal(100);
         const strategyActive = await state.getActiveStrategyEndowmentState(
           ACCOUNT_ID,
           DEFAULT_STRATEGY_SELECTOR
@@ -970,7 +982,7 @@ describe("AccountsStrategy", function () {
 
       describe("but reverts because", () => {
         it("neither locked nor liquid balances can cover their respective gas fees", async () => {
-          const hugeGasFee = INITIAL_LOCK_BAL + INITIAL_LIQ_BAL;
+          const hugeGasFee = (INITIAL_LOCK_BAL + INITIAL_LIQ_BAL) * 2;
 
           const investRequest: AccountMessages.InvestRequestStruct = {
             ...DEFAULT_INVEST_REQUEST,
@@ -985,7 +997,7 @@ describe("AccountsStrategy", function () {
         });
 
         it("liquid balances can't cover locked gas deficit", async () => {
-          const hugeGasFee = INITIAL_LOCK_BAL + 100;
+          const hugeGasFee = INITIAL_LOCK_BAL + INITIAL_LIQ_BAL + 100;
 
           const investRequest: AccountMessages.InvestRequestStruct = {
             ...DEFAULT_INVEST_REQUEST,
@@ -1332,7 +1344,7 @@ describe("AccountsStrategy", function () {
 
       describe("but reverts because", () => {
         it("neither locked nor liquid balances can cover their respective gas fees", async () => {
-          const hugeGasFee = INITIAL_LOCK_BAL + INITIAL_LIQ_BAL;
+          const hugeGasFee = (INITIAL_LOCK_BAL + INITIAL_LIQ_BAL) * 2;
 
           const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
             ...DEFAULT_REDEEM_ALL_REQUEST,
@@ -1347,7 +1359,7 @@ describe("AccountsStrategy", function () {
         });
 
         it("liquid balances can't cover locked gas deficit", async () => {
-          const hugeGasFee = INITIAL_LOCK_BAL + INITIAL_LIQ_BAL - 1;
+          const hugeGasFee = INITIAL_LOCK_BAL + INITIAL_LIQ_BAL + 100;
 
           const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
             ...DEFAULT_REDEEM_ALL_REQUEST,
