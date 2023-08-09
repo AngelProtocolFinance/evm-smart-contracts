@@ -694,8 +694,8 @@ describe("AccountsStrategy", function () {
         VaultActionStatus.FAIL_TOKENS_FALLBACK,
         VaultActionStatus.FAIL_TOKENS_RETURNED,
         VaultActionStatus.UNPROCESSED,
-      ].forEach((actionStatus) => {
-        it(`reverts when the response is: ${VaultActionStatus[actionStatus]}`, async function () {
+      ].forEach((vaultStatus) => {
+        it(`reverts when the response is: ${VaultActionStatus[vaultStatus]}`, async function () {
           const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
             destinationChain: "",
             strategyId: DEFAULT_STRATEGY_SELECTOR,
@@ -704,13 +704,13 @@ describe("AccountsStrategy", function () {
             token: token.address,
             lockAmt: LOCK_AMT,
             liqAmt: LIQ_AMT,
-            status: actionStatus,
+            status: vaultStatus,
           };
           router.executeLocal.returns(vaultActionData);
 
           await expect(facet.strategyRedeem(ACCOUNT_ID, redeemRequest))
             .to.be.revertedWithCustomError(facet, "RedeemFailed")
-            .withArgs(actionStatus);
+            .withArgs(vaultStatus);
         });
       });
     });
@@ -1504,14 +1504,14 @@ describe("AccountsStrategy", function () {
         expect(strategyActive).to.be.true;
       });
 
-      const cases: {vaultFunction: keyof IVault["functions"]; actionStatus: VaultActionStatus}[] = [
-        {vaultFunction: "redeem", actionStatus: VaultActionStatus.SUCCESS},
-        {vaultFunction: "redeem", actionStatus: VaultActionStatus.POSITION_EXITED},
-        {vaultFunction: "redeemAll", actionStatus: VaultActionStatus.SUCCESS},
-        {vaultFunction: "redeemAll", actionStatus: VaultActionStatus.POSITION_EXITED},
+      const cases: {vaultFunction: keyof IVault["functions"]; vaultStatus: VaultActionStatus}[] = [
+        {vaultFunction: "redeem", vaultStatus: VaultActionStatus.SUCCESS},
+        {vaultFunction: "redeem", vaultStatus: VaultActionStatus.POSITION_EXITED},
+        {vaultFunction: "redeemAll", vaultStatus: VaultActionStatus.SUCCESS},
+        {vaultFunction: "redeemAll", vaultStatus: VaultActionStatus.POSITION_EXITED},
       ];
-      cases.forEach(({vaultFunction, actionStatus}) => {
-        it(`succeeds: ${vaultFunction} && ${VaultActionStatus[actionStatus]}`, async function () {
+      cases.forEach(({vaultFunction, vaultStatus}) => {
+        it(`succeeds: ${vaultFunction} && ${VaultActionStatus[vaultStatus]}`, async function () {
           const action: IVaultStrategy.VaultActionDataStruct = {
             destinationChain: NET_NAME_THAT,
             strategyId: DEFAULT_STRATEGY_SELECTOR,
@@ -1520,7 +1520,7 @@ describe("AccountsStrategy", function () {
             token: token.address,
             lockAmt: LOCK_AMT,
             liqAmt: LIQ_AMT,
-            status: actionStatus,
+            status: vaultStatus,
           };
           const payload = packActionData(action);
           await expect(
@@ -1534,7 +1534,7 @@ describe("AccountsStrategy", function () {
             )
           )
             .to.emit(facet, "EndowmentRedeemed")
-            .withArgs(actionStatus);
+            .withArgs(vaultStatus);
           const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
           expect(lockBal).to.equal(INITIAL_LOCK_BAL + LOCK_AMT);
           expect(liqBal).to.equal(INITIAL_LIQ_BAL + LIQ_AMT);
@@ -1542,7 +1542,7 @@ describe("AccountsStrategy", function () {
             ACCOUNT_ID,
             DEFAULT_STRATEGY_SELECTOR
           );
-          expect(strategyActive).to.equal(actionStatus !== VaultActionStatus.POSITION_EXITED);
+          expect(strategyActive).to.equal(vaultStatus !== VaultActionStatus.POSITION_EXITED);
         });
       });
     });
@@ -1589,8 +1589,8 @@ describe("AccountsStrategy", function () {
       ],
     };
     Object.entries(caseData).forEach(([vaultFunction, unmatchedStatuses]) => {
-      unmatchedStatuses.forEach((actionStatus) => {
-        it(`into _refundFallback succeeds: ${vaultFunction} && ${VaultActionStatus[actionStatus]}`, async function () {
+      unmatchedStatuses.forEach((vaultStatus) => {
+        it(`into _refundFallback succeeds: ${vaultFunction} && ${VaultActionStatus[vaultStatus]}`, async function () {
           const action: IVaultStrategy.VaultActionDataStruct = {
             destinationChain: NET_NAME_THAT,
             strategyId: DEFAULT_STRATEGY_SELECTOR,
@@ -1599,7 +1599,7 @@ describe("AccountsStrategy", function () {
             token: token.address,
             lockAmt: LOCK_AMT,
             liqAmt: LIQ_AMT,
-            status: actionStatus,
+            status: vaultStatus,
           };
           const payload = packActionData(action);
           // const returnedAction = convertVaultActionStructToArray(action);
