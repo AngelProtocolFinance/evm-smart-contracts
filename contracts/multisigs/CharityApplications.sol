@@ -125,7 +125,10 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
 
     // check all sdgs id
     for (uint256 i = 0; i < _application.sdgs.length; i++) {
-      if (_application.sdgs[i] > 17 || _application.sdgs[i] == 0) {
+      if (
+        _application.sdgs[i] > LibAccounts.MAX_SDGS_NUM ||
+        _application.sdgs[i] < LibAccounts.MIN_SDGS_NUM
+      ) {
         revert("Invalid UN SDG inputs given");
       }
     }

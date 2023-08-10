@@ -109,6 +109,10 @@ library LibAccounts {
   uint256 constant PERCENT_BASIS = 100; // gives 1% precision for declared percentages
   uint256 constant BIG_NUMBA_BASIS = 1e24;
 
+  // upper & lower bounds for Endowment UN SDG elements
+  uint256 constant MAX_SDGS_NUM = 17;
+  uint256 constant MIN_SDGS_NUM = 1;
+
   // Interface IDs
   bytes4 constant InterfaceId_Invalid = 0xffffffff;
   bytes4 constant InterfaceId_ERC165 = 0x01ffc9a7;

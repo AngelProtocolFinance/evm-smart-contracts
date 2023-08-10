@@ -39,10 +39,21 @@ contract AccountsCreateEndowment is
     if (LibAccounts.EndowmentType.Charity == details.endowType) {
       require(msg.sender == registrar_config.charityApplications, "Unauthorized");
       // Set all charity endowment-level fees to 0. Charities must use the Registrar Protocol-level fees.
+      details.earlyLockedWithdrawFee = LibAccounts.FeeSetting({payoutAddress: address(0), bps: 0});
       details.withdrawFee = LibAccounts.FeeSetting({payoutAddress: address(0), bps: 0});
-      details.earlyLockedWithdrawFee = LibAccounts.FeeSetting({payoutAddress: address(0), bps: 0});
-      details.earlyLockedWithdrawFee = LibAccounts.FeeSetting({payoutAddress: address(0), bps: 0});
-      details.earlyLockedWithdrawFee = LibAccounts.FeeSetting({payoutAddress: address(0), bps: 0});
+      details.depositFee = LibAccounts.FeeSetting({payoutAddress: address(0), bps: 0});
+      details.balanceFee = LibAccounts.FeeSetting({payoutAddress: address(0), bps: 0});
+    } else {
+      // validate SDG inputs for non-Charity Endowments (if any)
+      // @dev Charity Endowments have their SDG Inputs validated when creating
+      // an Application for approval in the Charity Applications MultiSig
+      for (uint256 i = 0; i < details.sdgs.length; i++) {
+        if (
+          details.sdgs[i] > LibAccounts.MAX_SDGS_NUM || details.sdgs[i] < LibAccounts.MIN_SDGS_NUM
+        ) {
+          revert("Invalid UN SDG inputs given");
+        }
+      }
     }
     // check all fees are valid
     Validator.validateFee(details.earlyLockedWithdrawFee);
@@ -50,6 +61,7 @@ contract AccountsCreateEndowment is
     Validator.validateFee(details.depositFee);
     Validator.validateFee(details.balanceFee);
 
+    require(details.duration > 0, "Duration must greater than zero");
     require(details.members.length >= 1, "No members provided for Endowment multisig");
     require(details.threshold > 0, "Threshold must be a positive number");
 
