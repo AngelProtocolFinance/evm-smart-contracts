@@ -8,11 +8,7 @@ import {AccountMessages} from "../message.sol";
  * @title AccountsStrategy
  */
 interface IAccountsStrategy {
-  error InsufficientFundsForGas(
-    uint32 endowId,
-    uint256 totalNeeded,
-    uint256 totalAvailable
-  );
+  error InsufficientFundsForGas(uint32 endowId);
   error InvestFailed(IVault.VaultActionStatus);
   error RedeemFailed(IVault.VaultActionStatus);
   error RedeemAllFailed(IVault.VaultActionStatus);
