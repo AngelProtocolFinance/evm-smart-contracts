@@ -105,6 +105,25 @@ contract AccountsDepositWithdrawEndowments is
     RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
       .queryConfig();
 
+    // Cannot receive contributions into a mature Endowment
+    require(
+      tempEndowment.maturityTime != 0 && block.timestamp >= tempEndowment.maturityTime,
+      "Mature Endowments cannot receive contributions"
+    );
+    // Check msg sender is in Contributor Allowlist (only non-Charity Endowments can set)
+    // or that it is the Endowment owner. If allowlist is empty anyone may contribute.
+    bool contributorAllowed = false;
+    if (tempEndowment.allowlistedContributors.length == 0 || msg.sender == tempEndowment.owner) {
+      contributorAllowed = true;
+    } else {
+      for (uint256 i = 0; i < tempEndowment.allowlistedContributors.length; i++) {
+        if (tempEndowment.allowlistedContributors[i] == msg.sender) {
+          contributorAllowed = true;
+        }
+      }
+    }
+    require(contributorAllowed, "Contributor address is not listed in allowlistedContributors");
+
     // ** DEPOSIT FEE CALCULATIONS **
     uint256 amountLeftover = amount;
 
