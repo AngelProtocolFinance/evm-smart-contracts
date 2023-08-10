@@ -301,14 +301,14 @@ contract AccountsStrategy is
         redeemRequest.gasFee
       );
       if (gasFwdGas < redeemRequest.gasFee) {
-        uint256 gasPercentFromLiq = (redeemRequest.liquidAmt * LibAccounts.PERCENT_BASIS) /
-            (redeemRequest.liquidAmt + redeemRequest.lockAmt);
+        uint256 gasRateFromLiq_withPrecision = (redeemRequest.liquidAmt *
+          LibAccounts.PERCENT_BASIS) / (redeemRequest.liquidAmt + redeemRequest.lockAmt);
         _payForGasWithAccountBalance(
-          id, 
-          tokenAddress, 
+          id,
+          tokenAddress,
           0, // redeeming, no tokens will be sent
-          0, 
-          gasPercentFromLiq,
+          0,
+          gasRateFromLiq_withPrecision,
           (redeemRequest.gasFee - gasFwdGas)
         );
       }
@@ -432,13 +432,13 @@ contract AccountsStrategy is
         redeemAllRequest.gasFee
       );
       if (gasFwdGas < redeemAllRequest.gasFee) {
-        uint256 gasPercentFromLiq = 50;
+        uint256 gasRateFromLiq_withPrecision = 50;
         _payForGasWithAccountBalance(
-          id, 
-          tokenAddress, 
+          id,
+          tokenAddress,
           0, // redeeming, no tokens will be sent
-          0, 
-          gasPercentFromLiq,
+          0,
+          gasRateFromLiq_withPrecision,
           (redeemAllRequest.gasFee - gasFwdGas)
         );
       }
@@ -583,7 +583,7 @@ contract AccountsStrategy is
    * @param token Token address
    * @param lockAmt Amount needed from locked balance
    * @param liqAmt Amount needed from liquid balance
-   * @param gasPercentFromLiq Percentage of gas to pay from liquid portion
+   * @param gasRateFromLiq_withPrecision Percentage of gas to pay from liquid portion
    * @param gasRemaining Amount of gas to be payed from locked & liquid balances
    */
   function _payForGasWithAccountBalance(
@@ -591,14 +591,14 @@ contract AccountsStrategy is
     address token,
     uint256 lockAmt,
     uint256 liqAmt,
-    uint256 gasPercentFromLiq,
+    uint256 gasRateFromLiq_withPrecision,
     uint256 gasRemaining
   ) internal {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     uint256 lockBal = state.STATES[id].balances.locked[token];
     uint256 liqBal = state.STATES[id].balances.liquid[token];
 
-    uint256 liqGas = (gasRemaining * gasPercentFromLiq) / LibAccounts.PERCENT_BASIS;
+    uint256 liqGas = (gasRemaining * gasRateFromLiq_withPrecision) / LibAccounts.PERCENT_BASIS;
     uint256 lockGas = gasRemaining - liqGas;
 
     uint256 liqNeed = liqGas + liqAmt;
