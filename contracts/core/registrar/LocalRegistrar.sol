@@ -37,11 +37,6 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
       LocalRegistrarLib.PRINCIPLE_DISTRIBUTION,
       LocalRegistrarLib.BASIS
     );
-
-    lrs.angelProtocolParams = LocalRegistrarLib.AngelProtocolParams(
-      LocalRegistrarLib.ROUTER_ADDRESS,
-      LocalRegistrarLib.REFUND_ADDRESS
-    );
   }
 
   function initialize() public initializer {

@@ -1,23 +1,32 @@
 import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
 import {task} from "hardhat/config";
-import {confirmAction, isLocalNetwork, logger, verify} from "utils";
+import {confirmAction, isLocalNetwork, getAddresses, logger, verify} from "utils";
 
 type TaskArgs = {
+  registrar?: string;
   skipVerify: boolean;
   yes: boolean;
 };
 
 task("deploy:EndowmentMultiSig", "Will deploy EndowmentMultiSig contract")
+  .addOptionalParam(
+    "registrar",
+    "Addresss of the registrar contract. Will do a local lookup from contract-address.json if none is provided."
+  )
   .addFlag("skipVerify", "Skip contract verification")
   .addFlag("yes", "Automatic yes to prompt.")
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
+      const addresses = await getAddresses(hre);
+
+      const registrarAddress = taskArgs.registrar || addresses.registrar.proxy;
+
       const isConfirmed = taskArgs.yes || (await confirmAction("Deploying EndowmentMultiSig..."));
       if (!isConfirmed) {
         return logger.out("Confirmation denied.", logger.Level.Warn);
       }
 
-      const deployData = await deployEndowmentMultiSig(hre);
+      const deployData = await deployEndowmentMultiSig(registrarAddress, hre);
 
       if (!deployData) {
         return;

@@ -5,9 +5,19 @@ import {
   EndowmentMultiSigFactory__factory,
   ProxyContract__factory,
 } from "typechain-types";
-import {Deployment, getContractName, getSigners, logger, updateAddresses} from "utils";
+import {
+  Deployment,
+  getContractName,
+  getSigners,
+  logger,
+  updateAddresses,
+  validateAddress,
+} from "utils";
 
-export async function deployEndowmentMultiSig(hre: HardhatRuntimeEnvironment): Promise<
+export async function deployEndowmentMultiSig(
+  registrar = "",
+  hre: HardhatRuntimeEnvironment
+): Promise<
   | {
       emitter: Deployment;
       factory: Deployment;
@@ -19,6 +29,7 @@ export async function deployEndowmentMultiSig(hre: HardhatRuntimeEnvironment): P
 
   try {
     logger.out("Deploying EndowmentMultiSig contracts...");
+    validateAddress(registrar, "registrar");
 
     // deploy implementation contract
     logger.out("Deploying EndowmentMultiSig implementation...");
@@ -32,7 +43,8 @@ export async function deployEndowmentMultiSig(hre: HardhatRuntimeEnvironment): P
     const EndowmentMultiSigFactoryFactory = new EndowmentMultiSigFactory__factory(proxyAdmin);
     const EndowmentMultiSigFactory = await EndowmentMultiSigFactoryFactory.deploy(
       endowmentMultiSig.address,
-      proxyAdmin.address
+      proxyAdmin.address,
+      registrar
     );
     await EndowmentMultiSigFactory.deployed();
     logger.out(`Address: ${EndowmentMultiSigFactory.address}`);

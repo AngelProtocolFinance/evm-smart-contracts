@@ -17,10 +17,6 @@ library LocalRegistrarLib {
   uint32 constant PRINCIPLE_DISTRIBUTION = 0;
   uint32 constant BASIS = 100;
 
-  // DEFAULT ANGEL PROTOCOL PARAMS
-  address constant ROUTER_ADDRESS = address(0);
-  address constant REFUND_ADDRESS = address(0);
-
   /*////////////////////////////////////////////////
                       CUSTOM TYPES
   */ ////////////////////////////////////////////////

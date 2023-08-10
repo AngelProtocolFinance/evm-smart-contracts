@@ -47,7 +47,7 @@ abstract contract AxelarExecutable is IAxelarExecutable {
     string calldata sourceChain,
     string calldata sourceAddress,
     bytes calldata payload
-  ) internal virtual returns (IVault.VaultActionData memory) {}
+  ) internal virtual returns (IVault.VaultActionData memory);
 
   function _executeWithToken(
     string calldata sourceChain,
@@ -55,7 +55,7 @@ abstract contract AxelarExecutable is IAxelarExecutable {
     bytes calldata payload,
     string calldata tokenSymbol,
     uint256 amount
-  ) internal virtual returns (IVault.VaultActionData memory) {}
+  ) internal virtual returns (IVault.VaultActionData memory);
 
   function gateway() external view returns (IAxelarGateway) {
     return _gateway();
