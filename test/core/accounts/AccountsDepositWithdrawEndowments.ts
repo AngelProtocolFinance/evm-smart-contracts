@@ -1,5 +1,6 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {time} from "@nomicfoundation/hardhat-network-helpers";
 import {expect, use} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
@@ -865,23 +866,68 @@ describe("AccountsDepositWithdrawEndowments", function () {
             finalAmountLeftover
           );
 
+          const [, liquidBalance] = await state.getEndowmentTokenBalance(charityId, tokens[0].addr);
+          expect(liquidBalance).to.equal(liqBal.sub(tokens[0].amnt));
+        });
+
+        it("passes: normal, beneficiary address, sender is endow. owner, protocol-level and endow-level withdraw fees applied", async () => {
+          const beneficiaryId = 0;
+          const acctType = VaultType.LIQUID;
+          const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = [
+            {addr: tokenFake.address, amnt: 5000},
+          ];
+
+          // set protocol-level withdraw fee to 2%
+          registrarFake.getFeeSettingsByFeeType.returns({payoutAddress: treasury, bps: 200});
+
+          // set Endowment allowlist & withdraw fee
+          const normalWithAllowlist: AccountStorage.EndowmentStruct = {
+            ...normalEndow,
+            allowlistedBeneficiaries: [indexFund.address],
+            withdrawFee: {payoutAddress: endowOwner.address, bps: 10}, // 0.1%
+          };
+          await state.setEndowmentDetails(normalEndowId, normalWithAllowlist);
+
+          let amount = BigNumber.from(tokens[0].amnt);
+          let expectedFeeAp = amount.mul(200).div(10000);
+          let amountLeftAfterApFees = amount.sub(expectedFeeAp);
+          let expectedFeeEndow = amountLeftAfterApFees.mul(10).div(10000);
+          let finalAmountLeftover = amountLeftAfterApFees.sub(expectedFeeEndow);
+
+          await expect(
+            facet.withdraw(normalEndowId, acctType, beneficiaryAddress, beneficiaryId, tokens)
+          )
+            .to.emit(facet, "EndowmentWithdraw")
+            .withArgs(
+              normalEndowId,
+              tokens[0].addr,
+              tokens[0].amnt,
+              acctType,
+              beneficiaryAddress,
+              beneficiaryId
+            );
+
+          expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
+          expect(tokenFake.transfer).to.have.been.calledWith(endowOwner.address, expectedFeeEndow);
+          expect(tokenFake.transfer).to.have.been.calledWith(
+            beneficiaryAddress,
+            finalAmountLeftover
+          );
+
           const [, liquidBalance] = await state.getEndowmentTokenBalance(
-            charityId,
-            tokenFake.address
+            normalEndowId,
+            tokens[0].addr
           );
           expect(liquidBalance).to.equal(liqBal.sub(tokens[0].amnt));
         });
 
-        it("passes: normal, beneficiary address, 2 tokens, sender is allowlisted beneficiary (protocol & endow-level withdraw fees)", async () => {
+        it("passes: normal, beneficiary address, 2 tokens, sender is allowlisted beneficiary (endow-level withdraw fees)", async () => {
           const beneficiaryId = 0;
           const acctType = VaultType.LIQUID;
           const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = [
             {addr: tokenFake.address, amnt: 5000},
             {addr: wmaticFake.address, amnt: 3000},
           ];
-
-          // set protocol-level withdraw fee to 2%
-          registrarFake.getFeeSettingsByFeeType.returns({payoutAddress: treasury, bps: 200});
 
           // set Endowment allowlist & withdraw fee
           const normalWithAllowlist: AccountStorage.EndowmentStruct = {
@@ -917,12 +963,9 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
           // tokens[0]
           let amount = BigNumber.from(tokens[0].amnt);
-          let expectedFeeAp = amount.mul(200).div(10000);
-          let amountLeftAfterApFees = amount.sub(expectedFeeAp);
-          let expectedFeeEndow = amountLeftAfterApFees.mul(10).div(10000);
-          let finalAmountLeftover = amountLeftAfterApFees.sub(expectedFeeEndow);
+          let expectedFeeEndow = amount.mul(10).div(10000);
+          let finalAmountLeftover = amount.sub(expectedFeeEndow);
 
-          expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
           expect(tokenFake.transfer).to.have.been.calledWith(endowOwner.address, expectedFeeEndow);
           expect(tokenFake.transfer).to.have.been.calledWith(
             beneficiaryAddress,
@@ -931,18 +974,15 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
           const [, liquidBalance] = await state.getEndowmentTokenBalance(
             normalEndowId,
-            tokenFake.address
+            tokens[0].addr
           );
-          expect(liquidBalance).to.equal(liqBal.sub(amount));
+          expect(liquidBalance).to.equal(liqBal.sub(tokens[0].amnt));
 
           // tokens[1]
           amount = BigNumber.from(tokens[1].amnt);
-          expectedFeeAp = amount.mul(200).div(10000);
-          amountLeftAfterApFees = amount.sub(expectedFeeAp);
-          expectedFeeEndow = amountLeftAfterApFees.mul(10).div(10000);
-          finalAmountLeftover = amountLeftAfterApFees.sub(expectedFeeEndow);
+          expectedFeeEndow = amount.mul(10).div(10000);
+          finalAmountLeftover = amount.sub(expectedFeeEndow);
 
-          expect(wmaticFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
           expect(wmaticFake.transfer).to.have.been.calledWith(endowOwner.address, expectedFeeEndow);
           expect(wmaticFake.transfer).to.have.been.calledWith(
             beneficiaryAddress,
@@ -951,9 +991,9 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
           const [, liquidBalance2] = await state.getEndowmentTokenBalance(
             normalEndowId,
-            wmaticFake.address
+            tokens[1].addr
           );
-          expect(liquidBalance2).to.equal(liqBal.sub(amount));
+          expect(liquidBalance2).to.equal(liqBal.sub(tokens[1].amnt));
         });
       });
 
@@ -991,7 +1031,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const protocolEarlyWithdrawFee = amount.mul(200).div(10000);
           const amountLeftAfterApFees = amount.sub(protocolWithdrawFee + protocolEarlyWithdrawFee);
           const endowmentWithdrawFee = amountLeftAfterApFees.mul(10).div(10000);
-          const remainder = amountLeftAfterApFees.sub(endowmentWithdrawFee);
+          const finalAmountLeftover = amountLeftAfterApFees.sub(endowmentWithdrawFee);
 
           expect(tokenFake.transfer).to.have.been.calledWith(treasury, protocolWithdrawFee);
           expect(tokenFake.transfer).to.have.been.calledWith(treasury, protocolEarlyWithdrawFee);
@@ -999,11 +1039,14 @@ describe("AccountsDepositWithdrawEndowments", function () {
             endowOwner.address,
             endowmentWithdrawFee
           );
-          expect(tokenFake.transfer).to.have.been.calledWith(beneficiaryAddress, remainder);
+          expect(tokenFake.transfer).to.have.been.calledWith(
+            beneficiaryAddress,
+            finalAmountLeftover
+          );
 
           const [lockedBalance] = await state.getEndowmentTokenBalance(
             normalEndowId,
-            tokenFake.address
+            tokens[0].addr
           );
           expect(lockedBalance).to.equal(lockBal.sub(amount));
         });
@@ -1033,15 +1076,18 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const amount = BigNumber.from(tokens[0].amnt);
           const protocolWithdrawFee = amount.mul(200).div(10000);
           const protocolEarlyWithdrawFee = amount.mul(200).div(10000);
-          const remainder = amount.sub(protocolWithdrawFee + protocolEarlyWithdrawFee);
+          const finalAmountLeftover = amount.sub(protocolWithdrawFee + protocolEarlyWithdrawFee);
 
           expect(tokenFake.transfer).to.have.been.calledWith(treasury, protocolWithdrawFee);
           expect(tokenFake.transfer).to.have.been.calledWith(treasury, protocolEarlyWithdrawFee);
-          expect(tokenFake.transfer).to.have.been.calledWith(beneficiaryAddress, remainder);
+          expect(tokenFake.transfer).to.have.been.calledWith(
+            beneficiaryAddress,
+            finalAmountLeftover
+          );
 
           const [lockedBalance] = await state.getEndowmentTokenBalance(
-            charityId,
-            tokenFake.address
+            normalEndowId,
+            tokens[0].addr
           );
           expect(lockedBalance).to.equal(lockBal.sub(amount));
         });
@@ -1050,39 +1096,46 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
     describe("from Mature endowments", async () => {
       it("reverts if sender address is not listed in maturityAllowlist", async () => {
+        const currTime = await time.latest();
+
         const matureEndowment: AccountStorage.EndowmentStruct = {
           ...normalEndow,
-          maturityTime: 1,
+          maturityTime: currTime,
           maturityAllowlist: [beneficiaryAddress],
         };
         await state.setEndowmentDetails(normalEndowId, matureEndowment);
 
+        const acctType = VaultType.LIQUID;
+        const beneficiaryId = 0;
+        const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = [
+          {addr: tokenFake.address, amnt: 5000},
+        ];
+
         await expect(
-          facet.withdraw(normalEndowId, VaultType.LIQUID, genWallet().address, 0, [
-            {addr: tokenFake.address, amnt: 1},
-          ])
+          facet.withdraw(normalEndowId, acctType, beneficiaryAddress, beneficiaryId, tokens)
         ).to.be.revertedWith("Sender address is not listed in maturityAllowlist");
       });
 
       describe("LOCKED withdrawals", async () => {
         it("passes: Normal to Address (protocol-level normal fee only)", async () => {
+          const currTime = await time.latest();
+
           registrarFake.getFeeSettingsByFeeType.returns({bps: 200, payoutAddress: treasury});
 
           const matureEndowment: AccountStorage.EndowmentStruct = {
             ...normalEndow,
-            maturityTime: 1,
+            maturityTime: currTime,
             maturityAllowlist: [indexFund.address],
           };
           await state.setEndowmentDetails(normalEndowId, matureEndowment);
 
-          const acctType = VaultType.LOCKED;
           const beneficiaryId = 0;
           const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = [
             {addr: tokenFake.address, amnt: 5000},
           ];
           const amount = BigNumber.from(tokens[0].amnt);
           const expectedFeeAp = amount.mul(200).div(10000);
-          const amountLeftAfterApFees = amount.sub(expectedFeeAp);
+          const finalAmountLeftover = amount.sub(expectedFeeAp);
 
           await expect(
             facet
@@ -1107,15 +1160,17 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
           const [lockedBalance] = await state.getEndowmentTokenBalance(
             normalEndowId,
-            tokenFake.address
+            tokens[0].addr
           );
           expect(lockedBalance).to.equal(lockBal.sub(amount));
         });
 
         it("passes: Normal to a Charity Endowment transfer", async () => {
+          const currTime = await time.latest();
+
           const matureEndowment: AccountStorage.EndowmentStruct = {
             ...normalEndow,
-            maturityTime: 1,
+            maturityTime: currTime,
             maturityAllowlist: [indexFund.address],
           };
           await state.setEndowmentDetails(normalEndowId, matureEndowment);
