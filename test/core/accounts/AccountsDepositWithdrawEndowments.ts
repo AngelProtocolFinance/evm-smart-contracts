@@ -958,15 +958,13 @@ describe("AccountsDepositWithdrawEndowments", function () {
       });
 
       describe("LOCKED withdrawals (normal and early locked withdraw fees may apply)", async () => {
-        it("passes: normal endowment, beneficiary address, 1 token, sender: endow. owner, protocol-level & endow-level withdraw fees apply", async () => {
-          registrarFake.getFeeSettingsByFeeType
-            .whenCalledWith(FeeTypes.Withdraw)
-            .returns({bps: 200, payoutAddress: treasury}); // 2%
+        it("passes: normal endowment, beneficiary address, 1 token, sender: endow. owner, protocol-level & endow-level withdraw & protocol-level early withdraw fees apply", async () => {
+          registrarFake.getFeeSettingsByFeeType.returns({bps: 200, payoutAddress: treasury});
 
           const normalEndowWithFee: AccountStorage.EndowmentStruct = {
             ...normalEndow,
             withdrawFee: {bps: 10, payoutAddress: endowOwner.address},
-          }; // 0.1%
+          };
           await state.setEndowmentDetails(normalEndowId, normalEndowWithFee);
 
           const acctType = VaultType.LOCKED;
@@ -988,15 +986,15 @@ describe("AccountsDepositWithdrawEndowments", function () {
               beneficiaryId
             );
 
-          const regConfig = await registrarFake.queryConfig();
-
           const amount = BigNumber.from(tokens[0].amnt);
           const protocolWithdrawFee = amount.mul(200).div(10000);
-          const amountLeftAfterApFees = amount.sub(protocolWithdrawFee);
+          const protocolEarlyWithdrawFee = amount.mul(200).div(10000);
+          const amountLeftAfterApFees = amount.sub(protocolWithdrawFee + protocolEarlyWithdrawFee);
           const endowmentWithdrawFee = amountLeftAfterApFees.mul(10).div(10000);
           const remainder = amountLeftAfterApFees.sub(endowmentWithdrawFee);
 
           expect(tokenFake.transfer).to.have.been.calledWith(treasury, protocolWithdrawFee);
+          expect(tokenFake.transfer).to.have.been.calledWith(treasury, protocolEarlyWithdrawFee);
           expect(tokenFake.transfer).to.have.been.calledWith(
             endowOwner.address,
             endowmentWithdrawFee
@@ -1011,12 +1009,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
         });
 
         it("passes: charity, beneficiary address, 1 token, sender: endow. owner, protocol-level early & normal withdraw fees apply", async () => {
-          registrarFake.getFeeSettingsByFeeType
-            .whenCalledWith(FeeTypes.WithdrawCharity)
-            .returns({bps: 200, payoutAddress: treasury}); // 2%
-          registrarFake.getFeeSettingsByFeeType
-            .whenCalledWith(FeeTypes.EarlyLockedWithdrawCharity)
-            .returns({bps: 2000, payoutAddress: treasury}); // 20%
+          registrarFake.getFeeSettingsByFeeType.returns({bps: 200, payoutAddress: treasury});
 
           const acctType = VaultType.LOCKED;
           const beneficiaryId = 0;
@@ -1037,11 +1030,9 @@ describe("AccountsDepositWithdrawEndowments", function () {
               beneficiaryId
             );
 
-          const regConfig = await registrarFake.queryConfig();
-
           const amount = BigNumber.from(tokens[0].amnt);
           const protocolWithdrawFee = amount.mul(200).div(10000);
-          const protocolEarlyWithdrawFee = amount.mul(2000).div(10000);
+          const protocolEarlyWithdrawFee = amount.mul(200).div(10000);
           const remainder = amount.sub(protocolWithdrawFee + protocolEarlyWithdrawFee);
 
           expect(tokenFake.transfer).to.have.been.calledWith(treasury, protocolWithdrawFee);
@@ -1075,9 +1066,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
       describe("LOCKED withdrawals", async () => {
         it("passes: Normal to Address (protocol-level normal fee only)", async () => {
-          registrarFake.getFeeSettingsByFeeType
-            .whenCalledWith(FeeTypes.Withdraw)
-            .returns({bps: 200, payoutAddress: treasury}); // 2%
+          registrarFake.getFeeSettingsByFeeType.returns({bps: 200, payoutAddress: treasury});
 
           const matureEndowment: AccountStorage.EndowmentStruct = {
             ...normalEndow,
