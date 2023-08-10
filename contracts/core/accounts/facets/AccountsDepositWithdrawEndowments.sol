@@ -329,43 +329,17 @@ contract AccountsDepositWithdrawEndowments is
       uint256 amountLeftover = tokens[t].amnt;
       // Do not apply fees for Endowment <> Endowment withdraws/transfers
       if (beneficiaryAddress != address(0) && beneficiaryEndowId > 0) {
-        // vars to track fee calculations
-        uint256 totalEndowFees;
-
         // ** FEES & PENALTIES CALCULATIONS **
-        // ** WITHDRAW FEE: Protocol-level **
-        amountLeftover -= calculateAndPayoutFee(
-          tokens[t].amnt,
-          tokens[t].addr,
-          protocolWithdrawFee
-        );
-
-        if (acctType == IVault.VaultType.LOCKED && !mature) {
-          // ** EARLY LOCKED WITHDRAW FEE: Protocol-level **
-          // Deduct AP Early Locked Withdraw Fee to arrive at an amountLeftover
-          // that all Endowment-level Fees hereafter can safely be calculated against
-          amountLeftover -= calculateAndPayoutFee(
-            tokens[t].amnt,
-            tokens[t].addr,
-            protocolEarlyWithdrawFee
-          );
-          // ** EARLY LOCKED WITHDRAW FEE: Endowment-level (optional) **
-          totalEndowFees = calculateAndPayoutFee(
-            amountLeftover,
-            tokens[t].addr,
-            tempEndowment.earlyLockedWithdrawFee
-          );
-        }
-
-        // ** WITHDRAW FEE: Endowment-Level fee (optional) **
-        totalEndowFees += calculateAndPayoutFee(
+        amountLeftover = processWithdrawFees(
           amountLeftover,
           tokens[t].addr,
-          tempEndowment.withdrawFee
+          mature,
+          acctType,
+          protocolWithdrawFee,
+          protocolEarlyWithdrawFee,
+          tempEndowment.withdrawFee,
+          tempEndowment.earlyLockedWithdrawFee
         );
-
-        // Deduct all Endowment-level fees to get a final withdraw amount leftover
-        amountLeftover -= totalEndowFees;
       }
 
       if (amountLeftover > 0) {
@@ -462,5 +436,47 @@ contract AccountsDepositWithdrawEndowments is
     if (feeAmount > 0) {
       IERC20(tokenAddr).safeTransfer(fee.payoutAddress, feeAmount);
     }
+  }
+
+  // Internal function to process all withdraw fees
+  function processWithdrawFees(
+    uint256 startingAmnt,
+    address tokenAddr,
+    bool mature,
+    IVault.VaultType acctType,
+    LibAccounts.FeeSetting memory protocolWithdrawFee,
+    LibAccounts.FeeSetting memory protocolEarlyWithdrawFee,
+    LibAccounts.FeeSetting memory endowWithdrawFee,
+    LibAccounts.FeeSetting memory endowEarlyLockedWithdrawFee
+  ) internal returns (uint256 amountLeftover) {
+    uint256 totalEndowFees;
+
+    // ** WITHDRAW FEE (STANDARD) **
+    // Protocol-level fee calculated based on Registrar rate look-up
+    amountLeftover =
+      startingAmnt -
+      calculateAndPayoutFee(startingAmnt, tokenAddr, protocolWithdrawFee);
+
+    // ** EARLY LOCKED WITHDRAW FEE **
+    // Can withdraw early for a (possible) penalty fee
+    if (acctType == IVault.VaultType.LOCKED && !mature) {
+      // Protocol-level early withdraw penalty fee
+      // Deduct AP Early Locked Withdraw Fee to arrive at an amountLeftover
+      // that all Endowment-level Fees hereafter can safely be calculated against
+      amountLeftover -= calculateAndPayoutFee(startingAmnt, tokenAddr, protocolEarlyWithdrawFee);
+      // Normal/DAF Endowment-level Early Withdraw Fee that owners can (optionally) set
+      totalEndowFees = calculateAndPayoutFee(
+        amountLeftover,
+        tokenAddr,
+        endowEarlyLockedWithdrawFee
+      );
+    }
+
+    // ** WITHDRAW FEE (STANDARD): Endowment-Level fee **
+    // Calculated on the amount left after all Protocol-level fees are deducted
+    totalEndowFees += calculateAndPayoutFee(amountLeftover, tokenAddr, endowWithdrawFee);
+
+    // Deduct all Endowment-level fees to get a final withdraw amount leftover
+    amountLeftover -= totalEndowFees;
   }
 }
