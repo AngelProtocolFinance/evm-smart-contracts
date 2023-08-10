@@ -91,14 +91,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
       ...charity,
       endowType: 1,
       splitToLiquid: {defaultSplit: 50, max: 80, min: 20},
-      withdrawFee: {
-        bps: 30,
-        payoutAddress: endowOwner.address,
-      },
-      earlyLockedWithdrawFee: {
-        bps: 15,
-        payoutAddress: endowOwner.address,
-      },
     };
     dafEndow = {
       ...charity,
@@ -410,25 +402,26 @@ describe("AccountsDepositWithdrawEndowments", function () {
         });
 
         it("deposit with protocol-level deposit fee only", async () => {
-          registrarFake.getFeeSettingsByFeeType
-            .whenCalledWith(FeeTypes.DepositCharity)
-            .returns({payoutAddress: treasury, bps: 10});
+          registrarFake.getFeeSettingsByFeeType.returns({payoutAddress: treasury, bps: 10});
 
-          const expectedLockedAmt = BigNumber.from(3996);
-          const expectedLiquidAmt = BigNumber.from(5994);
-          const expectedFee = BigNumber.from(depositAmt).mul(10).div(10000);
+          const expectedFeeAp = BigNumber.from(depositAmt).mul(10).div(10000); // 10000 * 0.1% = 10
+          const finalAmountLeftover = BigNumber.from(depositAmt).sub(expectedFeeAp); // 10000 - 10 = 9990
+
+          const expectedLockedAmt = finalAmountLeftover
+            .mul(depositToCharity.lockedPercentage)
+            .div(100);
+          const expectedLiquidAmt = finalAmountLeftover
+            .mul(depositToCharity.liquidPercentage)
+            .div(100);
 
           await expect(facet.depositERC20(depositToCharity, tokenFake.address, depositAmt))
             .to.emit(facet, "EndowmentDeposit")
-            .withArgs(charityId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
+            .withArgs(depositToCharity.id, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
 
-          expect(tokenFake.transfer).to.have.been.calledWith(
-            depositBps.depositFee.payoutAddress,
-            expectedFee
-          );
+          expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
 
           const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
-            charityId,
+            depositToCharity.id,
             tokenFake.address
           );
           expect(lockedBal).to.equal(expectedLockedAmt);
@@ -589,9 +582,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
         });
 
         it("deposit with protocol-level deposit fee only", async () => {
-          registrarFake.getFeeSettingsByFeeType
-            .whenCalledWith(FeeTypes.Deposit)
-            .returns({payoutAddress: treasury, bps: 10});
+          registrarFake.getFeeSettingsByFeeType.returns({payoutAddress: treasury, bps: 10});
 
           const expectedFeeAp = BigNumber.from(depositAmt).mul(10).div(10000); // 10
           const finalAmountLeftover = BigNumber.from(depositAmt).sub(expectedFeeAp); // 9990
@@ -605,12 +596,17 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
           await expect(facet.depositERC20(depositToNormalEndow, tokenFake.address, depositAmt))
             .to.emit(facet, "EndowmentDeposit")
-            .withArgs(normalEndowId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
+            .withArgs(
+              depositToNormalEndow.id,
+              tokenFake.address,
+              expectedLockedAmt,
+              expectedLiquidAmt
+            );
 
           expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
 
           const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
-            normalEndowId,
+            depositToNormalEndow.id,
             tokenFake.address
           );
           expect(lockedBal).to.equal(expectedLockedAmt);
@@ -634,9 +630,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
             .mul(depositToNormalEndow.liquidPercentage)
             .div(100);
 
-          await expect(
-            facet.depositERC20(depositToNormalEndow, tokenFake.address, BigNumber.from(depositAmt))
-          )
+          await expect(facet.depositERC20(depositToNormalEndow, tokenFake.address, depositAmt))
             .to.emit(facet, "EndowmentDeposit")
             .withArgs(
               depositToNormalEndow.id,
@@ -659,9 +653,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
         });
 
         it("deposit with protocol & endowment-level deposit fees", async () => {
-          registrarFake.getFeeSettingsByFeeType
-            .whenCalledWith(FeeTypes.Deposit)
-            .returns({payoutAddress: treasury, bps: 10});
+          registrarFake.getFeeSettingsByFeeType.returns({payoutAddress: treasury, bps: 10});
 
           const depositBps: AccountStorage.EndowmentStruct = {
             ...normalEndow,
@@ -848,9 +840,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           ];
 
           // set protocol-level withdraw fee to 2%
-          registrarFake.getFeeSettingsByFeeType
-            .whenCalledWith(FeeTypes.Withdraw)
-            .returns({payoutAddress: treasury, bps: 200});
+          registrarFake.getFeeSettingsByFeeType.returns({payoutAddress: treasury, bps: 200});
 
           let amount = BigNumber.from(tokens[0].amnt);
           let expectedFeeAp = amount.mul(200).div(10000);
@@ -891,9 +881,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           ];
 
           // set protocol-level withdraw fee to 2%
-          registrarFake.getFeeSettingsByFeeType
-            .whenCalledWith(FeeTypes.Withdraw)
-            .returns({payoutAddress: treasury, bps: 200});
+          registrarFake.getFeeSettingsByFeeType.returns({payoutAddress: treasury, bps: 200});
 
           // set Endowment allowlist & withdraw fee
           const normalWithAllowlist: AccountStorage.EndowmentStruct = {

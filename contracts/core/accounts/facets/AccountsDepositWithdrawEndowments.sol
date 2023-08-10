@@ -124,11 +124,8 @@ contract AccountsDepositWithdrawEndowments is
       .queryConfig();
 
     // ** DEPOSIT FEE CALCULATIONS **
-    uint256 amountLeftover = amount;
-
     // ** Protocol-level Deposit Fee **
     LibAccounts.FeeSetting memory depositFeeAp;
-    // Looked up from Registrar Fees mapping
     if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
       depositFeeAp = IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(
         LibAccounts.FeeTypes.DepositCharity
@@ -138,7 +135,7 @@ contract AccountsDepositWithdrawEndowments is
         LibAccounts.FeeTypes.Deposit
       );
     }
-    amountLeftover -= calculateAndPayoutFee(amountLeftover, tokenAddress, depositFeeAp);
+    uint256 amountLeftover = amount - calculateAndPayoutFee(amount, tokenAddress, depositFeeAp);
 
     // ** Endowment-level Deposit Fee **
     // Calculated on the amount left after Protocol-level fee is deducted
