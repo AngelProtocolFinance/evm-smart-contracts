@@ -32,16 +32,36 @@ contract AccountsDepositWithdrawEndowments is
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
+  /*
+   *  Modifiers
+   */
+  modifier validEndowId(uint32 id) {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    require(id > 0 && id < state.config.nextAccountId, "Must pass a valid Endowment ID");
+    _;
+  }
+
+  modifier validateDepositDetails(AccountMessages.DepositRequest memory details, uint256 amount) {
+    require(amount > 0, "Amount must be greater than zero");
+    require(details.lockedPercentage + details.liquidPercentage == 100, "InvalidSplit");
+    _;
+  }
+
   /**
    * @notice Deposit MATIC into the endowment. Wraps first to ERC20 before processing.
    * @param details The details of the deposit
    */
-  function depositMatic(AccountMessages.DepositRequest memory details) public payable nonReentrant {
-    require(msg.value > 0, "Invalid Amount");
+  function depositMatic(
+    AccountMessages.DepositRequest memory details
+  )
+    public
+    payable
+    nonReentrant
+    validEndowId(details.id)
+    validateDepositDetails(details, msg.value)
+  {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Config memory tempConfig = state.config;
-    AccountStorage.EndowmentState storage tempEndowmentState = state.STATES[details.id];
-    require(!tempEndowmentState.closingEndowment, "Endowment is closed");
 
     RegistrarStorage.Config memory registrar_config = IRegistrar(tempConfig.registrarContract)
       .queryConfig();
@@ -63,11 +83,9 @@ contract AccountsDepositWithdrawEndowments is
     AccountMessages.DepositRequest memory details,
     address tokenAddress,
     uint256 amount
-  ) public nonReentrant {
+  ) public nonReentrant validEndowId(details.id) validateDepositDetails(details, amount) {
     require(tokenAddress != address(0), "Invalid Token Address");
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.EndowmentState storage tempEndowmentState = state.STATES[details.id];
-    require(!tempEndowmentState.closingEndowment, "Endowment is closed");
     // Check that the deposited token is either:
     // A. In the protocol-level accepted tokens list in the Registrar Contract OR
     // B. In the endowment-level accepted tokens list
@@ -97,7 +115,7 @@ contract AccountsDepositWithdrawEndowments is
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
 
-    require(details.lockedPercentage + details.liquidPercentage == 100, "InvalidSplit");
+    require(!state.STATES[details.id].closingEndowment, "Endowment is closed");
 
     RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
       .queryConfig();
@@ -186,7 +204,7 @@ contract AccountsDepositWithdrawEndowments is
     address beneficiaryAddress,
     uint32 beneficiaryEndowId,
     IAccountsDepositWithdrawEndowments.TokenInfo[] memory tokens
-  ) public nonReentrant {
+  ) public nonReentrant validEndowId(id) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
     AccountStorage.EndowmentState storage tempEndowmentState = state.STATES[id];
@@ -294,46 +312,50 @@ contract AccountsDepositWithdrawEndowments is
         withdrawFeeAp + earlyLockedWithdrawPenalty
       );
 
-      // ** Endowment specific withdraw fee **
-      // Endowment specific withdraw fee needs to be calculated against the amount
-      // leftover after all AP withdraw fees are subtracted.
       uint256 amountLeftover = tokens[t].amnt - withdrawFeeAp - earlyLockedWithdrawPenalty;
-      uint256 withdrawFeeEndow = 0;
-      if (amountLeftover > 0 && tempEndowment.withdrawFee.bps != 0) {
-        withdrawFeeEndow = (amountLeftover.mul(tempEndowment.withdrawFee.bps)).div(
-          LibAccounts.FEE_BASIS
-        );
 
-        // transfer endowment withdraw fee to payout address
-        IERC20(tokens[t].addr).safeTransfer(
-          tempEndowment.withdrawFee.payoutAddress,
-          withdrawFeeEndow
-        );
-      }
+      if (amountLeftover > 0) {
+        // ** Endowment specific withdraw fee **
+        // Endowment specific withdraw fee needs to be calculated against the amount
+        // leftover after all AP withdraw fees are subtracted.
+        uint256 withdrawFeeEndow = 0;
 
-      // send all tokens (less fees) to the ultimate beneficiary address/endowment
-      if (beneficiaryAddress != address(0)) {
-        IERC20(tokens[t].addr).safeTransfer(
-          beneficiaryAddress,
-          (amountLeftover - withdrawFeeEndow)
-        );
-      } else {
-        // check endowment specified is not closed
-        require(
-          !state.STATES[beneficiaryEndowId].closingEndowment,
-          "Beneficiary endowment is closed"
-        );
-        // Send deposit message to 100% Liquid account of an endowment
-        processTokenDeposit(
-          AccountMessages.DepositRequest({
-            id: beneficiaryEndowId,
-            lockedPercentage: 0,
-            liquidPercentage: 100,
-            donationMatch: address(this) // all liquid so won't trigger a match
-          }),
-          tokens[t].addr,
-          (amountLeftover - withdrawFeeEndow)
-        );
+        if (tempEndowment.withdrawFee.bps != 0) {
+          withdrawFeeEndow = (amountLeftover.mul(tempEndowment.withdrawFee.bps)).div(
+            LibAccounts.FEE_BASIS
+          );
+
+          // transfer endowment withdraw fee to payout address
+          IERC20(tokens[t].addr).safeTransfer(
+            tempEndowment.withdrawFee.payoutAddress,
+            withdrawFeeEndow
+          );
+        }
+
+        // send all tokens (less fees) to the ultimate beneficiary address/endowment
+        if (beneficiaryAddress != address(0)) {
+          IERC20(tokens[t].addr).safeTransfer(
+            beneficiaryAddress,
+            (amountLeftover - withdrawFeeEndow)
+          );
+        } else {
+          // check endowment specified is not closed
+          require(
+            !state.STATES[beneficiaryEndowId].closingEndowment,
+            "Beneficiary endowment is closed"
+          );
+          // Send deposit message to 100% Liquid account of an endowment
+          processTokenDeposit(
+            AccountMessages.DepositRequest({
+              id: beneficiaryEndowId,
+              lockedPercentage: 0,
+              liquidPercentage: 100,
+              donationMatch: address(this) // all liquid so won't trigger a match
+            }),
+            tokens[t].addr,
+            (amountLeftover - withdrawFeeEndow)
+          );
+        }
       }
 
       // reduce the orgs balance by the withdrawn token amount
