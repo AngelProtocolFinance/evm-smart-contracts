@@ -4,6 +4,8 @@ pragma solidity ^0.8.16;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {IEndowmentMultiSigEmitter} from "./interfaces/IEndowmentMultiSigEmitter.sol";
 import {ProxyContract} from "../../core/proxy.sol";
+import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
+import {RegistrarStorage} from "../../core/registrar/storage.sol";
 
 /// @title Multisignature wallet factory - Allows creation of multisigs wallet.
 /// @author Stefan George - <stefan.george@consensys.net>
@@ -24,16 +26,25 @@ contract EndowmentMultiSigFactory is Ownable {
 
   address IMPLEMENTATION_ADDRESS;
   address PROXY_ADMIN;
+  IRegistrar registrar;
 
-  constructor(address implementationAddress, address proxyAdmin) {
+  constructor(address implementationAddress, address proxyAdmin, address _registrar) {
     require(implementationAddress != address(0), "Invalid Address");
     require(proxyAdmin != address(0), "Invalid Address");
+    require(_registrar != address(0), "Invalid Address");
 
+    registrar = IRegistrar(_registrar);
     IMPLEMENTATION_ADDRESS = implementationAddress;
     emit ImplementationUpdated(implementationAddress);
 
     PROXY_ADMIN = proxyAdmin;
     emit ProxyAdminUpdated(proxyAdmin);
+  }
+
+  modifier onlyAccountsContract() {
+    RegistrarStorage.Config memory registrarConfig = registrar.queryConfig();
+    require(msg.sender == registrarConfig.accountsContract, "Only Accounts Contract");
+    _;
   }
 
   /*
@@ -77,7 +88,7 @@ contract EndowmentMultiSigFactory is Ownable {
     address[] memory owners,
     uint256 required,
     uint256 transactionExpiry
-  ) public returns (address wallet) {
+  ) public onlyAccountsContract returns (address wallet) {
     bytes memory EndowmentData = abi.encodeWithSignature(
       "initialize(uint256,address,address[],uint256,bool,uint256)",
       endowmentId,
