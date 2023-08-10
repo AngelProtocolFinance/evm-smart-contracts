@@ -165,7 +165,7 @@ contract AccountsStrategy is
           tokenAddress,
           investRequest.lockAmt,
           investRequest.liquidAmt,
-          (investRequest.liquidAmt * LibAccounts.PERCENT_BASIS) / investAmt,
+          (investRequest.liquidAmt * LibAccounts.BIG_NUMBA_BASIS) / investAmt,
           (investRequest.gasFee - gasFwdGas)
         );
       }
@@ -302,7 +302,7 @@ contract AccountsStrategy is
       );
       if (gasFwdGas < redeemRequest.gasFee) {
         uint256 gasRateFromLiq_withPrecision = (redeemRequest.liquidAmt *
-          LibAccounts.PERCENT_BASIS) / (redeemRequest.liquidAmt + redeemRequest.lockAmt);
+          LibAccounts.BIG_NUMBA_BASIS) / (redeemRequest.liquidAmt + redeemRequest.lockAmt);
         _payForGasWithAccountBalance(
           id,
           tokenAddress,
@@ -598,7 +598,7 @@ contract AccountsStrategy is
     uint256 lockBal = state.STATES[id].balances.locked[token];
     uint256 liqBal = state.STATES[id].balances.liquid[token];
 
-    uint256 liqGas = (gasRemaining * gasRateFromLiq_withPrecision) / LibAccounts.PERCENT_BASIS;
+    uint256 liqGas = (gasRemaining * gasRateFromLiq_withPrecision) / LibAccounts.BIG_NUMBA_BASIS;
     uint256 lockGas = gasRemaining - liqGas;
 
     uint256 liqNeed = liqGas + liqAmt;
