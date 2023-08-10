@@ -410,11 +410,9 @@ describe("AccountsDepositWithdrawEndowments", function () {
         });
 
         it("deposit with protocol-level deposit fee only", async () => {
-          const depositBps: AccountStorage.EndowmentStruct = {
-            ...charity,
-            depositFee: {payoutAddress: genWallet().address, bps: 10},
-          };
-          await state.setEndowmentDetails(charityId, depositBps);
+          registrarFake.getFeeSettingsByFeeType
+            .whenCalledWith(FeeTypes.DepositCharity)
+            .returns({payoutAddress: treasury, bps: 10});
 
           const expectedLockedAmt = BigNumber.from(3996);
           const expectedLiquidAmt = BigNumber.from(5994);
@@ -591,11 +589,9 @@ describe("AccountsDepositWithdrawEndowments", function () {
         });
 
         it("deposit with protocol-level deposit fee only", async () => {
-          const depositBps: AccountStorage.EndowmentStruct = {
-            ...normalEndow,
-            depositFee: {payoutAddress: treasury, bps: 10},
-          };
-          await state.setEndowmentDetails(normalEndowId, depositBps);
+          registrarFake.getFeeSettingsByFeeType
+            .whenCalledWith(FeeTypes.Deposit)
+            .returns({payoutAddress: treasury, bps: 10});
 
           const expectedFeeAp = BigNumber.from(depositAmt).mul(10).div(10000); // 10
           const finalAmountLeftover = BigNumber.from(depositAmt).sub(expectedFeeAp); // 9990
