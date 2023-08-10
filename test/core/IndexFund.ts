@@ -454,7 +454,7 @@ describe("IndexFund", function () {
     });
 
     it("reverts if the token isn't accepted", async function () {
-      registrar.isTokenAccepted.returns(false);
+      registrar.isTokenAccepted.whenCalledWith(token.address).returns(false);
       await expect(indexFund.depositERC20(1, token.address, 100)).to.be.revertedWith(
         "Unaccepted Token"
       );
