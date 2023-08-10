@@ -13,9 +13,6 @@ import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsCreateEndowment} from "../interfaces/IAccountsCreateEndowment.sol";
 import {IGasFwdFactory} from "../../gasFwd/IGasFwdFactory.sol";
 
-uint256 constant MAX_SDGS_NUM = 17;
-uint256 constant MIN_SDGS_NUM = 1;
-
 /**
  * @title AccountsCreateEndowment
  * @dev This contract facet manages the creation of endowments
@@ -48,7 +45,9 @@ contract AccountsCreateEndowment is
       // @dev Charity Endowments have their SDG Inputs validated when creating
       // an Application for approval in the Charity Applications MultiSig
       for (uint256 i = 0; i < details.sdgs.length; i++) {
-        if (details.sdgs[i] > MAX_SDGS_NUM || details.sdgs[i] < MIN_SDGS_NUM) {
+        if (
+          details.sdgs[i] > LibAccounts.MAX_SDGS_NUM || details.sdgs[i] < LibAccounts.MIN_SDGS_NUM
+        ) {
           revert("Invalid UN SDG inputs given");
         }
       }

@@ -349,7 +349,7 @@ contract AccountsDepositWithdrawEndowments is
             (amountLeftover - withdrawFeeEndow)
           );
         }
-      } 
+      }
 
       // reduce the orgs balance by the withdrawn token amount
       if (acctType == IVault.VaultType.LOCKED) {

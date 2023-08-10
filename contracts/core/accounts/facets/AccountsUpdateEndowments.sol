@@ -12,9 +12,6 @@ import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 import {IAccountsUpdateEndowments} from "../interfaces/IAccountsUpdateEndowments.sol";
 
-uint256 constant MAX_SDGS_NUM = 17;
-uint256 constant MIN_SDGS_NUM = 1;
-
 /**
  * @title AccountsUpdateEndowments
  * @notice This contract facet updates the endowments
@@ -65,7 +62,9 @@ contract AccountsUpdateEndowments is
       if (details.sdgs.length != 0) {
         details.sdgs = Array.sort(details.sdgs);
         for (uint256 i = 0; i < details.sdgs.length; i++) {
-          if (details.sdgs[i] > MAX_SDGS_NUM || details.sdgs[i] < MIN_SDGS_NUM) {
+          if (
+            details.sdgs[i] > LibAccounts.MAX_SDGS_NUM || details.sdgs[i] < LibAccounts.MIN_SDGS_NUM
+          ) {
             revert("InvalidInputs");
           }
         }

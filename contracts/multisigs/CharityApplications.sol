@@ -13,9 +13,6 @@ import {AccountStorage} from "../core/accounts/storage.sol";
 import {AccountMessages} from "../core/accounts/message.sol";
 import {MultiSigGeneric} from "./MultiSigGeneric.sol";
 
-uint256 constant MAX_SDGS_NUM = 17;
-uint256 constant MIN_SDGS_NUM = 1;
-
 /**
  * @title CharityApplications
  * @notice Contract for managing charity applications, sent by public to open a charity endowment on AP
@@ -128,7 +125,10 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
 
     // check all sdgs id
     for (uint256 i = 0; i < _application.sdgs.length; i++) {
-      if (_application.sdgs[i] > MAX_SDGS_NUM || _application.sdgs[i] < MIN_SDGS_NUM) {
+      if (
+        _application.sdgs[i] > LibAccounts.MAX_SDGS_NUM ||
+        _application.sdgs[i] < LibAccounts.MIN_SDGS_NUM
+      ) {
         revert("Invalid UN SDG inputs given");
       }
     }
