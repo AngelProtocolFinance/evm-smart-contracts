@@ -83,7 +83,7 @@ describe("IndexFund", function () {
     await IndexFundImpl.deployed();
 
     const IndexFundProxy = ITransparentUpgradeableProxy__factory.connect(proxy, signer);
-    IndexFundProxy.upgradeTo(IndexFundImpl.address);
+    await IndexFundProxy.upgradeTo(IndexFundImpl.address);
   }
 
   before(async function () {
@@ -160,8 +160,7 @@ describe("IndexFund", function () {
     });
 
     it("Deploying the contract as an upgradable proxy", async function () {
-      expect(indexFund.address);
-      expect(await upgradeProxy(proxyAdmin, indexFund.address)).to.emit(
+      await expect(upgradeProxy(proxyAdmin, indexFund.address)).to.emit(
         indexFund,
         "IndexFundInstantiated"
       );
@@ -178,7 +177,7 @@ describe("IndexFund", function () {
     it("reverts if an invalid fund rotation setup is passed", async function () {
       let rotation = 250;
       let goal = 5000;
-      expect(deployIndexFundAsProxy(rotation, goal)).to.be.revertedWith(
+      await expect(deployIndexFundAsProxy(rotation, goal)).to.be.revertedWith(
         "Invalid Registrar address"
       );
     });
@@ -193,7 +192,7 @@ describe("IndexFund", function () {
     });
   });
 
-  describe("Updating the Config", async function () {
+  describe("Updating the Config", function () {
     let indexFund: IndexFund;
 
     beforeEach(async function () {
@@ -201,26 +200,26 @@ describe("IndexFund", function () {
     });
 
     it("reverts when the message sender is not the owner", async function () {
-      expect(indexFund.connect(user).updateConfig(registrar.address, 200, 5000)).to.be.revertedWith(
-        "Unauthorized"
-      );
+      await expect(
+        indexFund.connect(user).updateConfig(registrar.address, 200, 5000)
+      ).to.be.revertedWith("Unauthorized");
     });
 
     it("reverts when both rotation-related arguments are non-zero", async function () {
-      expect(indexFund.updateConfig(registrar.address, 200, 5000)).to.be.revertedWith(
+      await expect(indexFund.updateConfig(registrar.address, 200, 5000)).to.be.revertedWith(
         "Invalid Fund Rotation configuration"
       );
     });
 
     it("reverts if registrar address passed is invalid", async function () {
-      expect(indexFund.updateConfig(ethers.constants.AddressZero, 200, 5000)).to.be.revertedWith(
-        "Invalid Registrar address"
-      );
+      await expect(
+        indexFund.updateConfig(ethers.constants.AddressZero, 200, 5000)
+      ).to.be.revertedWith("Invalid Registrar address");
     });
 
     it("passes with valid sender and all correct inputs", async function () {
       // update config with all the correct bits
-      expect(await indexFund.updateConfig(registrar.address, 0, 5000)).to.emit(
+      await expect(indexFund.updateConfig(registrar.address, 0, 5000)).to.emit(
         indexFund,
         "ConfigUpdated"
       );
@@ -232,7 +231,7 @@ describe("IndexFund", function () {
     });
   });
 
-  describe("Creating a new Fund", async function () {
+  describe("Creating a new Fund", function () {
     let indexFund: IndexFund;
 
     beforeEach(async function () {
@@ -240,39 +239,39 @@ describe("IndexFund", function () {
     });
 
     it("reverts when the message sender is not the owner", async function () {
-      expect(
+      await expect(
         indexFund.connect(user).createIndexFund("Test Fund #1", "Test fund", [1, 2], false, 0, 0)
       ).to.be.revertedWith("Unauthorized");
     });
 
     it("reverts when no endowment members are passed", async function () {
-      expect(
+      await expect(
         indexFund.createIndexFund("Test Fund #1", "Test fund", [], false, 0, 0)
       ).to.be.revertedWith("Fund must have one or more endowment members");
     });
 
     it("reverts when too many endowment members are passed (> fundMemberLimit)", async function () {
-      expect(
+      await expect(
         indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2, 3], false, 0, 0)
       ).to.be.revertedWith("Fund endowment members exceeds upper limit");
     });
 
     it("reverts when the split is greater than 100", async function () {
-      expect(
+      await expect(
         indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], false, 0, 105)
       ).to.be.revertedWith("Invalid split: must be less or equal to 100");
     });
 
     it("reverts when a non-zero expiryTime is passed, less than or equal to current time", async function () {
       let currTime = await time.latest();
-      expect(
+      await expect(
         indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], false, 0, currTime)
       ).to.be.revertedWith("Invalid expiry time");
     });
 
     it("passes when all inputs are correct", async function () {
       // create a new fund with two Endowment members
-      expect(await indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], true, 0, 0))
+      await expect(indexFund.createIndexFund("Test Fund #1", "Test fund", [1, 2], true, 0, 0))
         .to.emit(indexFund, "FundCreated")
         .withArgs(1);
       let activeFund = await indexFund.queryActiveFundDetails();
@@ -284,8 +283,10 @@ describe("IndexFund", function () {
 
       // create 1 expired fund
       let currTime = await time.latest();
-      await indexFund.createIndexFund("Test Fund #2", "Test fund", [3], true, 50, currTime + 42069);
-      time.increase(42069); // move time forward so Fund #2 is @ expiry
+      await expect(
+        indexFund.createIndexFund("Test Fund #2", "Test fund", [3], true, 50, currTime + 42069)
+      ).to.not.be.reverted;
+      await time.increase(42069); // move time forward so Fund #2 is @ expiry
 
       // check that the list of rotating funds is now increased by 1 fund
       let newRotatingFunds = await indexFund.queryRotatingFunds();
@@ -293,7 +294,7 @@ describe("IndexFund", function () {
     });
   });
 
-  describe("Updating an existing Fund's endowment members", async function () {
+  describe("Updating an existing Fund's endowment members", function () {
     let indexFund: IndexFund;
 
     before(async function () {
@@ -309,43 +310,43 @@ describe("IndexFund", function () {
         50,
         currTime + 42069
       );
-      time.increase(42069); // move time forward so Fund #2 is @ expiry
+      await time.increase(42069); // move time forward so Fund #2 is @ expiry
     });
 
     it("reverts when the message sender is not the owner", async function () {
-      expect(indexFund.connect(user).updateFundMembers(1, [1, 2], [])).to.be.revertedWith(
+      await expect(indexFund.connect(user).updateFundMembers(1, [1, 2], [])).to.be.revertedWith(
         "Unauthorized"
       );
     });
 
     it("reverts when no members are passed", async function () {
-      expect(indexFund.updateFundMembers(1, [], [])).to.be.revertedWith(
+      await expect(indexFund.updateFundMembers(1, [], [])).to.be.revertedWith(
         "Must pass at least one endowment member to add to the Fund"
       );
     });
 
     it("reverts when too many members are passed", async function () {
-      expect(indexFund.updateFundMembers(1, [1, 2, 3], [])).to.be.revertedWith(
+      await expect(indexFund.updateFundMembers(1, [1, 2, 3], [])).to.be.revertedWith(
         "Fund endowment members exceeds upper limit"
       );
     });
 
     it("reverts when the fund is expired", async function () {
-      expect(indexFund.updateFundMembers(2, [1, 2], [])).to.be.revertedWith("Fund Expired");
+      await expect(indexFund.updateFundMembers(2, [1, 2], [])).to.be.revertedWith("Fund Expired");
     });
 
     it("passes when the fund is not expired and member inputs are valid", async function () {
-      expect(await indexFund.updateFundMembers(1, [], [3]))
+      await expect(indexFund.updateFundMembers(1, [], [3]))
         .to.emit(indexFund, "MembersUpdated")
         .withArgs(1, [2]);
 
-      expect(await indexFund.updateFundMembers(1, [1, 2], [3]))
+      await expect(indexFund.updateFundMembers(1, [1, 2], [3]))
         .to.emit(indexFund, "MembersUpdated")
         .withArgs(1, [1, 2]);
     });
   });
 
-  describe("Removing an existing Fund", async function () {
+  describe("Removing an existing Fund", function () {
     let indexFund: IndexFund;
 
     before(async function () {
@@ -361,25 +362,23 @@ describe("IndexFund", function () {
         50,
         currTime + 42069
       );
-      time.increase(42069); // move time forward so Fund #2 is @ expiry
+      await time.increase(42069); // move time forward so Fund #2 is @ expiry
     });
 
     it("reverts when the message sender is not the owner", async function () {
-      expect(indexFund.connect(user).removeIndexFund(1)).to.be.revertedWith("Unauthorized");
+      await expect(indexFund.connect(user).removeIndexFund(1)).to.be.revertedWith("Unauthorized");
     });
 
     it("reverts when the fund is already expired", async function () {
-      expect(indexFund.removeIndexFund(2)).to.be.revertedWith("Fund Expired");
+      await expect(indexFund.removeIndexFund(2)).to.be.revertedWith("Fund Expired");
     });
 
     it("passes when all inputs are correct", async function () {
-      expect(await indexFund.removeIndexFund(1))
-        .to.emit(indexFund, "FundRemoved")
-        .withArgs(1);
+      await expect(indexFund.removeIndexFund(1)).to.emit(indexFund, "FundRemoved").withArgs(1);
     });
   });
 
-  describe("Removing an endowment from all involved Funds", async function () {
+  describe("Removing an endowment from all involved Funds", function () {
     let indexFund: IndexFund;
 
     before(async function () {
@@ -395,11 +394,11 @@ describe("IndexFund", function () {
         50,
         currTime + 42069
       );
-      time.increase(42069); // move time forward so Fund #2 is @ expiry
+      await time.increase(42069); // move time forward so Fund #2 is @ expiry
     });
 
     it("reverts when the message sender is not the accounts contract", async function () {
-      expect(indexFund.removeMember(1)).to.be.revertedWith("Unauthorized");
+      await expect(indexFund.removeMember(1)).to.be.revertedWith("Unauthorized");
     });
 
     it("passes with correct sender", async function () {
@@ -414,7 +413,7 @@ describe("IndexFund", function () {
       expect(funds.length).to.equal(2);
 
       // remove Endowment #1 from all funds
-      expect(await indexFund.connect(acctSigner).removeMember(3)).to.emit(
+      await expect(indexFund.connect(acctSigner).removeMember(3)).to.emit(
         indexFund,
         "MemberRemoved"
       );
@@ -425,7 +424,7 @@ describe("IndexFund", function () {
     });
   });
 
-  describe("When a user deposits tokens to a Fund", async function () {
+  describe("When a user deposits tokens to a Fund", function () {
     let indexFund: IndexFund;
 
     before(async function () {
@@ -442,12 +441,11 @@ describe("IndexFund", function () {
         50,
         currTime + 42069
       );
-      time.increase(42069); // move time forward so Fund #2 is @ expiry
-      registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
+      await time.increase(42069); // move time forward so Fund #2 is @ expiry
     });
 
     it("reverts when amount is zero", async function () {
-      expect(indexFund.depositERC20(1, token.address, 0)).to.be.revertedWith(
+      await expect(indexFund.depositERC20(1, token.address, 0)).to.be.revertedWith(
         "Amount to donate must be greater than zero"
       );
     });
@@ -461,28 +459,32 @@ describe("IndexFund", function () {
     });
 
     it("reverts when fund passed is expired", async function () {
-      expect(indexFund.depositERC20(2, token.address, 100)).to.be.revertedWith("Expired Fund");
+      await expect(indexFund.depositERC20(2, token.address, 100)).to.be.revertedWith(
+        "Expired Fund"
+      );
     });
 
     it("reverts when invalid token is passed", async function () {
-      expect(indexFund.depositERC20(1, ethers.constants.AddressZero, 100)).to.be.revertedWith(
+      await expect(indexFund.depositERC20(1, ethers.constants.AddressZero, 100)).to.be.revertedWith(
         "Invalid token"
       );
     });
 
     it("reverts when amount donated, on a per endowment-basis for a fund, would be < min units", async function () {
-      expect(indexFund.depositERC20(1, token.address, 100)).to.be.revertedWith(
+      await expect(indexFund.depositERC20(1, token.address, 100)).to.be.revertedWith(
         "Amount must be enough to cover the minimum units per endowment for all members of a Fund"
       );
     });
 
     it("reverts when target fund is expired", async function () {
-      expect(indexFund.depositERC20(2, token.address, 100)).to.be.revertedWith("Fund expired");
+      await expect(indexFund.depositERC20(2, token.address, 100)).to.be.revertedWith(
+        "Fund expired"
+      );
     });
 
     it("reverts when `0` Fund ID is passed with no rotating funds(empty)", async function () {
       // should fail with no rotating funds set
-      expect(indexFund.depositERC20(0, token.address, 100)).to.be.revertedWith(
+      await expect(indexFund.depositERC20(0, token.address, 100)).to.be.revertedWith(
         "Must have rotating funds active to pass a Fund ID of 0"
       );
     });
@@ -490,38 +492,31 @@ describe("IndexFund", function () {
     it("reverts when `0` Fund ID is passed with no un-expired rotating funds(0 after cleanup)", async function () {
       // create 1 expired, rotating fund
       let currTime = await time.latest();
-      expect(
-        await indexFund.createIndexFund(
-          "Test Fund #3",
-          "Test fund",
-          [2, 3],
-          true,
-          50,
-          currTime + 42069
-        )
+      await expect(
+        indexFund.createIndexFund("Test Fund #3", "Test fund", [2, 3], true, 50, currTime + 42069)
       )
         .to.emit(indexFund, "FundCreated")
         .withArgs(3);
-      time.increase(42069); // move time forward so Fund #3 is @ expiry
+      await time.increase(42069); // move time forward so Fund #3 is @ expiry
 
       // check that there is an active fund set
       let activeFund = await indexFund.queryActiveFundDetails();
       expect(activeFund.id).to.equal(3);
 
       // should fail when prep clean up process removes the expired fund, leaving 0 funds available
-      expect(indexFund.depositERC20(0, token.address, 500)).to.be.revertedWith(
+      await expect(indexFund.depositERC20(0, token.address, 500)).to.be.revertedWith(
         "Must have rotating funds active to pass a Fund ID of 0"
       );
     });
 
     it("passes for a specific fund, amount > min & token is valid", async function () {
       // create 1 active, rotating fund
-      expect(await indexFund.createIndexFund("Test Fund #4", "Test fund", [2, 3], true, 50, 0))
+      await expect(indexFund.createIndexFund("Test Fund #4", "Test fund", [2, 3], true, 50, 0))
         .to.emit(indexFund, "FundCreated")
         .withArgs(4);
 
-      expect(
-        await indexFund.depositERC20(4, token.address, 500, {
+      await expect(
+        indexFund.depositERC20(4, token.address, 500, {
           gasPrice: 100000,
           gasLimit: 10000000,
         })
@@ -532,7 +527,7 @@ describe("IndexFund", function () {
 
     it("passes for an active fund donation(amount-based rotation), amount > min & token is valid", async function () {
       // create 1 more active, rotating fund for full rotation testing
-      expect(await indexFund.createIndexFund("Test Fund #5", "Test fund", [2], true, 100, 0))
+      await expect(indexFund.createIndexFund("Test Fund #5", "Test fund", [2], true, 100, 0))
         .to.emit(indexFund, "FundCreated")
         .withArgs(5);
 
@@ -543,8 +538,8 @@ describe("IndexFund", function () {
       expect(ifRotating.length).to.equal(2);
 
       // deposit: should fill whole active fund goal and rotate to next fund for final 1000
-      expect(
-        await indexFund.depositERC20(0, token.address, 11000, {
+      await expect(
+        indexFund.depositERC20(0, token.address, 11000, {
           gasPrice: 100000,
           gasLimit: 10000000,
         })
@@ -558,8 +553,8 @@ describe("IndexFund", function () {
       expect(ifState.roundDonations).to.equal(1000);
 
       // test with a LARGER donation amount for gas-usage and rotation stress-tests
-      expect(
-        await indexFund.depositERC20(0, token.address, 1000000, {
+      await expect(
+        indexFund.depositERC20(0, token.address, 1000000, {
           gasPrice: 100000,
           gasLimit: 10000000,
         })
