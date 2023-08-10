@@ -18,16 +18,9 @@ import {
   Registrar__factory,
   TestFacetProxyContract,
 } from "typechain-types";
-import {
-  deployDummyERC20,
-  deployRegistrarAsProxy,
-  DEFAULT_CHARITY_ENDOWMENT,
-  DEFAULT_PERMISSIONS_STRUCT,
-  DEFAULT_REGISTRAR_CONFIG,
-} from "test/utils";
-import {genWallet, getSigners} from "utils";
+import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG} from "test/utils";
+import {getSigners} from "utils";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
-import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 
 describe("IndexFund", function () {
@@ -451,12 +444,21 @@ describe("IndexFund", function () {
         currTime + 42069
       );
       time.increase(42069); // move time forward so Fund #2 is @ expiry
+      registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
     });
 
     it("reverts when amount is zero", async function () {
       expect(indexFund.depositERC20(1, token.address, 0)).to.be.revertedWith(
         "Amount to donate must be greater than zero"
       );
+    });
+
+    it("reverts if the token isn't accepted", async function () {
+      registrar.isTokenAccepted.returns(false);
+      await expect(indexFund.depositERC20(1, token.address, 100)).to.be.revertedWith(
+        "Unaccepted Token"
+      );
+      registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
     });
 
     it("reverts when fund passed is expired", async function () {
