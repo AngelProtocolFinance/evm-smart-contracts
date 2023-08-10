@@ -305,47 +305,51 @@ contract AccountsDepositWithdrawEndowments is
         withdrawFeeAp + earlyLockedWithdrawPenalty
       );
 
-      // ** Endowment specific withdraw fee **
-      // Endowment specific withdraw fee needs to be calculated against the amount
-      // leftover after all AP withdraw fees are subtracted.
       uint256 amountLeftover = tokens[t].amnt - withdrawFeeAp - earlyLockedWithdrawPenalty;
-      uint256 withdrawFeeEndow = 0;
-      if (amountLeftover > 0 && tempEndowment.withdrawFee.bps != 0) {
-        withdrawFeeEndow = (amountLeftover.mul(tempEndowment.withdrawFee.bps)).div(
-          LibAccounts.FEE_BASIS
-        );
 
-        // transfer endowment withdraw fee to payout address
-        IERC20(tokens[t].addr).safeTransfer(
-          tempEndowment.withdrawFee.payoutAddress,
-          withdrawFeeEndow
-        );
-      }
+      if (amountLeftover > 0) {
+        // ** Endowment specific withdraw fee **
+        // Endowment specific withdraw fee needs to be calculated against the amount
+        // leftover after all AP withdraw fees are subtracted.
+        uint256 withdrawFeeEndow = 0;
 
-      // send all tokens (less fees) to the ultimate beneficiary address/endowment
-      if (beneficiaryAddress != address(0)) {
-        IERC20(tokens[t].addr).safeTransfer(
-          beneficiaryAddress,
-          (amountLeftover - withdrawFeeEndow)
-        );
-      } else {
-        // check endowment specified is not closed
-        require(
-          !state.STATES[beneficiaryEndowId].closingEndowment,
-          "Beneficiary endowment is closed"
-        );
-        // Send deposit message to 100% Liquid account of an endowment
-        processTokenDeposit(
-          AccountMessages.DepositRequest({
-            id: beneficiaryEndowId,
-            lockedPercentage: 0,
-            liquidPercentage: 100,
-            donationMatch: address(this) // all liquid so won't trigger a match
-          }),
-          tokens[t].addr,
-          (amountLeftover - withdrawFeeEndow)
-        );
-      }
+        if (tempEndowment.withdrawFee.bps != 0) {
+          withdrawFeeEndow = (amountLeftover.mul(tempEndowment.withdrawFee.bps)).div(
+            LibAccounts.FEE_BASIS
+          );
+
+          // transfer endowment withdraw fee to payout address
+          IERC20(tokens[t].addr).safeTransfer(
+            tempEndowment.withdrawFee.payoutAddress,
+            withdrawFeeEndow
+          );
+        }
+
+        // send all tokens (less fees) to the ultimate beneficiary address/endowment
+        if (beneficiaryAddress != address(0)) {
+          IERC20(tokens[t].addr).safeTransfer(
+            beneficiaryAddress,
+            (amountLeftover - withdrawFeeEndow)
+          );
+        } else {
+          // check endowment specified is not closed
+          require(
+            !state.STATES[beneficiaryEndowId].closingEndowment,
+            "Beneficiary endowment is closed"
+          );
+          // Send deposit message to 100% Liquid account of an endowment
+          processTokenDeposit(
+            AccountMessages.DepositRequest({
+              id: beneficiaryEndowId,
+              lockedPercentage: 0,
+              liquidPercentage: 100,
+              donationMatch: address(this) // all liquid so won't trigger a match
+            }),
+            tokens[t].addr,
+            (amountLeftover - withdrawFeeEndow)
+          );
+        }
+      } 
 
       // reduce the orgs balance by the withdrawn token amount
       if (acctType == IVault.VaultType.LOCKED) {
