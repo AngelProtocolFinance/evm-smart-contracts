@@ -107,7 +107,7 @@ contract AccountsDepositWithdrawEndowments is
 
     // Cannot receive contributions into a mature Endowment
     require(
-      tempEndowment.maturityTime != 0 && block.timestamp >= tempEndowment.maturityTime,
+      tempEndowment.maturityTime == 0 || tempEndowment.maturityTime > block.timestamp,
       "Mature Endowments cannot receive contributions"
     );
     // Check msg sender is in Contributor Allowlist (only non-Charity Endowments can set)
