@@ -32,13 +32,34 @@ contract AccountsDepositWithdrawEndowments is
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
+  /*
+   *  Modifiers
+   */
+  modifier validEndowId(uint32 id) {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    require(id > 0 && id < state.config.nextAccountId, "Must pass a valid Endowment ID");
+    _;
+  }
+
+  modifier validateDepositDetails(AccountMessages.DepositRequest memory details, uint256 amount) {
+    require(amount > 0, "Amount must be greater than zero");
+    require(details.lockedPercentage + details.liquidPercentage == 100, "InvalidSplit");
+    _;
+  }
+
   /**
    * @notice Deposit MATIC into the endowment. Wraps first to ERC20 before processing.
    * @param details The details of the deposit
    */
-  function depositMatic(AccountMessages.DepositRequest memory details) public payable nonReentrant {
-    validateDepositDetails(details, msg.value);
-
+  function depositMatic(
+    AccountMessages.DepositRequest memory details
+  )
+    public
+    payable
+    nonReentrant
+    validEndowId(details.id)
+    validateDepositDetails(details, msg.value)
+  {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Config memory tempConfig = state.config;
 
@@ -62,8 +83,7 @@ contract AccountsDepositWithdrawEndowments is
     AccountMessages.DepositRequest memory details,
     address tokenAddress,
     uint256 amount
-  ) public nonReentrant {
-    validateDepositDetails(details, amount);
+  ) public nonReentrant validEndowId(details.id) validateDepositDetails(details, amount) {
     require(tokenAddress != address(0), "Invalid Token Address");
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     // Check that the deposited token is either:
@@ -78,19 +98,6 @@ contract AccountsDepositWithdrawEndowments is
     IERC20(tokenAddress).safeTransferFrom(msg.sender, address(this), amount);
 
     processTokenDeposit(details, tokenAddress, amount);
-  }
-
-  function validateDepositDetails(
-    AccountMessages.DepositRequest memory details,
-    uint256 amount
-  ) internal {
-    AccountStorage.State storage state = LibAccounts.diamondStorage();
-    require(amount > 0, "Amount must be greater than zero");
-    require(
-      details.id > 0 && details.id < state.config.nextAccountId,
-      "Must pass a valid Endowment ID"
-    );
-    require(details.lockedPercentage + details.liquidPercentage == 100, "InvalidSplit");
   }
 
   /**
@@ -197,7 +204,7 @@ contract AccountsDepositWithdrawEndowments is
     address beneficiaryAddress,
     uint32 beneficiaryEndowId,
     IAccountsDepositWithdrawEndowments.TokenInfo[] memory tokens
-  ) public nonReentrant {
+  ) public nonReentrant validEndowId(id) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
     AccountStorage.EndowmentState storage tempEndowmentState = state.STATES[id];
