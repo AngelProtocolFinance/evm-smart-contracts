@@ -116,11 +116,10 @@ contract AccountsDepositWithdrawEndowments is
     if (tempEndowment.allowlistedContributors.length == 0 || msg.sender == tempEndowment.owner) {
       contributorAllowed = true;
     } else {
-      for (uint256 i = 0; i < tempEndowment.allowlistedContributors.length; i++) {
-        if (tempEndowment.allowlistedContributors[i] == msg.sender) {
-          contributorAllowed = true;
-        }
-      }
+      contributorAllowed = checkAddressInAllowlist(
+        msg.sender,
+        tempEndowment.allowlistedContributors
+      );
     }
     require(contributorAllowed, "Contributor address is not listed in allowlistedContributors");
 
@@ -373,13 +372,12 @@ contract AccountsDepositWithdrawEndowments is
         // send leftover tokens (after all fees) to the ultimate beneficiary address/Endowment
         if (beneficiaryAddress != address(0)) {
           // determine if beneficiaryAddress can receive withdrawn funds based on allowlist and maturity status
-          bool beneficiaryAllowed = false;
+          bool beneficiaryAllowed;
           if (mature) {
-            for (uint256 i = 0; i < tempEndowment.maturityAllowlist.length; i++) {
-              if (tempEndowment.maturityAllowlist[i] == msg.sender) {
-                beneficiaryAllowed = true;
-              }
-            }
+            beneficiaryAllowed = checkAddressInAllowlist(
+              beneficiaryAddress,
+              tempEndowment.maturityAllowlist
+            );
             require(beneficiaryAllowed, "Beneficiary address is not listed in maturityAllowlist");
           } else {
             if (
@@ -388,11 +386,10 @@ contract AccountsDepositWithdrawEndowments is
             ) {
               beneficiaryAllowed = true;
             } else {
-              for (uint256 i = 0; i < tempEndowment.allowlistedBeneficiaries.length; i++) {
-                if (tempEndowment.allowlistedBeneficiaries[i] == msg.sender) {
-                  beneficiaryAllowed = true;
-                }
-              }
+              beneficiaryAllowed = checkAddressInAllowlist(
+                beneficiaryAddress,
+                tempEndowment.allowlistedBeneficiaries
+              );
             }
             require(
               beneficiaryAllowed,
@@ -442,6 +439,16 @@ contract AccountsDepositWithdrawEndowments is
         beneficiaryAddress,
         beneficiaryEndowId
       );
+    }
+  }
+
+  // Internal wrapper function to check if address is in passed allowlist and return bool result
+  function checkAddressInAllowlist(
+    address addr,
+    address[] memory allowlist
+  ) internal pure returns (bool inAllowlist) {
+    for (uint256 i = 0; i < allowlist.length; i++) {
+      if (allowlist[i] == addr) inAllowlist = true;
     }
   }
 
