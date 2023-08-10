@@ -116,7 +116,7 @@ contract AccountsDepositWithdrawEndowments is
     if (tempEndowment.allowlistedContributors.length == 0 || msg.sender == tempEndowment.owner) {
       contributorAllowed = true;
     } else {
-      contributorAllowed = checkAddressInAllowlist(
+      contributorAllowed = LibAccounts.checkAddressInAllowlist(
         msg.sender,
         tempEndowment.allowlistedContributors
       );
@@ -348,7 +348,7 @@ contract AccountsDepositWithdrawEndowments is
           // determine if beneficiaryAddress can receive withdrawn funds based on allowlist and maturity status
           bool beneficiaryAllowed;
           if (mature) {
-            beneficiaryAllowed = checkAddressInAllowlist(
+            beneficiaryAllowed = LibAccounts.checkAddressInAllowlist(
               beneficiaryAddress,
               tempEndowment.maturityAllowlist
             );
@@ -360,7 +360,7 @@ contract AccountsDepositWithdrawEndowments is
             ) {
               beneficiaryAllowed = true;
             } else {
-              beneficiaryAllowed = checkAddressInAllowlist(
+              beneficiaryAllowed = LibAccounts.checkAddressInAllowlist(
                 beneficiaryAddress,
                 tempEndowment.allowlistedBeneficiaries
               );
@@ -413,16 +413,6 @@ contract AccountsDepositWithdrawEndowments is
         beneficiaryAddress,
         beneficiaryEndowId
       );
-    }
-  }
-
-  // Internal wrapper function to check if address is in passed allowlist and return bool result
-  function checkAddressInAllowlist(
-    address addr,
-    address[] memory allowlist
-  ) internal pure returns (bool inAllowlist) {
-    for (uint256 i = 0; i < allowlist.length; i++) {
-      if (allowlist[i] == addr) inAllowlist = true;
     }
   }
 
