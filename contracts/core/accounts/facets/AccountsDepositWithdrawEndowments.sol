@@ -390,32 +390,34 @@ contract AccountsDepositWithdrawEndowments is
         amountLeftover -= totalEndowFees;
       }
       // send leftover tokens (after all fees) to the ultimate beneficiary address/endowment
-      if (beneficiaryAddress != address(0)) {
-        IERC20(tokens[t].addr).safeTransfer(beneficiaryAddress, amountLeftover);
-      } else {
-        // Send deposit message split set for the appropriate account of receiving endowment
-        if (acctType == IVault.VaultType.LOCKED) {
-          processTokenTransfer(
-            AccountMessages.DepositRequest({
-              id: beneficiaryEndowId,
-              lockedPercentage: 100,
-              liquidPercentage: 0,
-              donationMatch: msg.sender
-            }),
-            tokens[t].addr,
-            amountLeftover
-          );
+      if (amountLeftover > 0) {
+        if (beneficiaryAddress != address(0)) {
+          IERC20(tokens[t].addr).safeTransfer(beneficiaryAddress, amountLeftover);
         } else {
-          processTokenTransfer(
-            AccountMessages.DepositRequest({
-              id: beneficiaryEndowId,
-              lockedPercentage: 0,
-              liquidPercentage: 100,
-              donationMatch: address(this)
-            }),
-            tokens[t].addr,
-            amountLeftover
-          );
+          // Send deposit message split set for the appropriate account of receiving endowment
+          if (acctType == IVault.VaultType.LOCKED) {
+            processTokenTransfer(
+              AccountMessages.DepositRequest({
+                id: beneficiaryEndowId,
+                lockedPercentage: 100,
+                liquidPercentage: 0,
+                donationMatch: msg.sender
+              }),
+              tokens[t].addr,
+              amountLeftover
+            );
+          } else {
+            processTokenTransfer(
+              AccountMessages.DepositRequest({
+                id: beneficiaryEndowId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: address(this)
+              }),
+              tokens[t].addr,
+              amountLeftover
+            );
+          }
         }
       }
 
