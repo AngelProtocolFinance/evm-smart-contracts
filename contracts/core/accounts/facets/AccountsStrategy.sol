@@ -33,6 +33,9 @@ contract AccountsStrategy is
 {
   using SafeERC20 for IERC20;
 
+  uint256 constant FIFTY_PERCENT_BIG_NUMBA_RATE =
+    (50 * LibAccounts.BIG_NUMBA_BASIS) / LibAccounts.PERCENT_BASIS;
+
   /**
    * @notice This function that allows users to deposit into a yield strategy using tokens from their locked or liquid account in an endowment.
    * @dev Allows the owner of an endowment to invest tokens into specified yield vaults.
@@ -432,13 +435,12 @@ contract AccountsStrategy is
         redeemAllRequest.gasFee
       );
       if (gasFwdGas < redeemAllRequest.gasFee) {
-        uint256 gasRateFromLiq_withPrecision = 50;
         _payForGasWithAccountBalance(
           id,
           tokenAddress,
           0, // redeeming, no tokens will be sent
           0,
-          gasRateFromLiq_withPrecision,
+          FIFTY_PERCENT_BIG_NUMBA_RATE,
           (redeemAllRequest.gasFee - gasFwdGas)
         );
       }
