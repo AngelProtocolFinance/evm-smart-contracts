@@ -265,8 +265,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
           charityId,
           tokenFake.address
         );
-        await expect(lockedBal).to.equal(expectedLockedAmt);
-        await expect(liquidBal).to.equal(expectedLiquidAmt);
+        expect(lockedBal).to.equal(expectedLockedAmt);
+        expect(liquidBal).to.equal(expectedLiquidAmt);
       });
 
       describe("to Charity Endowments", () => {
@@ -294,8 +294,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
             charityId,
             tokenFake.address
           );
-          await expect(lockedBal).to.equal(expectedLockedAmt);
-          await expect(liquidBal).to.equal(expectedLiquidAmt);
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
         });
 
         it("adjust user liquid split upward if it falls outside min liquid split range", async () => {
@@ -322,8 +322,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
             charityId,
             tokenFake.address
           );
-          await expect(lockedBal).to.equal(expectedLockedAmt);
-          await expect(liquidBal).to.equal(expectedLiquidAmt);
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
         });
 
         it("if ignore user splits set, take Endowment-level split default, regardless of user values", async () => {
@@ -356,8 +356,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
             charityId,
             tokenFake.address
           );
-          await expect(lockedBal).to.equal(expectedLockedAmt);
-          await expect(liquidBal).to.equal(expectedLiquidAmt);
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
         });
 
         it("skips donation matching when no donation match contract is in Registrar", async () => {
@@ -374,8 +374,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositToCharity.id,
             tokenFake.address
           );
-          await expect(lockedBal).to.equal(expectedLockedAmt);
-          await expect(liquidBal).to.equal(expectedLiquidAmt);
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
         });
 
         it("matches the donation when contract is in Registrar and Locked split passed", async () => {
@@ -404,8 +404,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositToCharity.id,
             tokenFake.address
           );
-          await expect(lockedBal).to.equal(expectedLockedAmt);
-          await expect(liquidBal).to.equal(expectedLiquidAmt);
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
         });
 
         it("deposit with protocol-level deposit fee only", async () => {
@@ -425,14 +425,14 @@ describe("AccountsDepositWithdrawEndowments", function () {
             .to.emit(facet, "EndowmentDeposit")
             .withArgs(depositToCharity.id, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
 
-          await expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
+          expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
 
           const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
             depositToCharity.id,
             tokenFake.address
           );
-          await expect(lockedBal).to.equal(expectedLockedAmt);
-          await expect(liquidBal).to.equal(expectedLiquidAmt);
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
         });
       });
 
@@ -463,8 +463,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
             normalEndowId,
             tokenFake.address
           );
-          await expect(lockedBal).to.equal(expectedLockedAmt);
-          await expect(liquidBal).to.equal(expectedLiquidAmt);
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
         });
 
         it("adjust user liquid split downward if it falls outside Endowment max liquid split range", async () => {
@@ -493,8 +493,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
             normalEndowId,
             tokenFake.address
           );
-          await expect(lockedBal).to.equal(expectedLockedAmt);
-          await expect(liquidBal).to.equal(expectedLiquidAmt);
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
         });
 
         it("if ignore user splits set, take Endowment-level split default, regardless of user values", async () => {
@@ -528,8 +528,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
             normalEndowId,
             tokenFake.address
           );
-          await expect(lockedBal).to.equal(expectedLockedAmt);
-          await expect(liquidBal).to.equal(expectedLiquidAmt);
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
         });
 
         it("skips donation matching when no donation match contract is associated with endowment being deposited to", async () => {
@@ -551,8 +551,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositToNormalEndow.id,
             tokenFake.address
           );
-          await expect(lockedBal).to.equal(expectedLockedAmt);
-          await expect(liquidBal).to.equal(expectedLiquidAmt);
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
         });
 
         it("matches the donation when matching contract is setup & locked split amount is sent", async () => {
@@ -584,8 +584,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositToNormalEndow.id,
             tokenFake.address
           );
-          await expect(lockedBal).to.equal(expectedLockedAmt);
-          await expect(liquidBal).to.equal(expectedLiquidAmt);
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
         });
 
         it("deposit with protocol-level deposit fee only", async () => {
@@ -610,14 +610,14 @@ describe("AccountsDepositWithdrawEndowments", function () {
               expectedLiquidAmt
             );
 
-          await expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
+          expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
 
           const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
             depositToNormalEndow.id,
             tokenFake.address
           );
-          await expect(lockedBal).to.equal(expectedLockedAmt);
-          await expect(liquidBal).to.equal(expectedLiquidAmt);
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
         });
 
         it("deposit with endowment-level deposit fee only", async () => {
@@ -655,8 +655,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositToNormalEndow.id,
             tokenFake.address
           );
-          await expect(lockedBal).to.equal(expectedLockedAmt);
-          await expect(liquidBal).to.equal(expectedLiquidAmt);
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
         });
 
         it("deposit with protocol & endowment-level deposit fees", async () => {
@@ -688,8 +688,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
               expectedLockedAmt,
               expectedLiquidAmt
             );
-          await expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
-          await expect(tokenFake.transfer).to.have.been.calledWith(
+          expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
+          expect(tokenFake.transfer).to.have.been.calledWith(
             depositBps.depositFee.payoutAddress,
             expectedFeeEndow
           );
@@ -698,8 +698,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
             depositToNormalEndow.id,
             tokenFake.address
           );
-          await expect(lockedBal).to.equal(expectedLockedAmt);
-          await expect(liquidBal).to.equal(expectedLiquidAmt);
+          expect(lockedBal).to.equal(expectedLockedAmt);
+          expect(liquidBal).to.equal(expectedLiquidAmt);
         });
       });
     });
@@ -830,7 +830,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
               beneficiaryId
             );
 
-          await expect(tokenFake.transfer).to.have.been.calledWith(
+          expect(tokenFake.transfer).to.have.been.calledWith(
             beneficiaryAddress,
             tokens[0].amnt
           );
@@ -839,7 +839,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
             normalEndowId,
             tokenFake.address
           );
-          await expect(liquidBalance).to.equal(liqBal.sub(tokens[0].amnt));
+          expect(liquidBalance).to.equal(liqBal.sub(tokens[0].amnt));
         });
 
         it("passes: charity, beneficiary address, sender is endow. owner, protocol-level withdraw fee applied", async () => {
@@ -869,14 +869,14 @@ describe("AccountsDepositWithdrawEndowments", function () {
               beneficiaryId
             );
 
-          await expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
-          await expect(tokenFake.transfer).to.have.been.calledWith(
+          expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
+          expect(tokenFake.transfer).to.have.been.calledWith(
             beneficiaryAddress,
             finalAmountLeftover
           );
 
           const [, liquidBalance] = await state.getEndowmentTokenBalance(charityId, tokens[0].addr);
-          await expect(liquidBalance).to.equal(liqBal.sub(tokens[0].amnt));
+          expect(liquidBalance).to.equal(liqBal.sub(tokens[0].amnt));
         });
 
         it("passes: normal, beneficiary address, sender is endow. owner, protocol-level and endow-level withdraw fees applied", async () => {
@@ -916,12 +916,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
               beneficiaryId
             );
 
-          await expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
-          await expect(tokenFake.transfer).to.have.been.calledWith(
+          expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
+          expect(tokenFake.transfer).to.have.been.calledWith(
             endowOwner.address,
             expectedFeeEndow
           );
-          await expect(tokenFake.transfer).to.have.been.calledWith(
+          expect(tokenFake.transfer).to.have.been.calledWith(
             beneficiaryAddress,
             finalAmountLeftover
           );
@@ -930,7 +930,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
             normalEndowId,
             tokens[0].addr
           );
-          await expect(liquidBalance).to.equal(liqBal.sub(tokens[0].amnt));
+          expect(liquidBalance).to.equal(liqBal.sub(tokens[0].amnt));
         });
 
         it("passes: normal, beneficiary address, 2 tokens, sender is allowlisted beneficiary (endow-level withdraw fees)", async () => {
@@ -978,11 +978,11 @@ describe("AccountsDepositWithdrawEndowments", function () {
           let expectedFeeEndow = amount.mul(10).div(10000);
           let finalAmountLeftover = amount.sub(expectedFeeEndow);
 
-          await expect(tokenFake.transfer).to.have.been.calledWith(
+          expect(tokenFake.transfer).to.have.been.calledWith(
             endowOwner.address,
             expectedFeeEndow
           );
-          await expect(tokenFake.transfer).to.have.been.calledWith(
+          expect(tokenFake.transfer).to.have.been.calledWith(
             beneficiaryAddress,
             finalAmountLeftover
           );
@@ -991,7 +991,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
             normalEndowId,
             tokens[0].addr
           );
-          await expect(liquidBalance).to.equal(liqBal.sub(tokens[0].amnt));
+          expect(liquidBalance).to.equal(liqBal.sub(tokens[0].amnt));
 
           // tokens[1]
           amount = BigNumber.from(tokens[1].amnt);
@@ -1008,7 +1008,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
             normalEndowId,
             tokens[1].addr
           );
-          await expect(liquidBalance2).to.equal(liqBal.sub(tokens[1].amnt));
+          expect(liquidBalance2).to.equal(liqBal.sub(tokens[1].amnt));
         });
       });
 
@@ -1048,16 +1048,16 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const endowmentWithdrawFee = amountLeftAfterApFees.mul(10).div(10000);
           const finalAmountLeftover = amountLeftAfterApFees.sub(endowmentWithdrawFee);
 
-          await expect(tokenFake.transfer).to.have.been.calledWith(treasury, protocolWithdrawFee);
-          await expect(tokenFake.transfer).to.have.been.calledWith(
+          expect(tokenFake.transfer).to.have.been.calledWith(treasury, protocolWithdrawFee);
+          expect(tokenFake.transfer).to.have.been.calledWith(
             treasury,
             protocolEarlyWithdrawFee
           );
-          await expect(tokenFake.transfer).to.have.been.calledWith(
+          expect(tokenFake.transfer).to.have.been.calledWith(
             endowOwner.address,
             endowmentWithdrawFee
           );
-          await expect(tokenFake.transfer).to.have.been.calledWith(
+          expect(tokenFake.transfer).to.have.been.calledWith(
             beneficiaryAddress,
             finalAmountLeftover
           );
@@ -1066,7 +1066,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
             normalEndowId,
             tokens[0].addr
           );
-          await expect(lockedBalance).to.equal(lockBal.sub(amount));
+          expect(lockedBalance).to.equal(lockBal.sub(amount));
         });
 
         it("passes: charity, beneficiary address, 1 token, sender: endow. owner, protocol-level early & normal withdraw fees apply", async () => {
@@ -1096,12 +1096,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const protocolEarlyWithdrawFee = amount.mul(200).div(10000);
           const finalAmountLeftover = amount.sub(protocolWithdrawFee + protocolEarlyWithdrawFee);
 
-          await expect(tokenFake.transfer).to.have.been.calledWith(treasury, protocolWithdrawFee);
-          await expect(tokenFake.transfer).to.have.been.calledWith(
+          expect(tokenFake.transfer).to.have.been.calledWith(treasury, protocolWithdrawFee);
+          expect(tokenFake.transfer).to.have.been.calledWith(
             treasury,
             protocolEarlyWithdrawFee
           );
-          await expect(tokenFake.transfer).to.have.been.calledWith(
+          expect(tokenFake.transfer).to.have.been.calledWith(
             beneficiaryAddress,
             finalAmountLeftover
           );
@@ -1110,7 +1110,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
             normalEndowId,
             tokens[0].addr
           );
-          await expect(lockedBalance).to.equal(lockBal.sub(amount));
+          expect(lockedBalance).to.equal(lockBal.sub(amount));
         });
       });
     });
@@ -1174,8 +1174,8 @@ describe("AccountsDepositWithdrawEndowments", function () {
               beneficiaryId
             );
 
-          await expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
-          await expect(tokenFake.transfer).to.have.been.calledWith(
+          expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
+          expect(tokenFake.transfer).to.have.been.calledWith(
             beneficiaryAddress,
             amountLeftAfterApFees
           );
@@ -1184,7 +1184,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
             normalEndowId,
             tokens[0].addr
           );
-          await expect(lockedBalance).to.equal(lockBal.sub(amount));
+          expect(lockedBalance).to.equal(lockBal.sub(amount));
         });
 
         it("passes: Normal to a Charity Endowment transfer", async () => {
@@ -1225,14 +1225,14 @@ describe("AccountsDepositWithdrawEndowments", function () {
             normalEndowId,
             tokens[0].addr
           );
-          await expect(lockedBalance).to.equal(lockBal.sub(amount));
+          expect(lockedBalance).to.equal(lockBal.sub(amount));
 
           const [lockBalBen, liqBalBen] = await state.getEndowmentTokenBalance(
             beneficiaryId,
             tokens[0].addr
           );
-          await expect(lockBalBen).to.equal(lockBal.add(amount));
-          await expect(liqBalBen).to.equal(liqBal);
+          expect(lockBalBen).to.equal(lockBal.add(amount));
+          expect(liqBalBen).to.equal(liqBal);
         });
       });
     });
@@ -1291,14 +1291,14 @@ describe("AccountsDepositWithdrawEndowments", function () {
           );
 
         const [lockedBalance] = await state.getEndowmentTokenBalance(dafEndowId, tokens[0].addr);
-        await expect(lockedBalance).to.equal(lockBal.sub(amount));
+        expect(lockedBalance).to.equal(lockBal.sub(amount));
 
         const [lockBalBen, liqBalBen] = await state.getEndowmentTokenBalance(
           beneficiaryId,
           tokens[0].addr
         );
-        await expect(lockBalBen).to.equal(lockBal.add(amount));
-        await expect(liqBalBen).to.equal(liqBal);
+        expect(lockBalBen).to.equal(lockBal.add(amount));
+        expect(liqBalBen).to.equal(liqBal);
       });
     });
   });
