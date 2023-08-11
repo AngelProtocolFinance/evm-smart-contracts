@@ -4,3 +4,4 @@ import "./upgradeCharityApplications";
 import "./upgradeContractsUsingAccountStorage";
 import "./upgradeFacets";
 import "./upgradeRegistrar";
+import "./upgradeRouter";
