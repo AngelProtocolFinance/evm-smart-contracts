@@ -134,12 +134,7 @@ contract AccountsStrategy is
         investAmt
       );
 
-      if (response.status == IVault.VaultActionStatus.SUCCESS) {
-        state.STATES[id].balances.locked[tokenAddress] -= investRequest.lockAmt;
-        state.STATES[id].balances.liquid[tokenAddress] -= investRequest.liquidAmt;
-        state.STATES[id].activeStrategies[investRequest.strategy] = true;
-        emit EndowmentInvested(response.status);
-      } else {
+      if (response.status != IVault.VaultActionStatus.SUCCESS) {
         revert InvestFailed(response.status);
       }
     }
@@ -192,10 +187,12 @@ contract AccountsStrategy is
         investRequest.token,
         investAmt
       );
-      state.STATES[id].balances.locked[tokenAddress] -= investRequest.lockAmt;
-      state.STATES[id].balances.liquid[tokenAddress] -= investRequest.liquidAmt;
-      state.STATES[id].activeStrategies[investRequest.strategy] = true;
     }
+
+    state.STATES[id].balances.locked[tokenAddress] -= investRequest.lockAmt;
+    state.STATES[id].balances.liquid[tokenAddress] -= investRequest.liquidAmt;
+    state.STATES[id].activeStrategies[investRequest.strategy] = true;
+    emit EndowmentInvested(id);
   }
 
   /**
@@ -274,12 +271,12 @@ contract AccountsStrategy is
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
         state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
         state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
-        emit EndowmentRedeemed(response.status);
+        emit EndowmentRedeemed(id, response.status);
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
         state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
         state.STATES[id].activeStrategies[redeemRequest.strategy] = false;
-        emit EndowmentRedeemed(response.status);
+        emit EndowmentRedeemed(id, response.status);
       } else {
         revert RedeemFailed(response.status);
       }
@@ -410,7 +407,7 @@ contract AccountsStrategy is
         state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
         state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
         state.STATES[id].activeStrategies[redeemAllRequest.strategy] = false;
-        emit EndowmentRedeemed(response.status);
+        emit EndowmentRedeemed(id, response.status);
       } else {
         revert RedeemAllFailed(response.status);
       }
@@ -477,6 +474,7 @@ contract AccountsStrategy is
     ) {
       state.STATES[id].balances.locked[response.token] += response.lockAmt;
       state.STATES[id].balances.liquid[response.token] += response.liqAmt;
+      emit EndowmentRedeemed(id, response.status);
       return true;
     }
     // Redeem/RedeemAll Cases
@@ -490,13 +488,13 @@ contract AccountsStrategy is
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
         state.STATES[id].balances.locked[response.token] += response.lockAmt;
         state.STATES[id].balances.liquid[response.token] += response.liqAmt;
-        emit EndowmentRedeemed(response.status);
+        emit EndowmentRedeemed(id, response.status);
         return true;
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.STATES[id].balances.locked[response.token] += response.lockAmt;
         state.STATES[id].balances.liquid[response.token] += response.liqAmt;
         state.STATES[id].activeStrategies[response.strategyId] = false;
-        emit EndowmentRedeemed(response.status);
+        emit EndowmentRedeemed(id, response.status);
         return true;
       }
     } else {
