@@ -840,6 +840,8 @@ describe("AccountsStrategy", function () {
           gasFwdGas: GAS_FEE - 1,
           expectedLockBal: INITIAL_LOCK_BAL - 1,
           expectedLiqBal: INITIAL_LIQ_BAL,
+          description:
+            "paying out of locked balance takes precedence when gas fee is too small to split",
         },
         {
           lockAmt: LOCK_AMT,
@@ -848,6 +850,7 @@ describe("AccountsStrategy", function () {
           gasFwdGas: 0,
           expectedLockBal: INITIAL_LOCK_BAL - 240,
           expectedLiqBal: INITIAL_LIQ_BAL - 160,
+          description: "both liquid and locked balances cover their respective gas fee portions",
         },
         {
           lockAmt: 43,
@@ -856,6 +859,7 @@ describe("AccountsStrategy", function () {
           gasFwdGas: 79,
           expectedLockBal: INITIAL_LOCK_BAL - 141,
           expectedLiqBal: INITIAL_LIQ_BAL - 180,
+          description: "fractional percentages case",
         },
         {
           lockAmt: LOCK_AMT,
@@ -864,13 +868,14 @@ describe("AccountsStrategy", function () {
           gasFwdGas: 100,
           expectedLockBal: 0,
           expectedLiqBal: 100,
+          description: "liquid covers part of locked portion of the gas fee",
         },
       ].forEach((caseData) => {
         it(`makes all the correct external calls and pays for part of ${
           caseData.gasFee
-        } gas fee (total ${
-          caseData.gasFee - caseData.gasFwdGas
-        }) with locked & liquid balance`, async function () {
+        } gas fee (total ${caseData.gasFee - caseData.gasFwdGas}): ${
+          caseData.description
+        }`, async function () {
           const redeemRequest: AccountMessages.RedeemRequestStruct = {
             ...DEFAULT_REDEEM_REQUEST,
             lockAmt: caseData.lockAmt,
@@ -1179,6 +1184,8 @@ describe("AccountsStrategy", function () {
           gasFwdGas: GAS_FEE - 1,
           expectedLockBal: INITIAL_LOCK_BAL - 1,
           expectedLiqBal: INITIAL_LIQ_BAL,
+          description:
+            "paying out of locked balance takes precedence when gas fee is too small to split",
         },
         {
           redeemLocked: true,
@@ -1187,6 +1194,7 @@ describe("AccountsStrategy", function () {
           gasFwdGas: 0,
           expectedLockBal: INITIAL_LOCK_BAL - 200,
           expectedLiqBal: INITIAL_LIQ_BAL - 200,
+          description: "both liquid and locked balances cover their respective gas fee portions",
         },
         {
           redeemLocked: true,
@@ -1195,6 +1203,7 @@ describe("AccountsStrategy", function () {
           gasFwdGas: 79,
           expectedLockBal: INITIAL_LOCK_BAL - 161,
           expectedLiqBal: INITIAL_LIQ_BAL - 160,
+          description: "fractional percentages case",
         },
         {
           redeemLocked: true,
@@ -1205,6 +1214,7 @@ describe("AccountsStrategy", function () {
           prevLiqBal: 600,
           expectedLockBal: 0,
           expectedLiqBal: 100,
+          description: "liquid covers part of locked portion of the gas fee",
         },
         {
           redeemLocked: true,
@@ -1213,6 +1223,8 @@ describe("AccountsStrategy", function () {
           gasFwdGas: GAS_FEE - 1,
           expectedLockBal: INITIAL_LOCK_BAL - 1,
           expectedLiqBal: INITIAL_LIQ_BAL,
+          description:
+            "paying out of locked balance takes precedence when gas fee is too small to split",
         },
         {
           redeemLocked: true,
@@ -1221,6 +1233,7 @@ describe("AccountsStrategy", function () {
           gasFwdGas: 0,
           expectedLockBal: INITIAL_LOCK_BAL - 200,
           expectedLiqBal: INITIAL_LIQ_BAL - 200,
+          description: "both liquid and locked balances cover their respective gas fee portions",
         },
         {
           redeemLocked: true,
@@ -1229,6 +1242,7 @@ describe("AccountsStrategy", function () {
           gasFwdGas: 79,
           expectedLockBal: INITIAL_LOCK_BAL - 161,
           expectedLiqBal: INITIAL_LIQ_BAL - 160,
+          description: "fractional percentages case",
         },
         {
           redeemLocked: true,
@@ -1239,6 +1253,7 @@ describe("AccountsStrategy", function () {
           prevLiqBal: 600,
           expectedLockBal: 0,
           expectedLiqBal: 100,
+          description: "liquid covers part of locked portion of the gas fee",
         },
         {
           redeemLocked: false,
@@ -1247,6 +1262,8 @@ describe("AccountsStrategy", function () {
           gasFwdGas: GAS_FEE - 1,
           expectedLockBal: INITIAL_LOCK_BAL - 1,
           expectedLiqBal: INITIAL_LIQ_BAL,
+          description:
+            "paying out of locked balance takes precedence when gas fee is too small to split",
         },
         {
           redeemLocked: false,
@@ -1255,6 +1272,7 @@ describe("AccountsStrategy", function () {
           gasFwdGas: 0,
           expectedLockBal: INITIAL_LOCK_BAL - 200,
           expectedLiqBal: INITIAL_LIQ_BAL - 200,
+          description: "both liquid and locked balances cover their respective gas fee portions",
         },
         {
           redeemLocked: false,
@@ -1263,6 +1281,7 @@ describe("AccountsStrategy", function () {
           gasFwdGas: 79,
           expectedLockBal: INITIAL_LOCK_BAL - 161,
           expectedLiqBal: INITIAL_LIQ_BAL - 160,
+          description: "fractional percentages case",
         },
         {
           redeemLocked: false,
@@ -1273,15 +1292,18 @@ describe("AccountsStrategy", function () {
           prevLiqBal: 600,
           expectedLockBal: 0,
           expectedLiqBal: 100,
+          description: "liquid covers part of locked portion of the gas fee",
         },
       ].forEach((caseData) => {
-        it(`makes all the correct external calls and pays for part of ${
-          caseData.gasFee
-        } gas fee (total ${
-          caseData.gasFee - caseData.gasFwdGas
-        }) with locked & liquid balance (redeemLocked: ${caseData.redeemLocked}, redeemLiquid: ${
-          caseData.redeemLiquid
-        })`, async function () {
+        it(`redeeming ${
+          caseData.redeemLiquid && caseData.redeemLocked
+            ? "locked & liquid"
+            : caseData.redeemLiquid
+            ? "liquid"
+            : "locked"
+        } - makes all the correct external calls and pays for part of the gas fee: ${
+          caseData.description
+        }`, async function () {
           if (caseData.prevLockBal) {
             await state.setEndowmentTokenBalance(
               ACCOUNT_ID,
