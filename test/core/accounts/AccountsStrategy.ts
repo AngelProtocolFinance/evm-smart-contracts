@@ -20,14 +20,14 @@ import {
 import {
   AccountsStrategy,
   AccountsStrategy__factory,
+  ERC20,
+  ERC20__factory,
   GasFwd,
   GasFwd__factory,
   IAxelarGasService,
   IAxelarGasService__factory,
   IAxelarGateway,
   IAxelarGateway__factory,
-  IERC20,
-  IERC20__factory,
   IVault,
   IVault__factory,
   Registrar,
@@ -71,7 +71,7 @@ describe("AccountsStrategy", function () {
   let gateway: FakeContract<IAxelarGateway>;
   let registrar: FakeContract<Registrar>;
   let router: FakeContract<Router>;
-  let token: FakeContract<IERC20>;
+  let token: FakeContract<ERC20>;
   let vault: FakeContract<IVault>;
 
   let facetImpl: AccountsStrategy;
@@ -101,10 +101,14 @@ describe("AccountsStrategy", function () {
     gasFwd = await smock.fake<GasFwd>(new GasFwd__factory());
     registrar = await smock.fake<Registrar>(new Registrar__factory());
     router = await smock.fake<Router>(new Router__factory());
-    token = await smock.fake<IERC20>(IERC20__factory.createInterface());
+    token = await smock.fake<ERC20>(ERC20__factory.createInterface());
 
     state = await deployFacetAsProxy(hre, owner, admin, facetImpl.address);
     facet = AccountsStrategy__factory.connect(state.address, owner);
+
+    token.approve.returns(true);
+    token.symbol.returns("TKN");
+    token.transfer.returns(true);
 
     const config: AccountStorage.ConfigStruct = {
       ...DEFAULT_ACCOUNTS_CONFIG,
@@ -256,32 +260,52 @@ describe("AccountsStrategy", function () {
     });
 
     describe("and calls the local router", function () {
-      beforeEach(async function () {
-        token.transfer.whenCalledWith(router.address, LIQ_AMT + LOCK_AMT).returns(true);
-      });
-
       it("and the response is SUCCESS", async function () {
+        const investRequest: AccountMessages.InvestRequestStruct = {
+          ...DEFAULT_INVEST_REQUEST,
+          lockAmt: LOCK_AMT,
+          liquidAmt: LIQ_AMT,
+          token: token.address,
+        };
+
         const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: "",
           strategyId: DEFAULT_STRATEGY_SELECTOR,
           selector: DEFAULT_METHOD_SELECTOR,
           accountIds: [ACCOUNT_ID],
-          token: token.address,
-          lockAmt: LOCK_AMT,
-          liqAmt: LIQ_AMT,
+          token: investRequest.token,
+          lockAmt: investRequest.lockAmt,
+          liqAmt: investRequest.liquidAmt,
           status: VaultActionStatus.SUCCESS,
         };
         router.executeWithTokenLocal.returns(vaultActionData);
 
-        const investRequest: AccountMessages.InvestRequestStruct = {
-          ...DEFAULT_INVEST_REQUEST,
-          lockAmt: LOCK_AMT,
-          liquidAmt: LIQ_AMT,
-        };
-
         await expect(facet.strategyInvest(ACCOUNT_ID, investRequest))
           .to.emit(facet, "EndowmentInvested")
-          .withArgs(VaultActionStatus.SUCCESS);
+          .withArgs(ACCOUNT_ID);
+
+        expect(token.transfer).to.have.been.calledWith(
+          netInfoThis.router,
+          BigNumber.from(investRequest.liquidAmt).add(BigNumber.from(investRequest.lockAmt))
+        );
+
+        const payload = packActionData({
+          destinationChain: NET_NAME_THIS,
+          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          selector: vault.interface.getSighash("deposit"),
+          accountIds: [ACCOUNT_ID],
+          token: investRequest.token,
+          lockAmt: investRequest.lockAmt,
+          liqAmt: investRequest.liquidAmt,
+          status: VaultActionStatus.UNPROCESSED,
+        });
+        expect(router.executeWithTokenLocal).to.have.been.calledWith(
+          NET_NAME_THIS,
+          facet.address.toLowerCase(),
+          payload,
+          investRequest.token,
+          BigNumber.from(investRequest.liquidAmt).add(BigNumber.from(investRequest.lockAmt))
+        );
 
         const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
         expect(lockBal).to.equal(INITIAL_LOCK_BAL - LOCK_AMT);
@@ -327,8 +351,6 @@ describe("AccountsStrategy", function () {
 
     describe("and calls axelar GMP", function () {
       beforeEach(async function () {
-        token.approve.returns(true);
-
         const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
           network: NET_NAME_THAT,
@@ -351,7 +373,9 @@ describe("AccountsStrategy", function () {
 
           gasFwd.payForGas.returns(payForGasResult);
 
-          await expect(facet.strategyInvest(ACCOUNT_ID, investRequest)).to.not.be.reverted;
+          await expect(facet.strategyInvest(ACCOUNT_ID, investRequest))
+            .to.emit(facet, "EndowmentInvested")
+            .withArgs(ACCOUNT_ID);
 
           expect(gasFwd.payForGas).to.have.been.calledWith(token.address, investRequest.gasFee);
           expect(token.approve).to.have.been.calledWith(gasService.address, investRequest.gasFee);
@@ -449,7 +473,9 @@ describe("AccountsStrategy", function () {
 
           gasFwd.payForGas.returns(caseData.gasFwdGas);
 
-          await expect(facet.strategyInvest(ACCOUNT_ID, investRequest)).to.not.be.reverted;
+          await expect(facet.strategyInvest(ACCOUNT_ID, investRequest))
+            .to.emit(facet, "EndowmentInvested")
+            .withArgs(ACCOUNT_ID);
 
           expect(gasFwd.payForGas).to.have.been.calledWith(token.address, investRequest.gasFee);
           expect(token.approve).to.have.been.calledWith(gasService.address, investRequest.gasFee);
@@ -631,7 +657,7 @@ describe("AccountsStrategy", function () {
 
           await expect(facet.strategyRedeem(ACCOUNT_ID, redeemRequest))
             .to.emit(facet, "EndowmentRedeemed")
-            .withArgs(vaultStatus);
+            .withArgs(ACCOUNT_ID, vaultStatus);
 
           const payload = packActionData({
             destinationChain: NET_NAME_THIS,
@@ -687,8 +713,6 @@ describe("AccountsStrategy", function () {
 
     describe("and calls axelar GMP", function () {
       beforeEach(async function () {
-        token.approve.returns(true);
-
         const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
           network: NET_NAME_THAT,
@@ -972,7 +996,7 @@ describe("AccountsStrategy", function () {
 
             await expect(facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest))
               .to.emit(facet, "EndowmentRedeemed")
-              .withArgs(VaultActionStatus.POSITION_EXITED);
+              .withArgs(ACCOUNT_ID, VaultActionStatus.POSITION_EXITED);
 
             expect(router.executeLocal).to.have.been.calledWith(
               NET_NAME_THIS,
@@ -1031,8 +1055,6 @@ describe("AccountsStrategy", function () {
 
     describe("and calls axelar GMP", function () {
       beforeEach(async function () {
-        token.approve.returns(true);
-
         const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
           ...DEFAULT_STRATEGY_PARAMS,
           network: NET_NAME_THAT,
@@ -1483,7 +1505,7 @@ describe("AccountsStrategy", function () {
             NET_NAME_THIS,
             owner.address,
             payload,
-            "TKN",
+            await token.symbol(),
             1
           )
         ).to.be.revertedWithCustomError(facet, "NotApprovedByGateway");
@@ -1510,7 +1532,7 @@ describe("AccountsStrategy", function () {
             unexpectedChain,
             router.address,
             payload,
-            "TKN",
+            await token.symbol(),
             1
           )
         )
@@ -1537,7 +1559,7 @@ describe("AccountsStrategy", function () {
             NET_NAME_THAT,
             owner.address,
             payload,
-            "TKN",
+            await token.symbol(),
             1
           )
         )
@@ -1566,7 +1588,7 @@ describe("AccountsStrategy", function () {
             NET_NAME_THIS,
             notRouter,
             payload,
-            "TKN",
+            await token.symbol(),
             1
           )
         )
@@ -1592,7 +1614,7 @@ describe("AccountsStrategy", function () {
             NET_NAME_THIS,
             router.address,
             payload,
-            "TKN",
+            await token.symbol(),
             1
           )
         ).to.not.be.reverted;
@@ -1625,18 +1647,20 @@ describe("AccountsStrategy", function () {
             status: vaultStatus,
           };
           const payload = packActionData(action);
+
           await expect(
             facet.executeWithToken(
               ethers.utils.formatBytes32String("true"),
               NET_NAME_THIS,
               router.address,
               payload,
-              "TKN",
+              await token.symbol(),
               1
             )
           )
             .to.emit(facet, "EndowmentRedeemed")
-            .withArgs(vaultStatus);
+            .withArgs(ACCOUNT_ID, vaultStatus);
+
           const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
           expect(lockBal).to.equal(INITIAL_LOCK_BAL + LOCK_AMT);
           expect(liqBal).to.equal(INITIAL_LIQ_BAL + LIQ_AMT);
@@ -1712,15 +1736,13 @@ describe("AccountsStrategy", function () {
           };
           registrar.getAngelProtocolParams.returns(apParams);
 
-          token.transfer.returns(true);
-
           await expect(
             facet.executeWithToken(
               ethers.utils.formatBytes32String("true"),
               NET_NAME_THIS,
               router.address,
               payload,
-              "TKN",
+              await token.symbol(),
               LOCK_AMT + LIQ_AMT
             )
           ).to.emit(facet, "RefundNeeded");
