@@ -249,6 +249,8 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
       Validator.addressChecker(registrarConfig.accountsContract),
       "Accounts contract not configured in Registrar"
     );
+    // Require that the incoming token is accpeted
+    require(_tokenIsAccepted(token), "Unaccepted Token");
 
     // tokens must be transfered from the sender to this contract
     IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
@@ -559,5 +561,9 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
       keys32[i] = uint32(map.keys[i]);
     }
     return keys32;
+  }
+
+  function _tokenIsAccepted(address token) internal view returns (bool) {
+    return IRegistrar(state.config.registrarContract).isTokenAccepted(token);
   }
 }
