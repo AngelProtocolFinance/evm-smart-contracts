@@ -1171,54 +1171,177 @@ describe("AccountsStrategy", function () {
         });
       });
 
-      it("makes all the correct external calls and pays for part of gas fee with locked & liquid covering their respective needs", async function () {
-        const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
-          ...DEFAULT_REDEEM_ALL_REQUEST,
+      [
+        {
           redeemLocked: true,
           redeemLiquid: true,
           gasFee: GAS_FEE,
-        };
+          gasFwdGas: GAS_FEE - 1,
+          expectedLockBal: INITIAL_LOCK_BAL - 1,
+          expectedLiqBal: INITIAL_LIQ_BAL,
+        },
+        {
+          redeemLocked: true,
+          redeemLiquid: true,
+          gasFee: 400,
+          gasFwdGas: 0,
+          expectedLockBal: INITIAL_LOCK_BAL - 200,
+          expectedLiqBal: INITIAL_LIQ_BAL - 200,
+        },
+        {
+          redeemLocked: true,
+          redeemLiquid: true,
+          gasFee: 400,
+          gasFwdGas: 79,
+          expectedLockBal: INITIAL_LOCK_BAL - 161,
+          expectedLiqBal: INITIAL_LIQ_BAL - 160,
+        },
+        {
+          redeemLocked: true,
+          redeemLiquid: true,
+          gasFee: 1000,
+          gasFwdGas: 100,
+          prevLockBal: 400,
+          prevLiqBal: 600,
+          expectedLockBal: 0,
+          expectedLiqBal: 100,
+        },
+        {
+          redeemLocked: true,
+          redeemLiquid: false,
+          gasFee: GAS_FEE,
+          gasFwdGas: GAS_FEE - 1,
+          expectedLockBal: INITIAL_LOCK_BAL - 1,
+          expectedLiqBal: INITIAL_LIQ_BAL,
+        },
+        {
+          redeemLocked: true,
+          redeemLiquid: false,
+          gasFee: 400,
+          gasFwdGas: 0,
+          expectedLockBal: INITIAL_LOCK_BAL - 200,
+          expectedLiqBal: INITIAL_LIQ_BAL - 200,
+        },
+        {
+          redeemLocked: true,
+          redeemLiquid: false,
+          gasFee: 400,
+          gasFwdGas: 79,
+          expectedLockBal: INITIAL_LOCK_BAL - 161,
+          expectedLiqBal: INITIAL_LIQ_BAL - 160,
+        },
+        {
+          redeemLocked: true,
+          redeemLiquid: false,
+          gasFee: 1000,
+          gasFwdGas: 100,
+          prevLockBal: 400,
+          prevLiqBal: 600,
+          expectedLockBal: 0,
+          expectedLiqBal: 100,
+        },
+        {
+          redeemLocked: false,
+          redeemLiquid: true,
+          gasFee: GAS_FEE,
+          gasFwdGas: GAS_FEE - 1,
+          expectedLockBal: INITIAL_LOCK_BAL - 1,
+          expectedLiqBal: INITIAL_LIQ_BAL,
+        },
+        {
+          redeemLocked: false,
+          redeemLiquid: true,
+          gasFee: 400,
+          gasFwdGas: 0,
+          expectedLockBal: INITIAL_LOCK_BAL - 200,
+          expectedLiqBal: INITIAL_LIQ_BAL - 200,
+        },
+        {
+          redeemLocked: false,
+          redeemLiquid: true,
+          gasFee: 400,
+          gasFwdGas: 79,
+          expectedLockBal: INITIAL_LOCK_BAL - 161,
+          expectedLiqBal: INITIAL_LIQ_BAL - 160,
+        },
+        {
+          redeemLocked: false,
+          redeemLiquid: true,
+          gasFee: 1000,
+          gasFwdGas: 100,
+          prevLockBal: 400,
+          prevLiqBal: 600,
+          expectedLockBal: 0,
+          expectedLiqBal: 100,
+        },
+      ].forEach((caseData) => {
+        it(`makes all the correct external calls and pays for part of ${
+          caseData.gasFee
+        } gas fee (total ${
+          caseData.gasFee - caseData.gasFwdGas
+        }) with locked & liquid balance (redeemLocked: ${caseData.redeemLocked}, redeemLiquid: ${
+          caseData.redeemLiquid
+        })`, async function () {
+          if (caseData.prevLockBal) {
+            await state.setEndowmentTokenBalance(
+              ACCOUNT_ID,
+              token.address,
+              caseData.prevLockBal,
+              caseData.prevLiqBal
+            );
+          }
 
-        gasFwd.payForGas.returns(GAS_FEE - 1);
+          const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
+            ...DEFAULT_REDEEM_ALL_REQUEST,
+            redeemLocked: caseData.redeemLocked,
+            redeemLiquid: caseData.redeemLiquid,
+            gasFee: caseData.gasFee,
+          };
 
-        await expect(facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest)).to.not.be.reverted;
+          gasFwd.payForGas.returns(caseData.gasFwdGas);
 
-        expect(gasFwd.payForGas).to.have.been.calledWith(token.address, redeemAllRequest.gasFee);
-        expect(token.approve).to.have.been.calledWith(netInfoThis.gasReceiver, GAS_FEE);
+          await expect(facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest)).to.not.be.reverted;
 
-        const payload = packActionData({
-          destinationChain: NET_NAME_THAT,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
-          selector: vault.interface.getSighash("redeemAll"),
-          accountIds: [ACCOUNT_ID],
-          token: token.address,
-          lockAmt: 1,
-          liqAmt: 1,
-          status: VaultActionStatus.UNPROCESSED,
+          expect(gasFwd.payForGas).to.have.been.calledWith(token.address, redeemAllRequest.gasFee);
+          expect(token.approve).to.have.been.calledWith(
+            netInfoThis.gasReceiver,
+            redeemAllRequest.gasFee
+          );
+
+          const payload = packActionData({
+            destinationChain: NET_NAME_THAT,
+            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            selector: vault.interface.getSighash("redeemAll"),
+            accountIds: [ACCOUNT_ID],
+            token: token.address,
+            lockAmt: redeemAllRequest.redeemLocked ? 1 : 0,
+            liqAmt: redeemAllRequest.redeemLiquid ? 1 : 0,
+            status: VaultActionStatus.UNPROCESSED,
+          });
+          expect(gasService.payGasForContractCall).to.have.been.calledWith(
+            facet.address,
+            NET_NAME_THAT,
+            netInfoThat.router.toLowerCase(),
+            payload,
+            token.address,
+            redeemAllRequest.gasFee,
+            endowDetails.owner
+          );
+          expect(gateway.callContract).to.have.been.calledWith(
+            NET_NAME_THAT,
+            netInfoThat.router.toLowerCase(),
+            payload
+          );
+
+          const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
+          expect(lockBal).to.equal(caseData.expectedLockBal);
+          expect(liqBal).to.equal(caseData.expectedLiqBal);
+          const strategyActive = await state.getActiveStrategyEndowmentState(
+            ACCOUNT_ID,
+            DEFAULT_STRATEGY_SELECTOR
+          );
+          expect(strategyActive).to.be.true;
         });
-        expect(gasService.payGasForContractCall).to.have.been.calledWith(
-          facet.address,
-          NET_NAME_THAT,
-          netInfoThat.router.toLowerCase(),
-          payload,
-          token.address,
-          GAS_FEE,
-          endowDetails.owner
-        );
-        expect(gateway.callContract).to.have.been.calledWith(
-          NET_NAME_THAT,
-          netInfoThat.router.toLowerCase(),
-          payload
-        );
-
-        const [lockBal, liqBal] = await state.getEndowmentTokenBalance(ACCOUNT_ID, token.address);
-        expect(lockBal).to.equal(INITIAL_LOCK_BAL - 1);
-        expect(liqBal).to.equal(INITIAL_LIQ_BAL);
-        const strategyActive = await state.getActiveStrategyEndowmentState(
-          ACCOUNT_ID,
-          DEFAULT_STRATEGY_SELECTOR
-        );
-        expect(strategyActive).to.be.true;
       });
 
       describe("but reverts because", () => {
