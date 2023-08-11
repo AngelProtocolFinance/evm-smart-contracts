@@ -3,6 +3,7 @@ pragma solidity ^0.8.16;
 
 import {LibAccounts} from "./lib/LibAccounts.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
+import {IterableMapping} from "../../lib/IterableMappingAddr.sol";
 
 library AccountStorage {
   struct Config {
@@ -30,9 +31,6 @@ library AccountStorage {
     address daoToken;
     bool donationMatchActive;
     address donationMatchContract;
-    address[] allowlistedBeneficiaries;
-    address[] allowlistedContributors;
-    address[] maturityAllowlist;
     LibAccounts.FeeSetting earlyLockedWithdrawFee;
     LibAccounts.FeeSetting withdrawFee;
     LibAccounts.FeeSetting depositFee;
@@ -70,6 +68,10 @@ library AccountStorage {
     mapping(uint32 => mapping(address => address)) PriceFeeds;
     // Endowments that a DAF can withdraw to, managed by contract Owner
     mapping(uint32 => bool) dafApprovedEndowments;
+    // Various Endowment linked AllowList mappings
+    mapping(uint32 => IterableMapping.Map) allowlistedContributors;
+    mapping(uint32 => IterableMapping.Map) allowlistedBeneficiaries;
+    mapping(uint32 => IterableMapping.Map) maturityAllowlist;
     Config config;
   }
 }

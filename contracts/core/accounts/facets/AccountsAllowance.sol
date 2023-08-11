@@ -61,7 +61,7 @@ contract AccountsAllowance is
         ),
         "Unauthorized"
       );
-      inAllowlist = tempEndowment.allowlistedBeneficiaries.contains(spender);
+      inAllowlist = (IterableMapping.get(state.allowlistedBeneficiaries[endowId], spender) == 1);
     } else {
       // Only the endowment owner or a delegate whom controls allowlist can update allowances
       require(
@@ -73,7 +73,7 @@ contract AccountsAllowance is
         ),
         "Unauthorized"
       );
-      inAllowlist = tempEndowment.maturityAllowlist.contains(spender);
+      inAllowlist = (IterableMapping.get(state.maturityAllowlist[endowId], spender) == 1);
     }
     require(inAllowlist, "Spender is not in allowlists");
 

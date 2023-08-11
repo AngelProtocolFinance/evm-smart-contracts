@@ -42,6 +42,12 @@ library LibAccounts {
     IterableMapping.Map liquid;
   }
 
+  enum AllowlistType {
+    AllowlistedBeneficiaries,
+    AllowlistedContributors,
+    MaturityAllowlist
+  }
+
   struct BeneficiaryData {
     uint32 endowId;
     address addr;

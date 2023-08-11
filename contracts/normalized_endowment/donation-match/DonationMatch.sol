@@ -78,7 +78,7 @@ contract DonationMatch is IDonationMatching, Storage, Initializable {
 
     require(registrar_config.accountsContract == msg.sender, "Unauthorized");
 
-    AccountStorage.Endowment memory endow_detail = IAccounts(registrar_config.accountsContract)
+    AccountMessages.EndowmentResponse memory endow_detail = IAccounts(registrar_config.accountsContract)
       .queryEndowmentDetails(endowmentId);
 
     if (endow_detail.endowType == LibAccounts.EndowmentType.Charity) {

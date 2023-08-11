@@ -7,6 +7,7 @@ import {IDonationMatching} from "./IDonationMatching.sol";
 import {RegistrarStorage} from "../../core/registrar/storage.sol";
 import {IRegistrar} from "../../core/registrar/interfaces/IRegistrar.sol";
 import {AccountStorage} from "../../core/accounts/storage.sol";
+import {AccountMessages} from "../../core/accounts/message.sol";
 import {IAccounts} from "../../core/accounts/interfaces/IAccounts.sol";
 import {LibAccounts} from "../../core/accounts/lib/LibAccounts.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -70,7 +71,7 @@ contract DonationMatchCharity is IDonationMatching, Storage, Initializable, Reen
 
     require(registrar_config.accountsContract == msg.sender, "Unauthorized");
 
-    AccountStorage.Endowment memory endow_detail = IAccounts(registrar_config.accountsContract)
+    AccountMessages.EndowmentResponse memory endow_detail = IAccounts(registrar_config.accountsContract)
       .queryEndowmentDetails(endowmentId);
 
     if (endow_detail.endowType == LibAccounts.EndowmentType.Charity) {
