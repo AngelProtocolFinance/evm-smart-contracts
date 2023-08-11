@@ -21,8 +21,6 @@ import {IterableMapping} from "../../../lib/IterableMappingAddr.sol";
 
 uint256 constant ACCEPTABLE_PRICE_DELAY = 300; // 5 minutes, in seconds
 
-uint256 constant ACCEPTABLE_PRICE_DELAY = 300; // 5 minutes, in seconds
-
 /**
  * @title AccountsSwapRouter
  * @dev This contract manages the swaps for endowments
