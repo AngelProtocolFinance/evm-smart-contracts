@@ -50,6 +50,21 @@ contract AccountsDepositWithdrawEndowments is
     _;
   }
 
+  /*
+   *  Modifiers
+   */
+  modifier validEndowId(uint32 id) {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    require(id > 0 && id < state.config.nextAccountId, "Must pass a valid Endowment ID");
+    _;
+  }
+
+  modifier validateDepositDetails(AccountMessages.DepositRequest memory details, uint256 amount) {
+    require(amount > 0, "Amount must be greater than zero");
+    require(details.lockedPercentage + details.liquidPercentage == 100, "InvalidSplit");
+    _;
+  }
+
   /**
    * @notice Deposit MATIC into the endowment. Wraps first to ERC20 before processing.
    * @param details The details of the deposit
