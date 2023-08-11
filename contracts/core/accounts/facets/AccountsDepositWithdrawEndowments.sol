@@ -19,6 +19,7 @@ import {Utils} from "../../../lib/utils.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
 import {IterableMapping} from "../../../lib/IterableMappingAddr.sol";
 import {FixedPointMathLib} from "../../../lib/FixedPointMathLib.sol";
+import {AddressArray} from "../../../lib/address/array.sol";
 
 /**
  * @title AccountsDepositWithdrawEndowments
@@ -34,6 +35,7 @@ contract AccountsDepositWithdrawEndowments is
 {
   using SafeERC20 for IERC20;
   using FixedPointMathLib for uint256;
+  using AddressArray for address[];
 
   /*
    *  Modifiers
@@ -134,10 +136,7 @@ contract AccountsDepositWithdrawEndowments is
     if (tempEndowment.allowlistedContributors.length == 0 || msg.sender == tempEndowment.owner) {
       contributorAllowed = true;
     } else {
-      contributorAllowed = LibAccounts.checkAddressInAllowlist(
-        msg.sender,
-        tempEndowment.allowlistedContributors
-      );
+      contributorAllowed = tempEndowment.allowlistedContributors.contains(msg.sender);
     }
     require(contributorAllowed, "Contributor address is not listed in allowlistedContributors");
 
@@ -363,10 +362,7 @@ contract AccountsDepositWithdrawEndowments is
           // determine if beneficiaryAddress can receive withdrawn funds based on allowlist and maturity status
           bool beneficiaryAllowed;
           if (mature) {
-            beneficiaryAllowed = LibAccounts.checkAddressInAllowlist(
-              beneficiaryAddress,
-              tempEndowment.maturityAllowlist
-            );
+            beneficiaryAllowed = tempEndowment.maturityAllowlist.contains(beneficiaryAddress);
             require(beneficiaryAllowed, "Beneficiary address is not listed in maturityAllowlist");
           } else {
             if (
@@ -375,9 +371,8 @@ contract AccountsDepositWithdrawEndowments is
             ) {
               beneficiaryAllowed = true;
             } else {
-              beneficiaryAllowed = LibAccounts.checkAddressInAllowlist(
-                beneficiaryAddress,
-                tempEndowment.allowlistedBeneficiaries
+              beneficiaryAllowed = tempEndowment.allowlistedBeneficiaries.contains(
+                beneficiaryAddress
               );
             }
             require(
