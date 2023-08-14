@@ -417,16 +417,19 @@ describe("AccountsStrategy", function () {
           gasFee: GAS_FEE,
         };
 
-        let payload = packActionData({
-          destinationChain: "ThatNet",
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
-          selector: vault.interface.getSighash("deposit"),
-          accountIds: [ACCOUNT_ID],
-          token: token.address,
-          lockAmt: LOCK_AMT,
-          liqAmt: LIQ_AMT,
-          status: VaultActionStatus.UNPROCESSED,
-        });
+        let payload = packActionData(
+          {
+            destinationChain: "ThatNet",
+            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            selector: vault.interface.getSighash("deposit"),
+            accountIds: [ACCOUNT_ID],
+            token: token.address,
+            lockAmt: LOCK_AMT,
+            liqAmt: LIQ_AMT,
+            status: VaultActionStatus.UNPROCESSED,
+          },
+          hre
+        );
 
         expect(await facet.strategyInvest(ACCOUNT_ID, investRequest))
           .to.emit(gasReceiver, "GasPaidWithToken")
@@ -738,16 +741,19 @@ describe("AccountsStrategy", function () {
           gasFee: GAS_FEE,
         };
 
-        let payload = packActionData({
-          destinationChain: "ThatNet",
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
-          selector: vault.interface.getSighash("redeem"),
-          accountIds: [ACCOUNT_ID],
-          token: token.address,
-          lockAmt: LOCK_AMT,
-          liqAmt: LIQ_AMT,
-          status: VaultActionStatus.UNPROCESSED,
-        });
+        let payload = packActionData(
+          {
+            destinationChain: "ThatNet",
+            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            selector: vault.interface.getSighash("redeem"),
+            accountIds: [ACCOUNT_ID],
+            token: token.address,
+            lockAmt: LOCK_AMT,
+            liqAmt: LIQ_AMT,
+            status: VaultActionStatus.UNPROCESSED,
+          },
+          hre
+        );
 
         expect(await facet.strategyRedeem(ACCOUNT_ID, redeemRequest))
           .to.emit(gasReceiver, "GasPaid")
@@ -1053,16 +1059,19 @@ describe("AccountsStrategy", function () {
           gasFee: GAS_FEE,
         };
 
-        let payload = packActionData({
-          destinationChain: "ThatNet",
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
-          selector: vault.interface.getSighash("redeemAll"),
-          accountIds: [ACCOUNT_ID],
-          token: token.address,
-          lockAmt: 1,
-          liqAmt: 1,
-          status: VaultActionStatus.UNPROCESSED,
-        });
+        let payload = packActionData(
+          {
+            destinationChain: "ThatNet",
+            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            selector: vault.interface.getSighash("redeemAll"),
+            accountIds: [ACCOUNT_ID],
+            token: token.address,
+            lockAmt: 1,
+            liqAmt: 1,
+            status: VaultActionStatus.UNPROCESSED,
+          },
+          hre
+        );
 
         expect(await facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest))
           .to.emit(gasReceiver, "GasPaid")
@@ -1133,7 +1142,7 @@ describe("AccountsStrategy", function () {
         liqAmt: 1,
         status: VaultActionStatus.UNPROCESSED,
       };
-      const payload = packActionData(action);
+      const payload = packActionData(action, hre);
       const returnedAction = convertVaultActionStructToArray(action);
       await expect(
         facet.execute(ethers.utils.formatBytes32String("true"), "NotNet", owner.address, payload)
@@ -1153,7 +1162,7 @@ describe("AccountsStrategy", function () {
         liqAmt: 1,
         status: VaultActionStatus.UNPROCESSED,
       };
-      const payload = packActionData(action);
+      const payload = packActionData(action, hre);
       const returnedAction = convertVaultActionStructToArray(action);
       await expect(
         facet.executeWithToken(
@@ -1180,7 +1189,7 @@ describe("AccountsStrategy", function () {
         liqAmt: 1,
         status: VaultActionStatus.UNPROCESSED,
       };
-      const payload = packActionData(action);
+      const payload = packActionData(action, hre);
       const returnedAction = convertVaultActionStructToArray(action);
       await expect(
         facet.execute(ethers.utils.formatBytes32String("true"), "ThatNet", owner.address, payload)
@@ -1200,7 +1209,7 @@ describe("AccountsStrategy", function () {
         liqAmt: 1,
         status: VaultActionStatus.UNPROCESSED,
       };
-      const payload = packActionData(action);
+      const payload = packActionData(action, hre);
       const returnedAction = convertVaultActionStructToArray(action);
       await expect(
         facet.executeWithToken(
@@ -1227,7 +1236,7 @@ describe("AccountsStrategy", function () {
         liqAmt: 1,
         status: VaultActionStatus.FAIL_TOKENS_FALLBACK,
       };
-      const payload = packActionData(action);
+      const payload = packActionData(action, hre);
       const returnedAction = convertVaultActionStructToArray(action);
       expect(
         await facet.execute(
@@ -1252,7 +1261,7 @@ describe("AccountsStrategy", function () {
         liqAmt: 1,
         status: VaultActionStatus.UNPROCESSED,
       };
-      const payload = packActionData(action);
+      const payload = packActionData(action, hre);
       const returnedAction = convertVaultActionStructToArray(action);
       await expect(
         facet.execute(ethers.utils.formatBytes32String("true"), "ThatNet", router.address, payload)
@@ -1274,7 +1283,7 @@ describe("AccountsStrategy", function () {
         liqAmt: LIQ_AMT,
         status: VaultActionStatus.FAIL_TOKENS_RETURNED,
       };
-      const payload = packActionData(action);
+      const payload = packActionData(action, hre);
       await facet.executeWithToken(
         ethers.utils.formatBytes32String("true"),
         "ThatNet",
@@ -1301,7 +1310,7 @@ describe("AccountsStrategy", function () {
         liqAmt: LIQ_AMT,
         status: VaultActionStatus.SUCCESS,
       };
-      const payload = packActionData(action);
+      const payload = packActionData(action, hre);
       await facet.executeWithToken(
         ethers.utils.formatBytes32String("true"),
         "ThatNet",
@@ -1328,7 +1337,7 @@ describe("AccountsStrategy", function () {
         liqAmt: LIQ_AMT,
         status: VaultActionStatus.SUCCESS,
       };
-      const payload = packActionData(action);
+      const payload = packActionData(action, hre);
       await facet.executeWithToken(
         ethers.utils.formatBytes32String("true"),
         "ThatNet",
@@ -1355,7 +1364,7 @@ describe("AccountsStrategy", function () {
         liqAmt: LIQ_AMT,
         status: VaultActionStatus.POSITION_EXITED,
       };
-      const payload = packActionData(action);
+      const payload = packActionData(action, hre);
       await wait(
         state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true)
       );
@@ -1391,7 +1400,7 @@ describe("AccountsStrategy", function () {
         liqAmt: LIQ_AMT,
         status: VaultActionStatus.POSITION_EXITED,
       };
-      const payload = packActionData(action);
+      const payload = packActionData(action, hre);
       await wait(
         state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true)
       );
@@ -1427,7 +1436,7 @@ describe("AccountsStrategy", function () {
         liqAmt: LIQ_AMT,
         status: VaultActionStatus.UNPROCESSED,
       };
-      const payload = packActionData(action);
+      const payload = packActionData(action, hre);
       const returnedAction = convertVaultActionStructToArray(action);
 
       const apParams = {
