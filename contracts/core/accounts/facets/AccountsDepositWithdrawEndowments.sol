@@ -124,6 +124,7 @@ contract AccountsDepositWithdrawEndowments is
 
     RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
       .queryConfig();
+    require(registrarConfig.indexFundContract != address(0), "No Index Fund");
 
     // Cannot receive contributions into a mature Endowment
     require(
@@ -134,7 +135,8 @@ contract AccountsDepositWithdrawEndowments is
     // or that it is the Endowment owner. If allowlist is empty anyone may contribute.
     bool contributorAllowed = true;
     if (
-      msg.sender != tempEndowment.owner || state.allowlistedContributors[details.id].keys.length > 0
+      (msg.sender != registrarConfig.indexFundContract && msg.sender != tempEndowment.owner) &&
+      state.allowlistedContributors[details.id].keys.length > 0
     ) {
       contributorAllowed = (IterableMapping.get(
         state.allowlistedContributors[details.id],
@@ -164,7 +166,6 @@ contract AccountsDepositWithdrawEndowments is
     // ** SPLIT ADJUSTMENTS AND CHECKS **
     uint256 lockedSplitPercent = details.lockedPercentage;
     uint256 liquidSplitPercent = details.liquidPercentage;
-    require(registrarConfig.indexFundContract != address(0), "No Index Fund");
     if (msg.sender != registrarConfig.indexFundContract) {
       // adjust user passed liquid split to be in-line with endowment range (if falls outside)
       liquidSplitPercent = Validator.adjustLiquidSplit(
@@ -224,7 +225,6 @@ contract AccountsDepositWithdrawEndowments is
     uint256 amount
   ) internal {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
 
     require(details.lockedPercentage + details.liquidPercentage == 100, "InvalidSplit");
     uint256 lockedAmount = amount.mulDivDown(details.lockedPercentage, LibAccounts.PERCENT_BASIS);
