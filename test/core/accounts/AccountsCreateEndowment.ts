@@ -407,7 +407,7 @@ describe("AccountsCreateEndowment", function () {
     const request: AccountMessages.CreateEndowmentRequestStruct = {
       ...createEndowmentRequest,
       endowType: 0, // Charity
-      ignoreUserSplits: true
+      ignoreUserSplits: true,
     };
 
     await expect(facet.connect(charityApplications).createEndowment(request))
@@ -425,7 +425,10 @@ describe("AccountsCreateEndowment", function () {
     expect(result.balanceFee).to.equalFee({bps: 0, payoutAddress: ethers.constants.AddressZero});
     expect(result.depositFee).to.equalFee({bps: 0, payoutAddress: ethers.constants.AddressZero});
     expect(result.withdrawFee).to.equalFee({bps: 0, payoutAddress: ethers.constants.AddressZero});
-    expect(result.earlyLockedWithdrawFee).to.equalFee({bps: 0, payoutAddress: ethers.constants.AddressZero});
+    expect(result.earlyLockedWithdrawFee).to.equalFee({
+      bps: 0,
+      payoutAddress: ethers.constants.AddressZero,
+    });
     expect(result.endowType).to.equal(request.endowType);
     expect(result.ignoreUserSplits).to.equal(request.ignoreUserSplits);
     expect(result.image).to.equal(request.image);

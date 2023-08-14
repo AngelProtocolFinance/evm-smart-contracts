@@ -986,7 +986,9 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
           await expect(
             facet.withdraw(charityId, acctType, beneficiaryAddress, beneficiaryId, tokens)
-          ).to.be.revertedWith("Charity Endowments may only transfer funds to other Charity Endowments");
+          ).to.be.revertedWith(
+            "Charity Endowments may only transfer funds to other Charity Endowments"
+          );
         });
 
         it("passes: charity, beneficiary ID(charity-type), sender is endow. owner, no withdraw fees applied", async () => {
