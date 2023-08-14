@@ -52,12 +52,12 @@ describe("AccountsAllowance", function () {
       // set a starting balance for Endowment: 100 qty of tokens in liquid
       await state.setEndowmentTokenBalance(42, tokenFake.address, 0, 100);
       // setup endowment 42 with minimum needed for testing
-      // Allowlists Beneficiaries set for a user
       let endowment = DEFAULT_CHARITY_ENDOWMENT;
       endowment.owner = owner.address;
-      endowment.allowlistedBeneficiaries = [user.address];
-      endowment.maturityAllowlist = [user.address];
       await state.setEndowmentDetails(42, endowment);
+      // Beneficiaries & Maturity Allowlists set for endowment user
+      await state.setAllowlist(42, 0, [user.address]);
+      await state.setAllowlist(42, 2, [user.address]);
     });
 
     it("reverts when the endowment is closed", async function () {
