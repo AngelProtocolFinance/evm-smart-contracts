@@ -34,6 +34,7 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
   using SafeMath for uint256;
 
   error InvalidAddress(string param);
+  error InvalidToken();
 
   /**
    * @notice Initializer function for index fund contract, to be called when proxy is deployed
@@ -252,7 +253,10 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
       Validator.addressChecker(registrarConfig.accountsContract),
       "Accounts contract not configured in Registrar"
     );
-    // Require that the incoming token is accpeted
+    if (token == address(0)) {
+      revert InvalidToken();
+    }
+    // Require that the incoming token is accepted
     require(_tokenIsAccepted(token), "Unaccepted Token");
 
     // tokens must be transfered from the sender to this contract

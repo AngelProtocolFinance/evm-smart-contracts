@@ -1,7 +1,9 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {impersonateAccount, setBalance, time} from "@nomicfoundation/hardhat-network-helpers";
+import {setNextBlockTimestamp} from "@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
+import {ContractReceipt, ContractTransaction} from "ethers";
 import hre from "hardhat";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
 import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG} from "test/utils";
@@ -24,6 +26,8 @@ import {getSigners} from "utils";
 
 describe("IndexFund", function () {
   const {ethers} = hre;
+
+  const MAX_ENDOWMENT_MEMBERS = 10;
 
   let owner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
@@ -62,6 +66,12 @@ describe("IndexFund", function () {
     return IndexFundProxy;
   }
 
+  async function wait(
+    tx: ContractTransaction | Promise<ContractTransaction>
+  ): Promise<ContractReceipt> {
+    return (await tx).wait();
+  }
+
   before(async function () {
     const signers = await getSigners(hre);
     owner = signers.deployer;
@@ -75,60 +85,61 @@ describe("IndexFund", function () {
     token.transfer.returns(true);
     token.approve.returns(true);
 
-    const registrarConfig: RegistrarStorage.ConfigStruct = {
-      ...DEFAULT_REGISTRAR_CONFIG,
-      wMaticAddress: wmatic.address,
-      splitToLiquid: {defaultSplit: 50, max: 90, min: 10},
-      treasury: owner.address,
-    };
-    registrar.queryConfig.returns(registrarConfig);
-    registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
-
     // setup the Accounts DepositWithdraw Endowments facet once
     let Facet = new AccountsDepositWithdrawEndowments__factory(owner);
     let facetImpl = await Facet.deploy();
     state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
-    await state.setConfig({
-      owner: owner.address,
-      version: "1",
-      networkName: "Polygon",
-      registrarContract: registrar.address,
-      nextAccountId: 1,
-      reentrancyGuardLocked: false,
-    });
     accountsDepositWithdrawEndowments = AccountsDepositWithdrawEndowments__factory.connect(
       state.address,
       owner
     );
 
+    let nextAccountId = 1;
     // setup the various Endowments for testing index funds once
     // #1 - A closed endowment for error checks
-    await state.setClosingEndowmentState(1, true, {
-      data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
-      enumData: 0,
-    });
+    await wait(
+      state.setClosingEndowmentState(nextAccountId, true, {
+        data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
+        enumData: 0,
+      })
+    );
 
     // #2 - A non-closing endowment
-    await state.setClosingEndowmentState(2, false, {
-      data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
-      enumData: 0,
-    });
+    await wait(
+      state.setClosingEndowmentState(++nextAccountId, false, {
+        data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
+        enumData: 0,
+      })
+    );
     // accepts token for deposits
-    await state.setTokenAccepted(2, token.address, true);
+    await wait(state.setTokenAccepted(nextAccountId, token.address, true));
     // setup endowment with minimum needed for testing
     let endowment = DEFAULT_CHARITY_ENDOWMENT;
-    await state.setEndowmentDetails(2, endowment);
+    await wait(state.setEndowmentDetails(nextAccountId, endowment));
 
     // #3 - A non-closing endowment
-    await state.setClosingEndowmentState(3, false, {
-      data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
-      enumData: 0,
-    });
+    await wait(
+      state.setClosingEndowmentState(++nextAccountId, false, {
+        data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
+        enumData: 0,
+      })
+    );
     // accepts token & wmatic for deposits
-    await state.setTokenAccepted(3, token.address, true);
-    await state.setTokenAccepted(3, wmatic.address, true);
+    await wait(state.setTokenAccepted(nextAccountId, token.address, true));
+    await wait(state.setTokenAccepted(nextAccountId, wmatic.address, true));
     // setup endowment with minimum needed for testing
-    await state.setEndowmentDetails(3, endowment);
+    await wait(state.setEndowmentDetails(nextAccountId, endowment));
+
+    await wait(
+      state.setConfig({
+        owner: owner.address,
+        version: "1",
+        networkName: "Polygon",
+        registrarContract: registrar.address,
+        nextAccountId: nextAccountId + 1,
+        reentrancyGuardLocked: false,
+      })
+    );
   });
 
   beforeEach(async () => {
@@ -145,6 +156,7 @@ describe("IndexFund", function () {
       splitToLiquid: {defaultSplit: 50, max: 100, min: 0},
     };
     registrar.queryConfig.returns(registrarConfig);
+    registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
   });
 
   describe("Deploying the contract", function () {
@@ -234,13 +246,20 @@ describe("IndexFund", function () {
 
     it("reverts when too many endowment members are passed (> fundMemberLimit)", async function () {
       await expect(
-        facet.createIndexFund("Test Fund #1", "Test fund", [1, 2, 3], false, 0, 0)
+        facet.createIndexFund(
+          "Test Fund #1",
+          "Test fund",
+          [...Array(MAX_ENDOWMENT_MEMBERS + 1).keys()],
+          false,
+          0,
+          0
+        )
       ).to.be.revertedWith("Fund endowment members exceeds upper limit");
     });
 
     it("reverts when the split is greater than 100", async function () {
       await expect(
-        facet.createIndexFund("Test Fund #1", "Test fund", [1, 2], false, 0, 105)
+        facet.createIndexFund("Test Fund #1", "Test fund", [1, 2], false, 105, 0)
       ).to.be.revertedWith("Invalid split: must be less or equal to 100");
     });
 
@@ -277,11 +296,20 @@ describe("IndexFund", function () {
   });
 
   describe("Updating an existing Fund's endowment members", function () {
-    before(async function () {
+    beforeEach(async function () {
       // create 2 funds (1 active and 1 expired)
       let currTime = await time.latest();
-      await facet.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0);
-      await facet.createIndexFund("Test Fund #2", "Test fund", [3], false, 50, currTime + 42069);
+      const tx1 = await facet.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0);
+      const tx2 = await facet.createIndexFund(
+        "Test Fund #2",
+        "Test fund",
+        [3],
+        false,
+        50,
+        currTime + 42069
+      );
+      await tx1.wait();
+      await tx2.wait();
       await time.increase(42069); // move time forward so Fund #2 is @ expiry
     });
 
@@ -293,14 +321,14 @@ describe("IndexFund", function () {
 
     it("reverts when no members are passed", async function () {
       await expect(facet.updateFundMembers(1, [], [])).to.be.revertedWith(
-        "Must pass at least one endowment member to add to the Fund"
+        "Must pass at least one endowment member to add to or remove from the Fund"
       );
     });
 
     it("reverts when too many members are passed", async function () {
-      await expect(facet.updateFundMembers(1, [1, 2, 3], [])).to.be.revertedWith(
-        "Fund endowment members exceeds upper limit"
-      );
+      await expect(
+        facet.updateFundMembers(1, [...Array(MAX_ENDOWMENT_MEMBERS + 1).keys()], [])
+      ).to.be.revertedWith("Fund endowment members exceeds upper limit");
     });
 
     it("reverts when the fund is expired", async function () {
@@ -314,16 +342,25 @@ describe("IndexFund", function () {
 
       await expect(facet.updateFundMembers(1, [1, 2], [3]))
         .to.emit(facet, "MembersUpdated")
-        .withArgs(1, [1, 2]);
+        .withArgs(1, [2, 1]);
     });
   });
 
   describe("Removing an existing Fund", function () {
-    before(async function () {
+    beforeEach(async function () {
       // create 2 funds (1 active and 1 expired)
       let currTime = await time.latest();
-      await facet.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0);
-      await facet.createIndexFund("Test Fund #2", "Test fund", [3], false, 50, currTime + 42069);
+      const tx1 = await facet.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0);
+      const tx2 = await facet.createIndexFund(
+        "Test Fund #2",
+        "Test fund",
+        [3],
+        false,
+        50,
+        currTime + 42069
+      );
+      await tx1.wait();
+      await tx2.wait();
       await time.increase(42069); // move time forward so Fund #2 is @ expiry
     });
 
@@ -343,11 +380,20 @@ describe("IndexFund", function () {
   });
 
   describe("Removing an endowment from all involved Funds", function () {
-    before(async function () {
+    beforeEach(async function () {
       // create 2 funds (1 active and 1 expired)
       let currTime = await time.latest();
-      await facet.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0);
-      await facet.createIndexFund("Test Fund #2", "Test fund", [3], false, 50, currTime + 42069);
+      const tx1 = await facet.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0);
+      const tx2 = await facet.createIndexFund(
+        "Test Fund #2",
+        "Test fund",
+        [3],
+        false,
+        50,
+        currTime + 42069
+      );
+      await tx1.wait();
+      await tx2.wait();
       await time.increase(42069); // move time forward so Fund #2 is @ expiry
     });
 
@@ -376,12 +422,21 @@ describe("IndexFund", function () {
   });
 
   describe("When a user deposits tokens to a Fund", function () {
-    before(async function () {
-      // create 1 active, non-rotating fund
-      await facet.createIndexFund("Test Fund #1", "Test fund", [2, 3], false, 50, 0);
-      // create 1 expired, non-rotating fund
+    beforeEach(async function () {
       let currTime = await time.latest();
-      await facet.createIndexFund("Test Fund #2", "Test fund", [2, 3], false, 50, currTime + 42069);
+      // create 1 active, non-rotating fund
+      const tx1 = await facet.createIndexFund("Test Fund #1", "Test fund", [2, 3], false, 50, 0);
+      // create 1 expired, non-rotating fund
+      const tx2 = await facet.createIndexFund(
+        "Test Fund #2",
+        "Test fund",
+        [2, 3],
+        false,
+        50,
+        currTime + 42069
+      );
+      await tx1.wait();
+      await tx2.wait();
       await time.increase(42069); // move time forward so Fund #2 is @ expiry
     });
 
@@ -403,9 +458,9 @@ describe("IndexFund", function () {
     });
 
     it("reverts when invalid token is passed", async function () {
-      await expect(facet.depositERC20(1, ethers.constants.AddressZero, 100)).to.be.revertedWith(
-        "Invalid token"
-      );
+      await expect(
+        facet.depositERC20(1, ethers.constants.AddressZero, 100)
+      ).to.be.revertedWithCustomError(facet, "InvalidToken");
     });
 
     it("reverts when amount donated, on a per endowment-basis for a fund, would be < min units", async function () {
@@ -415,13 +470,13 @@ describe("IndexFund", function () {
     });
 
     it("reverts when target fund is expired", async function () {
-      await expect(facet.depositERC20(2, token.address, 100)).to.be.revertedWith("Fund expired");
+      await expect(facet.depositERC20(2, token.address, 100)).to.be.revertedWith("Expired Fund");
     });
 
     it("reverts when `0` Fund ID is passed with no rotating funds(empty)", async function () {
       // should fail with no rotating funds set
       await expect(facet.depositERC20(0, token.address, 100)).to.be.revertedWith(
-        "Must have rotating funds active to pass a Fund ID of 0"
+        "No rotating funds"
       );
     });
 
@@ -441,51 +496,49 @@ describe("IndexFund", function () {
 
       // should fail when prep clean up process removes the expired fund, leaving 0 funds available
       await expect(facet.depositERC20(0, token.address, 500)).to.be.revertedWith(
-        "Must have rotating funds active to pass a Fund ID of 0"
+        "No rotating funds"
       );
     });
 
     it("passes for a specific fund, amount > min & token is valid", async function () {
       // create 1 active, rotating fund
-      await expect(facet.createIndexFund("Test Fund #4", "Test fund", [2, 3], true, 50, 0))
+      const fundId = 3;
+      await expect(facet.createIndexFund("Test Fund #3", "Test fund", [2, 3], true, 50, 0))
         .to.emit(facet, "FundCreated")
-        .withArgs(4);
+        .withArgs(fundId);
 
-      await expect(
-        facet.depositERC20(4, token.address, 500, {
-          gasPrice: 100000,
-          gasLimit: 10000000,
-        })
-      )
+      await expect(facet.depositERC20(fundId, token.address, 500))
         .to.emit(facet, "DonationProcessed")
-        .withArgs(4);
+        .withArgs(fundId);
     });
 
     it("passes for an active fund donation(amount-based rotation), amount > min & token is valid", async function () {
-      // create 1 more active, rotating fund for full rotation testing
-      await expect(facet.createIndexFund("Test Fund #5", "Test fund", [2], true, 100, 0))
+      // create an active, rotating fund for full rotation testing
+      const currActiveFund = 3;
+      await expect(facet.createIndexFund("Test Fund #3", "Test fund", [2], true, 100, 0))
         .to.emit(facet, "FundCreated")
-        .withArgs(5);
+        .withArgs(currActiveFund);
+
+      // create 1 more active, rotating fund for full rotation testing
+      const nextActiveFund = 4;
+      await expect(facet.createIndexFund("Test Fund #4", "Test fund", [2], true, 100, 0))
+        .to.emit(facet, "FundCreated")
+        .withArgs(nextActiveFund);
 
       let ifState = await facet.queryState();
-      expect(ifState.activeFund).to.equal(4);
+      expect(ifState.activeFund).to.equal(currActiveFund);
       expect(ifState.roundDonations).to.equal(0);
       let ifRotating = await facet.queryRotatingFunds();
       expect(ifRotating.length).to.equal(2);
 
       // deposit: should fill whole active fund goal and rotate to next fund for final 1000
-      await expect(
-        facet.depositERC20(0, token.address, 11000, {
-          gasPrice: 100000,
-          gasLimit: 10000000,
-        })
-      )
+      await expect(facet.depositERC20(0, token.address, 11000))
         .to.emit(facet, "DonationProcessed")
         .withArgs(4);
 
       // check all donation metrics reflect expected
       ifState = await facet.queryState();
-      expect(ifState.activeFund).to.equal(5);
+      expect(ifState.activeFund).to.equal(nextActiveFund);
       expect(ifState.roundDonations).to.equal(1000);
 
       // test with a LARGER donation amount for gas-usage and rotation stress-tests
@@ -496,7 +549,7 @@ describe("IndexFund", function () {
         })
       )
         .to.emit(facet, "DonationProcessed")
-        .withArgs(4);
+        .withArgs(nextActiveFund);
     });
   });
 });
