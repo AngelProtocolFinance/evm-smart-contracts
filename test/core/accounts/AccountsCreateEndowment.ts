@@ -3,7 +3,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {DEFAULT_REGISTRAR_CONFIG} from "test/utils";
+import {DEFAULT_REGISTRAR_CONFIG, wait} from "test/utils";
 import {
   AccountsCreateEndowment,
   AccountsCreateEndowment__factory,
@@ -146,26 +146,26 @@ describe("AccountsCreateEndowment", function () {
     let facetImpl = await Facet.deploy();
     state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
 
-    await state.setConfig({
-      owner: owner.address,
-      version: "1",
-      networkName: "Polygon",
-      registrarContract: registrarFake.address,
-      nextAccountId: expectedNextAccountId,
-      reentrancyGuardLocked: false,
-    });
+    await wait(
+      state.setConfig({
+        owner: owner.address,
+        version: "1",
+        networkName: "Polygon",
+        registrarContract: registrarFake.address,
+        nextAccountId: expectedNextAccountId,
+        reentrancyGuardLocked: false,
+      })
+    );
 
     facet = AccountsCreateEndowment__factory.connect(state.address, owner);
   });
 
   it("should revert if the caller is not authorized to create a charity endowment", async () => {
-    // const details: AccountMessages.CreateEndowmentRequestStruct = {
-    //   ...createEndowmentRequest,
-    //   endowType: 0, // Charity
-    // };
-    // await expect(facet.createEndowment(details)).to.be.revertedWith("Unauthorized");
-    const t = true;
-    expect(t);
+    const details: AccountMessages.CreateEndowmentRequestStruct = {
+      ...createEndowmentRequest,
+      endowType: 0, // Charity
+    };
+    await expect(facet.createEndowment(details)).to.be.revertedWith("Unauthorized");
   });
 
   it("should revert if the earlyLockedWithdrawFee payout address is a zero address for a non-charity endowment", async () => {

@@ -3,7 +3,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG} from "test/utils";
+import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG, wait} from "test/utils";
 import {
   AccountsDonationMatch,
   AccountsDonationMatch__factory,
@@ -85,15 +85,17 @@ describe("AccountsDonationMatch", function () {
       owner: endowOwner.address,
       daoToken: daoTokenFake.address,
     };
-    await state.setEndowmentDetails(endowId, endowment);
-    await state.setConfig({
-      owner: accOwner.address,
-      version: "1",
-      networkName: "Polygon",
-      registrarContract: registrarFake.address,
-      nextAccountId: endowId + 1,
-      reentrancyGuardLocked: false,
-    });
+    await wait(state.setEndowmentDetails(endowId, endowment));
+    await wait(
+      state.setConfig({
+        owner: accOwner.address,
+        version: "1",
+        networkName: "Polygon",
+        registrarContract: registrarFake.address,
+        nextAccountId: endowId + 1,
+        reentrancyGuardLocked: false,
+      })
+    );
   });
 
   describe("upon depositDonationMatchERC20", () => {
@@ -154,7 +156,7 @@ describe("AccountsDonationMatch", function () {
       const amount = 10;
       const recipient = genWallet().address;
 
-      await state.setDaoTokenBalance(endowId, amount);
+      await wait(state.setDaoTokenBalance(endowId, amount));
 
       daoTokenFake.transfer.whenCalledWith(recipient, amount).returns(true);
 
@@ -169,7 +171,7 @@ describe("AccountsDonationMatch", function () {
       const amount = 10;
       const recipient = genWallet().address;
 
-      await state.setDaoTokenBalance(endowId, amount + 1);
+      await wait(state.setDaoTokenBalance(endowId, amount + 1));
 
       daoTokenFake.transfer.whenCalledWith(recipient, amount).returns(true);
 
@@ -207,7 +209,7 @@ describe("AccountsDonationMatch", function () {
         ...prevEndow,
         donationMatchContract: genWallet().address,
       };
-      await state.setEndowmentDetails(endowId, endowWithDonMatch);
+      await wait(state.setEndowmentDetails(endowId, endowWithDonMatch));
 
       await expect(facet.setupDonationMatch(endowId, details)).to.be.revertedWith(
         "A Donation Match contract already exists for this Endowment"

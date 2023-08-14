@@ -7,11 +7,11 @@ import {
   DEFAULT_CHARITY_ENDOWMENT,
   DEFAULT_REGISTRAR_CONFIG,
   DEFAULT_STRATEGY_SELECTOR,
+  wait,
 } from "test/utils";
 import {
   AccountsUpdateStatusEndowments,
   AccountsUpdateStatusEndowments__factory,
-  IIndexFund,
   IndexFund,
   IndexFund__factory,
   Registrar,
@@ -82,15 +82,17 @@ describe("AccountsUpdateStatusEndowments", function () {
 
     registrarFake.queryAllStrategies.returns(strategies);
 
-    await state.setEndowmentDetails(accountId, endowment);
-    await state.setConfig({
-      owner: accOwner.address,
-      version: "1",
-      networkName: "Polygon",
-      registrarContract: registrarFake.address,
-      nextAccountId: accountId + 1,
-      reentrancyGuardLocked: false,
-    });
+    await wait(state.setEndowmentDetails(accountId, endowment));
+    await wait(
+      state.setConfig({
+        owner: accOwner.address,
+        version: "1",
+        networkName: "Polygon",
+        registrarContract: registrarFake.address,
+        nextAccountId: accountId + 1,
+        reentrancyGuardLocked: false,
+      })
+    );
 
     facet = AccountsUpdateStatusEndowments__factory.connect(state.address, endowOwner);
   });
@@ -103,7 +105,7 @@ describe("AccountsUpdateStatusEndowments", function () {
     });
 
     it("reverts if the endowment is already closed", async () => {
-      await state.setClosingEndowmentState(accountId, true, beneficiary);
+      await wait(state.setClosingEndowmentState(accountId, true, beneficiary));
       await expect(facet.closeEndowment(accountId, beneficiary)).to.be.revertedWith(
         "Endowment is closed"
       );
@@ -120,7 +122,7 @@ describe("AccountsUpdateStatusEndowments", function () {
     });
 
     it("reverts if the endowment has active strategies", async () => {
-      await state.setActiveStrategyEndowmentState(accountId, strategies[0], true);
+      await wait(state.setActiveStrategyEndowmentState(accountId, strategies[0], true));
       await expect(facet.closeEndowment(accountId, beneficiary)).to.be.revertedWith(
         "Not fully exited"
       );
@@ -184,7 +186,7 @@ describe("AccountsUpdateStatusEndowments", function () {
     });
 
     it("sets the active state to false for the specified strategy", async function () {
-      await state.setActiveStrategyEndowmentState(accountId, DEFAULT_STRATEGY_SELECTOR, true);
+      await wait(state.setActiveStrategyEndowmentState(accountId, DEFAULT_STRATEGY_SELECTOR, true));
       await facet
         .connect(endowOwner)
         .forceSetStrategyInactive(accountId, DEFAULT_STRATEGY_SELECTOR);

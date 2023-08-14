@@ -22,6 +22,7 @@ import {
   deployDummyGateway,
   deployDummyVault,
   packActionData,
+  wait,
 } from "test/utils";
 import {
   AccountsStrategy,
@@ -81,7 +82,7 @@ describe("AccountsStrategy", function () {
     before(async function () {
       token = await deployDummyERC20(owner);
       gateway = await deployDummyGateway(owner);
-      await gateway.setTestTokenAddress(token.address);
+      await wait(gateway.setTestTokenAddress(token.address));
 
       network = {
         ...DEFAULT_NETWORK_INFO,
@@ -98,7 +99,7 @@ describe("AccountsStrategy", function () {
 
     describe("reverts when", async function () {
       it("the caller is not approved for locked fund mgmt", async function () {
-        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
         let investRequest = {
           ...DEFAULT_INVEST_REQUEST,
           lockAmt: 1,
@@ -109,7 +110,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("the caller is not approved for liquid fund mgmt", async function () {
-        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
         let investRequest = {
           ...DEFAULT_INVEST_REQUEST,
           liquidAmt: 1,
@@ -120,12 +121,12 @@ describe("AccountsStrategy", function () {
       });
 
       it("the strategy is not approved", async function () {
-        await state.setEndowmentDetails(1, DEFAULT_CHARITY_ENDOWMENT);
+        await wait(state.setEndowmentDetails(1, DEFAULT_CHARITY_ENDOWMENT));
         let config = {
           ...DEFAULT_ACCOUNTS_CONFIG,
           registrarContract: registrar.address,
         };
-        await state.setConfig(config);
+        await wait(state.setConfig(config));
         await expect(facet.strategyInvest(ACCOUNT_ID, DEFAULT_INVEST_REQUEST)).to.be.revertedWith(
           "Strategy is not approved"
         );
@@ -140,13 +141,13 @@ describe("AccountsStrategy", function () {
             expires: 0,
           },
         };
-        await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
         let config = {
           ...DEFAULT_ACCOUNTS_CONFIG,
           registrarContract: registrar.address,
         };
-        await state.setConfig(config);
+        await wait(state.setConfig(config));
 
         let stratParams = {
           ...DEFAULT_STRATEGY_PARAMS,
@@ -172,13 +173,13 @@ describe("AccountsStrategy", function () {
             expires: 0,
           },
         };
-        await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
         let config = {
           ...DEFAULT_ACCOUNTS_CONFIG,
           registrarContract: registrar.address,
         };
-        await state.setConfig(config);
+        await wait(state.setConfig(config));
 
         let stratParams = {
           ...DEFAULT_STRATEGY_PARAMS,
@@ -200,7 +201,7 @@ describe("AccountsStrategy", function () {
           ...DEFAULT_ACCOUNTS_CONFIG,
           registrarContract: registrar.address,
         };
-        await state.setConfig(config);
+        await wait(state.setConfig(config));
 
         let stratParams = {
           ...DEFAULT_STRATEGY_PARAMS,
@@ -251,10 +252,10 @@ describe("AccountsStrategy", function () {
             expires: 0,
           },
         };
-        await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
         token.mint(facet.address, 1000);
-        await state.setEndowmentTokenBalance(ACCOUNT_ID, token.address, 500, 500);
+        await wait(state.setEndowmentTokenBalance(ACCOUNT_ID, token.address, 500, 500));
 
         const config = {
           ...DEFAULT_ACCOUNTS_CONFIG,
@@ -262,7 +263,7 @@ describe("AccountsStrategy", function () {
           gateway: gateway.address,
           registrarContract: registrar.address,
         };
-        await state.setConfig(config);
+        await wait(state.setConfig(config));
       });
 
       it("and the response is SUCCESS", async function () {
@@ -375,7 +376,7 @@ describe("AccountsStrategy", function () {
           networkName: "ThisNet",
           gateway: gateway.address,
         };
-        await state.setConfig(config);
+        await wait(state.setConfig(config));
 
         let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
         endowDetails.settingsController.liquidInvestmentManagement = {
@@ -393,15 +394,17 @@ describe("AccountsStrategy", function () {
           },
         };
         endowDetails.gasFwd = gasFwd.address;
-        await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
         await token.mint(facet.address, INITIAL_LIQ_BAL + INITIAL_LOCK_BAL);
         await token.mint(gasFwd.address, GAS_FEE);
-        await state.setEndowmentTokenBalance(
-          ACCOUNT_ID,
-          token.address,
-          INITIAL_LOCK_BAL,
-          INITIAL_LIQ_BAL
+        await wait(
+          state.setEndowmentTokenBalance(
+            ACCOUNT_ID,
+            token.address,
+            INITIAL_LOCK_BAL,
+            INITIAL_LIQ_BAL
+          )
         );
         await gasFwd.setVariable("accounts", facet.address);
       });
@@ -465,7 +468,7 @@ describe("AccountsStrategy", function () {
     before(async function () {
       token = await deployDummyERC20(owner);
       gateway = await deployDummyGateway(owner);
-      await gateway.setTestTokenAddress(token.address);
+      await wait(gateway.setTestTokenAddress(token.address));
 
       network = {
         ...DEFAULT_NETWORK_INFO,
@@ -482,7 +485,7 @@ describe("AccountsStrategy", function () {
 
     describe("reverts when", async function () {
       it("the caller is not approved for locked fund mgmt", async function () {
-        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
         let redeemRequest = {
           ...DEFAULT_REDEEM_REQUEST,
           lockAmt: 1,
@@ -493,7 +496,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("the caller is not approved for liquid fund mgmt", async function () {
-        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
         let redeemRequest = {
           ...DEFAULT_REDEEM_REQUEST,
           liquidAmt: 1,
@@ -512,10 +515,10 @@ describe("AccountsStrategy", function () {
         registrar.getStrategyParamsById.returns(stratParams);
         let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
         endowDetails.owner = owner.address;
-        await state.setEndowmentDetails(1, endowDetails);
+        await wait(state.setEndowmentDetails(1, endowDetails));
         let config = DEFAULT_ACCOUNTS_CONFIG;
         config.registrarContract = registrar.address;
-        await state.setConfig(config);
+        await wait(state.setConfig(config));
         await expect(facet.strategyRedeem(ACCOUNT_ID, DEFAULT_REDEEM_REQUEST)).to.be.revertedWith(
           "Strategy is not approved"
         );
@@ -566,10 +569,12 @@ describe("AccountsStrategy", function () {
             expires: 0,
           },
         };
-        await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
         token.mint(facet.address, LOCK_AMT + LIQ_AMT);
-        await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true);
+        await wait(
+          state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true)
+        );
 
         const config = {
           ...DEFAULT_ACCOUNTS_CONFIG,
@@ -577,7 +582,7 @@ describe("AccountsStrategy", function () {
           gateway: gateway.address,
           registrarContract: registrar.address,
         };
-        await state.setConfig(config);
+        await wait(state.setConfig(config));
       });
 
       it("and the response is SUCCESS", async function () {
@@ -701,7 +706,7 @@ describe("AccountsStrategy", function () {
           registrarContract: registrar.address,
           networkName: "ThisNet",
         };
-        await state.setConfig(config);
+        await wait(state.setConfig(config));
 
         let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
         endowDetails.settingsController.liquidInvestmentManagement = {
@@ -719,7 +724,7 @@ describe("AccountsStrategy", function () {
           },
         };
         endowDetails.gasFwd = gasFwd.address;
-        await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
         await token.mint(gasFwd.address, GAS_FEE);
         await gasFwd.setVariable("accounts", facet.address);
@@ -774,7 +779,7 @@ describe("AccountsStrategy", function () {
     before(async function () {
       token = await deployDummyERC20(owner);
       gateway = await deployDummyGateway(owner);
-      await gateway.setTestTokenAddress(token.address);
+      await wait(gateway.setTestTokenAddress(token.address));
 
       const network = {
         ...DEFAULT_NETWORK_INFO,
@@ -797,13 +802,13 @@ describe("AccountsStrategy", function () {
 
     describe("reverts when", async function () {
       it("the caller is not approved for locked nor liquid fund mgmt", async function () {
-        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
         await expect(
           facet.connect(user).strategyRedeemAll(ACCOUNT_ID, DEFAULT_REDEEM_ALL_REQUEST)
         ).to.be.revertedWith("Must redeem at least one of Locked/Liquid");
       });
       it("the caller is not approved for locked fund mgmt", async function () {
-        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
         let redeemAllRequest = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLocked: true,
@@ -813,7 +818,7 @@ describe("AccountsStrategy", function () {
         ).to.be.revertedWith("Unauthorized");
       });
       it("the caller is not approved for liquid fund mgmt", async function () {
-        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
         let redeemAllRequest = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLiquid: true,
@@ -845,10 +850,10 @@ describe("AccountsStrategy", function () {
             },
           },
         };
-        await state.setEndowmentDetails(1, endowDetails);
+        await wait(state.setEndowmentDetails(1, endowDetails));
         let config = DEFAULT_ACCOUNTS_CONFIG;
         config.registrarContract = registrar.address;
-        await state.setConfig(config);
+        await wait(state.setConfig(config));
         let redeemAllRequest = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLiquid: true,
@@ -891,7 +896,7 @@ describe("AccountsStrategy", function () {
             gateway: gateway.address,
             registrarContract: registrar.address,
           };
-          await state.setConfig(config);
+          await wait(state.setConfig(config));
 
           let endowDetails: AccountStorage.EndowmentStruct = {
             ...DEFAULT_CHARITY_ENDOWMENT,
@@ -914,10 +919,12 @@ describe("AccountsStrategy", function () {
               },
             },
           };
-          await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
+          await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
           await token.mint(facet.address, LOCK_AMT + LIQ_AMT);
-          await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true);
+          await wait(
+            state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true)
+          );
         });
 
         it("and the response is POSITION_EXITED", async function () {
@@ -1014,7 +1021,7 @@ describe("AccountsStrategy", function () {
           registrarContract: registrar.address,
           networkName: "ThisNet",
         };
-        await state.setConfig(config);
+        await wait(state.setConfig(config));
 
         let endowDetails = DEFAULT_CHARITY_ENDOWMENT;
         endowDetails.settingsController.liquidInvestmentManagement = {
@@ -1032,7 +1039,7 @@ describe("AccountsStrategy", function () {
           },
         };
         endowDetails.gasFwd = gasFwd.address;
-        await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
 
         await token.mint(gasFwd.address, GAS_FEE);
         await gasFwd.setVariable("accounts", facet.address);
@@ -1087,7 +1094,7 @@ describe("AccountsStrategy", function () {
     before(async function () {
       token = await deployDummyERC20(owner);
       gateway = await deployDummyGateway(owner);
-      await gateway.setTestTokenAddress(token.address);
+      await wait(gateway.setTestTokenAddress(token.address));
 
       const thisNet = {
         ...DEFAULT_NETWORK_INFO,
@@ -1112,7 +1119,7 @@ describe("AccountsStrategy", function () {
         networkName: "ThisNet",
         registrarContract: registrar.address,
       };
-      await state.setConfig(config);
+      await wait(state.setConfig(config));
     });
 
     it("reverts in _execute if the call didn't originate from the expected chain", async function () {
@@ -1349,7 +1356,9 @@ describe("AccountsStrategy", function () {
         status: VaultActionStatus.POSITION_EXITED,
       };
       const payload = packActionData(action);
-      await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true);
+      await wait(
+        state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true)
+      );
 
       await facet.executeWithToken(
         ethers.utils.formatBytes32String("true"),
@@ -1383,7 +1392,9 @@ describe("AccountsStrategy", function () {
         status: VaultActionStatus.POSITION_EXITED,
       };
       const payload = packActionData(action);
-      await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true);
+      await wait(
+        state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true)
+      );
 
       await facet.executeWithToken(
         ethers.utils.formatBytes32String("true"),
