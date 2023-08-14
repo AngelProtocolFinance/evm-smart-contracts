@@ -14,7 +14,7 @@ interface IAccountsQueryEndowments {
 
   function queryEndowmentDetails(
     uint32 id
-  ) external view returns (AccountStorage.Endowment memory endowment);
+  ) external view returns (AccountMessages.EndowmentResponse memory);
 
   function queryConfig() external view returns (AccountMessages.ConfigResponse memory config);
 

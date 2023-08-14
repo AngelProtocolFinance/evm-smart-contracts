@@ -198,6 +198,45 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMapping 
     return state.dafApprovedEndowments[endowId];
   }
 
+  function setAllowlist(
+    uint32 endowId,
+    LibAccounts.AllowlistType listType,
+    address[] memory allowlist
+  ) external {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    if (listType == LibAccounts.AllowlistType.AllowlistedBeneficiaries) {
+      for (uint256 i = 0; i < allowlist.length; i++) {
+        IterableMapping.set(state.allowlistedBeneficiaries[endowId], allowlist[i], 1);
+      }
+    } else if (listType == LibAccounts.AllowlistType.AllowlistedContributors) {
+      for (uint256 i = 0; i < allowlist.length; i++) {
+        IterableMapping.set(state.allowlistedContributors[endowId], allowlist[i], 1);
+      }
+    } else if (listType == LibAccounts.AllowlistType.MaturityAllowlist) {
+      for (uint256 i = 0; i < allowlist.length; i++) {
+        IterableMapping.set(state.maturityAllowlist[endowId], allowlist[i], 1);
+      }
+    } else {
+      revert("Invlaid AllowlistType");
+    }
+  }
+
+  function getAllowlist(
+    uint32 endowId,
+    LibAccounts.AllowlistType listType
+  ) external view returns (address[] memory) {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    if (listType == LibAccounts.AllowlistType.AllowlistedBeneficiaries) {
+      return state.allowlistedBeneficiaries[endowId].keys;
+    } else if (listType == LibAccounts.AllowlistType.AllowlistedContributors) {
+      return state.allowlistedContributors[endowId].keys;
+    } else if (listType == LibAccounts.AllowlistType.MaturityAllowlist) {
+      return state.maturityAllowlist[endowId].keys;
+    } else {
+      revert("Invlaid AllowlistType");
+    }
+  }
+
   function callSelf(uint256 value, bytes memory data) external {
     Utils._execute(address(this), value, data);
   }

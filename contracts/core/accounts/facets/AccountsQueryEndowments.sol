@@ -45,9 +45,40 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments, IterableMapping {
    */
   function queryEndowmentDetails(
     uint32 id
-  ) public view returns (AccountStorage.Endowment memory endowment) {
+  ) public view returns (AccountMessages.EndowmentResponse memory) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    endowment = state.ENDOWMENTS[id];
+    AccountStorage.Endowment storage endowment = state.ENDOWMENTS[id];
+    return
+      AccountMessages.EndowmentResponse({
+        owner: endowment.owner,
+        name: endowment.name,
+        sdgs: endowment.sdgs,
+        tier: endowment.tier,
+        endowType: endowment.endowType,
+        logo: endowment.logo,
+        image: endowment.image,
+        maturityTime: endowment.maturityTime,
+        rebalance: endowment.rebalance,
+        proposalLink: endowment.proposalLink,
+        multisig: endowment.multisig,
+        dao: endowment.dao,
+        daoToken: endowment.daoToken,
+        donationMatchActive: endowment.donationMatchActive,
+        donationMatchContract: endowment.donationMatchContract,
+        earlyLockedWithdrawFee: endowment.earlyLockedWithdrawFee,
+        withdrawFee: endowment.withdrawFee,
+        depositFee: endowment.depositFee,
+        balanceFee: endowment.balanceFee,
+        settingsController: endowment.settingsController,
+        parent: endowment.parent,
+        ignoreUserSplits: endowment.ignoreUserSplits,
+        splitToLiquid: endowment.splitToLiquid,
+        referralId: endowment.referralId,
+        gasFwd: endowment.gasFwd,
+        allowlistedBeneficiaries: state.allowlistedBeneficiaries[id].keys,
+        allowlistedContributors: state.allowlistedContributors[id].keys,
+        maturityAllowlist: state.maturityAllowlist[id].keys
+      });
   }
 
   /**

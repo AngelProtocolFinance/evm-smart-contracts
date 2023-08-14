@@ -124,6 +124,7 @@ contract AccountsDepositWithdrawEndowments is
 
     RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
       .queryConfig();
+    require(registrarConfig.indexFundContract != address(0), "No Index Fund");
 
     // Cannot receive contributions into a mature Endowment
     require(
@@ -134,11 +135,13 @@ contract AccountsDepositWithdrawEndowments is
     // or that it is the Endowment owner. If allowlist is empty anyone may contribute.
     bool contributorAllowed = true;
     if (
-      msg.sender != registrarConfig.indexFundContract &&
-      tempEndowment.allowlistedContributors.length > 0 &&
-      msg.sender != tempEndowment.owner
+      (msg.sender != registrarConfig.indexFundContract && msg.sender != tempEndowment.owner) &&
+      state.allowlistedContributors[details.id].keys.length > 0
     ) {
-      contributorAllowed = tempEndowment.allowlistedContributors.contains(msg.sender);
+      contributorAllowed = (IterableMapping.get(
+        state.allowlistedContributors[details.id],
+        msg.sender
+      ) == 1);
     }
     require(contributorAllowed, "Contributor address is not listed in allowlistedContributors");
 
@@ -163,7 +166,6 @@ contract AccountsDepositWithdrawEndowments is
     // ** SPLIT ADJUSTMENTS AND CHECKS **
     uint256 lockedSplitPercent = details.lockedPercentage;
     uint256 liquidSplitPercent = details.liquidPercentage;
-    require(registrarConfig.indexFundContract != address(0), "No Index Fund");
     if (msg.sender != registrarConfig.indexFundContract) {
       // adjust user passed liquid split to be in-line with endowment range (if falls outside)
       liquidSplitPercent = Validator.adjustLiquidSplit(
@@ -223,7 +225,6 @@ contract AccountsDepositWithdrawEndowments is
     uint256 amount
   ) internal {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
 
     require(details.lockedPercentage + details.liquidPercentage == 100, "InvalidSplit");
     uint256 lockedAmount = amount.mulDivDown(details.lockedPercentage, LibAccounts.PERCENT_BASIS);
@@ -346,18 +347,22 @@ contract AccountsDepositWithdrawEndowments is
           // determine if beneficiaryAddress can receive withdrawn funds based on allowlist and maturity status
           bool beneficiaryAllowed;
           if (mature) {
-            beneficiaryAllowed = tempEndowment.maturityAllowlist.contains(beneficiaryAddress);
+            beneficiaryAllowed = (IterableMapping.get(
+              state.maturityAllowlist[id],
+              beneficiaryAddress
+            ) == 1);
             require(beneficiaryAllowed, "Beneficiary address is not listed in maturityAllowlist");
           } else {
             if (
-              tempEndowment.allowlistedBeneficiaries.length == 0 ||
+              state.allowlistedBeneficiaries[id].keys.length == 0 ||
               beneficiaryAddress == tempEndowment.owner
             ) {
               beneficiaryAllowed = true;
             } else {
-              beneficiaryAllowed = tempEndowment.allowlistedBeneficiaries.contains(
+              beneficiaryAllowed = (IterableMapping.get(
+                state.allowlistedBeneficiaries[id],
                 beneficiaryAddress
-              );
+              ) == 1);
             }
             require(
               beneficiaryAllowed,

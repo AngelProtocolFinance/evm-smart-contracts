@@ -53,6 +53,12 @@ interface IAccountsEvents {
     uint256 amountOut
   );
   event EndowmentSettingUpdated(uint256 endowId, string setting);
+  event EndowmentAllowlistUpdated(
+    uint256 endowId,
+    LibAccounts.AllowlistType allowlistType,
+    address[] add,
+    address[] remove
+  );
   event EndowmentInvested(IVault.VaultActionStatus);
   event EndowmentRedeemed(IVault.VaultActionStatus);
   event RefundNeeded(IVault.VaultActionData);

@@ -1,6 +1,6 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {time} from "@nomicfoundation/hardhat-network-helpers";
+import {impersonateAccount, setBalance, time} from "@nomicfoundation/hardhat-network-helpers";
 import {expect, use} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
@@ -22,7 +22,7 @@ import {
   TestFacetProxyContract,
 } from "typechain-types";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsDepositWithdrawEndowments";
-import {LibAccounts, RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
+import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {FeeTypes, VaultType, genWallet, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
@@ -605,32 +605,36 @@ describe("AccountsDepositWithdrawEndowments", function () {
         });
 
         it("reverts if allowlistedContributors is populated and sender is not in the allowlist", async () => {
-          // setup a populated allowlistedContributors
-          await state.setEndowmentDetails(normalEndowId, {
-            ...normalEndow,
-            allowlistedContributors: [beneficiaryAddress],
-          });
+          // setup an allowed contributor wallet to sign/send
+          const allowedContributor = await genWallet().address;
+          await impersonateAccount(allowedContributor);
+          await setBalance(allowedContributor, 1000000000000000000); // give it some gas money, as impersonateAccount does not
+          const acctSigner = await ethers.getSigner(allowedContributor);
+          // set a different wallet in allowlist
+          await state.setAllowlist(normalEndowId, 1, [genWallet().address]);
 
           await expect(
             facet
-              .connect(indexFund)
+              .connect(acctSigner)
               .depositERC20(depositToNormalEndow, tokenFake.address, depositAmt)
           ).to.be.revertedWith("Contributor address is not listed in allowlistedContributors");
         });
 
-        it("passes if allowlistedContributors is populated and sender in the allowlist", async () => {
-          // setup a populated allowlistedContributors
-          await state.setEndowmentDetails(normalEndowId, {
-            ...normalEndow,
-            allowlistedContributors: [indexFund.address],
-          });
+        it("passes if allowlistedContributors is populated and sender is in the allowlist", async () => {
+          // setup an allowed contributor wallet to sign/send and setup in allowlist
+          const allowedContributor = await genWallet().address;
+          await impersonateAccount(allowedContributor);
+          await setBalance(allowedContributor, 1000000000000000000); // give it some gas money, as impersonateAccount does not
+          const acctSigner = await ethers.getSigner(allowedContributor);
+          // set new signer's wallet in allowlist
+          await state.setAllowlist(normalEndowId, 1, [allowedContributor]);
 
           const expectedLockedAmt = BigNumber.from(4000);
           const expectedLiquidAmt = BigNumber.from(6000);
 
           await expect(
             facet
-              .connect(indexFund)
+              .connect(acctSigner)
               .depositERC20(depositToNormalEndow, tokenFake.address, depositAmt)
           )
             .to.emit(facet, "EndowmentDeposit")
@@ -847,11 +851,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
     describe("from Non-Mature endowments", () => {
       it("reverts if beneficiary address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner", async () => {
+        await state.setAllowlist(normalEndowId, 0, [indexFund.address]);
+
         await expect(
-          facet
-            .withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, [
-              {addr: tokenFake.address, amnt: 1},
-            ])
+          facet.withdraw(normalEndowId, VaultType.LIQUID, genWallet().address, 0, [
+            {addr: tokenFake.address, amnt: 1},
+          ])
         ).to.be.revertedWith(
           "Beneficiary address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner"
         );
@@ -1254,7 +1259,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
     });
 
     describe("from Mature endowments", () => {
-      it("reverts if sender address is not listed in maturityAllowlist", async () => {
+      it("reverts if beneficiary address is not listed in maturityAllowlist", async () => {
         const currTime = await time.latest();
 
         const matureEndowment: AccountStorage.EndowmentStruct = {
@@ -1272,7 +1277,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
         await expect(
           facet.withdraw(normalEndowId, acctType, beneficiaryAddress, beneficiaryId, tokens)
-        ).to.be.revertedWith("Sender address is not listed in maturityAllowlist");
+        ).to.be.revertedWith("Beneficiary address is not listed in maturityAllowlist");
       });
 
       describe("LOCKED withdrawals", () => {
@@ -1284,9 +1289,9 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const matureEndowment: AccountStorage.EndowmentStruct = {
             ...normalEndow,
             maturityTime: currTime,
-            maturityAllowlist: [indexFund.address],
           };
           await state.setEndowmentDetails(normalEndowId, matureEndowment);
+          await state.setAllowlist(normalEndowId, 2, [beneficiaryAddress]);
 
           const acctType = VaultType.LOCKED;
           const beneficiaryId = 0;
@@ -1298,9 +1303,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const finalAmountLeftover = amount.sub(expectedFeeAp);
 
           await expect(
-            facet
-              .connect(indexFund)
-              .withdraw(normalEndowId, acctType, beneficiaryAddress, beneficiaryId, tokens)
+            facet.withdraw(normalEndowId, acctType, beneficiaryAddress, beneficiaryId, tokens)
           )
             .to.emit(facet, "EndowmentWithdraw")
             .withArgs(

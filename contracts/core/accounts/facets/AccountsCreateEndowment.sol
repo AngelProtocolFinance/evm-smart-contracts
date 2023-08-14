@@ -12,6 +12,7 @@ import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsCreateEndowment} from "../interfaces/IAccountsCreateEndowment.sol";
 import {IGasFwdFactory} from "../../gasFwd/IGasFwdFactory.sol";
+import {IterableMapping} from "../../../lib/IterableMappingAddr.sol";
 
 /**
  * @title AccountsCreateEndowment
@@ -20,7 +21,8 @@ import {IGasFwdFactory} from "../../gasFwd/IGasFwdFactory.sol";
 contract AccountsCreateEndowment is
   IAccountsCreateEndowment,
   ReentrancyGuardFacet,
-  IAccountsEvents
+  IAccountsEvents,
+  IterableMapping
 {
   /**
    * @notice This function creates an endowment
@@ -84,25 +86,22 @@ contract AccountsCreateEndowment is
       owner: owner,
       name: details.name,
       sdgs: details.sdgs,
+      tier: details.tier,
       endowType: details.endowType,
+      logo: details.logo,
+      image: details.image,
       maturityTime: details.maturityTime,
       rebalance: IRegistrar(registrarAddress).getRebalanceParams(),
+      proposalLink: details.proposalLink,
       multisig: owner,
       dao: address(0),
       daoToken: address(0),
-      donationMatchActive: false,
       donationMatchContract: address(0),
-      allowlistedBeneficiaries: details.allowlistedBeneficiaries,
-      allowlistedContributors: details.allowlistedContributors,
+      donationMatchActive: false,
       earlyLockedWithdrawFee: details.earlyLockedWithdrawFee,
       withdrawFee: details.withdrawFee,
       depositFee: details.depositFee,
       balanceFee: details.balanceFee,
-      maturityAllowlist: details.maturityAllowlist,
-      tier: details.tier,
-      logo: details.logo,
-      image: details.image,
-      proposalLink: details.proposalLink,
       settingsController: details.settingsController,
       parent: details.parent,
       ignoreUserSplits: details.ignoreUserSplits,
@@ -113,6 +112,25 @@ contract AccountsCreateEndowment is
 
     state.STATES[newEndowId].closingEndowment = false;
     state.config.nextAccountId += 1;
+
+    // process all initial allowlists provided by user into their respective mappings
+    for (uint256 i = 0; i < details.allowlistedBeneficiaries.length; i++) {
+      IterableMapping.set(
+        state.allowlistedBeneficiaries[newEndowId],
+        details.allowlistedBeneficiaries[i],
+        1
+      );
+    }
+    for (uint256 i = 0; i < details.allowlistedContributors.length; i++) {
+      IterableMapping.set(
+        state.allowlistedContributors[newEndowId],
+        details.allowlistedContributors[i],
+        1
+      );
+    }
+    for (uint256 i = 0; i < details.maturityAllowlist.length; i++) {
+      IterableMapping.set(state.maturityAllowlist[newEndowId], details.maturityAllowlist[i], 1);
+    }
 
     emit EndowmentCreated(newEndowId, details.endowType);
   }

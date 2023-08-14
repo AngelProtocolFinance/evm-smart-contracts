@@ -9,6 +9,7 @@ import {AccountMessages} from "../message.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsUpdateEndowmentSettingsController} from "../interfaces/IAccountsUpdateEndowmentSettingsController.sol";
+import {IterableMapping} from "../../../lib/IterableMappingAddr.sol";
 
 /**
  * @title AccountsUpdateEndowmentSettingsController
@@ -18,16 +19,89 @@ import {IAccountsUpdateEndowmentSettingsController} from "../interfaces/IAccount
 contract AccountsUpdateEndowmentSettingsController is
   IAccountsUpdateEndowmentSettingsController,
   ReentrancyGuardFacet,
-  IAccountsEvents
+  IAccountsEvents,
+  IterableMapping
 {
+  /**
+   * @notice Updates an allowlist of an endowment, adding and/or removing addresses.
+   * @dev Emits a EndowmentAllowlistUpdated event after the endowment has been updated.
+   * @dev Throws an error if the endowment is closing.
+   * @param id The ID of the endowment to updated
+   * @param allowlistType AllowlistType to be updated
+   * @param add The addresses to add to the allowlist
+   * @param remove The addresses to remove from the allowlist
+   */
+  function updateEndowmentAllowlist(
+    uint32 id,
+    LibAccounts.AllowlistType allowlistType,
+    address[] memory add,
+    address[] memory remove
+  ) public nonReentrant {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
+
+    require(!state.STATES[id].closingEndowment, "UpdatesAfterClosed");
+    require(
+      tempEndowment.maturityTime == 0 || tempEndowment.maturityTime > block.timestamp,
+      "Updates cannot be done after maturity has been reached"
+    );
+    require(tempEndowment.endowType != LibAccounts.EndowmentType.Charity, "Unauthorized");
+
+    IterableMapping.Map storage iterableAllowlist;
+    if (allowlistType == LibAccounts.AllowlistType.AllowlistedBeneficiaries) {
+      require(
+        Validator.canChange(
+          tempEndowment.settingsController.allowlistedBeneficiaries,
+          msg.sender,
+          tempEndowment.owner,
+          block.timestamp
+        ),
+        "Unauthorized"
+      );
+      iterableAllowlist = state.allowlistedBeneficiaries[id];
+    } else if (allowlistType == LibAccounts.AllowlistType.AllowlistedContributors) {
+      require(
+        Validator.canChange(
+          tempEndowment.settingsController.allowlistedContributors,
+          msg.sender,
+          tempEndowment.owner,
+          block.timestamp
+        ),
+        "Unauthorized"
+      );
+      iterableAllowlist = state.allowlistedContributors[id];
+    } else if (allowlistType == LibAccounts.AllowlistType.MaturityAllowlist) {
+      require(
+        Validator.canChange(
+          tempEndowment.settingsController.maturityAllowlist,
+          msg.sender,
+          tempEndowment.owner,
+          block.timestamp
+        ),
+        "Unauthorized"
+      );
+      iterableAllowlist = state.maturityAllowlist[id];
+    } else {
+      revert("Invalid AllowlistType");
+    }
+
+    for (uint256 i = 0; i < add.length; i++) {
+      require(add[i] != address(0), "Zero address passed");
+      IterableMapping.set(iterableAllowlist, add[i], 1);
+    }
+
+    for (uint256 i = 0; i < remove.length; i++) {
+      require(add[i] != address(0), "Zero address passed");
+      IterableMapping.remove(iterableAllowlist, remove[i]);
+    }
+
+    emit EndowmentAllowlistUpdated(id, allowlistType, add, remove);
+  }
+
   /**
     @dev Updates the settings of an endowment.
     @param details Object containing the updated details of the endowment settings.
     @param details.id The ID of the endowment to update.
-    @param details.allowlistedBeneficiaries The updated list of allowlisted beneficiaries.
-    @param details.allowlistedContributors The updated list of allowlisted contributors.
-    @param details.maturity_allowlist_add The addresses to add to the maturity allowlist.
-    @param details.maturity_allowlist_remove The addresses to remove from the maturity allowlist.
     @param details.splitToLiquid The updated split to liquid ratio.
     @param details.ignoreUserSplits Whether or not to ignore user splits.
     Emits a EndowmentSettingUpdated event for each setting that has been updated.
@@ -53,59 +127,6 @@ contract AccountsUpdateEndowmentSettingsController is
       ) {
         tempEndowment.maturityTime = details.maturityTime;
         emit EndowmentSettingUpdated(details.id, "maturityTime");
-      }
-      if (tempEndowment.maturityTime <= 0 || tempEndowment.maturityTime > block.timestamp) {
-        if (
-          Validator.canChange(
-            tempEndowment.settingsController.allowlistedBeneficiaries,
-            msg.sender,
-            tempEndowment.owner,
-            block.timestamp
-          )
-        ) {
-          tempEndowment.allowlistedBeneficiaries = details.allowlistedBeneficiaries;
-          emit EndowmentSettingUpdated(details.id, "allowlistedBeneficiaries");
-        }
-
-        if (
-          Validator.canChange(
-            tempEndowment.settingsController.allowlistedContributors,
-            msg.sender,
-            tempEndowment.owner,
-            block.timestamp
-          )
-        ) {
-          tempEndowment.allowlistedContributors = details.allowlistedContributors;
-          emit EndowmentSettingUpdated(details.id, "allowlistedContributors");
-        }
-        if (
-          Validator.canChange(
-            tempEndowment.settingsController.maturityAllowlist,
-            msg.sender,
-            tempEndowment.owner,
-            block.timestamp
-          )
-        ) {
-          for (uint256 i = 0; i < details.maturity_allowlist_add.length; i++) {
-            (, bool found) = AddressArray.indexOf(
-              tempEndowment.maturityAllowlist,
-              details.maturity_allowlist_add[i]
-            );
-            if (!found) tempEndowment.maturityAllowlist.push(details.maturity_allowlist_add[i]);
-          }
-          for (uint256 i = 0; i < details.maturity_allowlist_remove.length; i++) {
-            (uint256 index, bool found) = AddressArray.indexOf(
-              tempEndowment.maturityAllowlist,
-              details.maturity_allowlist_remove[i]
-            );
-            if (found)
-              tempEndowment.maturityAllowlist = AddressArray.remove(
-                tempEndowment.maturityAllowlist,
-                index
-              );
-          }
-          emit EndowmentSettingUpdated(details.id, "maturityAllowlist");
-        }
       }
     }
 
