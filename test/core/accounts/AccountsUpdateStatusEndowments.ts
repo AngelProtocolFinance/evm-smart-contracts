@@ -32,7 +32,7 @@ describe("AccountsUpdateStatusEndowments", function () {
   const accountId = 1;
   const beneficiary: LibAccounts.BeneficiaryStruct = {
     enumData: 0,
-    data: {addr: genWallet().address, endowId: accountId, fundId: 1},
+    data: {addr: genWallet().address, endowId: accountId},
   };
   const strategies = ["strategy1", "strategy2", "strategy3"].map(
     (x) => ethers.utils.id(x).slice(0, 10) // map to bytes4 selectors
@@ -109,16 +109,6 @@ describe("AccountsUpdateStatusEndowments", function () {
       );
     });
 
-    it("reverts if the beneficiary is set to 'None' and no index fund is configured in the registrar", async () => {
-      registrarFake.queryConfig.returns(DEFAULT_REGISTRAR_CONFIG);
-
-      const beneficiaryNone: LibAccounts.BeneficiaryStruct = {...beneficiary, enumData: 3};
-
-      await expect(facet.closeEndowment(accountId, beneficiaryNone)).to.be.revertedWith(
-        "Beneficiary is NONE & Index Fund Contract is not configured in Registrar"
-      );
-    });
-
     it("reverts if the endowment has active strategies", async () => {
       await state.setActiveStrategyEndowmentState(accountId, strategies[0], true);
       await expect(facet.closeEndowment(accountId, beneficiary)).to.be.revertedWith(
@@ -127,52 +117,36 @@ describe("AccountsUpdateStatusEndowments", function () {
     });
 
     it("removes the closing endowment from all index funds it is involved in", async () => {
-      await expect(facet.closeEndowment(accountId, beneficiary))
+      await expect(facet.closeEndowment(accountId, beneficiary, {
+          gasPrice: 100000000,
+          gasLimit: 30000000,
+        }))
         .to.emit(facet, "EndowmentClosed")
         .withArgs(accountId);
 
       const endowState = await state.getClosingEndowmentState(accountId);
-
       expect(endowState[0]).to.equal(true);
       expect(endowState[1].enumData).to.equal(beneficiary.enumData);
       expect(endowState[1].data.addr).to.equal(beneficiary.data.addr);
       expect(endowState[1].data.endowId).to.equal(beneficiary.data.endowId);
-      expect(endowState[1].data.fundId).to.equal(beneficiary.data.fundId);
     });
 
-    it("updates the beneficiary to the treasury address if the beneficiary is set to 'None' and the endowment is not involved in any funds", async () => {
+    it("updates the beneficiary to the treasury address if the beneficiary is set to 'None'", async () => {
       indexFundFake.queryInvolvedFunds.returns([]);
       const beneficiaryNone: LibAccounts.BeneficiaryStruct = {...beneficiary, enumData: 3};
 
-      await expect(facet.closeEndowment(accountId, beneficiaryNone))
+      await expect(facet.closeEndowment(accountId, beneficiaryNone, {
+          gasPrice: 100000000,
+          gasLimit: 30000000,
+        }))
         .to.emit(facet, "EndowmentClosed")
         .withArgs(accountId);
 
       const endowState = await state.getClosingEndowmentState(accountId);
-
       expect(endowState[0]).to.equal(true);
       expect(endowState[1].enumData).to.equal(2);
       expect(endowState[1].data.addr).to.equal(treasuryAddress);
       expect(endowState[1].data.endowId).to.equal(0);
-      expect(endowState[1].data.fundId).to.equal(0);
-    });
-
-    it("updates the beneficiary to the first index fund if the beneficiary is set to 'None' and the endowment is involved in one or more funds", async () => {
-      const funds: BigNumber[] = [BigNumber.from(1), BigNumber.from(2)];
-      indexFundFake.queryInvolvedFunds.returns(funds);
-      const beneficiaryNone: LibAccounts.BeneficiaryStruct = {...beneficiary, enumData: 3};
-
-      await expect(facet.closeEndowment(accountId, beneficiaryNone))
-        .to.emit(facet, "EndowmentClosed")
-        .withArgs(accountId);
-
-      const endowState = await state.getClosingEndowmentState(accountId);
-
-      expect(endowState[0]).to.equal(true);
-      expect(endowState[1].enumData).to.equal(1);
-      expect(endowState[1].data.addr).to.equal(ethers.constants.AddressZero);
-      expect(endowState[1].data.endowId).to.equal(0);
-      expect(endowState[1].data.fundId).to.equal(funds[0]);
     });
   });
 

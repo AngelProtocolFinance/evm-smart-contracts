@@ -35,8 +35,7 @@ describe("AccountsQueryEndowments", function () {
       enumData: 3, // BeneficiaryEnum.None
       data: {
         addr: ethers.constants.AddressZero,
-        endowId: accountId,
-        fundId: 0,
+        endowId: accountId
       },
     },
   };
@@ -101,12 +100,6 @@ describe("AccountsQueryEndowments", function () {
     it("should return the endowment details", async () => {
       const endowmentDetails = await facet.queryEndowmentDetails(accountId);
 
-      expect(endowmentDetails.allowlistedBeneficiaries).to.have.same.members(
-        DEFAULT_CHARITY_ENDOWMENT.allowlistedBeneficiaries
-      );
-      expect(endowmentDetails.allowlistedContributors).to.have.same.members(
-        DEFAULT_CHARITY_ENDOWMENT.allowlistedContributors
-      );
       expect(endowmentDetails.balanceFee).to.equalFee(DEFAULT_CHARITY_ENDOWMENT.balanceFee);
       expect(endowmentDetails.dao).to.equal(DEFAULT_CHARITY_ENDOWMENT.dao);
       expect(endowmentDetails.daoToken).to.equal(DEFAULT_CHARITY_ENDOWMENT.daoToken);
@@ -124,9 +117,6 @@ describe("AccountsQueryEndowments", function () {
       );
       expect(endowmentDetails.image).to.equal(DEFAULT_CHARITY_ENDOWMENT.image);
       expect(endowmentDetails.logo).to.equal(DEFAULT_CHARITY_ENDOWMENT.logo);
-      expect(endowmentDetails.maturityAllowlist).to.have.same.members(
-        DEFAULT_CHARITY_ENDOWMENT.maturityAllowlist
-      );
       expect(endowmentDetails.maturityTime).to.equal(DEFAULT_CHARITY_ENDOWMENT.maturityTime);
       expect(endowmentDetails.multisig).to.equal(DEFAULT_CHARITY_ENDOWMENT.multisig);
       expect(endowmentDetails.name).to.equal(DEFAULT_CHARITY_ENDOWMENT.name);
@@ -236,9 +226,6 @@ describe("AccountsQueryEndowments", function () {
       );
       expect(stateResponse.closingBeneficiary.data.endowId).to.equal(
         endowState.closingBeneficiary.data.endowId
-      );
-      expect(stateResponse.closingBeneficiary.data.fundId).to.equal(
-        endowState.closingBeneficiary.data.fundId
       );
     });
   });

@@ -93,7 +93,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     it("reverts if the endowment is closed", async () => {
       await state.setClosingEndowmentState(normalEndowId, true, {
         enumData: 0,
-        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+        data: {addr: ethers.constants.AddressZero, endowId: 0},
       });
       await expect(facet.updateEndowmentSettings(normalEndowReq)).to.be.revertedWith(
         "UpdatesAfterClosed"
@@ -182,7 +182,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     it("reverts if called by an Endowment that is closed", async () => {
       await state.setClosingEndowmentState(charityId, true, {
         enumData: 0,
-        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+        data: {addr: ethers.constants.AddressZero, endowId: 0},
       });
       await expect(
         facet.updateEndowmentAllowlist(charityId, 0, [genWallet().address], [])
@@ -202,8 +202,8 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     });
 
     it("reverts if zero address passed in address list", async () => {
-      const remove = [];
-      const add = [ethers.constants.AddressZero];
+      const remove: any[] = [];
+      const add: any[] = [ethers.constants.AddressZero];
       await expect(
         facet.updateEndowmentAllowlist(normalEndowId, 0, add, remove)
       ).to.be.revertedWith("Zero address passed");
@@ -214,8 +214,8 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       const wallet = await genWallet().address;
       await state.setAllowlist(normalEndowId, 0, [wallet]);
 
-      const remove = [];
-      const add = [wallet];
+      const remove: any[] = [];
+      const add: any[] = [wallet];
       await expect(facet.updateEndowmentAllowlist(normalEndowId, 0, add, remove))
         .to.emit(facet, "EndowmentAllowlistUpdated")
         .withArgs(normalEndowId, 0, add, remove);
@@ -232,8 +232,8 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       // set starting allowlist
       await state.setAllowlist(normalEndowId, 0, [wallet]);
 
-      const remove = [wallet2];
-      const add = [wallet, wallet2, wallet3];
+      const remove: any[] = [wallet2];
+      const add: any[] = [wallet, wallet2, wallet3];
       await expect(facet.updateEndowmentAllowlist(normalEndowId, 0, add, remove))
         .to.emit(facet, "EndowmentAllowlistUpdated")
         .withArgs(normalEndowId, 0, add, remove);
@@ -281,7 +281,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     it("reverts if the endowment is closed", async () => {
       await state.setClosingEndowmentState(charityReq.id, true, {
         enumData: 0,
-        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+        data: {addr: ethers.constants.AddressZero, endowId: 0},
       });
       await expect(facet.updateEndowmentController(charityReq)).to.be.revertedWith(
         "UpdatesAfterClosed"
@@ -563,7 +563,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     it("reverts if the endowment is closed", async () => {
       await state.setClosingEndowmentState(request.id, true, {
         enumData: 0,
-        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+        data: {addr: ethers.constants.AddressZero, endowId: 0},
       });
       await expect(facet.updateFeeSettings(request)).to.be.revertedWith("UpdatesAfterClosed");
     });

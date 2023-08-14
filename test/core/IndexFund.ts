@@ -126,13 +126,13 @@ describe("IndexFund", function () {
     // setup the various Endowments for testing index funds once
     // #1 - A closed endowment for error checks
     await state.setClosingEndowmentState(1, true, {
-      data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
+      data: {endowId: 0, addr: ethers.constants.AddressZero},
       enumData: 0,
     });
 
     // #2 - A non-closing endowment
     await state.setClosingEndowmentState(2, false, {
-      data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
+      data: {endowId: 0, addr: ethers.constants.AddressZero},
       enumData: 0,
     });
     // accepts token for deposits
@@ -143,7 +143,7 @@ describe("IndexFund", function () {
 
     // #3 - A non-closing endowment
     await state.setClosingEndowmentState(3, false, {
-      data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
+      data: {endowId: 0, addr: ethers.constants.AddressZero},
       enumData: 0,
     });
     // accepts token & wmatic for deposits

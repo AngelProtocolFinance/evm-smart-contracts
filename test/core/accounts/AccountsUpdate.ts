@@ -109,7 +109,7 @@ describe("AccountsUpdate", function () {
 
     it("passes with valid input endowments and authorized sender", async () => {
       expect(await facet.updateDafApprovedEndowments([1], [2]))
-        .to.emit("DafApprovedEndowmentsUpdated")
+        .to.emit(facet, "DafApprovedEndowmentsUpdated")
         .withArgs([1], [2]);
     });
   });

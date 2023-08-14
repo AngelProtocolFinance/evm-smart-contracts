@@ -161,7 +161,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
       it("reverts if the endowment is closed", async () => {
         await state.setClosingEndowmentState(charityId, true, {
           enumData: 0,
-          data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+          data: {addr: ethers.constants.AddressZero, endowId: 0},
         });
         await expect(facet.depositMatic(depositToCharity, {value: maticValue})).to.be.revertedWith(
           "Endowment is closed"
@@ -193,7 +193,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
       it("reverts if the endowment is closed", async () => {
         await state.setClosingEndowmentState(charityId, true, {
           enumData: 0,
-          data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+          data: {addr: ethers.constants.AddressZero, endowId: 0},
         });
         await expect(
           facet.depositERC20(depositToCharity, tokenFake.address, depositAmt)
@@ -776,7 +776,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
     it("reverts if the endowment is closed", async () => {
       await state.setClosingEndowmentState(charityId, true, {
         enumData: 0,
-        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+        data: {addr: ethers.constants.AddressZero, endowId: 0},
       });
       await expect(
         facet.withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, [
@@ -839,7 +839,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
       await state.setClosingEndowmentState(beneficiaryId, true, {
         enumData: 0,
-        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+        data: {addr: ethers.constants.AddressZero, endowId: 0},
       });
 
       await expect(
@@ -851,7 +851,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
     describe("from Non-Mature endowments", () => {
       it("reverts if beneficiary address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner", async () => {
-        await state.setAllowlist(normalEndowId, 0, [indexFund.address]);
+        await state.setAllowlist(normalEndowId, 0, [genWallet().address]);
 
         await expect(
           facet.withdraw(normalEndowId, VaultType.LIQUID, genWallet().address, 0, [
@@ -1050,7 +1050,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
           // set Endowment allowlist & withdraw fee
           const normalWithAllowlist: AccountStorage.EndowmentStruct = {
             ...normalEndow,
-            allowlistedBeneficiaries: [indexFund.address],
             withdrawFee: {payoutAddress: endowOwner.address, bps: 10}, // 0.1%
           };
           await state.setEndowmentDetails(normalEndowId, normalWithAllowlist);
@@ -1088,7 +1087,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           expect(liquidBalance).to.equal(liqBal.sub(tokens[0].amnt));
         });
 
-        it("passes: normal, beneficiary address, 2 tokens, sender is allowlisted beneficiary (endow-level withdraw fees)", async () => {
+        it("passes: normal, beneficiary address (allowlisted beneficiary), 2 tokens, (endow-level withdraw fees)", async () => {
           const beneficiaryId = 0;
           const acctType = VaultType.LIQUID;
           const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = [
@@ -1099,14 +1098,13 @@ describe("AccountsDepositWithdrawEndowments", function () {
           // set Endowment allowlist & withdraw fee
           const normalWithAllowlist: AccountStorage.EndowmentStruct = {
             ...normalEndow,
-            allowlistedBeneficiaries: [indexFund.address],
             withdrawFee: {payoutAddress: endowOwner.address, bps: 10}, // 0.1%
           };
           await state.setEndowmentDetails(normalEndowId, normalWithAllowlist);
+          await state.setAllowlist(normalEndowId, 0, [beneficiaryAddress]);
 
           await expect(
             facet
-              .connect(indexFund)
               .withdraw(normalEndowId, acctType, beneficiaryAddress, beneficiaryId, tokens)
           )
             .to.emit(facet, "EndowmentWithdraw")
@@ -1266,10 +1264,10 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
         const matureEndowment: AccountStorage.EndowmentStruct = {
           ...normalEndow,
-          maturityTime: currTime,
-          maturityAllowlist: [beneficiaryAddress],
+          maturityTime: currTime
         };
         await state.setEndowmentDetails(normalEndowId, matureEndowment);
+        await state.setAllowlist(normalEndowId, 2, [genWallet().address]);
 
         const acctType = VaultType.LIQUID;
         const beneficiaryId = 0;
@@ -1335,10 +1333,10 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
           const matureEndowment: AccountStorage.EndowmentStruct = {
             ...normalEndow,
-            maturityTime: currTime,
-            maturityAllowlist: [indexFund.address],
+            maturityTime: currTime
           };
           await state.setEndowmentDetails(normalEndowId, matureEndowment);
+          await state.setAllowlist(normalEndowId, 2, [indexFund.address]);
 
           const acctType = VaultType.LOCKED;
           const beneficiaryAddress = ethers.constants.AddressZero;

@@ -44,7 +44,7 @@ describe("AccountsAllowance", function () {
       facet = AccountsAllowance__factory.connect(state.address, owner);
       // set a non-closing endowment up for testing with (#42)
       await state.setClosingEndowmentState(42, false, {
-        data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
+        data: {endowId: 0, addr: ethers.constants.AddressZero},
         enumData: 0,
       });
       // add an accepted token to endowment #42
@@ -62,7 +62,7 @@ describe("AccountsAllowance", function () {
 
     it("reverts when the endowment is closed", async function () {
       await state.setClosingEndowmentState(42, true, {
-        data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
+        data: {endowId: 0, addr: ethers.constants.AddressZero},
         enumData: 0,
       });
       await expect(
@@ -150,7 +150,7 @@ describe("AccountsAllowance", function () {
       facet = AccountsAllowance__factory.connect(state.address, owner);
       // set a non-closing endowment up for testing with (#42)
       await state.setClosingEndowmentState(42, false, {
-        data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
+        data: {endowId: 0, addr: ethers.constants.AddressZero},
         enumData: 0,
       });
       // add an accepted token to endowment #42

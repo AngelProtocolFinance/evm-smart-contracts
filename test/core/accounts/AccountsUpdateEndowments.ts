@@ -50,7 +50,7 @@ describe("AccountsUpdateEndowments", function () {
       ...DEFAULT_CHARITY_ENDOWMENT,
       dao: genWallet().address,
       owner: endowOwner.address,
-      maturityAllowlist: [genWallet().address],
+      // maturityAllowlist: [genWallet().address],
       multisig: endowOwner.address,
     };
     oldNormalEndow = {
@@ -112,7 +112,7 @@ describe("AccountsUpdateEndowments", function () {
     it("reverts if the endowment is closed", async () => {
       await state.setClosingEndowmentState(normalEndowId, true, {
         enumData: 0,
-        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+        data: {addr: ethers.constants.AddressZero, endowId: 0},
       });
       await expect(facet.updateEndowmentDetails(normalEndowReq)).to.be.revertedWith(
         "UpdatesAfterClosed"
@@ -389,7 +389,7 @@ describe("AccountsUpdateEndowments", function () {
     it("reverts if the endowment is closed", async () => {
       await state.setClosingEndowmentState(normalEndowId, true, {
         enumData: 0,
-        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+        data: {addr: ethers.constants.AddressZero, endowId: 0},
       });
       await expect(
         facet.updateDelegate(
@@ -583,7 +583,7 @@ describe("AccountsUpdateEndowments", function () {
     it("reverts if the endowment is closed", async () => {
       await state.setClosingEndowmentState(normalEndowId, true, {
         enumData: 0,
-        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+        data: {addr: ethers.constants.AddressZero, endowId: 0},
       });
       await expect(
         facet.updateAcceptedToken(normalEndowId, tokenAddr, priceFeedAddr, true)

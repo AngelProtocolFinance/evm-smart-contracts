@@ -46,12 +46,6 @@ contract AccountsUpdateStatusEndowments is
     RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
       .queryConfig();
 
-    require(
-      beneficiary.enumData != LibAccounts.BeneficiaryEnum.None ||
-        registrarConfig.indexFundContract != address(0),
-      "Beneficiary is NONE & Index Fund Contract is not configured in Registrar"
-    );
-
     // ** Closing logic summary **
     // Charity Endowments: If specified an endowment ID to move their funds to do so (must be another Charity-type). Cannot send to 3rd-party wallet.
     // DAF Endowments: If specified an endowment ID to move their funds to do so (must in AP Approved Endowments list). Cannot send to 3rd-party wallet.
