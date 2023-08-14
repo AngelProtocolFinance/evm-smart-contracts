@@ -830,10 +830,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
               beneficiaryId
             );
 
-          expect(tokenFake.transfer).to.have.been.calledWith(
-            beneficiaryAddress,
-            tokens[0].amnt
-          );
+          expect(tokenFake.transfer).to.have.been.calledWith(beneficiaryAddress, tokens[0].amnt);
 
           const [, liquidBalance] = await state.getEndowmentTokenBalance(
             normalEndowId,
@@ -917,10 +914,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
             );
 
           expect(tokenFake.transfer).to.have.been.calledWith(treasury, expectedFeeAp);
-          expect(tokenFake.transfer).to.have.been.calledWith(
-            endowOwner.address,
-            expectedFeeEndow
-          );
+          expect(tokenFake.transfer).to.have.been.calledWith(endowOwner.address, expectedFeeEndow);
           expect(tokenFake.transfer).to.have.been.calledWith(
             beneficiaryAddress,
             finalAmountLeftover
@@ -978,10 +972,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           let expectedFeeEndow = amount.mul(10).div(10000);
           let finalAmountLeftover = amount.sub(expectedFeeEndow);
 
-          expect(tokenFake.transfer).to.have.been.calledWith(
-            endowOwner.address,
-            expectedFeeEndow
-          );
+          expect(tokenFake.transfer).to.have.been.calledWith(endowOwner.address, expectedFeeEndow);
           expect(tokenFake.transfer).to.have.been.calledWith(
             beneficiaryAddress,
             finalAmountLeftover
@@ -1049,10 +1040,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const finalAmountLeftover = amountLeftAfterApFees.sub(endowmentWithdrawFee);
 
           expect(tokenFake.transfer).to.have.been.calledWith(treasury, protocolWithdrawFee);
-          expect(tokenFake.transfer).to.have.been.calledWith(
-            treasury,
-            protocolEarlyWithdrawFee
-          );
+          expect(tokenFake.transfer).to.have.been.calledWith(treasury, protocolEarlyWithdrawFee);
           expect(tokenFake.transfer).to.have.been.calledWith(
             endowOwner.address,
             endowmentWithdrawFee
@@ -1097,10 +1085,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const finalAmountLeftover = amount.sub(protocolWithdrawFee + protocolEarlyWithdrawFee);
 
           expect(tokenFake.transfer).to.have.been.calledWith(treasury, protocolWithdrawFee);
-          expect(tokenFake.transfer).to.have.been.calledWith(
-            treasury,
-            protocolEarlyWithdrawFee
-          );
+          expect(tokenFake.transfer).to.have.been.calledWith(treasury, protocolEarlyWithdrawFee);
           expect(tokenFake.transfer).to.have.been.calledWith(
             beneficiaryAddress,
             finalAmountLeftover
