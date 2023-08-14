@@ -2,10 +2,9 @@ import {FakeContract, smock} from "@defi-wonderland/smock";
 import {impersonateAccount, setBalance, time} from "@nomicfoundation/hardhat-network-helpers";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
-import {ContractReceipt, ContractTransaction} from "ethers";
 import hre from "hardhat";
 import {deployFacetAsProxy} from "test/core/accounts/utils/deployTestFacet";
-import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG} from "test/utils";
+import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG, wait} from "test/utils";
 import {
   AccountsDepositWithdrawEndowments,
   AccountsDepositWithdrawEndowments__factory,
@@ -63,12 +62,6 @@ describe("IndexFund", function () {
     await IndexFundProxy.deployed();
 
     return IndexFundProxy;
-  }
-
-  async function wait(
-    tx: ContractTransaction | Promise<ContractTransaction>
-  ): Promise<ContractReceipt> {
-    return (await tx).wait();
   }
 
   before(async function () {
