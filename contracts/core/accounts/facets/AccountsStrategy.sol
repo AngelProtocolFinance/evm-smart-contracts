@@ -167,8 +167,6 @@ contract AccountsStrategy is
         _payForGasWithAccountBalance(
           id,
           tokenAddress,
-          investRequest.lockAmt,
-          investRequest.liquidAmt,
           (investRequest.liquidAmt * LibAccounts.BIG_NUMBA_BASIS) / investAmt,
           (investRequest.gasFee - gasFwdGas)
         );
@@ -306,8 +304,6 @@ contract AccountsStrategy is
         _payForGasWithAccountBalance(
           id,
           tokenAddress,
-          0, // redeeming, no tokens will be sent
-          0,
           gasRateFromLiq_withPrecision,
           (redeemRequest.gasFee - gasFwdGas)
         );
@@ -435,8 +431,6 @@ contract AccountsStrategy is
         _payForGasWithAccountBalance(
           id,
           tokenAddress,
-          0, // redeeming, no tokens will be sent
-          0,
           FIFTY_PERCENT_BIG_NUMBA_RATE,
           (redeemAllRequest.gasFee - gasFwdGas)
         );
@@ -581,16 +575,12 @@ contract AccountsStrategy is
    * Revert if the combined balances of the account cannot cover both the investment request and the gas payment.
    * @param id Endowment ID
    * @param token Token address
-   * @param lockAmt Amount needed from locked balance
-   * @param liqAmt Amount needed from liquid balance
    * @param gasRateFromLiq_withPrecision Percentage of gas to pay from liquid portion
    * @param gasRemaining Amount of gas to be payed from locked & liquid balances
    */
   function _payForGasWithAccountBalance(
     uint32 id,
     address token,
-    uint256 lockAmt,
-    uint256 liqAmt,
     uint256 gasRateFromLiq_withPrecision,
     uint256 gasRemaining
   ) internal {
@@ -601,26 +591,23 @@ contract AccountsStrategy is
     uint256 liqGas = (gasRemaining * gasRateFromLiq_withPrecision) / LibAccounts.BIG_NUMBA_BASIS;
     uint256 lockGas = gasRemaining - liqGas;
 
-    uint256 liqNeed = liqGas + liqAmt;
-    uint256 lockNeed = lockGas + lockAmt;
-
     // Cases:
     // 1) lockBal and liqBal each cover the respective needs
-    if ((lockNeed <= lockBal) && (liqNeed <= liqBal)) {
+    if ((lockGas <= lockBal) && (liqGas <= liqBal)) {
       state.STATES[id].balances.locked[token] -= lockGas;
       state.STATES[id].balances.liquid[token] -= liqGas;
-    } else if ((lockNeed > lockBal) && (liqNeed <= liqBal)) {
-      // 2) lockBal does not cover lockNeed, check if liqBal can cover deficit in addition to liqNeed
-      uint256 lockNeedDeficit = lockNeed - lockBal;
-      if (lockNeedDeficit <= (liqBal - liqNeed)) {
+    } else if ((lockGas > lockBal) && (liqGas <= liqBal)) {
+      // 2) lockBal does not cover lockGas, check if liqBal can cover deficit in addition to liqGas
+      uint256 lockNeedDeficit = lockGas - lockBal;
+      if (lockNeedDeficit <= (liqBal - liqGas)) {
         state.STATES[id].balances.locked[token] -= (lockGas - lockNeedDeficit);
         state.STATES[id].balances.liquid[token] -= (liqGas + lockNeedDeficit);
       } else {
-        // 3) lockBal does not cover lockNeed and liqBal cannot cover -> revert
+        // 3) lockBal does not cover lockGas and liqBal cannot cover -> revert
         revert InsufficientFundsForGas(id);
       }
     } else {
-      // 4) lockBal covers lockNeed, liqBal does not cover liqNeed -> revert
+      // 4) lockBal covers lockGas, liqBal does not cover liqGas -> revert
       revert InsufficientFundsForGas(id);
     }
   }
