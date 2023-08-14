@@ -33,7 +33,7 @@ describe("AccountsAllowance", function () {
     tokenFake = await smock.fake<DummyERC20>(new DummyERC20__factory());
   });
 
-  describe("Test cases for `manageAllowances`", async function () {
+  describe("Test cases for `manageAllowances`", function () {
     let facet: AccountsAllowance;
     let state: TestFacetProxyContract;
 
@@ -139,7 +139,7 @@ describe("AccountsAllowance", function () {
     });
   });
 
-  describe("Test cases for `spendAllowance`", async function () {
+  describe("Test cases for `spendAllowance`", function () {
     let facet: AccountsAllowance;
     let state: TestFacetProxyContract;
 

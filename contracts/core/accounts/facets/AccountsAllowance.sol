@@ -2,6 +2,7 @@
 pragma solidity ^0.8.16;
 
 import {LibAccounts} from "../lib/LibAccounts.sol";
+import {AddressArray} from "../../../lib/address/array.sol";
 import {Validator} from "../../validator.sol";
 import {AccountStorage} from "../storage.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -22,6 +23,7 @@ contract AccountsAllowance is
   IterableMapping
 {
   using SafeERC20 for IERC20;
+  using AddressArray for address[];
 
   /**
    * @notice Endowment owner adds allowance to spend
@@ -46,11 +48,9 @@ contract AccountsAllowance is
       "Invalid Token"
     );
 
-    // Checks are based around the endowment's maturity time having been reached or not
-    bool mature = (tempEndowment.maturityTime != 0 &&
-      block.timestamp >= tempEndowment.maturityTime);
+    // Allowlist checks are based around the endowment's maturity status
     bool inAllowlist = false;
-    if (!mature) {
+    if (tempEndowment.maturityTime == 0 || tempEndowment.maturityTime > block.timestamp) {
       // Only the endowment owner or a delegate whom controls allowlist can update allowances
       require(
         Validator.canChange(
@@ -61,13 +61,7 @@ contract AccountsAllowance is
         ),
         "Unauthorized"
       );
-      // also need to check that the spender address passed is in an allowlist
-      for (uint256 i = 0; i < tempEndowment.allowlistedBeneficiaries.length; i++) {
-        if (tempEndowment.allowlistedBeneficiaries[i] == spender) {
-          inAllowlist = true;
-          break;
-        }
-      }
+      inAllowlist = tempEndowment.allowlistedBeneficiaries.contains(spender);
     } else {
       // Only the endowment owner or a delegate whom controls allowlist can update allowances
       require(
@@ -79,13 +73,7 @@ contract AccountsAllowance is
         ),
         "Unauthorized"
       );
-      // also need to check that the spender address passed is in an allowlist
-      for (uint256 i = 0; i < tempEndowment.maturityAllowlist.length; i++) {
-        if (tempEndowment.maturityAllowlist[i] == spender) {
-          inAllowlist = true;
-          break;
-        }
-      }
+      inAllowlist = tempEndowment.maturityAllowlist.contains(spender);
     }
     require(inAllowlist, "Spender is not in allowlists");
 

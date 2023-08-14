@@ -19,6 +19,7 @@ import {Utils} from "../../../lib/utils.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
 import {IterableMapping} from "../../../lib/IterableMappingAddr.sol";
 import {FixedPointMathLib} from "../../../lib/FixedPointMathLib.sol";
+import {AddressArray} from "../../../lib/address/array.sol";
 
 /**
  * @title AccountsDepositWithdrawEndowments
@@ -34,6 +35,7 @@ contract AccountsDepositWithdrawEndowments is
 {
   using SafeERC20 for IERC20;
   using FixedPointMathLib for uint256;
+  using AddressArray for address[];
 
   /*
    *  Modifiers
@@ -122,6 +124,19 @@ contract AccountsDepositWithdrawEndowments is
 
     RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
       .queryConfig();
+
+    // Cannot receive contributions into a mature Endowment
+    require(
+      tempEndowment.maturityTime == 0 || tempEndowment.maturityTime > block.timestamp,
+      "Mature Endowments cannot receive contributions"
+    );
+    // Check msg sender is in Contributor Allowlist (only non-Charity Endowments can set)
+    // or that it is the Endowment owner. If allowlist is empty anyone may contribute.
+    bool contributorAllowed = true;
+    if (tempEndowment.allowlistedContributors.length > 0 && msg.sender != tempEndowment.owner) {
+      contributorAllowed = tempEndowment.allowlistedContributors.contains(msg.sender);
+    }
+    require(contributorAllowed, "Contributor address is not listed in allowlistedContributors");
 
     // ** DEPOSIT FEE CALCULATIONS **
     // ** Protocol-level Deposit Fee **
@@ -260,22 +275,10 @@ contract AccountsDepositWithdrawEndowments is
       );
     }
 
-    // Charities never mature & Normal endowments optionally mature
     // Check if maturity has been reached for the endowment (0 == no maturity date)
     bool mature = (tempEndowment.maturityTime != 0 &&
       block.timestamp >= tempEndowment.maturityTime);
 
-    // ** NORMAL TYPE WITHDRAWAL RULES **
-    // In both balance types:
-    //      The endowment multisig OR beneficiaries allowlist addresses [if populated] can withdraw. After
-    //      maturity has been reached, only addresses in Maturity Allowlist may withdraw. If the Maturity
-    //      Allowlist is not populated, then only the endowment multisig is allowed to withdraw.
-    // ** CHARITY TYPE WITHDRAW RULES **
-    // Since charity endowments do not mature, they can be treated the same as Normal endowments
-    // ** DAF TYPE WITHDRAW RULES **
-    // Regardless of account balance, can only go to an Endowment listed in Registrar DAF_APPROVED_ENDOWMENTS
-    // DAFs do not have maturity rules, as they are not meant to be endowments
-    bool senderAllowed = false;
     if (tempEndowment.endowType == LibAccounts.EndowmentType.Daf) {
       require(
         beneficiaryAddress == address(0),
@@ -285,30 +288,6 @@ contract AccountsDepositWithdrawEndowments is
         state.dafApprovedEndowments[beneficiaryEndowId],
         "Endowment beneficiary must be a DAF-Approved Endowment"
       );
-    } else {
-      // determine if msg sender is allowed to withdraw based on rules and maturity status
-      if (mature) {
-        if (tempEndowment.maturityAllowlist.length > 0) {
-          for (uint256 i = 0; i < tempEndowment.maturityAllowlist.length; i++) {
-            if (tempEndowment.maturityAllowlist[i] == msg.sender) {
-              senderAllowed = true;
-            }
-          }
-          require(senderAllowed, "Sender address is not listed in maturityAllowlist");
-        }
-      } else {
-        if (tempEndowment.allowlistedBeneficiaries.length > 0) {
-          for (uint256 i = 0; i < tempEndowment.allowlistedBeneficiaries.length; i++) {
-            if (tempEndowment.allowlistedBeneficiaries[i] == msg.sender) {
-              senderAllowed = true;
-            }
-          }
-        }
-        require(
-          senderAllowed || msg.sender == tempEndowment.owner,
-          "Sender address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner"
-        );
-      }
     }
 
     // look up Protocol level fees
@@ -356,12 +335,34 @@ contract AccountsDepositWithdrawEndowments is
           tempEndowment.earlyLockedWithdrawFee
         );
       }
-      // send leftover tokens (after all fees) to the ultimate beneficiary address/endowment
+
       if (amountLeftover > 0) {
+        // send leftover tokens (after all fees) to the ultimate beneficiary address/Endowment
         if (beneficiaryAddress != address(0)) {
+          // determine if beneficiaryAddress can receive withdrawn funds based on allowlist and maturity status
+          bool beneficiaryAllowed;
+          if (mature) {
+            beneficiaryAllowed = tempEndowment.maturityAllowlist.contains(beneficiaryAddress);
+            require(beneficiaryAllowed, "Beneficiary address is not listed in maturityAllowlist");
+          } else {
+            if (
+              tempEndowment.allowlistedBeneficiaries.length == 0 ||
+              beneficiaryAddress == tempEndowment.owner
+            ) {
+              beneficiaryAllowed = true;
+            } else {
+              beneficiaryAllowed = tempEndowment.allowlistedBeneficiaries.contains(
+                beneficiaryAddress
+              );
+            }
+            require(
+              beneficiaryAllowed,
+              "Beneficiary address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner"
+            );
+          }
           IERC20(tokens[t].addr).safeTransfer(beneficiaryAddress, amountLeftover);
         } else {
-          // Send deposit message split set for the appropriate account of receiving endowment
+          // Deposit message split set for the appropriate VaultType of receiving Endowment
           if (acctType == IVault.VaultType.LOCKED) {
             processTokenTransfer(
               AccountMessages.DepositRequest({

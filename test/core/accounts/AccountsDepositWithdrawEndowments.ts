@@ -588,6 +588,55 @@ describe("AccountsDepositWithdrawEndowments", function () {
           expect(liquidBal).to.equal(expectedLiquidAmt);
         });
 
+        it("reverts if endowment has reached maturity", async () => {
+          const currTime = await time.latest();
+
+          const matureEndowment: AccountStorage.EndowmentStruct = {
+            ...normalEndow,
+            maturityTime: currTime,
+          };
+          await state.setEndowmentDetails(normalEndowId, matureEndowment);
+
+          await expect(
+            facet
+              .connect(indexFund)
+              .depositERC20(depositToNormalEndow, tokenFake.address, depositAmt)
+          ).to.be.revertedWith("Mature Endowments cannot receive contributions");
+        });
+
+        it("reverts if allowlistedContributors is populated and sender is not in the allowlist", async () => {
+          // setup a populated allowlistedContributors
+          await state.setEndowmentDetails(normalEndowId, {
+            ...normalEndow,
+            allowlistedContributors: [beneficiaryAddress],
+          });
+
+          await expect(
+            facet
+              .connect(indexFund)
+              .depositERC20(depositToNormalEndow, tokenFake.address, depositAmt)
+          ).to.be.revertedWith("Contributor address is not listed in allowlistedContributors");
+        });
+
+        it("passes if allowlistedContributors is populated and sender in the allowlist", async () => {
+          // setup a populated allowlistedContributors
+          await state.setEndowmentDetails(normalEndowId, {
+            ...normalEndow,
+            allowlistedContributors: [indexFund.address],
+          });
+
+          const expectedLockedAmt = BigNumber.from(4000);
+          const expectedLiquidAmt = BigNumber.from(6000);
+
+          await expect(
+            facet
+              .connect(indexFund)
+              .depositERC20(depositToNormalEndow, tokenFake.address, depositAmt)
+          )
+            .to.emit(facet, "EndowmentDeposit")
+            .withArgs(normalEndowId, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
+        });
+
         it("deposit with protocol-level deposit fee only", async () => {
           registrarFake.getFeeSettingsByFeeType.returns({payoutAddress: treasury, bps: 10});
 
