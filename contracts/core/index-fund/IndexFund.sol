@@ -33,6 +33,8 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
   using SafeERC20 for IERC20;
   using SafeMath for uint256;
 
+  error InvalidAddress(string param);
+
   /**
    * @notice Initializer function for index fund contract, to be called when proxy is deployed
    * @dev This function is called by deployer only once at the time of initialization
@@ -49,21 +51,22 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
 
     // active fund rotations can set by either a Time-based or Amoount-based
     // or neither (wherein both are == 0)
-    state.config.fundRotation = fundRotation;
-    if (fundingGoal == 0 || (fundRotation == 0 && fundingGoal > 0)) {
-      state.config.fundingGoal = fundingGoal;
-    } else {
+    if (fundingGoal > 0 && fundRotation > 0) {
       revert("Invalid Fund Rotation configuration");
     }
 
-    if (Validator.addressChecker(registrarContract)) {
-      state.config = IndexFundStorage.Config({
-        registrarContract: registrarContract,
-        fundRotation: fundRotation,
-        fundingGoal: fundingGoal
-      });
+    if (!Validator.addressChecker(registrarContract)) {
+      revert InvalidAddress("registrarContract");
     }
 
+    state.config = IndexFundStorage.Config({
+      registrarContract: registrarContract,
+      fundRotation: fundRotation,
+      fundingGoal: fundingGoal
+    });
+
+    state.config.fundRotation = fundRotation;
+    state.config.fundingGoal = fundingGoal;
     state.activeFund = 0;
     state.nextFundId = 1;
     state.roundDonations = 0;
@@ -83,19 +86,19 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
     uint256 fundRotation,
     uint256 fundingGoal
   ) external onlyOwner {
-    if (Validator.addressChecker(registrarContract)) {
-      state.config.registrarContract = registrarContract;
+    if (!Validator.addressChecker(registrarContract)) {
+      revert InvalidAddress("registrarContract");
     }
 
     // active fund rotations can set by either a Time-based or Amoount-based
     // or neither (wherein both are == 0)
-    state.config.fundRotation = fundRotation;
-    if (fundingGoal == 0 || (fundRotation == 0 && fundingGoal > 0)) {
-      state.config.fundingGoal = fundingGoal;
-    } else {
+    if (fundingGoal > 0 && fundRotation > 0) {
       revert("Invalid Fund Rotation configuration");
     }
 
+    state.config.registrarContract = registrarContract;
+    state.config.fundRotation = fundRotation;
+    state.config.fundingGoal = fundingGoal;
     emit ConfigUpdated(registrarContract, fundingGoal, fundRotation);
   }
 
