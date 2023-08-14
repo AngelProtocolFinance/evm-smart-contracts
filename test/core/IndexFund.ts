@@ -118,7 +118,7 @@ describe("IndexFund", function () {
       version: "1",
       networkName: "Polygon",
       registrarContract: registrar.address,
-      nextAccountId: 1,
+      nextAccountId: 4,
       reentrancyGuardLocked: false,
     });
     facet = AccountsDepositWithdrawEndowments__factory.connect(state.address, owner);
