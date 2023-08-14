@@ -143,7 +143,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
     it("reverts if the deposit value is 0 (zero)", async () => {
       await expect(facet.depositMatic(depositToCharity, {value: 0})).to.be.revertedWith(
-        "Invalid Amount"
+        "Amount must be greater than zero"
       );
     });
 

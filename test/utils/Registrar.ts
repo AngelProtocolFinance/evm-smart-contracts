@@ -1,5 +1,4 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {ethers} from "hardhat";
 import {
   LocalRegistrar,
   LocalRegistrar__factory,
@@ -8,6 +7,7 @@ import {
   ProxyContract__factory,
 } from "typechain-types";
 import {DEFAULT_SPLIT_STRUCT} from "./helpers";
+import {HardhatRuntimeEnvironment} from "hardhat/types";
 
 export async function deployLocalRegistrarAsProxy(
   owner: SignerWithAddress,
@@ -15,6 +15,7 @@ export async function deployLocalRegistrarAsProxy(
 ): Promise<LocalRegistrar> {
   const LocalRegistrar = new LocalRegistrar__factory(proxyAdmin);
   const localRegistrarImpl = await LocalRegistrar.deploy();
+  await localRegistrarImpl.deployed();
   const data = localRegistrarImpl.interface.encodeFunctionData("initialize");
   const proxyFactory = new ProxyContract__factory(owner);
   let proxy = await proxyFactory.deploy(localRegistrarImpl.address, proxyAdmin.address, data);
@@ -24,7 +25,8 @@ export async function deployLocalRegistrarAsProxy(
 
 export async function deployRegistrarAsProxy(
   owner: SignerWithAddress,
-  proxyAdmin: SignerWithAddress
+  proxyAdmin: SignerWithAddress,
+  hre: HardhatRuntimeEnvironment
 ): Promise<Registrar> {
   const Registrar = new Registrar__factory(proxyAdmin);
   const registrarImpl = await Registrar.deploy();
@@ -33,11 +35,11 @@ export async function deployRegistrarAsProxy(
     "initialize((address,(uint256,uint256,uint256),address,address,address,string))",
     [
       {
-        treasury: ethers.constants.AddressZero,
+        treasury: hre.ethers.constants.AddressZero,
         splitToLiquid: DEFAULT_SPLIT_STRUCT,
-        router: ethers.constants.AddressZero,
-        axelarGateway: ethers.constants.AddressZero,
-        axelarGasService: ethers.constants.AddressZero,
+        router: hre.ethers.constants.AddressZero,
+        axelarGateway: hre.ethers.constants.AddressZero,
+        axelarGasService: hre.ethers.constants.AddressZero,
         networkName: "localhost",
       },
     ]

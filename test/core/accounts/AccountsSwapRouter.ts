@@ -373,7 +373,7 @@ describe("AccountsSwapRouter", function () {
 
       describe("revert cases", async function () {
         beforeEach(async function () {
-          await token1.mint(facet.address, AMT1);
+          await wait(token1.mint(facet.address, AMT1));
         });
         it("reverts if the price feed response is invalid", async function () {
           const ANSWER = 0;
@@ -394,8 +394,8 @@ describe("AccountsSwapRouter", function () {
         it("reverts if output is less than expected", async function () {
           const ANSWER = 1;
           chainlink.latestRoundData.returns([0, ANSWER, 0, 0, 0]);
-          await uniswapFactory.setPool(genWallet().address);
-          await uniswapRouter.setOutputValue(0);
+          await wait(uniswapFactory.setPool(genWallet().address));
+          await wait(uniswapRouter.setOutputValue(0));
           await expect(
             facet.swapToken(ACCOUNT_ID, VaultType.LOCKED, token1.address, AMT1, token2.address, 1)
           ).to.be.revertedWith("Output funds less than the minimum output");
@@ -408,24 +408,17 @@ describe("AccountsSwapRouter", function () {
         beforeEach(async function () {
           const ANSWER = 1;
           chainlink.latestRoundData.returns([0, ANSWER, 0, 0, 0]);
-          await uniswapFactory.setPool(genWallet().address);
-          await uniswapRouter.setOutputValue(AMT2);
+          await wait(uniswapFactory.setPool(genWallet().address));
+          await wait(uniswapRouter.setOutputValue(AMT2));
         });
 
         it("swaps and updates the locked balance successfully", async function () {
-          await token1.mint(facet.address, AMT1);
-          await token2.mint(uniswapRouter.address, AMT2);
-          await uniswapRouter.setOutputValue(AMT2);
+          await wait(token1.mint(facet.address, AMT1));
+          await wait(token2.mint(uniswapRouter.address, AMT2));
+          await wait(uniswapRouter.setOutputValue(AMT2));
           await wait(state.setEndowmentTokenBalance(ACCOUNT_ID, token1.address, AMT1, 0));
-          expect(
-            await facet.swapToken(
-              ACCOUNT_ID,
-              VaultType.LOCKED,
-              token1.address,
-              AMT1,
-              token2.address,
-              1
-            )
+          await expect(
+            facet.swapToken(ACCOUNT_ID, VaultType.LOCKED, token1.address, AMT1, token2.address, 1)
           )
             .to.emit(facet, "TokenSwapped")
             .withArgs([ACCOUNT_ID, VaultType.LOCKED, token1.address, AMT1, token2.address, AMT2]);
@@ -445,18 +438,11 @@ describe("AccountsSwapRouter", function () {
         });
 
         it("swaps and updates the liquid balance successfully", async function () {
-          await token1.mint(facet.address, AMT1);
-          await token2.mint(uniswapRouter.address, AMT2);
+          await wait(token1.mint(facet.address, AMT1));
+          await wait(token2.mint(uniswapRouter.address, AMT2));
           await wait(state.setEndowmentTokenBalance(ACCOUNT_ID, token1.address, 0, AMT1));
-          expect(
-            await facet.swapToken(
-              ACCOUNT_ID,
-              VaultType.LIQUID,
-              token1.address,
-              AMT1,
-              token2.address,
-              1
-            )
+          await expect(
+            facet.swapToken(ACCOUNT_ID, VaultType.LIQUID, token1.address, AMT1, token2.address, 1)
           )
             .to.emit(facet, "TokenSwapped")
             .withArgs([ACCOUNT_ID, VaultType.LOCKED, token1.address, AMT1, token2.address, AMT2]);

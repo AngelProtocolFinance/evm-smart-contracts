@@ -1,17 +1,19 @@
-import {expect} from "chai";
-import {ethers, upgrades} from "hardhat";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {expect} from "chai";
+import {BigNumber} from "ethers";
+import hre from "hardhat";
+import {DEFAULT_STRATEGY_SELECTOR, deployDummyERC20, deployDummyFUSDC, wait} from "test/utils";
 import {
   DummyERC20,
-  IStrategy,
+  DummyFUSDC,
   FluxStrategy,
   FluxStrategy__factory,
-  DummyFUSDC,
+  IStrategy,
 } from "typechain-types";
-import {deployDummyFUSDC, deployDummyERC20, DEFAULT_STRATEGY_SELECTOR, wait} from "test/utils";
-import {BigNumber} from "ethers";
 
 describe("FluxStrategy", function () {
+  const {ethers} = hre;
+
   let owner: SignerWithAddress;
   let user: SignerWithAddress;
   let collector: SignerWithAddress;

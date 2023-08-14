@@ -1,6 +1,5 @@
 import {expect} from "chai";
 import {BigNumber} from "ethers";
-import {ethers} from "hardhat";
 import hre from "hardhat";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {StrategyApprovalState, getSigners} from "utils";
@@ -24,6 +23,8 @@ import {
 } from "typechain-types";
 
 describe("Vault", function () {
+  const {ethers} = hre;
+
   let owner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
   let user: SignerWithAddress;
