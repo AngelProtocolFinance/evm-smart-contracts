@@ -610,7 +610,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           await impersonateAccount(allowedContributor);
           await setBalance(allowedContributor, 1000000000000000000); // give it some gas money, as impersonateAccount does not
           const acctSigner = await ethers.getSigner(allowedContributor);
-          // set a different wallet in allowlist 
+          // set a different wallet in allowlist
           await state.setAllowlist(normalEndowId, 1, [genWallet().address]);
 
           await expect(
@@ -621,12 +621,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
         });
 
         it("passes if allowlistedContributors is populated and sender is in the allowlist", async () => {
-          // setup an allowed contributor wallet to sign/send and setup in allowlist 
+          // setup an allowed contributor wallet to sign/send and setup in allowlist
           const allowedContributor = await genWallet().address;
           await impersonateAccount(allowedContributor);
           await setBalance(allowedContributor, 1000000000000000000); // give it some gas money, as impersonateAccount does not
           const acctSigner = await ethers.getSigner(allowedContributor);
-          // set new signer's wallet in allowlist 
+          // set new signer's wallet in allowlist
           await state.setAllowlist(normalEndowId, 1, [allowedContributor]);
 
           const expectedLockedAmt = BigNumber.from(4000);
@@ -854,10 +854,9 @@ describe("AccountsDepositWithdrawEndowments", function () {
         await state.setAllowlist(normalEndowId, 0, [indexFund.address]);
 
         await expect(
-          facet
-            .withdraw(normalEndowId, VaultType.LIQUID, genWallet().address, 0, [
-              {addr: tokenFake.address, amnt: 1},
-            ])
+          facet.withdraw(normalEndowId, VaultType.LIQUID, genWallet().address, 0, [
+            {addr: tokenFake.address, amnt: 1},
+          ])
         ).to.be.revertedWith(
           "Beneficiary address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner"
         );
@@ -1272,7 +1271,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
           const matureEndowment: AccountStorage.EndowmentStruct = {
             ...normalEndow,
-            maturityTime: currTime
+            maturityTime: currTime,
           };
           await state.setEndowmentDetails(normalEndowId, matureEndowment);
           await state.setAllowlist(normalEndowId, 2, [beneficiaryAddress]);
@@ -1287,8 +1286,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const finalAmountLeftover = amount.sub(expectedFeeAp);
 
           await expect(
-            facet
-              .withdraw(normalEndowId, acctType, beneficiaryAddress, beneficiaryId, tokens)
+            facet.withdraw(normalEndowId, acctType, beneficiaryAddress, beneficiaryId, tokens)
           )
             .to.emit(facet, "EndowmentWithdraw")
             .withArgs(

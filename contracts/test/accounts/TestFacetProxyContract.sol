@@ -198,7 +198,11 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMapping 
     return state.dafApprovedEndowments[endowId];
   }
 
-  function setAllowlist(uint32 endowId, LibAccounts.AllowlistType listType, address[] memory allowlist) external {
+  function setAllowlist(
+    uint32 endowId,
+    LibAccounts.AllowlistType listType,
+    address[] memory allowlist
+  ) external {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     if (listType == LibAccounts.AllowlistType.AllowlistedBeneficiaries) {
       for (uint256 i = 0; i < allowlist.length; i++) {
@@ -217,7 +221,10 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMapping 
     }
   }
 
-  function getAllowlist(uint32 endowId, LibAccounts.AllowlistType listType) external view returns (address[] memory) { 
+  function getAllowlist(
+    uint32 endowId,
+    LibAccounts.AllowlistType listType
+  ) external view returns (address[] memory) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     if (listType == LibAccounts.AllowlistType.AllowlistedBeneficiaries) {
       return state.allowlistedBeneficiaries[endowId].keys;

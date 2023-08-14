@@ -71,8 +71,9 @@ contract DonationMatchCharity is IDonationMatching, Storage, Initializable, Reen
 
     require(registrar_config.accountsContract == msg.sender, "Unauthorized");
 
-    AccountMessages.EndowmentResponse memory endow_detail = IAccounts(registrar_config.accountsContract)
-      .queryEndowmentDetails(endowmentId);
+    AccountMessages.EndowmentResponse memory endow_detail = IAccounts(
+      registrar_config.accountsContract
+    ).queryEndowmentDetails(endowmentId);
 
     if (endow_detail.endowType == LibAccounts.EndowmentType.Charity) {
       require(address(this) == registrar_config.donationMatchCharitesContract, "Unauthorized");
