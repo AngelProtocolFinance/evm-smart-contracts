@@ -174,7 +174,6 @@ describe("IndexFund", function () {
         await deployIndexFundAsProxy(ethers.constants.AddressZero);
         throw new Error("Should not occur");
       } catch (error: any) {
-        console.log(error);
         expect(error.reason).to.contain("reverted with custom error 'InvalidAddress");
       }
     });
@@ -193,7 +192,7 @@ describe("IndexFund", function () {
   describe("Updating the Config", function () {
     it("reverts when the message sender is not the owner", async function () {
       await expect(facet.connect(user).updateConfig(registrar.address, 0, 5000)).to.be.revertedWith(
-        "Unauthorized"
+        "Ownable: caller is not the owner"
       );
     });
 
@@ -224,7 +223,7 @@ describe("IndexFund", function () {
     it("reverts when the message sender is not the owner", async function () {
       await expect(
         facet.connect(user).createIndexFund("Test Fund #1", "Test fund", [1, 2], false, 0, 0)
-      ).to.be.revertedWith("Unauthorized");
+      ).to.be.revertedWith("Ownable: caller is not the owner");
     });
 
     it("reverts when no endowment members are passed", async function () {
@@ -288,7 +287,7 @@ describe("IndexFund", function () {
 
     it("reverts when the message sender is not the owner", async function () {
       await expect(facet.connect(user).updateFundMembers(1, [1, 2], [])).to.be.revertedWith(
-        "Unauthorized"
+        "Ownable: caller is not the owner"
       );
     });
 
@@ -329,7 +328,9 @@ describe("IndexFund", function () {
     });
 
     it("reverts when the message sender is not the owner", async function () {
-      await expect(facet.connect(user).removeIndexFund(1)).to.be.revertedWith("Unauthorized");
+      await expect(facet.connect(user).removeIndexFund(1)).to.be.revertedWith(
+        "Ownable: caller is not the owner"
+      );
     });
 
     it("reverts when the fund is already expired", async function () {
