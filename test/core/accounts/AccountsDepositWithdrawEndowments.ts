@@ -846,15 +846,14 @@ describe("AccountsDepositWithdrawEndowments", function () {
     });
 
     describe("from Non-Mature endowments", () => {
-      it("reverts if sender address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner", async () => {
+      it("reverts if beneficiary address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner", async () => {
         await expect(
           facet
-            .connect(indexFund)
             .withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, [
               {addr: tokenFake.address, amnt: 1},
             ])
         ).to.be.revertedWith(
-          "Sender address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner"
+          "Beneficiary address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner"
         );
       });
 

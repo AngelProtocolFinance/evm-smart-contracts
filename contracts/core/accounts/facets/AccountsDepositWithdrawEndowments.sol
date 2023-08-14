@@ -133,7 +133,11 @@ contract AccountsDepositWithdrawEndowments is
     // Check msg sender is in Contributor Allowlist (only non-Charity Endowments can set)
     // or that it is the Endowment owner. If allowlist is empty anyone may contribute.
     bool contributorAllowed = true;
-    if (tempEndowment.allowlistedContributors.length > 0 && msg.sender != tempEndowment.owner) {
+    if (
+      msg.sender != registrarConfig.indexFundContract &&
+      tempEndowment.allowlistedContributors.length > 0 &&
+      msg.sender != tempEndowment.owner
+    ) {
       contributorAllowed = tempEndowment.allowlistedContributors.contains(msg.sender);
     }
     require(contributorAllowed, "Contributor address is not listed in allowlistedContributors");
