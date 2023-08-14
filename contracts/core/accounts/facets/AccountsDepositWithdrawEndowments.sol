@@ -366,6 +366,12 @@ contract AccountsDepositWithdrawEndowments is
           }
           IERC20(tokens[t].addr).safeTransfer(beneficiaryAddress, amountLeftover);
         } else {
+          if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
+            require(
+              state.ENDOWMENTS[beneficiaryEndowId].endowType == LibAccounts.EndowmentType.Charity,
+              "Charity Endowments may only transfer funds to other Charity Endowments"
+            );
+          }
           // Deposit message split set for the appropriate VaultType of receiving Endowment
           if (acctType == IVault.VaultType.LOCKED) {
             processTokenTransfer(

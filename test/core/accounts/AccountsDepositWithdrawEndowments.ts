@@ -971,9 +971,26 @@ describe("AccountsDepositWithdrawEndowments", function () {
           expect(liquidBalance).to.equal(liqBal.sub(tokens[0].amnt));
         });
 
-        it("passes: charity, beneficiary ID, sender is endow. owner, no withdraw fees applied", async () => {
+        it("reverts if a charity endow tries to withdraw to a non-Charity type endow beneficiary", async () => {
           const beneficiaryAddress = ethers.constants.AddressZero;
           const beneficiaryId = normalEndowId;
+          const acctType = VaultType.LIQUID;
+          const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = [
+            {addr: tokenFake.address, amnt: 5000},
+          ];
+
+          await expect(
+            facet.withdraw(charityId, acctType, beneficiaryAddress, beneficiaryId, tokens)
+          ).to.be.revertedWith("Charity Endowments may only transfer funds to other Charity Endowments");
+        });
+
+        it("passes: charity, beneficiary ID(charity-type), sender is endow. owner, no withdraw fees applied", async () => {
+          // setup new charity-type endow
+          const newCharityId = 3;
+          await state.setEndowmentDetails(newCharityId, charity);
+
+          const beneficiaryAddress = ethers.constants.AddressZero;
+          const beneficiaryId = newCharityId;
           const acctType = VaultType.LIQUID;
           const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = [
             {addr: tokenFake.address, amnt: 5000},
