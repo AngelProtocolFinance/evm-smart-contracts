@@ -102,11 +102,10 @@ contract MultiSigGeneric is
         string.concat("Invalid owner address at index: ", Strings.toString(o))
       );
       require(!isOwner[owners[o]], "New owner already exists");
-      // increment active owners count by 1
-      activeOwnersCount += 1;
       // set the owner address to false in mapping
       isOwner[owners[o]] = true;
     }
+    activeOwnersCount += owners.length;
     emitOwnersAdded(owners);
   }
 
@@ -120,11 +119,10 @@ contract MultiSigGeneric is
     // check that all ousted owners are current, existing owners
     for (uint256 o = 0; o < owners.length; o++) {
       require(isOwner[owners[o]], "Ousted owner is not a current owner");
-      // decrement active owners count by 1
-      activeOwnersCount -= 1;
       // set the owner address to false in mapping
       isOwner[owners[o]] = false;
     }
+    activeOwnersCount -= owners.length;
     emitOwnersRemoved(owners);
     // adjust the approval threshold downward if we've removed more members than can meet the currently
     // set threshold level. (ex. Prevent 10 owners total needing 15 approvals to execute txs)

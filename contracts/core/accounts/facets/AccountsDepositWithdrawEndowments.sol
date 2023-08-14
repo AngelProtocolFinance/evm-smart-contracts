@@ -227,26 +227,8 @@ contract AccountsDepositWithdrawEndowments is
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
 
     require(details.lockedPercentage + details.liquidPercentage == 100, "InvalidSplit");
-
-    RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
-      .queryConfig();
-
-    // ** SPLIT ADJUSTMENTS AND CHECKS **
-    uint256 lockedSplitPercent = details.lockedPercentage;
-    uint256 liquidSplitPercent = details.liquidPercentage;
-    require(registrarConfig.indexFundContract != address(0), "No Index Fund");
-    if (msg.sender != registrarConfig.indexFundContract) {
-      // adjust user passed liquid split to be in-line with endowment range (if falls outside)
-      liquidSplitPercent = Validator.adjustLiquidSplit(
-        tempEndowment.splitToLiquid,
-        details.liquidPercentage,
-        tempEndowment.ignoreUserSplits
-      );
-      lockedSplitPercent = 100 - liquidSplitPercent;
-    }
-
-    uint256 lockedAmount = amount.mulDivDown(lockedSplitPercent, LibAccounts.PERCENT_BASIS);
-    uint256 liquidAmount = amount.mulDivDown(liquidSplitPercent, LibAccounts.PERCENT_BASIS);
+    uint256 lockedAmount = amount.mulDivDown(details.lockedPercentage, LibAccounts.PERCENT_BASIS);
+    uint256 liquidAmount = amount.mulDivDown(details.liquidPercentage, LibAccounts.PERCENT_BASIS);
 
     IterableMapping.incr(state.STATES[details.id].balances.locked, tokenAddress, lockedAmount);
     IterableMapping.incr(state.STATES[details.id].balances.liquid, tokenAddress, liquidAmount);
@@ -345,10 +327,10 @@ contract AccountsDepositWithdrawEndowments is
       // calculate all fees owed, send them to payout addresses, & return the leftover amount
       uint256 amountLeftover = tokens[t].amnt;
       // Do not apply fees for Endowment <> Endowment withdraws/transfers
-      if (beneficiaryAddress != address(0) && beneficiaryEndowId > 0) {
+      if (beneficiaryAddress != address(0)) {
         // ** FEES & PENALTIES CALCULATIONS **
         amountLeftover = processWithdrawFees(
-          amountLeftover,
+          tokens[t].amnt,
           tokens[t].addr,
           mature,
           acctType,
