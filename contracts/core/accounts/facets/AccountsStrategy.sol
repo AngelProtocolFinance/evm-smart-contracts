@@ -111,6 +111,11 @@ contract AccountsStrategy is
     uint32[] memory accts = new uint32[](1);
     accts[0] = id;
 
+    state.STATES[id].balances.locked[tokenAddress] -= investRequest.lockAmt;
+    state.STATES[id].balances.liquid[tokenAddress] -= investRequest.liquidAmt;
+    state.STATES[id].activeStrategies[investRequest.strategy] = true;
+    emit EndowmentInvested(id);
+
     // Strategy exists on the local network
     if (Validator.compareStrings(state.config.networkName, stratParams.network)) {
       IVault.VaultActionData memory payload = IVault.VaultActionData({
@@ -188,11 +193,6 @@ contract AccountsStrategy is
         investAmt
       );
     }
-
-    state.STATES[id].balances.locked[tokenAddress] -= investRequest.lockAmt;
-    state.STATES[id].balances.liquid[tokenAddress] -= investRequest.liquidAmt;
-    state.STATES[id].activeStrategies[investRequest.strategy] = true;
-    emit EndowmentInvested(id);
   }
 
   /**
