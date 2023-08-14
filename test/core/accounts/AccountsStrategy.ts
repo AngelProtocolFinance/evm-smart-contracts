@@ -180,10 +180,10 @@ describe("AccountsStrategy", function () {
     });
 
     describe("reverts when", function () {
-      it("both locked and liquid amounts to be invested are set to 0 (zero)", async function () {
-        await expect(facet.strategyInvest(ACCOUNT_ID, DEFAULT_INVEST_REQUEST)).to.be.revertedWith(
-          "Must invest at least one of Locked/Liquid"
-        );
+      it("neither locked nor liquid funds are set to be invested", async function () {
+        await expect(
+          facet.strategyInvest(ACCOUNT_ID, DEFAULT_INVEST_REQUEST)
+        ).to.be.revertedWithCustomError(facet, "ZeroAmount");
       });
 
       it("the caller is not approved for locked fund mgmt", async function () {
@@ -564,10 +564,10 @@ describe("AccountsStrategy", function () {
     });
 
     describe("reverts when", function () {
-      it("both locked and liquid amounts to be redeemed are set to 0 (zero)", async function () {
-        await expect(facet.strategyRedeem(ACCOUNT_ID, DEFAULT_REDEEM_REQUEST)).to.be.revertedWith(
-          "Must redeem at least one of Locked/Liquid"
-        );
+      it("neither locked nor liquid funds are set to be redeemed", async function () {
+        await expect(
+          facet.strategyRedeem(ACCOUNT_ID, DEFAULT_REDEEM_REQUEST)
+        ).to.be.revertedWithCustomError(facet, "ZeroAmount");
       });
 
       it("the caller is not approved for locked fund mgmt", async function () {
@@ -913,7 +913,7 @@ describe("AccountsStrategy", function () {
       it("neither locked nor liquid funds are set to be redeemed", async function () {
         await expect(
           facet.strategyRedeemAll(ACCOUNT_ID, DEFAULT_REDEEM_ALL_REQUEST)
-        ).to.be.revertedWith("Must redeem at least one of Locked/Liquid");
+        ).to.be.revertedWithCustomError(facet, "ZeroAmount");
       });
       it("the caller is not approved for locked fund mgmt", async function () {
         await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);

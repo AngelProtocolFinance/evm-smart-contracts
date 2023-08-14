@@ -36,6 +36,8 @@ contract AccountsStrategy is
   uint256 constant FIFTY_PERCENT_BIG_NUMBA_RATE =
     (50 * LibAccounts.BIG_NUMBA_BASIS) / LibAccounts.PERCENT_BASIS;
 
+  error ZeroAmount();
+
   /**
    * @notice This function that allows users to deposit into a yield strategy using tokens from their locked or liquid account in an endowment.
    * @dev Allows the owner of an endowment to invest tokens into specified yield vaults.
@@ -48,10 +50,9 @@ contract AccountsStrategy is
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
 
-    require(
-      investRequest.lockAmt > 0 || investRequest.liquidAmt > 0,
-      "Must invest at least one of Locked/Liquid"
-    );
+    if (investRequest.lockAmt == 0 && investRequest.liquidAmt == 0) {
+      revert ZeroAmount();
+    }
 
     // check if the msg sender is either the owner or their delegate address and
     // that they have the power to manage the investments for an account balance
@@ -206,10 +207,9 @@ contract AccountsStrategy is
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
 
-    require(
-      redeemRequest.lockAmt > 0 || redeemRequest.liquidAmt > 0,
-      "Must redeem at least one of Locked/Liquid"
-    );
+    if (redeemRequest.lockAmt == 0 && redeemRequest.liquidAmt == 0) {
+      revert ZeroAmount();
+    }
 
     // check if the msg sender is either the owner or their delegate address and
     // that they have the power to manage the investments for an account balance
@@ -341,10 +341,10 @@ contract AccountsStrategy is
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
 
-    require(
-      redeemAllRequest.redeemLiquid || redeemAllRequest.redeemLocked,
-      "Must redeem at least one of Locked/Liquid"
-    );
+    if (!redeemAllRequest.redeemLiquid && !redeemAllRequest.redeemLocked) {
+      revert ZeroAmount();
+    }
+
     if (redeemAllRequest.redeemLocked) {
       require(
         Validator.canChange(
