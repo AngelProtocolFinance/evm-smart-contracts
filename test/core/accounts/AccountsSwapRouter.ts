@@ -26,6 +26,7 @@ import {
 } from "typechain-types";
 import {VaultType, genWallet, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
+import {time} from "@nomicfoundation/hardhat-network-helpers";
 
 use(smock.matchers);
 
@@ -385,7 +386,8 @@ describe("AccountsSwapRouter", function () {
 
         it("reverts if the factory cant find a pool", async function () {
           const ANSWER = 1;
-          chainlink.latestRoundData.returns([0, ANSWER, 0, 0, 0]);
+          let currTime = await time.latest();
+          chainlink.latestRoundData.returns([0, ANSWER, 0, currTime, 0]);
           await expect(
             facet.swapToken(ACCOUNT_ID, VaultType.LOCKED, token1.address, AMT1, token2.address, 1)
           ).to.be.revertedWith("No pool found to swap");
@@ -393,7 +395,8 @@ describe("AccountsSwapRouter", function () {
 
         it("reverts if output is less than expected", async function () {
           const ANSWER = 1;
-          chainlink.latestRoundData.returns([0, ANSWER, 0, 0, 0]);
+          let currTime = await time.latest();
+          chainlink.latestRoundData.returns([0, ANSWER, 0, currTime, 0]);
           await wait(uniswapFactory.setPool(genWallet().address));
           await wait(uniswapRouter.setOutputValue(0));
           await expect(
@@ -407,7 +410,8 @@ describe("AccountsSwapRouter", function () {
         const AMT2 = 1000;
         beforeEach(async function () {
           const ANSWER = 1;
-          chainlink.latestRoundData.returns([0, ANSWER, 0, 0, 0]);
+          let currTime = await time.latest();
+          chainlink.latestRoundData.returns([0, ANSWER, 0, currTime, 0]);
           await wait(uniswapFactory.setPool(genWallet().address));
           await wait(uniswapRouter.setOutputValue(AMT2));
         });
@@ -421,7 +425,7 @@ describe("AccountsSwapRouter", function () {
             facet.swapToken(ACCOUNT_ID, VaultType.LOCKED, token1.address, AMT1, token2.address, 1)
           )
             .to.emit(facet, "TokenSwapped")
-            .withArgs([ACCOUNT_ID, VaultType.LOCKED, token1.address, AMT1, token2.address, AMT2]);
+            .withArgs(ACCOUNT_ID, VaultType.LOCKED, token1.address, AMT1, token2.address, AMT2);
 
           const [lockBal_token1, liqBal_token1] = await state.getEndowmentTokenBalance(
             ACCOUNT_ID,
@@ -445,7 +449,7 @@ describe("AccountsSwapRouter", function () {
             facet.swapToken(ACCOUNT_ID, VaultType.LIQUID, token1.address, AMT1, token2.address, 1)
           )
             .to.emit(facet, "TokenSwapped")
-            .withArgs([ACCOUNT_ID, VaultType.LOCKED, token1.address, AMT1, token2.address, AMT2]);
+            .withArgs(ACCOUNT_ID, VaultType.LIQUID, token1.address, AMT1, token2.address, AMT2);
 
           const [lockBal_token1, liqBal_token1] = await state.getEndowmentTokenBalance(
             ACCOUNT_ID,
