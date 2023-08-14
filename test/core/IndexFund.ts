@@ -1,6 +1,5 @@
 import {FakeContract, smock} from "@defi-wonderland/smock";
 import {impersonateAccount, setBalance, time} from "@nomicfoundation/hardhat-network-helpers";
-import {setNextBlockTimestamp} from "@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import {ContractReceipt, ContractTransaction} from "ethers";
@@ -299,17 +298,10 @@ describe("IndexFund", function () {
     beforeEach(async function () {
       // create 2 funds (1 active and 1 expired)
       let currTime = await time.latest();
-      const tx1 = await facet.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0);
-      const tx2 = await facet.createIndexFund(
-        "Test Fund #2",
-        "Test fund",
-        [3],
-        false,
-        50,
-        currTime + 42069
+      await wait(facet.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0));
+      await wait(
+        facet.createIndexFund("Test Fund #2", "Test fund", [3], false, 50, currTime + 42069)
       );
-      await tx1.wait();
-      await tx2.wait();
       await time.increase(42069); // move time forward so Fund #2 is @ expiry
     });
 
@@ -350,17 +342,10 @@ describe("IndexFund", function () {
     beforeEach(async function () {
       // create 2 funds (1 active and 1 expired)
       let currTime = await time.latest();
-      const tx1 = await facet.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0);
-      const tx2 = await facet.createIndexFund(
-        "Test Fund #2",
-        "Test fund",
-        [3],
-        false,
-        50,
-        currTime + 42069
+      await wait(facet.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0));
+      await wait(
+        facet.createIndexFund("Test Fund #2", "Test fund", [3], false, 50, currTime + 42069)
       );
-      await tx1.wait();
-      await tx2.wait();
       await time.increase(42069); // move time forward so Fund #2 is @ expiry
     });
 
@@ -383,17 +368,10 @@ describe("IndexFund", function () {
     beforeEach(async function () {
       // create 2 funds (1 active and 1 expired)
       let currTime = await time.latest();
-      const tx1 = await facet.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0);
-      const tx2 = await facet.createIndexFund(
-        "Test Fund #2",
-        "Test fund",
-        [3],
-        false,
-        50,
-        currTime + 42069
+      await wait(facet.createIndexFund("Test Fund #1", "Test fund", [2, 3], true, 50, 0));
+      await wait(
+        facet.createIndexFund("Test Fund #2", "Test fund", [3], false, 50, currTime + 42069)
       );
-      await tx1.wait();
-      await tx2.wait();
       await time.increase(42069); // move time forward so Fund #2 is @ expiry
     });
 
@@ -425,18 +403,11 @@ describe("IndexFund", function () {
     beforeEach(async function () {
       let currTime = await time.latest();
       // create 1 active, non-rotating fund
-      const tx1 = await facet.createIndexFund("Test Fund #1", "Test fund", [2, 3], false, 50, 0);
+      await wait(facet.createIndexFund("Test Fund #1", "Test fund", [2, 3], false, 50, 0));
       // create 1 expired, non-rotating fund
-      const tx2 = await facet.createIndexFund(
-        "Test Fund #2",
-        "Test fund",
-        [2, 3],
-        false,
-        50,
-        currTime + 42069
+      await wait(
+        facet.createIndexFund("Test Fund #2", "Test fund", [2, 3], false, 50, currTime + 42069)
       );
-      await tx1.wait();
-      await tx2.wait();
       await time.increase(42069); // move time forward so Fund #2 is @ expiry
     });
 
