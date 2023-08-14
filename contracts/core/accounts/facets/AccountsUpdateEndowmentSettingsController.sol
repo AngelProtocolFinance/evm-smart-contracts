@@ -41,11 +41,11 @@ contract AccountsUpdateEndowmentSettingsController is
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
 
     require(!state.STATES[id].closingEndowment, "UpdatesAfterClosed");
-    require(tempEndowment.endowType != LibAccounts.EndowmentType.Charity, "Unauthorized");
     require(
-      tempEndowment.maturityTime <= 0 || tempEndowment.maturityTime > block.timestamp,
+      tempEndowment.maturityTime == 0 || tempEndowment.maturityTime > block.timestamp,
       "Updates cannot be done after maturity has been reached"
     );
+    require(tempEndowment.endowType != LibAccounts.EndowmentType.Charity, "Unauthorized");
 
     IterableMapping.Map storage iterableAllowlist;
     if (allowlistType == LibAccounts.AllowlistType.AllowlistedBeneficiaries) {
@@ -86,10 +86,12 @@ contract AccountsUpdateEndowmentSettingsController is
     }
 
     for (uint256 i = 0; i < add.length; i++) {
+      require(add[i] != address(0), "Zero address passed");
       IterableMapping.set(iterableAllowlist, add[i], 1);
     }
 
     for (uint256 i = 0; i < remove.length; i++) {
+      require(add[i] != address(0), "Zero address passed");
       IterableMapping.remove(iterableAllowlist, remove[i]);
     }
 
