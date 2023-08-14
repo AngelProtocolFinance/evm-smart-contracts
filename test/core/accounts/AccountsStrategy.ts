@@ -16,6 +16,7 @@ import {
   DEFAULT_STRATEGY_SELECTOR,
   convertVaultActionStructToArray,
   packActionData,
+  wait,
 } from "test/utils";
 import {
   AccountsStrategy,
@@ -95,6 +96,7 @@ describe("AccountsStrategy", function () {
 
     const Facet = new AccountsStrategy__factory(owner);
     facetImpl = await Facet.deploy();
+    await facetImpl.deployed();
   });
 
   beforeEach(async function () {
@@ -115,7 +117,7 @@ describe("AccountsStrategy", function () {
       networkName: NET_NAME_THIS,
       registrarContract: registrar.address,
     };
-    await state.setConfig(config);
+    await wait(state.setConfig(config));
 
     endowDetails = {
       ...DEFAULT_CHARITY_ENDOWMENT,
@@ -139,12 +141,9 @@ describe("AccountsStrategy", function () {
         },
       },
     };
-    await state.setEndowmentDetails(ACCOUNT_ID, endowDetails);
-    await state.setEndowmentTokenBalance(
-      ACCOUNT_ID,
-      token.address,
-      INITIAL_LOCK_BAL,
-      INITIAL_LIQ_BAL
+    await wait(state.setEndowmentDetails(ACCOUNT_ID, endowDetails));
+    await wait(
+      state.setEndowmentTokenBalance(ACCOUNT_ID, token.address, INITIAL_LOCK_BAL, INITIAL_LIQ_BAL)
     );
 
     netInfoThis = {
@@ -176,7 +175,9 @@ describe("AccountsStrategy", function () {
 
   describe("upon strategyInvest", function () {
     beforeEach(async () => {
-      await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, false);
+      await wait(
+        state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, false)
+      );
     });
 
     describe("reverts when", function () {
@@ -187,7 +188,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("the caller is not approved for locked fund mgmt", async function () {
-        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
         const investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           lockAmt: 1,
@@ -198,7 +199,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("the caller is not approved for liquid fund mgmt", async function () {
-        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
         const investRequest: AccountMessages.InvestRequestStruct = {
           ...DEFAULT_INVEST_REQUEST,
           liquidAmt: 1,
@@ -289,16 +290,19 @@ describe("AccountsStrategy", function () {
           BigNumber.from(investRequest.liquidAmt).add(BigNumber.from(investRequest.lockAmt))
         );
 
-        const payload = packActionData({
-          destinationChain: NET_NAME_THIS,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
-          selector: vault.interface.getSighash("deposit"),
-          accountIds: [ACCOUNT_ID],
-          token: investRequest.token,
-          lockAmt: investRequest.lockAmt,
-          liqAmt: investRequest.liquidAmt,
-          status: VaultActionStatus.UNPROCESSED,
-        });
+        const payload = packActionData(
+          {
+            destinationChain: NET_NAME_THIS,
+            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            selector: vault.interface.getSighash("deposit"),
+            accountIds: [ACCOUNT_ID],
+            token: investRequest.token,
+            lockAmt: investRequest.lockAmt,
+            liqAmt: investRequest.liquidAmt,
+            status: VaultActionStatus.UNPROCESSED,
+          },
+          hre
+        );
         expect(router.executeWithTokenLocal).to.have.been.calledWith(
           NET_NAME_THIS,
           facet.address.toLowerCase(),
@@ -380,16 +384,19 @@ describe("AccountsStrategy", function () {
           expect(gasFwd.payForGas).to.have.been.calledWith(token.address, investRequest.gasFee);
           expect(token.approve).to.have.been.calledWith(gasService.address, investRequest.gasFee);
 
-          const payload = packActionData({
-            destinationChain: NET_NAME_THAT,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
-            selector: vault.interface.getSighash("deposit"),
-            accountIds: [ACCOUNT_ID],
-            token: token.address,
-            lockAmt: LOCK_AMT,
-            liqAmt: LIQ_AMT,
-            status: VaultActionStatus.UNPROCESSED,
-          });
+          const payload = packActionData(
+            {
+              destinationChain: NET_NAME_THAT,
+              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              selector: vault.interface.getSighash("deposit"),
+              accountIds: [ACCOUNT_ID],
+              token: token.address,
+              lockAmt: LOCK_AMT,
+              liqAmt: LIQ_AMT,
+              status: VaultActionStatus.UNPROCESSED,
+            },
+            hre
+          );
           expect(gasService.payGasForContractCallWithToken).to.have.been.calledWith(
             facet.address,
             NET_NAME_THAT,
@@ -480,16 +487,19 @@ describe("AccountsStrategy", function () {
           expect(gasFwd.payForGas).to.have.been.calledWith(token.address, investRequest.gasFee);
           expect(token.approve).to.have.been.calledWith(gasService.address, investRequest.gasFee);
 
-          const payload = packActionData({
-            destinationChain: NET_NAME_THAT,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
-            selector: vault.interface.getSighash("deposit"),
-            accountIds: [ACCOUNT_ID],
-            token: token.address,
-            lockAmt: caseData.lockAmt,
-            liqAmt: caseData.liqAmt,
-            status: VaultActionStatus.UNPROCESSED,
-          });
+          const payload = packActionData(
+            {
+              destinationChain: NET_NAME_THAT,
+              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              selector: vault.interface.getSighash("deposit"),
+              accountIds: [ACCOUNT_ID],
+              token: token.address,
+              lockAmt: caseData.lockAmt,
+              liqAmt: caseData.liqAmt,
+              status: VaultActionStatus.UNPROCESSED,
+            },
+            hre
+          );
           expect(gasService.payGasForContractCallWithToken).to.have.been.calledWith(
             facet.address,
             NET_NAME_THAT,
@@ -560,7 +570,9 @@ describe("AccountsStrategy", function () {
 
   describe("upon strategyRedeem", function () {
     beforeEach(async () => {
-      await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true);
+      await wait(
+        state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true)
+      );
     });
 
     describe("reverts when", function () {
@@ -571,7 +583,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("the caller is not approved for locked fund mgmt", async function () {
-        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
         const redeemRequest: AccountMessages.RedeemRequestStruct = {
           ...DEFAULT_REDEEM_REQUEST,
           lockAmt: 1,
@@ -582,7 +594,7 @@ describe("AccountsStrategy", function () {
       });
 
       it("the caller is not approved for liquid fund mgmt", async function () {
-        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
         const redeemRequest: AccountMessages.RedeemRequestStruct = {
           ...DEFAULT_REDEEM_REQUEST,
           liquidAmt: 1,
@@ -659,16 +671,19 @@ describe("AccountsStrategy", function () {
             .to.emit(facet, "EndowmentRedeemed")
             .withArgs(ACCOUNT_ID, vaultStatus);
 
-          const payload = packActionData({
-            destinationChain: NET_NAME_THIS,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
-            selector: vault.interface.getSighash("redeem"),
-            accountIds: [ACCOUNT_ID],
-            token: token.address,
-            lockAmt: LOCK_AMT,
-            liqAmt: LIQ_AMT,
-            status: VaultActionStatus.UNPROCESSED,
-          });
+          const payload = packActionData(
+            {
+              destinationChain: NET_NAME_THIS,
+              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              selector: vault.interface.getSighash("redeem"),
+              accountIds: [ACCOUNT_ID],
+              token: token.address,
+              lockAmt: LOCK_AMT,
+              liqAmt: LIQ_AMT,
+              status: VaultActionStatus.UNPROCESSED,
+            },
+            hre
+          );
           expect(router.executeLocal).to.have.been.calledWith(
             NET_NAME_THIS,
             facet.address.toLowerCase(),
@@ -733,16 +748,19 @@ describe("AccountsStrategy", function () {
             gasFee: GAS_FEE,
           };
 
-          const payload = packActionData({
-            destinationChain: NET_NAME_THAT,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
-            selector: vault.interface.getSighash("redeem"),
-            accountIds: [ACCOUNT_ID],
-            token: token.address,
-            lockAmt: LOCK_AMT,
-            liqAmt: LIQ_AMT,
-            status: VaultActionStatus.UNPROCESSED,
-          });
+          const payload = packActionData(
+            {
+              destinationChain: NET_NAME_THAT,
+              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              selector: vault.interface.getSighash("redeem"),
+              accountIds: [ACCOUNT_ID],
+              token: token.address,
+              lockAmt: LOCK_AMT,
+              liqAmt: LIQ_AMT,
+              status: VaultActionStatus.UNPROCESSED,
+            },
+            hre
+          );
 
           gasFwd.payForGas.returns(payForGasResult);
 
@@ -834,16 +852,19 @@ describe("AccountsStrategy", function () {
           expect(gasFwd.payForGas).to.have.been.calledWith(token.address, redeemRequest.gasFee);
           expect(token.approve).to.have.been.calledWith(gasService.address, redeemRequest.gasFee);
 
-          const payload = packActionData({
-            destinationChain: NET_NAME_THAT,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
-            selector: vault.interface.getSighash("redeem"),
-            accountIds: [ACCOUNT_ID],
-            token: token.address,
-            lockAmt: caseData.lockAmt,
-            liqAmt: caseData.liqAmt,
-            status: VaultActionStatus.UNPROCESSED,
-          });
+          const payload = packActionData(
+            {
+              destinationChain: NET_NAME_THAT,
+              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              selector: vault.interface.getSighash("redeem"),
+              accountIds: [ACCOUNT_ID],
+              token: token.address,
+              lockAmt: caseData.lockAmt,
+              liqAmt: caseData.liqAmt,
+              status: VaultActionStatus.UNPROCESSED,
+            },
+            hre
+          );
           expect(gasService.payGasForContractCall).to.have.been.calledWith(
             facet.address,
             NET_NAME_THAT,
@@ -906,7 +927,9 @@ describe("AccountsStrategy", function () {
 
   describe("upon strategyRedeemAll", function () {
     beforeEach(async () => {
-      await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true);
+      await wait(
+        state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true)
+      );
     });
 
     describe("reverts when", function () {
@@ -916,7 +939,7 @@ describe("AccountsStrategy", function () {
         ).to.be.revertedWithCustomError(facet, "ZeroAmount");
       });
       it("the caller is not approved for locked fund mgmt", async function () {
-        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
         const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLocked: true,
@@ -926,7 +949,7 @@ describe("AccountsStrategy", function () {
         ).to.be.revertedWith("Unauthorized");
       });
       it("the caller is not approved for liquid fund mgmt", async function () {
-        await state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, DEFAULT_CHARITY_ENDOWMENT));
         const redeemAllRequest: AccountMessages.RedeemAllRequestStruct = {
           ...DEFAULT_REDEEM_ALL_REQUEST,
           redeemLiquid: true,
@@ -983,16 +1006,19 @@ describe("AccountsStrategy", function () {
             };
             router.executeLocal.returns(vaultActionData);
 
-            const payload = packActionData({
-              destinationChain: NET_NAME_THIS,
-              strategyId: DEFAULT_STRATEGY_SELECTOR,
-              selector: vault.interface.getSighash("redeemAll"),
-              accountIds: [ACCOUNT_ID],
-              token: token.address,
-              lockAmt: 1,
-              liqAmt: 1,
-              status: VaultActionStatus.UNPROCESSED,
-            });
+            const payload = packActionData(
+              {
+                destinationChain: NET_NAME_THIS,
+                strategyId: DEFAULT_STRATEGY_SELECTOR,
+                selector: vault.interface.getSighash("redeemAll"),
+                accountIds: [ACCOUNT_ID],
+                token: token.address,
+                lockAmt: 1,
+                liqAmt: 1,
+                status: VaultActionStatus.UNPROCESSED,
+              },
+              hre
+            );
 
             await expect(facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest))
               .to.emit(facet, "EndowmentRedeemed")
@@ -1077,16 +1103,19 @@ describe("AccountsStrategy", function () {
 
           gasFwd.payForGas.returns(payForGasResult);
 
-          const payload = packActionData({
-            destinationChain: NET_NAME_THAT,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
-            selector: vault.interface.getSighash("redeemAll"),
-            accountIds: [ACCOUNT_ID],
-            token: token.address,
-            lockAmt: 1,
-            liqAmt: 1,
-            status: VaultActionStatus.UNPROCESSED,
-          });
+          const payload = packActionData(
+            {
+              destinationChain: NET_NAME_THAT,
+              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              selector: vault.interface.getSighash("redeemAll"),
+              accountIds: [ACCOUNT_ID],
+              token: token.address,
+              lockAmt: 1,
+              liqAmt: 1,
+              status: VaultActionStatus.UNPROCESSED,
+            },
+            hre
+          );
 
           await expect(facet.strategyRedeemAll(ACCOUNT_ID, redeemAllRequest)).to.not.be.reverted;
 
@@ -1247,11 +1276,13 @@ describe("AccountsStrategy", function () {
           caseData.description
         }`, async function () {
           if (caseData.prevLockBal) {
-            await state.setEndowmentTokenBalance(
-              ACCOUNT_ID,
-              token.address,
-              caseData.prevLockBal,
-              caseData.prevLiqBal
+            await wait(
+              state.setEndowmentTokenBalance(
+                ACCOUNT_ID,
+                token.address,
+                caseData.prevLockBal,
+                caseData.prevLiqBal
+              )
             );
           }
 
@@ -1272,16 +1303,19 @@ describe("AccountsStrategy", function () {
             redeemAllRequest.gasFee
           );
 
-          const payload = packActionData({
-            destinationChain: NET_NAME_THAT,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
-            selector: vault.interface.getSighash("redeemAll"),
-            accountIds: [ACCOUNT_ID],
-            token: token.address,
-            lockAmt: redeemAllRequest.redeemLocked ? 1 : 0,
-            liqAmt: redeemAllRequest.redeemLiquid ? 1 : 0,
-            status: VaultActionStatus.UNPROCESSED,
-          });
+          const payload = packActionData(
+            {
+              destinationChain: NET_NAME_THAT,
+              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              selector: vault.interface.getSighash("redeemAll"),
+              accountIds: [ACCOUNT_ID],
+              token: token.address,
+              lockAmt: redeemAllRequest.redeemLocked ? 1 : 0,
+              liqAmt: redeemAllRequest.redeemLiquid ? 1 : 0,
+              status: VaultActionStatus.UNPROCESSED,
+            },
+            hre
+          );
           expect(gasService.payGasForContractCall).to.have.been.calledWith(
             facet.address,
             NET_NAME_THAT,
@@ -1347,23 +1381,28 @@ describe("AccountsStrategy", function () {
       gateway.validateContractCall.returns(true);
       gateway.validateContractCallAndMint.returns(true);
 
-      await state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true);
+      await wait(
+        state.setActiveStrategyEndowmentState(ACCOUNT_ID, DEFAULT_STRATEGY_SELECTOR, true)
+      );
     });
 
     describe("into _execute", () => {
       it("reverts if the call was not approved by Axelar gateway", async function () {
         gateway.validateContractCall.returns(false);
 
-        const payload = packActionData({
-          destinationChain: NET_NAME_THAT,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
-          selector: vault.interface.getSighash("deposit"),
-          accountIds: [ACCOUNT_ID],
-          token: token.address,
-          lockAmt: 1,
-          liqAmt: 1,
-          status: VaultActionStatus.UNPROCESSED,
-        });
+        const payload = packActionData(
+          {
+            destinationChain: NET_NAME_THAT,
+            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            selector: vault.interface.getSighash("deposit"),
+            accountIds: [ACCOUNT_ID],
+            token: token.address,
+            lockAmt: 1,
+            liqAmt: 1,
+            status: VaultActionStatus.UNPROCESSED,
+          },
+          hre
+        );
 
         await expect(
           facet.execute(
@@ -1386,7 +1425,7 @@ describe("AccountsStrategy", function () {
           liqAmt: 1,
           status: VaultActionStatus.UNPROCESSED,
         };
-        const payload = packActionData(action);
+        const payload = packActionData(action, hre);
         const returnedAction = convertVaultActionStructToArray(action);
         const unexpectedChain = "NotThis";
 
@@ -1413,7 +1452,7 @@ describe("AccountsStrategy", function () {
           liqAmt: 1,
           status: VaultActionStatus.UNPROCESSED,
         };
-        const payload = packActionData(action);
+        const payload = packActionData(action, hre);
         const returnedAction = convertVaultActionStructToArray(action);
         const notRouter = genWallet().address;
 
@@ -1435,7 +1474,7 @@ describe("AccountsStrategy", function () {
           liqAmt: 1,
           status: VaultActionStatus.FAIL_TOKENS_FALLBACK,
         };
-        const payload = packActionData(action);
+        const payload = packActionData(action, hre);
         // const returnedAction = convertVaultActionStructToArray(action);
 
         await expect(
@@ -1469,7 +1508,7 @@ describe("AccountsStrategy", function () {
             liqAmt: 1,
             status: vaultActionStatus,
           };
-          const payload = packActionData(action);
+          const payload = packActionData(action, hre);
           const returnedAction = convertVaultActionStructToArray(action);
           await expect(
             facet.execute(
@@ -1489,16 +1528,19 @@ describe("AccountsStrategy", function () {
       it("reverts if the call was not approved by Axelar gateway", async function () {
         gateway.validateContractCallAndMint.returns(false);
 
-        const payload = packActionData({
-          destinationChain: NET_NAME_THAT,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
-          selector: vault.interface.getSighash("deposit"),
-          accountIds: [ACCOUNT_ID],
-          token: token.address,
-          lockAmt: 1,
-          liqAmt: 1,
-          status: VaultActionStatus.UNPROCESSED,
-        });
+        const payload = packActionData(
+          {
+            destinationChain: NET_NAME_THAT,
+            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            selector: vault.interface.getSighash("deposit"),
+            accountIds: [ACCOUNT_ID],
+            token: token.address,
+            lockAmt: 1,
+            liqAmt: 1,
+            status: VaultActionStatus.UNPROCESSED,
+          },
+          hre
+        );
         await expect(
           facet.executeWithToken(
             ethers.utils.formatBytes32String("true"),
@@ -1522,7 +1564,7 @@ describe("AccountsStrategy", function () {
           liqAmt: 1,
           status: VaultActionStatus.UNPROCESSED,
         };
-        const payload = packActionData(action);
+        const payload = packActionData(action, hre);
         const returnedAction = convertVaultActionStructToArray(action);
         const unexpectedChain = "NotThis";
 
@@ -1551,7 +1593,7 @@ describe("AccountsStrategy", function () {
           liqAmt: 1,
           status: VaultActionStatus.UNPROCESSED,
         };
-        const payload = packActionData(action);
+        const payload = packActionData(action, hre);
         const returnedAction = convertVaultActionStructToArray(action);
         await expect(
           facet.executeWithToken(
@@ -1578,7 +1620,7 @@ describe("AccountsStrategy", function () {
           liqAmt: 1,
           status: VaultActionStatus.UNPROCESSED,
         };
-        const payload = packActionData(action);
+        const payload = packActionData(action, hre);
         const returnedAction = convertVaultActionStructToArray(action);
         const notRouter = genWallet().address;
 
@@ -1607,7 +1649,7 @@ describe("AccountsStrategy", function () {
           liqAmt: LIQ_AMT,
           status: VaultActionStatus.FAIL_TOKENS_RETURNED,
         };
-        const payload = packActionData(action);
+        const payload = packActionData(action, hre);
         await expect(
           facet.executeWithToken(
             ethers.utils.formatBytes32String("true"),
@@ -1646,7 +1688,7 @@ describe("AccountsStrategy", function () {
             liqAmt: LIQ_AMT,
             status: vaultStatus,
           };
-          const payload = packActionData(action);
+          const payload = packActionData(action, hre);
 
           await expect(
             facet.executeWithToken(
@@ -1727,7 +1769,7 @@ describe("AccountsStrategy", function () {
             liqAmt: LIQ_AMT,
             status: vaultStatus,
           };
-          const payload = packActionData(action);
+          const payload = packActionData(action, hre);
           // const returnedAction = convertVaultActionStructToArray(action);
 
           const apParams: LocalRegistrarLib.AngelProtocolParamsStruct = {
