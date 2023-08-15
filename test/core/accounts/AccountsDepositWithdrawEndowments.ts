@@ -1104,8 +1104,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           await state.setAllowlist(normalEndowId, 0, [beneficiaryAddress]);
 
           await expect(
-            facet
-              .withdraw(normalEndowId, acctType, beneficiaryAddress, beneficiaryId, tokens)
+            facet.withdraw(normalEndowId, acctType, beneficiaryAddress, beneficiaryId, tokens)
           )
             .to.emit(facet, "EndowmentWithdraw")
             .withArgs(
@@ -1264,7 +1263,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
         const matureEndowment: AccountStorage.EndowmentStruct = {
           ...normalEndow,
-          maturityTime: currTime
+          maturityTime: currTime,
         };
         await state.setEndowmentDetails(normalEndowId, matureEndowment);
         await state.setAllowlist(normalEndowId, 2, [genWallet().address]);
@@ -1333,7 +1332,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
           const matureEndowment: AccountStorage.EndowmentStruct = {
             ...normalEndow,
-            maturityTime: currTime
+            maturityTime: currTime,
           };
           await state.setEndowmentDetails(normalEndowId, matureEndowment);
           await state.setAllowlist(normalEndowId, 2, [indexFund.address]);

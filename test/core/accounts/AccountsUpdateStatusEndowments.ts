@@ -117,10 +117,12 @@ describe("AccountsUpdateStatusEndowments", function () {
     });
 
     it("removes the closing endowment from all index funds it is involved in", async () => {
-      await expect(facet.closeEndowment(accountId, beneficiary, {
+      await expect(
+        facet.closeEndowment(accountId, beneficiary, {
           gasPrice: 100000000,
           gasLimit: 30000000,
-        }))
+        })
+      )
         .to.emit(facet, "EndowmentClosed")
         .withArgs(accountId);
 
@@ -135,10 +137,12 @@ describe("AccountsUpdateStatusEndowments", function () {
       indexFundFake.queryInvolvedFunds.returns([]);
       const beneficiaryNone: LibAccounts.BeneficiaryStruct = {...beneficiary, enumData: 3};
 
-      await expect(facet.closeEndowment(accountId, beneficiaryNone, {
+      await expect(
+        facet.closeEndowment(accountId, beneficiaryNone, {
           gasPrice: 100000000,
           gasLimit: 30000000,
-        }))
+        })
+      )
         .to.emit(facet, "EndowmentClosed")
         .withArgs(accountId);
 

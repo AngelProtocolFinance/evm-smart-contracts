@@ -35,7 +35,7 @@ describe("AccountsQueryEndowments", function () {
       enumData: 3, // BeneficiaryEnum.None
       data: {
         addr: ethers.constants.AddressZero,
-        endowId: accountId
+        endowId: accountId,
       },
     },
   };
