@@ -1,9 +1,18 @@
 import {deployLocalRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {task} from "hardhat/config";
-import {IAccountsStrategy} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
-import {confirmAction, getAddresses, getSigners, isLocalNetwork, logger, verify} from "utils";
+import {
+  confirmAction,
+  getAddresses,
+  getChainId,
+  getNetworkNameFromChainId,
+  getSigners,
+  isLocalNetwork,
+  logger,
+  verify,
+} from "utils";
 import {updateRegistrarNetworkConnections} from "../helpers";
+import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 
 type TaskArgs = {
   skipVerify: boolean;
@@ -33,6 +42,7 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
           owner: owner,
           deployer,
           proxyAdmin,
+          networkName: getNetworkNameFromChainId(await getChainId(hre)),
         },
         hre
       );
@@ -48,14 +58,12 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
       }
 
       let network = await hre.ethers.provider.getNetwork();
-      const networkInfo: IAccountsStrategy.NetworkInfoStruct = {
+      const networkInfo: LocalRegistrarLib.NetworkInfoStruct = {
         chainId: network.chainId,
         router: routerDeployment.address,
         axelarGateway: addresses.axelar.gateway,
-        ibcChannel: "",
-        transferChannel: "",
         gasReceiver: addresses.axelar.gasService,
-        gasLimit: 0,
+        refundAddr: addresses.multiSig.apTeam.proxy,
       };
       await updateRegistrarNetworkConnections(
         localRegistrarDeployment.address,
