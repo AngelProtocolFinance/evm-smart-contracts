@@ -104,7 +104,7 @@ describe("Local Registrar", function () {
       it("Should accept and set the values", async function () {
         let newValues = defaultRebalParams;
         newValues.rebalanceLiquidProfits = true;
-        await registrar.setRebalanceParams(newValues);
+        await expect(registrar.setRebalanceParams(newValues)).to.not.be.reverted;
         let returnedValues = await registrar.getRebalanceParams();
         expect(returnedValues.rebalanceLiquidProfits).to.equal(newValues.rebalanceLiquidProfits);
       });
@@ -119,7 +119,7 @@ describe("Local Registrar", function () {
       it("Should accept and set the values", async function () {
         let newValues = defaultApParams;
         newValues.routerAddr = user.address;
-        await registrar.setAngelProtocolParams(newValues);
+        await expect(registrar.setAngelProtocolParams(newValues)).to.not.be.reverted;
         let returnedValues = await registrar.getAngelProtocolParams();
         expect(returnedValues.routerAddr).to.equal(newValues.routerAddr);
       });
@@ -135,10 +135,9 @@ describe("Local Registrar", function () {
       });
 
       it("Should accept and set the values", async function () {
-        await registrar.setUniswapAddresses(
-          mockUniswapAddresses.router,
-          mockUniswapAddresses.factory
-        );
+        await expect(
+          registrar.setUniswapAddresses(mockUniswapAddresses.router, mockUniswapAddresses.factory)
+        ).to.not.be.reverted;
         let newFactoryAddr = await registrar.getUniswapFactoryAddress();
         let newRouterAddr = await registrar.getUniswapRouterAddress();
         expect(newFactoryAddr).to.equal(mockUniswapAddresses.factory);
@@ -156,7 +155,9 @@ describe("Local Registrar", function () {
       });
 
       it("Should accept and set the new value", async function () {
-        await registrar.setAccountsContractAddressByChain(originatingChain, accountsContract);
+        await expect(
+          registrar.setAccountsContractAddressByChain(originatingChain, accountsContract)
+        ).to.not.be.reverted;
         let storedAddressString = await registrar.getAccountsContractAddressByChain(
           originatingChain
         );
@@ -175,7 +176,7 @@ describe("Local Registrar", function () {
       });
 
       it("Should accept and set the new value", async function () {
-        await registrar.setTokenAccepted(user.address, true);
+        await expect(registrar.setTokenAccepted(user.address, true)).to.not.be.reverted;
         let returnedValue = await registrar.isTokenAccepted(user.address);
         expect(returnedValue).to.be.true;
       });
@@ -187,7 +188,7 @@ describe("Local Registrar", function () {
       });
 
       it("Should accept and set the new value", async function () {
-        await registrar.setGasByToken(user.address, 1);
+        await expect(registrar.setGasByToken(user.address, 1)).to.not.be.reverted;
         let returnedValue = await registrar.getGasByToken(user.address);
         expect(returnedValue.toNumber()).to.equal(1);
       });
@@ -280,13 +281,15 @@ describe("Local Registrar", function () {
       });
 
       it("Should accept and set new values", async function () {
-        await registrar.setStrategyParams(
-          strategyId,
-          strategyParams.network,
-          strategyParams.Locked.vaultAddr,
-          strategyParams.Liquid.vaultAddr,
-          strategyParams.approvalState
-        );
+        await expect(
+          registrar.setStrategyParams(
+            strategyId,
+            strategyParams.network,
+            strategyParams.Locked.vaultAddr,
+            strategyParams.Liquid.vaultAddr,
+            strategyParams.approvalState
+          )
+        ).to.not.be.reverted;
         let returnedValue = await registrar.getStrategyParamsById(strategyId);
         expect(returnedValue.network).to.equal(strategyParams.network);
         expect(returnedValue.approvalState).to.equal(strategyParams.approvalState);
@@ -297,16 +300,23 @@ describe("Local Registrar", function () {
       });
 
       it("Should let the owner change the approval state", async function () {
-        await registrar.setStrategyApprovalState(strategyId, StrategyApprovalState.APPROVED);
+        await expect(registrar.setStrategyApprovalState(strategyId, StrategyApprovalState.APPROVED))
+          .to.not.be.reverted;
         let returnedValue = await registrar.getStrategyApprovalState(strategyId);
         expect(returnedValue).to.equal(StrategyApprovalState.APPROVED);
-        await registrar.setStrategyApprovalState(strategyId, StrategyApprovalState.WITHDRAW_ONLY);
+        await expect(
+          registrar.setStrategyApprovalState(strategyId, StrategyApprovalState.WITHDRAW_ONLY)
+        ).to.not.be.reverted;
         returnedValue = await registrar.getStrategyApprovalState(strategyId);
         expect(returnedValue).to.equal(StrategyApprovalState.WITHDRAW_ONLY);
-        await registrar.setStrategyApprovalState(strategyId, StrategyApprovalState.DEPRECATED);
+        await expect(
+          registrar.setStrategyApprovalState(strategyId, StrategyApprovalState.DEPRECATED)
+        ).to.not.be.reverted;
         returnedValue = await registrar.getStrategyApprovalState(strategyId);
         expect(returnedValue).to.equal(StrategyApprovalState.DEPRECATED);
-        await registrar.setStrategyApprovalState(strategyId, StrategyApprovalState.NOT_APPROVED);
+        await expect(
+          registrar.setStrategyApprovalState(strategyId, StrategyApprovalState.NOT_APPROVED)
+        ).to.not.be.reverted;
         returnedValue = await registrar.getStrategyApprovalState(strategyId);
         expect(returnedValue).to.equal(StrategyApprovalState.NOT_APPROVED);
       });
@@ -319,7 +329,7 @@ describe("Local Registrar", function () {
       });
       it("Should set and get the vault operator approval status", async function () {
         expect(await registrar.getVaultOperatorApproved(user.address)).to.be.false;
-        await registrar.setVaultOperatorApproved(user.address, true);
+        await expect(registrar.setVaultOperatorApproved(user.address, true)).to.not.be.reverted;
         expect(await registrar.getVaultOperatorApproved(user.address)).to.be.true;
       });
     });
@@ -333,7 +343,8 @@ describe("Local Registrar", function () {
         ).to.be.reverted;
       });
       it("Should set and get the vault operator approval status", async function () {
-        await registrar.setFeeSettingsByFeesType(FeeTypes.Harvest, 1, user.address);
+        await expect(registrar.setFeeSettingsByFeesType(FeeTypes.Harvest, 1, user.address)).to.not
+          .be.reverted;
         let afterHarvestFee = await registrar.getFeeSettingsByFeeType(FeeTypes.Harvest);
         expect(afterHarvestFee.bps).to.equal(1);
         expect(afterHarvestFee.payoutAddress).to.equal(user.address);

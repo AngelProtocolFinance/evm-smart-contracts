@@ -2,9 +2,9 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import hre from "hardhat";
 import {AccountsUpdate, AccountsUpdate__factory, TestFacetProxyContract} from "typechain-types";
-import {LibAccounts} from "typechain-types/contracts/core/accounts/facets/AccountsCreateEndowment";
 import {getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
+import {wait} from "test/utils";
 
 describe("AccountsUpdate", function () {
   const {ethers} = hre;
@@ -32,21 +32,23 @@ describe("AccountsUpdate", function () {
     let facetImpl = await Facet.deploy();
     state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
 
-    await state.setConfig({
-      owner: owner.address,
-      version: "1",
-      networkName: "Polygon",
-      registrarContract: ethers.constants.AddressZero,
-      nextAccountId: 1,
-      reentrancyGuardLocked: false,
-    });
+    await wait(
+      state.setConfig({
+        owner: owner.address,
+        version: "1",
+        networkName: "Polygon",
+        registrarContract: ethers.constants.AddressZero,
+        nextAccountId: 1,
+        reentrancyGuardLocked: false,
+      })
+    );
 
     facet = AccountsUpdate__factory.connect(state.address, owner);
   });
 
   describe("updateOwner", () => {
     it("should update the owner when called by the current owner", async () => {
-      expect(await facet.updateOwner(user.address))
+      await expect(facet.updateOwner(user.address))
         .to.emit(facet, "OwnerUpdated")
         .withArgs(user.address);
 
@@ -72,7 +74,7 @@ describe("AccountsUpdate", function () {
 
   describe("updateConfig", () => {
     it("should update the config when called by the owner", async () => {
-      expect(await facet.updateConfig(newRegistrar)).to.emit(facet, "ConfigUpdated");
+      await expect(facet.updateConfig(newRegistrar)).to.emit(facet, "ConfigUpdated");
 
       const config = await state.getConfig();
 

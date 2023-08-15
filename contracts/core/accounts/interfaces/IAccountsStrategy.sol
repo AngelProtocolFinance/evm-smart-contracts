@@ -8,12 +8,13 @@ import {AccountMessages} from "../message.sol";
  * @title AccountsStrategy
  */
 interface IAccountsStrategy {
-  error InsufficientFundsForGas(uint32);
+  error InsufficientFundsForGas(uint32 endowId);
   error InvestFailed(IVault.VaultActionStatus);
   error RedeemFailed(IVault.VaultActionStatus);
   error RedeemAllFailed(IVault.VaultActionStatus);
   error UnexpectedResponse(IVault.VaultActionData);
   error UnexpectedCaller(IVault.VaultActionData, string, string);
+  error ZeroAmount();
 
   struct NetworkInfo {
     uint256 chainId;

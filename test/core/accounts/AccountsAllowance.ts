@@ -2,12 +2,12 @@ import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import hre from "hardhat";
-import {DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
+import {DEFAULT_CHARITY_ENDOWMENT, wait} from "test/utils";
 import {
   AccountsAllowance,
   AccountsAllowance__factory,
-  DummyERC20,
-  DummyERC20__factory,
+  IERC20,
+  IERC20__factory,
   TestFacetProxyContract,
 } from "typechain-types";
 import {genWallet, getSigners} from "utils";
@@ -20,7 +20,7 @@ describe("AccountsAllowance", function () {
   let proxyAdmin: SignerWithAddress;
   let user: SignerWithAddress;
 
-  let tokenFake: FakeContract<DummyERC20>;
+  let tokenFake: FakeContract<IERC20>;
 
   before(async function () {
     const signers = await getSigners(hre);
@@ -30,7 +30,7 @@ describe("AccountsAllowance", function () {
   });
 
   beforeEach(async () => {
-    tokenFake = await smock.fake<DummyERC20>(new DummyERC20__factory());
+    tokenFake = await smock.fake<IERC20>(IERC20__factory.createInterface());
   });
 
   describe("Test cases for `manageAllowances`", function () {
@@ -43,28 +43,32 @@ describe("AccountsAllowance", function () {
       state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
       facet = AccountsAllowance__factory.connect(state.address, owner);
       // set a non-closing endowment up for testing with (#42)
-      await state.setClosingEndowmentState(42, false, {
-        data: {endowId: 0, addr: ethers.constants.AddressZero},
-        enumData: 0,
-      });
+      await wait(
+        state.setClosingEndowmentState(42, false, {
+          data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
+          enumData: 0,
+        })
+      );
       // add an accepted token to endowment #42
-      await state.setTokenAccepted(42, tokenFake.address, true);
+      await wait(state.setTokenAccepted(42, tokenFake.address, true));
       // set a starting balance for Endowment: 100 qty of tokens in liquid
-      await state.setEndowmentTokenBalance(42, tokenFake.address, 0, 100);
+      await wait(state.setEndowmentTokenBalance(42, tokenFake.address, 0, 100));
       // setup endowment 42 with minimum needed for testing
       let endowment = DEFAULT_CHARITY_ENDOWMENT;
       endowment.owner = owner.address;
-      await state.setEndowmentDetails(42, endowment);
+      await wait(state.setEndowmentDetails(42, endowment));
       // Beneficiaries & Maturity Allowlists set for endowment user
-      await state.setAllowlist(42, 0, [user.address]);
-      await state.setAllowlist(42, 2, [user.address]);
+      await wait(state.setAllowlist(42, 0, [user.address]));
+      await wait(state.setAllowlist(42, 2, [user.address]));
     });
 
     it("reverts when the endowment is closed", async function () {
-      await state.setClosingEndowmentState(42, true, {
-        data: {endowId: 0, addr: ethers.constants.AddressZero},
-        enumData: 0,
-      });
+      await wait(
+        state.setClosingEndowmentState(42, true, {
+          data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
+          enumData: 0,
+        })
+      );
       await expect(
         facet.manageAllowances(42, user.address, tokenFake.address, 10)
       ).to.be.revertedWith("Endowment is closed");
@@ -95,7 +99,7 @@ describe("AccountsAllowance", function () {
 
     it("reverts when there are no adjustments needed (ie. proposed amount == spender balance amount)", async function () {
       // set allowance for user to 10 tokens of total 10 tokens outstanding
-      await state.setTokenAllowance(42, user.address, tokenFake.address, 10, 10);
+      await wait(state.setTokenAllowance(42, user.address, tokenFake.address, 10, 10));
 
       await expect(
         facet.manageAllowances(42, user.address, tokenFake.address, 10)
@@ -123,7 +127,7 @@ describe("AccountsAllowance", function () {
 
     it("passes when try to decrease an existing spender's allowance", async function () {
       // now we allocate some token allowance to the user address to spend from
-      await state.setTokenAllowance(42, user.address, tokenFake.address, 10, 10);
+      await wait(state.setTokenAllowance(42, user.address, tokenFake.address, 10, 10));
 
       // set a lower total token allowance for the user, returning the delta to liquid balance
       expect(await facet.manageAllowances(42, user.address, tokenFake.address, 3))
@@ -149,14 +153,16 @@ describe("AccountsAllowance", function () {
       state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
       facet = AccountsAllowance__factory.connect(state.address, owner);
       // set a non-closing endowment up for testing with (#42)
-      await state.setClosingEndowmentState(42, false, {
-        data: {endowId: 0, addr: ethers.constants.AddressZero},
-        enumData: 0,
-      });
+      await wait(
+        state.setClosingEndowmentState(42, false, {
+          data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
+          enumData: 0,
+        })
+      );
       // add an accepted token to endowment #42
-      await state.setTokenAccepted(42, tokenFake.address, true);
+      await wait(state.setTokenAccepted(42, tokenFake.address, true));
       // set a starting balance for Endowment: 100 qty of tokens in liquid
-      await state.setEndowmentTokenBalance(42, tokenFake.address, 0, 100);
+      await wait(state.setEndowmentTokenBalance(42, tokenFake.address, 0, 100));
     });
 
     it("reverts when try to spend token that is invalid(zero address) or dne in allowances", async function () {
@@ -173,7 +179,7 @@ describe("AccountsAllowance", function () {
 
     it("reverts when try to spend zero amount of allowance", async function () {
       // now we allocate some token allowance to the user address to spend from
-      await state.setTokenAllowance(42, user.address, tokenFake.address, 10, 10);
+      await wait(state.setTokenAllowance(42, user.address, tokenFake.address, 10, 10));
 
       // try to spend zero allowance
       await expect(facet.spendAllowance(42, tokenFake.address, 0, user.address)).to.be.revertedWith(
@@ -183,7 +189,7 @@ describe("AccountsAllowance", function () {
 
     it("reverts when try to spend more allowance than is available for token", async function () {
       // now we allocate some token allowance to the user address to spend from
-      await state.setTokenAllowance(42, user.address, tokenFake.address, 10, 10);
+      await wait(state.setTokenAllowance(42, user.address, tokenFake.address, 10, 10));
 
       // try to spend more allowance than user was allocated
       await expect(
@@ -198,7 +204,7 @@ describe("AccountsAllowance", function () {
 
     it("passes when spend less than or equal to the allowance available for token", async function () {
       // now we allocate some token allowance to the user address to spend from
-      await state.setTokenAllowance(42, user.address, tokenFake.address, 10, 10);
+      await wait(state.setTokenAllowance(42, user.address, tokenFake.address, 10, 10));
 
       // mint tokens so that the contract can transfer them to recipient
       tokenFake.transfer.returns(true);

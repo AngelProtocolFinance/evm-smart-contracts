@@ -3,7 +3,7 @@ import {impersonateAccount, setBalance} from "@nomicfoundation/hardhat-network-h
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import hre from "hardhat";
-import {DEFAULT_REGISTRAR_CONFIG} from "test/utils";
+import {DEFAULT_REGISTRAR_CONFIG, wait} from "test/utils";
 import {
   AccountsDeployContract,
   AccountsDeployContract__factory,
@@ -66,14 +66,16 @@ describe("AccountsDeployContract", function () {
     const facetImpl = await Facet.deploy();
     state = await deployFacetAsProxy(hre, accOwner, proxyAdmin, facetImpl.address);
 
-    await state.setConfig({
-      owner: accOwner.address,
-      version: "1",
-      networkName: "Polygon",
-      registrarContract: registrarFake.address,
-      nextAccountId: 1,
-      reentrancyGuardLocked: false,
-    });
+    await wait(
+      state.setConfig({
+        owner: accOwner.address,
+        version: "1",
+        networkName: "Polygon",
+        registrarContract: registrarFake.address,
+        nextAccountId: 1,
+        reentrancyGuardLocked: false,
+      })
+    );
 
     facet = AccountsDeployContract__factory.connect(state.address, accOwner);
   });

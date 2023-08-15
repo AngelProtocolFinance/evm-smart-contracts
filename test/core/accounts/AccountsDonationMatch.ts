@@ -3,7 +3,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG} from "test/utils";
+import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG, wait} from "test/utils";
 import {
   AccountsDonationMatch,
   AccountsDonationMatch__factory,
@@ -11,8 +11,8 @@ import {
   DonationMatchEmitter,
   DonationMatchEmitter__factory,
   DonationMatch__factory,
-  DummyERC20,
-  DummyERC20__factory,
+  IERC20,
+  IERC20__factory,
   Registrar,
   Registrar__factory,
   TestFacetProxyContract,
@@ -41,10 +41,10 @@ describe("AccountsDonationMatch", function () {
   let facet: AccountsDonationMatch;
   let state: TestFacetProxyContract;
 
-  let daoTokenFake: FakeContract<DummyERC20>;
+  let daoTokenFake: FakeContract<IERC20>;
   let donationMatchFake: FakeContract<DonationMatch>;
   let donationMatchEmitterFake: FakeContract<DonationMatchEmitter>;
-  let haloTokenFake: FakeContract<DummyERC20>;
+  let haloTokenFake: FakeContract<IERC20>;
   let registrarFake: FakeContract<Registrar>;
 
   before(async function () {
@@ -62,12 +62,12 @@ describe("AccountsDonationMatch", function () {
 
     facet = AccountsDonationMatch__factory.connect(state.address, endowOwner);
 
-    daoTokenFake = await smock.fake<DummyERC20>(new DummyERC20__factory());
+    daoTokenFake = await smock.fake<IERC20>(IERC20__factory.createInterface());
     donationMatchFake = await smock.fake<DonationMatch>(new DonationMatch__factory());
     donationMatchEmitterFake = await smock.fake<DonationMatchEmitter>(
       new DonationMatchEmitter__factory()
     );
-    haloTokenFake = await smock.fake<DummyERC20>(new DummyERC20__factory());
+    haloTokenFake = await smock.fake<IERC20>(IERC20__factory.createInterface());
     registrarFake = await smock.fake<Registrar>(new Registrar__factory());
 
     const config: RegistrarStorage.ConfigStruct = {
@@ -85,15 +85,17 @@ describe("AccountsDonationMatch", function () {
       owner: endowOwner.address,
       daoToken: daoTokenFake.address,
     };
-    await state.setEndowmentDetails(endowId, endowment);
-    await state.setConfig({
-      owner: accOwner.address,
-      version: "1",
-      networkName: "Polygon",
-      registrarContract: registrarFake.address,
-      nextAccountId: endowId + 1,
-      reentrancyGuardLocked: false,
-    });
+    await wait(state.setEndowmentDetails(endowId, endowment));
+    await wait(
+      state.setConfig({
+        owner: accOwner.address,
+        version: "1",
+        networkName: "Polygon",
+        registrarContract: registrarFake.address,
+        nextAccountId: endowId + 1,
+        reentrancyGuardLocked: false,
+      })
+    );
   });
 
   describe("upon depositDonationMatchERC20", () => {
@@ -154,7 +156,7 @@ describe("AccountsDonationMatch", function () {
       const amount = 10;
       const recipient = genWallet().address;
 
-      await state.setDaoTokenBalance(endowId, amount);
+      await wait(state.setDaoTokenBalance(endowId, amount));
 
       daoTokenFake.transfer.whenCalledWith(recipient, amount).returns(true);
 
@@ -169,7 +171,7 @@ describe("AccountsDonationMatch", function () {
       const amount = 10;
       const recipient = genWallet().address;
 
-      await state.setDaoTokenBalance(endowId, amount + 1);
+      await wait(state.setDaoTokenBalance(endowId, amount + 1));
 
       daoTokenFake.transfer.whenCalledWith(recipient, amount).returns(true);
 
@@ -207,7 +209,7 @@ describe("AccountsDonationMatch", function () {
         ...prevEndow,
         donationMatchContract: genWallet().address,
       };
-      await state.setEndowmentDetails(endowId, endowWithDonMatch);
+      await wait(state.setEndowmentDetails(endowId, endowWithDonMatch));
 
       await expect(facet.setupDonationMatch(endowId, details)).to.be.revertedWith(
         "A Donation Match contract already exists for this Endowment"

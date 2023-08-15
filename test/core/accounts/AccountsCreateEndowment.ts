@@ -3,7 +3,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {DEFAULT_REGISTRAR_CONFIG} from "test/utils";
+import {DEFAULT_REGISTRAR_CONFIG, wait} from "test/utils";
 import {
   AccountsCreateEndowment,
   AccountsCreateEndowment__factory,
@@ -144,14 +144,16 @@ describe("AccountsCreateEndowment", function () {
     let facetImpl = await Facet.deploy();
     state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
 
-    await state.setConfig({
-      owner: owner.address,
-      version: "1",
-      networkName: "Polygon",
-      registrarContract: registrarFake.address,
-      nextAccountId: expectedNextAccountId,
-      reentrancyGuardLocked: false,
-    });
+    await wait(
+      state.setConfig({
+        owner: owner.address,
+        version: "1",
+        networkName: "Polygon",
+        registrarContract: registrarFake.address,
+        nextAccountId: expectedNextAccountId,
+        reentrancyGuardLocked: false,
+      })
+    );
 
     facet = AccountsCreateEndowment__factory.connect(state.address, owner);
   });
@@ -312,18 +314,11 @@ describe("AccountsCreateEndowment", function () {
   it("should create a normal endowment if the caller is authorized and input parameters are valid", async () => {
     const request = {...createEndowmentRequest};
 
-    const tx = await facet.connect(charityApplications).createEndowment(request);
-    const createEndowmentReceipt = await tx.wait();
+    await expect(facet.connect(charityApplications).createEndowment(request))
+      .to.emit(facet, "EndowmentCreated")
+      .withArgs(expectedNextAccountId, request.endowType);
 
-    // Get the endowment ID from the event emitted in the transaction receipt
-    const event = createEndowmentReceipt.events?.find((e) => e.event === "EndowmentCreated");
-    let endowmentId = event?.args?.endowId ? BigNumber.from(event.args.endowId) : undefined;
-
-    // verify endowment was created by checking the emitted event's parameter
-    expect(endowmentId).to.exist;
-    endowmentId = endowmentId!;
-
-    const result = await state.getEndowmentDetails(endowmentId);
+    const result = await state.getEndowmentDetails(expectedNextAccountId);
 
     expect(result.dao).to.equal(ethers.constants.AddressZero);
     expect(result.daoToken).to.equal(ethers.constants.AddressZero);

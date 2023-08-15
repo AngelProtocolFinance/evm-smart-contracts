@@ -3,7 +3,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import {BigNumberish} from "ethers";
 import hre from "hardhat";
-import {DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
+import {DEFAULT_CHARITY_ENDOWMENT, wait} from "test/utils";
 import {
   AccountsUpdateEndowments,
   AccountsUpdateEndowments__factory,
@@ -66,8 +66,8 @@ describe("AccountsUpdateEndowments", function () {
 
     facet = AccountsUpdateEndowments__factory.connect(state.address, endowOwner);
 
-    await state.setEndowmentDetails(charityId, oldCharity);
-    await state.setEndowmentDetails(normalEndowId, oldNormalEndow);
+    await wait(state.setEndowmentDetails(charityId, oldCharity));
+    await wait(state.setEndowmentDetails(normalEndowId, oldNormalEndow));
   });
 
   describe("updateEndowmentDetails", () => {
@@ -110,10 +110,12 @@ describe("AccountsUpdateEndowments", function () {
     });
 
     it("reverts if the endowment is closed", async () => {
-      await state.setClosingEndowmentState(normalEndowId, true, {
-        enumData: 0,
-        data: {addr: ethers.constants.AddressZero, endowId: 0},
-      });
+      await wait(
+        state.setClosingEndowmentState(normalEndowId, true, {
+          enumData: 0,
+          data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+        })
+      );
       await expect(facet.updateEndowmentDetails(normalEndowReq)).to.be.revertedWith(
         "UpdatesAfterClosed"
       );
@@ -387,10 +389,12 @@ describe("AccountsUpdateEndowments", function () {
     const newDelegateExpiry = 200;
 
     it("reverts if the endowment is closed", async () => {
-      await state.setClosingEndowmentState(normalEndowId, true, {
-        enumData: 0,
-        data: {addr: ethers.constants.AddressZero, endowId: 0},
-      });
+      await wait(
+        state.setClosingEndowmentState(normalEndowId, true, {
+          enumData: 0,
+          data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+        })
+      );
       await expect(
         facet.updateDelegate(
           normalEndowId,
@@ -581,10 +585,12 @@ describe("AccountsUpdateEndowments", function () {
     });
 
     it("reverts if the endowment is closed", async () => {
-      await state.setClosingEndowmentState(normalEndowId, true, {
-        enumData: 0,
-        data: {addr: ethers.constants.AddressZero, endowId: 0},
-      });
+      await wait(
+        state.setClosingEndowmentState(normalEndowId, true, {
+          enumData: 0,
+          data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+        })
+      );
       await expect(
         facet.updateAcceptedToken(normalEndowId, tokenAddr, priceFeedAddr, true)
       ).to.be.revertedWith("UpdatesAfterClosed");
@@ -670,14 +676,16 @@ describe("AccountsUpdateEndowments", function () {
       const registrarFake = await smock.fake<Registrar>(new Registrar__factory(), {
         address: genWallet().address,
       });
-      await state.setConfig({
-        networkName: "test",
-        owner: accOwner.address,
-        version: "1",
-        registrarContract: registrarFake.address,
-        nextAccountId: 1,
-        reentrancyGuardLocked: false,
-      });
+      await wait(
+        state.setConfig({
+          networkName: "test",
+          owner: accOwner.address,
+          version: "1",
+          registrarContract: registrarFake.address,
+          nextAccountId: 1,
+          reentrancyGuardLocked: false,
+        })
+      );
       return registrarFake;
     }
   });

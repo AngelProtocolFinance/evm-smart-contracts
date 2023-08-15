@@ -1,4 +1,3 @@
-import {ethers} from "hardhat";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
 import {LibAccounts} from "typechain-types/contracts/multisigs/CharityApplications";
@@ -8,11 +7,12 @@ import {DEFAULT_STRATEGY_SELECTOR} from "test/utils";
 import {IVault} from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {IAccountsStrategy} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
+import {ADDRESS_ZERO} from "utils";
 
 export const DEFAULT_PERMISSIONS_STRUCT: LibAccounts.SettingsPermissionStruct = {
   locked: false,
   delegate: {
-    addr: ethers.constants.AddressZero,
+    addr: ADDRESS_ZERO,
     expires: 0,
   },
 };
@@ -38,7 +38,7 @@ export const DEFAULT_SETTINGS_STRUCT: LibAccounts.SettingsControllerStruct = {
 };
 
 export const DEFAULT_FEE_STRUCT: LibAccounts.FeeSettingStruct = {
-  payoutAddress: ethers.constants.AddressZero,
+  payoutAddress: ADDRESS_ZERO,
   bps: 0,
 };
 
@@ -49,7 +49,7 @@ export const DEFAULT_SPLIT_STRUCT: LibAccounts.SplitDetailsStruct = {
 };
 
 export const DEFAULT_CHARITY_ENDOWMENT: AccountStorage.EndowmentStruct = {
-  owner: ethers.constants.AddressZero,
+  owner: ADDRESS_ZERO,
   name: "DEFAULT_PERMISSIONS_STRUCT",
   sdgs: [],
   tier: 0,
@@ -66,11 +66,11 @@ export const DEFAULT_CHARITY_ENDOWMENT: AccountStorage.EndowmentStruct = {
     basis: 100,
   },
   proposalLink: 0,
-  multisig: ethers.constants.AddressZero,
-  dao: ethers.constants.AddressZero,
-  daoToken: ethers.constants.AddressZero,
+  multisig: ADDRESS_ZERO,
+  dao: ADDRESS_ZERO,
+  daoToken: ADDRESS_ZERO,
   donationMatchActive: false,
-  donationMatchContract: ethers.constants.AddressZero,
+  donationMatchContract: ADDRESS_ZERO,
   earlyLockedWithdrawFee: DEFAULT_FEE_STRUCT,
   withdrawFee: DEFAULT_FEE_STRUCT,
   depositFee: DEFAULT_FEE_STRUCT,
@@ -80,59 +80,59 @@ export const DEFAULT_CHARITY_ENDOWMENT: AccountStorage.EndowmentStruct = {
   ignoreUserSplits: false,
   splitToLiquid: DEFAULT_SPLIT_STRUCT,
   referralId: 0,
-  gasFwd: ethers.constants.AddressZero,
+  gasFwd: ADDRESS_ZERO,
 };
 
 export const DEFAULT_ACCOUNTS_CONFIG: AccountStorage.ConfigStruct = {
-  owner: ethers.constants.AddressZero,
+  owner: ADDRESS_ZERO,
   networkName: "",
   version: "",
-  registrarContract: ethers.constants.AddressZero,
+  registrarContract: ADDRESS_ZERO,
   nextAccountId: 0,
   reentrancyGuardLocked: false,
 };
 
 export const DEFAULT_NETWORK_INFO: IAccountsStrategy.NetworkInfoStruct = {
   chainId: 0,
-  router: ethers.constants.AddressZero,
-  axelarGateway: ethers.constants.AddressZero,
+  router: ADDRESS_ZERO,
+  axelarGateway: ADDRESS_ZERO,
   ibcChannel: "",
   transferChannel: "",
-  gasReceiver: ethers.constants.AddressZero,
+  gasReceiver: ADDRESS_ZERO,
   gasLimit: 0,
 };
 
 export const DEFAULT_REGISTRAR_CONFIG: RegistrarStorage.ConfigStruct = {
-  indexFundContract: ethers.constants.AddressZero,
-  accountsContract: ethers.constants.AddressZero,
-  treasury: ethers.constants.AddressZero,
-  subdaoGovContract: ethers.constants.AddressZero, // Sub dao implementation
-  subdaoTokenContract: ethers.constants.AddressZero, // NewERC20 implementation
-  subdaoBondingTokenContract: ethers.constants.AddressZero, // Continous Token implementation
-  subdaoCw900Contract: ethers.constants.AddressZero,
-  subdaoDistributorContract: ethers.constants.AddressZero,
-  subdaoEmitter: ethers.constants.AddressZero,
-  donationMatchContract: ethers.constants.AddressZero,
+  indexFundContract: ADDRESS_ZERO,
+  accountsContract: ADDRESS_ZERO,
+  treasury: ADDRESS_ZERO,
+  subdaoGovContract: ADDRESS_ZERO, // Sub dao implementation
+  subdaoTokenContract: ADDRESS_ZERO, // NewERC20 implementation
+  subdaoBondingTokenContract: ADDRESS_ZERO, // Continous Token implementation
+  subdaoCw900Contract: ADDRESS_ZERO,
+  subdaoDistributorContract: ADDRESS_ZERO,
+  subdaoEmitter: ADDRESS_ZERO,
+  donationMatchContract: ADDRESS_ZERO,
   splitToLiquid: {max: 0, min: 0, defaultSplit: 0} as any,
-  haloToken: ethers.constants.AddressZero,
-  haloTokenLpContract: ethers.constants.AddressZero,
-  govContract: ethers.constants.AddressZero,
-  donationMatchEmitter: ethers.constants.AddressZero,
+  haloToken: ADDRESS_ZERO,
+  haloTokenLpContract: ADDRESS_ZERO,
+  govContract: ADDRESS_ZERO,
+  donationMatchEmitter: ADDRESS_ZERO,
   collectorShare: BigNumber.from(50),
-  charitySharesContract: ethers.constants.AddressZero,
-  fundraisingContract: ethers.constants.AddressZero,
-  uniswapRouter: ethers.constants.AddressZero,
-  uniswapFactory: ethers.constants.AddressZero,
-  lockedWithdrawal: ethers.constants.AddressZero,
-  proxyAdmin: ethers.constants.AddressZero,
-  usdcAddress: ethers.constants.AddressZero,
-  wMaticAddress: ethers.constants.AddressZero,
-  cw900lvAddress: ethers.constants.AddressZero,
-  charityApplications: ethers.constants.AddressZero,
-  multisigFactory: ethers.constants.AddressZero,
-  multisigEmitter: ethers.constants.AddressZero,
-  donationMatchCharitesContract: ethers.constants.AddressZero,
-  gasFwdFactory: ethers.constants.AddressZero,
+  charitySharesContract: ADDRESS_ZERO,
+  fundraisingContract: ADDRESS_ZERO,
+  uniswapRouter: ADDRESS_ZERO,
+  uniswapFactory: ADDRESS_ZERO,
+  lockedWithdrawal: ADDRESS_ZERO,
+  proxyAdmin: ADDRESS_ZERO,
+  usdcAddress: ADDRESS_ZERO,
+  wMaticAddress: ADDRESS_ZERO,
+  cw900lvAddress: ADDRESS_ZERO,
+  charityApplications: ADDRESS_ZERO,
+  multisigFactory: ADDRESS_ZERO,
+  multisigEmitter: ADDRESS_ZERO,
+  donationMatchCharitesContract: ADDRESS_ZERO,
+  gasFwdFactory: ADDRESS_ZERO,
 };
 
 export const DEFAULT_INVEST_REQUEST: AccountMessages.InvestRequestStruct = {
@@ -164,17 +164,17 @@ export const DEFAULT_STRATEGY_PARAMS: LocalRegistrarLib.StrategyParamsStruct = {
   network: "",
   Locked: {
     Type: 0,
-    vaultAddr: ethers.constants.AddressZero,
+    vaultAddr: ADDRESS_ZERO,
   },
   Liquid: {
     Type: 1,
-    vaultAddr: ethers.constants.AddressZero,
+    vaultAddr: ADDRESS_ZERO,
   },
 };
 
 export const DEFAULT_AP_PARAMS: LocalRegistrarLib.AngelProtocolParamsStruct = {
-  refundAddr: ethers.constants.AddressZero,
-  routerAddr: ethers.constants.AddressZero,
+  refundAddr: ADDRESS_ZERO,
+  routerAddr: ADDRESS_ZERO,
 };
 
 export const DEFAULT_ACTION_DATA: IVault.VaultActionDataStruct = {

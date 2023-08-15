@@ -59,8 +59,8 @@ interface IAccountsEvents {
     address[] add,
     address[] remove
   );
-  event EndowmentInvested(IVault.VaultActionStatus);
-  event EndowmentRedeemed(IVault.VaultActionStatus);
+  event EndowmentInvested(uint256 endowId);
+  event EndowmentRedeemed(uint256 endowId, IVault.VaultActionStatus);
   event RefundNeeded(IVault.VaultActionData);
   event UnexpectedTokens(IVault.VaultActionData);
 }
