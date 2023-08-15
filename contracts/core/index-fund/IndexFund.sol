@@ -57,18 +57,15 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
       revert InvalidAddress("registrarContract");
     }
 
-    state.config = IndexFundStorage.Config({
-      registrarContract: registrarContract,
-      fundRotation: fundRotation,
-      fundingGoal: fundingGoal
-    });
-
+    state.config.registrarContract = registrarContract;
     state.config.fundRotation = fundRotation;
     state.config.fundingGoal = fundingGoal;
+
     state.activeFund = 0;
     state.nextFundId = 1;
     state.roundDonations = 0;
     state.nextRotationBlock = block.number + state.config.fundRotation;
+
     emit Instantiated(registrarContract, fundRotation, fundingGoal);
   }
 
