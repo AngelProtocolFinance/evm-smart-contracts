@@ -53,9 +53,7 @@ describe("Router", function () {
     await RouterImpl.deployed();
 
     const ProxyContract = await ethers.getContractFactory("ProxyContract");
-    const RouterInitData = RouterImpl.interface.encodeFunctionData("initialize", [
-      registrar,
-    ]);
+    const RouterInitData = RouterImpl.interface.encodeFunctionData("initialize", [registrar]);
 
     const RouterProxy = await ProxyContract.deploy(
       RouterImpl.address,
@@ -106,7 +104,7 @@ describe("Router", function () {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
         gasReceiver: gasService.address,
-        refundAddr: collector.address
+        refundAddr: collector.address,
       };
 
       gateway.validateContractCall.returns(true);
@@ -117,7 +115,7 @@ describe("Router", function () {
         .whenCalledWith(originatingChain)
         .returns(accountsContract);
       registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
-      registrar.thisChain.returns(localChain)
+      registrar.thisChain.returns(localChain);
       router = await deployRouterAsProxy(registrar.address);
     });
 
@@ -221,7 +219,7 @@ describe("Router", function () {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
         gasReceiver: gasService.address,
-        refundAddr: collector.address
+        refundAddr: collector.address,
       };
 
       gateway.validateContractCall.returns(true);
@@ -234,7 +232,7 @@ describe("Router", function () {
         .returns(accountsContract);
       registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
       registrar.getGasByToken.whenCalledWith(token.address).returns(GAS_COST);
-      registrar.thisChain.returns(localChain)
+      registrar.thisChain.returns(localChain);
       token.transfer.returns(true);
       token.transferFrom.returns(true);
       token.approve.returns(true);
@@ -417,7 +415,7 @@ describe("Router", function () {
           ...DEFAULT_NETWORK_INFO,
           axelarGateway: gateway.address,
           gasReceiver: gasService.address,
-          refundAddr: collector.address
+          refundAddr: collector.address,
         };
 
         gateway.validateContractCall.returns(true);
@@ -432,7 +430,7 @@ describe("Router", function () {
           .whenCalledWith(localChain)
           .returns(owner.address);
         registrar.getGasByToken.whenCalledWith(token.address).returns(GAS_COST);
-        registrar.thisChain.returns(localChain)
+        registrar.thisChain.returns(localChain);
         token.transfer.returns(true);
         token.transferFrom.returns(true);
         token.approve.returns(false);
@@ -612,7 +610,7 @@ describe("Router", function () {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
         gasReceiver: gasService.address,
-        refundAddr: collector.address
+        refundAddr: collector.address,
       };
 
       const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
@@ -640,7 +638,7 @@ describe("Router", function () {
       registrar.getGasByToken.whenCalledWith(token.address).returns(GAS_COST);
       registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
       registrar.getStrategyParamsById.returns(stratParams);
-      registrar.thisChain.returns(localChain)
+      registrar.thisChain.returns(localChain);
       token.transfer.returns(true);
       token.transferFrom.returns(true);
       token.approve.returns(true);
@@ -771,7 +769,7 @@ describe("Router", function () {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
         gasReceiver: gasService.address,
-        refundAddr: collector.address
+        refundAddr: collector.address,
       };
 
       const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
@@ -855,7 +853,7 @@ describe("Router", function () {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
         gasReceiver: gasService.address,
-        refundAddr: collector.address
+        refundAddr: collector.address,
       };
 
       const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
@@ -883,7 +881,7 @@ describe("Router", function () {
       registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
       registrar.getStrategyParamsById.returns(stratParams);
       registrar.getFeeSettingsByFeeType.returns({payoutAddress: collector.address, bps: 1});
-      registrar.thisChain.returns(localChain)
+      registrar.thisChain.returns(localChain);
       token.transfer.returns(true);
       token.transferFrom.returns(true);
       token.approve.returns(true);
@@ -1010,7 +1008,7 @@ describe("Router", function () {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
         gasReceiver: gasService.address,
-        refundAddr: collector.address
+        refundAddr: collector.address,
       };
 
       const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
@@ -1038,7 +1036,7 @@ describe("Router", function () {
       registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
       registrar.getStrategyParamsById.returns(stratParams);
       registrar.getFeeSettingsByFeeType.returns({payoutAddress: collector.address, bps: 1});
-      registrar.thisChain.returns(localChain)
+      registrar.thisChain.returns(localChain);
       token.transfer.returns(true);
       token.transferFrom.returns(true);
       token.approve.returns(true);
