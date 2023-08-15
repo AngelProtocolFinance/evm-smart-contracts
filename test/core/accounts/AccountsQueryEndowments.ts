@@ -32,10 +32,10 @@ describe("AccountsQueryEndowments", function () {
   const endowState: AccountMessages.StateResponseStruct = {
     closingEndowment: false,
     closingBeneficiary: {
-      enumData: 3, // BeneficiaryEnum.None
+      enumData: 2, // BeneficiaryEnum.None
       data: {
         addr: ethers.constants.AddressZero,
-        endowId: accountId,
+        endowId: 0,
       },
     },
   };
@@ -53,20 +53,18 @@ describe("AccountsQueryEndowments", function () {
 
     await state.setEndowmentDetails(accountId, DEFAULT_CHARITY_ENDOWMENT);
     await state.setEndowmentTokenBalance(accountId, tokenAddress, lockedBal, liquidBal);
+    await state.setClosingEndowmentState(
+      accountId,
+      endowState.closingEndowment,
+      endowState.closingBeneficiary
+    );
 
     config = {
       ...DEFAULT_ACCOUNTS_CONFIG,
       owner: owner.address,
       nextAccountId: accountId + 1, // endowment was created in previous step
     };
-
     await state.setConfig(config);
-
-    await state.setClosingEndowmentState(
-      accountId,
-      endowState.closingEndowment,
-      endowState.closingBeneficiary
-    );
   });
 
   describe("queryTokenAmount", () => {
