@@ -46,8 +46,8 @@ interface IAccountsEvents {
     uint256 amountOut
   );
   event EndowmentSettingUpdated(uint256 endowId, string setting);
-  event EndowmentInvested(IVault.VaultActionStatus);
-  event EndowmentRedeemed(IVault.VaultActionStatus);
+  event EndowmentInvested(uint256 endowId);
+  event EndowmentRedeemed(uint256 endowId, IVault.VaultActionStatus);
   event RefundNeeded(IVault.VaultActionData);
   event UnexpectedTokens(IVault.VaultActionData);
 }
