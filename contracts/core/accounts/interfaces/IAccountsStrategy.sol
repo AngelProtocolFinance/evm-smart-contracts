@@ -14,6 +14,7 @@ interface IAccountsStrategy {
   error RedeemAllFailed(IVault.VaultActionStatus);
   error UnexpectedResponse(IVault.VaultActionData);
   error UnexpectedCaller(IVault.VaultActionData, string, string);
+  error ZeroAmount();
 
   struct NetworkInfo {
     uint256 chainId;

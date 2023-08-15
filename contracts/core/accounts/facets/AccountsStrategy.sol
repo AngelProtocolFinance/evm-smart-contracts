@@ -36,8 +36,6 @@ contract AccountsStrategy is
   uint256 constant FIFTY_PERCENT_BIG_NUMBA_RATE =
     (50 * LibAccounts.BIG_NUMBA_BASIS) / LibAccounts.PERCENT_BASIS;
 
-  error ZeroAmount();
-
   /**
    * @notice This function that allows users to deposit into a yield strategy using tokens from their locked or liquid account in an endowment.
    * @dev Allows the owner of an endowment to invest tokens into specified yield vaults.
