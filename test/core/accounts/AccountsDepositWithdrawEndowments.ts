@@ -863,6 +863,115 @@ describe("AccountsDepositWithdrawEndowments", function () {
       });
 
       describe("LIQUID withdrawals", () => {
+        it("reverts for a closed endowment (wallet beneficiary) when a non-beneficiary wallet tries to withdraw", async () => {
+          const beneficiaryAddress = genWallet().address;
+          const beneficiaryId = 0;
+          const acctType = VaultType.LIQUID;
+          const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = [
+            {addr: tokenFake.address, amnt: 5000},
+          ];
+
+          await state.setClosingEndowmentState(charityId, true, {
+            enumData: 1,
+            data: {addr: beneficiaryAddress, endowId: beneficiaryId},
+          });
+
+          await expect(
+            facet.withdraw(charityId, acctType, beneficiaryAddress, beneficiaryId, tokens)
+          ).to.be.revertedWith("Endowment is closed");
+        });
+
+        it("reverts for a closed endowment (endow beneficiary) when a wallet that is not the beneficiary endowment owner tries to withdraw", async () => {
+          const beneficiaryAddress = genWallet().address;
+          await impersonateAccount(beneficiaryAddress);
+          await setBalance(beneficiaryAddress, 1000000000000000000); // give it some gas money, as impersonateAccount does not
+          const acctSigner = await ethers.getSigner(beneficiaryAddress);
+
+          // setup new charity-type endow
+          const newCharityId = 3;
+          await state.setEndowmentDetails(newCharityId, charity);
+
+          const beneficiaryId = newCharityId;
+          const acctType = VaultType.LIQUID;
+          const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = [
+            {addr: tokenFake.address, amnt: 5000},
+          ];
+
+          await state.setClosingEndowmentState(charityId, true, {
+            enumData: 0,
+            data: {addr: ethers.constants.AddressZero, endowId: beneficiaryId},
+          });
+
+          await expect(
+            facet
+              .connect(acctSigner)
+              .withdraw(charityId, acctType, beneficiaryAddress, beneficiaryId, tokens)
+          ).to.be.revertedWith("Endowment is closed");
+        });
+
+        it("passes: closed endowment with beneficiary address set, sender is beneficiary wallet, no fees applied ", async () => {
+          const beneficiaryAddress = genWallet().address;
+          await impersonateAccount(beneficiaryAddress);
+          await setBalance(beneficiaryAddress, 1000000000000000000); // give it some gas money, as impersonateAccount does not
+          const acctSigner = await ethers.getSigner(beneficiaryAddress);
+          const beneficiaryId = 0;
+          const acctType = VaultType.LIQUID;
+          const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = [
+            {addr: tokenFake.address, amnt: 5000},
+          ];
+
+          await state.setClosingEndowmentState(charityId, true, {
+            enumData: 1,
+            data: {addr: beneficiaryAddress, endowId: beneficiaryId},
+          });
+
+          await expect(
+            facet
+              .connect(acctSigner)
+              .withdraw(charityId, acctType, beneficiaryAddress, beneficiaryId, tokens)
+          )
+            .to.emit(facet, "EndowmentWithdraw")
+            .withArgs(
+              charityId,
+              tokens[0].addr,
+              tokens[0].amnt,
+              acctType,
+              beneficiaryAddress,
+              beneficiaryId
+            );
+        });
+
+        it("passes: closed endowment with beneficiary endow ID set, sender is beneficiary endow. owner, no fees applied ", async () => {
+          // setup new charity-type endow
+          const newCharityId = 3;
+          await state.setEndowmentDetails(newCharityId, charity);
+
+          const beneficiaryAddress = ethers.constants.AddressZero;
+          const beneficiaryId = newCharityId;
+          const acctType = VaultType.LIQUID;
+          const tokens: IAccountsDepositWithdrawEndowments.TokenInfoStruct[] = [
+            {addr: tokenFake.address, amnt: 5000},
+          ];
+
+          await state.setClosingEndowmentState(charityId, true, {
+            enumData: 0,
+            data: {addr: beneficiaryAddress, endowId: beneficiaryId},
+          });
+
+          await expect(
+            facet.withdraw(charityId, acctType, beneficiaryAddress, beneficiaryId, tokens)
+          )
+            .to.emit(facet, "EndowmentWithdraw")
+            .withArgs(
+              charityId,
+              tokens[0].addr,
+              tokens[0].amnt,
+              acctType,
+              beneficiaryAddress,
+              beneficiaryId
+            );
+        });
+
         it("passes: normal, beneficiary address, sender is endow. owner, no fees applied", async () => {
           const beneficiaryId = 0;
           const acctType = VaultType.LIQUID;

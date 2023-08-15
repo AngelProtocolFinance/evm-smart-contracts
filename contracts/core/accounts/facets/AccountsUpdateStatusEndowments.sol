@@ -50,7 +50,7 @@ contract AccountsUpdateStatusEndowments is
     // Charity Endowments: If specified an endowment ID to move their funds to do so (must be another Charity-type). Cannot send to 3rd-party wallet.
     // DAF Endowments: If specified an endowment ID to move their funds to do so (must in AP Approved Endowments list). Cannot send to 3rd-party wallet.
     // Normal Endowments: Can send to any other endowment ID or 3rd party wallet desired.
-    // If NONE was passed for beneficiary, then we send all balances to the AP Treasury to be manually re-invseted to Endowments chosen by AP MultiSig/Governance.
+    // If NONE was passed for beneficiary, then we send all balances to the AP Treasury to be manually re-invested to Endowments chosen by AP MultiSig/Governance.
 
     // Beneficiary of NONE passed, set to the AP Treasury
     if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.None) {
@@ -81,67 +81,15 @@ contract AccountsUpdateStatusEndowments is
       }
     }
 
-    // Get all tokens on-hand to be liquidated upon closing
-    IAccountsDepositWithdrawEndowments.TokenInfo[]
-      memory lockedTokens = new IAccountsDepositWithdrawEndowments.TokenInfo[](
-        IterableMapping.size(state.STATES[id].balances.locked)
-      );
-    for (uint256 i = 0; i < IterableMapping.size(state.STATES[id].balances.locked); i++) {
-      address k = IterableMapping.getKeyAtIndex(state.STATES[id].balances.locked, i);
-      lockedTokens[i] = IAccountsDepositWithdrawEndowments.TokenInfo({
-        addr: k,
-        amnt: IterableMapping.get(state.STATES[id].balances.locked, k)
-      });
-    }
-    IAccountsDepositWithdrawEndowments.TokenInfo[]
-      memory liquidTokens = new IAccountsDepositWithdrawEndowments.TokenInfo[](
-        IterableMapping.size(state.STATES[id].balances.liquid)
-      );
-    for (uint256 i = 0; i < IterableMapping.size(state.STATES[id].balances.liquid); i++) {
-      address k = IterableMapping.getKeyAtIndex(state.STATES[id].balances.liquid, i);
-      liquidTokens[i] = IAccountsDepositWithdrawEndowments.TokenInfo({
-        addr: k,
-        amnt: IterableMapping.get(state.STATES[id].balances.liquid, k)
-      });
+    // final check to ensure beneficiary data is set correctly for the desired type
+    if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.Wallet) {
+      beneficiary.data.endowId = 0;
+    } else if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.EndowmentId) {
+      beneficiary.data.addr = address(0);
     }
 
-    if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.Wallet) {
-      require(beneficiary.data.addr != address(0), "Cannot pass a zero address");
-      IAccountsDepositWithdrawEndowments(registrarConfig.accountsContract).withdraw(
-        id,
-        IVault.VaultType.LOCKED,
-        beneficiary.data.addr,
-        0,
-        lockedTokens
-      );
-      IAccountsDepositWithdrawEndowments(registrarConfig.accountsContract).withdraw(
-        id,
-        IVault.VaultType.LIQUID,
-        beneficiary.data.addr,
-        0,
-        liquidTokens
-      );
-    } else if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.EndowmentId) {
-      require(beneficiary.data.endowId > 0, "Cannot pass a zero for Endowment ID");
-      require(
-        !state.STATES[beneficiary.data.endowId].closingEndowment,
-        "Beneficiary endowment is closed"
-      );
-      IAccountsDepositWithdrawEndowments(registrarConfig.accountsContract).withdraw(
-        id,
-        IVault.VaultType.LOCKED,
-        address(0),
-        beneficiary.data.endowId,
-        lockedTokens
-      );
-      IAccountsDepositWithdrawEndowments(registrarConfig.accountsContract).withdraw(
-        id,
-        IVault.VaultType.LIQUID,
-        address(0),
-        beneficiary.data.endowId,
-        liquidTokens
-      );
-    }
+    // remove closed fund from all Index Funds that it's involved with
+    IIndexFund(registrarConfig.indexFundContract).removeMember(id);
 
     state.STATES[id].closingEndowment = true;
     state.STATES[id].closingBeneficiary = beneficiary;

@@ -257,14 +257,29 @@ contract AccountsDepositWithdrawEndowments is
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
     AccountStorage.EndowmentState storage tempEndowmentState = state.STATES[id];
 
-    if (msg.sender != address(this)) {
-      require(!tempEndowmentState.closingEndowment, "Endowment is closed");
+    // If an Endowment is closed and a withdraw is executed for it, check that the sender is the closing
+    // beneficiary on record and procees the withdraw if so ensure funds are indeed moving to that beneficiary
+    if (tempEndowmentState.closingEndowment) {
+      if (tempEndowmentState.closingBeneficiary.enumData == LibAccounts.BeneficiaryEnum.Wallet) {
+        require(
+          msg.sender == tempEndowmentState.closingBeneficiary.data.addr,
+          "Endowment is closed"
+        );
+        beneficiaryAddress = msg.sender;
+        beneficiaryEndowId = 0;
+      } else if (
+        tempEndowmentState.closingBeneficiary.enumData == LibAccounts.BeneficiaryEnum.EndowmentId
+      ) {
+        require(
+          msg.sender == state.ENDOWMENTS[tempEndowmentState.closingBeneficiary.data.endowId].owner,
+          "Endowment is closed"
+        );
+        beneficiaryAddress = address(0);
+        beneficiaryEndowId = tempEndowmentState.closingBeneficiary.data.endowId;
+      }
     }
 
     // place an arbitrary cap on the qty of different tokens per withdraw to limit gas use
-    // TODO By limiting the number of tokens an Endowment can process in a withdraw, we also need to:
-    //      1. limit the number of tokens globally allowed in the balances at a given time OR
-    //      2. break up closing endowment requests into 10 token batches when there are +10 tokens in balances
     require(tokens.length > 0, "No tokens provided");
     require(tokens.length <= 10, "Upper-limit is ten(10) unique ERC20 tokens per withdraw");
     // quick check that all passed tokens address & amount values are non-zero to avoid gas waste

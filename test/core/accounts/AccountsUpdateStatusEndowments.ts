@@ -77,9 +77,10 @@ describe("AccountsUpdateStatusEndowments", function () {
       ...DEFAULT_REGISTRAR_CONFIG,
       indexFundContract: indexFundFake.address,
       treasury: treasuryAddress,
+      haloToken: genWallet().address,
+      splitToLiquid: {defaultSplit: 50, max: 100, min: 0},
     };
     registrarFake.queryConfig.returns(config);
-
     registrarFake.queryAllStrategies.returns(strategies);
 
     await state.setEndowmentDetails(accountId, endowment);
@@ -117,15 +118,17 @@ describe("AccountsUpdateStatusEndowments", function () {
     });
 
     it("passes: when the closing an Endowment to a wallet beneficiary", async () => {
-      await expect(facet.closeEndowment(accountId, beneficiary))
-        .to.emit(facet, "EndowmentClosed")
-        .withArgs(accountId);
+      await expect(facet.closeEndowment(accountId, beneficiary)).to.emit(facet, "EndowmentClosed");
 
       const endowState = await state.getClosingEndowmentState(accountId);
       expect(endowState[0]).to.equal(true);
       expect(endowState[1].enumData).to.equal(beneficiary.enumData);
       expect(endowState[1].data.addr).to.equal(beneficiary.data.addr);
       expect(endowState[1].data.endowId).to.equal(beneficiary.data.endowId);
+
+      // check that endowment in no longer involved in any index funds
+      const funds = await indexFundFake.queryInvolvedFunds(accountId);
+      expect(funds.length).to.equal(0);
     });
 
     it("passes: updates the beneficiary to the treasury address if the beneficiary is set to 'None'", async () => {
@@ -134,18 +137,21 @@ describe("AccountsUpdateStatusEndowments", function () {
         enumData: 2,
         data: {addr: ethers.constants.AddressZero, endowId: 0},
       };
+      const beneficiaryTreasury: LibAccounts.BeneficiaryStruct = {
+        enumData: 1,
+        data: {addr: treasuryAddress, endowId: 0},
+      };
 
-      await expect(
-        facet.closeEndowment(accountId, beneficiaryNone)
-      )
-        .to.emit(facet, "EndowmentClosed")
-        .withArgs(accountId);
+      await expect(facet.closeEndowment(accountId, beneficiaryNone)).to.emit(
+        facet,
+        "EndowmentClosed"
+      );
 
       const endowState = await state.getClosingEndowmentState(accountId);
       expect(endowState[0]).to.equal(true);
-      expect(endowState[1].enumData).to.equal(2);
-      expect(endowState[1].data.addr).to.equal(treasuryAddress);
-      expect(endowState[1].data.endowId).to.equal(0);
+      expect(endowState[1].enumData).to.equal(beneficiaryTreasury.enumData);
+      expect(endowState[1].data.addr).to.equal(beneficiaryTreasury.data.addr);
+      expect(endowState[1].data.endowId).to.equal(beneficiaryTreasury.data.endowId);
     });
   });
 
