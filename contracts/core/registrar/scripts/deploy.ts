@@ -4,7 +4,6 @@ import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {LocalRegistrar__factory, ProxyContract__factory, Registrar__factory} from "typechain-types";
 import {
   Deployment,
-  getChainId,
   getContractName,
   getAxlNetworkName,
   logger,
@@ -54,15 +53,16 @@ export async function deployRegistrar(
     // deploy proxy
     logger.out("Deploying proxy...");
     const initData = registrar.interface.encodeFunctionData(
-      "initialize((address,(uint256,uint256,uint256),address,address,address,string))",
+      "initialize((address,(uint256,uint256,uint256),address,address,address,string,address))",
       [
         {
-          treasury,
+          treasury: treasury,
           splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
-          router,
-          axelarGateway,
-          axelarGasService,
-          networkName,
+          router: router,
+          axelarGateway: axelarGateway,
+          axelarGasService: axelarGasService,
+          networkName: networkName,
+          refundAddr: owner,
         },
       ]
     );
@@ -98,10 +98,11 @@ type LocalRegistrarDeployData = {
   owner?: string;
   deployer: SignerWithAddress;
   proxyAdmin: SignerWithAddress;
+  networkName: string;
 };
 
 export async function deployLocalRegistrar(
-  {owner = "", deployer, proxyAdmin}: LocalRegistrarDeployData,
+  {owner = "", deployer, proxyAdmin, networkName}: LocalRegistrarDeployData,
   hre: HardhatRuntimeEnvironment
 ): Promise<Deployment | undefined> {
   logger.out("Deploying Local Registrar...");
@@ -118,7 +119,7 @@ export async function deployLocalRegistrar(
     // deploy proxy
     logger.out("Deploying proxy...");
     const proxyFactory = new ProxyContract__factory(deployer);
-    const initData = localRegistrar.interface.encodeFunctionData("initialize");
+    const initData = localRegistrar.interface.encodeFunctionData("initialize", [networkName]);
     const proxy = await proxyFactory.deploy(localRegistrar.address, proxyAdmin.address, initData);
     await proxy.deployed();
     logger.out(`Address: ${proxy.address}`);

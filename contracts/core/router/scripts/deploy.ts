@@ -30,8 +30,7 @@ export async function deployRouter(
 
     // deploy proxy
     logger.out("Deploying proxy...");
-    const network = await hre.ethers.provider.getNetwork();
-    const initData = router.interface.encodeFunctionData("initialize", [network.name, registrar]);
+    const initData = router.interface.encodeFunctionData("initialize", [registrar]);
     const constructorArguments: ContractFunctionParams<ProxyContract__factory["deploy"]> = [
       router.address,
       proxyAdmin.address,
