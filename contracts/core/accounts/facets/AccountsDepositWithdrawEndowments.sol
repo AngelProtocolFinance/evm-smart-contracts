@@ -136,10 +136,11 @@ contract AccountsDepositWithdrawEndowments is
     bool contributorAllowed = true;
     if (
       (msg.sender != registrarConfig.indexFundContract && msg.sender != tempEndowment.owner) &&
-      state.allowlistedContributors[details.id].keys.length > 0
+      state.allowlists[details.id][LibAccounts.AllowlistType.AllowlistedContributors].keys.length >
+      0
     ) {
       contributorAllowed = (IterableMapping.get(
-        state.allowlistedContributors[details.id],
+        state.allowlists[details.id][LibAccounts.AllowlistType.AllowlistedContributors],
         msg.sender
       ) == 1);
     }
@@ -348,19 +349,23 @@ contract AccountsDepositWithdrawEndowments is
           bool beneficiaryAllowed;
           if (mature) {
             beneficiaryAllowed = (IterableMapping.get(
-              state.maturityAllowlist[id],
+              state.allowlists[id][LibAccounts.AllowlistType.MaturityAllowlist],
               beneficiaryAddress
             ) == 1);
             require(beneficiaryAllowed, "Beneficiary address is not listed in maturityAllowlist");
           } else {
             if (
-              state.allowlistedBeneficiaries[id].keys.length == 0 ||
+              state
+                .allowlists[id][LibAccounts.AllowlistType.AllowlistedBeneficiaries]
+                .keys
+                .length ==
+              0 ||
               beneficiaryAddress == tempEndowment.owner
             ) {
               beneficiaryAllowed = true;
             } else {
               beneficiaryAllowed = (IterableMapping.get(
-                state.allowlistedBeneficiaries[id],
+                state.allowlists[id][LibAccounts.AllowlistType.AllowlistedBeneficiaries],
                 beneficiaryAddress
               ) == 1);
             }

@@ -204,20 +204,8 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMapping 
     address[] memory allowlist
   ) external {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    if (listType == LibAccounts.AllowlistType.AllowlistedBeneficiaries) {
-      for (uint256 i = 0; i < allowlist.length; i++) {
-        IterableMapping.set(state.allowlistedBeneficiaries[endowId], allowlist[i], 1);
-      }
-    } else if (listType == LibAccounts.AllowlistType.AllowlistedContributors) {
-      for (uint256 i = 0; i < allowlist.length; i++) {
-        IterableMapping.set(state.allowlistedContributors[endowId], allowlist[i], 1);
-      }
-    } else if (listType == LibAccounts.AllowlistType.MaturityAllowlist) {
-      for (uint256 i = 0; i < allowlist.length; i++) {
-        IterableMapping.set(state.maturityAllowlist[endowId], allowlist[i], 1);
-      }
-    } else {
-      revert("Invlaid AllowlistType");
+    for (uint256 i = 0; i < allowlist.length; i++) {
+      IterableMapping.set(state.allowlists[endowId][listType], allowlist[i], 1);
     }
   }
 
@@ -226,15 +214,7 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMapping 
     LibAccounts.AllowlistType listType
   ) external view returns (address[] memory) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    if (listType == LibAccounts.AllowlistType.AllowlistedBeneficiaries) {
-      return state.allowlistedBeneficiaries[endowId].keys;
-    } else if (listType == LibAccounts.AllowlistType.AllowlistedContributors) {
-      return state.allowlistedContributors[endowId].keys;
-    } else if (listType == LibAccounts.AllowlistType.MaturityAllowlist) {
-      return state.maturityAllowlist[endowId].keys;
-    } else {
-      revert("Invlaid AllowlistType");
-    }
+    return state.allowlists[endowId][listType].keys;
   }
 
   function callSelf(uint256 value, bytes memory data) external {

@@ -75,9 +75,11 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments, IterableMapping {
         splitToLiquid: endowment.splitToLiquid,
         referralId: endowment.referralId,
         gasFwd: endowment.gasFwd,
-        allowlistedBeneficiaries: state.allowlistedBeneficiaries[id].keys,
-        allowlistedContributors: state.allowlistedContributors[id].keys,
-        maturityAllowlist: state.maturityAllowlist[id].keys
+        allowlistedBeneficiaries: state
+        .allowlists[id][LibAccounts.AllowlistType.AllowlistedBeneficiaries].keys,
+        allowlistedContributors: state
+        .allowlists[id][LibAccounts.AllowlistType.AllowlistedContributors].keys,
+        maturityAllowlist: state.allowlists[id][LibAccounts.AllowlistType.MaturityAllowlist].keys
       });
   }
 

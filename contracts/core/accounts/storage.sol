@@ -68,10 +68,8 @@ library AccountStorage {
     mapping(uint32 => mapping(address => address)) PriceFeeds;
     // Endowments that a DAF can withdraw to, managed by contract Owner
     mapping(uint32 => bool) dafApprovedEndowments;
-    // Various Endowment linked AllowList mappings
-    mapping(uint32 => IterableMapping.Map) allowlistedContributors;
-    mapping(uint32 => IterableMapping.Map) allowlistedBeneficiaries;
-    mapping(uint32 => IterableMapping.Map) maturityAllowlist;
+    // Endowments AllowLists Iterable mappings
+    mapping(uint32 => mapping(LibAccounts.AllowlistType => IterableMapping.Map)) allowlists;
     Config config;
   }
 }

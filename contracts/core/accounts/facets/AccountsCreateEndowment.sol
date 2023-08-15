@@ -116,20 +116,24 @@ contract AccountsCreateEndowment is
     // process all initial allowlists provided by user into their respective mappings
     for (uint256 i = 0; i < details.allowlistedBeneficiaries.length; i++) {
       IterableMapping.set(
-        state.allowlistedBeneficiaries[newEndowId],
+        state.allowlists[newEndowId][LibAccounts.AllowlistType.AllowlistedBeneficiaries],
         details.allowlistedBeneficiaries[i],
         1
       );
     }
     for (uint256 i = 0; i < details.allowlistedContributors.length; i++) {
       IterableMapping.set(
-        state.allowlistedContributors[newEndowId],
+        state.allowlists[newEndowId][LibAccounts.AllowlistType.AllowlistedContributors],
         details.allowlistedContributors[i],
         1
       );
     }
     for (uint256 i = 0; i < details.maturityAllowlist.length; i++) {
-      IterableMapping.set(state.maturityAllowlist[newEndowId], details.maturityAllowlist[i], 1);
+      IterableMapping.set(
+        state.allowlists[newEndowId][LibAccounts.AllowlistType.MaturityAllowlist],
+        details.maturityAllowlist[i],
+        1
+      );
     }
 
     emit EndowmentCreated(newEndowId, details.endowType);

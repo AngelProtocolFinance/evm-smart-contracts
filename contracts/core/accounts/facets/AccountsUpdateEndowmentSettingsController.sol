@@ -58,7 +58,6 @@ contract AccountsUpdateEndowmentSettingsController is
         ),
         "Unauthorized"
       );
-      iterableAllowlist = state.allowlistedBeneficiaries[id];
     } else if (allowlistType == LibAccounts.AllowlistType.AllowlistedContributors) {
       require(
         Validator.canChange(
@@ -69,7 +68,6 @@ contract AccountsUpdateEndowmentSettingsController is
         ),
         "Unauthorized"
       );
-      iterableAllowlist = state.allowlistedContributors[id];
     } else if (allowlistType == LibAccounts.AllowlistType.MaturityAllowlist) {
       require(
         Validator.canChange(
@@ -80,19 +78,18 @@ contract AccountsUpdateEndowmentSettingsController is
         ),
         "Unauthorized"
       );
-      iterableAllowlist = state.maturityAllowlist[id];
     } else {
       revert("Invalid AllowlistType");
     }
 
     for (uint256 i = 0; i < add.length; i++) {
       require(add[i] != address(0), "Zero address passed");
-      IterableMapping.set(iterableAllowlist, add[i], 1);
+      IterableMapping.set(state.allowlists[id][allowlistType], add[i], 1);
     }
 
     for (uint256 i = 0; i < remove.length; i++) {
       require(add[i] != address(0), "Zero address passed");
-      IterableMapping.remove(iterableAllowlist, remove[i]);
+      IterableMapping.remove(state.allowlists[id][allowlistType], remove[i]);
     }
 
     emit EndowmentAllowlistUpdated(id, allowlistType, add, remove);
