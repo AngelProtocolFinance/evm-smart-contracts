@@ -105,7 +105,7 @@ contract AccountsUpdateStatusEndowments is
       });
     }
 
-    if (beneficiary.enumData != LibAccounts.BeneficiaryEnum.Wallet) {
+    if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.Wallet) {
       require(beneficiary.data.addr != address(0), "Cannot pass a zero address");
       IAccountsDepositWithdrawEndowments(registrarConfig.accountsContract).withdraw(
         id,
@@ -121,8 +121,8 @@ contract AccountsUpdateStatusEndowments is
         0,
         liquidTokens
       );
-    } else if (beneficiary.enumData != LibAccounts.BeneficiaryEnum.EndowmentId) {
-      require(beneficiary.data.endowId != 0, "Cannot pass a zero for Endowment ID");
+    } else if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.EndowmentId) {
+      require(beneficiary.data.endowId > 0, "Cannot pass a zero for Endowment ID");
       require(
         !state.STATES[beneficiary.data.endowId].closingEndowment,
         "Beneficiary endowment is closed"

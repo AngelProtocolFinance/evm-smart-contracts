@@ -31,8 +31,8 @@ describe("AccountsUpdateStatusEndowments", function () {
 
   const accountId = 1;
   const beneficiary: LibAccounts.BeneficiaryStruct = {
-    enumData: 0,
-    data: {addr: genWallet().address, endowId: accountId},
+    enumData: 1,
+    data: {addr: genWallet().address, endowId: 0},
   };
   const strategies = ["strategy1", "strategy2", "strategy3"].map(
     (x) => ethers.utils.id(x).slice(0, 10) // map to bytes4 selectors
@@ -58,7 +58,7 @@ describe("AccountsUpdateStatusEndowments", function () {
     endowOwner = signers.deployer;
     treasuryAddress = signers.apTeam2.address;
 
-    endowment = {...DEFAULT_CHARITY_ENDOWMENT, owner: endowOwner.address};
+    endowment = {...DEFAULT_CHARITY_ENDOWMENT, endowType: 1, owner: endowOwner.address};
   });
 
   beforeEach(async function () {
@@ -116,13 +116,8 @@ describe("AccountsUpdateStatusEndowments", function () {
       );
     });
 
-    it("removes the closing endowment from all index funds it is involved in", async () => {
-      await expect(
-        facet.closeEndowment(accountId, beneficiary, {
-          gasPrice: 100000000,
-          gasLimit: 30000000,
-        })
-      )
+    it("passes: when the closing an Endowment to a wallet beneficiary", async () => {
+      await expect(facet.closeEndowment(accountId, beneficiary))
         .to.emit(facet, "EndowmentClosed")
         .withArgs(accountId);
 
@@ -133,15 +128,15 @@ describe("AccountsUpdateStatusEndowments", function () {
       expect(endowState[1].data.endowId).to.equal(beneficiary.data.endowId);
     });
 
-    it("updates the beneficiary to the treasury address if the beneficiary is set to 'None'", async () => {
+    it("passes: updates the beneficiary to the treasury address if the beneficiary is set to 'None'", async () => {
       indexFundFake.queryInvolvedFunds.returns([]);
-      const beneficiaryNone: LibAccounts.BeneficiaryStruct = {...beneficiary, enumData: 3};
+      const beneficiaryNone: LibAccounts.BeneficiaryStruct = {
+        enumData: 2,
+        data: {addr: ethers.constants.AddressZero, endowId: 0},
+      };
 
       await expect(
-        facet.closeEndowment(accountId, beneficiaryNone, {
-          gasPrice: 100000000,
-          gasLimit: 30000000,
-        })
+        facet.closeEndowment(accountId, beneficiaryNone)
       )
         .to.emit(facet, "EndowmentClosed")
         .withArgs(accountId);
