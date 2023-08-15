@@ -54,7 +54,7 @@ library LocalRegistrarLib {
   }
 
   struct LocalRegistrarStorage {
-    string chain; // The chain that this registrar is deployed on, name must match Axelar convention 
+    string chain; // The chain that this registrar is deployed on, name must match Axelar convention
     mapping(bytes32 => string) AccountsContractByChain;
     mapping(bytes4 => StrategyParams) VaultsByStrategyId;
     mapping(address => bool) AcceptedTokens;

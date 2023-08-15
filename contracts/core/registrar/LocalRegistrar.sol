@@ -245,5 +245,5 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
   function thisChain() external view returns (string memory) {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
     return lrs.chain;
-  } 
+  }
 }

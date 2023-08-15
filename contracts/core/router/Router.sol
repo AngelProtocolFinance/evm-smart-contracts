@@ -256,7 +256,9 @@ contract Router is IRouter, Initializable, AxelarExecutable {
   }
 
   modifier onlyLocalAccountsContract() {
-    string memory accountAddress = registrar.getAccountsContractAddressByChain(registrar.thisChain());
+    string memory accountAddress = registrar.getAccountsContractAddressByChain(
+      registrar.thisChain()
+    );
     require(StringToAddress.toAddress(accountAddress) == msg.sender, "Unauthorized local call");
     _;
   }
@@ -308,7 +310,9 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     uint256 _sendAmt
   ) internal returns (IVault.VaultActionData memory) {
     // Pack the tokens and calldata for bridging back out over GMP
-    LocalRegistrarLib.NetworkInfo memory network = registrar.queryNetworkConnection(registrar.thisChain());
+    LocalRegistrarLib.NetworkInfo memory network = registrar.queryNetworkConnection(
+      registrar.thisChain()
+    );
 
     // Prepare gas
     uint256 gasFee = registrar.getGasByToken(_action.token);
@@ -450,12 +454,16 @@ contract Router is IRouter, Initializable, AxelarExecutable {
   }
 
   function _gateway() internal view override returns (IAxelarGateway) {
-    LocalRegistrarLib.NetworkInfo memory network = registrar.queryNetworkConnection(registrar.thisChain());
+    LocalRegistrarLib.NetworkInfo memory network = registrar.queryNetworkConnection(
+      registrar.thisChain()
+    );
     return IAxelarGateway(network.axelarGateway);
   }
 
   function _gasReceiver() internal view returns (IAxelarGasService) {
-    LocalRegistrarLib.NetworkInfo memory network = registrar.queryNetworkConnection(registrar.thisChain());
+    LocalRegistrarLib.NetworkInfo memory network = registrar.queryNetworkConnection(
+      registrar.thisChain()
+    );
     return IAxelarGasService(network.gasReceiver);
   }
 }
