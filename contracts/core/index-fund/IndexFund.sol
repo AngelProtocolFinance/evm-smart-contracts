@@ -33,9 +33,6 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
   using SafeERC20 for IERC20;
   using SafeMath for uint256;
 
-  error InvalidAddress(string param);
-  error InvalidToken();
-
   /**
    * @notice Initializer function for index fund contract, to be called when proxy is deployed
    * @dev This function is called by deployer only once at the time of initialization
