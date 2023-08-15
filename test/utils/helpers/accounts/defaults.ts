@@ -6,7 +6,6 @@ import {BigNumber} from "ethers";
 import {DEFAULT_STRATEGY_SELECTOR} from "test/utils";
 import {IVault} from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
-import {IAccountsStrategy} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 import {ADDRESS_ZERO} from "utils";
 
 export const DEFAULT_PERMISSIONS_STRUCT: LibAccounts.SettingsPermissionStruct = {
@@ -95,14 +94,12 @@ export const DEFAULT_ACCOUNTS_CONFIG: AccountStorage.ConfigStruct = {
   reentrancyGuardLocked: false,
 };
 
-export const DEFAULT_NETWORK_INFO: IAccountsStrategy.NetworkInfoStruct = {
+export const DEFAULT_NETWORK_INFO: LocalRegistrarLib.NetworkInfoStruct = {
   chainId: 0,
   router: ADDRESS_ZERO,
   axelarGateway: ADDRESS_ZERO,
-  ibcChannel: "",
-  transferChannel: "",
   gasReceiver: ADDRESS_ZERO,
-  gasLimit: 0,
+  refundAddr: ADDRESS_ZERO,
 };
 
 export const DEFAULT_REGISTRAR_CONFIG: RegistrarStorage.ConfigStruct = {
@@ -173,11 +170,6 @@ export const DEFAULT_STRATEGY_PARAMS: LocalRegistrarLib.StrategyParamsStruct = {
     Type: 1,
     vaultAddr: ADDRESS_ZERO,
   },
-};
-
-export const DEFAULT_AP_PARAMS: LocalRegistrarLib.AngelProtocolParamsStruct = {
-  refundAddr: ADDRESS_ZERO,
-  routerAddr: ADDRESS_ZERO,
 };
 
 export const DEFAULT_ACTION_DATA: IVault.VaultActionDataStruct = {

@@ -43,7 +43,7 @@ describe("Local Registrar", function () {
       "LocalRegistrar",
       proxyAdmin
     )) as LocalRegistrar__factory;
-    const registrar = (await upgrades.deployProxy(Registrar)) as LocalRegistrar;
+    const registrar = (await upgrades.deployProxy(Registrar, [originatingChain])) as LocalRegistrar;
     await registrar.deployed();
     return registrar;
   }
@@ -76,9 +76,6 @@ describe("Local Registrar", function () {
         defaultRebalParams.lockedPrincipleToLiquid
       );
       expect(rebalParams.principleDistribution).to.equal(defaultRebalParams.principleDistribution);
-
-      let apParams = await registrar.getAngelProtocolParams();
-      expect(apParams.routerAddr).to.equal(defaultApParams.routerAddr);
     });
 
     it("Should not allow a non-owner to run an upgrade", async function () {
@@ -107,21 +104,6 @@ describe("Local Registrar", function () {
         await expect(registrar.setRebalanceParams(newValues)).to.not.be.reverted;
         let returnedValues = await registrar.getRebalanceParams();
         expect(returnedValues.rebalanceLiquidProfits).to.equal(newValues.rebalanceLiquidProfits);
-      });
-    });
-
-    describe("setAngelProtocolParams and getAngelProtocolParams", async function () {
-      it("Should be an owner restricted method", async function () {
-        await expect(registrar.connect(user).setAngelProtocolParams(defaultApParams)).to.be
-          .reverted;
-      });
-
-      it("Should accept and set the values", async function () {
-        let newValues = defaultApParams;
-        newValues.routerAddr = user.address;
-        await expect(registrar.setAngelProtocolParams(newValues)).to.not.be.reverted;
-        let returnedValues = await registrar.getAngelProtocolParams();
-        expect(returnedValues.routerAddr).to.equal(newValues.routerAddr);
       });
     });
 
@@ -191,6 +173,13 @@ describe("Local Registrar", function () {
         await expect(registrar.setGasByToken(user.address, 1)).to.not.be.reverted;
         let returnedValue = await registrar.getGasByToken(user.address);
         expect(returnedValue.toNumber()).to.equal(1);
+      });
+    });
+
+    describe("thisChain", async function () {
+      it("Should return the chain set during init", async function () {
+        let returnedValue = await registrar.thisChain();
+        expect(returnedValue).to.equal(originatingChain);
       });
     });
 
@@ -375,13 +364,6 @@ describe("Local Registrar", function () {
       await expect(registrar.setRebalanceParams(defaultRebalParams)).to.emit(
         registrar,
         "RebalanceParamsUpdated"
-      );
-    });
-
-    it("should emit AngelProtocolParamsUpdated", async function () {
-      await expect(registrar.setAngelProtocolParams(defaultApParams)).to.emit(
-        registrar,
-        "AngelProtocolParamsUpdated"
       );
     });
 
