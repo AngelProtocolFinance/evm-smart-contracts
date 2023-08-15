@@ -404,7 +404,8 @@ contract APVault_V1 is IVault, ERC4626AP {
   //////////////////////////////////////////////////////////////*/
 
   function _isOperator(address _operator) internal view override returns (bool) {
-    return IRegistrar(vaultConfig.registrar).getVaultOperatorApproved(_operator);
+    return
+      IRegistrar(vaultConfig.registrar).getVaultOperatorApproved(_operator) || _isSiblingVault();
   }
 
   function _isApprovedRouter() internal view override returns (bool) {

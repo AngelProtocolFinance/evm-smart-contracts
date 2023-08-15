@@ -19,6 +19,7 @@ describe("Halo token", function () {
       user = apTeam3;
       Halo = (await hre.ethers.getContractFactory("Halo", proxyAdmin)) as Halo__factory;
       halo = await Halo.deploy(user.address, INITIALSUPPLY);
+      await halo.deployed();
     });
 
     it("Sends the specified amount to the specified recipient", async function () {

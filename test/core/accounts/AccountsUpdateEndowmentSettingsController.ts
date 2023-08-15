@@ -2,7 +2,7 @@ import {smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect, use} from "chai";
 import hre from "hardhat";
-import {DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
+import {DEFAULT_CHARITY_ENDOWMENT, wait} from "test/utils";
 import {
   AccountsUpdateEndowmentSettingsController,
   AccountsUpdateEndowmentSettingsController__factory,
@@ -57,19 +57,21 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     let facetImpl = await Facet.deploy();
     state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
 
-    await state.setConfig({
-      owner: owner.address,
-      version: "1",
-      networkName: "",
-      registrarContract: ethers.constants.AddressZero,
-      nextAccountId: 1,
-      reentrancyGuardLocked: false,
-    });
+    await wait(
+      state.setConfig({
+        owner: owner.address,
+        version: "1",
+        networkName: "",
+        registrarContract: ethers.constants.AddressZero,
+        nextAccountId: 1,
+        reentrancyGuardLocked: false,
+      })
+    );
 
     facet = AccountsUpdateEndowmentSettingsController__factory.connect(state.address, endowOwner);
 
-    await state.setEndowmentDetails(charityId, oldCharity);
-    await state.setEndowmentDetails(normalEndowId, oldNormalEndow);
+    await wait(state.setEndowmentDetails(charityId, oldCharity));
+    await wait(state.setEndowmentDetails(normalEndowId, oldNormalEndow));
   });
 
   describe("updateEndowmentSettings", () => {
@@ -95,10 +97,12 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     });
 
     it("reverts if the endowment is closed", async () => {
-      await state.setClosingEndowmentState(normalEndowId, true, {
-        enumData: 0,
-        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
-      });
+      await wait(
+        state.setClosingEndowmentState(normalEndowId, true, {
+          enumData: 0,
+          data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+        })
+      );
       await expect(facet.updateEndowmentSettings(normalEndowReq)).to.be.revertedWith(
         "UpdatesAfterClosed"
       );
@@ -276,10 +280,12 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     };
 
     it("reverts if the endowment is closed", async () => {
-      await state.setClosingEndowmentState(charityReq.id, true, {
-        enumData: 0,
-        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
-      });
+      await wait(
+        state.setClosingEndowmentState(charityReq.id, true, {
+          enumData: 0,
+          data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+        })
+      );
       await expect(facet.updateEndowmentController(charityReq)).to.be.revertedWith(
         "UpdatesAfterClosed"
       );
@@ -558,10 +564,12 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     });
 
     it("reverts if the endowment is closed", async () => {
-      await state.setClosingEndowmentState(request.id, true, {
-        enumData: 0,
-        data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
-      });
+      await wait(
+        state.setClosingEndowmentState(request.id, true, {
+          enumData: 0,
+          data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+        })
+      );
       await expect(facet.updateFeeSettings(request)).to.be.revertedWith("UpdatesAfterClosed");
     });
 

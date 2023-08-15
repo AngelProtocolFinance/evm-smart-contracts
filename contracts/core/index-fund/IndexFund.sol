@@ -49,25 +49,23 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
 
     // active fund rotations can set by either a Time-based or Amoount-based
     // or neither (wherein both are == 0)
-    state.config.fundRotation = fundRotation;
-    if (fundingGoal == 0 || (fundRotation == 0 && fundingGoal > 0)) {
-      state.config.fundingGoal = fundingGoal;
-    } else {
+    if (fundingGoal > 0 && fundRotation > 0) {
       revert("Invalid Fund Rotation configuration");
     }
 
-    if (Validator.addressChecker(registrarContract)) {
-      state.config = IndexFundStorage.Config({
-        registrarContract: registrarContract,
-        fundRotation: fundRotation,
-        fundingGoal: fundingGoal
-      });
+    if (!Validator.addressChecker(registrarContract)) {
+      revert InvalidAddress("registrarContract");
     }
+
+    state.config.registrarContract = registrarContract;
+    state.config.fundRotation = fundRotation;
+    state.config.fundingGoal = fundingGoal;
 
     state.activeFund = 0;
     state.nextFundId = 1;
     state.roundDonations = 0;
     state.nextRotationBlock = block.number + state.config.fundRotation;
+
     emit Instantiated(registrarContract, fundRotation, fundingGoal);
   }
 
@@ -83,19 +81,19 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
     uint256 fundRotation,
     uint256 fundingGoal
   ) external onlyOwner {
-    if (Validator.addressChecker(registrarContract)) {
-      state.config.registrarContract = registrarContract;
+    if (!Validator.addressChecker(registrarContract)) {
+      revert InvalidAddress("registrarContract");
     }
 
     // active fund rotations can set by either a Time-based or Amoount-based
     // or neither (wherein both are == 0)
-    state.config.fundRotation = fundRotation;
-    if (fundingGoal == 0 || (fundRotation == 0 && fundingGoal > 0)) {
-      state.config.fundingGoal = fundingGoal;
-    } else {
+    if (fundingGoal > 0 && fundRotation > 0) {
       revert("Invalid Fund Rotation configuration");
     }
 
+    state.config.registrarContract = registrarContract;
+    state.config.fundRotation = fundRotation;
+    state.config.fundingGoal = fundingGoal;
     emit ConfigUpdated(registrarContract, fundingGoal, fundRotation);
   }
 
@@ -249,7 +247,10 @@ contract IndexFund is IIndexFund, Storage, OwnableUpgradeable, ReentrancyGuard, 
       Validator.addressChecker(registrarConfig.accountsContract),
       "Accounts contract not configured in Registrar"
     );
-    // Require that the incoming token is accpeted
+    if (token == address(0)) {
+      revert InvalidToken();
+    }
+    // Require that the incoming token is accepted
     require(_tokenIsAccepted(token), "Unaccepted Token");
 
     // tokens must be transfered from the sender to this contract

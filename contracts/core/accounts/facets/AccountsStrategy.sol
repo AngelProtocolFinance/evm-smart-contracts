@@ -33,6 +33,9 @@ contract AccountsStrategy is
 {
   using SafeERC20 for IERC20;
 
+  uint256 constant FIFTY_PERCENT_BIG_NUMBA_RATE =
+    (50 * LibAccounts.BIG_NUMBA_BASIS) / LibAccounts.PERCENT_BASIS;
+
   /**
    * @notice This function that allows users to deposit into a yield strategy using tokens from their locked or liquid account in an endowment.
    * @dev Allows the owner of an endowment to invest tokens into specified yield vaults.
@@ -44,6 +47,10 @@ contract AccountsStrategy is
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
+
+    if (investRequest.lockAmt == 0 && investRequest.liquidAmt == 0) {
+      revert ZeroAmount();
+    }
 
     // check if the msg sender is either the owner or their delegate address and
     // that they have the power to manage the investments for an account balance
@@ -98,8 +105,15 @@ contract AccountsStrategy is
       "Token not approved"
     );
 
+    uint256 investAmt = investRequest.lockAmt + investRequest.liquidAmt;
+
     uint32[] memory accts = new uint32[](1);
     accts[0] = id;
+
+    state.STATES[id].balances.locked[tokenAddress] -= investRequest.lockAmt;
+    state.STATES[id].balances.liquid[tokenAddress] -= investRequest.liquidAmt;
+    state.STATES[id].activeStrategies[investRequest.strategy] = true;
+    emit EndowmentInvested(id);
 
     // Strategy exists on the local network
     if (Validator.compareStrings(state.config.networkName, stratParams.network)) {
@@ -115,24 +129,16 @@ contract AccountsStrategy is
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
 
-      IERC20(tokenAddress).safeTransfer(
-        thisNetwork.router,
-        (investRequest.lockAmt + investRequest.liquidAmt)
-      );
+      IERC20(tokenAddress).safeTransfer(thisNetwork.router, investAmt);
       IVault.VaultActionData memory response = IRouter(thisNetwork.router).executeWithTokenLocal(
         state.config.networkName,
         AddressToString.toString(address(this)),
         packedPayload,
         investRequest.token,
-        (investRequest.lockAmt + investRequest.liquidAmt)
+        investAmt
       );
 
-      if (response.status == IVault.VaultActionStatus.SUCCESS) {
-        state.STATES[id].balances.locked[tokenAddress] -= investRequest.lockAmt;
-        state.STATES[id].balances.liquid[tokenAddress] -= investRequest.liquidAmt;
-        state.STATES[id].activeStrategies[investRequest.strategy] = true;
-        emit EndowmentInvested(response.status);
-      } else {
+      if (response.status != IVault.VaultActionStatus.SUCCESS) {
         revert InvestFailed(response.status);
       }
     }
@@ -159,8 +165,7 @@ contract AccountsStrategy is
         _payForGasWithAccountBalance(
           id,
           tokenAddress,
-          investRequest.lockAmt,
-          investRequest.liquidAmt,
+          (investRequest.liquidAmt * LibAccounts.BIG_NUMBA_BASIS) / investAmt,
           (investRequest.gasFee - gasFwdGas)
         );
       }
@@ -171,25 +176,19 @@ contract AccountsStrategy is
         AddressToString.toString(network.router),
         packedPayload,
         investRequest.token,
-        (investRequest.lockAmt + investRequest.liquidAmt),
+        investAmt,
         tokenAddress,
         investRequest.gasFee,
         state.ENDOWMENTS[id].gasFwd
       );
-      IERC20(tokenAddress).safeApprove(
-        thisNetwork.axelarGateway,
-        (investRequest.lockAmt + investRequest.liquidAmt)
-      );
+      IERC20(tokenAddress).safeApprove(thisNetwork.axelarGateway, investAmt);
       IAxelarGateway(thisNetwork.axelarGateway).callContractWithToken(
         stratParams.network,
         AddressToString.toString(network.router),
         packedPayload,
         investRequest.token,
-        (investRequest.lockAmt + investRequest.liquidAmt)
+        investAmt
       );
-      state.STATES[id].balances.locked[tokenAddress] -= investRequest.lockAmt;
-      state.STATES[id].balances.liquid[tokenAddress] -= investRequest.liquidAmt;
-      state.STATES[id].activeStrategies[investRequest.strategy] = true;
     }
   }
 
@@ -203,6 +202,10 @@ contract AccountsStrategy is
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
+
+    if (redeemRequest.lockAmt == 0 && redeemRequest.liquidAmt == 0) {
+      revert ZeroAmount();
+    }
 
     // check if the msg sender is either the owner or their delegate address and
     // that they have the power to manage the investments for an account balance
@@ -264,10 +267,12 @@ contract AccountsStrategy is
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
         state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
         state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
+        emit EndowmentRedeemed(id, response.status);
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
         state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
         state.STATES[id].activeStrategies[redeemRequest.strategy] = false;
+        emit EndowmentRedeemed(id, response.status);
       } else {
         revert RedeemFailed(response.status);
       }
@@ -292,11 +297,12 @@ contract AccountsStrategy is
         redeemRequest.gasFee
       );
       if (gasFwdGas < redeemRequest.gasFee) {
+        uint256 gasRateFromLiq_withPrecision = (redeemRequest.liquidAmt *
+          LibAccounts.BIG_NUMBA_BASIS) / (redeemRequest.liquidAmt + redeemRequest.lockAmt);
         _payForGasWithAccountBalance(
           id,
           tokenAddress,
-          redeemRequest.lockAmt,
-          redeemRequest.liquidAmt,
+          gasRateFromLiq_withPrecision,
           (redeemRequest.gasFee - gasFwdGas)
         );
       }
@@ -329,10 +335,10 @@ contract AccountsStrategy is
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
 
-    require(
-      redeemAllRequest.redeemLiquid || redeemAllRequest.redeemLocked,
-      "Must redeem at least one of Locked/Liquid"
-    );
+    if (!redeemAllRequest.redeemLiquid && !redeemAllRequest.redeemLocked) {
+      revert ZeroAmount();
+    }
+
     if (redeemAllRequest.redeemLocked) {
       require(
         Validator.canChange(
@@ -395,7 +401,7 @@ contract AccountsStrategy is
         state.STATES[id].balances.locked[tokenAddress] += response.lockAmt;
         state.STATES[id].balances.liquid[tokenAddress] += response.liqAmt;
         state.STATES[id].activeStrategies[redeemAllRequest.strategy] = false;
-        emit EndowmentRedeemed(response.status);
+        emit EndowmentRedeemed(id, response.status);
       } else {
         revert RedeemAllFailed(response.status);
       }
@@ -423,8 +429,7 @@ contract AccountsStrategy is
         _payForGasWithAccountBalance(
           id,
           tokenAddress,
-          1, // Split evenly
-          1,
+          FIFTY_PERCENT_BIG_NUMBA_RATE,
           (redeemAllRequest.gasFee - gasFwdGas)
         );
       }
@@ -461,6 +466,7 @@ contract AccountsStrategy is
     ) {
       state.STATES[id].balances.locked[response.token] += response.lockAmt;
       state.STATES[id].balances.liquid[response.token] += response.liqAmt;
+      emit EndowmentRedeemed(id, response.status);
       return true;
     }
     // Redeem/RedeemAll Cases
@@ -474,11 +480,13 @@ contract AccountsStrategy is
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
         state.STATES[id].balances.locked[response.token] += response.lockAmt;
         state.STATES[id].balances.liquid[response.token] += response.liqAmt;
+        emit EndowmentRedeemed(id, response.status);
         return true;
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.STATES[id].balances.locked[response.token] += response.lockAmt;
         state.STATES[id].balances.liquid[response.token] += response.liqAmt;
         state.STATES[id].activeStrategies[response.strategyId] = false;
+        emit EndowmentRedeemed(id, response.status);
         return true;
       }
     } else {
@@ -563,45 +571,41 @@ contract AccountsStrategy is
    * We split the gas payment proprotionally between locked and liquid if possible and
    * use liquid funds for locked gas needs, but not the other way around in the case of a shortage.
    * Revert if the combined balances of the account cannot cover both the investment request and the gas payment.
+   * @param id Endowment ID
+   * @param token Token address
+   * @param gasRateFromLiq_withPrecision Percentage of gas to pay from liquid portion
+   * @param gasRemaining Amount of gas to be payed from locked & liquid balances
    */
   function _payForGasWithAccountBalance(
     uint32 id,
     address token,
-    uint256 lockAmt,
-    uint256 liqAmt,
+    uint256 gasRateFromLiq_withPrecision,
     uint256 gasRemaining
   ) internal {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     uint256 lockBal = state.STATES[id].balances.locked[token];
     uint256 liqBal = state.STATES[id].balances.liquid[token];
-    uint256 sendAmt = lockAmt + liqAmt;
 
-    // Split gas proportionally between liquid and lock amts
-    uint256 liqGas = (gasRemaining * ((liqAmt * LibAccounts.BIG_NUMBA_BASIS) / sendAmt)) /
-      LibAccounts.BIG_NUMBA_BASIS;
+    uint256 liqGas = (gasRemaining * gasRateFromLiq_withPrecision) / LibAccounts.BIG_NUMBA_BASIS;
     uint256 lockGas = gasRemaining - liqGas;
-
-    uint256 lockNeed = lockGas + lockAmt;
-    uint256 liqNeed = liqGas + liqAmt;
 
     // Cases:
     // 1) lockBal and liqBal each cover the respective needs
-    if ((lockNeed <= lockBal) && (liqNeed <= liqBal)) {
+    if ((lockGas <= lockBal) && (liqGas <= liqBal)) {
       state.STATES[id].balances.locked[token] -= lockGas;
       state.STATES[id].balances.liquid[token] -= liqGas;
-    } else if ((lockNeed > lockBal) && (liqNeed <= liqBal)) {
-      // 2) lockBal does not cover lockNeeds, liqBal can cover deficit in addition to liqNeeds
-      if ((lockNeed - lockBal) <= (liqBal - liqNeed)) {
-        state.STATES[id].balances.locked[token] = 0;
-        state.STATES[id].balances.liquid[token] -= (liqGas + (lockNeed - lockBal));
-      }
-      // 3) lockBal does not cover lockNeeds and liqBal cannot cover -> revert
-      else {
+    } else if ((lockGas > lockBal) && (liqGas <= liqBal)) {
+      // 2) lockBal does not cover lockGas, check if liqBal can cover deficit in addition to liqGas
+      uint256 lockNeedDeficit = lockGas - lockBal;
+      if (lockNeedDeficit <= (liqBal - liqGas)) {
+        state.STATES[id].balances.locked[token] -= (lockGas - lockNeedDeficit);
+        state.STATES[id].balances.liquid[token] -= (liqGas + lockNeedDeficit);
+      } else {
+        // 3) lockBal does not cover lockGas and liqBal cannot cover -> revert
         revert InsufficientFundsForGas(id);
       }
-    }
-    // 4) lockBal covers lockNeeds, liqBal does not cover liqNeeds -> revert
-    else {
+    } else {
+      // 4) lockBal covers lockGas, liqBal does not cover liqGas -> revert
       revert InsufficientFundsForGas(id);
     }
   }
