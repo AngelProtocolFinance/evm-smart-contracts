@@ -41,11 +41,11 @@ library RegistrarStorage {
   }
 
   struct State {
-    Config config;
     bytes4[] STRATEGIES;
     mapping(LibAccounts.FeeTypes => LibAccounts.FeeSetting) FeeSettingsByFeeType;
     mapping(string => IAccountsStrategy.NetworkInfo) NETWORK_CONNECTIONS;
     mapping(address => address) PriceFeeds;
+    Config config;
   }
 }
 
