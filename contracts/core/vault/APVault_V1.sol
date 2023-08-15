@@ -418,7 +418,6 @@ contract APVault_V1 is IVault, ERC4626AP {
   function _isSiblingVault() internal view override returns (bool) {
     LocalRegistrarLib.StrategyParams memory stratParams = IRegistrar(vaultConfig.registrar)
       .getStrategyParamsById(vaultConfig.strategySelector);
-
     return (
       vaultConfig.vaultType == VaultType.LOCKED
         ? (_msgSender() == stratParams.Liquid.vaultAddr)

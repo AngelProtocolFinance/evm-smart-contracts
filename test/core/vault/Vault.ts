@@ -1,4 +1,5 @@
-import {expect} from "chai";
+import {expect, use} from "chai";
+import {FakeContract, smock} from "@defi-wonderland/smock";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
@@ -6,12 +7,13 @@ import {StrategyApprovalState, getSigners} from "utils";
 import {
   deployDummyStrategy,
   deployDummyERC20,
-  deployLocalRegistrarAsProxy,
   DEFAULT_STRATEGY_SELECTOR,
   DEFAULT_VAULT_NAME,
   DEFAULT_VAULT_SYMBOL,
   DEFAULT_NETWORK,
   wait,
+  DEFAULT_STRATEGY_PARAMS,
+  DEFAULT_NETWORK_INFO,
 } from "test/utils";
 import {
   APVault_V1,
@@ -20,13 +22,17 @@ import {
   DummyStrategy,
   IVault,
   LocalRegistrar,
+  LocalRegistrar__factory,
 } from "typechain-types";
+import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
+
+use(smock.matchers);
 
 describe("Vault", function () {
   const {ethers} = hre;
+  let registrarFake: FakeContract<LocalRegistrar>;
 
   let owner: SignerWithAddress;
-  let proxyAdmin: SignerWithAddress;
   let user: SignerWithAddress;
   let admin: SignerWithAddress;
   let collector: SignerWithAddress;
@@ -182,7 +188,6 @@ describe("Vault", function () {
     let baseToken: DummyERC20;
     let yieldToken: DummyERC20;
     let strategy: DummyStrategy;
-    let registrar: LocalRegistrar;
     before(async function () {
       baseToken = await deployDummyERC20(owner);
       yieldToken = await deployDummyERC20(owner);
@@ -191,42 +196,38 @@ describe("Vault", function () {
         yieldToken: yieldToken.address,
         admin: owner.address,
       });
-      registrar = await deployLocalRegistrarAsProxy(owner, admin);
-      await wait(registrar.setVaultOperatorApproved(owner.address, true));
     });
     beforeEach(async function () {
+      registrarFake = await smock.fake<LocalRegistrar>(new LocalRegistrar__factory());
+      registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(true);
       vault = await deployVault({
         vaultType: 1, // Liquid
         admin: owner.address,
         baseToken: baseToken.address,
         yieldToken: yieldToken.address,
         strategy: strategy.address,
-        registrar: registrar.address,
+        registrar: registrarFake.address,
+      });
+      registrarFake.getStrategyApprovalState
+        .whenCalledWith(DEFAULT_STRATEGY_SELECTOR)
+        .returns(true);
+      registrarFake.thisChain.returns(DEFAULT_NETWORK);
+      registrarFake.queryNetworkConnection.whenCalledWith(DEFAULT_NETWORK).returns({
+        ...DEFAULT_NETWORK_INFO,
+        router: owner.address,
       });
     });
 
     it("reverts if the operator isn't approved as an operator, sibling vault, or approved router", async function () {
-      await wait(registrar.setVaultOperatorApproved(owner.address, false));
-      await wait(
-        registrar.setStrategyParams(
-          DEFAULT_STRATEGY_SELECTOR,
-          DEFAULT_NETWORK,
-          user.address,
-          vault.address,
-          StrategyApprovalState.APPROVED
-        )
-      );
-      await wait(
-        registrar.setAngelProtocolParams({
-          routerAddr: user.address,
-          refundAddr: collector.address,
-        })
-      );
+      registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(false);
+      registrarFake.queryNetworkConnection.whenCalledWith(DEFAULT_NETWORK).returns({
+        ...DEFAULT_NETWORK_INFO,
+        router: user.address,
+      });
       await expect(vault.deposit(0, baseToken.address, 1)).to.be.revertedWithCustomError(
         vault,
         "OnlyApproved"
       );
-      await wait(registrar.setVaultOperatorApproved(owner.address, true));
     });
 
     it("reverts if the strategy is paused", async function () {
@@ -294,17 +295,18 @@ describe("Vault", function () {
     let baseToken: DummyERC20;
     let yieldToken: DummyERC20;
     let strategy: DummyStrategy;
-    let registrar: LocalRegistrar;
     const DEPOSIT = 1_000_000_000; // $1000
     const EX_RATE = 2;
     const TAX_RATE = 100; // bps
     const PRECISION = BigNumber.from(10).pow(24);
-    before(async function () {
-      registrar = await deployLocalRegistrarAsProxy(owner, admin);
-      await wait(registrar.setVaultOperatorApproved(owner.address, true));
-      await wait(registrar.setFeeSettingsByFeesType(0, TAX_RATE, collector.address)); // establish tax collector
-    });
+
     beforeEach(async function () {
+      registrarFake = await smock.fake<LocalRegistrar>(new LocalRegistrar__factory());
+      registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(true);
+      registrarFake.getFeeSettingsByFeeType
+        .whenCalledWith(0)
+        .returns({payoutAddress: collector.address, bps: TAX_RATE});
+
       baseToken = await deployDummyERC20(owner);
       yieldToken = await deployDummyERC20(owner);
       strategy = await deployDummyStrategy(owner, {
@@ -318,7 +320,7 @@ describe("Vault", function () {
         baseToken: baseToken.address,
         yieldToken: yieldToken.address,
         strategy: strategy.address,
-        registrar: registrar.address,
+        registrar: registrarFake.address,
       });
       await wait(baseToken.mint(vault.address, DEPOSIT));
       await wait(yieldToken.mint(strategy.address, DEPOSIT * EX_RATE));
@@ -336,12 +338,11 @@ describe("Vault", function () {
     });
 
     it("reverts if the caller isn't approved", async function () {
-      await wait(registrar.setVaultOperatorApproved(owner.address, false));
+      registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(false);
       await expect(vault.redeem(0, DEPOSIT / 2)).to.be.revertedWithCustomError(
         vault,
         "OnlyApproved"
       );
-      await wait(registrar.setVaultOperatorApproved(owner.address, true));
     });
 
     it("reverts if the baseToken transfer fails", async function () {
@@ -407,16 +408,16 @@ describe("Vault", function () {
     let baseToken: DummyERC20;
     let yieldToken: DummyERC20;
     let strategy: DummyStrategy;
-    let registrar: LocalRegistrar;
     const DEPOSIT = 1_000_000_000; // $1000
     const EX_RATE = 2;
     const TAX_RATE = 100; // bps
-    before(async function () {
-      registrar = await deployLocalRegistrarAsProxy(owner, admin);
-      await wait(registrar.setVaultOperatorApproved(owner.address, true));
-      await wait(registrar.setFeeSettingsByFeesType(0, TAX_RATE, collector.address)); // establish tax collector
-    });
+
     beforeEach(async function () {
+      registrarFake = await smock.fake<LocalRegistrar>(new LocalRegistrar__factory());
+      registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(true);
+      registrarFake.getFeeSettingsByFeeType
+        .whenCalledWith(0)
+        .returns({payoutAddress: collector.address, bps: TAX_RATE});
       baseToken = await deployDummyERC20(owner);
       yieldToken = await deployDummyERC20(owner);
       strategy = await deployDummyStrategy(owner, {
@@ -430,7 +431,7 @@ describe("Vault", function () {
         baseToken: baseToken.address,
         yieldToken: yieldToken.address,
         strategy: strategy.address,
-        registrar: registrar.address,
+        registrar: registrarFake.address,
       });
       await wait(baseToken.mint(vault.address, DEPOSIT));
       await wait(yieldToken.mint(strategy.address, DEPOSIT * EX_RATE));
@@ -445,9 +446,8 @@ describe("Vault", function () {
     });
 
     it("reverts if the caller isn't approved", async function () {
-      await wait(registrar.setVaultOperatorApproved(owner.address, false));
+      registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(false);
       await expect(vault.redeemAll(0)).to.be.revertedWithCustomError(vault, "OnlyApproved");
-      await wait(registrar.setVaultOperatorApproved(owner.address, true));
     });
 
     it("does not tax if the position hasn't earned yield", async function () {
@@ -484,15 +484,22 @@ describe("Vault", function () {
     let baseToken: DummyERC20;
     let yieldToken: DummyERC20;
     let strategy: DummyStrategy;
-    let registrar: LocalRegistrar;
     const DEPOSIT = 1_000_000_000; // $1000
     const EX_RATE = 2;
     const TAX_RATE = 100; // bps
     const PRECISION = BigNumber.from(10).pow(24);
-    before(async function () {
-      registrar = await deployLocalRegistrarAsProxy(owner, admin);
-      await wait(registrar.setVaultOperatorApproved(owner.address, true));
-      await wait(registrar.setFeeSettingsByFeesType(1, TAX_RATE, collector.address)); // harvest fee type, establish tax collector
+
+    beforeEach(async function () {
+      registrarFake = await smock.fake<LocalRegistrar>(new LocalRegistrar__factory());
+      registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(true);
+      registrarFake.getFeeSettingsByFeeType
+        .whenCalledWith(1)
+        .returns({payoutAddress: collector.address, bps: TAX_RATE});
+      registrarFake.thisChain.returns(DEFAULT_NETWORK);
+      registrarFake.queryNetworkConnection.whenCalledWith(DEFAULT_NETWORK).returns({
+        ...DEFAULT_NETWORK_INFO,
+        router: owner.address,
+      });
     });
 
     describe("For liquid vaults", async function () {
@@ -511,7 +518,7 @@ describe("Vault", function () {
           baseToken: baseToken.address,
           yieldToken: yieldToken.address,
           strategy: strategy.address,
-          registrar: registrar.address,
+          registrar: registrarFake.address,
         });
         await wait(baseToken.mint(vault.address, DEPOSIT));
         await wait(yieldToken.mint(strategy.address, DEPOSIT * EX_RATE));
@@ -526,9 +533,13 @@ describe("Vault", function () {
       });
 
       it("reverts if the caller isn't approved", async function () {
-        await wait(registrar.setVaultOperatorApproved(owner.address, false));
+        registrarFake.getVaultOperatorApproved.whenCalledWith(owner.address).returns(false);
+        registrarFake.thisChain.returns(DEFAULT_NETWORK);
+        registrarFake.queryNetworkConnection.whenCalledWith(DEFAULT_NETWORK).returns({
+          ...DEFAULT_NETWORK_INFO,
+          router: user.address,
+        });
         await expect(vault.harvest([0])).to.be.revertedWithCustomError(vault, "OnlyApproved");
-        await wait(registrar.setVaultOperatorApproved(owner.address, true));
       });
 
       it("does not harvest if the position hasn't earned yield", async function () {
@@ -593,7 +604,7 @@ describe("Vault", function () {
           baseToken: baseToken.address,
           yieldToken: yieldToken.address,
           strategy: liquidStrategy.address,
-          registrar: registrar.address,
+          registrar: registrarFake.address,
         });
         lockedVault = await deployVault({
           vaultType: 0, // Locked
@@ -601,32 +612,41 @@ describe("Vault", function () {
           baseToken: baseToken.address,
           yieldToken: yieldToken.address,
           strategy: strategy.address,
-          registrar: registrar.address,
+          registrar: registrarFake.address,
         });
         await wait(baseToken.mint(lockedVault.address, DEPOSIT));
         await wait(yieldToken.mint(strategy.address, DEPOSIT * EX_RATE));
         await wait(yieldToken.mint(liquidStrategy.address, DEPOSIT * EX_RATE));
         await wait(strategy.setDummyAmt(DEPOSIT * EX_RATE));
         await wait(lockedVault.deposit(0, baseToken.address, DEPOSIT));
-        await wait(
-          registrar.setStrategyParams(
-            DEFAULT_STRATEGY_SELECTOR,
-            DEFAULT_NETWORK,
-            lockedVault.address,
-            liquidVault.address,
-            StrategyApprovalState.APPROVED
-          )
-        );
-        await wait(
-          registrar.setRebalanceParams({
-            rebalanceLiquidProfits: false,
-            lockedRebalanceToLiquid: REBAL_RATE,
-            interestDistribution: 0,
-            lockedPrincipleToLiquid: false,
-            principleDistribution: 0,
-            basis: BASIS,
-          })
-        );
+        const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
+          ...DEFAULT_STRATEGY_PARAMS,
+          network: DEFAULT_NETWORK,
+          approvalState: StrategyApprovalState.APPROVED,
+          Locked: {
+            Type: 0,
+            vaultAddr: lockedVault.address,
+          },
+          Liquid: {
+            Type: 1,
+            vaultAddr: liquidVault.address,
+          },
+        };
+        registrarFake.getStrategyParamsById.returns(stratParams);
+        registrarFake.thisChain.returns(DEFAULT_NETWORK);
+        registrarFake.queryNetworkConnection.whenCalledWith(DEFAULT_NETWORK).returns({
+          ...DEFAULT_NETWORK_INFO,
+          router: owner.address,
+        });
+        registrarFake.getRebalanceParams.returns({
+          rebalanceLiquidProfits: false,
+          lockedRebalanceToLiquid: REBAL_RATE,
+          interestDistribution: 0,
+          lockedPrincipleToLiquid: false,
+          principleDistribution: 0,
+          basis: BASIS,
+        });
+        registrarFake.getVaultOperatorApproved.whenCalledWith(lockedVault.address).returns(true);
       });
 
       it("reverts if the baseToken transfer fails", async function () {

@@ -5,7 +5,6 @@ import {BigNumber} from "ethers";
 import hre from "hardhat";
 import {
   DEFAULT_ACCOUNTS_CONFIG,
-  DEFAULT_AP_PARAMS,
   DEFAULT_CHARITY_ENDOWMENT,
   DEFAULT_INVEST_REQUEST,
   DEFAULT_METHOD_SELECTOR,
@@ -42,7 +41,6 @@ import {
   IVault as IVaultStrategy,
 } from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
-import {IAccountsStrategy} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {StrategyApprovalState, VaultActionStatus, genWallet, getChainId, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
@@ -79,8 +77,8 @@ describe("AccountsStrategy", function () {
   let state: TestFacetProxyContract;
   let facet: AccountsStrategy;
 
-  let netInfoThis: IAccountsStrategy.NetworkInfoStruct;
-  let netInfoThat: IAccountsStrategy.NetworkInfoStruct;
+  let netInfoThis: LocalRegistrarLib.NetworkInfoStruct;
+  let netInfoThat: LocalRegistrarLib.NetworkInfoStruct;
 
   let endowDetails: AccountStorage.EndowmentStruct;
 
@@ -152,6 +150,7 @@ describe("AccountsStrategy", function () {
       axelarGateway: gateway.address,
       gasReceiver: gasService.address,
       router: router.address,
+      refundAddr: user.address,
     };
     netInfoThat = {
       ...DEFAULT_NETWORK_INFO,
@@ -1772,12 +1771,6 @@ describe("AccountsStrategy", function () {
           const payload = packActionData(action, hre);
           // const returnedAction = convertVaultActionStructToArray(action);
 
-          const apParams: LocalRegistrarLib.AngelProtocolParamsStruct = {
-            ...DEFAULT_AP_PARAMS,
-            refundAddr: user.address,
-          };
-          registrar.getAngelProtocolParams.returns(apParams);
-
           await expect(
             facet.executeWithToken(
               ethers.utils.formatBytes32String("true"),
@@ -1803,7 +1796,10 @@ describe("AccountsStrategy", function () {
           );
           expect(strategyActive).to.be.true;
 
-          expect(token.transfer).to.have.been.calledWith(apParams.refundAddr, LOCK_AMT + LIQ_AMT);
+          expect(token.transfer).to.have.been.calledWith(
+            netInfoThis.refundAddr,
+            LOCK_AMT + LIQ_AMT
+          );
         });
       });
     });

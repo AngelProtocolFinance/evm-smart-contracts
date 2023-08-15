@@ -7,6 +7,7 @@ import {DEFAULT_STRATEGY_SELECTOR} from "test/utils";
 import {IVault} from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {ADDRESS_ZERO} from "utils";
+import {DEFAULT_NETWORK} from "../../constants";
 
 export const DEFAULT_PERMISSIONS_STRUCT: LibAccounts.SettingsPermissionStruct = {
   locked: false,
@@ -161,7 +162,7 @@ export const DEFAULT_REDEEM_ALL_REQUEST: AccountMessages.RedeemAllRequestStruct 
 
 export const DEFAULT_STRATEGY_PARAMS: LocalRegistrarLib.StrategyParamsStruct = {
   approvalState: 0,
-  network: "",
+  network: DEFAULT_NETWORK,
   Locked: {
     Type: 0,
     vaultAddr: ADDRESS_ZERO,
