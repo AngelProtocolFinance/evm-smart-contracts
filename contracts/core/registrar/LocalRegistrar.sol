@@ -20,14 +20,14 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     _disableInitializers();
   }
 
-  function __LocalRegistrar_init() internal onlyInitializing {
+  function __LocalRegistrar_init(string memory _chain) internal onlyInitializing {
     __Ownable_init();
-    __LocalRegistrar_init_unchained();
+    __LocalRegistrar_init_unchained(_chain);
   }
 
-  function __LocalRegistrar_init_unchained() internal onlyInitializing {
+  function __LocalRegistrar_init_unchained(string memory _chain) internal onlyInitializing {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
-
+    lrs.chain = _chain;
     lrs.rebalanceParams = LocalRegistrarLib.RebalanceParams(
       LocalRegistrarLib.REBALANCE_LIQUID_PROFITS,
       LocalRegistrarLib.LOCKED_REBALANCE_TO_LIQUID,
@@ -38,8 +38,8 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
     );
   }
 
-  function initialize() public initializer {
-    __LocalRegistrar_init();
+  function initialize(string memory _chain) public initializer {
+    __LocalRegistrar_init(_chain);
   }
 
   /*////////////////////////////////////////////////
@@ -53,16 +53,6 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
   {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
     return lrs.rebalanceParams;
-  }
-
-  function getAngelProtocolParams()
-    external
-    view
-    override
-    returns (LocalRegistrarLib.AngelProtocolParams memory)
-  {
-    LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
-    return lrs.angelProtocolParams;
   }
 
   function getAccountsContractAddressByChain(
@@ -125,7 +115,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
    */
   function queryNetworkConnection(
     string memory networkName
-  ) public view returns (IAccountsStrategy.NetworkInfo memory response) {
+  ) public view returns (LocalRegistrarLib.NetworkInfo memory response) {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
     response = lrs.NetworkConnections[networkName];
   }
@@ -140,15 +130,6 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
 
     lrs.rebalanceParams = _rebalanceParams;
     emit RebalanceParamsUpdated();
-  }
-
-  function setAngelProtocolParams(
-    LocalRegistrarLib.AngelProtocolParams calldata _angelProtocolParams
-  ) external override onlyOwner {
-    LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
-
-    lrs.angelProtocolParams = _angelProtocolParams;
-    emit AngelProtocolParamsUpdated();
   }
 
   function setAccountsContractAddressByChain(
@@ -246,7 +227,7 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
    */
   function updateNetworkConnections(
     string memory networkName,
-    IAccountsStrategy.NetworkInfo memory networkInfo,
+    LocalRegistrarLib.NetworkInfo memory networkInfo,
     LocalRegistrarLib.NetworkConnectionAction action
   ) public onlyOwner {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
@@ -260,4 +241,9 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
       revert("Invalid inputs");
     }
   }
+
+  function thisChain() external view returns (string memory) {
+    LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
+    return lrs.chain;
+  } 
 }

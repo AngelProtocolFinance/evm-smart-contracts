@@ -12,6 +12,7 @@ library RegistrarMessages {
     address axelarGateway;
     address axelarGasService;
     string networkName;
+    address refundAddr;
   }
 
   struct UpdateConfigRequest {

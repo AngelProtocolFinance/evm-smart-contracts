@@ -84,7 +84,7 @@ contract AccountsStrategy is
       "Strategy is not approved"
     );
 
-    NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)
+    LocalRegistrarLib.NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)
       .queryNetworkConnection(state.config.networkName);
 
     address tokenAddress = IAxelarGateway(thisNetwork.axelarGateway).tokenAddresses(
@@ -144,7 +144,7 @@ contract AccountsStrategy is
     }
     // Strategy lives on another chain
     else {
-      NetworkInfo memory network = IRegistrar(state.config.registrarContract)
+      LocalRegistrarLib.NetworkInfo memory network = IRegistrar(state.config.registrarContract)
         .queryNetworkConnection(stratParams.network);
       IVault.VaultActionData memory payload = IVault.VaultActionData({
         destinationChain: stratParams.network,
@@ -238,7 +238,7 @@ contract AccountsStrategy is
         (stratParams.approvalState == LocalRegistrarLib.StrategyApprovalState.WITHDRAW_ONLY),
       "Strategy is not approved"
     );
-    NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)
+    LocalRegistrarLib.NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)
       .queryNetworkConnection(state.config.networkName);
     address tokenAddress = IAxelarGateway(thisNetwork.axelarGateway).tokenAddresses(
       redeemRequest.token
@@ -279,7 +279,7 @@ contract AccountsStrategy is
     }
     // Strategy lives on another chain
     else {
-      NetworkInfo memory network = IRegistrar(state.config.registrarContract)
+      LocalRegistrarLib.NetworkInfo memory network = IRegistrar(state.config.registrarContract)
         .queryNetworkConnection(stratParams.network);
       IVault.VaultActionData memory payload = IVault.VaultActionData({
         destinationChain: stratParams.network,
@@ -370,7 +370,7 @@ contract AccountsStrategy is
       "Strategy is not approved"
     );
 
-    NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)
+    LocalRegistrarLib.NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)
       .queryNetworkConnection(state.config.networkName);
     address tokenAddress = IAxelarGateway(thisNetwork.axelarGateway).tokenAddresses(
       redeemAllRequest.token
@@ -408,7 +408,7 @@ contract AccountsStrategy is
 
       // Strategy lives on another chain
     } else {
-      NetworkInfo memory network = IRegistrar(state.config.registrarContract)
+      LocalRegistrarLib.NetworkInfo memory network = IRegistrar(state.config.registrarContract)
         .queryNetworkConnection(stratParams.network);
       IVault.VaultActionData memory payload = IVault.VaultActionData({
         destinationChain: stratParams.network,
@@ -500,13 +500,10 @@ contract AccountsStrategy is
     IVault.VaultActionData memory response
   ) internal {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)
+    LocalRegistrarLib.NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)
       .queryNetworkConnection(state.config.networkName);
-    LocalRegistrarLib.AngelProtocolParams memory apParams = IRegistrar(
-      state.config.registrarContract
-    ).getAngelProtocolParams();
     address tokenAddress = IAxelarGateway(thisNetwork.axelarGateway).tokenAddresses(tokenSymbol);
-    IERC20(tokenAddress).safeTransfer(apParams.refundAddr, amount);
+    IERC20(tokenAddress).safeTransfer(thisNetwork.refundAddr, amount);
     emit RefundNeeded(response);
   }
 
@@ -558,7 +555,7 @@ contract AccountsStrategy is
     if (!Validator.compareStrings(sourceChain, stratParams.network)) {
       revert UnexpectedCaller(response, sourceChain, sourceAddress);
     }
-    NetworkInfo memory stratNetwork = IRegistrar(state.config.registrarContract)
+    LocalRegistrarLib.NetworkInfo memory stratNetwork = IRegistrar(state.config.registrarContract)
       .queryNetworkConnection(stratParams.network);
     if (stratNetwork.router != StringToAddress.toAddress(sourceAddress)) {
       revert UnexpectedCaller(response, sourceChain, sourceAddress);

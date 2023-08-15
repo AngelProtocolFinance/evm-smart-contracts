@@ -29,7 +29,7 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
    * @param details details for the contract
    */
   function initialize(RegistrarMessages.InstantiateRequest memory details) public initializer {
-    __LocalRegistrar_init();
+    __LocalRegistrar_init(details.networkName);
     state.config = RegistrarStorage.Config({
       indexFundContract: address(0),
       accountsContract: address(0),
@@ -65,14 +65,12 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     emit ConfigUpdated();
 
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
-    lrs.NetworkConnections[details.networkName] = IAccountsStrategy.NetworkInfo({
+    lrs.NetworkConnections[details.networkName] = LocalRegistrarLib.NetworkInfo({
       chainId: block.chainid,
       router: details.router,
       axelarGateway: details.axelarGateway,
-      ibcChannel: "",
-      transferChannel: "",
       gasReceiver: details.axelarGasService,
-      gasLimit: 0
+      refundAddr: details.refundAddr
     });
     emit NetworkConnectionPosted(block.chainid);
   }

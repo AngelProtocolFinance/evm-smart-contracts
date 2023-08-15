@@ -4,7 +4,6 @@ pragma solidity >=0.8.0;
 
 import {IVault} from "../../vault/interfaces/IVault.sol";
 import {LibAccounts} from "../../accounts/lib/LibAccounts.sol";
-import {IAccountsStrategy} from "../../accounts/interfaces/IAccountsStrategy.sol";
 
 library LocalRegistrarLib {
   /*////////////////////////////////////////////////
@@ -27,11 +26,6 @@ library LocalRegistrarLib {
     bool lockedPrincipleToLiquid;
     uint32 principleDistribution;
     uint32 basis;
-  }
-
-  struct AngelProtocolParams {
-    address routerAddr;
-    address refundAddr;
   }
 
   enum StrategyApprovalState {
@@ -60,17 +54,25 @@ library LocalRegistrarLib {
   }
 
   struct LocalRegistrarStorage {
-    address uniswapRouter;
-    address uniswapFactory;
-    RebalanceParams rebalanceParams;
-    AngelProtocolParams angelProtocolParams;
+    string chain; // The chain that this registrar is deployed on, name must match Axelar convention 
     mapping(bytes32 => string) AccountsContractByChain;
     mapping(bytes4 => StrategyParams) VaultsByStrategyId;
     mapping(address => bool) AcceptedTokens;
     mapping(address => uint256) GasFeeByToken;
     mapping(LibAccounts.FeeTypes => LibAccounts.FeeSetting) FeeSettingsByFeeType;
     mapping(address => bool) ApprovedVaultOperators;
-    mapping(string => IAccountsStrategy.NetworkInfo) NetworkConnections;
+    mapping(string => NetworkInfo) NetworkConnections;
+    address uniswapRouter;
+    address uniswapFactory;
+    RebalanceParams rebalanceParams;
+  }
+
+  struct NetworkInfo {
+    uint256 chainId;
+    address router;
+    address axelarGateway;
+    address gasReceiver;
+    address refundAddr;
   }
 
   /*////////////////////////////////////////////////
