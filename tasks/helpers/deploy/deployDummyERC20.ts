@@ -1,9 +1,6 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {DummyERC20__factory, DummyERC20} from "typechain-types";
-
-export async function mint(token: DummyERC20, to: string, amt: number) {
-  await token.mint(to, amt);
-}
+import {wait} from "test/utils";
+import {DummyERC20__factory} from "typechain-types";
 
 export async function deployDummyERC20(
   deployer: SignerWithAddress,
@@ -18,7 +15,7 @@ export async function deployDummyERC20(
 
   if (recipients && amounts) {
     for (var i in recipients) {
-      await mint(token, recipients[i], amounts[i]);
+      await wait(token.mint(recipients[i], amounts[i]));
     }
   }
 

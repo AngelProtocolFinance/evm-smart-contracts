@@ -8,6 +8,7 @@ import {
   DEFAULT_CHARITY_ENDOWMENT,
   DEFAULT_PERMISSIONS_STRUCT,
   DEFAULT_REGISTRAR_CONFIG,
+  wait,
 } from "test/utils";
 import {
   AccountsSwapRouter,
@@ -25,6 +26,7 @@ import {
 } from "typechain-types";
 import {VaultType, genWallet, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
+import {time} from "@nomicfoundation/hardhat-network-helpers";
 
 use(smock.matchers);
 
@@ -73,7 +75,7 @@ describe("AccountsSwapRouter", function () {
       ...DEFAULT_ACCOUNTS_CONFIG,
       registrarContract: registrar.address,
     };
-    await state.setConfig(config);
+    await wait(state.setConfig(config));
 
     facet = AccountsSwapRouter__factory.connect(state.address, owner);
   });
@@ -269,7 +271,7 @@ describe("AccountsSwapRouter", function () {
             addr: user.address,
           },
         };
-        await state.setEndowmentDetails(ACCOUNT_ID, endow);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, endow));
         await expect(
           facet
             .connect(user)
@@ -292,7 +294,7 @@ describe("AccountsSwapRouter", function () {
             addr: user.address,
           },
         };
-        await state.setEndowmentDetails(ACCOUNT_ID, endow);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, endow));
 
         await expect(
           facet
@@ -312,10 +314,10 @@ describe("AccountsSwapRouter", function () {
           ...DEFAULT_CHARITY_ENDOWMENT,
           owner: owner.address,
         };
-        await state.setEndowmentDetails(ACCOUNT_ID, endow);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, endow));
         registrar.queryTokenPriceFeed.returns(ethers.constants.AddressZero);
         let token = genWallet().address;
-        await state.setEndowmentTokenBalance(ACCOUNT_ID, token, 100, 100);
+        await wait(state.setEndowmentTokenBalance(ACCOUNT_ID, token, 100, 100));
 
         await expect(
           facet.swapToken(ACCOUNT_ID, VaultType.LIQUID, token, 1, genWallet().address, 1)
@@ -337,9 +339,9 @@ describe("AccountsSwapRouter", function () {
           ...DEFAULT_CHARITY_ENDOWMENT,
           owner: owner.address,
         };
-        await state.setEndowmentDetails(ACCOUNT_ID, endow);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, endow));
         registrar.queryTokenPriceFeed.returns(chainlink.address);
-        await state.setEndowmentTokenBalance(ACCOUNT_ID, token.address, 100, 100);
+        await wait(state.setEndowmentTokenBalance(ACCOUNT_ID, token.address, 100, 100));
 
         await expect(
           facet.swapToken(ACCOUNT_ID, VaultType.LIQUID, token.address, 1, genWallet().address, 1)
@@ -366,13 +368,13 @@ describe("AccountsSwapRouter", function () {
         };
         token1 = await deployDummyERC20(owner);
         token2 = await deployDummyERC20(owner);
-        await state.setEndowmentDetails(ACCOUNT_ID, endow);
-        await state.setEndowmentTokenBalance(ACCOUNT_ID, token1.address, AMT1, 0);
+        await wait(state.setEndowmentDetails(ACCOUNT_ID, endow));
+        await wait(state.setEndowmentTokenBalance(ACCOUNT_ID, token1.address, AMT1, 0));
       });
 
       describe("revert cases", async function () {
         beforeEach(async function () {
-          await token1.mint(facet.address, AMT1);
+          await wait(token1.mint(facet.address, AMT1));
         });
         it("reverts if the price feed response is invalid", async function () {
           const ANSWER = 0;
@@ -384,7 +386,8 @@ describe("AccountsSwapRouter", function () {
 
         it("reverts if the factory cant find a pool", async function () {
           const ANSWER = 1;
-          chainlink.latestRoundData.returns([0, ANSWER, 0, 0, 0]);
+          let currTime = await time.latest();
+          chainlink.latestRoundData.returns([0, ANSWER, 0, currTime, 0]);
           await expect(
             facet.swapToken(ACCOUNT_ID, VaultType.LOCKED, token1.address, AMT1, token2.address, 1)
           ).to.be.revertedWith("No pool found to swap");
@@ -392,9 +395,10 @@ describe("AccountsSwapRouter", function () {
 
         it("reverts if output is less than expected", async function () {
           const ANSWER = 1;
-          chainlink.latestRoundData.returns([0, ANSWER, 0, 0, 0]);
-          await uniswapFactory.setPool(genWallet().address);
-          await uniswapRouter.setOutputValue(0);
+          let currTime = await time.latest();
+          chainlink.latestRoundData.returns([0, ANSWER, 0, currTime, 0]);
+          await wait(uniswapFactory.setPool(genWallet().address));
+          await wait(uniswapRouter.setOutputValue(0));
           await expect(
             facet.swapToken(ACCOUNT_ID, VaultType.LOCKED, token1.address, AMT1, token2.address, 1)
           ).to.be.revertedWith("Output funds less than the minimum output");
@@ -406,28 +410,22 @@ describe("AccountsSwapRouter", function () {
         const AMT2 = 1000;
         beforeEach(async function () {
           const ANSWER = 1;
-          chainlink.latestRoundData.returns([0, ANSWER, 0, 0, 0]);
-          await uniswapFactory.setPool(genWallet().address);
-          await uniswapRouter.setOutputValue(AMT2);
+          let currTime = await time.latest();
+          chainlink.latestRoundData.returns([0, ANSWER, 0, currTime, 0]);
+          await wait(uniswapFactory.setPool(genWallet().address));
+          await wait(uniswapRouter.setOutputValue(AMT2));
         });
 
         it("swaps and updates the locked balance successfully", async function () {
-          await token1.mint(facet.address, AMT1);
-          await token2.mint(uniswapRouter.address, AMT2);
-          await uniswapRouter.setOutputValue(AMT2);
-          await state.setEndowmentTokenBalance(ACCOUNT_ID, token1.address, AMT1, 0);
-          expect(
-            await facet.swapToken(
-              ACCOUNT_ID,
-              VaultType.LOCKED,
-              token1.address,
-              AMT1,
-              token2.address,
-              1
-            )
+          await wait(token1.mint(facet.address, AMT1));
+          await wait(token2.mint(uniswapRouter.address, AMT2));
+          await wait(uniswapRouter.setOutputValue(AMT2));
+          await wait(state.setEndowmentTokenBalance(ACCOUNT_ID, token1.address, AMT1, 0));
+          await expect(
+            facet.swapToken(ACCOUNT_ID, VaultType.LOCKED, token1.address, AMT1, token2.address, 1)
           )
             .to.emit(facet, "TokenSwapped")
-            .withArgs([ACCOUNT_ID, VaultType.LOCKED, token1.address, AMT1, token2.address, AMT2]);
+            .withArgs(ACCOUNT_ID, VaultType.LOCKED, token1.address, AMT1, token2.address, AMT2);
 
           const [lockBal_token1, liqBal_token1] = await state.getEndowmentTokenBalance(
             ACCOUNT_ID,
@@ -444,21 +442,14 @@ describe("AccountsSwapRouter", function () {
         });
 
         it("swaps and updates the liquid balance successfully", async function () {
-          await token1.mint(facet.address, AMT1);
-          await token2.mint(uniswapRouter.address, AMT2);
-          await state.setEndowmentTokenBalance(ACCOUNT_ID, token1.address, 0, AMT1);
-          expect(
-            await facet.swapToken(
-              ACCOUNT_ID,
-              VaultType.LIQUID,
-              token1.address,
-              AMT1,
-              token2.address,
-              1
-            )
+          await wait(token1.mint(facet.address, AMT1));
+          await wait(token2.mint(uniswapRouter.address, AMT2));
+          await wait(state.setEndowmentTokenBalance(ACCOUNT_ID, token1.address, 0, AMT1));
+          await expect(
+            facet.swapToken(ACCOUNT_ID, VaultType.LIQUID, token1.address, AMT1, token2.address, 1)
           )
             .to.emit(facet, "TokenSwapped")
-            .withArgs([ACCOUNT_ID, VaultType.LOCKED, token1.address, AMT1, token2.address, AMT2]);
+            .withArgs(ACCOUNT_ID, VaultType.LIQUID, token1.address, AMT1, token2.address, AMT2);
 
           const [lockBal_token1, liqBal_token1] = await state.getEndowmentTokenBalance(
             ACCOUNT_ID,

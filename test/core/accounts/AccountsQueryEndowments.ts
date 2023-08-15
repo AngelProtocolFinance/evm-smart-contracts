@@ -2,7 +2,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import {BigNumber} from "ethers";
 import hre from "hardhat";
-import {DEFAULT_ACCOUNTS_CONFIG, DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
+import {DEFAULT_ACCOUNTS_CONFIG, DEFAULT_CHARITY_ENDOWMENT, wait} from "test/utils";
 import {
   AccountsQueryEndowments,
   AccountsQueryEndowments__factory,
@@ -52,8 +52,8 @@ describe("AccountsQueryEndowments", function () {
     state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
     facet = AccountsQueryEndowments__factory.connect(state.address, owner);
 
-    await state.setEndowmentDetails(accountId, DEFAULT_CHARITY_ENDOWMENT);
-    await state.setEndowmentTokenBalance(accountId, tokenAddress, lockedBal, liquidBal);
+    await wait(state.setEndowmentDetails(accountId, DEFAULT_CHARITY_ENDOWMENT));
+    await wait(state.setEndowmentTokenBalance(accountId, tokenAddress, lockedBal, liquidBal));
 
     config = {
       ...DEFAULT_ACCOUNTS_CONFIG,
@@ -61,12 +61,14 @@ describe("AccountsQueryEndowments", function () {
       nextAccountId: accountId + 1, // endowment was created in previous step
     };
 
-    await state.setConfig(config);
+    await wait(state.setConfig(config));
 
-    await state.setClosingEndowmentState(
-      accountId,
-      endowState.closingEndowment,
-      endowState.closingBeneficiary
+    await wait(
+      state.setClosingEndowmentState(
+        accountId,
+        endowState.closingEndowment,
+        endowState.closingBeneficiary
+      )
     );
   });
 

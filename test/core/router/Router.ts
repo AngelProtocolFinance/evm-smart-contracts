@@ -1,13 +1,12 @@
+import {FakeContract, smock} from "@defi-wonderland/smock";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {FakeContract, MockContract, smock} from "@defi-wonderland/smock";
 import {expect, use} from "chai";
 import hre from "hardhat";
 import {
-  packActionData,
-  DEFAULT_NETWORK_INFO,
   DEFAULT_ACTION_DATA,
-  DEFAULT_STRATEGY_PARAMS,
+  DEFAULT_NETWORK_INFO,
   DEFAULT_STRATEGY_SELECTOR,
+  packActionData,
 } from "test/utils";
 import {
   DummyERC20,
@@ -25,7 +24,7 @@ import {
   Router__factory,
 } from "typechain-types";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
-import {getSigners, StrategyApprovalState, VaultActionStatus} from "utils";
+import {StrategyApprovalState, VaultActionStatus, getSigners} from "utils";
 
 use(smock.matchers);
 
@@ -251,7 +250,7 @@ describe("Router", function () {
         actionData.selector = liquidVault.interface.getSighash("deposit");
         actionData.token = token.address;
         actionData.accountIds = [1, 2, 3];
-        let packedData = await packActionData(actionData);
+        let packedData = await packActionData(actionData, hre);
         await expect(
           router.executeWithToken(
             ethers.utils.formatBytes32String("true"),
@@ -272,7 +271,7 @@ describe("Router", function () {
         let actionData = getDefaultActionData();
         actionData.token = token.address;
         actionData.selector = liquidVault.interface.getSighash("redeem");
-        let packedData = await packActionData(actionData);
+        let packedData = await packActionData(actionData, hre);
         await expect(
           router.executeWithToken(
             ethers.utils.formatBytes32String("true"),
@@ -293,7 +292,7 @@ describe("Router", function () {
         let actionData = getDefaultActionData();
         actionData.selector = liquidVault.interface.getSighash("deposit");
         actionData.token = token.address;
-        let packedData = await packActionData(actionData);
+        let packedData = await packActionData(actionData, hre);
         await expect(
           router.executeWithToken(
             ethers.utils.formatBytes32String("true"),
@@ -315,7 +314,7 @@ describe("Router", function () {
         actionData.token = token.address;
         actionData.liqAmt = 0;
         actionData.lockAmt = 0;
-        let packedData = await packActionData(actionData);
+        let packedData = await packActionData(actionData, hre);
         await expect(
           router.executeWithToken(
             ethers.utils.formatBytes32String("true"),
@@ -335,7 +334,7 @@ describe("Router", function () {
         actionData.selector = liquidVault.interface.getSighash("deposit");
         actionData.token = token.address;
         registrar.isTokenAccepted.whenCalledWith(token.address).returns(false);
-        let packedData = await packActionData(actionData);
+        let packedData = await packActionData(actionData, hre);
         await expect(
           router.executeWithToken(
             ethers.utils.formatBytes32String("true"),
@@ -356,7 +355,7 @@ describe("Router", function () {
         let actionData = getDefaultActionData();
         actionData.selector = liquidVault.interface.getSighash("deposit");
         actionData.token = token.address;
-        let packedData = await packActionData(actionData);
+        let packedData = await packActionData(actionData, hre);
         await expect(
           router.executeWithToken(
             ethers.utils.formatBytes32String("true"),
@@ -378,7 +377,7 @@ describe("Router", function () {
         actionData.selector = liquidVault.interface.getSighash("deposit");
         actionData.token = token.address;
         actionData.selector = liquidVault.interface.getSighash("redeem");
-        let packedData = await packActionData(actionData);
+        let packedData = await packActionData(actionData, hre);
         await expect(
           router.execute(
             ethers.utils.formatBytes32String("true"),
@@ -448,14 +447,14 @@ describe("Router", function () {
         actionData.selector = liquidVault.interface.getSighash("deposit");
         actionData.token = token.address;
         actionData.accountIds = [1, 2, 3];
-        let packedData = await packActionData(actionData);
+        let packedData = await packActionData(actionData, hre);
         await expect(
           router.executeWithToken(
             ethers.utils.formatBytes32String("true"),
             originatingChain,
             accountsContract,
             packedData,
-            "TKN",
+            await token.symbol(),
             TOTAL_AMT
           )
         )
@@ -468,14 +467,14 @@ describe("Router", function () {
         let actionData = getDefaultActionData();
         actionData.token = token.address;
         actionData.selector = liquidVault.interface.getSighash("redeem");
-        let packedData = await packActionData(actionData);
+        let packedData = await packActionData(actionData, hre);
         await expect(
           await router.executeWithToken(
             ethers.utils.formatBytes32String("true"),
             originatingChain,
             accountsContract,
             packedData,
-            "TKN",
+            await token.symbol(),
             TOTAL_AMT
           )
         )
@@ -488,14 +487,14 @@ describe("Router", function () {
         let actionData = getDefaultActionData();
         actionData.selector = liquidVault.interface.getSighash("deposit");
         actionData.token = token.address;
-        let packedData = await packActionData(actionData);
+        let packedData = await packActionData(actionData, hre);
         await expect(
           router.executeWithToken(
             ethers.utils.formatBytes32String("true"),
             originatingChain,
             accountsContract,
             packedData,
-            "TKN",
+            await token.symbol(),
             TOTAL_AMT - 1
           )
         )
@@ -510,14 +509,14 @@ describe("Router", function () {
         actionData.token = token.address;
         actionData.liqAmt = 0;
         actionData.lockAmt = 0;
-        let packedData = await packActionData(actionData);
+        let packedData = await packActionData(actionData, hre);
         await expect(
           router.executeWithToken(
             ethers.utils.formatBytes32String("true"),
             originatingChain,
             accountsContract,
             packedData,
-            "TKN",
+            await await token.symbol(),
             0
           )
         )
@@ -530,14 +529,14 @@ describe("Router", function () {
         actionData.selector = liquidVault.interface.getSighash("deposit");
         actionData.token = token.address;
         registrar.isTokenAccepted.whenCalledWith(token.address).returns(false);
-        let packedData = await packActionData(actionData);
+        let packedData = await packActionData(actionData, hre);
         await expect(
           router.executeWithToken(
             ethers.utils.formatBytes32String("true"),
             originatingChain,
             accountsContract,
             packedData,
-            "TKN",
+            await token.symbol(),
             TOTAL_AMT
           )
         )
@@ -550,14 +549,14 @@ describe("Router", function () {
         let actionData = getDefaultActionData();
         actionData.selector = liquidVault.interface.getSighash("deposit");
         actionData.token = token.address;
-        let packedData = await packActionData(actionData);
+        let packedData = await packActionData(actionData, hre);
         await expect(
           router.executeWithToken(
             ethers.utils.formatBytes32String("true"),
             originatingChain,
             accountsContract,
             packedData,
-            "TKN",
+            await token.symbol(),
             TOTAL_AMT
           )
         )
@@ -570,7 +569,7 @@ describe("Router", function () {
         let actionData = getDefaultActionData();
         actionData.token = token.address;
         actionData.selector = liquidVault.interface.getSighash("redeem");
-        let packedData = await packActionData(actionData);
+        let packedData = await packActionData(actionData, hre);
         await expect(
           router.execute(
             ethers.utils.formatBytes32String("true"),
@@ -654,7 +653,7 @@ describe("Router", function () {
       let actionData = getDefaultActionData();
       actionData.selector = liquidVault.interface.getSighash("deposit");
       actionData.token = token.address;
-      let packedData = await packActionData(actionData);
+      let packedData = await packActionData(actionData, hre);
       expect(
         await router.executeWithToken(
           ethers.utils.formatBytes32String("true"),
@@ -673,7 +672,7 @@ describe("Router", function () {
       let actionData = getDefaultActionData();
       actionData.selector = liquidVault.interface.getSighash("redeem");
       actionData.token = token.address;
-      let packedData = await packActionData(actionData);
+      let packedData = await packActionData(actionData, hre);
       lockedVault.redeem.returns({
         token: token.address,
         amount: LOCK_AMT,
@@ -700,7 +699,7 @@ describe("Router", function () {
       let actionData = getDefaultActionData();
       actionData.selector = liquidVault.interface.getSighash("redeemAll");
       actionData.token = token.address;
-      let packedData = await packActionData(actionData);
+      let packedData = await packActionData(actionData, hre);
       lockedVault.redeemAll.returns({
         token: token.address,
         amount: LOCK_AMT,
@@ -727,7 +726,7 @@ describe("Router", function () {
       let actionData = getDefaultActionData();
       actionData.selector = liquidVault.interface.getSighash("harvest");
       actionData.token = token.address;
-      let packedData = await packActionData(actionData);
+      let packedData = await packActionData(actionData, hre);
       expect(
         await router.execute(
           ethers.utils.formatBytes32String("true"),
@@ -811,13 +810,13 @@ describe("Router", function () {
       let actionData = getDefaultActionData();
       actionData.token = token.address;
       actionData.selector = liquidVault.interface.getSighash("deposit");
-      let packedData = packActionData(actionData);
+      let packedData = packActionData(actionData, hre);
       await router.executeWithToken(
         ethers.utils.formatBytes32String("true"),
         originatingChain,
         accountsContract,
         packedData,
-        "TKN",
+        await token.symbol(),
         TOTAL_AMT
       );
       expect(lockedVault.deposit).to.have.been.calledWith(1, token.address, LOCK_AMT);
@@ -896,7 +895,7 @@ describe("Router", function () {
       let actionData = getDefaultActionData();
       actionData.selector = liquidVault.interface.getSighash("redeem");
       actionData.token = token.address;
-      let packedData = packActionData(actionData);
+      let packedData = packActionData(actionData, hre);
       lockedVault.redeem.returns({
         token: token.address,
         amount: LOCK_AMT,
@@ -919,16 +918,19 @@ describe("Router", function () {
       expect(liquidVault.redeem).to.have.been.calledWith(1, LIQ_AMT);
       expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT - GAS_COST);
       expect(token.approve).to.have.been.calledWith(gasService.address, GAS_COST);
-      let expectedPayload = packActionData({
-        destinationChain: originatingChain,
-        strategyId: DEFAULT_STRATEGY_SELECTOR,
-        selector: liquidVault.interface.getSighash("redeem"),
-        accountIds: [1],
-        token: token.address,
-        lockAmt: LOCK_AMT - 2, // less weighted gas
-        liqAmt: LIQ_AMT - 3, // less weighted gas
-        status: VaultActionStatus.SUCCESS,
-      });
+      let expectedPayload = packActionData(
+        {
+          destinationChain: originatingChain,
+          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          selector: liquidVault.interface.getSighash("redeem"),
+          accountIds: [1],
+          token: token.address,
+          lockAmt: LOCK_AMT - 2, // less weighted gas
+          liqAmt: LIQ_AMT - 3, // less weighted gas
+          status: VaultActionStatus.SUCCESS,
+        },
+        hre
+      );
       expect(gasService.payGasForContractCallWithToken).to.have.been.calledWith(
         router.address,
         originatingChain,
@@ -953,7 +955,7 @@ describe("Router", function () {
       let actionData = getDefaultActionData();
       actionData.selector = liquidVault.interface.getSighash("redeem");
       actionData.token = token.address;
-      let packedData = packActionData(actionData);
+      let packedData = packActionData(actionData, hre);
       lockedVault.redeem.returns({
         token: token.address,
         amount: LOCK_AMT,
@@ -1047,7 +1049,7 @@ describe("Router", function () {
       let actionData = getDefaultActionData();
       actionData.token = token.address;
       actionData.selector = liquidVault.interface.getSighash("redeemAll");
-      let packedData = packActionData(actionData);
+      let packedData = packActionData(actionData, hre);
       lockedVault.redeemAll.returns({
         token: token.address,
         amount: LOCK_AMT,
@@ -1070,16 +1072,19 @@ describe("Router", function () {
       expect(liquidVault.redeemAll).to.have.been.calledWith(1);
       expect(token.approve).to.have.been.calledWith(gateway.address, TOTAL_AMT - GAS_COST);
       expect(token.approve).to.have.been.calledWith(gasService.address, GAS_COST);
-      let expectedPayload = packActionData({
-        destinationChain: originatingChain,
-        strategyId: DEFAULT_STRATEGY_SELECTOR,
-        selector: liquidVault.interface.getSighash("redeemAll"),
-        accountIds: [1],
-        token: token.address,
-        lockAmt: LOCK_AMT - 2, // less weighted gas
-        liqAmt: LIQ_AMT - 3, // less weighted gas
-        status: VaultActionStatus.POSITION_EXITED,
-      });
+      let expectedPayload = packActionData(
+        {
+          destinationChain: originatingChain,
+          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          selector: liquidVault.interface.getSighash("redeemAll"),
+          accountIds: [1],
+          token: token.address,
+          lockAmt: LOCK_AMT - 2, // less weighted gas
+          liqAmt: LIQ_AMT - 3, // less weighted gas
+          status: VaultActionStatus.POSITION_EXITED,
+        },
+        hre
+      );
       expect(gasService.payGasForContractCallWithToken).to.have.been.calledWith(
         router.address,
         originatingChain,
@@ -1104,7 +1109,7 @@ describe("Router", function () {
       let actionData = getDefaultActionData();
       actionData.token = token.address;
       actionData.selector = liquidVault.interface.getSighash("redeemAll");
-      let packedData = packActionData(actionData);
+      let packedData = packActionData(actionData, hre);
       lockedVault.redeemAll.returns({
         token: token.address,
         amount: LOCK_AMT,

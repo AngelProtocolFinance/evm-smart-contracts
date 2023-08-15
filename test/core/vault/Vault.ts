@@ -1,6 +1,5 @@
 import {expect} from "chai";
 import {BigNumber} from "ethers";
-import {ethers} from "hardhat";
 import hre from "hardhat";
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {StrategyApprovalState, getSigners} from "utils";
@@ -12,6 +11,7 @@ import {
   DEFAULT_VAULT_NAME,
   DEFAULT_VAULT_SYMBOL,
   DEFAULT_NETWORK,
+  wait,
 } from "test/utils";
 import {
   APVault_V1,
@@ -23,6 +23,8 @@ import {
 } from "typechain-types";
 
 describe("Vault", function () {
+  const {ethers} = hre;
+
   let owner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
   let user: SignerWithAddress;
@@ -190,7 +192,7 @@ describe("Vault", function () {
         admin: owner.address,
       });
       registrar = await deployLocalRegistrarAsProxy(owner, admin);
-      await registrar.setVaultOperatorApproved(owner.address, true);
+      await wait(registrar.setVaultOperatorApproved(owner.address, true));
     });
     beforeEach(async function () {
       vault = await deployVault({
@@ -204,32 +206,36 @@ describe("Vault", function () {
     });
 
     it("reverts if the operator isn't approved as an operator, sibling vault, or approved router", async function () {
-      await registrar.setVaultOperatorApproved(owner.address, false);
-      await registrar.setStrategyParams(
-        DEFAULT_STRATEGY_SELECTOR,
-        DEFAULT_NETWORK,
-        user.address,
-        vault.address,
-        StrategyApprovalState.APPROVED
+      await wait(registrar.setVaultOperatorApproved(owner.address, false));
+      await wait(
+        registrar.setStrategyParams(
+          DEFAULT_STRATEGY_SELECTOR,
+          DEFAULT_NETWORK,
+          user.address,
+          vault.address,
+          StrategyApprovalState.APPROVED
+        )
       );
-      await registrar.setAngelProtocolParams({
-        routerAddr: user.address,
-        refundAddr: collector.address,
-      });
+      await wait(
+        registrar.setAngelProtocolParams({
+          routerAddr: user.address,
+          refundAddr: collector.address,
+        })
+      );
       await expect(vault.deposit(0, baseToken.address, 1)).to.be.revertedWithCustomError(
         vault,
         "OnlyApproved"
       );
-      await registrar.setVaultOperatorApproved(owner.address, true);
+      await wait(registrar.setVaultOperatorApproved(owner.address, true));
     });
 
     it("reverts if the strategy is paused", async function () {
-      await strategy.pause();
+      await wait(strategy.pause());
       await expect(vault.deposit(0, baseToken.address, 1)).to.be.revertedWithCustomError(
         vault,
         "OnlyNotPaused"
       );
-      await strategy.unpause();
+      await wait(strategy.unpause());
     });
 
     it("reverts if the token provided isn't the base token", async function () {
@@ -240,20 +246,20 @@ describe("Vault", function () {
     });
 
     it("reverts if the baseToken approval fails", async function () {
-      await baseToken.setApproveAllowed(false);
-      await baseToken.mint(vault.address, 1);
+      await wait(baseToken.setApproveAllowed(false));
+      await wait(baseToken.mint(vault.address, 1));
       await expect(vault.deposit(0, baseToken.address, 1)).to.be.revertedWithCustomError(
         vault,
         "ApproveFailed"
       );
-      await baseToken.setApproveAllowed(true);
+      await wait(baseToken.setApproveAllowed(true));
     });
 
     it("successfully completes the deposit", async function () {
-      await baseToken.mint(vault.address, 1);
-      await yieldToken.mint(strategy.address, 1);
-      await strategy.setDummyAmt(1);
-      expect(await vault.deposit(0, baseToken.address, 1));
+      await wait(baseToken.mint(vault.address, 1));
+      await wait(yieldToken.mint(strategy.address, 1));
+      await wait(strategy.setDummyAmt(1));
+      await expect(vault.deposit(0, baseToken.address, 1)).to.not.be.reverted;
       expect(await yieldToken.balanceOf(vault.address)).to.equal(1);
       expect(await baseToken.balanceOf(strategy.address)).to.equal(1);
       expect(await vault.balanceOf(0)).to.equal(1);
@@ -262,19 +268,19 @@ describe("Vault", function () {
     });
 
     it("successfully adds to the position after subsequent deposits", async function () {
-      await baseToken.mint(vault.address, 10);
-      await yieldToken.mint(strategy.address, 10);
-      await strategy.setDummyAmt(5);
+      await wait(baseToken.mint(vault.address, 10));
+      await wait(yieldToken.mint(strategy.address, 10));
+      await wait(strategy.setDummyAmt(5));
       expect(await vault.deposit(0, baseToken.address, 5));
       expect(await vault.deposit(0, baseToken.address, 5));
     });
 
     it("allows multiple accounts to deposit and tracks them separately", async function () {
-      await baseToken.mint(vault.address, 1000);
-      await yieldToken.mint(strategy.address, 1000);
-      await strategy.setDummyAmt(500);
+      await wait(baseToken.mint(vault.address, 1000));
+      await wait(yieldToken.mint(strategy.address, 1000));
+      await wait(strategy.setDummyAmt(500));
       await vault.deposit(0, baseToken.address, 500); // Acct. 0 gets 1:1
-      await strategy.setDummyAmt(250); // Acct. 1 gets 1:2
+      await wait(strategy.setDummyAmt(250)); // Acct. 1 gets 1:2
       await vault.deposit(1, baseToken.address, 500);
       let shares_0 = await vault.balanceOf(0);
       let shares_1 = await vault.balanceOf(1);
@@ -295,8 +301,8 @@ describe("Vault", function () {
     const PRECISION = BigNumber.from(10).pow(24);
     before(async function () {
       registrar = await deployLocalRegistrarAsProxy(owner, admin);
-      await registrar.setVaultOperatorApproved(owner.address, true);
-      await registrar.setFeeSettingsByFeesType(0, TAX_RATE, collector.address); // establish tax collector
+      await wait(registrar.setVaultOperatorApproved(owner.address, true));
+      await wait(registrar.setFeeSettingsByFeesType(0, TAX_RATE, collector.address)); // establish tax collector
     });
     beforeEach(async function () {
       baseToken = await deployDummyERC20(owner);
@@ -314,49 +320,49 @@ describe("Vault", function () {
         strategy: strategy.address,
         registrar: registrar.address,
       });
-      await baseToken.mint(vault.address, DEPOSIT);
-      await yieldToken.mint(strategy.address, DEPOSIT * EX_RATE);
-      await strategy.setDummyAmt(DEPOSIT * EX_RATE);
+      await wait(baseToken.mint(vault.address, DEPOSIT));
+      await wait(yieldToken.mint(strategy.address, DEPOSIT * EX_RATE));
+      await wait(strategy.setDummyAmt(DEPOSIT * EX_RATE));
       await vault.deposit(0, baseToken.address, DEPOSIT);
     });
 
     it("reverts if the strategy is paused", async function () {
-      await strategy.pause();
+      await wait(strategy.pause());
       await expect(vault.redeem(0, DEPOSIT / 2)).to.be.revertedWithCustomError(
         vault,
         "OnlyNotPaused"
       );
-      await strategy.unpause();
+      await wait(strategy.unpause());
     });
 
     it("reverts if the caller isn't approved", async function () {
-      await registrar.setVaultOperatorApproved(owner.address, false);
+      await wait(registrar.setVaultOperatorApproved(owner.address, false));
       await expect(vault.redeem(0, DEPOSIT / 2)).to.be.revertedWithCustomError(
         vault,
         "OnlyApproved"
       );
-      await registrar.setVaultOperatorApproved(owner.address, true);
+      await wait(registrar.setVaultOperatorApproved(owner.address, true));
     });
 
     it("reverts if the baseToken transfer fails", async function () {
-      await baseToken.setTransferAllowed(false);
+      await wait(baseToken.setTransferAllowed(false));
       await expect(vault.redeem(0, DEPOSIT / 2)).to.be.revertedWithCustomError(
         vault,
         "TransferFailed"
       );
-      await baseToken.setTransferAllowed(true);
+      await wait(baseToken.setTransferAllowed(true));
     });
 
     it("reverts if the baseToken approve fails", async function () {
-      await baseToken.setApproveAllowed(false);
-      await strategy.setDummyAmt(DEPOSIT / 2);
+      await wait(baseToken.setApproveAllowed(false));
+      await wait(strategy.setDummyAmt(DEPOSIT / 2));
       await expect(vault.redeem(0, DEPOSIT / 2)).to.be.reverted;
-      await baseToken.setApproveAllowed(true);
+      await wait(baseToken.setApproveAllowed(true));
     });
 
     it("does not tax if the position hasn't earned yield", async function () {
       let shares = await vault.balanceOf(0);
-      await strategy.setDummyAmt(DEPOSIT / 2); // no yield
+      await wait(strategy.setDummyAmt(DEPOSIT / 2)); // no yield
       let collectorBal = await baseToken.balanceOf(collector.address);
       await vault.redeem(0, shares.div(2)); // Redeem half the position
       let newCollectorBal = await baseToken.balanceOf(collector.address);
@@ -366,7 +372,7 @@ describe("Vault", function () {
 
     it("taxes if the position is in the black", async function () {
       let shares = await vault.balanceOf(0);
-      await strategy.setDummyAmt(DEPOSIT); // 100% yield
+      await wait(strategy.setDummyAmt(DEPOSIT)); // 100% yield
       let collectorBal = await baseToken.balanceOf(collector.address);
       await vault.redeem(0, shares.div(2)); // Redeem half the position
       let newCollectorBal = await baseToken.balanceOf(collector.address);
@@ -378,7 +384,7 @@ describe("Vault", function () {
 
     it("updates the principles accordingly", async function () {
       let shares = await vault.balanceOf(0);
-      await strategy.setDummyAmt(DEPOSIT); // 100% yield
+      await wait(strategy.setDummyAmt(DEPOSIT)); // 100% yield
       await vault.redeem(0, shares.div(2)); // Redeem half the position
       let expectedPrinciple = DEPOSIT / 2;
       let principle = await vault.principleByAccountId(0);
@@ -388,7 +394,7 @@ describe("Vault", function () {
 
     it("calls redeemAll if the redemption value is gt or equal to the position", async function () {
       let shares = await vault.balanceOf(0);
-      await strategy.setDummyAmt(DEPOSIT); // 100% yield
+      await wait(strategy.setDummyAmt(DEPOSIT)); // 100% yield
       await vault.redeem(0, shares); // Redeem the whole position
       let principle = await vault.principleByAccountId(0);
       expect(principle.baseToken).to.equal(0); // we zero out princ. on full redemption
@@ -407,8 +413,8 @@ describe("Vault", function () {
     const TAX_RATE = 100; // bps
     before(async function () {
       registrar = await deployLocalRegistrarAsProxy(owner, admin);
-      await registrar.setVaultOperatorApproved(owner.address, true);
-      await registrar.setFeeSettingsByFeesType(0, TAX_RATE, collector.address); // establish tax collector
+      await wait(registrar.setVaultOperatorApproved(owner.address, true));
+      await wait(registrar.setFeeSettingsByFeesType(0, TAX_RATE, collector.address)); // establish tax collector
     });
     beforeEach(async function () {
       baseToken = await deployDummyERC20(owner);
@@ -426,26 +432,26 @@ describe("Vault", function () {
         strategy: strategy.address,
         registrar: registrar.address,
       });
-      await baseToken.mint(vault.address, DEPOSIT);
-      await yieldToken.mint(strategy.address, DEPOSIT * EX_RATE);
-      await strategy.setDummyAmt(DEPOSIT * EX_RATE);
+      await wait(baseToken.mint(vault.address, DEPOSIT));
+      await wait(yieldToken.mint(strategy.address, DEPOSIT * EX_RATE));
+      await wait(strategy.setDummyAmt(DEPOSIT * EX_RATE));
       await vault.deposit(0, baseToken.address, DEPOSIT);
     });
 
     it("reverts if the strategy is paused", async function () {
-      await strategy.pause();
+      await wait(strategy.pause());
       await expect(vault.redeemAll(0)).to.be.revertedWithCustomError(vault, "OnlyNotPaused");
-      await strategy.unpause();
+      await wait(strategy.unpause());
     });
 
     it("reverts if the caller isn't approved", async function () {
-      await registrar.setVaultOperatorApproved(owner.address, false);
+      await wait(registrar.setVaultOperatorApproved(owner.address, false));
       await expect(vault.redeemAll(0)).to.be.revertedWithCustomError(vault, "OnlyApproved");
-      await registrar.setVaultOperatorApproved(owner.address, true);
+      await wait(registrar.setVaultOperatorApproved(owner.address, true));
     });
 
     it("does not tax if the position hasn't earned yield", async function () {
-      await strategy.setDummyAmt(DEPOSIT); // no yield
+      await wait(strategy.setDummyAmt(DEPOSIT)); // no yield
       let collectorBal = await baseToken.balanceOf(collector.address);
       await vault.redeemAll(0);
       let newCollectorBal = await baseToken.balanceOf(collector.address);
@@ -454,8 +460,8 @@ describe("Vault", function () {
     });
 
     it("taxes if the position is in the black", async function () {
-      await strategy.setDummyAmt(DEPOSIT * 2); // 100% yield
-      await baseToken.mint(strategy.address, DEPOSIT); // add the yield to the strategy
+      await wait(strategy.setDummyAmt(DEPOSIT * 2)); // 100% yield
+      await wait(baseToken.mint(strategy.address, DEPOSIT)); // add the yield to the strategy
       let collectorBal = await baseToken.balanceOf(collector.address);
       await vault.redeemAll(0); // Redeem half the position
       let newCollectorBal = await baseToken.balanceOf(collector.address);
@@ -466,7 +472,7 @@ describe("Vault", function () {
     });
 
     it("updates the principles accordingly", async function () {
-      await strategy.setDummyAmt(DEPOSIT); // 100% yield
+      await wait(strategy.setDummyAmt(DEPOSIT)); // 100% yield
       await vault.redeemAll(0); // Redeem half the position
       let principle = await vault.principleByAccountId(0);
       expect(principle.baseToken).to.equal(0); // we zero out princ. on full redemption
@@ -485,8 +491,8 @@ describe("Vault", function () {
     const PRECISION = BigNumber.from(10).pow(24);
     before(async function () {
       registrar = await deployLocalRegistrarAsProxy(owner, admin);
-      await registrar.setVaultOperatorApproved(owner.address, true);
-      await registrar.setFeeSettingsByFeesType(1, TAX_RATE, collector.address); // harvest fee type, establish tax collector
+      await wait(registrar.setVaultOperatorApproved(owner.address, true));
+      await wait(registrar.setFeeSettingsByFeesType(1, TAX_RATE, collector.address)); // harvest fee type, establish tax collector
     });
 
     describe("For liquid vaults", async function () {
@@ -507,44 +513,44 @@ describe("Vault", function () {
           strategy: strategy.address,
           registrar: registrar.address,
         });
-        await baseToken.mint(vault.address, DEPOSIT);
-        await yieldToken.mint(strategy.address, DEPOSIT * EX_RATE);
-        await strategy.setDummyAmt(DEPOSIT * EX_RATE);
+        await wait(baseToken.mint(vault.address, DEPOSIT));
+        await wait(yieldToken.mint(strategy.address, DEPOSIT * EX_RATE));
+        await wait(strategy.setDummyAmt(DEPOSIT * EX_RATE));
         await vault.deposit(0, baseToken.address, DEPOSIT);
       });
 
       it("reverts if the strategy is paused", async function () {
-        await strategy.pause();
+        await wait(strategy.pause());
         await expect(vault.harvest([0])).to.be.revertedWithCustomError(vault, "OnlyNotPaused");
-        await strategy.unpause();
+        await wait(strategy.unpause());
       });
 
       it("reverts if the caller isn't approved", async function () {
-        await registrar.setVaultOperatorApproved(owner.address, false);
+        await wait(registrar.setVaultOperatorApproved(owner.address, false));
         await expect(vault.harvest([0])).to.be.revertedWithCustomError(vault, "OnlyApproved");
-        await registrar.setVaultOperatorApproved(owner.address, true);
+        await wait(registrar.setVaultOperatorApproved(owner.address, true));
       });
 
       it("does not harvest if the position hasn't earned yield", async function () {
-        await strategy.setDummyPreviewAmt(DEPOSIT);
+        await wait(strategy.setDummyPreviewAmt(DEPOSIT));
         let collectorBal = await baseToken.balanceOf(collector.address);
-        await vault.harvest([0]);
+        await expect(vault.harvest([0])).to.not.be.reverted;
         let newCollectorBal = await baseToken.balanceOf(collector.address);
         expect(newCollectorBal).to.equal(collectorBal);
       });
 
       it("reverts if the yieldToken approve to strategy fails", async function () {
-        await strategy.setDummyPreviewAmt(DEPOSIT * 2); // 100% yield
-        await yieldToken.setApproveAllowed(false);
+        await wait(strategy.setDummyPreviewAmt(DEPOSIT * 2)); // 100% yield
+        await wait(yieldToken.setApproveAllowed(false));
         await expect(vault.harvest([0])).to.be.reverted;
-        await baseToken.setTransferAllowed(true);
+        await wait(baseToken.setTransferAllowed(true));
       });
 
       it("reverts if the baseToken transfer fails", async function () {
-        await strategy.setDummyPreviewAmt(DEPOSIT * 2); // 100% yield
-        await baseToken.setTransferAllowed(false);
+        await wait(strategy.setDummyPreviewAmt(DEPOSIT * 2)); // 100% yield
+        await wait(baseToken.setTransferAllowed(false));
         await expect(vault.harvest([0])).to.be.revertedWithCustomError(vault, "TransferFailed");
-        await baseToken.setTransferAllowed(true);
+        await wait(baseToken.setTransferAllowed(true));
       });
 
       // @todo this test is a bit circular. We aren't effectively testing whether the vault is asking
@@ -552,10 +558,10 @@ describe("Vault", function () {
       // We need better hooks in the dummy strategy to at least emit events with the queries so we can test
       // what the vault is sending.
       it("appropriately harevests yield", async function () {
-        await strategy.setDummyPreviewAmt(DEPOSIT * 2); // 100% yield
+        await wait(strategy.setDummyPreviewAmt(DEPOSIT * 2)); // 100% yield
         let expectedHarvestAmt = (DEPOSIT * TAX_RATE) / 10000; // DEPOSIT = position in yield, apply tax
-        await strategy.setDummyAmt(expectedHarvestAmt);
-        await vault.harvest([0]);
+        await wait(strategy.setDummyAmt(expectedHarvestAmt));
+        await expect(vault.harvest([0])).to.not.be.reverted;
         let newCollectorBal = await baseToken.balanceOf(collector.address);
         expect(newCollectorBal).to.equal(expectedHarvestAmt);
       });
@@ -597,45 +603,49 @@ describe("Vault", function () {
           strategy: strategy.address,
           registrar: registrar.address,
         });
-        await baseToken.mint(lockedVault.address, DEPOSIT);
-        await yieldToken.mint(strategy.address, DEPOSIT * EX_RATE);
-        await yieldToken.mint(liquidStrategy.address, DEPOSIT * EX_RATE);
-        await strategy.setDummyAmt(DEPOSIT * EX_RATE);
-        await lockedVault.deposit(0, baseToken.address, DEPOSIT);
-        await registrar.setStrategyParams(
-          DEFAULT_STRATEGY_SELECTOR,
-          DEFAULT_NETWORK,
-          lockedVault.address,
-          liquidVault.address,
-          StrategyApprovalState.APPROVED
+        await wait(baseToken.mint(lockedVault.address, DEPOSIT));
+        await wait(yieldToken.mint(strategy.address, DEPOSIT * EX_RATE));
+        await wait(yieldToken.mint(liquidStrategy.address, DEPOSIT * EX_RATE));
+        await wait(strategy.setDummyAmt(DEPOSIT * EX_RATE));
+        await wait(lockedVault.deposit(0, baseToken.address, DEPOSIT));
+        await wait(
+          registrar.setStrategyParams(
+            DEFAULT_STRATEGY_SELECTOR,
+            DEFAULT_NETWORK,
+            lockedVault.address,
+            liquidVault.address,
+            StrategyApprovalState.APPROVED
+          )
         );
-        await registrar.setRebalanceParams({
-          rebalanceLiquidProfits: false,
-          lockedRebalanceToLiquid: REBAL_RATE,
-          interestDistribution: 0,
-          lockedPrincipleToLiquid: false,
-          principleDistribution: 0,
-          basis: BASIS,
-        });
+        await wait(
+          registrar.setRebalanceParams({
+            rebalanceLiquidProfits: false,
+            lockedRebalanceToLiquid: REBAL_RATE,
+            interestDistribution: 0,
+            lockedPrincipleToLiquid: false,
+            principleDistribution: 0,
+            basis: BASIS,
+          })
+        );
       });
 
       it("reverts if the baseToken transfer fails", async function () {
-        await strategy.setDummyPreviewAmt(DEPOSIT * 2); // 100% yield
-        await baseToken.setTransferAllowed(false);
+        await wait(strategy.setDummyPreviewAmt(DEPOSIT * 2)); // 100% yield
+        await wait(baseToken.setTransferAllowed(false));
         await expect(lockedVault.harvest([0])).to.be.revertedWithCustomError(
           lockedVault,
           "TransferFailed"
         );
-        await baseToken.setTransferAllowed(true);
+        await wait(baseToken.setTransferAllowed(true));
       });
 
       it("appropriately harvests yield and rebalances to the liquid sibling vault", async function () {
-        await strategy.setDummyPreviewAmt(DEPOSIT * 2); // 100% yield
+        await wait(strategy.setDummyPreviewAmt(DEPOSIT * 2)); // 100% yield
         let expectedTaxAmt = (DEPOSIT * TAX_RATE) / BASIS; // DEPOSIT = position in yield, apply tax
         let expectedRebalAmt = (DEPOSIT * REBAL_RATE) / BASIS;
-        await strategy.setDummyAmt(expectedTaxAmt + expectedRebalAmt);
-        await liquidStrategy.setDummyAmt(expectedRebalAmt * 2);
-        await lockedVault.harvest([0]);
+        await wait(strategy.setDummyAmt(expectedTaxAmt + expectedRebalAmt));
+        await wait(liquidStrategy.setDummyAmt(expectedRebalAmt * 2));
+        await expect(lockedVault.harvest([0])).to.not.be.reverted;
         let newCollectorBal = await baseToken.balanceOf(collector.address);
         expect(newCollectorBal).to.equal(expectedTaxAmt);
         let liquidPrinciple = await liquidVault.principleByAccountId(0);
