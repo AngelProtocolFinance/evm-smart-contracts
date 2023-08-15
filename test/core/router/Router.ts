@@ -54,7 +54,6 @@ describe("Router", function () {
 
     const ProxyContract = await ethers.getContractFactory("ProxyContract");
     const RouterInitData = RouterImpl.interface.encodeFunctionData("initialize", [
-      localChain,
       registrar,
     ]);
 
@@ -103,22 +102,22 @@ describe("Router", function () {
       gateway = await smock.fake<DummyGateway>(new DummyGateway__factory());
       gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
 
-      const APParams = {routerAddr: ethers.constants.AddressZero, refundAddr: collector.address};
       const networkParams = {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
         gasReceiver: gasService.address,
+        refundAddr: collector.address
       };
 
       gateway.validateContractCall.returns(true);
       gateway.validateContractCallAndMint.returns(true);
       registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
-      registrar.getAngelProtocolParams.returns(APParams);
       registrar.queryNetworkConnection.returns(networkParams);
       registrar.getAccountsContractAddressByChain
         .whenCalledWith(originatingChain)
         .returns(accountsContract);
       registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
+      registrar.thisChain.returns(localChain)
       router = await deployRouterAsProxy(registrar.address);
     });
 
@@ -218,24 +217,24 @@ describe("Router", function () {
       gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
       liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
 
-      const APParams = {routerAddr: ethers.constants.AddressZero, refundAddr: collector.address};
       const networkParams = {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
         gasReceiver: gasService.address,
+        refundAddr: collector.address
       };
 
       gateway.validateContractCall.returns(true);
       gateway.validateContractCallAndMint.returns(true);
       gateway.tokenAddresses.returns(token.address);
       registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
-      registrar.getAngelProtocolParams.returns(APParams);
       registrar.queryNetworkConnection.returns(networkParams);
       registrar.getAccountsContractAddressByChain
         .whenCalledWith(originatingChain)
         .returns(accountsContract);
       registrar.getAccountsContractAddressByChain.whenCalledWith(localChain).returns(owner.address);
       registrar.getGasByToken.whenCalledWith(token.address).returns(GAS_COST);
+      registrar.thisChain.returns(localChain)
       token.transfer.returns(true);
       token.transferFrom.returns(true);
       token.approve.returns(true);
@@ -414,18 +413,17 @@ describe("Router", function () {
         gasService = await smock.fake<DummyGasService>(new DummyGasService__factory());
         liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
 
-        const APParams = {routerAddr: ethers.constants.AddressZero, refundAddr: collector.address};
         const networkParams = {
           ...DEFAULT_NETWORK_INFO,
           axelarGateway: gateway.address,
           gasReceiver: gasService.address,
+          refundAddr: collector.address
         };
 
         gateway.validateContractCall.returns(true);
         gateway.validateContractCallAndMint.returns(true);
         gateway.tokenAddresses.returns(token.address);
         registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
-        registrar.getAngelProtocolParams.returns(APParams);
         registrar.queryNetworkConnection.returns(networkParams);
         registrar.getAccountsContractAddressByChain
           .whenCalledWith(originatingChain)
@@ -434,6 +432,7 @@ describe("Router", function () {
           .whenCalledWith(localChain)
           .returns(owner.address);
         registrar.getGasByToken.whenCalledWith(token.address).returns(GAS_COST);
+        registrar.thisChain.returns(localChain)
         token.transfer.returns(true);
         token.transferFrom.returns(true);
         token.approve.returns(false);
@@ -609,12 +608,13 @@ describe("Router", function () {
       lockedVault = await smock.fake<DummyVault>(new DummyVault__factory());
       liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
 
-      const APParams = {routerAddr: ethers.constants.AddressZero, refundAddr: collector.address};
       const networkParams = {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
         gasReceiver: gasService.address,
+        refundAddr: collector.address
       };
+
       const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
         approvalState: StrategyApprovalState.APPROVED,
         network: localChain,
@@ -632,7 +632,6 @@ describe("Router", function () {
       gateway.validateContractCallAndMint.returns(true);
       gateway.tokenAddresses.returns(token.address);
       registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
-      registrar.getAngelProtocolParams.returns(APParams);
       registrar.queryNetworkConnection.returns(networkParams);
       registrar.getAccountsContractAddressByChain
         .whenCalledWith(originatingChain)
@@ -641,6 +640,7 @@ describe("Router", function () {
       registrar.getGasByToken.whenCalledWith(token.address).returns(GAS_COST);
       registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
       registrar.getStrategyParamsById.returns(stratParams);
+      registrar.thisChain.returns(localChain)
       token.transfer.returns(true);
       token.transferFrom.returns(true);
       token.approve.returns(true);
@@ -767,12 +767,13 @@ describe("Router", function () {
       lockedVault = await smock.fake<DummyVault>(new DummyVault__factory());
       liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
 
-      const APParams = {routerAddr: ethers.constants.AddressZero, refundAddr: collector.address};
       const networkParams = {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
         gasReceiver: gasService.address,
+        refundAddr: collector.address
       };
+
       const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
         approvalState: StrategyApprovalState.APPROVED,
         network: localChain,
@@ -790,7 +791,6 @@ describe("Router", function () {
       gateway.validateContractCallAndMint.returns(true);
       gateway.tokenAddresses.returns(token.address);
       registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);
-      registrar.getAngelProtocolParams.returns(APParams);
       registrar.queryNetworkConnection.returns(networkParams);
       registrar.getAccountsContractAddressByChain
         .whenCalledWith(originatingChain)
@@ -851,12 +851,13 @@ describe("Router", function () {
       lockedVault = await smock.fake<DummyVault>(new DummyVault__factory());
       liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
 
-      const APParams = {routerAddr: ethers.constants.AddressZero, refundAddr: collector.address};
       const networkParams = {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
         gasReceiver: gasService.address,
+        refundAddr: collector.address
       };
+
       const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
         approvalState: StrategyApprovalState.APPROVED,
         network: localChain,
@@ -873,7 +874,6 @@ describe("Router", function () {
       gateway.validateContractCall.returns(true);
       gateway.validateContractCallAndMint.returns(true);
       gateway.tokenAddresses.returns(token.address);
-      registrar.getAngelProtocolParams.returns(APParams);
       registrar.queryNetworkConnection.returns(networkParams);
       registrar.getAccountsContractAddressByChain
         .whenCalledWith(originatingChain)
@@ -883,6 +883,7 @@ describe("Router", function () {
       registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
       registrar.getStrategyParamsById.returns(stratParams);
       registrar.getFeeSettingsByFeeType.returns({payoutAddress: collector.address, bps: 1});
+      registrar.thisChain.returns(localChain)
       token.transfer.returns(true);
       token.transferFrom.returns(true);
       token.approve.returns(true);
@@ -1005,12 +1006,13 @@ describe("Router", function () {
       lockedVault = await smock.fake<DummyVault>(new DummyVault__factory());
       liquidVault = await smock.fake<DummyVault>(new DummyVault__factory());
 
-      const APParams = {routerAddr: ethers.constants.AddressZero, refundAddr: collector.address};
       const networkParams = {
         ...DEFAULT_NETWORK_INFO,
         axelarGateway: gateway.address,
         gasReceiver: gasService.address,
+        refundAddr: collector.address
       };
+
       const stratParams: LocalRegistrarLib.StrategyParamsStruct = {
         approvalState: StrategyApprovalState.APPROVED,
         network: localChain,
@@ -1027,7 +1029,6 @@ describe("Router", function () {
       gateway.validateContractCall.returns(true);
       gateway.validateContractCallAndMint.returns(true);
       gateway.tokenAddresses.returns(token.address);
-      registrar.getAngelProtocolParams.returns(APParams);
       registrar.queryNetworkConnection.returns(networkParams);
       registrar.getAccountsContractAddressByChain
         .whenCalledWith(originatingChain)
@@ -1037,6 +1038,7 @@ describe("Router", function () {
       registrar.getStrategyApprovalState.returns(StrategyApprovalState.APPROVED);
       registrar.getStrategyParamsById.returns(stratParams);
       registrar.getFeeSettingsByFeeType.returns({payoutAddress: collector.address, bps: 1});
+      registrar.thisChain.returns(localChain)
       token.transfer.returns(true);
       token.transferFrom.returns(true);
       token.approve.returns(true);
