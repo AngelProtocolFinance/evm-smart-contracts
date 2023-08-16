@@ -11,6 +11,7 @@ import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsAllowance} from "../interfaces/IAccountsAllowance.sol";
 import {IterableMappingAddr} from "../../../lib/IterableMappingAddr.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IVault} from "../../vault/interfaces/IVault.sol";
 
 /**
  * @title AccountsAllowance
@@ -45,7 +46,7 @@ contract AccountsAllowance is
     require(!state.STATES[endowId].closingEndowment, "Endowment is closed");
     require(
       token != address(0) &&
-        IterableMappingAddr.get(state.STATES[endowId].balances.liquid, token) > 0,
+        IterableMappingAddr.get(state.balances[endowId][IVault.VaultType.LIQUID], token) > 0,
       "Invalid Token"
     );
 
@@ -90,12 +91,17 @@ contract AccountsAllowance is
       amountDelta = amount - spenderBal;
       // check if liquid balance is sufficient for any proposed increase to spender allocation
       require(
-        amountDelta <= IterableMappingAddr.get(state.STATES[endowId].balances.liquid, token),
+        amountDelta <=
+          IterableMappingAddr.get(state.balances[endowId][IVault.VaultType.LIQUID], token),
         "Insufficient liquid balance to allocate"
       );
       // increase total outstanding allocation & reduce liquid balance by AmountDelta
       state.ALLOWANCES[endowId][token].totalOutstanding += amountDelta;
-      IterableMappingAddr.decr(state.STATES[endowId].balances.liquid, token, amountDelta);
+      IterableMappingAddr.decr(
+        state.balances[endowId][IVault.VaultType.LIQUID],
+        token,
+        amountDelta
+      );
       emit AllowanceUpdated(endowId, spender, token, amount, amountDelta, 0);
     } else if (amount < spenderBal) {
       amountDelta = spenderBal - amount;
@@ -105,7 +111,11 @@ contract AccountsAllowance is
       );
       // decrease total outstanding allocation & increase liquid balance by AmountDelta
       state.ALLOWANCES[endowId][token].totalOutstanding -= amountDelta;
-      IterableMappingAddr.incr(state.STATES[endowId].balances.liquid, token, amountDelta);
+      IterableMappingAddr.incr(
+        state.balances[endowId][IVault.VaultType.LIQUID],
+        token,
+        amountDelta
+      );
       emit AllowanceUpdated(endowId, spender, token, amount, 0, amountDelta);
     } else {
       // equal amount and spender balance

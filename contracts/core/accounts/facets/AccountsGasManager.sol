@@ -59,9 +59,9 @@ contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager, Iterab
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     uint256 funds = IGasFwd(state.ENDOWMENTS[id].gasFwd).sweep(token);
     if (vault == IVault.VaultType.LOCKED) {
-      IterableMappingAddr.incr(state.STATES[id].balances.locked, token, funds);
+      IterableMappingAddr.incr(state.balances[id][IVault.VaultType.LOCKED], token, funds);
     } else {
-      IterableMappingAddr.incr(state.STATES[id].balances.liquid, token, funds);
+      IterableMappingAddr.incr(state.balances[id][IVault.VaultType.LIQUID], token, funds);
     }
     return funds;
   }
@@ -77,17 +77,17 @@ contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager, Iterab
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     uint256 balance;
     if (vault == IVault.VaultType.LOCKED) {
-      balance = IterableMappingAddr.get(state.STATES[id].balances.locked, token);
+      balance = IterableMappingAddr.get(state.balances[id][IVault.VaultType.LOCKED], token);
       if (balance < amount) {
         revert InsufficientFunds();
       }
-      IterableMappingAddr.decr(state.STATES[id].balances.locked, token, amount);
+      IterableMappingAddr.decr(state.balances[id][IVault.VaultType.LOCKED], token, amount);
     } else {
-      balance = IterableMappingAddr.get(state.STATES[id].balances.liquid, token);
+      balance = IterableMappingAddr.get(state.balances[id][IVault.VaultType.LIQUID], token);
       if (balance < amount) {
         revert InsufficientFunds();
       }
-      IterableMappingAddr.decr(state.STATES[id].balances.liquid, token, amount);
+      IterableMappingAddr.decr(state.balances[id][IVault.VaultType.LIQUID], token, amount);
     }
 
     IERC20(token).safeTransfer(state.ENDOWMENTS[id].gasFwd, amount);

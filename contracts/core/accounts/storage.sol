@@ -4,6 +4,7 @@ pragma solidity ^0.8.16;
 import {LibAccounts} from "./lib/LibAccounts.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 import {IterableMappingAddr} from "../../lib/IterableMappingAddr.sol";
+import {IVault} from "../vault/interfaces/IVault.sol";
 
 library AccountStorage {
   struct Config {
@@ -44,7 +45,6 @@ library AccountStorage {
   }
 
   struct EndowmentState {
-    LibAccounts.BalanceInfo balances;
     bool closingEndowment;
     LibAccounts.Beneficiary closingBeneficiary;
     mapping(bytes4 => bool) activeStrategies;
@@ -60,6 +60,7 @@ library AccountStorage {
     mapping(uint32 => uint256) DAOTOKENBALANCE;
     mapping(uint32 => EndowmentState) STATES;
     mapping(uint32 => Endowment) ENDOWMENTS;
+    mapping(uint32 => mapping(IVault.VaultType => IterableMappingAddr.Map)) balances;
     // endow ID -> token Addr -> TokenAllowances
     mapping(uint32 => mapping(address => TokenAllowances)) ALLOWANCES;
     // endow ID -> token Addr -> bool

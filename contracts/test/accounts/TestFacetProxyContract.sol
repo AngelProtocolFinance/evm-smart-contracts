@@ -6,6 +6,7 @@ import {LibAccounts} from "../../core/accounts/lib/LibAccounts.sol";
 import {AccountStorage} from "../../core/accounts/storage.sol";
 import {IterableMappingAddr} from "../../lib/IterableMappingAddr.sol";
 import {Utils} from "../../lib/utils.sol";
+import {IVault} from "../../core/vault/interfaces/IVault.sol";
 
 /**
  * @dev This contract implements a proxy that is upgradeable by an admin.
@@ -73,8 +74,8 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMappingA
     uint256 _liqBal
   ) external {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    IterableMappingAddr.set(state.STATES[accountId].balances.locked, _token, _lockBal);
-    IterableMappingAddr.set(state.STATES[accountId].balances.liquid, _token, _liqBal);
+    IterableMappingAddr.set(state.balances[accountId][IVault.VaultType.LOCKED], _token, _lockBal);
+    IterableMappingAddr.set(state.balances[accountId][IVault.VaultType.LIQUID], _token, _liqBal);
   }
 
   function getEndowmentTokenBalance(
@@ -83,8 +84,8 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMappingA
   ) external view returns (uint256, uint256) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     return (
-      IterableMappingAddr.get(state.STATES[accountId].balances.locked, _token),
-      IterableMappingAddr.get(state.STATES[accountId].balances.liquid, _token)
+      IterableMappingAddr.get(state.balances[accountId][IVault.VaultType.LOCKED], _token),
+      IterableMappingAddr.get(state.balances[accountId][IVault.VaultType.LIQUID], _token)
     );
   }
 

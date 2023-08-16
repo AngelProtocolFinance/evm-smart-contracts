@@ -108,16 +108,16 @@ contract AccountsSwapRouter is
 
     if (accountType == IVault.VaultType.LOCKED) {
       require(
-        IterableMappingAddr.get(state.STATES[id].balances.locked, tokenIn) >= amountIn,
+        IterableMappingAddr.get(state.balances[id][IVault.VaultType.LOCKED], tokenIn) >= amountIn,
         "Requested swap amount is greater than Endowment Locked balance"
       );
-      IterableMappingAddr.decr(state.STATES[id].balances.locked, tokenIn, amountIn);
+      IterableMappingAddr.decr(state.balances[id][IVault.VaultType.LOCKED], tokenIn, amountIn);
     } else {
       require(
-        IterableMappingAddr.get(state.STATES[id].balances.liquid, tokenIn) >= amountIn,
+        IterableMappingAddr.get(state.balances[id][IVault.VaultType.LIQUID], tokenIn) >= amountIn,
         "Requested swap amount is greater than Endowment Liquid balance"
       );
-      IterableMappingAddr.decr(state.STATES[id].balances.liquid, tokenIn, amountIn);
+      IterableMappingAddr.decr(state.balances[id][IVault.VaultType.LIQUID], tokenIn, amountIn);
     }
 
     // Check that both in & out tokens have chainlink price feed contract set for them
@@ -151,9 +151,9 @@ contract AccountsSwapRouter is
 
     // Allocate the newly swapped tokens to the correct endowment balance
     if (accountType == IVault.VaultType.LOCKED) {
-      IterableMappingAddr.incr(state.STATES[id].balances.locked, tokenOut, amountOut);
+      IterableMappingAddr.incr(state.balances[id][IVault.VaultType.LOCKED], tokenOut, amountOut);
     } else {
-      IterableMappingAddr.incr(state.STATES[id].balances.liquid, tokenOut, amountOut);
+      IterableMappingAddr.incr(state.balances[id][IVault.VaultType.LIQUID], tokenOut, amountOut);
     }
 
     emit TokenSwapped(id, accountType, tokenIn, amountIn, tokenOut, amountOut);

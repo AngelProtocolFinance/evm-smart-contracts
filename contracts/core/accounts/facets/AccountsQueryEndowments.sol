@@ -31,9 +31,15 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments, IterableMappingAdd
     require(address(0) != tokenAddress, "Invalid token address");
 
     if (accountType == IVault.VaultType.LOCKED) {
-      tokenAmount = IterableMappingAddr.get(state.STATES[id].balances.locked, tokenAddress);
+      tokenAmount = IterableMappingAddr.get(
+        state.balances[id][IVault.VaultType.LOCKED],
+        tokenAddress
+      );
     } else {
-      tokenAmount = IterableMappingAddr.get(state.STATES[id].balances.liquid, tokenAddress);
+      tokenAmount = IterableMappingAddr.get(
+        state.balances[id][IVault.VaultType.LIQUID],
+        tokenAddress
+      );
     }
   }
 
