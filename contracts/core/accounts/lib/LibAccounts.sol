@@ -14,16 +14,6 @@ library LibAccounts {
     }
   }
 
-  // Internal wrapper function to check if address is in passed allowlist and return bool result
-  function checkAddressInAllowlist(
-    address addr,
-    address[] memory allowlist
-  ) internal pure returns (bool inAllowlist) {
-    for (uint256 i = 0; i < allowlist.length; i++) {
-      if (allowlist[i] == addr) inAllowlist = true;
-    }
-  }
-
   enum EndowmentType {
     Charity, // Charity Endowment
     Normal, // Angel Smart Treasury (AST)
