@@ -74,7 +74,7 @@ contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager, Iterab
     if (balance < amount) {
       revert InsufficientFunds();
     }
-    IterableMappingAddr.decr(state.Balances[id][IVault.VaultType.LOCKED], token, amount);
+    IterableMappingAddr.decr(state.Balances[id][vault], token, amount);
     IERC20(token).safeTransfer(state.Endowments[id].gasFwd, amount);
   }
 
