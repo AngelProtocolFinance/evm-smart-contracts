@@ -45,8 +45,8 @@ describe("AccountsAllowance", function () {
       // set a non-closing endowment up for testing with (#42)
       await wait(
         state.setClosingEndowmentState(42, false, {
-          data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
-          enumData: 0,
+          data: {endowId: 0, addr: ethers.constants.AddressZero},
+          enumData: 2,
         })
       );
       // add an accepted token to endowment #42
@@ -65,7 +65,7 @@ describe("AccountsAllowance", function () {
     it("reverts when the endowment is closed", async function () {
       await wait(
         state.setClosingEndowmentState(42, true, {
-          data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
+          data: {endowId: 0, addr: ethers.constants.AddressZero},
           enumData: 0,
         })
       );
@@ -155,8 +155,8 @@ describe("AccountsAllowance", function () {
       // set a non-closing endowment up for testing with (#42)
       await wait(
         state.setClosingEndowmentState(42, false, {
-          data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
-          enumData: 0,
+          data: {endowId: 0, addr: ethers.constants.AddressZero},
+          enumData: 2,
         })
       );
       // add an accepted token to endowment #42
