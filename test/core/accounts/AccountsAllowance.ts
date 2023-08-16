@@ -66,7 +66,7 @@ describe("AccountsAllowance", function () {
     );
   });
 
-  describe("Test cases for `manageAllowances`", async function () {
+  describe("Test cases for `manageAllowances`", function () {
     it("reverts when the endowment is closed", async function () {
       await wait(
         state.setClosingEndowmentState(ACCOUNT_ID, true, {
@@ -148,7 +148,7 @@ describe("AccountsAllowance", function () {
     });
   });
 
-  describe("Test cases for `spendAllowance`", async function () {
+  describe("Test cases for `spendAllowance`", function () {
     it("reverts when try to spend token that is invalid(zero address) or dne in allowances", async function () {
       // try to spend an allowance that is invalid (Zero Address)
       await expect(
