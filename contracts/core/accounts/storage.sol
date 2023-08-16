@@ -56,22 +56,22 @@ library AccountStorage {
   }
 
   struct State {
-    mapping(uint32 => uint256) DAOTOKENBALANCE;
-    mapping(uint32 => EndowmentState) STATES;
-    mapping(uint32 => Endowment) ENDOWMENTS;
-    mapping(uint32 => mapping(IVault.VaultType => IterableMappingAddr.Map)) balances;
+    mapping(uint32 => Endowment) Endowments;
+    mapping(uint32 => EndowmentState) States;
+    mapping(uint32 => mapping(IVault.VaultType => IterableMappingAddr.Map)) Balances;
     // endow ID -> token Addr -> TokenAllowances
-    mapping(uint32 => mapping(address => TokenAllowances)) ALLOWANCES;
+    mapping(uint32 => mapping(address => TokenAllowances)) Allowances;
     // endow ID -> token Addr -> bool
     mapping(uint32 => mapping(address => bool)) AcceptedTokens;
     // endow ID -> token Addr -> Price Feed Addr
     mapping(uint32 => mapping(address => address)) PriceFeeds;
     // endow ID -> strategies that an Endowment is invested
-    mapping(uint32 => mapping(bytes4 => bool)) activeStrategies;
+    mapping(uint32 => mapping(bytes4 => bool)) ActiveStrategies;
     // Endowments that a DAF can withdraw to, managed by contract Owner
-    mapping(uint32 => bool) dafApprovedEndowments;
+    mapping(uint32 => bool) DafApprovedEndowments;
+    mapping(uint32 => uint256) DaoTokenBalances;
     // Endowments AllowLists Iterable mappings
-    mapping(uint32 => mapping(LibAccounts.AllowlistType => IterableMappingAddr.Map)) allowlists;
+    mapping(uint32 => mapping(LibAccounts.AllowlistType => IterableMappingAddr.Map)) Allowlists;
     Config config;
   }
 }

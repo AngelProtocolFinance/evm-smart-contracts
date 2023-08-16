@@ -25,7 +25,7 @@ contract AccountsDaoEndowments is IAccountsDaoEndowments, ReentrancyGuardFacet, 
   function setupDao(uint32 id, SubDaoLib.DaoSetup memory details) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
-    AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];
+    AccountStorage.Endowment memory tempEndowment = state.Endowments[id];
     // AccountStorage.Config memory tempConfig = state.config;
 
     require(tempEndowment.owner == msg.sender, "Unauthorized");
@@ -55,7 +55,7 @@ contract AccountsDaoEndowments is IAccountsDaoEndowments, ReentrancyGuardFacet, 
 
     tempEndowment.daoToken = subDaoConfid.daoToken;
 
-    state.ENDOWMENTS[id] = tempEndowment;
+    state.Endowments[id] = tempEndowment;
     emit EndowmentUpdated(id);
   }
 }

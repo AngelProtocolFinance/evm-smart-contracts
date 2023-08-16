@@ -42,7 +42,7 @@ contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager, Iterab
     address token
   ) external onlyAccountsContract returns (uint256) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    return IGasFwd(state.ENDOWMENTS[id].gasFwd).sweep(token);
+    return IGasFwd(state.Endowments[id].gasFwd).sweep(token);
   }
 
   /// @notice Wrapper method for sweeping funds from gasFwd contract upon request
@@ -57,11 +57,11 @@ contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager, Iterab
     address token
   ) external onlyAdmin returns (uint256) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    uint256 funds = IGasFwd(state.ENDOWMENTS[id].gasFwd).sweep(token);
+    uint256 funds = IGasFwd(state.Endowments[id].gasFwd).sweep(token);
     if (vault == IVault.VaultType.LOCKED) {
-      IterableMappingAddr.incr(state.balances[id][IVault.VaultType.LOCKED], token, funds);
+      IterableMappingAddr.incr(state.Balances[id][IVault.VaultType.LOCKED], token, funds);
     } else {
-      IterableMappingAddr.incr(state.balances[id][IVault.VaultType.LIQUID], token, funds);
+      IterableMappingAddr.incr(state.Balances[id][IVault.VaultType.LIQUID], token, funds);
     }
     return funds;
   }
@@ -77,25 +77,25 @@ contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager, Iterab
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     uint256 balance;
     if (vault == IVault.VaultType.LOCKED) {
-      balance = IterableMappingAddr.get(state.balances[id][IVault.VaultType.LOCKED], token);
+      balance = IterableMappingAddr.get(state.Balances[id][IVault.VaultType.LOCKED], token);
       if (balance < amount) {
         revert InsufficientFunds();
       }
-      IterableMappingAddr.decr(state.balances[id][IVault.VaultType.LOCKED], token, amount);
+      IterableMappingAddr.decr(state.Balances[id][IVault.VaultType.LOCKED], token, amount);
     } else {
-      balance = IterableMappingAddr.get(state.balances[id][IVault.VaultType.LIQUID], token);
+      balance = IterableMappingAddr.get(state.Balances[id][IVault.VaultType.LIQUID], token);
       if (balance < amount) {
         revert InsufficientFunds();
       }
-      IterableMappingAddr.decr(state.balances[id][IVault.VaultType.LIQUID], token, amount);
+      IterableMappingAddr.decr(state.Balances[id][IVault.VaultType.LIQUID], token, amount);
     }
 
-    IERC20(token).safeTransfer(state.ENDOWMENTS[id].gasFwd, amount);
+    IERC20(token).safeTransfer(state.Endowments[id].gasFwd, amount);
   }
 
   function _validateCaller(uint32 id, IVault.VaultType vault) internal view returns (bool) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];
+    AccountStorage.Endowment memory tempEndowment = state.Endowments[id];
 
     if (
       vault == IVault.VaultType.LOCKED &&

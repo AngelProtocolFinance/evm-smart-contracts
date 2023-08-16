@@ -118,9 +118,9 @@ contract AccountsDepositWithdrawEndowments is
     uint256 amount
   ) internal {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
+    AccountStorage.Endowment storage tempEndowment = state.Endowments[details.id];
 
-    require(!state.STATES[details.id].closingEndowment, "Endowment is closed");
+    require(!state.States[details.id].closingEndowment, "Endowment is closed");
 
     RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
       .queryConfig();
@@ -136,11 +136,11 @@ contract AccountsDepositWithdrawEndowments is
     bool contributorAllowed = true;
     if (
       (msg.sender != registrarConfig.indexFundContract && msg.sender != tempEndowment.owner) &&
-      state.allowlists[details.id][LibAccounts.AllowlistType.AllowlistedContributors].keys.length >
+      state.Allowlists[details.id][LibAccounts.AllowlistType.AllowlistedContributors].keys.length >
       0
     ) {
       contributorAllowed = (IterableMappingAddr.get(
-        state.allowlists[details.id][LibAccounts.AllowlistType.AllowlistedContributors],
+        state.Allowlists[details.id][LibAccounts.AllowlistType.AllowlistedContributors],
         msg.sender
       ) == 1);
     }
@@ -208,12 +208,12 @@ contract AccountsDepositWithdrawEndowments is
     }
 
     IterableMappingAddr.incr(
-      state.balances[details.id][IVault.VaultType.LOCKED],
+      state.Balances[details.id][IVault.VaultType.LOCKED],
       tokenAddress,
       lockedAmount
     );
     IterableMappingAddr.incr(
-      state.balances[details.id][IVault.VaultType.LIQUID],
+      state.Balances[details.id][IVault.VaultType.LIQUID],
       tokenAddress,
       liquidAmount
     );
@@ -239,12 +239,12 @@ contract AccountsDepositWithdrawEndowments is
     uint256 liquidAmount = amount.mulDivDown(details.liquidPercentage, LibAccounts.PERCENT_BASIS);
 
     IterableMappingAddr.incr(
-      state.balances[details.id][IVault.VaultType.LOCKED],
+      state.Balances[details.id][IVault.VaultType.LOCKED],
       tokenAddress,
       lockedAmount
     );
     IterableMappingAddr.incr(
-      state.balances[details.id][IVault.VaultType.LIQUID],
+      state.Balances[details.id][IVault.VaultType.LIQUID],
       tokenAddress,
       liquidAmount
     );
@@ -269,8 +269,8 @@ contract AccountsDepositWithdrawEndowments is
     IAccountsDepositWithdrawEndowments.TokenInfo[] memory tokens
   ) public nonReentrant validEndowId(id) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
-    AccountStorage.EndowmentState storage tempEndowmentState = state.STATES[id];
+    AccountStorage.Endowment storage tempEndowment = state.Endowments[id];
+    AccountStorage.EndowmentState storage tempEndowmentState = state.States[id];
 
     // If an Endowment is closed and a withdraw is executed for it, check that the sender is the closing
     // beneficiary on record and procees the withdraw if so ensure funds are indeed moving to that beneficiary
@@ -286,7 +286,7 @@ contract AccountsDepositWithdrawEndowments is
         tempEndowmentState.closingBeneficiary.enumData == LibAccounts.BeneficiaryEnum.EndowmentId
       ) {
         require(
-          msg.sender == state.ENDOWMENTS[tempEndowmentState.closingBeneficiary.data.endowId].owner,
+          msg.sender == state.Endowments[tempEndowmentState.closingBeneficiary.data.endowId].owner,
           "Endowment is closed"
         );
         beneficiaryAddress = address(0);
@@ -306,7 +306,7 @@ contract AccountsDepositWithdrawEndowments is
     // check endowment beneficiary, if specified, is not closed
     if (beneficiaryEndowId != 0) {
       require(
-        !state.STATES[beneficiaryEndowId].closingEndowment,
+        !state.States[beneficiaryEndowId].closingEndowment,
         "Beneficiary endowment is closed"
       );
     }
@@ -321,7 +321,7 @@ contract AccountsDepositWithdrawEndowments is
         "Beneficiary address is not allowed for DAF withdrawals"
       );
       require(
-        state.dafApprovedEndowments[beneficiaryEndowId],
+        state.DafApprovedEndowments[beneficiaryEndowId],
         "Endowment beneficiary must be a DAF-Approved Endowment"
       );
     }
@@ -349,12 +349,12 @@ contract AccountsDepositWithdrawEndowments is
       uint256 currentBal;
       if (acctType == IVault.VaultType.LOCKED) {
         currentBal = IterableMappingAddr.get(
-          state.balances[id][IVault.VaultType.LOCKED],
+          state.Balances[id][IVault.VaultType.LOCKED],
           tokens[t].addr
         );
       } else {
         currentBal = IterableMappingAddr.get(
-          state.balances[id][IVault.VaultType.LIQUID],
+          state.Balances[id][IVault.VaultType.LIQUID],
           tokens[t].addr
         );
       }
@@ -385,14 +385,14 @@ contract AccountsDepositWithdrawEndowments is
           bool beneficiaryAllowed;
           if (mature) {
             beneficiaryAllowed = (IterableMappingAddr.get(
-              state.allowlists[id][LibAccounts.AllowlistType.MaturityAllowlist],
+              state.Allowlists[id][LibAccounts.AllowlistType.MaturityAllowlist],
               beneficiaryAddress
             ) == 1);
             require(beneficiaryAllowed, "Beneficiary address is not listed in maturityAllowlist");
           } else {
             if (
               state
-                .allowlists[id][LibAccounts.AllowlistType.AllowlistedBeneficiaries]
+                .Allowlists[id][LibAccounts.AllowlistType.AllowlistedBeneficiaries]
                 .keys
                 .length ==
               0 ||
@@ -401,7 +401,7 @@ contract AccountsDepositWithdrawEndowments is
               beneficiaryAllowed = true;
             } else {
               beneficiaryAllowed = (IterableMappingAddr.get(
-                state.allowlists[id][LibAccounts.AllowlistType.AllowlistedBeneficiaries],
+                state.Allowlists[id][LibAccounts.AllowlistType.AllowlistedBeneficiaries],
                 beneficiaryAddress
               ) == 1);
             }
@@ -414,7 +414,7 @@ contract AccountsDepositWithdrawEndowments is
         } else {
           if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
             require(
-              state.ENDOWMENTS[beneficiaryEndowId].endowType == LibAccounts.EndowmentType.Charity,
+              state.Endowments[beneficiaryEndowId].endowType == LibAccounts.EndowmentType.Charity,
               "Charity Endowments may only transfer funds to other Charity Endowments"
             );
           }
@@ -448,13 +448,13 @@ contract AccountsDepositWithdrawEndowments is
       // reduce the org's balance by the withdrawn token amount
       if (acctType == IVault.VaultType.LOCKED) {
         IterableMappingAddr.decr(
-          state.balances[id][IVault.VaultType.LOCKED],
+          state.Balances[id][IVault.VaultType.LOCKED],
           tokens[t].addr,
           tokens[t].amnt
         );
       } else {
         IterableMappingAddr.decr(
-          state.balances[id][IVault.VaultType.LIQUID],
+          state.Balances[id][IVault.VaultType.LIQUID],
           tokens[t].addr,
           tokens[t].amnt
         );

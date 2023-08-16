@@ -38,9 +38,9 @@ contract AccountsUpdateEndowmentSettingsController is
     address[] memory remove
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
+    AccountStorage.Endowment storage tempEndowment = state.Endowments[id];
 
-    require(!state.STATES[id].closingEndowment, "UpdatesAfterClosed");
+    require(!state.States[id].closingEndowment, "UpdatesAfterClosed");
     require(
       tempEndowment.maturityTime == 0 || tempEndowment.maturityTime > block.timestamp,
       "Updates cannot be done after maturity has been reached"
@@ -83,12 +83,12 @@ contract AccountsUpdateEndowmentSettingsController is
 
     for (uint256 i = 0; i < add.length; i++) {
       require(add[i] != address(0), "Zero address passed");
-      IterableMappingAddr.set(state.allowlists[id][allowlistType], add[i], 1);
+      IterableMappingAddr.set(state.Allowlists[id][allowlistType], add[i], 1);
     }
 
     for (uint256 i = 0; i < remove.length; i++) {
       require(add[i] != address(0), "Zero address passed");
-      IterableMappingAddr.remove(state.allowlists[id][allowlistType], remove[i]);
+      IterableMappingAddr.remove(state.Allowlists[id][allowlistType], remove[i]);
     }
 
     emit EndowmentAllowlistUpdated(id, allowlistType, add, remove);
@@ -108,9 +108,9 @@ contract AccountsUpdateEndowmentSettingsController is
     AccountMessages.UpdateEndowmentSettingsRequest memory details
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
+    AccountStorage.Endowment storage tempEndowment = state.Endowments[details.id];
 
-    require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
+    require(!state.States[details.id].closingEndowment, "UpdatesAfterClosed");
 
     if (tempEndowment.endowType != LibAccounts.EndowmentType.Charity) {
       if (
@@ -162,9 +162,9 @@ contract AccountsUpdateEndowmentSettingsController is
     AccountMessages.UpdateEndowmentControllerRequest memory details
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
+    AccountStorage.Endowment storage tempEndowment = state.Endowments[details.id];
 
-    require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
+    require(!state.States[details.id].closingEndowment, "UpdatesAfterClosed");
 
     if (
       Validator.canChange(
@@ -365,13 +365,13 @@ contract AccountsUpdateEndowmentSettingsController is
     AccountMessages.UpdateFeeSettingRequest memory details
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
+    AccountStorage.Endowment storage tempEndowment = state.Endowments[details.id];
 
     require(
       tempEndowment.endowType != LibAccounts.EndowmentType.Charity,
       "Charity Endowments may not change endowment fees"
     );
-    require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
+    require(!state.States[details.id].closingEndowment, "UpdatesAfterClosed");
 
     if (
       Validator.canChange(
