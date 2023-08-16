@@ -346,18 +346,7 @@ contract AccountsDepositWithdrawEndowments is
     }
 
     for (uint256 t = 0; t < tokens.length; t++) {
-      uint256 currentBal;
-      if (acctType == IVault.VaultType.LOCKED) {
-        currentBal = IterableMappingAddr.get(
-          state.Balances[id][IVault.VaultType.LOCKED],
-          tokens[t].addr
-        );
-      } else {
-        currentBal = IterableMappingAddr.get(
-          state.Balances[id][IVault.VaultType.LIQUID],
-          tokens[t].addr
-        );
-      }
+      uint256 currentBal = IterableMappingAddr.get(state.Balances[id][acctType], tokens[t].addr);
       // ensure balance of tokens can cover the requested withdraw amount
       require(currentBal >= tokens[t].amnt, "Insufficient Funds");
 
@@ -446,19 +435,7 @@ contract AccountsDepositWithdrawEndowments is
       }
 
       // reduce the org's balance by the withdrawn token amount
-      if (acctType == IVault.VaultType.LOCKED) {
-        IterableMappingAddr.decr(
-          state.Balances[id][IVault.VaultType.LOCKED],
-          tokens[t].addr,
-          tokens[t].amnt
-        );
-      } else {
-        IterableMappingAddr.decr(
-          state.Balances[id][IVault.VaultType.LIQUID],
-          tokens[t].addr,
-          tokens[t].amnt
-        );
-      }
+      IterableMappingAddr.decr(state.Balances[id][acctType], tokens[t].addr, tokens[t].amnt);
       emit EndowmentWithdraw(
         id,
         tokens[t].addr,

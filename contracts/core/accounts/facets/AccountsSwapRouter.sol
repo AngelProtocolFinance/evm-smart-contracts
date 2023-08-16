@@ -150,11 +150,7 @@ contract AccountsSwapRouter is
     );
 
     // Allocate the newly swapped tokens to the correct endowment balance
-    if (accountType == IVault.VaultType.LOCKED) {
-      IterableMappingAddr.incr(state.Balances[id][IVault.VaultType.LOCKED], tokenOut, amountOut);
-    } else {
-      IterableMappingAddr.incr(state.Balances[id][IVault.VaultType.LIQUID], tokenOut, amountOut);
-    }
+    IterableMappingAddr.incr(state.Balances[id][accountType], tokenOut, amountOut);
 
     emit TokenSwapped(id, accountType, tokenIn, amountIn, tokenOut, amountOut);
   }

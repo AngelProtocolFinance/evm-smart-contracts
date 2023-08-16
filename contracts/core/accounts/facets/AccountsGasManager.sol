@@ -50,20 +50,15 @@ contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager, Iterab
   /// to unlock these funds, sweep them and reallocate them to the specified account.
   /// This permissioned step precludes gaming the gasFwd'er as a way to avoid locked account funds from
   /// incurring early withdraw penalties (i.e. overpay for gas from locked -> refunded to gas fwd -> sweep to liquid)
-  /// @return balance returns the balance of the gasFwd contract which was swept to accounts
+  /// @return funds returns the balance of the gasFwd contract which was swept to accounts
   function sweepForEndowment(
     uint32 id,
     IVault.VaultType vault,
     address token
-  ) external onlyAdmin returns (uint256) {
+  ) external onlyAdmin returns (uint256 funds) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    uint256 funds = IGasFwd(state.Endowments[id].gasFwd).sweep(token);
-    if (vault == IVault.VaultType.LOCKED) {
-      IterableMappingAddr.incr(state.Balances[id][IVault.VaultType.LOCKED], token, funds);
-    } else {
-      IterableMappingAddr.incr(state.Balances[id][IVault.VaultType.LIQUID], token, funds);
-    }
-    return funds;
+    funds = IGasFwd(state.Endowments[id].gasFwd).sweep(token);
+    IterableMappingAddr.incr(state.Balances[id][vault], token, funds);
   }
 
   /// @notice Take funds from locked or liquid account and transfer them to the gasFwd
@@ -75,21 +70,11 @@ contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager, Iterab
     }
 
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    uint256 balance;
-    if (vault == IVault.VaultType.LOCKED) {
-      balance = IterableMappingAddr.get(state.Balances[id][IVault.VaultType.LOCKED], token);
-      if (balance < amount) {
-        revert InsufficientFunds();
-      }
-      IterableMappingAddr.decr(state.Balances[id][IVault.VaultType.LOCKED], token, amount);
-    } else {
-      balance = IterableMappingAddr.get(state.Balances[id][IVault.VaultType.LIQUID], token);
-      if (balance < amount) {
-        revert InsufficientFunds();
-      }
-      IterableMappingAddr.decr(state.Balances[id][IVault.VaultType.LIQUID], token, amount);
+    uint256 balance = IterableMappingAddr.get(state.Balances[id][vault], token);
+    if (balance < amount) {
+      revert InsufficientFunds();
     }
-
+    IterableMappingAddr.decr(state.Balances[id][IVault.VaultType.LOCKED], token, amount);
     IERC20(token).safeTransfer(state.Endowments[id].gasFwd, amount);
   }
 

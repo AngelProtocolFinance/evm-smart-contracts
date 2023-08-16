@@ -30,17 +30,7 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments, IterableMappingAdd
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     require(address(0) != tokenAddress, "Invalid token address");
 
-    if (accountType == IVault.VaultType.LOCKED) {
-      tokenAmount = IterableMappingAddr.get(
-        state.Balances[id][IVault.VaultType.LOCKED],
-        tokenAddress
-      );
-    } else {
-      tokenAmount = IterableMappingAddr.get(
-        state.Balances[id][IVault.VaultType.LIQUID],
-        tokenAddress
-      );
-    }
+    tokenAmount = IterableMappingAddr.get(state.Balances[id][accountType], tokenAddress);
   }
 
   /**
@@ -81,8 +71,10 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments, IterableMappingAdd
         splitToLiquid: endowment.splitToLiquid,
         referralId: endowment.referralId,
         gasFwd: endowment.gasFwd,
-        allowlistedBeneficiaries: state.Allowlists[id][LibAccounts.AllowlistType.AllowlistedBeneficiaries].keys,
-        allowlistedContributors: state.Allowlists[id][LibAccounts.AllowlistType.AllowlistedContributors].keys,
+        allowlistedBeneficiaries: state
+        .Allowlists[id][LibAccounts.AllowlistType.AllowlistedBeneficiaries].keys,
+        allowlistedContributors: state
+        .Allowlists[id][LibAccounts.AllowlistType.AllowlistedContributors].keys,
         maturityAllowlist: state.Allowlists[id][LibAccounts.AllowlistType.MaturityAllowlist].keys
       });
   }
