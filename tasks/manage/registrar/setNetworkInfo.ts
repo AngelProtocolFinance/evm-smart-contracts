@@ -37,7 +37,7 @@ task("manage:registrar:setNetworkInfo", "Set network info for a specified networ
       networkId,
       DEFAULT_CONTRACT_ADDRESS_FILE_PATH
     );
-    let newNetworkInfo: Partial<LocalRegistrarLib.NetworkInfoStruct> = {
+    const newNetworkInfo: Partial<LocalRegistrarLib.NetworkInfoStruct> = {
       chainId: networkId,
       router: thatNetworkAddresses.router.proxy,
       axelarGateway: thatNetworkAddresses.axelar.gateway,
