@@ -133,6 +133,15 @@ contract CharityApplications is MultiSigGeneric, StorageApplications, ICharityAp
       }
     }
 
+    // Set all charity endowment-level fees to 0. Charities must use the Registrar Protocol-level fees.
+    _application.earlyLockedWithdrawFee = LibAccounts.FeeSetting({
+      payoutAddress: address(0),
+      bps: 0
+    });
+    _application.withdrawFee = LibAccounts.FeeSetting({payoutAddress: address(0), bps: 0});
+    _application.depositFee = LibAccounts.FeeSetting({payoutAddress: address(0), bps: 0});
+    _application.balanceFee = LibAccounts.FeeSetting({payoutAddress: address(0), bps: 0});
+
     uint256 expiry = block.timestamp + transactionExpiry;
 
     // Maturity always set to zero (None) for all Charity Endowments
