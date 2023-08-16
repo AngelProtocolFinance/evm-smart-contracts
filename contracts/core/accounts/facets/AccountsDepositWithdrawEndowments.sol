@@ -249,7 +249,7 @@ contract AccountsDepositWithdrawEndowments is
       liquidAmount
     );
 
-    emit EndowmentTransfer(details.id, tokenAddress, lockedAmount, liquidAmount);
+    emit EndowmentDeposit(details.id, tokenAddress, lockedAmount, liquidAmount);
   }
 
   /**

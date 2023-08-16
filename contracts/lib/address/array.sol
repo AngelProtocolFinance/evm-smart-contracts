@@ -23,8 +23,4 @@ library AddressArray {
     data.pop();
     return data;
   }
-
-  function contains(address[] memory self, address addr) public pure returns (bool found) {
-    (, found) = indexOf(self, addr);
-  }
 }

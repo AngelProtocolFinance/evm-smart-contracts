@@ -1539,7 +1539,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
       it("passes if approved Endowment ID is passed", async () => {
         // set the beneficiary endowment as DAF approved
-        await wait(state.setDafApprovedEndowments(charityId, true));
+        await wait(state.setDafApprovedEndowment(charityId, true));
 
         const acctType = VaultType.LOCKED;
         const beneficiaryAddress = ethers.constants.AddressZero;
