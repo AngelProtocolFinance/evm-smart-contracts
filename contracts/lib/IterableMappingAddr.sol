@@ -2,6 +2,9 @@
 pragma solidity ^0.8.16;
 
 contract IterableMappingAddr {
+  error NonExistentKey(address key);
+  error DecrAmountExceedsValue(address key, uint256 currVal, uint256 decrVal);
+
   struct Map {
     address[] keys;
     mapping(address => uint256) values;
@@ -22,14 +25,12 @@ contract IterableMappingAddr {
   }
 
   function decr(Map storage map, address key, uint256 val) internal {
-    if (map.inserted[key]) {
-      require(map.values[key] >= val, "Value to be deducted is larger than the set value");
-      map.values[key] -= val;
+    if (!map.inserted[key]) {
+      revert NonExistentKey(key);
+    } else if (map.values[key] < val) {
+      revert DecrAmountExceedsValue(key, map.values[key], val);
     } else {
-      map.inserted[key] = true;
-      map.values[key] = val;
-      map.indexOf[key] = map.keys.length;
-      map.keys.push(key);
+      map.values[key] -= val;
     }
   }
 
@@ -37,10 +38,7 @@ contract IterableMappingAddr {
     if (map.inserted[key]) {
       map.values[key] += val;
     } else {
-      map.inserted[key] = true;
-      map.values[key] = val;
-      map.indexOf[key] = map.keys.length;
-      map.keys.push(key);
+      set(map, key, val);
     }
   }
 
