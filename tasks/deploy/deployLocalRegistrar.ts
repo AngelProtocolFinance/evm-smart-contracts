@@ -43,7 +43,6 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
           owner: owner,
           deployer,
           proxyAdmin,
-          networkName: await getAxlNetworkName(hre),
         },
         hre
       );
