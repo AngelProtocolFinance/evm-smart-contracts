@@ -47,7 +47,6 @@ library AccountStorage {
   struct EndowmentState {
     bool closingEndowment;
     LibAccounts.Beneficiary closingBeneficiary;
-    mapping(bytes4 => bool) activeStrategies;
   }
 
   struct TokenAllowances {
@@ -67,6 +66,8 @@ library AccountStorage {
     mapping(uint32 => mapping(address => bool)) AcceptedTokens;
     // endow ID -> token Addr -> Price Feed Addr
     mapping(uint32 => mapping(address => address)) PriceFeeds;
+    // endow ID -> strategies that an Endowment is invested
+    mapping(uint32 => mapping(bytes4 => bool)) activeStrategies;
     // Endowments that a DAF can withdraw to, managed by contract Owner
     mapping(uint32 => bool) dafApprovedEndowments;
     // Endowments AllowLists Iterable mappings

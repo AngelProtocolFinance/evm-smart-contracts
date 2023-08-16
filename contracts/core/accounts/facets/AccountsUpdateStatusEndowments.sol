@@ -100,7 +100,7 @@ contract AccountsUpdateStatusEndowments is
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     bytes4[] memory allStrategies = IRegistrar(state.config.registrarContract).queryAllStrategies();
     for (uint256 i; i < allStrategies.length; i++) {
-      if (state.STATES[id].activeStrategies[allStrategies[i]]) {
+      if (state.activeStrategies[id][allStrategies[i]]) {
         return false;
       }
     }
@@ -118,6 +118,6 @@ contract AccountsUpdateStatusEndowments is
   function forceSetStrategyInactive(uint32 id, bytes4 strategySelector) public {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     require(msg.sender == state.ENDOWMENTS[id].owner, "Unauthorized");
-    state.STATES[id].activeStrategies[strategySelector] = false;
+    state.activeStrategies[id][strategySelector] = false;
   }
 }

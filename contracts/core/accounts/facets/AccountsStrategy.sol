@@ -124,7 +124,7 @@ contract AccountsStrategy is
       tokenAddress,
       investRequest.liquidAmt
     );
-    state.STATES[id].activeStrategies[investRequest.strategy] = true;
+    state.activeStrategies[id][investRequest.strategy] = true;
     emit EndowmentInvested(id);
 
     // Strategy exists on the local network
@@ -299,7 +299,7 @@ contract AccountsStrategy is
           tokenAddress,
           response.liqAmt
         );
-        state.STATES[id].activeStrategies[redeemRequest.strategy] = false;
+        state.activeStrategies[id][redeemRequest.strategy] = false;
         emit EndowmentRedeemed(id, response.status);
       } else {
         revert RedeemFailed(response.status);
@@ -436,7 +436,7 @@ contract AccountsStrategy is
           tokenAddress,
           response.liqAmt
         );
-        state.STATES[id].activeStrategies[redeemAllRequest.strategy] = false;
+        state.activeStrategies[id][redeemAllRequest.strategy] = false;
         emit EndowmentRedeemed(id, response.status);
       } else {
         revert RedeemAllFailed(response.status);
@@ -545,7 +545,7 @@ contract AccountsStrategy is
           response.token,
           response.liqAmt
         );
-        state.STATES[id].activeStrategies[response.strategyId] = false;
+        state.activeStrategies[id][response.strategyId] = false;
         emit EndowmentRedeemed(id, response.status);
         return true;
       }

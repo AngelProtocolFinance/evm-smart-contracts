@@ -112,7 +112,7 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMappingA
     bool _accepted
   ) external {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    state.STATES[accountId].activeStrategies[_strategy] = _accepted;
+    state.activeStrategies[accountId][_strategy] = _accepted;
   }
 
   function getActiveStrategyEndowmentState(
@@ -120,7 +120,7 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMappingA
     bytes4 _strategy
   ) external view returns (bool) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    return state.STATES[accountId].activeStrategies[_strategy];
+    return state.activeStrategies[accountId][_strategy];
   }
 
   function setEndowmentDetails(
