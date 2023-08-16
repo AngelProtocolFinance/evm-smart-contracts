@@ -30,11 +30,7 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments, IterableMappingAdd
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     require(address(0) != tokenAddress, "Invalid token address");
 
-    if (accountType == IVault.VaultType.LOCKED) {
-      tokenAmount = IterableMappingAddr.get(state.STATES[id].balances.locked, tokenAddress);
-    } else {
-      tokenAmount = IterableMappingAddr.get(state.STATES[id].balances.liquid, tokenAddress);
-    }
+    tokenAmount = IterableMappingAddr.get(state.Balances[id][accountType], tokenAddress);
   }
 
   /**
@@ -47,7 +43,7 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments, IterableMappingAdd
     uint32 id
   ) public view returns (AccountMessages.EndowmentResponse memory) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage endowment = state.ENDOWMENTS[id];
+    AccountStorage.Endowment storage endowment = state.Endowments[id];
     return
       AccountMessages.EndowmentResponse({
         owner: endowment.owner,
@@ -76,10 +72,10 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments, IterableMappingAdd
         referralId: endowment.referralId,
         gasFwd: endowment.gasFwd,
         allowlistedBeneficiaries: state
-        .allowlists[id][LibAccounts.AllowlistType.AllowlistedBeneficiaries].keys,
+        .Allowlists[id][LibAccounts.AllowlistType.AllowlistedBeneficiaries].keys,
         allowlistedContributors: state
-        .allowlists[id][LibAccounts.AllowlistType.AllowlistedContributors].keys,
-        maturityAllowlist: state.allowlists[id][LibAccounts.AllowlistType.MaturityAllowlist].keys
+        .Allowlists[id][LibAccounts.AllowlistType.AllowlistedContributors].keys,
+        maturityAllowlist: state.Allowlists[id][LibAccounts.AllowlistType.MaturityAllowlist].keys
       });
   }
 
@@ -110,8 +106,8 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments, IterableMappingAdd
   ) public view returns (AccountMessages.StateResponse memory stateResponse) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     stateResponse = AccountMessages.StateResponse({
-      closingEndowment: state.STATES[id].closingEndowment,
-      closingBeneficiary: state.STATES[id].closingBeneficiary
+      closingEndowment: state.States[id].closingEndowment,
+      closingBeneficiary: state.States[id].closingBeneficiary
     });
   }
 }

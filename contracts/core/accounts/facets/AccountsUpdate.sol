@@ -63,12 +63,12 @@ contract AccountsUpdate is ReentrancyGuardFacet, IAccountsEvents, IAccountsUpdat
 
     // add all endowments first
     for (uint256 i = 0; i < add.length; i++) {
-      state.dafApprovedEndowments[add[i]] = true;
+      state.DafApprovedEndowments[add[i]] = true;
     }
 
     // remove endowments
     for (uint256 i = 0; i < remove.length; i++) {
-      state.dafApprovedEndowments[remove[i]] = false;
+      state.DafApprovedEndowments[remove[i]] = false;
     }
 
     emit DafApprovedEndowmentsUpdated(add, remove);

@@ -27,11 +27,6 @@ library LibAccounts {
     Level3
   }
 
-  struct BalanceInfo {
-    IterableMappingAddr.Map locked;
-    IterableMappingAddr.Map liquid;
-  }
-
   enum AllowlistType {
     AllowlistedBeneficiaries,
     AllowlistedContributors,

@@ -77,7 +77,7 @@ contract AccountsCreateEndowment is
 
     address gasFwd = IGasFwdFactory(registrar_config.gasFwdFactory).create();
 
-    state.ENDOWMENTS[newEndowId] = AccountStorage.Endowment({
+    state.Endowments[newEndowId] = AccountStorage.Endowment({
       owner: owner,
       name: details.name,
       sdgs: details.sdgs,
@@ -105,27 +105,27 @@ contract AccountsCreateEndowment is
       gasFwd: gasFwd
     });
 
-    state.STATES[newEndowId].closingEndowment = false;
+    state.States[newEndowId].closingEndowment = false;
     state.config.nextAccountId += 1;
 
     // process all initial allowlists provided by user into their respective mappings
     for (uint256 i = 0; i < details.allowlistedBeneficiaries.length; i++) {
       IterableMappingAddr.set(
-        state.allowlists[newEndowId][LibAccounts.AllowlistType.AllowlistedBeneficiaries],
+        state.Allowlists[newEndowId][LibAccounts.AllowlistType.AllowlistedBeneficiaries],
         details.allowlistedBeneficiaries[i],
         1
       );
     }
     for (uint256 i = 0; i < details.allowlistedContributors.length; i++) {
       IterableMappingAddr.set(
-        state.allowlists[newEndowId][LibAccounts.AllowlistType.AllowlistedContributors],
+        state.Allowlists[newEndowId][LibAccounts.AllowlistType.AllowlistedContributors],
         details.allowlistedContributors[i],
         1
       );
     }
     for (uint256 i = 0; i < details.maturityAllowlist.length; i++) {
       IterableMappingAddr.set(
-        state.allowlists[newEndowId][LibAccounts.AllowlistType.MaturityAllowlist],
+        state.Allowlists[newEndowId][LibAccounts.AllowlistType.MaturityAllowlist],
         details.maturityAllowlist[i],
         1
       );

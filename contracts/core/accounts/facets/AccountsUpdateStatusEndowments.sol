@@ -37,10 +37,10 @@ contract AccountsUpdateStatusEndowments is
     LibAccounts.Beneficiary memory beneficiary
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
+    AccountStorage.Endowment storage tempEndowment = state.Endowments[id];
 
     require(msg.sender == tempEndowment.owner, "Unauthorized");
-    require(!state.STATES[id].closingEndowment, "Endowment is closed");
+    require(!state.States[id].closingEndowment, "Endowment is closed");
     require(checkFullyExited(id), "Not fully exited");
 
     RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
@@ -70,10 +70,10 @@ contract AccountsUpdateStatusEndowments is
       // if NONE is passed we can skip the below checks
       if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.EndowmentId) {
         if (tempEndowment.endowType == LibAccounts.EndowmentType.Daf) {
-          require(state.dafApprovedEndowments[id], "Not an approved Endowment for DAF withdrawals");
+          require(state.DafApprovedEndowments[id], "Not an approved Endowment for DAF withdrawals");
         } else {
           require(
-            state.ENDOWMENTS[beneficiary.data.endowId].endowType ==
+            state.Endowments[beneficiary.data.endowId].endowType ==
               LibAccounts.EndowmentType.Charity,
             "Beneficiary must be a Charity Endowment type"
           );
@@ -91,8 +91,8 @@ contract AccountsUpdateStatusEndowments is
     // remove closed fund from all Index Funds that it's involved with
     IIndexFund(registrarConfig.indexFundContract).removeMember(id);
 
-    state.STATES[id].closingEndowment = true;
-    state.STATES[id].closingBeneficiary = beneficiary;
+    state.States[id].closingEndowment = true;
+    state.States[id].closingBeneficiary = beneficiary;
     emit EndowmentClosed(id, beneficiary);
   }
 
@@ -100,7 +100,7 @@ contract AccountsUpdateStatusEndowments is
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     bytes4[] memory allStrategies = IRegistrar(state.config.registrarContract).queryAllStrategies();
     for (uint256 i; i < allStrategies.length; i++) {
-      if (state.STATES[id].activeStrategies[allStrategies[i]]) {
+      if (state.ActiveStrategies[id][allStrategies[i]]) {
         return false;
       }
     }
@@ -117,7 +117,7 @@ contract AccountsUpdateStatusEndowments is
    */
   function forceSetStrategyInactive(uint32 id, bytes4 strategySelector) public {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    require(msg.sender == state.ENDOWMENTS[id].owner, "Unauthorized");
-    state.STATES[id].activeStrategies[strategySelector] = false;
+    require(msg.sender == state.Endowments[id].owner, "Unauthorized");
+    state.ActiveStrategies[id][strategySelector] = false;
   }
 }

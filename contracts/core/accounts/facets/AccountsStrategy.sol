@@ -48,7 +48,7 @@ contract AccountsStrategy is
     AccountMessages.InvestRequest memory investRequest
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
+    AccountStorage.Endowment storage tempEndowment = state.Endowments[id];
 
     if (investRequest.lockAmt == 0 && investRequest.liquidAmt == 0) {
       revert ZeroAmount();
@@ -94,12 +94,12 @@ contract AccountsStrategy is
     );
 
     require(
-      IterableMappingAddr.get(state.STATES[id].balances.locked, tokenAddress) >=
+      IterableMappingAddr.get(state.Balances[id][IVault.VaultType.LOCKED], tokenAddress) >=
         investRequest.lockAmt,
       "Insufficient Balance"
     );
     require(
-      IterableMappingAddr.get(state.STATES[id].balances.liquid, tokenAddress) >=
+      IterableMappingAddr.get(state.Balances[id][IVault.VaultType.LIQUID], tokenAddress) >=
         investRequest.liquidAmt,
       "Insufficient Balance"
     );
@@ -114,13 +114,17 @@ contract AccountsStrategy is
     uint32[] memory accts = new uint32[](1);
     accts[0] = id;
 
-    IterableMappingAddr.decr(state.STATES[id].balances.locked, tokenAddress, investRequest.lockAmt);
     IterableMappingAddr.decr(
-      state.STATES[id].balances.liquid,
+      state.Balances[id][IVault.VaultType.LOCKED],
+      tokenAddress,
+      investRequest.lockAmt
+    );
+    IterableMappingAddr.decr(
+      state.Balances[id][IVault.VaultType.LIQUID],
       tokenAddress,
       investRequest.liquidAmt
     );
-    state.STATES[id].activeStrategies[investRequest.strategy] = true;
+    state.ActiveStrategies[id][investRequest.strategy] = true;
     emit EndowmentInvested(id);
 
     // Strategy exists on the local network
@@ -165,7 +169,7 @@ contract AccountsStrategy is
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
-      uint256 gasFwdGas = IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(
+      uint256 gasFwdGas = IGasFwd(state.Endowments[id].gasFwd).payForGas(
         tokenAddress,
         investRequest.gasFee
       );
@@ -187,7 +191,7 @@ contract AccountsStrategy is
         investAmt,
         tokenAddress,
         investRequest.gasFee,
-        state.ENDOWMENTS[id].gasFwd
+        state.Endowments[id].gasFwd
       );
       IERC20(tokenAddress).safeApprove(thisNetwork.axelarGateway, investAmt);
       IAxelarGateway(thisNetwork.axelarGateway).callContractWithToken(
@@ -209,7 +213,7 @@ contract AccountsStrategy is
     AccountMessages.RedeemRequest memory redeemRequest
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
+    AccountStorage.Endowment storage tempEndowment = state.Endowments[id];
 
     if (redeemRequest.lockAmt == 0 && redeemRequest.liquidAmt == 0) {
       revert ZeroAmount();
@@ -273,13 +277,29 @@ contract AccountsStrategy is
         packedPayload
       );
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
-        IterableMappingAddr.incr(state.STATES[id].balances.locked, tokenAddress, response.lockAmt);
-        IterableMappingAddr.incr(state.STATES[id].balances.liquid, tokenAddress, response.liqAmt);
+        IterableMappingAddr.incr(
+          state.Balances[id][IVault.VaultType.LOCKED],
+          tokenAddress,
+          response.lockAmt
+        );
+        IterableMappingAddr.incr(
+          state.Balances[id][IVault.VaultType.LIQUID],
+          tokenAddress,
+          response.liqAmt
+        );
         emit EndowmentRedeemed(id, response.status);
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
-        IterableMappingAddr.incr(state.STATES[id].balances.locked, tokenAddress, response.lockAmt);
-        IterableMappingAddr.incr(state.STATES[id].balances.liquid, tokenAddress, response.liqAmt);
-        state.STATES[id].activeStrategies[redeemRequest.strategy] = false;
+        IterableMappingAddr.incr(
+          state.Balances[id][IVault.VaultType.LOCKED],
+          tokenAddress,
+          response.lockAmt
+        );
+        IterableMappingAddr.incr(
+          state.Balances[id][IVault.VaultType.LIQUID],
+          tokenAddress,
+          response.liqAmt
+        );
+        state.ActiveStrategies[id][redeemRequest.strategy] = false;
         emit EndowmentRedeemed(id, response.status);
       } else {
         revert RedeemFailed(response.status);
@@ -300,7 +320,7 @@ contract AccountsStrategy is
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
-      uint256 gasFwdGas = IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(
+      uint256 gasFwdGas = IGasFwd(state.Endowments[id].gasFwd).payForGas(
         tokenAddress,
         redeemRequest.gasFee
       );
@@ -322,7 +342,7 @@ contract AccountsStrategy is
         packedPayload,
         tokenAddress,
         redeemRequest.gasFee,
-        state.ENDOWMENTS[id].owner
+        state.Endowments[id].owner
       );
       IAxelarGateway(thisNetwork.axelarGateway).callContract(
         stratParams.network,
@@ -341,7 +361,7 @@ contract AccountsStrategy is
     AccountMessages.RedeemAllRequest memory redeemAllRequest
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
+    AccountStorage.Endowment storage tempEndowment = state.Endowments[id];
 
     if (!redeemAllRequest.redeemLiquid && !redeemAllRequest.redeemLocked) {
       revert ZeroAmount();
@@ -406,9 +426,17 @@ contract AccountsStrategy is
       );
 
       if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
-        IterableMappingAddr.incr(state.STATES[id].balances.locked, tokenAddress, response.lockAmt);
-        IterableMappingAddr.incr(state.STATES[id].balances.liquid, tokenAddress, response.liqAmt);
-        state.STATES[id].activeStrategies[redeemAllRequest.strategy] = false;
+        IterableMappingAddr.incr(
+          state.Balances[id][IVault.VaultType.LOCKED],
+          tokenAddress,
+          response.lockAmt
+        );
+        IterableMappingAddr.incr(
+          state.Balances[id][IVault.VaultType.LIQUID],
+          tokenAddress,
+          response.liqAmt
+        );
+        state.ActiveStrategies[id][redeemAllRequest.strategy] = false;
         emit EndowmentRedeemed(id, response.status);
       } else {
         revert RedeemAllFailed(response.status);
@@ -429,7 +457,7 @@ contract AccountsStrategy is
         status: IVault.VaultActionStatus.UNPROCESSED
       });
       bytes memory packedPayload = RouterLib.packCallData(payload);
-      uint256 gasFwdGas = IGasFwd(state.ENDOWMENTS[id].gasFwd).payForGas(
+      uint256 gasFwdGas = IGasFwd(state.Endowments[id].gasFwd).payForGas(
         tokenAddress,
         redeemAllRequest.gasFee
       );
@@ -449,7 +477,7 @@ contract AccountsStrategy is
         packedPayload,
         tokenAddress,
         redeemAllRequest.gasFee,
-        state.ENDOWMENTS[id].owner
+        state.Endowments[id].owner
       );
       IAxelarGateway(thisNetwork.axelarGateway).callContract(
         stratParams.network,
@@ -472,8 +500,16 @@ contract AccountsStrategy is
       response.selector == IVault.deposit.selector &&
       response.status == IVault.VaultActionStatus.FAIL_TOKENS_RETURNED
     ) {
-      IterableMappingAddr.incr(state.STATES[id].balances.locked, response.token, response.lockAmt);
-      IterableMappingAddr.incr(state.STATES[id].balances.liquid, response.token, response.liqAmt);
+      IterableMappingAddr.incr(
+        state.Balances[id][IVault.VaultType.LOCKED],
+        response.token,
+        response.lockAmt
+      );
+      IterableMappingAddr.incr(
+        state.Balances[id][IVault.VaultType.LIQUID],
+        response.token,
+        response.liqAmt
+      );
       emit EndowmentRedeemed(id, response.status);
       return true;
     }
@@ -487,21 +523,29 @@ contract AccountsStrategy is
     ) {
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
         IterableMappingAddr.incr(
-          state.STATES[id].balances.locked,
+          state.Balances[id][IVault.VaultType.LOCKED],
           response.token,
           response.lockAmt
         );
-        IterableMappingAddr.incr(state.STATES[id].balances.liquid, response.token, response.liqAmt);
+        IterableMappingAddr.incr(
+          state.Balances[id][IVault.VaultType.LIQUID],
+          response.token,
+          response.liqAmt
+        );
         emit EndowmentRedeemed(id, response.status);
         return true;
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         IterableMappingAddr.incr(
-          state.STATES[id].balances.locked,
+          state.Balances[id][IVault.VaultType.LOCKED],
           response.token,
           response.lockAmt
         );
-        IterableMappingAddr.incr(state.STATES[id].balances.liquid, response.token, response.liqAmt);
-        state.STATES[id].activeStrategies[response.strategyId] = false;
+        IterableMappingAddr.incr(
+          state.Balances[id][IVault.VaultType.LIQUID],
+          response.token,
+          response.liqAmt
+        );
+        state.ActiveStrategies[id][response.strategyId] = false;
         emit EndowmentRedeemed(id, response.status);
         return true;
       }
@@ -599,8 +643,8 @@ contract AccountsStrategy is
     uint256 gasRemaining
   ) internal {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    uint256 lockBal = IterableMappingAddr.get(state.STATES[id].balances.locked, token);
-    uint256 liqBal = IterableMappingAddr.get(state.STATES[id].balances.liquid, token);
+    uint256 lockBal = IterableMappingAddr.get(state.Balances[id][IVault.VaultType.LOCKED], token);
+    uint256 liqBal = IterableMappingAddr.get(state.Balances[id][IVault.VaultType.LIQUID], token);
 
     uint256 liqGas = (gasRemaining * gasRateFromLiq_withPrecision) / LibAccounts.BIG_NUMBA_BASIS;
     uint256 lockGas = gasRemaining - liqGas;
@@ -608,19 +652,19 @@ contract AccountsStrategy is
     // Cases:
     // 1) lockBal and liqBal each cover the respective needs
     if ((lockGas <= lockBal) && (liqGas <= liqBal)) {
-      IterableMappingAddr.decr(state.STATES[id].balances.locked, token, lockGas);
-      IterableMappingAddr.decr(state.STATES[id].balances.liquid, token, liqGas);
+      IterableMappingAddr.decr(state.Balances[id][IVault.VaultType.LOCKED], token, lockGas);
+      IterableMappingAddr.decr(state.Balances[id][IVault.VaultType.LIQUID], token, liqGas);
     } else if ((lockGas > lockBal) && (liqGas <= liqBal)) {
       // 2) lockBal does not cover lockGas, check if liqBal can cover deficit in addition to liqGas
       uint256 lockNeedDeficit = lockGas - lockBal;
       if (lockNeedDeficit <= (liqBal - liqGas)) {
         IterableMappingAddr.decr(
-          state.STATES[id].balances.locked,
+          state.Balances[id][IVault.VaultType.LOCKED],
           token,
           (lockGas - lockNeedDeficit)
         );
         IterableMappingAddr.decr(
-          state.STATES[id].balances.liquid,
+          state.Balances[id][IVault.VaultType.LIQUID],
           token,
           (liqGas + lockNeedDeficit)
         );

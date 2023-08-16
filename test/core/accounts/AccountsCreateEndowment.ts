@@ -403,6 +403,10 @@ describe("AccountsCreateEndowment", function () {
       ...createEndowmentRequest,
       endowType: 0, // Charity
       ignoreUserSplits: true,
+      balanceFee: {bps: 0, payoutAddress: ethers.constants.AddressZero},
+      depositFee: {bps: 0, payoutAddress: ethers.constants.AddressZero},
+      withdrawFee: {bps: 0, payoutAddress: ethers.constants.AddressZero},
+      earlyLockedWithdrawFee: {bps: 0, payoutAddress: ethers.constants.AddressZero},
     };
 
     await expect(facet.connect(charityApplications).createEndowment(request))
