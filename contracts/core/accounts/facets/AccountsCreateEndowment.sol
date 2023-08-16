@@ -40,11 +40,6 @@ contract AccountsCreateEndowment is
 
     if (LibAccounts.EndowmentType.Charity == details.endowType) {
       require(msg.sender == registrar_config.charityApplications, "Unauthorized");
-      // Set all charity endowment-level fees to 0. Charities must use the Registrar Protocol-level fees.
-      details.earlyLockedWithdrawFee = LibAccounts.FeeSetting({payoutAddress: address(0), bps: 0});
-      details.withdrawFee = LibAccounts.FeeSetting({payoutAddress: address(0), bps: 0});
-      details.depositFee = LibAccounts.FeeSetting({payoutAddress: address(0), bps: 0});
-      details.balanceFee = LibAccounts.FeeSetting({payoutAddress: address(0), bps: 0});
     } else {
       // validate SDG inputs for non-Charity Endowments (if any)
       // @dev Charity Endowments have their SDG Inputs validated when creating

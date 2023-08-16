@@ -113,7 +113,7 @@ describe("AccountsUpdateEndowments", function () {
       await wait(
         state.setClosingEndowmentState(normalEndowId, true, {
           enumData: 0,
-          data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+          data: {addr: ethers.constants.AddressZero, endowId: 0},
         })
       );
       await expect(facet.updateEndowmentDetails(normalEndowReq)).to.be.revertedWith(
@@ -392,7 +392,7 @@ describe("AccountsUpdateEndowments", function () {
       await wait(
         state.setClosingEndowmentState(normalEndowId, true, {
           enumData: 0,
-          data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+          data: {addr: ethers.constants.AddressZero, endowId: 0},
         })
       );
       await expect(
@@ -588,7 +588,7 @@ describe("AccountsUpdateEndowments", function () {
       await wait(
         state.setClosingEndowmentState(normalEndowId, true, {
           enumData: 0,
-          data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+          data: {addr: ethers.constants.AddressZero, endowId: 0},
         })
       );
       await expect(
