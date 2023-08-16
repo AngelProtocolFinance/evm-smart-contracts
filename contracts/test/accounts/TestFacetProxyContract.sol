@@ -152,9 +152,12 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy {
     uint32 accountId,
     address _spender,
     address _token
-  ) external view returns (uint256) {
+  ) external view returns (uint256, uint256) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    return state.ALLOWANCES[accountId][_token].bySpender[_spender];
+    return (
+      state.ALLOWANCES[accountId][_token].bySpender[_spender],
+      state.ALLOWANCES[accountId][_token].totalOutstanding
+    );
   }
 
   function setTokenAccepted(uint32 accountId, address _token, bool _accepted) external {
