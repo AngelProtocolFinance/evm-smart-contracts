@@ -33,12 +33,6 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
     types.int
   )
   .addOptionalParam(
-    "collectorShare",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.int
-  )
-  .addOptionalParam(
     "indexFundContract",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
     undefined,
@@ -70,18 +64,6 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
   )
   .addOptionalParam(
     "haloToken",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
-  )
-  .addOptionalParam(
-    "haloTokenLpContract",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
-  )
-  .addOptionalParam(
-    "charitySharesContract",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
     undefined,
     types.string

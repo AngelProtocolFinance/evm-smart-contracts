@@ -31,7 +31,6 @@ task(
         splitMax: config.REGISTRAR_DATA.splitToLiquid.max,
         splitMin: config.REGISTRAR_DATA.splitToLiquid.min,
         splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit,
-        collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare,
         // CONTRACT ADDRESSES
         subdaoGovContract: addresses.subDao.implementation, // subdao gov
         subdaoTokenContract: addresses.subDao.token, // subdao gov token (basic CW20)
@@ -46,9 +45,6 @@ task(
         donationMatchCharitesContract: addresses.donationMatchCharity.proxy,
         donationMatchEmitter: ADDRESS_ZERO,
         haloToken: ADDRESS_ZERO,
-        haloTokenLpContract: ADDRESS_ZERO,
-        // haloTokenLpContract: addresses.halo.tokenLp, -> TODO: when implemented
-        charitySharesContract: ADDRESS_ZERO,
         fundraisingContract: ADDRESS_ZERO,
         uniswapRouter: addresses.uniswap.swapRouter,
         uniswapFactory: addresses.uniswap.factory,

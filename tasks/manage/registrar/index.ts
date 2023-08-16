@@ -1,4 +1,3 @@
-import "./setAPParams";
 import "./setAccountsChainAndAddress";
 import "./setGasByToken";
 import "./setFeeSetting";

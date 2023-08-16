@@ -20,7 +20,6 @@ library RegistrarMessages {
     uint256 splitMax;
     uint256 splitMin;
     uint256 splitDefault;
-    uint256 collectorShare;
     // CONTRACT ADDRESSES
     address indexFundContract;
     address govContract;
@@ -28,8 +27,6 @@ library RegistrarMessages {
     address donationMatchCharitesContract;
     address donationMatchEmitter;
     address haloToken;
-    address haloTokenLpContract;
-    address charitySharesContract;
     address fundraisingContract;
     address uniswapRouter;
     address uniswapFactory;
