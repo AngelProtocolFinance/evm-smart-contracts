@@ -290,4 +290,31 @@ describe("AccountsAllowance", function () {
       expect(totalOutstanding).to.equal(5);
     });
   });
+
+  describe("upon queryAllowance", function () {
+    beforeEach(async () => {
+      await wait(state.setTokenAllowance(ACCOUNT_ID, user.address, tokenFake.address, 10, 10));
+    });
+
+    it("returns 0 (zero) for non-existent endowment", async () => {
+      const nonExistentEndowId = 200;
+      expect(
+        await facet.queryAllowance(nonExistentEndowId, user.address, tokenFake.address)
+      ).to.equal(0);
+    });
+
+    it("returns 0 (zero) for non-existent token", async () => {
+      expect(await facet.queryAllowance(ACCOUNT_ID, user.address, genWallet().address)).to.equal(0);
+    });
+
+    it("returns 0 (zero) for non-existent spender", async () => {
+      expect(
+        await facet.queryAllowance(ACCOUNT_ID, genWallet().address, tokenFake.address)
+      ).to.equal(0);
+    });
+
+    it("returns accurate allowance", async () => {
+      expect(await facet.queryAllowance(ACCOUNT_ID, user.address, tokenFake.address)).to.equal(10);
+    });
+  });
 });
