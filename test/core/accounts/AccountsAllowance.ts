@@ -19,7 +19,8 @@ describe("AccountsAllowance", function () {
 
   const ACCOUNT_ID = 42;
 
-  let owner: SignerWithAddress;
+  let accOwner: SignerWithAddress;
+  let endowOwner: SignerWithAddress;
   let proxyAdmin: SignerWithAddress;
   let user: SignerWithAddress;
 
@@ -30,18 +31,19 @@ describe("AccountsAllowance", function () {
 
   before(async function () {
     const signers = await getSigners(hre);
-    owner = signers.deployer;
+    accOwner = signers.deployer;
     proxyAdmin = signers.proxyAdmin;
-    user = signers.apTeam1;
+    endowOwner = signers.apTeam1;
+    user = signers.apTeam2;
   });
 
   beforeEach(async function () {
     tokenFake = await smock.fake<IERC20>(IERC20__factory.createInterface());
 
-    const Facet = new AccountsAllowance__factory(owner);
+    const Facet = new AccountsAllowance__factory(accOwner);
     const facetImpl = await Facet.deploy();
-    state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
-    facet = AccountsAllowance__factory.connect(state.address, owner);
+    state = await deployFacetAsProxy(hre, accOwner, proxyAdmin, facetImpl.address);
+    facet = AccountsAllowance__factory.connect(state.address, endowOwner);
 
     // set a non-closing endowment up for testing with ACCOUNT_ID
     await wait(
@@ -60,7 +62,7 @@ describe("AccountsAllowance", function () {
     await wait(
       state.setEndowmentDetails(ACCOUNT_ID, {
         ...DEFAULT_CHARITY_ENDOWMENT,
-        owner: owner.address,
+        owner: endowOwner.address,
         allowlistedBeneficiaries: [user.address],
         maturityAllowlist: [user.address],
       })
@@ -95,7 +97,7 @@ describe("AccountsAllowance", function () {
         await wait(
           state.setEndowmentDetails(ACCOUNT_ID, {
             ...DEFAULT_CHARITY_ENDOWMENT,
-            owner: owner.address,
+            owner: endowOwner.address,
             maturityTime: currTime - timeDiff,
           })
         );
@@ -127,7 +129,7 @@ describe("AccountsAllowance", function () {
       await wait(
         state.setEndowmentDetails(ACCOUNT_ID, {
           ...DEFAULT_CHARITY_ENDOWMENT,
-          owner: owner.address,
+          owner: endowOwner.address,
           maturityTime: currTime,
         })
       );
@@ -245,11 +247,11 @@ describe("AccountsAllowance", function () {
 
     it("reverts when try to spend more allowance than is available for token", async function () {
       // now we allocate some token allowance to the user address to spend from
-      await wait(state.setTokenAllowance(ACCOUNT_ID, owner.address, tokenFake.address, 10, 10));
+      await wait(state.setTokenAllowance(ACCOUNT_ID, user.address, tokenFake.address, 10, 10));
 
       // try to spend more allowance than user was allocated
       await expect(
-        facet.spendAllowance(ACCOUNT_ID, tokenFake.address, 1000, user.address)
+        facet.connect(user).spendAllowance(ACCOUNT_ID, tokenFake.address, 1000, user.address)
       ).to.be.revertedWith("Amount requested exceeds Allowance balance");
     });
 
