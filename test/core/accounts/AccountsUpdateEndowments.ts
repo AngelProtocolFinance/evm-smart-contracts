@@ -337,7 +337,7 @@ describe("AccountsUpdateEndowments", function () {
         owner: ethers.constants.AddressZero,
       };
 
-      await facet.updateEndowmentDetails(request);
+      await wait(facet.updateEndowmentDetails(request));
 
       const updated = await state.getEndowmentDetails(request.id);
 
@@ -350,7 +350,7 @@ describe("AccountsUpdateEndowments", function () {
         owner: genWallet().address,
       };
 
-      await facet.updateEndowmentDetails(request);
+      await wait(facet.updateEndowmentDetails(request));
 
       const updated = await state.getEndowmentDetails(request.id);
 
@@ -363,7 +363,7 @@ describe("AccountsUpdateEndowments", function () {
         owner: ethers.constants.AddressZero,
       };
 
-      await facet.updateEndowmentDetails(request);
+      await wait(facet.updateEndowmentDetails(request));
 
       const updated = await state.getEndowmentDetails(request.id);
 
@@ -376,7 +376,7 @@ describe("AccountsUpdateEndowments", function () {
         owner: genWallet().address,
       };
 
-      await facet.updateEndowmentDetails(request);
+      await wait(facet.updateEndowmentDetails(request));
 
       const updated = await state.getEndowmentDetails(request.id);
 
@@ -667,8 +667,10 @@ describe("AccountsUpdateEndowments", function () {
           facet.updateAcceptedToken(normalEndowId, tokenAddr, fakePriceFeed.address, tokenStatus)
         ).to.not.be.reverted;
 
-        expect(await state.getPriceFeed(normalEndowId, tokenAddr)).to.equal(fakePriceFeed.address);
-        expect(await state.getTokenAccepted(normalEndowId, tokenAddr)).to.equal(tokenStatus);
+        await expect(await state.getPriceFeed(normalEndowId, tokenAddr)).to.equal(
+          fakePriceFeed.address
+        );
+        await expect(await state.getTokenAccepted(normalEndowId, tokenAddr)).to.equal(tokenStatus);
       });
     });
 

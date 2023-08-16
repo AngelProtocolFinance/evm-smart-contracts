@@ -52,9 +52,9 @@ export enum FeeTypes {
   Default,
   Harvest,
   WithdrawCharity,
-  WithdrawNormal,
+  Withdraw,
   EarlyLockedWithdrawCharity,
-  EarlyLockedWithdrawNormal,
+  EarlyLockedWithdraw,
 }
 
 export enum DonationMatchEnum {

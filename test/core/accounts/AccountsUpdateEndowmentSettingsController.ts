@@ -184,10 +184,12 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     });
 
     it("reverts if called by an Endowment that is closed", async () => {
-      await state.setClosingEndowmentState(charityId, true, {
-        enumData: 0,
-        data: {addr: ethers.constants.AddressZero, endowId: 0},
-      });
+      await wait(
+        state.setClosingEndowmentState(charityId, true, {
+          enumData: 0,
+          data: {addr: ethers.constants.AddressZero, endowId: 0},
+        })
+      );
       await expect(
         facet.updateEndowmentAllowlist(charityId, 0, [genWallet().address], [])
       ).to.revertedWith("UpdatesAfterClosed");
@@ -199,7 +201,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
         ...normalEndow,
         maturityTime: currTime,
       };
-      await state.setEndowmentDetails(normalEndowId, matureEndowment);
+      await wait(state.setEndowmentDetails(normalEndowId, matureEndowment));
       await expect(
         facet.updateEndowmentAllowlist(normalEndowId, 0, [genWallet().address], [])
       ).to.be.revertedWith("Updates cannot be done after maturity has been reached");
@@ -216,7 +218,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
     it("returns same members in starting allowlist if only pre-existing addresses are passed in add", async () => {
       // set starting allowlist
       const wallet = await genWallet().address;
-      await state.setAllowlist(normalEndowId, 0, [wallet]);
+      await wait(state.setAllowlist(normalEndowId, 0, [wallet]));
 
       const remove: any[] = [];
       const add: any[] = [wallet];
@@ -234,7 +236,7 @@ describe("AccountsUpdateEndowmentSettingsController", function () {
       const wallet3 = await genWallet().address;
 
       // set starting allowlist
-      await state.setAllowlist(normalEndowId, 0, [wallet]);
+      await wait(state.setAllowlist(normalEndowId, 0, [wallet]));
 
       const remove: any[] = [wallet2];
       const add: any[] = [wallet, wallet2, wallet3];

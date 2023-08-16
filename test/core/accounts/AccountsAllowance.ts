@@ -113,7 +113,7 @@ describe("AccountsAllowance", function () {
     });
 
     it("passes when try to increase a valid token's allowance within range of liquid balance available", async function () {
-      expect(await facet.manageAllowances(42, user.address, tokenFake.address, 10))
+      await expect(facet.manageAllowances(42, user.address, tokenFake.address, 10))
         .to.emit(facet, "AllowanceUpdated")
         .withArgs(42, user.address, tokenFake.address, 10, 10, 0);
 
@@ -130,7 +130,7 @@ describe("AccountsAllowance", function () {
       await wait(state.setTokenAllowance(42, user.address, tokenFake.address, 10, 10));
 
       // set a lower total token allowance for the user, returning the delta to liquid balance
-      expect(await facet.manageAllowances(42, user.address, tokenFake.address, 3))
+      await expect(facet.manageAllowances(42, user.address, tokenFake.address, 3))
         .to.emit(facet, "AllowanceUpdated")
         .withArgs(42, user.address, tokenFake.address, 3, 0, 7);
 
@@ -210,7 +210,7 @@ describe("AccountsAllowance", function () {
       tokenFake.transfer.returns(true);
 
       // user spends less than what was allocated to them (ie. 5 out of 10 available)
-      expect(await facet.connect(user).spendAllowance(42, tokenFake.address, 5, user.address))
+      await expect(facet.connect(user).spendAllowance(42, tokenFake.address, 5, user.address))
         .to.emit(facet, "AllowanceSpent")
         .withArgs(42, user.address, tokenFake.address, 5);
 

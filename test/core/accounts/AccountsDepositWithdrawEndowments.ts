@@ -1149,7 +1149,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
               beneficiaryAddress,
               beneficiaryId
             )
-            .to.emit(facet, "EndowmentTransfer")
+            .to.emit(facet, "EndowmentDeposit")
             .withArgs(beneficiaryId, tokens[0].addr, 0, tokens[0].amnt);
 
           // assert withdrawing endow balances have been deducted in correct amounts
