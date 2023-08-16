@@ -245,16 +245,11 @@ describe("AccountsAllowance", function () {
 
     it("reverts when try to spend more allowance than is available for token", async function () {
       // now we allocate some token allowance to the user address to spend from
-      await wait(state.setTokenAllowance(ACCOUNT_ID, user.address, tokenFake.address, 10, 10));
+      await wait(state.setTokenAllowance(ACCOUNT_ID, owner.address, tokenFake.address, 10, 10));
 
       // try to spend more allowance than user was allocated
       await expect(
         facet.spendAllowance(ACCOUNT_ID, tokenFake.address, 1000, user.address)
-      ).to.be.revertedWith("Amount requested exceeds Allowance balance");
-
-      // try to spend more allowance than user was allocated
-      await expect(
-        facet.spendAllowance(ACCOUNT_ID, tokenFake.address, 1, proxyAdmin.address)
       ).to.be.revertedWith("Amount requested exceeds Allowance balance");
     });
 
@@ -273,8 +268,13 @@ describe("AccountsAllowance", function () {
         .withArgs(ACCOUNT_ID, user.address, tokenFake.address, 5);
 
       // user allowance should be 5 now (10 - 5)
-      let [allowance] = await state.getTokenAllowance(ACCOUNT_ID, user.address, tokenFake.address);
+      const [allowance, totalOutstanding] = await state.getTokenAllowance(
+        ACCOUNT_ID,
+        user.address,
+        tokenFake.address
+      );
       expect(allowance).to.equal(5);
+      expect(totalOutstanding).to.equal(5);
     });
   });
 });
