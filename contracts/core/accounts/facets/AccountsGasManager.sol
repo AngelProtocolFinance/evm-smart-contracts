@@ -10,9 +10,9 @@ import {IGasFwd} from "../../gasFwd/IGasFwd.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {IterableMapping} from "../../../lib/IterableMappingAddr.sol";
+import {IterableMappingAddr} from "../../../lib/IterableMappingAddr.sol";
 
-contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager, IterableMapping {
+contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager, IterableMappingAddr {
   using SafeERC20 for IERC20;
 
   /// @notice Ensure the caller is this same contract
@@ -59,9 +59,9 @@ contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager, Iterab
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     uint256 funds = IGasFwd(state.ENDOWMENTS[id].gasFwd).sweep(token);
     if (vault == IVault.VaultType.LOCKED) {
-      IterableMapping.incr(state.STATES[id].balances.locked, token, funds);
+      IterableMappingAddr.incr(state.STATES[id].balances.locked, token, funds);
     } else {
-      IterableMapping.incr(state.STATES[id].balances.liquid, token, funds);
+      IterableMappingAddr.incr(state.STATES[id].balances.liquid, token, funds);
     }
     return funds;
   }
@@ -77,17 +77,17 @@ contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager, Iterab
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     uint256 balance;
     if (vault == IVault.VaultType.LOCKED) {
-      balance = IterableMapping.get(state.STATES[id].balances.locked, token);
+      balance = IterableMappingAddr.get(state.STATES[id].balances.locked, token);
       if (balance < amount) {
         revert InsufficientFunds();
       }
-      IterableMapping.decr(state.STATES[id].balances.locked, token, amount);
+      IterableMappingAddr.decr(state.STATES[id].balances.locked, token, amount);
     } else {
-      balance = IterableMapping.get(state.STATES[id].balances.liquid, token);
+      balance = IterableMappingAddr.get(state.STATES[id].balances.liquid, token);
       if (balance < amount) {
         revert InsufficientFunds();
       }
-      IterableMapping.decr(state.STATES[id].balances.liquid, token, amount);
+      IterableMappingAddr.decr(state.STATES[id].balances.liquid, token, amount);
     }
 
     IERC20(token).safeTransfer(state.ENDOWMENTS[id].gasFwd, amount);

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-import {IterableMapping} from "../../../lib/IterableMappingAddr.sol";
+import {IterableMappingAddr} from "../../../lib/IterableMappingAddr.sol";
 import {AccountStorage} from "../storage.sol";
 
 library LibAccounts {
@@ -38,8 +38,8 @@ library LibAccounts {
   }
 
   struct BalanceInfo {
-    IterableMapping.Map locked;
-    IterableMapping.Map liquid;
+    IterableMappingAddr.Map locked;
+    IterableMappingAddr.Map liquid;
   }
 
   enum AllowlistType {

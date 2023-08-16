@@ -12,7 +12,7 @@ import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsCreateEndowment} from "../interfaces/IAccountsCreateEndowment.sol";
 import {IGasFwdFactory} from "../../gasFwd/IGasFwdFactory.sol";
-import {IterableMapping} from "../../../lib/IterableMappingAddr.sol";
+import {IterableMappingAddr} from "../../../lib/IterableMappingAddr.sol";
 
 /**
  * @title AccountsCreateEndowment
@@ -22,7 +22,7 @@ contract AccountsCreateEndowment is
   IAccountsCreateEndowment,
   ReentrancyGuardFacet,
   IAccountsEvents,
-  IterableMapping
+  IterableMappingAddr
 {
   /**
    * @notice This function creates an endowment
@@ -115,21 +115,21 @@ contract AccountsCreateEndowment is
 
     // process all initial allowlists provided by user into their respective mappings
     for (uint256 i = 0; i < details.allowlistedBeneficiaries.length; i++) {
-      IterableMapping.set(
+      IterableMappingAddr.set(
         state.allowlists[newEndowId][LibAccounts.AllowlistType.AllowlistedBeneficiaries],
         details.allowlistedBeneficiaries[i],
         1
       );
     }
     for (uint256 i = 0; i < details.allowlistedContributors.length; i++) {
-      IterableMapping.set(
+      IterableMappingAddr.set(
         state.allowlists[newEndowId][LibAccounts.AllowlistType.AllowlistedContributors],
         details.allowlistedContributors[i],
         1
       );
     }
     for (uint256 i = 0; i < details.maturityAllowlist.length; i++) {
-      IterableMapping.set(
+      IterableMappingAddr.set(
         state.allowlists[newEndowId][LibAccounts.AllowlistType.MaturityAllowlist],
         details.maturityAllowlist[i],
         1

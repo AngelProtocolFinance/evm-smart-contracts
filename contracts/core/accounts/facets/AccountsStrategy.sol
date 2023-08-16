@@ -20,7 +20,7 @@ import {AxelarExecutableAccounts} from "../lib/AxelarExecutableAccounts.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IGasFwd} from "../../gasFwd/IGasFwd.sol";
-import {IterableMapping} from "../../../lib/IterableMappingAddr.sol";
+import {IterableMappingAddr} from "../../../lib/IterableMappingAddr.sol";
 
 /**
  * @title AccountsStrategy
@@ -31,7 +31,7 @@ contract AccountsStrategy is
   AxelarExecutableAccounts,
   ReentrancyGuardFacet,
   IAccountsEvents,
-  IterableMapping
+  IterableMappingAddr
 {
   using SafeERC20 for IERC20;
 
@@ -94,11 +94,13 @@ contract AccountsStrategy is
     );
 
     require(
-      IterableMapping.get(state.STATES[id].balances.locked, tokenAddress) >= investRequest.lockAmt,
+      IterableMappingAddr.get(state.STATES[id].balances.locked, tokenAddress) >=
+        investRequest.lockAmt,
       "Insufficient Balance"
     );
     require(
-      IterableMapping.get(state.STATES[id].balances.liquid, tokenAddress) >= investRequest.liquidAmt,
+      IterableMappingAddr.get(state.STATES[id].balances.liquid, tokenAddress) >=
+        investRequest.liquidAmt,
       "Insufficient Balance"
     );
 
@@ -112,8 +114,12 @@ contract AccountsStrategy is
     uint32[] memory accts = new uint32[](1);
     accts[0] = id;
 
-    IterableMapping.decr(state.STATES[id].balances.locked, tokenAddress, investRequest.lockAmt);
-    IterableMapping.decr(state.STATES[id].balances.liquid, tokenAddress, investRequest.liquidAmt);
+    IterableMappingAddr.decr(state.STATES[id].balances.locked, tokenAddress, investRequest.lockAmt);
+    IterableMappingAddr.decr(
+      state.STATES[id].balances.liquid,
+      tokenAddress,
+      investRequest.liquidAmt
+    );
     state.STATES[id].activeStrategies[investRequest.strategy] = true;
     emit EndowmentInvested(id);
 
@@ -267,12 +273,12 @@ contract AccountsStrategy is
         packedPayload
       );
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
-        IterableMapping.incr(state.STATES[id].balances.locked, tokenAddress, response.lockAmt);
-        IterableMapping.incr(state.STATES[id].balances.liquid, tokenAddress, response.liqAmt);
+        IterableMappingAddr.incr(state.STATES[id].balances.locked, tokenAddress, response.lockAmt);
+        IterableMappingAddr.incr(state.STATES[id].balances.liquid, tokenAddress, response.liqAmt);
         emit EndowmentRedeemed(id, response.status);
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
-        IterableMapping.incr(state.STATES[id].balances.locked, tokenAddress, response.lockAmt);
-        IterableMapping.incr(state.STATES[id].balances.liquid, tokenAddress, response.liqAmt);
+        IterableMappingAddr.incr(state.STATES[id].balances.locked, tokenAddress, response.lockAmt);
+        IterableMappingAddr.incr(state.STATES[id].balances.liquid, tokenAddress, response.liqAmt);
         state.STATES[id].activeStrategies[redeemRequest.strategy] = false;
         emit EndowmentRedeemed(id, response.status);
       } else {
@@ -400,8 +406,8 @@ contract AccountsStrategy is
       );
 
       if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
-        IterableMapping.incr(state.STATES[id].balances.locked, tokenAddress, response.lockAmt);
-        IterableMapping.incr(state.STATES[id].balances.liquid, tokenAddress, response.liqAmt);
+        IterableMappingAddr.incr(state.STATES[id].balances.locked, tokenAddress, response.lockAmt);
+        IterableMappingAddr.incr(state.STATES[id].balances.liquid, tokenAddress, response.liqAmt);
         state.STATES[id].activeStrategies[redeemAllRequest.strategy] = false;
         emit EndowmentRedeemed(id, response.status);
       } else {
@@ -466,8 +472,8 @@ contract AccountsStrategy is
       response.selector == IVault.deposit.selector &&
       response.status == IVault.VaultActionStatus.FAIL_TOKENS_RETURNED
     ) {
-      IterableMapping.incr(state.STATES[id].balances.locked, response.token, response.lockAmt);
-      IterableMapping.incr(state.STATES[id].balances.liquid, response.token, response.liqAmt);
+      IterableMappingAddr.incr(state.STATES[id].balances.locked, response.token, response.lockAmt);
+      IterableMappingAddr.incr(state.STATES[id].balances.liquid, response.token, response.liqAmt);
       emit EndowmentRedeemed(id, response.status);
       return true;
     }
@@ -480,13 +486,21 @@ contract AccountsStrategy is
       (response.selector == IVault.redeemAll.selector)
     ) {
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
-        IterableMapping.incr(state.STATES[id].balances.locked, response.token, response.lockAmt);
-        IterableMapping.incr(state.STATES[id].balances.liquid, response.token, response.liqAmt);
+        IterableMappingAddr.incr(
+          state.STATES[id].balances.locked,
+          response.token,
+          response.lockAmt
+        );
+        IterableMappingAddr.incr(state.STATES[id].balances.liquid, response.token, response.liqAmt);
         emit EndowmentRedeemed(id, response.status);
         return true;
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
-        IterableMapping.incr(state.STATES[id].balances.locked, response.token, response.lockAmt);
-        IterableMapping.incr(state.STATES[id].balances.liquid, response.token, response.liqAmt);
+        IterableMappingAddr.incr(
+          state.STATES[id].balances.locked,
+          response.token,
+          response.lockAmt
+        );
+        IterableMappingAddr.incr(state.STATES[id].balances.liquid, response.token, response.liqAmt);
         state.STATES[id].activeStrategies[response.strategyId] = false;
         emit EndowmentRedeemed(id, response.status);
         return true;
@@ -585,8 +599,8 @@ contract AccountsStrategy is
     uint256 gasRemaining
   ) internal {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    uint256 lockBal = IterableMapping.get(state.STATES[id].balances.locked, token);
-    uint256 liqBal = IterableMapping.get(state.STATES[id].balances.liquid, token);
+    uint256 lockBal = IterableMappingAddr.get(state.STATES[id].balances.locked, token);
+    uint256 liqBal = IterableMappingAddr.get(state.STATES[id].balances.liquid, token);
 
     uint256 liqGas = (gasRemaining * gasRateFromLiq_withPrecision) / LibAccounts.BIG_NUMBA_BASIS;
     uint256 lockGas = gasRemaining - liqGas;
@@ -594,14 +608,22 @@ contract AccountsStrategy is
     // Cases:
     // 1) lockBal and liqBal each cover the respective needs
     if ((lockGas <= lockBal) && (liqGas <= liqBal)) {
-      IterableMapping.decr(state.STATES[id].balances.locked, token, lockGas);
-      IterableMapping.decr(state.STATES[id].balances.liquid, token, liqGas);
+      IterableMappingAddr.decr(state.STATES[id].balances.locked, token, lockGas);
+      IterableMappingAddr.decr(state.STATES[id].balances.liquid, token, liqGas);
     } else if ((lockGas > lockBal) && (liqGas <= liqBal)) {
       // 2) lockBal does not cover lockGas, check if liqBal can cover deficit in addition to liqGas
       uint256 lockNeedDeficit = lockGas - lockBal;
       if (lockNeedDeficit <= (liqBal - liqGas)) {
-        IterableMapping.decr(state.STATES[id].balances.locked, token, (lockGas - lockNeedDeficit));
-        IterableMapping.decr(state.STATES[id].balances.liquid, token, (liqGas + lockNeedDeficit));
+        IterableMappingAddr.decr(
+          state.STATES[id].balances.locked,
+          token,
+          (lockGas - lockNeedDeficit)
+        );
+        IterableMappingAddr.decr(
+          state.STATES[id].balances.liquid,
+          token,
+          (liqGas + lockNeedDeficit)
+        );
       } else {
         // 3) lockBal does not cover lockGas and liqBal cannot cover -> revert
         revert InsufficientFundsForGas(id);

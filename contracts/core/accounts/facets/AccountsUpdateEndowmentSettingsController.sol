@@ -9,7 +9,7 @@ import {AccountMessages} from "../message.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsUpdateEndowmentSettingsController} from "../interfaces/IAccountsUpdateEndowmentSettingsController.sol";
-import {IterableMapping} from "../../../lib/IterableMappingAddr.sol";
+import {IterableMappingAddr} from "../../../lib/IterableMappingAddr.sol";
 
 /**
  * @title AccountsUpdateEndowmentSettingsController
@@ -20,7 +20,7 @@ contract AccountsUpdateEndowmentSettingsController is
   IAccountsUpdateEndowmentSettingsController,
   ReentrancyGuardFacet,
   IAccountsEvents,
-  IterableMapping
+  IterableMappingAddr
 {
   /**
    * @notice Updates an allowlist of an endowment, adding and/or removing addresses.
@@ -47,7 +47,6 @@ contract AccountsUpdateEndowmentSettingsController is
     );
     require(tempEndowment.endowType != LibAccounts.EndowmentType.Charity, "Unauthorized");
 
-    IterableMapping.Map storage iterableAllowlist;
     if (allowlistType == LibAccounts.AllowlistType.AllowlistedBeneficiaries) {
       require(
         Validator.canChange(
@@ -84,12 +83,12 @@ contract AccountsUpdateEndowmentSettingsController is
 
     for (uint256 i = 0; i < add.length; i++) {
       require(add[i] != address(0), "Zero address passed");
-      IterableMapping.set(state.allowlists[id][allowlistType], add[i], 1);
+      IterableMappingAddr.set(state.allowlists[id][allowlistType], add[i], 1);
     }
 
     for (uint256 i = 0; i < remove.length; i++) {
       require(add[i] != address(0), "Zero address passed");
-      IterableMapping.remove(state.allowlists[id][allowlistType], remove[i]);
+      IterableMappingAddr.remove(state.allowlists[id][allowlistType], remove[i]);
     }
 
     emit EndowmentAllowlistUpdated(id, allowlistType, add, remove);
@@ -150,7 +149,6 @@ contract AccountsUpdateEndowmentSettingsController is
       tempEndowment.ignoreUserSplits = details.ignoreUserSplits;
       emit EndowmentSettingUpdated(details.id, "ignoreUserSplits");
     }
-    state.ENDOWMENTS[details.id] = tempEndowment;
     emit EndowmentUpdated(details.id);
   }
 
@@ -352,7 +350,6 @@ contract AccountsUpdateEndowmentSettingsController is
         .settingsController
         .ignoreUserSplits;
     }
-    state.ENDOWMENTS[details.id] = tempEndowment;
     emit EndowmentSettingUpdated(details.id, "endowmentController");
     emit EndowmentUpdated(details.id);
   }
@@ -431,7 +428,6 @@ contract AccountsUpdateEndowmentSettingsController is
       "Combined Withdraw Fees exceed 100%"
     );
 
-    state.ENDOWMENTS[details.id] = tempEndowment;
     emit EndowmentUpdated(details.id);
   }
 }

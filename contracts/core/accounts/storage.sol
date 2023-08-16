@@ -3,7 +3,7 @@ pragma solidity ^0.8.16;
 
 import {LibAccounts} from "./lib/LibAccounts.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
-import {IterableMapping} from "../../lib/IterableMappingAddr.sol";
+import {IterableMappingAddr} from "../../lib/IterableMappingAddr.sol";
 
 library AccountStorage {
   struct Config {
@@ -69,7 +69,7 @@ library AccountStorage {
     // Endowments that a DAF can withdraw to, managed by contract Owner
     mapping(uint32 => bool) dafApprovedEndowments;
     // Endowments AllowLists Iterable mappings
-    mapping(uint32 => mapping(LibAccounts.AllowlistType => IterableMapping.Map)) allowlists;
+    mapping(uint32 => mapping(LibAccounts.AllowlistType => IterableMappingAddr.Map)) allowlists;
     Config config;
   }
 }

@@ -12,7 +12,7 @@ import {IAccountsGasManager} from "../interfaces/IAccountsGasManager.sol";
 import {IAccountsUpdateStatusEndowments} from "../interfaces/IAccountsUpdateStatusEndowments.sol";
 import {IAccountsDepositWithdrawEndowments} from "../interfaces/IAccountsDepositWithdrawEndowments.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
-import {IterableMapping} from "../../../lib/IterableMappingAddr.sol";
+import {IterableMappingAddr} from "../../../lib/IterableMappingAddr.sol";
 
 /**
  * @title AccountsUpdateStatusEndowments
@@ -23,7 +23,7 @@ contract AccountsUpdateStatusEndowments is
   IAccountsUpdateStatusEndowments,
   ReentrancyGuardFacet,
   IAccountsEvents,
-  IterableMapping
+  IterableMappingAddr
 {
   /**
    * @notice Closes an endowment, setting the endowment state to "closingEndowment" and the closing beneficiary to the provided beneficiary.
@@ -71,7 +71,7 @@ contract AccountsUpdateStatusEndowments is
       if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.EndowmentId) {
         if (tempEndowment.endowType == LibAccounts.EndowmentType.Daf) {
           require(state.dafApprovedEndowments[id], "Not an approved Endowment for DAF withdrawals");
-        } else if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
+        } else {
           require(
             state.ENDOWMENTS[beneficiary.data.endowId].endowType ==
               LibAccounts.EndowmentType.Charity,

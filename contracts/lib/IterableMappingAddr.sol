@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
-contract IterableMapping {
+contract IterableMappingAddr {
   struct Map {
     address[] keys;
     mapping(address => uint256) values;

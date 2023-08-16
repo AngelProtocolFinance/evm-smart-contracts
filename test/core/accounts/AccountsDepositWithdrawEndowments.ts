@@ -162,10 +162,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
       });
 
       it("reverts if the endowment is closed", async () => {
-        await wait(state.setClosingEndowmentState(charityId, true, {
-          enumData: 0,
-          data: {addr: ethers.constants.AddressZero, endowId: 0},
-        }));
+        await wait(
+          state.setClosingEndowmentState(charityId, true, {
+            enumData: 0,
+            data: {addr: ethers.constants.AddressZero, endowId: 0},
+          })
+        );
         await expect(facet.depositMatic(depositToCharity, {value: maticValue})).to.be.revertedWith(
           "Endowment is closed"
         );
@@ -194,10 +196,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
       });
 
       it("reverts if the endowment is closed", async () => {
-        await wait(state.setClosingEndowmentState(charityId, true, {
-          enumData: 0,
-          data: {addr: ethers.constants.AddressZero, endowId: 0},
-        }));
+        await wait(
+          state.setClosingEndowmentState(charityId, true, {
+            enumData: 0,
+            data: {addr: ethers.constants.AddressZero, endowId: 0},
+          })
+        );
         await expect(
           facet.depositERC20(depositToCharity, tokenFake.address, depositAmt)
         ).to.be.revertedWith("Endowment is closed");
@@ -559,10 +563,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
         });
 
         it("matches the donation when matching contract is setup & locked split amount is sent", async () => {
-          await wait(state.setEndowmentDetails(normalEndowId, {
-            ...normalEndow,
-            donationMatchContract: donationMatch.address,
-          }));
+          await wait(
+            state.setEndowmentDetails(normalEndowId, {
+              ...normalEndow,
+              donationMatchContract: donationMatch.address,
+            })
+          );
 
           const expectedLockedAmt = BigNumber.from(4000);
           const expectedLiquidAmt = BigNumber.from(6000);
@@ -771,16 +777,20 @@ describe("AccountsDepositWithdrawEndowments", function () {
       await wait(state.setEndowmentTokenBalance(charityId, tokenFake.address, lockBal, liqBal));
       await wait(state.setEndowmentTokenBalance(charityId, wmaticFake.address, lockBal, liqBal));
       await wait(state.setEndowmentTokenBalance(normalEndowId, tokenFake.address, lockBal, liqBal));
-      await wait(state.setEndowmentTokenBalance(normalEndowId, wmaticFake.address, lockBal, liqBal));
+      await wait(
+        state.setEndowmentTokenBalance(normalEndowId, wmaticFake.address, lockBal, liqBal)
+      );
       await wait(state.setEndowmentTokenBalance(dafEndowId, tokenFake.address, lockBal, liqBal));
       await wait(state.setEndowmentTokenBalance(dafEndowId, wmaticFake.address, lockBal, liqBal));
     });
 
     it("reverts if the endowment is closed", async () => {
-      await wait(state.setClosingEndowmentState(charityId, true, {
-        enumData: 0,
-        data: {addr: ethers.constants.AddressZero, endowId: 0},
-      }));
+      await wait(
+        state.setClosingEndowmentState(charityId, true, {
+          enumData: 0,
+          data: {addr: ethers.constants.AddressZero, endowId: 0},
+        })
+      );
       await expect(
         facet.withdraw(charityId, VaultType.LIQUID, genWallet().address, 0, [
           {addr: tokenFake.address, amnt: 1},
@@ -840,10 +850,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
     it("reverts if the beneficiary endowment passed is of closed status", async () => {
       const beneficiaryId = normalEndowId;
 
-      await wait(state.setClosingEndowmentState(beneficiaryId, true, {
-        enumData: 0,
-        data: {addr: ethers.constants.AddressZero, endowId: 0},
-      }));
+      await wait(
+        state.setClosingEndowmentState(beneficiaryId, true, {
+          enumData: 0,
+          data: {addr: ethers.constants.AddressZero, endowId: 0},
+        })
+      );
 
       await expect(
         facet.withdraw(charityId, VaultType.LIQUID, ethers.constants.AddressZero, beneficiaryId, [
@@ -874,10 +886,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
             {addr: tokenFake.address, amnt: 5000},
           ];
 
-          await wait(state.setClosingEndowmentState(charityId, true, {
-            enumData: 1,
-            data: {addr: beneficiaryAddress, endowId: beneficiaryId},
-          }));
+          await wait(
+            state.setClosingEndowmentState(charityId, true, {
+              enumData: 1,
+              data: {addr: beneficiaryAddress, endowId: beneficiaryId},
+            })
+          );
 
           await expect(
             facet.withdraw(charityId, acctType, beneficiaryAddress, beneficiaryId, tokens)
@@ -900,10 +914,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
             {addr: tokenFake.address, amnt: 5000},
           ];
 
-          await wait(state.setClosingEndowmentState(charityId, true, {
-            enumData: 0,
-            data: {addr: ethers.constants.AddressZero, endowId: beneficiaryId},
-          }));
+          await wait(
+            state.setClosingEndowmentState(charityId, true, {
+              enumData: 0,
+              data: {addr: ethers.constants.AddressZero, endowId: beneficiaryId},
+            })
+          );
 
           await expect(
             facet
@@ -923,10 +939,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
             {addr: tokenFake.address, amnt: 5000},
           ];
 
-          await wait(state.setClosingEndowmentState(charityId, true, {
-            enumData: 1,
-            data: {addr: beneficiaryAddress, endowId: beneficiaryId},
-          }));
+          await wait(
+            state.setClosingEndowmentState(charityId, true, {
+              enumData: 1,
+              data: {addr: beneficiaryAddress, endowId: beneficiaryId},
+            })
+          );
 
           await expect(
             facet
@@ -956,10 +974,12 @@ describe("AccountsDepositWithdrawEndowments", function () {
             {addr: tokenFake.address, amnt: 5000},
           ];
 
-          await wait(state.setClosingEndowmentState(charityId, true, {
-            enumData: 0,
-            data: {addr: beneficiaryAddress, endowId: beneficiaryId},
-          }));
+          await wait(
+            state.setClosingEndowmentState(charityId, true, {
+              enumData: 0,
+              data: {addr: beneficiaryAddress, endowId: beneficiaryId},
+            })
+          );
 
           await expect(
             facet.withdraw(charityId, acctType, beneficiaryAddress, beneficiaryId, tokens)

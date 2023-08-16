@@ -9,7 +9,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsAllowance} from "../interfaces/IAccountsAllowance.sol";
-import {IterableMapping} from "../../../lib/IterableMappingAddr.sol";
+import {IterableMappingAddr} from "../../../lib/IterableMappingAddr.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
@@ -20,7 +20,7 @@ contract AccountsAllowance is
   IAccountsAllowance,
   ReentrancyGuardFacet,
   IAccountsEvents,
-  IterableMapping
+  IterableMappingAddr
 {
   using SafeERC20 for IERC20;
   using AddressArray for address[];
@@ -44,7 +44,8 @@ contract AccountsAllowance is
 
     require(!state.STATES[endowId].closingEndowment, "Endowment is closed");
     require(
-      token != address(0) && IterableMapping.get(state.STATES[endowId].balances.liquid, token) > 0,
+      token != address(0) &&
+        IterableMappingAddr.get(state.STATES[endowId].balances.liquid, token) > 0,
       "Invalid Token"
     );
 
@@ -61,7 +62,7 @@ contract AccountsAllowance is
         ),
         "Unauthorized"
       );
-      inAllowlist = (IterableMapping.get(
+      inAllowlist = (IterableMappingAddr.get(
         state.allowlists[endowId][LibAccounts.AllowlistType.AllowlistedBeneficiaries],
         spender
       ) == 1);
@@ -76,7 +77,7 @@ contract AccountsAllowance is
         ),
         "Unauthorized"
       );
-      inAllowlist = (IterableMapping.get(
+      inAllowlist = (IterableMappingAddr.get(
         state.allowlists[endowId][LibAccounts.AllowlistType.MaturityAllowlist],
         spender
       ) == 1);
@@ -89,12 +90,12 @@ contract AccountsAllowance is
       amountDelta = amount - spenderBal;
       // check if liquid balance is sufficient for any proposed increase to spender allocation
       require(
-        amountDelta <= IterableMapping.get(state.STATES[endowId].balances.liquid, token),
+        amountDelta <= IterableMappingAddr.get(state.STATES[endowId].balances.liquid, token),
         "Insufficient liquid balance to allocate"
       );
       // increase total outstanding allocation & reduce liquid balance by AmountDelta
       state.ALLOWANCES[endowId][token].totalOutstanding += amountDelta;
-      IterableMapping.decr(state.STATES[endowId].balances.liquid, token, amountDelta);
+      IterableMappingAddr.decr(state.STATES[endowId].balances.liquid, token, amountDelta);
       emit AllowanceUpdated(endowId, spender, token, amount, amountDelta, 0);
     } else if (amount < spenderBal) {
       amountDelta = spenderBal - amount;
@@ -104,7 +105,7 @@ contract AccountsAllowance is
       );
       // decrease total outstanding allocation & increase liquid balance by AmountDelta
       state.ALLOWANCES[endowId][token].totalOutstanding -= amountDelta;
-      IterableMapping.incr(state.STATES[endowId].balances.liquid, token, amountDelta);
+      IterableMappingAddr.incr(state.STATES[endowId].balances.liquid, token, amountDelta);
       emit AllowanceUpdated(endowId, spender, token, amount, 0, amountDelta);
     } else {
       // equal amount and spender balance

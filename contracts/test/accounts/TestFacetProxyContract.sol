@@ -4,7 +4,7 @@ pragma solidity ^0.8.16;
 import "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {LibAccounts} from "../../core/accounts/lib/LibAccounts.sol";
 import {AccountStorage} from "../../core/accounts/storage.sol";
-import {IterableMapping} from "../../lib/IterableMappingAddr.sol";
+import {IterableMappingAddr} from "../../lib/IterableMappingAddr.sol";
 import {Utils} from "../../lib/utils.sol";
 
 /**
@@ -29,7 +29,7 @@ import {Utils} from "../../lib/utils.sol";
  * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.
  */
 
-contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMapping {
+contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMappingAddr {
   constructor(
     address implementation,
     address admin,
@@ -73,8 +73,8 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMapping 
     uint256 _liqBal
   ) external {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    IterableMapping.set(state.STATES[accountId].balances.locked, _token, _lockBal);
-    IterableMapping.set(state.STATES[accountId].balances.liquid, _token, _liqBal);
+    IterableMappingAddr.set(state.STATES[accountId].balances.locked, _token, _lockBal);
+    IterableMappingAddr.set(state.STATES[accountId].balances.liquid, _token, _liqBal);
   }
 
   function getEndowmentTokenBalance(
@@ -83,8 +83,8 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMapping 
   ) external view returns (uint256, uint256) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     return (
-      IterableMapping.get(state.STATES[accountId].balances.locked, _token),
-      IterableMapping.get(state.STATES[accountId].balances.liquid, _token)
+      IterableMappingAddr.get(state.STATES[accountId].balances.locked, _token),
+      IterableMappingAddr.get(state.STATES[accountId].balances.liquid, _token)
     );
   }
 
@@ -205,7 +205,7 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMapping 
   ) external {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     for (uint256 i = 0; i < allowlist.length; i++) {
-      IterableMapping.set(state.allowlists[endowId][listType], allowlist[i], 1);
+      IterableMappingAddr.set(state.allowlists[endowId][listType], allowlist[i], 1);
     }
   }
 
