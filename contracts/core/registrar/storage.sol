@@ -9,23 +9,12 @@ library RegistrarStorage {
     address indexFundContract;
     address accountsContract;
     address treasury;
-    address subdaoGovContract; // subdao gov wasm code
-    address subdaoTokenContract; // subdao gov cw20 token wasm code
-    address subdaoBondingTokenContract; // subdao gov bonding ve token wasm code
-    address subdaoCw900Contract; // subdao gov ve-vE contract for locked token voting
-    address subdaoDistributorContract; // subdao gov fee distributor wasm code
-    address subdaoEmitter;
-    address donationMatchContract; // donation matching contract wasm code
-    address donationMatchCharitesContract; // donation matching contract address for "Charities" endowments
+    address donationMatchContract;
+    address donationMatchCharitesContract;
     address donationMatchEmitter;
     LibAccounts.SplitDetails splitToLiquid; // set of max, min, and default Split paramenters to check user defined split input against
-    //TODO: pending check
-    address haloToken; // TerraSwap HALO token addr
-    address haloTokenLpContract;
-    address govContract; // AP governance contract
-    uint256 collectorShare;
-    address charitySharesContract;
-    //PROTOCOL LEVEL
+    address haloToken; 
+    address govContract;
     address fundraisingContract;
     address uniswapRouter;
     address uniswapFactory;
