@@ -189,12 +189,17 @@ describe("AccountsAllowance", function () {
         const endowBal = await state.getEndowmentTokenBalance(ACCOUNT_ID, tokenFake.address);
         expect(endowBal[1]).to.equal(90);
         // user allowance should be 10 now
-        const [allowance, totalOutstanding] = await state.getTokenAllowance(
+        const allowance = await state.getTokenAllowance(
           ACCOUNT_ID,
           user.address,
           tokenFake.address
         );
         expect(allowance).to.equal(10);
+
+        const totalOutstanding = await state.getTotalOutstandingAllowance(
+          ACCOUNT_ID,
+          tokenFake.address
+        );
         expect(totalOutstanding).to.equal(10);
       });
 
@@ -211,12 +216,17 @@ describe("AccountsAllowance", function () {
         const endowBal = await state.getEndowmentTokenBalance(ACCOUNT_ID, tokenFake.address);
         expect(endowBal[1]).to.equal(107);
         // user allowance should be 3 now
-        const [allowance, totalOutstanding] = await state.getTokenAllowance(
+        const allowance = await state.getTokenAllowance(
           ACCOUNT_ID,
           user.address,
           tokenFake.address
         );
         expect(allowance).to.equal(3);
+
+        const totalOutstanding = await state.getTotalOutstandingAllowance(
+          ACCOUNT_ID,
+          tokenFake.address
+        );
         expect(totalOutstanding).to.equal(3);
       });
     });
@@ -270,12 +280,13 @@ describe("AccountsAllowance", function () {
         .withArgs(ACCOUNT_ID, user.address, tokenFake.address, 5);
 
       // user allowance should be 5 now (10 - 5)
-      const [allowance, totalOutstanding] = await state.getTokenAllowance(
+      const allowance = await state.getTokenAllowance(ACCOUNT_ID, user.address, tokenFake.address);
+      expect(allowance).to.equal(5);
+
+      const totalOutstanding = await state.getTotalOutstandingAllowance(
         ACCOUNT_ID,
-        user.address,
         tokenFake.address
       );
-      expect(allowance).to.equal(5);
       expect(totalOutstanding).to.equal(5);
     });
   });
