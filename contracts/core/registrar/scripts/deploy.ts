@@ -98,11 +98,10 @@ type LocalRegistrarDeployData = {
   owner?: string;
   deployer: SignerWithAddress;
   proxyAdmin: SignerWithAddress;
-  networkName: string;
 };
 
 export async function deployLocalRegistrar(
-  {owner = "", deployer, proxyAdmin, networkName}: LocalRegistrarDeployData,
+  {owner = "", deployer, proxyAdmin}: LocalRegistrarDeployData,
   hre: HardhatRuntimeEnvironment
 ): Promise<Deployment | undefined> {
   logger.out("Deploying Local Registrar...");
@@ -119,7 +118,9 @@ export async function deployLocalRegistrar(
     // deploy proxy
     logger.out("Deploying proxy...");
     const proxyFactory = new ProxyContract__factory(deployer);
-    const initData = localRegistrar.interface.encodeFunctionData("initialize", [networkName]);
+    const initData = localRegistrar.interface.encodeFunctionData("initialize", [
+      await getAxlNetworkName(hre),
+    ]);
     const proxy = await proxyFactory.deploy(localRegistrar.address, proxyAdmin.address, initData);
     await proxy.deployed();
     logger.out(`Address: ${proxy.address}`);

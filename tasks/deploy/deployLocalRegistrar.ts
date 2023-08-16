@@ -4,6 +4,7 @@ import {task} from "hardhat/config";
 import {
   confirmAction,
   getAddresses,
+  getAxlNetworkName,
   getChainId,
   getNetworkNameFromChainId,
   getSigners,
@@ -42,7 +43,7 @@ task("deploy:LocalRegistrarAndRouter", "Will deploy the Local Registrar contract
           owner: owner,
           deployer,
           proxyAdmin,
-          networkName: getNetworkNameFromChainId(await getChainId(hre)),
+          networkName: await getAxlNetworkName(hre),
         },
         hre
       );
