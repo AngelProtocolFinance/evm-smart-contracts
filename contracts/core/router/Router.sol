@@ -405,7 +405,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
 
     // grab tokens sent cross-chain
     address tokenAddress = _gateway().tokenAddresses(tokenSymbol);
-    IERC20Metadata(tokenAddress).safeTransferFrom(address(_gateway()), address(this), amount);
+    IERC20Metadata(tokenAddress).safeTransfer(address(this), amount);
 
     // update action.token address to reflect this chain's token address
     action.token = tokenAddress;
