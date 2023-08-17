@@ -368,7 +368,7 @@ describe("Local Registrar", function () {
         ).to.be.revertedWith("Fees meet or exceed 100%");
       });
 
-      it("Should set and get the vault operator approval status", async function () {
+      it("Should set a fee rate (in bps) and a payout address", async function () {
         await expect(
           registrar.setFeeSettingsByFeesType(FeeTypes.Harvest, BigNumber.from(5000), user.address)
         ).to.not.be.reverted;
