@@ -113,7 +113,14 @@ contract AccountsStrategy is
     state.Balances[id][IVault.VaultType.LOCKED][tokenAddress] -= investRequest.lockAmt;
     state.Balances[id][IVault.VaultType.LIQUID][tokenAddress] -= investRequest.liquidAmt;
     state.ActiveStrategies[id][investRequest.strategy] = true;
-    emit EndowmentInvested(id);
+    emit EndowmentInvested(
+      id,
+      investRequest.strategy,
+      stratParams.network,
+      tokenAddress,
+      investRequest.lockAmt,
+      investRequest.liquidAmt
+    );
 
     // Strategy exists on the local network
     if (Validator.compareStrings(state.config.networkName, stratParams.network)) {
@@ -267,15 +274,21 @@ contract AccountsStrategy is
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
         state.Balances[id][IVault.VaultType.LOCKED][tokenAddress] += response.lockAmt;
         state.Balances[id][IVault.VaultType.LIQUID][tokenAddress] += response.liqAmt;
-        emit EndowmentRedeemed(id, response.status);
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.Balances[id][IVault.VaultType.LOCKED][tokenAddress] += response.lockAmt;
         state.Balances[id][IVault.VaultType.LIQUID][tokenAddress] += response.liqAmt;
         state.ActiveStrategies[id][redeemRequest.strategy] = false;
-        emit EndowmentRedeemed(id, response.status);
       } else {
         revert RedeemFailed(response.status);
       }
+      emit EndowmentRedeemed(
+        id,
+        redeemRequest.strategy,
+        stratParams.network,
+        tokenAddress,
+        response.lockAmt,
+        response.liqAmt
+      );
     }
     // Strategy lives on another chain
     else {
@@ -401,7 +414,14 @@ contract AccountsStrategy is
         state.Balances[id][IVault.VaultType.LOCKED][response.token] += response.lockAmt;
         state.Balances[id][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
         state.ActiveStrategies[id][redeemAllRequest.strategy] = false;
-        emit EndowmentRedeemed(id, response.status);
+        emit EndowmentRedeemed(
+          id,
+          redeemAllRequest.strategy,
+          stratParams.network,
+          tokenAddress,
+          response.lockAmt,
+          response.liqAmt
+        );
       } else {
         revert RedeemAllFailed(response.status);
       }
@@ -466,7 +486,14 @@ contract AccountsStrategy is
     ) {
       state.Balances[id][IVault.VaultType.LOCKED][response.token] += response.lockAmt;
       state.Balances[id][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
-      emit EndowmentRedeemed(id, response.status);
+      emit EndowmentRedeemed(
+        id,
+        response.strategyId,
+        response.destinationChain,
+        response.token,
+        response.lockAmt,
+        response.liqAmt
+      );
       return true;
     }
     // Redeem/RedeemAll Cases
@@ -480,13 +507,27 @@ contract AccountsStrategy is
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
         state.Balances[id][IVault.VaultType.LOCKED][response.token] += response.lockAmt;
         state.Balances[id][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
-        emit EndowmentRedeemed(id, response.status);
+        emit EndowmentRedeemed(
+          id,
+          response.strategyId,
+          response.destinationChain,
+          response.token,
+          response.lockAmt,
+          response.liqAmt
+        );
         return true;
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.Balances[id][IVault.VaultType.LOCKED][response.token] += response.lockAmt;
         state.Balances[id][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
         state.ActiveStrategies[id][response.strategyId] = false;
-        emit EndowmentRedeemed(id, response.status);
+        emit EndowmentRedeemed(
+          id,
+          response.strategyId,
+          response.destinationChain,
+          response.token,
+          response.lockAmt,
+          response.liqAmt
+        );
         return true;
       }
     } else {
