@@ -51,10 +51,12 @@ export enum DelegateAction {
 export enum FeeTypes {
   Default,
   Harvest,
-  WithdrawCharity,
+  Deposit,
+  DepsoitCharity,
   Withdraw,
-  EarlyLockedWithdrawCharity,
+  WithdrawCharity,
   EarlyLockedWithdraw,
+  EarlyLockedWithdrawCharity,
 }
 
 export enum BeneficiaryEnum {
