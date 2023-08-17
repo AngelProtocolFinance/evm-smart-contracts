@@ -8,6 +8,7 @@ import "@nomiclabs/hardhat-ethers";
 import "@typechain/hardhat";
 require("tsconfig-paths/register"); // must use `require`, otherwise TS complains about missing declaration files
 import "./tasks";
+import * as tdly from "@tenderly/hardhat-tenderly";
 
 var accounts = [
   envConfig.DEPLOYER.key,
@@ -18,10 +19,14 @@ var accounts = [
 ];
 var hardhatAccounts: HardhatNetworkAccountsUserConfig = getHardhatAccounts(accounts);
 
+tdly.setup({
+  automaticVerifications: false,
+});
+
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   solidity: {
-    version: "0.8.18",
+    version: "0.8.21",
     settings: {
       optimizer: {
         enabled: true,
@@ -67,6 +72,11 @@ const config: HardhatUserConfig = {
       polygon: envConfig.POLYSCAN_API_KEY,
       polygonMumbai: envConfig.POLYSCAN_API_KEY,
     },
+  },
+  tenderly: {
+    username: "angel-protocol",
+    project: "angel-protocol-evm",
+    privateVerification: false,
   },
   // abiExporter: [
   //   {
