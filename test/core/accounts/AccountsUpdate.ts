@@ -5,6 +5,7 @@ import {AccountsUpdate, AccountsUpdate__factory, TestFacetProxyContract} from "t
 import {getSigners, EndowmentType} from "utils";
 import {deployFacetAsProxy} from "./utils";
 import {wait, DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
+import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 
 describe("AccountsUpdate", function () {
   const {ethers} = hre;
