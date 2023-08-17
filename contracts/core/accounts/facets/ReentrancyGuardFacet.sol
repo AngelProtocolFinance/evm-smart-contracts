@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (SEity/ReentrancyGuard.sol)
 
-pragma solidity ^0.8.21;
+pragma solidity ^0.8.19;
 
 import {LibAccounts} from "../lib/LibAccounts.sol";
 import {AccountStorage} from "../storage.sol";

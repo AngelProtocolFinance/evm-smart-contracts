@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 // author: @stevieraykatz
-pragma solidity ^0.8.21;
+pragma solidity ^0.8.19;
 
 import {IStrategy} from "../../core/strategy/IStrategy.sol";
 import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";

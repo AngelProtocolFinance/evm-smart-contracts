@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.21;
+pragma solidity ^0.8.19;
 
 import {IBasicToken} from "./lib/shared/IBasicToken.sol";
 import {IIncentivisedVotingLockup} from "./interfaces/IIncentivisedVotingLockup.sol";

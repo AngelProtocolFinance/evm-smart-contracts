@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 // author: @stevieraykatz
-pragma solidity ^0.8.21;
+pragma solidity ^0.8.19;
 
 import {IRouter} from "../core/router/IRouter.sol";
 import {IVault} from "../core/vault/interfaces/IVault.sol";

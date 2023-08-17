@@ -26,7 +26,7 @@ tdly.setup({
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   solidity: {
-    version: "0.8.21",
+    version: "0.8.19",
     settings: {
       optimizer: {
         enabled: true,

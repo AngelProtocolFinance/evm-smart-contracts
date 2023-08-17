@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.21;
+pragma solidity ^0.8.19;
 
 library AddressArray {
   function indexOf(address[] memory arr, address searchFor) internal pure returns (uint256, bool) {

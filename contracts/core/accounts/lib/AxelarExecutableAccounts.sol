@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Modifications by @stevieraykatz to make compatible with OZ Upgradable Proxy
-pragma solidity ^0.8.21;
+pragma solidity ^0.8.19;
 
 import {IVault} from "../../vault/interfaces/IVault.sol";
 import {AccountStorage} from "../storage.sol";

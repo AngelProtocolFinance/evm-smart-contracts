@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.21;
+pragma solidity ^0.8.19;
 
 interface IGasFwd {
   function payForGas(address token, uint256 amount) external returns (uint256);

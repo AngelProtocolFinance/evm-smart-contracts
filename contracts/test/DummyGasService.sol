@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 // author: @stevieraykatz
-pragma solidity ^0.8.21;
+pragma solidity ^0.8.19;
 
 import {IAxelarGasService} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGasService.sol";
 

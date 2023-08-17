@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.21;
+pragma solidity ^0.8.19;
 
 import {IERC20WithCheckpointing} from "../lib/shared/IERC20WithCheckpointing.sol";
 
