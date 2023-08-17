@@ -104,9 +104,10 @@ export const DEFAULT_NETWORK_INFO: LocalRegistrarLib.NetworkInfoStruct = {
 };
 
 export const DEFAULT_REGISTRAR_CONFIG: RegistrarStorage.ConfigStruct = {
-  indexFundContract: ADDRESS_ZERO,
   accountsContract: ADDRESS_ZERO,
+  apTeamMultisig: ADDRESS_ZERO,
   treasury: ADDRESS_ZERO,
+  indexFundContract: ADDRESS_ZERO,
   subdaoGovContract: ADDRESS_ZERO, // Sub dao implementation
   subdaoTokenContract: ADDRESS_ZERO, // NewERC20 implementation
   subdaoBondingTokenContract: ADDRESS_ZERO, // Continous Token implementation
@@ -114,22 +115,21 @@ export const DEFAULT_REGISTRAR_CONFIG: RegistrarStorage.ConfigStruct = {
   subdaoDistributorContract: ADDRESS_ZERO,
   subdaoEmitter: ADDRESS_ZERO,
   donationMatchContract: ADDRESS_ZERO,
+  donationMatchCharitesContract: ADDRESS_ZERO,
+  donationMatchEmitter: ADDRESS_ZERO,
   splitToLiquid: {max: 0, min: 0, defaultSplit: 0} as any,
   haloToken: ADDRESS_ZERO,
   govContract: ADDRESS_ZERO,
-  donationMatchEmitter: ADDRESS_ZERO,
   fundraisingContract: ADDRESS_ZERO,
   uniswapRouter: ADDRESS_ZERO,
   uniswapFactory: ADDRESS_ZERO,
-  lockedWithdrawal: ADDRESS_ZERO,
+  multisigFactory: ADDRESS_ZERO,
+  multisigEmitter: ADDRESS_ZERO,
+  charityApplications: ADDRESS_ZERO,
   proxyAdmin: ADDRESS_ZERO,
   usdcAddress: ADDRESS_ZERO,
   wMaticAddress: ADDRESS_ZERO,
   cw900lvAddress: ADDRESS_ZERO,
-  charityApplications: ADDRESS_ZERO,
-  multisigFactory: ADDRESS_ZERO,
-  multisigEmitter: ADDRESS_ZERO,
-  donationMatchCharitesContract: ADDRESS_ZERO,
   gasFwdFactory: ADDRESS_ZERO,
 };
 

@@ -4,7 +4,7 @@ pragma solidity ^0.8.16;
 import {Validator} from "../validator.sol";
 import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {RegistrarMessages} from "./message.sol";
-import "./storage.sol";
+import {RegistrarStorage, Storage} from "./storage.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {LocalRegistrar} from "./LocalRegistrar.sol";
 import {LocalRegistrarLib} from "./lib/LocalRegistrarLib.sol";
@@ -31,9 +31,10 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
   function initialize(RegistrarMessages.InstantiateRequest memory details) public initializer {
     __LocalRegistrar_init(details.networkName);
     state.config = RegistrarStorage.Config({
-      indexFundContract: address(0),
       accountsContract: address(0),
+      apTeamMultisig: details.apTeamMultisig,
       treasury: details.treasury,
+      indexFundContract: address(0),
       subdaoGovContract: address(0),
       subdaoTokenContract: address(0),
       subdaoBondingTokenContract: address(0),
@@ -41,18 +42,17 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       subdaoDistributorContract: address(0),
       subdaoEmitter: address(0),
       donationMatchContract: address(0),
+      donationMatchCharitesContract: address(0),
+      donationMatchEmitter: address(0),
       splitToLiquid: details.splitToLiquid,
       haloToken: address(0),
       govContract: address(0),
-      donationMatchCharitesContract: address(0),
-      donationMatchEmitter: address(0),
       fundraisingContract: address(0),
       uniswapRouter: address(0),
       uniswapFactory: address(0),
       multisigFactory: address(0),
       multisigEmitter: address(0),
       charityApplications: address(0),
-      lockedWithdrawal: address(0),
       proxyAdmin: address(0),
       usdcAddress: address(0),
       wMaticAddress: address(0),
@@ -86,47 +86,16 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       state.config.accountsContract = details.accountsContract;
     }
 
-    if (Validator.addressChecker(details.uniswapRouter)) {
-      state.config.uniswapRouter = details.uniswapRouter;
-    }
-
-    if (Validator.addressChecker(details.uniswapFactory)) {
-      state.config.uniswapFactory = details.uniswapFactory;
-    }
-
-    if (Validator.addressChecker(details.indexFundContract)) {
-      state.config.indexFundContract = details.indexFundContract;
+    if (Validator.addressChecker(details.apTeamMultisig)) {
+      state.config.apTeamMultisig = details.apTeamMultisig;
     }
 
     if (Validator.addressChecker(details.treasury)) {
       state.config.treasury = details.treasury;
     }
 
-    // check splits
-    LibAccounts.SplitDetails memory split_details = LibAccounts.SplitDetails({
-      max: details.splitMax,
-      min: details.splitMin,
-      defaultSplit: details.splitDefault
-    });
-
-    require(Validator.splitChecker(split_details), "Invalid Splits");
-    state.config.splitToLiquid = split_details;
-
-    if (Validator.addressChecker(details.donationMatchCharitesContract)) {
-      state.config.donationMatchCharitesContract = details.donationMatchCharitesContract;
-    }
-    if (Validator.addressChecker(details.donationMatchEmitter)) {
-      state.config.donationMatchEmitter = details.donationMatchEmitter;
-    }
-
-    // state.config.acceptedTokens = details.acceptedTokens;
-
-    if (Validator.addressChecker(details.fundraisingContract)) {
-      state.config.fundraisingContract = details.fundraisingContract;
-    }
-
-    if (Validator.addressChecker(details.govContract)) {
-      state.config.govContract = details.govContract;
+    if (Validator.addressChecker(details.indexFundContract)) {
+      state.config.indexFundContract = details.indexFundContract;
     }
 
     if (Validator.addressChecker(details.subdaoGovContract)) {
@@ -137,12 +106,44 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       state.config.subdaoEmitter = details.subdaoEmitter;
     }
 
+    if (Validator.addressChecker(details.donationMatchCharitesContract)) {
+      state.config.donationMatchCharitesContract = details.donationMatchCharitesContract;
+    }
+
+    if (Validator.addressChecker(details.donationMatchEmitter)) {
+      state.config.donationMatchEmitter = details.donationMatchEmitter;
+    }
+
     if (Validator.addressChecker(details.donationMatchContract)) {
       state.config.donationMatchContract = details.donationMatchContract;
     }
 
+    LibAccounts.SplitDetails memory split_details = LibAccounts.SplitDetails({
+      max: details.splitMax,
+      min: details.splitMin,
+      defaultSplit: details.splitDefault
+    });
+    require(Validator.splitChecker(split_details), "Invalid Splits");
+    state.config.splitToLiquid = split_details;
+
     if (Validator.addressChecker(details.haloToken)) {
       state.config.haloToken = details.haloToken;
+    }
+
+    if (Validator.addressChecker(details.govContract)) {
+      state.config.govContract = details.govContract;
+    }
+
+    if (Validator.addressChecker(details.fundraisingContract)) {
+      state.config.fundraisingContract = details.fundraisingContract;
+    }
+
+    if (Validator.addressChecker(details.uniswapRouter)) {
+      state.config.uniswapRouter = details.uniswapRouter;
+    }
+
+    if (Validator.addressChecker(details.uniswapFactory)) {
+      state.config.uniswapFactory = details.uniswapFactory;
     }
 
     if (Validator.addressChecker(details.multisigEmitter)) {
@@ -155,10 +156,6 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
 
     if (Validator.addressChecker(details.charityApplications)) {
       state.config.charityApplications = details.charityApplications;
-    }
-
-    if (Validator.addressChecker(details.lockedWithdrawal)) {
-      state.config.lockedWithdrawal = details.lockedWithdrawal;
     }
 
     if (Validator.addressChecker(details.proxyAdmin)) {

@@ -6,9 +6,10 @@ import {LocalRegistrarLib} from "./lib/LocalRegistrarLib.sol";
 
 library RegistrarStorage {
   struct Config {
-    address indexFundContract;
     address accountsContract;
+    address apTeamMultisig;
     address treasury;
+    address indexFundContract;
     address subdaoGovContract;
     address subdaoTokenContract;
     address subdaoBondingTokenContract;
@@ -21,14 +22,12 @@ library RegistrarStorage {
     LibAccounts.SplitDetails splitToLiquid; // set of max, min, and default Split paramenters to check user defined split input against
     address haloToken;
     address govContract;
-    //PROTOCOL LEVEL
     address fundraisingContract;
     address uniswapRouter;
     address uniswapFactory;
     address multisigFactory;
     address multisigEmitter;
     address charityApplications;
-    address lockedWithdrawal;
     address proxyAdmin;
     address usdcAddress;
     address wMaticAddress;

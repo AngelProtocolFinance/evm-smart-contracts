@@ -49,6 +49,7 @@ task(
           deployer,
           proxyAdmin,
           treasury: treasury.address,
+          apTeamMultisig: apTeamMultiSig,
         },
         hre
       );
