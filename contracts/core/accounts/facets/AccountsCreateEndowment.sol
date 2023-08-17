@@ -113,21 +113,21 @@ contract AccountsCreateEndowment is
       IterableMappingAddr.set(
         state.Allowlists[newEndowId][LibAccounts.AllowlistType.AllowlistedBeneficiaries],
         details.allowlistedBeneficiaries[i],
-        1
+        true
       );
     }
     for (uint256 i = 0; i < details.allowlistedContributors.length; i++) {
       IterableMappingAddr.set(
         state.Allowlists[newEndowId][LibAccounts.AllowlistType.AllowlistedContributors],
         details.allowlistedContributors[i],
-        1
+        true
       );
     }
     for (uint256 i = 0; i < details.maturityAllowlist.length; i++) {
       IterableMappingAddr.set(
         state.Allowlists[newEndowId][LibAccounts.AllowlistType.MaturityAllowlist],
         details.maturityAllowlist[i],
-        1
+        true
       );
     }
 

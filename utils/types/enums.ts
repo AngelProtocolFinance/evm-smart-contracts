@@ -57,6 +57,12 @@ export enum FeeTypes {
   EarlyLockedWithdraw,
 }
 
+export enum BeneficiaryEnum {
+  EndowmentId,
+  Wallet,
+  None,
+}
+
 export enum DonationMatchEnum {
   HaloTokenReserve,
   ERC20TokenReserve,
@@ -64,7 +70,7 @@ export enum DonationMatchEnum {
 
 export enum EndowmentType {
   Charity,
-  Normal,
+  Ast,
   Daf,
 }
 

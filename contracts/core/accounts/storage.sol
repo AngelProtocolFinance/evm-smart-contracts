@@ -58,7 +58,7 @@ library AccountStorage {
   struct State {
     mapping(uint32 => Endowment) Endowments;
     mapping(uint32 => EndowmentState) States;
-    mapping(uint32 => mapping(IVault.VaultType => IterableMappingAddr.Map)) Balances;
+    mapping(uint32 => mapping(IVault.VaultType => mapping(address => uint256))) Balances;
     // endow ID -> token Addr -> TokenAllowances
     mapping(uint32 => mapping(address => TokenAllowances)) Allowances;
     // endow ID -> token Addr -> bool

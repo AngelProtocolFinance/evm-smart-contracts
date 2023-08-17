@@ -29,9 +29,9 @@ import {AddressArray} from "../../../lib/address/array.sol";
 
 contract AccountsDepositWithdrawEndowments is
   ReentrancyGuardFacet,
-  IterableMappingAddr,
   IAccountsEvents,
-  IAccountsDepositWithdrawEndowments
+  IAccountsDepositWithdrawEndowments,
+  IterableMappingAddr
 {
   using SafeERC20 for IERC20;
   using FixedPointMathLib for uint256;
@@ -131,20 +131,24 @@ contract AccountsDepositWithdrawEndowments is
       tempEndowment.maturityTime == 0 || tempEndowment.maturityTime > block.timestamp,
       "Mature Endowments cannot receive contributions"
     );
-    // Check msg sender is in Contributor Allowlist (only non-Charity Endowments can set)
-    // or that it is the Endowment owner. If allowlist is empty anyone may contribute.
-    bool contributorAllowed = true;
+
+    // If caller is index fund, the Endowment owner or there is not a poopulated allowlist, continue
     if (
-      (msg.sender != registrarConfig.indexFundContract && msg.sender != tempEndowment.owner) &&
+      (msg.sender != registrarConfig.indexFundContract || msg.sender != tempEndowment.owner) &&
       state.Allowlists[details.id][LibAccounts.AllowlistType.AllowlistedContributors].keys.length >
       0
     ) {
-      contributorAllowed = (IterableMappingAddr.get(
-        state.Allowlists[details.id][LibAccounts.AllowlistType.AllowlistedContributors],
-        msg.sender
-      ) == 1);
+      // if there is an allowlist, check that msg.sender is in it
+      if (
+        !IterableMappingAddr.get(
+          state.Allowlists[details.id][LibAccounts.AllowlistType.AllowlistedContributors],
+          msg.sender
+        )
+      ) {
+        // revert if they aren't
+        revert("Contributor address is not listed in allowlistedContributors");
+      }
     }
-    require(contributorAllowed, "Contributor address is not listed in allowlistedContributors");
 
     // ** DEPOSIT FEE CALCULATIONS **
     // ** Protocol-level Deposit Fee **
@@ -207,16 +211,8 @@ contract AccountsDepositWithdrawEndowments is
       }
     }
 
-    IterableMappingAddr.incr(
-      state.Balances[details.id][IVault.VaultType.LOCKED],
-      tokenAddress,
-      lockedAmount
-    );
-    IterableMappingAddr.incr(
-      state.Balances[details.id][IVault.VaultType.LIQUID],
-      tokenAddress,
-      liquidAmount
-    );
+    state.Balances[details.id][IVault.VaultType.LOCKED][tokenAddress] += lockedAmount;
+    state.Balances[details.id][IVault.VaultType.LIQUID][tokenAddress] += liquidAmount;
 
     emit EndowmentDeposit(details.id, tokenAddress, lockedAmount, liquidAmount);
   }
@@ -238,16 +234,8 @@ contract AccountsDepositWithdrawEndowments is
     uint256 lockedAmount = amount.mulDivDown(details.lockedPercentage, LibAccounts.PERCENT_BASIS);
     uint256 liquidAmount = amount.mulDivDown(details.liquidPercentage, LibAccounts.PERCENT_BASIS);
 
-    IterableMappingAddr.incr(
-      state.Balances[details.id][IVault.VaultType.LOCKED],
-      tokenAddress,
-      lockedAmount
-    );
-    IterableMappingAddr.incr(
-      state.Balances[details.id][IVault.VaultType.LIQUID],
-      tokenAddress,
-      liquidAmount
-    );
+    state.Balances[details.id][IVault.VaultType.LOCKED][tokenAddress] += lockedAmount;
+    state.Balances[details.id][IVault.VaultType.LIQUID][tokenAddress] += liquidAmount;
 
     emit EndowmentDeposit(details.id, tokenAddress, lockedAmount, liquidAmount);
   }
@@ -346,9 +334,8 @@ contract AccountsDepositWithdrawEndowments is
     }
 
     for (uint256 t = 0; t < tokens.length; t++) {
-      uint256 currentBal = IterableMappingAddr.get(state.Balances[id][acctType], tokens[t].addr);
       // ensure balance of tokens can cover the requested withdraw amount
-      require(currentBal >= tokens[t].amnt, "Insufficient Funds");
+      require(state.Balances[id][acctType][tokens[t].addr] >= tokens[t].amnt, "Insufficient Funds");
 
       // calculate all fees owed, send them to payout addresses, & return the leftover amount
       uint256 amountLeftover = tokens[t].amnt;
@@ -373,10 +360,12 @@ contract AccountsDepositWithdrawEndowments is
           // determine if beneficiaryAddress can receive withdrawn funds based on allowlist and maturity status
           bool beneficiaryAllowed;
           if (mature) {
-            beneficiaryAllowed = (IterableMappingAddr.get(
-              state.Allowlists[id][LibAccounts.AllowlistType.MaturityAllowlist],
-              beneficiaryAddress
-            ) == 1);
+            beneficiaryAllowed = (
+              IterableMappingAddr.get(
+                state.Allowlists[id][LibAccounts.AllowlistType.MaturityAllowlist],
+                beneficiaryAddress
+              )
+            );
             require(beneficiaryAllowed, "Beneficiary address is not listed in maturityAllowlist");
           } else {
             if (
@@ -389,10 +378,12 @@ contract AccountsDepositWithdrawEndowments is
             ) {
               beneficiaryAllowed = true;
             } else {
-              beneficiaryAllowed = (IterableMappingAddr.get(
-                state.Allowlists[id][LibAccounts.AllowlistType.AllowlistedBeneficiaries],
-                beneficiaryAddress
-              ) == 1);
+              beneficiaryAllowed = (
+                IterableMappingAddr.get(
+                  state.Allowlists[id][LibAccounts.AllowlistType.AllowlistedBeneficiaries],
+                  beneficiaryAddress
+                )
+              );
             }
             require(
               beneficiaryAllowed,
@@ -435,7 +426,7 @@ contract AccountsDepositWithdrawEndowments is
       }
 
       // reduce the org's balance by the withdrawn token amount
-      IterableMappingAddr.decr(state.Balances[id][acctType], tokens[t].addr, tokens[t].amnt);
+      state.Balances[id][acctType][tokens[t].addr] -= tokens[t].amnt;
       emit EndowmentWithdraw(
         id,
         tokens[t].addr,

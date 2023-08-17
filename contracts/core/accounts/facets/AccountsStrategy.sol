@@ -20,7 +20,6 @@ import {AxelarExecutableAccounts} from "../lib/AxelarExecutableAccounts.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IGasFwd} from "../../gasFwd/IGasFwd.sol";
-import {IterableMappingAddr} from "../../../lib/IterableMappingAddr.sol";
 
 /**
  * @title AccountsStrategy
@@ -30,8 +29,7 @@ contract AccountsStrategy is
   IAccountsStrategy,
   AxelarExecutableAccounts,
   ReentrancyGuardFacet,
-  IAccountsEvents,
-  IterableMappingAddr
+  IAccountsEvents
 {
   using SafeERC20 for IERC20;
 
@@ -94,13 +92,11 @@ contract AccountsStrategy is
     );
 
     require(
-      IterableMappingAddr.get(state.Balances[id][IVault.VaultType.LOCKED], tokenAddress) >=
-        investRequest.lockAmt,
+      state.Balances[id][IVault.VaultType.LOCKED][tokenAddress] >= investRequest.lockAmt,
       "Insufficient Balance"
     );
     require(
-      IterableMappingAddr.get(state.Balances[id][IVault.VaultType.LIQUID], tokenAddress) >=
-        investRequest.liquidAmt,
+      state.Balances[id][IVault.VaultType.LIQUID][tokenAddress] >= investRequest.liquidAmt,
       "Insufficient Balance"
     );
 
@@ -114,16 +110,8 @@ contract AccountsStrategy is
     uint32[] memory accts = new uint32[](1);
     accts[0] = id;
 
-    IterableMappingAddr.decr(
-      state.Balances[id][IVault.VaultType.LOCKED],
-      tokenAddress,
-      investRequest.lockAmt
-    );
-    IterableMappingAddr.decr(
-      state.Balances[id][IVault.VaultType.LIQUID],
-      tokenAddress,
-      investRequest.liquidAmt
-    );
+    state.Balances[id][IVault.VaultType.LOCKED][tokenAddress] -= investRequest.lockAmt;
+    state.Balances[id][IVault.VaultType.LIQUID][tokenAddress] -= investRequest.liquidAmt;
     state.ActiveStrategies[id][investRequest.strategy] = true;
     emit EndowmentInvested(id);
 
@@ -277,28 +265,12 @@ contract AccountsStrategy is
         packedPayload
       );
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
-        IterableMappingAddr.incr(
-          state.Balances[id][IVault.VaultType.LOCKED],
-          tokenAddress,
-          response.lockAmt
-        );
-        IterableMappingAddr.incr(
-          state.Balances[id][IVault.VaultType.LIQUID],
-          tokenAddress,
-          response.liqAmt
-        );
+        state.Balances[id][IVault.VaultType.LOCKED][tokenAddress] += response.lockAmt;
+        state.Balances[id][IVault.VaultType.LIQUID][tokenAddress] += response.liqAmt;
         emit EndowmentRedeemed(id, response.status);
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
-        IterableMappingAddr.incr(
-          state.Balances[id][IVault.VaultType.LOCKED],
-          tokenAddress,
-          response.lockAmt
-        );
-        IterableMappingAddr.incr(
-          state.Balances[id][IVault.VaultType.LIQUID],
-          tokenAddress,
-          response.liqAmt
-        );
+        state.Balances[id][IVault.VaultType.LOCKED][tokenAddress] += response.lockAmt;
+        state.Balances[id][IVault.VaultType.LIQUID][tokenAddress] += response.liqAmt;
         state.ActiveStrategies[id][redeemRequest.strategy] = false;
         emit EndowmentRedeemed(id, response.status);
       } else {
@@ -426,16 +398,8 @@ contract AccountsStrategy is
       );
 
       if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
-        IterableMappingAddr.incr(
-          state.Balances[id][IVault.VaultType.LOCKED],
-          tokenAddress,
-          response.lockAmt
-        );
-        IterableMappingAddr.incr(
-          state.Balances[id][IVault.VaultType.LIQUID],
-          tokenAddress,
-          response.liqAmt
-        );
+        state.Balances[id][IVault.VaultType.LOCKED][response.token] += response.lockAmt;
+        state.Balances[id][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
         state.ActiveStrategies[id][redeemAllRequest.strategy] = false;
         emit EndowmentRedeemed(id, response.status);
       } else {
@@ -500,16 +464,8 @@ contract AccountsStrategy is
       response.selector == IVault.deposit.selector &&
       response.status == IVault.VaultActionStatus.FAIL_TOKENS_RETURNED
     ) {
-      IterableMappingAddr.incr(
-        state.Balances[id][IVault.VaultType.LOCKED],
-        response.token,
-        response.lockAmt
-      );
-      IterableMappingAddr.incr(
-        state.Balances[id][IVault.VaultType.LIQUID],
-        response.token,
-        response.liqAmt
-      );
+      state.Balances[id][IVault.VaultType.LOCKED][response.token] += response.lockAmt;
+      state.Balances[id][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
       emit EndowmentRedeemed(id, response.status);
       return true;
     }
@@ -522,29 +478,13 @@ contract AccountsStrategy is
       (response.selector == IVault.redeemAll.selector)
     ) {
       if (response.status == IVault.VaultActionStatus.SUCCESS) {
-        IterableMappingAddr.incr(
-          state.Balances[id][IVault.VaultType.LOCKED],
-          response.token,
-          response.lockAmt
-        );
-        IterableMappingAddr.incr(
-          state.Balances[id][IVault.VaultType.LIQUID],
-          response.token,
-          response.liqAmt
-        );
+        state.Balances[id][IVault.VaultType.LOCKED][response.token] += response.lockAmt;
+        state.Balances[id][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
         emit EndowmentRedeemed(id, response.status);
         return true;
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
-        IterableMappingAddr.incr(
-          state.Balances[id][IVault.VaultType.LOCKED],
-          response.token,
-          response.lockAmt
-        );
-        IterableMappingAddr.incr(
-          state.Balances[id][IVault.VaultType.LIQUID],
-          response.token,
-          response.liqAmt
-        );
+        state.Balances[id][IVault.VaultType.LOCKED][response.token] += response.lockAmt;
+        state.Balances[id][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
         state.ActiveStrategies[id][response.strategyId] = false;
         emit EndowmentRedeemed(id, response.status);
         return true;
@@ -643,8 +583,8 @@ contract AccountsStrategy is
     uint256 gasRemaining
   ) internal {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    uint256 lockBal = IterableMappingAddr.get(state.Balances[id][IVault.VaultType.LOCKED], token);
-    uint256 liqBal = IterableMappingAddr.get(state.Balances[id][IVault.VaultType.LIQUID], token);
+    uint256 lockBal = state.Balances[id][IVault.VaultType.LOCKED][token];
+    uint256 liqBal = state.Balances[id][IVault.VaultType.LIQUID][token];
 
     uint256 liqGas = (gasRemaining * gasRateFromLiq_withPrecision) / LibAccounts.BIG_NUMBA_BASIS;
     uint256 lockGas = gasRemaining - liqGas;
@@ -652,22 +592,14 @@ contract AccountsStrategy is
     // Cases:
     // 1) lockBal and liqBal each cover the respective needs
     if ((lockGas <= lockBal) && (liqGas <= liqBal)) {
-      IterableMappingAddr.decr(state.Balances[id][IVault.VaultType.LOCKED], token, lockGas);
-      IterableMappingAddr.decr(state.Balances[id][IVault.VaultType.LIQUID], token, liqGas);
+      state.Balances[id][IVault.VaultType.LOCKED][token] -= lockGas;
+      state.Balances[id][IVault.VaultType.LIQUID][token] -= liqGas;
     } else if ((lockGas > lockBal) && (liqGas <= liqBal)) {
       // 2) lockBal does not cover lockGas, check if liqBal can cover deficit in addition to liqGas
       uint256 lockNeedDeficit = lockGas - lockBal;
       if (lockNeedDeficit <= (liqBal - liqGas)) {
-        IterableMappingAddr.decr(
-          state.Balances[id][IVault.VaultType.LOCKED],
-          token,
-          (lockGas - lockNeedDeficit)
-        );
-        IterableMappingAddr.decr(
-          state.Balances[id][IVault.VaultType.LIQUID],
-          token,
-          (liqGas + lockNeedDeficit)
-        );
+        state.Balances[id][IVault.VaultType.LOCKED][token] -= (lockGas - lockNeedDeficit);
+        state.Balances[id][IVault.VaultType.LIQUID][token] -= (liqGas + lockNeedDeficit);
       } else {
         // 3) lockBal does not cover lockGas and liqBal cannot cover -> revert
         revert InsufficientFundsForGas(id);

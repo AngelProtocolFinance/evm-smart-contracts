@@ -10,9 +10,8 @@ import {IGasFwd} from "../../gasFwd/IGasFwd.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {IterableMappingAddr} from "../../../lib/IterableMappingAddr.sol";
 
-contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager, IterableMappingAddr {
+contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager {
   using SafeERC20 for IERC20;
 
   /// @notice Ensure the caller is this same contract
@@ -58,7 +57,7 @@ contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager, Iterab
   ) external onlyAdmin returns (uint256 funds) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     funds = IGasFwd(state.Endowments[id].gasFwd).sweep(token);
-    IterableMappingAddr.incr(state.Balances[id][vault], token, funds);
+    state.Balances[id][vault][token] += funds;
   }
 
   /// @notice Take funds from locked or liquid account and transfer them to the gasFwd
@@ -70,11 +69,10 @@ contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager, Iterab
     }
 
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    uint256 balance = IterableMappingAddr.get(state.Balances[id][vault], token);
-    if (balance < amount) {
+    if (state.Balances[id][vault][token] < amount) {
       revert InsufficientFunds();
     }
-    IterableMappingAddr.decr(state.Balances[id][vault], token, amount);
+    state.Balances[id][vault][token] -= amount;
     IERC20(token).safeTransfer(state.Endowments[id].gasFwd, amount);
   }
 

@@ -63,6 +63,10 @@ contract AccountsUpdate is ReentrancyGuardFacet, IAccountsEvents, IAccountsUpdat
 
     // add all endowments first
     for (uint256 i = 0; i < add.length; i++) {
+      require(
+        state.Endowments[add[i]].endowType != LibAccounts.EndowmentType.Ast,
+        "Cannot add AST Endowments"
+      );
       state.DafApprovedEndowments[add[i]] = true;
     }
 

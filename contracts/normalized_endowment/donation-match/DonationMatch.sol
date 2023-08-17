@@ -84,7 +84,7 @@ contract DonationMatch is IDonationMatching, Storage, Initializable {
 
     if (endow_detail.endowType == LibAccounts.EndowmentType.Charity) {
       require(address(this) == registrar_config.donationMatchCharitesContract, "Unauthorized");
-    } else if (endow_detail.endowType == LibAccounts.EndowmentType.Normal) {
+    } else if (endow_detail.endowType == LibAccounts.EndowmentType.Ast) {
       require(address(this) == endow_detail.donationMatchContract, "Unauthorized");
     }
 

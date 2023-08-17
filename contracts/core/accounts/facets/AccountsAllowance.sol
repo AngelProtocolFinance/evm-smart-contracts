@@ -45,8 +45,7 @@ contract AccountsAllowance is
 
     require(!state.States[endowId].closingEndowment, "Endowment is closed");
     require(
-      token != address(0) &&
-        IterableMappingAddr.get(state.Balances[endowId][IVault.VaultType.LIQUID], token) > 0,
+      token != address(0) && state.Balances[endowId][IVault.VaultType.LIQUID][token] > 0,
       "Invalid Token"
     );
 
@@ -63,10 +62,10 @@ contract AccountsAllowance is
         ),
         "Unauthorized"
       );
-      inAllowlist = (IterableMappingAddr.get(
+      inAllowlist = IterableMappingAddr.get(
         state.Allowlists[endowId][LibAccounts.AllowlistType.AllowlistedBeneficiaries],
         spender
-      ) == 1);
+      );
     } else {
       // Only the endowment owner or a delegate whom controls allowlist can update allowances
       require(
@@ -78,10 +77,10 @@ contract AccountsAllowance is
         ),
         "Unauthorized"
       );
-      inAllowlist = (IterableMappingAddr.get(
+      inAllowlist = IterableMappingAddr.get(
         state.Allowlists[endowId][LibAccounts.AllowlistType.MaturityAllowlist],
         spender
-      ) == 1);
+      );
     }
     require(inAllowlist, "Spender is not in allowlists");
 
@@ -91,17 +90,12 @@ contract AccountsAllowance is
       amountDelta = amount - spenderBal;
       // check if liquid balance is sufficient for any proposed increase to spender allocation
       require(
-        amountDelta <=
-          IterableMappingAddr.get(state.Balances[endowId][IVault.VaultType.LIQUID], token),
+        amountDelta <= state.Balances[endowId][IVault.VaultType.LIQUID][token],
         "Insufficient liquid balance to allocate"
       );
       // increase total outstanding allocation & reduce liquid balance by AmountDelta
       state.Allowances[endowId][token].totalOutstanding += amountDelta;
-      IterableMappingAddr.decr(
-        state.Balances[endowId][IVault.VaultType.LIQUID],
-        token,
-        amountDelta
-      );
+      state.Balances[endowId][IVault.VaultType.LIQUID][token] -= amountDelta;
       emit AllowanceUpdated(endowId, spender, token, amount, amountDelta, 0);
     } else if (amount < spenderBal) {
       amountDelta = spenderBal - amount;
@@ -111,11 +105,7 @@ contract AccountsAllowance is
       );
       // decrease total outstanding allocation & increase liquid balance by AmountDelta
       state.Allowances[endowId][token].totalOutstanding -= amountDelta;
-      IterableMappingAddr.incr(
-        state.Balances[endowId][IVault.VaultType.LIQUID],
-        token,
-        amountDelta
-      );
+      state.Balances[endowId][IVault.VaultType.LIQUID][token] += amountDelta;
       emit AllowanceUpdated(endowId, spender, token, amount, 0, amountDelta);
     } else {
       // equal amount and spender balance

@@ -16,7 +16,6 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
-import {IterableMappingAddr} from "../../../lib/IterableMappingAddr.sol";
 
 uint256 constant ACCEPTABLE_PRICE_DELAY = 300; // 5 minutes, in seconds
 
@@ -24,12 +23,7 @@ uint256 constant ACCEPTABLE_PRICE_DELAY = 300; // 5 minutes, in seconds
  * @title AccountsSwapRouter
  * @dev This contract manages the swaps for endowments
  */
-contract AccountsSwapRouter is
-  ReentrancyGuardFacet,
-  IAccountsEvents,
-  IAccountsSwapRouter,
-  IterableMappingAddr
-{
+contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsSwapRouter {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
@@ -106,19 +100,11 @@ contract AccountsSwapRouter is
       revert("Invalid AccountType");
     }
 
-    if (accountType == IVault.VaultType.LOCKED) {
-      require(
-        IterableMappingAddr.get(state.Balances[id][IVault.VaultType.LOCKED], tokenIn) >= amountIn,
-        "Requested swap amount is greater than Endowment Locked balance"
-      );
-      IterableMappingAddr.decr(state.Balances[id][IVault.VaultType.LOCKED], tokenIn, amountIn);
-    } else {
-      require(
-        IterableMappingAddr.get(state.Balances[id][IVault.VaultType.LIQUID], tokenIn) >= amountIn,
-        "Requested swap amount is greater than Endowment Liquid balance"
-      );
-      IterableMappingAddr.decr(state.Balances[id][IVault.VaultType.LIQUID], tokenIn, amountIn);
-    }
+    require(
+      state.Balances[id][accountType][tokenIn] >= amountIn,
+      "Requested swap amount is greater than Endowment balance"
+    );
+    state.Balances[id][accountType][tokenIn] -= amountIn;
 
     // Check that both in & out tokens have chainlink price feed contract set for them
     // this could be either at the Registrar or the Endowment level
@@ -150,7 +136,7 @@ contract AccountsSwapRouter is
     );
 
     // Allocate the newly swapped tokens to the correct endowment balance
-    IterableMappingAddr.incr(state.Balances[id][accountType], tokenOut, amountOut);
+    state.Balances[id][accountType][tokenOut] += amountOut;
 
     emit TokenSwapped(id, accountType, tokenIn, amountIn, tokenOut, amountOut);
   }

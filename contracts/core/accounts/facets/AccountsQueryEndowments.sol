@@ -30,7 +30,7 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments, IterableMappingAdd
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     require(address(0) != tokenAddress, "Invalid token address");
 
-    tokenAmount = IterableMappingAddr.get(state.Balances[id][accountType], tokenAddress);
+    tokenAmount = state.Balances[id][accountType][tokenAddress];
   }
 
   /**

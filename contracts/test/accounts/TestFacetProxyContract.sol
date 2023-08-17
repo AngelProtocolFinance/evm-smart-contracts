@@ -74,8 +74,8 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMappingA
     uint256 _liqBal
   ) external {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    IterableMappingAddr.set(state.Balances[accountId][IVault.VaultType.LOCKED], _token, _lockBal);
-    IterableMappingAddr.set(state.Balances[accountId][IVault.VaultType.LIQUID], _token, _liqBal);
+    state.Balances[accountId][IVault.VaultType.LOCKED][_token] = _lockBal;
+    state.Balances[accountId][IVault.VaultType.LIQUID][_token] = _liqBal;
   }
 
   function getEndowmentTokenBalance(
@@ -84,8 +84,8 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMappingA
   ) external view returns (uint256, uint256) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     return (
-      IterableMappingAddr.get(state.Balances[accountId][IVault.VaultType.LOCKED], _token),
-      IterableMappingAddr.get(state.Balances[accountId][IVault.VaultType.LIQUID], _token)
+      state.Balances[accountId][IVault.VaultType.LOCKED][_token],
+      state.Balances[accountId][IVault.VaultType.LIQUID][_token]
     );
   }
 
@@ -213,8 +213,9 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMappingA
     address[] memory allowlist
   ) external {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
+    delete state.Allowlists[endowId][listType];
     for (uint256 i = 0; i < allowlist.length; i++) {
-      IterableMappingAddr.set(state.Allowlists[endowId][listType], allowlist[i], 1);
+      IterableMappingAddr.set(state.Allowlists[endowId][listType], allowlist[i], true);
     }
   }
 

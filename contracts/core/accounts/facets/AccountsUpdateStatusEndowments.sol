@@ -12,7 +12,6 @@ import {IAccountsGasManager} from "../interfaces/IAccountsGasManager.sol";
 import {IAccountsUpdateStatusEndowments} from "../interfaces/IAccountsUpdateStatusEndowments.sol";
 import {IAccountsDepositWithdrawEndowments} from "../interfaces/IAccountsDepositWithdrawEndowments.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
-import {IterableMappingAddr} from "../../../lib/IterableMappingAddr.sol";
 
 /**
  * @title AccountsUpdateStatusEndowments
@@ -22,8 +21,7 @@ import {IterableMappingAddr} from "../../../lib/IterableMappingAddr.sol";
 contract AccountsUpdateStatusEndowments is
   IAccountsUpdateStatusEndowments,
   ReentrancyGuardFacet,
-  IAccountsEvents,
-  IterableMappingAddr
+  IAccountsEvents
 {
   /**
    * @notice Closes an endowment, setting the endowment state to "closingEndowment" and the closing beneficiary to the provided beneficiary.
@@ -52,26 +50,23 @@ contract AccountsUpdateStatusEndowments is
     // Normal Endowments: Can send to any other endowment ID or 3rd party wallet desired.
     // If NONE was passed for beneficiary, then we send all balances to the AP Treasury to be manually re-invested to Endowments chosen by AP MultiSig/Governance.
 
-    // Beneficiary of NONE passed, set to the AP Treasury
-    if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.None) {
-      beneficiary = LibAccounts.Beneficiary({
-        data: LibAccounts.BeneficiaryData({endowId: 0, addr: registrarConfig.treasury}),
-        enumData: LibAccounts.BeneficiaryEnum.Wallet
-      });
-      // Ensure Charity & DAF Type endowments meet closing beneficiary restrictions
-    } else if (
+    // Ensure Charity & DAF Type endowments meet closing beneficiary restrictions
+    if (
       tempEndowment.endowType == LibAccounts.EndowmentType.Charity ||
       tempEndowment.endowType == LibAccounts.EndowmentType.Daf
     ) {
       require(
         beneficiary.enumData != LibAccounts.BeneficiaryEnum.Wallet,
-        "Charity cannot pass Wallet beneficiary"
+        "Cannot pass Wallet beneficiary"
       );
-      // if NONE is passed we can skip the below checks
+      // If an Endowment ID is not passed we can skip the checks below
       if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.EndowmentId) {
         if (tempEndowment.endowType == LibAccounts.EndowmentType.Daf) {
-          require(state.DafApprovedEndowments[id], "Not an approved Endowment for DAF withdrawals");
-        } else {
+          require(
+            state.DafApprovedEndowments[beneficiary.data.endowId],
+            "Not an approved Endowment for DAF withdrawals"
+          );
+        } else if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
           require(
             state.Endowments[beneficiary.data.endowId].endowType ==
               LibAccounts.EndowmentType.Charity,
@@ -79,6 +74,18 @@ contract AccountsUpdateStatusEndowments is
           );
         }
       }
+    }
+
+    if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.EndowmentId) {
+      require(id != beneficiary.data.endowId, "Cannot set own Endowment as final Beneficiary");
+    }
+
+    // Beneficiary of NONE passed, set to the AP Treasury
+    if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.None) {
+      beneficiary = LibAccounts.Beneficiary({
+        data: LibAccounts.BeneficiaryData({endowId: 0, addr: registrarConfig.treasury}),
+        enumData: LibAccounts.BeneficiaryEnum.Wallet
+      });
     }
 
     // final check to ensure beneficiary data is set correctly for the desired type

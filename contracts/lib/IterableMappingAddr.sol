@@ -7,12 +7,12 @@ contract IterableMappingAddr {
 
   struct Map {
     address[] keys;
-    mapping(address => uint256) values;
+    mapping(address => bool) values;
     mapping(address => uint) indexOf;
     mapping(address => bool) inserted;
   }
 
-  function get(Map storage map, address key) internal view returns (uint256) {
+  function get(Map storage map, address key) internal view returns (bool) {
     return map.values[key];
   }
 
@@ -24,25 +24,7 @@ contract IterableMappingAddr {
     return map.keys.length;
   }
 
-  function decr(Map storage map, address key, uint256 val) internal {
-    if (!map.inserted[key]) {
-      revert NonExistentKey(key);
-    } else if (map.values[key] < val) {
-      revert DecrAmountExceedsValue(key, map.values[key], val);
-    } else {
-      map.values[key] -= val;
-    }
-  }
-
-  function incr(Map storage map, address key, uint256 val) internal {
-    if (map.inserted[key]) {
-      map.values[key] += val;
-    } else {
-      set(map, key, val);
-    }
-  }
-
-  function set(Map storage map, address key, uint256 val) internal {
+  function set(Map storage map, address key, bool val) internal {
     if (map.inserted[key]) {
       map.values[key] = val;
     } else {

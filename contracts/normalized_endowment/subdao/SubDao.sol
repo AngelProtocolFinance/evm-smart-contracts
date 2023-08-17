@@ -69,7 +69,7 @@ contract SubDao is ISubDao, Storage, ReentrancyGuard, Initializable {
 
     if (
       details.token.token == SubDaoLib.TokenType.Existing &&
-      details.endowType == LibAccounts.EndowmentType.Normal
+      details.endowType == LibAccounts.EndowmentType.Ast
     ) {
       require(
         IRegistrar(config.registrarContract).isTokenAccepted(details.token.data.existingData),
@@ -78,7 +78,7 @@ contract SubDao is ISubDao, Storage, ReentrancyGuard, Initializable {
       config.daoToken = details.token.data.existingData;
     } else if (
       details.token.token == SubDaoLib.TokenType.New &&
-      details.endowType == LibAccounts.EndowmentType.Normal
+      details.endowType == LibAccounts.EndowmentType.Ast
     ) {
       bytes memory callData = abi.encodeWithSignature(
         "initErC20(string,string,address,uint256,address)",
@@ -97,7 +97,7 @@ contract SubDao is ISubDao, Storage, ReentrancyGuard, Initializable {
       );
     } else if (
       details.token.token == SubDaoLib.TokenType.VeBonding &&
-      details.endowType == LibAccounts.EndowmentType.Normal
+      details.endowType == LibAccounts.EndowmentType.Ast
     ) {
       SubDaoTokenMessage.InstantiateMsg memory temp = SubDaoTokenMessage.InstantiateMsg({
         name: details.token.data.veBondingName,

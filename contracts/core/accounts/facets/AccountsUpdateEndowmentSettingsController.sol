@@ -83,7 +83,7 @@ contract AccountsUpdateEndowmentSettingsController is
 
     for (uint256 i = 0; i < add.length; i++) {
       require(add[i] != address(0), "Zero address passed");
-      IterableMappingAddr.set(state.Allowlists[id][allowlistType], add[i], 1);
+      IterableMappingAddr.set(state.Allowlists[id][allowlistType], add[i], true);
     }
 
     for (uint256 i = 0; i < remove.length; i++) {
