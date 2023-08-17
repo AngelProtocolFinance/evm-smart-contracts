@@ -1,5 +1,4 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {LocalRegistrar__factory, ProxyContract__factory, Registrar__factory} from "typechain-types";
 import {
@@ -56,12 +55,11 @@ export async function deployRegistrar(
     // deploy proxy
     logger.out("Deploying proxy...");
     const initData = registrar.interface.encodeFunctionData(
-      "initialize((address,address,(uint256,uint256,uint256),address,address,address,string,address))",
+      "initialize((address,address,address,address,address,string,address))",
       [
         {
           apTeamMultisig: apTeamMultisig,
           treasury: treasury,
-          splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
           router: router,
           axelarGateway: axelarGateway,
           axelarGasService: axelarGasService,

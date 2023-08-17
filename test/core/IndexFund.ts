@@ -145,7 +145,6 @@ describe("IndexFund", function () {
       accountsContract: accountsDepositWithdrawEndowments.address,
       indexFundContract: facet.address,
       treasury: owner.address,
-      splitToLiquid: {defaultSplit: 50, max: 100, min: 0},
     };
     registrar.queryConfig.returns(registrarConfig);
     registrar.isTokenAccepted.whenCalledWith(token.address).returns(true);

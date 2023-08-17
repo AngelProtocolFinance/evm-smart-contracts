@@ -95,7 +95,6 @@ describe("AccountsUpdateStatusEndowments", function () {
       indexFundContract: indexFundFake.address,
       treasury: treasuryAddress,
       haloToken: genWallet().address,
-      splitToLiquid: {defaultSplit: 50, max: 100, min: 0},
     };
     registrarFake.queryConfig.returns(config);
     registrarFake.queryAllStrategies.returns(strategies);

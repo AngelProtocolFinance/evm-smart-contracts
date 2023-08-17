@@ -1,4 +1,3 @@
-import config from "config";
 import {task} from "hardhat/config";
 import {cliTypes} from "tasks/types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
@@ -40,9 +39,6 @@ task(
         donationMatchContract: addresses.donationMatch.implementation, // donation matching contract
         donationMatchCharitesContract: addresses.donationMatchCharity.proxy,
         donationMatchEmitter: ADDRESS_ZERO,
-        splitMax: config.REGISTRAR_DATA.splitToLiquid.max,
-        splitMin: config.REGISTRAR_DATA.splitToLiquid.min,
-        splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit,
         haloToken: ADDRESS_ZERO,
         govContract: ADDRESS_ZERO,
         fundraisingContract: ADDRESS_ZERO,

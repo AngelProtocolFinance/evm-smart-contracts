@@ -114,7 +114,6 @@ export const DEFAULT_REGISTRAR_CONFIG: RegistrarStorage.ConfigStruct = {
   donationMatchContract: ADDRESS_ZERO,
   donationMatchCharitesContract: ADDRESS_ZERO,
   donationMatchEmitter: ADDRESS_ZERO,
-  splitToLiquid: {max: 0, min: 0, defaultSplit: 0} as any,
   haloToken: ADDRESS_ZERO,
   govContract: ADDRESS_ZERO,
   fundraisingContract: ADDRESS_ZERO,
