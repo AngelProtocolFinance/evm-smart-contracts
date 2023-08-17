@@ -19,7 +19,6 @@ library RegistrarStorage {
     address donationMatchContract;
     address donationMatchCharitesContract;
     address donationMatchEmitter;
-    LibAccounts.SplitDetails splitToLiquid; // set of max, min, and default Split paramenters to check user defined split input against
     address haloToken;
     address govContract;
     address fundraisingContract;

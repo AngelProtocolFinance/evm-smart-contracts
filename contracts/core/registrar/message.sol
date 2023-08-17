@@ -8,7 +8,6 @@ library RegistrarMessages {
   struct InstantiateRequest {
     address apTeamMultisig;
     address treasury;
-    LibAccounts.SplitDetails splitToLiquid;
     address router;
     address axelarGateway;
     address axelarGasService;
@@ -30,9 +29,6 @@ library RegistrarMessages {
     address donationMatchContract;
     address donationMatchCharitesContract;
     address donationMatchEmitter;
-    uint256 splitMax;
-    uint256 splitMin;
-    uint256 splitDefault;
     address haloToken;
     address govContract;
     address fundraisingContract;

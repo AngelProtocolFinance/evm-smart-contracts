@@ -44,7 +44,6 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       donationMatchContract: address(0),
       donationMatchCharitesContract: address(0),
       donationMatchEmitter: address(0),
-      splitToLiquid: details.splitToLiquid,
       haloToken: address(0),
       govContract: address(0),
       fundraisingContract: address(0),
@@ -117,14 +116,6 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     if (Validator.addressChecker(details.donationMatchContract)) {
       state.config.donationMatchContract = details.donationMatchContract;
     }
-
-    LibAccounts.SplitDetails memory split_details = LibAccounts.SplitDetails({
-      max: details.splitMax,
-      min: details.splitMin,
-      defaultSplit: details.splitDefault
-    });
-    require(Validator.splitChecker(split_details), "Invalid Splits");
-    state.config.splitToLiquid = split_details;
 
     if (Validator.addressChecker(details.haloToken)) {
       state.config.haloToken = details.haloToken;
