@@ -17,6 +17,7 @@ tasks/temp_task.ts
 #Hardhat files
 cache
 artifacts
+deployments
 .openzeppelin
 
 # typechain

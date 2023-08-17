@@ -434,8 +434,8 @@
       "proxy": "0xe1215B3e150dd298d787D41a4879959D30Dc3939"
     },
     "router": {
-      "implementation": "0xf630e56d18F2587Af1912fa1F23AdCA9A8060b7a",
-      "proxy": "0x0659F4263bEa722BE610a4C36054828E353E0e38"
+      "implementation": "0xf9533bd495B35Ac98B7fD53fc84F795B7bD07bcc",
+      "proxy": "0x4e903E33f1B34a7b6c7319cD63c04B1E43FCCC0f"
     },
     "subDao": {
       "emitter": {
