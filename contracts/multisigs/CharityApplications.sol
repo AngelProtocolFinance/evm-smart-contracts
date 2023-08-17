@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.16;
+pragma solidity ^0.8.21;
 
 import {Validator} from "../core/validator.sol";
 import "./CharityApplicationsStorage.sol";

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 // author: @stevieraykatz
 // Stripped down interface for Flux fTokens
-pragma solidity >=0.8.0;
+pragma solidity ^0.8.21;
 
 interface IFlux {
   /*** CErc20Interface User Interface ***/

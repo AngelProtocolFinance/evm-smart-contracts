@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 // author: @stevieraykatz
-pragma solidity >=0.8.0;
+pragma solidity ^0.8.21;
+
 import {IVault} from "../core/vault/interfaces/IVault.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IStrategy} from "../core/strategy/IStrategy.sol";

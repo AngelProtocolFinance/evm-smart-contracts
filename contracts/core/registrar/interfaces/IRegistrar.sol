@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.21;
 
-pragma solidity ^0.8.16;
 import {RegistrarStorage} from "../storage.sol";
 import {RegistrarMessages} from "../message.sol";
 import {ILocalRegistrar} from "./ILocalRegistrar.sol";

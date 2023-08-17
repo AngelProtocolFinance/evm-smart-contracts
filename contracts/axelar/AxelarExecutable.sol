@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Modifications by @stevieraykatz to make compatible with OZ Upgradable Proxy
 
-pragma solidity >=0.8.8;
+pragma solidity ^0.8.21;
 
 import {IVault} from "../core/vault/interfaces/IVault.sol";
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";

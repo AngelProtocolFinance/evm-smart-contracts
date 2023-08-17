@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.16;
+pragma solidity ^0.8.21;
 
 import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {IAccountsStrategy} from "../accounts/interfaces/IAccountsStrategy.sol";
