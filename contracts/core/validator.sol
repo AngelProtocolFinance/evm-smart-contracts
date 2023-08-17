@@ -60,26 +60,25 @@ library Validator {
     }
   }
 
-  function checkSplits(
+  function adjustLiquidSplit(
     LibAccounts.SplitDetails memory splits,
-    uint256 userLocked,
     uint256 userLiquid,
     bool userOverride
-  ) internal pure returns (uint256, uint256) {
+  ) internal pure returns (uint256 finalLiquid) {
     // check that the split provided by a user meets the endowment's
     // requirements for splits (set per Endowment)
     if (userOverride) {
       // ignore user splits and use the endowment's default split
-      return (100 - splits.defaultSplit, splits.defaultSplit);
+      finalLiquid = splits.defaultSplit;
     } else if (userLiquid > splits.max) {
       // adjust upper range up within the max split threshold
-      return (splits.max, 100 - splits.max);
+      finalLiquid = splits.max;
     } else if (userLiquid < splits.min) {
       // adjust lower range up within the min split threshold
-      return (100 - splits.min, splits.min);
+      finalLiquid = splits.min;
     } else {
-      // use the user entered split as is
-      return (userLocked, userLiquid);
+      // use the user entered liquid split as is
+      finalLiquid = userLiquid;
     }
   }
 }

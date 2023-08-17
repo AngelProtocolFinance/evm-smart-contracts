@@ -41,7 +41,7 @@ contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager {
     address token
   ) external onlyAccountsContract returns (uint256) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    return IGasFwd(state.ENDOWMENTS[id].gasFwd).sweep(token);
+    return IGasFwd(state.Endowments[id].gasFwd).sweep(token);
   }
 
   /// @notice Wrapper method for sweeping funds from gasFwd contract upon request
@@ -49,20 +49,15 @@ contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager {
   /// to unlock these funds, sweep them and reallocate them to the specified account.
   /// This permissioned step precludes gaming the gasFwd'er as a way to avoid locked account funds from
   /// incurring early withdraw penalties (i.e. overpay for gas from locked -> refunded to gas fwd -> sweep to liquid)
-  /// @return balance returns the balance of the gasFwd contract which was swept to accounts
+  /// @return funds returns the balance of the gasFwd contract which was swept to accounts
   function sweepForEndowment(
     uint32 id,
     IVault.VaultType vault,
     address token
-  ) external onlyAdmin returns (uint256) {
+  ) external onlyAdmin returns (uint256 funds) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    uint256 funds = IGasFwd(state.ENDOWMENTS[id].gasFwd).sweep(token);
-    if (vault == IVault.VaultType.LOCKED) {
-      state.STATES[id].balances.locked[token] += funds;
-    } else {
-      state.STATES[id].balances.liquid[token] += funds;
-    }
-    return funds;
+    funds = IGasFwd(state.Endowments[id].gasFwd).sweep(token);
+    state.Balances[id][vault][token] += funds;
   }
 
   /// @notice Take funds from locked or liquid account and transfer them to the gasFwd
@@ -74,27 +69,16 @@ contract AccountsGasManager is ReentrancyGuardFacet, IAccountsGasManager {
     }
 
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    uint256 balance;
-    if (vault == IVault.VaultType.LOCKED) {
-      balance = state.STATES[id].balances.locked[token];
-      if (balance < amount) {
-        revert InsufficientFunds();
-      }
-      state.STATES[id].balances.locked[token] -= amount;
-    } else {
-      balance = state.STATES[id].balances.liquid[token];
-      if (balance < amount) {
-        revert InsufficientFunds();
-      }
-      state.STATES[id].balances.liquid[token] -= amount;
+    if (state.Balances[id][vault][token] < amount) {
+      revert InsufficientFunds();
     }
-
-    IERC20(token).safeTransfer(state.ENDOWMENTS[id].gasFwd, amount);
+    state.Balances[id][vault][token] -= amount;
+    IERC20(token).safeTransfer(state.Endowments[id].gasFwd, amount);
   }
 
   function _validateCaller(uint32 id, IVault.VaultType vault) internal view returns (bool) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];
+    AccountStorage.Endowment memory tempEndowment = state.Endowments[id];
 
     if (
       vault == IVault.VaultType.LOCKED &&

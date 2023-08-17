@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.16;
 
+import {IterableMappingAddr} from "../../../lib/IterableMappingAddr.sol";
 import {AccountStorage} from "../storage.sol";
 
 library LibAccounts {
@@ -14,8 +15,9 @@ library LibAccounts {
   }
 
   enum EndowmentType {
-    Charity,
-    Normal
+    Charity, // Charity Endowment
+    Ast, // Angel Smart Treasury (AST)
+    Daf // Donor Advised Fund
   }
 
   enum Tier {
@@ -25,20 +27,19 @@ library LibAccounts {
     Level3
   }
 
-  struct BalanceInfo {
-    mapping(address => uint256) locked;
-    mapping(address => uint256) liquid;
+  enum AllowlistType {
+    AllowlistedBeneficiaries,
+    AllowlistedContributors,
+    MaturityAllowlist
   }
 
   struct BeneficiaryData {
     uint32 endowId;
-    uint256 fundId;
     address addr;
   }
 
   enum BeneficiaryEnum {
     EndowmentId,
-    IndexFund,
     Wallet,
     None
   }
@@ -92,10 +93,12 @@ library LibAccounts {
   enum FeeTypes {
     Default,
     Harvest,
+    Deposit,
+    DepositCharity,
+    Withdraw,
     WithdrawCharity,
-    WithdrawNormal,
-    EarlyLockedWithdrawCharity,
-    EarlyLockedWithdrawNormal
+    EarlyLockedWithdraw,
+    EarlyLockedWithdrawCharity
   }
 
   struct FeeSetting {

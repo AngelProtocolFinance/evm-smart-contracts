@@ -31,9 +31,9 @@ contract AccountsUpdateEndowments is
     AccountMessages.UpdateEndowmentDetailsRequest memory details
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
+    AccountStorage.Endowment storage tempEndowment = state.Endowments[details.id];
 
-    require(!state.STATES[details.id].closingEndowment, "UpdatesAfterClosed");
+    require(!state.States[details.id].closingEndowment, "UpdatesAfterClosed");
 
     if (
       Validator.canChange(
@@ -117,7 +117,7 @@ contract AccountsUpdateEndowments is
       }
     }
 
-    state.ENDOWMENTS[details.id] = tempEndowment;
+    state.Endowments[details.id] = tempEndowment;
     emit EndowmentUpdated(details.id);
   }
 
@@ -138,9 +138,9 @@ contract AccountsUpdateEndowments is
     uint256 delegateExpiry
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
+    AccountStorage.Endowment storage tempEndowment = state.Endowments[id];
 
-    require(!state.STATES[id].closingEndowment, "UpdatesAfterClosed");
+    require(!state.States[id].closingEndowment, "UpdatesAfterClosed");
 
     LibAccounts.Delegate memory newDelegate;
     if (action == LibAccounts.DelegateAction.Set) {
@@ -341,7 +341,7 @@ contract AccountsUpdateEndowments is
     } else {
       revert("Invalid setting input");
     }
-    state.ENDOWMENTS[id] = tempEndowment;
+    state.Endowments[id] = tempEndowment;
     emit EndowmentUpdated(id);
   }
 
@@ -360,11 +360,11 @@ contract AccountsUpdateEndowments is
     bool tokenStatus
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[endowId];
+    AccountStorage.Endowment storage tempEndowment = state.Endowments[endowId];
 
     require(tokenAddr != address(0), "Invalid token address passed");
     require(priceFeedAddr != address(0), "Invalid priceFeed address passed");
-    require(!state.STATES[endowId].closingEndowment, "UpdatesAfterClosed");
+    require(!state.States[endowId].closingEndowment, "UpdatesAfterClosed");
     require(
       Validator.canChange(
         tempEndowment.settingsController.acceptedTokens,

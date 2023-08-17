@@ -141,7 +141,7 @@ describe("AccountsDonationMatch", function () {
 
     it("reverts if sender is not the endowment owner", async () => {
       await expect(
-        facet.connect(user).withdrawDonationMatchERC20(endowId, genWallet().address, 10)
+        facet.connect(accOwner).withdrawDonationMatchERC20(endowId, genWallet().address, 10)
       ).to.be.revertedWith("Unauthorized");
     });
 
@@ -198,7 +198,7 @@ describe("AccountsDonationMatch", function () {
     });
 
     it("reverts if sender is not the endowment owner", async () => {
-      await expect(facet.connect(user).setupDonationMatch(endowId, details)).to.be.revertedWith(
+      await expect(facet.connect(accOwner).setupDonationMatch(endowId, details)).to.be.revertedWith(
         "Unauthorized"
       );
     });

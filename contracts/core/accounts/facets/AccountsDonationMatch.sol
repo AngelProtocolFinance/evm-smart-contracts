@@ -33,7 +33,7 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
   function depositDonationMatchERC20(uint32 id, address token, uint256 amount) public {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
+    AccountStorage.Endowment storage tempEndowment = state.Endowments[id];
 
     RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
       .queryConfig();
@@ -45,7 +45,7 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
 
     IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
 
-    state.DAOTOKENBALANCE[id] += amount;
+    state.DaoTokenBalances[id] += amount;
     emit DonationDeposited(id, token, amount);
   }
 
@@ -59,15 +59,15 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
   function withdrawDonationMatchERC20(uint32 id, address recipient, uint256 amount) public {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
+    AccountStorage.Endowment storage tempEndowment = state.Endowments[id];
 
     require(amount > 0, "amount should be greater than 0");
 
     require(msg.sender == tempEndowment.owner, "Unauthorized");
 
-    require(state.DAOTOKENBALANCE[id] >= amount, "Insufficient amount");
+    require(state.DaoTokenBalances[id] >= amount, "Insufficient amount");
 
-    state.DAOTOKENBALANCE[id] -= amount;
+    state.DaoTokenBalances[id] -= amount;
 
     IERC20(tempEndowment.daoToken).safeTransfer(recipient, amount);
     emit DonationWithdrawn(id, recipient, tempEndowment.daoToken, amount);
@@ -85,7 +85,7 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
-    AccountStorage.Endowment memory tempEndowment = state.ENDOWMENTS[id];
+    AccountStorage.Endowment memory tempEndowment = state.Endowments[id];
 
     require(msg.sender == tempEndowment.owner, "Unauthorized");
 
@@ -135,7 +135,7 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
       new ProxyContract(registrar_config.donationMatchContract, registrar_config.proxyAdmin, data)
     );
     // TODO: add donation match address?? :
-    state.ENDOWMENTS[id].donationMatchContract = donationMatch;
+    state.Endowments[id].donationMatchContract = donationMatch;
 
     IDonationMatchEmitter(registrar_config.donationMatchEmitter).initializeDonationMatch(
       id,
@@ -148,6 +148,6 @@ contract AccountsDonationMatch is ReentrancyGuardFacet, IAccountsEvents, IAccoun
         usdcAddress: registrar_config.usdcAddress
       })
     );
-    emit DonationMatchCreated(id, state.ENDOWMENTS[id].donationMatchContract);
+    emit DonationMatchCreated(id, state.Endowments[id].donationMatchContract);
   }
 }

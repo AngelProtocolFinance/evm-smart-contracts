@@ -2,20 +2,29 @@
 pragma solidity ^0.8.16;
 
 import {LibAccounts} from "../lib/LibAccounts.sol";
+import {AddressArray} from "../../../lib/address/array.sol";
 import {Validator} from "../../validator.sol";
 import {AccountStorage} from "../storage.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsAllowance} from "../interfaces/IAccountsAllowance.sol";
+import {IterableMappingAddr} from "../../../lib/IterableMappingAddr.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IVault} from "../../vault/interfaces/IVault.sol";
 
 /**
  * @title AccountsAllowance
  * @dev This contract manages the allowances for accounts
  */
-contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccountsEvents {
+contract AccountsAllowance is
+  IAccountsAllowance,
+  ReentrancyGuardFacet,
+  IAccountsEvents,
+  IterableMappingAddr
+{
   using SafeERC20 for IERC20;
+  using AddressArray for address[];
 
   /**
    * @notice Endowment owner adds allowance to spend
@@ -32,19 +41,17 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
     uint256 amount
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[endowId];
+    AccountStorage.Endowment storage tempEndowment = state.Endowments[endowId];
 
-    require(!state.STATES[endowId].closingEndowment, "Endowment is closed");
+    require(!state.States[endowId].closingEndowment, "Endowment is closed");
     require(
-      token != address(0) && state.STATES[endowId].balances.liquid[token] > 0,
+      token != address(0) && state.Balances[endowId][IVault.VaultType.LIQUID][token] > 0,
       "Invalid Token"
     );
 
-    // Checks are based around the endowment's maturity time having been reached or not
-    bool mature = (tempEndowment.maturityTime != 0 &&
-      block.timestamp >= tempEndowment.maturityTime);
+    // Allowlist checks are based around the endowment's maturity status
     bool inAllowlist = false;
-    if (!mature) {
+    if (tempEndowment.maturityTime == 0 || tempEndowment.maturityTime > block.timestamp) {
       // Only the endowment owner or a delegate whom controls allowlist can update allowances
       require(
         Validator.canChange(
@@ -55,13 +62,10 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
         ),
         "Unauthorized"
       );
-      // also need to check that the spender address passed is in an allowlist
-      for (uint256 i = 0; i < tempEndowment.allowlistedBeneficiaries.length; i++) {
-        if (tempEndowment.allowlistedBeneficiaries[i] == spender) {
-          inAllowlist = true;
-          break;
-        }
-      }
+      inAllowlist = IterableMappingAddr.get(
+        state.Allowlists[endowId][LibAccounts.AllowlistType.AllowlistedBeneficiaries],
+        spender
+      );
     } else {
       // Only the endowment owner or a delegate whom controls allowlist can update allowances
       require(
@@ -73,45 +77,42 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
         ),
         "Unauthorized"
       );
-      // also need to check that the spender address passed is in an allowlist
-      for (uint256 i = 0; i < tempEndowment.maturityAllowlist.length; i++) {
-        if (tempEndowment.maturityAllowlist[i] == spender) {
-          inAllowlist = true;
-          break;
-        }
-      }
+      inAllowlist = IterableMappingAddr.get(
+        state.Allowlists[endowId][LibAccounts.AllowlistType.MaturityAllowlist],
+        spender
+      );
     }
     require(inAllowlist, "Spender is not in allowlists");
 
-    uint256 spenderBal = state.ALLOWANCES[endowId][token].bySpender[spender];
+    uint256 spenderBal = state.Allowances[endowId][token].bySpender[spender];
     uint256 amountDelta;
     if (amount > spenderBal) {
       amountDelta = amount - spenderBal;
       // check if liquid balance is sufficient for any proposed increase to spender allocation
       require(
-        amountDelta <= state.STATES[endowId].balances.liquid[token],
+        amountDelta <= state.Balances[endowId][IVault.VaultType.LIQUID][token],
         "Insufficient liquid balance to allocate"
       );
       // increase total outstanding allocation & reduce liquid balance by AmountDelta
-      state.ALLOWANCES[endowId][token].totalOutstanding += amountDelta;
-      state.STATES[endowId].balances.liquid[token] -= amountDelta;
+      state.Allowances[endowId][token].totalOutstanding += amountDelta;
+      state.Balances[endowId][IVault.VaultType.LIQUID][token] -= amountDelta;
       emit AllowanceUpdated(endowId, spender, token, amount, amountDelta, 0);
     } else if (amount < spenderBal) {
       amountDelta = spenderBal - amount;
       require(
-        amountDelta <= state.ALLOWANCES[endowId][token].totalOutstanding,
+        amountDelta <= state.Allowances[endowId][token].totalOutstanding,
         "Insufficient allowances outstanding to cover requested reduction"
       );
       // decrease total outstanding allocation & increase liquid balance by AmountDelta
-      state.ALLOWANCES[endowId][token].totalOutstanding -= amountDelta;
-      state.STATES[endowId].balances.liquid[token] += amountDelta;
+      state.Allowances[endowId][token].totalOutstanding -= amountDelta;
+      state.Balances[endowId][IVault.VaultType.LIQUID][token] += amountDelta;
       emit AllowanceUpdated(endowId, spender, token, amount, 0, amountDelta);
     } else {
       // equal amount and spender balance
       revert("Spender balance equal to amount. No changes needed");
     }
     // set the allocation for spender to the amount specified
-    state.ALLOWANCES[endowId][token].bySpender[spender] = amount;
+    state.Allowances[endowId][token].bySpender[spender] = amount;
   }
 
   /**
@@ -130,15 +131,15 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
 
-    require(state.ALLOWANCES[endowId][token].totalOutstanding > 0, "Invalid Token");
+    require(state.Allowances[endowId][token].totalOutstanding > 0, "Invalid Token");
     require(amount > 0, "Zero Amount");
     require(
-      amount <= state.ALLOWANCES[endowId][token].bySpender[msg.sender],
+      amount <= state.Allowances[endowId][token].bySpender[msg.sender],
       "Amount requested exceeds Allowance balance"
     );
 
-    state.ALLOWANCES[endowId][token].bySpender[msg.sender] -= amount;
-    state.ALLOWANCES[endowId][token].totalOutstanding -= amount;
+    state.Allowances[endowId][token].bySpender[msg.sender] -= amount;
+    state.Allowances[endowId][token].totalOutstanding -= amount;
 
     IERC20(token).safeTransfer(recipient, amount);
     emit AllowanceSpent(endowId, msg.sender, token, amount);
@@ -157,6 +158,6 @@ contract AccountsAllowance is IAccountsAllowance, ReentrancyGuardFacet, IAccount
     address token
   ) external view returns (uint256) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    return state.ALLOWANCES[endowId][token].bySpender[spender];
+    return state.Allowances[endowId][token].bySpender[spender];
   }
 }

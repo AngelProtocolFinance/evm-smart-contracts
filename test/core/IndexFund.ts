@@ -91,7 +91,7 @@ describe("IndexFund", function () {
     // #1 - A closed endowment for error checks
     await wait(
       state.setClosingEndowmentState(nextAccountId, true, {
-        data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
+        data: {endowId: 0, addr: ethers.constants.AddressZero},
         enumData: 0,
       })
     );
@@ -99,7 +99,7 @@ describe("IndexFund", function () {
     // #2 - A non-closing endowment
     await wait(
       state.setClosingEndowmentState(++nextAccountId, false, {
-        data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
+        data: {endowId: 0, addr: ethers.constants.AddressZero},
         enumData: 0,
       })
     );
@@ -112,7 +112,7 @@ describe("IndexFund", function () {
     // #3 - A non-closing endowment
     await wait(
       state.setClosingEndowmentState(++nextAccountId, false, {
-        data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
+        data: {endowId: 0, addr: ethers.constants.AddressZero},
         enumData: 0,
       })
     );

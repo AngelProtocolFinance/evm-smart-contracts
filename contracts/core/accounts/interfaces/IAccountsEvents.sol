@@ -19,7 +19,7 @@ interface IAccountsEvents {
   );
   event EndowmentCreated(uint256 endowId, LibAccounts.EndowmentType endowType);
   event EndowmentUpdated(uint256 endowId);
-  event EndowmentClosed(uint256 endowId);
+  event EndowmentClosed(uint256 endowId, LibAccounts.Beneficiary beneficiary);
   event EndowmentDeposit(
     uint256 endowId,
     address tokenAddress,
@@ -35,6 +35,7 @@ interface IAccountsEvents {
     uint32 beneficiaryEndowId
   );
   event ConfigUpdated();
+  event DafApprovedEndowmentsUpdated(uint32[] add, uint32[] remove);
   event OwnerUpdated(address owner);
   event DonationMatchCreated(uint256 endowId, address donationMatchContract);
   event TokenSwapped(
@@ -46,6 +47,12 @@ interface IAccountsEvents {
     uint256 amountOut
   );
   event EndowmentSettingUpdated(uint256 endowId, string setting);
+  event EndowmentAllowlistUpdated(
+    uint256 endowId,
+    LibAccounts.AllowlistType allowlistType,
+    address[] add,
+    address[] remove
+  );
   event EndowmentInvested(uint256 endowId);
   event EndowmentRedeemed(uint256 endowId, IVault.VaultActionStatus);
   event RefundNeeded(IVault.VaultActionData);
