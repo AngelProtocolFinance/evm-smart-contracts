@@ -12,6 +12,7 @@ import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsCreateEndowment} from "../interfaces/IAccountsCreateEndowment.sol";
 import {IGasFwdFactory} from "../../gasFwd/IGasFwdFactory.sol";
+import {IterableMappingAddr} from "../../../lib/IterableMappingAddr.sol";
 
 /**
  * @title AccountsCreateEndowment
@@ -20,7 +21,8 @@ import {IGasFwdFactory} from "../../gasFwd/IGasFwdFactory.sol";
 contract AccountsCreateEndowment is
   IAccountsCreateEndowment,
   ReentrancyGuardFacet,
-  IAccountsEvents
+  IAccountsEvents,
+  IterableMappingAddr
 {
   /**
    * @notice This function creates an endowment
@@ -35,8 +37,6 @@ contract AccountsCreateEndowment is
     address registrarAddress = state.config.registrarContract;
 
     RegistrarStorage.Config memory registrar_config = IRegistrar(registrarAddress).queryConfig();
-    LibAccounts.FeeSetting memory earlyLockedWithdrawFee = IRegistrar(registrarAddress)
-      .getFeeSettingsByFeeType(LibAccounts.FeeTypes.EarlyLockedWithdrawCharity);
 
     if (LibAccounts.EndowmentType.Charity == details.endowType) {
       require(msg.sender == registrar_config.charityApplications, "Unauthorized");
@@ -51,11 +51,9 @@ contract AccountsCreateEndowment is
           revert("Invalid UN SDG inputs given");
         }
       }
-
-      Validator.validateFee(details.earlyLockedWithdrawFee);
-      earlyLockedWithdrawFee = details.earlyLockedWithdrawFee;
     }
-    // check all of the other fees
+    // check all fees are valid
+    Validator.validateFee(details.earlyLockedWithdrawFee);
     Validator.validateFee(details.withdrawFee);
     Validator.validateFee(details.depositFee);
     Validator.validateFee(details.balanceFee);
@@ -64,23 +62,8 @@ contract AccountsCreateEndowment is
     require(details.members.length >= 1, "No members provided for Endowment multisig");
     require(details.threshold > 0, "Threshold must be a positive number");
 
-    if (LibAccounts.EndowmentType.Normal == details.endowType) {
+    if (LibAccounts.EndowmentType.Charity != details.endowType) {
       require(details.threshold <= details.members.length, "Threshold greater than member count");
-    }
-
-    LibAccounts.SplitDetails memory splitSettings;
-    bool ignoreUserSplit;
-
-    if (LibAccounts.EndowmentType.Charity == details.endowType) {
-      ignoreUserSplit = false;
-    } else {
-      splitSettings = details.splitToLiquid;
-      ignoreUserSplit = details.ignoreUserSplits;
-    }
-
-    address donationMatchContract = address(0);
-    if (LibAccounts.EndowmentType.Charity == details.endowType) {
-      donationMatchContract = registrar_config.donationMatchCharitesContract;
     }
 
     newEndowId = state.config.nextAccountId;
@@ -94,39 +77,59 @@ contract AccountsCreateEndowment is
 
     address gasFwd = IGasFwdFactory(registrar_config.gasFwdFactory).create();
 
-    state.ENDOWMENTS[newEndowId] = AccountStorage.Endowment({
+    state.Endowments[newEndowId] = AccountStorage.Endowment({
       owner: owner,
       name: details.name,
       sdgs: details.sdgs,
+      tier: details.tier,
       endowType: details.endowType,
+      logo: details.logo,
+      image: details.image,
       maturityTime: details.maturityTime,
       rebalance: IRegistrar(registrarAddress).getRebalanceParams(),
+      proposalLink: details.proposalLink,
       multisig: owner,
       dao: address(0),
       daoToken: address(0),
+      donationMatchContract: address(0),
       donationMatchActive: false,
-      donationMatchContract: donationMatchContract,
-      allowlistedBeneficiaries: details.allowlistedBeneficiaries,
-      allowlistedContributors: details.allowlistedContributors,
-      earlyLockedWithdrawFee: earlyLockedWithdrawFee,
+      earlyLockedWithdrawFee: details.earlyLockedWithdrawFee,
       withdrawFee: details.withdrawFee,
       depositFee: details.depositFee,
       balanceFee: details.balanceFee,
-      maturityAllowlist: details.maturityAllowlist,
-      tier: details.tier,
-      logo: details.logo,
-      image: details.image,
-      proposalLink: details.proposalLink,
       settingsController: details.settingsController,
       parent: details.parent,
-      ignoreUserSplits: ignoreUserSplit,
-      splitToLiquid: splitSettings,
+      ignoreUserSplits: details.ignoreUserSplits,
+      splitToLiquid: details.splitToLiquid,
       referralId: details.referralId,
       gasFwd: gasFwd
     });
 
-    state.STATES[newEndowId].closingEndowment = false;
+    state.States[newEndowId].closingEndowment = false;
     state.config.nextAccountId += 1;
+
+    // process all initial allowlists provided by user into their respective mappings
+    for (uint256 i = 0; i < details.allowlistedBeneficiaries.length; i++) {
+      IterableMappingAddr.set(
+        state.Allowlists[newEndowId][LibAccounts.AllowlistType.AllowlistedBeneficiaries],
+        details.allowlistedBeneficiaries[i],
+        true
+      );
+    }
+    for (uint256 i = 0; i < details.allowlistedContributors.length; i++) {
+      IterableMappingAddr.set(
+        state.Allowlists[newEndowId][LibAccounts.AllowlistType.AllowlistedContributors],
+        details.allowlistedContributors[i],
+        true
+      );
+    }
+    for (uint256 i = 0; i < details.maturityAllowlist.length; i++) {
+      IterableMappingAddr.set(
+        state.Allowlists[newEndowId][LibAccounts.AllowlistType.MaturityAllowlist],
+        details.maturityAllowlist[i],
+        true
+      );
+    }
 
     emit EndowmentCreated(newEndowId, details.endowType);
   }

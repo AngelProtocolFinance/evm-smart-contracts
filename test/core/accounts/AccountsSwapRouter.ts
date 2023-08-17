@@ -276,7 +276,7 @@ describe("AccountsSwapRouter", function () {
           facet
             .connect(user)
             .swapToken(ACCOUNT_ID, VaultType.LOCKED, genWallet().address, 1, genWallet().address, 1)
-        ).to.be.revertedWith("Requested swap amount is greater than Endowment Locked balance");
+        ).to.be.revertedWith("Requested swap amount is greater than Endowment balance");
       });
 
       it("reverts if liquid token balance is insufficient", async function () {
@@ -300,7 +300,7 @@ describe("AccountsSwapRouter", function () {
           facet
             .connect(user)
             .swapToken(ACCOUNT_ID, VaultType.LIQUID, genWallet().address, 1, genWallet().address, 1)
-        ).to.be.revertedWith("Requested swap amount is greater than Endowment Liquid balance");
+        ).to.be.revertedWith("Requested swap amount is greater than Endowment balance");
       });
 
       it("reverts if the chainlink price oracle contract is not set in the registrar nor in state PriceFeeds", async function () {

@@ -5,6 +5,7 @@ import {
   TestFacetProxyContract,
 } from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 import {DeepPartial} from "utils/types";
+import {wait} from "test/utils";
 
 /**
  * Updates endowment's setting's permissions field in a way that has no side-effects
@@ -29,7 +30,7 @@ export async function updateSettings(
     },
   };
 
-  await state.setEndowmentDetails(endowId, lockedEndow);
+  await wait(state.setEndowmentDetails(endowId, lockedEndow));
   return lockedEndow;
 }
 
@@ -57,7 +58,7 @@ export async function updateAllSettings(
     return controller;
   }, {} as LibAccounts.SettingsControllerStruct);
 
-  await state.setEndowmentDetails(endowId, lockedEndow);
+  await wait(state.setEndowmentDetails(endowId, lockedEndow));
   return lockedEndow;
 }
 

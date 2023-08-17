@@ -51,10 +51,18 @@ export enum DelegateAction {
 export enum FeeTypes {
   Default,
   Harvest,
+  Deposit,
+  DepsoitCharity,
+  Withdraw,
   WithdrawCharity,
-  WithdrawNormal,
+  EarlyLockedWithdraw,
   EarlyLockedWithdrawCharity,
-  EarlyLockedWithdrawNormal,
+}
+
+export enum BeneficiaryEnum {
+  EndowmentId,
+  Wallet,
+  None,
 }
 
 export enum DonationMatchEnum {
@@ -64,7 +72,8 @@ export enum DonationMatchEnum {
 
 export enum EndowmentType {
   Charity,
-  Normal,
+  Ast,
+  Daf,
 }
 
 export enum VeTypeEnum {

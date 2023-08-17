@@ -3,6 +3,8 @@ pragma solidity ^0.8.16;
 
 import {LibAccounts} from "./lib/LibAccounts.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
+import {IterableMappingAddr} from "../../lib/IterableMappingAddr.sol";
+import {IVault} from "../vault/interfaces/IVault.sol";
 
 library AccountStorage {
   struct Config {
@@ -30,9 +32,6 @@ library AccountStorage {
     address daoToken;
     bool donationMatchActive;
     address donationMatchContract;
-    address[] allowlistedBeneficiaries;
-    address[] allowlistedContributors;
-    address[] maturityAllowlist;
     LibAccounts.FeeSetting earlyLockedWithdrawFee;
     LibAccounts.FeeSetting withdrawFee;
     LibAccounts.FeeSetting depositFee;
@@ -46,10 +45,8 @@ library AccountStorage {
   }
 
   struct EndowmentState {
-    LibAccounts.BalanceInfo balances;
     bool closingEndowment;
     LibAccounts.Beneficiary closingBeneficiary;
-    mapping(bytes4 => bool) activeStrategies;
   }
 
   struct TokenAllowances {
@@ -59,15 +56,22 @@ library AccountStorage {
   }
 
   struct State {
-    mapping(uint32 => uint256) DAOTOKENBALANCE;
-    mapping(uint32 => EndowmentState) STATES;
-    mapping(uint32 => Endowment) ENDOWMENTS;
+    mapping(uint32 => Endowment) Endowments;
+    mapping(uint32 => EndowmentState) States;
+    mapping(uint32 => mapping(IVault.VaultType => mapping(address => uint256))) Balances;
     // endow ID -> token Addr -> TokenAllowances
-    mapping(uint32 => mapping(address => TokenAllowances)) ALLOWANCES;
+    mapping(uint32 => mapping(address => TokenAllowances)) Allowances;
     // endow ID -> token Addr -> bool
     mapping(uint32 => mapping(address => bool)) AcceptedTokens;
     // endow ID -> token Addr -> Price Feed Addr
     mapping(uint32 => mapping(address => address)) PriceFeeds;
+    // endow ID -> strategies that an Endowment is invested
+    mapping(uint32 => mapping(bytes4 => bool)) ActiveStrategies;
+    // Endowments that a DAF can withdraw to, managed by contract Owner
+    mapping(uint32 => bool) DafApprovedEndowments;
+    mapping(uint32 => uint256) DaoTokenBalances;
+    // Endowments AllowLists Iterable mappings
+    mapping(uint32 => mapping(LibAccounts.AllowlistType => IterableMappingAddr.Map)) Allowlists;
     Config config;
   }
 }

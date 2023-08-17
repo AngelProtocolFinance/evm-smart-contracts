@@ -17,6 +17,9 @@ import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsDepositWithdrawEndowments} from "../interfaces/IAccountsDepositWithdrawEndowments.sol";
 import {Utils} from "../../../lib/utils.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
+import {IterableMappingAddr} from "../../../lib/IterableMappingAddr.sol";
+import {FixedPointMathLib} from "../../../lib/FixedPointMathLib.sol";
+import {AddressArray} from "../../../lib/address/array.sol";
 
 /**
  * @title AccountsDepositWithdrawEndowments
@@ -27,10 +30,12 @@ import {IVault} from "../../vault/interfaces/IVault.sol";
 contract AccountsDepositWithdrawEndowments is
   ReentrancyGuardFacet,
   IAccountsEvents,
-  IAccountsDepositWithdrawEndowments
+  IAccountsDepositWithdrawEndowments,
+  IterableMappingAddr
 {
-  using SafeMath for uint256;
   using SafeERC20 for IERC20;
+  using FixedPointMathLib for uint256;
+  using AddressArray for address[];
 
   /*
    *  Modifiers
@@ -63,14 +68,14 @@ contract AccountsDepositWithdrawEndowments is
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     AccountStorage.Config memory tempConfig = state.config;
 
-    RegistrarStorage.Config memory registrar_config = IRegistrar(tempConfig.registrarContract)
+    RegistrarStorage.Config memory registrarConfig = IRegistrar(tempConfig.registrarContract)
       .queryConfig();
 
     // Wrap MATIC >> wMATIC by calling the deposit() endpoint on wMATIC contract
-    Utils._execute(registrar_config.wMaticAddress, msg.value, abi.encodeWithSignature("deposit()"));
+    Utils._execute(registrarConfig.wMaticAddress, msg.value, abi.encodeWithSignature("deposit()"));
 
     // finish donation process with the newly wrapped MATIC
-    processTokenDeposit(details, registrar_config.wMaticAddress, msg.value);
+    processTokenDeposit(details, registrarConfig.wMaticAddress, msg.value);
   }
 
   /**
@@ -113,48 +118,71 @@ contract AccountsDepositWithdrawEndowments is
     uint256 amount
   ) internal {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[details.id];
+    AccountStorage.Endowment storage tempEndowment = state.Endowments[details.id];
 
-    require(!state.STATES[details.id].closingEndowment, "Endowment is closed");
+    require(!state.States[details.id].closingEndowment, "Endowment is closed");
 
-    RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
+    RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
       .queryConfig();
+    require(registrarConfig.indexFundContract != address(0), "No Index Fund");
 
-    if (tempEndowment.depositFee.bps != 0) {
-      uint256 depositFeeAmount = (amount.mul(tempEndowment.depositFee.bps)).div(
-        LibAccounts.FEE_BASIS
-      );
-      amount = amount.sub(depositFeeAmount);
+    // Cannot receive contributions into a mature Endowment
+    require(
+      tempEndowment.maturityTime == 0 || tempEndowment.maturityTime > block.timestamp,
+      "Mature Endowments cannot receive contributions"
+    );
 
-      IERC20(tokenAddress).safeTransfer(tempEndowment.depositFee.payoutAddress, depositFeeAmount);
-    }
-
-    uint256 lockedSplitPercent = details.lockedPercentage;
-    uint256 liquidSplitPercent = details.liquidPercentage;
-
-    require(registrar_config.indexFundContract != address(0), "No Index Fund");
-    if (msg.sender != registrar_config.indexFundContract) {
-      if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
-        // use the Registrar default split for Charities
-        (lockedSplitPercent, liquidSplitPercent) = Validator.checkSplits(
-          registrar_config.splitToLiquid,
-          lockedSplitPercent,
-          liquidSplitPercent,
-          tempEndowment.ignoreUserSplits
-        );
-      } else {
-        // use the Endowment's SplitDetails for ASTs
-        (lockedSplitPercent, liquidSplitPercent) = Validator.checkSplits(
-          tempEndowment.splitToLiquid,
-          lockedSplitPercent,
-          liquidSplitPercent,
-          tempEndowment.ignoreUserSplits
-        );
+    // If caller is index fund, the Endowment owner or there is not a poopulated allowlist, continue
+    if (
+      (msg.sender != registrarConfig.indexFundContract || msg.sender != tempEndowment.owner) &&
+      state.Allowlists[details.id][LibAccounts.AllowlistType.AllowlistedContributors].keys.length >
+      0
+    ) {
+      // if there is an allowlist, check that msg.sender is in it
+      if (
+        !IterableMappingAddr.get(
+          state.Allowlists[details.id][LibAccounts.AllowlistType.AllowlistedContributors],
+          msg.sender
+        )
+      ) {
+        // revert if they aren't
+        revert("Contributor address is not listed in allowlistedContributors");
       }
     }
 
-    uint256 lockedAmount = (amount.mul(lockedSplitPercent)).div(LibAccounts.PERCENT_BASIS);
-    uint256 liquidAmount = (amount.mul(liquidSplitPercent)).div(LibAccounts.PERCENT_BASIS);
+    // ** DEPOSIT FEE CALCULATIONS **
+    // ** Protocol-level Deposit Fee **
+    LibAccounts.FeeSetting memory depositFeeAp;
+    if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
+      depositFeeAp = IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(
+        LibAccounts.FeeTypes.DepositCharity
+      );
+    } else {
+      depositFeeAp = IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(
+        LibAccounts.FeeTypes.Deposit
+      );
+    }
+    uint256 amountLeftover = amount - calculateAndPayoutFee(amount, tokenAddress, depositFeeAp);
+
+    // ** Endowment-level Deposit Fee **
+    // Calculated on the amount left after Protocol-level fee is deducted
+    amountLeftover -= calculateAndPayoutFee(amountLeftover, tokenAddress, tempEndowment.depositFee);
+
+    // ** SPLIT ADJUSTMENTS AND CHECKS **
+    uint256 lockedSplitPercent = details.lockedPercentage;
+    uint256 liquidSplitPercent = details.liquidPercentage;
+    if (msg.sender != registrarConfig.indexFundContract) {
+      // adjust user passed liquid split to be in-line with endowment range (if falls outside)
+      liquidSplitPercent = Validator.adjustLiquidSplit(
+        tempEndowment.splitToLiquid,
+        details.liquidPercentage,
+        tempEndowment.ignoreUserSplits
+      );
+      lockedSplitPercent = 100 - liquidSplitPercent;
+    }
+
+    uint256 lockedAmount = amountLeftover.mulDivDown(lockedSplitPercent, LibAccounts.PERCENT_BASIS);
+    uint256 liquidAmount = amountLeftover.mulDivDown(liquidSplitPercent, LibAccounts.PERCENT_BASIS);
 
     // donation matching flow
     if (lockedAmount > 0) {
@@ -165,13 +193,13 @@ contract AccountsDepositWithdrawEndowments is
 
       if (
         tempEndowment.endowType == LibAccounts.EndowmentType.Charity &&
-        registrar_config.donationMatchCharitesContract != address(0)
+        registrarConfig.donationMatchCharitesContract != address(0)
       ) {
-        IDonationMatching(registrar_config.donationMatchCharitesContract).executeDonorMatch(
+        IDonationMatching(registrarConfig.donationMatchCharitesContract).executeDonorMatch(
           details.id,
           lockedAmount,
           donationMatch,
-          registrar_config.haloToken
+          registrarConfig.haloToken
         );
       } else if (tempEndowment.donationMatchContract != address(0)) {
         IDonationMatching(tempEndowment.donationMatchContract).executeDonorMatch(
@@ -183,8 +211,31 @@ contract AccountsDepositWithdrawEndowments is
       }
     }
 
-    state.STATES[details.id].balances.locked[tokenAddress] += lockedAmount;
-    state.STATES[details.id].balances.liquid[tokenAddress] += liquidAmount;
+    state.Balances[details.id][IVault.VaultType.LOCKED][tokenAddress] += lockedAmount;
+    state.Balances[details.id][IVault.VaultType.LIQUID][tokenAddress] += liquidAmount;
+
+    emit EndowmentDeposit(details.id, tokenAddress, lockedAmount, liquidAmount);
+  }
+
+  /**
+   * @notice Transfer ERC20 tokens from one Endowment to another, no fees or donation matching
+   * @dev manages Token transfers between endowments when closing or withdrawing sends to another Endowment
+   * @param details The details of the deposit
+   * @param tokenAddress The address of the token to deposit (only called with USDC address)
+   * @param amount The amount of the token to deposit (in USDC)
+   */
+  function processTokenTransfer(
+    AccountMessages.DepositRequest memory details,
+    address tokenAddress,
+    uint256 amount
+  ) internal {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+
+    uint256 lockedAmount = amount.mulDivDown(details.lockedPercentage, LibAccounts.PERCENT_BASIS);
+    uint256 liquidAmount = amount.mulDivDown(details.liquidPercentage, LibAccounts.PERCENT_BASIS);
+
+    state.Balances[details.id][IVault.VaultType.LOCKED][tokenAddress] += lockedAmount;
+    state.Balances[details.id][IVault.VaultType.LIQUID][tokenAddress] += liquidAmount;
 
     emit EndowmentDeposit(details.id, tokenAddress, lockedAmount, liquidAmount);
   }
@@ -206,9 +257,30 @@ contract AccountsDepositWithdrawEndowments is
     IAccountsDepositWithdrawEndowments.TokenInfo[] memory tokens
   ) public nonReentrant validEndowId(id) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    AccountStorage.Endowment storage tempEndowment = state.ENDOWMENTS[id];
-    AccountStorage.EndowmentState storage tempEndowmentState = state.STATES[id];
-    require(!tempEndowmentState.closingEndowment, "Endowment is closed");
+    AccountStorage.Endowment storage tempEndowment = state.Endowments[id];
+    AccountStorage.EndowmentState storage tempEndowmentState = state.States[id];
+
+    // If an Endowment is closed and a withdraw is executed for it, check that the sender is the closing
+    // beneficiary on record and procees the withdraw if so ensure funds are indeed moving to that beneficiary
+    if (tempEndowmentState.closingEndowment) {
+      if (tempEndowmentState.closingBeneficiary.enumData == LibAccounts.BeneficiaryEnum.Wallet) {
+        require(
+          msg.sender == tempEndowmentState.closingBeneficiary.data.addr,
+          "Endowment is closed"
+        );
+        beneficiaryAddress = msg.sender;
+        beneficiaryEndowId = 0;
+      } else if (
+        tempEndowmentState.closingBeneficiary.enumData == LibAccounts.BeneficiaryEnum.EndowmentId
+      ) {
+        require(
+          msg.sender == state.Endowments[tempEndowmentState.closingBeneficiary.data.endowId].owner,
+          "Endowment is closed"
+        );
+        beneficiaryAddress = address(0);
+        beneficiaryEndowId = tempEndowmentState.closingBeneficiary.data.endowId;
+      }
+    }
 
     // place an arbitrary cap on the qty of different tokens per withdraw to limit gas use
     require(tokens.length > 0, "No tokens provided");
@@ -219,151 +291,142 @@ contract AccountsDepositWithdrawEndowments is
       require(tokens[i].amnt > 0, "Invalid withdraw token passed: zero amount");
     }
 
-    // fetch registrar config
-    RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
-      .queryConfig();
+    // check endowment beneficiary, if specified, is not closed
+    if (beneficiaryEndowId != 0) {
+      require(
+        !state.States[beneficiaryEndowId].closingEndowment,
+        "Beneficiary endowment is closed"
+      );
+    }
 
-    // Charities never mature & Normal endowments optionally mature
     // Check if maturity has been reached for the endowment (0 == no maturity date)
     bool mature = (tempEndowment.maturityTime != 0 &&
       block.timestamp >= tempEndowment.maturityTime);
 
-    // ** NORMAL TYPE WITHDRAWAL RULES **
-    // In both balance types:
-    //      The endowment multisig OR beneficiaries allowlist addresses [if populated] can withdraw. After
-    //      maturity has been reached, only addresses in Maturity Allowlist may withdraw. If the Maturity
-    //      Allowlist is not populated, then only the endowment multisig is allowed to withdraw.
-    // ** CHARITY TYPE WITHDRAW RULES **
-    // Since charity endowments do not mature, they can be treated the same as Normal endowments
-    bool senderAllowed = false;
-    // determine if msg sender is allowed to withdraw based on rules and maturity status
-    if (mature) {
-      if (tempEndowment.maturityAllowlist.length > 0) {
-        for (uint256 i = 0; i < tempEndowment.maturityAllowlist.length; i++) {
-          if (tempEndowment.maturityAllowlist[i] == msg.sender) {
-            senderAllowed = true;
-          }
-        }
-        require(senderAllowed, "Sender address is not listed in maturityAllowlist");
-      }
-    } else {
-      if (tempEndowment.allowlistedBeneficiaries.length > 0) {
-        for (uint256 i = 0; i < tempEndowment.allowlistedBeneficiaries.length; i++) {
-          if (tempEndowment.allowlistedBeneficiaries[i] == msg.sender) {
-            senderAllowed = true;
-          }
-        }
-      }
+    if (tempEndowment.endowType == LibAccounts.EndowmentType.Daf) {
       require(
-        senderAllowed || msg.sender == tempEndowment.owner,
-        "Sender address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner"
+        beneficiaryAddress == address(0),
+        "Beneficiary address is not allowed for DAF withdrawals"
+      );
+      require(
+        state.DafApprovedEndowments[beneficiaryEndowId],
+        "Endowment beneficiary must be a DAF-Approved Endowment"
       );
     }
 
-    uint256 earlyFeeBps = IRegistrar(state.config.registrarContract)
-      .getFeeSettingsByFeeType(LibAccounts.FeeTypes.EarlyLockedWithdrawCharity)
-      .bps;
+    // look up Protocol level fees
+    LibAccounts.FeeSetting memory protocolWithdrawFee;
+    LibAccounts.FeeSetting memory protocolEarlyWithdrawFee;
+    if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
+      protocolWithdrawFee = IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(
+        LibAccounts.FeeTypes.WithdrawCharity
+      );
+      protocolEarlyWithdrawFee = IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(
+        LibAccounts.FeeTypes.EarlyLockedWithdrawCharity
+      );
+    } else {
+      protocolWithdrawFee = IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(
+        LibAccounts.FeeTypes.Withdraw
+      );
+      protocolEarlyWithdrawFee = IRegistrar(state.config.registrarContract).getFeeSettingsByFeeType(
+        LibAccounts.FeeTypes.EarlyLockedWithdraw
+      );
+    }
 
     for (uint256 t = 0; t < tokens.length; t++) {
-      // ** SHARED LOCKED WITHDRAWAL RULES **
-      // Can withdraw early for a (possible) penalty fee
-      uint256 earlyLockedWithdrawPenalty = 0;
-      if (acctType == IVault.VaultType.LOCKED && !mature) {
-        // Calculate the early withdraw penalty based on the earlyLockedWithdrawFee setting
-        // Normal: Endowment specific setting that owners can (optionally) set
-        // Charity: Registrar based setting for all Charity Endowments
-        if (tempEndowment.endowType == LibAccounts.EndowmentType.Normal) {
-          earlyLockedWithdrawPenalty = (
-            tokens[t].amnt.mul(tempEndowment.earlyLockedWithdrawFee.bps)
-          ).div(LibAccounts.FEE_BASIS);
-        } else {
-          earlyLockedWithdrawPenalty = (tokens[t].amnt.mul(earlyFeeBps)).div(LibAccounts.FEE_BASIS);
-        }
-      }
-
-      uint256 withdrawFeeRateAp;
-      if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
-        withdrawFeeRateAp = IRegistrar(state.config.registrarContract)
-          .getFeeSettingsByFeeType(LibAccounts.FeeTypes.WithdrawCharity)
-          .bps;
-      } else {
-        withdrawFeeRateAp = IRegistrar(state.config.registrarContract)
-          .getFeeSettingsByFeeType(LibAccounts.FeeTypes.WithdrawNormal)
-          .bps;
-      }
-
-      uint256 current_bal;
-      if (acctType == IVault.VaultType.LOCKED) {
-        current_bal = state.STATES[id].balances.locked[tokens[t].addr];
-      } else {
-        current_bal = state.STATES[id].balances.liquid[tokens[t].addr];
-      }
-
       // ensure balance of tokens can cover the requested withdraw amount
-      require(current_bal >= tokens[t].amnt, "Insufficient Funds");
+      require(state.Balances[id][acctType][tokens[t].addr] >= tokens[t].amnt, "Insufficient Funds");
 
-      // calculate AP Protocol fee owed on withdrawn token amount
-      uint256 withdrawFeeAp = (tokens[t].amnt.mul(withdrawFeeRateAp)).div(LibAccounts.FEE_BASIS);
-
-      // Transfer AP Protocol fee to treasury
-      // (ie. standard Withdraw Fee + any early Locked Withdraw Penalty)
-      IERC20(tokens[t].addr).safeTransfer(
-        registrar_config.treasury,
-        withdrawFeeAp + earlyLockedWithdrawPenalty
-      );
-
-      uint256 amountLeftover = tokens[t].amnt - withdrawFeeAp - earlyLockedWithdrawPenalty;
+      // calculate all fees owed, send them to payout addresses, & return the leftover amount
+      uint256 amountLeftover = tokens[t].amnt;
+      // Do not apply fees for Endowment <> Endowment withdraws/transfers
+      if (beneficiaryAddress != address(0)) {
+        // ** FEES & PENALTIES CALCULATIONS **
+        amountLeftover = processWithdrawFees(
+          tokens[t].amnt,
+          tokens[t].addr,
+          mature,
+          acctType,
+          protocolWithdrawFee,
+          protocolEarlyWithdrawFee,
+          tempEndowment.withdrawFee,
+          tempEndowment.earlyLockedWithdrawFee
+        );
+      }
 
       if (amountLeftover > 0) {
-        // ** Endowment specific withdraw fee **
-        // Endowment specific withdraw fee needs to be calculated against the amount
-        // leftover after all AP withdraw fees are subtracted.
-        uint256 withdrawFeeEndow = 0;
-
-        if (tempEndowment.withdrawFee.bps != 0) {
-          withdrawFeeEndow = (amountLeftover.mul(tempEndowment.withdrawFee.bps)).div(
-            LibAccounts.FEE_BASIS
-          );
-
-          // transfer endowment withdraw fee to payout address
-          IERC20(tokens[t].addr).safeTransfer(
-            tempEndowment.withdrawFee.payoutAddress,
-            withdrawFeeEndow
-          );
-        }
-
-        // send all tokens (less fees) to the ultimate beneficiary address/endowment
+        // send leftover tokens (after all fees) to the ultimate beneficiary address/Endowment
         if (beneficiaryAddress != address(0)) {
-          IERC20(tokens[t].addr).safeTransfer(
-            beneficiaryAddress,
-            (amountLeftover - withdrawFeeEndow)
-          );
+          // determine if beneficiaryAddress can receive withdrawn funds based on allowlist and maturity status
+          bool beneficiaryAllowed;
+          if (mature) {
+            beneficiaryAllowed = (
+              IterableMappingAddr.get(
+                state.Allowlists[id][LibAccounts.AllowlistType.MaturityAllowlist],
+                beneficiaryAddress
+              )
+            );
+            require(beneficiaryAllowed, "Beneficiary address is not listed in maturityAllowlist");
+          } else {
+            if (
+              state
+                .Allowlists[id][LibAccounts.AllowlistType.AllowlistedBeneficiaries]
+                .keys
+                .length ==
+              0 ||
+              beneficiaryAddress == tempEndowment.owner
+            ) {
+              beneficiaryAllowed = true;
+            } else {
+              beneficiaryAllowed = (
+                IterableMappingAddr.get(
+                  state.Allowlists[id][LibAccounts.AllowlistType.AllowlistedBeneficiaries],
+                  beneficiaryAddress
+                )
+              );
+            }
+            require(
+              beneficiaryAllowed,
+              "Beneficiary address is not listed in allowlistedBeneficiaries nor is it the Endowment Owner"
+            );
+          }
+          IERC20(tokens[t].addr).safeTransfer(beneficiaryAddress, amountLeftover);
         } else {
-          // check endowment specified is not closed
-          require(
-            !state.STATES[beneficiaryEndowId].closingEndowment,
-            "Beneficiary endowment is closed"
-          );
-          // Send deposit message to 100% Liquid account of an endowment
-          processTokenDeposit(
-            AccountMessages.DepositRequest({
-              id: beneficiaryEndowId,
-              lockedPercentage: 0,
-              liquidPercentage: 100,
-              donationMatch: address(this) // all liquid so won't trigger a match
-            }),
-            tokens[t].addr,
-            (amountLeftover - withdrawFeeEndow)
-          );
+          if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
+            require(
+              state.Endowments[beneficiaryEndowId].endowType == LibAccounts.EndowmentType.Charity,
+              "Charity Endowments may only transfer funds to other Charity Endowments"
+            );
+          }
+          // Deposit message split set for the appropriate VaultType of receiving Endowment
+          if (acctType == IVault.VaultType.LOCKED) {
+            processTokenTransfer(
+              AccountMessages.DepositRequest({
+                id: beneficiaryEndowId,
+                lockedPercentage: 100,
+                liquidPercentage: 0,
+                donationMatch: msg.sender
+              }),
+              tokens[t].addr,
+              amountLeftover
+            );
+          } else {
+            processTokenTransfer(
+              AccountMessages.DepositRequest({
+                id: beneficiaryEndowId,
+                lockedPercentage: 0,
+                liquidPercentage: 100,
+                donationMatch: address(this)
+              }),
+              tokens[t].addr,
+              amountLeftover
+            );
+          }
         }
       }
 
-      // reduce the orgs balance by the withdrawn token amount
-      if (acctType == IVault.VaultType.LOCKED) {
-        state.STATES[id].balances.locked[tokens[t].addr] -= tokens[t].amnt;
-      } else {
-        state.STATES[id].balances.liquid[tokens[t].addr] -= tokens[t].amnt;
-      }
+      // reduce the org's balance by the withdrawn token amount
+      state.Balances[id][acctType][tokens[t].addr] -= tokens[t].amnt;
       emit EndowmentWithdraw(
         id,
         tokens[t].addr,
@@ -373,5 +436,59 @@ contract AccountsDepositWithdrawEndowments is
         beneficiaryEndowId
       );
     }
+  }
+
+  // Internal function to calculate fees and disburse fees to payout addresses
+  function calculateAndPayoutFee(
+    uint256 tokenAmnt,
+    address tokenAddr,
+    LibAccounts.FeeSetting memory fee
+  ) internal returns (uint256 feeAmount) {
+    feeAmount = tokenAmnt.mulDivDown(fee.bps, LibAccounts.FEE_BASIS);
+    if (feeAmount > 0) {
+      IERC20(tokenAddr).safeTransfer(fee.payoutAddress, feeAmount);
+    }
+  }
+
+  // Internal function to process all withdraw fees
+  function processWithdrawFees(
+    uint256 startingAmnt,
+    address tokenAddr,
+    bool mature,
+    IVault.VaultType acctType,
+    LibAccounts.FeeSetting memory protocolWithdrawFee,
+    LibAccounts.FeeSetting memory protocolEarlyWithdrawFee,
+    LibAccounts.FeeSetting memory endowWithdrawFee,
+    LibAccounts.FeeSetting memory endowEarlyLockedWithdrawFee
+  ) internal returns (uint256 amountLeftover) {
+    uint256 totalEndowFees;
+
+    // ** WITHDRAW FEE (STANDARD) **
+    // Protocol-level fee calculated based on Registrar rate look-up
+    amountLeftover =
+      startingAmnt -
+      calculateAndPayoutFee(startingAmnt, tokenAddr, protocolWithdrawFee);
+
+    // ** EARLY LOCKED WITHDRAW FEE **
+    // Can withdraw early for a (possible) penalty fee
+    if (acctType == IVault.VaultType.LOCKED && !mature) {
+      // Protocol-level early withdraw penalty fee
+      // Deduct AP Early Locked Withdraw Fee to arrive at an amountLeftover
+      // that all Endowment-level Fees hereafter can safely be calculated against
+      amountLeftover -= calculateAndPayoutFee(startingAmnt, tokenAddr, protocolEarlyWithdrawFee);
+      // Normal/DAF Endowment-level Early Withdraw Fee that owners can (optionally) set
+      totalEndowFees = calculateAndPayoutFee(
+        amountLeftover,
+        tokenAddr,
+        endowEarlyLockedWithdrawFee
+      );
+    }
+
+    // ** WITHDRAW FEE (STANDARD): Endowment-Level fee **
+    // Calculated on the amount left after all Protocol-level fees are deducted
+    totalEndowFees += calculateAndPayoutFee(amountLeftover, tokenAddr, endowWithdrawFee);
+
+    // Deduct all Endowment-level fees to get a final withdraw amount leftover
+    amountLeftover -= totalEndowFees;
   }
 }

@@ -200,6 +200,7 @@ describe("Router", function () {
     let gasService: FakeContract<DummyGasService>;
     let token: FakeContract<DummyERC20>;
     let router: Router;
+
     const LOCK_AMT = 111;
     const LIQ_AMT = 222;
     const GAS_COST = 5;

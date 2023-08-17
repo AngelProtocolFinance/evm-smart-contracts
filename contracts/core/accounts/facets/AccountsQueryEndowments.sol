@@ -6,13 +6,14 @@ import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {IAccountsQueryEndowments} from "../interfaces/IAccountsQueryEndowments.sol";
 import {IVault} from "../../vault/interfaces/IVault.sol";
+import {IterableMappingAddr} from "../../../lib/IterableMappingAddr.sol";
 
 /**
  * @title AccountsQueryEndowments
  * @notice This contract facet queries for endowment and accounts config
  * @dev This contract facet queries for endowment and accounts config
  */
-contract AccountsQueryEndowments is IAccountsQueryEndowments {
+contract AccountsQueryEndowments is IAccountsQueryEndowments, IterableMappingAddr {
   /**
    * @notice This function queries the balance of a token for an endowment
    * @dev This function queries the balance of a token for an endowment based on its type and address
@@ -29,11 +30,7 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     require(address(0) != tokenAddress, "Invalid token address");
 
-    if (accountType == IVault.VaultType.LOCKED) {
-      tokenAmount = state.STATES[id].balances.locked[tokenAddress];
-    } else {
-      tokenAmount = state.STATES[id].balances.liquid[tokenAddress];
-    }
+    tokenAmount = state.Balances[id][accountType][tokenAddress];
   }
 
   /**
@@ -44,9 +41,42 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments {
    */
   function queryEndowmentDetails(
     uint32 id
-  ) public view returns (AccountStorage.Endowment memory endowment) {
+  ) public view returns (AccountMessages.EndowmentResponse memory) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    endowment = state.ENDOWMENTS[id];
+    AccountStorage.Endowment storage endowment = state.Endowments[id];
+    return
+      AccountMessages.EndowmentResponse({
+        owner: endowment.owner,
+        name: endowment.name,
+        sdgs: endowment.sdgs,
+        tier: endowment.tier,
+        endowType: endowment.endowType,
+        logo: endowment.logo,
+        image: endowment.image,
+        maturityTime: endowment.maturityTime,
+        rebalance: endowment.rebalance,
+        proposalLink: endowment.proposalLink,
+        multisig: endowment.multisig,
+        dao: endowment.dao,
+        daoToken: endowment.daoToken,
+        donationMatchActive: endowment.donationMatchActive,
+        donationMatchContract: endowment.donationMatchContract,
+        earlyLockedWithdrawFee: endowment.earlyLockedWithdrawFee,
+        withdrawFee: endowment.withdrawFee,
+        depositFee: endowment.depositFee,
+        balanceFee: endowment.balanceFee,
+        settingsController: endowment.settingsController,
+        parent: endowment.parent,
+        ignoreUserSplits: endowment.ignoreUserSplits,
+        splitToLiquid: endowment.splitToLiquid,
+        referralId: endowment.referralId,
+        gasFwd: endowment.gasFwd,
+        allowlistedBeneficiaries: state
+        .Allowlists[id][LibAccounts.AllowlistType.AllowlistedBeneficiaries].keys,
+        allowlistedContributors: state
+        .Allowlists[id][LibAccounts.AllowlistType.AllowlistedContributors].keys,
+        maturityAllowlist: state.Allowlists[id][LibAccounts.AllowlistType.MaturityAllowlist].keys
+      });
   }
 
   /**
@@ -76,8 +106,8 @@ contract AccountsQueryEndowments is IAccountsQueryEndowments {
   ) public view returns (AccountMessages.StateResponse memory stateResponse) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     stateResponse = AccountMessages.StateResponse({
-      closingEndowment: state.STATES[id].closingEndowment,
-      closingBeneficiary: state.STATES[id].closingBeneficiary
+      closingEndowment: state.States[id].closingEndowment,
+      closingBeneficiary: state.States[id].closingBeneficiary
     });
   }
 }

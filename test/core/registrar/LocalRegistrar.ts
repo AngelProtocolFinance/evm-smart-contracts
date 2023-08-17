@@ -1,4 +1,5 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {BigNumber} from "ethers";
 import {expect} from "chai";
 import hre from "hardhat";
 import {FeeTypes, StrategyApprovalState, getSigners} from "utils";
@@ -36,12 +37,13 @@ describe("Local Registrar", function () {
   let accountsContract = "0x000000000000000000000000000000000000dead";
 
   async function deployRegistrarAsProxy(): Promise<LocalRegistrar> {
-    const {proxyAdmin, apTeam3} = await getSigners(hre);
-    owner = proxyAdmin;
-    user = apTeam3;
+    const signers = await getSigners(hre);
+    owner = signers.proxyAdmin;
+    user = signers.apTeam1;
+
     Registrar = (await ethers.getContractFactory(
       "LocalRegistrar",
-      proxyAdmin
+      owner
     )) as LocalRegistrar__factory;
     const registrar = (await upgrades.deployProxy(Registrar)) as LocalRegistrar;
     await registrar.deployed();
@@ -342,11 +344,36 @@ describe("Local Registrar", function () {
             .setFeeSettingsByFeesType(FeeTypes.Default, 1, ethers.constants.AddressZero)
         ).to.be.reverted;
       });
-      it("Should set and get the vault operator approval status", async function () {
-        await expect(registrar.setFeeSettingsByFeesType(FeeTypes.Harvest, 1, user.address)).to.not
-          .be.reverted;
+
+      it("Should revert if a single fee meets or exceeds 100%", async function () {
+        // setting to 100% should fail outright
+        await expect(
+          registrar.setFeeSettingsByFeesType(FeeTypes.Deposit, 10000, user.address)
+        ).to.be.revertedWith("Fees meet or exceed 100%");
+      });
+
+      it("Should revert if combined Withdraw-related fees meet or exceeds 100%", async function () {
+        // First set a Withdraw Fee as 50%
+        await expect(
+          registrar.setFeeSettingsByFeesType(FeeTypes.Withdraw, 5000, user.address)
+        ).to.not.be.reverted;
+
+        // Trying to set an Early Locked Withdraw Fee at, or above, 50% should fail
+        await expect(
+          registrar.setFeeSettingsByFeesType(
+            FeeTypes.EarlyLockedWithdraw,
+            BigNumber.from(6000),
+            user.address
+          )
+        ).to.be.revertedWith("Fees meet or exceed 100%");
+      });
+
+      it("Should set a fee rate (in bps) and a payout address", async function () {
+        await expect(
+          registrar.setFeeSettingsByFeesType(FeeTypes.Harvest, BigNumber.from(5000), user.address)
+        ).to.not.be.reverted;
         let afterHarvestFee = await registrar.getFeeSettingsByFeeType(FeeTypes.Harvest);
-        expect(afterHarvestFee.bps).to.equal(1);
+        expect(afterHarvestFee.bps).to.equal(5000);
         expect(afterHarvestFee.payoutAddress).to.equal(user.address);
       });
     });

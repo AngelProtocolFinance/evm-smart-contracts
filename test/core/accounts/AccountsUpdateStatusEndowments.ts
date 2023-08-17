@@ -21,7 +21,7 @@ import {
 import {LibAccounts} from "typechain-types/contracts/core/accounts/facets/AccountsUpdateStatusEndowments";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {genWallet, getSigners} from "utils";
+import {genWallet, getSigners, BeneficiaryEnum, EndowmentType} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
@@ -30,9 +30,13 @@ describe("AccountsUpdateStatusEndowments", function () {
   const {ethers} = hre;
 
   const accountId = 1;
+  const charityId = 2;
+  const charityId2 = 3;
+  const dafId = 4;
+
   const beneficiary: LibAccounts.BeneficiaryStruct = {
-    enumData: 0,
-    data: {addr: genWallet().address, endowId: accountId, fundId: 1},
+    enumData: BeneficiaryEnum.Wallet,
+    data: {addr: genWallet().address, endowId: 0},
   };
   const strategies = ["strategy1", "strategy2", "strategy3"].map(
     (x) => ethers.utils.id(x).slice(0, 10) // map to bytes4 selectors
@@ -45,7 +49,10 @@ describe("AccountsUpdateStatusEndowments", function () {
   let facet: AccountsUpdateStatusEndowments;
   let state: TestFacetProxyContract;
 
-  let endowment: AccountStorage.EndowmentStruct;
+  let ast_endowment: AccountStorage.EndowmentStruct;
+  let charity_endowment: AccountStorage.EndowmentStruct;
+  let daf_endowment: AccountStorage.EndowmentStruct;
+
   let treasuryAddress: string;
 
   let registrarFake: FakeContract<Registrar>;
@@ -58,7 +65,17 @@ describe("AccountsUpdateStatusEndowments", function () {
     endowOwner = signers.deployer;
     treasuryAddress = signers.apTeam2.address;
 
-    endowment = {...DEFAULT_CHARITY_ENDOWMENT, owner: endowOwner.address};
+    charity_endowment = {...DEFAULT_CHARITY_ENDOWMENT, owner: endowOwner.address};
+    ast_endowment = {
+      ...DEFAULT_CHARITY_ENDOWMENT,
+      endowType: EndowmentType.Ast,
+      owner: endowOwner.address,
+    };
+    daf_endowment = {
+      ...DEFAULT_CHARITY_ENDOWMENT,
+      endowType: EndowmentType.Daf,
+      owner: endowOwner.address,
+    };
   });
 
   beforeEach(async function () {
@@ -77,19 +94,24 @@ describe("AccountsUpdateStatusEndowments", function () {
       ...DEFAULT_REGISTRAR_CONFIG,
       indexFundContract: indexFundFake.address,
       treasury: treasuryAddress,
+      haloToken: genWallet().address,
+      splitToLiquid: {defaultSplit: 50, max: 100, min: 0},
     };
     registrarFake.queryConfig.returns(config);
-
     registrarFake.queryAllStrategies.returns(strategies);
 
-    await wait(state.setEndowmentDetails(accountId, endowment));
+    await wait(state.setEndowmentDetails(accountId, ast_endowment));
+    await wait(state.setEndowmentDetails(charityId, charity_endowment));
+    await wait(state.setEndowmentDetails(charityId2, charity_endowment));
+    await wait(state.setEndowmentDetails(dafId, daf_endowment));
+
     await wait(
       state.setConfig({
         owner: accOwner.address,
         version: "1",
         networkName: "Polygon",
         registrarContract: registrarFake.address,
-        nextAccountId: accountId + 1,
+        nextAccountId: dafId + 1,
         reentrancyGuardLocked: false,
       })
     );
@@ -111,14 +133,41 @@ describe("AccountsUpdateStatusEndowments", function () {
       );
     });
 
-    it("reverts if the beneficiary is set to 'None' and no index fund is configured in the registrar", async () => {
-      registrarFake.queryConfig.returns(DEFAULT_REGISTRAR_CONFIG);
-
-      const beneficiaryNone: LibAccounts.BeneficiaryStruct = {...beneficiary, enumData: 3};
-
-      await expect(facet.closeEndowment(accountId, beneficiaryNone)).to.be.revertedWith(
-        "Beneficiary is NONE & Index Fund Contract is not configured in Registrar"
+    it("reverts if a DAF or Charity endowment tries to pass Wallet as the beneficiary", async () => {
+      await expect(facet.closeEndowment(dafId, beneficiary)).to.be.revertedWith(
+        "Cannot pass Wallet beneficiary"
       );
+
+      await expect(facet.closeEndowment(charityId, beneficiary)).to.be.revertedWith(
+        "Cannot pass Wallet beneficiary"
+      );
+    });
+
+    it("reverts if a DAF endowment tries to pass Non-DAF Approved ID as the beneficiary ID", async () => {
+      await expect(
+        facet.closeEndowment(dafId, {
+          enumData: BeneficiaryEnum.EndowmentId,
+          data: {addr: ethers.constants.AddressZero, endowId: accountId},
+        })
+      ).to.be.revertedWith("Not an approved Endowment for DAF withdrawals");
+    });
+
+    it("reverts if a charity endowment tries to pass Non-Charity ID as the beneficiary ID", async () => {
+      await expect(
+        facet.closeEndowment(charityId, {
+          enumData: BeneficiaryEnum.EndowmentId,
+          data: {addr: ethers.constants.AddressZero, endowId: accountId},
+        })
+      ).to.be.revertedWith("Beneficiary must be a Charity Endowment type");
+    });
+
+    it("reverts if an endowment passes its own ID as the beneficiary ID", async () => {
+      await expect(
+        facet.closeEndowment(accountId, {
+          enumData: BeneficiaryEnum.EndowmentId,
+          data: {addr: ethers.constants.AddressZero, endowId: accountId},
+        })
+      ).to.be.revertedWith("Cannot set own Endowment as final Beneficiary");
     });
 
     it("reverts if the endowment has active strategies", async () => {
@@ -128,53 +177,73 @@ describe("AccountsUpdateStatusEndowments", function () {
       );
     });
 
-    it("removes the closing endowment from all index funds it is involved in", async () => {
-      await expect(facet.closeEndowment(accountId, beneficiary))
-        .to.emit(facet, "EndowmentClosed")
-        .withArgs(accountId);
+    it("passes: when the closing an Endowment to a wallet beneficiary", async () => {
+      await expect(facet.closeEndowment(accountId, beneficiary)).to.emit(facet, "EndowmentClosed");
 
       const endowState = await state.getClosingEndowmentState(accountId);
-
       expect(endowState[0]).to.equal(true);
       expect(endowState[1].enumData).to.equal(beneficiary.enumData);
       expect(endowState[1].data.addr).to.equal(beneficiary.data.addr);
       expect(endowState[1].data.endowId).to.equal(beneficiary.data.endowId);
-      expect(endowState[1].data.fundId).to.equal(beneficiary.data.fundId);
+
+      // check that endowment in no longer involved in any index funds
+      const funds = await indexFundFake.queryInvolvedFunds(accountId);
+      expect(funds.length).to.equal(0);
     });
 
-    it("updates the beneficiary to the treasury address if the beneficiary is set to 'None' and the endowment is not involved in any funds", async () => {
+    it("passes: updates the beneficiary to the treasury address if the beneficiary is set to 'None'", async () => {
       indexFundFake.queryInvolvedFunds.returns([]);
-      const beneficiaryNone: LibAccounts.BeneficiaryStruct = {...beneficiary, enumData: 3};
+      const beneficiaryNone: LibAccounts.BeneficiaryStruct = {
+        enumData: BeneficiaryEnum.None,
+        data: {addr: ethers.constants.AddressZero, endowId: 0},
+      };
+      const beneficiaryTreasury: LibAccounts.BeneficiaryStruct = {
+        enumData: BeneficiaryEnum.Wallet,
+        data: {addr: treasuryAddress, endowId: 0},
+      };
 
-      await expect(facet.closeEndowment(accountId, beneficiaryNone))
-        .to.emit(facet, "EndowmentClosed")
-        .withArgs(accountId);
+      await expect(facet.closeEndowment(accountId, beneficiaryNone)).to.emit(
+        facet,
+        "EndowmentClosed"
+      );
 
       const endowState = await state.getClosingEndowmentState(accountId);
-
       expect(endowState[0]).to.equal(true);
-      expect(endowState[1].enumData).to.equal(2);
-      expect(endowState[1].data.addr).to.equal(treasuryAddress);
-      expect(endowState[1].data.endowId).to.equal(0);
-      expect(endowState[1].data.fundId).to.equal(0);
+      expect(endowState[1].enumData).to.equal(beneficiaryTreasury.enumData);
+      expect(endowState[1].data.addr).to.equal(beneficiaryTreasury.data.addr);
+      expect(endowState[1].data.endowId).to.equal(beneficiaryTreasury.data.endowId);
     });
 
-    it("updates the beneficiary to the first index fund if the beneficiary is set to 'None' and the endowment is involved in one or more funds", async () => {
-      const funds: BigNumber[] = [BigNumber.from(1), BigNumber.from(2)];
-      indexFundFake.queryInvolvedFunds.returns(funds);
-      const beneficiaryNone: LibAccounts.BeneficiaryStruct = {...beneficiary, enumData: 3};
+    it("passes if a DAF endowment sends an Approved ID as the beneficiary ID", async () => {
+      await wait(state.setDafApprovedEndowment(charityId, true));
 
-      await expect(facet.closeEndowment(accountId, beneficiaryNone))
-        .to.emit(facet, "EndowmentClosed")
-        .withArgs(accountId);
+      await expect(
+        facet.closeEndowment(dafId, {
+          enumData: BeneficiaryEnum.EndowmentId,
+          data: {addr: ethers.constants.AddressZero, endowId: charityId},
+        })
+      ).to.emit(facet, "EndowmentClosed");
 
-      const endowState = await state.getClosingEndowmentState(accountId);
-
+      const endowState = await state.getClosingEndowmentState(dafId);
       expect(endowState[0]).to.equal(true);
-      expect(endowState[1].enumData).to.equal(1);
+      expect(endowState[1].enumData).to.equal(BeneficiaryEnum.EndowmentId);
       expect(endowState[1].data.addr).to.equal(ethers.constants.AddressZero);
-      expect(endowState[1].data.endowId).to.equal(0);
-      expect(endowState[1].data.fundId).to.equal(funds[0]);
+      expect(endowState[1].data.endowId).to.equal(charityId);
+    });
+
+    it("passes if a Charity endowment sends another Charity's ID as the beneficiary ID", async () => {
+      await expect(
+        facet.closeEndowment(charityId, {
+          enumData: BeneficiaryEnum.EndowmentId,
+          data: {addr: ethers.constants.AddressZero, endowId: charityId2},
+        })
+      ).to.emit(facet, "EndowmentClosed");
+
+      const endowState = await state.getClosingEndowmentState(charityId);
+      expect(endowState[0]).to.equal(true);
+      expect(endowState[1].enumData).to.equal(BeneficiaryEnum.EndowmentId);
+      expect(endowState[1].data.addr).to.equal(ethers.constants.AddressZero);
+      expect(endowState[1].data.endowId).to.equal(charityId2);
     });
   });
 
