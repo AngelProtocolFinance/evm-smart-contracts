@@ -121,15 +121,13 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     if (action.lockAmt > 0) {
       // Send tokens to locked vault and call deposit
       IERC20Metadata(action.token).safeTransfer(params.lockedVaultAddr, action.lockAmt);
-      IVault lockedVault = IVault(params.lockedVaultAddr);
-      lockedVault.deposit(action.accountIds[0], action.token, action.lockAmt);
+      IVault(params.lockedVaultAddr).deposit(action.accountIds[0], action.token, action.lockAmt);
     }
 
     if (action.liqAmt > 0) {
       // Send tokens to liquid vault and call deposit
       IERC20Metadata(action.token).safeTransfer(params.liquidVaultAddr, action.liqAmt);
-      IVault liquidVault = IVault(params.liquidVaultAddr);
-      liquidVault.deposit(action.accountIds[0], action.token, action.liqAmt);
+      IVault(params.liquidVaultAddr).deposit(action.accountIds[0], action.token, action.liqAmt);
     }
   }
 
