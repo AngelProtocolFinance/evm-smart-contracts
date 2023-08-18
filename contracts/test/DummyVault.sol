@@ -18,10 +18,12 @@ contract DummyVault is IVault {
   /// Vault impl
   constructor(VaultConfig memory _config) {
     vaultConfig = _config;
+    emit VaultConfigUpdated(_config);
   }
 
   function setVaultConfig(VaultConfig memory _newConfig) external override {
     vaultConfig = _newConfig;
+    emit VaultConfigUpdated(_newConfig);
   }
 
   function getVaultConfig() external view virtual override returns (VaultConfig memory) {

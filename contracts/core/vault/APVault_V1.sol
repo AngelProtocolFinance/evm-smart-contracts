@@ -21,6 +21,7 @@ contract APVault_V1 is IVault, ERC4626AP {
     VaultConfig memory _config
   ) ERC4626AP(IERC20Metadata(_config.yieldToken), _config.apTokenName, _config.apTokenSymbol) {
     vaultConfig = _config;
+    emit VaultConfigUpdated(_config);
   }
 
   /*//////////////////////////////////////////////////////////////
@@ -68,6 +69,7 @@ contract APVault_V1 is IVault, ERC4626AP {
 
   function setVaultConfig(VaultConfig memory _newConfig) external virtual override onlyAdmin {
     vaultConfig = _newConfig;
+    emit VaultConfigUpdated(_newConfig);
   }
 
   function getVaultConfig() external view virtual override returns (VaultConfig memory) {
