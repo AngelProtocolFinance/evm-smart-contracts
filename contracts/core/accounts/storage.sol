@@ -26,12 +26,11 @@ library AccountStorage {
     string image;
     uint256 maturityTime; // datetime int of endowment maturity
     LocalRegistrarLib.RebalanceParams rebalance; // parameters to guide rebalancing & harvesting of gains from locked/liquid accounts
-    uint256 proposalLink; // link back the Applications Team Multisig Proposal that created an endowment (if a Charity)
+    uint256 proposalLink; // @dev links back the Applications Team Multisig Proposal that created an endowment (if a Charity)
     address multisig;
     address dao;
-    address daoToken;
+    address donationMatch; // @dev only applies to ASTs (Charity & DAF use Halo Donation Match Contract in Registrar)
     bool donationMatchActive;
-    address donationMatchContract;
     LibAccounts.FeeSetting earlyLockedWithdrawFee;
     LibAccounts.FeeSetting withdrawFee;
     LibAccounts.FeeSetting depositFee;
@@ -69,7 +68,6 @@ library AccountStorage {
     mapping(uint32 => mapping(bytes4 => bool)) ActiveStrategies;
     // Endowments that a DAF can withdraw to, managed by contract Owner
     mapping(uint32 => bool) DafApprovedEndowments;
-    mapping(uint32 => uint256) DaoTokenBalances;
     // Endowments AllowLists Iterable mappings
     mapping(uint32 => mapping(LibAccounts.AllowlistType => IterableMappingAddr.Map)) Allowlists;
     Config config;

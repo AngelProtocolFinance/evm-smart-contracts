@@ -105,7 +105,6 @@ library AccountMessages {
     uint256 proposalLink;
     address multisig;
     address dao;
-    address daoToken;
     bool donationMatchActive;
     address donationMatchContract;
     address[] allowlistedBeneficiaries;

@@ -9,8 +9,8 @@ import {
   AccountsDepositWithdrawEndowments,
   AccountsDepositWithdrawEndowments__factory,
   DonationMatch,
-  DonationMatchCharity,
-  DonationMatchCharity__factory,
+  DonationMatchHalo,
+  DonationMatchHalo__factory,
   DonationMatch__factory,
   IERC20,
   IERC20__factory,
@@ -68,7 +68,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
   let dafEndow: AccountStorage.EndowmentStruct;
 
   let donationMatch: FakeContract<DonationMatch>;
-  let donationMatchCharity: FakeContract<DonationMatchCharity>;
+  let DonationMatchHalo: FakeContract<DonationMatchHalo>;
   let registrarFake: FakeContract<Registrar>;
   let wmaticFake: FakeContract<DummyWMATIC>;
   let tokenFake: FakeContract<IERC20>;
@@ -109,9 +109,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
     facet = AccountsDepositWithdrawEndowments__factory.connect(state.address, endowOwner);
 
     donationMatch = await smock.fake<DonationMatch>(new DonationMatch__factory());
-    donationMatchCharity = await smock.fake<DonationMatchCharity>(
-      new DonationMatchCharity__factory()
-    );
+    DonationMatchHalo = await smock.fake<DonationMatchHalo>(new DonationMatchHalo__factory());
 
     registrarFake = await smock.fake<Registrar>(new Registrar__factory());
 
@@ -374,7 +372,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
             .to.emit(facet, "EndowmentDeposit")
             .withArgs(depositToCharity.id, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
 
-          expect(donationMatchCharity.executeDonorMatch).to.not.have.been.called;
+          expect(DonationMatchHalo.executeDonorMatch).to.not.have.been.called;
 
           const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
             depositToCharity.id,
@@ -388,7 +386,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
           const curConfig = await registrarFake.queryConfig();
           const regConfig: RegistrarStorage.ConfigStruct = {
             ...curConfig,
-            donationMatchCharitesContract: donationMatchCharity.address,
+            donationMatchCharitesContract: DonationMatchHalo.address,
           };
           registrarFake.queryConfig.returns(regConfig);
 
@@ -399,7 +397,7 @@ describe("AccountsDepositWithdrawEndowments", function () {
             .to.emit(facet, "EndowmentDeposit")
             .withArgs(depositToCharity.id, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
 
-          expect(donationMatchCharity.executeDonorMatch).to.have.been.calledWith(
+          expect(DonationMatchHalo.executeDonorMatch).to.have.been.calledWith(
             depositToCharity.id,
             expectedLockedAmt,
             await facet.signer.getAddress(),

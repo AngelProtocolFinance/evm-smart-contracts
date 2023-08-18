@@ -55,7 +55,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
           deployer,
           proxyAdmin,
           treasury: treasury.address,
-          apTeamMultisig: apTeamMultisig?.address
+          apTeamMultisig: apTeamMultisig?.address,
         },
         hre
       );

@@ -35,15 +35,9 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       apTeamMultisig: details.apTeamMultisig,
       treasury: details.treasury,
       indexFundContract: address(0),
-      subdaoGovContract: address(0),
-      subdaoTokenContract: address(0),
-      subdaoBondingTokenContract: address(0),
-      subdaoCw900Contract: address(0),
-      subdaoDistributorContract: address(0),
-      subdaoEmitter: address(0),
-      donationMatchContract: address(0),
-      donationMatchCharitesContract: address(0),
+      donationMatchFactory: address(0),
       donationMatchEmitter: address(0),
+      donationMatchHaloContract: address(0),
       haloToken: address(0),
       govContract: address(0),
       fundraisingContract: address(0),
@@ -55,7 +49,6 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       proxyAdmin: address(0),
       usdcAddress: address(0),
       wMaticAddress: address(0),
-      cw900lvAddress: address(0),
       gasFwdFactory: address(0)
     });
     emit ConfigUpdated();
@@ -97,24 +90,16 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       state.config.indexFundContract = details.indexFundContract;
     }
 
-    if (Validator.addressChecker(details.subdaoGovContract)) {
-      state.config.subdaoGovContract = details.subdaoGovContract;
-    }
-
-    if (Validator.addressChecker(details.subdaoEmitter)) {
-      state.config.subdaoEmitter = details.subdaoEmitter;
-    }
-
-    if (Validator.addressChecker(details.donationMatchCharitesContract)) {
-      state.config.donationMatchCharitesContract = details.donationMatchCharitesContract;
+    if (Validator.addressChecker(details.donationMatchHaloContract)) {
+      state.config.donationMatchHaloContract = details.donationMatchHaloContract;
     }
 
     if (Validator.addressChecker(details.donationMatchEmitter)) {
       state.config.donationMatchEmitter = details.donationMatchEmitter;
     }
 
-    if (Validator.addressChecker(details.donationMatchContract)) {
-      state.config.donationMatchContract = details.donationMatchContract;
+    if (Validator.addressChecker(details.donationMatchFactory)) {
+      state.config.donationMatchFactory = details.donationMatchFactory;
     }
 
     if (Validator.addressChecker(details.haloToken)) {
@@ -159,10 +144,6 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
 
     if (Validator.addressChecker(details.wMaticAddress)) {
       state.config.wMaticAddress = details.wMaticAddress;
-    }
-
-    if (Validator.addressChecker(details.cw900lvAddress)) {
-      state.config.cw900lvAddress = details.cw900lvAddress;
     }
 
     if (Validator.addressChecker(details.gasFwdFactory)) {
