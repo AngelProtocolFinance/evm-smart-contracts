@@ -35,9 +35,6 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       apTeamMultisig: details.apTeamMultisig,
       treasury: details.treasury,
       indexFundContract: address(0),
-      donationMatchFactory: address(0),
-      donationMatchEmitter: address(0),
-      donationMatchHaloContract: address(0),
       haloToken: address(0),
       govContract: address(0),
       fundraisingContract: address(0),
@@ -88,18 +85,6 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
 
     if (Validator.addressChecker(details.indexFundContract)) {
       state.config.indexFundContract = details.indexFundContract;
-    }
-
-    if (Validator.addressChecker(details.donationMatchHaloContract)) {
-      state.config.donationMatchHaloContract = details.donationMatchHaloContract;
-    }
-
-    if (Validator.addressChecker(details.donationMatchEmitter)) {
-      state.config.donationMatchEmitter = details.donationMatchEmitter;
-    }
-
-    if (Validator.addressChecker(details.donationMatchFactory)) {
-      state.config.donationMatchFactory = details.donationMatchFactory;
     }
 
     if (Validator.addressChecker(details.haloToken)) {

@@ -20,9 +20,6 @@ library RegistrarMessages {
     address apTeamMultisig;
     address treasury;
     address indexFundContract;
-    address donationMatchFactory;
-    address donationMatchEmitter;
-    address donationMatchHaloContract;
     address haloToken;
     address govContract;
     address fundraisingContract;

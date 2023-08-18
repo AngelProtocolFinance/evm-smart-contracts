@@ -33,24 +33,6 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
     types.string
   )
   .addOptionalParam(
-    "donationMatchHaloContract",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
-  )
-  .addOptionalParam(
-    "donationMatchFactory",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
-  )
-  .addOptionalParam(
-    "donationMatchEmitter",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
-  )
-  .addOptionalParam(
     "haloToken",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
     undefined,

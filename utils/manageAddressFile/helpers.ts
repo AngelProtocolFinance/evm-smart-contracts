@@ -91,14 +91,6 @@ export function createEmptyAddressObj(): AddressObj {
       gasService: "",
       gateway: "",
     },
-    donationMatch: {
-      emitter: "",
-      implementation: "",
-    },
-    donationMatchCharity: {
-      implementation: "",
-      proxy: "",
-    },
     fundraising: {
       implementation: "",
       proxy: "",

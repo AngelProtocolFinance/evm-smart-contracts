@@ -2,12 +2,9 @@ export type AddressObj = {
   accounts: {
     diamond: string;
     facets: {
-      accountsDeployContract: string;
       accountsDepositWithdrawEndowments: string;
-      accountsDonationMatch: string;
       accountsAllowance: string;
       accountsCreateEndowment: string;
-      accountsDaoEndowments: string;
       accountsGasManager: string;
       accountsQueryEndowments: string;
       accountsStrategy: string;
@@ -25,14 +22,6 @@ export type AddressObj = {
   axelar: {
     gasService: string;
     gateway: string;
-  };
-  donationMatch: {
-    emitter: string;
-    implementation: string;
-  };
-  donationMatchCharity: {
-    implementation: string;
-    proxy: string;
   };
   fundraising: {
     implementation: string;
@@ -97,9 +86,6 @@ export type AddressObj = {
       proxy: string;
     };
   };
-  incentivisedVotingLockup: {
-    implementation: string;
-  };
   indexFund: {
     implementation: string;
     proxy: string;
@@ -129,15 +115,6 @@ export type AddressObj = {
   router: {
     implementation: string;
     proxy: string;
-  };
-  subDao: {
-    emitter: {
-      implementation: string;
-      proxy: string;
-    };
-    implementation: string;
-    token: string;
-    veBondingToken: string;
   };
   tokens: {
     dai: string;
