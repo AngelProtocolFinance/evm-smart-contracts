@@ -22,11 +22,6 @@ const config: Config = {
       lockedPrincipleToLiquid: false,
       principle_distribution: 0,
     },
-    splitToLiquid: {
-      max: 100,
-      min: 0,
-      defaultSplit: 50,
-    },
   },
   CHARITY_APPLICATIONS_DATA: {
     threshold: 1,

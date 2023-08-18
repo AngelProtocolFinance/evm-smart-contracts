@@ -49,6 +49,7 @@ task(
           deployer,
           proxyAdmin,
           treasury: treasury.address,
+          apTeamMultisig: apTeamMultiSig,
         },
         hre
       );
@@ -59,9 +60,6 @@ task(
 
       await hre.run("manage:registrar:updateConfig", {
         accountsContract: addresses.accounts.diamond,
-        splitMax: config.REGISTRAR_DATA.splitToLiquid.max,
-        splitMin: config.REGISTRAR_DATA.splitToLiquid.min,
-        splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit,
         collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare,
         gasFwdFactory: addresses.gasFwd.factory,
         indexFundContract: addresses.indexFund.proxy,

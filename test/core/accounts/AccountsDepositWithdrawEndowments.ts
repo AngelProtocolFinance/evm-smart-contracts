@@ -24,7 +24,7 @@ import {
 import {AccountMessages} from "typechain-types/contracts/core/accounts/facets/AccountsDepositWithdrawEndowments";
 import {RegistrarStorage} from "typechain-types/contracts/core/registrar/Registrar";
 import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {FeeTypes, VaultType, genWallet, getSigners} from "utils";
+import {VaultType, genWallet, getSigners} from "utils";
 import {deployFacetAsProxy} from "./utils";
 
 use(smock.matchers);
@@ -129,7 +129,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
       haloToken: genWallet().address,
       indexFundContract: indexFund.address,
       wMaticAddress: wmaticFake.address,
-      splitToLiquid: {defaultSplit: 50, max: 100, min: 0},
       treasury: treasury,
     };
     registrarFake.queryConfig.returns(registrarConfig);

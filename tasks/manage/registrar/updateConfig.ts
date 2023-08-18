@@ -15,30 +15,6 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
     types.string
   )
   .addOptionalParam(
-    "splitMax",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.int
-  )
-  .addOptionalParam(
-    "splitMin",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.int
-  )
-  .addOptionalParam(
-    "splitDefault",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.int
-  )
-  .addOptionalParam(
-    "collectorShare",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.int
-  )
-  .addOptionalParam(
     "indexFundContract",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
     undefined,
@@ -70,18 +46,6 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
   )
   .addOptionalParam(
     "haloToken",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
-  )
-  .addOptionalParam(
-    "haloTokenLpContract",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
-  )
-  .addOptionalParam(
-    "charitySharesContract",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
     undefined,
     types.string
@@ -235,13 +199,9 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
       const curConfig = structToObject(struct);
       logger.out(curConfig);
 
-      const {splitToLiquid, ...otherConfig} = curConfig;
       const updateConfigData = registrarContract.interface.encodeFunctionData("updateConfig", [
         {
-          ...otherConfig,
-          splitMax: splitToLiquid.max,
-          splitMin: splitToLiquid.min,
-          splitDefault: splitToLiquid.defaultSplit,
+          ...curConfig,
           ...updateConfigRequest,
         },
       ]);

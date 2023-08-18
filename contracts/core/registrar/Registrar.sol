@@ -4,7 +4,7 @@ pragma solidity ^0.8.16;
 import {Validator} from "../validator.sol";
 import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {RegistrarMessages} from "./message.sol";
-import "./storage.sol";
+import {RegistrarStorage, Storage} from "./storage.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import {LocalRegistrar} from "./LocalRegistrar.sol";
 import {LocalRegistrarLib} from "./lib/LocalRegistrarLib.sol";
@@ -29,33 +29,29 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
    * @param details details for the contract
    */
   function initialize(RegistrarMessages.InstantiateRequest memory details) public initializer {
-    __LocalRegistrar_init();
+    __LocalRegistrar_init(details.networkName);
     state.config = RegistrarStorage.Config({
-      indexFundContract: address(0),
       accountsContract: address(0),
+      apTeamMultisig: details.apTeamMultisig,
       treasury: details.treasury,
-      subdaoGovContract: address(0), // Sub dao implementation
-      subdaoTokenContract: address(0), // NewERC20 implementation
-      subdaoBondingTokenContract: address(0), // Continous Token implementation
+      indexFundContract: address(0),
+      subdaoGovContract: address(0),
+      subdaoTokenContract: address(0),
+      subdaoBondingTokenContract: address(0),
       subdaoCw900Contract: address(0),
       subdaoDistributorContract: address(0),
       subdaoEmitter: address(0),
       donationMatchContract: address(0),
-      splitToLiquid: details.splitToLiquid,
-      haloToken: address(0),
-      haloTokenLpContract: address(0),
-      govContract: address(0),
       donationMatchCharitesContract: address(0),
       donationMatchEmitter: address(0),
-      collectorShare: COLLECTOR_DEFAULT_SHARE,
-      charitySharesContract: address(0),
+      haloToken: address(0),
+      govContract: address(0),
       fundraisingContract: address(0),
       uniswapRouter: address(0),
       uniswapFactory: address(0),
       multisigFactory: address(0),
       multisigEmitter: address(0),
       charityApplications: address(0),
-      lockedWithdrawal: address(0),
       proxyAdmin: address(0),
       usdcAddress: address(0),
       wMaticAddress: address(0),
@@ -65,14 +61,12 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     emit ConfigUpdated();
 
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
-    lrs.NetworkConnections[details.networkName] = IAccountsStrategy.NetworkInfo({
+    lrs.NetworkConnections[details.networkName] = LocalRegistrarLib.NetworkInfo({
       chainId: block.chainid,
       router: details.router,
       axelarGateway: details.axelarGateway,
-      ibcChannel: "",
-      transferChannel: "",
       gasReceiver: details.axelarGasService,
-      gasLimit: 0
+      refundAddr: details.refundAddr
     });
     emit NetworkConnectionPosted(block.chainid);
   }
@@ -91,84 +85,32 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       state.config.accountsContract = details.accountsContract;
     }
 
-    if (Validator.addressChecker(details.uniswapRouter)) {
-      state.config.uniswapRouter = details.uniswapRouter;
-    }
-
-    if (Validator.addressChecker(details.uniswapFactory)) {
-      state.config.uniswapFactory = details.uniswapFactory;
-    }
-
-    if (Validator.addressChecker(details.charitySharesContract)) {
-      state.config.charitySharesContract = details.charitySharesContract;
-    }
-
-    if (Validator.addressChecker(details.indexFundContract)) {
-      state.config.indexFundContract = details.indexFundContract;
+    if (Validator.addressChecker(details.apTeamMultisig)) {
+      state.config.apTeamMultisig = details.apTeamMultisig;
     }
 
     if (Validator.addressChecker(details.treasury)) {
       state.config.treasury = details.treasury;
     }
 
-    // require(details.taxRate <= 100, "E06"); //Invalid tax rate input
-    // // change taxRate from optional to required field because theres no way to map default value to tax rate
-    // // since this is an update call, frontend will always send rebalance details
-    // state.config.rebalance = details.rebalance;
-
-    // check splits
-    LibAccounts.SplitDetails memory split_details = LibAccounts.SplitDetails({
-      max: details.splitMax,
-      min: details.splitMin,
-      defaultSplit: details.splitDefault
-    });
-
-    require(Validator.splitChecker(split_details), "Invalid Splits");
-    state.config.splitToLiquid = split_details;
-
-    if (Validator.addressChecker(details.donationMatchCharitesContract)) {
-      state.config.donationMatchCharitesContract = details.donationMatchCharitesContract;
-    }
-    if (Validator.addressChecker(details.donationMatchEmitter)) {
-      state.config.donationMatchEmitter = details.donationMatchEmitter;
-    }
-
-    // state.config.acceptedTokens = details.acceptedTokens;
-
-    if (Validator.addressChecker(details.fundraisingContract)) {
-      state.config.fundraisingContract = details.fundraisingContract;
-    }
-
-    // TODO update decimal logic
-    if (details.collectorShare != 0) {
-      state.config.collectorShare = details.collectorShare;
-    }
-
-    if (Validator.addressChecker(details.govContract)) {
-      state.config.govContract = details.govContract;
+    if (Validator.addressChecker(details.indexFundContract)) {
+      state.config.indexFundContract = details.indexFundContract;
     }
 
     if (Validator.addressChecker(details.subdaoGovContract)) {
       state.config.subdaoGovContract = details.subdaoGovContract;
     }
 
-    if (Validator.addressChecker(details.subdaoBondingTokenContract)) {
-      state.config.subdaoBondingTokenContract = details.subdaoBondingTokenContract;
-    }
-
-    if (Validator.addressChecker(details.subdaoTokenContract)) {
-      state.config.subdaoTokenContract = details.subdaoTokenContract;
-    }
-
-    if (Validator.addressChecker(details.subdaoCw900Contract)) {
-      state.config.subdaoCw900Contract = details.subdaoCw900Contract;
-    }
-
-    if (Validator.addressChecker(details.subdaoDistributorContract)) {
-      state.config.subdaoDistributorContract = details.subdaoDistributorContract;
-    }
     if (Validator.addressChecker(details.subdaoEmitter)) {
       state.config.subdaoEmitter = details.subdaoEmitter;
+    }
+
+    if (Validator.addressChecker(details.donationMatchCharitesContract)) {
+      state.config.donationMatchCharitesContract = details.donationMatchCharitesContract;
+    }
+
+    if (Validator.addressChecker(details.donationMatchEmitter)) {
+      state.config.donationMatchEmitter = details.donationMatchEmitter;
     }
 
     if (Validator.addressChecker(details.donationMatchContract)) {
@@ -179,8 +121,20 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
       state.config.haloToken = details.haloToken;
     }
 
-    if (Validator.addressChecker(details.haloTokenLpContract)) {
-      state.config.haloTokenLpContract = details.haloTokenLpContract;
+    if (Validator.addressChecker(details.govContract)) {
+      state.config.govContract = details.govContract;
+    }
+
+    if (Validator.addressChecker(details.fundraisingContract)) {
+      state.config.fundraisingContract = details.fundraisingContract;
+    }
+
+    if (Validator.addressChecker(details.uniswapRouter)) {
+      state.config.uniswapRouter = details.uniswapRouter;
+    }
+
+    if (Validator.addressChecker(details.uniswapFactory)) {
+      state.config.uniswapFactory = details.uniswapFactory;
     }
 
     if (Validator.addressChecker(details.multisigEmitter)) {
@@ -193,10 +147,6 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
 
     if (Validator.addressChecker(details.charityApplications)) {
       state.config.charityApplications = details.charityApplications;
-    }
-
-    if (Validator.addressChecker(details.lockedWithdrawal)) {
-      state.config.lockedWithdrawal = details.lockedWithdrawal;
     }
 
     if (Validator.addressChecker(details.proxyAdmin)) {
@@ -218,10 +168,6 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
     if (Validator.addressChecker(details.gasFwdFactory)) {
       state.config.gasFwdFactory = details.gasFwdFactory;
     }
-    // state.config.acceptedTokens = LibAccounts.AcceptedTokens({
-    //     native: details.accepted_tokens_native,
-    //     cw20: details.accepted_tokens_cw20
-    // });
     emit ConfigUpdated();
   }
 
