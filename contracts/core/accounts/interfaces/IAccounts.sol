@@ -5,7 +5,6 @@ pragma solidity ^0.8.16;
 import {IAccountsAllowance} from "./IAccountsAllowance.sol";
 import {IAccountsCreateEndowment} from "./IAccountsCreateEndowment.sol";
 import {IAccountsDepositWithdrawEndowments} from "./IAccountsDepositWithdrawEndowments.sol";
-import {IAccountsDonationMatch} from "./IAccountsDonationMatch.sol";
 import {IAccountsEvents} from "./IAccountsEvents.sol";
 import {IAccountsGasManager} from "./IAccountsGasManager.sol";
 import {IAccountsQueryEndowments} from "./IAccountsQueryEndowments.sol";
@@ -20,7 +19,6 @@ interface IAccounts is
   IAccountsAllowance,
   IAccountsCreateEndowment,
   IAccountsDepositWithdrawEndowments,
-  IAccountsDonationMatch,
   IAccountsEvents,
   IAccountsGasManager,
   IAccountsQueryEndowments,

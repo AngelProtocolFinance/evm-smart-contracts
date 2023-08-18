@@ -1,4 +1,4 @@
-import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
+import {deployEndowmentMultiSig} from "contracts/multisigs/endowment-multisig/scripts/deploy";
 import {task} from "hardhat/config";
 import {confirmAction, isLocalNetwork, getAddresses, logger, verify} from "utils";
 

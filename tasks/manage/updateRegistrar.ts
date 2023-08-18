@@ -30,9 +30,9 @@ task(
         apTeamMultisig: addresses.multiSig.apTeam.proxy,
         treasury: treasury.address,
         indexFundContract: addresses.indexFund.proxy,
-        donationMatchFactory: addresses.donationMatch.implementation, // donation matching contract
+        donationMatchFactory: ADDRESS_ZERO,
         donationMatchEmitter: ADDRESS_ZERO,
-        donationMatchHaloContract: addresses.donationMatchHalo.proxy,
+        donationMatchHaloContract: ADDRESS_ZERO,
         haloToken: ADDRESS_ZERO,
         govContract: ADDRESS_ZERO,
         fundraisingContract: ADDRESS_ZERO,

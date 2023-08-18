@@ -8,10 +8,6 @@ import {DEFAULT_CHARITY_ENDOWMENT, DEFAULT_REGISTRAR_CONFIG, wait} from "test/ut
 import {
   AccountsDepositWithdrawEndowments,
   AccountsDepositWithdrawEndowments__factory,
-  DonationMatch,
-  DonationMatchHalo,
-  DonationMatchHalo__factory,
-  DonationMatch__factory,
   IERC20,
   IERC20__factory,
   DummyWMATIC,
@@ -67,8 +63,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
   let normalEndow: AccountStorage.EndowmentStruct;
   let dafEndow: AccountStorage.EndowmentStruct;
 
-  let donationMatch: FakeContract<DonationMatch>;
-  let DonationMatchHalo: FakeContract<DonationMatchHalo>;
   let registrarFake: FakeContract<Registrar>;
   let wmaticFake: FakeContract<DummyWMATIC>;
   let tokenFake: FakeContract<IERC20>;
@@ -105,16 +99,11 @@ describe("AccountsDepositWithdrawEndowments", function () {
     const Facet = new AccountsDepositWithdrawEndowments__factory(accOwner);
     const facetImpl = await Facet.deploy();
     state = await deployFacetAsProxy(hre, accOwner, proxyAdmin, facetImpl.address);
-
     facet = AccountsDepositWithdrawEndowments__factory.connect(state.address, endowOwner);
-
-    donationMatch = await smock.fake<DonationMatch>(new DonationMatch__factory());
-    DonationMatchHalo = await smock.fake<DonationMatchHalo>(new DonationMatchHalo__factory());
 
     registrarFake = await smock.fake<Registrar>(new Registrar__factory());
 
     tokenFake = await smock.fake<IERC20>(IERC20__factory.createInterface());
-
     wmaticFake = await smock.fake<DummyWMATIC>(new DummyWMATIC__factory());
 
     tokenFake.transferFrom.returns(true);
@@ -364,54 +353,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
           expect(liquidBal).to.equal(expectedLiquidAmt);
         });
 
-        it("skips donation matching when no donation match contract is in Registrar", async () => {
-          const expectedLockedAmt = BigNumber.from(4000);
-          const expectedLiquidAmt = BigNumber.from(6000);
-
-          await expect(facet.depositERC20(depositToCharity, tokenFake.address, depositAmt))
-            .to.emit(facet, "EndowmentDeposit")
-            .withArgs(depositToCharity.id, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
-
-          expect(DonationMatchHalo.executeDonorMatch).to.not.have.been.called;
-
-          const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
-            depositToCharity.id,
-            tokenFake.address
-          );
-          expect(lockedBal).to.equal(expectedLockedAmt);
-          expect(liquidBal).to.equal(expectedLiquidAmt);
-        });
-
-        it("matches the donation when contract is in Registrar and Locked split passed", async () => {
-          const curConfig = await registrarFake.queryConfig();
-          const regConfig: RegistrarStorage.ConfigStruct = {
-            ...curConfig,
-            donationMatchCharitesContract: DonationMatchHalo.address,
-          };
-          registrarFake.queryConfig.returns(regConfig);
-
-          const expectedLockedAmt = BigNumber.from(4000);
-          const expectedLiquidAmt = BigNumber.from(6000);
-
-          await expect(facet.depositERC20(depositToCharity, tokenFake.address, depositAmt))
-            .to.emit(facet, "EndowmentDeposit")
-            .withArgs(depositToCharity.id, tokenFake.address, expectedLockedAmt, expectedLiquidAmt);
-
-          expect(DonationMatchHalo.executeDonorMatch).to.have.been.calledWith(
-            depositToCharity.id,
-            expectedLockedAmt,
-            await facet.signer.getAddress(),
-            regConfig.haloToken
-          );
-
-          const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
-            depositToCharity.id,
-            tokenFake.address
-          );
-          expect(lockedBal).to.equal(expectedLockedAmt);
-          expect(liquidBal).to.equal(expectedLiquidAmt);
-        });
-
         it("deposit with protocol-level deposit fee only", async () => {
           registrarFake.getFeeSettingsByFeeType.returns({payoutAddress: treasury, bps: 10});
 
@@ -530,64 +471,6 @@ describe("AccountsDepositWithdrawEndowments", function () {
 
           const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
             normalEndowId,
-            tokenFake.address
-          );
-          expect(lockedBal).to.equal(expectedLockedAmt);
-          expect(liquidBal).to.equal(expectedLiquidAmt);
-        });
-
-        it("skips donation matching when no donation match contract is associated with endowment being deposited to", async () => {
-          const expectedLockedAmt = BigNumber.from(4000);
-          const expectedLiquidAmt = BigNumber.from(6000);
-
-          await expect(facet.depositERC20(depositToNormalEndow, tokenFake.address, depositAmt))
-            .to.emit(facet, "EndowmentDeposit")
-            .withArgs(
-              depositToNormalEndow.id,
-              tokenFake.address,
-              expectedLockedAmt,
-              expectedLiquidAmt
-            );
-
-          expect(donationMatch.executeDonorMatch).to.not.have.been.called;
-
-          const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
-            depositToNormalEndow.id,
-            tokenFake.address
-          );
-          expect(lockedBal).to.equal(expectedLockedAmt);
-          expect(liquidBal).to.equal(expectedLiquidAmt);
-        });
-
-        it("matches the donation when matching contract is setup & locked split amount is sent", async () => {
-          await wait(
-            state.setEndowmentDetails(normalEndowId, {
-              ...normalEndow,
-              donationMatchContract: donationMatch.address,
-            })
-          );
-
-          const expectedLockedAmt = BigNumber.from(4000);
-          const expectedLiquidAmt = BigNumber.from(6000);
-
-          await expect(facet.depositERC20(depositToNormalEndow, tokenFake.address, depositAmt))
-            .to.emit(facet, "EndowmentDeposit")
-            .withArgs(
-              depositToNormalEndow.id,
-              tokenFake.address,
-              expectedLockedAmt,
-              expectedLiquidAmt
-            );
-
-          expect(donationMatch.executeDonorMatch).to.have.been.calledWith(
-            depositToNormalEndow.id,
-            expectedLockedAmt,
-            await facet.signer.getAddress(),
-            normalEndow.daoToken
-          );
-
-          const [lockedBal, liquidBal] = await state.getEndowmentTokenBalance(
-            depositToNormalEndow.id,
             tokenFake.address
           );
           expect(lockedBal).to.equal(expectedLockedAmt);

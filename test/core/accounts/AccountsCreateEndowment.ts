@@ -321,13 +321,12 @@ describe("AccountsCreateEndowment", function () {
     const result = await state.getEndowmentDetails(expectedNextAccountId);
 
     expect(result.dao).to.equal(ethers.constants.AddressZero);
-    expect(result.daoToken).to.equal(ethers.constants.AddressZero);
     expect(result.balanceFee).to.equalFee(request.balanceFee);
     expect(result.depositFee).to.equalFee(request.depositFee);
     expect(result.withdrawFee).to.equalFee(request.withdrawFee);
     expect(result.earlyLockedWithdrawFee).to.equalFee(request.earlyLockedWithdrawFee);
     expect(result.donationMatchActive).to.equal(false);
-    expect(result.donationMatchContract).to.equal(ethers.constants.AddressZero);
+    expect(result.donationMatch).to.equal(ethers.constants.AddressZero);
     expect(result.endowType).to.equal(request.endowType);
     expect(result.ignoreUserSplits).to.equal(request.ignoreUserSplits);
     expect(result.image).to.equal(request.image);
@@ -416,9 +415,8 @@ describe("AccountsCreateEndowment", function () {
     const result = await state.getEndowmentDetails(expectedNextAccountId);
 
     expect(result.dao).to.equal(ethers.constants.AddressZero);
-    expect(result.daoToken).to.equal(ethers.constants.AddressZero);
     expect(result.donationMatchActive).to.equal(false);
-    expect(result.donationMatchContract).to.equal(ethers.constants.AddressZero);
+    expect(result.donationMatch).to.equal(ethers.constants.AddressZero);
     // no endowment-level fees are accepted for Charity Endowments regardless of what is passed
     // they should all be set to zero
     expect(result.balanceFee).to.equalFee({bps: 0, payoutAddress: ethers.constants.AddressZero});

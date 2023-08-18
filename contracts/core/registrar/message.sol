@@ -34,7 +34,6 @@ library RegistrarMessages {
     address proxyAdmin;
     address usdcAddress;
     address wMaticAddress;
-    address cw900lvAddress;
     address gasFwdFactory;
   }
 
