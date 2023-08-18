@@ -70,12 +70,9 @@ export function createEmptyAddressObj(): AddressObj {
     accounts: {
       diamond: "",
       facets: {
-        accountsDeployContract: "",
         accountsDepositWithdrawEndowments: "",
-        accountsDonationMatch: "",
         accountsAllowance: "",
         accountsCreateEndowment: "",
-        accountsDaoEndowments: "",
         accountsGasManager: "",
         accountsQueryEndowments: "",
         accountsStrategy: "",
@@ -165,9 +162,6 @@ export function createEmptyAddressObj(): AddressObj {
         proxy: "",
       },
     },
-    incentivisedVotingLockup: {
-      implementation: "",
-    },
     indexFund: {
       implementation: "",
       proxy: "",
@@ -197,15 +191,6 @@ export function createEmptyAddressObj(): AddressObj {
     router: {
       implementation: "",
       proxy: "",
-    },
-    subDao: {
-      emitter: {
-        implementation: "",
-        proxy: "",
-      },
-      implementation: "",
-      token: "",
-      veBondingToken: "",
     },
     tokens: {
       dai: "",
