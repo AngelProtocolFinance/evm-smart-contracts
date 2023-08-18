@@ -13,14 +13,8 @@ export const dummy: StratConfig = {
   params: {
     approvalState: StrategyApprovalState.APPROVED,
     network: "ethereum-2",
-    Locked: {
-      Type: VaultType.LOCKED,
-      vaultAddr: getVaultAddress("dummy", VaultType.LOCKED),
-    },
-    Liquid: {
-      Type: VaultType.LIQUID,
-      vaultAddr: getVaultAddress("dummy", VaultType.LIQUID),
-    },
+    lockedVaultAddr: getVaultAddress("dummy", VaultType.LOCKED),
+    liquidVaultAddr: getVaultAddress("dummy", VaultType.LIQUID),
   },
 };
 

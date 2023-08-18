@@ -79,8 +79,8 @@ describe("Goldfinch Vault", function () {
     // Set the strategy params in the registrar for Goldfinch
     await registrar.setStrategyParams(
       strategyId,
-      strategyParams.Locked.vaultAddr,
-      strategyParams.Liquid.vaultAddr,
+      strategyParams.lockedVaultAddr,
+      strategyParams.liquidVaultAddr,
       strategyParams.approvalState
     );
 
@@ -249,12 +249,12 @@ describe("Goldfinch Vault", function () {
 
       // Update registrar
       let updatedStrategyParams = strategyParams;
-      updatedStrategyParams.Liquid.vaultAddr = liquidVault.address;
-      updatedStrategyParams.Locked.vaultAddr = lockedVault.address;
+      updatedStrategyParams.liquidVaultAddr = liquidVault.address;
+      updatedStrategyParams.lockedVaultAddr = lockedVault.address;
       await registrar.setStrategyParams(
         strategyId,
-        updatedStrategyParams.Locked.vaultAddr,
-        updatedStrategyParams.Liquid.vaultAddr,
+        updatedStrategyParams.lockedVaultAddr,
+        updatedStrategyParams.liquidVaultAddr,
         updatedStrategyParams.approvalState
       );
 
@@ -398,12 +398,12 @@ describe("Goldfinch Vault", function () {
 
       // Update registrar
       let updatedStrategyParams = strategyParams;
-      updatedStrategyParams.Liquid.vaultAddr = liquidVault.address;
-      updatedStrategyParams.Locked.vaultAddr = lockedVault.address;
+      updatedStrategyParams.liquidVaultAddr = liquidVault.address;
+      updatedStrategyParams.lockedVaultAddr = lockedVault.address;
       await registrar.setStrategyParams(
         strategyId,
-        updatedStrategyParams.Locked.vaultAddr,
-        updatedStrategyParams.Liquid.vaultAddr,
+        updatedStrategyParams.lockedVaultAddr,
+        updatedStrategyParams.liquidVaultAddr,
         updatedStrategyParams.approvalState
       );
 
@@ -573,12 +573,12 @@ describe("Goldfinch Vault", function () {
 
       // Update registrar
       let updatedStrategyParams = strategyParams;
-      updatedStrategyParams.Liquid.vaultAddr = liquidVault.address;
-      updatedStrategyParams.Locked.vaultAddr = lockedVault.address;
+      updatedStrategyParams.liquidVaultAddr = liquidVault.address;
+      updatedStrategyParams.lockedVaultAddr = lockedVault.address;
       await registrar.setStrategyParams(
         strategyId,
-        updatedStrategyParams.Locked.vaultAddr,
-        updatedStrategyParams.Liquid.vaultAddr,
+        updatedStrategyParams.lockedVaultAddr,
+        updatedStrategyParams.liquidVaultAddr,
         updatedStrategyParams.approvalState
       );
 
@@ -697,12 +697,12 @@ describe("Goldfinch Vault", function () {
 
       // Update registrar
       let updatedStrategyParams = strategyParams;
-      updatedStrategyParams.Liquid.vaultAddr = liquidVault.address;
-      updatedStrategyParams.Locked.vaultAddr = lockedVault.address;
+      updatedStrategyParams.liquidVaultAddr = liquidVault.address;
+      updatedStrategyParams.lockedVaultAddr = lockedVault.address;
       await registrar.setStrategyParams(
         strategyId,
-        updatedStrategyParams.Locked.vaultAddr,
-        updatedStrategyParams.Liquid.vaultAddr,
+        updatedStrategyParams.lockedVaultAddr,
+        updatedStrategyParams.liquidVaultAddr,
         updatedStrategyParams.approvalState
       );
 

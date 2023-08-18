@@ -623,14 +623,8 @@ describe("Vault", function () {
           ...DEFAULT_STRATEGY_PARAMS,
           network: DEFAULT_NETWORK,
           approvalState: StrategyApprovalState.APPROVED,
-          Locked: {
-            Type: 0,
-            vaultAddr: lockedVault.address,
-          },
-          Liquid: {
-            Type: 1,
-            vaultAddr: liquidVault.address,
-          },
+          lockedVaultAddr: lockedVault.address,
+          liquidVaultAddr: liquidVault.address,
         };
         registrarFake.getStrategyParamsById.returns(stratParams);
         registrarFake.thisChain.returns(DEFAULT_NETWORK);

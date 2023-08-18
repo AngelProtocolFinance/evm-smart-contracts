@@ -6,6 +6,7 @@ import {FeeTypes, StrategyApprovalState, getSigners} from "utils";
 
 import {LocalRegistrar, LocalRegistrar__factory} from "typechain-types";
 import {DEFAULT_FEE_STRUCT, DEFAULT_NETWORK_INFO} from "test/utils";
+import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 
 describe("Local Registrar", function () {
   const {ethers, upgrades} = hre;
@@ -244,17 +245,11 @@ describe("Local Registrar", function () {
 
     describe("set and get Strategy params", async function () {
       let strategyId = "0xffffffff"; // random 4-byte hash
-      let strategyParams = {
+      let strategyParams: LocalRegistrarLib.StrategyParamsStruct = {
         approvalState: StrategyApprovalState.NOT_APPROVED,
         network: originatingChain,
-        Locked: {
-          Type: 0,
-          vaultAddr: "0x690B9A9E9aa1C9dB991C7721a92d351Db4FaC990",
-        },
-        Liquid: {
-          Type: 1,
-          vaultAddr: "0x000000000000000000000000000000000000dEaD",
-        },
+        lockedVaultAddr: "0x690B9A9E9aa1C9dB991C7721a92d351Db4FaC990",
+        liquidVaultAddr: "0x000000000000000000000000000000000000dEaD",
       };
 
       it("Should be an owner restricted method", async function () {
@@ -264,8 +259,8 @@ describe("Local Registrar", function () {
             .setStrategyParams(
               strategyId,
               strategyParams.network,
-              strategyParams.Locked.vaultAddr,
-              strategyParams.Liquid.vaultAddr,
+              strategyParams.lockedVaultAddr,
+              strategyParams.liquidVaultAddr,
               strategyParams.approvalState
             )
         ).to.be.reverted;
@@ -276,18 +271,16 @@ describe("Local Registrar", function () {
           registrar.setStrategyParams(
             strategyId,
             strategyParams.network,
-            strategyParams.Locked.vaultAddr,
-            strategyParams.Liquid.vaultAddr,
+            strategyParams.lockedVaultAddr,
+            strategyParams.liquidVaultAddr,
             strategyParams.approvalState
           )
         ).to.not.be.reverted;
         let returnedValue = await registrar.getStrategyParamsById(strategyId);
         expect(returnedValue.network).to.equal(strategyParams.network);
         expect(returnedValue.approvalState).to.equal(strategyParams.approvalState);
-        expect(returnedValue.Locked.Type).to.equal(strategyParams.Locked.Type);
-        expect(returnedValue.Locked.vaultAddr).to.equal(strategyParams.Locked.vaultAddr);
-        expect(returnedValue.Liquid.Type).to.equal(strategyParams.Liquid.Type);
-        expect(returnedValue.Liquid.vaultAddr).to.equal(strategyParams.Liquid.vaultAddr);
+        expect(returnedValue.lockedVaultAddr).to.equal(strategyParams.lockedVaultAddr);
+        expect(returnedValue.liquidVaultAddr).to.equal(strategyParams.liquidVaultAddr);
       });
 
       it("Should let the owner change the approval state", async function () {
@@ -373,17 +366,11 @@ describe("Local Registrar", function () {
       registrar = await deployRegistrarAsProxy();
     });
     let strategyId = "0xffffffff"; // random 4-byte hash
-    let strategyParams = {
+    let strategyParams: LocalRegistrarLib.StrategyParamsStruct = {
       approvalState: StrategyApprovalState.APPROVED,
       network: originatingChain,
-      Locked: {
-        Type: 0,
-        vaultAddr: "0x690B9A9E9aa1C9dB991C7721a92d351Db4FaC990",
-      },
-      Liquid: {
-        Type: 1,
-        vaultAddr: "0x000000000000000000000000000000000000dEaD",
-      },
+      lockedVaultAddr: "0x690B9A9E9aa1C9dB991C7721a92d351Db4FaC990",
+      liquidVaultAddr: "0x000000000000000000000000000000000000dEaD",
     };
 
     it("should emit RebalanceParamsUpdated", async function () {
@@ -411,8 +398,8 @@ describe("Local Registrar", function () {
         registrar.setStrategyParams(
           strategyId,
           strategyParams.network,
-          strategyParams.Liquid.vaultAddr,
-          strategyParams.Locked.vaultAddr,
+          strategyParams.liquidVaultAddr,
+          strategyParams.lockedVaultAddr,
           strategyParams.approvalState
         )
       ).to.emit(registrar, "StrategyParamsUpdated");

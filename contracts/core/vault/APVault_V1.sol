@@ -386,13 +386,13 @@ contract APVault_V1 is IVault, ERC4626AP {
       .getStrategyParamsById(vaultConfig.strategySelector);
     if (
       !IERC20Metadata(vaultConfig.baseToken).transfer(
-        stratParams.Liquid.vaultAddr,
+        stratParams.liquidVaultAddr,
         (redemption - tax)
       )
     ) {
       revert TransferFailed();
     }
-    IVault(stratParams.Liquid.vaultAddr).deposit(
+    IVault(stratParams.liquidVaultAddr).deposit(
       accountId,
       vaultConfig.baseToken,
       (redemption - tax)
@@ -420,8 +420,8 @@ contract APVault_V1 is IVault, ERC4626AP {
       .getStrategyParamsById(vaultConfig.strategySelector);
     return (
       vaultConfig.vaultType == VaultType.LOCKED
-        ? (_msgSender() == stratParams.Liquid.vaultAddr)
-        : (_msgSender() == stratParams.Locked.vaultAddr)
+        ? (_msgSender() == stratParams.liquidVaultAddr)
+        : (_msgSender() == stratParams.lockedVaultAddr)
     );
   }
 

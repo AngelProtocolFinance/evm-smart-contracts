@@ -120,15 +120,15 @@ contract Router is IRouter, Initializable, AxelarExecutable {
 
     if (action.lockAmt > 0) {
       // Send tokens to locked vault and call deposit
-      IERC20Metadata(action.token).safeTransfer(params.Locked.vaultAddr, action.lockAmt);
-      IVault lockedVault = IVault(params.Locked.vaultAddr);
+      IERC20Metadata(action.token).safeTransfer(params.lockedVaultAddr, action.lockAmt);
+      IVault lockedVault = IVault(params.lockedVaultAddr);
       lockedVault.deposit(action.accountIds[0], action.token, action.lockAmt);
     }
 
     if (action.liqAmt > 0) {
       // Send tokens to liquid vault and call deposit
-      IERC20Metadata(action.token).safeTransfer(params.Liquid.vaultAddr, action.liqAmt);
-      IVault liquidVault = IVault(params.Liquid.vaultAddr);
+      IERC20Metadata(action.token).safeTransfer(params.liquidVaultAddr, action.liqAmt);
+      IVault liquidVault = IVault(params.liquidVaultAddr);
       liquidVault.deposit(action.accountIds[0], action.token, action.liqAmt);
     }
   }
@@ -138,8 +138,8 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     LocalRegistrarLib.StrategyParams memory _params,
     IVault.VaultActionData memory _action
   ) internal onlyOneAccount(_action) returns (IVault.VaultActionData memory) {
-    IVault lockedVault = IVault(_params.Locked.vaultAddr);
-    IVault liquidVault = IVault(_params.Liquid.vaultAddr);
+    IVault lockedVault = IVault(_params.lockedVaultAddr);
+    IVault liquidVault = IVault(_params.liquidVaultAddr);
 
     // Redeem tokens from vaults which sends them from the vault to this contract
     IVault.RedemptionResponse memory _redemptionLock = lockedVault.redeem(
@@ -147,7 +147,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
       _action.lockAmt
     );
     IERC20Metadata(_redemptionLock.token).safeTransferFrom(
-      _params.Locked.vaultAddr,
+      _params.lockedVaultAddr,
       address(this),
       _redemptionLock.amount
     );
@@ -157,7 +157,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
       _action.liqAmt
     );
     IERC20Metadata(_redemptionLiquid.token).safeTransferFrom(
-      _params.Liquid.vaultAddr,
+      _params.liquidVaultAddr,
       address(this),
       _redemptionLiquid.amount
     );
@@ -188,14 +188,14 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     LocalRegistrarLib.StrategyParams memory _params,
     IVault.VaultActionData memory _action
   ) internal onlyOneAccount(_action) returns (IVault.VaultActionData memory) {
-    IVault lockedVault = IVault(_params.Locked.vaultAddr);
-    IVault liquidVault = IVault(_params.Liquid.vaultAddr);
+    IVault lockedVault = IVault(_params.lockedVaultAddr);
+    IVault liquidVault = IVault(_params.liquidVaultAddr);
 
     // Redeem tokens from vaults and txfer them to the Router
     IVault.RedemptionResponse memory lockResponse = lockedVault.redeemAll(_action.accountIds[0]);
     if (lockResponse.amount > 0) {
       IERC20Metadata(_action.token).safeTransferFrom(
-        _params.Locked.vaultAddr,
+        _params.lockedVaultAddr,
         address(this),
         lockResponse.amount
       );
@@ -205,7 +205,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     IVault.RedemptionResponse memory liqResponse = liquidVault.redeemAll(_action.accountIds[0]);
     if (liqResponse.amount > 0) {
       IERC20Metadata(_action.token).safeTransferFrom(
-        _params.Liquid.vaultAddr,
+        _params.liquidVaultAddr,
         address(this),
         liqResponse.amount
       );
@@ -225,8 +225,8 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     LocalRegistrarLib.StrategyParams memory _params,
     IVault.VaultActionData memory _action
   ) internal returns (IVault.VaultActionData memory) {
-    IVault liquidVault = IVault(_params.Liquid.vaultAddr);
-    IVault lockedVault = IVault(_params.Locked.vaultAddr);
+    IVault liquidVault = IVault(_params.liquidVaultAddr);
+    IVault lockedVault = IVault(_params.lockedVaultAddr);
     liquidVault.harvest(_action.accountIds);
     lockedVault.harvest(_action.accountIds);
     emit RewardsHarvested(_action);
