@@ -5,9 +5,6 @@ import {IVault} from "../../vault/interfaces/IVault.sol";
 import {LibAccounts} from "../lib/LibAccounts.sol";
 
 interface IAccountsEvents {
-  event DaoContractCreated(uint32 endowId, address daoAddress);
-  event DonationDeposited(uint256 endowId, address tokenAddress, uint256 amount);
-  event DonationWithdrawn(uint256 endowId, address recipient, address tokenAddress, uint256 amount);
   event AllowanceSpent(uint256 endowId, address spender, address tokenAddress, uint256 amount);
   event AllowanceUpdated(
     uint256 endowId,
