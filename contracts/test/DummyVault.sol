@@ -3,11 +3,10 @@
 pragma solidity >=0.8.0;
 
 // import {APVault_V1} from "../core/vault/APVault_V1.sol";
-import {Vault} from "../core/vault/Vault.sol";
+import {IVault} from "../core/vault/interfaces/IVault.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
-contract DummyVault is Vault {
+contract DummyVault is IVault {
   VaultConfig vaultConfig;
   uint256 dummyAmt;
 
@@ -17,9 +16,7 @@ contract DummyVault is Vault {
   }
 
   /// Vault impl
-  constructor(
-    VaultConfig memory _config
-  ) Vault(IERC20Metadata(_config.yieldToken), _config.apTokenName, _config.apTokenSymbol) {
+  constructor(VaultConfig memory _config) {
     vaultConfig = _config;
     emit VaultConfigUpdated(_config);
   }
@@ -69,6 +66,4 @@ contract DummyVault is Vault {
   function _isApprovedRouter() internal view override returns (bool) {}
 
   function _isSiblingVault() internal view override returns (bool) {}
-
-  function _isOperator(address _operator) internal view override returns (bool) {}
 }
