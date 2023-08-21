@@ -184,12 +184,6 @@ contract AccountsDepositWithdrawEndowments is
     uint256 liquidAmount = amountLeftover.mulDivDown(liquidSplitPercent, LibAccounts.PERCENT_BASIS);
 
     // TODO: donation matching flow completed
-    if (lockedAmount > 0) {
-      address donationMatch = details.donationMatch;
-      if (donationMatch == address(0)) {
-        donationMatch = msg.sender;
-      }
-    }
 
     state.Balances[details.id][IVault.VaultType.LOCKED][tokenAddress] += lockedAmount;
     state.Balances[details.id][IVault.VaultType.LIQUID][tokenAddress] += liquidAmount;
