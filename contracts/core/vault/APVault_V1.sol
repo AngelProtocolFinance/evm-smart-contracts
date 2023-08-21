@@ -409,15 +409,15 @@ contract APVault_V1 is IVault, ERC4626AP {
   }
 
   function _isApprovedRouter() internal view override returns (bool) {
-    LocalRegistrarLib.AngelProtocolParams memory apParams = IRegistrar(vaultConfig.registrar)
-      .getAngelProtocolParams();
-    return (_msgSender() == apParams.routerAddr);
+    string memory thisChain = IRegistrar(vaultConfig.registrar).thisChain();
+    LocalRegistrarLib.NetworkInfo memory network = IRegistrar(vaultConfig.registrar)
+      .queryNetworkConnection(thisChain);
+    return (_msgSender() == network.router);
   }
 
   function _isSiblingVault() internal view override returns (bool) {
     LocalRegistrarLib.StrategyParams memory stratParams = IRegistrar(vaultConfig.registrar)
       .getStrategyParamsById(vaultConfig.strategySelector);
-
     return (
       vaultConfig.vaultType == VaultType.LOCKED
         ? (_msgSender() == stratParams.Liquid.vaultAddr)

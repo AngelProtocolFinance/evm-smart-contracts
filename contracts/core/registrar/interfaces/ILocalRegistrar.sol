@@ -11,7 +11,6 @@ interface ILocalRegistrar {
                         EVENTS
     */ ////////////////////////////////////////////////
   event RebalanceParamsUpdated();
-  event AngelProtocolParamsUpdated();
   event AccountsContractStorageUpdated(string _chainName, string _accountsContractAddress);
   event TokenAcceptanceUpdated(address _tokenAddr, bool _isAccepted);
   event StrategyApprovalUpdated(
@@ -36,11 +35,6 @@ interface ILocalRegistrar {
 
   // View methods for returning stored params
   function getRebalanceParams() external view returns (LocalRegistrarLib.RebalanceParams memory);
-
-  function getAngelProtocolParams()
-    external
-    view
-    returns (LocalRegistrarLib.AngelProtocolParams memory);
 
   function getAccountsContractAddressByChain(
     string calldata _targetChain
@@ -70,14 +64,10 @@ interface ILocalRegistrar {
 
   function queryNetworkConnection(
     string memory networkName
-  ) external view returns (IAccountsStrategy.NetworkInfo memory response);
+  ) external view returns (LocalRegistrarLib.NetworkInfo memory response);
 
   // Setter methods for granular changes to specific params
   function setRebalanceParams(LocalRegistrarLib.RebalanceParams calldata _rebalanceParams) external;
-
-  function setAngelProtocolParams(
-    LocalRegistrarLib.AngelProtocolParams calldata _angelProtocolParams
-  ) external;
 
   function setAccountsContractAddressByChain(
     string memory _chainName,
@@ -123,7 +113,9 @@ interface ILocalRegistrar {
 
   function updateNetworkConnections(
     string memory networkName,
-    IAccountsStrategy.NetworkInfo memory networkInfo,
+    LocalRegistrarLib.NetworkInfo memory networkInfo,
     LocalRegistrarLib.NetworkConnectionAction action
   ) external;
+
+  function thisChain() external view returns (string memory);
 }

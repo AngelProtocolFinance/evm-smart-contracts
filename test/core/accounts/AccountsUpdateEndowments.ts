@@ -50,7 +50,7 @@ describe("AccountsUpdateEndowments", function () {
       ...DEFAULT_CHARITY_ENDOWMENT,
       dao: genWallet().address,
       owner: endowOwner.address,
-      maturityAllowlist: [genWallet().address],
+      // maturityAllowlist: [genWallet().address],
       multisig: endowOwner.address,
     };
     oldNormalEndow = {
@@ -113,7 +113,7 @@ describe("AccountsUpdateEndowments", function () {
       await wait(
         state.setClosingEndowmentState(normalEndowId, true, {
           enumData: 0,
-          data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+          data: {addr: ethers.constants.AddressZero, endowId: 0},
         })
       );
       await expect(facet.updateEndowmentDetails(normalEndowReq)).to.be.revertedWith(
@@ -337,7 +337,7 @@ describe("AccountsUpdateEndowments", function () {
         owner: ethers.constants.AddressZero,
       };
 
-      await facet.updateEndowmentDetails(request);
+      await wait(facet.updateEndowmentDetails(request));
 
       const updated = await state.getEndowmentDetails(request.id);
 
@@ -350,7 +350,7 @@ describe("AccountsUpdateEndowments", function () {
         owner: genWallet().address,
       };
 
-      await facet.updateEndowmentDetails(request);
+      await wait(facet.updateEndowmentDetails(request));
 
       const updated = await state.getEndowmentDetails(request.id);
 
@@ -363,7 +363,7 @@ describe("AccountsUpdateEndowments", function () {
         owner: ethers.constants.AddressZero,
       };
 
-      await facet.updateEndowmentDetails(request);
+      await wait(facet.updateEndowmentDetails(request));
 
       const updated = await state.getEndowmentDetails(request.id);
 
@@ -376,7 +376,7 @@ describe("AccountsUpdateEndowments", function () {
         owner: genWallet().address,
       };
 
-      await facet.updateEndowmentDetails(request);
+      await wait(facet.updateEndowmentDetails(request));
 
       const updated = await state.getEndowmentDetails(request.id);
 
@@ -392,7 +392,7 @@ describe("AccountsUpdateEndowments", function () {
       await wait(
         state.setClosingEndowmentState(normalEndowId, true, {
           enumData: 0,
-          data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+          data: {addr: ethers.constants.AddressZero, endowId: 0},
         })
       );
       await expect(
@@ -588,7 +588,7 @@ describe("AccountsUpdateEndowments", function () {
       await wait(
         state.setClosingEndowmentState(normalEndowId, true, {
           enumData: 0,
-          data: {addr: ethers.constants.AddressZero, endowId: 0, fundId: 0},
+          data: {addr: ethers.constants.AddressZero, endowId: 0},
         })
       );
       await expect(
@@ -667,8 +667,10 @@ describe("AccountsUpdateEndowments", function () {
           facet.updateAcceptedToken(normalEndowId, tokenAddr, fakePriceFeed.address, tokenStatus)
         ).to.not.be.reverted;
 
-        expect(await state.getPriceFeed(normalEndowId, tokenAddr)).to.equal(fakePriceFeed.address);
-        expect(await state.getTokenAccepted(normalEndowId, tokenAddr)).to.equal(tokenStatus);
+        await expect(await state.getPriceFeed(normalEndowId, tokenAddr)).to.equal(
+          fakePriceFeed.address
+        );
+        await expect(await state.getTokenAccepted(normalEndowId, tokenAddr)).to.equal(tokenStatus);
       });
     });
 

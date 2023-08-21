@@ -2,6 +2,7 @@
 pragma solidity ^0.8.19;
 
 import {AccountMessages} from "../message.sol";
+import {LibAccounts} from "../lib/LibAccounts.sol";
 
 /**
  * @title AccountsUpdateEndowmentSettingsController
@@ -10,13 +11,25 @@ import {AccountMessages} from "../message.sol";
  */
 interface IAccountsUpdateEndowmentSettingsController {
   /**
+   * @notice Updates an allowlist of an endowment, adding and/or removing addresses.
+   * @dev Emits a EndowmentAllowlistUpdated event after the endowment has been updated.
+   * @dev Throws an error if the endowment is closing.
+   * @param id The ID of the endowment to updated
+   * @param allowlistType AllowlistType to be updated
+   * @param add The addresses to add to the allowlist
+   * @param remove The addresses to remove from the allowlist
+   */
+  function updateEndowmentAllowlist(
+    uint32 id,
+    LibAccounts.AllowlistType allowlistType,
+    address[] memory add,
+    address[] memory remove
+  ) external;
+
+  /**
     @dev Updates the settings of an endowment.
     @param details Object containing the updated details of the endowment settings.
     @param details.id The ID of the endowment to update.
-    @param details.allowlistedBeneficiaries The updated list of allowlisted beneficiaries.
-    @param details.allowlistedContributors The updated list of allowlisted contributors.
-    @param details.maturity_allowlist_add The addresses to add to the maturity allowlist.
-    @param details.maturity_allowlist_remove The addresses to remove from the maturity allowlist.
     @param details.splitToLiquid The updated split to liquid ratio.
     @param details.ignoreUserSplits Whether or not to ignore user splits.
     Emits a EndowmentSettingUpdated event for each setting that has been updated.

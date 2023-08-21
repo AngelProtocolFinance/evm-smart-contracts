@@ -16,7 +16,7 @@ import {deployIndexFund} from "contracts/core/index-fund/scripts/deploy";
 import {deployRegistrar} from "contracts/core/registrar/scripts/deploy";
 import {deployRouter} from "contracts/core/router/scripts/deploy";
 import {deployAPTeamMultiSig, deployCharityApplications} from "contracts/multisigs/scripts/deploy";
-import {deployEndowmentMultiSig} from "contracts/normalized_endowment/endowment-multisig/scripts/deploy";
+import {deployEndowmentMultiSig} from "contracts/multisigs/endowment-multisig/scripts/deploy";
 // import {deployEmitters} from "contracts/normalized_endowment/scripts/deployEmitter";
 // import {deployImplementation} from "contracts/normalized_endowment/scripts/deployImplementation";
 
@@ -55,6 +55,7 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
           deployer,
           proxyAdmin,
           treasury: treasury.address,
+          apTeamMultisig: apTeamMultisig?.address,
         },
         hre
       );
@@ -90,9 +91,6 @@ task("deploy:AngelProtocol", "Will deploy complete Angel Protocol")
 
       await hre.run("manage:registrar:updateConfig", {
         accountsContract: accounts?.diamond.address, //Address
-        splitMax: config.REGISTRAR_DATA.splitToLiquid.max, //uint256
-        splitMin: config.REGISTRAR_DATA.splitToLiquid.min, //uint256
-        splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit, //uint256
         collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare, //uint256
         indexFundContract: indexFund?.address, //address
         treasury: treasury.address,

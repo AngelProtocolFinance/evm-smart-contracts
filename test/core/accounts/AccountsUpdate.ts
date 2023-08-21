@@ -2,9 +2,10 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import hre from "hardhat";
 import {AccountsUpdate, AccountsUpdate__factory, TestFacetProxyContract} from "typechain-types";
-import {getSigners} from "utils";
+import {getSigners, EndowmentType} from "utils";
 import {deployFacetAsProxy} from "./utils";
-import {wait} from "test/utils";
+import {wait, DEFAULT_CHARITY_ENDOWMENT} from "test/utils";
+import {AccountStorage} from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
 
 describe("AccountsUpdate", function () {
   const {ethers} = hre;
@@ -17,6 +18,7 @@ describe("AccountsUpdate", function () {
   let state: TestFacetProxyContract;
 
   let newRegistrar: string;
+  let endowment: AccountStorage.EndowmentStruct;
 
   before(async function () {
     const signers = await getSigners(hre);
@@ -25,6 +27,7 @@ describe("AccountsUpdate", function () {
     user = signers.deployer;
 
     newRegistrar = signers.airdropOwner.address;
+    endowment = {...DEFAULT_CHARITY_ENDOWMENT, owner: owner.address};
   });
 
   beforeEach(async function () {
@@ -32,13 +35,17 @@ describe("AccountsUpdate", function () {
     let facetImpl = await Facet.deploy();
     state = await deployFacetAsProxy(hre, owner, proxyAdmin, facetImpl.address);
 
+    await wait(state.setEndowmentDetails(1, endowment));
+    await wait(state.setEndowmentDetails(2, endowment));
+    await wait(state.setEndowmentDetails(3, {...endowment, endowType: EndowmentType.Ast}));
+
     await wait(
       state.setConfig({
         owner: owner.address,
         version: "1",
         networkName: "Polygon",
         registrarContract: ethers.constants.AddressZero,
-        nextAccountId: 1,
+        nextAccountId: 4,
         reentrancyGuardLocked: false,
       })
     );
@@ -93,6 +100,32 @@ describe("AccountsUpdate", function () {
       await expect(facet.updateConfig(invalidAddress)).to.be.revertedWith(
         "invalid registrar address"
       );
+    });
+  });
+
+  describe("updateDafApprovedEndowments", () => {
+    it("reverts when owner is not the sender", async () => {
+      await expect(facet.connect(user).updateDafApprovedEndowments([1], [2])).to.be.revertedWith(
+        "Unauthorized"
+      );
+    });
+
+    it("reverts when no add/remove endowments are passed", async () => {
+      await expect(facet.updateDafApprovedEndowments([], [])).to.be.revertedWith(
+        "Must pass at least one endowment to add/remove"
+      );
+    });
+
+    it("reverts when sender attempts to add an AST-type Endowment", async () => {
+      await expect(facet.updateDafApprovedEndowments([3], [])).to.be.revertedWith(
+        "Cannot add AST Endowments"
+      );
+    });
+
+    it("passes with valid input endowments and authorized sender", async () => {
+      await expect(facet.updateDafApprovedEndowments([1], [2]))
+        .to.emit(facet, "DafApprovedEndowmentsUpdated")
+        .withArgs([1], [2]);
     });
   });
 });

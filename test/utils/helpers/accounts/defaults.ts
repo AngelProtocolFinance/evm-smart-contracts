@@ -6,8 +6,8 @@ import {BigNumber} from "ethers";
 import {DEFAULT_STRATEGY_SELECTOR} from "test/utils";
 import {IVault} from "typechain-types/contracts/core/accounts/facets/AccountsStrategy";
 import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
-import {IAccountsStrategy} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
 import {ADDRESS_ZERO} from "utils";
+import {DEFAULT_NETWORK} from "../../constants";
 
 export const DEFAULT_PERMISSIONS_STRUCT: LibAccounts.SettingsPermissionStruct = {
   locked: false,
@@ -68,12 +68,8 @@ export const DEFAULT_CHARITY_ENDOWMENT: AccountStorage.EndowmentStruct = {
   proposalLink: 0,
   multisig: ADDRESS_ZERO,
   dao: ADDRESS_ZERO,
-  daoToken: ADDRESS_ZERO,
   donationMatchActive: false,
-  donationMatchContract: ADDRESS_ZERO,
-  allowlistedBeneficiaries: [],
-  allowlistedContributors: [],
-  maturityAllowlist: [],
+  donationMatch: ADDRESS_ZERO,
   earlyLockedWithdrawFee: DEFAULT_FEE_STRUCT,
   withdrawFee: DEFAULT_FEE_STRUCT,
   depositFee: DEFAULT_FEE_STRUCT,
@@ -95,46 +91,30 @@ export const DEFAULT_ACCOUNTS_CONFIG: AccountStorage.ConfigStruct = {
   reentrancyGuardLocked: false,
 };
 
-export const DEFAULT_NETWORK_INFO: IAccountsStrategy.NetworkInfoStruct = {
+export const DEFAULT_NETWORK_INFO: LocalRegistrarLib.NetworkInfoStruct = {
   chainId: 0,
   router: ADDRESS_ZERO,
   axelarGateway: ADDRESS_ZERO,
-  ibcChannel: "",
-  transferChannel: "",
   gasReceiver: ADDRESS_ZERO,
-  gasLimit: 0,
+  refundAddr: ADDRESS_ZERO,
 };
 
 export const DEFAULT_REGISTRAR_CONFIG: RegistrarStorage.ConfigStruct = {
-  indexFundContract: ADDRESS_ZERO,
   accountsContract: ADDRESS_ZERO,
+  apTeamMultisig: ADDRESS_ZERO,
   treasury: ADDRESS_ZERO,
-  subdaoGovContract: ADDRESS_ZERO, // Sub dao implementation
-  subdaoTokenContract: ADDRESS_ZERO, // NewERC20 implementation
-  subdaoBondingTokenContract: ADDRESS_ZERO, // Continous Token implementation
-  subdaoCw900Contract: ADDRESS_ZERO,
-  subdaoDistributorContract: ADDRESS_ZERO,
-  subdaoEmitter: ADDRESS_ZERO,
-  donationMatchContract: ADDRESS_ZERO,
-  splitToLiquid: {max: 0, min: 0, defaultSplit: 0} as any,
+  indexFundContract: ADDRESS_ZERO,
   haloToken: ADDRESS_ZERO,
-  haloTokenLpContract: ADDRESS_ZERO,
   govContract: ADDRESS_ZERO,
-  donationMatchEmitter: ADDRESS_ZERO,
-  collectorShare: BigNumber.from(50),
-  charitySharesContract: ADDRESS_ZERO,
   fundraisingContract: ADDRESS_ZERO,
   uniswapRouter: ADDRESS_ZERO,
   uniswapFactory: ADDRESS_ZERO,
-  lockedWithdrawal: ADDRESS_ZERO,
+  multisigFactory: ADDRESS_ZERO,
+  multisigEmitter: ADDRESS_ZERO,
+  charityApplications: ADDRESS_ZERO,
   proxyAdmin: ADDRESS_ZERO,
   usdcAddress: ADDRESS_ZERO,
   wMaticAddress: ADDRESS_ZERO,
-  cw900lvAddress: ADDRESS_ZERO,
-  charityApplications: ADDRESS_ZERO,
-  multisigFactory: ADDRESS_ZERO,
-  multisigEmitter: ADDRESS_ZERO,
-  donationMatchCharitesContract: ADDRESS_ZERO,
   gasFwdFactory: ADDRESS_ZERO,
 };
 
@@ -164,7 +144,7 @@ export const DEFAULT_REDEEM_ALL_REQUEST: AccountMessages.RedeemAllRequestStruct 
 
 export const DEFAULT_STRATEGY_PARAMS: LocalRegistrarLib.StrategyParamsStruct = {
   approvalState: 0,
-  network: "",
+  network: DEFAULT_NETWORK,
   Locked: {
     Type: 0,
     vaultAddr: ADDRESS_ZERO,
@@ -173,11 +153,6 @@ export const DEFAULT_STRATEGY_PARAMS: LocalRegistrarLib.StrategyParamsStruct = {
     Type: 1,
     vaultAddr: ADDRESS_ZERO,
   },
-};
-
-export const DEFAULT_AP_PARAMS: LocalRegistrarLib.AngelProtocolParamsStruct = {
-  refundAddr: ADDRESS_ZERO,
-  routerAddr: ADDRESS_ZERO,
 };
 
 export const DEFAULT_ACTION_DATA: IVault.VaultActionDataStruct = {

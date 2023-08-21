@@ -45,4 +45,36 @@ contract AccountsUpdate is ReentrancyGuardFacet, IAccountsEvents, IAccountsUpdat
 
     emit ConfigUpdated();
   }
+
+  /**
+   * @notice This function updates the DAF Approved Endowments mapping. If an endowment is passed in both lists it will result in removal/unapproved state.
+   * @dev This function updates the DAF Approved Endowments mapping. If an endowment is passed in both lists it will result in removal/unapproved state.
+   * @param add Endowments list to add/approve for DAF Withdrawals
+   * @param remove Endowments list to remove/reject for DAF Withdrawals
+   */
+  function updateDafApprovedEndowments(
+    uint32[] memory add,
+    uint32[] memory remove
+  ) public nonReentrant {
+    AccountStorage.State storage state = LibAccounts.diamondStorage();
+
+    require(msg.sender == state.config.owner, "Unauthorized");
+    require(add.length > 0 || remove.length > 0, "Must pass at least one endowment to add/remove");
+
+    // add all endowments first
+    for (uint256 i = 0; i < add.length; i++) {
+      require(
+        state.Endowments[add[i]].endowType != LibAccounts.EndowmentType.Ast,
+        "Cannot add AST Endowments"
+      );
+      state.DafApprovedEndowments[add[i]] = true;
+    }
+
+    // remove endowments
+    for (uint256 i = 0; i < remove.length; i++) {
+      state.DafApprovedEndowments[remove[i]] = false;
+    }
+
+    emit DafApprovedEndowmentsUpdated(add, remove);
+  }
 }

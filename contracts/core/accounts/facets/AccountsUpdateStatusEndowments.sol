@@ -10,6 +10,8 @@ import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsGasManager} from "../interfaces/IAccountsGasManager.sol";
 import {IAccountsUpdateStatusEndowments} from "../interfaces/IAccountsUpdateStatusEndowments.sol";
+import {IAccountsDepositWithdrawEndowments} from "../interfaces/IAccountsDepositWithdrawEndowments.sol";
+import {IVault} from "../../vault/interfaces/IVault.sol";
 
 /**
  * @title AccountsUpdateStatusEndowments
@@ -33,53 +35,79 @@ contract AccountsUpdateStatusEndowments is
     LibAccounts.Beneficiary memory beneficiary
   ) public nonReentrant {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
+    AccountStorage.Endowment storage tempEndowment = state.Endowments[id];
 
-    require(msg.sender == state.ENDOWMENTS[id].owner, "Unauthorized");
-    require(!state.STATES[id].closingEndowment, "Endowment is closed");
+    require(msg.sender == tempEndowment.owner, "Unauthorized");
+    require(!state.States[id].closingEndowment, "Endowment is closed");
     require(checkFullyExited(id), "Not fully exited");
 
-    RegistrarStorage.Config memory registrar_config = IRegistrar(state.config.registrarContract)
+    RegistrarStorage.Config memory registrarConfig = IRegistrar(state.config.registrarContract)
       .queryConfig();
 
-    require(
-      beneficiary.enumData != LibAccounts.BeneficiaryEnum.None ||
-        registrar_config.indexFundContract != address(0),
-      "Beneficiary is NONE & Index Fund Contract is not configured in Registrar"
-    );
+    // ** Closing logic summary **
+    // Charity Endowments: If specified an endowment ID to move their funds to do so (must be another Charity-type). Cannot send to 3rd-party wallet.
+    // DAF Endowments: If specified an endowment ID to move their funds to do so (must in AP Approved Endowments list). Cannot send to 3rd-party wallet.
+    // Normal Endowments: Can send to any other endowment ID or 3rd party wallet desired.
+    // If NONE was passed for beneficiary, then we send all balances to the AP Treasury to be manually re-invested to Endowments chosen by AP MultiSig/Governance.
 
-    // If NONE was passed for beneficiary, send balance to the AP Treasury (if not in any funds)
-    // or send to the first index fund if it is in one.
-    uint256[] memory funds = IIndexFund(registrar_config.indexFundContract).queryInvolvedFunds(id);
-    if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.None) {
-      if (funds.length == 0) {
-        beneficiary = LibAccounts.Beneficiary({
-          data: LibAccounts.BeneficiaryData({
-            endowId: 0,
-            fundId: 0,
-            addr: registrar_config.treasury
-          }),
-          enumData: LibAccounts.BeneficiaryEnum.Wallet
-        });
-      } else {
-        beneficiary = LibAccounts.Beneficiary({
-          data: LibAccounts.BeneficiaryData({endowId: 0, fundId: funds[0], addr: address(0)}),
-          enumData: LibAccounts.BeneficiaryEnum.IndexFund
-        });
-        // remove closing endowment from all Index Funds that it is in
-        IIndexFund(registrar_config.indexFundContract).removeMember(id);
+    // Ensure Charity & DAF Type endowments meet closing beneficiary restrictions
+    if (
+      tempEndowment.endowType == LibAccounts.EndowmentType.Charity ||
+      tempEndowment.endowType == LibAccounts.EndowmentType.Daf
+    ) {
+      require(
+        beneficiary.enumData != LibAccounts.BeneficiaryEnum.Wallet,
+        "Cannot pass Wallet beneficiary"
+      );
+      // If an Endowment ID is not passed we can skip the checks below
+      if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.EndowmentId) {
+        if (tempEndowment.endowType == LibAccounts.EndowmentType.Daf) {
+          require(
+            state.DafApprovedEndowments[beneficiary.data.endowId],
+            "Not an approved Endowment for DAF withdrawals"
+          );
+        } else if (tempEndowment.endowType == LibAccounts.EndowmentType.Charity) {
+          require(
+            state.Endowments[beneficiary.data.endowId].endowType ==
+              LibAccounts.EndowmentType.Charity,
+            "Beneficiary must be a Charity Endowment type"
+          );
+        }
       }
     }
 
-    state.STATES[id].closingEndowment = true;
-    state.STATES[id].closingBeneficiary = beneficiary;
-    emit EndowmentClosed(id);
+    if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.EndowmentId) {
+      require(id != beneficiary.data.endowId, "Cannot set own Endowment as final Beneficiary");
+    }
+
+    // Beneficiary of NONE passed, set to the AP Treasury
+    if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.None) {
+      beneficiary = LibAccounts.Beneficiary({
+        data: LibAccounts.BeneficiaryData({endowId: 0, addr: registrarConfig.treasury}),
+        enumData: LibAccounts.BeneficiaryEnum.Wallet
+      });
+    }
+
+    // final check to ensure beneficiary data is set correctly for the desired type
+    if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.Wallet) {
+      beneficiary.data.endowId = 0;
+    } else if (beneficiary.enumData == LibAccounts.BeneficiaryEnum.EndowmentId) {
+      beneficiary.data.addr = address(0);
+    }
+
+    // remove closed fund from all Index Funds that it's involved with
+    IIndexFund(registrarConfig.indexFundContract).removeMember(id);
+
+    state.States[id].closingEndowment = true;
+    state.States[id].closingBeneficiary = beneficiary;
+    emit EndowmentClosed(id, beneficiary);
   }
 
   function checkFullyExited(uint32 id) internal view returns (bool) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     bytes4[] memory allStrategies = IRegistrar(state.config.registrarContract).queryAllStrategies();
     for (uint256 i; i < allStrategies.length; i++) {
-      if (state.STATES[id].activeStrategies[allStrategies[i]]) {
+      if (state.ActiveStrategies[id][allStrategies[i]]) {
         return false;
       }
     }
@@ -96,7 +124,7 @@ contract AccountsUpdateStatusEndowments is
    */
   function forceSetStrategyInactive(uint32 id, bytes4 strategySelector) public {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    require(msg.sender == state.ENDOWMENTS[id].owner, "Unauthorized");
-    state.STATES[id].activeStrategies[strategySelector] = false;
+    require(msg.sender == state.Endowments[id].owner, "Unauthorized");
+    state.ActiveStrategies[id][strategySelector] = false;
   }
 }

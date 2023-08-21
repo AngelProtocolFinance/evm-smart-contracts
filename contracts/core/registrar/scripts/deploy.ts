@@ -1,10 +1,8 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import config from "config";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {LocalRegistrar__factory, ProxyContract__factory, Registrar__factory} from "typechain-types";
 import {
   Deployment,
-  getChainId,
   getContractName,
   getAxlNetworkName,
   logger,
@@ -20,6 +18,7 @@ type RegistrarDeployData = {
   deployer: SignerWithAddress;
   proxyAdmin: SignerWithAddress;
   treasury: string;
+  apTeamMultisig?: string;
 };
 
 export async function deployRegistrar(
@@ -31,6 +30,7 @@ export async function deployRegistrar(
     deployer,
     proxyAdmin,
     treasury,
+    apTeamMultisig = "",
   }: RegistrarDeployData,
   hre: HardhatRuntimeEnvironment
 ): Promise<Deployment | undefined> {
@@ -42,6 +42,7 @@ export async function deployRegistrar(
     validateAddress(axelarGateway, "axelarGateway");
     validateAddress(axelarGasService, "axelarGasService");
     validateAddress(owner, "owner");
+    validateAddress(apTeamMultisig, "apTeamMultisig");
     // no need to verify router address validity, as Registrar will be deployed before the router
 
     // deploy implementation
@@ -54,15 +55,16 @@ export async function deployRegistrar(
     // deploy proxy
     logger.out("Deploying proxy...");
     const initData = registrar.interface.encodeFunctionData(
-      "initialize((address,(uint256,uint256,uint256),address,address,address,string))",
+      "initialize((address,address,address,address,address,string,address))",
       [
         {
-          treasury,
-          splitToLiquid: config.REGISTRAR_DATA.splitToLiquid,
-          router,
-          axelarGateway,
-          axelarGasService,
-          networkName,
+          apTeamMultisig: apTeamMultisig,
+          treasury: treasury,
+          router: router,
+          axelarGateway: axelarGateway,
+          axelarGasService: axelarGasService,
+          networkName: networkName,
+          refundAddr: owner,
         },
       ]
     );
@@ -118,7 +120,9 @@ export async function deployLocalRegistrar(
     // deploy proxy
     logger.out("Deploying proxy...");
     const proxyFactory = new ProxyContract__factory(deployer);
-    const initData = localRegistrar.interface.encodeFunctionData("initialize");
+    const initData = localRegistrar.interface.encodeFunctionData("initialize", [
+      await getAxlNetworkName(hre),
+    ]);
     const proxy = await proxyFactory.deploy(localRegistrar.address, proxyAdmin.address, initData);
     await proxy.deployed();
     logger.out(`Address: ${proxy.address}`);

@@ -1,4 +1,5 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import {BigNumber} from "ethers";
 import {expect} from "chai";
 import hre from "hardhat";
 import {FeeTypes, StrategyApprovalState, getSigners} from "utils";
@@ -36,14 +37,15 @@ describe("Local Registrar", function () {
   let accountsContract = "0x000000000000000000000000000000000000dead";
 
   async function deployRegistrarAsProxy(): Promise<LocalRegistrar> {
-    const {proxyAdmin, apTeam3} = await getSigners(hre);
-    owner = proxyAdmin;
-    user = apTeam3;
+    const signers = await getSigners(hre);
+    owner = signers.proxyAdmin;
+    user = signers.apTeam1;
+
     Registrar = (await ethers.getContractFactory(
       "LocalRegistrar",
-      proxyAdmin
+      owner
     )) as LocalRegistrar__factory;
-    const registrar = (await upgrades.deployProxy(Registrar)) as LocalRegistrar;
+    const registrar = (await upgrades.deployProxy(Registrar, [originatingChain])) as LocalRegistrar;
     await registrar.deployed();
     return registrar;
   }
@@ -76,9 +78,6 @@ describe("Local Registrar", function () {
         defaultRebalParams.lockedPrincipleToLiquid
       );
       expect(rebalParams.principleDistribution).to.equal(defaultRebalParams.principleDistribution);
-
-      let apParams = await registrar.getAngelProtocolParams();
-      expect(apParams.routerAddr).to.equal(defaultApParams.routerAddr);
     });
 
     it("Should not allow a non-owner to run an upgrade", async function () {
@@ -107,21 +106,6 @@ describe("Local Registrar", function () {
         await expect(registrar.setRebalanceParams(newValues)).to.not.be.reverted;
         let returnedValues = await registrar.getRebalanceParams();
         expect(returnedValues.rebalanceLiquidProfits).to.equal(newValues.rebalanceLiquidProfits);
-      });
-    });
-
-    describe("setAngelProtocolParams and getAngelProtocolParams", async function () {
-      it("Should be an owner restricted method", async function () {
-        await expect(registrar.connect(user).setAngelProtocolParams(defaultApParams)).to.be
-          .reverted;
-      });
-
-      it("Should accept and set the values", async function () {
-        let newValues = defaultApParams;
-        newValues.routerAddr = user.address;
-        await expect(registrar.setAngelProtocolParams(newValues)).to.not.be.reverted;
-        let returnedValues = await registrar.getAngelProtocolParams();
-        expect(returnedValues.routerAddr).to.equal(newValues.routerAddr);
       });
     });
 
@@ -191,6 +175,13 @@ describe("Local Registrar", function () {
         await expect(registrar.setGasByToken(user.address, 1)).to.not.be.reverted;
         let returnedValue = await registrar.getGasByToken(user.address);
         expect(returnedValue.toNumber()).to.equal(1);
+      });
+    });
+
+    describe("thisChain", async function () {
+      it("Should return the chain set during init", async function () {
+        let returnedValue = await registrar.thisChain();
+        expect(returnedValue).to.equal(originatingChain);
       });
     });
 
@@ -342,11 +333,35 @@ describe("Local Registrar", function () {
             .setFeeSettingsByFeesType(FeeTypes.Default, 1, ethers.constants.AddressZero)
         ).to.be.reverted;
       });
-      it("Should set and get the vault operator approval status", async function () {
-        await expect(registrar.setFeeSettingsByFeesType(FeeTypes.Harvest, 1, user.address)).to.not
-          .be.reverted;
+
+      it("Should revert if a single fee meets or exceeds 100%", async function () {
+        // setting to 100% should fail outright
+        await expect(
+          registrar.setFeeSettingsByFeesType(FeeTypes.Deposit, 10000, user.address)
+        ).to.be.revertedWith("Fees meet or exceed 100%");
+      });
+
+      it("Should revert if combined Withdraw-related fees meet or exceeds 100%", async function () {
+        // First set a Withdraw Fee as 50%
+        await expect(registrar.setFeeSettingsByFeesType(FeeTypes.Withdraw, 5000, user.address)).to
+          .not.be.reverted;
+
+        // Trying to set an Early Locked Withdraw Fee at, or above, 50% should fail
+        await expect(
+          registrar.setFeeSettingsByFeesType(
+            FeeTypes.EarlyLockedWithdraw,
+            BigNumber.from(6000),
+            user.address
+          )
+        ).to.be.revertedWith("Fees meet or exceed 100%");
+      });
+
+      it("Should set a fee rate (in bps) and a payout address", async function () {
+        await expect(
+          registrar.setFeeSettingsByFeesType(FeeTypes.Harvest, BigNumber.from(5000), user.address)
+        ).to.not.be.reverted;
         let afterHarvestFee = await registrar.getFeeSettingsByFeeType(FeeTypes.Harvest);
-        expect(afterHarvestFee.bps).to.equal(1);
+        expect(afterHarvestFee.bps).to.equal(5000);
         expect(afterHarvestFee.payoutAddress).to.equal(user.address);
       });
     });
@@ -375,13 +390,6 @@ describe("Local Registrar", function () {
       await expect(registrar.setRebalanceParams(defaultRebalParams)).to.emit(
         registrar,
         "RebalanceParamsUpdated"
-      );
-    });
-
-    it("should emit AngelProtocolParamsUpdated", async function () {
-      await expect(registrar.setAngelProtocolParams(defaultApParams)).to.emit(
-        registrar,
-        "AngelProtocolParamsUpdated"
       );
     });
 

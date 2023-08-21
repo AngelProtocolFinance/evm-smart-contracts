@@ -5,7 +5,7 @@ pragma solidity ^0.8.19;
 import {IVault} from "../../vault/interfaces/IVault.sol";
 import {AccountStorage} from "../storage.sol";
 import {LibAccounts} from "../lib/LibAccounts.sol";
-import {IAccountsStrategy} from "../interfaces/IAccountsStrategy.sol";
+import {LocalRegistrarLib} from "../../registrar/lib/LocalRegistrarLib.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
 import {IAxelarGateway} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarGateway.sol";
 import {IAxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contracts/interfaces/IAxelarExecutable.sol";
@@ -13,7 +13,7 @@ import {IAxelarExecutable} from "@axelar-network/axelar-gmp-sdk-solidity/contrac
 abstract contract AxelarExecutableAccounts is IAxelarExecutable {
   function gateway() public view returns (IAxelarGateway) {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
-    IAccountsStrategy.NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)
+    LocalRegistrarLib.NetworkInfo memory thisNetwork = IRegistrar(state.config.registrarContract)
       .queryNetworkConnection(state.config.networkName);
     return IAxelarGateway(thisNetwork.axelarGateway);
   }

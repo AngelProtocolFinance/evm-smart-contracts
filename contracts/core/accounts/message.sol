@@ -19,6 +19,7 @@ library AccountMessages {
     uint256 duration;
     address[] allowlistedBeneficiaries;
     address[] allowlistedContributors;
+    address[] maturityAllowlist;
     LibAccounts.FeeSetting earlyLockedWithdrawFee;
     LibAccounts.FeeSetting withdrawFee;
     LibAccounts.FeeSetting depositFee;
@@ -26,7 +27,6 @@ library AccountMessages {
     uint256 proposalLink;
     LibAccounts.SettingsController settingsController;
     uint32 parent;
-    address[] maturityAllowlist;
     bool ignoreUserSplits;
     LibAccounts.SplitDetails splitToLiquid;
     uint256 referralId;
@@ -36,10 +36,6 @@ library AccountMessages {
     uint32 id;
     bool donationMatchActive;
     uint256 maturityTime;
-    address[] allowlistedBeneficiaries;
-    address[] allowlistedContributors;
-    address[] maturity_allowlist_add;
-    address[] maturity_allowlist_remove;
     LibAccounts.SplitDetails splitToLiquid;
     bool ignoreUserSplits;
   }
@@ -96,25 +92,34 @@ library AccountMessages {
     LibAccounts.Beneficiary closingBeneficiary;
   }
 
-  struct EndowmentDetailsResponse {
+  struct EndowmentResponse {
     address owner;
-    address dao;
-    address daoToken;
-    string description;
-    LibAccounts.EndowmentType endowType;
-    uint256 maturityTime;
-    LocalRegistrarLib.RebalanceParams rebalance;
-    address donationMatchContract;
-    address[] maturityAllowlist;
-    string logo;
-    string image;
     string name;
     uint256[] sdgs;
     LibAccounts.Tier tier;
-    uint256 copycatStrategy;
+    LibAccounts.EndowmentType endowType;
+    string logo;
+    string image;
+    uint256 maturityTime;
+    LocalRegistrarLib.RebalanceParams rebalance;
     uint256 proposalLink;
-    uint256 parent;
+    address multisig;
+    address dao;
+    address donationMatch;
+    bool donationMatchActive;
+    address[] allowlistedBeneficiaries;
+    address[] allowlistedContributors;
+    address[] maturityAllowlist;
+    LibAccounts.FeeSetting earlyLockedWithdrawFee;
+    LibAccounts.FeeSetting withdrawFee;
+    LibAccounts.FeeSetting depositFee;
+    LibAccounts.FeeSetting balanceFee;
     LibAccounts.SettingsController settingsController;
+    uint32 parent;
+    bool ignoreUserSplits;
+    LibAccounts.SplitDetails splitToLiquid;
+    uint256 referralId;
+    address gasFwd;
   }
 
   struct DepositRequest {

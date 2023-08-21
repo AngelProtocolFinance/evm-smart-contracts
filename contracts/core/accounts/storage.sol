@@ -3,6 +3,8 @@ pragma solidity ^0.8.19;
 
 import {LibAccounts} from "./lib/LibAccounts.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
+import {IterableMappingAddr} from "../../lib/IterableMappingAddr.sol";
+import {IVault} from "../vault/interfaces/IVault.sol";
 
 library AccountStorage {
   struct Config {
@@ -24,15 +26,11 @@ library AccountStorage {
     string image;
     uint256 maturityTime; // datetime int of endowment maturity
     LocalRegistrarLib.RebalanceParams rebalance; // parameters to guide rebalancing & harvesting of gains from locked/liquid accounts
-    uint256 proposalLink; // link back the Applications Team Multisig Proposal that created an endowment (if a Charity)
+    uint256 proposalLink; // @dev links back the Applications Team Multisig Proposal that created an endowment (if a Charity)
     address multisig;
     address dao;
-    address daoToken;
+    address donationMatch; // @dev only applies to ASTs (Charity & DAF use Halo Donation Match Contract in Registrar)
     bool donationMatchActive;
-    address donationMatchContract;
-    address[] allowlistedBeneficiaries;
-    address[] allowlistedContributors;
-    address[] maturityAllowlist;
     LibAccounts.FeeSetting earlyLockedWithdrawFee;
     LibAccounts.FeeSetting withdrawFee;
     LibAccounts.FeeSetting depositFee;
@@ -46,10 +44,8 @@ library AccountStorage {
   }
 
   struct EndowmentState {
-    LibAccounts.BalanceInfo balances;
     bool closingEndowment;
     LibAccounts.Beneficiary closingBeneficiary;
-    mapping(bytes4 => bool) activeStrategies;
   }
 
   struct TokenAllowances {
@@ -59,15 +55,21 @@ library AccountStorage {
   }
 
   struct State {
-    mapping(uint32 => uint256) DAOTOKENBALANCE;
-    mapping(uint32 => EndowmentState) STATES;
-    mapping(uint32 => Endowment) ENDOWMENTS;
+    mapping(uint32 => Endowment) Endowments;
+    mapping(uint32 => EndowmentState) States;
+    mapping(uint32 => mapping(IVault.VaultType => mapping(address => uint256))) Balances;
     // endow ID -> token Addr -> TokenAllowances
-    mapping(uint32 => mapping(address => TokenAllowances)) ALLOWANCES;
+    mapping(uint32 => mapping(address => TokenAllowances)) Allowances;
     // endow ID -> token Addr -> bool
     mapping(uint32 => mapping(address => bool)) AcceptedTokens;
     // endow ID -> token Addr -> Price Feed Addr
     mapping(uint32 => mapping(address => address)) PriceFeeds;
+    // endow ID -> strategies that an Endowment is invested
+    mapping(uint32 => mapping(bytes4 => bool)) ActiveStrategies;
+    // Endowments that a DAF can withdraw to, managed by contract Owner
+    mapping(uint32 => bool) DafApprovedEndowments;
+    // Endowments AllowLists Iterable mappings
+    mapping(uint32 => mapping(LibAccounts.AllowlistType => IterableMappingAddr.Map)) Allowlists;
     Config config;
   }
 }

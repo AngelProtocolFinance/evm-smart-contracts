@@ -26,7 +26,6 @@ use(smock.matchers);
 describe("AccountsCreateEndowment", function () {
   const {ethers} = hre;
 
-  const donationMatchCharitesAddress = genWallet().address;
   const endowmentOwner = genWallet().address;
 
   const expectedNextAccountId = 1;
@@ -74,6 +73,7 @@ describe("AccountsCreateEndowment", function () {
       threshold: 1,
       allowlistedBeneficiaries: [],
       allowlistedContributors: [],
+      maturityAllowlist: [],
       earlyLockedWithdrawFee: defaultFeeStruct,
       withdrawFee: defaultFeeStruct,
       depositFee: defaultFeeStruct,
@@ -99,7 +99,6 @@ describe("AccountsCreateEndowment", function () {
         ignoreUserSplits: defaultSettingsPermissionsStruct,
       },
       parent: 0,
-      maturityAllowlist: [],
       ignoreUserSplits: false,
       splitToLiquid: {
         max: 100,
@@ -135,7 +134,6 @@ describe("AccountsCreateEndowment", function () {
       ...DEFAULT_REGISTRAR_CONFIG,
       charityApplications: charityApplications.address,
       multisigFactory: endowmentFactoryFake.address,
-      donationMatchCharitesContract: donationMatchCharitesAddress,
       gasFwdFactory: gasFwdFactoryFake.address,
     };
     registrarFake.queryConfig.returns(config);
@@ -322,20 +320,17 @@ describe("AccountsCreateEndowment", function () {
 
     const result = await state.getEndowmentDetails(expectedNextAccountId);
 
-    expect(result.allowlistedBeneficiaries).to.have.same.members(request.allowlistedBeneficiaries);
-    expect(result.allowlistedContributors).to.have.same.members(request.allowlistedContributors);
-    expect(result.balanceFee).to.equalFee(request.balanceFee);
     expect(result.dao).to.equal(ethers.constants.AddressZero);
-    expect(result.daoToken).to.equal(ethers.constants.AddressZero);
+    expect(result.balanceFee).to.equalFee(request.balanceFee);
     expect(result.depositFee).to.equalFee(request.depositFee);
-    expect(result.donationMatchActive).to.equal(false);
-    expect(result.donationMatchContract).to.equal(ethers.constants.AddressZero);
+    expect(result.withdrawFee).to.equalFee(request.withdrawFee);
     expect(result.earlyLockedWithdrawFee).to.equalFee(request.earlyLockedWithdrawFee);
+    expect(result.donationMatchActive).to.equal(false);
+    expect(result.donationMatch).to.equal(ethers.constants.AddressZero);
     expect(result.endowType).to.equal(request.endowType);
     expect(result.ignoreUserSplits).to.equal(request.ignoreUserSplits);
     expect(result.image).to.equal(request.image);
     expect(result.logo).to.equal(request.logo);
-    expect(result.maturityAllowlist).to.have.same.members(request.maturityAllowlist);
     expect(result.maturityTime).to.equal(request.maturityTime);
     expect(result.multisig).to.equal(result.owner);
     expect(result.multisig).to.not.equal(ethers.constants.AddressZero);
@@ -400,7 +395,6 @@ describe("AccountsCreateEndowment", function () {
     expect(result.splitToLiquid.max).to.equal(request.splitToLiquid.max);
     expect(result.splitToLiquid.min).to.equal(request.splitToLiquid.min);
     expect(result.tier).to.equal(request.tier);
-    expect(result.withdrawFee).to.equalFee(request.withdrawFee);
   });
 
   it("should create a charity endowment if the caller is authorized and input parameters are valid", async () => {
@@ -408,11 +402,10 @@ describe("AccountsCreateEndowment", function () {
       ...createEndowmentRequest,
       endowType: 0, // Charity
       ignoreUserSplits: true,
-      // `earlyLockedWithdrawFee` is not validated
-      earlyLockedWithdrawFee: {
-        bps: 1000,
-        payoutAddress: ethers.constants.AddressZero,
-      },
+      balanceFee: {bps: 0, payoutAddress: ethers.constants.AddressZero},
+      depositFee: {bps: 0, payoutAddress: ethers.constants.AddressZero},
+      withdrawFee: {bps: 0, payoutAddress: ethers.constants.AddressZero},
+      earlyLockedWithdrawFee: {bps: 0, payoutAddress: ethers.constants.AddressZero},
     };
 
     await expect(facet.connect(charityApplications).createEndowment(request))
@@ -421,24 +414,22 @@ describe("AccountsCreateEndowment", function () {
 
     const result = await state.getEndowmentDetails(expectedNextAccountId);
 
-    expect(result.allowlistedBeneficiaries).to.have.same.members(request.allowlistedBeneficiaries);
-    expect(result.allowlistedContributors).to.have.same.members(request.allowlistedContributors);
-    expect(result.balanceFee).to.equalFee(request.balanceFee);
     expect(result.dao).to.equal(ethers.constants.AddressZero);
-    expect(result.daoToken).to.equal(ethers.constants.AddressZero);
-    expect(result.depositFee).to.equalFee(request.depositFee);
     expect(result.donationMatchActive).to.equal(false);
-    // `donationMatchContract` is read from `registrar config > donationMatchCharitesContract`
-    expect(result.donationMatchContract).to.equal(donationMatchCharitesAddress);
-    expect(result.earlyLockedWithdrawFee).to.equalFee(
-      await registrarFake.getFeeSettingsByFeeType(FeeTypes.EarlyLockedWithdrawCharity)
-    );
+    expect(result.donationMatch).to.equal(ethers.constants.AddressZero);
+    // no endowment-level fees are accepted for Charity Endowments regardless of what is passed
+    // they should all be set to zero
+    expect(result.balanceFee).to.equalFee({bps: 0, payoutAddress: ethers.constants.AddressZero});
+    expect(result.depositFee).to.equalFee({bps: 0, payoutAddress: ethers.constants.AddressZero});
+    expect(result.withdrawFee).to.equalFee({bps: 0, payoutAddress: ethers.constants.AddressZero});
+    expect(result.earlyLockedWithdrawFee).to.equalFee({
+      bps: 0,
+      payoutAddress: ethers.constants.AddressZero,
+    });
     expect(result.endowType).to.equal(request.endowType);
-    // `ignoreUserSplits` is set to `false` by default
-    expect(result.ignoreUserSplits).to.equal(false);
+    expect(result.ignoreUserSplits).to.equal(request.ignoreUserSplits);
     expect(result.image).to.equal(request.image);
     expect(result.logo).to.equal(request.logo);
-    expect(result.maturityAllowlist).to.have.same.members(request.maturityAllowlist);
     expect(result.maturityTime).to.equal(request.maturityTime);
     expect(result.multisig).to.equal(result.owner);
     expect(result.multisig).to.not.equal(ethers.constants.AddressZero);
@@ -499,14 +490,12 @@ describe("AccountsCreateEndowment", function () {
     expect(result.settingsController.ignoreUserSplits).to.equalSettingsPermission(
       request.settingsController.ignoreUserSplits
     );
-    expect(result.splitToLiquid.defaultSplit).to.equal(0);
-    expect(result.splitToLiquid.max).to.equal(0);
-    expect(result.splitToLiquid.min).to.equal(0);
+    expect(result.splitToLiquid.defaultSplit).to.equal(request.splitToLiquid.defaultSplit);
+    expect(result.splitToLiquid.max).to.equal(request.splitToLiquid.max);
+    expect(result.splitToLiquid.min).to.equal(request.splitToLiquid.min);
     expect(result.tier).to.equal(request.tier);
-    expect(result.withdrawFee).to.equalFee(request.withdrawFee);
 
     const updatedConfig = await state.getConfig();
-
     expect(updatedConfig.nextAccountId).to.equal(expectedNextAccountId + 1);
   });
 });

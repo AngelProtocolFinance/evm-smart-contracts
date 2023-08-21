@@ -19,11 +19,6 @@ export type Config = {
       lockedPrincipleToLiquid: boolean;
       principle_distribution: number;
     };
-    splitToLiquid: {
-      max: number;
-      min: number;
-      defaultSplit: number;
-    };
   };
   CHARITY_APPLICATIONS_DATA: {
     threshold: number;

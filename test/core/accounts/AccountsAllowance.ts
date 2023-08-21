@@ -48,7 +48,7 @@ describe("AccountsAllowance", function () {
     // set a non-closing endowment up for testing with ACCOUNT_ID
     await wait(
       state.setClosingEndowmentState(ACCOUNT_ID, false, {
-        data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
+        data: {endowId: 0, addr: ethers.constants.AddressZero},
         enumData: 0,
       })
     );
@@ -63,17 +63,19 @@ describe("AccountsAllowance", function () {
       state.setEndowmentDetails(ACCOUNT_ID, {
         ...DEFAULT_CHARITY_ENDOWMENT,
         owner: endowOwner.address,
-        allowlistedBeneficiaries: [user.address],
-        maturityAllowlist: [user.address],
       })
     );
+
+    // Beneficiaries & Maturity Allowlists set for endowment user
+    await wait(state.setAllowlist(ACCOUNT_ID, 0, [user.address])); // beneficiaries
+    await wait(state.setAllowlist(ACCOUNT_ID, 2, [user.address])); // maturity
   });
 
   describe("Test cases for `manageAllowances`", function () {
     it("reverts when the endowment is closed", async function () {
       await wait(
         state.setClosingEndowmentState(ACCOUNT_ID, true, {
-          data: {endowId: 0, fundId: 0, addr: ethers.constants.AddressZero},
+          data: {endowId: 0, addr: ethers.constants.AddressZero},
           enumData: 0,
         })
       );

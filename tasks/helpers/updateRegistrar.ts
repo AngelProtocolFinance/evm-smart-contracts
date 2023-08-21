@@ -1,6 +1,6 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {APTeamMultiSig__factory, Registrar__factory} from "typechain-types";
-import {IAccountsStrategy} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
+import {LocalRegistrarLib} from "typechain-types/contracts/core/registrar/LocalRegistrar";
 import {
   NetworkConnectionAction,
   getAxlNetworkName,
@@ -14,7 +14,7 @@ import {
 export async function updateRegistrarNetworkConnections(
   registrar = "",
   apTeamMultisig = "",
-  networkInfo: Partial<IAccountsStrategy.NetworkInfoStruct>,
+  networkInfo: Partial<LocalRegistrarLib.NetworkInfoStruct>,
   hre: HardhatRuntimeEnvironment
 ) {
   logger.divider();

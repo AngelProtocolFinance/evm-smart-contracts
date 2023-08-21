@@ -15,7 +15,7 @@ interface IAccountsGasManager {
     uint32 id,
     IVault.VaultType vault,
     address token
-  ) external returns (uint256);
+  ) external returns (uint256 funds);
 
   function addGas(uint32 id, IVault.VaultType vault, address token, uint256 amount) external;
 }

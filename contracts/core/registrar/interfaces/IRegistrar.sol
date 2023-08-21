@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 import {RegistrarStorage} from "../storage.sol";
 import {RegistrarMessages} from "../message.sol";
 import {ILocalRegistrar} from "./ILocalRegistrar.sol";
-import {IAccountsStrategy} from "../../accounts/interfaces/IAccountsStrategy.sol";
+import {LocalRegistrarLib} from "../lib/LocalRegistrarLib.sol";
 
 interface IRegistrar is ILocalRegistrar {
   function updateConfig(RegistrarMessages.UpdateConfigRequest memory details) external;
@@ -15,7 +15,7 @@ interface IRegistrar is ILocalRegistrar {
 
   function updateNetworkConnections(
     string memory networkName,
-    IAccountsStrategy.NetworkInfo memory networkInfo,
+    LocalRegistrarLib.NetworkInfo memory networkInfo,
     string memory action
   ) external;
 
@@ -29,7 +29,7 @@ interface IRegistrar is ILocalRegistrar {
 
   function queryNetworkConnection(
     string memory networkName
-  ) external view returns (IAccountsStrategy.NetworkInfo memory response);
+  ) external view returns (LocalRegistrarLib.NetworkInfo memory response);
 
   function owner() external view returns (address);
 }

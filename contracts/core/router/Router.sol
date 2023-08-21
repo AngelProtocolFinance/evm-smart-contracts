@@ -3,7 +3,6 @@
 pragma solidity ^0.8.19;
 
 import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
-import {IAccountsStrategy} from "../accounts/interfaces/IAccountsStrategy.sol";
 import {IRouter} from "./IRouter.sol";
 import {RouterLib} from "./RouterLib.sol";
 import {IVault} from "../vault/interfaces/IVault.sol";
@@ -20,7 +19,6 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 contract Router is IRouter, Initializable, AxelarExecutable {
   using SafeERC20 for IERC20Metadata;
-  string public chain;
   ILocalRegistrar public registrar;
   uint256 constant PRECISION = 10 ** 6;
 
@@ -28,8 +26,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
                         PROXY INIT
     */ ///////////////////////////////////////////////
 
-  function initialize(string calldata _chain, address _registrar) public initializer {
-    chain = _chain;
+  function initialize(address _registrar) public initializer {
     registrar = ILocalRegistrar(_registrar);
   }
 
@@ -259,7 +256,9 @@ contract Router is IRouter, Initializable, AxelarExecutable {
   }
 
   modifier onlyLocalAccountsContract() {
-    string memory accountAddress = registrar.getAccountsContractAddressByChain(chain);
+    string memory accountAddress = registrar.getAccountsContractAddressByChain(
+      registrar.thisChain()
+    );
     require(StringToAddress.toAddress(accountAddress) == msg.sender, "Unauthorized local call");
     _;
   }
@@ -284,7 +283,7 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     IVault.VaultActionData memory _action,
     uint256 _sendAmt
   ) internal returns (IVault.VaultActionData memory) {
-    if (keccak256(bytes(_action.destinationChain)) == keccak256(bytes(chain))) {
+    if (keccak256(bytes(_action.destinationChain)) == keccak256(bytes(registrar.thisChain()))) {
       return _prepareAndSendTokensLocal(_action, _sendAmt);
     } else {
       return _prepareAndSendTokensGMP(_action, _sendAmt);
@@ -311,7 +310,9 @@ contract Router is IRouter, Initializable, AxelarExecutable {
     uint256 _sendAmt
   ) internal returns (IVault.VaultActionData memory) {
     // Pack the tokens and calldata for bridging back out over GMP
-    LocalRegistrarLib.AngelProtocolParams memory apParams = registrar.getAngelProtocolParams();
+    LocalRegistrarLib.NetworkInfo memory network = registrar.queryNetworkConnection(
+      registrar.thisChain()
+    );
 
     // Prepare gas
     uint256 gasFee = registrar.getGasByToken(_action.token);
@@ -339,12 +340,12 @@ contract Router is IRouter, Initializable, AxelarExecutable {
       emit Transfer(_action, amtLessGasFee);
     } catch Error(string memory reason) {
       emit ErrorLogged(_action, reason);
-      IERC20Metadata(_action.token).safeTransfer(apParams.refundAddr, _sendAmt);
+      IERC20Metadata(_action.token).safeTransfer(network.refundAddr, _sendAmt);
       emit Refund(_action, _sendAmt);
       _action.status = IVault.VaultActionStatus.FAIL_TOKENS_FALLBACK;
     } catch (bytes memory data) {
       emit ErrorBytesLogged(_action, data);
-      IERC20Metadata(_action.token).safeTransfer(apParams.refundAddr, _sendAmt);
+      IERC20Metadata(_action.token).safeTransfer(network.refundAddr, _sendAmt);
       emit Refund(_action, _sendAmt);
       _action.status = IVault.VaultActionStatus.FAIL_TOKENS_FALLBACK;
     }
@@ -453,12 +454,16 @@ contract Router is IRouter, Initializable, AxelarExecutable {
   }
 
   function _gateway() internal view override returns (IAxelarGateway) {
-    IAccountsStrategy.NetworkInfo memory network = registrar.queryNetworkConnection(chain);
+    LocalRegistrarLib.NetworkInfo memory network = registrar.queryNetworkConnection(
+      registrar.thisChain()
+    );
     return IAxelarGateway(network.axelarGateway);
   }
 
   function _gasReceiver() internal view returns (IAxelarGasService) {
-    IAccountsStrategy.NetworkInfo memory network = registrar.queryNetworkConnection(chain);
+    LocalRegistrarLib.NetworkInfo memory network = registrar.queryNetworkConnection(
+      registrar.thisChain()
+    );
     return IAxelarGasService(network.gasReceiver);
   }
 }

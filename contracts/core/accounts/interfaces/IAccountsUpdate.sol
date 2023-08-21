@@ -22,4 +22,12 @@ interface IAccountsUpdate {
    * @param newRegistrar The new registrar contract
    */
   function updateConfig(address newRegistrar) external;
+
+  /**
+   * @notice This function updates the DAF Approved Endowments mapping. If and endowment is passed in both lists it will result in removal/unapproved state.
+   * @dev This function updates the DAF Approved Endowments mapping. If and endowment is passed in both lists it will result in removal/unapproved state.
+   * @param add Endowments list to add/approve for DAF Withdrawals
+   * @param remove Endowments list to remove/reject for DAF Withdrawals
+   */
+  function updateDafApprovedEndowments(uint32[] memory add, uint32[] memory remove) external;
 }

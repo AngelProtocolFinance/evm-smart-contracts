@@ -79,9 +79,9 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
     if (accountType == IVault.VaultType.LOCKED) {
       require(
         Validator.canChange(
-          state.ENDOWMENTS[id].settingsController.lockedInvestmentManagement,
+          state.Endowments[id].settingsController.lockedInvestmentManagement,
           msg.sender,
-          state.ENDOWMENTS[id].owner,
+          state.Endowments[id].owner,
           block.timestamp
         ),
         "Unauthorized"
@@ -89,9 +89,9 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
     } else if (accountType == IVault.VaultType.LIQUID) {
       require(
         Validator.canChange(
-          state.ENDOWMENTS[id].settingsController.liquidInvestmentManagement,
+          state.Endowments[id].settingsController.liquidInvestmentManagement,
           msg.sender,
-          state.ENDOWMENTS[id].owner,
+          state.Endowments[id].owner,
           block.timestamp
         ),
         "Unauthorized"
@@ -100,19 +100,11 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
       revert("Invalid AccountType");
     }
 
-    if (accountType == IVault.VaultType.LOCKED) {
-      require(
-        state.STATES[id].balances.locked[tokenIn] >= amountIn,
-        "Requested swap amount is greater than Endowment Locked balance"
-      );
-      state.STATES[id].balances.locked[tokenIn] -= amountIn;
-    } else {
-      require(
-        state.STATES[id].balances.liquid[tokenIn] >= amountIn,
-        "Requested swap amount is greater than Endowment Liquid balance"
-      );
-      state.STATES[id].balances.liquid[tokenIn] -= amountIn;
-    }
+    require(
+      state.Balances[id][accountType][tokenIn] >= amountIn,
+      "Requested swap amount is greater than Endowment balance"
+    );
+    state.Balances[id][accountType][tokenIn] -= amountIn;
 
     // Check that both in & out tokens have chainlink price feed contract set for them
     // this could be either at the Registrar or the Endowment level
@@ -144,11 +136,7 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
     );
 
     // Allocate the newly swapped tokens to the correct endowment balance
-    if (accountType == IVault.VaultType.LOCKED) {
-      state.STATES[id].balances.locked[tokenOut] += amountOut;
-    } else {
-      state.STATES[id].balances.liquid[tokenOut] += amountOut;
-    }
+    state.Balances[id][accountType][tokenOut] += amountOut;
 
     emit TokenSwapped(id, accountType, tokenIn, amountIn, tokenOut, amountOut);
   }

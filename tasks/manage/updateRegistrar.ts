@@ -1,4 +1,3 @@
-import config from "config";
 import {task} from "hardhat/config";
 import {cliTypes} from "tasks/types";
 import {RegistrarMessages} from "typechain-types/contracts/core/registrar/interfaces/IRegistrar";
@@ -28,27 +27,11 @@ task(
 
       let newConfig: RegistrarMessages.UpdateConfigRequestStruct = {
         accountsContract: addresses.accounts.diamond,
-        splitMax: config.REGISTRAR_DATA.splitToLiquid.max,
-        splitMin: config.REGISTRAR_DATA.splitToLiquid.min,
-        splitDefault: config.REGISTRAR_DATA.splitToLiquid.defaultSplit,
-        collectorShare: config.REGISTRAR_UPDATE_CONFIG.collectorShare,
-        // CONTRACT ADDRESSES
-        subdaoGovContract: addresses.subDao.implementation, // subdao gov
-        subdaoTokenContract: addresses.subDao.token, // subdao gov token (basic CW20)
-        subdaoBondingTokenContract: addresses.subDao.veBondingToken, // subdao gov token (w/ bonding-curve)
-        subdaoCw900Contract: addresses.incentivisedVotingLockup.implementation, // subdao gov ve-CURVE contract for locked token voting
-        subdaoDistributorContract: apTeam1.address, // subdao gov fee distributor
-        subdaoEmitter: addresses.subDao.emitter.proxy,
-        donationMatchContract: addresses.donationMatch.implementation, // donation matching contract
-        indexFundContract: addresses.indexFund.proxy,
-        govContract: ADDRESS_ZERO,
+        apTeamMultisig: addresses.multiSig.apTeam.proxy,
         treasury: treasury.address,
-        donationMatchCharitesContract: addresses.donationMatchCharity.proxy,
-        donationMatchEmitter: ADDRESS_ZERO,
+        indexFundContract: addresses.indexFund.proxy,
         haloToken: ADDRESS_ZERO,
-        haloTokenLpContract: ADDRESS_ZERO,
-        // haloTokenLpContract: addresses.halo.tokenLp, -> TODO: when implemented
-        charitySharesContract: ADDRESS_ZERO,
+        govContract: ADDRESS_ZERO,
         fundraisingContract: ADDRESS_ZERO,
         uniswapRouter: addresses.uniswap.swapRouter,
         uniswapFactory: addresses.uniswap.factory,
@@ -58,8 +41,6 @@ task(
         proxyAdmin: proxyAdmin.address,
         usdcAddress: addresses.tokens.usdc,
         wMaticAddress: addresses.tokens.wmatic,
-        cw900lvAddress: ADDRESS_ZERO,
-        lockedWithdrawal: ADDRESS_ZERO,
         gasFwdFactory: addresses.gasFwd.factory,
       };
 

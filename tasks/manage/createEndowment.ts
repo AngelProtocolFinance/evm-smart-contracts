@@ -11,7 +11,7 @@ import {getAddresses, getSigners, logger, structToObject} from "utils";
 type TaskArgs = {endowType: 0 | 1};
 
 task("manage:createEndowment", "Will create a new endowment")
-  .addParam("endowType", "0 - charity, 1 - normal", 0, types.int)
+  .addParam("endowType", "0 - charity, 1 - ast, 2 - daf ", 0, types.int)
   .setAction(async (taskArgs: TaskArgs, hre) => {
     try {
       const {apTeam1} = await getSigners(hre);
