@@ -6,11 +6,6 @@ import "../../../core/router/IRouter.sol";
 
 abstract contract IVault {
   /*////////////////////////////////////////////////
-                    EVENTS
-  */ ////////////////////////////////////////////////
-  event VaultConfigUpdated(address vault, VaultConfig config);
-
-  /*////////////////////////////////////////////////
                     CUSTOM TYPES
   */ ////////////////////////////////////////////////
   uint256 constant PRECISION = 10 ** 24;
@@ -87,6 +82,8 @@ abstract contract IVault {
   /// @notice Event emited on each Redemption call
   /// @dev Upon redemption, emit this event. Index the account and staking contract for analytics
   event Redeem(uint32 endowId, address vault, uint256 shares, uint256 amountRedeemed);
+
+  event VaultConfigUpdated(address vault, VaultConfig config);
 
   /*////////////////////////////////////////////////
                         ERRORS
