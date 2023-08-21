@@ -18,20 +18,20 @@ contract DummyVault is IVault {
   /// Vault impl
   constructor(VaultConfig memory _config) {
     vaultConfig = _config;
-    emit VaultConfigUpdated(_config);
+    emit VaultConfigUpdated(address(this), _config);
   }
 
   function setVaultConfig(VaultConfig memory _newConfig) external override {
     vaultConfig = _newConfig;
-    emit VaultConfigUpdated(_newConfig);
+    emit VaultConfigUpdated(address(this), _newConfig);
   }
 
   function getVaultConfig() external view virtual override returns (VaultConfig memory) {
     return vaultConfig;
   }
 
-  function deposit(uint32 accountId, address token, uint256 amt) public payable override {
-    emit Deposit(accountId, vaultConfig.vaultType, token, amt);
+  function deposit(uint32 accountId, address, uint256 amt) public payable override {
+    emit Deposit(accountId, address(this), amt, amt);
   }
 
   function redeem(
