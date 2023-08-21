@@ -39,7 +39,7 @@ contract DummyVault is IVault {
     uint256 amt
   ) public payable override returns (RedemptionResponse memory) {
     IERC20(vaultConfig.baseToken).approve(msg.sender, amt);
-    emit Redeem(accountId, vaultConfig.vaultType, vaultConfig.baseToken, amt);
+    emit Redeem(accountId, address(this), amt, amt);
     return
       RedemptionResponse({
         token: vaultConfig.baseToken,
@@ -50,7 +50,7 @@ contract DummyVault is IVault {
 
   function redeemAll(uint32 accountId) public payable override returns (RedemptionResponse memory) {
     IERC20(vaultConfig.baseToken).approve(msg.sender, dummyAmt);
-    emit Redeem(accountId, vaultConfig.vaultType, address(this), dummyAmt);
+    emit Redeem(accountId, address(this), dummyAmt, dummyAmt);
     return
       RedemptionResponse({
         token: vaultConfig.baseToken,

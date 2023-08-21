@@ -99,13 +99,13 @@ contract APVault_V1 is IVault, ERC4626AP {
 
   function redeem(
     uint32 accountId,
-    uint256 amt
+    uint256 shares
   ) public payable virtual override notPaused onlyApproved returns (RedemptionResponse memory) {
-    // check against requested amt
-    if (balanceOf(accountId) <= amt) {
+    // check against requested shares
+    if (balanceOf(accountId) <= shares) {
       // redeemAll if less
       return redeemAll(accountId);
-    } else if (amt == 0) {
+    } else if (shares == 0) {
       return
         RedemptionResponse({
           token: vaultConfig.baseToken,
@@ -114,8 +114,10 @@ contract APVault_V1 is IVault, ERC4626AP {
         });
     } else {
       // redeem shares for yieldToken -> approve strategy -> strategy withdraw -> base token
-      uint256 yieldTokenAmt = super.redeemERC4626(amt, vaultConfig.strategy, accountId);
+      uint256 yieldTokenAmt = super.redeemERC4626(shares, vaultConfig.strategy, accountId);
       uint256 returnAmt = IStrategy(vaultConfig.strategy).withdraw(yieldTokenAmt);
+      emit Redeem(accountId, address(this), returnAmt, shares);
+
       if (
         !IERC20Metadata(vaultConfig.baseToken).transferFrom(
           vaultConfig.strategy,
@@ -125,10 +127,10 @@ contract APVault_V1 is IVault, ERC4626AP {
       ) {
         revert TransferFailed();
       }
-      // apply tax and deduct from returned amt
-      returnAmt -= _taxIfNecessary(accountId, amt, returnAmt);
+      // apply tax and deduct from returned shares
+      returnAmt -= _taxIfNecessary(accountId, shares, returnAmt);
       // update principles and approve txfer of redeemed tokens
-      _updatePrincipleRedemption(accountId, amt);
+      _updatePrincipleRedemption(accountId, shares);
       if (!IERC20Metadata(vaultConfig.baseToken).approve(_msgSender(), returnAmt)) {
         revert ApproveFailed();
       }
@@ -158,6 +160,9 @@ contract APVault_V1 is IVault, ERC4626AP {
     uint256 yieldTokenAmt = super.redeemERC4626(balance, vaultConfig.strategy, accountId);
     // withdraw all baseToken
     uint256 returnAmt = IStrategy(vaultConfig.strategy).withdraw(yieldTokenAmt);
+
+    emit Redeem(accountId, address(this), returnAmt, balance);
+
     if (
       !IERC20Metadata(vaultConfig.baseToken).transferFrom(
         vaultConfig.strategy,

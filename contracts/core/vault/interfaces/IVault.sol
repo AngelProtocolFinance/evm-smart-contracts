@@ -86,7 +86,7 @@ abstract contract IVault {
 
   /// @notice Event emited on each Redemption call
   /// @dev Upon redemption, emit this event. Index the account and staking contract for analytics
-  event Redeem(uint32 accountId, VaultType vaultType, address tokenRedeemed, uint256 amtRedeemed);
+  event Redeem(uint32 endowId, address vault, uint256 sharesRedeemed, uint256 amtRedeemed);
 
   /// @notice Event emited on each Harvest call
   /// @dev Upon harvest, emit this event. Index the accounts harvested for.
