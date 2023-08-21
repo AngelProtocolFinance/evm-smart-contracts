@@ -9,6 +9,7 @@ yarn-error.log
 .prettierrc
 .nvmrc
 dist
+tenderly.yml
 
 # temp files
 tasks/temp_index.ts
