@@ -25,6 +25,7 @@ library RegistrarStorage {
   }
 
   struct State {
+    bytes4[] STRATEGIES;
     mapping(address => address) PriceFeeds;
     Config config;
   }

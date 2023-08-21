@@ -2,9 +2,9 @@
 // author: @stevieraykatz
 pragma solidity >=0.8.0;
 
-import "../../../core/router/IRouter.sol";
+import {IERC4626AP} from "./IERC4626AP.sol";
 
-abstract contract IVault {
+abstract contract IVault is IERC4626AP {
   /*////////////////////////////////////////////////
                     EVENTS
   */ ////////////////////////////////////////////////

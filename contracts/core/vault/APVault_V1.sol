@@ -4,14 +4,14 @@ pragma solidity >=0.8.0;
 
 import {IVault} from "./interfaces/IVault.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
-import {ERC4626AP} from "./ERC4626AP.sol";
+import {Vault} from "./Vault.sol";
 import {IStrategy} from "../strategy/IStrategy.sol";
 import {IRegistrar} from "../registrar/interfaces/IRegistrar.sol";
 import {LocalRegistrarLib} from "../registrar/lib/LocalRegistrarLib.sol";
 import {LibAccounts} from "../accounts/lib/LibAccounts.sol";
 import {FixedPointMathLib} from "../../lib/FixedPointMathLib.sol";
 
-contract APVault_V1 is IVault, ERC4626AP {
+contract APVault_V1 is Vault {
   using FixedPointMathLib for uint256;
 
   VaultConfig public vaultConfig;
@@ -19,7 +19,7 @@ contract APVault_V1 is IVault, ERC4626AP {
 
   constructor(
     VaultConfig memory _config
-  ) ERC4626AP(IERC20Metadata(_config.yieldToken), _config.apTokenName, _config.apTokenSymbol) {
+  ) Vault(IERC20Metadata(_config.yieldToken), _config.apTokenName, _config.apTokenSymbol) {
     vaultConfig = _config;
     emit VaultConfigUpdated(_config);
   }

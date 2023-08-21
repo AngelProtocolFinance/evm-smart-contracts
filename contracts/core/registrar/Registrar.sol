@@ -165,4 +165,65 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
   function queryConfig() public view returns (RegistrarStorage.Config memory) {
     return state.config;
   }
+
+  // STRATEGY ARRAY HANDLING
+  function queryAllStrategies() external view returns (bytes4[] memory allStrategies) {
+    allStrategies = new bytes4[](state.STRATEGIES.length);
+    for (uint256 i; i < allStrategies.length; i++) {
+      allStrategies[i] = state.STRATEGIES[i];
+    }
+  }
+
+  function setStrategyParams(
+    bytes4 _strategyId,
+    string memory _network,
+    address _lockAddr,
+    address _liqAddr,
+    LocalRegistrarLib.StrategyApprovalState _approvalState
+  ) public override onlyOwner {
+    if (_approvalState == LocalRegistrarLib.StrategyApprovalState.DEPRECATED) {
+      _removeStrategy(_strategyId);
+    } else {
+      _maybeAddStrategy(_strategyId);
+    }
+    super.setStrategyParams(_strategyId, _network, _lockAddr, _liqAddr, _approvalState);
+  }
+
+  function setStrategyApprovalState(
+    bytes4 _strategyId,
+    LocalRegistrarLib.StrategyApprovalState _approvalState
+  ) public override onlyOwner {
+    if (_approvalState == LocalRegistrarLib.StrategyApprovalState.DEPRECATED) {
+      _removeStrategy(_strategyId);
+    }
+    super.setStrategyApprovalState(_strategyId, _approvalState);
+  }
+
+  function _maybeAddStrategy(bytes4 _strategyId) internal {
+    bool inList;
+    for (uint256 i = 0; i < state.STRATEGIES.length; i++) {
+      if (state.STRATEGIES[i] == _strategyId) {
+        inList = true;
+      }
+    }
+    if (!inList) {
+      state.STRATEGIES.push(_strategyId);
+    }
+  }
+
+  function _removeStrategy(bytes4 _strategyId) internal {
+    uint256 delIndex;
+    bool indexFound;
+    for (uint256 i = 0; i < state.STRATEGIES.length; i++) {
+      if (state.STRATEGIES[i] == _strategyId) {
+        delIndex = i;
+        indexFound = true;
+        break;
+      }
+    }
+    if (indexFound) {
+      state.STRATEGIES[delIndex] = state.STRATEGIES[state.STRATEGIES.length - 1];
+      state.STRATEGIES.pop();
+    }
+  }
 }
