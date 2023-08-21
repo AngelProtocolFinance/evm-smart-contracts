@@ -60,7 +60,9 @@ contract DummyVault is IVault {
   }
 
   function harvest(uint32[] calldata accountIds) public override {
-    emit RewardsHarvested(accountIds);
+    for (uint32 i; i < accountIds.length; i++) {
+      emit Redeem(accountIds[i], address(this), dummyAmt, dummyAmt);
+    }
   }
 
   function _isApprovedRouter() internal view override returns (bool) {}

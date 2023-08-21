@@ -240,6 +240,7 @@ contract APVault_V1 is IVault, ERC4626AP {
     // Redeem shares to cover fee
     uint256 dYieldToken = super.redeemERC4626(taxShares, vaultConfig.strategy, accountId);
     uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dYieldToken);
+    emit Redeem(accountId, address(this), taxShares, redemption);
     if (
       !IERC20Metadata(vaultConfig.baseToken).transferFrom(
         vaultConfig.strategy,
@@ -372,6 +373,7 @@ contract APVault_V1 is IVault, ERC4626AP {
       accountId
     );
     uint256 redemption = IStrategy(vaultConfig.strategy).withdraw(dYieldToken);
+    emit Redeem(accountId, address(this), taxShares + rebalShares, redemption);
     if (
       !IERC20Metadata(vaultConfig.baseToken).transferFrom(
         vaultConfig.strategy,
