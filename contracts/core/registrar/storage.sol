@@ -10,15 +10,6 @@ library RegistrarStorage {
     address apTeamMultisig;
     address treasury;
     address indexFundContract;
-    address subdaoGovContract;
-    address subdaoTokenContract;
-    address subdaoBondingTokenContract;
-    address subdaoCw900Contract;
-    address subdaoDistributorContract;
-    address subdaoEmitter;
-    address donationMatchContract;
-    address donationMatchCharitesContract;
-    address donationMatchEmitter;
     address haloToken;
     address govContract;
     address fundraisingContract;
@@ -30,7 +21,6 @@ library RegistrarStorage {
     address proxyAdmin;
     address usdcAddress;
     address wMaticAddress;
-    address cw900lvAddress;
     address gasFwdFactory;
   }
 

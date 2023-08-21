@@ -30,15 +30,6 @@ task(
         apTeamMultisig: addresses.multiSig.apTeam.proxy,
         treasury: treasury.address,
         indexFundContract: addresses.indexFund.proxy,
-        subdaoGovContract: addresses.subDao.implementation, // subdao gov
-        subdaoTokenContract: addresses.subDao.token, // subdao gov token (basic CW20)
-        subdaoBondingTokenContract: addresses.subDao.veBondingToken, // subdao gov token (w/ bonding-curve)
-        subdaoCw900Contract: addresses.incentivisedVotingLockup.implementation, // subdao gov ve-CURVE contract for locked token voting
-        subdaoDistributorContract: apTeam1.address, // subdao gov fee distributor
-        subdaoEmitter: addresses.subDao.emitter.proxy,
-        donationMatchContract: addresses.donationMatch.implementation, // donation matching contract
-        donationMatchCharitesContract: addresses.donationMatchCharity.proxy,
-        donationMatchEmitter: ADDRESS_ZERO,
         haloToken: ADDRESS_ZERO,
         govContract: ADDRESS_ZERO,
         fundraisingContract: ADDRESS_ZERO,
@@ -50,7 +41,6 @@ task(
         proxyAdmin: proxyAdmin.address,
         usdcAddress: addresses.tokens.usdc,
         wMaticAddress: addresses.tokens.wmatic,
-        cw900lvAddress: ADDRESS_ZERO,
         gasFwdFactory: addresses.gasFwd.factory,
       };
 

@@ -39,14 +39,11 @@ export default defineConfig({
       accounts: {
         diamond: parseAddress(mumbaiData.accounts.diamond),
         facets: {
-          accountsDeployContract: parseAddress(mumbaiData.accounts.facets.accountsDeployContract),
           accountsDepositWithdrawEndowments: parseAddress(
             mumbaiData.accounts.facets.accountsDepositWithdrawEndowments
           ),
-          accountsDonationMatch: parseAddress(mumbaiData.accounts.facets.accountsDonationMatch),
           accountsAllowance: parseAddress(mumbaiData.accounts.facets.accountsAllowance),
           accountsCreateEndowment: parseAddress(mumbaiData.accounts.facets.accountsCreateEndowment),
-          accountsDaoEndowments: parseAddress(mumbaiData.accounts.facets.accountsDaoEndowments),
           accountsQueryEndowments: parseAddress(mumbaiData.accounts.facets.accountsQueryEndowments),
           accountsSwapRouter: parseAddress(mumbaiData.accounts.facets.accountsSwapRouter),
           accountsUpdate: parseAddress(mumbaiData.accounts.facets.accountsUpdate),
@@ -69,14 +66,6 @@ export default defineConfig({
       axelar: {
         gasService: parseAddress(mumbaiData.axelar.gasService),
         gateway: parseAddress(mumbaiData.axelar.gateway),
-      },
-      donationMatch: {
-        implementation: parseAddress(mumbaiData.donationMatch.implementation),
-        //   emitter: parseAddress(mumbaiData.donationMatch.emitter),
-      },
-      donationMatchCharity: {
-        implementation: parseAddress(mumbaiData.donationMatchCharity.implementation),
-        proxy: parseAddress(mumbaiData.donationMatchCharity.proxy),
       },
       indexFund: {
         implementation: parseAddress(mumbaiData.indexFund.implementation),
@@ -107,15 +96,6 @@ export default defineConfig({
       router: {
         implementation: parseAddress(mumbaiData.router.implementation),
         proxy: parseAddress(mumbaiData.router.proxy),
-      },
-      subDao: {
-        emitter: {
-          implementation: parseAddress(mumbaiData.subDao.emitter.implementation),
-          proxy: parseAddress(mumbaiData.subDao.emitter.proxy),
-        },
-        implementation: parseAddress(mumbaiData.subDao.implementation),
-        token: parseAddress(mumbaiData.subDao.token),
-        veBondingToken: parseAddress(mumbaiData.subDao.veBondingToken),
       },
       // tokens: {
       //   halo: parseAddress(mumbaiData.tokens.halo),

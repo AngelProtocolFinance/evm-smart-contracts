@@ -7,7 +7,7 @@ import {AccountStorage} from "../storage.sol";
 import {AccountMessages} from "../message.sol";
 import {RegistrarStorage} from "../../registrar/storage.sol";
 import {IRegistrar} from "../../registrar/interfaces/IRegistrar.sol";
-import {IEndowmentMultiSigFactory} from "../../../normalized_endowment/endowment-multisig/interfaces/IEndowmentMultiSigFactory.sol";
+import {IEndowmentMultiSigFactory} from "../../../multisigs/endowment-multisig/interfaces/IEndowmentMultiSigFactory.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsCreateEndowment} from "../interfaces/IAccountsCreateEndowment.sol";
@@ -90,8 +90,7 @@ contract AccountsCreateEndowment is
       proposalLink: details.proposalLink,
       multisig: owner,
       dao: address(0),
-      daoToken: address(0),
-      donationMatchContract: address(0),
+      donationMatch: address(0),
       donationMatchActive: false,
       earlyLockedWithdrawFee: details.earlyLockedWithdrawFee,
       withdrawFee: details.withdrawFee,

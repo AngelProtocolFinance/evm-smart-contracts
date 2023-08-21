@@ -11,7 +11,6 @@ import {RegistrarStorage} from "../../registrar/storage.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import {IDonationMatching} from "../../../normalized_endowment/donation-match/IDonationMatching.sol";
 import {ReentrancyGuardFacet} from "./ReentrancyGuardFacet.sol";
 import {IAccountsEvents} from "../interfaces/IAccountsEvents.sol";
 import {IAccountsDepositWithdrawEndowments} from "../interfaces/IAccountsDepositWithdrawEndowments.sol";
@@ -184,32 +183,7 @@ contract AccountsDepositWithdrawEndowments is
     uint256 lockedAmount = amountLeftover.mulDivDown(lockedSplitPercent, LibAccounts.PERCENT_BASIS);
     uint256 liquidAmount = amountLeftover.mulDivDown(liquidSplitPercent, LibAccounts.PERCENT_BASIS);
 
-    // donation matching flow
-    if (lockedAmount > 0) {
-      address donationMatch = details.donationMatch;
-      if (donationMatch == address(0)) {
-        donationMatch = msg.sender;
-      }
-
-      if (
-        tempEndowment.endowType == LibAccounts.EndowmentType.Charity &&
-        registrarConfig.donationMatchCharitesContract != address(0)
-      ) {
-        IDonationMatching(registrarConfig.donationMatchCharitesContract).executeDonorMatch(
-          details.id,
-          lockedAmount,
-          donationMatch,
-          registrarConfig.haloToken
-        );
-      } else if (tempEndowment.donationMatchContract != address(0)) {
-        IDonationMatching(tempEndowment.donationMatchContract).executeDonorMatch(
-          details.id,
-          lockedAmount,
-          donationMatch,
-          tempEndowment.daoToken
-        );
-      }
-    }
+    // TODO: donation matching flow completed
 
     state.Balances[details.id][IVault.VaultType.LOCKED][tokenAddress] += lockedAmount;
     state.Balances[details.id][IVault.VaultType.LIQUID][tokenAddress] += liquidAmount;

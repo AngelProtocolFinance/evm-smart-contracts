@@ -33,18 +33,6 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
     types.string
   )
   .addOptionalParam(
-    "donationMatchCharitesContract",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
-  )
-  .addOptionalParam(
-    "donationMatchEmitter",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
-  )
-  .addOptionalParam(
     "haloToken",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
     undefined,
@@ -87,12 +75,6 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
     types.string
   )
   .addOptionalParam(
-    "lockedWithdrawal",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
-  )
-  .addOptionalParam(
     "proxyAdmin",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
     undefined,
@@ -106,54 +88,6 @@ task("manage:registrar:updateConfig", "Will update Accounts Diamond config")
   )
   .addOptionalParam(
     "wMaticAddress",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
-  )
-  .addOptionalParam(
-    "subdaoGovContract",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
-  )
-  .addOptionalParam(
-    "subdaoTokenContract",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
-  )
-  .addOptionalParam(
-    "subdaoBondingTokenContract",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
-  )
-  .addOptionalParam(
-    "subdaoCw900Contract",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
-  )
-  .addOptionalParam(
-    "subdaoDistributorContract",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
-  )
-  .addOptionalParam(
-    "subdaoEmitter",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
-  )
-  .addOptionalParam(
-    "donationMatchContract",
-    "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
-    undefined,
-    types.string
-  )
-  .addOptionalParam(
-    "cw900lvAddress",
     "Registrar contract address. Will do a local lookup from contract-address.json if none is provided.",
     undefined,
     types.string

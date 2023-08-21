@@ -68,9 +68,8 @@ export const DEFAULT_CHARITY_ENDOWMENT: AccountStorage.EndowmentStruct = {
   proposalLink: 0,
   multisig: ADDRESS_ZERO,
   dao: ADDRESS_ZERO,
-  daoToken: ADDRESS_ZERO,
   donationMatchActive: false,
-  donationMatchContract: ADDRESS_ZERO,
+  donationMatch: ADDRESS_ZERO,
   earlyLockedWithdrawFee: DEFAULT_FEE_STRUCT,
   withdrawFee: DEFAULT_FEE_STRUCT,
   depositFee: DEFAULT_FEE_STRUCT,
@@ -105,15 +104,6 @@ export const DEFAULT_REGISTRAR_CONFIG: RegistrarStorage.ConfigStruct = {
   apTeamMultisig: ADDRESS_ZERO,
   treasury: ADDRESS_ZERO,
   indexFundContract: ADDRESS_ZERO,
-  subdaoGovContract: ADDRESS_ZERO, // Sub dao implementation
-  subdaoTokenContract: ADDRESS_ZERO, // NewERC20 implementation
-  subdaoBondingTokenContract: ADDRESS_ZERO, // Continous Token implementation
-  subdaoCw900Contract: ADDRESS_ZERO,
-  subdaoDistributorContract: ADDRESS_ZERO,
-  subdaoEmitter: ADDRESS_ZERO,
-  donationMatchContract: ADDRESS_ZERO,
-  donationMatchCharitesContract: ADDRESS_ZERO,
-  donationMatchEmitter: ADDRESS_ZERO,
   haloToken: ADDRESS_ZERO,
   govContract: ADDRESS_ZERO,
   fundraisingContract: ADDRESS_ZERO,
@@ -125,7 +115,6 @@ export const DEFAULT_REGISTRAR_CONFIG: RegistrarStorage.ConfigStruct = {
   proxyAdmin: ADDRESS_ZERO,
   usdcAddress: ADDRESS_ZERO,
   wMaticAddress: ADDRESS_ZERO,
-  cw900lvAddress: ADDRESS_ZERO,
   gasFwdFactory: ADDRESS_ZERO,
 };
 

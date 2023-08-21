@@ -102,12 +102,11 @@ describe("AccountsQueryEndowments", function () {
 
       expect(endowmentDetails.balanceFee).to.equalFee(DEFAULT_CHARITY_ENDOWMENT.balanceFee);
       expect(endowmentDetails.dao).to.equal(DEFAULT_CHARITY_ENDOWMENT.dao);
-      expect(endowmentDetails.daoToken).to.equal(DEFAULT_CHARITY_ENDOWMENT.daoToken);
       expect(endowmentDetails.depositFee).to.equalFee(DEFAULT_CHARITY_ENDOWMENT.depositFee);
       expect(endowmentDetails.donationMatchActive).to.equal(
         DEFAULT_CHARITY_ENDOWMENT.donationMatchActive
       );
-      expect(endowmentDetails.donationMatchContract).to.equal(ethers.constants.AddressZero);
+      expect(endowmentDetails.donationMatch).to.equal(ethers.constants.AddressZero);
       expect(endowmentDetails.earlyLockedWithdrawFee).to.equalFee(
         DEFAULT_CHARITY_ENDOWMENT.earlyLockedWithdrawFee
       );

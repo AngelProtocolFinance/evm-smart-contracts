@@ -51,16 +51,6 @@ contract TestFacetProxyContract is TransparentUpgradeableProxy, IterableMappingA
     }
   }
 
-  function getDaoTokenBalance(uint32 accountId) external view returns (uint256) {
-    AccountStorage.State storage state = LibAccounts.diamondStorage();
-    return state.DaoTokenBalances[accountId];
-  }
-
-  function setDaoTokenBalance(uint32 accountId, uint256 _tokenBal) external {
-    AccountStorage.State storage state = LibAccounts.diamondStorage();
-    state.DaoTokenBalances[accountId] = _tokenBal;
-  }
-
   // This doesn't work since it contains a nested mapping, to set endowment state, we need some field specific methods
   // function setEndowmentState(uint32 accountId, AccountStorage.EndowmentState memory _endowmentState) external {
   //   AccountStorage.State storage state = LibAccounts.diamondStorage();

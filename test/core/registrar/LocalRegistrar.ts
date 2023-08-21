@@ -343,9 +343,8 @@ describe("Local Registrar", function () {
 
       it("Should revert if combined Withdraw-related fees meet or exceeds 100%", async function () {
         // First set a Withdraw Fee as 50%
-        await expect(
-          registrar.setFeeSettingsByFeesType(FeeTypes.Withdraw, 5000, user.address)
-        ).to.not.be.reverted;
+        await expect(registrar.setFeeSettingsByFeesType(FeeTypes.Withdraw, 5000, user.address)).to
+          .not.be.reverted;
 
         // Trying to set an Early Locked Withdraw Fee at, or above, 50% should fail
         await expect(

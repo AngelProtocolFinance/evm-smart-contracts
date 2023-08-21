@@ -1,12 +1,9 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {ContractFactory} from "ethers";
 import {
-  AccountsDeployContract__factory,
   AccountsDepositWithdrawEndowments__factory,
-  AccountsDonationMatch__factory,
   AccountsAllowance__factory,
   AccountsCreateEndowment__factory,
-  AccountsDaoEndowments__factory,
   AccountsQueryEndowments__factory,
   AccountsSwapRouter__factory,
   AccountsUpdateEndowmentSettingsController__factory,
@@ -28,18 +25,6 @@ export default async function getFacetFactoryEntries(diamondOwner: SignerWithAdd
   }[]
 > {
   return [
-    {
-      addressField: "accountsDeployContract",
-      factory: new AccountsDeployContract__factory(diamondOwner),
-    },
-    {
-      addressField: "accountsDonationMatch",
-      factory: new AccountsDonationMatch__factory(diamondOwner),
-    },
-    {
-      addressField: "accountsDaoEndowments",
-      factory: new AccountsDaoEndowments__factory(diamondOwner),
-    },
     {
       addressField: "accountsUpdate",
       factory: new AccountsUpdate__factory(diamondOwner),

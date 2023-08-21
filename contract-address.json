@@ -3,12 +3,9 @@
     "accounts": {
       "diamond": "",
       "facets": {
-        "accountsDeployContract": "",
         "accountsDepositWithdrawEndowments": "",
-        "accountsDonationMatch": "",
         "accountsAllowance": "",
         "accountsCreateEndowment": "",
-        "accountsDaoEndowments": "",
         "accountsQueryEndowments": "",
         "accountsStrategy": "",
         "accountsSwapRouter": "",
@@ -25,14 +22,6 @@
     "axelar": {
       "gasService": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
       "gateway": "0xe432150cce91c13a887f7D836923d5597adD8E31"
-    },
-    "donationMatch": {
-      "emitter": "",
-      "implementation": ""
-    },
-    "donationMatchCharity": {
-      "implementation": "",
-      "proxy": ""
     },
     "fundraising": {
       "implementation": "",
@@ -96,9 +85,6 @@
         "implementation": "",
         "proxy": ""
       }
-    },
-    "incentivisedVotingLockup": {
-      "implementation": ""
     },
     "indexFund": {
       "implementation": "",
@@ -130,15 +116,6 @@
       "implementation": "0x8747cF2bd9BB0F46ced4adA1b472E995d1A3174A",
       "proxy": "0xbc37e909abCB8cb443Cf30957154D37364b633B6"
     },
-    "subDao": {
-      "emitter": {
-        "implementation": "",
-        "proxy": ""
-      },
-      "implementation": "",
-      "token": "",
-      "veBondingToken": ""
-    },
     "tokens": {
       "dai": "",
       "halo": "",
@@ -156,12 +133,9 @@
     "accounts": {
       "diamond": "",
       "facets": {
-        "accountsDeployContract": "",
         "accountsDepositWithdrawEndowments": "",
-        "accountsDonationMatch": "",
         "accountsAllowance": "",
         "accountsCreateEndowment": "",
-        "accountsDaoEndowments": "",
         "accountsQueryEndowments": "",
         "accountsStrategy": "",
         "accountsSwapRouter": "",
@@ -178,14 +152,6 @@
     "axelar": {
       "gasService": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
       "gateway": "0xe432150cce91c13a887f7D836923d5597adD8E31"
-    },
-    "donationMatch": {
-      "emitter": "",
-      "implementation": ""
-    },
-    "donationMatchCharity": {
-      "implementation": "",
-      "proxy": ""
     },
     "fundraising": {
       "implementation": "",
@@ -250,9 +216,6 @@
         "proxy": ""
       }
     },
-    "incentivisedVotingLockup": {
-      "implementation": ""
-    },
     "indexFund": {
       "implementation": "",
       "proxy": ""
@@ -283,15 +246,6 @@
       "implementation": "0x8747cF2bd9BB0F46ced4adA1b472E995d1A3174A",
       "proxy": "0xbc37e909abCB8cb443Cf30957154D37364b633B6"
     },
-    "subDao": {
-      "emitter": {
-        "implementation": "",
-        "proxy": ""
-      },
-      "implementation": "",
-      "token": "",
-      "veBondingToken": ""
-    },
     "tokens": {
       "dai": "",
       "halo": "",
@@ -309,12 +263,9 @@
     "accounts": {
       "diamond": "0x232A7A490290978D2610f077CC5bcc182Ae47034",
       "facets": {
-        "accountsDeployContract": "0xcCF7FA2d8c910a7d81bbB8B6ad764bAAE0031F5e",
         "accountsDepositWithdrawEndowments": "0x4cfd1B7B0E03Ed1c52a3634c598CbD1e29f87Bc7",
-        "accountsDonationMatch": "0xD2D193744D46Fa18C7C291Ec0622192cd59f5537",
         "accountsAllowance": "0x87a37Fe24a53bc6b4750077A728E06Ca608a2029",
         "accountsCreateEndowment": "0xD4fBf0371eA2af0Ef018304233884DD79B4D082E",
-        "accountsDaoEndowments": "0xAb7dB7f55a3BceF932F9f2A9f4fAE3bC5F691999",
         "accountsQueryEndowments": "0x31FbB4f469c9782b32DAdBDc33B5153A3C058638",
         "accountsStrategy": "0x5708EB46b45F998e9Ad7AA59B51B20dd1f85C059",
         "accountsSwapRouter": "0x0c33C1b073eF19505dd340B89041335aeE1AafF0",
@@ -332,14 +283,6 @@
     "axelar": {
       "gasService": "0xbE406F0189A0B4cf3A05C286473D23791Dd44Cc6",
       "gateway": "0xBF62ef1486468a6bd26Dd669C06db43dEd5B849B"
-    },
-    "donationMatch": {
-      "emitter": "",
-      "implementation": ""
-    },
-    "donationMatchCharity": {
-      "implementation": "",
-      "proxy": ""
     },
     "fundraising": {
       "implementation": "",
@@ -404,9 +347,6 @@
         "proxy": ""
       }
     },
-    "incentivisedVotingLockup": {
-      "implementation": ""
-    },
     "indexFund": {
       "implementation": "0x4331D4F190c97bE70a8381eA7B6d780Cc4dAd054",
       "proxy": "0x2b75bc94116b4037677A270035850b280A3874E9"
@@ -436,15 +376,6 @@
     "router": {
       "implementation": "0xf630e56d18F2587Af1912fa1F23AdCA9A8060b7a",
       "proxy": "0x0659F4263bEa722BE610a4C36054828E353E0e38"
-    },
-    "subDao": {
-      "emitter": {
-        "implementation": "",
-        "proxy": ""
-      },
-      "implementation": "",
-      "token": "",
-      "veBondingToken": ""
     },
     "tokens": {
       "dai": "0xb973d2876c4f161439ad05f1dae184dbd594e04e",
