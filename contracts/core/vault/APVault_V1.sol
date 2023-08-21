@@ -147,7 +147,9 @@ contract APVault_V1 is IVault, ERC4626AP {
   function redeemAll(
     uint32 accountId
   ) public payable virtual override notPaused onlyApproved returns (RedemptionResponse memory) {
-    if (balanceOf(accountId) == 0) {
+    uint256 balance = balanceOf(accountId);
+
+    if (balance == 0) {
       return
         RedemptionResponse({
           token: vaultConfig.baseToken,
@@ -155,7 +157,6 @@ contract APVault_V1 is IVault, ERC4626AP {
           status: VaultActionStatus.POSITION_EXITED
         });
     }
-    uint256 balance = balanceOf(accountId);
     // redeem shares for yieldToken -> approve strategy
     uint256 yieldTokenAmt = super.redeemERC4626(balance, vaultConfig.strategy, accountId);
     // withdraw all baseToken
