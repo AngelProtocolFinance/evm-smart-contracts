@@ -40,11 +40,14 @@ export async function deployEndowmentMultiSig(
 
     // deploy factory
     logger.out("Deploying EndowmentMultiSigFactory...");
-    const EndowmentMultiSigFactoryFactory = new EndowmentMultiSigFactory__factory(proxyAdmin);
-    const EndowmentMultiSigFactory = await EndowmentMultiSigFactoryFactory.deploy(
+    const factoryCtorArgs: Parameters<typeof EndowmentMultiSigFactoryFactory.deploy> = [
       endowmentMultiSig.address,
       proxyAdmin.address,
-      registrar
+      registrar,
+    ];
+    const EndowmentMultiSigFactoryFactory = new EndowmentMultiSigFactory__factory(proxyAdmin);
+    const EndowmentMultiSigFactory = await EndowmentMultiSigFactoryFactory.deploy(
+      ...factoryCtorArgs
     );
     await EndowmentMultiSigFactory.deployed();
     logger.out(`Address: ${EndowmentMultiSigFactory.address}`);
@@ -91,7 +94,7 @@ export async function deployEndowmentMultiSig(
       },
       factory: {
         address: EndowmentMultiSigFactory.address,
-        constructorArguments: [endowmentMultiSig.address, proxyAdmin.address],
+        constructorArguments: factoryCtorArgs,
         contractName: getContractName(EndowmentMultiSigFactoryFactory),
       },
       implementation: {
