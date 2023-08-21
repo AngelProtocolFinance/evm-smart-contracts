@@ -76,28 +76,8 @@ const config: HardhatUserConfig = {
   tenderly: {
     username: "angel-protocol",
     project: "angel-protocol-evm",
-    privateVerification: false,
+    privateVerification: true,
   },
-  // abiExporter: [
-  //   {
-  //       path: "./abi/json",
-  //       runOnCompile: true,
-  //       clear: true,
-  //       flat: false,
-  //       spacing: 2,
-  //       format: "json",
-  //       except: ["IAxelarGateway"],
-  //   },
-  //   {
-  //       path: "./abi/minimal",
-  //       runOnCompile: true,
-  //       clear: true,
-  //       flat: false,
-  //       spacing: 2,
-  //       format: "minimal",
-  //       except: ["IAxelarGateway"],
-  //   },
-  // ]
 };
 
 export default config;
