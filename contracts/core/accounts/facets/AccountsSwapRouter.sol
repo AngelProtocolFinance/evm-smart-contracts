@@ -189,11 +189,13 @@ contract AccountsSwapRouter is ReentrancyGuardFacet, IAccountsEvents, IAccountsS
     address uniswapRouter,
     address uniswapFactory
   ) internal returns (uint256 amountOut) {
-    uint256 priceRatio = getLatestPriceData(priceFeedOut).mulDivDown(LibAccounts.BIG_NUMBA_BASIS,
+    uint256 priceRatio = getLatestPriceData(priceFeedOut).mulDivDown(
+      LibAccounts.BIG_NUMBA_BASIS,
       getLatestPriceData(priceFeedIn)
     );
     uint256 estAmountOut = amountIn.mulDivDown(priceRatio, LibAccounts.BIG_NUMBA_BASIS);
-    uint256 minAmountOut = estAmountOut - (estAmountOut.mulDivDown(slippage, LibAccounts.FEE_BASIS));
+    uint256 minAmountOut = estAmountOut -
+      (estAmountOut.mulDivDown(slippage, LibAccounts.FEE_BASIS));
 
     // find the lowest fee pool available, if any, to swap tokens
     IUniswapV3Factory factory = IUniswapV3Factory(uniswapFactory);
