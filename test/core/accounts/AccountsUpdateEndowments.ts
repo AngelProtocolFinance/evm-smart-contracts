@@ -17,7 +17,7 @@ import {
   AccountStorage,
   LibAccounts,
 } from "typechain-types/contracts/test/accounts/TestFacetProxyContract";
-import {ControllerSettingOption, DelegateAction, genWallet, getSigners} from "utils";
+import {ControllerSettingOption, genWallet, getSigners} from "utils";
 import {deployFacetAsProxy, updateAllSettings, updateSettings} from "./utils";
 
 use(smock.matchers);
