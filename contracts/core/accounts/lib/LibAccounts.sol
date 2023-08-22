@@ -106,6 +106,9 @@ library LibAccounts {
     uint256 bps;
   }
 
+  // Trade Constants
+  uint256 constant ACCEPTABLE_PRICE_DELAY = 300; // 5 minutes, in seconds
+
   uint256 constant FEE_BASIS = 10000; // gives 0.01% precision for fees (ie. Basis Points)
   uint256 constant PERCENT_BASIS = 100; // gives 1% precision for declared percentages
   uint256 constant BIG_NUMBA_BASIS = 1e24;
