@@ -903,7 +903,7 @@ describe("Router", function () {
       let expectedPayload = packActionData(
         {
           destinationChain: originatingChain,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          strategySelector: DEFAULT_STRATEGY_SELECTOR,
           selector: liquidVault.interface.getSighash("redeem"),
           accountIds: [1],
           token: token.address,
@@ -1052,7 +1052,7 @@ describe("Router", function () {
       let expectedPayload = packActionData(
         {
           destinationChain: originatingChain,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          strategySelector: DEFAULT_STRATEGY_SELECTOR,
           selector: liquidVault.interface.getSighash("redeemAll"),
           accountIds: [1],
           token: token.address,

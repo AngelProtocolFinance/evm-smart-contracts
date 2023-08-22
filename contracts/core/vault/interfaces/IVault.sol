@@ -32,7 +32,7 @@ abstract contract IVault {
 
   /// @notice Gerneric AP Vault action data
   /// @param destinationChain The Axelar string name of the blockchain that will receive redemptions/refunds
-  /// @param strategyId The 4 byte truncated keccak256 hash of the strategy name, i.e. bytes4(keccak256("Goldfinch"))
+  /// @param strategySelector The 4 byte truncated keccak256 hash of the strategy name, i.e. bytes4(keccak256("Goldfinch"))
   /// @param selector The Vault method that should be called
   /// @param accountId The endowment uid
   /// @param token The token (if any) that was forwarded along with the calldata packet by GMP
@@ -40,7 +40,7 @@ abstract contract IVault {
   /// @param liqAmt The amount of said token that is intended to interact with the liquid vault
   struct VaultActionData {
     string destinationChain;
-    bytes4 strategyId;
+    bytes4 strategySelector;
     bytes4 selector;
     uint32[] accountIds;
     address token;

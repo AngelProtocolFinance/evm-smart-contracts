@@ -187,47 +187,47 @@ contract Registrar is LocalRegistrar, Storage, ReentrancyGuard {
   }
 
   function setStrategyParams(
-    bytes4 _strategyId,
+    bytes4 _strategySelector,
     string memory _network,
     address _lockAddr,
     address _liqAddr,
     LocalRegistrarLib.StrategyApprovalState _approvalState
   ) public override onlyOwner {
     if (_approvalState == LocalRegistrarLib.StrategyApprovalState.DEPRECATED) {
-      _removeStrategy(_strategyId);
+      _removeStrategy(_strategySelector);
     } else {
-      _maybeAddStrategy(_strategyId);
+      _maybeAddStrategy(_strategySelector);
     }
-    super.setStrategyParams(_strategyId, _network, _lockAddr, _liqAddr, _approvalState);
+    super.setStrategyParams(_strategySelector, _network, _lockAddr, _liqAddr, _approvalState);
   }
 
   function setStrategyApprovalState(
-    bytes4 _strategyId,
+    bytes4 _strategySelector,
     LocalRegistrarLib.StrategyApprovalState _approvalState
   ) public override onlyOwner {
     if (_approvalState == LocalRegistrarLib.StrategyApprovalState.DEPRECATED) {
-      _removeStrategy(_strategyId);
+      _removeStrategy(_strategySelector);
     }
-    super.setStrategyApprovalState(_strategyId, _approvalState);
+    super.setStrategyApprovalState(_strategySelector, _approvalState);
   }
 
-  function _maybeAddStrategy(bytes4 _strategyId) internal {
+  function _maybeAddStrategy(bytes4 _strategySelector) internal {
     bool inList;
     for (uint256 i = 0; i < state.STRATEGIES.length; i++) {
-      if (state.STRATEGIES[i] == _strategyId) {
+      if (state.STRATEGIES[i] == _strategySelector) {
         inList = true;
       }
     }
     if (!inList) {
-      state.STRATEGIES.push(_strategyId);
+      state.STRATEGIES.push(_strategySelector);
     }
   }
 
-  function _removeStrategy(bytes4 _strategyId) internal {
+  function _removeStrategy(bytes4 _strategySelector) internal {
     uint256 delIndex;
     bool indexFound;
     for (uint256 i = 0; i < state.STRATEGIES.length; i++) {
-      if (state.STRATEGIES[i] == _strategyId) {
+      if (state.STRATEGIES[i] == _strategySelector) {
         delIndex = i;
         indexFound = true;
         break;

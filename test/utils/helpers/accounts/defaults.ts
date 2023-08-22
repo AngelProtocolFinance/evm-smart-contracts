@@ -142,7 +142,7 @@ export const DEFAULT_STRATEGY_PARAMS: LocalRegistrarLib.StrategyParamsStruct = {
 
 export const DEFAULT_ACTION_DATA: IVault.VaultActionDataStruct = {
   destinationChain: "",
-  strategyId: DEFAULT_STRATEGY_SELECTOR,
+  strategySelector: DEFAULT_STRATEGY_SELECTOR,
   selector: "",
   accountIds: [],
   token: "",

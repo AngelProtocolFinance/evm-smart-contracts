@@ -269,7 +269,7 @@ describe("AccountsStrategy", function () {
 
         const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: "",
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          strategySelector: DEFAULT_STRATEGY_SELECTOR,
           selector: DEFAULT_METHOD_SELECTOR,
           accountIds: [ACCOUNT_ID],
           token: token.address,
@@ -298,7 +298,7 @@ describe("AccountsStrategy", function () {
         const payload = packActionData(
           {
             destinationChain: NET_NAME_THIS,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            strategySelector: DEFAULT_STRATEGY_SELECTOR,
             selector: vault.interface.getSighash("deposit"),
             accountIds: [ACCOUNT_ID],
             token: token.address,
@@ -341,7 +341,7 @@ describe("AccountsStrategy", function () {
 
           const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
             destinationChain: "",
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            strategySelector: DEFAULT_STRATEGY_SELECTOR,
             selector: DEFAULT_METHOD_SELECTOR,
             accountIds: [ACCOUNT_ID],
             token: token.address,
@@ -399,7 +399,7 @@ describe("AccountsStrategy", function () {
           const payload = packActionData(
             {
               destinationChain: NET_NAME_THAT,
-              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              strategySelector: DEFAULT_STRATEGY_SELECTOR,
               selector: vault.interface.getSighash("deposit"),
               accountIds: [ACCOUNT_ID],
               token: token.address,
@@ -509,7 +509,7 @@ describe("AccountsStrategy", function () {
           const payload = packActionData(
             {
               destinationChain: NET_NAME_THAT,
-              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              strategySelector: DEFAULT_STRATEGY_SELECTOR,
               selector: vault.interface.getSighash("deposit"),
               accountIds: [ACCOUNT_ID],
               token: token.address,
@@ -676,7 +676,7 @@ describe("AccountsStrategy", function () {
 
           const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
             destinationChain: "",
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            strategySelector: DEFAULT_STRATEGY_SELECTOR,
             selector: DEFAULT_METHOD_SELECTOR,
             accountIds: [ACCOUNT_ID],
             token: token.address,
@@ -700,7 +700,7 @@ describe("AccountsStrategy", function () {
           const payload = packActionData(
             {
               destinationChain: NET_NAME_THIS,
-              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              strategySelector: DEFAULT_STRATEGY_SELECTOR,
               selector: vault.interface.getSighash("redeem"),
               accountIds: [ACCOUNT_ID],
               token: token.address,
@@ -735,7 +735,7 @@ describe("AccountsStrategy", function () {
         it(`reverts when the response is: ${VaultActionStatus[vaultStatus]}`, async function () {
           const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
             destinationChain: "",
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            strategySelector: DEFAULT_STRATEGY_SELECTOR,
             selector: DEFAULT_METHOD_SELECTOR,
             accountIds: [ACCOUNT_ID],
             token: token.address,
@@ -777,7 +777,7 @@ describe("AccountsStrategy", function () {
           const payload = packActionData(
             {
               destinationChain: NET_NAME_THAT,
-              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              strategySelector: DEFAULT_STRATEGY_SELECTOR,
               selector: vault.interface.getSighash("redeem"),
               accountIds: [ACCOUNT_ID],
               token: token.address,
@@ -881,7 +881,7 @@ describe("AccountsStrategy", function () {
           const payload = packActionData(
             {
               destinationChain: NET_NAME_THAT,
-              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              strategySelector: DEFAULT_STRATEGY_SELECTOR,
               selector: vault.interface.getSighash("redeem"),
               accountIds: [ACCOUNT_ID],
               token: token.address,
@@ -1022,7 +1022,7 @@ describe("AccountsStrategy", function () {
 
             const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
               destinationChain: "",
-              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              strategySelector: DEFAULT_STRATEGY_SELECTOR,
               selector: DEFAULT_METHOD_SELECTOR,
               accountIds: [ACCOUNT_ID],
               token: token.address,
@@ -1046,7 +1046,7 @@ describe("AccountsStrategy", function () {
             const payload = packActionData(
               {
                 destinationChain: NET_NAME_THIS,
-                strategyId: DEFAULT_STRATEGY_SELECTOR,
+                strategySelector: DEFAULT_STRATEGY_SELECTOR,
                 selector: vault.interface.getSighash("redeemAll"),
                 accountIds: [ACCOUNT_ID],
                 token: token.address,
@@ -1085,7 +1085,7 @@ describe("AccountsStrategy", function () {
         it(`reverts when response is ${VaultActionStatus[vaultActionStatus]}`, async function () {
           const vaultActionData: IVaultStrategy.VaultActionDataStruct = {
             destinationChain: "",
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            strategySelector: DEFAULT_STRATEGY_SELECTOR,
             selector: DEFAULT_METHOD_SELECTOR,
             accountIds: [ACCOUNT_ID],
             token: token.address,
@@ -1138,7 +1138,7 @@ describe("AccountsStrategy", function () {
           const payload = packActionData(
             {
               destinationChain: NET_NAME_THAT,
-              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              strategySelector: DEFAULT_STRATEGY_SELECTOR,
               selector: vault.interface.getSighash("redeemAll"),
               accountIds: [ACCOUNT_ID],
               token: token.address,
@@ -1338,7 +1338,7 @@ describe("AccountsStrategy", function () {
           const payload = packActionData(
             {
               destinationChain: NET_NAME_THAT,
-              strategyId: DEFAULT_STRATEGY_SELECTOR,
+              strategySelector: DEFAULT_STRATEGY_SELECTOR,
               selector: vault.interface.getSighash("redeemAll"),
               accountIds: [ACCOUNT_ID],
               token: token.address,
@@ -1425,7 +1425,7 @@ describe("AccountsStrategy", function () {
         const payload = packActionData(
           {
             destinationChain: NET_NAME_THAT,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            strategySelector: DEFAULT_STRATEGY_SELECTOR,
             selector: vault.interface.getSighash("deposit"),
             accountIds: [ACCOUNT_ID],
             token: token.address,
@@ -1449,7 +1449,7 @@ describe("AccountsStrategy", function () {
       it("reverts if the call didn't originate from the expected chain", async function () {
         const action: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: NET_NAME_THAT,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          strategySelector: DEFAULT_STRATEGY_SELECTOR,
           selector: vault.interface.getSighash("deposit"),
           accountIds: [ACCOUNT_ID],
           token: token.address,
@@ -1476,7 +1476,7 @@ describe("AccountsStrategy", function () {
       it("reverts if the call didn't originate from the chain's router", async function () {
         const action: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: NET_NAME_THAT,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          strategySelector: DEFAULT_STRATEGY_SELECTOR,
           selector: vault.interface.getSighash("deposit"),
           accountIds: [ACCOUNT_ID],
           token: token.address,
@@ -1498,7 +1498,7 @@ describe("AccountsStrategy", function () {
       it("successfully handles status == FAIL_TOKENS_FALLBACK", async function () {
         const action: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: NET_NAME_THAT,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          strategySelector: DEFAULT_STRATEGY_SELECTOR,
           selector: vault.interface.getSighash("deposit"),
           accountIds: [ACCOUNT_ID],
           token: token.address,
@@ -1532,7 +1532,7 @@ describe("AccountsStrategy", function () {
         it(`reverts for response status: ${VaultActionStatus[vaultActionStatus]}`, async function () {
           const action: IVaultStrategy.VaultActionDataStruct = {
             destinationChain: NET_NAME_THAT,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            strategySelector: DEFAULT_STRATEGY_SELECTOR,
             selector: vault.interface.getSighash("deposit"),
             accountIds: [ACCOUNT_ID],
             token: token.address,
@@ -1563,7 +1563,7 @@ describe("AccountsStrategy", function () {
         const payload = packActionData(
           {
             destinationChain: NET_NAME_THAT,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            strategySelector: DEFAULT_STRATEGY_SELECTOR,
             selector: vault.interface.getSighash("deposit"),
             accountIds: [ACCOUNT_ID],
             token: token.address,
@@ -1588,7 +1588,7 @@ describe("AccountsStrategy", function () {
       it("reverts if the call didn't originate from the expected chain", async function () {
         const action: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: NET_NAME_THAT,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          strategySelector: DEFAULT_STRATEGY_SELECTOR,
           selector: vault.interface.getSighash("deposit"),
           accountIds: [ACCOUNT_ID],
           token: token.address,
@@ -1617,7 +1617,7 @@ describe("AccountsStrategy", function () {
       it("reverts if the call didn't originate from the expected chain", async function () {
         const action: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: NET_NAME_THAT,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          strategySelector: DEFAULT_STRATEGY_SELECTOR,
           selector: vault.interface.getSighash("deposit"),
           accountIds: [ACCOUNT_ID],
           token: token.address,
@@ -1644,7 +1644,7 @@ describe("AccountsStrategy", function () {
       it("reverts if the call didn't originate from the chain's router", async function () {
         const action: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: NET_NAME_THAT,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          strategySelector: DEFAULT_STRATEGY_SELECTOR,
           selector: vault.interface.getSighash("deposit"),
           accountIds: [ACCOUNT_ID],
           token: token.address,
@@ -1673,7 +1673,7 @@ describe("AccountsStrategy", function () {
       it("succeeds: deposit && FAIL_TOKENS_RETURNED", async function () {
         const action: IVaultStrategy.VaultActionDataStruct = {
           destinationChain: NET_NAME_THAT,
-          strategyId: DEFAULT_STRATEGY_SELECTOR,
+          strategySelector: DEFAULT_STRATEGY_SELECTOR,
           selector: vault.interface.getSighash("deposit"),
           accountIds: [ACCOUNT_ID],
           token: token.address,
@@ -1712,7 +1712,7 @@ describe("AccountsStrategy", function () {
         it(`succeeds: ${vaultFunction} && ${VaultActionStatus[vaultStatus]}`, async function () {
           const action: IVaultStrategy.VaultActionDataStruct = {
             destinationChain: NET_NAME_THAT,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            strategySelector: DEFAULT_STRATEGY_SELECTOR,
             selector: vault.interface.getSighash(vaultFunction),
             accountIds: [ACCOUNT_ID],
             token: token.address,
@@ -1735,7 +1735,7 @@ describe("AccountsStrategy", function () {
             .to.emit(facet, "EndowmentRedeemed")
             .withArgs(
               ACCOUNT_ID,
-              action.strategyId,
+              action.strategySelector,
               action.destinationChain,
               action.token,
               action.lockAmt,
@@ -1800,7 +1800,7 @@ describe("AccountsStrategy", function () {
         it(`into _refundFallback succeeds: ${vaultFunction} && ${VaultActionStatus[vaultStatus]}`, async function () {
           const action: IVaultStrategy.VaultActionDataStruct = {
             destinationChain: NET_NAME_THAT,
-            strategyId: DEFAULT_STRATEGY_SELECTOR,
+            strategySelector: DEFAULT_STRATEGY_SELECTOR,
             selector: vault.interface.getSighash(vaultFunction),
             accountIds: [ACCOUNT_ID],
             token: token.address,

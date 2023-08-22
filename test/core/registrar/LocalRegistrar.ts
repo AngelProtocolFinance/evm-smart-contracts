@@ -244,7 +244,7 @@ describe("Local Registrar", function () {
     });
 
     describe("set and get Strategy params", async function () {
-      let strategyId = "0xffffffff"; // random 4-byte hash
+      let strategySelector = "0xffffffff"; // random 4-byte hash
       let strategyParams: LocalRegistrarLib.StrategyParamsStruct = {
         approvalState: StrategyApprovalState.NOT_APPROVED,
         network: originatingChain,
@@ -257,7 +257,7 @@ describe("Local Registrar", function () {
           registrar
             .connect(user)
             .setStrategyParams(
-              strategyId,
+              strategySelector,
               strategyParams.network,
               strategyParams.lockedVaultAddr,
               strategyParams.liquidVaultAddr,
@@ -269,14 +269,14 @@ describe("Local Registrar", function () {
       it("Should accept and set new values", async function () {
         await expect(
           registrar.setStrategyParams(
-            strategyId,
+            strategySelector,
             strategyParams.network,
             strategyParams.lockedVaultAddr,
             strategyParams.liquidVaultAddr,
             strategyParams.approvalState
           )
         ).to.not.be.reverted;
-        let returnedValue = await registrar.getStrategyParamsById(strategyId);
+        let returnedValue = await registrar.getStrategyParamsById(strategySelector);
         expect(returnedValue.network).to.equal(strategyParams.network);
         expect(returnedValue.approvalState).to.equal(strategyParams.approvalState);
         expect(returnedValue.lockedVaultAddr).to.equal(strategyParams.lockedVaultAddr);
@@ -284,24 +284,25 @@ describe("Local Registrar", function () {
       });
 
       it("Should let the owner change the approval state", async function () {
-        await expect(registrar.setStrategyApprovalState(strategyId, StrategyApprovalState.APPROVED))
-          .to.not.be.reverted;
-        let returnedValue = await registrar.getStrategyApprovalState(strategyId);
+        await expect(
+          registrar.setStrategyApprovalState(strategySelector, StrategyApprovalState.APPROVED)
+        ).to.not.be.reverted;
+        let returnedValue = await registrar.getStrategyApprovalState(strategySelector);
         expect(returnedValue).to.equal(StrategyApprovalState.APPROVED);
         await expect(
-          registrar.setStrategyApprovalState(strategyId, StrategyApprovalState.WITHDRAW_ONLY)
+          registrar.setStrategyApprovalState(strategySelector, StrategyApprovalState.WITHDRAW_ONLY)
         ).to.not.be.reverted;
-        returnedValue = await registrar.getStrategyApprovalState(strategyId);
+        returnedValue = await registrar.getStrategyApprovalState(strategySelector);
         expect(returnedValue).to.equal(StrategyApprovalState.WITHDRAW_ONLY);
         await expect(
-          registrar.setStrategyApprovalState(strategyId, StrategyApprovalState.DEPRECATED)
+          registrar.setStrategyApprovalState(strategySelector, StrategyApprovalState.DEPRECATED)
         ).to.not.be.reverted;
-        returnedValue = await registrar.getStrategyApprovalState(strategyId);
+        returnedValue = await registrar.getStrategyApprovalState(strategySelector);
         expect(returnedValue).to.equal(StrategyApprovalState.DEPRECATED);
         await expect(
-          registrar.setStrategyApprovalState(strategyId, StrategyApprovalState.NOT_APPROVED)
+          registrar.setStrategyApprovalState(strategySelector, StrategyApprovalState.NOT_APPROVED)
         ).to.not.be.reverted;
-        returnedValue = await registrar.getStrategyApprovalState(strategyId);
+        returnedValue = await registrar.getStrategyApprovalState(strategySelector);
         expect(returnedValue).to.equal(StrategyApprovalState.NOT_APPROVED);
       });
     });
@@ -365,7 +366,7 @@ describe("Local Registrar", function () {
     beforeEach(async function () {
       registrar = await deployRegistrarAsProxy();
     });
-    let strategyId = "0xffffffff"; // random 4-byte hash
+    let strategySelector = "0xffffffff"; // random 4-byte hash
     let strategyParams: LocalRegistrarLib.StrategyParamsStruct = {
       approvalState: StrategyApprovalState.APPROVED,
       network: originatingChain,
@@ -389,14 +390,14 @@ describe("Local Registrar", function () {
 
     it("should emit StrategyApprovalUpdated", async function () {
       await expect(
-        registrar.setStrategyApprovalState(strategyId, StrategyApprovalState.APPROVED)
+        registrar.setStrategyApprovalState(strategySelector, StrategyApprovalState.APPROVED)
       ).to.emit(registrar, "StrategyApprovalUpdated");
     });
 
     it("should emit StrategyParamsUpdated", async function () {
       await expect(
         registrar.setStrategyParams(
-          strategyId,
+          strategySelector,
           strategyParams.network,
           strategyParams.liquidVaultAddr,
           strategyParams.lockedVaultAddr,

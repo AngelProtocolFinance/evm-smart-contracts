@@ -128,7 +128,7 @@ contract AccountsStrategy is
     if (Validator.compareStrings(state.config.networkName, stratParams.network)) {
       IVault.VaultActionData memory payload = IVault.VaultActionData({
         destinationChain: state.config.networkName,
-        strategyId: investRequest.strategy,
+        strategySelector: investRequest.strategy,
         selector: IVault.deposit.selector,
         accountIds: accts,
         token: tokenAddress,
@@ -157,7 +157,7 @@ contract AccountsStrategy is
         .queryNetworkConnection(stratParams.network);
       IVault.VaultActionData memory payload = IVault.VaultActionData({
         destinationChain: stratParams.network,
-        strategyId: investRequest.strategy,
+        strategySelector: investRequest.strategy,
         selector: IVault.deposit.selector,
         accountIds: accts,
         token: tokenAddress,
@@ -259,7 +259,7 @@ contract AccountsStrategy is
     if (Validator.compareStrings(state.config.networkName, stratParams.network)) {
       IVault.VaultActionData memory payload = IVault.VaultActionData({
         destinationChain: state.config.networkName,
-        strategyId: redeemRequest.strategy,
+        strategySelector: redeemRequest.strategy,
         selector: IVault.redeem.selector,
         accountIds: accts,
         token: tokenAddress,
@@ -298,7 +298,7 @@ contract AccountsStrategy is
         .queryNetworkConnection(stratParams.network);
       IVault.VaultActionData memory payload = IVault.VaultActionData({
         destinationChain: stratParams.network,
-        strategyId: redeemRequest.strategy,
+        strategySelector: redeemRequest.strategy,
         selector: IVault.redeem.selector,
         accountIds: accts,
         token: tokenAddress,
@@ -396,7 +396,7 @@ contract AccountsStrategy is
     if (Validator.compareStrings(state.config.networkName, stratParams.network)) {
       IVault.VaultActionData memory payload = IVault.VaultActionData({
         destinationChain: state.config.networkName,
-        strategyId: redeemAllRequest.strategy,
+        strategySelector: redeemAllRequest.strategy,
         selector: IVault.redeemAll.selector,
         accountIds: accts,
         token: tokenAddress,
@@ -434,7 +434,7 @@ contract AccountsStrategy is
         .queryNetworkConnection(stratParams.network);
       IVault.VaultActionData memory payload = IVault.VaultActionData({
         destinationChain: stratParams.network,
-        strategyId: redeemAllRequest.strategy,
+        strategySelector: redeemAllRequest.strategy,
         selector: IVault.redeemAll.selector,
         accountIds: accts,
         token: tokenAddress,
@@ -490,7 +490,7 @@ contract AccountsStrategy is
       state.Balances[id][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
       emit EndowmentRedeemed(
         id,
-        response.strategyId,
+        response.strategySelector,
         response.destinationChain,
         response.token,
         response.lockAmt,
@@ -511,7 +511,7 @@ contract AccountsStrategy is
         state.Balances[id][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
         emit EndowmentRedeemed(
           id,
-          response.strategyId,
+          response.strategySelector,
           response.destinationChain,
           response.token,
           response.lockAmt,
@@ -521,10 +521,10 @@ contract AccountsStrategy is
       } else if (response.status == IVault.VaultActionStatus.POSITION_EXITED) {
         state.Balances[id][IVault.VaultType.LOCKED][response.token] += response.lockAmt;
         state.Balances[id][IVault.VaultType.LIQUID][response.token] += response.liqAmt;
-        IterableMappingStrategy.remove(state.ActiveStrategies[id], response.strategyId);
+        IterableMappingStrategy.remove(state.ActiveStrategies[id], response.strategySelector);
         emit EndowmentRedeemed(
           id,
-          response.strategyId,
+          response.strategySelector,
           response.destinationChain,
           response.token,
           response.lockAmt,
@@ -594,7 +594,7 @@ contract AccountsStrategy is
   ) internal view {
     AccountStorage.State storage state = LibAccounts.diamondStorage();
     LocalRegistrarLib.StrategyParams memory stratParams = IRegistrar(state.config.registrarContract)
-      .getStrategyParamsById(response.strategyId);
+      .getStrategyParamsById(response.strategySelector);
     if (!Validator.compareStrings(sourceChain, stratParams.network)) {
       revert UnexpectedCaller(response, sourceChain, sourceAddress);
     }

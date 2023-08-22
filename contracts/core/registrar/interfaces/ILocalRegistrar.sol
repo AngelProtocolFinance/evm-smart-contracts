@@ -14,11 +14,11 @@ interface ILocalRegistrar {
   event AccountsContractStorageUpdated(string _chainName, string _accountsContractAddress);
   event TokenAcceptanceUpdated(address _tokenAddr, bool _isAccepted);
   event StrategyApprovalUpdated(
-    bytes4 _strategyId,
+    bytes4 _strategySelector,
     LocalRegistrarLib.StrategyApprovalState _approvalState
   );
   event StrategyParamsUpdated(
-    bytes4 _strategyId,
+    bytes4 _strategySelector,
     string _network,
     address _lockAddr,
     address _liqAddr,
@@ -41,7 +41,7 @@ interface ILocalRegistrar {
   ) external view returns (string memory);
 
   function getStrategyParamsById(
-    bytes4 _strategyId
+    bytes4 _strategySelector
   ) external view returns (LocalRegistrarLib.StrategyParams memory);
 
   function isTokenAccepted(address _tokenAddr) external view returns (bool);
@@ -49,7 +49,7 @@ interface ILocalRegistrar {
   function getGasByToken(address _tokenAddr) external view returns (uint256);
 
   function getStrategyApprovalState(
-    bytes4 _strategyId
+    bytes4 _strategySelector
   ) external view returns (LocalRegistrarLib.StrategyApprovalState);
 
   function getFeeSettingsByFeeType(
@@ -75,22 +75,22 @@ interface ILocalRegistrar {
   ) external;
 
   /// @notice Change whether a strategy is approved
-  /// @dev Set the approval bool for a specified strategyId.
-  /// @param _strategyId a uid for each strategy set by:
+  /// @dev Set the approval bool for a specified strategySelector.
+  /// @param _strategySelector a uid for each strategy set by:
   /// bytes4(keccak256("StrategyName"))
   function setStrategyApprovalState(
-    bytes4 _strategyId,
+    bytes4 _strategySelector,
     LocalRegistrarLib.StrategyApprovalState _approvalState
   ) external;
 
   /// @notice Change which pair of vault addresses a strategy points to
-  /// @dev Set the approval bool and both locked/liq vault addrs for a specified strategyId.
-  /// @param _strategyId a uid for each strategy set by:
+  /// @dev Set the approval bool and both locked/liq vault addrs for a specified strategySelector.
+  /// @param _strategySelector a uid for each strategy set by:
   /// bytes4(keccak256("StrategyName"))
   /// @param _liqAddr address to a comptaible Liquid type Vault
   /// @param _lockAddr address to a compatible Locked type Vault
   function setStrategyParams(
-    bytes4 _strategyId,
+    bytes4 _strategySelector,
     string memory _network,
     address _liqAddr,
     address _lockAddr,

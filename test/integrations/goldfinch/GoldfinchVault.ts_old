@@ -48,7 +48,7 @@ describe("Goldfinch Vault", function () {
     LOCKED,
     LIQUID,
   }
-  let strategyId = "0x1fd10064"; // bytes4(keccak256(abi.encode("Goldfinch")));
+  let strategySelector = "0x1fd10064"; // bytes4(keccak256(abi.encode("Goldfinch")));
   let strategyParams = {
     approvalState: StrategyApprovalState.APPROVED,
     Locked: {
@@ -78,7 +78,7 @@ describe("Goldfinch Vault", function () {
 
     // Set the strategy params in the registrar for Goldfinch
     await registrar.setStrategyParams(
-      strategyId,
+      strategySelector,
       strategyParams.lockedVaultAddr,
       strategyParams.liquidVaultAddr,
       strategyParams.approvalState
@@ -252,7 +252,7 @@ describe("Goldfinch Vault", function () {
       updatedStrategyParams.liquidVaultAddr = liquidVault.address;
       updatedStrategyParams.lockedVaultAddr = lockedVault.address;
       await registrar.setStrategyParams(
-        strategyId,
+        strategySelector,
         updatedStrategyParams.lockedVaultAddr,
         updatedStrategyParams.liquidVaultAddr,
         updatedStrategyParams.approvalState
@@ -401,7 +401,7 @@ describe("Goldfinch Vault", function () {
       updatedStrategyParams.liquidVaultAddr = liquidVault.address;
       updatedStrategyParams.lockedVaultAddr = lockedVault.address;
       await registrar.setStrategyParams(
-        strategyId,
+        strategySelector,
         updatedStrategyParams.lockedVaultAddr,
         updatedStrategyParams.liquidVaultAddr,
         updatedStrategyParams.approvalState
@@ -576,7 +576,7 @@ describe("Goldfinch Vault", function () {
       updatedStrategyParams.liquidVaultAddr = liquidVault.address;
       updatedStrategyParams.lockedVaultAddr = lockedVault.address;
       await registrar.setStrategyParams(
-        strategyId,
+        strategySelector,
         updatedStrategyParams.lockedVaultAddr,
         updatedStrategyParams.liquidVaultAddr,
         updatedStrategyParams.approvalState
@@ -700,7 +700,7 @@ describe("Goldfinch Vault", function () {
       updatedStrategyParams.liquidVaultAddr = liquidVault.address;
       updatedStrategyParams.lockedVaultAddr = lockedVault.address;
       await registrar.setStrategyParams(
-        strategyId,
+        strategySelector,
         updatedStrategyParams.lockedVaultAddr,
         updatedStrategyParams.liquidVaultAddr,
         updatedStrategyParams.approvalState

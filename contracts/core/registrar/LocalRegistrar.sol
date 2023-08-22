@@ -64,10 +64,10 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
   }
 
   function getStrategyParamsById(
-    bytes4 _strategyId
+    bytes4 _strategySelector
   ) external view override returns (LocalRegistrarLib.StrategyParams memory) {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
-    return lrs.VaultsByStrategyId[_strategyId];
+    return lrs.VaultsByStrategyId[_strategySelector];
   }
 
   function isTokenAccepted(address _tokenAddr) external view returns (bool) {
@@ -76,10 +76,10 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
   }
 
   function getStrategyApprovalState(
-    bytes4 _strategyId
+    bytes4 _strategySelector
   ) external view override returns (LocalRegistrarLib.StrategyApprovalState) {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
-    return lrs.VaultsByStrategyId[_strategyId].approvalState;
+    return lrs.VaultsByStrategyId[_strategySelector].approvalState;
   }
 
   function getGasByToken(address _tokenAddr) external view returns (uint256) {
@@ -158,17 +158,17 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
   }
 
   function setStrategyApprovalState(
-    bytes4 _strategyId,
+    bytes4 _strategySelector,
     LocalRegistrarLib.StrategyApprovalState _approvalState
   ) public virtual override onlyOwner {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
 
-    lrs.VaultsByStrategyId[_strategyId].approvalState = _approvalState;
-    emit StrategyApprovalUpdated(_strategyId, _approvalState);
+    lrs.VaultsByStrategyId[_strategySelector].approvalState = _approvalState;
+    emit StrategyApprovalUpdated(_strategySelector, _approvalState);
   }
 
   function setStrategyParams(
-    bytes4 _strategyId,
+    bytes4 _strategySelector,
     string memory _network,
     address _lockAddr,
     address _liqAddr,
@@ -176,13 +176,13 @@ contract LocalRegistrar is ILocalRegistrar, Initializable, OwnableUpgradeable {
   ) public virtual onlyOwner {
     LocalRegistrarLib.LocalRegistrarStorage storage lrs = LocalRegistrarLib.localRegistrarStorage();
 
-    lrs.VaultsByStrategyId[_strategyId] = LocalRegistrarLib.StrategyParams(
+    lrs.VaultsByStrategyId[_strategySelector] = LocalRegistrarLib.StrategyParams(
       _approvalState,
       _network,
       _lockAddr,
       _liqAddr
     );
-    emit StrategyParamsUpdated(_strategyId, _network, _lockAddr, _liqAddr, _approvalState);
+    emit StrategyParamsUpdated(_strategySelector, _network, _lockAddr, _liqAddr, _approvalState);
   }
 
   function setVaultOperatorApproved(
